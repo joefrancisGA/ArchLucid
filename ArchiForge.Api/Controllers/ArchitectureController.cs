@@ -21,6 +21,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IGoldenManifestRepository _manifestRepository;
     private readonly IEvidenceBundleRepository _evidenceBundleRepository;
     private readonly IDecisionTraceRepository _decisionTraceRepository;
+    private readonly IArchitectureRequestRepository _requestRepository;
 
     public ArchitectureController(
         ICoordinatorService coordinatorService,
@@ -30,7 +31,8 @@ public sealed class ArchitectureController : ControllerBase
         IAgentResultRepository resultRepository,
         IGoldenManifestRepository manifestRepository,
         IEvidenceBundleRepository evidenceBundleRepository,
-        IDecisionTraceRepository decisionTraceRepository)
+        IDecisionTraceRepository decisionTraceRepository,
+        IArchitectureRequestRepository requestRepository)
     {
         _coordinatorService = coordinatorService;
         _decisionEngineService = decisionEngineService;
@@ -40,6 +42,7 @@ public sealed class ArchitectureController : ControllerBase
         _manifestRepository = manifestRepository;
         _evidenceBundleRepository = evidenceBundleRepository;
         _decisionTraceRepository = decisionTraceRepository;
+        _requestRepository = requestRepository;
     }
 
     [HttpPost("request")]
@@ -61,6 +64,7 @@ public sealed class ArchitectureController : ControllerBase
             return BadRequest(new { errors = coordination.Errors });
         }
 
+        await _requestRepository.CreateAsync(request, cancellationToken);
         await _runRepository.CreateAsync(coordination.Run, cancellationToken);
         await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
         await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
@@ -174,21 +178,66 @@ public sealed class ArchitectureController : ControllerBase
             return NotFound(new { error = $"Run '{runId}' was not found." });
         }
 
+        var request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
+        if (request is null)
+        {
+            return NotFound(new
+            {
+                error = $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found."
+            });
+        }
+
         var allResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
         if (allResults.Count == 0)
         {
             return BadRequest(new { error = "Cannot commit run with no agent results." });
         }
 
-        // In Week 1, request reconstruction can be replaced later by a real request repository.
-        // For now, derive a minimal request from run metadata if needed, or preferably persist requests separately.
-        // Here we assume you have the original request available from a request repository.
-        return BadRequest(new
-        {
-            error = "Week 1 commit requires access to the original ArchitectureRequest. Add an IArchitectureRequestRepository and wire it here."
-        });
-    }
+        var manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+            ? "v1"
+            : IncrementManifestVersion(run.CurrentManifestVersion);
 
+        var merge = _decisionEngineService.MergeResults(
+            request,
+            manifestVersion,
+            allResults,
+            parentManifestVersion: run.CurrentManifestVersion);
+
+        if (!merge.Success)
+        {
+            await _runRepository.UpdateStatusAsync(
+                runId,
+                ArchitectureRunStatus.Failed,
+                currentManifestVersion: run.CurrentManifestVersion,
+                completedUtc: DateTime.UtcNow,
+                cancellationToken: cancellationToken);
+
+            return BadRequest(new
+            {
+                errors = merge.Errors,
+                warnings = merge.Warnings
+            });
+        }
+
+        await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
+        await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
+
+        await _runRepository.UpdateStatusAsync(
+            runId,
+            ArchitectureRunStatus.Committed,
+            currentManifestVersion: merge.Manifest.Metadata.ManifestVersion,
+            completedUtc: DateTime.UtcNow,
+            cancellationToken: cancellationToken);
+
+        var response = new CommitRunResponse
+        {
+            Manifest = merge.Manifest,
+            DecisionTraces = merge.DecisionTraces,
+            Warnings = merge.Warnings
+        };
+
+        return Ok(response);
+    }
     [HttpGet("manifest/{version}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
@@ -203,5 +252,19 @@ public sealed class ArchitectureController : ControllerBase
         }
 
         return Ok(manifest);
+    }
+
+    private static string IncrementManifestVersion(string currentVersion)
+    {
+        if (string.IsNullOrWhiteSpace(currentVersion))
+            return "v1";
+
+        if (currentVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase) &&
+            int.TryParse(currentVersion[1..], out var versionNumber))
+        {
+            return $"v{versionNumber + 1}";
+        }
+
+        return "v1";
     }
 }
