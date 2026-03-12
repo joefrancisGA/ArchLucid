@@ -198,6 +198,7 @@ public sealed class ArchitectureController : ControllerBase
             : IncrementManifestVersion(run.CurrentManifestVersion);
 
         var merge = _decisionEngineService.MergeResults(
+            runId,
             request,
             manifestVersion,
             allResults,

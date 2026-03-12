@@ -570,4 +570,9 @@ public sealed class DecisionEngineService : IDecisionEngineService
             RelationshipType = source.RelationshipType,
             Description = source.Description
         };
+
+    public DecisionMergeResult MergeResults(string runId, ArchitectureRequest request, string manifestVersion, IReadOnlyCollection<AgentResult> results, string? parentManifestVersion = null)
+    {
+        throw new NotImplementedException();
+    }
 }

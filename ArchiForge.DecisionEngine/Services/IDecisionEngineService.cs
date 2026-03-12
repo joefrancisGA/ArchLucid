@@ -6,6 +6,7 @@ namespace ArchiForge.DecisionEngine.Services;
 public interface IDecisionEngineService
 {
     DecisionMergeResult MergeResults(
+        string runId,
         ArchitectureRequest request,
         string manifestVersion,
         IReadOnlyCollection<AgentResult> results,
