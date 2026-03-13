@@ -30,6 +30,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Api.Tests", "Arc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Fixtures", "Fixtures", "{D32098F6-7916-4389-9210-A50803425AC0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "requests", "requests", "{D178DC34-A724-4492-A31F-3812DA69FB4C}"
+	ProjectSection(SolutionItems) = preProject
+		enterprise-rag-request.json = enterprise-rag-request.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "results", "results", "{64DDAD70-E4DB-401E-AD8A-235C97409E14}"
+	ProjectSection(SolutionItems) = preProject
+		compliance-result.json = compliance-result.json
+		cost-result.json = cost-result.json
+		topology-result.json = topology-result.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "expected", "expected", "{1B09D673-406E-4BF4-95DF-557D9147521D}"
+	ProjectSection(SolutionItems) = preProject
+		expected-manifest-summary.json = expected-manifest-summary.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +104,9 @@ Global
 		{D84FD236-A30A-49ED-BE82-53D481026B8F} = {128DBBE7-315A-4005-BED1-BA51A521D8FB}
 		{43069D07-AE75-4A8A-9018-05486D334390} = {128DBBE7-315A-4005-BED1-BA51A521D8FB}
 		{D32098F6-7916-4389-9210-A50803425AC0} = {128DBBE7-315A-4005-BED1-BA51A521D8FB}
+		{D178DC34-A724-4492-A31F-3812DA69FB4C} = {D32098F6-7916-4389-9210-A50803425AC0}
+		{64DDAD70-E4DB-401E-AD8A-235C97409E14} = {D32098F6-7916-4389-9210-A50803425AC0}
+		{1B09D673-406E-4BF4-95DF-557D9147521D} = {D32098F6-7916-4389-9210-A50803425AC0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FD97131-0FD0-4645-8251-FB97CFE92CE5}

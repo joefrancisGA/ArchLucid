@@ -1,10 +1,16 @@
-﻿using System.Text;
-using System.Text.Json;
+using ArchiForge.Api.Tests;
+using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Requests;
+using ArchiForge.DecisionEngine.Services;
 using FluentAssertions;
+using System.Text;
+using System.Text.Json;
 using Xunit;
 
 public class ArchitectureTests : IntegrationTestBase
 {
+    private static readonly DecisionEngineService _engine = new();
+
     public ArchitectureTests(ArchiForgeApiFactory factory)
         : base(factory)
     {
@@ -79,5 +85,51 @@ public class ArchitectureTests : IntegrationTestBase
             "/architecture/manifest/v1");
 
         manifest.EnsureSuccessStatusCode();
+    }
+
+    [Fact]
+    public void DecisionEngine_FixtureScenario_ProducesExpectedArchitecture()
+    {
+        var request =
+            FixtureLoader.Load<ArchitectureRequest>(
+                "requests/enterprise-rag-request.json");
+
+        var topology =
+            FixtureLoader.Load<AgentResult>(
+                "results/topology-result.json");
+
+        var cost =
+            FixtureLoader.Load<AgentResult>(
+                "results/cost-result.json");
+
+        var compliance =
+            FixtureLoader.Load<AgentResult>(
+                "results/compliance-result.json");
+
+        var expected =
+            FixtureLoader.Load<ExpectedManifestSummary>(
+                "expected/expected-manifest-summary.json");
+
+        var result = _engine.MergeResults(
+            "RUN-FIXTURE",
+            request,
+            "v1",
+            new[] { topology, cost, compliance });
+
+        result.Success.Should().BeTrue();
+
+        result.Manifest.Services
+            .Select(s => s.ServiceName)
+            .Should()
+            .Contain(expected.Services);
+
+        result.Manifest.Datastores
+            .Select(d => d.DatastoreName)
+            .Should()
+            .Contain(expected.Datastores);
+
+        result.Manifest.Governance.RequiredControls
+            .Should()
+            .Contain(expected.RequiredControls);
     }
 }

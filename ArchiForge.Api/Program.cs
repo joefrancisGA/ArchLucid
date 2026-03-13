@@ -1,7 +1,7 @@
-
 using ArchiForge.Coordinator.Services;
-using ArchiForge.DecisionEngine.Services;
+using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
+using ArchiForge.DecisionEngine.Services;
 
 namespace ArchiForge.Api
 {
@@ -17,10 +17,9 @@ namespace ArchiForge.Api
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
+            builder.Services.AddSingleton<SqlConnectionFactory>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
-
-            // Replace these with real implementations in ArchiForge.Data
             builder.Services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
             builder.Services.AddScoped<IArchitectureRunRepository, ArchitectureRunRepository>();
             builder.Services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();

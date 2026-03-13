@@ -1,0 +1,29 @@
+{
+  "resultId": "RES-COMP-001",
+  "taskId": "TASK-COMP-001",
+  "runId": "RUN-FIXTURE",
+  "agentType": "Compliance",
+  "claims": [
+    "Managed identity required for service authentication",
+    "Private endpoints required for data services",
+    "Key Vault required for secrets"
+  ],
+  "evidenceRefs": [
+    "enterprise-security-policy"
+  ],
+  "confidence": 0.96,
+  "proposedChanges": {
+    "proposalId": "PROP-COMP-001",
+    "sourceAgent": "Compliance",
+    "requiredControls": [
+      "Managed Identity",
+      "Private Endpoints",
+      "Key Vault",
+      "Encryption At Rest"
+    ],
+    "complianceTags": [
+      "enterprise",
+      "internal-data"
+    ]
+  }
+}
