@@ -30,7 +30,20 @@ namespace ArchiForge.Api
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            app.UseExceptionHandler(exceptionHandlerApp =>
+            {
+                exceptionHandlerApp.Run(async context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    context.Response.ContentType = "application/json";
+                    await context.Response.WriteAsJsonAsync(new
+                    {
+                        error = "An unexpected error occurred.",
+                        requestId = context.TraceIdentifier
+                    });
+                });
+            });
+
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
