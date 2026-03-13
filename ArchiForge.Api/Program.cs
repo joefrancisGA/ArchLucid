@@ -1,5 +1,7 @@
 using ArchiForge.Api.Health;
+using ArchiForge.Api.Validators;
 using ArchiForge.Coordinator.Services;
+using FluentValidation;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
@@ -16,6 +18,8 @@ namespace ArchiForge.Api
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddValidatorsFromAssemblyContaining<ArchitectureRequestValidator>();
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
