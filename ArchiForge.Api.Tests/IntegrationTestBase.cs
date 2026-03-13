@@ -17,4 +17,9 @@ public class IntegrationTestBase : IClassFixture<ArchiForgeApiFactory>
         var json = JsonSerializer.Serialize(value, new JsonOptions().JsonSerializerOptions);
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
+
+    protected readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true
+    };
 }
