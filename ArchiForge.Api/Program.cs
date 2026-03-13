@@ -23,7 +23,7 @@ namespace ArchiForge.Api
                 c.SwaggerDoc("v1", new() { Title = "ArchiForge API", Version = "v1" });
             });
 
-            builder.Services.AddSingleton<SqlConnectionFactory>();
+            builder.Services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
             builder.Services.AddHealthChecks()
                 .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();

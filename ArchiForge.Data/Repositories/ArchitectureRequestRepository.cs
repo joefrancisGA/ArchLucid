@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Data.Infrastructure;
@@ -8,9 +8,9 @@ namespace ArchiForge.Data.Repositories;
 
 public sealed class ArchitectureRequestRepository : IArchitectureRequestRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public ArchitectureRequestRepository(SqlConnectionFactory connectionFactory)
+    public ArchitectureRequestRepository(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Data.Infrastructure;
@@ -8,9 +8,9 @@ namespace ArchiForge.Data.Repositories;
 
 public sealed class GoldenManifestRepository : IGoldenManifestRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public GoldenManifestRepository(SqlConnectionFactory connectionFactory)
+    public GoldenManifestRepository(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }

@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Data.Infrastructure;
 using Dapper;
@@ -7,9 +7,9 @@ namespace ArchiForge.Data.Repositories;
 
 public sealed class AgentTaskRepository : IAgentTaskRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public AgentTaskRepository(SqlConnectionFactory connectionFactory)
+    public AgentTaskRepository(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }

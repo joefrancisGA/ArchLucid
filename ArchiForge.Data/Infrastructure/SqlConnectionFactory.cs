@@ -1,10 +1,10 @@
-﻿using System.Data;
+using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchiForge.Data.Infrastructure;
 
-public sealed class SqlConnectionFactory
+public sealed class SqlConnectionFactory : IDbConnectionFactory
 {
     private readonly string _connectionString;
 

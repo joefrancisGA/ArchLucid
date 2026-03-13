@@ -1,6 +1,22 @@
-﻿using ArchiForge.Api;
+using ArchiForge.Api;
+using ArchiForge.Data.Infrastructure;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 
 public class ArchiForgeApiFactory : WebApplicationFactory<Program>
 {
+    private const string SqliteInMemoryConnectionString = "Data Source=file:archiforge-test?mode=memory&cache=shared";
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.ConfigureServices(services =>
+        {
+            var descriptors = services.Where(d => d.ServiceType == typeof(IDbConnectionFactory)).ToList();
+            foreach (var d in descriptors)
+                services.Remove(d);
+            services.AddSingleton<IDbConnectionFactory>(
+                new SqliteConnectionFactory(SqliteInMemoryConnectionString));
+        });
+    }
 }

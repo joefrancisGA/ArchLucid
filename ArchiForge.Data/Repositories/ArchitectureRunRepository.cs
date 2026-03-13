@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Infrastructure;
 using Dapper;
@@ -7,9 +7,9 @@ namespace ArchiForge.Data.Repositories;
 
 public sealed class ArchitectureRunRepository : IArchitectureRunRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public ArchitectureRunRepository(SqlConnectionFactory connectionFactory)
+    public ArchitectureRunRepository(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }

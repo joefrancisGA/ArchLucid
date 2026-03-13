@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Data.Infrastructure;
@@ -8,9 +8,9 @@ namespace ArchiForge.Data.Repositories;
 
 public sealed class AgentResultRepository : IAgentResultRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public AgentResultRepository(SqlConnectionFactory connectionFactory)
+    public AgentResultRepository(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }

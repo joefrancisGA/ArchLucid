@@ -6,9 +6,9 @@ namespace ArchiForge.Api.Health;
 
 public sealed class SqlConnectionHealthCheck : IHealthCheck
 {
-    private readonly SqlConnectionFactory _connectionFactory;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public SqlConnectionHealthCheck(SqlConnectionFactory connectionFactory)
+    public SqlConnectionHealthCheck(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }

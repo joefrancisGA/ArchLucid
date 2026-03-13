@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Infrastructure;
@@ -8,9 +8,9 @@ namespace ArchiForge.Data.Repositories;
 
 public sealed class DecisionTraceRepository : IDecisionTraceRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public DecisionTraceRepository(SqlConnectionFactory connectionFactory)
+    public DecisionTraceRepository(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }
