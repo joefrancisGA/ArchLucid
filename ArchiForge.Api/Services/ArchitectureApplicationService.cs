@@ -8,6 +8,7 @@ using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Services;
 
@@ -22,6 +23,7 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
     private readonly IEvidenceBundleRepository _evidenceBundleRepository;
     private readonly IDecisionTraceRepository _decisionTraceRepository;
     private readonly IArchitectureRequestRepository _requestRepository;
+    private readonly ILogger<ArchitectureApplicationService> _logger;
 
     public ArchitectureApplicationService(
         ICoordinatorService coordinatorService,
@@ -43,6 +45,7 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         _evidenceBundleRepository = evidenceBundleRepository;
         _decisionTraceRepository = decisionTraceRepository;
         _requestRepository = requestRepository;
+        _logger = logger;
     }
 
     public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
@@ -50,6 +53,8 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         var coordination = _coordinatorService.CreateRun(request);
         if (!coordination.Success)
         {
+            _logger.LogWarning("Create run failed for RequestId {RequestId}: {Errors}",
+                request.RequestId, string.Join("; ", coordination.Errors));
             return new CreateRunResult(false, null, coordination.Errors);
         }
 
@@ -57,6 +62,9 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         await _runRepository.CreateAsync(coordination.Run, cancellationToken);
         await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
         await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
+
+        _logger.LogInformation("Architecture run created: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}",
+            coordination.Run.RunId, request.RequestId, request.SystemName);
 
         var response = new CreateArchitectureRunResponse
         {
@@ -105,6 +113,9 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
             currentManifestVersion: run.CurrentManifestVersion,
             completedUtc: null,
             cancellationToken: cancellationToken);
+
+        _logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
+            runId, result.ResultId, result.AgentType, newStatus);
 
         return new SubmitResultResult(true, result.ResultId, null);
     }
@@ -169,6 +180,10 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
             DecisionTraces = merge.DecisionTraces,
             Warnings = merge.Warnings
         };
+
+        _logger.LogInformation("Run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, SystemName={SystemName}",
+            runId, merge.Manifest.Metadata.ManifestVersion, merge.Manifest.SystemName);
+
         return new CommitRunResult(true, response, [], merge.Warnings);
     }
 
@@ -211,6 +226,8 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
             currentManifestVersion: run.CurrentManifestVersion,
             completedUtc: null,
             cancellationToken: cancellationToken);
+
+        _logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}", runId, fakeResults.Count);
 
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
     }

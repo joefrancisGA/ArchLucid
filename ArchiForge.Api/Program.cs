@@ -1,4 +1,5 @@
 using ArchiForge.Api.Health;
+using Serilog;
 using ArchiForge.Api.Services;
 using ArchiForge.Api.Validators;
 using ArchiForge.Coordinator.Services;
@@ -16,6 +17,11 @@ namespace ArchiForge.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Host.UseSerilog((context, services, configuration) => configuration
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext());
 
             // Add services to the container.
 
