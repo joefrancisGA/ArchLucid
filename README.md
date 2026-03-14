@@ -77,29 +77,58 @@ Other endpoints:
 
 ## CLI (ConsoleTest)
 
-From a project directory containing `archiforge.json` and `inputs/brief.md`:
+The ArchiForge CLI lets you create projects, run architecture requests against the API, and inspect results. Run commands with:
 
 ```bash
-# Create a new project
+dotnet run --project ConsoleTest -- <command> [options]
+```
+
+### Prerequisites
+
+- .NET 9 SDK
+- ArchiForge API running (e.g. `dotnet run --project ArchiForge.Api`)
+- For `run`, `status`, `commit`, `seed`, `artifacts`: a project directory with `archiforge.json` and `inputs/brief.md`
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `new <projectName>` | Create a new project skeleton with `archiforge.json`, `inputs/brief.md`, `outputs/`, and Terraform stubs |
+| `dev up` | Start SQL Server, Azurite, and Redis via Docker Compose (requires `docker-compose.yml` in repo root) |
+| `run` | Submit an architecture request to the API. Reads `archiforge.json` and `inputs/brief.md` |
+| `run --quick` | Same as `run`, then seeds fake results and commits in one step (Development only) |
+| `status <runId>` | Show run status, tasks, and submitted results |
+| `seed <runId>` | Seed fake agent results for a run (Development only; for smoke testing) |
+| `commit <runId>` | Merge results and produce a versioned manifest |
+| `artifacts <runId>` | Fetch and display the committed manifest for a run |
+
+### Typical workflow
+
+```bash
+# 1. Create a new project
 dotnet run --project ConsoleTest -- new MyProject
+cd MyProject
 
-# Start dev services (Docker)
-dotnet run --project ConsoleTest -- dev up
+# 2. Edit inputs/brief.md with your architecture brief (min 10 chars)
 
-# Create a run (submits to API)
+# 3. Start the API (in another terminal)
+cd .. && dotnet run --project ArchiForge.Api
+
+# 4a. Full flow: create run, submit agent results externally, then commit
 dotnet run --project ConsoleTest -- run
-
-# Quick dev flow: create run, seed fake results, and commit in one step
-dotnet run --project ConsoleTest -- run --quick
-
-# Check status, seed, commit, or view artifacts
 dotnet run --project ConsoleTest -- status <runId>
-dotnet run --project ConsoleTest -- seed <runId>      # Development only
+# ... submit results via API ...
 dotnet run --project ConsoleTest -- commit <runId>
+dotnet run --project ConsoleTest -- artifacts <runId>
+
+# 4b. Quick dev flow: create run, seed fake results, and commit in one step
+dotnet run --project ConsoleTest -- run --quick
 dotnet run --project ConsoleTest -- artifacts <runId>
 ```
 
-**API URL**: Set `apiUrl` in `archiforge.json` or the `ARCHIFORGE_API_URL` environment variable. Default: `http://localhost:5128`.
+### Configuration
+
+- **API URL**: Set `apiUrl` in `archiforge.json` or the `ARCHIFORGE_API_URL` environment variable. Default: `http://localhost:5128`.
 
 ## Project Structure
 
