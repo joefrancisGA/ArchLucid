@@ -35,6 +35,24 @@ namespace ArchiForge.Api
                 c.SwaggerDoc("v1", new() { Title = "ArchiForge API", Version = "v1" });
             });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("ArchiForge", policy =>
+                {
+                    var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+                    if (origins.Length > 0)
+                    {
+                        policy.WithOrigins(origins)
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    }
+                    else
+                    {
+                        policy.SetIsOriginAllowed(_ => false);
+                    }
+                });
+            });
+
             builder.Services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
             builder.Services.AddHealthChecks()
                 .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
@@ -79,6 +97,8 @@ namespace ArchiForge.Api
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("ArchiForge");
 
             app.UseAuthorization();
 
