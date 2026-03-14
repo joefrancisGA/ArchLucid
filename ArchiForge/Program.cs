@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -38,6 +39,7 @@ namespace ArchiForge
             }
 
             string command = args[0];
+            string runId;
 
             switch (command)
             {
@@ -68,19 +70,27 @@ namespace ArchiForge
 
                 case "status":
 
-                    if (args.Length <= 1) return;
+                    if (args.Length <= 1)
+                    {
+                        Console.WriteLine("Usage: archiforge status <runId>");
+                        return;
+                    }
 
-                    string runId = args[1];
-                    ArchiForge_Status(Convert.ToInt32(runId));
+                    runId = args[1];
+                    ArchiForge_Status(runId);
 
                     return;
 
                 case "artifacts":
 
-                    if (args.Length <= 1) return;
+                    if (args.Length <= 1)
+                    {
+                        Console.WriteLine("Usage: archiforge artifacts <runId>");
+                        return;
+                    }
 
                     runId = args[1];
-                    ArchiForge_Artifacts(Convert.ToInt32(runId));
+                    ArchiForge_Artifacts(runId);
 
                     return;
 
@@ -368,8 +378,73 @@ namespace ArchiForge
             Console.WriteLine(JsonSerializer.Serialize(doc.RootElement, options));
         }
 
-        private static void ArchiForge_Status(int runId)
+        private static void ArchiForge_Status(string runId)
         {
+            var baseUrl = Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL")?.TrimEnd('/')
+                ?? "http://localhost:5128";
+            var url = $"{baseUrl}/v1/architecture/run/{Uri.EscapeDataString(runId)}";
+
+            using var client = new HttpClient();
+            try
+            {
+                var response = client.GetAsync(url).GetAwaiter().GetResult();
+                var json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    using var errDoc = JsonDocument.Parse(json);
+                    var err = errDoc.RootElement.TryGetProperty("error", out var errProp)
+                        ? errProp.GetString()
+                        : response.ReasonPhrase ?? "Unknown error";
+                    Console.WriteLine($"Error: {err}");
+                    return;
+                }
+
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                var run = root.GetProperty("run");
+                var status = run.TryGetProperty("Status", out var sp) ? sp.GetInt32() : 0;
+                var statusName = status switch { 1 => "Created", 2 => "TasksGenerated", 3 => "WaitingForResults", 4 => "ReadyForCommit", 5 => "Committed", 6 => "Failed", _ => "Unknown" };
+
+                Console.WriteLine($"Run:    {run.GetProperty("RunId").GetString()}");
+                Console.WriteLine($"Status: {statusName}");
+                Console.WriteLine($"Request: {run.GetProperty("RequestId").GetString()}");
+                if (run.TryGetProperty("CurrentManifestVersion", out var mv) && mv.ValueKind == JsonValueKind.String)
+                {
+                    var v = mv.GetString();
+                    if (!string.IsNullOrEmpty(v)) Console.WriteLine($"Manifest: {v}");
+                }
+
+                if (root.TryGetProperty("tasks", out var tasks) && tasks.GetArrayLength() > 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Tasks:");
+                    foreach (var t in tasks.EnumerateArray())
+                    {
+                        var agentType = t.TryGetProperty("AgentType", out var at) ? at.GetInt32() : 0;
+                        var agentName = agentType switch { 1 => "Topology", 2 => "Cost", 3 => "Compliance", 4 => "Critic", _ => "Unknown" };
+                        var taskStatus = t.TryGetProperty("Status", out var ts) ? ts.GetInt32() : 0;
+                        var taskStatusName = taskStatus switch { 1 => "Created", 2 => "InProgress", 3 => "Completed", 4 => "Rejected", 5 => "Failed", _ => "Unknown" };
+                        var obj = t.TryGetProperty("Objective", out var o) ? o.GetString() : "";
+                        Console.WriteLine($"  - {agentName}: {taskStatusName}  {obj}");
+                    }
+                }
+
+                if (root.TryGetProperty("results", out var results) && results.GetArrayLength() > 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine($"Results: {results.GetArrayLength()} submitted");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Connection error: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"Invalid response: {ex.Message}");
+            }
         }
 
         /*{
