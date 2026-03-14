@@ -140,3 +140,4 @@ dotnet run --project ConsoleTest -- artifacts <runId>
 | ArchiForge.Coordinator | Run creation, task generation |
 | ArchiForge.DecisionEngine | Merges agent results into manifests |
 | ArchiForge.Data | Repositories, SQL persistence |
+| ConsoleTest | ArchiForge CLI: `new`, `run`, `status`, `commit`, `seed`, `artifacts`, `dev up` |
