@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -13,7 +14,7 @@ namespace ArchiForge
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Please provide a command. Available commands: new, dev up, run, status <runId>, commit <runId>, seed <runId>, artifacts <runId>");
+                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, commit <runId>, seed <runId>, artifacts <runId>");
                 return 1;
             }
 
@@ -37,7 +38,8 @@ namespace ArchiForge
                     return 1;
 
                 case "run":
-                    return await ArchiForge_RunAsync();
+                    var quick = args.Length > 1 && args[1] == "--quick";
+                    return await ArchiForge_RunAsync(quick);
 
                 case "status":
                     if (args.Length <= 1)
@@ -90,6 +92,21 @@ namespace ArchiForge
             };
             ArchiForgeProjectScaffolder.CreateProject(scaffoldOptions);
         }
+
+        private static ArchiForgeProjectScaffolder.ArchiForgeConfig? TryLoadConfigFromCwd()
+        {
+            try
+            {
+                return ArchiForgeProjectScaffolder.LoadConfig(Directory.GetCurrentDirectory());
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string GetBaseUrl(ArchiForgeProjectScaffolder.ArchiForgeConfig? config) =>
+            ArchiForgeApiClient.ResolveBaseUrl(config);
 
         private static int ArchiForge_Dev_Up()
         {
@@ -202,7 +219,7 @@ namespace ArchiForge
             };
         }
 
-        private static async Task<int> ArchiForge_RunAsync()
+        private static async Task<int> ArchiForge_RunAsync(bool quick = false)
         {
             string projectRoot = Directory.GetCurrentDirectory();
             ArchiForgeProjectScaffolder.ArchiForgeConfig config;
@@ -232,7 +249,7 @@ namespace ArchiForge
 
             var request = BuildArchitectureRequest(config, briefContent);
 
-            var baseUrl = ArchiForgeApiClient.GetDefaultBaseUrl();
+            var baseUrl = GetBaseUrl(config);
             var client = new ArchiForgeApiClient(baseUrl);
 
             Console.WriteLine($"Submitting request to {baseUrl}...");
@@ -264,6 +281,30 @@ namespace ArchiForge
                 Console.WriteLine($"  - {agentType}: {task.Objective}");
             }
             Console.WriteLine();
+            if (quick)
+            {
+                Console.WriteLine("Quick mode: seeding fake results and committing...");
+                var seedResult = await client.SeedFakeResultsAsync(resp.Run.RunId);
+                if (seedResult is null || !seedResult.Success)
+                {
+                    Console.WriteLine($"Warning: Seed failed. {seedResult?.Error ?? "Unknown"}");
+                    Console.WriteLine("Note: Seed is only available when the API runs in Development.");
+                    Console.WriteLine($"Continue with: archiforge seed {resp.Run.RunId} then archiforge commit {resp.Run.RunId}");
+                    return 0;
+                }
+                Console.WriteLine($"Seeded {seedResult.ResultCount} fake results.");
+                var commitResult = await client.CommitRunAsync(resp.Run.RunId);
+                if (commitResult is null || !commitResult.Success)
+                {
+                    Console.WriteLine($"Error: Commit failed. {commitResult?.Error ?? "Unknown"}");
+                    return 1;
+                }
+                var version = commitResult.Response?.Manifest?.Metadata?.ManifestVersion ?? "unknown";
+                Console.WriteLine($"Committed. Manifest version: {version}");
+                WriteRunSummary(summaryPath, baseUrl, resp.Run.RunId, resp.Run.RequestId, resp.Run.Status, resp.Run.CreatedUtc, resp.Tasks, version);
+                Console.WriteLine($"Use 'archiforge artifacts {resp.Run.RunId}' to view the manifest.");
+                return 0;
+            }
             Console.WriteLine($"Next: Submit agent results, then commit. Use 'archiforge status {resp.Run.RunId}' to check progress.");
             return 0;
         }
@@ -287,7 +328,7 @@ namespace ArchiForge
 
         private static async Task<int> ArchiForge_StatusAsync(string runId)
         {
-            var baseUrl = ArchiForgeApiClient.GetDefaultBaseUrl();
+            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             var client = new ArchiForgeApiClient(baseUrl);
 
             var run = await client.GetRunAsync(runId);
@@ -320,7 +361,7 @@ namespace ArchiForge
 
         private static async Task<int> ArchiForge_CommitAsync(string runId)
         {
-            var baseUrl = ArchiForgeApiClient.GetDefaultBaseUrl();
+            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             var client = new ArchiForgeApiClient(baseUrl);
 
             var result = await client.CommitRunAsync(runId);
@@ -347,7 +388,7 @@ namespace ArchiForge
 
         private static async Task<int> ArchiForge_SeedAsync(string runId)
         {
-            var baseUrl = ArchiForgeApiClient.GetDefaultBaseUrl();
+            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             var client = new ArchiForgeApiClient(baseUrl);
 
             var result = await client.SeedFakeResultsAsync(runId);
@@ -365,7 +406,7 @@ namespace ArchiForge
 
         private static async Task<int> ArchiForge_ArtifactsAsync(string runId)
         {
-            var baseUrl = ArchiForgeApiClient.GetDefaultBaseUrl();
+            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             var client = new ArchiForgeApiClient(baseUrl);
 
             var run = await client.GetRunAsync(runId);

@@ -34,6 +34,14 @@ public sealed class ArchiForgeApiClient
     public static string GetDefaultBaseUrl() =>
         Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL") ?? "http://localhost:5128";
 
+    /// <summary>Resolve API base URL: config.ApiUrl (when set) > ARCHIFORGE_API_URL env > default.</summary>
+    public static string ResolveBaseUrl(ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
+    {
+        if (!string.IsNullOrWhiteSpace(config?.ApiUrl))
+            return config.ApiUrl.Trim().TrimEnd('/');
+        return GetDefaultBaseUrl().TrimEnd('/');
+    }
+
     /// <summary>
     /// Create an architecture run by submitting an ArchitectureRequest.
     /// </summary>

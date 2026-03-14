@@ -75,6 +75,32 @@ Other endpoints:
 - `GET /v1/architecture/run/{runId}` – Fetch run status, tasks, and results
 - `POST /v1/architecture/run/{runId}/seed-fake-results` – (Development only) Seed deterministic fake results for smoke testing
 
+## CLI (ConsoleTest)
+
+From a project directory containing `archiforge.json` and `inputs/brief.md`:
+
+```bash
+# Create a new project
+dotnet run --project ConsoleTest -- new MyProject
+
+# Start dev services (Docker)
+dotnet run --project ConsoleTest -- dev up
+
+# Create a run (submits to API)
+dotnet run --project ConsoleTest -- run
+
+# Quick dev flow: create run, seed fake results, and commit in one step
+dotnet run --project ConsoleTest -- run --quick
+
+# Check status, seed, commit, or view artifacts
+dotnet run --project ConsoleTest -- status <runId>
+dotnet run --project ConsoleTest -- seed <runId>      # Development only
+dotnet run --project ConsoleTest -- commit <runId>
+dotnet run --project ConsoleTest -- artifacts <runId>
+```
+
+**API URL**: Set `apiUrl` in `archiforge.json` or the `ARCHIFORGE_API_URL` environment variable. Default: `http://localhost:5128`.
+
 ## Project Structure
 
 | Project | Description |

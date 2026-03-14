@@ -173,6 +173,10 @@ public static class ArchiForgeProjectScaffolder
         [JsonPropertyName("projectName")]
         public string ProjectName { get; set; } = "";
 
+        /// <summary>API base URL (e.g. http://localhost:5128). Overrides ARCHIFORGE_API_URL env var when set.</summary>
+        [JsonPropertyName("apiUrl")]
+        public string? ApiUrl { get; set; }
+
         [JsonPropertyName("inputs")]
         public InputsSection Inputs { get; set; } = new();
 
@@ -252,6 +256,7 @@ public static class ArchiForgeProjectScaffolder
         var config = new ArchiForgeConfig
         {
             ProjectName = projectName,
+            ApiUrl = "http://localhost:5128",
             Infra = new InfraSection
             {
                 Terraform = new TerraformSection
