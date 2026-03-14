@@ -10,21 +10,15 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 ## Database Setup
 
 1. Create a database (e.g. `ArchiForge2`).
-2. Run the schema script:
-
-   ```bash
-   sqlcmd -S localhost -d ArchiForge2 -i ArchiForge.Data/SQL/ArchiForge.sql
-   ```
-
-   Or execute `ArchiForge.Data/SQL/ArchiForge.sql` in SQL Server Management Studio / Azure Data Studio.
-
-3. Update the connection string in `ArchiForge.Api/appsettings.json` if needed:
+2. Update the connection string in `ArchiForge.Api/appsettings.json`:
 
    ```json
    "ConnectionStrings": {
      "ArchiForge": "Server=localhost;Database=ArchiForge2;Trusted_Connection=True;TrustServerCertificate=True;"
    }
    ```
+
+3. On startup, the API runs database migrations (DbUp) automatically. The schema is created if it does not exist.
 
 ## Running the API
 
@@ -45,7 +39,7 @@ In Development:
 dotnet test
 ```
 
-Integration tests require a database. Ensure the connection string in `appsettings.json` (or `appsettings.Development.json`) points to a valid database with the schema applied.
+Integration tests use in-memory SQLite by default—no SQL Server required. The schema is created automatically.
 
 ## API Flow
 

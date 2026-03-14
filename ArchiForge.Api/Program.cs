@@ -44,6 +44,12 @@ namespace ArchiForge.Api
 
             var app = builder.Build();
 
+            var connectionString = app.Configuration.GetConnectionString("ArchiForge");
+            if (!string.IsNullOrEmpty(connectionString) && !DatabaseMigrator.Run(connectionString))
+            {
+                throw new InvalidOperationException("Database migration failed.");
+            }
+
             app.UseExceptionHandler(exceptionHandlerApp =>
             {
                 exceptionHandlerApp.Run(async context =>

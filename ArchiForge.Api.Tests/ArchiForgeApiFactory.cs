@@ -10,6 +10,7 @@ public class ArchiForgeApiFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseSetting("ConnectionStrings:ArchiForge", SqliteInMemoryConnectionString);
         builder.ConfigureServices(services =>
         {
             var descriptors = services.Where(d => d.ServiceType == typeof(IDbConnectionFactory)).ToList();
