@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36414.22
@@ -47,6 +47,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "expected", "expected", "{1B
 		expected-manifest-summary.json = expected-manifest-summary.json
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,6 +91,10 @@ Global
 		{43069D07-AE75-4A8A-9018-05486D334390}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43069D07-AE75-4A8A-9018-05486D334390}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43069D07-AE75-4A8A-9018-05486D334390}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -107,6 +113,7 @@ Global
 		{D178DC34-A724-4492-A31F-3812DA69FB4C} = {D32098F6-7916-4389-9210-A50803425AC0}
 		{64DDAD70-E4DB-401E-AD8A-235C97409E14} = {D32098F6-7916-4389-9210-A50803425AC0}
 		{1B09D673-406E-4BF4-95DF-557D9147521D} = {D32098F6-7916-4389-9210-A50803425AC0}
+		{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FD97131-0FD0-4645-8251-FB97CFE92CE5}

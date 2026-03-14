@@ -68,10 +68,11 @@ namespace ArchiForge
                 case "artifacts":
                     if (args.Length <= 1)
                     {
-                        Console.WriteLine("Usage: archiforge artifacts <runId>");
+                        Console.WriteLine("Usage: archiforge artifacts <runId> [--save]");
                         return 1;
                     }
-                    return await ArchiForge_ArtifactsAsync(args[1]);
+                    var saveArtifacts = args.Length > 2 && args[2] == "--save";
+                    return await ArchiForge_ArtifactsAsync(args[1], saveArtifacts);
 
                 default:
                     Console.WriteLine($"Unknown command: {command}");
@@ -404,9 +405,10 @@ namespace ArchiForge
             return 0;
         }
 
-        private static async Task<int> ArchiForge_ArtifactsAsync(string runId)
+        private static async Task<int> ArchiForge_ArtifactsAsync(string runId, bool save = false)
         {
-            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            var config = TryLoadConfigFromCwd();
+            var baseUrl = GetBaseUrl(config);
             var client = new ArchiForgeApiClient(baseUrl);
 
             var run = await client.GetRunAsync(runId);
@@ -430,9 +432,33 @@ namespace ArchiForge
                 return 1;
             }
 
+            var json = System.Text.Json.JsonSerializer.Serialize(manifest, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
             Console.WriteLine($"Manifest version: {version}");
             Console.WriteLine();
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(manifest, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+
+            if (save && config is not null)
+            {
+                try
+                {
+                    var projectRoot = Directory.GetCurrentDirectory();
+                    var outputsDir = Path.Combine(projectRoot, config.Outputs.LocalCacheDir);
+                    Directory.CreateDirectory(outputsDir);
+                    var fileName = $"manifest-{version}.json";
+                    var filePath = Path.Combine(outputsDir, fileName);
+                    File.WriteAllText(filePath, json);
+                    Console.WriteLine($"Saved to {filePath}");
+                    Console.WriteLine($"URI: {baseUrl}/v1/architecture/manifest/{version}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Warning: Could not save manifest to outputs: {ex.Message}");
+                    Console.WriteLine(json);
+                }
+            }
+            else
+            {
+                Console.WriteLine(json);
+            }
             return 0;
         }
     }

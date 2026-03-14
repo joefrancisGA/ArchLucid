@@ -101,6 +101,7 @@ dotnet run --project ConsoleTest -- <command> [options]
 | `seed <runId>` | Seed fake agent results for a run (Development only; for smoke testing) |
 | `commit <runId>` | Merge results and produce a versioned manifest |
 | `artifacts <runId>` | Fetch and display the committed manifest for a run |
+| `artifacts <runId> --save` | Same, and save the manifest to `outputs/manifest-{version}.json` (requires project dir) |
 
 ### Typical workflow
 
