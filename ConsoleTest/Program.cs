@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using ArchiForge.Contracts.Common;
@@ -31,10 +32,7 @@ namespace ArchiForge
 
                 case "dev":
                     if (args.Length > 1 && args[1] == "up")
-                    {
-                        ArchiForge_Dev_Up();
-                        return 0;
-                    }
+                        return ArchiForge_Dev_Up();
                     Console.WriteLine("Expected: archiforge dev up");
                     return 1;
 
@@ -85,9 +83,84 @@ namespace ArchiForge
             ArchiForgeProjectScaffolder.CreateProject(scaffoldOptions);
         }
 
-        private static void ArchiForge_Dev_Up()
+        private static int ArchiForge_Dev_Up()
         {
-            Console.WriteLine("archiforge dev up: not implemented. Use Docker Compose to start Azurite, SQL Edge, Redis.");
+            var composeDir = FindDockerComposeDirectory();
+            if (composeDir is null)
+            {
+                Console.WriteLine("Error: docker-compose.yml not found. Run from the ArchiForge repo root, or ensure docker-compose.yml exists in the current directory.");
+                return 1;
+            }
+
+            var composePath = Path.Combine(composeDir, "docker-compose.yml");
+            Console.WriteLine($"Starting ArchiForge dev services from {composeDir}...");
+
+            try
+            {
+                var (exitCode, output, error) = RunProcess("docker", $"compose -f \"{composePath}\" up -d", composeDir);
+                if (exitCode != 0)
+                {
+                    (exitCode, output, error) = RunProcess("docker-compose", $"-f \"{composePath}\" up -d", composeDir);
+                }
+
+                if (exitCode != 0)
+                {
+                    Console.WriteLine($"Error: Failed to start containers.");
+                    if (!string.IsNullOrEmpty(error)) Console.WriteLine(error);
+                    if (!string.IsNullOrEmpty(output)) Console.WriteLine(output);
+                    return 1;
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("Dev services started:");
+                Console.WriteLine("  SQL Server: localhost:1433");
+                Console.WriteLine("  Azurite:    localhost:10000 (blob), 10001 (queue), 10002 (table)");
+                Console.WriteLine("  Redis:      localhost:6379");
+                Console.WriteLine();
+                Console.WriteLine("Connection string for ArchiForge API (User Secrets or env):");
+                Console.WriteLine("  Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;");
+                Console.WriteLine();
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine("Ensure Docker Desktop is running and 'docker' is in PATH.");
+                return 1;
+            }
+        }
+
+        private static string? FindDockerComposeDirectory()
+        {
+            var current = Directory.GetCurrentDirectory();
+            for (var dir = current; !string.IsNullOrEmpty(dir); dir = Path.GetDirectoryName(dir))
+            {
+                var composePath = Path.Combine(dir, "docker-compose.yml");
+                if (File.Exists(composePath))
+                    return dir;
+            }
+            return null;
+        }
+
+        private static (int ExitCode, string StdOut, string StdErr) RunProcess(string fileName, string arguments, string workingDirectory)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                WorkingDirectory = workingDirectory,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+            using var proc = Process.Start(psi);
+            if (proc is null)
+                return (-1, "", $"Failed to start {fileName}");
+            var stdout = proc.StandardOutput.ReadToEnd();
+            var stderr = proc.StandardError.ReadToEnd();
+            proc.WaitForExit(TimeSpan.FromMinutes(2));
+            return (proc.ExitCode, stdout, stderr);
         }
 
         private static async Task<int> ArchiForge_RunAsync()

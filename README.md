@@ -6,10 +6,25 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download)
 - SQL Server (LocalDB, Express, or full) with a database for ArchiForge
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (optional; for `archiforge dev up`)
+
+## Development environment (`archiforge dev up`)
+
+From the ArchiForge repo directory (or any directory containing `docker-compose.yml`), run:
+
+```bash
+dotnet run --project ConsoleTest -- dev up
+```
+
+This starts SQL Server, Azurite, and Redis in Docker. Use this connection string with the API:
+
+```
+Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;
+```
 
 ## Database Setup
 
-1. Create a database (e.g. `ArchiForge2`).
+1. Create a database (e.g. `ArchiForge2`), or use `archiforge dev up` to run SQL Server in Docker.
 2. Configure the connection string. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes.
 3. Store the connection string in User Secrets (development):
 

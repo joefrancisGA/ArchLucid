@@ -1,0 +1,44 @@
+# ArchiForge development dependencies
+# Run: archiforge dev up (or: docker compose up -d)
+#
+# SQL Server: localhost:1433 (see ConnectionStrings below)
+# Azurite:    localhost:10000 (blob), 10001 (queue), 10002 (table)
+# Redis:      localhost:6379
+#
+# Connection string for SQL (use with archiforge / API):
+#   Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: archiforge-sql
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "ArchiForge_Dev_Pass123!"
+      MSSQL_PID: "Developer"
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    container_name: archiforge-azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    volumes:
+      - azurite-data:/data
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0
+
+  redis:
+    image: redis:7-alpine
+    container_name: archiforge-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: redis-cli ping
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  azurite-data: {}
