@@ -114,6 +114,35 @@ public sealed class ArchiForgeApiClient
     }
 
     /// <summary>
+    /// Seed fake results for a run (Development only).
+    /// </summary>
+    public async Task<SeedFakeResultsResult?> SeedFakeResultsAsync(string runId, CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await _http.PostAsync($"/v1/architecture/run/{Uri.EscapeDataString(runId)}/seed-fake-results", null, ct);
+            var content = await response.Content.ReadAsStringAsync(ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = TryParseError(content);
+                return new SeedFakeResultsResult(false, 0, error ?? content);
+            }
+
+            var result = JsonSerializer.Deserialize<SeedFakeResultsResponse>(content, _jsonOptions);
+            return new SeedFakeResultsResult(true, result?.ResultCount ?? 0, null);
+        }
+        catch (HttpRequestException ex)
+        {
+            return new SeedFakeResultsResult(false, 0, $"Cannot connect to ArchiForge API: {ex.Message}");
+        }
+        catch (TaskCanceledException)
+        {
+            return new SeedFakeResultsResult(false, 0, "Request timed out.");
+        }
+    }
+
+    /// <summary>
     /// Get manifest by version.
     /// </summary>
     public async Task<object?> GetManifestAsync(string version, CancellationToken ct = default)
@@ -204,5 +233,14 @@ public sealed class ArchiForgeApiClient
     public sealed class ManifestMetadataInfo
     {
         public string ManifestVersion { get; set; } = "";
+    }
+
+    public sealed record SeedFakeResultsResult(bool Success, int ResultCount, string? Error);
+
+    public sealed class SeedFakeResultsResponse
+    {
+        public string Message { get; set; } = "";
+        public string RunId { get; set; } = "";
+        public int ResultCount { get; set; }
     }
 }

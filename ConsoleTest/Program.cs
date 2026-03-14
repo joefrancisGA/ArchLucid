@@ -13,7 +13,7 @@ namespace ArchiForge
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Please provide a command. Available commands: new, dev up, run, status <runId>, commit <runId>, artifacts <runId>");
+                Console.WriteLine("Please provide a command. Available commands: new, dev up, run, status <runId>, commit <runId>, seed <runId>, artifacts <runId>");
                 return 1;
             }
 
@@ -54,6 +54,14 @@ namespace ArchiForge
                         return 1;
                     }
                     return await ArchiForge_CommitAsync(args[1]);
+
+                case "seed":
+                    if (args.Length <= 1)
+                    {
+                        Console.WriteLine("Usage: archiforge seed <runId>");
+                        return 1;
+                    }
+                    return await ArchiForge_SeedAsync(args[1]);
 
                 case "artifacts":
                     if (args.Length <= 1)
@@ -238,9 +246,16 @@ namespace ArchiForge
             }
 
             var resp = result.Response!;
+
+            var outputsDir = Path.Combine(projectRoot, config.Outputs.LocalCacheDir);
+            Directory.CreateDirectory(outputsDir);
+            var summaryPath = Path.Combine(outputsDir, "run-summary.json");
+            WriteRunSummary(summaryPath, baseUrl, resp.Run.RunId, resp.Run.RequestId, resp.Run.Status, resp.Run.CreatedUtc, resp.Tasks, manifestVersion: null);
+
             Console.WriteLine();
             Console.WriteLine($"Run created: {resp.Run.RunId}");
             Console.WriteLine($"Status: {resp.Run.Status}");
+            Console.WriteLine($"run-summary.json written to {summaryPath}");
             Console.WriteLine();
             Console.WriteLine("Tasks:");
             foreach (var task in resp.Tasks)
@@ -251,6 +266,23 @@ namespace ArchiForge
             Console.WriteLine();
             Console.WriteLine($"Next: Submit agent results, then commit. Use 'archiforge status {resp.Run.RunId}' to check progress.");
             return 0;
+        }
+
+        private static void WriteRunSummary(string path, string apiBaseUrl, string runId, string requestId, int status, DateTime createdUtc, IReadOnlyList<ArchiForgeApiClient.AgentTaskInfo> tasks, string? manifestVersion)
+        {
+            var summary = new
+            {
+                runId,
+                requestId,
+                status,
+                createdUtc = createdUtc.ToString("O"),
+                manifestVersion,
+                apiBaseUrl,
+                tasks = tasks.Select(t => new { t.TaskId, agentType = (AgentType)t.AgentType, t.Objective }).ToArray(),
+                artifactUris = manifestVersion != null ? new[] { $"{apiBaseUrl}/v1/architecture/manifest/{manifestVersion}" } : Array.Empty<string>()
+            };
+            var json = System.Text.Json.JsonSerializer.Serialize(summary, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(path, json);
         }
 
         private static async Task<int> ArchiForge_StatusAsync(string runId)
@@ -310,6 +342,24 @@ namespace ArchiForge
             }
             Console.WriteLine();
             Console.WriteLine($"Use 'archiforge artifacts {runId}' to view the manifest.");
+            return 0;
+        }
+
+        private static async Task<int> ArchiForge_SeedAsync(string runId)
+        {
+            var baseUrl = ArchiForgeApiClient.GetDefaultBaseUrl();
+            var client = new ArchiForgeApiClient(baseUrl);
+
+            var result = await client.SeedFakeResultsAsync(runId);
+            if (result is null || !result.Success)
+            {
+                Console.WriteLine($"Error: {result?.Error ?? "Seed failed"}");
+                Console.WriteLine("Note: seed-fake-results is only available when the API runs in Development.");
+                return 1;
+            }
+
+            Console.WriteLine($"Seeded {result.ResultCount} fake results for run {runId}");
+            Console.WriteLine($"Use 'archiforge commit {runId}' to produce the manifest.");
             return 0;
         }
 
