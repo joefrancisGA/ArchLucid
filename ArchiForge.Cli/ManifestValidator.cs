@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.Json;
 using Json.More;
 using Json.Schema;
@@ -28,7 +28,6 @@ public static class ManifestValidator
 
         if (!result.IsValid)
         {
-            // Human-readable error output
             var pretty = JsonSerializer.Serialize(
                 result.ToJsonDocument().RootElement,
                 new JsonSerializerOptions { WriteIndented = true });
@@ -37,7 +36,6 @@ public static class ManifestValidator
         }
     }
 
-    // Optional helper if you want a bool return instead of throwing.
     public static bool TryValidate(string schemaPath, string manifestJson, out string errorsJson)
     {
         errorsJson = "";

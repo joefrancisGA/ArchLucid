@@ -27,32 +27,15 @@ docs/
 README.md
     What each file means
 •	archiforge.json: the single source of truth for project configuration.
-•	inputs/brief.md: the “one thing you can always run.”
+•	inputs/brief.md: the "one thing you can always run."
 •	outputs/: optional local cache of output artifacts (not authoritative).
     •	plugins/plugin-lock.json: pinned plugin images + versions + endpoints.
-•	infra/terraform/: optional; you can stub it initially.
+•	infra/terraform/: optional; stubbed initially.
 */
 
 
 
 namespace ArchiForge;
-
-
-
-/*Below is a clean, production-friendly C# implementation that scaffolds the ArchiForge v1 folder layout exactly as you specified.
-
-* Creates the directory tree under `<projectName>/`
-* Writes stub content for:
-
-  * `archiforge.json` (single source of truth)
-  * `inputs/brief.md` (the “one thing you can always run”)
-  * `plugins/plugin-lock.json` (pinned plugins)
-  * `infra/terraform/main.tf` and `variables.tf` (optional; stubbed)
-  * `docs/README.md`
-  * `outputs/.gitkeep` (keeps folder in git)*/
-
-// 1/25/2026
-
 
 
 
@@ -103,25 +86,15 @@ public static class ArchiForgeProjectScaffolder
 
         WriteFile(Path.Combine(projectRoot, "docs", "README.md"), BuildDocsReadme(options.ProjectName), options.OverwriteExistingFiles);
 
-        // Replace with your actual SQL Server connection string
         const string connectionString = "Server=LOCALHOST;Database=ArchiForge;Trusted_Connection=True;";
-
-        // Example SQL query
-        //string sqlQuery =
-        //    $"INSERT INTO PROJECTS (" + '" + options.ProjectName + "'""{options.BaseDirectory},{options.OverwriteExistingFiles},{options.IncludeTerraformStubs})";
         string sqlQuery = "INSERT INTO PROJECTS (ProjectName, BaseDirectory, OverwriteExistingFiles, IncludeTerraformStubs) VALUES (@ProjectName, @BaseDirectory, @OverwriteExistingFiles, @IncludeTerraformStubs)";
 
         try
         {
-            // Create and open the connection
             using SqlConnection connection = new SqlConnection(connectionString);
             connection.Open();
-
             Console.WriteLine("Connection successful.");
-
-            // Create the SQL commandB
             using SqlCommand command = new SqlCommand(sqlQuery, connection);
-
             command.Parameters.Add("@ProjectName", SqlDbType.NVarChar, 0).Value = options.ProjectName;
             command.Parameters.Add("@BaseDirectory", SqlDbType.NVarChar, 0).Value = options.BaseDirectory ?? (object)DBNull.Value;
             command.Parameters.Add("@OverwriteExistingFiles", SqlDbType.Bit, 0).Value = options.OverwriteExistingFiles;
@@ -138,7 +111,6 @@ public static class ArchiForgeProjectScaffolder
         }
 
         Console.WriteLine("Created Project " + options.ProjectName);
-
         return projectRoot;
     }
 
@@ -151,19 +123,11 @@ public static class ArchiForgeProjectScaffolder
     {
         if (File.Exists(path) && !overwrite)
             return;
-
-        // Ensure parent directory exists
         var dir = Path.GetDirectoryName(path);
-
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
-
         File.WriteAllText(path, contents, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
     }
-
-    // -------------------------
-    // Stub file builders
-    // -------------------------
 
     public sealed class ArchiForgeConfig
     {
@@ -173,7 +137,6 @@ public static class ArchiForgeProjectScaffolder
         [JsonPropertyName("projectName")]
         public string ProjectName { get; set; } = "";
 
-        /// <summary>API base URL (e.g. http://localhost:5128). Overrides ARCHIFORGE_API_URL env var when set.</summary>
         [JsonPropertyName("apiUrl")]
         public string? ApiUrl { get; set; }
 
@@ -193,9 +156,6 @@ public static class ArchiForgeProjectScaffolder
         public ArchitectureSection? Architecture { get; set; }
     }
 
-    /// <summary>
-    /// Optional architecture request overrides. Enriches the API request when running from archiforge.json.
-    /// </summary>
     public sealed class ArchitectureSection
     {
         [JsonPropertyName("environment")]
@@ -225,7 +185,6 @@ public static class ArchiForgeProjectScaffolder
 
     public sealed class OutputsSection
     {
-        // optional local cache - not authoritative
         [JsonPropertyName("localCacheDir")]
         public string LocalCacheDir { get; set; } = "outputs";
     }
@@ -274,24 +233,17 @@ public static class ArchiForgeProjectScaffolder
                 Assumptions = ["Moderate query volume", "Internal enterprise usage only"]
             }
         };
-
-        var jsonOptions = new JsonSerializerOptions
-        {
-            WriteIndented = true
-        };
-
+        var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
         return JsonSerializer.Serialize(config, jsonOptions) + Environment.NewLine;
     }
 
     public static ArchiForgeConfig LoadConfig(string? projectRoot)
     {
         var manifestPath = projectRoot != null ? Path.Combine(projectRoot, "archiforge.json") : "archiforge.json";
-
         if (!File.Exists(manifestPath))
             throw new FileNotFoundException("archiforge.json not found.", manifestPath);
 
         var json = File.ReadAllText(manifestPath, Encoding.UTF8);
-
         var options = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
@@ -300,7 +252,6 @@ public static class ArchiForgeProjectScaffolder
         };
 
         ArchiForgeConfig? config;
-
         try
         {
             config = JsonSerializer.Deserialize<ArchiForgeConfig>(json, options);
@@ -309,53 +260,38 @@ public static class ArchiForgeProjectScaffolder
         {
             throw new InvalidDataException($"Invalid JSON in {manifestPath}: {ex.Message}", ex);
         }
-
         if (config is null)
             throw new InvalidDataException($"Unable to parse {manifestPath} into ArchiForgeConfig.");
-
         if (projectRoot != null) ValidateConfigOrThrow(config, projectRoot);
-
         return config;
     }
 
     private static void ValidateConfigOrThrow(ArchiForgeConfig config, string projectRoot)
     {
-        // Basic semantic checks
         if (string.IsNullOrWhiteSpace(config.SchemaVersion))
             throw new InvalidDataException("archiforge.json: schemaVersion is required.");
-
         if (string.IsNullOrWhiteSpace(config.ProjectName))
             throw new InvalidDataException("archiforge.json: projectName is required.");
-
         if (config.Inputs is null || string.IsNullOrWhiteSpace(config.Inputs.Brief))
             throw new InvalidDataException("archiforge.json: inputs.brief is required.");
-
         if (config.Outputs is null || string.IsNullOrWhiteSpace(config.Outputs.LocalCacheDir))
             throw new InvalidDataException("archiforge.json: outputs.localCacheDir is required.");
-
         if (config.Plugins is null || string.IsNullOrWhiteSpace(config.Plugins.LockFile))
             throw new InvalidDataException("archiforge.json: plugins.lockFile is required.");
-
         if (config.Infra is null || config.Infra.Terraform is null)
             throw new InvalidDataException("archiforge.json: infra.terraform section is required.");
 
-        // Path sanity: ensure they are relative and resolve under project root
         EnsureRelativePathOrThrow(config.Inputs.Brief, "inputs.brief");
         EnsureRelativePathOrThrow(config.Outputs.LocalCacheDir, "outputs.localCacheDir");
         EnsureRelativePathOrThrow(config.Plugins.LockFile, "plugins.lockFile");
         EnsureRelativePathOrThrow(config.Infra.Terraform.Path, "infra.terraform.path");
 
-        // Existence checks (optional: choose how strict you want this)
         var briefPath = Path.Combine(projectRoot, config.Inputs.Brief);
         if (!File.Exists(briefPath))
             throw new FileNotFoundException($"Brief file not found at '{config.Inputs.Brief}'.", briefPath);
-
         var lockPath = Path.Combine(projectRoot, config.Plugins.LockFile);
-
         if (!File.Exists(lockPath))
             throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
-
-        // Terraform is optional; only check if enabled
         if (config.Infra.Terraform.Enabled)
         {
             var tfDir = Path.Combine(projectRoot, config.Infra.Terraform.Path);
@@ -368,18 +304,12 @@ public static class ArchiForgeProjectScaffolder
     {
         if (string.IsNullOrWhiteSpace(path))
             throw new InvalidDataException($"archiforge.json: {fieldName} is empty.");
-
-        // Reject rooted paths (C:\ or /) and path traversal attempts
         if (Path.IsPathRooted(path))
             throw new InvalidDataException($"archiforge.json: {fieldName} must be a relative path, got rooted path '{path}'.");
-
         var normalized = path.Replace('\\', '/');
-        
         if (normalized.StartsWith("../", StringComparison.Ordinal) || normalized.Contains("/../"))
             throw new InvalidDataException($"archiforge.json: {fieldName} must not contain '..' segments ('{path}').");
     }
-
-
 
     private static string BuildBriefMd(string projectName)
     {
@@ -409,8 +339,6 @@ Describe the outcome you want (business + technical). Keep it short and runnable
 
     private static string BuildPluginLockJson()
     {
-        // Pinned plugin images + versions + endpoints (stub)
-        // Keep it explicit and stable.
         const string lockDoc = """
                                {
                                                "schemaVersion": "1.0",
@@ -425,20 +353,17 @@ Describe the outcome you want (business + technical). Keep it short and runnable
                                                ]
                                            }
                                """;
-
         return lockDoc.Replace("REPLACE_AT_RUNTIME", DateTime.UtcNow.ToString("O")) + Environment.NewLine;
     }
 
     private static string BuildTerraformMainTf()
     {
-        // Optional; stub it initially. This is deliberately minimal.
         return
             """
             terraform {
               required_version = ">= 1.6.0"
             }
 
-            # Stub provider block (fill in for your target cloud)
             # provider "azurerm" {
             #   features {}
             # }
@@ -450,8 +375,6 @@ Describe the outcome you want (business + technical). Keep it short and runnable
     {
         return
             """
-            # Add Terraform variables here as the project matures.
-            # Example:
             # variable "location" {
             #   type        = string
             #   description = "Azure region"

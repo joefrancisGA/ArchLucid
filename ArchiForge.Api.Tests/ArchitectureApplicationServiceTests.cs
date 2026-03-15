@@ -258,14 +258,14 @@ public sealed class ArchitectureApplicationServiceTests
         var request = ValidRequest();
         var results = new List<AgentResult> { ValidResult(), ValidResult("run-1", AgentType.Cost), ValidResult("run-1", AgentType.Compliance) };
         var manifest = new GoldenManifest { RunId = "run-1", SystemName = "TestSystem", Metadata = new ManifestMetadata { ManifestVersion = "v1" } };
-        var merge = new DecisionMergeResult { Manifest = manifest, DecisionTraces = [], Success = true };
+        var merge = new DecisionMergeResult { Manifest = manifest, DecisionTraces = [] };
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
         _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(results);
         _decisionEngine.Setup(d => d.MergeResults("run-1", request, "v1", results, null)).Returns(merge);
         _manifestRepository.Setup(r => r.CreateAsync(manifest, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _decisionTraceRepository.Setup(r => r.CreateManyAsync([], It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _decisionTraceRepository.Setup(r => r.CreateManyAsync(Array.Empty<DecisionTrace>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.Committed, "v1", It.IsAny<DateTime?>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         var result = await _sut.CommitRunAsync("run-1");
@@ -323,7 +323,7 @@ public sealed class ArchitectureApplicationServiceTests
         var run = ValidRun();
         var request = ValidRequest();
         var results = new List<AgentResult> { ValidResult() };
-        var merge = new DecisionMergeResult { Errors = ["Merge failed"], Success = false };
+        var merge = new DecisionMergeResult { Errors = ["Merge failed"] };
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
         _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
@@ -347,14 +347,14 @@ public sealed class ArchitectureApplicationServiceTests
         var request = ValidRequest();
         var results = new List<AgentResult> { ValidResult(), ValidResult("run-1", AgentType.Cost), ValidResult("run-1", AgentType.Compliance) };
         var manifest = new GoldenManifest { RunId = "run-1", SystemName = "TestSystem", Metadata = new ManifestMetadata { ManifestVersion = "v2" } };
-        var merge = new DecisionMergeResult { Manifest = manifest, DecisionTraces = [], Success = true };
+        var merge = new DecisionMergeResult { Manifest = manifest, DecisionTraces = [] };
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
         _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(results);
         _decisionEngine.Setup(d => d.MergeResults("run-1", request, "v2", results, "v1")).Returns(merge);
         _manifestRepository.Setup(r => r.CreateAsync(manifest, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
-        _decisionTraceRepository.Setup(r => r.CreateManyAsync([], It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _decisionTraceRepository.Setup(r => r.CreateManyAsync(Array.Empty<DecisionTrace>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _runRepository.Setup(r => r.UpdateStatusAsync(It.IsAny<string>(), It.IsAny<ArchitectureRunStatus>(), It.IsAny<string?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         var result = await _sut.CommitRunAsync("run-1");

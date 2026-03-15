@@ -13,7 +13,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 From the ArchiForge repo directory (or any directory containing `docker-compose.yml`), run:
 
 ```bash
-dotnet run --project ConsoleTest -- dev up
+dotnet run --project ArchiForge.Cli -- dev up
 ```
 
 This starts SQL Server, Azurite, and Redis in Docker. Use this connection string with the API:
@@ -75,12 +75,12 @@ Other endpoints:
 - `GET /v1/architecture/run/{runId}` – Fetch run status, tasks, and results
 - `POST /v1/architecture/run/{runId}/seed-fake-results` – (Development only) Seed deterministic fake results for smoke testing
 
-## CLI (ConsoleTest)
+## CLI (ArchiForge.Cli)
 
 The ArchiForge CLI lets you create projects, run architecture requests against the API, and inspect results. Run commands with:
 
 ```bash
-dotnet run --project ConsoleTest -- <command> [options]
+dotnet run --project ArchiForge.Cli -- <command> [options]
 ```
 
 ### Prerequisites
@@ -107,7 +107,7 @@ dotnet run --project ConsoleTest -- <command> [options]
 
 ```bash
 # 1. Create a new project
-dotnet run --project ConsoleTest -- new MyProject
+dotnet run --project ArchiForge.Cli -- new MyProject
 cd MyProject
 
 # 2. Edit inputs/brief.md with your architecture brief (min 10 chars)
@@ -116,15 +116,15 @@ cd MyProject
 cd .. && dotnet run --project ArchiForge.Api
 
 # 4a. Full flow: create run, submit agent results externally, then commit
-dotnet run --project ConsoleTest -- run
-dotnet run --project ConsoleTest -- status <runId>
+dotnet run --project ArchiForge.Cli -- run
+dotnet run --project ArchiForge.Cli -- status <runId>
 # ... submit results via API ...
-dotnet run --project ConsoleTest -- commit <runId>
-dotnet run --project ConsoleTest -- artifacts <runId>
+dotnet run --project ArchiForge.Cli -- commit <runId>
+dotnet run --project ArchiForge.Cli -- artifacts <runId>
 
 # 4b. Quick dev flow: create run, seed fake results, and commit in one step
-dotnet run --project ConsoleTest -- run --quick
-dotnet run --project ConsoleTest -- artifacts <runId>
+dotnet run --project ArchiForge.Cli -- run --quick
+dotnet run --project ArchiForge.Cli -- artifacts <runId>
 ```
 
 ### Configuration
@@ -137,7 +137,7 @@ Package and install the CLI locally:
 
 ```bash
 # From the solution root
-dotnet pack ConsoleTest/ConsoleTest.csproj -c Release -o nupkg
+dotnet pack ArchiForge.Cli/ArchiForge.Cli.csproj -c Release -o nupkg
 
 # Install globally
 dotnet tool install -g ArchiForge.Cli --add-source ./nupkg
@@ -159,4 +159,4 @@ To update: `dotnet tool update -g ArchiForge.Cli --add-source ./nupkg`
 | ArchiForge.Coordinator | Run creation, task generation |
 | ArchiForge.DecisionEngine | Merges agent results into manifests |
 | ArchiForge.Data | Repositories, SQL persistence |
-| ConsoleTest | ArchiForge CLI: `new`, `run`, `status`, `commit`, `seed`, `artifacts`, `dev up` |
+| ArchiForge.Cli | ArchiForge CLI: `new`, `run`, `status`, `commit`, `seed`, `artifacts`, `dev up` |

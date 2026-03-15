@@ -1,15 +1,19 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using ArchiForge.Contracts.Requests;
+using Polly;
+using Polly.Retry;
 
 namespace ArchiForge;
 
 /// <summary>
-/// HTTP client for the ArchiForge API.
+/// HTTP client for the ArchiForge API with resilience (retry on transient failures).
 /// </summary>
 public sealed class ArchiForgeApiClient
 {
     private readonly HttpClient _http;
+    private readonly ResiliencePipeline<HttpResponseMessage> _pipeline;
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -29,6 +33,19 @@ public sealed class ArchiForgeApiClient
             Timeout = TimeSpan.FromSeconds(30)
         };
         _http.DefaultRequestHeaders.Add("Accept", "application/json");
+
+        _pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            {
+                MaxRetryAttempts = 3,
+                Delay = TimeSpan.FromSeconds(1),
+                BackoffType = DelayBackoffType.Exponential,
+                UseJitter = true,
+                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
+                    .Handle<HttpRequestException>()
+                    .HandleResult(r => (int)r.StatusCode >= 500 || r.StatusCode == HttpStatusCode.RequestTimeout || r.StatusCode == (HttpStatusCode)429)
+            })
+            .Build();
     }
 
     public static string GetDefaultBaseUrl() =>
@@ -49,25 +66,25 @@ public sealed class ArchiForgeApiClient
     {
         try
         {
-            var response = await _http.PostAsJsonAsync("/v1/architecture/request", request, _jsonOptions, ct);
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync("/v1/architecture/request", request, _jsonOptions, cancellationToken)), ct);
             var content = await response.Content.ReadAsStringAsync(ct);
 
             if (response.IsSuccessStatusCode)
             {
                 var created = JsonSerializer.Deserialize<CreateRunResponse>(content, _jsonOptions);
-                return CreateRunResult.Success(created);
+                return CreateRunResult.Ok(created);
             }
 
             var error = TryParseError(content);
-            return CreateRunResult.Failure(response.StatusCode, error ?? content);
+            return CreateRunResult.Fail((int)response.StatusCode, error ?? content);
         }
         catch (HttpRequestException ex)
         {
-            return CreateRunResult.Failure(null, $"Cannot connect to ArchiForge API: {ex.Message}");
+            return CreateRunResult.Fail(null, $"Cannot connect to ArchiForge API: {ex.Message}");
         }
         catch (TaskCanceledException)
         {
-            return CreateRunResult.Failure(null, "Request timed out.");
+            return CreateRunResult.Fail(null, "Request timed out.");
         }
     }
 
@@ -78,7 +95,8 @@ public sealed class ArchiForgeApiClient
     {
         try
         {
-            var response = await _http.GetAsync($"/v1/architecture/run/{Uri.EscapeDataString(runId)}", ct);
+            var uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}";
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
             var content = await response.Content.ReadAsStringAsync(ct);
 
             if (!response.IsSuccessStatusCode)
@@ -99,7 +117,8 @@ public sealed class ArchiForgeApiClient
     {
         try
         {
-            var response = await _http.PostAsync($"/v1/architecture/run/{Uri.EscapeDataString(runId)}/commit", null, ct);
+            var uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/commit";
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
             var content = await response.Content.ReadAsStringAsync(ct);
 
             if (!response.IsSuccessStatusCode)
@@ -128,7 +147,8 @@ public sealed class ArchiForgeApiClient
     {
         try
         {
-            var response = await _http.PostAsync($"/v1/architecture/run/{Uri.EscapeDataString(runId)}/seed-fake-results", null, ct);
+            var uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/seed-fake-results";
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
             var content = await response.Content.ReadAsStringAsync(ct);
 
             if (!response.IsSuccessStatusCode)
@@ -157,7 +177,8 @@ public sealed class ArchiForgeApiClient
     {
         try
         {
-            var response = await _http.GetAsync($"/v1/architecture/manifest/{Uri.EscapeDataString(version)}", ct);
+            var uri = $"/v1/architecture/manifest/{Uri.EscapeDataString(version)}";
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
             var content = await response.Content.ReadAsStringAsync(ct);
 
             if (!response.IsSuccessStatusCode)
@@ -187,8 +208,8 @@ public sealed class ArchiForgeApiClient
 
     public sealed record CreateRunResult(bool Success, CreateRunResponse? Response, string? Error, int? StatusCode)
     {
-        public static CreateRunResult Success(CreateRunResponse? r) => new(true, r, null, null);
-        public static CreateRunResult Failure(int? statusCode, string error) => new(false, null, error, statusCode);
+        public static CreateRunResult Ok(CreateRunResponse? r) => new(true, r, null, null);
+        public static CreateRunResult Fail(int? statusCode, string error) => new(false, null, error, statusCode);
     }
 
     public sealed class CreateRunResponse
