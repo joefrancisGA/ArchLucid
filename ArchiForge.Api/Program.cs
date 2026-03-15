@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Serilog;
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Api.Health;
 using ArchiForge.Api.Middleware;
@@ -18,6 +19,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ArchiForge.AgentRuntime;
 using ArchiForge.Application;
+using ArchiForge.Application.Agents;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Exports;
@@ -93,6 +95,8 @@ namespace ArchiForge.Api
                 .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
             builder.Services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
+            builder.Services.AddScoped<IReplayRunService, ReplayRunService>();
+            builder.Services.AddScoped<IAgentExecutorResolver, DefaultAgentExecutorResolver>();
             builder.Services.AddScoped<IDiagramGenerator, MermaidDiagramGenerator>();
             builder.Services.AddScoped<IEvidenceSummaryFormatter, MarkdownEvidenceSummaryFormatter>();
             builder.Services.AddScoped<IManifestSummaryGenerator, MarkdownManifestSummaryGenerator>();

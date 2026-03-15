@@ -1,3 +1,4 @@
+using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;

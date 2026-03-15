@@ -19,6 +19,7 @@ namespace ArchiForge.Api.Controllers;
 public sealed class ArchitectureController : ControllerBase
 {
     private readonly IArchitectureRunService _architectureRunService;
+    private readonly IReplayRunService _replayRunService;
     private readonly IArchitectureApplicationService _architectureApplicationService;
     private readonly IArchitectureRunRepository _runRepository;
     private readonly IGoldenManifestRepository _manifestRepository;
@@ -31,6 +32,7 @@ public sealed class ArchitectureController : ControllerBase
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
+        IReplayRunService replayRunService,
         IArchitectureApplicationService architectureApplicationService,
         IArchitectureRunRepository runRepository,
         IGoldenManifestRepository manifestRepository,
@@ -42,6 +44,7 @@ public sealed class ArchitectureController : ControllerBase
         IAgentExecutionTraceRepository agentExecutionTraceRepository)
     {
         _architectureRunService = architectureRunService;
+        _replayRunService = replayRunService;
         _architectureApplicationService = architectureApplicationService;
         _runRepository = runRepository;
         _manifestRepository = manifestRepository;
@@ -106,6 +109,47 @@ public sealed class ArchitectureController : ControllerBase
             };
 
             return Ok(response);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("run/{runId}/replay")]
+    [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReplayRun(
+        [FromRoute] string runId,
+        [FromBody] ReplayRunRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ReplayRunRequest();
+
+        try
+        {
+            var result = await _replayRunService.ReplayAsync(
+                runId,
+                request.ExecutionMode,
+                request.CommitReplay,
+                request.ManifestVersionOverride,
+                cancellationToken);
+
+            return Ok(new ReplayRunResponse
+            {
+                OriginalRunId = result.OriginalRunId,
+                ReplayRunId = result.ReplayRunId,
+                ExecutionMode = result.ExecutionMode,
+                Results = result.Results,
+                Manifest = result.Manifest,
+                DecisionTraces = result.DecisionTraces,
+                Warnings = result.Warnings
+            });
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
