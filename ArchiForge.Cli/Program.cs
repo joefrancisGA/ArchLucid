@@ -9,9 +9,14 @@ using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge
 {
-    internal class Program
+    public static class Program
     {
-        private static async Task<int> Main(string[] args)
+        private static async Task<int> Main(string[] args) => await RunAsync(args);
+
+        /// <summary>
+        /// Entry point for the CLI. Used by tests to assert exit codes and behavior.
+        /// </summary>
+        public static async Task<int> RunAsync(string[] args)
         {
             if (args.Length == 0)
             {

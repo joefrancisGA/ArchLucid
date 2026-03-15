@@ -1,0 +1,126 @@
+using System.IO;
+using ArchiForge;
+using FluentAssertions;
+using Xunit;
+
+namespace ArchiForge.Cli.Tests;
+
+public sealed class CommandLineTests
+{
+    [Fact]
+    public async Task NoArgs_Returns1_AndPrintsUsage()
+    {
+        RedirectConsole(out var outWriter, out var errWriter, out var prevOut, out var prevErr);
+        try
+        {
+            var exitCode = await Program.RunAsync([]);
+
+            exitCode.Should().Be(1);
+            var output = outWriter.ToString() + errWriter.ToString();
+            output.Should().Contain("Please provide a command");
+            output.Should().Contain("Available commands");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task UnknownCommand_Returns1_AndPrintsUnknown()
+    {
+        RedirectConsole(out var outWriter, out var errWriter, out var prevOut, out var prevErr);
+        try
+        {
+            var exitCode = await Program.RunAsync(["invalid"]);
+
+            exitCode.Should().Be(1);
+            var output = outWriter.ToString() + errWriter.ToString();
+            output.Should().Contain("Unknown command");
+            output.Should().Contain("invalid");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task Health_WhenApiUnreachable_Returns1()
+    {
+        RedirectConsole(out var outWriter, out var errWriter, out var prevOut, out var prevErr);
+        try
+        {
+            var exitCode = await Program.RunAsync(["health"]);
+
+            exitCode.Should().Be(1);
+            var output = outWriter.ToString() + errWriter.ToString();
+            output.Should().Contain("FAIL").Or().Contain("Cannot connect").Or().Contain("Cannot reach");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task New_WithProjectName_Returns0_AndCreatesFiles()
+    {
+        using var temp = new TempDirectory();
+        var prevCwd = Directory.GetCurrentDirectory();
+        try
+        {
+            Directory.SetCurrentDirectory(temp.Path);
+
+            RedirectConsole(out var outWriter, out var errWriter, out var prevOut, out var prevErr);
+            try
+            {
+                var exitCode = await Program.RunAsync(["new", "TestProject"]);
+
+                exitCode.Should().Be(0);
+                var projectDir = Path.Combine(temp.Path, "TestProject");
+                var archiforgeJson = Path.Combine(projectDir, "archiforge.json");
+                var briefMd = Path.Combine(projectDir, "inputs", "brief.md");
+
+                File.Exists(archiforgeJson).Should().BeTrue("archiforge.json should be created");
+                File.Exists(briefMd).Should().BeTrue("inputs/brief.md should be created");
+            }
+            finally
+            {
+                RestoreConsole(prevOut, prevErr);
+            }
+        }
+        finally
+        {
+            Directory.SetCurrentDirectory(prevCwd);
+        }
+    }
+
+    private static void RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr)
+    {
+        outWriter = new StringWriter();
+        errWriter = new StringWriter();
+        prevOut = Console.Out;
+        prevErr = Console.Error;
+        Console.SetOut(outWriter);
+        Console.SetError(errWriter);
+    }
+
+    private static void RestoreConsole(TextWriter prevOut, TextWriter prevErr)
+    {
+        Console.SetOut(prevOut);
+        Console.SetError(prevErr);
+    }
+
+    private sealed class TempDirectory : IDisposable
+    {
+        public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchiForge.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
+
+        public TempDirectory()
+        {
+            Directory.CreateDirectory(Path);
+        }
+
+        public void Dispose() => Directory.Delete(Path, recursive: true);
+    }
+}
