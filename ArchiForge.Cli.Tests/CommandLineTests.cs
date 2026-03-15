@@ -55,7 +55,8 @@ public sealed class CommandLineTests
 
             exitCode.Should().Be(1);
             var output = outWriter.ToString() + errWriter.ToString();
-            output.Should().Contain("FAIL").Or().Contain("Cannot connect").Or().Contain("Cannot reach");
+            (output.Contains("FAIL") || output.Contains("Cannot connect") || output.Contains("Cannot reach"))
+                .Should().BeTrue("output should contain 'FAIL', 'Cannot connect', or 'Cannot reach'");
         }
         finally
         {
