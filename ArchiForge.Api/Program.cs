@@ -116,23 +116,54 @@ namespace ArchiForge.Api
                 builder.Services.AddScoped<IAgentHandler, ComplianceAgentHandler>();
                 builder.Services.AddScoped<IAgentHandler, CriticAgentHandler>();
                 builder.Services.AddScoped<IAgentResultParser, AgentResultParser>();
-                // For production with LLM, replace FakeAgentCompletionClient with AzureOpenAiCompletionClient.
-                var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
-                builder.Services.AddScoped<IAgentCompletionClient>(_ => new FakeAgentCompletionClient(
-                    (_, __, runId, taskId) =>
+
+                var azureOpenAiEndpoint = builder.Configuration["AzureOpenAI:Endpoint"];
+                var azureOpenAiKey = builder.Configuration["AzureOpenAI:ApiKey"];
+                var azureOpenAiDeployment = builder.Configuration["AzureOpenAI:DeploymentName"];
+                var useAzureOpenAi = !string.IsNullOrWhiteSpace(azureOpenAiEndpoint)
+                    && !string.IsNullOrWhiteSpace(azureOpenAiKey)
+                    && !string.IsNullOrWhiteSpace(azureOpenAiDeployment);
+
+                if (useAzureOpenAi)
+                {
+                    builder.Services.AddSingleton<IAgentCompletionClient>(sp =>
                     {
-                        var dummyRequest = new ArchitectureRequest
+                        var configuration = sp.GetRequiredService<IConfiguration>();
+                        var endpoint = configuration["AzureOpenAI:Endpoint"]
+                            ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is missing.");
+                        var apiKey = configuration["AzureOpenAI:ApiKey"]
+                            ?? throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
+                        var deploymentName = configuration["AzureOpenAI:DeploymentName"]
+                            ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
+                        return new AzureOpenAiCompletionClient(endpoint, apiKey, deploymentName);
+                    });
+                }
+                else
+                {
+                    var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+                    builder.Services.AddScoped<IAgentCompletionClient>(_ => new FakeAgentCompletionClient(
+                        (_, userPrompt) =>
                         {
-                            SystemName = "Default",
-                            Description = "Default request for fake topology response.",
-                            Environment = "prod"
-                        };
-                        var result = FakeScenarioFactory.CreateTopologyResult(
-                            runId ?? string.Empty,
-                            taskId ?? string.Empty,
-                            dummyRequest);
-                        return JsonSerializer.Serialize(result, jsonOptions);
-                    }));
+                            var runId = "RUN-001";
+                            var taskId = "TASK-TOPO-001";
+                            foreach (var line in userPrompt.Split('\n'))
+                            {
+                                var span = line.AsSpan().Trim();
+                                if (span.StartsWith("RunId:", StringComparison.OrdinalIgnoreCase))
+                                    runId = span.Length > 6 ? span[6..].Trim().ToString() : runId;
+                                else if (span.StartsWith("TaskId:", StringComparison.OrdinalIgnoreCase))
+                                    taskId = span.Length > 7 ? span[7..].Trim().ToString() : taskId;
+                            }
+                            var dummyRequest = new ArchitectureRequest
+                            {
+                                SystemName = "Default",
+                                Description = "Default request for fake topology response.",
+                                Environment = "prod"
+                            };
+                            var result = FakeScenarioFactory.CreateTopologyResult(runId, taskId, dummyRequest);
+                            return JsonSerializer.Serialize(result, jsonOptions);
+                        }));
+                }
             }
 
             builder.Services.AddScoped<ArchitectureRunOrchestrator>();
