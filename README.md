@@ -98,6 +98,7 @@ dotnet run --project ArchiForge.Cli -- <command> [options]
 | `run` | Submit an architecture request to the API. Reads `archiforge.json` and `inputs/brief.md` |
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (Development only) |
 | `status <runId>` | Show run status, tasks, and submitted results |
+| `submit <runId> <result.json>` | Submit an agent result for a run (JSON file must match AgentResult schema) |
 | `seed <runId>` | Seed fake agent results for a run (Development only; for smoke testing) |
 | `commit <runId>` | Merge results and produce a versioned manifest |
 | `artifacts <runId>` | Fetch and display the committed manifest for a run |
@@ -116,10 +117,11 @@ cd MyProject
 # 3. Start the API (in another terminal)
 cd .. && dotnet run --project ArchiForge.Api
 
-# 4a. Full flow: create run, submit agent results externally, then commit
+# 4a. Full flow: create run, submit agent results, then commit
 dotnet run --project ArchiForge.Cli -- run
 dotnet run --project ArchiForge.Cli -- status <runId>
-# ... submit results via API ...
+dotnet run --project ArchiForge.Cli -- submit <runId> topology-result.json
+# ... submit more results (cost, compliance) as needed ...
 dotnet run --project ArchiForge.Cli -- commit <runId>
 dotnet run --project ArchiForge.Cli -- artifacts <runId>
 

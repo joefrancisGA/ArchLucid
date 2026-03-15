@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 
@@ -402,6 +403,47 @@ namespace ArchiForge
                 Console.WriteLine($"  {agentType}: {taskStatus} - {task.Objective}");
             }
             Console.WriteLine($"Results: {run.Results.Count} submitted");
+            return 0;
+        }
+
+        private static async Task<int> ArchiForge_SubmitAsync(string runId, string resultFilePath)
+        {
+            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            if (!await EnsureApiConnectedAsync(baseUrl))
+                return 1;
+
+            if (!File.Exists(resultFilePath))
+            {
+                Console.WriteLine($"Error: File not found: {resultFilePath}");
+                return 1;
+            }
+
+            AgentResult result;
+            try
+            {
+                var json = File.ReadAllText(resultFilePath);
+                result = System.Text.Json.JsonSerializer.Deserialize<AgentResult>(json, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                }) ?? new AgentResult();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: Invalid result JSON. {ex.Message}");
+                return 1;
+            }
+
+            var client = new ArchiForgeApiClient(baseUrl);
+            var submitResult = await client.SubmitAgentResultAsync(runId, result);
+            if (submitResult is null || !submitResult.Success)
+            {
+                Console.WriteLine($"Error: {submitResult?.Error ?? "Submit failed"}");
+                return 1;
+            }
+
+            Console.WriteLine($"Result submitted: {submitResult.ResultId}");
+            Console.WriteLine($"Use 'archiforge status {runId}' to check progress, then 'archiforge commit {runId}' when all results are in.");
             return 0;
         }
 
