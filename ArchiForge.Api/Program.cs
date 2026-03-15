@@ -20,6 +20,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ArchiForge.AgentRuntime;
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
+using ArchiForge.Application.Analysis;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Diagrams;
@@ -96,6 +97,7 @@ namespace ArchiForge.Api
             builder.Services.AddHealthChecks()
                 .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
             builder.Services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
+            builder.Services.AddScoped<IArchitectureAnalysisService, ArchitectureAnalysisService>();
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
             builder.Services.AddScoped<IReplayRunService, ReplayRunService>();
             builder.Services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();

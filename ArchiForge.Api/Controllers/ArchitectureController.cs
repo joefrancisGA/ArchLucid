@@ -1,6 +1,7 @@
 using ArchiForge.Api.Models;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
+using ArchiForge.Application.Analysis;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Diagrams;
@@ -38,6 +39,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IAgentResultDiffService _agentResultDiffService;
     private readonly IAgentResultDiffSummaryFormatter _agentResultDiffSummaryFormatter;
     private readonly IDeterminismCheckService _determinismCheckService;
+    private readonly IArchitectureAnalysisService _architectureAnalysisService;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -57,7 +59,8 @@ public sealed class ArchitectureController : ControllerBase
         IAgentResultRepository resultRepository,
         IAgentResultDiffService agentResultDiffService,
         IAgentResultDiffSummaryFormatter agentResultDiffSummaryFormatter,
-        IDeterminismCheckService determinismCheckService)
+        IDeterminismCheckService determinismCheckService,
+        IArchitectureAnalysisService architectureAnalysisService)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -77,6 +80,7 @@ public sealed class ArchitectureController : ControllerBase
         _agentResultDiffService = agentResultDiffService;
         _agentResultDiffSummaryFormatter = agentResultDiffSummaryFormatter;
         _determinismCheckService = determinismCheckService;
+        _architectureAnalysisService = architectureAnalysisService;
     }
 
     [HttpPost("request")]
@@ -729,5 +733,36 @@ public sealed class ArchitectureController : ControllerBase
             decisionTraces,
             agentExecutionTraces
         });
+    }
+
+    [HttpPost("run/{runId}/analysis-report")]
+    [ProducesResponseType(typeof(ArchitectureAnalysisReportResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> BuildAnalysisReport(
+        [FromRoute] string runId,
+        [FromBody] ArchitectureAnalysisRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ArchitectureAnalysisRequest();
+        request.RunId = runId;
+
+        try
+        {
+            var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
+
+            return Ok(new ArchitectureAnalysisReportResponse
+            {
+                Report = report
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }
