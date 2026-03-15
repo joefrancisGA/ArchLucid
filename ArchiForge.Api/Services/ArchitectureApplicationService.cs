@@ -11,6 +11,9 @@ namespace ArchiForge.Api.Services;
 
 public sealed class ArchitectureApplicationService : IArchitectureApplicationService
 {
+    /// <summary>Number of agent results (Topology, Cost, Compliance) required before a run can transition to ReadyForCommit.</summary>
+    private const int RequiredResultCount = 3;
+
     private readonly IArchitectureRunRepository _runRepository;
     private readonly IAgentTaskRepository _taskRepository;
     private readonly IAgentResultRepository _resultRepository;
@@ -40,8 +43,11 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         if (run is null)
             return null;
 
-        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var results = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        var tasksTask = _taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        var resultsTask = _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        await Task.WhenAll(tasksTask, resultsTask);
+        var tasks = await tasksTask;
+        var results = await resultsTask;
         return new GetRunResult(run, tasks, results);
     }
 
@@ -59,10 +65,17 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
                 $"Result RunId '{result.RunId}' does not match route runId '{runId}'.");
         }
 
+        var existingResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        if (existingResults.Any(r => string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal)))
+        {
+            return new SubmitResultResult(false, null,
+                $"A result for task '{result.TaskId}' has already been submitted for this run.");
+        }
+
         await _resultRepository.CreateAsync(result, cancellationToken);
 
-        var allResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        var newStatus = allResults.Count >= 3 && run.Status == ArchitectureRunStatus.TasksGenerated
+        var totalResultCount = existingResults.Count + 1;
+        var newStatus = totalResultCount >= RequiredResultCount && run.Status == ArchitectureRunStatus.TasksGenerated
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
 
