@@ -14,7 +14,7 @@ namespace ArchiForge
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, commit <runId>, seed <runId>, artifacts <runId>");
+                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, commit <runId>, seed <runId>, artifacts <runId>, health");
                 return 1;
             }
 
@@ -74,6 +74,9 @@ namespace ArchiForge
                     var saveArtifacts = args.Length > 2 && args[2] == "--save";
                     return await ArchiForge_ArtifactsAsync(args[1], saveArtifacts);
 
+                case "health":
+                    return await ArchiForge_HealthAsync();
+
                 default:
                     Console.WriteLine($"Unknown command: {command}");
                     return 1;
@@ -108,6 +111,34 @@ namespace ArchiForge
 
         private static string GetBaseUrl(ArchiForgeProjectScaffolder.ArchiForgeConfig? config) =>
             ArchiForgeApiClient.ResolveBaseUrl(config);
+
+        /// <summary>
+        /// Ensures the ArchiForge API is reachable. Returns true if connected, false otherwise (and prints an error).
+        /// </summary>
+        private static async Task<bool> EnsureApiConnectedAsync(string baseUrl, CancellationToken ct = default)
+        {
+            var client = new ArchiForgeApiClient(baseUrl);
+            if (await client.CheckHealthAsync(ct))
+                return true;
+            Console.WriteLine($"Cannot connect to ArchiForge API at {baseUrl}");
+            Console.WriteLine("Ensure the API is running: dotnet run --project ArchiForge.Api");
+            Console.WriteLine("Or set apiUrl in archiforge.json / ARCHIFORGE_API_URL environment variable.");
+            return false;
+        }
+
+        private static async Task<int> ArchiForge_HealthAsync()
+        {
+            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            var client = new ArchiForgeApiClient(baseUrl);
+            if (await client.CheckHealthAsync())
+            {
+                Console.WriteLine($"OK - ArchiForge API at {baseUrl} is reachable.");
+                return 0;
+            }
+            Console.WriteLine($"FAIL - Cannot reach ArchiForge API at {baseUrl}");
+            Console.WriteLine("Ensure the API is running: dotnet run --project ArchiForge.Api");
+            return 1;
+        }
 
         private static int ArchiForge_Dev_Up()
         {
@@ -251,6 +282,9 @@ namespace ArchiForge
             var request = BuildArchitectureRequest(config, briefContent);
 
             var baseUrl = GetBaseUrl(config);
+            if (!await EnsureApiConnectedAsync(baseUrl))
+                return 1;
+
             var client = new ArchiForgeApiClient(baseUrl);
 
             Console.WriteLine($"Submitting request to {baseUrl}...");
@@ -330,6 +364,9 @@ namespace ArchiForge
         private static async Task<int> ArchiForge_StatusAsync(string runId)
         {
             var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            if (!await EnsureApiConnectedAsync(baseUrl))
+                return 1;
+
             var client = new ArchiForgeApiClient(baseUrl);
 
             var run = await client.GetRunAsync(runId);
@@ -363,6 +400,9 @@ namespace ArchiForge
         private static async Task<int> ArchiForge_CommitAsync(string runId)
         {
             var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            if (!await EnsureApiConnectedAsync(baseUrl))
+                return 1;
+
             var client = new ArchiForgeApiClient(baseUrl);
 
             var result = await client.CommitRunAsync(runId);
@@ -390,6 +430,9 @@ namespace ArchiForge
         private static async Task<int> ArchiForge_SeedAsync(string runId)
         {
             var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            if (!await EnsureApiConnectedAsync(baseUrl))
+                return 1;
+
             var client = new ArchiForgeApiClient(baseUrl);
 
             var result = await client.SeedFakeResultsAsync(runId);
@@ -409,6 +452,9 @@ namespace ArchiForge
         {
             var config = TryLoadConfigFromCwd();
             var baseUrl = GetBaseUrl(config);
+            if (!await EnsureApiConnectedAsync(baseUrl))
+                return 1;
+
             var client = new ArchiForgeApiClient(baseUrl);
 
             var run = await client.GetRunAsync(runId);

@@ -102,6 +102,7 @@ dotnet run --project ArchiForge.Cli -- <command> [options]
 | `commit <runId>` | Merge results and produce a versioned manifest |
 | `artifacts <runId>` | Fetch and display the committed manifest for a run |
 | `artifacts <runId> --save` | Same, and save the manifest to `outputs/manifest-{version}.json` (requires project dir) |
+| `health` | Check connectivity to the ArchiForge API (GET /health). Use to verify the API is running before run/status/commit/seed/artifacts. |
 
 ### Typical workflow
 

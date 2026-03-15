@@ -60,6 +60,22 @@ public sealed class ArchiForgeApiClient
     }
 
     /// <summary>
+    /// Check connectivity to the ArchiForge API (GET /health). Returns true if the API is reachable and healthy.
+    /// </summary>
+    public async Task<bool> CheckHealthAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await _http.GetAsync("/health", ct);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Create an architecture run by submitting an ArchitectureRequest.
     /// </summary>
     public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CancellationToken ct = default)
