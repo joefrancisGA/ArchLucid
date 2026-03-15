@@ -119,8 +119,12 @@ public sealed class ArchitectureApplicationServiceTests
         result.Success.Should().BeTrue();
         result.Response.Should().NotBeNull();
         result.Response!.Run.RunId.Should().Be("run-1");
+        result.Response.EvidenceBundle.EvidenceBundleId.Should().Be("eb-1");
         result.Response.Tasks.Should().HaveCount(1);
         result.Errors.Should().BeEmpty();
+        _requestRepository.Verify(r => r.CreateAsync(request, It.IsAny<CancellationToken>()), Times.Once);
+        _runRepository.Verify(r => r.CreateAsync(run, It.IsAny<CancellationToken>()), Times.Once);
+        _taskRepository.Verify(r => r.CreateManyAsync(tasks, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -170,6 +174,22 @@ public sealed class ArchitectureApplicationServiceTests
         var result = await _sut.GetRunAsync("nonexistent");
 
         result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetRunAsync_WhenRunHasNoTasksOrResults_ReturnsEmptyCollections()
+    {
+        var run = ValidRun();
+        _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
+        _taskRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(new List<AgentTask>());
+        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(new List<AgentResult>());
+
+        var result = await _sut.GetRunAsync("run-1");
+
+        result.Should().NotBeNull();
+        result!.Run.RunId.Should().Be("run-1");
+        result.Tasks.Should().BeEmpty();
+        result.Results.Should().BeEmpty();
     }
 
     #endregion
@@ -245,6 +265,25 @@ public sealed class ArchitectureApplicationServiceTests
         sutResult.Success.Should().BeFalse();
         sutResult.Error.Should().Contain("does not match");
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitAgentResultAsync_WhenRunIdMatchIsCaseInsensitive_AcceptsResult()
+    {
+        var run = ValidRun("run-1");
+        var result = ValidResult("run-1");
+        result.RunId = "RUN-1";
+        var resultsAfterSubmit = new List<AgentResult> { result };
+
+        _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
+        _resultRepository.Setup(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(resultsAfterSubmit);
+        _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        var sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
+
+        sutResult.Success.Should().BeTrue();
+        _resultRepository.Verify(r => r.CreateAsync(result, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     #endregion
