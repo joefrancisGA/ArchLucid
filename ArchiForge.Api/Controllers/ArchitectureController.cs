@@ -2,6 +2,7 @@ using ArchiForge.Api.Models;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Diagrams;
+using ArchiForge.Application.Summaries;
 using ArchiForge.Data.Repositories;
 using ArchiForge.Contracts.Requests;
 using Asp.Versioning;
@@ -21,19 +22,22 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IGoldenManifestRepository _manifestRepository;
     private readonly IDecisionTraceRepository _decisionTraceRepository;
     private readonly IDiagramGenerator _diagramGenerator;
+    private readonly IManifestSummaryGenerator _summaryGenerator;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
         IArchitectureApplicationService architectureApplicationService,
         IGoldenManifestRepository manifestRepository,
         IDecisionTraceRepository decisionTraceRepository,
-        IDiagramGenerator diagramGenerator)
+        IDiagramGenerator diagramGenerator,
+        IManifestSummaryGenerator summaryGenerator)
     {
         _architectureRunService = architectureRunService;
         _architectureApplicationService = architectureApplicationService;
         _manifestRepository = manifestRepository;
         _decisionTraceRepository = decisionTraceRepository;
         _diagramGenerator = diagramGenerator;
+        _summaryGenerator = summaryGenerator;
     }
 
     [HttpPost("request")]
@@ -188,6 +192,31 @@ public sealed class ArchitectureController : ControllerBase
             ManifestVersion = version,
             Format = "mermaid",
             Diagram = mermaid
+        };
+
+        return Ok(response);
+    }
+
+    [HttpGet("manifest/{version}/summary")]
+    [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetManifestSummary(
+        [FromRoute] string version,
+        CancellationToken cancellationToken)
+    {
+        var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
+        if (manifest is null)
+        {
+            return NotFound(new { error = $"Manifest '{version}' was not found." });
+        }
+
+        var markdown = _summaryGenerator.GenerateMarkdown(manifest);
+
+        var response = new ManifestSummaryResponse
+        {
+            ManifestVersion = version,
+            Format = "markdown",
+            Summary = markdown
         };
 
         return Ok(response);

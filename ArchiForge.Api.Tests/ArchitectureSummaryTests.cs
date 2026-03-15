@@ -1,0 +1,52 @@
+using System.Net;
+using System.Net.Http.Json;
+using ArchiForge.Api.Models;
+using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using Xunit;
+
+namespace ArchiForge.Api.Tests;
+
+public sealed class ArchitectureSummaryTests : IntegrationTestBase
+{
+    public ArchitectureSummaryTests(ArchiForgeApiFactory factory)
+        : base(factory)
+    {
+    }
+
+    [Fact]
+    public async Task GetManifestSummary_ReturnsMarkdown()
+    {
+        var createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-SUMMARY-001")));
+
+        createResponse.EnsureSuccessStatusCode();
+
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var runId = created!.Run.RunId;
+
+        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        executeResponse.EnsureSuccessStatusCode();
+
+        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        commitResponse.EnsureSuccessStatusCode();
+
+        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+
+        var summaryResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/summary");
+
+        summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var summaryPayload = await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(new JsonOptions().JsonSerializerOptions);
+        summaryPayload.Should().NotBeNull();
+        summaryPayload!.Format.Should().Be("markdown");
+        summaryPayload.Summary.Should().Contain("# Architecture Summary: EnterpriseRag");
+        summaryPayload.Summary.Should().Contain("## Services");
+        summaryPayload.Summary.Should().Contain("rag-api");
+        summaryPayload.Summary.Should().Contain("rag-search");
+        summaryPayload.Summary.Should().Contain("## Governance");
+        summaryPayload.Summary.Should().Contain("Managed Identity");
+    }
+}
