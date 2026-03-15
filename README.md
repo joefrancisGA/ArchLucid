@@ -41,7 +41,7 @@ Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pas
 dotnet run --project ArchiForge.Api
 ```
 
-The API listens on the URLs configured for the project (typically `http://localhost:5xxx` and `https://localhost:7xxx`).
+The API listens on the URLs configured for the project (default `http://localhost:5128`; see `ArchiForge.Api/Properties/launchSettings.json`).
 
 In Development:
 
@@ -77,7 +77,7 @@ Other endpoints:
 
 ## CLI (ArchiForge.Cli)
 
-The ArchiForge CLI lets you create projects, run architecture requests against the API, and inspect results. Run commands with:
+The ArchiForge CLI is wired to the ArchiForge API over HTTP: all of `run`, `status`, `commit`, `seed`, and `artifacts` call the API. It lets you create projects, run architecture requests, and inspect results. Run commands with:
 
 ```bash
 dotnet run --project ArchiForge.Cli -- <command> [options]
