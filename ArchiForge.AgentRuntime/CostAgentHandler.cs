@@ -12,6 +12,7 @@ public sealed class CostAgentHandler : IAgentHandler
     public Task<AgentResult> ExecuteAsync(
         string runId,
         ArchitectureRequest request,
+        AgentEvidencePackage evidence,
         AgentTask task,
         CancellationToken cancellationToken = default)
     {

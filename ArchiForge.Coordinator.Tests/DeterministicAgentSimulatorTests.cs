@@ -1,3 +1,4 @@
+using ArchiForge.Contracts.Agents;
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
@@ -39,10 +40,12 @@ public sealed class DeterministicAgentSimulatorTests
         coordination.Success.Should().BeTrue();
 
         IAgentExecutor simulator = new DeterministicAgentSimulator();
+        var evidence = CreateMinimalEvidence(coordination.Run.RunId, request);
 
         var results = await simulator.ExecuteAsync(
             coordination.Run.RunId,
             request,
+            evidence,
             coordination.Tasks);
 
         results.Should().HaveCount(4);
@@ -83,10 +86,12 @@ public sealed class DeterministicAgentSimulatorTests
         var coordination = coordinator.CreateRun(request);
 
         IAgentExecutor simulator = new DeterministicAgentSimulator();
+        var evidence = CreateMinimalEvidence(coordination.Run.RunId, request);
 
         var results = await simulator.ExecuteAsync(
             coordination.Run.RunId,
             request,
+            evidence,
             coordination.Tasks);
 
         var engine = new DecisionEngineService();
@@ -106,5 +111,24 @@ public sealed class DeterministicAgentSimulatorTests
             c.Equals("Managed Identity", StringComparison.OrdinalIgnoreCase));
         merge.Manifest.Governance.RequiredControls.Should().Contain(c =>
             c.Equals("Private Endpoints", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static AgentEvidencePackage CreateMinimalEvidence(string runId, ArchitectureRequest request)
+    {
+        return new AgentEvidencePackage
+        {
+            RunId = runId,
+            RequestId = request.RequestId,
+            SystemName = request.SystemName,
+            Environment = request.Environment,
+            CloudProvider = request.CloudProvider.ToString(),
+            Request = new RequestEvidence
+            {
+                Description = request.Description,
+                Constraints = request.Constraints.ToList(),
+                RequiredCapabilities = request.RequiredCapabilities.ToList(),
+                Assumptions = request.Assumptions.ToList()
+            }
+        };
     }
 }

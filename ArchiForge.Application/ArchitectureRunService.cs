@@ -1,3 +1,4 @@
+using ArchiForge.Application.Evidence;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
@@ -12,6 +13,7 @@ public sealed class ArchitectureRunService : IArchitectureRunService
     private readonly ICoordinatorService _coordinator;
     private readonly IAgentExecutor _agentExecutor;
     private readonly IDecisionEngineService _decisionEngine;
+    private readonly IEvidenceBuilder _evidenceBuilder;
     private readonly IArchitectureRequestRepository _requestRepository;
     private readonly IArchitectureRunRepository _runRepository;
     private readonly IAgentTaskRepository _taskRepository;
@@ -24,6 +26,7 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         ICoordinatorService coordinator,
         IAgentExecutor agentExecutor,
         IDecisionEngineService decisionEngine,
+        IEvidenceBuilder evidenceBuilder,
         IArchitectureRequestRepository requestRepository,
         IArchitectureRunRepository runRepository,
         IAgentTaskRepository taskRepository,
@@ -35,6 +38,7 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         _coordinator = coordinator;
         _agentExecutor = agentExecutor;
         _decisionEngine = decisionEngine;
+        _evidenceBuilder = evidenceBuilder;
         _requestRepository = requestRepository;
         _runRepository = runRepository;
         _taskRepository = taskRepository;
@@ -85,7 +89,14 @@ public sealed class ArchitectureRunService : IArchitectureRunService
             throw new InvalidOperationException($"No tasks found for run '{runId}'.");
         }
 
-        var results = await _agentExecutor.ExecuteAsync(runId, request, tasks, cancellationToken);
+        var evidence = await _evidenceBuilder.BuildAsync(runId, request, cancellationToken);
+
+        var results = await _agentExecutor.ExecuteAsync(
+            runId,
+            request,
+            evidence,
+            tasks,
+            cancellationToken);
 
         foreach (var result in results)
         {

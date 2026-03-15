@@ -8,10 +8,12 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
     public Task<IReadOnlyList<AgentResult>> ExecuteAsync(
         string runId,
         ArchitectureRequest request,
+        AgentEvidencePackage evidence,
         IReadOnlyCollection<AgentTask> tasks,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
 
         var results = new List<AgentResult>();

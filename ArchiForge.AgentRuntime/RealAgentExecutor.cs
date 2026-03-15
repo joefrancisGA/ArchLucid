@@ -16,10 +16,12 @@ public sealed class RealAgentExecutor : IAgentExecutor
     public async Task<IReadOnlyList<AgentResult>> ExecuteAsync(
         string runId,
         ArchitectureRequest request,
+        AgentEvidencePackage evidence,
         IReadOnlyCollection<AgentTask> tasks,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
 
         var results = new List<AgentResult>();
@@ -35,6 +37,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
             var result = await handler.ExecuteAsync(
                 runId,
                 request,
+                evidence,
                 task,
                 cancellationToken);
 

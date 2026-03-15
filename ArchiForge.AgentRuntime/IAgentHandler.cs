@@ -11,6 +11,7 @@ public interface IAgentHandler
     Task<AgentResult> ExecuteAsync(
         string runId,
         ArchitectureRequest request,
+        AgentEvidencePackage evidence,
         AgentTask task,
         CancellationToken cancellationToken = default);
 }

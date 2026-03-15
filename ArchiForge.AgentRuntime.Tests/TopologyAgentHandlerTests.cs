@@ -105,7 +105,23 @@ public sealed class TopologyAgentHandlerTests
             Objective = "Produce a topology proposal."
         };
 
-        var result = await handler.ExecuteAsync("RUN-001", request, task);
+        var evidence = new AgentEvidencePackage
+        {
+            RunId = "RUN-001",
+            RequestId = request.RequestId,
+            SystemName = request.SystemName,
+            Environment = request.Environment,
+            CloudProvider = request.CloudProvider.ToString(),
+            Request = new RequestEvidence
+            {
+                Description = request.Description,
+                Constraints = request.Constraints.ToList(),
+                RequiredCapabilities = request.RequiredCapabilities.ToList(),
+                Assumptions = request.Assumptions.ToList()
+            }
+        };
+
+        var result = await handler.ExecuteAsync("RUN-001", request, evidence, task);
 
         result.AgentType.Should().Be(AgentType.Topology);
         result.RunId.Should().Be("RUN-001");

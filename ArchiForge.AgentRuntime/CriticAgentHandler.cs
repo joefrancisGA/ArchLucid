@@ -23,14 +23,16 @@ public sealed class CriticAgentHandler : IAgentHandler
     public async Task<AgentResult> ExecuteAsync(
         string runId,
         ArchitectureRequest request,
+        AgentEvidencePackage evidence,
         AgentTask task,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(task);
 
         var systemPrompt = BuildSystemPrompt();
-        var userPrompt = BuildUserPrompt(runId, request, task);
+        var userPrompt = BuildUserPrompt(runId, request, evidence, task);
 
         var rawJson = await _completionClient.CompleteJsonAsync(
             systemPrompt,
@@ -125,6 +127,7 @@ Important review themes:
     private static string BuildUserPrompt(
         string runId,
         ArchitectureRequest request,
+        AgentEvidencePackage evidence,
         AgentTask task)
     {
         var sb = new StringBuilder();
@@ -175,6 +178,60 @@ Important review themes:
                 sb.AppendLine($"- {assumption}");
             }
 
+            sb.AppendLine();
+        }
+
+        sb.AppendLine("Evidence Package");
+        sb.AppendLine($"EvidencePackageId: {evidence.EvidencePackageId}");
+        sb.AppendLine();
+
+        if (evidence.Policies.Count > 0)
+        {
+            sb.AppendLine("Policies:");
+            foreach (var policy in evidence.Policies)
+            {
+                sb.AppendLine($"- {policy.Title}: {policy.Summary}");
+                if (policy.RequiredControls.Count > 0)
+                {
+                    sb.AppendLine($"  RequiredControls: {string.Join(", ", policy.RequiredControls)}");
+                }
+            }
+
+            sb.AppendLine();
+        }
+
+        if (evidence.ServiceCatalog.Count > 0)
+        {
+            sb.AppendLine("Service Catalog Hints:");
+            foreach (var service in evidence.ServiceCatalog)
+            {
+                sb.AppendLine($"- {service.ServiceName}: {service.Summary}");
+                if (service.RecommendedUseCases.Count > 0)
+                {
+                    sb.AppendLine($"  UseCases: {string.Join(", ", service.RecommendedUseCases)}");
+                }
+            }
+
+            sb.AppendLine();
+        }
+
+        if (evidence.Patterns.Count > 0)
+        {
+            sb.AppendLine("Pattern Hints:");
+            foreach (var pattern in evidence.Patterns)
+            {
+                sb.AppendLine($"- {pattern.Name}: {pattern.Summary}");
+                sb.AppendLine($"  SuggestedServices: {string.Join(", ", pattern.SuggestedServices)}");
+            }
+
+            sb.AppendLine();
+        }
+
+        if (evidence.PriorManifest is not null)
+        {
+            sb.AppendLine("Prior Manifest:");
+            sb.AppendLine($"  Version: {evidence.PriorManifest.ManifestVersion}");
+            sb.AppendLine($"  Summary: {evidence.PriorManifest.Summary}");
             sb.AppendLine();
         }
 

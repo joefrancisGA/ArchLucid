@@ -8,6 +8,7 @@ public interface IAgentExecutor
     Task<IReadOnlyList<AgentResult>> ExecuteAsync(
         string runId,
         ArchitectureRequest request,
+        AgentEvidencePackage evidence,
         IReadOnlyCollection<AgentTask> tasks,
         CancellationToken cancellationToken = default);
 }

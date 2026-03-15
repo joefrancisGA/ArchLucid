@@ -129,6 +129,46 @@ public sealed class RealRuntimeMixedModeTests
 }
 """;
 
+        var criticJson = """
+{
+  "resultId": "RES-CRITIC-001",
+  "taskId": "TASK-CRITIC-001",
+  "runId": "RUN-001",
+  "agentType": "Critic",
+  "claims": [
+    "Observability should be explicit."
+  ],
+  "evidenceRefs": [
+    "critic-checklist"
+  ],
+  "confidence": 0.83,
+  "findings": [
+    {
+      "findingId": "FIND-CRITIC-001",
+      "sourceAgent": "Critic",
+      "severity": "Medium",
+      "category": "Critic",
+      "message": "ObservabilityUnderSpecified",
+      "evidenceRefs": [ "critic-checklist" ]
+    }
+  ],
+  "proposedChanges": {
+    "proposalId": "PROP-CRITIC-001",
+    "sourceAgent": "Critic",
+    "addedServices": [],
+    "addedDatastores": [],
+    "addedRelationships": [],
+    "requiredControls": [
+      "Diagnostic Logging"
+    ],
+    "warnings": [
+      "Add operational diagnostics before production."
+    ]
+  },
+  "createdUtc": "2026-03-15T14:10:00Z"
+}
+""";
+
         var parser = new AgentResultParser();
 
         var topologyHandler = new TopologyAgentHandler(
@@ -141,11 +181,16 @@ public sealed class RealRuntimeMixedModeTests
 
         var costHandler = new CostAgentHandler();
 
+        var criticHandler = new CriticAgentHandler(
+            new StubAgentCompletionClient(criticJson),
+            parser);
+
         var executor = new RealAgentExecutor(new IAgentHandler[]
         {
             topologyHandler,
             complianceHandler,
-            costHandler
+            costHandler,
+            criticHandler
         });
 
         var request = new ArchitectureRequest
@@ -182,12 +227,32 @@ public sealed class RealRuntimeMixedModeTests
         var costTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Cost);
         costTask.TaskId = "TASK-COST-001";
 
+        var criticTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Critic);
+        criticTask.TaskId = "TASK-CRITIC-001";
+        criticTask.RunId = "RUN-001";
+
         foreach (var task in coordination.Tasks)
         {
             task.RunId = "RUN-001";
         }
 
-        var results = await executor.ExecuteAsync("RUN-001", request, coordination.Tasks);
+        var evidence = new AgentEvidencePackage
+        {
+            RunId = "RUN-001",
+            RequestId = request.RequestId,
+            SystemName = request.SystemName,
+            Environment = request.Environment,
+            CloudProvider = request.CloudProvider.ToString(),
+            Request = new RequestEvidence
+            {
+                Description = request.Description,
+                Constraints = request.Constraints.ToList(),
+                RequiredCapabilities = request.RequiredCapabilities.ToList(),
+                Assumptions = request.Assumptions.ToList()
+            }
+        };
+
+        var results = await executor.ExecuteAsync("RUN-001", request, evidence, coordination.Tasks);
 
         var engine = new DecisionEngineService();
         var merge = engine.MergeResults("RUN-001", request, "v1", results);
@@ -198,5 +263,6 @@ public sealed class RealRuntimeMixedModeTests
         merge.Manifest.Datastores.Should().Contain(d => d.DatastoreName == "rag-metadata");
         merge.Manifest.Governance.RequiredControls.Should().Contain("Managed Identity");
         merge.Manifest.Governance.RequiredControls.Should().Contain("Private Endpoints");
+        merge.Manifest.Governance.RequiredControls.Should().Contain("Diagnostic Logging");
     }
 }

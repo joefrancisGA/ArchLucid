@@ -19,6 +19,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ArchiForge.AgentRuntime;
 using ArchiForge.Application;
 using ArchiForge.Application.Diagrams;
+using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Summaries;
 
 namespace ArchiForge.Api
@@ -95,6 +96,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IManifestSummaryGenerator, MarkdownManifestSummaryGenerator>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
+            builder.Services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
             builder.Services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
             builder.Services.AddScoped<IArchitectureRunRepository, ArchitectureRunRepository>();
             builder.Services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
