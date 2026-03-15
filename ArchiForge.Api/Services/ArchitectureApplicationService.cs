@@ -65,8 +65,9 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
 
         if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
         {
+            var allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
             return new SubmitResultResult(false, null,
-                $"Run is in status '{run.Status}' and does not accept agent results. Only TasksGenerated or WaitingForResults runs can receive results.");
+                $"Run is in status '{run.Status}' and does not accept agent results. Only {allowed} runs can receive results.");
         }
 
         if (!string.Equals(result.RunId, runId, StringComparison.OrdinalIgnoreCase))
