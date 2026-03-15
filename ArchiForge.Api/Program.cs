@@ -1,5 +1,6 @@
 using ArchiForge.Api.Health;
 using ArchiForge.Api.Middleware;
+using ArchiForge.Api.ProblemDetails;
 using Serilog;
 using ArchiForge.Api.Services;
 using ArchiForge.Api.Validators;
@@ -10,6 +11,7 @@ using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -29,6 +31,7 @@ namespace ArchiForge.Api
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddProblemDetails();
             builder.Services.AddApiVersioning(options =>
             {
                 options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -104,13 +107,18 @@ namespace ArchiForge.Api
             {
                 exceptionHandlerApp.Run(async context =>
                 {
-                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                    context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsJsonAsync(new
+                    var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
                     {
-                        error = "An unexpected error occurred.",
-                        requestId = context.TraceIdentifier
-                    });
+                        Type = ProblemTypes.InternalError,
+                        Title = "An unexpected error occurred.",
+                        Status = StatusCodes.Status500InternalServerError,
+                        Detail = "An unhandled exception has occurred. Use the trace identifier when contacting support.",
+                        Instance = context.Request.Path,
+                        Extensions = { ["traceId"] = context.TraceIdentifier }
+                    };
+                    context.Response.StatusCode = problem.Status ?? 500;
+                    context.Response.ContentType = "application/problem+json";
+                    await context.Response.WriteAsJsonAsync(problem);
                 });
             });
 

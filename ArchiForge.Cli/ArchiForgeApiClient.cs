@@ -192,15 +192,23 @@ public sealed class ArchiForgeApiClient
         }
     }
 
+    /// <summary>
+    /// Parse error message from JSON. Supports RFC 7807 Problem Details (detail, title) and legacy (error, errors).
+    /// </summary>
     private static string? TryParseError(string json)
     {
         try
         {
             var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.TryGetProperty("error", out var err))
+            var root = doc.RootElement;
+            if (root.TryGetProperty("detail", out var detail))
+                return detail.GetString();
+            if (root.TryGetProperty("error", out var err))
                 return err.GetString();
-            if (doc.RootElement.TryGetProperty("errors", out var errs) && errs.ValueKind == JsonValueKind.Array)
+            if (root.TryGetProperty("errors", out var errs) && errs.ValueKind == JsonValueKind.Array)
                 return string.Join("; ", errs.EnumerateArray().Select(e => e.GetString()).Where(s => !string.IsNullOrEmpty(s)));
+            if (root.TryGetProperty("title", out var title))
+                return title.GetString();
         }
         catch { }
         return null;

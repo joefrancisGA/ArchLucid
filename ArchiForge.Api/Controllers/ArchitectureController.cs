@@ -1,4 +1,5 @@
 using ArchiForge.Api.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Contracts.Requests;
 using Asp.Versioning;
@@ -27,21 +28,35 @@ public sealed class ArchitectureController : ControllerBase
 
     [HttpPost("request")]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateRun(
         [FromBody] ArchitectureRequest request,
         CancellationToken cancellationToken)
     {
         if (request is null)
         {
-            return BadRequest(new { error = "Request body is required." });
+            return BadRequest(Problem(
+                type: ProblemTypes.RequestBodyRequired,
+                title: "Request body is required.",
+                detail: "The request body must contain a valid ArchitectureRequest.",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path));
         }
 
         var result = await _applicationService.CreateRunAsync(request, cancellationToken);
 
         if (!result.Success)
         {
-            return BadRequest(new { errors = result.Errors });
+            var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+            {
+                Type = ProblemTypes.ValidationFailed,
+                Title = "Validation failed.",
+                Detail = "One or more validation errors occurred.",
+                Status = StatusCodes.Status400BadRequest,
+                Instance = HttpContext.Request.Path,
+                Extensions = { ["errors"] = result.Errors }
+            };
+            return BadRequest(problem);
         }
 
         return CreatedAtAction(
@@ -52,7 +67,7 @@ public sealed class ArchitectureController : ControllerBase
 
     [HttpGet("run/{runId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRun(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
@@ -60,7 +75,15 @@ public sealed class ArchitectureController : ControllerBase
         var result = await _applicationService.GetRunAsync(runId, cancellationToken);
         if (result is null)
         {
-            return NotFound(new { error = $"Run '{runId}' was not found." });
+            return NotFound(new Microsoft.AspNetCore.Mvc.ProblemDetails
+            {
+                Type = ProblemTypes.RunNotFound,
+                Title = "Run not found.",
+                Detail = $"Run '{runId}' was not found.",
+                Status = StatusCodes.Status404NotFound,
+                Instance = HttpContext.Request.Path.ToString(),
+                Extensions = { ["runId"] = runId }
+            });
         }
 
         return Ok(new
@@ -73,8 +96,8 @@ public sealed class ArchitectureController : ControllerBase
 
     [HttpPost("run/{runId}/result")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SubmitAgentResult(
         [FromRoute] string runId,
         [FromBody] SubmitAgentResultRequest request,
@@ -82,7 +105,12 @@ public sealed class ArchitectureController : ControllerBase
     {
         if (request?.Result is null)
         {
-            return BadRequest(new { error = "Agent result is required." });
+            return BadRequest(Problem(
+                type: ProblemTypes.AgentResultRequired,
+                title: "Agent result is required.",
+                detail: "The request body must include a non-null result.",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path));
         }
 
         var result = await _applicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
@@ -90,8 +118,21 @@ public sealed class ArchitectureController : ControllerBase
         if (!result.Success)
         {
             if (result.Error?.Contains("was not found") == true)
-                return NotFound(new { error = result.Error });
-            return BadRequest(new { error = result.Error });
+                return NotFound(new Microsoft.AspNetCore.Mvc.ProblemDetails
+                {
+                    Type = ProblemTypes.RunNotFound,
+                    Title = "Run not found.",
+                    Detail = result.Error,
+                    Status = StatusCodes.Status404NotFound,
+                    Instance = HttpContext.Request.Path.ToString(),
+                    Extensions = { ["runId"] = runId }
+                });
+            return BadRequest(Problem(
+                type: ProblemTypes.ValidationFailed,
+                title: "Submission failed.",
+                detail: result.Error,
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path));
         }
 
         return Accepted(new
@@ -104,8 +145,8 @@ public sealed class ArchitectureController : ControllerBase
 
     [HttpPost("run/{runId}/commit")]
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CommitRun(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
@@ -116,12 +157,29 @@ public sealed class ArchitectureController : ControllerBase
         {
             var isNotFound = result.Errors.Any(e => e.Contains("not found"));
             if (isNotFound)
-                return NotFound(new { error = result.Errors.First() });
-            return BadRequest(new
+                return NotFound(new Microsoft.AspNetCore.Mvc.ProblemDetails
+                {
+                    Type = ProblemTypes.RunNotFound,
+                    Title = "Run not found.",
+                    Detail = result.Errors.First(),
+                    Status = StatusCodes.Status404NotFound,
+                    Instance = HttpContext.Request.Path.ToString(),
+                    Extensions = { ["runId"] = runId }
+                });
+            var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
             {
-                errors = result.Errors,
-                warnings = result.Warnings
-            });
+                Type = ProblemTypes.CommitFailed,
+                Title = "Commit failed.",
+                Detail = "One or more errors prevented the run from being committed.",
+                Status = StatusCodes.Status400BadRequest,
+                Instance = HttpContext.Request.Path,
+                Extensions =
+                {
+                    ["errors"] = result.Errors,
+                    ["warnings"] = result.Warnings
+                }
+            };
+            return BadRequest(problem);
         }
 
         return Ok(result.Response);
@@ -129,7 +187,7 @@ public sealed class ArchitectureController : ControllerBase
 
     [HttpGet("manifest/{version}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifest(
         [FromRoute] string version,
         CancellationToken cancellationToken)
@@ -137,7 +195,15 @@ public sealed class ArchitectureController : ControllerBase
         var manifest = await _applicationService.GetManifestAsync(version, cancellationToken);
         if (manifest is null)
         {
-            return NotFound(new { error = $"Manifest '{version}' was not found." });
+            return NotFound(new Microsoft.AspNetCore.Mvc.ProblemDetails
+            {
+                Type = ProblemTypes.ManifestNotFound,
+                Title = "Manifest not found.",
+                Detail = $"Manifest '{version}' was not found.",
+                Status = StatusCodes.Status404NotFound,
+                Instance = HttpContext.Request.Path.ToString(),
+                Extensions = { ["version"] = version }
+            });
         }
 
         return Ok(manifest);
@@ -145,14 +211,19 @@ public sealed class ArchitectureController : ControllerBase
 
     [HttpPost("run/{runId}/seed-fake-results")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SeedFakeResults(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
         if (!_environment.IsDevelopment())
         {
-            return NotFound();
+            return NotFound(Problem(
+                type: ProblemTypes.UnavailableInProduction,
+                title: "Not found.",
+                detail: "This endpoint is only available in the Development environment.",
+                statusCode: StatusCodes.Status404NotFound,
+                instance: HttpContext.Request.Path));
         }
 
         var result = await _applicationService.SeedFakeResultsAsync(runId, cancellationToken);
@@ -160,8 +231,21 @@ public sealed class ArchitectureController : ControllerBase
         if (!result.Success)
         {
             if (result.Error?.Contains("was not found") == true)
-                return NotFound(new { error = result.Error });
-            return BadRequest(new { error = result.Error });
+                return NotFound(new Microsoft.AspNetCore.Mvc.ProblemDetails
+                {
+                    Type = ProblemTypes.RunNotFound,
+                    Title = "Run not found.",
+                    Detail = result.Error,
+                    Status = StatusCodes.Status404NotFound,
+                    Instance = HttpContext.Request.Path.ToString(),
+                    Extensions = { ["runId"] = runId }
+                });
+            return BadRequest(Problem(
+                type: ProblemTypes.ValidationFailed,
+                title: "Seed failed.",
+                detail: result.Error,
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path));
         }
 
         return Ok(new
