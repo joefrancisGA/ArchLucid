@@ -124,6 +124,22 @@ public sealed class ArchitectureApplicationServiceTests
         result.Results.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task GetRunAsync_PassesCancellationTokenToRepositories()
+    {
+        var run = ValidRun();
+        var cts = new CancellationTokenSource();
+        _runRepository.Setup(r => r.GetByIdAsync("run-1", cts.Token)).ReturnsAsync(run);
+        _taskRepository.Setup(r => r.GetByRunIdAsync("run-1", cts.Token)).ReturnsAsync(new List<AgentTask>());
+        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", cts.Token)).ReturnsAsync(new List<AgentResult>());
+
+        await _sut.GetRunAsync("run-1", cts.Token);
+
+        _runRepository.Verify(r => r.GetByIdAsync("run-1", cts.Token), Times.Once);
+        _taskRepository.Verify(r => r.GetByRunIdAsync("run-1", cts.Token), Times.Once);
+        _resultRepository.Verify(r => r.GetByRunIdAsync("run-1", cts.Token), Times.Once);
+    }
+
     #endregion
 
     #region SubmitAgentResultAsync
@@ -233,6 +249,23 @@ public sealed class ArchitectureApplicationServiceTests
     }
 
     [Fact]
+    public async Task SubmitAgentResultAsync_WhenRunStatusDoesNotAllowSubmission_ReturnsError()
+    {
+        var run = ValidRun();
+        run.Status = ArchitectureRunStatus.ReadyForCommit;
+        var result = ValidResult("run-1");
+
+        _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
+
+        var sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
+
+        sutResult.Success.Should().BeFalse();
+        sutResult.Error.Should().Contain("does not accept agent results");
+        sutResult.Error.Should().Contain("TasksGenerated");
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task SubmitAgentResultAsync_WhenRunIdMismatch_ReturnsError()
     {
         var run = ValidRun("run-1");
@@ -284,6 +317,44 @@ public sealed class ArchitectureApplicationServiceTests
 
         sutResult.Success.Should().BeFalse();
         sutResult.Error.Should().Contain("already been submitted");
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitAgentResultAsync_WhenTaskNotFoundForRun_ReturnsError()
+    {
+        var run = ValidRun();
+        var result = ValidResult("run-1");
+        result.TaskId = "nonexistent-task";
+        var tasks = new List<AgentTask> { ValidTask("run-1", AgentType.Topology) };
+
+        _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
+        _taskRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(tasks);
+        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(new List<AgentResult>());
+
+        var sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
+
+        sutResult.Success.Should().BeFalse();
+        sutResult.Error.Should().Contain("was not found");
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitAgentResultAsync_WhenResultAgentTypeDoesNotMatchTask_ReturnsError()
+    {
+        var run = ValidRun();
+        var result = ValidResult("run-1", AgentType.Cost);
+        result.TaskId = "task-1";
+        var tasks = new List<AgentTask> { ValidTask("run-1", AgentType.Topology) };
+
+        _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
+        _taskRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(tasks);
+        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(new List<AgentResult>());
+
+        var sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
+
+        sutResult.Success.Should().BeFalse();
+        sutResult.Error.Should().Contain("does not match task AgentType");
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -393,6 +464,29 @@ public sealed class ArchitectureApplicationServiceTests
         result.Should().NotBeNull();
         result!.Success.Should().BeFalse();
         result.Error.Should().Contain("No tasks");
+    }
+
+    [Fact]
+    public async Task SeedFakeResultsAsync_WhenRunAlreadyHasResults_ReturnsSuccessWithZeroCountAndDoesNotCreate()
+    {
+        var run = ValidRun();
+        var request = ValidRequest();
+        var tasks = new List<AgentTask> { ValidTask() };
+        var existingResults = new List<AgentResult> { ValidResult() };
+
+        _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
+        _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
+        _taskRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(tasks);
+        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(existingResults);
+
+        var result = await _sut.SeedFakeResultsAsync("run-1");
+
+        result.Should().NotBeNull();
+        result!.Success.Should().BeTrue();
+        result.ResultCount.Should().Be(0);
+        result.Error.Should().BeNull();
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _runRepository.Verify(r => r.UpdateStatusAsync(It.IsAny<string>(), It.IsAny<ArchitectureRunStatus>(), It.IsAny<string?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     #endregion
