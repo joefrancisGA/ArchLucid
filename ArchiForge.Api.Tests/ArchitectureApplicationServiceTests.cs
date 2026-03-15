@@ -108,6 +108,18 @@ public sealed class ArchitectureApplicationServiceTests
         result.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task GetRunAsync_WhenRunIdIsNullOrWhiteSpace_ReturnsNull(string? runId)
+    {
+        var result = await _sut.GetRunAsync(runId!);
+
+        result.Should().BeNull();
+        _runRepository.Verify(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     [Fact]
     public async Task GetRunAsync_WhenRunHasNoTasksOrResults_ReturnsEmptyCollections()
     {
@@ -162,6 +174,29 @@ public sealed class ArchitectureApplicationServiceTests
         sutResult.Success.Should().BeTrue();
         sutResult.ResultId.Should().Be("result-1");
         sutResult.Error.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task SubmitAgentResultAsync_WhenRunIdIsNullOrWhiteSpace_ReturnsError(string? runId)
+    {
+        var result = await _sut.SubmitAgentResultAsync(runId!, ValidResult());
+
+        result.Success.Should().BeFalse();
+        result.Error.Should().Be("RunId is required.");
+        _runRepository.Verify(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitAgentResultAsync_WhenResultIsNull_ReturnsError()
+    {
+        var result = await _sut.SubmitAgentResultAsync("run-1", null!);
+
+        result.Success.Should().BeFalse();
+        result.Error.Should().Be("Agent result is required.");
+        _runRepository.Verify(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -399,6 +434,20 @@ public sealed class ArchitectureApplicationServiceTests
     #endregion
 
     #region SeedFakeResultsAsync
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task SeedFakeResultsAsync_WhenRunIdIsNullOrWhiteSpace_ReturnsError(string? runId)
+    {
+        var result = await _sut.SeedFakeResultsAsync(runId!);
+
+        result.Success.Should().BeFalse();
+        result.ResultCount.Should().Be(0);
+        result.Error.Should().Be("RunId is required.");
+        _runRepository.Verify(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
 
     [Fact]
     public async Task SeedFakeResultsAsync_WhenValid_SeedsResultsAndUpdatesStatus()

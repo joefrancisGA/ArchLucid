@@ -192,10 +192,6 @@ public sealed class ArchitectureController : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await _architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
-        if (result is null)
-        {
-            return NotFound(new { error = $"Run '{runId}' was not found." });
-        }
         if (!result.Success)
         {
             if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))

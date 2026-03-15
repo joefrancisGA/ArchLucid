@@ -43,6 +43,9 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
 
     public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(runId))
+            return null;
+
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
             return null;
@@ -57,6 +60,11 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
 
     public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult result, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(runId))
+            return new SubmitResultResult(false, null, "RunId is required.");
+        if (result is null)
+            return new SubmitResultResult(false, null, "Agent result is required.");
+
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
@@ -140,8 +148,11 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         return await _manifestRepository.GetByVersionAsync(version, cancellationToken);
     }
 
-    public async Task<SeedFakeResultsResult?> SeedFakeResultsAsync(string runId, CancellationToken cancellationToken = default)
+    public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(runId))
+            return new SeedFakeResultsResult(false, 0, "RunId is required.");
+
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
