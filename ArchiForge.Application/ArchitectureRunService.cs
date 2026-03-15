@@ -21,6 +21,7 @@ public sealed class ArchitectureRunService : IArchitectureRunService
     private readonly IGoldenManifestRepository _manifestRepository;
     private readonly IEvidenceBundleRepository _evidenceBundleRepository;
     private readonly IDecisionTraceRepository _decisionTraceRepository;
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
 
     public ArchitectureRunService(
         ICoordinatorService coordinator,
@@ -33,7 +34,8 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         IAgentResultRepository resultRepository,
         IGoldenManifestRepository manifestRepository,
         IEvidenceBundleRepository evidenceBundleRepository,
-        IDecisionTraceRepository decisionTraceRepository)
+        IDecisionTraceRepository decisionTraceRepository,
+        IAgentEvidencePackageRepository agentEvidencePackageRepository)
     {
         _coordinator = coordinator;
         _agentExecutor = agentExecutor;
@@ -46,6 +48,7 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         _manifestRepository = manifestRepository;
         _evidenceBundleRepository = evidenceBundleRepository;
         _decisionTraceRepository = decisionTraceRepository;
+        _agentEvidencePackageRepository = agentEvidencePackageRepository;
     }
 
     public async Task<CreateRunResult> CreateRunAsync(
@@ -90,6 +93,8 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         }
 
         var evidence = await _evidenceBuilder.BuildAsync(runId, request, cancellationToken);
+
+        await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
 
         var results = await _agentExecutor.ExecuteAsync(
             runId,

@@ -19,25 +19,31 @@ public sealed class ArchitectureController : ControllerBase
 {
     private readonly IArchitectureRunService _architectureRunService;
     private readonly IArchitectureApplicationService _architectureApplicationService;
+    private readonly IArchitectureRunRepository _runRepository;
     private readonly IGoldenManifestRepository _manifestRepository;
     private readonly IDecisionTraceRepository _decisionTraceRepository;
     private readonly IDiagramGenerator _diagramGenerator;
     private readonly IManifestSummaryGenerator _summaryGenerator;
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
         IArchitectureApplicationService architectureApplicationService,
+        IArchitectureRunRepository runRepository,
         IGoldenManifestRepository manifestRepository,
         IDecisionTraceRepository decisionTraceRepository,
         IDiagramGenerator diagramGenerator,
-        IManifestSummaryGenerator summaryGenerator)
+        IManifestSummaryGenerator summaryGenerator,
+        IAgentEvidencePackageRepository agentEvidencePackageRepository)
     {
         _architectureRunService = architectureRunService;
         _architectureApplicationService = architectureApplicationService;
+        _runRepository = runRepository;
         _manifestRepository = manifestRepository;
         _decisionTraceRepository = decisionTraceRepository;
         _diagramGenerator = diagramGenerator;
         _summaryGenerator = summaryGenerator;
+        _agentEvidencePackageRepository = agentEvidencePackageRepository;
     }
 
     [HttpPost("request")]
@@ -268,6 +274,31 @@ public sealed class ArchitectureController : ControllerBase
         };
 
         return Ok(response);
+    }
+
+    [HttpGet("run/{runId}/evidence")]
+    [ProducesResponseType(typeof(AgentEvidencePackageResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunEvidence(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        if (run is null)
+        {
+            return NotFound(new { error = $"Run '{runId}' was not found." });
+        }
+
+        var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+        if (evidence is null)
+        {
+            return NotFound(new { error = $"Evidence for run '{runId}' was not found." });
+        }
+
+        return Ok(new AgentEvidencePackageResponse
+        {
+            Evidence = evidence
+        });
     }
 
     [HttpGet("run/{runId}/full")]

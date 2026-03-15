@@ -69,3 +69,18 @@ CREATE TABLE DecisionTraces
     EventJson NVARCHAR(MAX) NOT NULL,
     CreatedUtc DATETIME2 NOT NULL
 );
+
+CREATE TABLE AgentEvidencePackages
+(
+    EvidencePackageId NVARCHAR(64) NOT NULL PRIMARY KEY,
+    RunId NVARCHAR(64) NOT NULL,
+    RequestId NVARCHAR(64) NOT NULL,
+    SystemName NVARCHAR(200) NOT NULL,
+    Environment NVARCHAR(50) NOT NULL,
+    CloudProvider NVARCHAR(50) NOT NULL,
+    EvidenceJson NVARCHAR(MAX) NOT NULL,
+    CreatedUtc DATETIME2 NOT NULL
+);
+
+CREATE INDEX IX_AgentEvidencePackages_RunId
+    ON AgentEvidencePackages (RunId);
