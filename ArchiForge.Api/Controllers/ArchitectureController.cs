@@ -43,6 +43,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IArchitectureAnalysisService _architectureAnalysisService;
     private readonly IArchitectureAnalysisExportService _architectureAnalysisExportService;
     private readonly IArchitectureAnalysisDocxExportService _docxExportService;
+    private readonly IConsultingDocxTemplateRecommendationService _consultingDocxTemplateRecommendationService;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -65,7 +66,8 @@ public sealed class ArchitectureController : ControllerBase
         IDeterminismCheckService determinismCheckService,
         IArchitectureAnalysisService architectureAnalysisService,
         IArchitectureAnalysisExportService architectureAnalysisExportService,
-        IArchitectureAnalysisDocxExportService docxExportService)
+        IArchitectureAnalysisDocxExportService docxExportService,
+        IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -88,6 +90,7 @@ public sealed class ArchitectureController : ControllerBase
         _architectureAnalysisService = architectureAnalysisService;
         _architectureAnalysisExportService = architectureAnalysisExportService;
         _docxExportService = docxExportService;
+        _consultingDocxTemplateRecommendationService = consultingDocxTemplateRecommendationService;
     }
 
     [HttpPost("request")]
@@ -868,5 +871,31 @@ public sealed class ArchitectureController : ControllerBase
         {
             return this.BadRequestProblem(ex.Message);
         }
+    }
+
+    [HttpPost("analysis-report/export/docx/consulting/profiles/recommend")]
+    [ProducesResponseType(typeof(ConsultingDocxProfileRecommendationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult RecommendConsultingDocxTemplateProfile(
+        [FromBody] ConsultingDocxProfileRecommendationRequest? request)
+    {
+        request ??= new ConsultingDocxProfileRecommendationRequest();
+
+        var recommendation = _consultingDocxTemplateRecommendationService.Recommend(
+            new Application.Analysis.ConsultingDocxProfileRecommendationRequest
+            {
+                Audience = request.Audience,
+                ExternalDelivery = request.ExternalDelivery,
+                ExecutiveFriendly = request.ExecutiveFriendly,
+                RegulatedEnvironment = request.RegulatedEnvironment,
+                NeedDetailedEvidence = request.NeedDetailedEvidence,
+                NeedExecutionTraces = request.NeedExecutionTraces,
+                NeedDeterminismOrCompareAppendices = request.NeedDeterminismOrCompareAppendices
+            });
+
+        return Ok(new ConsultingDocxProfileRecommendationResponse
+        {
+            Recommendation = recommendation
+        });
     }
 }
