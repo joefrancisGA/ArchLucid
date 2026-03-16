@@ -65,6 +65,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IExportRecordDiffSummaryFormatter _exportRecordDiffSummaryFormatter;
     private readonly IEndToEndReplayComparisonService _endToEndReplayComparisonService;
     private readonly IEndToEndReplayComparisonSummaryFormatter _endToEndReplayComparisonSummaryFormatter;
+    private readonly IEndToEndReplayComparisonExportService _endToEndReplayComparisonExportService;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -97,7 +98,8 @@ public sealed class ArchitectureController : ControllerBase
         IExportRecordDiffService exportRecordDiffService,
         IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,
         IEndToEndReplayComparisonService endToEndReplayComparisonService,
-        IEndToEndReplayComparisonSummaryFormatter endToEndReplayComparisonSummaryFormatter)
+        IEndToEndReplayComparisonSummaryFormatter endToEndReplayComparisonSummaryFormatter,
+        IEndToEndReplayComparisonExportService endToEndReplayComparisonExportService)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -130,6 +132,7 @@ public sealed class ArchitectureController : ControllerBase
         _exportRecordDiffSummaryFormatter = exportRecordDiffSummaryFormatter;
         _endToEndReplayComparisonService = endToEndReplayComparisonService;
         _endToEndReplayComparisonSummaryFormatter = endToEndReplayComparisonSummaryFormatter;
+        _endToEndReplayComparisonExportService = endToEndReplayComparisonExportService;
     }
 
     [HttpPost("request")]
@@ -610,6 +613,96 @@ public sealed class ArchitectureController : ControllerBase
                 Format = "markdown",
                 Summary = summary
             });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+    }
+
+    [HttpGet("run/compare/end-to-end/export")]
+    [ProducesResponseType(typeof(EndToEndReplayComparisonExportResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportRunsEndToEndComparisonMarkdown(
+        [FromQuery] string leftRunId,
+        [FromQuery] string rightRunId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var report = await _endToEndReplayComparisonService.BuildAsync(
+                leftRunId,
+                rightRunId,
+                cancellationToken);
+
+            var markdown = _endToEndReplayComparisonExportService.GenerateMarkdown(report);
+            var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.md";
+
+            return Ok(new EndToEndReplayComparisonExportResponse
+            {
+                Format = "markdown",
+                FileName = fileName,
+                Content = markdown
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+    }
+
+    [HttpGet("run/compare/end-to-end/export/file")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadRunsEndToEndComparisonMarkdown(
+        [FromQuery] string leftRunId,
+        [FromQuery] string rightRunId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var report = await _endToEndReplayComparisonService.BuildAsync(
+                leftRunId,
+                rightRunId,
+                cancellationToken);
+
+            var markdown = _endToEndReplayComparisonExportService.GenerateMarkdown(report);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(markdown);
+            var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.md";
+
+            return File(bytes, "text/markdown", fileName);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+    }
+
+    [HttpGet("run/compare/end-to-end/export/docx")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportRunsEndToEndComparisonDocx(
+        [FromQuery] string leftRunId,
+        [FromQuery] string rightRunId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var report = await _endToEndReplayComparisonService.BuildAsync(
+                leftRunId,
+                rightRunId,
+                cancellationToken);
+
+            var bytes = await _endToEndReplayComparisonExportService.GenerateDocxAsync(
+                report,
+                cancellationToken);
+
+            var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.docx";
+
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                fileName);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
