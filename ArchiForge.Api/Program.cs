@@ -128,6 +128,11 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IArchitectureAnalysisExportService, MarkdownArchitectureAnalysisExportService>();
             builder.Services.AddScoped<IDiagramImageRenderer, NullDiagramImageRenderer>();
             builder.Services.AddScoped<IArchitectureAnalysisDocxExportService, DocxArchitectureAnalysisExportService>();
+            builder.Services.Configure<ConsultingDocxTemplateOptions>(
+                builder.Configuration.GetSection("ConsultingDocxTemplate"));
+            builder.Services.AddScoped<IConsultingDocxTemplateOptionsProvider, DefaultConsultingDocxTemplateOptionsProvider>();
+            builder.Services.AddScoped<IDocumentLogoProvider, FileSystemDocumentLogoProvider>();
+            builder.Services.AddScoped<IArchitectureAnalysisConsultingDocxExportService, ConsultingDocxArchitectureAnalysisExportService>();
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
             builder.Services.AddScoped<IReplayRunService, ReplayRunService>();
             builder.Services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();

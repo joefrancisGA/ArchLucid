@@ -22,6 +22,11 @@ using DrPicNonVisualPictureDrawingProperties = DocumentFormat.OpenXml.Drawing.Pi
 using DrPicture = DocumentFormat.OpenXml.Drawing.Picture;
 using DrPicPicture = DocumentFormat.OpenXml.Drawing.Pictures.Picture;
 using DrPicBlipFill = DocumentFormat.OpenXml.Drawing.Pictures.BlipFill;
+using DrGraphicFrameLocks = DocumentFormat.OpenXml.Drawing.GraphicFrameLocks;
+using DrBlip = DocumentFormat.OpenXml.Drawing.Blip;
+using DrStretch = DocumentFormat.OpenXml.Drawing.Stretch;
+using DrFillRectangle = DocumentFormat.OpenXml.Drawing.FillRectangle;
+using DrShapeProperties = DocumentFormat.OpenXml.Drawing.ShapeProperties;
 using ArchiForge.Application.Diagrams;
 
 namespace ArchiForge.Application.Analysis;
@@ -370,7 +375,7 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
                     Name = imageName
                 },
                 new WpNonVisualGraphicFrameDrawingProperties(
-                    new GraphicFrameLocks { NoChangeAspect = true }),
+                    new DrGraphicFrameLocks { NoChangeAspect = true }),
                 new Graphic(
                     new GraphicData(
                         new DrPicPicture(
@@ -382,9 +387,9 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
                                 },
                                 new DrPicNonVisualPictureDrawingProperties()),
                             new DrPicBlipFill(
-                                new Blip { Embed = relationshipId },
-                                new Stretch(new FillRectangle())),
-                            new DocumentFormat.OpenXml.Drawing.ShapeProperties(
+                                new DrBlip { Embed = relationshipId },
+                                new DrStretch(new DrFillRectangle())),
+                            new DrShapeProperties(
                                 new Transform2D(
                                     new Offset { X = 0L, Y = 0L },
                                     new Extents { Cx = widthEmus, Cy = heightEmus }),
