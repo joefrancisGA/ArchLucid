@@ -7,6 +7,7 @@ using ArchiForge.Api.Middleware;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Api.Validators;
+using ArchiForge.Api.Startup.Validation;
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
 using ArchiForge.Application.Analysis;
@@ -212,6 +213,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
             builder.Services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
             builder.Services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
+            builder.Services.AddHostedService<ConfigurationValidator>();
 
             var agentMode = builder.Configuration["AgentExecution:Mode"];
             if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
