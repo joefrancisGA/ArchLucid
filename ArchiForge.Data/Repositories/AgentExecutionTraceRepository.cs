@@ -82,11 +82,10 @@ public sealed class AgentExecutionTraceRepository : IAgentExecutionTraceReposito
             new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        return rows
+        return [.. rows
             .Select(json => JsonSerializer.Deserialize<AgentExecutionTrace>(json, ContractJson.Default))
             .Where(x => x is not null)
-            .Cast<AgentExecutionTrace>()
-            .ToList();
+            .Cast<AgentExecutionTrace>()];
     }
 
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(

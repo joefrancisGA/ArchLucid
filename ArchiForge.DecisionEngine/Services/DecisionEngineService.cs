@@ -125,7 +125,7 @@ public sealed class DecisionEngineService : IDecisionEngineService
             Governance = new ManifestGovernance
             {
                 ComplianceTags = [],
-                PolicyConstraints = request.Constraints.ToList(),
+                PolicyConstraints = [.. request.Constraints],
                 RequiredControls = [],
                 RiskClassification = "Moderate",
                 CostClassification = "Moderate"
@@ -247,9 +247,7 @@ public sealed class DecisionEngineService : IDecisionEngineService
             .Union(incoming.Tags ?? [], StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        existing.RequiredControls = existing.RequiredControls
-            .Union(incoming.RequiredControls ?? [], StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        existing.RequiredControls = [.. existing.RequiredControls.Union(incoming.RequiredControls ?? [], StringComparer.OrdinalIgnoreCase)];
 
         AddTrace(
             output,

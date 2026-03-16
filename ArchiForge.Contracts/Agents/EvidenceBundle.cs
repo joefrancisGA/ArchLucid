@@ -12,5 +12,5 @@ public sealed class EvidenceBundle
 
     public List<string> PriorManifestRefs { get; set; } = [];
 
-    public Dictionary<string, string> Metadata { get; set; } = new();
+    public Dictionary<string, string> Metadata { get; set; } = [];
 }

@@ -10,10 +10,7 @@ public sealed class EvidenceBundleRepository : IEvidenceBundleRepository
 {
     private readonly IDbConnectionFactory _connectionFactory;
 
-    public EvidenceBundleRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
+    public EvidenceBundleRepository(IDbConnectionFactory connectionFactory) => _connectionFactory = connectionFactory;
 
     public async Task CreateAsync(EvidenceBundle evidenceBundle, CancellationToken cancellationToken = default)
     {

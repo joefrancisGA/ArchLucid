@@ -12,7 +12,7 @@ public sealed class SqliteConnectionFactory : IDbConnectionFactory
 {
     private readonly string _connectionString;
     private static readonly object SchemaLock = new();
-    private static readonly HashSet<string> InitializedDatabases = new();
+    private static readonly HashSet<string> InitializedDatabases = [];
 
     public SqliteConnectionFactory(string connectionString)
     {

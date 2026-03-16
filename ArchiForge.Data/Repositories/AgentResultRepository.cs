@@ -118,10 +118,6 @@ public sealed class AgentResultRepository : IAgentResultRepository
             new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        return rows
-            .Select(json => JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default))
-            .Where(x => x is not null)
-            .Cast<AgentResult>()
-            .ToList();
+        return [.. rows.Select(json => JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default)).Where(x => x is not null).Cast<AgentResult>()];
     }
 }

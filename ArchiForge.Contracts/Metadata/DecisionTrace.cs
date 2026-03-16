@@ -12,5 +12,5 @@ public sealed class DecisionTrace
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
-    public Dictionary<string, string> Metadata { get; set; } = new();
+    public Dictionary<string, string> Metadata { get; set; } = [];
 }

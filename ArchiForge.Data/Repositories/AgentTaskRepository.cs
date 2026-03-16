@@ -85,21 +85,7 @@ public sealed class AgentTaskRepository : IAgentTaskRepository
             new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        return rows.Select(r => new AgentTask
-        {
-            TaskId = r.TaskId,
-            RunId = r.RunId,
-            AgentType = Enum.TryParse<AgentType>(r.AgentType, true, out var agentType)
-                ? agentType
-                : AgentType.Topology,
-            Objective = r.Objective,
-            Status = Enum.TryParse<AgentTaskStatus>(r.Status, true, out var status)
-                ? status
-                : AgentTaskStatus.Created,
-            CreatedUtc = r.CreatedUtc,
-            CompletedUtc = r.CompletedUtc,
-            EvidenceBundleRef = r.EvidenceBundleRef
-        }).ToList();
+        return [.. rows.Select(r => new AgentTask { TaskId = r.TaskId, RunId = r.RunId, AgentType = Enum.TryParse<AgentType>(r.AgentType, true, out var agentType) ? agentType : AgentType.Topology, Objective = r.Objective, Status = Enum.TryParse<AgentTaskStatus>(r.Status, true, out var status) ? status : AgentTaskStatus.Created, CreatedUtc = r.CreatedUtc, CompletedUtc = r.CompletedUtc, EvidenceBundleRef = r.EvidenceBundleRef })];
     }
 
     private sealed class AgentTaskRow

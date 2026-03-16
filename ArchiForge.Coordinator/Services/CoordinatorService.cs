@@ -65,7 +65,7 @@ public sealed class CoordinatorService : ICoordinatorService
             CreatedUtc = DateTime.UtcNow,
             CompletedUtc = null,
             CurrentManifestVersion = null,
-            TaskIds = tasks.Select(t => t.TaskId).ToList()
+            TaskIds = [.. tasks.Select(t => t.TaskId)]
         };
     }
 
