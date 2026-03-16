@@ -9,5 +9,11 @@ public sealed class ReplayComparisonMetadataResponse
     public string Format { get; set; } = string.Empty;
 
     public string FileName { get; set; } = string.Empty;
+
+    public string ReplayMode { get; set; } = "artifact";
+
+    public bool VerificationPassed { get; set; }
+
+    public string? VerificationMessage { get; set; }
 }
 

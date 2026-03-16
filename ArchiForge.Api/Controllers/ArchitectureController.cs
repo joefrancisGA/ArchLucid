@@ -774,6 +774,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ReplayComparison(
         [FromRoute] string comparisonRecordId,
         [FromBody] ApiReplayComparisonRequest? request,
@@ -788,12 +789,15 @@ public sealed class ArchitectureController : ControllerBase
                 {
                     ComparisonRecordId = comparisonRecordId,
                     Format = request.Format,
+                    ReplayMode = request.ReplayMode,
                     Profile = request.Profile
                 },
                 cancellationToken);
 
             Response.Headers["X-ArchiForge-ComparisonRecordId"] = result.ComparisonRecordId;
             Response.Headers["X-ArchiForge-ComparisonType"] = result.ComparisonType;
+            Response.Headers["X-ArchiForge-ReplayMode"] = result.ReplayMode;
+            Response.Headers["X-ArchiForge-VerificationPassed"] = result.VerificationPassed.ToString();
 
             if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
             {
@@ -827,6 +831,10 @@ public sealed class ArchitectureController : ControllerBase
 
             return BadRequest(new { error = $"Unsupported replay result format '{result.Format}'." });
         }
+        catch (ComparisonVerificationFailedException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
             return NotFound(new { error = ex.Message });
@@ -841,6 +849,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(ReplayComparisonMetadataResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ReplayComparisonMetadata(
         [FromRoute] string comparisonRecordId,
         [FromBody] ApiReplayComparisonRequest? request,
@@ -855,6 +864,7 @@ public sealed class ArchitectureController : ControllerBase
                 {
                     ComparisonRecordId = comparisonRecordId,
                     Format = request.Format,
+                    ReplayMode = request.ReplayMode,
                     Profile = request.Profile
                 },
                 cancellationToken);
@@ -864,8 +874,15 @@ public sealed class ArchitectureController : ControllerBase
                 ComparisonRecordId = result.ComparisonRecordId,
                 ComparisonType = result.ComparisonType,
                 Format = result.Format,
-                FileName = result.FileName
+                FileName = result.FileName,
+                ReplayMode = result.ReplayMode,
+                VerificationPassed = result.VerificationPassed,
+                VerificationMessage = result.VerificationMessage
             });
+        }
+        catch (ComparisonVerificationFailedException ex)
+        {
+            return Conflict(new { error = ex.Message });
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
