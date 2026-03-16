@@ -1,14 +1,30 @@
 using System.IO;
+using System.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Drawing.Wordprocessing;
+using DocumentFormat.OpenXml.Drawing.Pictures;
+using ArchiForge.Application.Diagrams;
 
 namespace ArchiForge.Application.Analysis;
 
 public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysisDocxExportService
 {
-    public byte[] GenerateDocx(ArchitectureAnalysisReport report)
+    private readonly IDiagramImageRenderer _diagramImageRenderer;
+
+    public DocxArchitectureAnalysisExportService(IDiagramImageRenderer diagramImageRenderer)
     {
+        _diagramImageRenderer = diagramImageRenderer;
+    }
+
+    public async Task<byte[]> GenerateDocxAsync(
+        ArchitectureAnalysisReport report,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(report);
+
         using var stream = new MemoryStream();
 
         using (var document = WordprocessingDocument.Create(
@@ -28,42 +44,63 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
             AddParagraph(body, $"Status: {report.Run.Status}");
             AddParagraph(body, $"Created UTC: {report.Run.CreatedUtc:O}");
 
+            if (report.Run.CompletedUtc.HasValue)
+            {
+                AddParagraph(body, $"Completed UTC: {report.Run.CompletedUtc.Value:O}");
+            }
+
             if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
-                AddParagraph(body, $"Manifest Version: {report.Run.CurrentManifestVersion}");
+            {
+                AddParagraph(body, $"Current Manifest Version: {report.Run.CurrentManifestVersion}");
+            }
 
             AddSpacer(body);
 
-            if (report.Evidence != null)
+            if (report.Evidence is not null)
             {
                 AddHeading(body, "Evidence Package", 2);
 
+                AddParagraph(body, $"Evidence Package ID: {report.Evidence.EvidencePackageId}");
                 AddParagraph(body, $"System Name: {report.Evidence.SystemName}");
                 AddParagraph(body, $"Environment: {report.Evidence.Environment}");
                 AddParagraph(body, $"Cloud Provider: {report.Evidence.CloudProvider}");
 
                 AddSpacer(body);
 
-                AddHeading(body, "Request Description", 3);
+                AddHeading(body, "Request Context", 3);
                 AddParagraph(body, report.Evidence.Request.Description);
 
                 if (report.Evidence.Request.Constraints.Count > 0)
                 {
                     AddHeading(body, "Constraints", 3);
-
                     foreach (var item in report.Evidence.Request.Constraints)
+                    {
                         AddBullet(body, item);
+                    }
+                }
+
+                if (report.Evidence.Request.RequiredCapabilities.Count > 0)
+                {
+                    AddHeading(body, "Required Capabilities", 3);
+                    foreach (var item in report.Evidence.Request.RequiredCapabilities)
+                    {
+                        AddBullet(body, item);
+                    }
                 }
 
                 AddSpacer(body);
             }
 
-            if (report.Manifest != null)
+            if (report.Manifest is not null)
             {
                 AddHeading(body, "Architecture Manifest", 2);
 
-                AddParagraph(body, $"Services: {report.Manifest.Services.Count}");
-                AddParagraph(body, $"Datastores: {report.Manifest.Datastores.Count}");
-                AddParagraph(body, $"Relationships: {report.Manifest.Relationships.Count}");
+                AddParagraph(body, $"System Name: {report.Manifest.SystemName}");
+                AddParagraph(body, $"Run ID: {report.Manifest.RunId}");
+                AddParagraph(body, $"Manifest Version: {report.Manifest.Metadata.ManifestVersion}");
+                AddParagraph(body, $"Service Count: {report.Manifest.Services.Count}");
+                AddParagraph(body, $"Datastore Count: {report.Manifest.Datastores.Count}");
+                AddParagraph(body, $"Relationship Count: {report.Manifest.Relationships.Count}");
 
                 AddSpacer(body);
 
@@ -71,53 +108,137 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
                 {
                     AddHeading(body, "Services", 3);
 
-                    foreach (var svc in report.Manifest.Services)
+                    foreach (var service in report.Manifest.Services.OrderBy(x => x.ServiceName))
                     {
-                        AddParagraph(body, svc.ServiceName, true);
-                        AddBullet(body, $"Type: {svc.ServiceType}");
-                        AddBullet(body, $"Platform: {svc.RuntimePlatform}");
+                        AddParagraph(body, service.ServiceName, bold: true);
+                        AddBullet(body, $"Type: {service.ServiceType}");
+                        AddBullet(body, $"Platform: {service.RuntimePlatform}");
 
-                        if (!string.IsNullOrWhiteSpace(svc.Purpose))
-                            AddBullet(body, $"Purpose: {svc.Purpose}");
+                        if (!string.IsNullOrWhiteSpace(service.Purpose))
+                        {
+                            AddBullet(body, $"Purpose: {service.Purpose}");
+                        }
+
+                        if (service.RequiredControls.Count > 0)
+                        {
+                            AddBullet(body, $"Required Controls: {string.Join(", ", service.RequiredControls)}");
+                        }
                     }
-                }
 
-                AddSpacer(body);
+                    AddSpacer(body);
+                }
 
                 if (report.Manifest.Datastores.Count > 0)
                 {
                     AddHeading(body, "Datastores", 3);
 
-                    foreach (var db in report.Manifest.Datastores)
+                    foreach (var datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
                     {
-                        AddParagraph(body, db.DatastoreName, true);
-                        AddBullet(body, $"Type: {db.DatastoreType}");
-                        AddBullet(body, $"Platform: {db.RuntimePlatform}");
-                        AddBullet(body, $"Private Endpoint Required: {db.PrivateEndpointRequired}");
+                        AddParagraph(body, datastore.DatastoreName, bold: true);
+                        AddBullet(body, $"Type: {datastore.DatastoreType}");
+                        AddBullet(body, $"Platform: {datastore.RuntimePlatform}");
+                        AddBullet(body, $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
+                        AddBullet(body, $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
                     }
+
+                    AddSpacer(body);
                 }
+            }
+
+            if (!string.IsNullOrWhiteSpace(report.Diagram))
+            {
+                AddHeading(body, "Architecture Diagram", 2);
+
+                var diagramBytes = await _diagramImageRenderer.RenderMermaidPngAsync(
+                    report.Diagram,
+                    cancellationToken);
+
+                if (diagramBytes is not null && diagramBytes.Length > 0)
+                {
+                    AddImageToBody(mainPart, body, diagramBytes, "Architecture Diagram");
+                }
+                else
+                {
+                    AddParagraph(body, "Diagram image rendering was not available. Mermaid source is included below.");
+                    AddCodeBlock(body, report.Diagram, "mermaid");
+                }
+
+                AddSpacer(body);
             }
 
             if (!string.IsNullOrWhiteSpace(report.Summary))
             {
                 AddHeading(body, "Architecture Summary", 2);
-                AddParagraph(body, report.Summary);
+                AddMultilineParagraphs(body, report.Summary);
+                AddSpacer(body);
             }
 
-            if (report.Determinism != null)
+            if (report.Determinism is not null)
             {
                 AddHeading(body, "Determinism Check", 2);
 
+                AddParagraph(body, $"Source Run ID: {report.Determinism.SourceRunId}");
                 AddParagraph(body, $"Iterations: {report.Determinism.Iterations}");
-                AddParagraph(body, $"Deterministic: {report.Determinism.IsDeterministic}");
+                AddParagraph(body, $"Execution Mode: {report.Determinism.ExecutionMode}");
+                AddParagraph(body, $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
+                AddParagraph(body, $"Baseline Replay Run ID: {report.Determinism.BaselineReplayRunId}");
 
-                foreach (var iter in report.Determinism.IterationResults)
+                AddSpacer(body);
+
+                foreach (var iteration in report.Determinism.IterationResults.OrderBy(x => x.IterationNumber))
                 {
-                    AddParagraph(body, $"Iteration {iter.IterationNumber}", true);
+                    AddParagraph(body, $"Iteration {iteration.IterationNumber}", bold: true);
+                    AddBullet(body, $"Replay Run ID: {iteration.ReplayRunId}");
+                    AddBullet(body, $"Matches Baseline Agent Results: {(iteration.MatchesBaselineAgentResults ? "Yes" : "No")}");
+                    AddBullet(body, $"Matches Baseline Manifest: {(iteration.MatchesBaselineManifest ? "Yes" : "No")}");
 
-                    AddBullet(body, $"Replay Run ID: {iter.ReplayRunId}");
-                    AddBullet(body, $"Matches Agent Results: {iter.MatchesBaselineAgentResults}");
-                    AddBullet(body, $"Matches Manifest: {iter.MatchesBaselineManifest}");
+                    foreach (var warning in iteration.AgentDriftWarnings)
+                    {
+                        AddBullet(body, $"Agent Drift Warning: {warning}");
+                    }
+
+                    foreach (var warning in iteration.ManifestDriftWarnings)
+                    {
+                        AddBullet(body, $"Manifest Drift Warning: {warning}");
+                    }
+
+                    AddSpacer(body);
+                }
+            }
+
+            if (report.ManifestDiff is not null)
+            {
+                AddHeading(body, "Manifest Diff", 2);
+                AddDiffSection(body, "Added Services", report.ManifestDiff.AddedServices);
+                AddDiffSection(body, "Removed Services", report.ManifestDiff.RemovedServices);
+                AddDiffSection(body, "Added Datastores", report.ManifestDiff.AddedDatastores);
+                AddDiffSection(body, "Removed Datastores", report.ManifestDiff.RemovedDatastores);
+                AddDiffSection(body, "Added Required Controls", report.ManifestDiff.AddedRequiredControls);
+                AddDiffSection(body, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
+                AddSpacer(body);
+            }
+
+            if (report.AgentResultDiff is not null)
+            {
+                AddHeading(body, "Agent Result Diff", 2);
+
+                foreach (var delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
+                {
+                    AddParagraph(body, delta.AgentType.ToString(), bold: true);
+
+                    AddBullet(body, $"Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
+                    AddBullet(body, $"Right Exists: {(delta.RightExists ? "Yes" : "No")}");
+                    AddBullet(body, $"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
+                    AddBullet(body, $"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+
+                    AddDiffSection(body, "Added Claims", delta.AddedClaims);
+                    AddDiffSection(body, "Removed Claims", delta.RemovedClaims);
+                    AddDiffSection(body, "Added Findings", delta.AddedFindings);
+                    AddDiffSection(body, "Removed Findings", delta.RemovedFindings);
+                    AddDiffSection(body, "Added Required Controls", delta.AddedRequiredControls);
+                    AddDiffSection(body, "Removed Required Controls", delta.RemovedRequiredControls);
+
+                    AddSpacer(body);
                 }
             }
 
@@ -137,10 +258,12 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
 
     private static void AddParagraph(Body body, string text, bool bold = false)
     {
-        var run = new Run(new Text(text));
+        var run = new Run(new Text(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
+        {
             run.RunProperties = new RunProperties(new Bold());
+        }
 
         body.AppendChild(new Paragraph(run));
     }
@@ -148,11 +271,122 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
     private static void AddBullet(Body body, string text)
     {
         body.AppendChild(new Paragraph(
-            new Run(new Text($"• {text}"))));
+            new Run(new Text($"• {text}") { Space = SpaceProcessingModeValues.Preserve })));
     }
 
     private static void AddSpacer(Body body)
     {
-        body.AppendChild(new Paragraph(new Run(new Text(""))));
+        body.AppendChild(new Paragraph(new Run(new Text(string.Empty))));
+    }
+
+    private static void AddMultilineParagraphs(Body body, string text)
+    {
+        var lines = text.Replace("\r\n", "\n").Split('\n');
+
+        foreach (var line in lines)
+        {
+            AddParagraph(body, line);
+        }
+    }
+
+    private static void AddCodeBlock(Body body, string text, string language)
+    {
+        AddParagraph(body, $"[{language}]");
+
+        foreach (var line in text.Replace("\r\n", "\n").Split('\n'))
+        {
+            var run = new Run(new Text(line) { Space = SpaceProcessingModeValues.Preserve })
+            {
+                RunProperties = new RunProperties(new RunFonts { Ascii = "Consolas" })
+            };
+
+            body.AppendChild(new Paragraph(run));
+        }
+    }
+
+    private static void AddDiffSection(Body body, string title, IReadOnlyCollection<string> items)
+    {
+        AddParagraph(body, title, bold: true);
+
+        if (items.Count == 0)
+        {
+            AddBullet(body, "None");
+            return;
+        }
+
+        foreach (var item in items)
+        {
+            AddBullet(body, item);
+        }
+    }
+
+    private static void AddImageToBody(
+        MainDocumentPart mainPart,
+        Body body,
+        byte[] imageBytes,
+        string imageName)
+    {
+        var imagePart = mainPart.AddImagePart(ImagePartType.Png);
+
+        using (var stream = new MemoryStream(imageBytes))
+        {
+            imagePart.FeedData(stream);
+        }
+
+        var relationshipId = mainPart.GetIdOfPart(imagePart);
+
+        const long widthEmus = 6_000_000L;
+        const long heightEmus = 3_500_000L;
+
+        var drawing = new Drawing(
+            new Inline(
+                new Extent { Cx = widthEmus, Cy = heightEmus },
+                new EffectExtent
+                {
+                    LeftEdge = 0L,
+                    TopEdge = 0L,
+                    RightEdge = 0L,
+                    BottomEdge = 0L
+                },
+                new DocProperties
+                {
+                    Id = 1U,
+                    Name = imageName
+                },
+                new NonVisualGraphicFrameDrawingProperties(
+                    new GraphicFrameLocks { NoChangeAspect = true }),
+                new Graphic(
+                    new GraphicData(
+                        new Picture(
+                            new NonVisualPictureProperties(
+                                new NonVisualDrawingProperties
+                                {
+                                    Id = 0U,
+                                    Name = imageName
+                                },
+                                new NonVisualPictureDrawingProperties()),
+                            new BlipFill(
+                                new Blip { Embed = relationshipId },
+                                new Stretch(new FillRectangle())),
+                            new ShapeProperties(
+                                new Transform2D(
+                                    new Offset { X = 0L, Y = 0L },
+                                    new Extents { Cx = widthEmus, Cy = heightEmus }),
+                                new PresetGeometry(new AdjustValueList())
+                                {
+                                    Preset = ShapeTypeValues.Rectangle
+                                }))
+                    )
+                    {
+                        Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture"
+                    }))
+            {
+                DistanceFromTop = 0U,
+                DistanceFromBottom = 0U,
+                DistanceFromLeft = 0U,
+                DistanceFromRight = 0U
+            });
+
+        body.AppendChild(new Paragraph(new Run(drawing)));
     }
 }

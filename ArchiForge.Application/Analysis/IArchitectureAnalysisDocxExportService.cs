@@ -2,5 +2,7 @@ namespace ArchiForge.Application.Analysis;
 
 public interface IArchitectureAnalysisDocxExportService
 {
-    byte[] GenerateDocx(ArchitectureAnalysisReport report);
+    Task<byte[]> GenerateDocxAsync(
+        ArchitectureAnalysisReport report,
+        CancellationToken cancellationToken = default);
 }

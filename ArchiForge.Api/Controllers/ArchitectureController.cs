@@ -1,4 +1,5 @@
 using ArchiForge.Api.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
@@ -98,7 +99,7 @@ public sealed class ArchitectureController : ControllerBase
     {
         if (request is null)
         {
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
         try
@@ -119,7 +120,7 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return this.BadRequestProblem(ex.Message);
         }
     }
 
@@ -145,11 +146,11 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
-            return NotFound(new { error = ex.Message });
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return this.BadRequestProblem(ex.Message);
         }
     }
 
@@ -186,11 +187,11 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
-            return NotFound(new { error = ex.Message });
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return this.BadRequestProblem(ex.Message);
         }
     }
 
@@ -217,11 +218,11 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
-            return NotFound(new { error = ex.Message });
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return this.BadRequestProblem(ex.Message);
         }
     }
 
@@ -248,11 +249,11 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
-            return NotFound(new { error = ex.Message });
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return this.BadRequestProblem(ex.Message);
         }
     }
 
@@ -266,7 +267,7 @@ public sealed class ArchitectureController : ControllerBase
         var data = await _architectureApplicationService.GetRunAsync(runId, cancellationToken);
         if (data is null)
         {
-            return NotFound(new { error = $"Run '{runId}' was not found." });
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
         return Ok(new
@@ -288,7 +289,7 @@ public sealed class ArchitectureController : ControllerBase
     {
         if (request?.Result is null)
         {
-            return BadRequest(new { error = "Agent result is required." });
+            return this.BadRequestProblem("Agent result is required.", ProblemTypes.AgentResultRequired);
         }
 
         var result = await _architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
@@ -296,9 +297,9 @@ public sealed class ArchitectureController : ControllerBase
         {
             if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))
             {
-                return NotFound(new { error = result.Error });
+                return this.NotFoundProblem(result.Error, ProblemTypes.RunNotFound);
             }
-            return BadRequest(new { error = result.Error });
+            return this.BadRequestProblem(result.Error ?? "Submission failed.");
         }
 
         return Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! });
@@ -317,9 +318,9 @@ public sealed class ArchitectureController : ControllerBase
         {
             if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))
             {
-                return NotFound(new { error = result.Error });
+                return this.NotFoundProblem(result.Error, ProblemTypes.RunNotFound);
             }
-            return BadRequest(new { error = result.Error });
+            return this.BadRequestProblem(result.Error ?? "Seed failed.");
         }
 
         return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
@@ -336,13 +337,13 @@ public sealed class ArchitectureController : ControllerBase
         var left = await _manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
         if (left is null)
         {
-            return NotFound(new { error = $"Manifest '{leftVersion}' was not found." });
+            return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var right = await _manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
         if (right is null)
         {
-            return NotFound(new { error = $"Manifest '{rightVersion}' was not found." });
+            return this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var diff = _manifestDiffService.Compare(left, right);
@@ -366,13 +367,13 @@ public sealed class ArchitectureController : ControllerBase
         var left = await _manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
         if (left is null)
         {
-            return NotFound(new { error = $"Manifest '{leftVersion}' was not found." });
+            return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var right = await _manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
         if (right is null)
         {
-            return NotFound(new { error = $"Manifest '{rightVersion}' was not found." });
+            return this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var diff = _manifestDiffService.Compare(left, right);
@@ -399,13 +400,13 @@ public sealed class ArchitectureController : ControllerBase
         var left = await _manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
         if (left is null)
         {
-            return NotFound(new { error = $"Manifest '{leftVersion}' was not found." });
+            return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var right = await _manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
         if (right is null)
         {
-            return NotFound(new { error = $"Manifest '{rightVersion}' was not found." });
+            return this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var diff = _manifestDiffService.Compare(left, right);
@@ -433,13 +434,13 @@ public sealed class ArchitectureController : ControllerBase
         var left = await _manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
         if (left is null)
         {
-            return NotFound(new { error = $"Manifest '{leftVersion}' was not found." });
+            return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var right = await _manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
         if (right is null)
         {
-            return NotFound(new { error = $"Manifest '{rightVersion}' was not found." });
+            return this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var diff = _manifestDiffService.Compare(left, right);
@@ -463,13 +464,13 @@ public sealed class ArchitectureController : ControllerBase
         var leftRun = await _runRepository.GetByIdAsync(leftRunId, cancellationToken);
         if (leftRun is null)
         {
-            return NotFound(new { error = $"Run '{leftRunId}' was not found." });
+            return this.NotFoundProblem($"Run '{leftRunId}' was not found.", ProblemTypes.RunNotFound);
         }
 
         var rightRun = await _runRepository.GetByIdAsync(rightRunId, cancellationToken);
         if (rightRun is null)
         {
-            return NotFound(new { error = $"Run '{rightRunId}' was not found." });
+            return this.NotFoundProblem($"Run '{rightRunId}' was not found.", ProblemTypes.RunNotFound);
         }
 
         var leftResults = await _resultRepository.GetByRunIdAsync(leftRunId, cancellationToken);
@@ -494,13 +495,13 @@ public sealed class ArchitectureController : ControllerBase
         var leftRun = await _runRepository.GetByIdAsync(leftRunId, cancellationToken);
         if (leftRun is null)
         {
-            return NotFound(new { error = $"Run '{leftRunId}' was not found." });
+            return this.NotFoundProblem($"Run '{leftRunId}' was not found.", ProblemTypes.RunNotFound);
         }
 
         var rightRun = await _runRepository.GetByIdAsync(rightRunId, cancellationToken);
         if (rightRun is null)
         {
-            return NotFound(new { error = $"Run '{rightRunId}' was not found." });
+            return this.NotFoundProblem($"Run '{rightRunId}' was not found.", ProblemTypes.RunNotFound);
         }
 
         var leftResults = await _resultRepository.GetByRunIdAsync(leftRunId, cancellationToken);
@@ -527,7 +528,7 @@ public sealed class ArchitectureController : ControllerBase
         var manifest = await _architectureApplicationService.GetManifestAsync(version, cancellationToken);
         if (manifest is null)
         {
-            return NotFound(new { error = $"Manifest '{version}' was not found." });
+            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         return Ok(manifest);
@@ -543,7 +544,7 @@ public sealed class ArchitectureController : ControllerBase
         var manifest = await _architectureApplicationService.GetManifestAsync(version, cancellationToken);
         if (manifest is null)
         {
-            return NotFound(new { error = $"Manifest '{version}' was not found." });
+            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var mermaid = _diagramGenerator.GenerateMermaid(manifest);
@@ -568,7 +569,7 @@ public sealed class ArchitectureController : ControllerBase
         var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
         if (manifest is null)
         {
-            return NotFound(new { error = $"Manifest '{version}' was not found." });
+            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
@@ -594,7 +595,7 @@ public sealed class ArchitectureController : ControllerBase
         var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
         if (manifest is null)
         {
-            return NotFound(new { error = $"Manifest '{version}' was not found." });
+            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
@@ -620,7 +621,7 @@ public sealed class ArchitectureController : ControllerBase
         var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
         if (manifest is null)
         {
-            return NotFound(new { error = $"Manifest '{version}' was not found." });
+            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
@@ -641,7 +642,7 @@ public sealed class ArchitectureController : ControllerBase
         var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
         if (manifest is null)
         {
-            return NotFound(new { error = $"Manifest '{version}' was not found." });
+            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
         }
 
         var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
@@ -666,13 +667,13 @@ public sealed class ArchitectureController : ControllerBase
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
-            return NotFound(new { error = $"Run '{runId}' was not found." });
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
         var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
         if (evidence is null)
         {
-            return NotFound(new { error = $"Evidence for run '{runId}' was not found." });
+            return this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
         }
 
         return Ok(new AgentEvidencePackageResponse
@@ -691,7 +692,7 @@ public sealed class ArchitectureController : ControllerBase
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
-            return NotFound(new { error = $"Run '{runId}' was not found." });
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
         var traces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
@@ -712,7 +713,7 @@ public sealed class ArchitectureController : ControllerBase
         var data = await _architectureApplicationService.GetRunAsync(runId, cancellationToken);
         if (data is null)
         {
-            return NotFound(new { error = $"Run '{runId}' was not found." });
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
         object? manifest = null;
@@ -764,11 +765,11 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
-            return NotFound(new { error = ex.Message });
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return this.BadRequestProblem(ex.Message);
         }
     }
 
@@ -799,11 +800,11 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
-            return NotFound(new { error = ex.Message });
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return this.BadRequestProblem(ex.Message);
         }
     }
 
@@ -829,11 +830,11 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
-            return NotFound(new { error = ex.Message });
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return this.BadRequestProblem(ex.Message);
         }
     }
 
@@ -852,7 +853,7 @@ public sealed class ArchitectureController : ControllerBase
         try
         {
             var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
-            var bytes = _docxExportService.GenerateDocx(report);
+            var bytes = await _docxExportService.GenerateDocxAsync(report, cancellationToken);
 
             return File(
                 bytes,
@@ -861,11 +862,11 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
-            return NotFound(new { error = ex.Message });
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return this.BadRequestProblem(ex.Message);
         }
     }
 }

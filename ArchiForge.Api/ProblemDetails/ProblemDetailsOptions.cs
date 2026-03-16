@@ -15,4 +15,6 @@ public static class ProblemTypes
     public const string CommitFailed = Base + "#commit-failed";
     public const string UnavailableInProduction = Base + "#unavailable-in-production";
     public const string InternalError = Base + "#internal-error";
+    public const string BadRequest = Base + "#bad-request";
+    public const string ResourceNotFound = Base + "#resource-not-found";
 }

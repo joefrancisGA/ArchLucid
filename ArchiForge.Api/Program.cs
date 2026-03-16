@@ -102,6 +102,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
             builder.Services.AddScoped<IArchitectureAnalysisService, ArchitectureAnalysisService>();
             builder.Services.AddScoped<IArchitectureAnalysisExportService, MarkdownArchitectureAnalysisExportService>();
+            builder.Services.AddScoped<IDiagramImageRenderer, NullDiagramImageRenderer>();
             builder.Services.AddScoped<IArchitectureAnalysisDocxExportService, DocxArchitectureAnalysisExportService>();
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
             builder.Services.AddScoped<IReplayRunService, ReplayRunService>();
