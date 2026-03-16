@@ -70,6 +70,14 @@ public sealed class ArchitectureExportAuditTests : IntegrationTestBase
         export.Format.Should().Be("docx");
         export.TemplateProfile.Should().NotBeNullOrWhiteSpace();
         export.WasAutoSelected.Should().BeTrue();
+        export.IncludedEvidence.Should().BeTrue();
+        export.IncludedExecutionTraces.Should().BeTrue();
+        export.IncludedManifest.Should().BeTrue();
+        export.IncludedDiagram.Should().BeTrue();
+        export.IncludedSummary.Should().BeTrue();
+        export.IncludedDeterminismCheck.Should().BeFalse();
+        export.DeterminismIterations.Should().Be(3);
+        export.AnalysisRequestJson.Should().NotBeNullOrWhiteSpace();
     }
 }
 

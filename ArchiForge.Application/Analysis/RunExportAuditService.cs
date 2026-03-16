@@ -1,3 +1,4 @@
+using System.Text.Json;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
@@ -6,6 +7,10 @@ namespace ArchiForge.Application.Analysis;
 public sealed class RunExportAuditService : IRunExportAuditService
 {
     private readonly IRunExportRecordRepository _repository;
+    private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        WriteIndented = true
+    };
 
     public RunExportAuditService(IRunExportRecordRepository repository)
     {
@@ -22,6 +27,7 @@ public sealed class RunExportAuditService : IRunExportAuditService
         bool wasAutoSelected,
         string? resolutionReason,
         string? manifestVersion,
+        PersistedAnalysisExportRequest? analysisRequest = null,
         string? notes = null,
         CancellationToken cancellationToken = default)
     {
@@ -38,6 +44,20 @@ public sealed class RunExportAuditService : IRunExportAuditService
             ResolutionReason = resolutionReason,
             ManifestVersion = manifestVersion,
             Notes = notes,
+            AnalysisRequestJson = analysisRequest is null
+                ? null
+                : JsonSerializer.Serialize(analysisRequest, _jsonOptions),
+            IncludedEvidence = analysisRequest?.IncludeEvidence,
+            IncludedExecutionTraces = analysisRequest?.IncludeExecutionTraces,
+            IncludedManifest = analysisRequest?.IncludeManifest,
+            IncludedDiagram = analysisRequest?.IncludeDiagram,
+            IncludedSummary = analysisRequest?.IncludeSummary,
+            IncludedDeterminismCheck = analysisRequest?.IncludeDeterminismCheck,
+            DeterminismIterations = analysisRequest?.DeterminismIterations,
+            IncludedManifestCompare = analysisRequest?.IncludeManifestCompare,
+            CompareManifestVersion = analysisRequest?.CompareManifestVersion,
+            IncludedAgentResultCompare = analysisRequest?.IncludeAgentResultCompare,
+            CompareRunId = analysisRequest?.CompareRunId,
             CreatedUtc = DateTime.UtcNow
         };
 

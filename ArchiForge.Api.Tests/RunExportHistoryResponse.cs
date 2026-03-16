@@ -18,5 +18,17 @@ public sealed class RunExportRecordDto
     public string? ResolutionReason { get; set; }
     public string? ManifestVersion { get; set; }
     public string? Notes { get; set; }
+    public string? AnalysisRequestJson { get; set; }
+    public bool? IncludedEvidence { get; set; }
+    public bool? IncludedExecutionTraces { get; set; }
+    public bool? IncludedManifest { get; set; }
+    public bool? IncludedDiagram { get; set; }
+    public bool? IncludedSummary { get; set; }
+    public bool? IncludedDeterminismCheck { get; set; }
+    public int? DeterminismIterations { get; set; }
+    public bool? IncludedManifestCompare { get; set; }
+    public string? CompareManifestVersion { get; set; }
+    public bool? IncludedAgentResultCompare { get; set; }
+    public string? CompareRunId { get; set; }
 }
 

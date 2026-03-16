@@ -116,6 +116,18 @@ CREATE TABLE RunExportRecords
     ResolutionReason NVARCHAR(MAX) NULL,
     ManifestVersion NVARCHAR(100) NULL,
     Notes NVARCHAR(MAX) NULL,
+    AnalysisRequestJson NVARCHAR(MAX) NULL,
+    IncludedEvidence BIT NULL,
+    IncludedExecutionTraces BIT NULL,
+    IncludedManifest BIT NULL,
+    IncludedDiagram BIT NULL,
+    IncludedSummary BIT NULL,
+    IncludedDeterminismCheck BIT NULL,
+    DeterminismIterations INT NULL,
+    IncludedManifestCompare BIT NULL,
+    CompareManifestVersion NVARCHAR(100) NULL,
+    IncludedAgentResultCompare BIT NULL,
+    CompareRunId NVARCHAR(64) NULL,
     RecordJson NVARCHAR(MAX) NOT NULL,
     CreatedUtc DATETIME2 NOT NULL
 );

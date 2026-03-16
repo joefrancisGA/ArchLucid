@@ -14,6 +14,7 @@ public interface IRunExportAuditService
         bool wasAutoSelected,
         string? resolutionReason,
         string? manifestVersion,
+        PersistedAnalysisExportRequest? analysisRequest = null,
         string? notes = null,
         CancellationToken cancellationToken = default);
 }

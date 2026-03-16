@@ -1010,6 +1010,29 @@ public sealed class ArchitectureController : ControllerBase
                 CompareRunId = request.CompareRunId
             };
 
+            var persistedRequest = new PersistedAnalysisExportRequest
+            {
+                TemplateProfile = request.TemplateProfile,
+                Audience = request.Audience,
+                ExternalDelivery = request.ExternalDelivery,
+                ExecutiveFriendly = request.ExecutiveFriendly,
+                RegulatedEnvironment = request.RegulatedEnvironment,
+                NeedDetailedEvidence = request.NeedDetailedEvidence,
+                NeedExecutionTraces = request.NeedExecutionTraces,
+                NeedDeterminismOrCompareAppendices = request.NeedDeterminismOrCompareAppendices,
+                IncludeEvidence = request.IncludeEvidence,
+                IncludeExecutionTraces = request.IncludeExecutionTraces,
+                IncludeManifest = request.IncludeManifest,
+                IncludeDiagram = request.IncludeDiagram,
+                IncludeSummary = request.IncludeSummary,
+                IncludeDeterminismCheck = request.IncludeDeterminismCheck,
+                DeterminismIterations = request.DeterminismIterations,
+                IncludeManifestCompare = request.IncludeManifestCompare,
+                CompareManifestVersion = request.CompareManifestVersion,
+                IncludeAgentResultCompare = request.IncludeAgentResultCompare,
+                CompareRunId = request.CompareRunId
+            };
+
             var report = await _architectureAnalysisService.BuildAsync(
                 analysisRequest,
                 cancellationToken);
@@ -1030,6 +1053,7 @@ public sealed class ArchitectureController : ControllerBase
                 wasAutoSelected: resolved.WasAutoSelected,
                 resolutionReason: resolved.ResolutionReason,
                 manifestVersion: report.Manifest?.Metadata.ManifestVersion,
+                analysisRequest: persistedRequest,
                 notes: "Consulting DOCX export generated.",
                 cancellationToken: cancellationToken);
 
