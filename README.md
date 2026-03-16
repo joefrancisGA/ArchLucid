@@ -88,6 +88,23 @@ Other endpoints:
 
 - `GET /v1/architecture/run/{runId}` – Fetch run status, tasks, and results
 - `POST /v1/architecture/run/{runId}/seed-fake-results` – (Development only) Seed deterministic fake results for smoke testing
+- `POST /v1/architecture/run/{runId}/analysis-report` – Build an analysis report (evidence, manifest, diagram, summary, determinism, diffs)
+- `POST /v1/architecture/run/{runId}/analysis-report/export/docx` – Export the analysis report as a Word document (DOCX)
+
+### Analysis report and DOCX export
+
+The DOCX export produces a stakeholder-grade Word report: run metadata, evidence, manifest details, **architecture diagram**, summary, and optional determinism/diff sections. The architecture diagram is rendered from Mermaid to PNG and embedded in the document when a diagram renderer is available.
+
+**Diagram rendering:**
+
+- **Default (no renderer):** The API uses `NullDiagramImageRenderer`, which returns no image. The DOCX then includes the Mermaid source as a code block with the message *"Diagram image rendering was not available. Mermaid source is included below."*
+- **Mermaid CLI (mmdc):** To embed a PNG of the diagram, install [Mermaid CLI](https://github.com/mermaid-js/mermaid-cli) (`npm install -g @mermaid-js/mermaid-cli`) and ensure `mmdc` is on PATH. In `Program.cs`, register the real renderer instead of the null one:
+
+  ```csharp
+  builder.Services.AddScoped<IDiagramImageRenderer, MermaidCliDiagramImageRenderer>();
+  ```
+
+  Then DOCX exports will contain an embedded PNG of the diagram. If `mmdc` is not installed or fails, the export still succeeds and falls back to Mermaid source in the document.
 
 ## CLI (ArchiForge.Cli)
 
@@ -172,6 +189,7 @@ To update: `dotnet tool update -g ArchiForge.Cli --add-source ./nupkg`
 | Project | Description |
 |---------|-------------|
 | ArchiForge.Api | ASP.NET Core Web API, controllers, health checks |
+| ArchiForge.Application | Analysis report building, DOCX/Markdown export, diagram image rendering (Mermaid → PNG) |
 | ArchiForge.Contracts | DTOs, request/response types, manifest models |
 | ArchiForge.Coordinator | Run creation, task generation |
 | ArchiForge.DecisionEngine | Merges agent results into manifests |
