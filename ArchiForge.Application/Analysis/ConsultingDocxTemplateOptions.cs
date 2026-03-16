@@ -2,6 +2,14 @@ namespace ArchiForge.Application.Analysis;
 
 public sealed class ConsultingDocxTemplateOptions
 {
+    public string ProfileDisplayName { get; set; } = string.Empty;
+
+    public string ProfileDescription { get; set; } = string.Empty;
+
+    public string IntendedAudience { get; set; } = string.Empty;
+
+    public int DisplayOrder { get; set; } = 100;
+
     public string OrganizationName { get; set; } = "ArchiForge";
 
     public string DocumentTitle { get; set; } = "Architecture Analysis Report";
@@ -57,4 +65,3 @@ public sealed class ConsultingDocxTemplateOptions
     public string ConclusionsText { get; set; } =
         "The architecture analysis produced a resolved manifest and supporting explainability artifacts suitable for technical review.";
 }
-
