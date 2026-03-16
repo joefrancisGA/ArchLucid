@@ -247,6 +247,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = "CanCommitRuns")]
     public async Task<IActionResult> CommitRun(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
@@ -326,6 +327,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(SeedFakeResultsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = "CanSeedResults")]
     public async Task<IActionResult> SeedFakeResults(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
@@ -889,6 +891,7 @@ public sealed class ArchitectureController : ControllerBase
 
     [HttpPost("analysis-report/export/docx/consulting/resolve-profile")]
     [ProducesResponseType(typeof(ConsultingDocxExportResponse), StatusCodes.Status200OK)]
+    [Authorize(Policy = "CanExportConsultingDocx")]
     public IActionResult ResolveConsultingDocxExportProfile(
         [FromBody] ConsultingDocxExportRequest? request)
     {
@@ -922,6 +925,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = "CanExportConsultingDocx")]
     public async Task<IActionResult> ExportConsultingAnalysisReportDocx(
         [FromRoute] string runId,
         [FromBody] ConsultingDocxExportRequest? request,

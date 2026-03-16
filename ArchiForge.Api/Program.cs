@@ -29,6 +29,7 @@ using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
 using ArchiForge.Api.Authentication;
 using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 using OpenTelemetry.Exporter.Prometheus;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -72,7 +73,18 @@ namespace ArchiForge.Api
 
             builder.Services.AddAuthentication("ApiKey")
                 .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", options => { });
-            builder.Services.AddAuthorization();
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanCommitRuns", policy =>
+                    policy.RequireClaim("permission", "commit:run"));
+
+                options.AddPolicy("CanSeedResults", policy =>
+                    policy.RequireClaim("permission", "seed:results"));
+
+                options.AddPolicy("CanExportConsultingDocx", policy =>
+                    policy.RequireClaim("permission", "export:consulting-docx"));
+            });
 
             builder.Services.AddOpenTelemetry()
                 .ConfigureResource(resource => resource
