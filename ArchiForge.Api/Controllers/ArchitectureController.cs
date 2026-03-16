@@ -18,6 +18,8 @@ using ApiConsultingDocxProfileRecommendationRequest =
     ArchiForge.Api.Models.ConsultingDocxProfileRecommendationRequest;
 using AppConsultingDocxProfileRecommendationRequest =
     ArchiForge.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
+using AppConsultingDocxExportProfileSelector =
+    ArchiForge.Application.Analysis.IConsultingDocxExportProfileSelector;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -49,7 +51,9 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IArchitectureAnalysisService _architectureAnalysisService;
     private readonly IArchitectureAnalysisExportService _architectureAnalysisExportService;
     private readonly IArchitectureAnalysisDocxExportService _docxExportService;
+    private readonly IArchitectureAnalysisConsultingDocxExportService _architectureAnalysisConsultingDocxExportService;
     private readonly IConsultingDocxTemplateRecommendationService _consultingDocxTemplateRecommendationService;
+    private readonly AppConsultingDocxExportProfileSelector _consultingDocxExportProfileSelector;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -73,7 +77,9 @@ public sealed class ArchitectureController : ControllerBase
         IArchitectureAnalysisService architectureAnalysisService,
         IArchitectureAnalysisExportService architectureAnalysisExportService,
         IArchitectureAnalysisDocxExportService docxExportService,
-        IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService)
+        IArchitectureAnalysisConsultingDocxExportService architectureAnalysisConsultingDocxExportService,
+        IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService,
+        AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -96,7 +102,9 @@ public sealed class ArchitectureController : ControllerBase
         _architectureAnalysisService = architectureAnalysisService;
         _architectureAnalysisExportService = architectureAnalysisExportService;
         _docxExportService = docxExportService;
+        _architectureAnalysisConsultingDocxExportService = architectureAnalysisConsultingDocxExportService;
         _consultingDocxTemplateRecommendationService = consultingDocxTemplateRecommendationService;
+        _consultingDocxExportProfileSelector = consultingDocxExportProfileSelector;
     }
 
     [HttpPost("request")]
@@ -868,6 +876,108 @@ public sealed class ArchitectureController : ControllerBase
                 bytes,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 $"analysis_{runId}.docx");
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message);
+        }
+    }
+
+    [HttpPost("analysis-report/export/docx/consulting/resolve-profile")]
+    [ProducesResponseType(typeof(ConsultingDocxExportResponse), StatusCodes.Status200OK)]
+    public IActionResult ResolveConsultingDocxExportProfile(
+        [FromBody] ConsultingDocxExportRequest? request)
+    {
+        request ??= new ConsultingDocxExportRequest();
+
+        var resolved = _consultingDocxExportProfileSelector.Resolve(
+            request.TemplateProfile,
+            new AppConsultingDocxProfileRecommendationRequest
+            {
+                Audience = request.Audience,
+                ExternalDelivery = request.ExternalDelivery,
+                ExecutiveFriendly = request.ExecutiveFriendly,
+                RegulatedEnvironment = request.RegulatedEnvironment,
+                NeedDetailedEvidence = request.NeedDetailedEvidence,
+                NeedExecutionTraces = request.NeedExecutionTraces,
+                NeedDeterminismOrCompareAppendices = request.NeedDeterminismOrCompareAppendices
+            });
+
+        return Ok(new ConsultingDocxExportResponse
+        {
+            RunId = string.Empty,
+            SelectedProfileName = resolved.SelectedProfileName,
+            SelectedProfileDisplayName = resolved.SelectedProfileDisplayName,
+            WasAutoSelected = resolved.WasAutoSelected,
+            ResolutionReason = resolved.ResolutionReason,
+            FileName = string.Empty
+        });
+    }
+
+    [HttpPost("run/{runId}/analysis-report/export/docx/consulting")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportConsultingAnalysisReportDocx(
+        [FromRoute] string runId,
+        [FromBody] ConsultingDocxExportRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ConsultingDocxExportRequest();
+
+        try
+        {
+            var resolved = _consultingDocxExportProfileSelector.Resolve(
+                request.TemplateProfile,
+                new AppConsultingDocxProfileRecommendationRequest
+                {
+                    Audience = request.Audience,
+                    ExternalDelivery = request.ExternalDelivery,
+                    ExecutiveFriendly = request.ExecutiveFriendly,
+                    RegulatedEnvironment = request.RegulatedEnvironment,
+                    NeedDetailedEvidence = request.NeedDetailedEvidence,
+                    NeedExecutionTraces = request.NeedExecutionTraces,
+                    NeedDeterminismOrCompareAppendices = request.NeedDeterminismOrCompareAppendices
+                });
+
+            var analysisRequest = new ArchitectureAnalysisRequest
+            {
+                RunId = runId,
+                IncludeEvidence = request.IncludeEvidence,
+                IncludeExecutionTraces = request.IncludeExecutionTraces,
+                IncludeManifest = request.IncludeManifest,
+                IncludeDiagram = request.IncludeDiagram,
+                IncludeSummary = request.IncludeSummary,
+                IncludeDeterminismCheck = request.IncludeDeterminismCheck,
+                DeterminismIterations = request.DeterminismIterations,
+                IncludeManifestCompare = request.IncludeManifestCompare,
+                CompareManifestVersion = request.CompareManifestVersion,
+                IncludeAgentResultCompare = request.IncludeAgentResultCompare,
+                CompareRunId = request.CompareRunId
+            };
+
+            var report = await _architectureAnalysisService.BuildAsync(
+                analysisRequest,
+                cancellationToken);
+
+            var bytes = await _architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
+                report,
+                cancellationToken);
+
+            var fileName = $"analysis_{resolved.SelectedProfileName}_{runId}.docx";
+
+            Response.Headers["X-ArchiForge-Selected-Profile"] = resolved.SelectedProfileName;
+            Response.Headers["X-ArchiForge-Profile-AutoSelected"] = resolved.WasAutoSelected.ToString();
+            Response.Headers["X-ArchiForge-Profile-Reason"] = resolved.ResolutionReason;
+
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                fileName);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
