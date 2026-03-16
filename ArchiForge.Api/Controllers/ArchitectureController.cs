@@ -63,6 +63,8 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IExportReplayService _exportReplayService;
     private readonly IExportRecordDiffService _exportRecordDiffService;
     private readonly IExportRecordDiffSummaryFormatter _exportRecordDiffSummaryFormatter;
+    private readonly IEndToEndReplayComparisonService _endToEndReplayComparisonService;
+    private readonly IEndToEndReplayComparisonSummaryFormatter _endToEndReplayComparisonSummaryFormatter;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -93,7 +95,9 @@ public sealed class ArchitectureController : ControllerBase
         IRunExportRecordRepository runExportRecordRepository,
         IExportReplayService exportReplayService,
         IExportRecordDiffService exportRecordDiffService,
-        IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter)
+        IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,
+        IEndToEndReplayComparisonService endToEndReplayComparisonService,
+        IEndToEndReplayComparisonSummaryFormatter endToEndReplayComparisonSummaryFormatter)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -124,6 +128,8 @@ public sealed class ArchitectureController : ControllerBase
         _exportReplayService = exportReplayService;
         _exportRecordDiffService = exportRecordDiffService;
         _exportRecordDiffSummaryFormatter = exportRecordDiffSummaryFormatter;
+        _endToEndReplayComparisonService = endToEndReplayComparisonService;
+        _endToEndReplayComparisonSummaryFormatter = endToEndReplayComparisonSummaryFormatter;
     }
 
     [HttpPost("request")]
@@ -554,6 +560,61 @@ public sealed class ArchitectureController : ControllerBase
             Summary = summary,
             Diff = diff
         });
+    }
+
+    [HttpGet("run/compare/end-to-end")]
+    [ProducesResponseType(typeof(EndToEndReplayComparisonResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareRunsEndToEnd(
+        [FromQuery] string leftRunId,
+        [FromQuery] string rightRunId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var report = await _endToEndReplayComparisonService.BuildAsync(
+                leftRunId,
+                rightRunId,
+                cancellationToken);
+
+            return Ok(new EndToEndReplayComparisonResponse
+            {
+                Report = report
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+    }
+
+    [HttpGet("run/compare/end-to-end/summary")]
+    [ProducesResponseType(typeof(EndToEndReplayComparisonSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareRunsEndToEndSummary(
+        [FromQuery] string leftRunId,
+        [FromQuery] string rightRunId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var report = await _endToEndReplayComparisonService.BuildAsync(
+                leftRunId,
+                rightRunId,
+                cancellationToken);
+
+            var summary = _endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report);
+
+            return Ok(new EndToEndReplayComparisonSummaryResponse
+            {
+                Format = "markdown",
+                Summary = summary
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
     }
 
     [HttpGet("manifest/{version}")]
