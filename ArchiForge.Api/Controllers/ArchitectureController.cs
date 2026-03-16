@@ -791,7 +791,8 @@ public sealed class ArchitectureController : ControllerBase
                     ComparisonRecordId = comparisonRecordId,
                     Format = request.Format,
                     ReplayMode = request.ReplayMode,
-                    Profile = request.Profile
+                    Profile = request.Profile,
+                    PersistReplay = request.PersistReplay
                 },
                 cancellationToken);
 
@@ -826,6 +827,10 @@ public sealed class ArchitectureController : ControllerBase
             if (result.FormatProfile is { } formatProfile)
             {
                 Response.Headers["X-ArchiForge-Format-Profile"] = formatProfile;
+            }
+            if (result.PersistedReplayRecordId is { } persistedId)
+            {
+                Response.Headers["X-ArchiForge-PersistedReplayRecordId"] = persistedId;
             }
 
             if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
@@ -927,7 +932,8 @@ public sealed class ArchitectureController : ControllerBase
                     ComparisonRecordId = comparisonRecordId,
                     Format = request.Format,
                     ReplayMode = request.ReplayMode,
-                    Profile = request.Profile
+                    Profile = request.Profile,
+                    PersistReplay = request.PersistReplay
                 },
                 cancellationToken);
 
@@ -955,6 +961,10 @@ public sealed class ArchitectureController : ControllerBase
             {
                 Response.Headers["X-ArchiForge-Format-Profile"] = formatProfile;
             }
+            if (result.PersistedReplayRecordId is { } persistedIdMeta)
+            {
+                Response.Headers["X-ArchiForge-PersistedReplayRecordId"] = persistedIdMeta;
+            }
 
             return Ok(new ReplayComparisonMetadataResponse
             {
@@ -971,7 +981,8 @@ public sealed class ArchitectureController : ControllerBase
                 LeftExportRecordId = result.LeftExportRecordId,
                 RightExportRecordId = result.RightExportRecordId,
                 CreatedUtc = result.CreatedUtc,
-                FormatProfile = result.FormatProfile
+                FormatProfile = result.FormatProfile,
+                PersistedReplayRecordId = result.PersistedReplayRecordId
             });
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))

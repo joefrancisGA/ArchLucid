@@ -43,5 +43,8 @@ public sealed class ReplayComparisonResult
 
     /// <summary>Export format profile used (e.g. default, detailed).</summary>
     public string? FormatProfile { get; set; }
+
+    /// <summary>When PersistReplay was true: the new comparison record ID created for this replay.</summary>
+    public string? PersistedReplayRecordId { get; set; }
 }
 

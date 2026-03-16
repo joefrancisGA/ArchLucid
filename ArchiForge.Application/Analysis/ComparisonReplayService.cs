@@ -6,6 +6,7 @@ namespace ArchiForge.Application.Analysis;
 public sealed class ComparisonReplayService : IComparisonReplayService
 {
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
+    private readonly IComparisonAuditService _comparisonAuditService;
     private readonly IComparisonDriftAnalyzer _driftAnalyzer;
     private readonly IEndToEndReplayComparisonService _endToEndReplayComparisonService;
     private readonly IEndToEndReplayComparisonSummaryFormatter _endToEndSummaryFormatter;
@@ -16,6 +17,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
 
     public ComparisonReplayService(
         IComparisonRecordRepository comparisonRecordRepository,
+        IComparisonAuditService comparisonAuditService,
         IComparisonDriftAnalyzer driftAnalyzer,
         IEndToEndReplayComparisonService endToEndReplayComparisonService,
         IEndToEndReplayComparisonSummaryFormatter endToEndSummaryFormatter,
@@ -25,6 +27,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
         IRunExportRecordRepository runExportRecordRepository)
     {
         _comparisonRecordRepository = comparisonRecordRepository;
+        _comparisonAuditService = comparisonAuditService;
         _driftAnalyzer = driftAnalyzer;
         _endToEndReplayComparisonService = endToEndReplayComparisonService;
         _endToEndSummaryFormatter = endToEndSummaryFormatter;
@@ -57,13 +60,23 @@ public sealed class ComparisonReplayService : IComparisonReplayService
         var profile = EndToEndComparisonExportProfile.Normalize(request.Profile);
         var mode = ParseReplayMode(request.ReplayMode);
 
-        return record.ComparisonType switch
+        var result = record.ComparisonType switch
         {
             "end-to-end-replay" => await ReplayEndToEndAsync(record, format, profile, mode, cancellationToken),
             "export-record-diff" => await ReplayExportDiffAsync(record, format, mode, cancellationToken),
             _ => throw new InvalidOperationException(
                 $"Replay is not supported for comparison type '{record.ComparisonType}'.")
         };
+
+        if (request.PersistReplay)
+        {
+            result.PersistedReplayRecordId = await _comparisonAuditService.RecordReplayOfAsync(
+                record,
+                notes: $"Replay of comparison record {record.ComparisonRecordId} at {DateTime.UtcNow:O}.",
+                cancellationToken);
+        }
+
+        return result;
     }
 
     public async Task<DriftAnalysisResult> AnalyzeDriftAsync(

@@ -11,5 +11,8 @@ public sealed class ReplayComparisonRequest
 
     /// <summary>Export profile for end-to-end comparison: default, short, detailed, executive.</summary>
     public string? Profile { get; set; }
+
+    /// <summary>When true, persist this replay as a new comparison record (idempotent re-persist).</summary>
+    public bool PersistReplay { get; set; }
 }
 

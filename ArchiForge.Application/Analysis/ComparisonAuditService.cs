@@ -63,5 +63,31 @@ public sealed class ComparisonAuditService : IComparisonAuditService
         await _repository.CreateAsync(record, cancellationToken);
         return record.ComparisonRecordId;
     }
+
+    public async Task<string> RecordReplayOfAsync(
+        ComparisonRecord sourceRecord,
+        string? notes = null,
+        CancellationToken cancellationToken = default)
+    {
+        var record = new ComparisonRecord
+        {
+            ComparisonRecordId = Guid.NewGuid().ToString("N"),
+            ComparisonType = sourceRecord.ComparisonType,
+            LeftRunId = sourceRecord.LeftRunId,
+            RightRunId = sourceRecord.RightRunId,
+            LeftExportRecordId = sourceRecord.LeftExportRecordId,
+            RightExportRecordId = sourceRecord.RightExportRecordId,
+            LeftManifestVersion = sourceRecord.LeftManifestVersion,
+            RightManifestVersion = sourceRecord.RightManifestVersion,
+            Format = sourceRecord.Format,
+            SummaryMarkdown = sourceRecord.SummaryMarkdown,
+            PayloadJson = sourceRecord.PayloadJson,
+            Notes = notes ?? $"Replay of comparison record {sourceRecord.ComparisonRecordId}.",
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        await _repository.CreateAsync(record, cancellationToken);
+        return record.ComparisonRecordId;
+    }
 }
 
