@@ -8,6 +8,7 @@ using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
+using Microsoft.AspNetCore.Authorization;
 using ArchiForge.Data.Repositories;
 using ArchiForge.Contracts.Requests;
 using Asp.Versioning;
@@ -21,6 +22,7 @@ using AppConsultingDocxProfileRecommendationRequest =
 namespace ArchiForge.Api.Controllers;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = "ApiKey")]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]

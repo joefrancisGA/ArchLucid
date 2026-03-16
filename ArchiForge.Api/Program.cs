@@ -27,6 +27,8 @@ using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
+using ArchiForge.Api.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using OpenTelemetry.Exporter.Prometheus;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -67,6 +69,10 @@ namespace ArchiForge.Api
             {
                 c.SwaggerDoc("v1", new() { Title = "ArchiForge API", Version = "v1" });
             });
+
+            builder.Services.AddAuthentication("ApiKey")
+                .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", options => { });
+            builder.Services.AddAuthorization();
 
             builder.Services.AddOpenTelemetry()
                 .ConfigureResource(resource => resource
@@ -271,6 +277,7 @@ namespace ArchiForge.Api
 
             app.UseRateLimiter();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapHealthChecks("/health");
