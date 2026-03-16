@@ -27,6 +27,7 @@ using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
+using ArchiForge.Application.Analysis;
 using ArchiForge.Api.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
@@ -159,6 +160,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
             builder.Services.AddScoped<IReplayRunService, ReplayRunService>();
             builder.Services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
+            builder.Services.AddScoped<IExportReplayService, ExportReplayService>();
             builder.Services.AddScoped<IAgentExecutorResolver, DefaultAgentExecutorResolver>();
             builder.Services.AddScoped<IDiagramGenerator, MermaidDiagramGenerator>();
             builder.Services.AddScoped<IEvidenceSummaryFormatter, MarkdownEvidenceSummaryFormatter>();

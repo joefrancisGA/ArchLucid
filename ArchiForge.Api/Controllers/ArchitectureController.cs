@@ -56,6 +56,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly AppConsultingDocxExportProfileSelector _consultingDocxExportProfileSelector;
     private readonly IRunExportAuditService _runExportAuditService;
     private readonly IRunExportRecordRepository _runExportRecordRepository;
+    private readonly IExportReplayService _exportReplayService;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -83,7 +84,8 @@ public sealed class ArchitectureController : ControllerBase
         IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService,
         AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
         IRunExportAuditService runExportAuditService,
-        IRunExportRecordRepository runExportRecordRepository)
+        IRunExportRecordRepository runExportRecordRepository,
+        IExportReplayService exportReplayService)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -111,6 +113,7 @@ public sealed class ArchitectureController : ControllerBase
         _consultingDocxExportProfileSelector = consultingDocxExportProfileSelector;
         _runExportAuditService = runExportAuditService;
         _runExportRecordRepository = runExportRecordRepository;
+        _exportReplayService = exportReplayService;
     }
 
     [HttpPost("request")]
@@ -1100,5 +1103,90 @@ public sealed class ArchitectureController : ControllerBase
         {
             Recommendation = recommendation
         });
+    }
+
+    [HttpPost("run/exports/{exportRecordId}/replay")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReplayExport(
+        [FromRoute] string exportRecordId,
+        [FromBody] ReplayExportRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ReplayExportRequest();
+
+        try
+        {
+            var result = await _exportReplayService.ReplayAsync(
+                new Application.Analysis.ReplayExportRequest
+                {
+                    ExportRecordId = exportRecordId,
+                    RecordReplayExport = request.RecordReplayExport
+                },
+                cancellationToken);
+
+            Response.Headers["X-ArchiForge-Replayed-ExportRecordId"] = result.ExportRecordId;
+            Response.Headers["X-ArchiForge-Selected-Profile"] = result.TemplateProfile ?? string.Empty;
+            Response.Headers["X-ArchiForge-Profile-AutoSelected"] = result.WasAutoSelected.ToString();
+            Response.Headers["X-ArchiForge-Profile-Reason"] = result.ResolutionReason ?? string.Empty;
+
+            return File(
+                result.Content,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                result.FileName);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("run/exports/{exportRecordId}/replay/metadata")]
+    [ProducesResponseType(typeof(ReplayExportMetadataResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReplayExportMetadata(
+        [FromRoute] string exportRecordId,
+        [FromBody] ReplayExportRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ReplayExportRequest();
+
+        try
+        {
+            var result = await _exportReplayService.ReplayAsync(
+                new Application.Analysis.ReplayExportRequest
+                {
+                    ExportRecordId = exportRecordId,
+                    RecordReplayExport = false
+                },
+                cancellationToken);
+
+            return Ok(new ReplayExportMetadataResponse
+            {
+                ExportRecordId = result.ExportRecordId,
+                RunId = result.RunId,
+                ExportType = result.ExportType,
+                Format = result.Format,
+                FileName = result.FileName,
+                TemplateProfile = result.TemplateProfile,
+                TemplateProfileDisplayName = result.TemplateProfileDisplayName,
+                WasAutoSelected = result.WasAutoSelected,
+                ResolutionReason = result.ResolutionReason
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }
