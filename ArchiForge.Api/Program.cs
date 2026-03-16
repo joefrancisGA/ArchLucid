@@ -116,14 +116,27 @@ namespace ArchiForge.Api
             builder.Services.AddRateLimiter(options =>
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-                var permitLimit = builder.Configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
-                var windowMinutes = builder.Configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
-                var queueLimit = builder.Configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
+
+                var fixedPermitLimit = builder.Configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
+                var fixedWindowMinutes = builder.Configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
+                var fixedQueueLimit = builder.Configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
+
                 options.AddFixedWindowLimiter("fixed", config =>
                 {
-                    config.Window = TimeSpan.FromMinutes(windowMinutes);
-                    config.PermitLimit = permitLimit;
-                    config.QueueLimit = queueLimit;
+                    config.Window = TimeSpan.FromMinutes(fixedWindowMinutes);
+                    config.PermitLimit = fixedPermitLimit;
+                    config.QueueLimit = fixedQueueLimit;
+                });
+
+                var expensivePermitLimit = builder.Configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
+                var expensiveWindowMinutes = builder.Configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
+                var expensiveQueueLimit = builder.Configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);
+
+                options.AddFixedWindowLimiter("expensive", config =>
+                {
+                    config.Window = TimeSpan.FromMinutes(expensiveWindowMinutes);
+                    config.PermitLimit = expensivePermitLimit;
+                    config.QueueLimit = expensiveQueueLimit;
                 });
             });
 

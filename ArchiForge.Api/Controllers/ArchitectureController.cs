@@ -183,6 +183,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [EnableRateLimiting("expensive")]
     public async Task<IActionResult> ExecuteRun(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
@@ -213,6 +214,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [EnableRateLimiting("expensive")]
     public async Task<IActionResult> ReplayRun(
         [FromRoute] string runId,
         [FromBody] ReplayRunRequest? request,
@@ -254,6 +256,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(DeterminismCheckResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [EnableRateLimiting("expensive")]
     public async Task<IActionResult> RunDeterminismCheck(
         [FromRoute] string runId,
         [FromBody] DeterminismCheckRequest? request,
@@ -1065,6 +1068,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(ArchitectureAnalysisExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [EnableRateLimiting("expensive")]
     public async Task<IActionResult> ExportAnalysisReport(
         [FromRoute] string runId,
         [FromBody] ArchitectureAnalysisRequest? request,
@@ -1100,6 +1104,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [EnableRateLimiting("expensive")]
     public async Task<IActionResult> DownloadAnalysisReport(
         [FromRoute] string runId,
         [FromBody] ArchitectureAnalysisRequest? request,
@@ -1130,6 +1135,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [EnableRateLimiting("expensive")]
     public async Task<IActionResult> ExportAnalysisReportDocx(
         [FromRoute] string runId,
         [FromBody] ArchitectureAnalysisRequest? request,
@@ -1162,6 +1168,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [EnableRateLimiting("expensive")]
     public IActionResult ExportAnalysisReportDocxAsync(
         [FromRoute] string runId,
         [FromBody] ArchitectureAnalysisRequest? request)
@@ -1189,6 +1196,7 @@ public sealed class ArchitectureController : ControllerBase
     [HttpPost("analysis-report/export/docx/consulting/resolve-profile")]
     [ProducesResponseType(typeof(ConsultingDocxExportResponse), StatusCodes.Status200OK)]
     [Authorize(Policy = "CanExportConsultingDocx")]
+    [EnableRateLimiting("expensive")]
     public IActionResult ResolveConsultingDocxExportProfile(
         [FromBody] ConsultingDocxExportRequest? request)
     {
@@ -1333,6 +1341,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Policy = "CanExportConsultingDocx")]
+    [EnableRateLimiting("expensive")]
     public async Task<IActionResult> ExportConsultingAnalysisReportDocx(
         [FromRoute] string runId,
         [FromBody] ConsultingDocxExportRequest? request,
@@ -1442,6 +1451,7 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize(Policy = "CanExportConsultingDocx")]
+    [EnableRateLimiting("expensive")]
     public IActionResult ExportConsultingAnalysisReportDocxAsync(
         [FromRoute] string runId,
         [FromBody] ConsultingDocxExportRequest? request)
