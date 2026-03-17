@@ -47,4 +47,38 @@ public sealed class ArchitectureDiagramTests : IntegrationTestBase
         diagramPayload.Diagram.Should().Contain("rag-search");
         diagramPayload.Diagram.Should().Contain("rag-metadata");
     }
+
+    [Fact]
+    public async Task GetManifestDiagramV2_ReturnsManifestDiagramResponse_WithOptions()
+    {
+        var createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DIAGRAM-002")));
+
+        createResponse.EnsureSuccessStatusCode();
+
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var runId = created!.Run.RunId;
+
+        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        executeResponse.EnsureSuccessStatusCode();
+
+        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        commitResponse.EnsureSuccessStatusCode();
+
+        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+
+        var diagramResponse = await Client.GetAsync(
+            $"/v1/architecture/manifest/{manifestVersion}/diagram/v2?layout=TB&includeRuntimePlatform=false&relationshipLabels=none&groupBy=serviceType");
+
+        diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<ManifestDiagramResponse>(new JsonOptions().JsonSerializerOptions);
+        diagramPayload.Should().NotBeNull();
+        diagramPayload!.DiagramType.Should().Be("Mermaid");
+        diagramPayload.Content.Should().Contain("flowchart TB");
+        diagramPayload.Content.Should().Contain("subgraph");
+        diagramPayload.Content.Should().Contain("rag-api");
+    }
 }

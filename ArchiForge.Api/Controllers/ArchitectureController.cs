@@ -1589,6 +1589,43 @@ public sealed class ArchitectureController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("manifest/{version}/diagram/v2")]
+    [ProducesResponseType(typeof(ManifestDiagramResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetManifestDiagramV2(
+        [FromRoute] string version,
+        [FromQuery] string? layout = "LR",
+        [FromQuery] bool includeRuntimePlatform = true,
+        [FromQuery] string? relationshipLabels = "type",
+        [FromQuery] string? groupBy = "none",
+        [FromServices] IManifestDiagramService manifestDiagramService = null!,
+        CancellationToken cancellationToken = default)
+    {
+        var manifest = await _architectureApplicationService.GetManifestAsync(version, cancellationToken);
+        if (manifest is null)
+        {
+            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
+        }
+
+        var opts = new ManifestDiagramOptions
+        {
+            Layout = layout ?? "LR",
+            IncludeRuntimePlatform = includeRuntimePlatform,
+            RelationshipLabels = relationshipLabels ?? "type",
+            GroupBy = groupBy ?? "none"
+        };
+
+        var mermaid = manifestDiagramService.GenerateMermaid(manifest, opts);
+
+        return Ok(new ManifestDiagramResponse
+        {
+            ManifestVersion = version,
+            DiagramType = "Mermaid",
+            Content = mermaid
+        });
+    }
+
     [HttpGet("manifest/{version}/summary")]
     [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -201,6 +201,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IExportReplayService, ExportReplayService>();
             builder.Services.AddScoped<IAgentExecutorResolver, DefaultAgentExecutorResolver>();
             builder.Services.AddScoped<IDiagramGenerator, MermaidDiagramGenerator>();
+            builder.Services.AddScoped<IManifestDiagramService, ManifestDiagramService>();
             builder.Services.AddScoped<IEvidenceSummaryFormatter, MarkdownEvidenceSummaryFormatter>();
             builder.Services.AddScoped<IManifestSummaryGenerator, MarkdownManifestSummaryGenerator>();
             builder.Services.AddScoped<IArchitectureExportService, MarkdownArchitectureExportService>();
