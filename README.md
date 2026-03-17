@@ -201,3 +201,17 @@ To update: `dotnet tool update -g ArchiForge.Cli --add-source ./nupkg`
 | ArchiForge.DecisionEngine | Merges agent results into manifests |
 | ArchiForge.Data | Repositories, SQL persistence |
 | ArchiForge.Cli | ArchiForge CLI: `new`, `run`, `status`, `commit`, `seed`, `artifacts`, `dev up` |
+
+## Architecture docs (internal)
+
+For a deeper understanding of how ArchiForge fits together:
+
+- `docs/ARCHITECTURE_INDEX.md` – starting point; links to all other docs.
+- `docs/ARCHITECTURE_CONTEXT.md` – high-level system context and qualities.
+- `docs/ARCHITECTURE_CONTAINERS.md` – projects/containers and their responsibilities.
+- `docs/ARCHITECTURE_COMPONENTS.md` – key components to touch when changing behavior.
+- `docs/ARCHITECTURE_FLOWS.md` – run, export, and comparison/replay flows.
+- `docs/DATA_MODEL.md` – core tables/records and relationships.
+- `docs/COMPARISON_REPLAY.md` – comparison replay API, modes, and recipes.
+- `docs/HOWTO_ADD_COMPARISON_TYPE.md` – step-by-step for introducing new comparison types.
+- `docs/RUNBOOK_REPLAY_DRIFT.md` – debugging replay/drift verification issues.
