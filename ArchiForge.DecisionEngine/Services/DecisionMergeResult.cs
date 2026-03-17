@@ -1,4 +1,5 @@
-﻿using ArchiForge.Contracts.Manifest;
+using ArchiForge.Contracts.Manifest;
+using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Metadata;
 
 namespace ArchiForge.DecisionEngine.Services;
@@ -6,6 +7,8 @@ namespace ArchiForge.DecisionEngine.Services;
 public sealed class DecisionMergeResult
 {
     public GoldenManifest Manifest { get; set; } = new();
+
+    public List<DecisionNode> Decisions { get; set; } = [];
 
     public List<string> Warnings { get; set; } = [];
 

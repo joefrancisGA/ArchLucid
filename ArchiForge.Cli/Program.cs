@@ -208,6 +208,8 @@ namespace ArchiForge
             string sortDir = "desc";
             int skip = 0;
             int limit = 20;
+            var asJson = false;
+            var asTable = false;
 
             for (var i = 0; i < args.Length; i++)
             {
@@ -248,6 +250,12 @@ namespace ArchiForge
                         limit = parsed;
                         i++;
                         break;
+                    case "--json":
+                        asJson = true;
+                        break;
+                    case "--table":
+                        asTable = true;
+                        break;
                 }
             }
 
@@ -270,6 +278,21 @@ namespace ArchiForge
                 return 0;
             }
 
+            if (asJson)
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(
+                    result,
+                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                Console.WriteLine(json);
+                return 0;
+            }
+
+            if (asTable)
+            {
+                PrintComparisonTable(result.Records);
+                return 0;
+            }
+
             foreach (var r in result.Records)
             {
                 var labelPart = string.IsNullOrEmpty(r.Label) ? "" : $" Label={r.Label}";
@@ -278,6 +301,35 @@ namespace ArchiForge
             }
 
             return 0;
+        }
+
+        private static void PrintComparisonTable(IReadOnlyList<ArchiForgeApiClient.ComparisonRecordSummary> records)
+        {
+            var rows = records.Select(r => new[]
+            {
+                r.CreatedUtc.ToString("O"),
+                r.ComparisonRecordId,
+                r.ComparisonType,
+                r.LeftRunId ?? "",
+                r.RightRunId ?? "",
+                r.Label ?? "",
+                r.Tags.Count == 0 ? "" : string.Join(",", r.Tags)
+            }).ToList();
+
+            var headers = new[] { "CreatedUtc", "ComparisonRecordId", "Type", "LeftRunId", "RightRunId", "Label", "Tags" };
+            rows.Insert(0, headers);
+
+            var widths = new int[headers.Length];
+            for (var c = 0; c < headers.Length; c++)
+                widths[c] = rows.Max(r => r[c].Length);
+
+            for (var i = 0; i < rows.Count; i++)
+            {
+                var line = string.Join(" | ", rows[i].Select((cell, idx) => cell.PadRight(widths[idx])));
+                Console.WriteLine(line);
+                if (i == 0)
+                    Console.WriteLine(string.Join("-+-", widths.Select(w => new string('-', w))));
+            }
         }
 
         private static async Task<int> ArchiForge_Comparisons_TagAsync(ArchiForgeApiClient client, string[] args)
@@ -393,6 +445,8 @@ namespace ArchiForge
         private static async Task<int> ArchiForge_Comparisons_DiagnosticsAsync(ArchiForgeApiClient client, string[] args)
         {
             var limit = 20;
+            var asJson = false;
+            var asTable = false;
             for (var i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--limit" && i + 1 < args.Length && int.TryParse(args[i + 1], out var parsed))
@@ -400,6 +454,8 @@ namespace ArchiForge
                     limit = parsed;
                     i++;
                 }
+                if (args[i] == "--json") asJson = true;
+                if (args[i] == "--table") asTable = true;
             }
 
             var diagnostics = await client.GetReplayDiagnosticsAsync(limit);
@@ -409,12 +465,59 @@ namespace ArchiForge
                 return 1;
             }
 
+            if (asJson)
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(
+                    diagnostics,
+                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                Console.WriteLine(json);
+                return 0;
+            }
+
+            if (asTable)
+            {
+                PrintReplayDiagnosticsTable(diagnostics.RecentReplays);
+                return 0;
+            }
+
             foreach (var e in diagnostics.RecentReplays)
             {
                 Console.WriteLine($"{e.TimestampUtc:O} | {e.ComparisonRecordId} | {e.ComparisonType} | {e.Format} | {e.ReplayMode} | Success={e.Success} | {e.DurationMs}ms | MetaOnly={e.MetadataOnly} | Persisted={e.PersistedReplayRecordId} | Err={e.ErrorMessage}");
             }
 
             return 0;
+        }
+
+        private static void PrintReplayDiagnosticsTable(IReadOnlyList<ArchiForgeApiClient.ReplayDiagnosticsEntry> entries)
+        {
+            var rows = entries.Select(e => new[]
+            {
+                e.TimestampUtc.ToString("O"),
+                e.ComparisonRecordId,
+                e.ComparisonType,
+                e.Format,
+                e.ReplayMode,
+                e.Success ? "true" : "false",
+                e.DurationMs.ToString(),
+                e.MetadataOnly ? "true" : "false",
+                e.PersistedReplayRecordId ?? "",
+                e.ErrorMessage ?? ""
+            }).ToList();
+
+            var headers = new[] { "TimestampUtc", "ComparisonRecordId", "Type", "Format", "Mode", "Success", "Ms", "MetaOnly", "PersistedReplayRecordId", "Error" };
+            rows.Insert(0, headers);
+
+            var widths = new int[headers.Length];
+            for (var c = 0; c < headers.Length; c++)
+                widths[c] = rows.Max(r => r[c].Length);
+
+            for (var i = 0; i < rows.Count; i++)
+            {
+                var line = string.Join(" | ", rows[i].Select((cell, idx) => cell.PadRight(widths[idx])));
+                Console.WriteLine(line);
+                if (i == 0)
+                    Console.WriteLine(string.Join("-+-", widths.Select(w => new string('-', w))));
+            }
         }
 
         private static int ArchiForge_Dev_Up()

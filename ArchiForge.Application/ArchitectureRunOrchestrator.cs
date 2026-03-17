@@ -11,17 +11,20 @@ public sealed class ArchitectureRunOrchestrator
     private readonly ICoordinatorService _coordinator;
     private readonly IAgentExecutor _agentExecutor;
     private readonly IDecisionEngineService _decisionEngine;
+    private readonly IDecisionEngineV2 _decisionEngineV2;
     private readonly IEvidenceBuilder _evidenceBuilder;
 
     public ArchitectureRunOrchestrator(
         ICoordinatorService coordinator,
         IAgentExecutor agentExecutor,
         IDecisionEngineService decisionEngine,
+        IDecisionEngineV2 decisionEngineV2,
         IEvidenceBuilder evidenceBuilder)
     {
         _coordinator = coordinator;
         _agentExecutor = agentExecutor;
         _decisionEngine = decisionEngine;
+        _decisionEngineV2 = decisionEngineV2;
         _evidenceBuilder = evidenceBuilder;
     }
 
@@ -49,10 +52,21 @@ public sealed class ArchitectureRunOrchestrator
             coordination.Tasks,
             cancellationToken);
 
-        return _decisionEngine.MergeResults(
+        // v2 resolves structured decisions (weighted arguments). Evaluations are currently optional.
+        var decisions = await _decisionEngineV2.ResolveAsync(
+            coordination.Run.RunId,
+            results,
+            evaluations: [],
+            evidence,
+            cancellationToken);
+
+        var merged = _decisionEngine.MergeResults(
             coordination.Run.RunId,
             request,
             "v1",
             results);
+
+        merged.Decisions = decisions.ToList();
+        return merged;
     }
 }

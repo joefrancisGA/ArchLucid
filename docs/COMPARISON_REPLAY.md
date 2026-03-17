@@ -104,6 +104,22 @@ Response headers:
 - `X-ArchiForge-Format-Profile` – export profile used (end‑to‑end)  
 - `X-ArchiForge-PersistedReplayRecordId` – **new comparison record ID**, when `persistReplay = true`
 
+---
+
+### Comparison record search (paging + sorting)
+
+`GET /v1/architecture/comparisons` supports searching persisted comparison records with paging:
+
+- `skip` / `limit` for paging  
+- `sortDir=asc|desc` (defaults to `desc`)  
+- Filters: `comparisonType`, `leftRunId`, `rightRunId`, `leftExportRecordId`, `rightExportRecordId`, `label`, `tag`, `tags`, `createdFromUtc`, `createdToUtc`
+
+Example:
+
+```bash
+curl "http://localhost:5128/v1/architecture/comparisons?comparisonType=end-to-end-replay&sortDir=desc&skip=0&limit=20"
+```
+
 **Example – artifact replay as Markdown**
 
 ```bash

@@ -215,6 +215,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<ArchiForge.Application.Analysis.DriftReportDocxExport>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
+            builder.Services.AddScoped<IDecisionEngineV2, DecisionEngineV2>();
             builder.Services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
             builder.Services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
             builder.Services.AddScoped<IArchitectureRunRepository, ArchitectureRunRepository>();

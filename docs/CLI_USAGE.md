@@ -47,8 +47,90 @@ The API must be running for `run`, `status`, `submit`, `commit`, `seed`, `artifa
 | `artifacts <runId>` | Fetch and display the committed manifest. |
 | `artifacts <runId> --save` | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
 | `health` | Check API connectivity (`GET /health`). Exit 0 if OK, 1 if unreachable. |
+| `comparisons list` | List/search persisted comparison records (supports paging and filters). |
+| `comparisons replay <comparisonRecordId>` | Replay a saved comparison record and export it again to a file (Markdown/HTML/DOCX/PDF depending on type). |
+| `comparisons drift <comparisonRecordId>` | Run drift analysis for a saved comparison record. |
+| `comparisons diagnostics` | Show recent replay activity (requires replay diagnostics permission). |
+| `comparisons tag <comparisonRecordId>` | Update label and tags on a comparison record. |
 
 ---
+
+## Comparisons
+
+The CLI can search and replay persisted comparison records.
+
+### List comparisons
+
+```bash
+archiforge comparisons list [filters]
+```
+
+Supported flags:
+
+- `--type <end-to-end-replay|export-record-diff>`
+- `--left-run <runId>`
+- `--right-run <runId>`
+- `--left-export <exportRecordId>`
+- `--right-export <exportRecordId>`
+- `--label <label>`
+- `--tag <tag>` (single tag)
+- `--tags <t1,t2,...>` (multi-tag match)
+- `--sort <asc|desc>` (defaults to `desc`)
+- `--skip <n>` and `--limit <n>` for paging
+- `--json` to output machine-readable JSON
+- `--table` to output an aligned table
+
+Examples:
+
+```bash
+# Page through end-to-end comparisons
+archiforge comparisons list --type end-to-end-replay --limit 20 --skip 0 --table
+archiforge comparisons list --type end-to-end-replay --limit 20 --skip 20 --table
+
+# Filter by tag and label
+archiforge comparisons list --tags incident,urgent --label incident-42 --json
+```
+
+### Replay a comparison (export to file)
+
+```bash
+archiforge comparisons replay <comparisonRecordId> [options]
+```
+
+Options:
+
+- `--format <markdown|html|docx|pdf>` (default `markdown`)
+- `--mode <artifact|regenerate|verify>` (default `artifact`)
+- `--profile <default|short|detailed|executive>` (end-to-end only)
+- `--persist` to persist the replay as a new comparison record (prints `PersistedReplayRecordId` when returned)
+- `--out <path>` to control output location:
+  - directory → saves as server-provided filename in that directory
+  - file path → saves exactly to that path
+- `--force` to overwrite an existing output file
+
+Examples:
+
+```bash
+# Replay as DOCX into a directory (creates the directory if missing)
+archiforge comparisons replay <id> --format docx --out outputs --force
+
+# Verify replay and persist the replayed record
+archiforge comparisons replay <id> --mode verify --persist
+```
+
+### Drift analysis
+
+```bash
+archiforge comparisons drift <comparisonRecordId>
+```
+
+### Replay diagnostics
+
+```bash
+archiforge comparisons diagnostics [--limit 50] [--json|--table]
+```
+
+This endpoint requires the API permission claim `replay:diagnostics`.
 
 ## archiforge.json
 
