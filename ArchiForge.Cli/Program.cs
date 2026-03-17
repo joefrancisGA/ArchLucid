@@ -161,8 +161,9 @@ namespace ArchiForge
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Usage: archiforge comparisons list [--type <type>] [--left-run <runId>] [--right-run <runId>] [--limit <n>]");
-                Console.WriteLine("   or: archiforge comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist]");
+                Console.WriteLine("Usage: archiforge comparisons list [--type <type>] [--left-run <runId>] [--right-run <runId>] [--tag <tag>] [--limit <n>]");
+                Console.WriteLine("   or: archiforge comparisons replay <comparisonRecordId> [--format ...] [--mode ...] [--profile <profile>] [--persist]");
+                Console.WriteLine("   or: archiforge comparisons tag <comparisonRecordId> [--label <label>] [--tag <t>]...");
                 return 1;
             }
 
@@ -180,6 +181,8 @@ namespace ArchiForge
                     return await ArchiForge_Comparisons_ListAsync(client, args.Skip(1).ToArray());
                 case "replay":
                     return await ArchiForge_Comparisons_ReplayAsync(client, args.Skip(1).ToArray());
+                case "tag":
+                    return await ArchiForge_Comparisons_TagAsync(client, args.Skip(1).ToArray());
                 default:
                     Console.WriteLine($"Unknown subcommand for comparisons: {sub}");
                     return 1;
@@ -191,6 +194,7 @@ namespace ArchiForge
             string? type = null;
             string? leftRun = null;
             string? rightRun = null;
+            string? tag = null;
             int limit = 20;
 
             for (var i = 0; i < args.Length; i++)
@@ -206,6 +210,9 @@ namespace ArchiForge
                     case "--right-run" when i + 1 < args.Length:
                         rightRun = args[++i];
                         break;
+                    case "--tag" when i + 1 < args.Length:
+                        tag = args[++i];
+                        break;
                     case "--limit" when i + 1 < args.Length && int.TryParse(args[i + 1], out var parsed):
                         limit = parsed;
                         i++;
@@ -213,7 +220,7 @@ namespace ArchiForge
                 }
             }
 
-            var result = await client.SearchComparisonsAsync(type, leftRun, rightRun, limit);
+            var result = await client.SearchComparisonsAsync(type, leftRun, rightRun, tag, limit);
             if (result is null)
             {
                 Console.WriteLine("No comparison records found or request failed.");
@@ -228,9 +235,46 @@ namespace ArchiForge
 
             foreach (var r in result.Records)
             {
-                Console.WriteLine($"{r.CreatedUtc:O} | {r.ComparisonRecordId} | {r.ComparisonType} | LeftRun={r.LeftRunId} RightRun={r.RightRunId} LeftExport={r.LeftExportRecordId} RightExport={r.RightExportRecordId}");
+                var labelPart = string.IsNullOrEmpty(r.Label) ? "" : $" Label={r.Label}";
+                var tagsPart = r.Tags.Count == 0 ? "" : " Tags=[" + string.Join(",", r.Tags) + "]";
+                Console.WriteLine($"{r.CreatedUtc:O} | {r.ComparisonRecordId} | {r.ComparisonType} | LeftRun={r.LeftRunId} RightRun={r.RightRunId}{labelPart}{tagsPart}");
             }
 
+            return 0;
+        }
+
+        private static async Task<int> ArchiForge_Comparisons_TagAsync(ArchiForgeApiClient client, string[] args)
+        {
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Usage: archiforge comparisons tag <comparisonRecordId> [--label <label>] [--tag <t>]...");
+                return 1;
+            }
+
+            var comparisonRecordId = args[0];
+            string? label = null;
+            var tags = new List<string>();
+
+            for (var i = 1; i < args.Length; i++)
+            {
+                switch (args[i])
+                {
+                    case "--label" when i + 1 < args.Length:
+                        label = args[++i];
+                        break;
+                    case "--tag" when i + 1 < args.Length:
+                        tags.Add(args[++i]);
+                        break;
+                }
+            }
+
+            var ok = await client.UpdateComparisonRecordAsync(comparisonRecordId, label, tags);
+            if (!ok)
+            {
+                Console.WriteLine("Update failed or comparison record not found.");
+                return 1;
+            }
+            Console.WriteLine($"Updated comparison record {comparisonRecordId}.");
             return 0;
         }
 

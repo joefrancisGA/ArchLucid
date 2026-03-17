@@ -68,6 +68,7 @@ namespace ArchiForge.Api
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new() { Title = "ArchiForge API", Version = "v1" });
+                c.OperationFilter<ArchiForge.Api.Swagger.ReplayExamplesOperationFilter>();
             });
 
             builder.Services.AddAuthentication("ApiKey")
@@ -210,6 +211,8 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IExportRecordDiffService, ExportRecordDiffService>();
             builder.Services.AddScoped<IExportRecordDiffSummaryFormatter, MarkdownExportRecordDiffSummaryFormatter>();
             builder.Services.AddScoped<IExportRecordDiffExportService, ExportRecordDiffExportService>();
+            builder.Services.AddScoped<ArchiForge.Application.Analysis.IDriftReportFormatter, ArchiForge.Application.Analysis.MarkdownDriftReportFormatter>();
+            builder.Services.AddScoped<ArchiForge.Application.Analysis.DriftReportDocxExport>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();

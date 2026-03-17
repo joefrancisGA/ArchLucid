@@ -77,6 +77,8 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
     private readonly IComparisonReplayService _comparisonReplayService;
     private readonly IReplayDiagnosticsRecorder _replayDiagnosticsRecorder;
+    private readonly Application.Analysis.IDriftReportFormatter _driftReportFormatter;
+    private readonly Application.Analysis.DriftReportDocxExport _driftReportDocxExport;
     private readonly IBackgroundJobQueue _jobs;
     private readonly ILogger<ArchitectureController> _logger;
 
@@ -117,6 +119,8 @@ public sealed class ArchitectureController : ControllerBase
         IComparisonRecordRepository comparisonRecordRepository,
         IComparisonReplayService comparisonReplayService,
         IReplayDiagnosticsRecorder replayDiagnosticsRecorder,
+        Application.Analysis.IDriftReportFormatter driftReportFormatter,
+        Application.Analysis.DriftReportDocxExport driftReportDocxExport,
         IBackgroundJobQueue jobs,
         ILogger<ArchitectureController> logger)
     {
@@ -156,6 +160,8 @@ public sealed class ArchitectureController : ControllerBase
         _comparisonRecordRepository = comparisonRecordRepository;
         _comparisonReplayService = comparisonReplayService;
         _replayDiagnosticsRecorder = replayDiagnosticsRecorder;
+        _driftReportFormatter = driftReportFormatter;
+        _driftReportDocxExport = driftReportDocxExport;
         _jobs = jobs;
         _logger = logger;
     }
@@ -783,6 +789,7 @@ public sealed class ArchitectureController : ControllerBase
         [FromQuery] string? rightRunId,
         [FromQuery] DateTime? createdFromUtc,
         [FromQuery] DateTime? createdToUtc,
+        [FromQuery] string? tag,
         [FromQuery] int limit = 50,
         CancellationToken cancellationToken = default)
     {
@@ -792,6 +799,7 @@ public sealed class ArchitectureController : ControllerBase
             rightRunId,
             createdFromUtc,
             createdToUtc,
+            tag,
             limit,
             cancellationToken);
 
@@ -803,8 +811,34 @@ public sealed class ArchitectureController : ControllerBase
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
             CreatedFromUtc = createdFromUtc,
-            CreatedToUtc = createdToUtc
+            CreatedToUtc = createdToUtc,
+            Tag = tag
         });
+    }
+
+    [HttpPatch("comparisons/{comparisonRecordId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateComparisonRecord(
+        [FromRoute] string comparisonRecordId,
+        [FromBody] UpdateComparisonRecordRequest? request,
+        CancellationToken cancellationToken = default)
+    {
+        request ??= new UpdateComparisonRecordRequest();
+        var exists = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        if (exists is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        var updated = await _comparisonRecordRepository.UpdateLabelAndTagsAsync(
+            comparisonRecordId,
+            request.Label,
+            request.Tags,
+            cancellationToken);
+        if (!updated)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+
+        var record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        return Ok(new ComparisonRecordResponse { Record = record! });
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
@@ -965,6 +999,50 @@ public sealed class ArchitectureController : ControllerBase
         {
             var drift = await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
             return Ok(MapDriftAnalysis(drift));
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpGet("comparisons/{comparisonRecordId}/drift-report")]
+    [Authorize(Policy = "CanReplayComparisons")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetComparisonDriftReport(
+        [FromRoute] string comparisonRecordId,
+        [FromQuery] string format = "markdown",
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var drift = await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+            var normalizedFormat = (format ?? "markdown").Trim().ToLowerInvariant();
+
+            if (normalizedFormat == "markdown")
+            {
+                var content = _driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
+                var bytes = System.Text.Encoding.UTF8.GetBytes(content);
+                return File(bytes, "text/markdown", $"drift-report_{comparisonRecordId}.md");
+            }
+            if (normalizedFormat == "html")
+            {
+                var content = _driftReportFormatter.FormatHtml(drift, comparisonRecordId);
+                var bytes = System.Text.Encoding.UTF8.GetBytes(content);
+                return File(bytes, "text/html", $"drift-report_{comparisonRecordId}.html");
+            }
+            if (normalizedFormat == "docx")
+            {
+                var bytes = _driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
+                return File(bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"drift-report_{comparisonRecordId}.docx");
+            }
+            return BadRequest(new { error = $"Unsupported drift report format '{format}'. Use markdown, html, or docx." });
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {

@@ -17,5 +17,7 @@ public sealed class ComparisonHistoryResponse
     public DateTime? CreatedFromUtc { get; set; }
 
     public DateTime? CreatedToUtc { get; set; }
+
+    public string? Tag { get; set; }
 }
 

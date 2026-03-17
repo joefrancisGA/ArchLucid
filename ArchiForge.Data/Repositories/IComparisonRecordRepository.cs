@@ -26,7 +26,14 @@ public interface IComparisonRecordRepository
         string? rightRunId,
         DateTime? createdFromUtc,
         DateTime? createdToUtc,
+        string? tag,
         int limit,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> UpdateLabelAndTagsAsync(
+        string comparisonRecordId,
+        string? label,
+        IReadOnlyList<string>? tags,
         CancellationToken cancellationToken = default);
 }
 

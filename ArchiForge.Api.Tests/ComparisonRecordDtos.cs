@@ -20,6 +20,8 @@ public sealed class ComparisonHistoryResponseDto
     public DateTime? CreatedFromUtc { get; set; }
 
     public DateTime? CreatedToUtc { get; set; }
+
+    public string? Tag { get; set; }
 }
 
 public sealed class ComparisonRecordDto
@@ -36,5 +38,7 @@ public sealed class ComparisonRecordDto
     public string? SummaryMarkdown { get; set; }
     public string PayloadJson { get; set; } = string.Empty;
     public string? Notes { get; set; }
+    public string? Label { get; set; }
+    public List<string> Tags { get; set; } = [];
 }
 

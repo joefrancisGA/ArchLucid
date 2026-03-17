@@ -219,6 +219,10 @@ curl -X POST \
 
 ---
 
+### Recipe page
+
+When the API is running, **GET /Docs/replay-recipes** returns an HTML page with a step-by-step flow: list comparisons → get record → replay as file → replay metadata → export drift report. It includes curl examples and a link to Swagger UI.
+
 ### Observability
 
 - **Structured logging**  
@@ -228,6 +232,19 @@ curl -X POST \
   `GET /v1/architecture/comparisons/diagnostics/replay?maxCount=50` returns the last replay operations (in-memory ring buffer, default capacity 100). Query parameter `maxCount` (1–100) limits how many entries are returned. Each entry includes timestamp, comparison record ID, type, format, replay mode, duration, success flag, verification result (when applicable), and optional error message. Use this to inspect recent replay activity and any verification failures without parsing logs.
 
 ---
+
+### Tagging and labelling
+
+Comparison records support an optional **label** (short string, e.g. `release-1.2`, `incident-42`) and **tags** (list of strings) for filtering and grouping.
+
+- **PATCH** `/v1/architecture/comparisons/{comparisonRecordId}` with body `{ "label": "…", "tags": ["t1", "t2"] }` to set or update label and tags (pass `null` or empty to clear).
+- **GET** search and single-record responses include `label` and `tags`.
+- **GET** `/v1/architecture/comparisons?tag=release-1.2` returns only records that have that tag.
+- CLI: `archiforge comparisons list` shows label and tags; `archiforge comparisons tag <id> --label x --tag t1 --tag t2` updates them.
+
+### Drift report export
+
+**GET** `/v1/architecture/comparisons/{comparisonRecordId}/drift-report?format=markdown|html|docx` runs a stored-vs-regenerated comparison and returns a report file summarizing differences (same data as the verify replay drift analysis, but as a standalone export). Requires `CanReplayComparisons` when authorization is enabled.
 
 ### Notes and limitations
 

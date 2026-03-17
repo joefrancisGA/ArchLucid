@@ -27,5 +27,11 @@ public sealed class ComparisonRecord
     public string? Notes { get; set; }
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Optional short label (e.g. release-1.2, incident-42).</summary>
+    public string? Label { get; set; }
+
+    /// <summary>Optional tags for filtering and grouping.</summary>
+    public List<string> Tags { get; set; } = [];
 }
 

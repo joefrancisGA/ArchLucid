@@ -143,7 +143,9 @@ CREATE TABLE IF NOT EXISTS ComparisonRecords
     SummaryMarkdown TEXT NULL,
     PayloadJson TEXT NOT NULL,
     Notes TEXT NULL,
-    CreatedUtc TEXT NOT NULL
+    CreatedUtc TEXT NOT NULL,
+    Label TEXT NULL,
+    Tags TEXT NULL
 );
 
 CREATE INDEX IF NOT EXISTS IX_ComparisonRecords_LeftRunId ON ComparisonRecords (LeftRunId);

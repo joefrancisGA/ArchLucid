@@ -255,6 +255,7 @@ public sealed class ArchiForgeApiClient
         string? comparisonType,
         string? leftRunId,
         string? rightRunId,
+        string? tag,
         int limit,
         CancellationToken ct = default)
     {
@@ -267,6 +268,8 @@ public sealed class ArchiForgeApiClient
                 query["leftRunId"] = leftRunId;
             if (!string.IsNullOrWhiteSpace(rightRunId))
                 query["rightRunId"] = rightRunId;
+            if (!string.IsNullOrWhiteSpace(tag))
+                query["tag"] = tag;
             query["limit"] = limit.ToString();
 
             var uri = "/v1/architecture/comparisons";
@@ -286,6 +289,13 @@ public sealed class ArchiForgeApiClient
             var list = new List<ComparisonRecordSummary>();
             foreach (var item in recordsProp.EnumerateArray())
             {
+                var tagsList = new List<string>();
+                if (item.TryGetProperty("tags", out var tagsEl) && tagsEl.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var t in tagsEl.EnumerateArray())
+                        if (t.ValueKind == JsonValueKind.String)
+                            tagsList.Add(t.GetString() ?? "");
+                }
                 list.Add(new ComparisonRecordSummary
                 {
                     ComparisonRecordId = item.GetProperty("comparisonRecordId").GetString() ?? string.Empty,
@@ -296,7 +306,9 @@ public sealed class ArchiForgeApiClient
                     RightExportRecordId = item.TryGetProperty("rightExportRecordId", out var re) && re.ValueKind != JsonValueKind.Null ? re.GetString() : null,
                     CreatedUtc = item.TryGetProperty("createdUtc", out var cu) && cu.ValueKind == JsonValueKind.String
                         ? DateTime.Parse(cu.GetString()!)
-                        : default
+                        : default,
+                    Label = item.TryGetProperty("label", out var lbl) && lbl.ValueKind != JsonValueKind.Null ? lbl.GetString() : null,
+                    Tags = tagsList
                 });
             }
 
@@ -352,6 +364,29 @@ public sealed class ArchiForgeApiClient
         }
     }
 
+    public async Task<bool> UpdateComparisonRecordAsync(
+        string comparisonRecordId,
+        string? label,
+        IReadOnlyList<string>? tags,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}";
+            var body = new { label, tags = tags ?? (object?)null };
+            using var request = new HttpRequestMessage(HttpMethod.Patch, uri)
+            {
+                Content = JsonContent.Create(body, options: _jsonOptions)
+            };
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.SendAsync(request, cancellationToken)), ct);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public sealed class ComparisonHistoryResult
     {
         public List<ComparisonRecordSummary> Records { get; set; } = [];
@@ -366,6 +401,8 @@ public sealed class ArchiForgeApiClient
         public string? LeftExportRecordId { get; set; }
         public string? RightExportRecordId { get; set; }
         public DateTime CreatedUtc { get; set; }
+        public string? Label { get; set; }
+        public List<string> Tags { get; set; } = [];
     }
 
     /// <summary>
