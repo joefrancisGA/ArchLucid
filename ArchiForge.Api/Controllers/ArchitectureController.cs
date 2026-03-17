@@ -776,6 +776,7 @@ public sealed class ArchitectureController : ControllerBase
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
+    [Authorize(Policy = "CanReplayComparisons")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status206PartialContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -961,6 +962,7 @@ public sealed class ArchitectureController : ControllerBase
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay/metadata")]
+    [Authorize(Policy = "CanReplayComparisons")]
     [ProducesResponseType(typeof(ReplayComparisonMetadataResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -1069,6 +1071,7 @@ public sealed class ArchitectureController : ControllerBase
     }
 
     [HttpGet("comparisons/diagnostics/replay")]
+    [Authorize(Policy = "CanViewReplayDiagnostics")]
     [ProducesResponseType(typeof(ReplayDiagnosticsResponse), StatusCodes.Status200OK)]
     public IActionResult GetReplayDiagnostics([FromQuery] int maxCount = 50)
     {

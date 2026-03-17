@@ -2,9 +2,16 @@ namespace ArchiForge.Api.Services;
 
 public sealed class ReplayDiagnosticsRecorder : IReplayDiagnosticsRecorder
 {
-    private const int DefaultCapacity = 100;
-    private readonly Queue<ReplayDiagnosticsEntry> _recent = new(DefaultCapacity);
+    private readonly int _capacity;
+    private readonly Queue<ReplayDiagnosticsEntry> _recent;
     private readonly object _lock = new();
+
+    public ReplayDiagnosticsRecorder(IConfiguration configuration)
+    {
+        var configured = configuration.GetValue("ReplayDiagnostics:Capacity", 100);
+        _capacity = configured is > 0 and <= 1000 ? configured : 100;
+        _recent = new Queue<ReplayDiagnosticsEntry>(_capacity);
+    }
 
     public void Record(ReplayDiagnosticsEntry entry)
     {
@@ -12,7 +19,7 @@ public sealed class ReplayDiagnosticsRecorder : IReplayDiagnosticsRecorder
 
         lock (_lock)
         {
-            while (_recent.Count >= DefaultCapacity)
+            while (_recent.Count >= _capacity)
                 _recent.Dequeue();
             _recent.Enqueue(entry);
         }

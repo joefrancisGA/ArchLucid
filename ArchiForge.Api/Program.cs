@@ -83,6 +83,12 @@ namespace ArchiForge.Api
 
                 options.AddPolicy("CanExportConsultingDocx", policy =>
                     policy.RequireClaim("permission", "export:consulting-docx"));
+
+                options.AddPolicy("CanReplayComparisons", policy =>
+                    policy.RequireClaim("permission", "replay:comparisons"));
+
+                options.AddPolicy("CanViewReplayDiagnostics", policy =>
+                    policy.RequireClaim("permission", "replay:diagnostics"));
             });
 
             var prometheusEnabled = builder.Configuration.GetValue("Observability:Prometheus:Enabled", false);
