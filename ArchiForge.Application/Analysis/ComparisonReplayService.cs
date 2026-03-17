@@ -3,6 +3,16 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Replays persisted comparison records into exportable artifacts (Markdown/HTML/DOCX/PDF),
+/// without requiring users to manually rebuild the comparison.
+/// </summary>
+/// <remarks>
+/// This service supports three replay modes:
+/// - <c>artifact</c>: export the stored payload as-is (fastest; does not require source runs/exports to exist)
+/// - <c>regenerate</c>: rebuild the comparison from source data (requires the referenced runs/exports to exist)
+/// - <c>verify</c>: regenerate and compare against stored payload, returning drift analysis
+/// </remarks>
 public sealed class ComparisonReplayService : IComparisonReplayService
 {
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
@@ -40,6 +50,13 @@ public sealed class ComparisonReplayService : IComparisonReplayService
         _runExportRecordRepository = runExportRecordRepository;
     }
 
+    /// <summary>
+    /// Replay a comparison record by ID and return an export payload (text or binary).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the record does not exist, its payload cannot be rehydrated, or the requested
+    /// format/mode is not supported for the record type.
+    /// </exception>
     public async Task<ReplayComparisonResult> ReplayAsync(
         ReplayComparisonRequest request,
         CancellationToken cancellationToken = default)
@@ -73,6 +90,8 @@ public sealed class ComparisonReplayService : IComparisonReplayService
 
         if (request.PersistReplay)
         {
+            // Intentionally persists a *new* comparison record rather than mutating the original.
+            // This keeps comparison records immutable and yields an audit trail of replay activity.
             result.PersistedReplayRecordId = await _comparisonAuditService.RecordReplayOfAsync(
                 record,
                 notes: $"Replay of comparison record {record.ComparisonRecordId} at {DateTime.UtcNow:O}.",

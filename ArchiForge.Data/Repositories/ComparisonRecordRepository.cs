@@ -143,6 +143,11 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         int limit,
         CancellationToken cancellationToken = default)
     {
+        // This query is intentionally generated at runtime because:
+        // - filter predicates are optional
+        // - tag matching is stored as JSON in a NVARCHAR column and must be implemented
+        //   differently for SQLite vs SQL Server
+        // - paging syntax differs by provider (SQLite uses LIMIT/OFFSET; SQL Server uses OFFSET/FETCH)
         const string baseSql = """
             SELECT *
             FROM ComparisonRecords
@@ -228,6 +233,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         var orderColumn = ResolveOrderColumn(sortBy);
         var sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
         // Ensure stable paging by always appending ComparisonRecordId as a tiebreaker.
+        // Without this, records with identical CreatedUtc could reorder between pages.
         sql += sortDescending
             ? $" ORDER BY {orderColumn} DESC, ComparisonRecordId DESC"
             : $" ORDER BY {orderColumn} ASC, ComparisonRecordId ASC";

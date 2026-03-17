@@ -873,6 +873,10 @@ public sealed class ArchitectureController : ControllerBase
         [FromQuery] int limit = 50,
         CancellationToken cancellationToken = default)
     {
+        // This endpoint is intentionally a "comparison library" query surface:
+        // - stable paging via skip/limit
+        // - optional filtering (type, run ids, export ids, tags, time window)
+        // - sorting (currently createdUtc only, asc/desc)
         var normalizedType = string.IsNullOrWhiteSpace(comparisonType) ? null : comparisonType.Trim();
         if (normalizedType is not null
             && !string.Equals(normalizedType, "end-to-end-replay", StringComparison.OrdinalIgnoreCase)

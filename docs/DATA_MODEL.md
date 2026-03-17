@@ -1,0 +1,121 @@
+## ArchiForge data model (pragmatic)
+
+This document summarizes the persisted data model used by ArchiForge. It is based on the migration scripts in `ArchiForge.Data/Migrations/*` and the `ArchiForge.Contracts.Metadata` records.
+
+---
+
+### High-level storage principles
+
+- **Runs are the primary unit of work**: a run references a request, has tasks/results, and can be committed into a manifest version.
+- **Artifacts are persisted for audit/replay**:
+  - **Manifests** are versioned and persisted.
+  - **Export records** persist export artifacts and enable replay.
+  - **Comparison records** persist comparison payloads and enable replay/export/verification.
+- **Structured payloads are stored as JSON** in NVARCHAR columns (`RequestJson`, `ResultJson`, `ManifestJson`, `PayloadJson`, etc.).
+
+---
+
+### Core tables (from `001_InitialSchema.sql`)
+
+#### `ArchitectureRequests`
+
+- **Key**: `RequestId`
+- **Stores**: request metadata + `RequestJson`
+- **Why it matters**: the source input for a run; used for auditability and report generation.
+
+#### `ArchitectureRuns`
+
+- **Key**: `RunId`
+- **Fields**: `RequestId`, `Status`, `CreatedUtc`, `CompletedUtc`, `CurrentManifestVersion`
+- **Why it matters**: tracks lifecycle state and ties together tasks/results/manifests.
+
+#### `AgentTasks`
+
+- **Key**: `TaskId`
+- **Fields**: `RunId`, `AgentType`, `Objective`, `Status`, timestamps, optional `EvidenceBundleRef`
+- **Why it matters**: defines what each agent is expected to do for a run.
+
+#### `AgentResults`
+
+- **Key**: `ResultId`
+- **Fields**: `TaskId`, `RunId`, `AgentType`, `Confidence`, `ResultJson`
+- **Why it matters**: the proposals/evidence that feed the decision engine to produce manifests.
+
+#### `GoldenManifestVersions`
+
+- **Key**: `ManifestVersion`
+- **Fields**: `RunId`, `SystemName`, `ManifestJson`, `ParentManifestVersion`, `CreatedUtc`
+- **Why it matters**: immutable, versioned architecture output.
+
+#### `EvidenceBundles`
+
+- **Key**: `EvidenceBundleId`
+- **Fields**: `RequestDescription`, `EvidenceJson`
+- **Why it matters**: packaged evidence used for reporting and explainability.
+
+#### `DecisionTraces`
+
+- **Key**: `TraceId`
+- **Fields**: `RunId`, `EventType`, `EventDescription`, `EventJson`
+- **Why it matters**: audit trail of important events and decision points.
+
+#### `AgentEvidencePackages`
+
+- **Key**: `EvidencePackageId`
+- **Fields**: run/request/system/environment/provider + `EvidenceJson`
+- **Why it matters**: canonical evidence container for explainability and exports.
+
+---
+
+### Comparison records (`002_ComparisonRecords.sql` + `003_ComparisonRecords_LabelAndTags.sql`)
+
+#### `ComparisonRecords`
+
+- **Key**: `ComparisonRecordId`
+- **Type**: `ComparisonType` (e.g., `end-to-end-replay`, `export-record-diff`)
+- **Linkage**:
+  - run comparisons: `LeftRunId`, `RightRunId` (and optional manifest versions)
+  - export comparisons: `LeftExportRecordId`, `RightExportRecordId`
+- **Content**:
+  - `SummaryMarkdown` (optional stored summary)
+  - `PayloadJson` (the source-of-truth payload for replay)
+- **Metadata**:
+  - `Format` (typically `json+markdown`)
+  - `Notes`, `CreatedUtc`
+  - `Label` (optional)
+  - `Tags` (optional JSON array stored as string)
+
+**Why it matters**
+
+Comparison replay is built on `PayloadJson` as the durable artifact. This enables:
+
+- replay/export without recomputing comparisons
+- regenerate/verify (drift analysis) when original sources exist
+
+---
+
+### Decision engine v2 persistence (`004_DecisionNodes_And_Evaluations.sql`)
+
+#### `DecisionNodes`
+
+- **Key**: `DecisionId`
+- **Fields**: `RunId`, `Topic`, `SelectedOptionId`, `Confidence`, `Rationale`, `DecisionJson`, `CreatedUtc`
+- **Why it matters**: captures “final decisions” as structured records, separate from raw agent results.
+
+#### `AgentEvaluations`
+
+- **Key**: `EvaluationId`
+- **Fields**: `RunId`, `TargetAgentTaskId`, `EvaluationType`, `ConfidenceDelta`, `Rationale`, `EvaluationJson`, `CreatedUtc`
+- **Why it matters**: supports evaluation/critique loops and downstream auditing of confidence adjustments.
+
+---
+
+### Common IDs and relationships (mental model)
+
+- `RequestId` → `RunId` → `ManifestVersion`
+- `RunId` → `TaskId` → `ResultId`
+- `RunId` → (`DecisionNodes`, `AgentEvaluations`, `DecisionTraces`, evidence)
+- `ComparisonRecordId` ties to:
+  - runs (left/right run IDs), or
+  - export records (left/right export record IDs)
+
