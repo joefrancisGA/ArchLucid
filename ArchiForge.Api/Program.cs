@@ -204,6 +204,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IManifestDiagramService, ManifestDiagramService>();
             builder.Services.AddScoped<IEvidenceSummaryFormatter, MarkdownEvidenceSummaryFormatter>();
             builder.Services.AddScoped<IManifestSummaryGenerator, MarkdownManifestSummaryGenerator>();
+            builder.Services.AddScoped<ArchiForge.Application.Summaries.IManifestSummaryService, ArchiForge.Application.Summaries.ManifestSummaryService>();
             builder.Services.AddScoped<IArchitectureExportService, MarkdownArchitectureExportService>();
             builder.Services.AddScoped<IManifestDiffService, ManifestDiffService>();
             builder.Services.AddScoped<IManifestDiffSummaryFormatter, MarkdownManifestDiffSummaryFormatter>();

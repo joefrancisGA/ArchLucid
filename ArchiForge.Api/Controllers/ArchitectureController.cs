@@ -51,6 +51,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IDecisionTraceRepository _decisionTraceRepository;
     private readonly IDiagramGenerator _diagramGenerator;
     private readonly IManifestSummaryGenerator _summaryGenerator;
+    private readonly ArchiForge.Application.Summaries.IManifestSummaryService _manifestSummaryService;
     private readonly IArchitectureExportService _exportService;
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository;
@@ -94,6 +95,7 @@ public sealed class ArchitectureController : ControllerBase
         IDecisionTraceRepository decisionTraceRepository,
         IDiagramGenerator diagramGenerator,
         IManifestSummaryGenerator summaryGenerator,
+        ArchiForge.Application.Summaries.IManifestSummaryService manifestSummaryService,
         IArchitectureExportService exportService,
         IAgentEvidencePackageRepository agentEvidencePackageRepository,
         IAgentExecutionTraceRepository agentExecutionTraceRepository,
@@ -136,6 +138,7 @@ public sealed class ArchitectureController : ControllerBase
         _decisionTraceRepository = decisionTraceRepository;
         _diagramGenerator = diagramGenerator;
         _summaryGenerator = summaryGenerator;
+        _manifestSummaryService = manifestSummaryService;
         _exportService = exportService;
         _agentEvidencePackageRepository = agentEvidencePackageRepository;
         _agentExecutionTraceRepository = agentExecutionTraceRepository;
@@ -1641,12 +1644,14 @@ public sealed class ArchitectureController : ControllerBase
 
         var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
         var markdown = _summaryGenerator.GenerateMarkdown(manifest, evidence);
+        var content = _manifestSummaryService.GenerateMarkdown(manifest);
 
         var response = new ManifestSummaryResponse
         {
             ManifestVersion = version,
             Format = "markdown",
-            Summary = markdown
+            Summary = markdown,
+            Content = content
         };
 
         return Ok(response);
