@@ -42,7 +42,7 @@ public sealed class ArchitectureDiagramTests : IntegrationTestBase
         var diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<DiagramResponse>(new JsonOptions().JsonSerializerOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload!.Format.Should().Be("mermaid");
-        diagramPayload.Diagram.Should().Contain("flowchart TD");
+        diagramPayload.Diagram.Should().Contain("flowchart LR");
         diagramPayload.Diagram.Should().Contain("rag-api");
         diagramPayload.Diagram.Should().Contain("rag-search");
         diagramPayload.Diagram.Should().Contain("rag-metadata");

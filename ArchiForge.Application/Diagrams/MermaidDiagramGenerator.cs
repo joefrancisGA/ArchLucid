@@ -12,7 +12,7 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
 
         var sb = new StringBuilder();
 
-        sb.AppendLine("flowchart TD");
+        sb.AppendLine("flowchart LR");
 
         foreach (var service in manifest.Services.OrderBy(s => s.ServiceName))
         {
@@ -31,21 +31,6 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
             var label = EscapeLabel(BuildRelationshipLabel(relationship));
 
             sb.AppendLine($"    {source} -->|{label}| {target}");
-        }
-
-        if (manifest.Governance.RequiredControls.Count > 0)
-        {
-            sb.AppendLine();
-            sb.AppendLine("    subgraph GovernanceControls[Governance Controls]");
-
-            for (var i = 0; i < manifest.Governance.RequiredControls.Count; i++)
-            {
-                var controlId = $"gov_{i + 1}";
-                var control = EscapeLabel(manifest.Governance.RequiredControls[i]);
-                sb.AppendLine($"        {controlId}[{control}]");
-            }
-
-            sb.AppendLine("    end");
         }
 
         return sb.ToString();
