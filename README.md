@@ -114,6 +114,12 @@ The ArchiForge CLI is wired to the ArchiForge API over HTTP: all of `run`, `stat
 dotnet run --project ArchiForge.Cli -- <command> [options]
 ```
 
+## Comparison replay
+
+ArchiForge can persist comparison records (end-to-end run comparisons and export-record diffs) and later **replay** them to regenerate summaries or export artifacts (Markdown, HTML, DOCX, PDF). Replays can also be run in **verify** mode to detect drift between stored and regenerated comparisons, and can optionally be **persisted as new comparison records** for a full audit trail.
+
+For details, including replay modes, supported formats, headers, and example curl commands, see [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md).
+
 ### Prerequisites
 
 - .NET 9 SDK
