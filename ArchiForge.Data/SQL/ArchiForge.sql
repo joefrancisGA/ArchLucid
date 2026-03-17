@@ -100,5 +100,49 @@ CREATE TABLE AgentExecutionTraces
 CREATE INDEX IX_AgentExecutionTraces_RunId
     ON AgentExecutionTraces (RunId);
 
+
 CREATE INDEX IX_AgentExecutionTraces_TaskId
     ON AgentExecutionTraces (TaskId);
+    CREATE TABLE RunExportRecords
+(
+    ExportRecordId NVARCHAR(64) NOT NULL PRIMARY KEY,
+    RunId NVARCHAR(64) NOT NULL,
+    ExportType NVARCHAR(100) NOT NULL,
+    Format NVARCHAR(50) NOT NULL,
+    FileName NVARCHAR(260) NOT NULL,
+    TemplateProfile NVARCHAR(100) NULL,
+    TemplateProfileDisplayName NVARCHAR(200) NULL,
+    WasAutoSelected BIT NOT NULL,
+    ResolutionReason NVARCHAR(MAX) NULL,
+    ManifestVersion NVARCHAR(100) NULL,
+    Notes NVARCHAR(MAX) NULL,
+    RecordJson NVARCHAR(MAX) NOT NULL,
+    CreatedUtc DATETIME2 NOT NULL
+);
+
+
+CREATE INDEX IX_RunExportRecords_RunId
+    ON RunExportRecords (RunId);
+    CREATE TABLE ComparisonRecords
+
+(
+    ComparisonRecordId NVARCHAR(64) NOT NULL PRIMARY KEY,
+    ComparisonType NVARCHAR(100) NOT NULL,
+    LeftRunId NVARCHAR(64) NULL,
+    RightRunId NVARCHAR(64) NULL,
+    LeftManifestVersion NVARCHAR(100) NULL,
+    RightManifestVersion NVARCHAR(100) NULL,
+    LeftExportRecordId NVARCHAR(64) NULL,
+    RightExportRecordId NVARCHAR(64) NULL,
+    Format NVARCHAR(50) NOT NULL,
+    SummaryMarkdown NVARCHAR(MAX) NULL,
+    PayloadJson NVARCHAR(MAX) NOT NULL,
+    Notes NVARCHAR(MAX) NULL,
+    CreatedUtc DATETIME2 NOT NULL
+);
+
+
+CREATE INDEX IX_ComparisonRecords_LeftRunId ON ComparisonRecords (LeftRunId);
+CREATE INDEX IX_ComparisonRecords_RightRunId ON ComparisonRecords (RightRunId);
+CREATE INDEX IX_ComparisonRecords_LeftExportRecordId ON ComparisonRecords (LeftExportRecordId);
+CREATE INDEX IX_ComparisonRecords_RightExportRecordId ON ComparisonRecords (RightExportRecordId);
