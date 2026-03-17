@@ -42,11 +42,11 @@ public sealed class ArchitectureSummaryTests : IntegrationTestBase
         var summaryPayload = await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(new JsonOptions().JsonSerializerOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload!.Format.Should().Be("markdown");
-        summaryPayload.Summary.Should().Contain("# Architecture Summary: EnterpriseRag");
-        summaryPayload.Summary.Should().Contain("## Services");
-        summaryPayload.Summary.Should().Contain("rag-api");
-        summaryPayload.Summary.Should().Contain("rag-search");
-        summaryPayload.Summary.Should().Contain("## Governance");
-        summaryPayload.Summary.Should().Contain("Managed Identity");
+        summaryPayload.Content.Should().Contain("# Architecture Summary: EnterpriseRag");
+        summaryPayload.Content.Should().Contain("## Services");
+        summaryPayload.Content.Should().Contain("rag-api");
+        summaryPayload.Content.Should().Contain("rag-search");
+        summaryPayload.Content.Should().Contain("## Required Controls");
+        summaryPayload.Content.Should().Contain("Managed Identity");
     }
 }

@@ -4,6 +4,6 @@ namespace ArchiForge.Application.Summaries;
 
 public interface IManifestSummaryService
 {
-    string GenerateMarkdown(GoldenManifest manifest);
+    string GenerateMarkdown(GoldenManifest manifest, ManifestSummaryOptions? options = null);
 }
 

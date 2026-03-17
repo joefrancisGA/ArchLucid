@@ -1634,6 +1634,103 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestSummary(
         [FromRoute] string version,
+        [FromQuery] string? format = "markdown",
+        [FromQuery] bool includeRelationships = true,
+        [FromQuery] bool includeRequiredControls = true,
+        [FromQuery] bool includeTags = true,
+        [FromQuery] bool includeComponentControls = true,
+        [FromQuery] int? maxRelationships = null,
+        CancellationToken cancellationToken = default)
+    {
+        var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
+        if (manifest is null)
+        {
+            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
+        }
+
+        if (string.Equals(format, "json", StringComparison.OrdinalIgnoreCase))
+        {
+            return Ok(new ManifestSummaryJsonResponse
+            {
+                ManifestVersion = version,
+                SystemName = manifest.SystemName,
+                ServiceCount = manifest.Services.Count,
+                DatastoreCount = manifest.Datastores.Count,
+                RelationshipCount = manifest.Relationships.Count,
+                RequiredControls = includeRequiredControls
+                    ? manifest.Governance.RequiredControls.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList()
+                    : [],
+                Services = manifest.Services
+                    .OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase)
+                    .Select(s => new ManifestSummaryServiceItem
+                    {
+                        Name = s.ServiceName,
+                        ServiceType = s.ServiceType.ToString(),
+                        RuntimePlatform = s.RuntimePlatform.ToString(),
+                        Purpose = s.Purpose,
+                        RequiredControls = includeComponentControls
+                            ? s.RequiredControls.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList()
+                            : [],
+                        Tags = includeTags
+                            ? s.Tags.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToList()
+                            : []
+                    })
+                    .ToList(),
+                Datastores = manifest.Datastores
+                    .OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase)
+                    .Select(d => new ManifestSummaryDatastoreItem
+                    {
+                        Name = d.DatastoreName,
+                        DatastoreType = d.DatastoreType.ToString(),
+                        RuntimePlatform = d.RuntimePlatform.ToString(),
+                        Purpose = d.Purpose,
+                        PrivateEndpointRequired = d.PrivateEndpointRequired,
+                        EncryptionAtRestRequired = d.EncryptionAtRestRequired
+                    })
+                    .ToList(),
+                Relationships = includeRelationships
+                    ? manifest.Relationships.Take(maxRelationships ?? int.MaxValue).Select(r => new ManifestSummaryRelationshipItem
+                    {
+                        SourceId = r.SourceId,
+                        TargetId = r.TargetId,
+                        RelationshipType = r.RelationshipType.ToString(),
+                        Description = r.Description
+                    }).ToList()
+                    : []
+            });
+        }
+
+        if (!string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new { error = "format must be 'markdown' or 'json'." });
+        }
+
+        var options = new ArchiForge.Application.Summaries.ManifestSummaryOptions
+        {
+            IncludeRelationships = includeRelationships,
+            IncludeRequiredControls = includeRequiredControls,
+            IncludeTags = includeTags,
+            IncludeComponentControls = includeComponentControls,
+            MaxRelationships = maxRelationships
+        };
+        var content = _manifestSummaryService.GenerateMarkdown(manifest, options);
+
+        var response = new ManifestSummaryResponse
+        {
+            ManifestVersion = version,
+            Format = "markdown",
+            Content = content,
+            Summary = content
+        };
+
+        return Ok(response);
+    }
+
+    [HttpGet("manifest/{version}/summary/evidence")]
+    [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetManifestSummaryEvidence(
+        [FromRoute] string version,
         CancellationToken cancellationToken)
     {
         var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
@@ -1644,17 +1741,14 @@ public sealed class ArchitectureController : ControllerBase
 
         var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
         var markdown = _summaryGenerator.GenerateMarkdown(manifest, evidence);
-        var content = _manifestSummaryService.GenerateMarkdown(manifest);
 
-        var response = new ManifestSummaryResponse
+        return Ok(new ManifestSummaryResponse
         {
             ManifestVersion = version,
             Format = "markdown",
-            Summary = markdown,
-            Content = content
-        };
-
-        return Ok(response);
+            Content = markdown,
+            Summary = markdown
+        });
     }
 
     [HttpGet("manifest/{version}/bundle")]

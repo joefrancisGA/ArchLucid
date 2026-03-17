@@ -1,13 +1,17 @@
 using System.Text;
 using ArchiForge.Contracts.Manifest;
+using ArchiForge.Application.Manifests;
 
 namespace ArchiForge.Application.Summaries;
 
 public sealed class ManifestSummaryService : IManifestSummaryService
 {
-    public string GenerateMarkdown(GoldenManifest manifest)
+    public string GenerateMarkdown(
+        GoldenManifest manifest,
+        ManifestSummaryOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(manifest);
+        options ??= ManifestSummaryOptions.Default;
 
         var sb = new StringBuilder();
 
@@ -23,7 +27,7 @@ public sealed class ManifestSummaryService : IManifestSummaryService
         sb.AppendLine($"- **Relationship Count:** {manifest.Relationships.Count}");
         sb.AppendLine();
 
-        if (manifest.Governance.RequiredControls.Count > 0)
+        if (options.IncludeRequiredControls && manifest.Governance.RequiredControls.Count > 0)
         {
             sb.AppendLine("## Required Controls");
             sb.AppendLine();
@@ -54,12 +58,12 @@ public sealed class ManifestSummaryService : IManifestSummaryService
                     sb.AppendLine($"- **Purpose:** {service.Purpose}");
                 }
 
-                if (service.RequiredControls.Count > 0)
+                if (options.IncludeComponentControls && service.RequiredControls.Count > 0)
                 {
                     sb.AppendLine($"- **Required Controls:** {string.Join(", ", service.RequiredControls.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
                 }
 
-                if (service.Tags.Count > 0)
+                if (options.IncludeTags && service.Tags.Count > 0)
                 {
                     sb.AppendLine($"- **Tags:** {string.Join(", ", service.Tags.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
                 }
@@ -91,28 +95,37 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             }
         }
 
-        if (manifest.Relationships.Count > 0)
+        if (options.IncludeRelationships && manifest.Relationships.Count > 0)
         {
             sb.AppendLine("## Relationships");
             sb.AppendLine();
 
-            foreach (var relationship in manifest.Relationships)
+            var max = options.MaxRelationships ?? int.MaxValue;
+            foreach (var relationship in manifest.Relationships
+                         .Select(r => new
+                         {
+                             Relationship = r,
+                             SourceName = ManifestPresentation.ResolveComponentName(r.SourceId, manifest),
+                             TargetName = ManifestPresentation.ResolveComponentName(r.TargetId, manifest),
+                             TypeLabel = ManifestPresentation.RelationshipLabel(r.RelationshipType)
+                         })
+                         .OrderBy(x => x.SourceName, StringComparer.OrdinalIgnoreCase)
+                         .ThenBy(x => x.TargetName, StringComparer.OrdinalIgnoreCase)
+                         .ThenBy(x => x.TypeLabel, StringComparer.OrdinalIgnoreCase)
+                         .Take(max))
             {
-                var sourceName = ResolveComponentName(relationship.SourceId, manifest);
-                var targetName = ResolveComponentName(relationship.TargetId, manifest);
+                sb.AppendLine($"- **{relationship.SourceName}** -> **{relationship.TargetName}** ({relationship.TypeLabel})");
 
-                sb.AppendLine($"- **{sourceName}** -> **{targetName}** ({relationship.RelationshipType})");
-
-                if (!string.IsNullOrWhiteSpace(relationship.Description))
+                if (!string.IsNullOrWhiteSpace(relationship.Relationship.Description))
                 {
-                    sb.AppendLine($"  - {relationship.Description}");
+                    sb.AppendLine($"  - {relationship.Relationship.Description}");
                 }
             }
 
             sb.AppendLine();
         }
 
-        if (manifest.Governance.ComplianceTags.Count > 0)
+        if (options.IncludeComplianceTags && manifest.Governance.ComplianceTags.Count > 0)
         {
             sb.AppendLine("## Compliance Tags");
             sb.AppendLine();
@@ -127,27 +140,6 @@ public sealed class ManifestSummaryService : IManifestSummaryService
         }
 
         return sb.ToString().TrimEnd();
-    }
-
-    private static string ResolveComponentName(string componentId, GoldenManifest manifest)
-    {
-        var service = manifest.Services.FirstOrDefault(s =>
-            s.ServiceId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
-
-        if (service is not null)
-        {
-            return service.ServiceName;
-        }
-
-        var datastore = manifest.Datastores.FirstOrDefault(d =>
-            d.DatastoreId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
-
-        if (datastore is not null)
-        {
-            return datastore.DatastoreName;
-        }
-
-        return componentId;
     }
 }
 

@@ -1,6 +1,7 @@
 using System.Text;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
+using ArchiForge.Application.Manifests;
 
 namespace ArchiForge.Application.Diagrams;
 
@@ -49,16 +50,7 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
 
     private static string BuildRelationshipLabel(ManifestRelationship relationship)
     {
-        return relationship.RelationshipType switch
-        {
-            RelationshipType.Calls => "calls",
-            RelationshipType.ReadsFrom => "reads",
-            RelationshipType.WritesTo => "writes",
-            RelationshipType.PublishesTo => "publishes",
-            RelationshipType.SubscribesTo => "subscribes",
-            RelationshipType.AuthenticatesWith => "auth",
-            _ => relationship.RelationshipType.ToString()
-        };
+        return ManifestPresentation.RelationshipLabel(relationship.RelationshipType);
     }
 
     private static string SanitizeId(string value)
