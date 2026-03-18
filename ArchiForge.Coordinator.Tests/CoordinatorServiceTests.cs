@@ -6,6 +6,7 @@ using ArchiForge.Decisioning.Repositories;
 using ArchiForge.Decisioning.Rules;
 using ArchiForge.Decisioning.Services;
 using ArchiForge.Decisioning.Interfaces;
+using ArchiForge.Decisioning.Manifest.Builders;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 using Xunit;
@@ -34,7 +35,12 @@ public sealed class CoordinatorServiceTests
         };
         var findingsOrchestrator = new FindingsOrchestrator(engines, findingsRepo);
         var ruleProvider = new InMemoryDecisionRuleProvider();
-        var decisionEngine = new RuleBasedDecisionEngine(ruleProvider, manifestRepo, traceRepo);
+        var decisionEngine = new RuleBasedDecisionEngine(
+            ruleProvider,
+            new DefaultGoldenManifestBuilder(),
+            new GoldenManifestValidator(),
+            manifestRepo,
+            traceRepo);
 
         var service = new CoordinatorService(
             new NullContextIngestionService(),

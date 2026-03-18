@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
@@ -11,15 +10,21 @@ namespace ArchiForge.Decisioning.Services;
 public class RuleBasedDecisionEngine : IDecisionEngine
 {
     private readonly IDecisionRuleProvider _ruleProvider;
+    private readonly IGoldenManifestBuilder _manifestBuilder;
+    private readonly IGoldenManifestValidator _manifestValidator;
     private readonly IGoldenManifestRepository _manifestRepository;
     private readonly IDecisionTraceRepository _traceRepository;
 
     public RuleBasedDecisionEngine(
         IDecisionRuleProvider ruleProvider,
+        IGoldenManifestBuilder manifestBuilder,
+        IGoldenManifestValidator manifestValidator,
         IGoldenManifestRepository manifestRepository,
         IDecisionTraceRepository traceRepository)
     {
         _ruleProvider = ruleProvider;
+        _manifestBuilder = manifestBuilder;
+        _manifestValidator = manifestValidator;
         _manifestRepository = manifestRepository;
         _traceRepository = traceRepository;
     }
@@ -31,7 +36,8 @@ public class RuleBasedDecisionEngine : IDecisionEngine
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct)
     {
-        var rules = (await _ruleProvider.GetRulesAsync(ct))
+        var ruleSet = await _ruleProvider.GetRuleSetAsync(ct);
+        var rules = ruleSet.Rules
             .OrderByDescending(r => r.Priority)
             .ToList();
 
@@ -39,18 +45,10 @@ public class RuleBasedDecisionEngine : IDecisionEngine
         {
             DecisionTraceId = Guid.NewGuid(),
             RunId = runId,
-            CreatedUtc = DateTime.UtcNow
-        };
-
-        var manifest = new GoldenManifest
-        {
-            ManifestId = Guid.NewGuid(),
-            RunId = runId,
-            ContextSnapshotId = contextSnapshotId,
-            GraphSnapshotId = graphSnapshot.GraphSnapshotId,
-            FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId,
-            DecisionTraceId = trace.DecisionTraceId,
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = DateTime.UtcNow,
+            RuleSetId = ruleSet.RuleSetId,
+            RuleSetVersion = ruleSet.Version,
+            RuleSetHash = ruleSet.RuleSetHash
         };
 
         foreach (var finding in findingsSnapshot.Findings)
@@ -75,21 +73,14 @@ public class RuleBasedDecisionEngine : IDecisionEngine
                 switch (rule.Action.ToLowerInvariant())
                 {
                     case "require":
-                        ApplyRequiredFinding(finding, manifest, trace);
+                    case "allow":
+                    case "prefer":
+                        trace.AcceptedFindingIds.Add(finding.FindingId);
                         break;
 
                     case "reject":
                         trace.RejectedFindingIds.Add(finding.FindingId);
                         trace.Notes.Add($"Rejected finding {finding.FindingId} by rule {rule.Name}.");
-                        break;
-
-                    case "allow":
-                        ApplyAllowedFinding(finding, manifest, trace);
-                        break;
-
-                    case "prefer":
-                        trace.AcceptedFindingIds.Add(finding.FindingId);
-                        manifest.Assumptions.Add($"Preferred: {finding.Title}");
                         break;
 
                     default:
@@ -99,90 +90,21 @@ public class RuleBasedDecisionEngine : IDecisionEngine
             }
         }
 
+        var manifest = _manifestBuilder.Build(
+            runId,
+            contextSnapshotId,
+            graphSnapshot,
+            findingsSnapshot,
+            trace,
+            ruleSet);
+
+        _manifestValidator.Validate(manifest);
         manifest.ManifestHash = ComputeManifestHash(manifest);
 
         await _traceRepository.SaveAsync(trace, ct);
         await _manifestRepository.SaveAsync(manifest, ct);
 
         return (manifest, trace);
-    }
-
-    private static void ApplyRequiredFinding(
-        Finding finding,
-        GoldenManifest manifest,
-        DecisionTrace trace)
-    {
-        trace.AcceptedFindingIds.Add(finding.FindingId);
-
-        if (finding.FindingType.Equals("RequirementFinding", StringComparison.OrdinalIgnoreCase))
-        {
-            var payload = FindingPayloadConverter.ToRequirementPayload(finding);
-
-            manifest.Decisions.Add(new ResolvedArchitectureDecision
-            {
-                Category = "Requirement",
-                Title = payload?.RequirementName ?? finding.Title,
-                SelectedOption = "Accepted",
-                Rationale = payload?.RequirementText ?? finding.Rationale,
-                SupportingFindingIds = new List<string> { finding.FindingId }
-            });
-
-            return;
-        }
-
-        manifest.Decisions.Add(new ResolvedArchitectureDecision
-        {
-            Category = finding.Category,
-            Title = finding.Title,
-            SelectedOption = "Accepted",
-            Rationale = finding.Rationale,
-            SupportingFindingIds = new List<string> { finding.FindingId }
-        });
-    }
-
-    private static void ApplyAllowedFinding(
-        Finding finding,
-        GoldenManifest manifest,
-        DecisionTrace trace)
-    {
-        trace.AcceptedFindingIds.Add(finding.FindingId);
-
-        if (finding.FindingType.Equals("TopologyGap", StringComparison.OrdinalIgnoreCase))
-        {
-            var payload = FindingPayloadConverter.ToTopologyGapPayload(finding);
-            manifest.Warnings.Add(payload?.Description ?? finding.Title);
-            return;
-        }
-
-        if (finding.FindingType.Equals("SecurityControlFinding", StringComparison.OrdinalIgnoreCase))
-        {
-            var payload = FindingPayloadConverter.ToSecurityControlPayload(finding);
-            var status = payload?.Status ?? "unknown";
-            if (string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase))
-            {
-                manifest.Warnings.Add(payload?.Impact ?? finding.Title);
-            }
-            else
-            {
-                manifest.Assumptions.Add($"Security control present: {payload?.ControlName ?? finding.Title}");
-            }
-            return;
-        }
-
-        if (finding.FindingType.Equals("CostConstraintFinding", StringComparison.OrdinalIgnoreCase))
-        {
-            var payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
-            var budget = payload?.BudgetName ?? "budget";
-            var risk = payload?.CostRisk ?? "unknown";
-            var max = payload?.MaxMonthlyCost;
-            var msg = max is null
-                ? $"Cost constraint ({budget}): risk={risk}"
-                : $"Cost constraint ({budget}): maxMonthlyCost={max.Value:0.##}, risk={risk}";
-            manifest.Warnings.Add(msg);
-            return;
-        }
-
-        manifest.Warnings.Add(finding.Title);
     }
 
     private static string ComputeManifestHash(GoldenManifest manifest)
@@ -195,6 +117,16 @@ public class RuleBasedDecisionEngine : IDecisionEngine
             manifest.GraphSnapshotId,
             manifest.FindingsSnapshotId,
             manifest.DecisionTraceId,
+            manifest.RuleSetId,
+            manifest.RuleSetVersion,
+            manifest.RuleSetHash,
+            manifest.Metadata,
+            manifest.Requirements,
+            manifest.Topology,
+            manifest.Security,
+            manifest.Cost,
+            manifest.Constraints,
+            manifest.UnresolvedIssues,
             Decisions = manifest.Decisions
                 .OrderBy(d => d.DecisionId)
                 .Select(d => new
@@ -208,7 +140,8 @@ public class RuleBasedDecisionEngine : IDecisionEngine
                 })
                 .ToArray(),
             Assumptions = manifest.Assumptions.OrderBy(x => x).ToArray(),
-            Warnings = manifest.Warnings.OrderBy(x => x).ToArray()
+            Warnings = manifest.Warnings.OrderBy(x => x).ToArray(),
+            manifest.Provenance
         });
 
         using var sha = SHA256.Create();

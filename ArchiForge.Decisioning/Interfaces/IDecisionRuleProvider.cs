@@ -4,6 +4,6 @@ namespace ArchiForge.Decisioning.Interfaces;
 
 public interface IDecisionRuleProvider
 {
-    Task<IReadOnlyList<DecisionRule>> GetRulesAsync(CancellationToken ct);
+    Task<DecisionRuleSet> GetRuleSetAsync(CancellationToken ct);
 }
 

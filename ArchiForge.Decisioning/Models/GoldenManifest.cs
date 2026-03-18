@@ -13,8 +13,22 @@ public class GoldenManifest
 
     public string ManifestHash { get; set; } = default!;
 
+    public string RuleSetId { get; set; } = default!;
+    public string RuleSetVersion { get; set; } = default!;
+    public string RuleSetHash { get; set; } = default!;
+
+    public ManifestMetadata Metadata { get; set; } = new();
+    public RequirementsCoverageSection Requirements { get; set; } = new();
+    public TopologySection Topology { get; set; } = new();
+    public SecuritySection Security { get; set; } = new();
+    public CostSection Cost { get; set; } = new();
+    public ConstraintSection Constraints { get; set; } = new();
+    public UnresolvedIssuesSection UnresolvedIssues { get; set; } = new();
+
     public List<ResolvedArchitectureDecision> Decisions { get; set; } = new();
     public List<string> Assumptions { get; set; } = new();
     public List<string> Warnings { get; set; } = new();
+
+    public ManifestProvenance Provenance { get; set; } = new();
 }
 

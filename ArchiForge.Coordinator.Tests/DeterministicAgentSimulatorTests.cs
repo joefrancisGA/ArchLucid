@@ -178,7 +178,12 @@ public sealed class DeterministicAgentSimulatorTests
         };
         var findingsOrchestrator = new ArchiForge.Decisioning.Services.FindingsOrchestrator(engines, findingsRepo);
         var ruleProvider = new ArchiForge.Decisioning.Rules.InMemoryDecisionRuleProvider();
-        var decisionEngine = new ArchiForge.Decisioning.Services.RuleBasedDecisionEngine(ruleProvider, manifestRepo, traceRepo);
+        var decisionEngine = new ArchiForge.Decisioning.Services.RuleBasedDecisionEngine(
+            ruleProvider,
+            new ArchiForge.Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder(),
+            new ArchiForge.Decisioning.Services.GoldenManifestValidator(),
+            manifestRepo,
+            traceRepo);
 
         return new CoordinatorService(
             new NullContextIngestionService(),

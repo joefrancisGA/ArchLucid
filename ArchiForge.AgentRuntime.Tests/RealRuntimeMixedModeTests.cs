@@ -235,6 +235,8 @@ public sealed class RealRuntimeMixedModeTests
                 new ArchiForge.Decisioning.Repositories.InMemoryFindingsSnapshotRepository()),
             new ArchiForge.Decisioning.Services.RuleBasedDecisionEngine(
                 new ArchiForge.Decisioning.Rules.InMemoryDecisionRuleProvider(),
+                new ArchiForge.Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder(),
+                new ArchiForge.Decisioning.Services.GoldenManifestValidator(),
                 new ArchiForge.Decisioning.Repositories.InMemoryGoldenManifestRepository(),
                 new ArchiForge.Decisioning.Repositories.InMemoryDecisionTraceRepository()));
         var coordination = coordinator.CreateRun(request);
