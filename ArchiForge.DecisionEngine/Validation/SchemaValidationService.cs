@@ -1,43 +1,81 @@
 using System.Text.Json;
 using Json.Schema;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchiForge.DecisionEngine.Validation;
 
 public sealed class SchemaValidationService : ISchemaValidationService
 {
-    private readonly JsonSchema _agentResultSchema;
-    private readonly JsonSchema _goldenManifestSchema;
+    private readonly ILogger<SchemaValidationService> _logger;
+    private readonly SchemaValidationOptions _options;
+    private readonly Lazy<JsonSchema> _agentResultSchema;
+    private readonly Lazy<JsonSchema> _goldenManifestSchema;
 
-    public SchemaValidationService()
+    public SchemaValidationService(
+        ILogger<SchemaValidationService> logger,
+        IOptions<SchemaValidationOptions> options)
     {
-        _agentResultSchema = LoadSchema("schemas/agentresult.schema.json");
-        _goldenManifestSchema = LoadSchema("schemas/goldenmanifest.schema.json");
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+
+        _agentResultSchema = new Lazy<JsonSchema>(() =>
+            LoadSchema(_options.AgentResultSchemaPath, "AgentResult"));
+        _goldenManifestSchema = new Lazy<JsonSchema>(() =>
+            LoadSchema(_options.GoldenManifestSchemaPath, "GoldenManifest"));
     }
 
     public SchemaValidationResult ValidateAgentResultJson(string json)
     {
-        return Validate(json, _agentResultSchema, "AgentResult");
+        return Validate(json, _agentResultSchema.Value, "AgentResult");
     }
 
     public SchemaValidationResult ValidateGoldenManifestJson(string json)
     {
-        return Validate(json, _goldenManifestSchema, "GoldenManifest");
+        return Validate(json, _goldenManifestSchema.Value, "GoldenManifest");
     }
 
-    private static JsonSchema LoadSchema(string relativePath)
+    public Task<SchemaValidationResult> ValidateAgentResultJsonAsync(
+        string json,
+        CancellationToken cancellationToken = default)
     {
-        var fullPath = Path.Combine(AppContext.BaseDirectory, relativePath);
-
-        if (!File.Exists(fullPath))
-        {
-            throw new FileNotFoundException($"Schema file not found: {fullPath}");
-        }
-
-        var schemaText = File.ReadAllText(fullPath);
-        return JsonSchema.FromText(schemaText);
+        return ValidateAsync(json, _agentResultSchema.Value, "AgentResult", cancellationToken);
     }
 
-    private static SchemaValidationResult Validate(
+    public Task<SchemaValidationResult> ValidateGoldenManifestJsonAsync(
+        string json,
+        CancellationToken cancellationToken = default)
+    {
+        return ValidateAsync(json, _goldenManifestSchema.Value, "GoldenManifest", cancellationToken);
+    }
+
+    private JsonSchema LoadSchema(string relativePath, string schemaName)
+    {
+        try
+        {
+            var fullPath = Path.Combine(AppContext.BaseDirectory, relativePath);
+
+            if (!File.Exists(fullPath))
+            {
+                _logger.LogError("Schema file not found: {FullPath} for {SchemaName}", fullPath, schemaName);
+                throw new FileNotFoundException($"Schema file not found: {fullPath}", fullPath);
+            }
+
+            _logger.LogInformation("Loading schema {SchemaName} from {FullPath}", schemaName, fullPath);
+            var schemaText = File.ReadAllText(fullPath);
+            var schema = JsonSchema.FromText(schemaText);
+
+            _logger.LogInformation("Successfully loaded schema {SchemaName}", schemaName);
+            return schema;
+        }
+        catch (Exception ex) when (ex is not FileNotFoundException)
+        {
+            _logger.LogError(ex, "Failed to load or parse schema {SchemaName} from {RelativePath}", schemaName, relativePath);
+            throw;
+        }
+    }
+
+    private SchemaValidationResult Validate(
         string json,
         JsonSchema schema,
         string objectName)
@@ -46,7 +84,9 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            result.Errors.Add($"{objectName} JSON payload is empty.");
+            var error = $"{objectName} JSON payload is empty.";
+            result.Errors.Add(error);
+            _logger.LogWarning("Validation failed for {ObjectName}: Empty payload", objectName);
             return result;
         }
 
@@ -57,7 +97,9 @@ public sealed class SchemaValidationService : ISchemaValidationService
         }
         catch (JsonException ex)
         {
-            result.Errors.Add($"{objectName} JSON could not be parsed: {ex.Message}");
+            var error = $"{objectName} JSON could not be parsed: {ex.Message}";
+            result.Errors.Add(error);
+            _logger.LogWarning(ex, "Validation failed for {ObjectName}: Invalid JSON", objectName);
             return result;
         }
 
@@ -72,17 +114,36 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
             if (evaluation.IsValid)
             {
+                _logger.LogDebug("Validation succeeded for {ObjectName}", objectName);
                 return result;
             }
 
-            CollectErrors(evaluation, result.Errors, objectName);
+            CollectErrors(evaluation, result, objectName);
+            _logger.LogWarning(
+                "Validation failed for {ObjectName} with {ErrorCount} errors",
+                objectName,
+                result.Errors.Count);
+
             return result;
         }
     }
 
-    private static void CollectErrors(
+    private Task<SchemaValidationResult> ValidateAsync(
+        string json,
+        JsonSchema schema,
+        string objectName,
+        CancellationToken cancellationToken)
+    {
+        return Task.Run(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return Validate(json, schema, objectName);
+        }, cancellationToken);
+    }
+
+    private void CollectErrors(
         EvaluationResults evaluation,
-        List<string> errors,
+        SchemaValidationResult result,
         string objectName)
     {
         if (evaluation.Errors is not null && evaluation.Errors.Count > 0)
@@ -92,8 +153,23 @@ public sealed class SchemaValidationService : ISchemaValidationService
                 var message = kvp.Value ?? "(no message)";
                 var location = evaluation.InstanceLocation.ToString();
                 if (string.IsNullOrEmpty(location))
-                    location = "(unknown)";
-                errors.Add($"{objectName} schema error at '{location}': {message}");
+                    location = "(root)";
+                var schemaPath = evaluation.SchemaLocation?.ToString();
+                var keyword = kvp.Key;
+
+                var errorMessage = $"{objectName} schema error at '{location}': {message}";
+                result.Errors.Add(errorMessage);
+
+                if (_options.EnableDetailedErrors)
+                {
+                    result.DetailedErrors.Add(new SchemaValidationError
+                    {
+                        Message = message,
+                        Location = location,
+                        SchemaPath = schemaPath,
+                        Keyword = keyword
+                    });
+                }
             }
         }
 
@@ -104,7 +180,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
         foreach (var detail in evaluation.Details)
         {
-            CollectErrors(detail, errors, objectName);
+            CollectErrors(detail, result, objectName);
         }
     }
 }

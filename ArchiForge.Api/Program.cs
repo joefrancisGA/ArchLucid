@@ -271,7 +271,7 @@ namespace ArchiForge.Api
             builder.Services.AddSingleton<ArchiForge.Decisioning.Interfaces.IGoldenManifestValidator, ArchiForge.Decisioning.Services.GoldenManifestValidator>();
             builder.Services.AddScoped<ArchiForge.Decisioning.Interfaces.IDecisionEngine, ArchiForge.Decisioning.Services.RuleBasedDecisionEngine>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
-            builder.Services.AddScoped<ISchemaValidationService, SchemaValidationService>();
+            builder.Services.AddSchemaValidation(builder.Configuration);
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IDecisionEngineV2, DecisionEngineV2>();
             builder.Services.AddScoped<ArchiForge.Application.Decisions.IAgentEvaluationService, ArchiForge.Application.Decisions.DefaultAgentEvaluationService>();

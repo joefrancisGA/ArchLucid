@@ -4,6 +4,8 @@ using ArchiForge.Contracts.Requests;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace ArchiForge.DecisionEngine.Tests;
@@ -32,7 +34,11 @@ public sealed class SchemaValidationTests
             CreatedUtc = DateTime.UtcNow
         };
 
-        var service = new DecisionEngineService(new SchemaValidationService());
+        var validationService = new SchemaValidationService(
+            NullLogger<SchemaValidationService>.Instance,
+            Options.Create(new SchemaValidationOptions()));
+
+        var service = new DecisionEngineService(validationService);
 
         var result = service.MergeResults(
             runId: "RUN-001",

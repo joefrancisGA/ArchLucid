@@ -29,11 +29,14 @@ public sealed class ReplayExamplesOperationFilter : IOperationFilter
             ? baseDesc
             : operation.Description + " " + baseDesc;
 
-        operation.Responses.TryAdd("422", new OpenApiResponse
+        if (operation.Responses != null)
         {
-            Description =
-                "Comparison verification failed: regenerated output does not match the stored comparison payload. "
-                + "Problem details may include driftDetected and driftSummary."
-        });
+            operation.Responses.TryAdd("422", new OpenApiResponse
+            {
+                Description =
+                    "Comparison verification failed: regenerated output does not match the stored comparison payload. "
+                    + "Problem details may include driftDetected and driftSummary."
+            });
+        }
     }
 }

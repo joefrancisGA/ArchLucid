@@ -14,12 +14,7 @@ public sealed class DecisionEngineService : IDecisionEngineService
 
     public DecisionEngineService(ISchemaValidationService schemaValidationService)
     {
-        _schemaValidationService = schemaValidationService;
-    }
-
-    public DecisionEngineService()
-        : this(new SchemaValidationService())
-    {
+        _schemaValidationService = schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
     }
 
     public DecisionMergeResult MergeResults(

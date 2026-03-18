@@ -8,6 +8,8 @@ using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using FluentAssertions;
 using Xunit;
 
@@ -278,7 +280,11 @@ public sealed class RealRuntimeMixedModeTests
 
         var results = await executor.ExecuteAsync("RUN-001", request, evidence, coordination.Tasks);
 
-        var engine = new DecisionEngineService(new SchemaValidationService());
+        var validationService = new SchemaValidationService(
+            NullLogger<SchemaValidationService>.Instance,
+            Options.Create(new SchemaValidationOptions()));
+
+        var engine = new DecisionEngineService(validationService);
         var merge = engine.MergeResults(
             runId: "RUN-001",
             request: request,
