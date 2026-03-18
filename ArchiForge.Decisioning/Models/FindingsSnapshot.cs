@@ -9,5 +9,15 @@ public class FindingsSnapshot
     public DateTime CreatedUtc { get; set; }
 
     public List<Finding> Findings { get; set; } = new();
+
+    public IReadOnlyList<Finding> GetByCategory(string category)
+        => Findings
+            .Where(f => string.Equals(f.Category, category, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+    public IReadOnlyList<Finding> GetByType(string findingType)
+        => Findings
+            .Where(f => string.Equals(f.FindingType, findingType, StringComparison.OrdinalIgnoreCase))
+            .ToList();
 }
 

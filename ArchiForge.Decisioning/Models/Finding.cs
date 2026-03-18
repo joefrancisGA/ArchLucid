@@ -4,6 +4,7 @@ public class Finding
 {
     public string FindingId { get; set; } = Guid.NewGuid().ToString("N");
     public string FindingType { get; set; } = default!;
+    public string Category { get; set; } = default!;
     public string EngineType { get; set; } = default!;
     public FindingSeverity Severity { get; set; }
 
@@ -14,6 +15,9 @@ public class Finding
     public List<string> RecommendedActions { get; set; } = new();
 
     public Dictionary<string, string> Properties { get; set; } = new();
+
+    public object? Payload { get; set; }
+    public string? PayloadType { get; set; }
 
     public ExplainabilityTrace Trace { get; set; } = new();
 }

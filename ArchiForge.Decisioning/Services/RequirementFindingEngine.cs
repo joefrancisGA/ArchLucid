@@ -1,3 +1,4 @@
+using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
@@ -20,27 +21,28 @@ public class RequirementFindingEngine : IFindingEngine
 
         foreach (var node in requirementNodes)
         {
-            findings.Add(new Finding
+            node.Properties.TryGetValue("text", out var requirementText);
+
+            var finding = FindingFactory.CreateRequirementFinding(
+                engineType: EngineType,
+                title: $"Requirement detected: {node.Label}",
+                rationale: "A requirement node exists and must be reflected in the resolved architecture.",
+                requirementName: node.Label,
+                requirementText: requirementText ?? string.Empty,
+                isMandatory: true,
+                relatedNodeIds: new[] { node.NodeId });
+
+            finding.RecommendedActions.Add("Carry this requirement into the GoldenManifest.");
+            finding.Trace = new ExplainabilityTrace
             {
-                FindingType = "RequirementFinding",
-                EngineType = EngineType,
-                Severity = FindingSeverity.Info,
-                Title = $"Requirement detected: {node.Label}",
-                Rationale = "A requirement node exists and must be reflected in the resolved architecture.",
-                RelatedNodeIds = new List<string> { node.NodeId },
-                RecommendedActions = new List<string>
+                GraphNodeIdsExamined = new List<string> { node.NodeId },
+                DecisionsTaken = new List<string>
                 {
-                    "Carry this requirement into the GoldenManifest."
-                },
-                Trace = new ExplainabilityTrace
-                {
-                    GraphNodeIdsExamined = new List<string> { node.NodeId },
-                    DecisionsTaken = new List<string>
-                    {
-                        "Promote requirement into candidate architecture decision input."
-                    }
+                    "Promote requirement into candidate architecture decision input."
                 }
-            });
+            };
+
+            findings.Add(finding);
         }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);

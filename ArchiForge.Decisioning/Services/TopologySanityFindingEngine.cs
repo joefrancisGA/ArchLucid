@@ -1,3 +1,4 @@
+using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
@@ -20,25 +21,24 @@ public class TopologySanityFindingEngine : IFindingEngine
 
         if (topologyNodes.Count == 0)
         {
-            findings.Add(new Finding
+            var finding = FindingFactory.CreateTopologyGapFinding(
+                engineType: EngineType,
+                title: "No topology resources were found",
+                rationale: "The graph does not yet contain TopologyResource nodes.",
+                gapCode: "TOPOLOGY_MISSING",
+                description: "No TopologyResource nodes were present in the current graph snapshot.",
+                impact: "The architecture cannot yet support deployment-grade topology decisions.");
+
+            finding.RecommendedActions.Add("Ingest topology resources before architecture synthesis.");
+            finding.Trace = new ExplainabilityTrace
             {
-                FindingType = "TopologyGap",
-                EngineType = EngineType,
-                Severity = FindingSeverity.Warning,
-                Title = "No topology resources were found",
-                Rationale = "The graph does not yet contain TopologyResource nodes.",
-                RecommendedActions = new List<string>
+                DecisionsTaken = new List<string>
                 {
-                    "Ingest topology resources before architecture synthesis."
-                },
-                Trace = new ExplainabilityTrace
-                {
-                    DecisionsTaken = new List<string>
-                    {
-                        "Marked graph as incomplete for deployment-level decisions."
-                    }
+                    "Marked graph as incomplete for deployment-level decisions."
                 }
-            });
+            };
+
+            findings.Add(finding);
         }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);

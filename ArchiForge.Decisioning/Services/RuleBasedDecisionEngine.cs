@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
@@ -61,6 +62,12 @@ public class RuleBasedDecisionEngine : IDecisionEngine
                     StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
+            if (matchingRules.Count == 0)
+            {
+                trace.Notes.Add($"No rule matched finding {finding.FindingId} ({finding.FindingType}).");
+                continue;
+            }
+
             foreach (var rule in matchingRules)
             {
                 trace.AppliedRuleIds.Add(rule.RuleId);
@@ -68,15 +75,7 @@ public class RuleBasedDecisionEngine : IDecisionEngine
                 switch (rule.Action.ToLowerInvariant())
                 {
                     case "require":
-                        trace.AcceptedFindingIds.Add(finding.FindingId);
-                        manifest.Decisions.Add(new ResolvedArchitectureDecision
-                        {
-                            Category = finding.FindingType,
-                            Title = finding.Title,
-                            SelectedOption = "Accepted",
-                            Rationale = finding.Rationale,
-                            SupportingFindingIds = new List<string> { finding.FindingId }
-                        });
+                        ApplyRequiredFinding(finding, manifest, trace);
                         break;
 
                     case "reject":
@@ -85,8 +84,7 @@ public class RuleBasedDecisionEngine : IDecisionEngine
                         break;
 
                     case "allow":
-                        trace.AcceptedFindingIds.Add(finding.FindingId);
-                        manifest.Warnings.Add(finding.Title);
+                        ApplyAllowedFinding(finding, manifest, trace);
                         break;
 
                     case "prefer":
@@ -107,6 +105,56 @@ public class RuleBasedDecisionEngine : IDecisionEngine
         await _manifestRepository.SaveAsync(manifest, ct);
 
         return (manifest, trace);
+    }
+
+    private static void ApplyRequiredFinding(
+        Finding finding,
+        GoldenManifest manifest,
+        DecisionTrace trace)
+    {
+        trace.AcceptedFindingIds.Add(finding.FindingId);
+
+        if (finding.FindingType.Equals("RequirementFinding", StringComparison.OrdinalIgnoreCase))
+        {
+            var payload = FindingPayloadConverter.ToRequirementPayload(finding);
+
+            manifest.Decisions.Add(new ResolvedArchitectureDecision
+            {
+                Category = "Requirement",
+                Title = payload?.RequirementName ?? finding.Title,
+                SelectedOption = "Accepted",
+                Rationale = payload?.RequirementText ?? finding.Rationale,
+                SupportingFindingIds = new List<string> { finding.FindingId }
+            });
+
+            return;
+        }
+
+        manifest.Decisions.Add(new ResolvedArchitectureDecision
+        {
+            Category = finding.Category,
+            Title = finding.Title,
+            SelectedOption = "Accepted",
+            Rationale = finding.Rationale,
+            SupportingFindingIds = new List<string> { finding.FindingId }
+        });
+    }
+
+    private static void ApplyAllowedFinding(
+        Finding finding,
+        GoldenManifest manifest,
+        DecisionTrace trace)
+    {
+        trace.AcceptedFindingIds.Add(finding.FindingId);
+
+        if (finding.FindingType.Equals("TopologyGap", StringComparison.OrdinalIgnoreCase))
+        {
+            var payload = FindingPayloadConverter.ToTopologyGapPayload(finding);
+            manifest.Warnings.Add(payload?.Description ?? finding.Title);
+            return;
+        }
+
+        manifest.Warnings.Add(finding.Title);
     }
 
     private static string ComputeManifestHash(GoldenManifest manifest)
