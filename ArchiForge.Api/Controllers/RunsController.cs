@@ -3,9 +3,9 @@ using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Determinism;
-using ArchiForge.Data.Repositories;
-using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.Manifest;
+using ArchiForge.Data.Repositories;
 using ArchiForge.Contracts.Requests;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
@@ -30,6 +30,9 @@ public sealed class RunsController : ControllerBase
     private readonly IGoldenManifestRepository _manifestRepository;
     private readonly IDecisionTraceRepository _decisionTraceRepository;
     private readonly IDeterminismCheckService _determinismCheckService;
+    private readonly IDecisionNodeRepository _decisionNodeRepository;
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository;
     private readonly ILogger<RunsController> _logger;
 
     public RunsController(
@@ -42,6 +45,9 @@ public sealed class RunsController : ControllerBase
         IGoldenManifestRepository manifestRepository,
         IDecisionTraceRepository decisionTraceRepository,
         IDeterminismCheckService determinismCheckService,
+        IDecisionNodeRepository decisionNodeRepository,
+        IAgentEvidencePackageRepository agentEvidencePackageRepository,
+        IAgentExecutionTraceRepository agentExecutionTraceRepository,
         ILogger<RunsController> logger)
     {
         _architectureRunService = architectureRunService;
@@ -53,6 +59,9 @@ public sealed class RunsController : ControllerBase
         _manifestRepository = manifestRepository;
         _decisionTraceRepository = decisionTraceRepository;
         _determinismCheckService = determinismCheckService;
+        _decisionNodeRepository = decisionNodeRepository;
+        _agentEvidencePackageRepository = agentEvidencePackageRepository;
+        _agentExecutionTraceRepository = agentExecutionTraceRepository;
         _logger = logger;
     }
 
@@ -344,6 +353,108 @@ public sealed class RunsController : ControllerBase
             correlationId);
 
         return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
+    }
+
+    [HttpGet("run/{runId}/decisions")]
+    [ProducesResponseType(typeof(DecisionNodeResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunDecisions(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        if (run is null)
+        {
+            return NotFound(new { error = $"Run '{runId}' was not found." });
+        }
+
+        var decisions = await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        return Ok(new DecisionNodeResponse
+        {
+            Decisions = decisions.ToList()
+        });
+    }
+
+    [HttpGet("run/{runId}/evidence")]
+    [ProducesResponseType(typeof(AgentEvidencePackageResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunEvidence(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        if (run is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        }
+
+        var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+        if (evidence is null)
+        {
+            return this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(new AgentEvidencePackageResponse
+        {
+            Evidence = evidence
+        });
+    }
+
+    [HttpGet("run/{runId}/traces")]
+    [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunTraces(
+        [FromRoute] string runId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 50,
+        CancellationToken cancellationToken = default)
+    {
+        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        if (run is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        }
+
+        var allTraces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+        var paging = new PagingParameters { PageNumber = pageNumber, PageSize = pageSize };
+        var (skip, take) = paging.Normalize();
+
+        var pagedTraces = allTraces
+            .OrderBy(t => t.CreatedUtc)
+            .Skip(skip)
+            .Take(take)
+            .ToList();
+
+        return Ok(new AgentExecutionTraceResponse
+        {
+            Traces = pagedTraces,
+            TotalCount = allTraces.Count,
+            PageNumber = paging.PageNumber,
+            PageSize = paging.PageSize
+        });
+    }
+
+    [HttpGet("runs")]
+    [ProducesResponseType(typeof(List<RunListItemResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListRuns(CancellationToken cancellationToken)
+    {
+        var items = await _runRepository.ListAsync(cancellationToken);
+
+        var response = items
+            .Select(r => new RunListItemResponse
+            {
+                RunId = r.RunId,
+                RequestId = r.RequestId,
+                Status = r.Status,
+                CreatedUtc = r.CreatedUtc,
+                CompletedUtc = r.CompletedUtc,
+                CurrentManifestVersion = r.CurrentManifestVersion,
+                SystemName = r.SystemName
+            })
+            .ToList();
+
+        return Ok(response);
     }
 
     private async Task<RunDetailsResponse?> BuildRunDetailsResponseAsync(
