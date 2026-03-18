@@ -37,10 +37,10 @@ public sealed class EndToEndReplayComparisonService : IEndToEndReplayComparisonS
         CancellationToken cancellationToken = default)
     {
         var leftRun = await _runRepository.GetByIdAsync(leftRunId, cancellationToken)
-            ?? throw new InvalidOperationException($"Run '{leftRunId}' was not found.");
+            ?? throw new RunNotFoundException(leftRunId);
 
         var rightRun = await _runRepository.GetByIdAsync(rightRunId, cancellationToken)
-            ?? throw new InvalidOperationException($"Run '{rightRunId}' was not found.");
+            ?? throw new RunNotFoundException(rightRunId);
 
         var report = new EndToEndReplayComparisonReport
         {

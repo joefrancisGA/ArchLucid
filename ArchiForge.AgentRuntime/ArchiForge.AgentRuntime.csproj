@@ -7,10 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
+    <PackageReference Include="Azure.AI.OpenAI" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj" />
     <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
     <ProjectReference Include="..\ArchiForge.Data\ArchiForge.Data.csproj" />
+    <ProjectReference Include="..\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj" />
   </ItemGroup>
 
 </Project>

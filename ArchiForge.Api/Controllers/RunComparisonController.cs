@@ -137,22 +137,15 @@ public sealed class RunComparisonController : ControllerBase
         [FromQuery] string rightRunId,
         CancellationToken cancellationToken)
     {
-        try
+        var report = await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
+        var markdown = _endToEndReplayComparisonExportService.GenerateMarkdown(report);
+        var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.md";
+        return Ok(new EndToEndReplayComparisonExportResponse
         {
-            var report = await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
-            var markdown = _endToEndReplayComparisonExportService.GenerateMarkdown(report);
-            var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.md";
-            return Ok(new EndToEndReplayComparisonExportResponse
-            {
-                Format = "markdown",
-                FileName = fileName,
-                Content = markdown
-            });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
+            Format = "markdown",
+            FileName = fileName,
+            Content = markdown
+        });
     }
 
     [HttpGet("run/compare/end-to-end/export/file")]

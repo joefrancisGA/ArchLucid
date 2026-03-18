@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using Microsoft.Extensions.Logging;
 
@@ -61,7 +62,7 @@ public sealed class ComparisonReplayApiService : IComparisonReplayApiService
 
             return result;
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex) when (ex is InvalidOperationException or RunNotFoundException)
         {
             sw.Stop();
 
@@ -79,7 +80,8 @@ public sealed class ComparisonReplayApiService : IComparisonReplayApiService
                 MetadataOnly = metadataOnly
             });
 
-            var notFound = ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase);
+            var notFound = ex is RunNotFoundException
+                || (ex is InvalidOperationException && ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase));
             _logger.LogWarning(
                 ex,
                 "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, NotFound={NotFound}, MetadataOnly={MetadataOnly}, Error={Error}",

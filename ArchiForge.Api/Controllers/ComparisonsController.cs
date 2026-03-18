@@ -314,6 +314,7 @@ public sealed class ComparisonsController : ControllerBase
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status206PartialContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> ReplayComparison(
         [FromRoute] string comparisonRecordId,
         [FromQuery] string? format,

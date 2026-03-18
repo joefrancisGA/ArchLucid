@@ -70,6 +70,8 @@ dotnet test
 
 Integration tests use in-memory SQLite by default—no SQL Server required. The schema is created automatically.
 
+**Notable API behavior:** comparison replay with `replayMode: verify` returns **422** (problem+json with drift fields) when regenerated output does not match the stored comparison—not HTTP 200 with a failure flag. End-to-end run compare uses **`#run-not-found`** when a run ID is missing. See [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md).
+
 ## API Flow
 
 1. **Create run** – `POST /v1/architecture/request`  

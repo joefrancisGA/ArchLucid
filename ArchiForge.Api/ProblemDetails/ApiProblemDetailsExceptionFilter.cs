@@ -61,6 +61,18 @@ public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
             return;
         }
 
+        if (ex is RunNotFoundException rnf)
+        {
+            context.Result = CreateProblemResult(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Run Not Found",
+                detail: rnf.Message,
+                type: ProblemTypes.RunNotFound,
+                instance: instance);
+            context.ExceptionHandled = true;
+            return;
+        }
+
         if (ex is InvalidOperationException ioe)
         {
             // Convention used widely across services: "not found" indicates a 404.
