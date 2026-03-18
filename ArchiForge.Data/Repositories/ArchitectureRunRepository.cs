@@ -25,7 +25,8 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
                 CreatedUtc,
                 CompletedUtc,
                 CurrentManifestVersion,
-                ContextSnapshotId
+                ContextSnapshotId,
+                GraphSnapshotId
             )
             VALUES
             (
@@ -35,7 +36,8 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
                 @CreatedUtc,
                 @CompletedUtc,
                 @CurrentManifestVersion,
-                @ContextSnapshotId
+                @ContextSnapshotId,
+                @GraphSnapshotId
             );
             """;
 
@@ -51,7 +53,8 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
                 run.CreatedUtc,
                 run.CompletedUtc,
                 run.CurrentManifestVersion,
-                run.ContextSnapshotId
+                run.ContextSnapshotId,
+                run.GraphSnapshotId
             },
             cancellationToken: cancellationToken));
     }
@@ -66,7 +69,8 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
                 CreatedUtc,
                 CompletedUtc,
                 CurrentManifestVersion,
-                ContextSnapshotId
+                ContextSnapshotId,
+                GraphSnapshotId
             FROM ArchitectureRuns
             WHERE RunId = @RunId;
             """;
@@ -92,6 +96,7 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
             CompletedUtc = row.CompletedUtc,
             CurrentManifestVersion = row.CurrentManifestVersion,
             ContextSnapshotId = row.ContextSnapshotId,
+            GraphSnapshotId = row.GraphSnapshotId,
             TaskIds = []
         };
     }
@@ -135,6 +140,7 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
         public DateTime? CompletedUtc { get; set; }
         public string? CurrentManifestVersion { get; set; }
         public string? ContextSnapshotId { get; set; }
+        public Guid? GraphSnapshotId { get; set; }
     }
 
     public async Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(

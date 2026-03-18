@@ -1,0 +1,13 @@
+namespace ArchiForge.KnowledgeGraph.Models;
+
+public class GraphNode
+{
+    public string NodeId { get; set; } = default!;
+
+    public string NodeType { get; set; } = default!;
+
+    public string Label { get; set; } = default!;
+
+    public Dictionary<string, string> Properties { get; set; } = new();
+}
+

@@ -7,9 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
     <ProjectReference Include="..\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj" />
-    <ProjectReference Include="..\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj" />
   </ItemGroup>
 
 </Project>
+

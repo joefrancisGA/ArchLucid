@@ -5,6 +5,7 @@ using ArchiForge.Coordinator.Services;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.DecisionEngine.Services;
+using ArchiForge.DecisionEngine.Validation;
 using FluentAssertions;
 using Xunit;
 
@@ -96,7 +97,7 @@ public sealed class DeterministicAgentSimulatorTests
             evidence,
             coordination.Tasks);
 
-        var engine = new DecisionEngineService();
+        var engine = new DecisionEngineService(new SchemaValidationService());
 
         var merge = engine.MergeResults(
             coordination.Run.RunId,

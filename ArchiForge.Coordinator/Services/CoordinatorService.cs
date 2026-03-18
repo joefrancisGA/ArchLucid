@@ -4,16 +4,22 @@ using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
+using ArchiForge.KnowledgeGraph.Interfaces;
+using ArchiForge.KnowledgeGraph.Models;
 
 namespace ArchiForge.Coordinator.Services;
 
 public sealed class CoordinatorService : ICoordinatorService
 {
     private readonly IContextIngestionService _contextIngestionService;
+    private readonly IKnowledgeGraphService _knowledgeGraphService;
 
-    public CoordinatorService(IContextIngestionService contextIngestionService)
+    public CoordinatorService(
+        IContextIngestionService contextIngestionService,
+        IKnowledgeGraphService knowledgeGraphService)
     {
         _contextIngestionService = contextIngestionService;
+        _knowledgeGraphService = knowledgeGraphService;
     }
 
     public CoordinationResult CreateRun(ArchitectureRequest request)
@@ -45,8 +51,15 @@ public sealed class CoordinatorService : ICoordinatorService
 
         run.ContextSnapshotId = contextSnapshot.SnapshotId.ToString("N");
 
+        var graphSnapshot = _knowledgeGraphService
+            .BuildSnapshotAsync(contextSnapshot, CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
+
+        run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
+
         var evidenceBundle = BuildEvidenceBundle(request);
-        var tasks = BuildStarterTasks(runId, evidenceBundle, request);
+        var tasks = BuildStarterTasks(runId, evidenceBundle, request, graphSnapshot);
         run.TaskIds = [.. tasks.Select(t => t.TaskId)];
 
         output.Run = run;
@@ -174,8 +187,10 @@ public sealed class CoordinatorService : ICoordinatorService
     private static List<AgentTask> BuildStarterTasks(
         string runId,
         EvidenceBundle evidenceBundle,
-        ArchitectureRequest request)
+        ArchitectureRequest request,
+        GraphSnapshot graphSnapshot)
     {
+        _ = graphSnapshot;
         return
         [
             CreateTopologyTask(runId, evidenceBundle, request),

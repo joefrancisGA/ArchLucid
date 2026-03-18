@@ -5,6 +5,7 @@ using ArchiForge.Coordinator.Services;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.DecisionEngine.Services;
+using ArchiForge.DecisionEngine.Validation;
 using FluentAssertions;
 using Xunit;
 
@@ -260,7 +261,7 @@ public sealed class RealRuntimeMixedModeTests
 
         var results = await executor.ExecuteAsync("RUN-001", request, evidence, coordination.Tasks);
 
-        var engine = new DecisionEngineService();
+        var engine = new DecisionEngineService(new SchemaValidationService());
         var merge = engine.MergeResults(
             runId: "RUN-001",
             request: request,

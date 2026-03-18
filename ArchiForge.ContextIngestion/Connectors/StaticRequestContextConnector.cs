@@ -25,10 +25,14 @@ public class StaticRequestContextConnector : IContextConnector
 
         if (!string.IsNullOrWhiteSpace(payload.Description))
         {
-            batch.CanonicalObjects.Add(new
+            batch.CanonicalObjects.Add(new CanonicalObject
             {
-                Type = "Requirement",
-                Text = payload.Description
+                ObjectType = "Requirement",
+                Name = "Primary Request",
+                Properties = new Dictionary<string, string>
+                {
+                    ["text"] = payload.Description
+                }
             });
         }
 
@@ -42,7 +46,7 @@ public class StaticRequestContextConnector : IContextConnector
     {
         return Task.FromResult(new ContextDelta
         {
-            Summary = "Initial ingestion"
+            Summary = previous is null ? "Initial ingestion" : "Updated ingestion"
         });
     }
 }

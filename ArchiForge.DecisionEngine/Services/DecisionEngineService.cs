@@ -4,11 +4,24 @@ using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.DecisionEngine.Validation;
 
 namespace ArchiForge.DecisionEngine.Services;
 
 public sealed class DecisionEngineService : IDecisionEngineService
 {
+    private readonly ISchemaValidationService _schemaValidationService;
+
+    public DecisionEngineService(ISchemaValidationService schemaValidationService)
+    {
+        _schemaValidationService = schemaValidationService;
+    }
+
+    public DecisionEngineService()
+        : this(new SchemaValidationService())
+    {
+    }
+
     public DecisionMergeResult MergeResults(
         string runId,
         ArchitectureRequest request,
@@ -19,6 +32,12 @@ public sealed class DecisionEngineService : IDecisionEngineService
         string? parentManifestVersion = null)
     {
         var output = new DecisionMergeResult();
+
+        if (string.IsNullOrWhiteSpace(runId))
+        {
+            output.Errors.Add("RunId is required.");
+            return output;
+        }
 
         if (request is null)
         {
@@ -48,6 +67,25 @@ public sealed class DecisionEngineService : IDecisionEngineService
             return output;
         }
 
+        foreach (var result in validResults)
+        {
+            var resultJson = SchemaValidationSerializer.Serialize(result);
+            var schemaValidation = _schemaValidationService.ValidateAgentResultJson(resultJson);
+
+            if (!schemaValidation.IsValid)
+            {
+                foreach (var error in schemaValidation.Errors)
+                {
+                    output.Errors.Add($"AgentResult {result.ResultId}: {error}");
+                }
+            }
+        }
+
+        if (output.Errors.Count > 0)
+        {
+            return output;
+        }
+
         var manifest = CreateBaseManifest(runId, request, manifestVersion, parentManifestVersion);
 
         MergeAgentResultsIntoManifest(request, validResults, manifest, output);
@@ -59,6 +97,16 @@ public sealed class DecisionEngineService : IDecisionEngineService
         EnsureRequiredControlsAreAppliedToRelevantComponents(manifest, output);
 
         AttachDecisionTraceIds(manifest, output.DecisionTraces);
+
+        var manifestJson = SchemaValidationSerializer.Serialize(manifest);
+        var manifestValidation = _schemaValidationService.ValidateGoldenManifestJson(manifestJson);
+
+        if (!manifestValidation.IsValid)
+        {
+            output.Errors.AddRange(
+                manifestValidation.Errors.Select(e => $"GoldenManifest validation failed: {e}"));
+            return output;
+        }
 
         output.Manifest = manifest;
         return output;

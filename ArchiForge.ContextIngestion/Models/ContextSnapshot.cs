@@ -8,7 +8,7 @@ public class ContextSnapshot
 
     public DateTime CreatedUtc { get; set; }
 
-    public List<object> CanonicalObjects { get; set; } = new();
+    public List<CanonicalObject> CanonicalObjects { get; set; } = new();
 
     public string? DeltaSummary { get; set; }
 

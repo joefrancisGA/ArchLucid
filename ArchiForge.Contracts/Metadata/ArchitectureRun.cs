@@ -24,5 +24,8 @@ public sealed class ArchitectureRun
     /// <summary>Context snapshot ID created during run creation (nullable for older runs).</summary>
     public string? ContextSnapshotId { get; set; }
 
+    /// <summary>Graph snapshot ID created from the context snapshot (nullable for older runs).</summary>
+    public Guid? GraphSnapshotId { get; set; }
+
     public List<string> TaskIds { get; set; } = [];
 }

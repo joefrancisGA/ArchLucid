@@ -2,6 +2,6 @@ namespace ArchiForge.ContextIngestion.Models;
 
 public class NormalizedContextBatch
 {
-    public List<object> CanonicalObjects { get; set; } = new();
+    public List<CanonicalObject> CanonicalObjects { get; set; } = new();
 }
 

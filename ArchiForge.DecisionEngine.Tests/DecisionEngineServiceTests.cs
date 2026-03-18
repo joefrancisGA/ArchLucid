@@ -4,6 +4,7 @@ using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.DecisionEngine.Services;
+using ArchiForge.DecisionEngine.Validation;
 using Xunit;
 
 namespace ArchiForge.DecisionEngine.Tests;
@@ -63,7 +64,7 @@ public sealed class DecisionEngineServiceTests
             }
         };
 
-        var service = new DecisionEngineService();
+        var service = new DecisionEngineService(new SchemaValidationService());
 
         var result = service.MergeResults(
             "1",
@@ -103,7 +104,7 @@ public sealed class DecisionEngineServiceTests
             Confidence = 1.2
         };
 
-        var service = new DecisionEngineService();
+        var service = new DecisionEngineService(new SchemaValidationService());
 
         var result = service.MergeResults(
             "1",

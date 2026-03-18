@@ -1,0 +1,19 @@
+namespace ArchiForge.KnowledgeGraph.Models;
+
+public class GraphSnapshot
+{
+    public Guid GraphSnapshotId { get; set; }
+
+    public Guid ContextSnapshotId { get; set; }
+
+    public Guid RunId { get; set; }
+
+    public DateTime CreatedUtc { get; set; }
+
+    public List<GraphNode> Nodes { get; set; } = new();
+
+    public List<GraphEdge> Edges { get; set; } = new();
+
+    public List<string> Warnings { get; set; } = new();
+}
+

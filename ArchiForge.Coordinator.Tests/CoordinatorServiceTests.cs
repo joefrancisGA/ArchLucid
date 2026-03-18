@@ -2,6 +2,8 @@ using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
+using ArchiForge.KnowledgeGraph.Interfaces;
+using ArchiForge.KnowledgeGraph.Models;
 using Xunit;
 
 namespace ArchiForge.Coordinator.Tests;
@@ -9,7 +11,7 @@ namespace ArchiForge.Coordinator.Tests;
 public sealed class CoordinatorServiceTests
 {
     [Fact]
-    public void CreateRun_Should_CreateRunAndThreeTasks_When_RequestIsValid()
+    public void CreateRun_Should_CreateRunAndStarterTasks_When_RequestIsValid()
     {
         var request = new ArchitectureRequest
         {
@@ -18,13 +20,13 @@ public sealed class CoordinatorServiceTests
             Description = "Design a secure Azure system."
         };
 
-        var service = new CoordinatorService(new NullContextIngestionService());
+        var service = new CoordinatorService(new NullContextIngestionService(), new NullKnowledgeGraphService());
 
         var result = service.CreateRun(request);
 
         Assert.True(result.Success);
         Assert.NotNull(result.Run);
-        Assert.Equal(3, result.Tasks.Count);
+        Assert.Equal(4, result.Tasks.Count);
         Assert.Contains(result.Tasks, t => t.AgentType == ArchiForge.Contracts.Common.AgentType.Topology);
         Assert.Contains(result.Tasks, t => t.AgentType == ArchiForge.Contracts.Common.AgentType.Cost);
         Assert.Contains(result.Tasks, t => t.AgentType == ArchiForge.Contracts.Common.AgentType.Compliance);
@@ -39,6 +41,20 @@ public sealed class CoordinatorServiceTests
             {
                 SnapshotId = Guid.NewGuid(),
                 RunId = Guid.Empty,
+                CreatedUtc = DateTime.UtcNow
+            });
+        }
+    }
+
+    private sealed class NullKnowledgeGraphService : IKnowledgeGraphService
+    {
+        public Task<GraphSnapshot> BuildSnapshotAsync(ContextSnapshot contextSnapshot, CancellationToken ct)
+        {
+            return Task.FromResult(new GraphSnapshot
+            {
+                GraphSnapshotId = Guid.NewGuid(),
+                ContextSnapshotId = contextSnapshot.SnapshotId,
+                RunId = contextSnapshot.RunId,
                 CreatedUtc = DateTime.UtcNow
             });
         }
