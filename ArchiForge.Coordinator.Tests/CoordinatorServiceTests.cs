@@ -2,6 +2,9 @@ using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
+using ArchiForge.Decisioning.Repositories;
+using ArchiForge.Decisioning.Rules;
+using ArchiForge.Decisioning.Services;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 using Xunit;
@@ -20,7 +23,19 @@ public sealed class CoordinatorServiceTests
             Description = "Design a secure Azure system."
         };
 
-        var service = new CoordinatorService(new NullContextIngestionService(), new NullKnowledgeGraphService());
+        var findingsRepo = new InMemoryFindingsSnapshotRepository();
+        var manifestRepo = new InMemoryGoldenManifestRepository();
+        var traceRepo = new InMemoryDecisionTraceRepository();
+        var engines = new[] { new RequirementFindingEngine(), new TopologySanityFindingEngine() };
+        var findingsOrchestrator = new FindingsOrchestrator(engines, findingsRepo);
+        var ruleProvider = new InMemoryDecisionRuleProvider();
+        var decisionEngine = new RuleBasedDecisionEngine(ruleProvider, manifestRepo, traceRepo);
+
+        var service = new CoordinatorService(
+            new NullContextIngestionService(),
+            new NullKnowledgeGraphService(),
+            findingsOrchestrator,
+            decisionEngine);
 
         var result = service.CreateRun(request);
 

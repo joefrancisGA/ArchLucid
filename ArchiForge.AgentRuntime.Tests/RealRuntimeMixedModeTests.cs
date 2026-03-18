@@ -225,7 +225,18 @@ public sealed class RealRuntimeMixedModeTests
 
         var coordinator = new CoordinatorService(
             new NullContextIngestionService(),
-            new NullKnowledgeGraphService());
+            new NullKnowledgeGraphService(),
+            new ArchiForge.Decisioning.Services.FindingsOrchestrator(
+                new ArchiForge.Decisioning.Interfaces.IFindingEngine[]
+                {
+                    new ArchiForge.Decisioning.Services.RequirementFindingEngine(),
+                    new ArchiForge.Decisioning.Services.TopologySanityFindingEngine()
+                },
+                new ArchiForge.Decisioning.Repositories.InMemoryFindingsSnapshotRepository()),
+            new ArchiForge.Decisioning.Services.RuleBasedDecisionEngine(
+                new ArchiForge.Decisioning.Rules.InMemoryDecisionRuleProvider(),
+                new ArchiForge.Decisioning.Repositories.InMemoryGoldenManifestRepository(),
+                new ArchiForge.Decisioning.Repositories.InMemoryDecisionTraceRepository()));
         var coordination = coordinator.CreateRun(request);
 
         // Force known IDs used in stub payloads

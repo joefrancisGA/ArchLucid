@@ -39,7 +39,7 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        var coordinator = new CoordinatorService(new NullContextIngestionService(), new NullKnowledgeGraphService());
+        var coordinator = CreateCoordinator();
         var coordination = coordinator.CreateRun(request);
 
         coordination.Success.Should().BeTrue();
@@ -87,7 +87,7 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        var coordinator = new CoordinatorService(new NullContextIngestionService(), new NullKnowledgeGraphService());
+        var coordinator = CreateCoordinator();
         var coordination = coordinator.CreateRun(request);
 
         IAgentExecutor simulator = new DeterministicAgentSimulator();
@@ -164,5 +164,26 @@ public sealed class DeterministicAgentSimulatorTests
                 CreatedUtc = DateTime.UtcNow
             });
         }
+    }
+
+    private static CoordinatorService CreateCoordinator()
+    {
+        var findingsRepo = new ArchiForge.Decisioning.Repositories.InMemoryFindingsSnapshotRepository();
+        var manifestRepo = new ArchiForge.Decisioning.Repositories.InMemoryGoldenManifestRepository();
+        var traceRepo = new ArchiForge.Decisioning.Repositories.InMemoryDecisionTraceRepository();
+        var engines = new ArchiForge.Decisioning.Interfaces.IFindingEngine[]
+        {
+            new ArchiForge.Decisioning.Services.RequirementFindingEngine(),
+            new ArchiForge.Decisioning.Services.TopologySanityFindingEngine()
+        };
+        var findingsOrchestrator = new ArchiForge.Decisioning.Services.FindingsOrchestrator(engines, findingsRepo);
+        var ruleProvider = new ArchiForge.Decisioning.Rules.InMemoryDecisionRuleProvider();
+        var decisionEngine = new ArchiForge.Decisioning.Services.RuleBasedDecisionEngine(ruleProvider, manifestRepo, traceRepo);
+
+        return new CoordinatorService(
+            new NullContextIngestionService(),
+            new NullKnowledgeGraphService(),
+            findingsOrchestrator,
+            decisionEngine);
     }
 }

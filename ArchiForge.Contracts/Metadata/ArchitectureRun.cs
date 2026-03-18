@@ -27,5 +27,14 @@ public sealed class ArchitectureRun
     /// <summary>Graph snapshot ID created from the context snapshot (nullable for older runs).</summary>
     public Guid? GraphSnapshotId { get; set; }
 
+    /// <summary>Findings snapshot ID created from the graph snapshot (nullable for older runs).</summary>
+    public Guid? FindingsSnapshotId { get; set; }
+
+    /// <summary>Golden manifest ID created by the decision engine (nullable for older runs).</summary>
+    public Guid? GoldenManifestId { get; set; }
+
+    /// <summary>Decision trace ID created by the decision engine (nullable for older runs).</summary>
+    public Guid? DecisionTraceId { get; set; }
+
     public List<string> TaskIds { get; set; } = [];
 }

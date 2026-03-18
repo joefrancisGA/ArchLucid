@@ -4,6 +4,7 @@ using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
+using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 
@@ -13,13 +14,19 @@ public sealed class CoordinatorService : ICoordinatorService
 {
     private readonly IContextIngestionService _contextIngestionService;
     private readonly IKnowledgeGraphService _knowledgeGraphService;
+    private readonly IFindingsOrchestrator _findingsOrchestrator;
+    private readonly IDecisionEngine _decisionEngine;
 
     public CoordinatorService(
         IContextIngestionService contextIngestionService,
-        IKnowledgeGraphService knowledgeGraphService)
+        IKnowledgeGraphService knowledgeGraphService,
+        IFindingsOrchestrator findingsOrchestrator,
+        IDecisionEngine decisionEngine)
     {
         _contextIngestionService = contextIngestionService;
         _knowledgeGraphService = knowledgeGraphService;
+        _findingsOrchestrator = findingsOrchestrator;
+        _decisionEngine = decisionEngine;
     }
 
     public CoordinationResult CreateRun(ArchitectureRequest request)
@@ -57,6 +64,30 @@ public sealed class CoordinatorService : ICoordinatorService
             .GetResult();
 
         run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
+
+        var findingsSnapshot = _findingsOrchestrator
+            .GenerateFindingsSnapshotAsync(
+                Guid.Parse(runId),
+                contextSnapshot.SnapshotId,
+                graphSnapshot,
+                CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
+
+        run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
+
+        var decisionResult = _decisionEngine
+            .DecideAsync(
+                Guid.Parse(runId),
+                contextSnapshot.SnapshotId,
+                graphSnapshot,
+                findingsSnapshot,
+                CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
+
+        run.GoldenManifestId = decisionResult.Manifest.ManifestId;
+        run.DecisionTraceId = decisionResult.Trace.DecisionTraceId;
 
         var evidenceBundle = BuildEvidenceBundle(request);
         var tasks = BuildStarterTasks(runId, evidenceBundle, request, graphSnapshot);
