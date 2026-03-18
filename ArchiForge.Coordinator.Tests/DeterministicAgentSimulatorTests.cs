@@ -6,6 +6,8 @@ using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.KnowledgeGraph.Interfaces;
+using ArchiForge.KnowledgeGraph.Models;
 using FluentAssertions;
 using Xunit;
 
@@ -37,7 +39,7 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        var coordinator = new CoordinatorService(new NullContextIngestionService());
+        var coordinator = new CoordinatorService(new NullContextIngestionService(), new NullKnowledgeGraphService());
         var coordination = coordinator.CreateRun(request);
 
         coordination.Success.Should().BeTrue();
@@ -85,7 +87,7 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        var coordinator = new CoordinatorService(new NullContextIngestionService());
+        var coordinator = new CoordinatorService(new NullContextIngestionService(), new NullKnowledgeGraphService());
         var coordination = coordinator.CreateRun(request);
 
         IAgentExecutor simulator = new DeterministicAgentSimulator();
@@ -145,6 +147,20 @@ public sealed class DeterministicAgentSimulatorTests
             {
                 SnapshotId = Guid.NewGuid(),
                 RunId = request.RunId,
+                CreatedUtc = DateTime.UtcNow
+            });
+        }
+    }
+
+    private sealed class NullKnowledgeGraphService : IKnowledgeGraphService
+    {
+        public Task<GraphSnapshot> BuildSnapshotAsync(ContextSnapshot contextSnapshot, CancellationToken ct)
+        {
+            return Task.FromResult(new GraphSnapshot
+            {
+                GraphSnapshotId = Guid.NewGuid(),
+                ContextSnapshotId = contextSnapshot.SnapshotId,
+                RunId = contextSnapshot.RunId,
                 CreatedUtc = DateTime.UtcNow
             });
         }

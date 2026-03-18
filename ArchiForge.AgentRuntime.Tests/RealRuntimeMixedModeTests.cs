@@ -6,6 +6,8 @@ using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.KnowledgeGraph.Interfaces;
+using ArchiForge.KnowledgeGraph.Models;
 using FluentAssertions;
 using Xunit;
 
@@ -221,7 +223,9 @@ public sealed class RealRuntimeMixedModeTests
             ]
         };
 
-        var coordinator = new CoordinatorService(new NullContextIngestionService());
+        var coordinator = new CoordinatorService(
+            new NullContextIngestionService(),
+            new NullKnowledgeGraphService());
         var coordination = coordinator.CreateRun(request);
 
         // Force known IDs used in stub payloads
@@ -288,6 +292,20 @@ public sealed class RealRuntimeMixedModeTests
             {
                 SnapshotId = Guid.NewGuid(),
                 RunId = request.RunId,
+                CreatedUtc = DateTime.UtcNow
+            });
+        }
+    }
+
+    private sealed class NullKnowledgeGraphService : IKnowledgeGraphService
+    {
+        public Task<GraphSnapshot> BuildSnapshotAsync(ContextSnapshot contextSnapshot, CancellationToken ct)
+        {
+            return Task.FromResult(new GraphSnapshot
+            {
+                GraphSnapshotId = Guid.NewGuid(),
+                ContextSnapshotId = contextSnapshot.SnapshotId,
+                RunId = contextSnapshot.RunId,
                 CreatedUtc = DateTime.UtcNow
             });
         }

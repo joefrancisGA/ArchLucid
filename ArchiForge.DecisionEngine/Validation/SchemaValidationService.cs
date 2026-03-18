@@ -90,7 +90,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
         List<string> errors,
         string objectName)
     {
-        if (evaluation.HasErrors && evaluation.Errors is not null)
+        if (evaluation.Errors is not null && evaluation.Errors.Count > 0)
         {
             foreach (var kvp in evaluation.Errors)
             {
