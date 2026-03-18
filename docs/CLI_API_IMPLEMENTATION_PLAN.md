@@ -39,14 +39,14 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 | File | Purpose |
 |------|---------|
-| `ArchiForge.Cli.Tests/ArchiForge.Cli.Tests.csproj` | Test project: `net9.0`, xUnit, FluentAssertions, reference `ArchiForge.Cli`. |
+| `ArchiForge.Cli.Tests/ArchiForge.Cli.Tests.csproj` | Test project: `net10.0`, xUnit, FluentAssertions, reference `ArchiForge.Cli`. |
 
 **csproj contents (minimal):**
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>

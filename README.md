@@ -4,7 +4,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 
 ## Prerequisites
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - SQL Server (LocalDB, Express, or full) with a database for ArchiForge
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (optional; for `archiforge dev up`)
 
@@ -128,7 +128,7 @@ See [docs/DECISIONING_TYPED_FINDINGS.md](docs/DECISIONING_TYPED_FINDINGS.md).
 
 ### Prerequisites
 
-- .NET 9 SDK
+- .NET 10 SDK
 - ArchiForge API running (e.g. `dotnet run --project ArchiForge.Api`)
 - For `run`, `status`, `commit`, `seed`, `artifacts`: a project directory with `archiforge.json` and `inputs/brief.md`
 
