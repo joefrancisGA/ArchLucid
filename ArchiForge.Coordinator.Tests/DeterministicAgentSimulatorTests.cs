@@ -2,6 +2,8 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
+using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.ContextIngestion.Models;
 using ArchiForge.DecisionEngine.Services;
 using FluentAssertions;
 using Xunit;
@@ -34,7 +36,7 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        var coordinator = new CoordinatorService();
+        var coordinator = new CoordinatorService(new NullContextIngestionService());
         var coordination = coordinator.CreateRun(request);
 
         coordination.Success.Should().BeTrue();
@@ -82,7 +84,7 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        var coordinator = new CoordinatorService();
+        var coordinator = new CoordinatorService(new NullContextIngestionService());
         var coordination = coordinator.CreateRun(request);
 
         IAgentExecutor simulator = new DeterministicAgentSimulator();
@@ -132,5 +134,18 @@ public sealed class DeterministicAgentSimulatorTests
                 Assumptions = request.Assumptions.ToList()
             }
         };
+    }
+
+    private sealed class NullContextIngestionService : IContextIngestionService
+    {
+        public Task<ContextSnapshot> IngestAsync(ContextIngestionRequest request, CancellationToken ct)
+        {
+            return Task.FromResult(new ContextSnapshot
+            {
+                SnapshotId = Guid.NewGuid(),
+                RunId = request.RunId,
+                CreatedUtc = DateTime.UtcNow
+            });
+        }
     }
 }

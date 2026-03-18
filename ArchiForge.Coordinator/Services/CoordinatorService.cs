@@ -2,11 +2,20 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.Coordinator.Services;
 
 public sealed class CoordinatorService : ICoordinatorService
 {
+    private readonly IContextIngestionService _contextIngestionService;
+
+    public CoordinatorService(IContextIngestionService contextIngestionService)
+    {
+        _contextIngestionService = contextIngestionService;
+    }
+
     public CoordinationResult CreateRun(ArchitectureRequest request)
     {
         var output = new CoordinationResult();
@@ -22,6 +31,17 @@ public sealed class CoordinatorService : ICoordinatorService
         var evidenceBundle = BuildEvidenceBundle(request);
         var tasks = BuildStarterTasks(runId, evidenceBundle, request);
         var run = BuildRun(runId, request, tasks);
+
+        // Context ingestion: build snapshot for this run (static connector for now)
+        var ingestionRequest = new ContextIngestionRequest
+        {
+            RunId = Guid.Parse(runId),
+            ProjectId = request.RequestId,
+            Description = request.Description
+        };
+
+        // Fire-and-forget ingestion; errors will surface in logs but shouldn't block run creation.
+        _ = _contextIngestionService.IngestAsync(ingestionRequest, CancellationToken.None);
 
         output.Run = run;
         output.EvidenceBundle = evidenceBundle;

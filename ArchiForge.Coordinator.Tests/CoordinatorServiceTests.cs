@@ -1,5 +1,7 @@
-﻿using ArchiForge.Contracts.Requests;
+using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
+using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.ContextIngestion.Models;
 using Xunit;
 
 namespace ArchiForge.Coordinator.Tests;
@@ -16,7 +18,7 @@ public sealed class CoordinatorServiceTests
             Description = "Design a secure Azure system."
         };
 
-        var service = new CoordinatorService();
+        var service = new CoordinatorService(new NullContextIngestionService());
 
         var result = service.CreateRun(request);
 
@@ -26,5 +28,19 @@ public sealed class CoordinatorServiceTests
         Assert.Contains(result.Tasks, t => t.AgentType == ArchiForge.Contracts.Common.AgentType.Topology);
         Assert.Contains(result.Tasks, t => t.AgentType == ArchiForge.Contracts.Common.AgentType.Cost);
         Assert.Contains(result.Tasks, t => t.AgentType == ArchiForge.Contracts.Common.AgentType.Compliance);
+    }
+
+    private sealed class NullContextIngestionService : IContextIngestionService
+    {
+        public Task<ContextSnapshot> IngestAsync(ContextIngestionRequest request, CancellationToken ct)
+        {
+            // No-op for tests
+            return Task.FromResult(new ContextSnapshot
+            {
+                SnapshotId = Guid.NewGuid(),
+                RunId = Guid.Empty,
+                CreatedUtc = DateTime.UtcNow
+            });
+        }
     }
 }

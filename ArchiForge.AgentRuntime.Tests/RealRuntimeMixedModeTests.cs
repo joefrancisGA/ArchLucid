@@ -2,6 +2,8 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
+using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.ContextIngestion.Models;
 using ArchiForge.DecisionEngine.Services;
 using FluentAssertions;
 using Xunit;
@@ -218,7 +220,7 @@ public sealed class RealRuntimeMixedModeTests
             ]
         };
 
-        var coordinator = new CoordinatorService();
+        var coordinator = new CoordinatorService(new NullContextIngestionService());
         var coordination = coordinator.CreateRun(request);
 
         // Force known IDs used in stub payloads
@@ -275,5 +277,18 @@ public sealed class RealRuntimeMixedModeTests
         merge.Manifest.Governance.RequiredControls.Should().Contain("Managed Identity");
         merge.Manifest.Governance.RequiredControls.Should().Contain("Private Endpoints");
         merge.Manifest.Governance.RequiredControls.Should().Contain("Diagnostic Logging");
+    }
+
+    private sealed class NullContextIngestionService : IContextIngestionService
+    {
+        public Task<ContextSnapshot> IngestAsync(ContextIngestionRequest request, CancellationToken ct)
+        {
+            return Task.FromResult(new ContextSnapshot
+            {
+                SnapshotId = Guid.NewGuid(),
+                RunId = request.RunId,
+                CreatedUtc = DateTime.UtcNow
+            });
+        }
     }
 }

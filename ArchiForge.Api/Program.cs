@@ -216,6 +216,9 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IExportRecordDiffExportService, ExportRecordDiffExportService>();
             builder.Services.AddScoped<ArchiForge.Application.Analysis.IDriftReportFormatter, ArchiForge.Application.Analysis.MarkdownDriftReportFormatter>();
             builder.Services.AddScoped<ArchiForge.Application.Analysis.DriftReportDocxExport>();
+            builder.Services.AddSingleton<ArchiForge.ContextIngestion.Interfaces.IContextConnector, ArchiForge.ContextIngestion.Connectors.StaticRequestContextConnector>();
+            builder.Services.AddSingleton<ArchiForge.ContextIngestion.Interfaces.IContextSnapshotRepository, ArchiForge.ContextIngestion.Repositories.InMemoryContextSnapshotRepository>();
+            builder.Services.AddScoped<ArchiForge.ContextIngestion.Interfaces.IContextIngestionService, ArchiForge.ContextIngestion.Services.ContextIngestionService>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IDecisionEngineV2, DecisionEngineV2>();
