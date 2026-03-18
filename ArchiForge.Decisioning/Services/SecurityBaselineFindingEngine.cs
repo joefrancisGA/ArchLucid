@@ -8,6 +8,7 @@ namespace ArchiForge.Decisioning.Services;
 public class SecurityBaselineFindingEngine : IFindingEngine
 {
     public string EngineType => "security-baseline";
+    public string Category => "Security";
 
     public Task<IReadOnlyList<Finding>> AnalyzeAsync(
         GraphSnapshot graphSnapshot,

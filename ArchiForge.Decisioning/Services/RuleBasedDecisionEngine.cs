@@ -154,6 +154,34 @@ public class RuleBasedDecisionEngine : IDecisionEngine
             return;
         }
 
+        if (finding.FindingType.Equals("SecurityControlFinding", StringComparison.OrdinalIgnoreCase))
+        {
+            var payload = FindingPayloadConverter.ToSecurityControlPayload(finding);
+            var status = payload?.Status ?? "unknown";
+            if (string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase))
+            {
+                manifest.Warnings.Add(payload?.Impact ?? finding.Title);
+            }
+            else
+            {
+                manifest.Assumptions.Add($"Security control present: {payload?.ControlName ?? finding.Title}");
+            }
+            return;
+        }
+
+        if (finding.FindingType.Equals("CostConstraintFinding", StringComparison.OrdinalIgnoreCase))
+        {
+            var payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
+            var budget = payload?.BudgetName ?? "budget";
+            var risk = payload?.CostRisk ?? "unknown";
+            var max = payload?.MaxMonthlyCost;
+            var msg = max is null
+                ? $"Cost constraint ({budget}): risk={risk}"
+                : $"Cost constraint ({budget}): maxMonthlyCost={max.Value:0.##}, risk={risk}";
+            manifest.Warnings.Add(msg);
+            return;
+        }
+
         manifest.Warnings.Add(finding.Title);
     }
 

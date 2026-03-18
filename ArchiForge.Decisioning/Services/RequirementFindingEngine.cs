@@ -8,6 +8,7 @@ namespace ArchiForge.Decisioning.Services;
 public class RequirementFindingEngine : IFindingEngine
 {
     public string EngineType => "requirement";
+    public string Category => "Requirement";
 
     public Task<IReadOnlyList<Finding>> AnalyzeAsync(
         GraphSnapshot graphSnapshot,

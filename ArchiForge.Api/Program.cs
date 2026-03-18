@@ -259,6 +259,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<ArchiForge.Decisioning.Interfaces.IFindingEngine, ArchiForge.Decisioning.Services.TopologySanityFindingEngine>();
             builder.Services.AddScoped<ArchiForge.Decisioning.Interfaces.IFindingEngine, ArchiForge.Decisioning.Services.SecurityBaselineFindingEngine>();
             builder.Services.AddScoped<ArchiForge.Decisioning.Interfaces.IFindingsOrchestrator, ArchiForge.Decisioning.Services.FindingsOrchestrator>();
+            builder.Services.AddSingleton<ArchiForge.Decisioning.Interfaces.IFindingPayloadValidator, ArchiForge.Decisioning.Services.FindingPayloadValidator>();
             builder.Services.AddSingleton<ArchiForge.Decisioning.Interfaces.IDecisionRuleProvider, ArchiForge.Decisioning.Rules.InMemoryDecisionRuleProvider>();
             builder.Services.AddScoped<ArchiForge.Decisioning.Interfaces.IDecisionEngine, ArchiForge.Decisioning.Services.RuleBasedDecisionEngine>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();

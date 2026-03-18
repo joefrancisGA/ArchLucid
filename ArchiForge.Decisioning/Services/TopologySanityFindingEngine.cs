@@ -8,6 +8,7 @@ namespace ArchiForge.Decisioning.Services;
 public class TopologySanityFindingEngine : IFindingEngine
 {
     public string EngineType => "topology-sanity";
+    public string Category => "Topology";
 
     public Task<IReadOnlyList<Finding>> AnalyzeAsync(
         GraphSnapshot graphSnapshot,

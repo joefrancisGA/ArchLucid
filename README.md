@@ -120,6 +120,12 @@ ArchiForge can persist comparison records (end-to-end run comparisons and export
 
 For details, including replay modes, supported formats, headers, and example curl commands, see [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md).
 
+## Decisioning: typed findings
+
+The decisioning layer uses a **Finding envelope** plus **strongly typed payloads per category**, and the decision engine extracts those typed payloads when building manifest decisions and warnings.
+
+See [docs/DECISIONING_TYPED_FINDINGS.md](docs/DECISIONING_TYPED_FINDINGS.md).
+
 ### Prerequisites
 
 - .NET 9 SDK

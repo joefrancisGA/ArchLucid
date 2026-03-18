@@ -7,6 +7,8 @@ public interface IFindingEngine
 {
     string EngineType { get; }
 
+    string Category { get; }
+
     Task<IReadOnlyList<Finding>> AnalyzeAsync(
         GraphSnapshot graphSnapshot,
         CancellationToken ct);
