@@ -307,7 +307,9 @@ public sealed class ManifestsController : ControllerBase
 
         if (!string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
         {
-            return BadRequest(new { error = "format must be 'markdown' or 'json'." });
+            return this.BadRequestProblem(
+                "format must be 'markdown' or 'json'.",
+                ProblemTypes.ValidationFailed);
         }
 
         var options = new ArchiForge.Application.Summaries.ManifestSummaryOptions

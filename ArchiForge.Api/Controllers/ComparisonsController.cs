@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO.Compression;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
@@ -32,8 +31,7 @@ public sealed class ComparisonsController : ControllerBase
     private readonly IEndToEndReplayComparisonExportService _endToEndReplayComparisonExportService;
     private readonly IComparisonAuditService _comparisonAuditService;
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
-    private readonly IComparisonReplayService _comparisonReplayService;
-    private readonly IReplayDiagnosticsRecorder _replayDiagnosticsRecorder;
+    private readonly IComparisonReplayApiService _comparisonReplayApiService;
     private readonly Application.Analysis.IDriftReportFormatter _driftReportFormatter;
     private readonly Application.Analysis.DriftReportDocxExport _driftReportDocxExport;
     private readonly ILogger<ComparisonsController> _logger;
@@ -49,8 +47,7 @@ public sealed class ComparisonsController : ControllerBase
         IEndToEndReplayComparisonExportService endToEndReplayComparisonExportService,
         IComparisonAuditService comparisonAuditService,
         IComparisonRecordRepository comparisonRecordRepository,
-        IComparisonReplayService comparisonReplayService,
-        IReplayDiagnosticsRecorder replayDiagnosticsRecorder,
+        IComparisonReplayApiService comparisonReplayApiService,
         Application.Analysis.IDriftReportFormatter driftReportFormatter,
         Application.Analysis.DriftReportDocxExport driftReportDocxExport,
         ILogger<ComparisonsController> logger)
@@ -65,8 +62,7 @@ public sealed class ComparisonsController : ControllerBase
         _endToEndReplayComparisonExportService = endToEndReplayComparisonExportService;
         _comparisonAuditService = comparisonAuditService;
         _comparisonRecordRepository = comparisonRecordRepository;
-        _comparisonReplayService = comparisonReplayService;
-        _replayDiagnosticsRecorder = replayDiagnosticsRecorder;
+        _comparisonReplayApiService = comparisonReplayApiService;
         _driftReportFormatter = driftReportFormatter;
         _driftReportDocxExport = driftReportDocxExport;
         _logger = logger;
@@ -373,7 +369,7 @@ public sealed class ComparisonsController : ControllerBase
             });
         }
 
-        var replay = await _comparisonReplayService.ReplayAsync(
+        var replay = await _comparisonReplayApiService.ReplayAsync(
             new AppReplayComparisonRequest
             {
                 ComparisonRecordId = comparisonRecordId,
@@ -381,6 +377,7 @@ public sealed class ComparisonsController : ControllerBase
                 ReplayMode = "artifact",
                 PersistReplay = false
             },
+            metadataOnly: false,
             cancellationToken);
 
         return Ok(new ComparisonSummaryResponse
@@ -417,24 +414,32 @@ public sealed class ComparisonsController : ControllerBase
             && !string.Equals(normalizedType, "end-to-end-replay", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(normalizedType, "export-record-diff", StringComparison.OrdinalIgnoreCase))
         {
-            return BadRequest(new { error = $"Unsupported comparisonType '{comparisonType}'. Supported: end-to-end-replay, export-record-diff." });
+            return this.BadRequestProblem(
+                $"Unsupported comparisonType '{comparisonType}'. Supported: end-to-end-replay, export-record-diff.",
+                ProblemTypes.ValidationFailed);
         }
 
         if (createdFromUtc is not null && createdToUtc is not null && createdFromUtc > createdToUtc)
         {
-            return BadRequest(new { error = "createdFromUtc must be <= createdToUtc." });
+            return this.BadRequestProblem(
+                "createdFromUtc must be <= createdToUtc.",
+                ProblemTypes.ValidationFailed);
         }
 
         if (skip < 0)
         {
-            return BadRequest(new { error = "skip must be >= 0." });
+            return this.BadRequestProblem(
+                "skip must be >= 0.",
+                ProblemTypes.ValidationFailed);
         }
 
         if (sortDir is not null
             && !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(sortDir, "desc", StringComparison.OrdinalIgnoreCase))
         {
-            return BadRequest(new { error = "sortDir must be 'asc' or 'desc'." });
+            return this.BadRequestProblem(
+                "sortDir must be 'asc' or 'desc'.",
+                ProblemTypes.ValidationFailed);
         }
 
         if (sortBy is not null
@@ -444,7 +449,9 @@ public sealed class ComparisonsController : ControllerBase
             && !string.Equals(sortBy, "leftRunId", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(sortBy, "rightRunId", StringComparison.OrdinalIgnoreCase))
         {
-            return BadRequest(new { error = "sortBy must be one of: createdUtc, type, label, leftRunId, rightRunId." });
+            return this.BadRequestProblem(
+                "sortBy must be one of: createdUtc, type, label, leftRunId, rightRunId.",
+                ProblemTypes.ValidationFailed);
         }
 
         var normalizedTags = (tags ?? [])
@@ -461,17 +468,9 @@ public sealed class ComparisonsController : ControllerBase
                 .ToList();
         }
 
-        DateTime? cursorCreatedUtc = null;
-        string? cursorId = null;
-        if (!string.IsNullOrWhiteSpace(cursor))
+        if (!ApiPaging.TryParseUtcTicksIdCursor(cursor, out var cursorCreatedUtc, out var cursorId, out var cursorError))
         {
-            var parts = cursor.Split(':', 2);
-            if (parts.Length != 2 || !long.TryParse(parts[0], out var ticks) || string.IsNullOrWhiteSpace(parts[1]))
-            {
-                return BadRequest(new { error = "cursor must be formatted as '<utcTicks>:<comparisonRecordId>'." });
-            }
-            cursorCreatedUtc = new DateTime(ticks, DateTimeKind.Utc);
-            cursorId = parts[1];
+            return this.BadRequestProblem(cursorError!, ProblemTypes.ValidationFailed);
         }
 
         IReadOnlyList<ArchiForge.Contracts.Metadata.ComparisonRecord> records;
@@ -479,7 +478,9 @@ public sealed class ComparisonsController : ControllerBase
         {
             if (!string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase))
             {
-                return BadRequest(new { error = "cursor paging currently requires sortBy=createdUtc." });
+                return this.BadRequestProblem(
+                    "cursor paging currently requires sortBy=createdUtc.",
+                    ProblemTypes.ValidationFailed);
             }
 
             records = await _comparisonRecordRepository.SearchByCursorAsync(
@@ -584,39 +585,17 @@ public sealed class ComparisonsController : ControllerBase
         request ??= new ApiReplayComparisonRequest();
         if (!string.IsNullOrWhiteSpace(format) && string.IsNullOrWhiteSpace(request.Format))
             request.Format = format;
-        var sw = Stopwatch.StartNew();
-
-        try
-        {
-            var result = await _comparisonReplayService.ReplayAsync(
-                new AppReplayComparisonRequest
-                {
-                    ComparisonRecordId = comparisonRecordId,
-                    Format = request.Format,
-                    ReplayMode = request.ReplayMode,
-                    Profile = request.Profile,
-                    PersistReplay = request.PersistReplay
-                },
-                cancellationToken);
-
-            sw.Stop();
-            _replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
+        var result = await _comparisonReplayApiService.ReplayAsync(
+            new AppReplayComparisonRequest
             {
-                TimestampUtc = DateTime.UtcNow,
                 ComparisonRecordId = comparisonRecordId,
-                ComparisonType = result.ComparisonType,
-                Format = result.Format,
-                ReplayMode = result.ReplayMode,
-                PersistReplay = request.PersistReplay,
-                DurationMs = sw.ElapsedMilliseconds,
-                Success = true,
-                VerificationPassed = result.VerificationPassed,
-                PersistedReplayRecordId = result.PersistedReplayRecordId,
-                MetadataOnly = false
-            });
-            _logger.LogInformation(
-                "Comparison replay completed: ComparisonRecordId={ComparisonRecordId}, ComparisonType={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, PersistReplay={PersistReplay}, DurationMs={DurationMs}, VerificationPassed={VerificationPassed}",
-                comparisonRecordId, result.ComparisonType, result.Format, result.ReplayMode, request.PersistReplay, sw.ElapsedMilliseconds, result.VerificationPassed);
+                Format = request.Format,
+                ReplayMode = request.ReplayMode,
+                Profile = request.Profile,
+                PersistReplay = request.PersistReplay
+            },
+            metadataOnly: false,
+            cancellationToken);
 
             Response.Headers["X-ArchiForge-ComparisonRecordId"] = result.ComparisonRecordId;
             Response.Headers["X-ArchiForge-ComparisonType"] = result.ComparisonType;
@@ -657,49 +636,31 @@ public sealed class ComparisonsController : ControllerBase
 
             if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
             {
-                var bytes = System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
-                return new FileWithRangeResult(Request, bytes, "text/markdown", result.FileName);
+                return ApiFileResults.RangeText(Request, result.Content, "text/markdown", result.FileName);
             }
 
             if (string.Equals(result.Format, "html", StringComparison.OrdinalIgnoreCase))
             {
-                var bytes = System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
-                return new FileWithRangeResult(Request, bytes, "text/html", result.FileName);
+                return ApiFileResults.RangeText(Request, result.Content, "text/html", result.FileName);
             }
 
             if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
             {
-                var bytes = result.BinaryContent ?? Array.Empty<byte>();
-                return new FileWithRangeResult(
+                return ApiFileResults.RangeBytes(
                     Request,
-                    bytes,
+                    result.BinaryContent,
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     result.FileName);
             }
 
             if (string.Equals(result.Format, "pdf", StringComparison.OrdinalIgnoreCase))
             {
-                var bytes = result.BinaryContent ?? Array.Empty<byte>();
-                return new FileWithRangeResult(Request, bytes, "application/pdf", result.FileName);
+                return ApiFileResults.RangeBytes(Request, result.BinaryContent, "application/pdf", result.FileName);
             }
 
             return this.BadRequestProblem(
                 $"Unsupported replay result format '{result.Format}'.",
                 ProblemTypes.BadRequest);
-        }
-        catch (InvalidOperationException ex)
-        {
-            sw.Stop();
-            var notFound = ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase);
-            RecordReplayFailure(comparisonRecordId, request, sw.ElapsedMilliseconds, ex.Message, metadataOnly: false);
-            _logger.LogWarning(
-                ex,
-                "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, NotFound={NotFound}, Error={Error}",
-                comparisonRecordId,
-                notFound,
-                ex.Message);
-            throw;
-        }
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/drift")]
@@ -710,7 +671,7 @@ public sealed class ComparisonsController : ControllerBase
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        var drift = await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+        var drift = await _comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
         return Ok(MapDriftAnalysis(drift));
     }
 
@@ -724,7 +685,7 @@ public sealed class ComparisonsController : ControllerBase
         [FromQuery] string format = "markdown",
         CancellationToken cancellationToken = default)
     {
-        var drift = await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+        var drift = await _comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
         var normalizedFormat = (format ?? "markdown").Trim().ToLowerInvariant();
 
         if (normalizedFormat == "markdown")
@@ -762,39 +723,17 @@ public sealed class ComparisonsController : ControllerBase
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayComparisonRequest();
-        var sw = Stopwatch.StartNew();
-
-        try
-        {
-            var result = await _comparisonReplayService.ReplayAsync(
-                new AppReplayComparisonRequest
-                {
-                    ComparisonRecordId = comparisonRecordId,
-                    Format = request.Format,
-                    ReplayMode = request.ReplayMode,
-                    Profile = request.Profile,
-                    PersistReplay = request.PersistReplay
-                },
-                cancellationToken);
-
-            sw.Stop();
-            _replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
+        var result = await _comparisonReplayApiService.ReplayAsync(
+            new AppReplayComparisonRequest
             {
-                TimestampUtc = DateTime.UtcNow,
                 ComparisonRecordId = comparisonRecordId,
-                ComparisonType = result.ComparisonType,
-                Format = result.Format,
-                ReplayMode = result.ReplayMode,
-                PersistReplay = request.PersistReplay,
-                DurationMs = sw.ElapsedMilliseconds,
-                Success = true,
-                VerificationPassed = result.VerificationPassed,
-                PersistedReplayRecordId = result.PersistedReplayRecordId,
-                MetadataOnly = true
-            });
-            _logger.LogInformation(
-                "Comparison replay metadata completed: ComparisonRecordId={ComparisonRecordId}, ComparisonType={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, DurationMs={DurationMs}",
-                comparisonRecordId, result.ComparisonType, result.Format, result.ReplayMode, sw.ElapsedMilliseconds);
+                Format = request.Format,
+                ReplayMode = request.ReplayMode,
+                Profile = request.Profile,
+                PersistReplay = request.PersistReplay
+            },
+            metadataOnly: true,
+            cancellationToken);
 
             if (result.LeftRunId is { } leftRunId)
             {
@@ -843,21 +782,6 @@ public sealed class ComparisonsController : ControllerBase
                 FormatProfile = result.FormatProfile,
                 PersistedReplayRecordId = result.PersistedReplayRecordId
             });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            sw.Stop();
-            RecordReplayFailure(comparisonRecordId, request, sw.ElapsedMilliseconds, ex.Message, metadataOnly: true);
-            _logger.LogWarning(ex, "Comparison replay metadata not found: ComparisonRecordId={ComparisonRecordId}", comparisonRecordId);
-            return NotFound(new { error = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            sw.Stop();
-            RecordReplayFailure(comparisonRecordId, request, sw.ElapsedMilliseconds, ex.Message, metadataOnly: true);
-            _logger.LogWarning(ex, "Comparison replay metadata failed: ComparisonRecordId={ComparisonRecordId}, Error={Error}", comparisonRecordId, ex.Message);
-            return BadRequest(new { error = ex.Message });
-        }
     }
 
     [HttpPost("comparisons/replay/batch")]
@@ -872,12 +796,16 @@ public sealed class ComparisonsController : ControllerBase
 
         if (request.ComparisonRecordIds.Count == 0)
         {
-            return BadRequest(new { error = "comparisonRecordIds is required." });
+            return this.BadRequestProblem(
+                "comparisonRecordIds is required.",
+                ProblemTypes.ValidationFailed);
         }
 
         if (request.ComparisonRecordIds.Count > 50)
         {
-            return BadRequest(new { error = "comparisonRecordIds max is 50." });
+            return this.BadRequestProblem(
+                "comparisonRecordIds max is 50.",
+                ProblemTypes.ValidationFailed);
         }
 
         var format = request.Format ?? "markdown";
@@ -888,7 +816,7 @@ public sealed class ComparisonsController : ControllerBase
         {
             foreach (var id in request.ComparisonRecordIds.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase))
             {
-                var result = await _comparisonReplayService.ReplayAsync(
+                var result = await _comparisonReplayApiService.ReplayAsync(
                     new AppReplayComparisonRequest
                     {
                         ComparisonRecordId = id,
@@ -897,6 +825,7 @@ public sealed class ComparisonsController : ControllerBase
                         Profile = request.Profile,
                         PersistReplay = request.PersistReplay
                     },
+                    metadataOnly: false,
                     cancellationToken);
 
                 var entryName = result.FileName;
@@ -924,28 +853,6 @@ public sealed class ComparisonsController : ControllerBase
 
         ms.Position = 0;
         return File(ms.ToArray(), "application/zip", "comparison_replays.zip");
-    }
-
-    private void RecordReplayFailure(
-        string comparisonRecordId,
-        ApiReplayComparisonRequest request,
-        long durationMs,
-        string errorMessage,
-        bool metadataOnly)
-    {
-        _replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
-        {
-            TimestampUtc = DateTime.UtcNow,
-            ComparisonRecordId = comparisonRecordId,
-            ComparisonType = string.Empty,
-            Format = request.Format ?? "markdown",
-            ReplayMode = request.ReplayMode ?? "artifact",
-            PersistReplay = request.PersistReplay,
-            DurationMs = durationMs,
-            Success = false,
-            ErrorMessage = errorMessage,
-            MetadataOnly = metadataOnly
-        });
     }
 
     private static DriftAnalysisResponse MapDriftAnalysis(DriftAnalysisResult drift)

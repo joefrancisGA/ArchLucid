@@ -365,7 +365,7 @@ public sealed class RunsController : ControllerBase
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
-            return NotFound(new { error = $"Run '{runId}' was not found." });
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
         var decisions = await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
