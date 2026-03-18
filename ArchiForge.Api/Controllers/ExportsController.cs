@@ -1,3 +1,4 @@
+using ArchiForge.Api;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
@@ -163,18 +164,19 @@ public sealed class ExportsController : ControllerBase
             },
             cancellationToken);
 
-        if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
-        {
-            return File(result.Content ?? Array.Empty<byte>(), "text/markdown", result.FileName);
-        }
+            if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
+            {
+                return ApiFileResults.RangeBytes(Request, result.Content, "text/markdown", result.FileName);
+            }
 
-        if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
-        {
-            return File(
-                result.Content ?? Array.Empty<byte>(),
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                result.FileName);
-        }
+            if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
+            {
+                return ApiFileResults.RangeBytes(
+                    Request,
+                    result.Content,
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    result.FileName);
+            }
 
         return this.BadRequestProblem(
             $"Unsupported replay format '{result.Format}'.",

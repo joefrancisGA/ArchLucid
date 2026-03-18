@@ -1,3 +1,4 @@
+using ArchiForge.Api;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
@@ -162,8 +163,7 @@ public sealed class ManifestsController : ControllerBase
         var content = _manifestDiffExportService.GenerateMarkdownExport(left, right, diff, summary);
 
         var fileName = $"compare_{leftVersion}_to_{rightVersion}.md";
-        var bytes = System.Text.Encoding.UTF8.GetBytes(content);
-        return File(bytes, "text/markdown", fileName);
+        return ApiFileResults.RangeText(Request, content, "text/markdown", fileName);
     }
 
     [HttpGet("manifest/{version}")]
@@ -415,7 +415,7 @@ public sealed class ManifestsController : ControllerBase
         var markdown = _exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
 
         var fileName = $"architecture-export-{version}.md";
-        return File(System.Text.Encoding.UTF8.GetBytes(markdown), "text/markdown", fileName);
+        return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
     }
 }
 

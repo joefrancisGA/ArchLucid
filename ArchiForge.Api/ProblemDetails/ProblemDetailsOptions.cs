@@ -21,4 +21,10 @@ public static class ProblemTypes
     public const string InvalidRunState = Base + "#invalid-run-state";
     public const string DeterminismFailed = Base + "#determinism-failed";
     public const string ExportFailed = Base + "#export-failed";
+
+    /// <summary>Comparison replay verification did not pass (semantic mismatch).</summary>
+    public const string ComparisonVerificationFailed = Base + "#comparison-verification-failed";
+
+    /// <summary>Request cannot be applied due to a resource state conflict.</summary>
+    public const string Conflict = Base + "#conflict";
 }

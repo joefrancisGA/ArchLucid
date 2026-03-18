@@ -1,3 +1,4 @@
+using ArchiForge.Api;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
@@ -144,8 +145,7 @@ public sealed class AnalysisReportsController : ControllerBase
         {
             var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
             var markdown = _architectureAnalysisExportService.GenerateMarkdown(report);
-            var bytes = System.Text.Encoding.UTF8.GetBytes(markdown);
-            return File(bytes, "text/markdown", $"analysis-report-{runId}.md");
+            return ApiFileResults.RangeText(Request, markdown, "text/markdown", $"analysis-report-{runId}.md");
         }
         catch (InvalidOperationException ex)
         {
@@ -176,7 +176,8 @@ public sealed class AnalysisReportsController : ControllerBase
             var bytes = await _docxExportService.GenerateDocxAsync(
                 await _architectureAnalysisService.BuildAsync(request, cancellationToken),
                 cancellationToken);
-            return File(
+            return ApiFileResults.RangeBytes(
+                Request,
                 bytes,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 $"analysis-report-{runId}.docx");
@@ -292,7 +293,8 @@ public sealed class AnalysisReportsController : ControllerBase
                 report,
                 cancellationToken);
 
-            return File(
+            return ApiFileResults.RangeBytes(
+                Request,
                 bytes,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 $"analysis-report-consulting-{runId}.docx");

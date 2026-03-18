@@ -1,6 +1,8 @@
+using ArchiForge.Application;
+using ArchiForge.Application.Analysis;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
- 
+
 namespace ArchiForge.Api.ProblemDetails;
  
 /// <summary>
@@ -20,7 +22,31 @@ public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
  
         var ex = context.Exception;
         var instance = context.HttpContext?.Request?.Path.Value;
- 
+
+        if (ex is ComparisonVerificationFailedException cvf)
+        {
+            context.Result = CreateProblemResult(
+                statusCode: StatusCodes.Status422UnprocessableEntity,
+                title: "Unprocessable Entity",
+                detail: cvf.Message,
+                type: ProblemTypes.ComparisonVerificationFailed,
+                instance: instance);
+            context.ExceptionHandled = true;
+            return;
+        }
+
+        if (ex is ConflictException cex)
+        {
+            context.Result = CreateProblemResult(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Conflict",
+                detail: cex.Message,
+                type: ProblemTypes.Conflict,
+                instance: instance);
+            context.ExceptionHandled = true;
+            return;
+        }
+
         if (ex is InvalidOperationException ioe)
         {
             // Convention used widely across services: "not found" indicates a 404.

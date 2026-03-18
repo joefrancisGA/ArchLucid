@@ -1,14 +1,15 @@
 using System.IO.Compression;
+using ArchiForge.Api;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
-using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Data.Repositories;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using FluentValidation;
 
 using ApiReplayComparisonRequest = ArchiForge.Api.Models.ReplayComparisonRequest;
 using AppReplayComparisonRequest = ArchiForge.Application.Analysis.ReplayComparisonRequest;
@@ -23,13 +24,6 @@ public sealed class ComparisonsController : ControllerBase
 {
     private readonly IArchitectureRunRepository _runRepository;
     private readonly IRunExportRecordRepository _runExportRecordRepository;
-    private readonly IAgentResultRepository _resultRepository;
-    private readonly IAgentResultDiffService _agentResultDiffService;
-    private readonly IAgentResultDiffSummaryFormatter _agentResultDiffSummaryFormatter;
-    private readonly IEndToEndReplayComparisonService _endToEndReplayComparisonService;
-    private readonly IEndToEndReplayComparisonSummaryFormatter _endToEndReplayComparisonSummaryFormatter;
-    private readonly IEndToEndReplayComparisonExportService _endToEndReplayComparisonExportService;
-    private readonly IComparisonAuditService _comparisonAuditService;
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
     private readonly IComparisonReplayApiService _comparisonReplayApiService;
     private readonly Application.Analysis.IDriftReportFormatter _driftReportFormatter;
@@ -39,13 +33,6 @@ public sealed class ComparisonsController : ControllerBase
     public ComparisonsController(
         IArchitectureRunRepository runRepository,
         IRunExportRecordRepository runExportRecordRepository,
-        IAgentResultRepository resultRepository,
-        IAgentResultDiffService agentResultDiffService,
-        IAgentResultDiffSummaryFormatter agentResultDiffSummaryFormatter,
-        IEndToEndReplayComparisonService endToEndReplayComparisonService,
-        IEndToEndReplayComparisonSummaryFormatter endToEndReplayComparisonSummaryFormatter,
-        IEndToEndReplayComparisonExportService endToEndReplayComparisonExportService,
-        IComparisonAuditService comparisonAuditService,
         IComparisonRecordRepository comparisonRecordRepository,
         IComparisonReplayApiService comparisonReplayApiService,
         Application.Analysis.IDriftReportFormatter driftReportFormatter,
@@ -54,13 +41,6 @@ public sealed class ComparisonsController : ControllerBase
     {
         _runRepository = runRepository;
         _runExportRecordRepository = runExportRecordRepository;
-        _resultRepository = resultRepository;
-        _agentResultDiffService = agentResultDiffService;
-        _agentResultDiffSummaryFormatter = agentResultDiffSummaryFormatter;
-        _endToEndReplayComparisonService = endToEndReplayComparisonService;
-        _endToEndReplayComparisonSummaryFormatter = endToEndReplayComparisonSummaryFormatter;
-        _endToEndReplayComparisonExportService = endToEndReplayComparisonExportService;
-        _comparisonAuditService = comparisonAuditService;
         _comparisonRecordRepository = comparisonRecordRepository;
         _comparisonReplayApiService = comparisonReplayApiService;
         _driftReportFormatter = driftReportFormatter;
@@ -68,219 +48,45 @@ public sealed class ComparisonsController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet("run/compare/agents")]
-    [ProducesResponseType(typeof(AgentResultCompareResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CompareAgentResults(
-        [FromQuery] string leftRunId,
-        [FromQuery] string rightRunId,
-        CancellationToken cancellationToken)
+    private static readonly ComparisonHistoryQueryValidator ComparisonHistoryValidator = new();
+
+    private sealed class ComparisonHistoryQueryValidator : AbstractValidator<ComparisonHistoryQuery>
     {
-        var leftRun = await _runRepository.GetByIdAsync(leftRunId, cancellationToken);
-        if (leftRun is null)
+        public ComparisonHistoryQueryValidator()
         {
-            return this.NotFoundProblem($"Run '{leftRunId}' was not found.", ProblemTypes.RunNotFound);
-        }
+            RuleFor(x => x.ComparisonType)
+                .Must(t => string.IsNullOrWhiteSpace(t)
+                           || string.Equals(t.Trim(), "end-to-end-replay", StringComparison.OrdinalIgnoreCase)
+                           || string.Equals(t.Trim(), "export-record-diff", StringComparison.OrdinalIgnoreCase))
+                .WithMessage("comparisonType must be empty, 'end-to-end-replay', or 'export-record-diff'.");
 
-        var rightRun = await _runRepository.GetByIdAsync(rightRunId, cancellationToken);
-        if (rightRun is null)
-        {
-            return this.NotFoundProblem($"Run '{rightRunId}' was not found.", ProblemTypes.RunNotFound);
-        }
+            RuleFor(x => x)
+                .Must(q => q.CreatedFromUtc is null || q.CreatedToUtc is null || q.CreatedFromUtc <= q.CreatedToUtc)
+                .WithMessage("createdFromUtc must be <= createdToUtc.");
 
-        var leftResults = await _resultRepository.GetByRunIdAsync(leftRunId, cancellationToken);
-        var rightResults = await _resultRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+            RuleFor(x => x.Skip).GreaterThanOrEqualTo(0).WithMessage("skip must be >= 0.");
 
-        var diff = _agentResultDiffService.Compare(leftRunId, leftResults, rightRunId, rightResults);
+            RuleFor(x => x.Limit).InclusiveBetween(0, 500).WithMessage("limit must be between 0 and 500 (0 = default 50).");
 
-        return Ok(new AgentResultCompareResponse { Diff = diff });
-    }
+            RuleFor(x => x.SortDir)
+                .Must(d => string.IsNullOrWhiteSpace(d)
+                           || string.Equals(d, "asc", StringComparison.OrdinalIgnoreCase)
+                           || string.Equals(d, "desc", StringComparison.OrdinalIgnoreCase))
+                .WithMessage("sortDir must be 'asc' or 'desc'.");
 
-    [HttpGet("run/compare/agents/summary")]
-    [ProducesResponseType(typeof(AgentResultCompareSummaryResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CompareAgentResultsSummary(
-        [FromQuery] string leftRunId,
-        [FromQuery] string rightRunId,
-        CancellationToken cancellationToken)
-    {
-        var leftRun = await _runRepository.GetByIdAsync(leftRunId, cancellationToken);
-        if (leftRun is null)
-        {
-            return this.NotFoundProblem($"Run '{leftRunId}' was not found.", ProblemTypes.RunNotFound);
-        }
+            RuleFor(x => x.SortBy)
+                .Must(s => string.IsNullOrWhiteSpace(s)
+                           || string.Equals(s, "createdUtc", StringComparison.OrdinalIgnoreCase)
+                           || string.Equals(s, "type", StringComparison.OrdinalIgnoreCase)
+                           || string.Equals(s, "label", StringComparison.OrdinalIgnoreCase)
+                           || string.Equals(s, "leftRunId", StringComparison.OrdinalIgnoreCase)
+                           || string.Equals(s, "rightRunId", StringComparison.OrdinalIgnoreCase))
+                .WithMessage("sortBy must be one of: createdUtc, type, label, leftRunId, rightRunId.");
 
-        var rightRun = await _runRepository.GetByIdAsync(rightRunId, cancellationToken);
-        if (rightRun is null)
-        {
-            return this.NotFoundProblem($"Run '{rightRunId}' was not found.", ProblemTypes.RunNotFound);
-        }
-
-        var leftResults = await _resultRepository.GetByRunIdAsync(leftRunId, cancellationToken);
-        var rightResults = await _resultRepository.GetByRunIdAsync(rightRunId, cancellationToken);
-
-        var diff = _agentResultDiffService.Compare(leftRunId, leftResults, rightRunId, rightResults);
-        var summary = _agentResultDiffSummaryFormatter.FormatMarkdown(diff);
-
-        return Ok(new AgentResultCompareSummaryResponse
-        {
-            Format = "markdown",
-            Summary = summary,
-            Diff = diff
-        });
-    }
-
-    [HttpGet("run/compare/end-to-end")]
-    [ProducesResponseType(typeof(EndToEndReplayComparisonResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CompareRunsEndToEnd(
-        [FromQuery] string leftRunId,
-        [FromQuery] string rightRunId,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            var report = await _endToEndReplayComparisonService.BuildAsync(
-                leftRunId,
-                rightRunId,
-                cancellationToken);
-
-            return Ok(new EndToEndReplayComparisonResponse { Report = report });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
-    }
-
-    [HttpPost("run/compare/end-to-end/summary")]
-    [ProducesResponseType(typeof(EndToEndReplayComparisonSummaryResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> CompareRunsEndToEndSummary(
-        [FromQuery] string leftRunId,
-        [FromQuery] string rightRunId,
-        [FromBody] PersistComparisonRequest? request,
-        CancellationToken cancellationToken)
-    {
-        request ??= new PersistComparisonRequest();
-
-        try
-        {
-            var report = await _endToEndReplayComparisonService.BuildAsync(
-                leftRunId,
-                rightRunId,
-                cancellationToken);
-
-            var summary = _endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report);
-
-            if (request.Persist)
-            {
-                var comparisonRecordId = await _comparisonAuditService.RecordEndToEndAsync(
-                    report,
-                    summary,
-                    cancellationToken);
-                Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
-            }
-
-            return Ok(new EndToEndReplayComparisonSummaryResponse
-            {
-                Format = "markdown",
-                Summary = summary
-            });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
-    }
-
-    [HttpGet("run/compare/end-to-end/export")]
-    [ProducesResponseType(typeof(EndToEndReplayComparisonExportResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ExportRunsEndToEndComparisonMarkdown(
-        [FromQuery] string leftRunId,
-        [FromQuery] string rightRunId,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            var report = await _endToEndReplayComparisonService.BuildAsync(
-                leftRunId,
-                rightRunId,
-                cancellationToken);
-
-            var markdown = _endToEndReplayComparisonExportService.GenerateMarkdown(report);
-            var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.md";
-
-            return Ok(new EndToEndReplayComparisonExportResponse
-            {
-                Format = "markdown",
-                FileName = fileName,
-                Content = markdown
-            });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
-    }
-
-    [HttpGet("run/compare/end-to-end/export/file")]
-    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DownloadRunsEndToEndComparisonMarkdown(
-        [FromQuery] string leftRunId,
-        [FromQuery] string rightRunId,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            var report = await _endToEndReplayComparisonService.BuildAsync(
-                leftRunId,
-                rightRunId,
-                cancellationToken);
-
-            var markdown = _endToEndReplayComparisonExportService.GenerateMarkdown(report);
-            var bytes = System.Text.Encoding.UTF8.GetBytes(markdown);
-            var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.md";
-
-            return File(bytes, "text/markdown", fileName);
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
-    }
-
-    [HttpGet("run/compare/end-to-end/export/docx")]
-    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ExportRunsEndToEndComparisonDocx(
-        [FromQuery] string leftRunId,
-        [FromQuery] string rightRunId,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            var report = await _endToEndReplayComparisonService.BuildAsync(
-                leftRunId,
-                rightRunId,
-                cancellationToken);
-
-            var bytes = await _endToEndReplayComparisonExportService.GenerateDocxAsync(
-                report,
-                cancellationToken);
-
-            var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.docx";
-
-            return File(
-                bytes,
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                fileName);
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+            RuleFor(x => x)
+                .Must(q => string.IsNullOrWhiteSpace(q.Cursor)
+                           || string.Equals(q.SortBy ?? "createdUtc", "createdUtc", StringComparison.OrdinalIgnoreCase))
+                .WithMessage("cursor paging currently requires sortBy=createdUtc.");
         }
     }
 
@@ -392,106 +198,38 @@ public sealed class ComparisonsController : ControllerBase
     [HttpGet("comparisons")]
     [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> SearchComparisonRecords(
-        [FromQuery] string? comparisonType,
-        [FromQuery] string? leftRunId,
-        [FromQuery] string? rightRunId,
-        [FromQuery] string? leftExportRecordId,
-        [FromQuery] string? rightExportRecordId,
-        [FromQuery] string? label,
-        [FromQuery] DateTime? createdFromUtc,
-        [FromQuery] DateTime? createdToUtc,
-        [FromQuery] string? tag,
-        [FromQuery] string[]? tags,
-        [FromQuery] string? sortBy = "createdUtc",
-        [FromQuery] string? sortDir = "desc",
-        [FromQuery] string? cursor = null,
-        [FromQuery] int skip = 0,
-        [FromQuery] int limit = 50,
+        [FromQuery] ComparisonHistoryQuery query,
         CancellationToken cancellationToken = default)
     {
-        var normalizedType = string.IsNullOrWhiteSpace(comparisonType) ? null : comparisonType.Trim();
-        if (normalizedType is not null
-            && !string.Equals(normalizedType, "end-to-end-replay", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(normalizedType, "export-record-diff", StringComparison.OrdinalIgnoreCase))
+        var vr = await ComparisonHistoryValidator.ValidateAsync(query, cancellationToken);
+        if (!vr.IsValid)
         {
             return this.BadRequestProblem(
-                $"Unsupported comparisonType '{comparisonType}'. Supported: end-to-end-replay, export-record-diff.",
+                string.Join(" ", vr.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
         }
 
-        if (createdFromUtc is not null && createdToUtc is not null && createdFromUtc > createdToUtc)
-        {
-            return this.BadRequestProblem(
-                "createdFromUtc must be <= createdToUtc.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        if (skip < 0)
-        {
-            return this.BadRequestProblem(
-                "skip must be >= 0.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        if (sortDir is not null
-            && !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(sortDir, "desc", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.BadRequestProblem(
-                "sortDir must be 'asc' or 'desc'.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        if (sortBy is not null
-            && !string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(sortBy, "type", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(sortBy, "label", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(sortBy, "leftRunId", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(sortBy, "rightRunId", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.BadRequestProblem(
-                "sortBy must be one of: createdUtc, type, label, leftRunId, rightRunId.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        var normalizedTags = (tags ?? [])
-            .SelectMany(t => (t ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            .Where(t => !string.IsNullOrWhiteSpace(t))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-        if (!string.IsNullOrWhiteSpace(tag))
-        {
-            normalizedTags.AddRange(tag.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-            normalizedTags = normalizedTags
-                .Where(t => !string.IsNullOrWhiteSpace(t))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-        }
-
-        if (!ApiPaging.TryParseUtcTicksIdCursor(cursor, out var cursorCreatedUtc, out var cursorId, out var cursorError))
-        {
+        if (!ApiPaging.TryParseUtcTicksIdCursor(query.Cursor, out var cursorCreatedUtc, out var cursorId, out var cursorError))
             return this.BadRequestProblem(cursorError!, ProblemTypes.ValidationFailed);
-        }
+
+        var normalizedType = string.IsNullOrWhiteSpace(query.ComparisonType) ? null : query.ComparisonType.Trim();
+        var normalizedTags = ComparisonHistoryQuery.NormalizeTagList(query.Tag, query.Tags);
+        var limit = query.Limit <= 0 ? 50 : query.Limit;
+        var sortBy = query.SortBy ?? "createdUtc";
+        var sortDir = query.SortDir ?? "desc";
 
         IReadOnlyList<ArchiForge.Contracts.Metadata.ComparisonRecord> records;
-        if (!string.IsNullOrWhiteSpace(cursor))
+        if (!string.IsNullOrWhiteSpace(query.Cursor))
         {
-            if (!string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase))
-            {
-                return this.BadRequestProblem(
-                    "cursor paging currently requires sortBy=createdUtc.",
-                    ProblemTypes.ValidationFailed);
-            }
-
             records = await _comparisonRecordRepository.SearchByCursorAsync(
                 normalizedType,
-                leftRunId,
-                rightRunId,
-                createdFromUtc,
-                createdToUtc,
-                leftExportRecordId,
-                rightExportRecordId,
-                label,
+                query.LeftRunId,
+                query.RightRunId,
+                query.CreatedFromUtc,
+                query.CreatedToUtc,
+                query.LeftExportRecordId,
+                query.RightExportRecordId,
+                query.Label,
                 normalizedTags,
                 sortBy,
                 sortDir,
@@ -504,17 +242,17 @@ public sealed class ComparisonsController : ControllerBase
         {
             records = await _comparisonRecordRepository.SearchAsync(
                 normalizedType,
-                leftRunId,
-                rightRunId,
-                createdFromUtc,
-                createdToUtc,
-                leftExportRecordId,
-                rightExportRecordId,
-                label,
+                query.LeftRunId,
+                query.RightRunId,
+                query.CreatedFromUtc,
+                query.CreatedToUtc,
+                query.LeftExportRecordId,
+                query.RightExportRecordId,
+                query.Label,
                 normalizedTags,
                 sortBy,
                 sortDir,
-                skip,
+                query.Skip,
                 limit,
                 cancellationToken);
         }
@@ -527,16 +265,16 @@ public sealed class ComparisonsController : ControllerBase
         {
             Records = records.ToList(),
             Limit = limit,
-            Skip = skip,
-            ComparisonType = comparisonType,
-            LeftRunId = leftRunId,
-            RightRunId = rightRunId,
-            LeftExportRecordId = leftExportRecordId,
-            RightExportRecordId = rightExportRecordId,
-            Label = label,
-            CreatedFromUtc = createdFromUtc,
-            CreatedToUtc = createdToUtc,
-            Tag = tag,
+            Skip = query.Skip,
+            ComparisonType = query.ComparisonType,
+            LeftRunId = query.LeftRunId,
+            RightRunId = query.RightRunId,
+            LeftExportRecordId = query.LeftExportRecordId,
+            RightExportRecordId = query.RightExportRecordId,
+            Label = query.Label,
+            CreatedFromUtc = query.CreatedFromUtc,
+            CreatedToUtc = query.CreatedToUtc,
+            Tag = query.Tag,
             Tags = normalizedTags,
             SortBy = sortBy,
             SortDir = sortDir,
@@ -691,19 +429,21 @@ public sealed class ComparisonsController : ControllerBase
         if (normalizedFormat == "markdown")
         {
             var content = _driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
-            var bytes = System.Text.Encoding.UTF8.GetBytes(content);
-            return File(bytes, "text/markdown", $"drift-report_{comparisonRecordId}.md");
+            return ApiFileResults.RangeText(Request, content, "text/markdown", $"drift-report_{comparisonRecordId}.md");
         }
         if (normalizedFormat == "html")
         {
             var content = _driftReportFormatter.FormatHtml(drift, comparisonRecordId);
-            var bytes = System.Text.Encoding.UTF8.GetBytes(content);
-            return File(bytes, "text/html", $"drift-report_{comparisonRecordId}.html");
+            return ApiFileResults.RangeText(Request, content, "text/html", $"drift-report_{comparisonRecordId}.html");
         }
         if (normalizedFormat == "docx")
         {
             var bytes = _driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
-            return File(bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"drift-report_{comparisonRecordId}.docx");
+            return ApiFileResults.RangeBytes(
+                Request,
+                bytes,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                $"drift-report_{comparisonRecordId}.docx");
         }
 
         return this.BadRequestProblem(
@@ -852,7 +592,7 @@ public sealed class ComparisonsController : ControllerBase
         }
 
         ms.Position = 0;
-        return File(ms.ToArray(), "application/zip", "comparison_replays.zip");
+        return ApiFileResults.SimpleBytes(ms.ToArray(), "application/zip", "comparison_replays.zip");
     }
 
     private static DriftAnalysisResponse MapDriftAnalysis(DriftAnalysisResult drift)
