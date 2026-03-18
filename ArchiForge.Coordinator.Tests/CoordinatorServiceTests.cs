@@ -5,6 +5,7 @@ using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Decisioning.Repositories;
 using ArchiForge.Decisioning.Rules;
 using ArchiForge.Decisioning.Services;
+using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 using Xunit;
@@ -26,7 +27,11 @@ public sealed class CoordinatorServiceTests
         var findingsRepo = new InMemoryFindingsSnapshotRepository();
         var manifestRepo = new InMemoryGoldenManifestRepository();
         var traceRepo = new InMemoryDecisionTraceRepository();
-        var engines = new[] { new RequirementFindingEngine(), new TopologySanityFindingEngine() };
+        IEnumerable<IFindingEngine> engines = new IFindingEngine[]
+        {
+            new RequirementFindingEngine(),
+            new TopologySanityFindingEngine()
+        };
         var findingsOrchestrator = new FindingsOrchestrator(engines, findingsRepo);
         var ruleProvider = new InMemoryDecisionRuleProvider();
         var decisionEngine = new RuleBasedDecisionEngine(ruleProvider, manifestRepo, traceRepo);
