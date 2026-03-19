@@ -23,6 +23,8 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 
 The replay endpoint body (`format`, `replayMode`, `profile`, `persistReplay`) is validated with FluentValidation. Invalid values (e.g. unsupported format or replayMode) return **400 Bad Request** with problem details describing validation errors.
 
+The **batch replay** endpoint body (`comparisonRecordIds`, `format`, `replayMode`, `profile`, `persistReplay`) is also validated; empty `comparisonRecordIds` or invalid format/replayMode/profile return **400** with validation errors.
+
 ## OpenAPI / .NET 10
 
 Swagger documents the comparison replay **422** response, **404** with `#run-not-found` on run/compare and comparisons routes, and **409** with `#conflict` on commit. The codebase does not use deprecated `WithOpenApi`; use operation filters / transformers for per-operation docs.

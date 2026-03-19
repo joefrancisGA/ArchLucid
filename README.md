@@ -70,6 +70,8 @@ In Development:
 
 Override in `appsettings.json` or via environment variables.
 
+**CORS:** Configure allowed origins with **`Cors:AllowedOrigins`** (array of origins). The API uses the policy name **`ArchiForge`** (`UseCors("ArchiForge")`). If the array is empty or missing, no origins are allowed (`SetIsOriginAllowed(_ => false)`). Use this for SPA or cross-origin API clients.
+
 ## Running Tests
 
 ```bash

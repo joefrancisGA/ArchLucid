@@ -7,6 +7,7 @@ using Xunit;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class AgentResultDiffServiceTests
 {
     [Fact]

@@ -3,6 +3,7 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class DatabaseMigrationScriptTests
 {
     [Fact]

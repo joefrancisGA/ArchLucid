@@ -106,80 +106,8 @@ namespace ArchiForge.Api
                     }
                 });
 
-            builder.Services.AddRateLimiter(options =>
-            {
-                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-
-                var fixedPermitLimit = builder.Configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
-                var fixedWindowMinutes = builder.Configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
-                var fixedQueueLimit = builder.Configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
-
-                options.AddFixedWindowLimiter("fixed", config =>
-                {
-                    config.Window = TimeSpan.FromMinutes(fixedWindowMinutes);
-                    config.PermitLimit = fixedPermitLimit;
-                    config.QueueLimit = fixedQueueLimit;
-                });
-
-                var expensivePermitLimit = builder.Configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
-                var expensiveWindowMinutes = builder.Configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
-                var expensiveQueueLimit = builder.Configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);
-
-                options.AddFixedWindowLimiter("expensive", config =>
-                {
-                    config.Window = TimeSpan.FromMinutes(expensiveWindowMinutes);
-                    config.PermitLimit = expensivePermitLimit;
-                    config.QueueLimit = expensiveQueueLimit;
-                });
-
-                // Replay: use stricter limits for heavy formats (docx/pdf) than light (markdown/html).
-                var replayLightPermitLimit = builder.Configuration.GetValue("RateLimiting:Replay:Light:PermitLimit", 60);
-                var replayLightWindowMinutes = builder.Configuration.GetValue("RateLimiting:Replay:Light:WindowMinutes", 1);
-                var replayHeavyPermitLimit = builder.Configuration.GetValue("RateLimiting:Replay:Heavy:PermitLimit", 15);
-                var replayHeavyWindowMinutes = builder.Configuration.GetValue("RateLimiting:Replay:Heavy:WindowMinutes", 1);
-
-                options.AddPolicy("replay", httpContext =>
-                {
-                    var fmt = (httpContext.Request.Query["format"].ToString() ?? "").Trim().ToLowerInvariant();
-                    var isHeavy = fmt is "docx" or "pdf";
-                    var window = TimeSpan.FromMinutes(isHeavy ? replayHeavyWindowMinutes : replayLightWindowMinutes);
-                    var permits = isHeavy ? replayHeavyPermitLimit : replayLightPermitLimit;
-
-                    var user = httpContext.User?.Identity?.Name;
-                    var key = string.IsNullOrWhiteSpace(user)
-                        ? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous"
-                        : user;
-
-                    var partitionKey = $"{key}:{(isHeavy ? "heavy" : "light")}";
-                    return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey,
-                        _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
-                        {
-                            PermitLimit = permits,
-                            Window = window,
-                            QueueLimit = 0
-                        });
-                });
-            });
-
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("ArchiForge", policy =>
-                {
-                    var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-                    if (origins.Length > 0)
-                    {
-                        policy.WithOrigins(origins)
-                            .AllowAnyMethod()
-                            .AllowAnyHeader();
-                    }
-                    else
-                    {
-                        policy.SetIsOriginAllowed(_ => false);
-                    }
-                });
-            });
-
+            builder.Services.AddArchiForgeRateLimiting(builder.Configuration);
+            builder.Services.AddArchiForgeCors(builder.Configuration);
             builder.Services.AddArchiForgeApplicationServices(builder.Configuration);
 
             var app = builder.Build();

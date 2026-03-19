@@ -45,6 +45,7 @@ internal sealed class ForcedComparisonVerificationFailureService : IComparisonRe
         Task.FromResult(new DriftAnalysisResult());
 }
 
+[Trait("Category", "Integration")]
 public sealed class ComparisonReplayVerify422Tests : IClassFixture<ComparisonVerify422ApiFactory>
 {
     private readonly HttpClient _client;

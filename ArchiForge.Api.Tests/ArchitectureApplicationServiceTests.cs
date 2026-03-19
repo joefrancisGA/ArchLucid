@@ -12,6 +12,7 @@ using Xunit;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Category", "Unit")]
 public sealed class ArchitectureApplicationServiceTests
 {
     private readonly Mock<IArchitectureRunRepository> _runRepository;
