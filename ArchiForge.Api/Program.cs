@@ -1,40 +1,18 @@
-using ArchiForge.AgentRuntime;
-using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Api.Authentication;
-using ArchiForge.Api.Jobs;
-using ArchiForge.Api.Health;
 using ArchiForge.Api.Middleware;
 using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.Services;
-using ArchiForge.Api.Validators;
 using ArchiForge.Api.Startup;
-using ArchiForge.Api.Startup.Validation;
-using ArchiForge.Application;
-using ArchiForge.Application.Agents;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Diagrams;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Application.Evidence;
-using ArchiForge.Application.Exports;
-using ArchiForge.Application.Summaries;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Coordinator.Services;
+using ArchiForge.Api.Validators;
 using ArchiForge.Data.Infrastructure;
-using ArchiForge.Data.Repositories;
-using ArchiForge.DecisionEngine.Services;
-using ArchiForge.DecisionEngine.Validation;
 using Asp.Versioning;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
-using System.Text.Json;
 
 namespace ArchiForge.Api
 {
@@ -73,9 +51,9 @@ namespace ArchiForge.Api
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new() { Title = "ArchiForge API", Version = "v1" });
-                c.OperationFilter<ArchiForge.Api.Swagger.ReplayExamplesOperationFilter>();
-                c.OperationFilter<ArchiForge.Api.Swagger.ComparisonHistoryQueryOperationFilter>();
-                c.OperationFilter<ArchiForge.Api.Swagger.ProblemDetailsResponsesOperationFilter>();
+                c.OperationFilter<Swagger.ReplayExamplesOperationFilter>();
+                c.OperationFilter<Swagger.ComparisonHistoryQueryOperationFilter>();
+                c.OperationFilter<Swagger.ProblemDetailsResponsesOperationFilter>();
             });
 
             builder.Services.AddAuthentication("ApiKey")

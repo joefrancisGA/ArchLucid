@@ -33,6 +33,7 @@ public sealed class DecisionEngineV2Tests
             }
         };
 
+#pragma warning disable IDE0028 // Simplify collection initialization
         var decisions = await _engine.ResolveAsync(
             "RUN-1",
             request: new ArchitectureRequest { RequestId = "REQ-1", SystemName = "S", Description = "d" },
@@ -40,6 +41,7 @@ public sealed class DecisionEngineV2Tests
             tasks: new List<AgentTask> { new() { TaskId = "T-1", RunId = "RUN-1", AgentType = AgentType.Topology, Status = AgentTaskStatus.Completed } },
             results: results,
             evaluations: []);
+#pragma warning restore IDE0028 // Simplify collection initialization
 
         var node = decisions.Single(d => d.Topic == "TopologyAcceptance");
         node.Options.Should().HaveCount(2);
@@ -79,6 +81,7 @@ public sealed class DecisionEngineV2Tests
             }
         };
 
+#pragma warning disable IDE0028 // Simplify collection initialization
         var decisions = await _engine.ResolveAsync(
             "RUN-1",
             request: new ArchitectureRequest { RequestId = "REQ-1", SystemName = "S", Description = "d" },
@@ -86,6 +89,7 @@ public sealed class DecisionEngineV2Tests
             tasks: new List<AgentTask> { new() { TaskId = "T-1", RunId = "RUN-1", AgentType = AgentType.Topology, Status = AgentTaskStatus.Completed } },
             results: results,
             evaluations: evals);
+#pragma warning restore IDE0028 // Simplify collection initialization
 
         var node = decisions.Single(d => d.Topic == "TopologyAcceptance");
         node.SelectedOptionId.Should().Be(node.Options.Single(o => o.Description == "Reject topology proposal").OptionId);

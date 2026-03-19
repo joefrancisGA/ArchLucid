@@ -18,34 +18,14 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
-public sealed class ExportsController : ControllerBase
+public sealed class ExportsController(
+    IArchitectureRunRepository runRepository,
+    IRunExportRecordRepository runExportRecordRepository,
+    IComparisonAuditService comparisonAuditService,
+    IExportReplayService exportReplayService,
+    IExportRecordDiffService exportRecordDiffService,
+    IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter) : ControllerBase
 {
-    private readonly IArchitectureRunRepository _runRepository;
-    private readonly IRunExportRecordRepository _runExportRecordRepository;
-    private readonly IComparisonAuditService _comparisonAuditService;
-    private readonly IExportReplayService _exportReplayService;
-    private readonly IExportRecordDiffService _exportRecordDiffService;
-    private readonly IExportRecordDiffSummaryFormatter _exportRecordDiffSummaryFormatter;
-    private readonly ILogger<ExportsController> _logger;
-
-    public ExportsController(
-        IArchitectureRunRepository runRepository,
-        IRunExportRecordRepository runExportRecordRepository,
-        IComparisonAuditService comparisonAuditService,
-        IExportReplayService exportReplayService,
-        IExportRecordDiffService exportRecordDiffService,
-        IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,
-        ILogger<ExportsController> logger)
-    {
-        _runRepository = runRepository;
-        _runExportRecordRepository = runExportRecordRepository;
-        _comparisonAuditService = comparisonAuditService;
-        _exportReplayService = exportReplayService;
-        _exportRecordDiffService = exportRecordDiffService;
-        _exportRecordDiffSummaryFormatter = exportRecordDiffSummaryFormatter;
-        _logger = logger;
-    }
-
     [HttpGet("run/{runId}/exports")]
     [ProducesResponseType(typeof(RunExportHistoryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -53,16 +33,18 @@ public sealed class ExportsController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        var records = await _runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
+        var records = await runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
 
+#pragma warning disable IDE0305 // Simplify collection initialization
         return Ok(new RunExportHistoryResponse
         {
             Exports = records.ToList()
         });
+#pragma warning restore IDE0305 // Simplify collection initialization
     }
 
     [HttpGet("run/exports/{exportRecordId}")]
@@ -72,7 +54,7 @@ public sealed class ExportsController : ControllerBase
         [FromRoute] string exportRecordId,
         CancellationToken cancellationToken)
     {
-        var record = await _runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        var record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
         if (record is null)
             return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
@@ -90,15 +72,15 @@ public sealed class ExportsController : ControllerBase
         [FromQuery] string rightExportRecordId,
         CancellationToken cancellationToken)
     {
-        var left = await _runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
+        var left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
         if (left is null)
             return this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        var right = await _runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
+        var right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
         if (right is null)
             return this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        var diff = _exportRecordDiffService.Compare(left, right);
+        var diff = exportRecordDiffService.Compare(left, right);
 
         return Ok(new ExportRecordDiffResponse
         {
@@ -117,20 +99,20 @@ public sealed class ExportsController : ControllerBase
     {
         request ??= new PersistComparisonRequest();
 
-        var left = await _runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
+        var left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
         if (left is null)
             return this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        var right = await _runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
+        var right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
         if (right is null)
             return this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        var diff = _exportRecordDiffService.Compare(left, right);
-        var summary = _exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
+        var diff = exportRecordDiffService.Compare(left, right);
+        var summary = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
 
         if (request.Persist)
         {
-            var comparisonRecordId = await _comparisonAuditService.RecordExportDiffAsync(
+            var comparisonRecordId = await comparisonAuditService.RecordExportDiffAsync(
                 diff,
                 summary,
                 cancellationToken);
@@ -155,7 +137,7 @@ public sealed class ExportsController : ControllerBase
     {
         request ??= new ApiReplayExportRequest();
 
-        var result = await _exportReplayService.ReplayAsync(
+        var result = await exportReplayService.ReplayAsync(
             new AppReplayExportRequest
             {
                 ExportRecordId = exportRecordId,
@@ -177,7 +159,7 @@ public sealed class ExportsController : ControllerBase
     {
         request ??= new ApiReplayExportRequest();
 
-        var result = await _exportReplayService.ReplayAsync(
+        var result = await exportReplayService.ReplayAsync(
             new AppReplayExportRequest
             {
                 ExportRecordId = exportRecordId,

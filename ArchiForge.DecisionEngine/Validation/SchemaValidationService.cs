@@ -57,20 +57,32 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
             if (!File.Exists(fullPath))
             {
-                _logger.LogError("Schema file not found: {FullPath} for {SchemaName}", fullPath, schemaName);
+                if (_logger.IsEnabled(LogLevel.Error))
+                {
+                    _logger.LogError("Schema file not found: {FullPath} for {SchemaName}", fullPath, schemaName);
+                }
                 throw new FileNotFoundException($"Schema file not found: {fullPath}", fullPath);
             }
 
-            _logger.LogInformation("Loading schema {SchemaName} from {FullPath}", schemaName, fullPath);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Loading schema {SchemaName} from {FullPath}", schemaName, fullPath);
+            }
             var schemaText = File.ReadAllText(fullPath);
             var schema = JsonSchema.FromText(schemaText);
 
-            _logger.LogInformation("Successfully loaded schema {SchemaName}", schemaName);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("Successfully loaded schema {SchemaName}", schemaName);
+            }
             return schema;
         }
         catch (Exception ex) when (ex is not FileNotFoundException)
         {
-            _logger.LogError(ex, "Failed to load or parse schema {SchemaName} from {RelativePath}", schemaName, relativePath);
+            if (_logger.IsEnabled(LogLevel.Error))
+            {
+                _logger.LogError(ex, "Failed to load or parse schema {SchemaName} from {RelativePath}", schemaName, relativePath);
+            }
             throw;
         }
     }
@@ -86,7 +98,10 @@ public sealed class SchemaValidationService : ISchemaValidationService
         {
             var error = $"{objectName} JSON payload is empty.";
             result.Errors.Add(error);
-            _logger.LogWarning("Validation failed for {ObjectName}: Empty payload", objectName);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning("Validation failed for {ObjectName}: Empty payload", objectName);
+            }
             return result;
         }
 
@@ -99,7 +114,10 @@ public sealed class SchemaValidationService : ISchemaValidationService
         {
             var error = $"{objectName} JSON could not be parsed: {ex.Message}";
             result.Errors.Add(error);
-            _logger.LogWarning(ex, "Validation failed for {ObjectName}: Invalid JSON", objectName);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(ex, "Validation failed for {ObjectName}: Invalid JSON", objectName);
+            }
             return result;
         }
 
@@ -114,15 +132,21 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
             if (evaluation.IsValid)
             {
-                _logger.LogDebug("Validation succeeded for {ObjectName}", objectName);
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug("Validation succeeded for {ObjectName}", objectName);
+                }
                 return result;
             }
 
             CollectErrors(evaluation, result, objectName);
-            _logger.LogWarning(
-                "Validation failed for {ObjectName} with {ErrorCount} errors",
-                objectName,
-                result.Errors.Count);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "Validation failed for {ObjectName} with {ErrorCount} errors",
+                    objectName,
+                    result.Errors.Count);
+            }
 
             return result;
         }

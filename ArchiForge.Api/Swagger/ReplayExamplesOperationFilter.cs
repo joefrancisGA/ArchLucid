@@ -13,9 +13,6 @@ public sealed class ReplayExamplesOperationFilter : IOperationFilter
         if (!path.Contains("comparisons", StringComparison.OrdinalIgnoreCase) || !path.Contains("replay", StringComparison.OrdinalIgnoreCase))
             return;
 
-        if (!operation.RequestBody.Content.TryGetValue("application/json", out var mediaType))
-            return;
-
         operation.Summary ??= "Replay a persisted comparison";
         var baseDesc = "Replay examples: "
             + "artifact-markdown: format=markdown, replayMode=artifact, persistReplay=false. "
@@ -29,14 +26,11 @@ public sealed class ReplayExamplesOperationFilter : IOperationFilter
             ? baseDesc
             : operation.Description + " " + baseDesc;
 
-        if (operation.Responses != null)
-        {
-            operation.Responses.TryAdd("422", new OpenApiResponse
+        operation.Responses?.TryAdd("422", new OpenApiResponse
             {
                 Description =
                     "Comparison verification failed: regenerated output does not match the stored comparison payload. "
                     + "Problem details may include driftDetected and driftSummary."
             });
-        }
     }
 }

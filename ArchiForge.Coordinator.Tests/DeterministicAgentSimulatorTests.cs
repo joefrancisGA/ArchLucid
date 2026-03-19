@@ -46,7 +46,7 @@ public sealed class DeterministicAgentSimulatorTests
 
         coordination.Success.Should().BeTrue();
 
-        IAgentExecutor simulator = new DeterministicAgentSimulator();
+        DeterministicAgentSimulator simulator = new();
         var evidence = CreateMinimalEvidence(coordination.Run.RunId, request);
 
         var results = await simulator.ExecuteAsync(
@@ -92,7 +92,7 @@ public sealed class DeterministicAgentSimulatorTests
         var coordinator = CreateCoordinator();
         var coordination = coordinator.CreateRun(request);
 
-        IAgentExecutor simulator = new DeterministicAgentSimulator();
+        DeterministicAgentSimulator simulator = new();
         var evidence = CreateMinimalEvidence(coordination.Run.RunId, request);
 
         var results = await simulator.ExecuteAsync(

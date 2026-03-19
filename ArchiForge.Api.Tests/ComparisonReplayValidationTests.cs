@@ -7,13 +7,8 @@ namespace ArchiForge.Api.Tests;
 
 /// <summary>Asserts that invalid comparison replay request body returns 400 with validation errors.</summary>
 [Trait("Category", "Integration")]
-public sealed class ComparisonReplayValidationTests : IntegrationTestBase
+public sealed class ComparisonReplayValidationTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ComparisonReplayValidationTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task ReplayComparison_InvalidFormatAndReplayMode_Returns400WithValidationErrors()
     {

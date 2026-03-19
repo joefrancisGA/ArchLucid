@@ -8,14 +8,9 @@ using ArchiForge.DecisionEngine.Validation;
 
 namespace ArchiForge.DecisionEngine.Services;
 
-public sealed class DecisionEngineService : IDecisionEngineService
+public sealed class DecisionEngineService(ISchemaValidationService schemaValidationService) : IDecisionEngineService
 {
-    private readonly ISchemaValidationService _schemaValidationService;
-
-    public DecisionEngineService(ISchemaValidationService schemaValidationService)
-    {
-        _schemaValidationService = schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
-    }
+    private readonly ISchemaValidationService _schemaValidationService = schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
 
     public DecisionMergeResult MergeResults(
         string runId,
@@ -254,6 +249,7 @@ public sealed class DecisionEngineService : IDecisionEngineService
         string manifestVersion,
         string? parentManifestVersion)
     {
+#pragma warning disable IDE0305 // Simplify collection initialization
         return new GoldenManifest
         {
             RunId = runId,
@@ -264,7 +260,7 @@ public sealed class DecisionEngineService : IDecisionEngineService
             Governance = new ManifestGovernance
             {
                 ComplianceTags = [],
-                PolicyConstraints = [.. request.Constraints],
+                PolicyConstraints = request.Constraints.ToList(),
                 RequiredControls = [],
                 RiskClassification = "Moderate",
                 CostClassification = "Moderate"
@@ -278,6 +274,7 @@ public sealed class DecisionEngineService : IDecisionEngineService
                 CreatedUtc = DateTime.UtcNow
             }
         };
+#pragma warning restore IDE0305 // Simplify collection initialization
     }
 
     private static void MergeAgentResultsIntoManifest(
@@ -382,11 +379,13 @@ public sealed class DecisionEngineService : IDecisionEngineService
             existing.Purpose = incoming.Purpose;
         }
 
+#pragma warning disable IDE0305 // Simplify collection initialization   
         existing.Tags = existing.Tags
             .Union(incoming.Tags ?? [], StringComparer.OrdinalIgnoreCase)
             .ToList();
+#pragma warning restore IDE0305 // Simplify collection initialization
 
-        existing.RequiredControls = [.. existing.RequiredControls.Union(incoming.RequiredControls ?? [], StringComparer.OrdinalIgnoreCase)];
+        existing.RequiredControls = existing.RequiredControls.Union(incoming.RequiredControls ?? [], StringComparer.OrdinalIgnoreCase).ToList();
 
         AddTrace(
             output,
@@ -588,10 +587,12 @@ public sealed class DecisionEngineService : IDecisionEngineService
 
         if (validResults.Any(r => r.AgentType == AgentType.Compliance))
         {
+#pragma warning disable IDE0305 // Simplify collection initialization
             manifest.Governance.ComplianceTags =
                 manifest.Governance.ComplianceTags
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
+#pragma warning restore IDE0305 // Simplify collection initialization
         }
     }
 
@@ -645,17 +646,19 @@ public sealed class DecisionEngineService : IDecisionEngineService
             manifest.RunId,
             "GovernanceControlsApplied",
             "Applied governance required controls to relevant manifest components.",
-            new Dictionary<string, string>());
+            []);
     }
 
     private static void AttachDecisionTraceIds(
         GoldenManifest manifest,
         IReadOnlyCollection<DecisionTrace> traces)
     {
+#pragma warning disable IDE0305 // Simplify collection initialization
         manifest.Metadata.DecisionTraceIds = traces
             .Select(t => t.TraceId)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+#pragma warning restore IDE0305 // Simplify collection initialization
     }
 
     private static void AddTrace(

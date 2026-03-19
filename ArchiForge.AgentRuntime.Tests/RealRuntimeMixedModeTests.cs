@@ -196,13 +196,13 @@ public sealed class RealRuntimeMixedModeTests
             parser,
             traceRecorder);
 
-        var executor = new RealAgentExecutor(new IAgentHandler[]
-        {
+        var executor = new RealAgentExecutor(
+        [
             topologyHandler,
             complianceHandler,
             costHandler,
             criticHandler
-        });
+        ]);
 
         var request = new ArchitectureRequest
         {
