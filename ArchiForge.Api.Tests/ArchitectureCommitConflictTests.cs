@@ -7,6 +7,7 @@ using Xunit;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Category", "Integration")]
 public sealed class ArchitectureCommitConflictTests : IntegrationTestBase
 {
     public ArchitectureCommitConflictTests(ArchiForgeApiFactory factory)

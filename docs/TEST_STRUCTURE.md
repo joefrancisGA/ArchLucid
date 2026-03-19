@@ -8,13 +8,13 @@
 
 ## Categories (optional filtering)
 
-Tests that require the full API or real I/O are tagged with:
+All tests in **ArchiForge.Api.Tests** that extend **IntegrationTestBase** (and thus use `WebApplicationFactory`) are integration tests. They are tagged at class level with:
 
 ```csharp
 [Trait("Category", "Integration")]
 ```
 
-Examples: `ComparisonReplayVerifyDriftIntegrationTests`, `SchemaValidationIntegrationTests` (real-schema tests).
+Use this to filter runs: exclude with `Category!=Integration` for faster feedback, or run only integration tests with `Category=Integration`. Other projects (e.g. **DecisionEngine.Tests**) use the same trait on individual tests that need real I/O (e.g. `SchemaValidationIntegrationTests`).
 
 To run only fast/unit tests (exclude integration):
 

@@ -8,6 +8,7 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Category", "Integration")]
 public sealed class ArchitectureComparisonSearchTests : IntegrationTestBase
 {
     private readonly ArchiForgeApiFactory _factory;

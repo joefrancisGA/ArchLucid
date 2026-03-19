@@ -7,6 +7,7 @@ using System.Text.Json;
 using Xunit;
 using ArchiForge.Api.Tests;
 
+[Trait("Category", "Integration")]
 public class ArchitectureTests : IntegrationTestBase
 {
     private static readonly DecisionEngineService _engine = new(new PassthroughSchemaValidationService());

@@ -7,6 +7,22 @@ namespace ArchiForge.Api.Tests;
 /// <summary>Shared helpers for comparison-replay integration tests (run creation, replay, persist).</summary>
 public static class ComparisonReplayTestFixture
 {
+    /// <summary>Creates a run and executes; returns runId (no commit or replay).</summary>
+    public static async Task<string> CreateRunAndExecuteAsync(
+        HttpClient client,
+        JsonSerializerOptions jsonOptions,
+        string requestId = "REQ-FIXTURE-001")
+    {
+        var createResponse = await client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
+        createResponse.EnsureSuccessStatusCode();
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
+        var runId = created!.Run.RunId;
+        await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        return runId;
+    }
+
     /// <summary>Creates a run, executes, commits, replays; returns (runId, replayRunId).</summary>
     public static async Task<(string RunId, string ReplayRunId)> CreateRunExecuteCommitReplayAsync(
         HttpClient client,

@@ -4,6 +4,7 @@ using Xunit;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Category", "Integration")]
 public sealed class ArchitectureEndToEndCompareRunNotFoundTests : IntegrationTestBase
 {
     public ArchitectureEndToEndCompareRunNotFoundTests(ArchiForgeApiFactory factory)

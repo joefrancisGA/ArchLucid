@@ -7,6 +7,7 @@ using Xunit;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Category", "Integration")]
 public sealed class ArchitectureEndToEndComparisonExportTests : IntegrationTestBase
 {
     public ArchitectureEndToEndComparisonExportTests(ArchiForgeApiFactory factory)

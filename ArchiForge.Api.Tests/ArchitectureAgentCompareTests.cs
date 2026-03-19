@@ -5,6 +5,7 @@ using Xunit;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Category", "Integration")]
 public sealed class ArchitectureAgentCompareTests : IntegrationTestBase
 {
     public ArchitectureAgentCompareTests(ArchiForgeApiFactory factory)

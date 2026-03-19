@@ -5,6 +5,7 @@ using Xunit;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Category", "Integration")]
 public sealed class ArchitectureReplayTests : IntegrationTestBase
 {
     public ArchitectureReplayTests(ArchiForgeApiFactory factory)
@@ -15,17 +16,7 @@ public sealed class ArchitectureReplayTests : IntegrationTestBase
     [Fact]
     public async Task ReplayRun_ReexecutesPriorRun()
     {
-        var createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-REPLAY-001")));
-
-        createResponse.EnsureSuccessStatusCode();
-
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
-
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        executeResponse.EnsureSuccessStatusCode();
+        var runId = await ComparisonReplayTestFixture.CreateRunAndExecuteAsync(Client, JsonOptions, "REQ-REPLAY-001");
 
         var replayRequest = new
         {

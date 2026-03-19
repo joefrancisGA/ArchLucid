@@ -6,6 +6,7 @@ using Xunit;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Category", "Integration")]
 public sealed class ArchitectureControllerTests : IntegrationTestBase
 {
     public ArchitectureControllerTests(ArchiForgeApiFactory factory)

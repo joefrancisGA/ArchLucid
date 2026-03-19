@@ -60,7 +60,15 @@ In Development:
 - **Swagger UI**: `/swagger`
 - **Health check**: `GET /health` — includes a database check; returns 200 when healthy and 503 (Unhealthy) when the DB check fails. Use for load balancers and runbooks.
 
-Rate limiting is applied to `/v1/architecture/*` endpoints. Defaults: 100 requests per minute per client. Override in `appsettings.json` under `RateLimiting:FixedWindow` (`PermitLimit`, `WindowMinutes`, `QueueLimit`) or via configuration/environment variables.
+**Rate limiting:** Applied to `/v1/architecture/*` endpoints. When a policy limit is exceeded, the API returns **429 Too Many Requests**.
+
+| Policy     | Use case              | Default limit (per client/window) | Config keys |
+|-----------|------------------------|-----------------------------------|-------------|
+| `fixed`   | General endpoints     | 100/min                           | `RateLimiting:FixedWindow:PermitLimit`, `WindowMinutes`, `QueueLimit` |
+| `expensive` | Execute, commit, replay | 20/min                         | `RateLimiting:Expensive:*` |
+| `replay`  | Comparison replay     | Light (markdown/html) 60/min; heavy (docx/pdf) 15/min | `RateLimiting:Replay:Light:*`, `RateLimiting:Replay:Heavy:*` |
+
+Override in `appsettings.json` or via environment variables.
 
 ## Running Tests
 
