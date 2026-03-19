@@ -83,13 +83,13 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
 
     private sealed class AgentTaskRow
     {
-        public string TaskId { get; set; } = string.Empty;
-        public string RunId { get; set; } = string.Empty;
-        public string AgentType { get; set; } = string.Empty;
-        public string Objective { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public DateTime CreatedUtc { get; set; }
-        public DateTime? CompletedUtc { get; set; }
-        public string? EvidenceBundleRef { get; set; }
+        public string TaskId { get; init; } = string.Empty;
+        public string RunId { get; init; } = string.Empty;
+        public string AgentType { get; init; } = string.Empty;
+        public string Objective { get; init; } = string.Empty;
+        public string Status { get; init; } = string.Empty;
+        public DateTime CreatedUtc { get; init; }
+        public DateTime? CompletedUtc { get; init; }
+        public string? EvidenceBundleRef { get; init; }
     }
 }

@@ -9,7 +9,7 @@ public sealed class ArchitectureComparisonAuditTests(ArchiForgeApiFactory factor
 {
     private sealed class ReplayRunResponseDto
     {
-        public string ReplayRunId { get; set; } = string.Empty;
+        public string ReplayRunId { get; init; } = string.Empty;
     }
 
     [Fact]

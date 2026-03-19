@@ -126,14 +126,14 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
 
     private sealed class ArchitectureRunRow
     {
-        public string RunId { get; set; } = string.Empty;
-        public string RequestId { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public DateTime CreatedUtc { get; set; }
-        public DateTime? CompletedUtc { get; set; }
-        public string? CurrentManifestVersion { get; set; }
-        public string? ContextSnapshotId { get; set; }
-        public Guid? GraphSnapshotId { get; set; }
+        public string RunId { get; init; } = string.Empty;
+        public string RequestId { get; init; } = string.Empty;
+        public string Status { get; init; } = string.Empty;
+        public DateTime CreatedUtc { get; init; }
+        public DateTime? CompletedUtc { get; init; }
+        public string? CurrentManifestVersion { get; init; }
+        public string? ContextSnapshotId { get; init; }
+        public Guid? GraphSnapshotId { get; init; }
     }
 
     public async Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(
@@ -176,12 +176,12 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
 
     private sealed class ArchitectureRunListItemRow
     {
-        public string RunId { get; set; } = string.Empty;
-        public string RequestId { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public DateTime CreatedUtc { get; set; }
-        public DateTime? CompletedUtc { get; set; }
-        public string? CurrentManifestVersion { get; set; }
-        public string SystemName { get; set; } = string.Empty;
+        public string RunId { get; init; } = string.Empty;
+        public string RequestId { get; init; } = string.Empty;
+        public string Status { get; init; } = string.Empty;
+        public DateTime CreatedUtc { get; init; }
+        public DateTime? CompletedUtc { get; init; }
+        public string? CurrentManifestVersion { get; init; }
+        public string SystemName { get; init; } = string.Empty;
     }
 }

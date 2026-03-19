@@ -12,7 +12,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         IReadOnlyCollection<AgentEvaluation> evaluations,
         CancellationToken cancellationToken = default)
     {
-        if (evaluations is null || evaluations.Count == 0)
+        if (evaluations.Count == 0)
         {
             return;
         }
