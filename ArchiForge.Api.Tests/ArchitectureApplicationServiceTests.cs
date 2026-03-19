@@ -160,8 +160,8 @@ public sealed class ArchitectureApplicationServiceTests
     public async Task SubmitAgentResultAsync_WhenRunExists_StoresResultAndUpdatesStatus()
     {
         var run = ValidRun();
-        var result = ValidResult("run-1");
-        var tasks = new List<AgentTask> { ValidTask("run-1", AgentType.Topology) };
+        var result = ValidResult();
+        var tasks = new List<AgentTask> { ValidTask() };
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
         _taskRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(tasks);
@@ -207,7 +207,7 @@ public sealed class ArchitectureApplicationServiceTests
         result.TaskId = "task-compliance";
         var tasks = new List<AgentTask>
         {
-            ValidTask("run-1", AgentType.Topology),
+            ValidTask(),
             ValidTask("run-1", AgentType.Cost),
             ValidTask("run-1", AgentType.Compliance)
         };
@@ -216,7 +216,7 @@ public sealed class ArchitectureApplicationServiceTests
         tasks[2].TaskId = "task-compliance";
         var existingResults = new List<AgentResult>
         {
-            ValidResult("run-1", AgentType.Topology),
+            ValidResult(),
             ValidResult("run-1", AgentType.Cost)
         };
         existingResults[0].TaskId = "task-topology";
@@ -238,21 +238,21 @@ public sealed class ArchitectureApplicationServiceTests
     public async Task SubmitAgentResultAsync_WhenThreeResultsButSameAgentType_StaysWaitingForResults()
     {
         var run = ValidRun();
-        var result = ValidResult("run-1", AgentType.Topology);
+        var result = ValidResult();
         result.TaskId = "task-topology-3";
         var tasks = new List<AgentTask>
         {
-            ValidTask("run-1", AgentType.Topology),
-            ValidTask("run-1", AgentType.Topology),
-            ValidTask("run-1", AgentType.Topology)
+            ValidTask(),
+            ValidTask(),
+            ValidTask()
         };
         tasks[0].TaskId = "task-topology-1";
         tasks[1].TaskId = "task-topology-2";
         tasks[2].TaskId = "task-topology-3";
         var existingResults = new List<AgentResult>
         {
-            ValidResult("run-1", AgentType.Topology),
-            ValidResult("run-1", AgentType.Topology)
+            ValidResult(),
+            ValidResult()
         };
         existingResults[0].TaskId = "task-topology-1";
         existingResults[1].TaskId = "task-topology-2";
@@ -288,7 +288,7 @@ public sealed class ArchitectureApplicationServiceTests
     {
         var run = ValidRun();
         run.Status = ArchitectureRunStatus.ReadyForCommit;
-        var result = ValidResult("run-1");
+        var result = ValidResult();
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
 
@@ -303,7 +303,7 @@ public sealed class ArchitectureApplicationServiceTests
     [Fact]
     public async Task SubmitAgentResultAsync_WhenRunIdMismatch_ReturnsError()
     {
-        var run = ValidRun("run-1");
+        var run = ValidRun();
         var result = ValidResult("run-2");
         result.RunId = "run-2";
 
@@ -319,10 +319,10 @@ public sealed class ArchitectureApplicationServiceTests
     [Fact]
     public async Task SubmitAgentResultAsync_WhenRunIdMatchIsCaseInsensitive_AcceptsResult()
     {
-        var run = ValidRun("run-1");
-        var result = ValidResult("run-1");
+        var run = ValidRun();
+        var result = ValidResult();
         result.RunId = "RUN-1";
-        var tasks = new List<AgentTask> { ValidTask("run-1", AgentType.Topology) };
+        var tasks = new List<AgentTask> { ValidTask() };
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
         _taskRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(tasks);
@@ -340,8 +340,8 @@ public sealed class ArchitectureApplicationServiceTests
     public async Task SubmitAgentResultAsync_WhenResultForTaskAlreadySubmitted_ReturnsError()
     {
         var run = ValidRun();
-        var result = ValidResult("run-1");
-        var tasks = new List<AgentTask> { ValidTask("run-1", AgentType.Topology) };
+        var result = ValidResult();
+        var tasks = new List<AgentTask> { ValidTask() };
         var existingResults = new List<AgentResult> { result };
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
@@ -359,9 +359,9 @@ public sealed class ArchitectureApplicationServiceTests
     public async Task SubmitAgentResultAsync_WhenTaskNotFoundForRun_ReturnsError()
     {
         var run = ValidRun();
-        var result = ValidResult("run-1");
+        var result = ValidResult();
         result.TaskId = "nonexistent-task";
-        var tasks = new List<AgentTask> { ValidTask("run-1", AgentType.Topology) };
+        var tasks = new List<AgentTask> { ValidTask() };
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
         _taskRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(tasks);
@@ -380,7 +380,7 @@ public sealed class ArchitectureApplicationServiceTests
         var run = ValidRun();
         var result = ValidResult("run-1", AgentType.Cost);
         result.TaskId = "task-1";
-        var tasks = new List<AgentTask> { ValidTask("run-1", AgentType.Topology) };
+        var tasks = new List<AgentTask> { ValidTask() };
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
         _taskRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(tasks);

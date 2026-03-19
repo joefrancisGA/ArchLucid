@@ -26,8 +26,6 @@ public sealed class ComparisonReplayService(
     IRunExportRecordRepository runExportRecordRepository)
     : IComparisonReplayService
 {
-    private readonly IEndToEndReplayComparisonSummaryFormatter _endToEndSummaryFormatter = endToEndSummaryFormatter;
-
     /// <summary>
     /// Replay a comparison record by ID and return an export payload (text or binary).
     /// </summary>
@@ -155,7 +153,7 @@ public sealed class ComparisonReplayService(
                 if (driftE2E.DriftDetected)
                 {
                     throw new ComparisonVerificationFailedException(
-                        driftE2E.Summary ?? "Comparison verification failed: regenerated end-to-end comparison does not match stored payload.",
+                        driftE2E.Summary,
                         driftE2E);
                 }
                 break;
@@ -292,7 +290,7 @@ public sealed class ComparisonReplayService(
                 if (driftExport.DriftDetected)
                 {
                     throw new ComparisonVerificationFailedException(
-                        driftExport.Summary ?? "Comparison verification failed: regenerated export diff does not match stored payload.",
+                        driftExport.Summary,
                         driftExport);
                 }
                 break;

@@ -179,7 +179,7 @@ internal static class ConsultingDocxOpenXmlComposer
         AddHeading(body, "Document Control", 1);
 
         AddStyledParagraph(body, "This document was generated from the ArchiForge analysis pipeline.", "BodyText");
-        AddSpacer(body, 1);
+        AddSpacer(body);
 
         AddKeyValueTable(body, [
             ("Document Type", "Architecture Analysis Report"),
@@ -196,7 +196,7 @@ internal static class ConsultingDocxOpenXmlComposer
     {
         AddHeading(body, "Table of Contents", 1);
         AddStyledParagraph(body, "Update fields in Word to refresh the table of contents.", "Subtle");
-        AddSpacer(body, 1);
+        AddSpacer(body);
 
         foreach (var item in new[]
                  {
@@ -360,7 +360,7 @@ internal static class ConsultingDocxOpenXmlComposer
                     AddBullet(body, $"Required Controls: {string.Join(", ", service.RequiredControls)}");
                 }
 
-                AddSpacer(body, 1);
+                AddSpacer(body);
             }
         }
 
@@ -375,7 +375,7 @@ internal static class ConsultingDocxOpenXmlComposer
                 AddBullet(body, $"Platform: {datastore.RuntimePlatform}");
                 AddBullet(body, $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
                 AddBullet(body, $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
-                AddSpacer(body, 1);
+                AddSpacer(body);
             }
         }
     }
@@ -434,7 +434,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
         if (report.Determinism is not null)
         {
-            AddSpacer(body, 1);
+            AddSpacer(body);
             AddStyledParagraph(body, "Determinism Snapshot", "Strong");
             AddBullet(body, $"Iterations: {report.Determinism.Iterations}");
             AddBullet(body, $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
@@ -442,7 +442,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
         if (report.ManifestDiff is not null || report.AgentResultDiff is not null)
         {
-            AddSpacer(body, 1);
+            AddSpacer(body);
             AddCallout(body, "Comparison artifacts were included in this report. See Appendix C for detail.", options);
         }
     }
@@ -458,7 +458,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
         if (report.Warnings.Count > 0)
         {
-            AddSpacer(body, 1);
+            AddSpacer(body);
             AddCallout(body, "Open warnings remain and should be resolved or explicitly accepted.", options);
         }
     }
@@ -517,7 +517,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
             if (report.ManifestDiff is not null)
             {
-                AddSpacer(body, 1);
+                AddSpacer(body);
                 AddStyledParagraph(body, "Manifest Diff", "Strong");
                 AddBullet(body, $"Added Services: {report.ManifestDiff.AddedServices.Count}");
                 AddBullet(body, $"Removed Services: {report.ManifestDiff.RemovedServices.Count}");
@@ -527,7 +527,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
             if (report.AgentResultDiff is not null)
             {
-                AddSpacer(body, 1);
+                AddSpacer(body);
                 AddStyledParagraph(body, "Agent Result Diff", "Strong");
                 AddBullet(body, $"Agent Delta Count: {report.AgentResultDiff.AgentDeltas.Count}");
             }
@@ -704,7 +704,7 @@ internal static class ConsultingDocxOpenXmlComposer
         }
 
         body.Append(table);
-        AddSpacer(body, 1);
+        AddSpacer(body);
     }
 
     private static WpTableCell BuildCell(string text, bool bold, string width)
