@@ -652,7 +652,7 @@ namespace ArchiForge
 
                 if (exitCode != 0)
                 {
-                    Console.WriteLine($"Error: Failed to start containers.");
+                    Console.WriteLine("Error: Failed to start containers.");
                     if (!string.IsNullOrEmpty(error)) Console.WriteLine(error);
                     if (!string.IsNullOrEmpty(output)) Console.WriteLine(output);
                     return 1;

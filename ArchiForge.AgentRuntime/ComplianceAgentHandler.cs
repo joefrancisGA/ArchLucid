@@ -172,7 +172,7 @@ Important guidance:
 
         sb.AppendLine($"RunId: {runId}");
         sb.AppendLine($"TaskId: {task.TaskId}");
-        sb.AppendLine($"AgentType: Compliance");
+        sb.AppendLine("AgentType: Compliance");
         sb.AppendLine();
 
         sb.AppendLine("Architecture Request");

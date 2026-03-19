@@ -171,7 +171,7 @@ Important review themes:
 
         sb.AppendLine($"RunId: {runId}");
         sb.AppendLine($"TaskId: {task.TaskId}");
-        sb.AppendLine($"AgentType: Critic");
+        sb.AppendLine("AgentType: Critic");
         sb.AppendLine();
 
         sb.AppendLine("Architecture Request");
