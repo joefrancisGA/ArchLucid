@@ -42,7 +42,7 @@ public sealed class ArchitectureCompareExportTests(ArchiForgeApiFactory factory)
 
         var payload = await response.Content.ReadFromJsonAsync<ManifestCompareExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Format.Should().Be("markdown");
+        payload.Format.Should().Be("markdown");
         payload.Content.Should().Contain("# ArchiForge Manifest Comparison Export");
         payload.Content.Should().Contain(leftVersion);
         payload.Content.Should().Contain("v1-replay");

@@ -21,7 +21,7 @@ public sealed class ArchitectureEndToEndComparisonTests(ArchiForgeApiFactory fac
 
         var payload = await response.Content.ReadFromJsonAsync<EndToEndReplayComparisonSummaryResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Summary.Should().Contain("# End-to-End Replay Comparison:");
+        payload.Summary.Should().Contain("# End-to-End Replay Comparison:");
     }
 }
 

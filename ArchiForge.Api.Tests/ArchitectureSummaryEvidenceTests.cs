@@ -35,7 +35,7 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchiForgeApiFactory factor
 
         var summaryPayload = await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
-        summaryPayload!.Summary.Should().Contain("## Evidence Context");
+        summaryPayload.Summary.Should().Contain("## Evidence Context");
         summaryPayload.Summary.Should().Contain("### Policy Evidence");
         summaryPayload.Summary.Should().Contain("### Service Catalog Hints");
         summaryPayload.Summary.Should().Contain("Managed Identity");

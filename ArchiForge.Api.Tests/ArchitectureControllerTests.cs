@@ -18,7 +18,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
 
         var payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Run.Should().NotBeNull();
+        payload.Run.Should().NotBeNull();
         payload.Run.RunId.Should().NotBeNullOrWhiteSpace();
         payload.Run.RequestId.Should().Be("REQ-API-001");
         payload.Tasks.Should().HaveCount(4);
@@ -42,7 +42,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
         var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
 
-        var runId = created!.Run.RunId;
+        var runId = created.Run.RunId;
 
         var getResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
 
@@ -50,7 +50,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
 
         var payload = await getResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Run.RunId.Should().Be(runId);
+        payload.Run.RunId.Should().Be(runId);
         payload.Tasks.Should().HaveCount(4);
         payload.Results.Should().BeEmpty();
     }
@@ -76,7 +76,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
 
         var executePayload = await executeResponse.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);
         executePayload.Should().NotBeNull();
-        executePayload!.RunId.Should().Be(runId);
+        executePayload.RunId.Should().Be(runId);
         executePayload.Results.Should().HaveCount(4);
 
         var getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
@@ -107,7 +107,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
 
         var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
-        commitPayload!.Manifest.Should().NotBeNull();
+        commitPayload.Manifest.Should().NotBeNull();
         commitPayload.Manifest.RunId.Should().Be(runId);
         commitPayload.Manifest.SystemName.Should().Be("EnterpriseRag");
         commitPayload.Manifest.Services.Should().NotBeEmpty();
@@ -128,14 +128,14 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
 
         var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
-        var runId = created!.Run.RunId;
+        var runId = created.Run.RunId;
 
         var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
 
         executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var executePayload = await executeResponse.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);
         executePayload.Should().NotBeNull();
-        executePayload!.RunId.Should().Be(runId);
+        executePayload.RunId.Should().Be(runId);
         executePayload.Results.Should().HaveCount(4);
     }
 
@@ -151,7 +151,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
         var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
 
-        var runId = created!.Run.RunId;
+        var runId = created.Run.RunId;
         runId.Should().NotBeNullOrWhiteSpace();
 
         var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -163,7 +163,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
         var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
 
-        var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        var manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().Be("v1");
 
         var manifestResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}");
@@ -171,7 +171,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
 
         var manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
         manifestPayload.Should().NotBeNull();
-        manifestPayload!.SystemName.Should().Be("EnterpriseRag");
+        manifestPayload.SystemName.Should().Be("EnterpriseRag");
         manifestPayload.Services.Should().NotBeEmpty();
         manifestPayload.Datastores.Should().NotBeEmpty();
         manifestPayload.Governance.RequiredControls.Should().NotBeEmpty();
@@ -190,7 +190,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
         var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
 
-        var runId = created!.Run.RunId;
+        var runId = created.Run.RunId;
         runId.Should().NotBeNullOrWhiteSpace();
 
         var getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
@@ -208,7 +208,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
         var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
 
-        var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        var manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().Be("v1");
 
         var manifestResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}");
@@ -216,7 +216,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
 
         var manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
         manifestPayload.Should().NotBeNull();
-        manifestPayload!.SystemName.Should().Be("EnterpriseRag");
+        manifestPayload.SystemName.Should().Be("EnterpriseRag");
         manifestPayload.Services.Should().Contain(s => s.ServiceName == "rag-api");
         manifestPayload.Services.Should().Contain(s => s.ServiceName == "rag-search");
         manifestPayload.Datastores.Should().Contain(d => d.DatastoreName == "rag-metadata");

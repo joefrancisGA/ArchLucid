@@ -81,7 +81,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchiForgeApiFactory facto
 
         var history = await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
         history.Should().NotBeNull();
-        history!.Exports.Should().HaveCountGreaterThanOrEqualTo(2);
+        history.Exports.Should().HaveCountGreaterThanOrEqualTo(2);
 
         var leftId = history.Exports[0].ExportRecordId;
         var rightId = history.Exports[1].ExportRecordId;
@@ -93,7 +93,7 @@ public sealed class ArchitectureExportRecordDiffTests(ArchiForgeApiFactory facto
 
         var payload = await compareResponse.Content.ReadFromJsonAsync<ExportRecordDiffResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Diff.ChangedTopLevelFields.Should().NotBeEmpty();
+        payload.Diff.ChangedTopLevelFields.Should().NotBeEmpty();
     }
 }
 

@@ -57,7 +57,7 @@ public sealed class ArchitectureExportAuditTests(ArchiForgeApiFactory factory) :
 
         var payload = await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Exports.Should().NotBeEmpty();
+        payload.Exports.Should().NotBeEmpty();
 
         var export = payload.Exports.First();
         export.RunId.Should().Be(runId);

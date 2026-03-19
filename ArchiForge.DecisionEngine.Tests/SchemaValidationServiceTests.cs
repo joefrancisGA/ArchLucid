@@ -133,7 +133,7 @@ public sealed class SchemaValidationServiceTests
     {
         var service = CreateService();
         var cts = new CancellationTokenSource();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         var action = async () => await service.ValidateAgentResultJsonAsync(
             "{\"test\": \"value\"}",

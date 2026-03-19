@@ -37,7 +37,7 @@ public sealed class ArchitectureDeterminismTests(ArchiForgeApiFactory factory) :
 
         var payload = await response.Content.ReadFromJsonAsync<DeterminismCheckResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Result.SourceRunId.Should().Be(runId);
+        payload.Result.SourceRunId.Should().Be(runId);
         payload.Result.Iterations.Should().Be(3);
         payload.Result.IterationResults.Should().HaveCount(3);
     }

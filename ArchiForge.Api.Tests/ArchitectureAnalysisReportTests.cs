@@ -48,7 +48,7 @@ public sealed class ArchitectureAnalysisReportTests(ArchiForgeApiFactory factory
 
         var payload = await response.Content.ReadFromJsonAsync<ArchitectureAnalysisReportResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Report.Run.RunId.Should().Be(runId);
+        payload.Report.Run.RunId.Should().Be(runId);
         payload.Report.Evidence.Should().NotBeNull();
         payload.Report.ExecutionTraces.Should().NotBeEmpty();
         payload.Report.Manifest.Should().NotBeNull();

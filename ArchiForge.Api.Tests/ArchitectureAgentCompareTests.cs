@@ -44,7 +44,7 @@ public sealed class ArchitectureAgentCompareTests(ArchiForgeApiFactory factory) 
 
         var payload = await compareResponse.Content.ReadFromJsonAsync<AgentResultCompareSummaryResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Format.Should().Be("markdown");
+        payload.Format.Should().Be("markdown");
         payload.Summary.Should().Contain("# Agent Result Comparison");
         payload.Diff.LeftRunId.Should().Be(runId);
         payload.Diff.RightRunId.Should().Be(replayRunId);

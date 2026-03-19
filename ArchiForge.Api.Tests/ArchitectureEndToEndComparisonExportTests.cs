@@ -23,7 +23,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchiForgeApiFacto
 
         var payload = await response.Content.ReadFromJsonAsync<EndToEndReplayComparisonExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Format.Should().Be("markdown");
+        payload.Format.Should().Be("markdown");
         payload.Content.Should().Contain("# ArchiForge End-to-End Replay Comparison Export");
     }
 

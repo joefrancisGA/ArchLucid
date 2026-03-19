@@ -756,7 +756,7 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var briefContent = File.ReadAllText(briefPath).Trim();
+            var briefContent = (await File.ReadAllTextAsync(briefPath)).Trim();
             if (briefContent.Length < 10)
             {
                 Console.WriteLine("Error: Brief must be at least 10 characters (API requirement).");
@@ -818,7 +818,7 @@ namespace ArchiForge.Cli
                     Console.WriteLine($"Error: Commit failed. {commitResult?.Error ?? "Unknown"}");
                     return 1;
                 }
-                var version = commitResult.Response?.Manifest?.Metadata?.ManifestVersion ?? "unknown";
+                var version = commitResult.Response?.Manifest.Metadata.ManifestVersion ?? "unknown";
                 Console.WriteLine($"Committed. Manifest version: {version}");
                 WriteRunSummary(summaryPath, baseUrl, resp.Run.RunId, resp.Run.RequestId, resp.Run.Status, resp.Run.CreatedUtc, resp.Tasks, version);
                 Console.WriteLine($"Use 'archiforge artifacts {resp.Run.RunId}' to view the manifest.");
@@ -896,7 +896,7 @@ namespace ArchiForge.Cli
             AgentResult result;
             try
             {
-                var json = File.ReadAllText(resultFilePath);
+                var json = await File.ReadAllTextAsync(resultFilePath);
                 result = System.Text.Json.JsonSerializer.Deserialize<AgentResult>(json, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
@@ -938,8 +938,8 @@ namespace ArchiForge.Cli
             }
 
             var resp = result.Response!;
-            var version = resp.Manifest?.Metadata?.ManifestVersion ?? "unknown";
-            Console.WriteLine($"Committed: {resp.Manifest?.SystemName ?? runId}");
+            var version = resp.Manifest.Metadata.ManifestVersion;
+            Console.WriteLine($"Committed: {resp.Manifest.SystemName ?? runId}");
             Console.WriteLine($"Manifest version: {version}");
             if (resp.Warnings.Count > 0)
             {
@@ -1016,7 +1016,7 @@ namespace ArchiForge.Cli
                     Directory.CreateDirectory(outputsDir);
                     var fileName = $"manifest-{version}.json";
                     var filePath = Path.Combine(outputsDir, fileName);
-                    File.WriteAllText(filePath, json);
+                    await File.WriteAllTextAsync(filePath, json);
                     Console.WriteLine($"Saved to {filePath}");
                     Console.WriteLine($"URI: {baseUrl}/v1/architecture/manifest/{version}");
                 }

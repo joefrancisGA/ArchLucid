@@ -42,7 +42,7 @@ public sealed class ArchitectureCompareSummaryTests(ArchiForgeApiFactory factory
 
         var payload = await response.Content.ReadFromJsonAsync<ManifestCompareSummaryResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Format.Should().Be("markdown");
+        payload.Format.Should().Be("markdown");
         payload.Summary.Should().Contain("# Manifest Comparison");
         payload.Diff.LeftManifestVersion.Should().Be(leftVersion);
         payload.Diff.RightManifestVersion.Should().Be("v1-replay");

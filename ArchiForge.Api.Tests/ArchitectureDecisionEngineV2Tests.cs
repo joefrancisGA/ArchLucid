@@ -30,7 +30,7 @@ public sealed class ArchitectureDecisionEngineV2Tests(ArchiForgeApiFactory facto
 
         var payload = await decisionsResponse.Content.ReadFromJsonAsync<DecisionNodeResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Decisions.Should().NotBeEmpty();
+        payload.Decisions.Should().NotBeEmpty();
         payload.Decisions.Should().Contain(d => d.Topic == "TopologyAcceptance");
         payload.Decisions.Should().Contain(d => d.Topic == "SecurityControlPromotion");
         payload.Decisions.Should().Contain(d => d.Topic == "ComplexityDisposition");

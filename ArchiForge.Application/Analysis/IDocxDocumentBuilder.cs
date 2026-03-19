@@ -7,7 +7,7 @@ namespace ArchiForge.Application.Analysis;
 public interface IDocxDocumentBuilder
 {
     [UsedImplicitly] Body Body { get; }
-    MainDocumentPart MainPart { get; }
+    [UsedImplicitly] MainDocumentPart MainPart { get; }
 
     [UsedImplicitly]
     void AddHeading(string text, int level);

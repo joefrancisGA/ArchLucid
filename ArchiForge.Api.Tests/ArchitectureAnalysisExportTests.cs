@@ -47,7 +47,7 @@ public sealed class ArchitectureAnalysisExportTests(ArchiForgeApiFactory factory
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var payload = await response.Content.ReadFromJsonAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.RunId.Should().Be(runId);
+        payload.RunId.Should().Be(runId);
         payload.Format.Should().Be("markdown");
         payload.FileName.Should().Be($"analysis_{runId}.md");
         payload.Content.Should().NotBeNullOrWhiteSpace();

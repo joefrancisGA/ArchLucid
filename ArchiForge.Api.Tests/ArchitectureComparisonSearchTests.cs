@@ -44,13 +44,13 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
             "/v1/architecture/comparisons?comparisonType=end-to-end-replay&limit=2&skip=0",
             JsonOptions);
         page1.Should().NotBeNull();
-        page1!.Records.Should().HaveCount(2);
+        page1.Records.Should().HaveCount(2);
 
         var page2 = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?comparisonType=end-to-end-replay&limit=2&skip=2",
             JsonOptions);
         page2.Should().NotBeNull();
-        page2!.Records.Should().HaveCount(2);
+        page2.Records.Should().HaveCount(2);
 
         page1.Records.Select(r => r.ComparisonRecordId)
             .Intersect(page2.Records.Select(r => r.ComparisonRecordId))
@@ -61,7 +61,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
             "/v1/architecture/comparisons?comparisonType=end-to-end-replay&limit=6&skip=0&sortDir=asc",
             JsonOptions);
         asc.Should().NotBeNull();
-        asc!.Records.Should().HaveCount(6);
+        asc.Records.Should().HaveCount(6);
         asc.Records.First().ComparisonRecordId.Should().Be(ids[0]);
     }
 
@@ -153,13 +153,13 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
             "/v1/architecture/comparisons?label=incident-42&limit=50",
             JsonOptions);
         byLabel.Should().NotBeNull();
-        byLabel!.Records.Should().Contain(r => r.Label == "incident-42");
+        byLabel.Records.Should().Contain(r => r.Label == "incident-42");
 
         var byTags = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?tags=incident,urgent&limit=50",
             JsonOptions);
         byTags.Should().NotBeNull();
-        byTags!.Records.Should().Contain(r => r.Label == "incident-42");
+        byTags.Records.Should().Contain(r => r.Label == "incident-42");
     }
 }
 

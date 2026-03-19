@@ -35,7 +35,7 @@ public sealed class ArchitectureSummaryTests(ArchiForgeApiFactory factory) : Int
 
         var summaryPayload = await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
-        summaryPayload!.Format.Should().Be("markdown");
+        summaryPayload.Format.Should().Be("markdown");
         summaryPayload.Content.Should().Contain("# Architecture Summary: EnterpriseRag");
         summaryPayload.Content.Should().Contain("## Services");
         summaryPayload.Content.Should().Contain("rag-api");

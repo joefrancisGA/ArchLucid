@@ -29,26 +29,17 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             return output;
         }
 
-        if (request is null)
-        {
-            output.Errors.Add("Architecture request is required.");
-            return output;
-        }
-
         if (string.IsNullOrWhiteSpace(manifestVersion))
         {
             output.Errors.Add("Manifest version is required.");
             return output;
         }
 
-        if (results is null || results.Count == 0)
+        if (results.Count == 0)
         {
             output.Errors.Add("At least one agent result is required.");
             return output;
         }
-
-        evaluations ??= [];
-        decisionNodes ??= [];
 
         var validResults = ValidateAndFilterResults(results, output);
 
@@ -62,12 +53,11 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             var resultJson = SchemaValidationSerializer.Serialize(result);
             var schemaValidation = _schemaValidationService.ValidateAgentResultJson(resultJson);
 
-            if (!schemaValidation.IsValid)
+            if (schemaValidation.IsValid) continue;
+
+            foreach (var error in schemaValidation.Errors)
             {
-                foreach (var error in schemaValidation.Errors)
-                {
-                    output.Errors.Add($"AgentResult {result.ResultId}: {error}");
-                }
+                output.Errors.Add($"AgentResult {result.ResultId}: {error}");
             }
         }
 
@@ -168,7 +158,8 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
         var complexityDecision = decisionNodes.FirstOrDefault(d =>
             string.Equals(d.Topic, "ComplexityDisposition", StringComparison.OrdinalIgnoreCase));
-        if (complexityDecision is not null)
+        if (complexityDecision is null) return;
+
         {
             var selected = complexityDecision.Options.FirstOrDefault(o => o.OptionId == complexityDecision.SelectedOptionId);
             if (selected is not null &&
@@ -216,12 +207,6 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
     {
         var errors = new List<string>();
 
-        if (result is null)
-        {
-            errors.Add("Result is null.");
-            return errors;
-        }
-
         if (string.IsNullOrWhiteSpace(result.ResultId))
             errors.Add("ResultId is required.");
 
@@ -230,12 +215,6 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
         if (string.IsNullOrWhiteSpace(result.RunId))
             errors.Add("RunId is required.");
-
-        if (result.Claims is null)
-            errors.Add("Claims collection is required.");
-
-        if (result.EvidenceRefs is null)
-            errors.Add("EvidenceRefs collection is required.");
 
         if (result.Confidence < 0.0 || result.Confidence > 1.0)
             errors.Add("Confidence must be between 0 and 1.");
@@ -335,7 +314,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         DecisionMergeResult output,
         AgentType agentType)
     {
-        foreach (var service in services ?? [])
+        foreach (var service in services)
         {
             if (string.IsNullOrWhiteSpace(service.ServiceName))
             {
@@ -381,11 +360,11 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
 #pragma warning disable IDE0305 // Simplify collection initialization   
         existing.Tags = existing.Tags
-            .Union(incoming.Tags ?? [], StringComparer.OrdinalIgnoreCase)
+            .Union(incoming.Tags, StringComparer.OrdinalIgnoreCase)
             .ToList();
 #pragma warning restore IDE0305 // Simplify collection initialization
 
-        existing.RequiredControls = existing.RequiredControls.Union(incoming.RequiredControls ?? [], StringComparer.OrdinalIgnoreCase).ToList();
+        existing.RequiredControls = existing.RequiredControls.Union(incoming.RequiredControls, StringComparer.OrdinalIgnoreCase).ToList();
 
         AddTrace(
             output,
@@ -405,7 +384,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         DecisionMergeResult output,
         AgentType agentType)
     {
-        foreach (var datastore in datastores ?? [])
+        foreach (var datastore in datastores)
         {
             if (string.IsNullOrWhiteSpace(datastore.DatastoreName))
             {
@@ -461,7 +440,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         DecisionMergeResult output,
         AgentType agentType)
     {
-        foreach (var relationship in relationships ?? [])
+        foreach (var relationship in relationships)
         {
             var duplicate = manifest.Relationships.Any(r =>
                 r.SourceId.Equals(relationship.SourceId, StringComparison.OrdinalIgnoreCase) &&
@@ -496,7 +475,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         DecisionMergeResult output,
         AgentType agentType)
     {
-        foreach (var control in controls ?? [])
+        foreach (var control in controls)
         {
             if (string.IsNullOrWhiteSpace(control))
                 continue;
@@ -527,7 +506,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         IReadOnlyCollection<string> warnings,
         AgentType agentType)
     {
-        foreach (var warning in warnings ?? [])
+        foreach (var warning in warnings)
         {
             if (string.IsNullOrWhiteSpace(warning))
                 continue;
@@ -541,7 +520,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         AgentResult result,
         DecisionMergeResult output)
     {
-        foreach (var finding in result.Findings ?? [])
+        foreach (var finding in result.Findings)
         {
             if (string.Equals(finding.Category, "Compliance", StringComparison.OrdinalIgnoreCase) &&
                 !string.IsNullOrWhiteSpace(finding.Message))
@@ -631,13 +610,12 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
                 }
             }
 
-            if (control.Equals("Private Endpoints", StringComparison.OrdinalIgnoreCase) ||
-                control.Equals("Private Networking", StringComparison.OrdinalIgnoreCase))
+            if (!control.Equals("Private Endpoints", StringComparison.OrdinalIgnoreCase) &&
+                !control.Equals("Private Networking", StringComparison.OrdinalIgnoreCase)) continue;
+
+            foreach (var datastore in manifest.Datastores)
             {
-                foreach (var datastore in manifest.Datastores)
-                {
-                    datastore.PrivateEndpointRequired = true;
-                }
+                datastore.PrivateEndpointRequired = true;
             }
         }
 
@@ -687,7 +665,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             ServiceType = source.ServiceType,
             RuntimePlatform = source.RuntimePlatform,
             Purpose = source.Purpose,
-            Tags = source.Tags?.ToList() ?? [],
+            Tags = source.Tags.ToList() ?? [],
             RequiredControls = source.RequiredControls?.ToList() ?? []
         };
 

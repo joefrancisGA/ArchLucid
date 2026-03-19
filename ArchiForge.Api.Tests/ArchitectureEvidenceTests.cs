@@ -28,7 +28,7 @@ public sealed class ArchitectureEvidenceTests(ArchiForgeApiFactory factory) : In
 
         var payload = await evidenceResponse.Content.ReadFromJsonAsync<AgentEvidencePackageResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Evidence.RunId.Should().Be(runId);
+        payload.Evidence.RunId.Should().Be(runId);
         payload.Evidence.SystemName.Should().Be("EnterpriseRag");
         payload.Evidence.Request.Description.Should().Contain("secure Azure RAG system");
         payload.Evidence.Policies.Should().NotBeEmpty();

@@ -30,7 +30,7 @@ public sealed class ArchitectureRunDetailsTests(ArchiForgeApiFactory factory) : 
         var payload = await runResponse.Content.ReadFromJsonAsync<RunDetailsResponseDto>(JsonOptions);
 
         payload.Should().NotBeNull();
-        payload!.Run.RunId.Should().Be(runId);
+        payload.Run.RunId.Should().Be(runId);
         payload.Tasks.Should().HaveCount(3);
         payload.Results.Should().HaveCount(3);
         payload.Manifest.Should().NotBeNull();

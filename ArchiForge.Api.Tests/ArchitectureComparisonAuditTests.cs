@@ -58,7 +58,7 @@ public sealed class ArchitectureComparisonAuditTests(ArchiForgeApiFactory factor
 
         var payload = await recordResponse.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Record.ComparisonType.Should().Be("end-to-end-replay");
+        payload.Record.ComparisonType.Should().Be("end-to-end-replay");
         payload.Record.LeftRunId.Should().Be(runId);
         payload.Record.RightRunId.Should().Be(replayRunId);
         payload.Record.SummaryMarkdown.Should().NotBeNullOrWhiteSpace();

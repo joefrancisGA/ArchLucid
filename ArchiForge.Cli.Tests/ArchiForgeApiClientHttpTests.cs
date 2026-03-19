@@ -78,7 +78,7 @@ public sealed class ArchiForgeApiClientHttpTests
         var result = await client.GetRunAsync(runId);
 
         result.Should().NotBeNull();
-        result!.Run.RunId.Should().Be(runId);
+        result.Run.RunId.Should().Be(runId);
         result.Tasks.Should().BeEmpty();
         result.Results.Should().BeEmpty();
     }
@@ -115,7 +115,7 @@ public sealed class ArchiForgeApiClientHttpTests
         var result = await client.CommitRunAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Success.Should().BeTrue();
+        result.Success.Should().BeTrue();
         result.Response.Should().NotBeNull();
         result.Response!.Manifest.Metadata.ManifestVersion.Should().Be(version);
     }

@@ -56,7 +56,7 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFac
             persistReplay = false
         });
         var verifyResponse = await Client.PostAsync(
-            $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId!)}/replay",
+            $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay",
             new StringContent(verifyBody, Encoding.UTF8, "application/json"));
 
         verifyResponse.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);

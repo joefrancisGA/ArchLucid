@@ -16,8 +16,13 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     public void ComparisonVerificationFailedException_Produces422WithDriftExtensions()
     {
         var filter = new ApiProblemDetailsExceptionFilter();
-        var httpContext = new DefaultHttpContext();
-        httpContext.Request.Path = "/v1/architecture/comparisons/r1/replay";
+        var httpContext = new DefaultHttpContext
+        {
+            Request =
+            {
+                Path = "/v1/architecture/comparisons/r1/replay"
+            }
+        };
         var actionContext = new ActionContext(
             httpContext,
             new RouteData(),

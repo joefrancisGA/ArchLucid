@@ -12,7 +12,7 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
         IReadOnlyCollection<DecisionNode> decisions,
         CancellationToken cancellationToken = default)
     {
-        if (decisions is null || decisions.Count == 0)
+        if (decisions.Count == 0)
         {
             return;
         }

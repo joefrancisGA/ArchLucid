@@ -35,7 +35,7 @@ public sealed class ArchitectureDiagramTests(ArchiForgeApiFactory factory) : Int
 
         var diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<DiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
-        diagramPayload!.Format.Should().Be("mermaid");
+        diagramPayload.Format.Should().Be("mermaid");
         diagramPayload.Diagram.Should().Contain("flowchart LR");
         diagramPayload.Diagram.Should().Contain("rag-api");
         diagramPayload.Diagram.Should().Contain("rag-search");
@@ -70,7 +70,7 @@ public sealed class ArchitectureDiagramTests(ArchiForgeApiFactory factory) : Int
 
         var diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<ManifestDiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
-        diagramPayload!.DiagramType.Should().Be("Mermaid");
+        diagramPayload.DiagramType.Should().Be("Mermaid");
         diagramPayload.Content.Should().Contain("flowchart TB");
         diagramPayload.Content.Should().Contain("subgraph");
         diagramPayload.Content.Should().Contain("rag-api");

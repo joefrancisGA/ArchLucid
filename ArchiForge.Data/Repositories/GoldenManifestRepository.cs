@@ -39,12 +39,12 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
             sql,
             new
             {
-                ManifestVersion = manifest.Metadata.ManifestVersion,
+                manifest.Metadata.ManifestVersion,
                 manifest.RunId,
                 manifest.SystemName,
                 ManifestJson = json,
-                ParentManifestVersion = manifest.Metadata.ParentManifestVersion,
-                CreatedUtc = manifest.Metadata.CreatedUtc
+                manifest.Metadata.ParentManifestVersion,
+                manifest.Metadata.CreatedUtc
             },
             cancellationToken: cancellationToken));
     }

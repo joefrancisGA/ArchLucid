@@ -27,7 +27,7 @@ public sealed class ArchitectureReplayTests(ArchiForgeApiFactory factory) : Inte
 
         var payload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.OriginalRunId.Should().Be(runId);
+        payload.OriginalRunId.Should().Be(runId);
         payload.ReplayRunId.Should().NotBeNullOrWhiteSpace();
         payload.Results.Should().NotBeEmpty();
         payload.Manifest.Should().BeNull();
@@ -66,7 +66,7 @@ public sealed class ArchitectureReplayTests(ArchiForgeApiFactory factory) : Inte
 
         var payload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Manifest.Should().NotBeNull();
+        payload.Manifest.Should().NotBeNull();
         payload.Manifest!.Metadata.ManifestVersion.Should().Be("v1-replay");
         payload.DecisionTraces.Should().NotBeEmpty();
     }

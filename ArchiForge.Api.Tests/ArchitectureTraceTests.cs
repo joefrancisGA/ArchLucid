@@ -29,7 +29,7 @@ public sealed class ArchitectureTraceTests(ArchiForgeApiFactory factory) : Integ
 
         var payload = await tracesResponse.Content.ReadFromJsonAsync<AgentExecutionTraceResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Traces.Should().NotBeEmpty();
+        payload.Traces.Should().NotBeEmpty();
         payload.Traces.Should().Contain(t => !string.IsNullOrWhiteSpace(t.SystemPrompt));
         payload.Traces.Should().Contain(t => !string.IsNullOrWhiteSpace(t.UserPrompt));
         payload.Traces.Should().Contain(t => !string.IsNullOrWhiteSpace(t.RawResponse));

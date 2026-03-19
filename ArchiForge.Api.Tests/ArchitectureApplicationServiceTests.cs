@@ -93,7 +93,7 @@ public sealed class ArchitectureApplicationServiceTests
         var result = await _sut.GetRunAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Run.RunId.Should().Be("run-1");
+        result.Run.RunId.Should().Be("run-1");
         result.Tasks.Should().HaveCount(1);
         result.Results.Should().HaveCount(1);
     }
@@ -131,7 +131,7 @@ public sealed class ArchitectureApplicationServiceTests
         var result = await _sut.GetRunAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Run.RunId.Should().Be("run-1");
+        result.Run.RunId.Should().Be("run-1");
         result.Tasks.Should().BeEmpty();
         result.Results.Should().BeEmpty();
     }
@@ -406,7 +406,7 @@ public sealed class ArchitectureApplicationServiceTests
         var result = await _sut.GetManifestAsync("v1");
 
         result.Should().NotBeNull();
-        result!.Metadata.ManifestVersion.Should().Be("v1");
+        result.Metadata.ManifestVersion.Should().Be("v1");
     }
 
     [Fact]
@@ -466,7 +466,7 @@ public sealed class ArchitectureApplicationServiceTests
         var result = await _sut.SeedFakeResultsAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Success.Should().BeTrue();
+        result.Success.Should().BeTrue();
         result.ResultCount.Should().Be(3);
         result.Error.Should().BeNull();
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
@@ -482,7 +482,7 @@ public sealed class ArchitectureApplicationServiceTests
         var result = await _sut.SeedFakeResultsAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Success.Should().BeFalse();
+        result.Success.Should().BeFalse();
         result.Error.Should().Contain("does not accept results").And.Contain("ReadyForCommit");
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
         _runRepository.Verify(r => r.UpdateStatusAsync(It.IsAny<string>(), It.IsAny<ArchitectureRunStatus>(), It.IsAny<string?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -496,7 +496,7 @@ public sealed class ArchitectureApplicationServiceTests
         var result = await _sut.SeedFakeResultsAsync("nonexistent");
 
         result.Should().NotBeNull();
-        result!.Success.Should().BeFalse();
+        result.Success.Should().BeFalse();
         result.Error.Should().Contain("not found");
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -511,7 +511,7 @@ public sealed class ArchitectureApplicationServiceTests
         var result = await _sut.SeedFakeResultsAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Success.Should().BeFalse();
+        result.Success.Should().BeFalse();
         result.Error.Should().Contain("not found");
     }
 
@@ -527,7 +527,7 @@ public sealed class ArchitectureApplicationServiceTests
         var result = await _sut.SeedFakeResultsAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Success.Should().BeFalse();
+        result.Success.Should().BeFalse();
         result.Error.Should().Contain("No tasks");
     }
 
@@ -547,7 +547,7 @@ public sealed class ArchitectureApplicationServiceTests
         var result = await _sut.SeedFakeResultsAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Success.Should().BeTrue();
+        result.Success.Should().BeTrue();
         result.ResultCount.Should().Be(0);
         result.Error.Should().BeNull();
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);

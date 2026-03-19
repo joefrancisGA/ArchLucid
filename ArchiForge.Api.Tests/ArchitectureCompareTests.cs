@@ -48,7 +48,7 @@ public sealed class ArchitectureCompareTests(ArchiForgeApiFactory factory) : Int
 
         var payload = await compareResponse.Content.ReadFromJsonAsync<ManifestCompareResponse>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.Diff.Should().NotBeNull();
+        payload.Diff.Should().NotBeNull();
         payload.Diff.LeftManifestVersion.Should().Be(leftVersion);
         payload.Diff.RightManifestVersion.Should().Be("v1-replay");
     }
