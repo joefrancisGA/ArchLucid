@@ -104,7 +104,7 @@ public sealed class DeterminismCheckService(
         }
 
         output.IsDeterministic = output.IterationResults.All(x =>
-            x.MatchesBaselineAgentResults && x.MatchesBaselineManifest);
+            x is { MatchesBaselineAgentResults: true, MatchesBaselineManifest: true });
 
         if (!output.IsDeterministic)
         {

@@ -393,8 +393,8 @@ internal static class ConsultingDocxOpenXmlComposer
         var gov = report.Manifest.Governance;
 
         AddKeyValueTable(body, [
-            ("Risk Classification", gov.RiskClassification ?? "n/a"),
-            ("Cost Classification", gov.CostClassification ?? "n/a"),
+            ("Risk Classification", gov.RiskClassification),
+            ("Cost Classification", gov.CostClassification),
             ("Required Controls", gov.RequiredControls.Count > 0 ? string.Join(", ", gov.RequiredControls) : "None"),
             ("Compliance Tags", gov.ComplianceTags.Count > 0 ? string.Join(", ", gov.ComplianceTags) : "None"),
             ("Policy Constraints", gov.PolicyConstraints.Count > 0 ? string.Join(", ", gov.PolicyConstraints) : "None")
