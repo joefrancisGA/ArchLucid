@@ -9,7 +9,6 @@ using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Builders;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
-using Xunit;
 
 namespace ArchiForge.Coordinator.Tests;
 

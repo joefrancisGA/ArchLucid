@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-
 namespace ArchiForge.Api.Startup;
 
 internal static class SwaggerExtensions

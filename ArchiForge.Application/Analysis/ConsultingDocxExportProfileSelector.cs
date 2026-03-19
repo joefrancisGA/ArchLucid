@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-
 namespace ArchiForge.Application.Analysis;
 
 public sealed class ConsultingDocxExportProfileSelector(

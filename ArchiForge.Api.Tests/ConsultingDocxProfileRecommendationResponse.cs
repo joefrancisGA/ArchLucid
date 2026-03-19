@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ArchiForge.Api.Tests;
 
 public sealed class ConsultingDocxProfileRecommendationResponse

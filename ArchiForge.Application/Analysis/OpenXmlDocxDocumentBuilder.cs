@@ -1,16 +1,13 @@
-using System.IO;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
-using DocumentFormat.OpenXml.Drawing.Pictures;
 using WpParagraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using WpRun = DocumentFormat.OpenXml.Wordprocessing.Run;
 using WpText = DocumentFormat.OpenXml.Wordprocessing.Text;
 using WpRunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
 using WpParagraphProperties = DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties;
-using WpBreak = DocumentFormat.OpenXml.Wordprocessing.Break;
 using DrRun = DocumentFormat.OpenXml.Drawing.Run;
 using DrGraphicFrameLocks = DocumentFormat.OpenXml.Drawing.GraphicFrameLocks;
 using DrPicture = DocumentFormat.OpenXml.Drawing.Picture;

@@ -2,7 +2,6 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using FluentAssertions;
-using Xunit;
 
 namespace ArchiForge.AgentRuntime.Tests;
 

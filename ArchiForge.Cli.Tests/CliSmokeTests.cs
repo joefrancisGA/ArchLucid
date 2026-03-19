@@ -1,6 +1,5 @@
 using System.Text;
 using FluentAssertions;
-using Xunit;
 
 namespace ArchiForge.Cli.Tests;
 

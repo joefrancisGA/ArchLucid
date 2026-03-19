@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 

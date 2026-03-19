@@ -1,4 +1,3 @@
-using System.Data;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Infrastructure;
 using Dapper;

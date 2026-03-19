@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ArchiForge.Application.Analysis;
 
 public sealed class ConsultingDocxTemplateProfileCatalog

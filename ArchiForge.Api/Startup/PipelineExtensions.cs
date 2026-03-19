@@ -1,7 +1,5 @@
 using ArchiForge.Api.Middleware;
 using ArchiForge.Api.ProblemDetails;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Startup;
 

@@ -8,7 +8,6 @@ using ArchiForge.Data.Repositories;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
 
 namespace ArchiForge.Api.Tests;
 

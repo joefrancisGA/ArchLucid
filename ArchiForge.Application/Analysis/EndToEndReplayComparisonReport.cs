@@ -1,5 +1,4 @@
 using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Metadata;
 
 namespace ArchiForge.Application.Analysis;
 

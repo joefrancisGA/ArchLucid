@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace ArchiForge.Application.Analysis;
 
 public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxTemplateProfileResolver profileResolver)

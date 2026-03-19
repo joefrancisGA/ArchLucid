@@ -1,5 +1,3 @@
-using System;
-
 namespace ArchiForge.Data.Repositories;
 
 public sealed class ArchitectureRunListItem

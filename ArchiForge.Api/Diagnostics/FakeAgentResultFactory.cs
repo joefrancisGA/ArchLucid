@@ -4,8 +4,6 @@ using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Findings;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Requests;
-using Microsoft.Extensions.Hosting;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ArchiForge.Api.Diagnostics;
 

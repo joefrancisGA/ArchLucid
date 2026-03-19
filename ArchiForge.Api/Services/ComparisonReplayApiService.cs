@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
-using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Services;
 

@@ -1,5 +1,4 @@
 using ArchiForge.Contracts.Requests;
-using ArchiForge.AgentSimulator.Models;
 
 namespace ArchiForge.AgentSimulator.Scenarios;
 

@@ -2,10 +2,7 @@ using ArchiForge.Api.Diagnostics;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Contracts.Requests;
 using ArchiForge.Data.Repositories;
-using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Services;
 

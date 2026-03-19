@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Options;
-
 namespace ArchiForge.Api.Startup.Validation;
 
 public sealed class ConfigurationValidator(

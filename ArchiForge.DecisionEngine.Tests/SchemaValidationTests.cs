@@ -6,7 +6,6 @@ using ArchiForge.DecisionEngine.Validation;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Xunit;
 
 namespace ArchiForge.DecisionEngine.Tests;
 

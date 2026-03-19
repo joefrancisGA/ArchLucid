@@ -2,7 +2,6 @@ using System.Net;
 using System.Text.Json;
 using ArchiForge.Contracts.Requests;
 using FluentAssertions;
-using Xunit;
 
 namespace ArchiForge.Cli.Tests;
 

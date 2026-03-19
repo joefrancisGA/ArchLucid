@@ -1,9 +1,7 @@
 using ArchiForge.Decisioning.Findings.Factories;
-using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Findings.Serialization;
 using ArchiForge.Decisioning.Models;
 using FluentAssertions;
-using Xunit;
 
 namespace ArchiForge.Decisioning.Tests;
 

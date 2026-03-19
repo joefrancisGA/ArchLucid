@@ -1,4 +1,3 @@
-using ArchiForge.Api;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
@@ -7,7 +6,6 @@ using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
 using ArchiForge.Data.Repositories;
-using ArchiForge.Contracts.Metadata;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

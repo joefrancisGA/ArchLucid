@@ -11,7 +11,6 @@ using ArchiForge.KnowledgeGraph.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using FluentAssertions;
-using Xunit;
 
 namespace ArchiForge.AgentRuntime.Tests;
 

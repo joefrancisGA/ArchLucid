@@ -1,7 +1,6 @@
 using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Models;
 using FluentAssertions;
-using Xunit;
 
 namespace ArchiForge.Decisioning.Tests;
 

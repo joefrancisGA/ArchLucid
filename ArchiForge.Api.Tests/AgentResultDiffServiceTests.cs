@@ -3,7 +3,6 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using FluentAssertions;
-using Xunit;
 
 namespace ArchiForge.Api.Tests;
 
