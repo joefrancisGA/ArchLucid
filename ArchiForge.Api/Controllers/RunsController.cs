@@ -271,22 +271,16 @@ public sealed class RunsController(
         [FromBody] SubmitAgentResultRequest request,
         CancellationToken cancellationToken)
     {
-        if (request.Result is null)
-        {
-            return this.BadRequestProblem("Agent result is required.", ProblemTypes.AgentResultRequired);
-        }
-
         var result = await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
-        if (!result.Success)
+        
+        if (result.Success) return Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! });
+        
+        if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
-            if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))
-            {
-                return this.NotFoundProblem(result.Error, ProblemTypes.RunNotFound);
-            }
-            return this.BadRequestProblem(result.Error ?? "Submission failed.");
+            return this.NotFoundProblem(result.Error, ProblemTypes.RunNotFound);
         }
+        return this.BadRequestProblem(result.Error ?? "Submission failed.");
 
-        return Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! });
     }
 
     [HttpPost("run/{runId}/seed-fake-results")]

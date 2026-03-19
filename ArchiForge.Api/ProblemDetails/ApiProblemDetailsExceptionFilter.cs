@@ -21,7 +21,7 @@ public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
         }
  
         var ex = context.Exception;
-        var instance = context.HttpContext?.Request?.Path.Value;
+        var instance = context.HttpContext.Request.Path.Value;
 
         if (ex is ComparisonVerificationFailedException cvf)
         {
@@ -33,6 +33,7 @@ public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
                 Detail = cvf.Message,
                 Instance = string.IsNullOrWhiteSpace(instance) ? null : instance
             };
+
             if (cvf.Drift is { } drift)
             {
                 problem.Extensions["driftDetected"] = drift.DriftDetected;
@@ -97,18 +98,16 @@ public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
             context.ExceptionHandled = true;
             return;
         }
- 
-        if (ex is ArgumentException or ArgumentNullException)
-        {
-            context.Result = CreateProblemResult(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: "Bad Request",
-                detail: ex.Message,
-                type: ProblemTypes.ValidationFailed,
-                instance: instance);
-            context.ExceptionHandled = true;
-            return;
-        }
+
+        if (ex is not (ArgumentException or ArgumentNullException)) return;
+
+        context.Result = CreateProblemResult(
+            statusCode: StatusCodes.Status400BadRequest,
+            title: "Bad Request",
+            detail: ex.Message,
+            type: ProblemTypes.ValidationFailed,
+            instance: instance);
+        context.ExceptionHandled = true;
     }
 
     private static ObjectResult CreateProblemResult(

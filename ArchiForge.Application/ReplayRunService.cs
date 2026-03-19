@@ -14,14 +14,11 @@ public sealed class ReplayRunService(
     IArchitectureRequestRepository requestRepository,
     IArchitectureRunRepository runRepository,
     IAgentTaskRepository taskRepository,
-    IAgentResultRepository resultRepository,
     IGoldenManifestRepository manifestRepository,
     IDecisionTraceRepository decisionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository)
     : IReplayRunService
 {
-    private readonly IAgentResultRepository _resultRepository = resultRepository;
-
     public async Task<ReplayRunResult> ReplayAsync(
         string originalRunId,
         string executionMode = "Current",

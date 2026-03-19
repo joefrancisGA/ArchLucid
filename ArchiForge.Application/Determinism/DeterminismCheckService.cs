@@ -60,6 +60,7 @@ public sealed class DeterminismCheckService(
                 d.RemovedRequiredControls.Count > 0 ||
                 d.AddedWarnings.Count > 0 ||
                 d.RemovedWarnings.Count > 0 ||
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
                 d.LeftConfidence != d.RightConfidence);
 
             var iteration = new DeterminismIterationResult

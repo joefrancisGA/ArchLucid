@@ -46,7 +46,7 @@ public partial class Program
         builder.Services.AddArchiForgeSwagger();
 
         builder.Services.AddAuthentication("ApiKey")
-            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", options => { });
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", _ => { });
         builder.Services.AddArchiForgeAuthorization();
 
         builder.Services.AddArchiForgeOpenTelemetry(builder.Configuration, builder.Environment);
@@ -67,4 +67,4 @@ public partial class Program
     }
 }
 
-public partial class Program { }
+public partial class Program;

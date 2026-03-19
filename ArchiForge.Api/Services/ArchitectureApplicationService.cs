@@ -43,8 +43,6 @@ public sealed class ArchitectureApplicationService(
     {
         if (string.IsNullOrWhiteSpace(runId))
             return new SubmitResultResult(false, null, "RunId is required.");
-        if (result is null)
-            return new SubmitResultResult(false, null, "Agent result is required.");
 
         var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)

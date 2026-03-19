@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
+using JetBrains.Annotations;
 
 namespace ArchiForge.Api.Jobs;
 
@@ -7,7 +8,7 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
 {
     private sealed record WorkItem(
         string JobId,
-        string? FileNameHint,
+        [UsedImplicitly] string? FileNameHint,
         string? ContentTypeHint,
         Func<CancellationToken, Task<BackgroundJobFile>> Work);
 

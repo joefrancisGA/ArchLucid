@@ -18,7 +18,6 @@ public sealed class ComparisonReplayService(
     IComparisonAuditService comparisonAuditService,
     IComparisonDriftAnalyzer driftAnalyzer,
     IEndToEndReplayComparisonService endToEndReplayComparisonService,
-    IEndToEndReplayComparisonSummaryFormatter endToEndSummaryFormatter,
     IEndToEndReplayComparisonExportService endToEndExportService,
     IExportRecordDiffService exportRecordDiffService,
     IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,

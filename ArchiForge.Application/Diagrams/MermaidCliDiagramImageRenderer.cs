@@ -34,10 +34,11 @@ public sealed class MermaidCliDiagramImageRenderer : IDiagramImageRenderer
                 CreateNoWindow = true
             };
 
-            using var process = new Process { StartInfo = psi };
+            using var process = new Process();
+            process.StartInfo = psi;
             process.Start();
 
-            var stdOut = await process.StandardOutput.ReadToEndAsync(cancellationToken);
+            await process.StandardOutput.ReadToEndAsync(cancellationToken);
             var stdErr = await process.StandardError.ReadToEndAsync(cancellationToken);
 
             await process.WaitForExitAsync(cancellationToken);

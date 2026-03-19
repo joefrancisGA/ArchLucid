@@ -59,12 +59,12 @@ internal static class InfrastructureExtensions
 
             options.AddPolicy("replay", httpContext =>
             {
-                var fmt = (httpContext.Request.Query["format"].ToString() ?? "").Trim().ToLowerInvariant();
+                var fmt = (httpContext.Request.Query["format"].ToString()).Trim().ToLowerInvariant();
                 var isHeavy = fmt is "docx" or "pdf";
                 var window = TimeSpan.FromMinutes(isHeavy ? replayHeavyWindowMinutes : replayLightWindowMinutes);
                 var permits = isHeavy ? replayHeavyPermitLimit : replayLightPermitLimit;
 
-                var user = httpContext.User?.Identity?.Name;
+                var user = httpContext.User.Identity?.Name;
                 var key = string.IsNullOrWhiteSpace(user)
                     ? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous"
                     : user;

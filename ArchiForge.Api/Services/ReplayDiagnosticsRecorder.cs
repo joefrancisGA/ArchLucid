@@ -4,7 +4,7 @@ public sealed class ReplayDiagnosticsRecorder : IReplayDiagnosticsRecorder
 {
     private readonly int _capacity;
     private readonly Queue<ReplayDiagnosticsEntry> _recent;
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
 
     public ReplayDiagnosticsRecorder(IConfiguration configuration)
     {
@@ -15,8 +15,6 @@ public sealed class ReplayDiagnosticsRecorder : IReplayDiagnosticsRecorder
 
     public void Record(ReplayDiagnosticsEntry entry)
     {
-        if (entry == null) return;
-
         lock (_lock)
         {
             while (_recent.Count >= _capacity)
