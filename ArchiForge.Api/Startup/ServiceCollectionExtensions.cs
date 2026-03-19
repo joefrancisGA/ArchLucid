@@ -21,6 +21,15 @@ using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json;
+using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
+using ContextSnapshotRepository = ArchiForge.ContextIngestion.Interfaces.IContextSnapshotRepository;
+using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextIngestionService;
+using GraphBuilder = ArchiForge.KnowledgeGraph.Interfaces.IGraphBuilder;
+using GraphSnapshotRepository = ArchiForge.KnowledgeGraph.Interfaces.IGraphSnapshotRepository;
+using KnowledgeGraphService = ArchiForge.KnowledgeGraph.Interfaces.IKnowledgeGraphService;
+using FindingsSnapshotRepository = ArchiForge.Decisioning.Interfaces.IFindingsSnapshotRepository;
+using InMemoryGoldenManifestRepository = ArchiForge.Decisioning.Interfaces.IGoldenManifestRepository;
+using InMemoryDecisionTraceRepository = ArchiForge.Decisioning.Interfaces.IDecisionTraceRepository;
 
 namespace ArchiForge.Api.Startup;
 
@@ -115,19 +124,19 @@ internal static class ServiceCollectionExtensions
 
     private static void RegisterContextIngestionAndKnowledgeGraph(IServiceCollection services)
     {
-        services.AddSingleton<ContextIngestion.Interfaces.IContextConnector, ContextIngestion.Connectors.StaticRequestContextConnector>();
-        services.AddSingleton<ContextIngestion.Interfaces.IContextSnapshotRepository, ContextIngestion.Repositories.InMemoryContextSnapshotRepository>();
-        services.AddScoped<ContextIngestion.Interfaces.IContextIngestionService, ArchiForge.ContextIngestion.Services.ContextIngestionService>();
-        services.AddSingleton<KnowledgeGraph.Interfaces.IGraphSnapshotRepository, KnowledgeGraph.Repositories.InMemoryGraphSnapshotRepository>();
-        services.AddScoped<KnowledgeGraph.Interfaces.IGraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();
-        services.AddScoped<KnowledgeGraph.Interfaces.IKnowledgeGraphService, ArchiForge.KnowledgeGraph.Services.KnowledgeGraphService>();
+        services.AddSingleton<ContextConnector, ContextIngestion.Connectors.StaticRequestContextConnector>();
+        services.AddSingleton<ContextSnapshotRepository, ContextIngestion.Repositories.InMemoryContextSnapshotRepository>();
+        services.AddScoped<ContextIngestionService, ArchiForge.ContextIngestion.Services.ContextIngestionService>();
+        services.AddSingleton<GraphSnapshotRepository, KnowledgeGraph.Repositories.InMemoryGraphSnapshotRepository>();
+        services.AddScoped<GraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();
+        services.AddScoped<KnowledgeGraphService, ArchiForge.KnowledgeGraph.Services.KnowledgeGraphService>();
     }
 
     private static void RegisterDecisioningEngines(IServiceCollection services)
     {
-        services.AddSingleton<Decisioning.Interfaces.IFindingsSnapshotRepository, Decisioning.Repositories.InMemoryFindingsSnapshotRepository>();
-        services.AddSingleton<ArchiForge.Decisioning.Interfaces.IGoldenManifestRepository, Decisioning.Repositories.InMemoryGoldenManifestRepository>();
-        services.AddSingleton<ArchiForge.Decisioning.Interfaces.IDecisionTraceRepository, Decisioning.Repositories.InMemoryDecisionTraceRepository>();
+        services.AddSingleton<FindingsSnapshotRepository, Decisioning.Repositories.InMemoryFindingsSnapshotRepository>();
+        services.AddSingleton<InMemoryGoldenManifestRepository, Decisioning.Repositories.InMemoryGoldenManifestRepository>();
+        services.AddSingleton<InMemoryDecisionTraceRepository, Decisioning.Repositories.InMemoryDecisionTraceRepository>();
         services.AddScoped<Decisioning.Interfaces.IFindingEngine, ArchiForge.Decisioning.Services.RequirementFindingEngine>();
         services.AddScoped<Decisioning.Interfaces.IFindingEngine, ArchiForge.Decisioning.Services.TopologySanityFindingEngine>();
         services.AddScoped<Decisioning.Interfaces.IFindingEngine, ArchiForge.Decisioning.Services.SecurityBaselineFindingEngine>();

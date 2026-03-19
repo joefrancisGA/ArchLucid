@@ -1,4 +1,5 @@
 using ArchiForge.Api.Models;
+using ArchiForge.Api.Mapping;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
@@ -49,12 +50,7 @@ public sealed class RunsController(
         {
             var result = await architectureRunService.CreateRunAsync(request, cancellationToken);
 
-            var response = new CreateArchitectureRunResponse
-            {
-                Run = result.Run,
-                EvidenceBundle = result.EvidenceBundle,
-                Tasks = result.Tasks
-            };
+            var response = RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
 
             logger.LogInformation(
                 "Run created: RunId={RunId}, RequestId={RequestId}, User={User}, CorrelationId={CorrelationId}",
@@ -70,7 +66,7 @@ public sealed class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message);
+            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest, ProblemTypes.RunNotFound);
         }
     }
 
@@ -90,11 +86,7 @@ public sealed class RunsController(
         {
             var result = await architectureRunService.ExecuteRunAsync(runId, cancellationToken);
 
-            var response = new ExecuteRunResponse
-            {
-                RunId = result.RunId,
-                Results = result.Results
-            };
+            var response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
 
             logger.LogInformation(
                 "Run executed: RunId={RunId}, ResultCount={ResultCount}, User={User}, CorrelationId={CorrelationId}",
@@ -105,13 +97,9 @@ public sealed class RunsController(
 
             return Ok(response);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.DeterminismFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.DeterminismFailed, ProblemTypes.RunNotFound);
         }
     }
 
@@ -139,16 +127,14 @@ public sealed class RunsController(
                 request.ManifestVersionOverride,
                 cancellationToken);
 
-            var response = new ReplayRunResponse
-            {
-                OriginalRunId = result.OriginalRunId,
-                ReplayRunId = result.ReplayRunId,
-                ExecutionMode = result.ExecutionMode,
-                Results = result.Results,
-                Manifest = result.Manifest,
-                DecisionTraces = result.DecisionTraces,
-                Warnings = result.Warnings
-            };
+            var response = RunResponseMapper.ToReplayRunResponse(
+                result.OriginalRunId,
+                result.ReplayRunId,
+                result.ExecutionMode,
+                result.Results,
+                result.Manifest,
+                result.DecisionTraces,
+                result.Warnings);
 
             logger.LogInformation(
                 "Run replayed: OriginalRunId={OriginalRunId}, ReplayRunId={ReplayRunId}, ExecutionMode={ExecutionMode}, User={User}, CorrelationId={CorrelationId}",
@@ -160,13 +146,9 @@ public sealed class RunsController(
 
             return Ok(response);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ExportFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed, ProblemTypes.RunNotFound);
         }
     }
 
@@ -192,13 +174,9 @@ public sealed class RunsController(
                 Result = result
             });
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ExportFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed, ProblemTypes.RunNotFound);
         }
     }
 
@@ -219,12 +197,10 @@ public sealed class RunsController(
         {
             var result = await architectureRunService.CommitRunAsync(runId, cancellationToken);
 
-            var response = new CommitRunResponse
-            {
-                Manifest = result.Manifest,
-                DecisionTraces = result.DecisionTraces,
-                Warnings = result.Warnings
-            };
+            var response = RunResponseMapper.ToCommitRunResponse(
+                result.Manifest,
+                result.DecisionTraces,
+                result.Warnings);
 
             logger.LogInformation(
                 "Run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}, User={User}, CorrelationId={CorrelationId}",
@@ -236,13 +212,9 @@ public sealed class RunsController(
 
             return Ok(response);
         }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message, ProblemTypes.ExportFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed, ProblemTypes.RunNotFound);
         }
     }
 
@@ -439,14 +411,12 @@ public sealed class RunsController(
             decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
         }
 
-        return new RunDetailsResponse
-        {
-            Run = run,
-            Tasks = tasks.ToList(),
-            Results = results.ToList(),
-            Manifest = manifest,
-            DecisionTraces = decisionTraces
-        };
+        return RunResponseMapper.ToRunDetailsResponse(
+            run,
+            tasks.ToList(),
+            results.ToList(),
+            manifest,
+            decisionTraces);
     }
 }
 

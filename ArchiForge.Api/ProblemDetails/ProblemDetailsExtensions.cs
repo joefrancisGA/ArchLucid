@@ -1,3 +1,4 @@
+using ArchiForge.Application;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchiForge.Api.ProblemDetails;
@@ -55,5 +56,44 @@ public static class ProblemDetailsExtensions
             StatusCode = problem.Status,
             ContentTypes = { ProblemJsonMediaType }
         };
+    }
+
+    public static IActionResult ConflictProblem(
+        this ControllerBase controller,
+        string detail,
+        string? type = null,
+        string? instance = null)
+    {
+        var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        {
+            Type = type ?? ProblemTypes.Conflict,
+            Title = "Conflict",
+            Status = StatusCodes.Status409Conflict,
+            Detail = detail,
+            Instance = instance ?? controller.Request.Path
+        };
+        return new ObjectResult(problem)
+        {
+            StatusCode = problem.Status,
+            ContentTypes = { ProblemJsonMediaType }
+        };
+    }
+
+    /// <summary>
+    /// Converts common InvalidOperationException variants to consistent ProblemDetails.
+    /// </summary>
+    public static IActionResult InvalidOperationProblem(
+        this ControllerBase controller,
+        InvalidOperationException exception,
+        string badRequestType,
+        string? notFoundType = null)
+    {
+        if (exception is ConflictException)
+            return controller.ConflictProblem(exception.Message, ProblemTypes.Conflict);
+
+        if (exception.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+            return controller.NotFoundProblem(exception.Message, notFoundType ?? ProblemTypes.ResourceNotFound);
+
+        return controller.BadRequestProblem(exception.Message, badRequestType);
     }
 }

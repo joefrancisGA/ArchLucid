@@ -489,3 +489,75 @@ Candidates for the next round of refactors, in rough priority order.
 - [x] 35. Api: split or segment AddArchiForgeApplicationServices registration
 - [x] 36. Api: ComparisonHistoryQuery → FluentValidation alignment
 - [x] 37. Bundle: thin Program (28) + docs (29–30, 32) + ReplayValidationConstants test (31)
+
+---
+
+## 38. Centralize controller InvalidOperationException → ProblemDetails mapping
+
+**Problem:** `RunsController` and `AnalysisReportsController` repeat many `try/catch (InvalidOperationException)` blocks and string-match `ex.Message.Contains("not found")` to choose 404 vs 400. This is brittle and duplicates behavior.
+
+**Change:**
+- Introduce a small exception mapping helper (or a controller filter) that converts known application exceptions to consistent ProblemDetails (`#run-not-found`, validation, conflict, etc.).
+- Replace per-action message parsing with typed mapping and common helpers.
+
+**Outcome:** More reliable status mapping and much less controller boilerplate.
+
+---
+
+## 39. Add typed query model + validator for run-to-run compare endpoints
+
+**Problem:** `RunComparisonController` repeats `leftRunId` / `rightRunId` query parameters and run existence checks across multiple endpoints.
+
+**Change:**
+- Add a `RunPairQuery` model (`LeftRunId`, `RightRunId`) with FluentValidation rules.
+- Add a shared helper (or service) to resolve/validate both runs once and reuse in compare/summary/export actions.
+
+**Outcome:** One validation/lookup path for run-pair endpoints, less copy/paste.
+
+---
+
+## 40. Move comparison and run endpoint response shaping into mappers
+
+**Problem:** Controllers still construct response DTOs inline (`new ...Response { ... }`) in many actions. Mapping logic is mixed with orchestration, making actions long.
+
+**Change:**
+- Introduce focused response mappers (e.g. `RunResponseMapper`, `ComparisonResponseMapper`) for recurring DTO shaping.
+- Keep controllers focused on orchestration + HTTP concerns only.
+
+**Outcome:** Thinner actions and easier test coverage for mapping behavior.
+
+---
+
+## 41. Add unit tests for replay mapping/header helpers
+
+**Problem:** New helpers (`ReplayComparisonRequestMapper`, `ReplayComparisonResultHeaders`) are untested; regressions would silently change API behavior.
+
+**Change:**
+- Add unit tests for:
+  - query/body format precedence in `ToApplicationForReplayEndpoint`
+  - summary/batch mapping defaults
+  - expected `X-ArchiForge-*` headers in full vs metadata modes.
+
+**Outcome:** Safe refactoring surface for replay API contract behavior.
+
+---
+
+## 42. Simplify DI registrations with type aliases for verbose namespaces
+
+**Problem:** `ServiceCollectionExtensions` uses many fully-qualified `Decisioning.*` and `ContextIngestion.*` type names, which hurts readability even after segmentation.
+
+**Change:**
+- Add `using` aliases at file top for frequently used verbose namespaces/interfaces.
+- Keep registration list compact while preserving explicitness.
+
+**Outcome:** Faster scanning and lower maintenance overhead for service registration changes.
+
+---
+
+## Checklist (analysis — next five)
+
+- [x] 38. Api: centralize InvalidOperationException → ProblemDetails mapping
+- [x] 39. Api: RunPairQuery + shared run lookup/validation for compare endpoints
+- [x] 40. Api: extract response DTO mappers from controllers
+- [x] 41. Api.Tests: unit tests for ReplayComparisonRequestMapper + ReplayComparisonResultHeaders
+- [x] 42. Api: add using aliases to simplify ServiceCollectionExtensions registrations
