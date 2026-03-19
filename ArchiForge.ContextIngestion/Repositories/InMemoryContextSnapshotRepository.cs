@@ -9,7 +9,9 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
 
     public Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)
     {
-        return Task.FromResult(_store.LastOrDefault());
+        _ = ct;
+        return Task.FromResult(_store.LastOrDefault(s =>
+            string.Equals(s.ProjectId, projectId, StringComparison.Ordinal)));
     }
 
     public Task SaveAsync(ContextSnapshot snapshot, CancellationToken ct)

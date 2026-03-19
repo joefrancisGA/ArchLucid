@@ -16,7 +16,6 @@ using ArchiForge.Application.Summaries;
 using ArchiForge.ArtifactSynthesis.Generators;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Renderers;
-using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ArtifactSynthesis.Services;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
@@ -27,14 +26,9 @@ using ArchiForge.DecisionEngine.Validation;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json;
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
-using ContextSnapshotRepository = ArchiForge.ContextIngestion.Interfaces.IContextSnapshotRepository;
 using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextIngestionService;
 using GraphBuilder = ArchiForge.KnowledgeGraph.Interfaces.IGraphBuilder;
-using GraphSnapshotRepository = ArchiForge.KnowledgeGraph.Interfaces.IGraphSnapshotRepository;
 using KnowledgeGraphService = ArchiForge.KnowledgeGraph.Interfaces.IKnowledgeGraphService;
-using FindingsSnapshotRepository = ArchiForge.Decisioning.Interfaces.IFindingsSnapshotRepository;
-using InMemoryGoldenManifestRepository = ArchiForge.Decisioning.Interfaces.IGoldenManifestRepository;
-using InMemoryDecisionTraceRepository = ArchiForge.Decisioning.Interfaces.IDecisionTraceRepository;
 
 namespace ArchiForge.Api.Startup;
 
@@ -44,6 +38,7 @@ internal static partial class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddArchiForgeStorage(configuration);
         RegisterDataInfrastructure(services);
         RegisterBackgroundJobs(services);
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
@@ -131,9 +126,7 @@ internal static partial class ServiceCollectionExtensions
     private static void RegisterContextIngestionAndKnowledgeGraph(IServiceCollection services)
     {
         services.AddSingleton<ContextConnector, ContextIngestion.Connectors.StaticRequestContextConnector>();
-        services.AddSingleton<ContextSnapshotRepository, ContextIngestion.Repositories.InMemoryContextSnapshotRepository>();
         services.AddScoped<ContextIngestionService, ArchiForge.ContextIngestion.Services.ContextIngestionService>();
-        services.AddSingleton<GraphSnapshotRepository, KnowledgeGraph.Repositories.InMemoryGraphSnapshotRepository>();
         services.AddScoped<GraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();
         services.AddScoped<KnowledgeGraphService, ArchiForge.KnowledgeGraph.Services.KnowledgeGraphService>();
     }
@@ -165,7 +158,6 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterArtifactSynthesis(IServiceCollection services)
     {
-        services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<IArtifactBundleValidator, ArtifactBundleValidator>();
         services.AddSingleton<IDiagramRenderer, MermaidDiagramRenderer>();
         services.AddScoped<IArtifactGenerator, ReferenceArchitectureMarkdownGenerator>();

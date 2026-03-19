@@ -1,6 +1,8 @@
 using ArchiForge.Api.Authentication;
+using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Startup;
 using ArchiForge.Data.Infrastructure;
+using ArchiForge.Persistence.Sql;
 using Microsoft.AspNetCore.Authentication;
 using Serilog;
 
@@ -31,6 +33,18 @@ public partial class Program
         builder.Services.AddArchiForgeApplicationServices(builder.Configuration);
 
         var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            var options = config.GetSection(ArchiForgeOptions.SectionName).Get<ArchiForgeOptions>();
+
+            if (string.Equals(options?.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
+            {
+                var bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
+                bootstrapper.EnsureSchemaAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+        }
 
         var connectionString = app.Configuration.GetConnectionString("ArchiForge");
         if (!string.IsNullOrEmpty(connectionString) && !DatabaseMigrator.Run(connectionString))

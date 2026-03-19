@@ -6,6 +6,9 @@ public class ContextSnapshot
 
     public Guid RunId { get; set; }
 
+    /// <summary>Logical project/system key (used for latest snapshot queries).</summary>
+    public string ProjectId { get; set; } = "";
+
     public DateTime CreatedUtc { get; set; }
 
     public List<CanonicalObject> CanonicalObjects { get; set; } = [];

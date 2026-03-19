@@ -16,6 +16,7 @@ public class ContextIngestionService(
         {
             SnapshotId = Guid.NewGuid(),
             RunId = request.RunId,
+            ProjectId = request.ProjectId,
             CreatedUtc = DateTime.UtcNow
         };
 
