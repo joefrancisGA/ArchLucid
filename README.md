@@ -72,6 +72,8 @@ Override in `appsettings.json` or via environment variables.
 
 **CORS:** Configure allowed origins with **`Cors:AllowedOrigins`** (array of origins). The API uses the policy name **`ArchiForge`** (`UseCors("ArchiForge")`). If the array is empty or missing, no origins are allowed (`SetIsOriginAllowed(_ => false)`). Use this for SPA or cross-origin API clients.
 
+**Authentication:** Send the **`X-Api-Key`** header with every request to protected endpoints. Config: **`Authentication:ApiKey:Enabled`** (default `false`; when `false`, all requests are treated as authenticated with full permissions for local dev). When enabled, set **`Authentication:ApiKey:AdminKey`** and optionally **`Authentication:ApiKey:ReadOnlyKey`** (e.g. in User Secrets or environment). Authorization policies require these permission claims: **`commit:run`**, **`seed:results`**, **`export:consulting-docx`**, **`replay:comparisons`**, **`replay:diagnostics`**. Admin key receives all; read-only key receives a subset.
+
 ## Running Tests
 
 ```bash

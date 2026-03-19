@@ -229,3 +229,68 @@ Candidates for the next round of refactors, in rough priority order.
 - [x] 15. Api.Tests: [Trait("Category", "Integration")] on ComparisonReplayVerify422Tests
 - [x] 16. Docs: TEST_STRUCTURE note on unit-style tests in Api.Tests; optional Category=Unit trait
 - [x] 17. Api: extract AddRateLimiter and AddCors (and optionally AddAuthorization) into extension methods
+
+---
+
+## 18. Extract AddAuthorization into extension
+
+**Problem:** **Program.cs** still contains the **AddAuthorization** block with five policies (CanCommitRuns, CanSeedResults, CanExportConsultingDocx, CanReplayComparisons, CanViewReplayDiagnostics). Moving it into an extension would match the pattern used for rate limiting and CORS.
+
+**Change:**
+- Add **AddArchiForgeAuthorization(this IServiceCollection services)** in **Startup/InfrastructureExtensions.cs** (or a dedicated **AuthorizationExtensions.cs**) and move the existing **AddAuthorization** lambda there. Call it from **Program.cs** after **AddAuthentication**.
+
+**Outcome:** Shorter Program.cs; all auth-related registration in one place.
+
+---
+
+## 19. Authentication and API key documentation
+
+**Problem:** The API uses **X-Api-Key** header and config **Authentication:ApiKey:Enabled** / key value, and authorization policies require claims (e.g. `permission: commit:run`). README doesn’t document how to send the key or what permissions exist.
+
+**Change:**
+- In **README.md** (or **docs/API_CONTRACTS.md**), add a short **Authentication** or **API key** section: send **X-Api-Key** header; config key **Authentication:ApiKey:Enabled** and the key value (e.g. from User Secrets or env). Optionally list the permission claims used by policies (commit:run, seed:results, export:consulting-docx, replay:comparisons, replay:diagnostics) so clients know what to expect when authorized.
+
+**Outcome:** Clear contract for API key and permissions.
+
+---
+
+## 20. Batch replay validation test
+
+**Problem:** We added **BatchReplayComparisonRequestValidator** but have no test that asserts invalid batch replay body (e.g. empty **comparisonRecordIds**) returns **400** with validation errors.
+
+**Change:**
+- In **ArchiForge.Api.Tests**, add a test (e.g. in **ComparisonReplayValidationTests** or a new **BatchReplayValidationTests**) that POSTs to the batch replay endpoint with body `{ "comparisonRecordIds": [], "format": "invalid" }` (or similar) and asserts status **400** and response contains validation error messages.
+
+**Outcome:** Regression protection for batch replay request validation.
+
+---
+
+## 21. Extract OpenTelemetry setup into extension
+
+**Problem:** **Program.cs** still contains the **AddOpenTelemetry** block (tracing, metrics, Prometheus, console exporter). Moving it into an extension would shorten Program.cs and group observability config.
+
+**Change:**
+- Add **AddArchiForgeOpenTelemetry(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)** in **Startup/** and move the **AddOpenTelemetry** chain (ConfigureResource, WithTracing, WithMetrics) there. Use **configuration** and **environment** for Prometheus/console flags and service name. Call from **Program.cs** before **AddArchiForgeRateLimiting**.
+
+**Outcome:** Shorter Program.cs; observability config in one place.
+
+---
+
+## 22. Swagger document description or link to API_CONTRACTS
+
+**Problem:** The Swagger document has a title and version but no description or link to **docs/API_CONTRACTS.md**. API consumers may not discover the contract doc.
+
+**Change:**
+- When building the Swagger doc in **AddSwaggerGen**, set **OpenApiInfo.Description** to a short paragraph and/or add an extension (e.g. **x-contracts-url** or **x-docs**) pointing to the API contracts doc (e.g. relative URL or repo link). Alternatively add a **IDocumentFilter** that injects a "See also" link into the document.
+
+**Outcome:** Better discoverability of API behavior (422, 404 run-not-found, 409, validation).
+
+---
+
+## Checklist (continued)
+
+- [x] 18. Api: extract AddAuthorization into AddArchiForgeAuthorization extension
+- [x] 19. Docs: Authentication / API key and permissions section
+- [x] 20. Api.Tests: test that invalid batch replay body returns 400 with validation errors
+- [x] 21. Api: extract AddOpenTelemetry into AddArchiForgeOpenTelemetry extension
+- [x] 22. Swagger: document description or link to API_CONTRACTS

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
@@ -7,6 +8,24 @@ namespace ArchiForge.Api.Startup;
 
 internal static class InfrastructureExtensions
 {
+    public static IServiceCollection AddArchiForgeAuthorization(this IServiceCollection services)
+    {
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("CanCommitRuns", policy =>
+                policy.RequireClaim("permission", "commit:run"));
+            options.AddPolicy("CanSeedResults", policy =>
+                policy.RequireClaim("permission", "seed:results"));
+            options.AddPolicy("CanExportConsultingDocx", policy =>
+                policy.RequireClaim("permission", "export:consulting-docx"));
+            options.AddPolicy("CanReplayComparisons", policy =>
+                policy.RequireClaim("permission", "replay:comparisons"));
+            options.AddPolicy("CanViewReplayDiagnostics", policy =>
+                policy.RequireClaim("permission", "replay:diagnostics"));
+        });
+        return services;
+    }
+
     public static IServiceCollection AddArchiForgeRateLimiting(
         this IServiceCollection services,
         IConfiguration configuration)

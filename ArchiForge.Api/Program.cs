@@ -8,10 +8,6 @@ using Asp.Versioning;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.RateLimiting;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Serilog;
 
 namespace ArchiForge.Api
@@ -50,7 +46,12 @@ namespace ArchiForge.Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new() { Title = "ArchiForge API", Version = "v1" });
+                c.SwaggerDoc("v1", new()
+                {
+                    Title = "ArchiForge API",
+                    Version = "v1",
+                    Description = "API for orchestrating AI-driven architecture design. See docs/API_CONTRACTS.md for notable behaviors: 422 (comparison verification failed), 404 run-not-found, 409 conflict, and request validation (400)."
+                });
                 c.OperationFilter<Swagger.ReplayExamplesOperationFilter>();
                 c.OperationFilter<Swagger.ComparisonHistoryQueryOperationFilter>();
                 c.OperationFilter<Swagger.ProblemDetailsResponsesOperationFilter>();
@@ -58,54 +59,9 @@ namespace ArchiForge.Api
 
             builder.Services.AddAuthentication("ApiKey")
                 .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", options => { });
+            builder.Services.AddArchiForgeAuthorization();
 
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("CanCommitRuns", policy =>
-                    policy.RequireClaim("permission", "commit:run"));
-
-                options.AddPolicy("CanSeedResults", policy =>
-                    policy.RequireClaim("permission", "seed:results"));
-
-                options.AddPolicy("CanExportConsultingDocx", policy =>
-                    policy.RequireClaim("permission", "export:consulting-docx"));
-
-                options.AddPolicy("CanReplayComparisons", policy =>
-                    policy.RequireClaim("permission", "replay:comparisons"));
-
-                options.AddPolicy("CanViewReplayDiagnostics", policy =>
-                    policy.RequireClaim("permission", "replay:diagnostics"));
-            });
-
-            var prometheusEnabled = builder.Configuration.GetValue("Observability:Prometheus:Enabled", false);
-            var consoleExporterEnabled = builder.Configuration.GetValue("Observability:ConsoleExporter:Enabled", builder.Environment.IsDevelopment());
-
-            builder.Services.AddOpenTelemetry()
-                .ConfigureResource(resource => resource
-                    .AddService(
-                        serviceName: "ArchiForge.Api",
-                        serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown",
-                        serviceInstanceId: Environment.MachineName))
-                .WithTracing(tracing =>
-                {
-                    tracing.AddAspNetCoreInstrumentation();
-                    tracing.AddHttpClientInstrumentation();
-                    tracing.AddSqlClientInstrumentation();
-                    if (consoleExporterEnabled)
-                    {
-                        tracing.AddConsoleExporter();
-                    }
-                })
-                .WithMetrics(metrics =>
-                {
-                    metrics.AddAspNetCoreInstrumentation();
-                    metrics.AddHttpClientInstrumentation();
-                    if (prometheusEnabled)
-                    {
-                        metrics.AddPrometheusExporter();
-                    }
-                });
-
+            builder.Services.AddArchiForgeOpenTelemetry(builder.Configuration, builder.Environment);
             builder.Services.AddArchiForgeRateLimiting(builder.Configuration);
             builder.Services.AddArchiForgeCors(builder.Configuration);
             builder.Services.AddArchiForgeApplicationServices(builder.Configuration);
@@ -158,6 +114,7 @@ namespace ArchiForge.Api
             app.UseAuthorization();
 
             app.MapHealthChecks("/health");
+            var prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
             if (prometheusEnabled)
             {
                 app.UseOpenTelemetryPrometheusScrapingEndpoint();
