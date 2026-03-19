@@ -1,11 +1,6 @@
 using ArchiForge.Api.Authentication;
-using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Startup;
-using ArchiForge.Api.Validators;
 using ArchiForge.Data.Infrastructure;
-using Asp.Versioning;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Serilog;
 
@@ -24,26 +19,7 @@ public partial class Program
 
         // Add services to the container.
 
-        builder.Services.AddControllers(options =>
-        {
-            options.Filters.Add<ApiProblemDetailsExceptionFilter>();
-        });
-        builder.Services.AddProblemDetails();
-        builder.Services.AddApiVersioning(options =>
-        {
-            options.DefaultApiVersion = new ApiVersion(1, 0);
-            options.AssumeDefaultVersionWhenUnspecified = true;
-            options.ReportApiVersions = true;
-        }).AddMvc().AddApiExplorer(options =>
-        {
-            options.GroupNameFormat = "'v'VVV";
-            options.SubstituteApiVersionInUrl = true;
-        });
-        builder.Services.AddFluentValidationAutoValidation();
-        builder.Services.AddValidatorsFromAssemblyContaining<ArchitectureRequestValidator>();
-        builder.Services.AddOpenApi();
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddArchiForgeSwagger();
+        builder.Services.AddArchiForgeMvc();
 
         builder.Services.AddAuthentication("ApiKey")
             .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", _ => { });

@@ -2,6 +2,17 @@
 
 ArchiForge is an API for orchestrating AI-driven architecture design. It coordinates topology, cost, and compliance agents to produce architecture manifests from high-level requests.
 
+## Key documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [docs/BUILD.md](docs/BUILD.md) | Build, CPM, project references, DecisionEngine bundle |
+| [docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md) | Test categories (`Integration` / `Unit`) and filter examples |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | HTTP behaviors (422 verify, 404 run-not-found, 409 commit, validation) |
+| [docs/CLI_USAGE.md](docs/CLI_USAGE.md) | CLI reference |
+| [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md) | Comparison replay concepts |
+| [docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md) | Architecture overview and cross-links |
+
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
@@ -54,6 +65,10 @@ dotnet run --project ArchiForge.Api
 ```
 
 The API listens on the URLs configured for the project (default `http://localhost:5128`; see `ArchiForge.Api/Properties/launchSettings.json`).
+
+**API versioning:** Routes use a URL path segment **`v1`** (e.g. `/v1/architecture/...`). The default API version is **1.0** when unspecified; **`api-supported-versions`** (and related) response headers report supported versions ([Asp.Versioning.Mvc](https://github.com/dotnet/aspnet-api-versioning)).
+
+**Correlation ID:** Send **`X-Correlation-ID`** on requests to tie logs and tracing to a client trace. If omitted, the server assigns a value (from the request trace id) and returns it on the response. Middleware applies the same id across the pipeline.
 
 In Development:
 

@@ -419,8 +419,73 @@ Candidates for the next round of refactors, in rough priority order.
 
 ## Checklist (continued)
 
-- [ ] 28. Api: extract MVC/API service registration (AddControllers through AddArchiForgeSwagger) into AddArchiForgeMvc extension
-- [ ] 29. Docs: API versioning (URL v1, default, report versions)
-- [ ] 30. Docs: Correlation ID (X-Correlation-ID header, request/response, tracing)
-- [ ] 31. Api.Tests: unit test for ReplayValidationConstants allowed values
-- [ ] 32. README: Key documentation section (BUILD, TEST_STRUCTURE, API_CONTRACTS, CLI_USAGE)
+- [x] 28. Api: extract MVC/API service registration (AddControllers through AddArchiForgeSwagger) into AddArchiForgeMvc extension
+- [x] 29. Docs: API versioning (URL v1, default, report versions)
+- [x] 30. Docs: Correlation ID (X-Correlation-ID header, request/response, tracing)
+- [x] 31. Api.Tests: unit test for ReplayValidationConstants allowed values
+- [x] 32. README: Key documentation section (BUILD, TEST_STRUCTURE, API_CONTRACTS, CLI_USAGE)
+
+---
+
+## 33. Centralize Api → Application replay request mapping
+
+**Problem (current code):** **ComparisonsController** builds **`AppReplayComparisonRequest`** in at least four places (replay, metadata, drift-related paths, batch replay) with the same property mapping from **`ApiReplayComparisonRequest`** and route IDs. That is easy to drift when a new field is added.
+
+**Change:**
+- Add a small mapper (e.g. static **`ReplayComparisonRequestMapper.ToApplication(string comparisonRecordId, ApiReplayComparisonRequest request)`** or an extension on **`ApiReplayComparisonRequest`**) and use it everywhere **`new AppReplayComparisonRequest { … }`** appears for replay flows.
+
+**Outcome:** One place to update when the replay contract changes.
+
+---
+
+## 34. Extract replay result → response headers helper
+
+**Problem (current code):** After **`comparisonReplayApiService.ReplayAsync`**, **ComparisonsController** sets many **`X-ArchiForge-*`** headers on **`Response`** in a long, repeated pattern (comparison id, type, replay mode, verification flags, run/export ids).
+
+**Change:**
+- Add a private method or small static helper (e.g. **`ApplyReplayComparisonResultHeaders(HttpResponse response, ReplayComparisonResult result)`**) and call it from each action that returns a replay artifact so header logic lives in one place.
+
+**Outcome:** Less duplication; consistent headers across replay endpoints.
+
+---
+
+## 35. Split or segment `AddArchiForgeApplicationServices`
+
+**Problem (current code):** **`ServiceCollectionExtensions.AddArchiForgeApplicationServices`** is a long, single method registering repositories, analysis, comparison, agents, DecisionEngine, etc. Hard to navigate and review in PRs.
+
+**Change:**
+- Split into private methods inside the same file (**`AddRepositories`**, **`AddComparisonAndReplay`**, **`AddAgentExecution`**, etc.) *or* separate extension methods (**`AddArchiForgeRepositories`**, **`AddArchiForgeAnalysisServices`**, …) composed from **`AddArchiForgeApplicationServices`**. Keep **one** public entry point for **Program.cs**.
+
+**Outcome:** Easier maintenance and clearer dependency grouping.
+
+---
+
+## 36. Align comparison history query validation with FluentValidation
+
+**Problem (current code):** **ComparisonsController** uses a static **`ComparisonHistoryQueryValidator`** and manual **`ValidateAsync`** + **`BadRequestProblem`**, while most bodies use **FluentValidation** auto-validation.
+
+**Change:**
+- Replace with **`AbstractValidator<ComparisonHistoryQuery>`** registered in DI (same assembly scan as other validators) and either use a filter/pipeline that validates `[FromQuery]` models or keep explicit validation but through the same validator type for consistency. Document if query binding cannot use auto-validation.
+
+**Outcome:** One validation story for API consumers and contributors.
+
+---
+
+## 37. Finish the “thin Program + docs + constants” backlog
+
+**Problem (current code):** **Program.cs** still inlines **AddControllers** through **AddArchiForgeSwagger** (see item 28). **ReplayValidationConstants** still has no dedicated unit test (item 31). README still lacks a consolidated **Key documentation** index and explicit notes on **API versioning** and **X-Correlation-ID** (items 29–30, 32).
+
+**Change:**
+- Implement **AddArchiForgeMvc** (or **AddArchiForgeApi**) extension; add **ReplayValidationConstantsTests**; add short README/API_CONTRACTS sections for versioning and correlation ID; add README **Key documentation** list.
+
+**Outcome:** Closes the remaining checklist items 28–32 with concrete deliverables.
+
+---
+
+## Checklist (analysis — Feb 2026)
+
+- [x] 33. Api: mapper for Api replay request → AppReplayComparisonRequest (ComparisonsController)
+- [x] 34. Api: helper for ReplayComparisonResult → X-ArchiForge-* response headers
+- [x] 35. Api: split or segment AddArchiForgeApplicationServices registration
+- [x] 36. Api: ComparisonHistoryQuery → FluentValidation alignment
+- [x] 37. Bundle: thin Program (28) + docs (29–30, 32) + ReplayValidationConstants test (31)

@@ -1,5 +1,15 @@
 # API contracts (notable behaviors)
 
+## API versioning
+
+- **URL path:** Major version is in the path: **`/v1/...`** (see controller routes `v{version:apiVersion}`).
+- **Default:** Version **1.0** is assumed when not specified; clients should still use **`/v1`** in URLs.
+- **Discovery:** Responses can include **`api-supported-versions`** / **`api-deprecated-versions`** per [Asp.Versioning](https://github.com/dotnet/aspnet-api-versioning) options (`ReportApiVersions`).
+
+## Correlation ID
+
+- Optional request header **`X-Correlation-ID`**: if present, the API echoes it on the response and uses it for logging/tracing context; if absent, a value is generated (e.g. from the ASP.NET Core trace identifier).
+
 ## Comparison replay — verify mode
 
 `POST /v1/architecture/comparisons/{comparisonRecordId}/replay` with `replayMode: verify` regenerates the comparison and compares it to the stored payload.

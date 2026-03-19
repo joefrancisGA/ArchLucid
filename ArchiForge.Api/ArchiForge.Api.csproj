@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="ArchiForge.Api.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Asp.Versioning.Mvc" />
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />

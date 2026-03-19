@@ -30,11 +30,34 @@ internal static class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        RegisterDataInfrastructure(services);
+        RegisterBackgroundJobs(services);
+        RegisterRunExportAndArchitectureAnalysis(services, configuration);
+        RegisterComparisonReplayAndDrift(services);
+        RegisterRunReplayManifestAndDiffs(services);
+        RegisterContextIngestionAndKnowledgeGraph(services);
+        RegisterDecisioningEngines(services);
+        RegisterCoordinatorDecisionEngineAndRepositories(services, configuration);
+        RegisterAgentExecution(services, configuration);
+        services.AddScoped<ArchitectureRunOrchestrator>();
+        return services;
+    }
+
+    private static void RegisterDataInfrastructure(IServiceCollection services)
+    {
         services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
         services.AddHealthChecks()
             .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
+    }
+
+    private static void RegisterBackgroundJobs(IServiceCollection services)
+    {
         services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
         services.AddHostedService(sp => (InMemoryBackgroundJobQueue)sp.GetRequiredService<IBackgroundJobQueue>());
+    }
+
+    private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection services, IConfiguration configuration)
+    {
         services.AddScoped<IRunExportRecordRepository, RunExportRecordRepository>();
         services.AddScoped<IRunExportAuditService, RunExportAuditService>();
         services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
@@ -52,6 +75,10 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<IEndToEndReplayComparisonService, EndToEndReplayComparisonService>();
         services.AddScoped<IEndToEndReplayComparisonSummaryFormatter, MarkdownEndToEndReplayComparisonSummaryFormatter>();
         services.AddScoped<IEndToEndReplayComparisonExportService, EndToEndReplayComparisonExportService>();
+    }
+
+    private static void RegisterComparisonReplayAndDrift(IServiceCollection services)
+    {
         services.AddScoped<IComparisonRecordRepository, ComparisonRecordRepository>();
         services.AddScoped<IComparisonAuditService, ComparisonAuditService>();
         services.AddScoped<IComparisonDriftAnalyzer, ComparisonDriftAnalyzer>();
@@ -59,6 +86,10 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<IComparisonReplayApiService, ComparisonReplayApiService>();
         services.AddScoped<IComparisonDriftReportExportService, ComparisonDriftReportExportService>();
         services.AddSingleton<IReplayDiagnosticsRecorder, ReplayDiagnosticsRecorder>();
+    }
+
+    private static void RegisterRunReplayManifestAndDiffs(IServiceCollection services)
+    {
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IReplayRunService, ReplayRunService>();
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
@@ -80,12 +111,20 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<IExportRecordDiffExportService, ExportRecordDiffExportService>();
         services.AddScoped<IDriftReportFormatter, MarkdownDriftReportFormatter>();
         services.AddScoped<DriftReportDocxExport>();
+    }
+
+    private static void RegisterContextIngestionAndKnowledgeGraph(IServiceCollection services)
+    {
         services.AddSingleton<ContextIngestion.Interfaces.IContextConnector, ContextIngestion.Connectors.StaticRequestContextConnector>();
         services.AddSingleton<ContextIngestion.Interfaces.IContextSnapshotRepository, ContextIngestion.Repositories.InMemoryContextSnapshotRepository>();
         services.AddScoped<ContextIngestion.Interfaces.IContextIngestionService, ArchiForge.ContextIngestion.Services.ContextIngestionService>();
         services.AddSingleton<KnowledgeGraph.Interfaces.IGraphSnapshotRepository, KnowledgeGraph.Repositories.InMemoryGraphSnapshotRepository>();
         services.AddScoped<KnowledgeGraph.Interfaces.IGraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();
         services.AddScoped<KnowledgeGraph.Interfaces.IKnowledgeGraphService, ArchiForge.KnowledgeGraph.Services.KnowledgeGraphService>();
+    }
+
+    private static void RegisterDecisioningEngines(IServiceCollection services)
+    {
         services.AddSingleton<Decisioning.Interfaces.IFindingsSnapshotRepository, Decisioning.Repositories.InMemoryFindingsSnapshotRepository>();
         services.AddSingleton<ArchiForge.Decisioning.Interfaces.IGoldenManifestRepository, Decisioning.Repositories.InMemoryGoldenManifestRepository>();
         services.AddSingleton<ArchiForge.Decisioning.Interfaces.IDecisionTraceRepository, Decisioning.Repositories.InMemoryDecisionTraceRepository>();
@@ -99,6 +138,12 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<Decisioning.Interfaces.IGoldenManifestBuilder, Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder>();
         services.AddSingleton<Decisioning.Interfaces.IGoldenManifestValidator, ArchiForge.Decisioning.Services.GoldenManifestValidator>();
         services.AddScoped<Decisioning.Interfaces.IDecisionEngine, ArchiForge.Decisioning.Services.RuleBasedDecisionEngine>();
+    }
+
+    private static void RegisterCoordinatorDecisionEngineAndRepositories(
+        IServiceCollection services,
+        IConfiguration configuration)
+    {
         services.AddScoped<ICoordinatorService, CoordinatorService>();
         services.AddSchemaValidation(configuration);
         services.AddScoped<IDecisionEngineService, DecisionEngineService>();
@@ -118,7 +163,10 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
         services.AddHostedService<ConfigurationValidator>();
+    }
 
+    private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)
+    {
         var agentMode = configuration["AgentExecution:Mode"];
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
         {
@@ -181,8 +229,5 @@ internal static class ServiceCollectionExtensions
                     }));
             }
         }
-
-        services.AddScoped<ArchitectureRunOrchestrator>();
-        return services;
     }
 }

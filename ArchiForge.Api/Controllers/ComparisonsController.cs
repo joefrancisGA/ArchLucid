@@ -1,17 +1,17 @@
 using System.IO.Compression;
+using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Data.Repositories;
 using Asp.Versioning;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using FluentValidation;
 
 using ApiReplayComparisonRequest = ArchiForge.Api.Models.ReplayComparisonRequest;
-using AppReplayComparisonRequest = ArchiForge.Application.Analysis.ReplayComparisonRequest;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -25,50 +25,10 @@ public sealed class ComparisonsController(
     IComparisonRecordRepository comparisonRecordRepository,
     IComparisonReplayApiService comparisonReplayApiService,
     IDriftReportFormatter driftReportFormatter,
-    DriftReportDocxExport driftReportDocxExport)
+    DriftReportDocxExport driftReportDocxExport,
+    IValidator<ComparisonHistoryQuery> comparisonHistoryQueryValidator)
     : ControllerBase
 {
-    private static readonly ComparisonHistoryQueryValidator ComparisonHistoryValidator = new();
-
-    private sealed class ComparisonHistoryQueryValidator : AbstractValidator<ComparisonHistoryQuery>
-    {
-        public ComparisonHistoryQueryValidator()
-        {
-            RuleFor(x => x.ComparisonType)
-                .Must(t => string.IsNullOrWhiteSpace(t)
-                           || string.Equals(t.Trim(), "end-to-end-replay", StringComparison.OrdinalIgnoreCase)
-                           || string.Equals(t.Trim(), "export-record-diff", StringComparison.OrdinalIgnoreCase))
-                .WithMessage("comparisonType must be empty, 'end-to-end-replay', or 'export-record-diff'.");
-
-            RuleFor(x => x)
-                .Must(q => q.CreatedFromUtc is null || q.CreatedToUtc is null || q.CreatedFromUtc <= q.CreatedToUtc)
-                .WithMessage("createdFromUtc must be <= createdToUtc.");
-
-            RuleFor(x => x.Skip).GreaterThanOrEqualTo(0).WithMessage("skip must be >= 0.");
-
-            RuleFor(x => x.Limit).InclusiveBetween(0, 500).WithMessage("limit must be between 0 and 500 (0 = default 50).");
-
-            RuleFor(x => x.SortDir)
-                .Must(d => string.IsNullOrWhiteSpace(d)
-                           || string.Equals(d, "asc", StringComparison.OrdinalIgnoreCase)
-                           || string.Equals(d, "desc", StringComparison.OrdinalIgnoreCase))
-                .WithMessage("sortDir must be 'asc' or 'desc'.");
-
-            RuleFor(x => x.SortBy)
-                .Must(s => string.IsNullOrWhiteSpace(s)
-                           || string.Equals(s, "createdUtc", StringComparison.OrdinalIgnoreCase)
-                           || string.Equals(s, "type", StringComparison.OrdinalIgnoreCase)
-                           || string.Equals(s, "label", StringComparison.OrdinalIgnoreCase)
-                           || string.Equals(s, "leftRunId", StringComparison.OrdinalIgnoreCase)
-                           || string.Equals(s, "rightRunId", StringComparison.OrdinalIgnoreCase))
-                .WithMessage("sortBy must be one of: createdUtc, type, label, leftRunId, rightRunId.");
-
-            RuleFor(x => x)
-                .Must(q => string.IsNullOrWhiteSpace(q.Cursor)
-                           || string.Equals(q.SortBy ?? "createdUtc", "createdUtc", StringComparison.OrdinalIgnoreCase))
-                .WithMessage("cursor paging currently requires sortBy=createdUtc.");
-        }
-    }
 
     [HttpGet("run/{runId}/comparisons")]
     [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
@@ -156,13 +116,7 @@ public sealed class ComparisonsController(
         }
 
         var replay = await comparisonReplayApiService.ReplayAsync(
-            new AppReplayComparisonRequest
-            {
-                ComparisonRecordId = comparisonRecordId,
-                Format = "markdown",
-                ReplayMode = "artifact",
-                PersistReplay = false
-            },
+            ReplayComparisonRequestMapper.ForSummaryMarkdown(comparisonRecordId),
             metadataOnly: false,
             cancellationToken);
 
@@ -181,7 +135,7 @@ public sealed class ComparisonsController(
         [FromQuery] ComparisonHistoryQuery query,
         CancellationToken cancellationToken = default)
     {
-        var vr = await ComparisonHistoryValidator.ValidateAsync(query, cancellationToken);
+        var vr = await comparisonHistoryQueryValidator.ValidateAsync(query, cancellationToken);
         if (!vr.IsValid)
         {
             return this.BadRequestProblem(
@@ -302,63 +256,19 @@ public sealed class ComparisonsController(
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayComparisonRequest();
-        if (!string.IsNullOrWhiteSpace(format) && string.IsNullOrWhiteSpace(request.Format))
-            request.Format = format;
         var result = await comparisonReplayApiService.ReplayAsync(
-            new AppReplayComparisonRequest
-            {
-                ComparisonRecordId = comparisonRecordId,
-                Format = request.Format,
-                ReplayMode = request.ReplayMode,
-                Profile = request.Profile,
-                PersistReplay = request.PersistReplay
-            },
+            ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint(comparisonRecordId, request, format),
             metadataOnly: false,
             cancellationToken);
 
-            Response.Headers["X-ArchiForge-ComparisonRecordId"] = result.ComparisonRecordId;
-            Response.Headers["X-ArchiForge-ComparisonType"] = result.ComparisonType;
-            Response.Headers["X-ArchiForge-ReplayMode"] = result.ReplayMode;
-            Response.Headers["X-ArchiForge-VerificationPassed"] = result.VerificationPassed.ToString();
-            if (result.VerificationMessage is { } msg)
-            {
-                Response.Headers["X-ArchiForge-VerificationMessage"] = msg;
-            }
-            if (result.LeftRunId is { } leftRunId)
-            {
-                Response.Headers["X-ArchiForge-LeftRunId"] = leftRunId;
-            }
-            if (result.RightRunId is { } rightRunId)
-            {
-                Response.Headers["X-ArchiForge-RightRunId"] = rightRunId;
-            }
-            if (result.LeftExportRecordId is { } leftExportId)
-            {
-                Response.Headers["X-ArchiForge-LeftExportRecordId"] = leftExportId;
-            }
-            if (result.RightExportRecordId is { } rightExportId)
-            {
-                Response.Headers["X-ArchiForge-RightExportRecordId"] = rightExportId;
-            }
-            if (result.CreatedUtc is { } createdUtc)
-            {
-                Response.Headers["X-ArchiForge-CreatedUtc"] = createdUtc.ToString("O");
-            }
-            if (result.FormatProfile is { } formatProfile)
-            {
-                Response.Headers["X-ArchiForge-Format-Profile"] = formatProfile;
-            }
-            if (result.PersistedReplayRecordId is { } persistedId)
-            {
-                Response.Headers["X-ArchiForge-PersistedReplayRecordId"] = persistedId;
-            }
+        ReplayComparisonResultHeaders.ApplyFull(Response, result);
 
-            return ReplayArtifactResponseFactory.ComparisonReplayFileOrBadRequest(
-                Request,
-                result,
-                () => this.BadRequestProblem(
-                    $"Unsupported replay result format '{result.Format}'.",
-                    ProblemTypes.BadRequest));
+        return ReplayArtifactResponseFactory.ComparisonReplayFileOrBadRequest(
+            Request,
+            result,
+            () => this.BadRequestProblem(
+                $"Unsupported replay result format '{result.Format}'.",
+                ProblemTypes.BadRequest));
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/drift")]
@@ -427,64 +337,30 @@ public sealed class ComparisonsController(
     {
         request ??= new ApiReplayComparisonRequest();
         var result = await comparisonReplayApiService.ReplayAsync(
-            new AppReplayComparisonRequest
-            {
-                ComparisonRecordId = comparisonRecordId,
-                Format = request.Format,
-                ReplayMode = request.ReplayMode,
-                Profile = request.Profile,
-                PersistReplay = request.PersistReplay
-            },
+            ReplayComparisonRequestMapper.ToApplication(comparisonRecordId, request),
             metadataOnly: true,
             cancellationToken);
 
-            if (result.LeftRunId is { } leftRunId)
-            {
-                Response.Headers["X-ArchiForge-LeftRunId"] = leftRunId;
-            }
-            if (result.RightRunId is { } rightRunId)
-            {
-                Response.Headers["X-ArchiForge-RightRunId"] = rightRunId;
-            }
-            if (result.LeftExportRecordId is { } leftExportId)
-            {
-                Response.Headers["X-ArchiForge-LeftExportRecordId"] = leftExportId;
-            }
-            if (result.RightExportRecordId is { } rightExportId)
-            {
-                Response.Headers["X-ArchiForge-RightExportRecordId"] = rightExportId;
-            }
-            if (result.CreatedUtc is { } createdUtc)
-            {
-                Response.Headers["X-ArchiForge-CreatedUtc"] = createdUtc.ToString("O");
-            }
-            if (result.FormatProfile is { } formatProfile)
-            {
-                Response.Headers["X-ArchiForge-Format-Profile"] = formatProfile;
-            }
-            if (result.PersistedReplayRecordId is { } persistedIdMeta)
-            {
-                Response.Headers["X-ArchiForge-PersistedReplayRecordId"] = persistedIdMeta;
-            }
+        ReplayComparisonResultHeaders.ApplyMetadata(Response, result);
 
-            return Ok(new ReplayComparisonMetadataResponse
-            {
-                ComparisonRecordId = result.ComparisonRecordId,
-                ComparisonType = result.ComparisonType,
-                Format = result.Format,
-                FileName = result.FileName,
-                ReplayMode = result.ReplayMode,
-                VerificationPassed = result.VerificationPassed,
-                VerificationMessage = result.VerificationMessage,
-                DriftAnalysis = result.DriftAnalysis is null ? null : MapDriftAnalysis(result.DriftAnalysis),
-                LeftRunId = result.LeftRunId,
-                RightRunId = result.RightRunId,
-                LeftExportRecordId = result.LeftExportRecordId,
-                RightExportRecordId = result.RightExportRecordId,
-                CreatedUtc = result.CreatedUtc,
-                FormatProfile = result.FormatProfile,
-                PersistedReplayRecordId = result.PersistedReplayRecordId
-            });
+        return Ok(new ReplayComparisonMetadataResponse
+        {
+            ComparisonRecordId = result.ComparisonRecordId,
+            ComparisonType = result.ComparisonType,
+            Format = result.Format,
+            FileName = result.FileName,
+            ReplayMode = result.ReplayMode,
+            VerificationPassed = result.VerificationPassed,
+            VerificationMessage = result.VerificationMessage,
+            DriftAnalysis = result.DriftAnalysis is null ? null : MapDriftAnalysis(result.DriftAnalysis),
+            LeftRunId = result.LeftRunId,
+            RightRunId = result.RightRunId,
+            LeftExportRecordId = result.LeftExportRecordId,
+            RightExportRecordId = result.RightExportRecordId,
+            CreatedUtc = result.CreatedUtc,
+            FormatProfile = result.FormatProfile,
+            PersistedReplayRecordId = result.PersistedReplayRecordId
+        });
     }
 
     [HttpPost("comparisons/replay/batch")]
@@ -521,14 +397,12 @@ public sealed class ComparisonsController(
             foreach (var id in request.ComparisonRecordIds.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 var result = await comparisonReplayApiService.ReplayAsync(
-                    new AppReplayComparisonRequest
-                    {
-                        ComparisonRecordId = id,
-                        Format = format,
-                        ReplayMode = mode,
-                        Profile = request.Profile,
-                        PersistReplay = request.PersistReplay
-                    },
+                    ReplayComparisonRequestMapper.ToApplicationForBatchEntry(
+                        id,
+                        format,
+                        mode,
+                        request.Profile,
+                        request.PersistReplay),
                     metadataOnly: false,
                     cancellationToken);
 
