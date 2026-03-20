@@ -42,6 +42,15 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
 
                 new DecisionRule
                 {
+                    Name = "Record policy applicability findings",
+                    Priority = 87,
+                    IsMandatory = false,
+                    AppliesToFindingType = "PolicyApplicabilityFinding",
+                    Action = "allow"
+                },
+
+                new DecisionRule
+                {
                     Name = "Prefer cost constraint findings",
                     Priority = 85,
                     IsMandatory = false,

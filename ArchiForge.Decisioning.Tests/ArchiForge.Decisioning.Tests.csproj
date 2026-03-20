@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>

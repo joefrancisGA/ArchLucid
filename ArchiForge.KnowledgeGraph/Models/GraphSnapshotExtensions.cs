@@ -42,4 +42,26 @@ public static class GraphSnapshotExtensions
             .Where(x => targetIds.Contains(x.NodeId))
             .ToList();
     }
+
+    /// <summary>
+    /// Nodes that have an incoming <paramref name="edgeType"/> edge to <paramref name="toNodeId"/>.
+    /// </summary>
+    public static IReadOnlyList<GraphNode> GetIncomingSources(
+        this GraphSnapshot snapshot,
+        string toNodeId,
+        string edgeType)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
+        var sourceIds = snapshot.Edges
+            .Where(x =>
+                string.Equals(x.ToNodeId, toNodeId, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(x.EdgeType, edgeType, StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.FromNodeId)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return snapshot.Nodes
+            .Where(x => sourceIds.Contains(x.NodeId))
+            .ToList();
+    }
 }

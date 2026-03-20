@@ -38,9 +38,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         };
 
         PopulateRequirements(manifest, findingsSnapshot);
+        PopulateTopologyFromGraph(manifest, graphSnapshot);
         PopulateTopology(manifest, findingsSnapshot);
         PopulateSecurity(manifest, findingsSnapshot);
         PopulateCost(manifest, findingsSnapshot);
+        PopulatePolicyApplicability(manifest, findingsSnapshot);
         PopulateConstraints(manifest, findingsSnapshot, trace);
         PopulateProvenance(manifest, findingsSnapshot, trace);
 
@@ -66,6 +68,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
             .ToList();
         manifest.Topology.Resources = manifest.Topology.Resources
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
             .ToList();
         manifest.Topology.Gaps = manifest.Topology.Gaps
@@ -151,6 +154,16 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
+    private static void PopulateTopologyFromGraph(GoldenManifest manifest, GraphSnapshot graphSnapshot)
+    {
+        foreach (var node in graphSnapshot.GetNodesByType("TopologyResource"))
+        {
+            if (string.IsNullOrWhiteSpace(node.Label))
+                continue;
+            manifest.Topology.Resources.Add(node.Label);
+        }
+    }
+
     private static void PopulateTopology(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
     {
         foreach (var finding in findingsSnapshot.GetByType("TopologyGap"))
@@ -225,6 +238,34 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
             if (!string.IsNullOrWhiteSpace(payload.CostRisk))
                 manifest.Cost.CostRisks.Add(payload.CostRisk);
+        }
+    }
+
+    private static void PopulatePolicyApplicability(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
+    {
+        foreach (var finding in findingsSnapshot.GetByType("PolicyApplicabilityFinding"))
+        {
+            var payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
+            if (payload is null)
+                continue;
+
+            if (finding.Severity == FindingSeverity.Warning)
+            {
+                manifest.Warnings.Add($"{payload.PolicyName}: {finding.Title}");
+                manifest.UnresolvedIssues.Items.Add(new ManifestIssue
+                {
+                    IssueType = "PolicyApplicabilityGap",
+                    Title = finding.Title,
+                    Description = finding.Rationale,
+                    Severity = finding.Severity.ToString(),
+                    SupportingFindingIds = [finding.FindingId]
+                });
+            }
+            else if (finding.Severity == FindingSeverity.Info)
+            {
+                manifest.Assumptions.Add(
+                    $"Policy '{payload.PolicyName}' applies to {payload.ApplicableTopologyResourceCount} topology resource(s) (APPLIES_TO in knowledge graph).");
+            }
         }
     }
 
