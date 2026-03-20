@@ -59,8 +59,7 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
     }
 
     public async Task<RunRecord> ExecuteAsync(
-        string projectId,
-        string? description,
+        ContextIngestionRequest request,
         CancellationToken ct)
     {
         await using var uow = await _unitOfWorkFactory.CreateAsync(ct);
@@ -70,21 +69,15 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             var run = new RunRecord
             {
                 RunId = Guid.NewGuid(),
-                ProjectId = projectId,
-                Description = description,
+                ProjectId = request.ProjectId,
+                Description = request.Description,
                 CreatedUtc = DateTime.UtcNow
             };
 
             await SaveRunAsync(run, ct, uow);
 
-            var ingestionRequest = new ContextIngestionRequest
-            {
-                RunId = run.RunId,
-                ProjectId = projectId,
-                Description = description
-            };
-
-            var contextSnapshot = await _contextIngestionService.IngestAsync(ingestionRequest, ct);
+            request.RunId = run.RunId;
+            var contextSnapshot = await _contextIngestionService.IngestAsync(request, ct);
             await SaveContextAsync(contextSnapshot, ct, uow);
 
             run.ContextSnapshotId = contextSnapshot.SnapshotId;

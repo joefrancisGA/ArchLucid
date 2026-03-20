@@ -1,3 +1,4 @@
+using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -287,15 +288,15 @@ public sealed class RealRuntimeMixedModeTests
 
     private sealed class FakeAuthorityRunOrchestratorForRuntimeTests : IAuthorityRunOrchestrator
     {
-        public Task<RunRecord> ExecuteAsync(string projectId, string? description, CancellationToken ct)
+        public Task<RunRecord> ExecuteAsync(ContextIngestionRequest request, CancellationToken ct)
         {
             _ = ct;
             var runId = Guid.NewGuid();
             return Task.FromResult(new RunRecord
             {
                 RunId = runId,
-                ProjectId = projectId,
-                Description = description,
+                ProjectId = request.ProjectId,
+                Description = request.Description,
                 CreatedUtc = DateTime.UtcNow,
                 ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),

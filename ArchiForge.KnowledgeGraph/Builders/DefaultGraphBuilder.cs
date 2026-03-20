@@ -30,12 +30,18 @@ public class DefaultGraphBuilder : IGraphBuilder
         {
             var nodeId = $"obj-{item.ObjectId}";
 
+            var props = new Dictionary<string, string>(item.Properties)
+            {
+                ["sourceType"] = item.SourceType,
+                ["sourceId"] = item.SourceId
+            };
+
             result.Nodes.Add(new GraphNode
             {
                 NodeId = nodeId,
                 NodeType = item.ObjectType,
                 Label = item.Name,
-                Properties = new Dictionary<string, string>(item.Properties)
+                Properties = props
             });
 
             result.Edges.Add(new GraphEdge

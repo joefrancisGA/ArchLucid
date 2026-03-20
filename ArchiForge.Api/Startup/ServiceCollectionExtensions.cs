@@ -25,6 +25,10 @@ using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json;
+using ArchiForge.ContextIngestion.Canonicalization;
+using ArchiForge.ContextIngestion.Connectors;
+using ArchiForge.ContextIngestion.Contracts;
+using ArchiForge.ContextIngestion.Parsing;
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextIngestionService;
 using GraphBuilder = ArchiForge.KnowledgeGraph.Interfaces.IGraphBuilder;
@@ -125,7 +129,17 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterContextIngestionAndKnowledgeGraph(IServiceCollection services)
     {
-        services.AddSingleton<ContextConnector, ContextIngestion.Connectors.StaticRequestContextConnector>();
+        services.AddSingleton<IContextDocumentParser, PlainTextContextDocumentParser>();
+
+        services.AddSingleton<ContextConnector, StaticRequestContextConnector>();
+        services.AddSingleton<ContextConnector, InlineRequirementsConnector>();
+        services.AddSingleton<ContextConnector, PolicyReferenceConnector>();
+        services.AddSingleton<ContextConnector, TopologyHintsConnector>();
+        services.AddSingleton<ContextConnector, SecurityBaselineHintsConnector>();
+        services.AddSingleton<ContextConnector, DocumentConnector>();
+
+        services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();
+
         services.AddScoped<ContextIngestionService, ArchiForge.ContextIngestion.Services.ContextIngestionService>();
         services.AddScoped<GraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();
         services.AddScoped<KnowledgeGraphService, ArchiForge.KnowledgeGraph.Services.KnowledgeGraphService>();

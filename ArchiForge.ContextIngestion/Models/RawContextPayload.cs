@@ -3,5 +3,10 @@ namespace ArchiForge.ContextIngestion.Models;
 public class RawContextPayload
 {
     public string? Description { get; set; }
-}
 
+    public List<string> InlineRequirements { get; set; } = new();
+    public List<ContextDocumentReference> Documents { get; set; } = new();
+    public List<string> PolicyReferences { get; set; } = new();
+    public List<string> TopologyHints { get; set; } = new();
+    public List<string> SecurityBaselineHints { get; set; } = new();
+}

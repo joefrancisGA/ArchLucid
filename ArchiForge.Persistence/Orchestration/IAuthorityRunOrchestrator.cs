@@ -1,3 +1,4 @@
+using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Persistence.Models;
 
 namespace ArchiForge.Persistence.Orchestration;
@@ -8,7 +9,6 @@ namespace ArchiForge.Persistence.Orchestration;
 public interface IAuthorityRunOrchestrator
 {
     Task<RunRecord> ExecuteAsync(
-        string projectId,
-        string? description,
+        ContextIngestionRequest request,
         CancellationToken ct);
 }

@@ -3,17 +3,18 @@ using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Connectors;
 
-public class StaticRequestContextConnector : IContextConnector
+public class InlineRequirementsConnector : IContextConnector
 {
-    public string ConnectorType => "static-request";
+    public string ConnectorType => "inline-requirements";
 
     public Task<RawContextPayload> FetchAsync(
         ContextIngestionRequest request,
         CancellationToken ct)
     {
+        _ = ct;
         return Task.FromResult(new RawContextPayload
         {
-            Description = request.Description
+            InlineRequirements = request.InlineRequirements.ToList()
         });
     }
 
@@ -21,19 +22,20 @@ public class StaticRequestContextConnector : IContextConnector
         RawContextPayload payload,
         CancellationToken ct)
     {
+        _ = ct;
         var batch = new NormalizedContextBatch();
 
-        if (!string.IsNullOrWhiteSpace(payload.Description))
+        foreach (var requirement in payload.InlineRequirements)
         {
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "Requirement",
-                Name = "Primary Request",
-                SourceType = "StaticRequest",
-                SourceId = "description",
+                Name = requirement.Length > 80 ? requirement[..80] : requirement,
+                SourceType = "InlineRequirement",
+                SourceId = "inline",
                 Properties = new Dictionary<string, string>
                 {
-                    ["text"] = payload.Description!
+                    ["text"] = requirement
                 }
             });
         }
@@ -46,10 +48,11 @@ public class StaticRequestContextConnector : IContextConnector
         ContextSnapshot? previous,
         CancellationToken ct)
     {
+        _ = current;
+        _ = ct;
         return Task.FromResult(new ContextDelta
         {
-            Summary = previous is null ? "Initial ingestion" : "Updated ingestion"
+            Summary = previous is null ? "Initial inline requirement ingestion" : "Updated inline requirement ingestion"
         });
     }
 }
-

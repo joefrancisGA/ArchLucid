@@ -1,0 +1,96 @@
+using ArchiForge.ContextIngestion.Contracts;
+using ArchiForge.ContextIngestion.Models;
+
+namespace ArchiForge.ContextIngestion.Parsing;
+
+public class PlainTextContextDocumentParser : IContextDocumentParser
+{
+    public bool CanParse(string contentType)
+    {
+        return string.Equals(contentType, "text/plain", StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(contentType, "text/markdown", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
+        ContextDocumentReference document,
+        CancellationToken ct)
+    {
+        _ = ct;
+        var results = new List<CanonicalObject>();
+
+        var lines = document.Content
+            .Replace("\r\n", "\n")
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        foreach (var line in lines)
+        {
+            if (line.StartsWith("REQ:", StringComparison.OrdinalIgnoreCase))
+            {
+                var text = line.Substring(4).Trim();
+
+                results.Add(new CanonicalObject
+                {
+                    ObjectType = "Requirement",
+                    Name = text.Length > 80 ? text[..80] : text,
+                    SourceType = "Document",
+                    SourceId = document.DocumentId,
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["text"] = text
+                    }
+                });
+            }
+            else if (line.StartsWith("POL:", StringComparison.OrdinalIgnoreCase))
+            {
+                var text = line.Substring(4).Trim();
+
+                results.Add(new CanonicalObject
+                {
+                    ObjectType = "PolicyControl",
+                    Name = text.Length > 80 ? text[..80] : text,
+                    SourceType = "Document",
+                    SourceId = document.DocumentId,
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["text"] = text
+                    }
+                });
+            }
+            else if (line.StartsWith("TOP:", StringComparison.OrdinalIgnoreCase))
+            {
+                var text = line.Substring(4).Trim();
+
+                results.Add(new CanonicalObject
+                {
+                    ObjectType = "TopologyResource",
+                    Name = text.Length > 80 ? text[..80] : text,
+                    SourceType = "Document",
+                    SourceId = document.DocumentId,
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["text"] = text
+                    }
+                });
+            }
+            else if (line.StartsWith("SEC:", StringComparison.OrdinalIgnoreCase))
+            {
+                var text = line.Substring(4).Trim();
+
+                results.Add(new CanonicalObject
+                {
+                    ObjectType = "SecurityBaseline",
+                    Name = text.Length > 80 ? text[..80] : text,
+                    SourceType = "Document",
+                    SourceId = document.DocumentId,
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["text"] = text,
+                        ["status"] = "declared"
+                    }
+                });
+            }
+        }
+
+        return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+}

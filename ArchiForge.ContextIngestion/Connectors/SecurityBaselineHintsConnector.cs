@@ -3,17 +3,18 @@ using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Connectors;
 
-public class StaticRequestContextConnector : IContextConnector
+public class SecurityBaselineHintsConnector : IContextConnector
 {
-    public string ConnectorType => "static-request";
+    public string ConnectorType => "security-baseline-hints";
 
     public Task<RawContextPayload> FetchAsync(
         ContextIngestionRequest request,
         CancellationToken ct)
     {
+        _ = ct;
         return Task.FromResult(new RawContextPayload
         {
-            Description = request.Description
+            SecurityBaselineHints = request.SecurityBaselineHints.ToList()
         });
     }
 
@@ -21,19 +22,21 @@ public class StaticRequestContextConnector : IContextConnector
         RawContextPayload payload,
         CancellationToken ct)
     {
+        _ = ct;
         var batch = new NormalizedContextBatch();
 
-        if (!string.IsNullOrWhiteSpace(payload.Description))
+        foreach (var hint in payload.SecurityBaselineHints)
         {
             batch.CanonicalObjects.Add(new CanonicalObject
             {
-                ObjectType = "Requirement",
-                Name = "Primary Request",
-                SourceType = "StaticRequest",
-                SourceId = "description",
+                ObjectType = "SecurityBaseline",
+                Name = hint,
+                SourceType = "SecurityBaselineHint",
+                SourceId = "security-hint",
                 Properties = new Dictionary<string, string>
                 {
-                    ["text"] = payload.Description!
+                    ["text"] = hint,
+                    ["status"] = "declared"
                 }
             });
         }
@@ -46,10 +49,11 @@ public class StaticRequestContextConnector : IContextConnector
         ContextSnapshot? previous,
         CancellationToken ct)
     {
+        _ = current;
+        _ = ct;
         return Task.FromResult(new ContextDelta
         {
-            Summary = previous is null ? "Initial ingestion" : "Updated ingestion"
+            Summary = previous is null ? "Initial security baseline hint ingestion" : "Updated security baseline hint ingestion"
         });
     }
 }
-
