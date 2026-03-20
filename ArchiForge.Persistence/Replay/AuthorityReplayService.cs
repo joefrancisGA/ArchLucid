@@ -1,5 +1,8 @@
 using ArchiForge.ArtifactSynthesis.Interfaces;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
+using ArchiForge.Decisioning.Models;
+using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Queries;
 
 namespace ArchiForge.Persistence.Replay;
@@ -7,6 +10,7 @@ namespace ArchiForge.Persistence.Replay;
 public sealed class AuthorityReplayService : IAuthorityReplayService
 {
     private readonly IAuthorityQueryService _queryService;
+    private readonly IScopeContextProvider _scopeContextProvider;
     private readonly IDecisionEngine _decisionEngine;
     private readonly IArtifactSynthesisService _artifactSynthesisService;
     private readonly IManifestHashService _manifestHashService;
@@ -16,6 +20,7 @@ public sealed class AuthorityReplayService : IAuthorityReplayService
 
     public AuthorityReplayService(
         IAuthorityQueryService queryService,
+        IScopeContextProvider scopeContextProvider,
         IDecisionEngine decisionEngine,
         IArtifactSynthesisService artifactSynthesisService,
         IManifestHashService manifestHashService,
@@ -24,6 +29,7 @@ public sealed class AuthorityReplayService : IAuthorityReplayService
         IArtifactBundleRepository artifactBundleRepository)
     {
         _queryService = queryService;
+        _scopeContextProvider = scopeContextProvider;
         _decisionEngine = decisionEngine;
         _artifactSynthesisService = artifactSynthesisService;
         _manifestHashService = manifestHashService;
@@ -36,7 +42,8 @@ public sealed class AuthorityReplayService : IAuthorityReplayService
         ReplayRequest request,
         CancellationToken ct)
     {
-        var original = await _queryService.GetRunDetailAsync(request.RunId, ct);
+        var readScope = _scopeContextProvider.GetCurrentScope();
+        var original = await _queryService.GetRunDetailAsync(readScope, request.RunId, ct);
         if (original is null)
             return null;
 
@@ -96,6 +103,11 @@ public sealed class AuthorityReplayService : IAuthorityReplayService
             original.FindingsSnapshot,
             ct);
 
+        var writeScope = WriteScopeFromRun(original.Run);
+        ApplyScope(decisionResult.Trace, writeScope);
+        ApplyScope(decisionResult.Manifest, writeScope);
+        decisionResult.Manifest.ManifestHash = _manifestHashService.ComputeHash(decisionResult.Manifest);
+
         await _decisionTraceRepository.SaveAsync(decisionResult.Trace, ct);
         await _goldenManifestRepository.SaveAsync(decisionResult.Manifest, ct);
 
@@ -142,5 +154,39 @@ public sealed class AuthorityReplayService : IAuthorityReplayService
         }
 
         return result;
+    }
+
+    private static ScopeContext WriteScopeFromRun(RunRecord run)
+    {
+        if (run.TenantId == Guid.Empty && run.WorkspaceId == Guid.Empty && run.ScopeProjectId == Guid.Empty)
+        {
+            return new ScopeContext
+            {
+                TenantId = ScopeIds.DefaultTenant,
+                WorkspaceId = ScopeIds.DefaultWorkspace,
+                ProjectId = ScopeIds.DefaultProject
+            };
+        }
+
+        return new ScopeContext
+        {
+            TenantId = run.TenantId,
+            WorkspaceId = run.WorkspaceId,
+            ProjectId = run.ScopeProjectId
+        };
+    }
+
+    private static void ApplyScope(DecisionTrace trace, ScopeContext scope)
+    {
+        trace.TenantId = scope.TenantId;
+        trace.WorkspaceId = scope.WorkspaceId;
+        trace.ProjectId = scope.ProjectId;
+    }
+
+    private static void ApplyScope(GoldenManifest manifest, ScopeContext scope)
+    {
+        manifest.TenantId = scope.TenantId;
+        manifest.WorkspaceId = scope.WorkspaceId;
+        manifest.ProjectId = scope.ProjectId;
     }
 }

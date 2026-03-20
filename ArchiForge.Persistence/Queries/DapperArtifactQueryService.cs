@@ -1,5 +1,6 @@
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.Core.Scoping;
 using ArchiForge.ArtifactSynthesis.Packaging;
 
 namespace ArchiForge.Persistence.Queries;
@@ -14,10 +15,11 @@ public sealed class DapperArtifactQueryService : IArtifactQueryService
     }
 
     public async Task<IReadOnlyList<ArtifactDescriptor>> ListArtifactsByManifestIdAsync(
+        ScopeContext scope,
         Guid manifestId,
         CancellationToken ct)
     {
-        var artifacts = await GetArtifactsByManifestIdAsync(manifestId, ct);
+        var artifacts = await GetArtifactsByManifestIdAsync(scope, manifestId, ct);
 
         return artifacts
             .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
@@ -34,20 +36,22 @@ public sealed class DapperArtifactQueryService : IArtifactQueryService
     }
 
     public async Task<SynthesizedArtifact?> GetArtifactByIdAsync(
+        ScopeContext scope,
         Guid manifestId,
         Guid artifactId,
         CancellationToken ct)
     {
-        var artifacts = await GetArtifactsByManifestIdAsync(manifestId, ct);
+        var artifacts = await GetArtifactsByManifestIdAsync(scope, manifestId, ct);
 
         return artifacts.FirstOrDefault(x => x.ArtifactId == artifactId);
     }
 
     public async Task<IReadOnlyList<SynthesizedArtifact>> GetArtifactsByManifestIdAsync(
+        ScopeContext scope,
         Guid manifestId,
         CancellationToken ct)
     {
-        var bundle = await _artifactBundleRepository.GetByManifestIdAsync(manifestId, ct);
+        var bundle = await _artifactBundleRepository.GetByManifestIdAsync(scope, manifestId, ct);
         return bundle?.Artifacts ?? [];
     }
 }

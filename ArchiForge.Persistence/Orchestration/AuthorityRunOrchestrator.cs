@@ -1,6 +1,7 @@
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.Core.Scoping;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
@@ -15,6 +16,8 @@ namespace ArchiForge.Persistence.Orchestration;
 public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
 {
     private readonly IArchiForgeUnitOfWorkFactory _unitOfWorkFactory;
+    private readonly IScopeContextProvider _scopeContextProvider;
+    private readonly IManifestHashService _manifestHashService;
     private readonly IRunRepository _runRepository;
     private readonly IContextIngestionService _contextIngestionService;
     private readonly IContextSnapshotRepository _contextSnapshotRepository;
@@ -30,6 +33,8 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
 
     public AuthorityRunOrchestrator(
         IArchiForgeUnitOfWorkFactory unitOfWorkFactory,
+        IScopeContextProvider scopeContextProvider,
+        IManifestHashService manifestHashService,
         IRunRepository runRepository,
         IContextIngestionService contextIngestionService,
         IContextSnapshotRepository contextSnapshotRepository,
@@ -44,6 +49,8 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
         IArtifactBundleRepository artifactBundleRepository)
     {
         _unitOfWorkFactory = unitOfWorkFactory;
+        _scopeContextProvider = scopeContextProvider;
+        _manifestHashService = manifestHashService;
         _runRepository = runRepository;
         _contextIngestionService = contextIngestionService;
         _contextSnapshotRepository = contextSnapshotRepository;
@@ -66,6 +73,7 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
 
         try
         {
+            var scope = _scopeContextProvider.GetCurrentScope();
             var run = new RunRecord
             {
                 RunId = Guid.NewGuid(),
@@ -73,6 +81,7 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
                 Description = request.Description,
                 CreatedUtc = DateTime.UtcNow
             };
+            ApplyScope(run, scope);
 
             await SaveRunAsync(run, ct, uow);
 
@@ -106,6 +115,10 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
                 graphSnapshot,
                 findingsSnapshot,
                 ct);
+
+            ApplyScope(decisionResult.Trace, scope);
+            ApplyScope(decisionResult.Manifest, scope);
+            decisionResult.Manifest.ManifestHash = _manifestHashService.ComputeHash(decisionResult.Manifest);
 
             await SaveTraceAsync(decisionResult.Trace, ct, uow);
             await SaveManifestAsync(decisionResult.Manifest, ct, uow);
@@ -193,5 +206,26 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             await _artifactBundleRepository.SaveAsync(bundle, ct, uow.Connection, uow.Transaction);
         else
             await _artifactBundleRepository.SaveAsync(bundle, ct);
+    }
+
+    private static void ApplyScope(RunRecord run, ScopeContext scope)
+    {
+        run.TenantId = scope.TenantId;
+        run.WorkspaceId = scope.WorkspaceId;
+        run.ScopeProjectId = scope.ProjectId;
+    }
+
+    private static void ApplyScope(DecisionTrace trace, ScopeContext scope)
+    {
+        trace.TenantId = scope.TenantId;
+        trace.WorkspaceId = scope.WorkspaceId;
+        trace.ProjectId = scope.ProjectId;
+    }
+
+    private static void ApplyScope(GoldenManifest manifest, ScopeContext scope)
+    {
+        manifest.TenantId = scope.TenantId;
+        manifest.WorkspaceId = scope.WorkspaceId;
+        manifest.ProjectId = scope.ProjectId;
     }
 }

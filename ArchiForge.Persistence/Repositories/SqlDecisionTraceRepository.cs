@@ -1,4 +1,5 @@
 using System.Data;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Connections;
@@ -26,12 +27,14 @@ public sealed class SqlDecisionTraceRepository : IDecisionTraceRepository
         const string sql = """
             INSERT INTO dbo.DecisioningTraces
             (
+                TenantId, WorkspaceId, ProjectId,
                 DecisionTraceId, RunId, CreatedUtc,
                 RuleSetId, RuleSetVersion, RuleSetHash,
                 AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson
             )
             VALUES
             (
+                @TenantId, @WorkspaceId, @ProjectId,
                 @DecisionTraceId, @RunId, @CreatedUtc,
                 @RuleSetId, @RuleSetVersion, @RuleSetHash,
                 @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson
@@ -40,6 +43,9 @@ public sealed class SqlDecisionTraceRepository : IDecisionTraceRepository
 
         var args = new
         {
+            trace.TenantId,
+            trace.WorkspaceId,
+            trace.ProjectId,
             trace.DecisionTraceId,
             trace.RunId,
             trace.CreatedUtc,
@@ -62,26 +68,42 @@ public sealed class SqlDecisionTraceRepository : IDecisionTraceRepository
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
-    public async Task<DecisionTrace?> GetByIdAsync(Guid decisionTraceId, CancellationToken ct)
+    public async Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
         const string sql = """
             SELECT
+                TenantId, WorkspaceId, ProjectId,
                 DecisionTraceId, RunId, CreatedUtc,
                 RuleSetId, RuleSetVersion, RuleSetHash,
                 AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson
             FROM dbo.DecisioningTraces
-            WHERE DecisionTraceId = @DecisionTraceId;
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ScopeProjectId
+              AND DecisionTraceId = @DecisionTraceId;
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
         var row = await connection.QuerySingleOrDefaultAsync<DecisionTraceRow>(
-            new CommandDefinition(sql, new { DecisionTraceId = decisionTraceId }, cancellationToken: ct));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    DecisionTraceId = decisionTraceId
+                },
+                cancellationToken: ct));
 
         if (row is null)
             return null;
 
         return new DecisionTrace
         {
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
             DecisionTraceId = row.DecisionTraceId,
             RunId = row.RunId,
             CreatedUtc = row.CreatedUtc,
@@ -97,6 +119,9 @@ public sealed class SqlDecisionTraceRepository : IDecisionTraceRepository
 
     private sealed class DecisionTraceRow
     {
+        public Guid TenantId { get; set; }
+        public Guid WorkspaceId { get; set; }
+        public Guid ProjectId { get; set; }
         public Guid DecisionTraceId { get; set; }
         public Guid RunId { get; set; }
         public DateTime CreatedUtc { get; set; }

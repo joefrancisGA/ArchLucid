@@ -1,5 +1,6 @@
 import { getServerApiBaseUrl } from "@/lib/config";
 import { AUTH_MODE } from "@/lib/auth-config";
+import { getScopeHeaders } from "@/lib/scope";
 import type {
   ArtifactDescriptor,
   ManifestSummary,
@@ -43,6 +44,7 @@ function resolveRequest(path: string): { url: string; headers: HeadersInit } {
   const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
   const headers: Record<string, string> = {
     Accept: "application/json",
+    ...getScopeHeaders(),
   };
   const key = process.env.ARCHIFORGE_API_KEY;
   if (key) headers["X-Api-Key"] = key;

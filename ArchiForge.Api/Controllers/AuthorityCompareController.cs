@@ -1,5 +1,6 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.HttpContracts;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Compare;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,9 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/authority/compare")]
 [EnableRateLimiting("fixed")]
-public sealed class AuthorityCompareController(IAuthorityCompareService compareService) : ControllerBase
+public sealed class AuthorityCompareController(
+    IAuthorityCompareService compareService,
+    IScopeContextProvider scopeProvider) : ControllerBase
 {
     [HttpGet("manifests")]
     [ProducesResponseType(typeof(ManifestComparisonResponse), StatusCodes.Status200OK)]
@@ -23,7 +26,8 @@ public sealed class AuthorityCompareController(IAuthorityCompareService compareS
         [FromQuery] Guid rightManifestId,
         CancellationToken ct = default)
     {
-        var result = await compareService.CompareManifestsAsync(leftManifestId, rightManifestId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var result = await compareService.CompareManifestsAsync(scope, leftManifestId, rightManifestId, ct);
         if (result is null)
             return NotFound();
 
@@ -38,7 +42,8 @@ public sealed class AuthorityCompareController(IAuthorityCompareService compareS
         [FromQuery] Guid rightRunId,
         CancellationToken ct = default)
     {
-        var result = await compareService.CompareRunsAsync(leftRunId, rightRunId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var result = await compareService.CompareRunsAsync(scope, leftRunId, rightRunId, ct);
         if (result is null)
             return NotFound();
 

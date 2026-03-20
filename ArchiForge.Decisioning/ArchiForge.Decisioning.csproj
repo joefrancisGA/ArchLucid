@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArchiForge.Core\ArchiForge.Core.csproj" />
     <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
     <ProjectReference Include="..\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj" />
   </ItemGroup>

@@ -2,6 +2,11 @@ namespace ArchiForge.Persistence.Models;
 
 public sealed class RunRecord
 {
+    public Guid TenantId { get; set; }
+    public Guid WorkspaceId { get; set; }
+    /// <summary>Scoped solution/project boundary (GUID). Distinct from <see cref="ProjectId"/> slug.</summary>
+    public Guid ScopeProjectId { get; set; }
+
     public Guid RunId { get; set; }
     public string ProjectId { get; set; } = "";
     public string? Description { get; set; }

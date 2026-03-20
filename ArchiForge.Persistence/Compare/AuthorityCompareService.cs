@@ -1,3 +1,4 @@
+using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Queries;
@@ -18,14 +19,20 @@ public sealed class AuthorityCompareService : IAuthorityCompareService
     }
 
     public async Task<ManifestComparisonResult?> CompareManifestsAsync(
+        ScopeContext scope,
         Guid leftManifestId,
         Guid rightManifestId,
         CancellationToken ct)
     {
-        var left = await _manifestRepository.GetByIdAsync(leftManifestId, ct);
-        var right = await _manifestRepository.GetByIdAsync(rightManifestId, ct);
+        var left = await _manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
+        var right = await _manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
 
         if (left is null || right is null)
+            return null;
+
+        if (left.TenantId != right.TenantId ||
+            left.WorkspaceId != right.WorkspaceId ||
+            left.ProjectId != right.ProjectId)
             return null;
 
         var result = new ManifestComparisonResult
@@ -49,12 +56,13 @@ public sealed class AuthorityCompareService : IAuthorityCompareService
     }
 
     public async Task<RunComparisonResult?> CompareRunsAsync(
+        ScopeContext scope,
         Guid leftRunId,
         Guid rightRunId,
         CancellationToken ct)
     {
-        var leftRun = await _queryService.GetRunSummaryAsync(leftRunId, ct);
-        var rightRun = await _queryService.GetRunSummaryAsync(rightRunId, ct);
+        var leftRun = await _queryService.GetRunSummaryAsync(scope, leftRunId, ct);
+        var rightRun = await _queryService.GetRunSummaryAsync(scope, rightRunId, ct);
 
         if (leftRun is null || rightRun is null)
             return null;
@@ -73,6 +81,7 @@ public sealed class AuthorityCompareService : IAuthorityCompareService
         if (leftRun.GoldenManifestId.HasValue && rightRun.GoldenManifestId.HasValue)
         {
             result.ManifestComparison = await CompareManifestsAsync(
+                scope,
                 leftRun.GoldenManifestId.Value,
                 rightRun.GoldenManifestId.Value,
                 ct);

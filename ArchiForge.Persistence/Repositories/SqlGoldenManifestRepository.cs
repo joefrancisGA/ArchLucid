@@ -1,4 +1,5 @@
 using System.Data;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
@@ -26,6 +27,7 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
         const string sql = """
             INSERT INTO dbo.GoldenManifests
             (
+                TenantId, WorkspaceId, ProjectId,
                 ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
                 CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                 MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
@@ -34,6 +36,7 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
             )
             VALUES
             (
+                @TenantId, @WorkspaceId, @ProjectId,
                 @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
                 @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
                 @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
@@ -44,6 +47,9 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
 
         var args = new
         {
+            manifest.TenantId,
+            manifest.WorkspaceId,
+            manifest.ProjectId,
             manifest.ManifestId,
             manifest.RunId,
             manifest.ContextSnapshotId,
@@ -79,28 +85,44 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
-    public async Task<GoldenManifest?> GetByIdAsync(Guid manifestId, CancellationToken ct)
+    public async Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         const string sql = """
             SELECT
+                TenantId, WorkspaceId, ProjectId,
                 ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
                 CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                 MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                 ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
                 WarningsJson, ProvenanceJson
             FROM dbo.GoldenManifests
-            WHERE ManifestId = @ManifestId;
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND ManifestId = @ManifestId;
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
         var row = await connection.QuerySingleOrDefaultAsync<GoldenManifestRow>(
-            new CommandDefinition(sql, new { ManifestId = manifestId }, cancellationToken: ct));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    ManifestId = manifestId
+                },
+                cancellationToken: ct));
 
         if (row is null)
             return null;
 
         return new GoldenManifest
         {
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
             ManifestId = row.ManifestId,
             RunId = row.RunId,
             ContextSnapshotId = row.ContextSnapshotId,
@@ -136,6 +158,9 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
 
     private sealed class GoldenManifestRow
     {
+        public Guid TenantId { get; set; }
+        public Guid WorkspaceId { get; set; }
+        public Guid ProjectId { get; set; }
         public Guid ManifestId { get; set; }
         public Guid RunId { get; set; }
         public Guid ContextSnapshotId { get; set; }

@@ -1,5 +1,6 @@
 using System.Data;
 using ArchiForge.ArtifactSynthesis.Interfaces;
+using ArchiForge.Core.Scoping;
 using ArchiForge.ArtifactSynthesis.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Repositories;
@@ -21,9 +22,13 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
         return Task.CompletedTask;
     }
 
-    public Task<ArtifactBundle?> GetByManifestIdAsync(Guid manifestId, CancellationToken ct)
+    public Task<ArtifactBundle?> GetByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
-        var result = _store.LastOrDefault(x => x.ManifestId == manifestId);
+        var result = _store.LastOrDefault(x =>
+            x.ManifestId == manifestId &&
+            x.TenantId == scope.TenantId &&
+            x.WorkspaceId == scope.WorkspaceId &&
+            x.ProjectId == scope.ProjectId);
         return Task.FromResult(result);
     }
 }

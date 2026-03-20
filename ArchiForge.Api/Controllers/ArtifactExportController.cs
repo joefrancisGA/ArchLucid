@@ -2,6 +2,7 @@ using System.Text.Json;
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
 using ArchiForge.ArtifactSynthesis.Packaging;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Queries;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
@@ -26,15 +27,18 @@ public sealed class ArtifactExportController : ControllerBase
     private readonly IArtifactQueryService _artifactQueryService;
     private readonly IAuthorityQueryService _authorityQueryService;
     private readonly IArtifactPackagingService _artifactPackagingService;
+    private readonly IScopeContextProvider _scopeProvider;
 
     public ArtifactExportController(
         IArtifactQueryService artifactQueryService,
         IAuthorityQueryService authorityQueryService,
-        IArtifactPackagingService artifactPackagingService)
+        IArtifactPackagingService artifactPackagingService,
+        IScopeContextProvider scopeProvider)
     {
         _artifactQueryService = artifactQueryService;
         _authorityQueryService = authorityQueryService;
         _artifactPackagingService = artifactPackagingService;
+        _scopeProvider = scopeProvider;
     }
 
     [HttpGet("manifests/{manifestId:guid}")]
@@ -43,7 +47,8 @@ public sealed class ArtifactExportController : ControllerBase
         Guid manifestId,
         CancellationToken ct = default)
     {
-        var artifacts = await _artifactQueryService.ListArtifactsByManifestIdAsync(manifestId, ct);
+        var scope = _scopeProvider.GetCurrentScope();
+        var artifacts = await _artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
 
         return Ok(artifacts.Select(x => new ArtifactDescriptorResponse
         {
@@ -64,7 +69,8 @@ public sealed class ArtifactExportController : ControllerBase
         Guid artifactId,
         CancellationToken ct = default)
     {
-        var artifact = await _artifactQueryService.GetArtifactByIdAsync(manifestId, artifactId, ct);
+        var scope = _scopeProvider.GetCurrentScope();
+        var artifact = await _artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
         if (artifact is null)
             return NotFound();
 
@@ -80,7 +86,8 @@ public sealed class ArtifactExportController : ControllerBase
         Guid manifestId,
         CancellationToken ct = default)
     {
-        var artifacts = await _artifactQueryService.GetArtifactsByManifestIdAsync(manifestId, ct);
+        var scope = _scopeProvider.GetCurrentScope();
+        var artifacts = await _artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
         if (artifacts.Count == 0)
             return NotFound();
 
@@ -96,11 +103,13 @@ public sealed class ArtifactExportController : ControllerBase
         Guid runId,
         CancellationToken ct = default)
     {
-        var runDetail = await _authorityQueryService.GetRunDetailAsync(runId, ct);
+        var scope = _scopeProvider.GetCurrentScope();
+        var runDetail = await _authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         if (runDetail is null || runDetail.GoldenManifest is null)
             return NotFound();
 
         var artifacts = await _artifactQueryService.GetArtifactsByManifestIdAsync(
+            scope,
             runDetail.GoldenManifest.ManifestId,
             ct);
 

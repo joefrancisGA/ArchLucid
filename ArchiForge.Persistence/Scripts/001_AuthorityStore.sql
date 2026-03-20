@@ -171,3 +171,89 @@ BEGIN
         ADD ComplianceJson NVARCHAR(MAX) NOT NULL CONSTRAINT DF_GoldenManifests_ComplianceJson DEFAULT (N'{}');
 END;
 GO
+
+/* --- Multi-tenant scope (Tenant / Workspace / Project GUID) --- */
+
+IF COL_LENGTH('dbo.Runs', 'TenantId') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs ADD TenantId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_Runs_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111');
+END;
+GO
+
+IF COL_LENGTH('dbo.Runs', 'WorkspaceId') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs ADD WorkspaceId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_Runs_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222');
+END;
+GO
+
+IF COL_LENGTH('dbo.Runs', 'ScopeProjectId') IS NULL
+BEGIN
+    ALTER TABLE dbo.Runs ADD ScopeProjectId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_Runs_ScopeProjectId DEFAULT ('33333333-3333-3333-3333-333333333333');
+END;
+GO
+
+IF COL_LENGTH('dbo.DecisioningTraces', 'TenantId') IS NULL
+BEGIN
+    ALTER TABLE dbo.DecisioningTraces ADD TenantId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_DecisioningTraces_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111');
+END;
+GO
+
+IF COL_LENGTH('dbo.DecisioningTraces', 'WorkspaceId') IS NULL
+BEGIN
+    ALTER TABLE dbo.DecisioningTraces ADD WorkspaceId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_DecisioningTraces_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222');
+END;
+GO
+
+IF COL_LENGTH('dbo.DecisioningTraces', 'ProjectId') IS NULL
+BEGIN
+    ALTER TABLE dbo.DecisioningTraces ADD ProjectId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_DecisioningTraces_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333');
+END;
+GO
+
+IF COL_LENGTH('dbo.GoldenManifests', 'TenantId') IS NULL
+BEGIN
+    ALTER TABLE dbo.GoldenManifests ADD TenantId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_GoldenManifests_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111');
+END;
+GO
+
+IF COL_LENGTH('dbo.GoldenManifests', 'WorkspaceId') IS NULL
+BEGIN
+    ALTER TABLE dbo.GoldenManifests ADD WorkspaceId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_GoldenManifests_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222');
+END;
+GO
+
+IF COL_LENGTH('dbo.GoldenManifests', 'ProjectId') IS NULL
+BEGIN
+    ALTER TABLE dbo.GoldenManifests ADD ProjectId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_GoldenManifests_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333');
+END;
+GO
+
+IF COL_LENGTH('dbo.ArtifactBundles', 'TenantId') IS NULL
+BEGIN
+    ALTER TABLE dbo.ArtifactBundles ADD TenantId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_ArtifactBundles_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111');
+END;
+GO
+
+IF COL_LENGTH('dbo.ArtifactBundles', 'WorkspaceId') IS NULL
+BEGIN
+    ALTER TABLE dbo.ArtifactBundles ADD WorkspaceId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_ArtifactBundles_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222');
+END;
+GO
+
+IF COL_LENGTH('dbo.ArtifactBundles', 'ProjectId') IS NULL
+BEGIN
+    ALTER TABLE dbo.ArtifactBundles ADD ProjectId UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT DF_ArtifactBundles_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333');
+END;
+GO

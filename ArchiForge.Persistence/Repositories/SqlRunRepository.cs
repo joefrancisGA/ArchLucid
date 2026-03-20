@@ -1,4 +1,5 @@
 using System.Data;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
@@ -24,13 +25,13 @@ public sealed class SqlRunRepository : IRunRepository
         const string sql = """
             INSERT INTO dbo.Runs
             (
-                RunId, ProjectId, Description, CreatedUtc,
+                RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId
             )
             VALUES
             (
-                @RunId, @ProjectId, @Description, @CreatedUtc,
+                @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @ProjectId, @Description, @CreatedUtc,
                 @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
                 @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId
             );
@@ -46,31 +47,50 @@ public sealed class SqlRunRepository : IRunRepository
         await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
     }
 
-    public async Task<RunRecord?> GetByIdAsync(Guid runId, CancellationToken ct)
+    public async Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         const string sql = """
             SELECT
-                RunId, ProjectId, Description, CreatedUtc,
+                RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId
             FROM dbo.Runs
-            WHERE RunId = @RunId;
+            WHERE RunId = @RunId
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ScopeProjectId = @ScopeProjectId;
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QuerySingleOrDefaultAsync<RunRecord>(
-            new CommandDefinition(sql, new { RunId = runId }, cancellationToken: ct));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    RunId = runId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId
+                },
+                cancellationToken: ct));
     }
 
-    public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(string projectId, int take, CancellationToken ct)
+    public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
+        ScopeContext scope,
+        string projectId,
+        int take,
+        CancellationToken ct)
     {
         const string sql = """
             SELECT TOP (@Take)
-                RunId, ProjectId, Description, CreatedUtc,
+                RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId
             FROM dbo.Runs
-            WHERE ProjectId = @ProjectId
+            WHERE ProjectId = @ProjectSlug
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ScopeProjectId = @ScopeProjectId
             ORDER BY CreatedUtc DESC;
             """;
 
@@ -78,7 +98,14 @@ public sealed class SqlRunRepository : IRunRepository
         var rows = await connection.QueryAsync<RunRecord>(
             new CommandDefinition(
                 sql,
-                new { ProjectId = projectId, Take = take <= 0 ? 20 : take },
+                new
+                {
+                    ProjectSlug = projectId,
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    Take = take <= 0 ? 20 : take
+                },
                 cancellationToken: ct));
 
         return rows.ToList();
@@ -93,6 +120,9 @@ public sealed class SqlRunRepository : IRunRepository
         const string sql = """
             UPDATE dbo.Runs
             SET
+                TenantId = @TenantId,
+                WorkspaceId = @WorkspaceId,
+                ScopeProjectId = @ScopeProjectId,
                 ProjectId = @ProjectId,
                 Description = @Description,
                 ContextSnapshotId = @ContextSnapshotId,

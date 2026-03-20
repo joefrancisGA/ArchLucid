@@ -1,5 +1,6 @@
 using System.Data;
 using ArchiForge.ArtifactSynthesis.Interfaces;
+using ArchiForge.Core.Scoping;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Serialization;
@@ -53,25 +54,41 @@ public sealed class SqlArtifactBundleRepository : IArtifactBundleRepository
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
-    public async Task<ArtifactBundle?> GetByManifestIdAsync(Guid manifestId, CancellationToken ct)
+    public async Task<ArtifactBundle?> GetByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         const string sql = """
             SELECT TOP 1
+                TenantId, WorkspaceId, ProjectId,
                 BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson
             FROM dbo.ArtifactBundles
-            WHERE ManifestId = @ManifestId
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ScopeProjectId
+              AND ManifestId = @ManifestId
             ORDER BY CreatedUtc DESC;
             """;
 
         await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
         var row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleRow>(
-            new CommandDefinition(sql, new { ManifestId = manifestId }, cancellationToken: ct));
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    ManifestId = manifestId
+                },
+                cancellationToken: ct));
 
         if (row is null)
             return null;
 
         return new ArtifactBundle
         {
+            TenantId = row.TenantId,
+            WorkspaceId = row.WorkspaceId,
+            ProjectId = row.ProjectId,
             BundleId = row.BundleId,
             RunId = row.RunId,
             ManifestId = row.ManifestId,
@@ -83,6 +100,9 @@ public sealed class SqlArtifactBundleRepository : IArtifactBundleRepository
 
     private sealed class ArtifactBundleRow
     {
+        public Guid TenantId { get; set; }
+        public Guid WorkspaceId { get; set; }
+        public Guid ProjectId { get; set; }
         public Guid BundleId { get; set; }
         public Guid RunId { get; set; }
         public Guid ManifestId { get; set; }

@@ -23,6 +23,9 @@ public class ArtifactSynthesisService : IArtifactSynthesisService
     {
         var bundle = new ArtifactBundle
         {
+            TenantId = manifest.TenantId,
+            WorkspaceId = manifest.WorkspaceId,
+            ProjectId = manifest.ProjectId,
             BundleId = Guid.NewGuid(),
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,

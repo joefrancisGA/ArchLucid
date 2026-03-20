@@ -12,6 +12,9 @@ public sealed class ManifestHashService : IManifestHashService
     {
         var canonical = JsonSerializer.Serialize(new
         {
+            manifest.TenantId,
+            manifest.WorkspaceId,
+            manifest.ProjectId,
             manifest.ManifestId,
             manifest.RunId,
             manifest.ContextSnapshotId,

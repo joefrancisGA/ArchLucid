@@ -1,5 +1,6 @@
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.Persistence.Interfaces;
@@ -36,23 +37,24 @@ public sealed class InMemoryAuthorityQueryService : IAuthorityQueryService
     }
 
     public async Task<IReadOnlyList<RunSummaryDto>> ListRunsByProjectAsync(
+        ScopeContext scope,
         string projectId,
         int take,
         CancellationToken ct)
     {
-        var runs = await _runRepository.ListByProjectAsync(projectId, take, ct);
+        var runs = await _runRepository.ListByProjectAsync(scope, projectId, take, ct);
         return runs.Select(MapSummary).ToList();
     }
 
-    public async Task<RunSummaryDto?> GetRunSummaryAsync(Guid runId, CancellationToken ct)
+    public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        var run = await _runRepository.GetByIdAsync(runId, ct);
+        var run = await _runRepository.GetByIdAsync(scope, runId, ct);
         return run is null ? null : MapSummary(run);
     }
 
-    public async Task<RunDetailDto?> GetRunDetailAsync(Guid runId, CancellationToken ct)
+    public async Task<RunDetailDto?> GetRunDetailAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        var run = await _runRepository.GetByIdAsync(runId, ct);
+        var run = await _runRepository.GetByIdAsync(scope, runId, ct);
         if (run is null)
             return null;
 
@@ -69,20 +71,20 @@ public sealed class InMemoryAuthorityQueryService : IAuthorityQueryService
                 ? await _findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct)
                 : null,
             DecisionTrace = run.DecisionTraceId.HasValue
-                ? await _decisionTraceRepository.GetByIdAsync(run.DecisionTraceId.Value, ct)
+                ? await _decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
                 : null,
             GoldenManifest = run.GoldenManifestId.HasValue
-                ? await _goldenManifestRepository.GetByIdAsync(run.GoldenManifestId.Value, ct)
+                ? await _goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
                 : null,
             ArtifactBundle = run.ArtifactBundleId.HasValue && run.GoldenManifestId.HasValue
-                ? await _artifactBundleRepository.GetByManifestIdAsync(run.GoldenManifestId.Value, ct)
+                ? await _artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct)
                 : null
         };
     }
 
-    public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(Guid manifestId, CancellationToken ct)
+    public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
-        var manifest = await _goldenManifestRepository.GetByIdAsync(manifestId, ct);
+        var manifest = await _goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
         if (manifest is null)
             return null;
 

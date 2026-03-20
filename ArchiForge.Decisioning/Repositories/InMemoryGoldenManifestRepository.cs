@@ -1,4 +1,5 @@
 using System.Data;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 
@@ -21,9 +22,13 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         return Task.CompletedTask;
     }
 
-    public Task<GoldenManifest?> GetByIdAsync(Guid manifestId, CancellationToken ct)
+    public Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
-        var result = _store.FirstOrDefault(x => x.ManifestId == manifestId);
+        var result = _store.FirstOrDefault(x =>
+            x.ManifestId == manifestId &&
+            x.TenantId == scope.TenantId &&
+            x.WorkspaceId == scope.WorkspaceId &&
+            x.ProjectId == scope.ProjectId);
         return Task.FromResult(result);
     }
 }

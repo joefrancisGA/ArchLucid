@@ -1,5 +1,6 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.HttpContracts;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Queries;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,9 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/authority")]
 [EnableRateLimiting("fixed")]
-public sealed class AuthorityQueryController(IAuthorityQueryService queryService) : ControllerBase
+public sealed class AuthorityQueryController(
+    IAuthorityQueryService queryService,
+    IScopeContextProvider scopeProvider) : ControllerBase
 {
     [HttpGet("projects/{projectId}/runs")]
     [ProducesResponseType(typeof(IReadOnlyList<RunSummaryResponse>), StatusCodes.Status200OK)]
@@ -22,7 +25,8 @@ public sealed class AuthorityQueryController(IAuthorityQueryService queryService
         [FromQuery] int take = 20,
         CancellationToken ct = default)
     {
-        var results = await queryService.ListRunsByProjectAsync(projectId, take, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var results = await queryService.ListRunsByProjectAsync(scope, projectId, take, ct);
 
         return Ok(results.Select(x => new RunSummaryResponse
         {
@@ -46,7 +50,8 @@ public sealed class AuthorityQueryController(IAuthorityQueryService queryService
         Guid runId,
         CancellationToken ct = default)
     {
-        var result = await queryService.GetRunSummaryAsync(runId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var result = await queryService.GetRunSummaryAsync(scope, runId, ct);
         if (result is null)
             return NotFound();
 
@@ -72,7 +77,8 @@ public sealed class AuthorityQueryController(IAuthorityQueryService queryService
         Guid runId,
         CancellationToken ct = default)
     {
-        var result = await queryService.GetRunDetailAsync(runId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var result = await queryService.GetRunDetailAsync(scope, runId, ct);
         if (result is null)
             return NotFound();
 
@@ -86,7 +92,8 @@ public sealed class AuthorityQueryController(IAuthorityQueryService queryService
         Guid manifestId,
         CancellationToken ct = default)
     {
-        var result = await queryService.GetManifestSummaryAsync(manifestId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
         if (result is null)
             return NotFound();
 

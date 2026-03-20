@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerApiBaseUrl } from "@/lib/config";
+import { getScopeHeaders } from "@/lib/scope";
 
 function buildUpstreamHeaders(request: NextRequest): Headers {
   const h = new Headers();
@@ -7,6 +8,10 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
   if (key) h.set("X-Api-Key", key);
   const auth = request.headers.get("authorization");
   if (auth && auth.trim().length > 0) h.set("Authorization", auth);
+  for (const [k, v] of Object.entries(getScopeHeaders())) {
+    const incoming = request.headers.get(k);
+    h.set(k, incoming && incoming.trim().length > 0 ? incoming : v);
+  }
   return h;
 }
 

@@ -1,4 +1,5 @@
 using System.Data;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 
@@ -21,9 +22,13 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         return Task.CompletedTask;
     }
 
-    public Task<DecisionTrace?> GetByIdAsync(Guid decisionTraceId, CancellationToken ct)
+    public Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
-        var result = _store.FirstOrDefault(x => x.DecisionTraceId == decisionTraceId);
+        var result = _store.FirstOrDefault(x =>
+            x.DecisionTraceId == decisionTraceId &&
+            x.TenantId == scope.TenantId &&
+            x.WorkspaceId == scope.WorkspaceId &&
+            x.ProjectId == scope.ProjectId);
         return Task.FromResult(result);
     }
 }

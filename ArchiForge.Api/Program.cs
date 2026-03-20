@@ -1,5 +1,7 @@
+using ArchiForge.Api.Auth.Services;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Startup;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Persistence.Sql;
 using Serilog;
@@ -20,6 +22,9 @@ public partial class Program
         // Add services to the container.
 
         builder.Services.AddArchiForgeMvc();
+
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<IScopeContextProvider, HttpScopeContextProvider>();
 
         builder.Services.AddArchiForgeAuth(builder.Configuration);
         builder.Services.AddArchiForgeAuthorization();
