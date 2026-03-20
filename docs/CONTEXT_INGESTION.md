@@ -1,6 +1,6 @@
 # Context ingestion pipeline
 
-`ArchiForge.ContextIngestion` turns heterogeneous inputs (description, inline requirements, pasted documents, policy references, topology/security hints) into **`CanonicalObject`** instances, **deduplicates** them, and stores a **`ContextSnapshot`** used by the knowledge graph and downstream authority chain.
+`ArchiForge.ContextIngestion` turns heterogeneous inputs (description, inline requirements, pasted documents, policy references, topology/security hints, **structured infrastructure declarations**) into **`CanonicalObject`** instances, **enriches** topology/security metadata, **deduplicates** them, and stores a **`ContextSnapshot`** used by the knowledge graph and downstream authority chain.
 
 ---
 
@@ -17,6 +17,7 @@ HTTP clients send **`ArchitectureRequest`** (see `ArchiForge.Contracts.Requests`
 | `PolicyReferences` | `PolicyReferences` | Short strings → `PolicyControl` objects (`reference` + `status=referenced`). |
 | `TopologyHints` | `TopologyHints` | → `TopologyResource` objects. |
 | `SecurityBaselineHints` | `SecurityBaselineHints` | → `SecurityBaseline` objects. |
+| `InfrastructureDeclarations` | `InfrastructureDeclarations` | Structured IaC snippets (`json` or `simple-terraform`) → **`InfrastructureDeclarationConnector`**. |
 
 `RunId` is assigned by **`AuthorityRunOrchestrator`** immediately before **`IContextIngestionService.IngestAsync`**.
 
@@ -32,6 +33,7 @@ Connectors implement **`IContextConnector`**. Registration order is explicit (se
 4. **`PolicyReferenceConnector`**
 5. **`TopologyHintsConnector`**
 6. **`SecurityBaselineHintsConnector`**
+7. **`InfrastructureDeclarationConnector`** — **`InfrastructureDeclarationReference`** items parsed by **`IInfrastructureDeclarationParser`** implementations (`json`, `simple-terraform`).
 
 Each connector’s **`DeltaAsync`** returns a short base summary; **`IContextDeltaSummaryBuilder`** (default: **`DefaultContextDeltaSummaryBuilder`**) enriches it with normalized object counts, a per-type breakdown (e.g. `Requirement×2`), and a one-time baseline clause against the **latest persisted `ContextSnapshot` for `ProjectId`** (if any). The enriched segments are joined into **`ContextSnapshot.DeltaSummary`**.
 
@@ -65,6 +67,24 @@ Prefix matching is case-insensitive. Lines without a recognized prefix are ignor
 
 ---
 
+## Infrastructure declarations (IaC seam)
+
+DTO: **`InfrastructureDeclarationReference`** (`Name`, **`Format`**, `Content`). Supported v1 **`Format`** values: **`json`**, **`simple-terraform`**.
+
+### `json`
+
+Body deserializes to **`ResourceDeclarationDocument`** with a **`resources`** array of **`ResourceDeclarationItem`** (`type`, `name`, optional `subtype`, `region`, `properties` as string dictionary). Declared **`type`** maps to canonical **`ObjectType`** (e.g. `vnet`/`subnet`/`storage`/`appservice` → **`TopologyResource`**; `keyvault`/`firewall`/`nsg` → **`SecurityBaseline`**; `policy` → **`PolicyControl`**). Each object uses **`SourceType=InfrastructureDeclaration`** and **`SourceId=DeclarationId`**.
+
+### `simple-terraform`
+
+Lightweight regex over lines like **`resource "azurerm_virtual_network" "core"`** (not a full HCL parser). **`terraformType`** is stored on the canonical object; **`ResolveObjectType`** maps vault / firewall / NSG → **`SecurityBaseline`**, `policy` → **`PolicyControl`**, else **`TopologyResource`**.
+
+### Enrichment
+
+After all connectors run, **`ICanonicalEnricher`** (**`CanonicalInfrastructureEnricher`**) runs before deduplication: **`TopologyResource`** objects get inferred **`category`** (`network`, `storage`, `compute`, `data`, `identity`, `general`) from **`resourceType`** or **`terraformType`**. **`SecurityBaseline`** objects get **`status=declared`** when missing.
+
+---
+
 ## Deduplication
 
 **`CanonicalDeduplicator`** collapses duplicates before the snapshot is saved. Grouping key:
@@ -75,9 +95,11 @@ Prefix matching is case-insensitive. Lines without a recognized prefix are ignor
 
 1. `Properties["text"]` if non-empty  
 2. else `Properties["reference"]` if non-empty  
-3. else empty string  
+3. else `Properties["terraformType"]` if non-empty (Terraform-derived infra)  
+4. else `Properties["resourceType"]` if non-empty (JSON-derived infra)  
+5. else empty string  
 
-So policy objects that only set **`reference`** still dedupe correctly when the same reference appears from multiple connectors.
+So policy objects that only set **`reference`** still dedupe correctly when the same reference appears from multiple connectors; infrastructure objects can dedupe on provider/resource kind when text is absent.
 
 ---
 

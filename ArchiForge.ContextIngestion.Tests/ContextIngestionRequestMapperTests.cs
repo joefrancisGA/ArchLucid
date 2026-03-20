@@ -28,7 +28,16 @@ public sealed class ContextIngestionRequestMapperTests
             InlineRequirements = ["ir1"],
             PolicyReferences = ["SOC2"],
             TopologyHints = ["subnet-a"],
-            SecurityBaselineHints = ["encrypt at rest"]
+            SecurityBaselineHints = ["encrypt at rest"],
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationRequest
+                {
+                    Name = "env.json",
+                    Format = "json",
+                    Content = """{"resources":[]}"""
+                }
+            ]
         };
 
         var mapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
@@ -44,5 +53,8 @@ public sealed class ContextIngestionRequestMapperTests
         mapped.Documents[0].ContentType.Should().Be("text/plain");
         mapped.Documents[0].Content.Should().Be("REQ: Must scale");
         mapped.Documents[0].DocumentId.Should().NotBeNullOrEmpty();
+        mapped.InfrastructureDeclarations.Should().HaveCount(1);
+        mapped.InfrastructureDeclarations[0].Name.Should().Be("env.json");
+        mapped.InfrastructureDeclarations[0].Format.Should().Be("json");
     }
 }

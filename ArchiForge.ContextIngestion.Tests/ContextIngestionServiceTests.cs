@@ -56,6 +56,7 @@ public sealed class ContextIngestionServiceTests
         IContextConnector[] connectors = [new CountingConnector()];
         var sut = new ContextIngestionService(
             connectors,
+            new CanonicalInfrastructureEnricher(),
             new CanonicalDeduplicator(),
             repo,
             new DefaultContextDeltaSummaryBuilder());

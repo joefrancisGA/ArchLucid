@@ -34,7 +34,26 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchiForgeApiFactory f
             },
             policyReferences = new[] { "ORG-POL-42" },
             topologyHints = new[] { "hub-spoke with shared services subnet" },
-            securityBaselineHints = new[] { "TLS 1.2 minimum for all endpoints" }
+            securityBaselineHints = new[] { "TLS 1.2 minimum for all endpoints" },
+            infrastructureDeclarations = new object[]
+            {
+                new
+                {
+                    name = "core.json",
+                    format = "json",
+                    content =
+                        """{"resources":[{"type":"vnet","name":"core-vnet","region":"eastus","properties":{"addressSpace":"10.0.0.0/16"}}]}"""
+                },
+                new
+                {
+                    name = "stub.tf",
+                    format = "simple-terraform",
+                    content = """
+                        resource "azurerm_virtual_network" "core"
+                        resource "azurerm_key_vault" "kv"
+                        """
+                }
+            }
         };
 
         var response = await Client.PostAsync("/v1/architecture/request", JsonContent(request));

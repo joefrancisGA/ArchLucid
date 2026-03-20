@@ -8,17 +8,20 @@ namespace ArchiForge.ContextIngestion.Services;
 public class ContextIngestionService : IContextIngestionService
 {
     private readonly IEnumerable<IContextConnector> _connectors;
+    private readonly ICanonicalEnricher _enricher;
     private readonly ICanonicalDeduplicator _deduplicator;
     private readonly IContextSnapshotRepository _snapshotRepository;
     private readonly IContextDeltaSummaryBuilder _deltaSummaryBuilder;
 
     public ContextIngestionService(
         IEnumerable<IContextConnector> connectors,
+        ICanonicalEnricher enricher,
         ICanonicalDeduplicator deduplicator,
         IContextSnapshotRepository snapshotRepository,
         IContextDeltaSummaryBuilder deltaSummaryBuilder)
     {
         _connectors = connectors;
+        _enricher = enricher;
         _deduplicator = deduplicator;
         _snapshotRepository = snapshotRepository;
         _deltaSummaryBuilder = deltaSummaryBuilder;
@@ -62,7 +65,8 @@ public class ContextIngestionService : IContextIngestionService
             connectorIndex++;
         }
 
-        snapshot.CanonicalObjects = _deduplicator.Deduplicate(allObjects).ToList();
+        var enriched = _enricher.Enrich(allObjects);
+        snapshot.CanonicalObjects = _deduplicator.Deduplicate(enriched).ToList();
         snapshot.DeltaSummary = string.Join("; ", deltaSummaries);
 
         return snapshot;

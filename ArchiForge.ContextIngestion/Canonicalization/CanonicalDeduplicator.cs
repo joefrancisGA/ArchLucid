@@ -27,6 +27,12 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
         if (item.Properties.TryGetValue("reference", out var reference) && !string.IsNullOrEmpty(reference))
             return reference;
 
+        if (item.Properties.TryGetValue("terraformType", out var terraformType) && !string.IsNullOrEmpty(terraformType))
+            return terraformType;
+
+        if (item.Properties.TryGetValue("resourceType", out var resourceType) && !string.IsNullOrEmpty(resourceType))
+            return resourceType;
+
         return string.Empty;
     }
 }

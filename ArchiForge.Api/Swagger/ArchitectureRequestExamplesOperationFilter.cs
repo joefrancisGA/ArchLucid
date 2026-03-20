@@ -31,7 +31,14 @@ public sealed class ArchitectureRequestExamplesOperationFilter : IOperationFilte
           ],
           "policyReferences": [ "ORG-SEC-001" ],
           "topologyHints": [ "ingress in subnet-frontend" ],
-          "securityBaselineHints": [ "encrypt data at rest" ]
+          "securityBaselineHints": [ "encrypt data at rest" ],
+          "infrastructureDeclarations": [
+            {
+              "name": "core.json",
+              "format": "json",
+              "content": "{ \"resources\": [ { \"type\": \"vnet\", \"name\": \"core-vnet\", \"region\": \"eastus\", \"properties\": { \"addressSpace\": \"10.0.0.0/16\" } } ] }"
+            }
+          ]
         }
         """;
 
@@ -43,8 +50,9 @@ public sealed class ArchitectureRequestExamplesOperationFilter : IOperationFilte
         var extra =
             "**Context ingestion (optional):** "
             + "`inlineRequirements`, `documents` (inline `name` + `contentType` + `content` — see supported types in `SupportedContextDocumentContentTypes`), "
-            + "`policyReferences`, `topologyHints`, `securityBaselineHints`. "
-            + "Plain-text/markdown documents may use line prefixes `REQ:`, `POL:`, `TOP:`, `SEC:` (see `docs/CONTEXT_INGESTION.md`).";
+            + "`policyReferences`, `topologyHints`, `securityBaselineHints`, `infrastructureDeclarations` (`format`: `json` | `simple-terraform`). "
+            + "Plain-text/markdown documents may use line prefixes `REQ:`, `POL:`, `TOP:`, `SEC:` (see `docs/CONTEXT_INGESTION.md`). "
+            + "Structured IaC snippets become canonical topology/security objects before graph build.";
 
         var exampleBlock =
             "\n\n### Example request body (JSON)\n\n```json\n"

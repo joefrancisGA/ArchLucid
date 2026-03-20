@@ -28,6 +28,7 @@ using System.Text.Json;
 using ArchiForge.ContextIngestion.Canonicalization;
 using ArchiForge.ContextIngestion.Connectors;
 using ArchiForge.ContextIngestion.Contracts;
+using ArchiForge.ContextIngestion.Infrastructure;
 using ArchiForge.ContextIngestion.Parsing;
 using ArchiForge.ContextIngestion.Summaries;
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
@@ -132,6 +133,9 @@ internal static partial class ServiceCollectionExtensions
     {
         services.AddSingleton<IContextDocumentParser, PlainTextContextDocumentParser>();
 
+        services.AddSingleton<IInfrastructureDeclarationParser, JsonInfrastructureDeclarationParser>();
+        services.AddSingleton<IInfrastructureDeclarationParser, SimpleTerraformDeclarationParser>();
+
         // Concrete connectors (registered once each).
         services.AddSingleton<StaticRequestContextConnector>();
         services.AddSingleton<InlineRequirementsConnector>();
@@ -139,6 +143,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddSingleton<TopologyHintsConnector>();
         services.AddSingleton<SecurityBaselineHintsConnector>();
         services.AddSingleton<DocumentConnector>();
+        services.AddSingleton<InfrastructureDeclarationConnector>();
 
         // Fixed pipeline order (affects concatenated delta summaries and mental model). See docs/CONTEXT_INGESTION.md.
         services.AddSingleton<IEnumerable<ContextConnector>>(sp => new ContextConnector[]
@@ -149,8 +154,10 @@ internal static partial class ServiceCollectionExtensions
             sp.GetRequiredService<PolicyReferenceConnector>(),
             sp.GetRequiredService<TopologyHintsConnector>(),
             sp.GetRequiredService<SecurityBaselineHintsConnector>(),
+            sp.GetRequiredService<InfrastructureDeclarationConnector>(),
         });
 
+        services.AddSingleton<ICanonicalEnricher, CanonicalInfrastructureEnricher>();
         services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();
         services.AddSingleton<IContextDeltaSummaryBuilder, DefaultContextDeltaSummaryBuilder>();
 

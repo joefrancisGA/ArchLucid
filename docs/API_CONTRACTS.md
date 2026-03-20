@@ -50,8 +50,9 @@ Swagger documents the comparison replay **422** response, **404** with `#run-not
 | `policyReferences` | `string[]` | Max **100** items, each max **500** chars → **PolicyControl** objects. |
 | `topologyHints` | `string[]` | Max **100** items, each max **2000** chars. |
 | `securityBaselineHints` | `string[]` | Max **100** items, each max **2000** chars. |
+| `infrastructureDeclarations` | object[] | Max **50** items. Each: **`name`**, **`format`** (`json` \| `simple-terraform`), **`content`** (payload string; JSON document or Terraform-like `resource "type" "name"` lines). Validated by **`InfrastructureDeclarationRequestValidator`**. |
 
-Validation is performed with **FluentValidation** (`ArchitectureRequestValidator`, `ContextDocumentRequestValidator`). Invalid payloads return **400** with problem details.
+Validation is performed with **FluentValidation** (`ArchitectureRequestValidator`, `ContextDocumentRequestValidator`, **`InfrastructureDeclarationRequestValidator`**). Invalid payloads return **400** with problem details.
 
 If a document’s content type is not supported by any registered parser, ingestion may still record **warnings** on the persisted **`ContextSnapshot`** (`warnings`) when that path is hit (e.g. non-HTTP callers). Normal API clients receive **400** before ingest for unknown document content types.
 

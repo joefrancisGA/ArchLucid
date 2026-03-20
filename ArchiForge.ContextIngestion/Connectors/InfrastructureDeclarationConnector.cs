@@ -1,0 +1,66 @@
+using ArchiForge.ContextIngestion.Infrastructure;
+using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.ContextIngestion.Models;
+
+namespace ArchiForge.ContextIngestion.Connectors;
+
+public class InfrastructureDeclarationConnector : IContextConnector
+{
+    private readonly IEnumerable<IInfrastructureDeclarationParser> _parsers;
+
+    public InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDeclarationParser> parsers)
+    {
+        _parsers = parsers;
+    }
+
+    public string ConnectorType => "infrastructure-declarations";
+
+    public Task<RawContextPayload> FetchAsync(
+        ContextIngestionRequest request,
+        CancellationToken ct)
+    {
+        _ = ct;
+        return Task.FromResult(new RawContextPayload
+        {
+            InfrastructureDeclarations = request.InfrastructureDeclarations.ToList()
+        });
+    }
+
+    public async Task<NormalizedContextBatch> NormalizeAsync(
+        RawContextPayload payload,
+        CancellationToken ct)
+    {
+        var batch = new NormalizedContextBatch();
+
+        foreach (var declaration in payload.InfrastructureDeclarations)
+        {
+            var parser = _parsers.FirstOrDefault(x => x.CanParse(declaration.Format));
+            if (parser is null)
+            {
+                batch.Warnings.Add(
+                    $"No infrastructure declaration parser for '{declaration.Name}' (format='{declaration.Format}'). Declaration skipped.");
+                continue;
+            }
+
+            var objects = await parser.ParseAsync(declaration, ct);
+            batch.CanonicalObjects.AddRange(objects);
+        }
+
+        return batch;
+    }
+
+    public Task<ContextDelta> DeltaAsync(
+        NormalizedContextBatch current,
+        ContextSnapshot? previous,
+        CancellationToken ct)
+    {
+        _ = current;
+        _ = ct;
+        return Task.FromResult(new ContextDelta
+        {
+            Summary = previous is null
+                ? "Initial infrastructure declaration ingestion"
+                : "Updated infrastructure declaration ingestion"
+        });
+    }
+}

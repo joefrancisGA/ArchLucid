@@ -9,4 +9,6 @@ public class RawContextPayload
     public List<string> PolicyReferences { get; set; } = new();
     public List<string> TopologyHints { get; set; } = new();
     public List<string> SecurityBaselineHints { get; set; } = new();
+
+    public List<InfrastructureDeclarationReference> InfrastructureDeclarations { get; set; } = new();
 }

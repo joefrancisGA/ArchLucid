@@ -28,7 +28,15 @@ public static class ContextIngestionRequestMapper
                 .ToList(),
             PolicyReferences = request.PolicyReferences.ToList(),
             TopologyHints = request.TopologyHints.ToList(),
-            SecurityBaselineHints = request.SecurityBaselineHints.ToList()
+            SecurityBaselineHints = request.SecurityBaselineHints.ToList(),
+            InfrastructureDeclarations = request.InfrastructureDeclarations
+                .Select(x => new InfrastructureDeclarationReference
+                {
+                    Name = x.Name,
+                    Format = x.Format,
+                    Content = x.Content
+                })
+                .ToList()
         };
     }
 }

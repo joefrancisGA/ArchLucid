@@ -38,4 +38,6 @@ public sealed class ArchitectureRequest
     public List<string> TopologyHints { get; set; } = [];
 
     public List<string> SecurityBaselineHints { get; set; } = [];
+
+    public List<InfrastructureDeclarationRequest> InfrastructureDeclarations { get; set; } = [];
 }

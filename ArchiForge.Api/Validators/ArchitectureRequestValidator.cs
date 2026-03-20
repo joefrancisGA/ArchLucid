@@ -73,5 +73,12 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
 
         RuleForEach(x => x.SecurityBaselineHints)
             .MaximumLength(2000).WithMessage("Each security baseline hint must not exceed 2000 characters.");
+
+        RuleFor(x => x.InfrastructureDeclarations)
+            .NotNull().WithMessage("InfrastructureDeclarations must not be null.")
+            .Must(c => c.Count <= 50).WithMessage("InfrastructureDeclarations must not exceed 50 items.");
+
+        RuleForEach(x => x.InfrastructureDeclarations)
+            .SetValidator(new InfrastructureDeclarationRequestValidator());
     }
 }
