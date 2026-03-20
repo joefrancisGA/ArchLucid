@@ -1,5 +1,4 @@
 using ArchiForge.Core.Scoping;
-using Microsoft.AspNetCore.Http;
 
 namespace ArchiForge.Api.Auth.Services;
 

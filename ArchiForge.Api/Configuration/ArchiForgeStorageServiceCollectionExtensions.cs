@@ -18,8 +18,6 @@ using ArchiForge.Persistence.Replay;
 using ArchiForge.Persistence.Repositories;
 using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

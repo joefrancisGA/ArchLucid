@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace ArchiForge.Api.Controllers;
 
 public sealed partial class RunsController

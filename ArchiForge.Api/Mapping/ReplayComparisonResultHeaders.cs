@@ -1,5 +1,4 @@
 using ArchiForge.Application.Analysis;
-using Microsoft.AspNetCore.Http;
 
 namespace ArchiForge.Api.Mapping;
 

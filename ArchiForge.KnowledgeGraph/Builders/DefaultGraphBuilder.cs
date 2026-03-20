@@ -1,5 +1,4 @@
 using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph;
 using ArchiForge.KnowledgeGraph.Inference;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Mapping;
