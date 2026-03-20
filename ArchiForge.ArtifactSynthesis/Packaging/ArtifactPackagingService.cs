@@ -1,0 +1,175 @@
+using System.IO.Compression;
+using System.Text;
+using System.Text.Json;
+using ArchiForge.ArtifactSynthesis.Models;
+
+namespace ArchiForge.ArtifactSynthesis.Packaging;
+
+public class ArtifactPackagingService : IArtifactPackagingService
+{
+    private static readonly JsonSerializerOptions JsonWriteIndented = new() { WriteIndented = true };
+
+    private static readonly HashSet<string> BundleReservedEntryNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "bundle-index.json",
+        "package-metadata.json"
+    };
+
+    private static readonly HashSet<string> RunExportReservedEntryNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "manifest.json",
+        "decision-trace.json",
+        "README.txt",
+        "package-metadata.json"
+    };
+
+    private readonly IArtifactContentTypeResolver _contentTypeResolver;
+
+    public ArtifactPackagingService(IArtifactContentTypeResolver contentTypeResolver)
+    {
+        _contentTypeResolver = contentTypeResolver;
+    }
+
+    public ArtifactFileExport BuildSingleFileExport(SynthesizedArtifact artifact)
+    {
+        return new ArtifactFileExport
+        {
+            FileName = FileNameSanitizer.Sanitize(artifact.Name),
+            ContentType = _contentTypeResolver.Resolve(artifact),
+            Content = Encoding.UTF8.GetBytes(artifact.Content)
+        };
+    }
+
+    public ArtifactPackage BuildBundlePackage(
+        Guid manifestId,
+        IReadOnlyList<SynthesizedArtifact> artifacts)
+    {
+        using var memoryStream = new MemoryStream();
+
+        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            var usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                var safe = AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name), BundleReservedEntryNames);
+                var entryName = AllocateUniqueEntryName(safe, usedEntryNames);
+                WriteTextEntry(archive, entryName, artifact.Content);
+            }
+
+            WriteBundleIndex(archive, artifacts);
+            WritePackageMetadata(
+                archive,
+                new { CreatedUtc = DateTime.UtcNow, ManifestId = manifestId, ArtifactCount = artifacts.Count });
+        }
+
+        return new ArtifactPackage
+        {
+            PackageFileName = $"artifact-bundle-{manifestId:N}.zip",
+            Content = memoryStream.ToArray()
+        };
+    }
+
+    public ArtifactPackage BuildRunExportPackage(
+        Guid runId,
+        Guid manifestId,
+        IReadOnlyList<SynthesizedArtifact> artifacts,
+        string manifestJson,
+        string? traceJson = null)
+    {
+        using var memoryStream = new MemoryStream();
+
+        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            var usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                var safeName = AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name), RunExportReservedEntryNames);
+                var relative = $"artifacts/{AllocateUniqueEntryName(safeName, usedEntryNames)}";
+                WriteTextEntry(archive, relative, artifact.Content);
+            }
+
+            WriteTextEntry(archive, "manifest.json", manifestJson);
+
+            if (!string.IsNullOrWhiteSpace(traceJson))
+            {
+                WriteTextEntry(archive, "decision-trace.json", traceJson);
+            }
+
+            var readme = new StringBuilder()
+                .AppendLine("ArchiForge Export Package")
+                .AppendLine($"Run ID: {runId}")
+                .AppendLine($"Manifest ID: {manifestId}")
+                .AppendLine($"Artifact Count: {artifacts.Count}");
+            WriteTextEntry(archive, "README.txt", readme.ToString());
+
+            WritePackageMetadata(
+                archive,
+                new
+                {
+                    CreatedUtc = DateTime.UtcNow,
+                    RunId = runId,
+                    ManifestId = manifestId,
+                    ArtifactCount = artifacts.Count
+                });
+        }
+
+        return new ArtifactPackage
+        {
+            PackageFileName = $"archiforge-run-export-{runId:N}.zip",
+            Content = memoryStream.ToArray()
+        };
+    }
+
+    private static void WriteTextEntry(ZipArchive archive, string entryName, string content)
+    {
+        var entry = archive.CreateEntry(entryName.Replace('\\', '/'), CompressionLevel.Fastest);
+        using var entryStream = entry.Open();
+        using var writer = new StreamWriter(entryStream, Encoding.UTF8);
+        writer.Write(content);
+    }
+
+    private static void WriteBundleIndex(ZipArchive archive, IReadOnlyList<SynthesizedArtifact> artifacts)
+    {
+        var indexJson = JsonSerializer.Serialize(
+            artifacts.Select(x => new
+            {
+                x.ArtifactId,
+                x.ArtifactType,
+                x.Name,
+                x.Format,
+                x.CreatedUtc,
+                x.ContentHash
+            }),
+            JsonWriteIndented);
+
+        WriteTextEntry(archive, "bundle-index.json", indexJson);
+    }
+
+    private static void WritePackageMetadata(ZipArchive archive, object payload)
+    {
+        var metadataJson = JsonSerializer.Serialize(payload, JsonWriteIndented);
+        WriteTextEntry(archive, "package-metadata.json", metadataJson);
+    }
+
+    /// <summary>Reserves a unique name within the current archive (flat or prefixed paths).</summary>
+    private static string AvoidReservedEntryName(string sanitizedFileName, HashSet<string> reserved)
+    {
+        return reserved.Contains(sanitizedFileName) ? $"artifact-{sanitizedFileName}" : sanitizedFileName;
+    }
+
+    private static string AllocateUniqueEntryName(string sanitizedFileName, HashSet<string> usedEntryNames)
+    {
+        var candidate = sanitizedFileName;
+        var n = 1;
+        while (!usedEntryNames.Add(candidate))
+        {
+            var stem = Path.GetFileNameWithoutExtension(sanitizedFileName);
+            var ext = Path.GetExtension(sanitizedFileName);
+            candidate = $"{stem}_{n++}{ext}";
+        }
+
+        return candidate;
+    }
+}

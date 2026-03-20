@@ -15,6 +15,7 @@ using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
 using ArchiForge.ArtifactSynthesis.Generators;
 using ArchiForge.ArtifactSynthesis.Interfaces;
+using ArchiForge.ArtifactSynthesis.Packaging;
 using ArchiForge.ArtifactSynthesis.Renderers;
 using ArchiForge.ArtifactSynthesis.Services;
 using ArchiForge.Contracts.Requests;
@@ -200,6 +201,8 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterArtifactSynthesis(IServiceCollection services)
     {
+        services.AddSingleton<IArtifactContentTypeResolver, ArtifactContentTypeResolver>();
+        services.AddSingleton<IArtifactPackagingService, ArtifactPackagingService>();
         services.AddSingleton<IArtifactBundleValidator, ArtifactBundleValidator>();
         services.AddSingleton<IDiagramRenderer, MermaidDiagramRenderer>();
         services.AddScoped<IArtifactGenerator, ReferenceArchitectureMarkdownGenerator>();

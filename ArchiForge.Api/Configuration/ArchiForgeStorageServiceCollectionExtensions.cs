@@ -45,6 +45,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
             services.AddSingleton<IRunRepository, InMemoryRunRepository>();
             services.AddSingleton<IAuthorityQueryService, InMemoryAuthorityQueryService>();
+            services.AddSingleton<IArtifactQueryService, InMemoryArtifactQueryService>();
             services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
             services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
             return services;
@@ -73,6 +74,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IArtifactBundleRepository, SqlArtifactBundleRepository>();
         services.AddScoped<IRunRepository, SqlRunRepository>();
         services.AddScoped<IAuthorityQueryService, DapperAuthorityQueryService>();
+        services.AddScoped<IArtifactQueryService, DapperArtifactQueryService>();
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
         services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
         services.AddScoped<IArchiForgeUnitOfWorkFactory, DapperArchiForgeUnitOfWorkFactory>();
