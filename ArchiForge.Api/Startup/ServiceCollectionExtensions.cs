@@ -13,6 +13,7 @@ using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
+using ArchiForge.ArtifactSynthesis.Docx;
 using ArchiForge.ArtifactSynthesis.Generators;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Packaging;
@@ -215,6 +216,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IArtifactGenerator, CostSummaryArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, UnresolvedIssuesArtifactGenerator>();
         services.AddScoped<IArtifactSynthesisService, ArtifactSynthesisService>();
+        services.AddSingleton<IDocxExportService, DocxExportService>();
     }
 
     private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)
