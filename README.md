@@ -12,6 +12,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/CLI_USAGE.md](docs/CLI_USAGE.md) | CLI reference |
 | [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md) | Comparison replay concepts |
 | [docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md) | Architecture overview and cross-links |
+| [docs/KNOWLEDGE_GRAPH.md](docs/KNOWLEDGE_GRAPH.md) | Typed graph from `ContextSnapshot`, edge inference, validation, manifest hooks |
 
 ## Prerequisites
 

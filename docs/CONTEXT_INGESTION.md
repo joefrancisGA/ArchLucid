@@ -103,8 +103,17 @@ So policy objects that only set **`reference`** still dedupe correctly when the 
 
 ---
 
+## Downstream: knowledge graph
+
+After **`ContextSnapshot`** is saved, **`ArchiForge.KnowledgeGraph`** builds a typed **`GraphSnapshot`** (nodes, inferred edges, validation). Canonical **`ObjectType`** values (e.g. `Requirement`, `TopologyResource`, `PolicyControl`, `SecurityBaseline`) become **`GraphNode.NodeType`**; enrichment such as **`category`** on topology objects feeds node **`Category`** and edge inference.
+
+See **`docs/KNOWLEDGE_GRAPH.md`** for pipeline, **`EdgeType`** semantics, DI registration, persistence JSON aliases, and manifest integration.
+
+---
+
 ## Further reading
 
+- **Typed knowledge graph:** `docs/KNOWLEDGE_GRAPH.md`.
 - **API body and validation:** `docs/API_CONTRACTS.md` (create run / `ArchitectureRequest`).
 - **Persisted snapshots:** `docs/DATA_MODEL.md` (`ContextSnapshots`).
 - **Architecture overview:** `docs/ARCHITECTURE_CONTEXT.md`.

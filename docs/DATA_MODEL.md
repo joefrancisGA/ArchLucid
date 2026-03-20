@@ -80,7 +80,7 @@ These tables support the persisted authority pipeline (context → graph → fin
 
 #### `GraphSnapshots`, `FindingsSnapshots`, …
 
-Linked to runs and context snapshots; see `001_AuthorityStore.sql` for full DDL.
+Linked to runs and context snapshots; see `001_AuthorityStore.sql` for full DDL. **Graph** node/edge JSON and semantics: **`docs/KNOWLEDGE_GRAPH.md`**.
 
 ---
 

@@ -1,4 +1,5 @@
 using ArchiForge.ContextIngestion.Models;
+using ArchiForge.KnowledgeGraph;
 using ArchiForge.KnowledgeGraph.Inference;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Mapping;
@@ -28,9 +29,9 @@ public class DefaultGraphBuilder : IGraphBuilder
         var contextNode = new GraphNode
         {
             NodeId = $"context-{contextSnapshot.SnapshotId:N}",
-            NodeType = "ContextSnapshot",
+            NodeType = GraphNodeTypes.ContextSnapshot,
             Label = $"Context Snapshot {contextSnapshot.SnapshotId:N}",
-            SourceType = "ContextSnapshot",
+            SourceType = GraphNodeTypes.ContextSnapshot,
             SourceId = contextSnapshot.SnapshotId.ToString(),
             Properties = new Dictionary<string, string>
             {

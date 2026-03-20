@@ -1,4 +1,5 @@
 using ArchiForge.ContextIngestion.Models;
+using ArchiForge.KnowledgeGraph;
 using ArchiForge.KnowledgeGraph.Models;
 
 namespace ArchiForge.KnowledgeGraph.Inference;
@@ -15,17 +16,17 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         var edges = new List<GraphEdge>();
 
         var contextNodeId = $"context-{contextSnapshot.SnapshotId:N}";
-        var topologyNodes = nodes.Where(x => x.NodeType == "TopologyResource").ToList();
-        var securityNodes = nodes.Where(x => x.NodeType == "SecurityBaseline").ToList();
-        var policyNodes = nodes.Where(x => x.NodeType == "PolicyControl").ToList();
-        var requirementNodes = nodes.Where(x => x.NodeType == "Requirement").ToList();
+        var topologyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.TopologyResource).ToList();
+        var securityNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.SecurityBaseline).ToList();
+        var policyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.PolicyControl).ToList();
+        var requirementNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.Requirement).ToList();
 
-        foreach (var node in nodes.Where(x => x.NodeType != "ContextSnapshot"))
+        foreach (var node in nodes.Where(x => x.NodeType != GraphNodeTypes.ContextSnapshot))
         {
             edges.Add(CreateEdge(
                 contextNodeId,
                 node.NodeId,
-                "CONTAINS",
+                GraphEdgeTypes.Contains,
                 "contains"));
         }
 
@@ -42,7 +43,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         List<GraphNode> topologyNodes)
     {
         var networks = topologyNodes
-            .Where(x => string.Equals(x.Category, "network", StringComparison.OrdinalIgnoreCase))
+            .Where(x => string.Equals(x.Category, GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         var subnets = topologyNodes
@@ -56,7 +57,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                 edges.Add(CreateEdge(
                     network.NodeId,
                     subnet.NodeId,
-                    "CONTAINS_RESOURCE",
+                    GraphEdgeTypes.ContainsResource,
                     "contains resource"));
             }
         }
@@ -74,7 +75,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                 edges.Add(CreateEdge(
                     security.NodeId,
                     resource.NodeId,
-                    "PROTECTS",
+                    GraphEdgeTypes.Protects,
                     "protects"));
             }
         }
@@ -92,7 +93,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                 edges.Add(CreateEdge(
                     policy.NodeId,
                     resource.NodeId,
-                    "APPLIES_TO",
+                    GraphEdgeTypes.AppliesTo,
                     "applies to"));
             }
         }
@@ -116,7 +117,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                     edges.Add(CreateEdge(
                         requirement.NodeId,
                         resource.NodeId,
-                        "RELATES_TO",
+                        GraphEdgeTypes.RelatesTo,
                         "relates to"));
                 }
             }
@@ -129,19 +130,19 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         var label = resource.Label.ToLowerInvariant();
         var category = resource.Category?.ToLowerInvariant() ?? string.Empty;
 
-        if (text.Contains("network", StringComparison.Ordinal) && (label.Contains("vnet", StringComparison.Ordinal) || label.Contains("subnet", StringComparison.Ordinal) || category == "network"))
+        if (text.Contains("network", StringComparison.Ordinal) && (label.Contains("vnet", StringComparison.Ordinal) || label.Contains("subnet", StringComparison.Ordinal) || string.Equals(category, GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase)))
             return true;
 
-        if (text.Contains("storage", StringComparison.Ordinal) && category == "storage")
+        if (text.Contains("storage", StringComparison.Ordinal) && string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (text.Contains("compute", StringComparison.Ordinal) && category == "compute")
+        if (text.Contains("compute", StringComparison.Ordinal) && string.Equals(category, GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (text.Contains("security", StringComparison.Ordinal) && resource.NodeType == "SecurityBaseline")
+        if (text.Contains("security", StringComparison.Ordinal) && resource.NodeType == GraphNodeTypes.SecurityBaseline)
             return true;
 
-        if (text.Contains("database", StringComparison.Ordinal) && category == "data")
+        if (text.Contains("database", StringComparison.Ordinal) && string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase))
             return true;
 
         return false;

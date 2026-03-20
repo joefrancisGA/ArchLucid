@@ -100,6 +100,12 @@ This document zooms into the most important components inside each container/lib
 
 ---
 
+### `ArchiForge.KnowledgeGraph` components
+
+- **Role:** Build a **typed directed graph** (`GraphSnapshot`) from a persisted **`ContextSnapshot`**: **`GraphNode`** / **`GraphEdge`**, optional inferred relationships (**`CONTAINS`**, **`PROTECTS`**, **`APPLIES_TO`**, **`RELATES_TO`**, etc.), and **`IGraphValidator`** checks.
+- **Entry points:** **`IKnowledgeGraphService`**, **`DefaultGraphBuilder`**, **`DefaultGraphEdgeInferer`**, **`GraphNodeFactory`**.
+- **Detail:** `docs/KNOWLEDGE_GRAPH.md`.
+
 ### `ArchiForge.Data` components
 
 #### Repository layer (Dapper)

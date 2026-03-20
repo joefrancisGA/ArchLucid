@@ -14,6 +14,8 @@
   - `docs/DATA_MODEL.md`
 - **Context ingestion** – connectors, parsers, deduplication, create-run fields  
   - `docs/CONTEXT_INGESTION.md`
+- **Knowledge graph** – typed nodes/edges from `ContextSnapshot`, inference, validation, SQL JSON  
+  - `docs/KNOWLEDGE_GRAPH.md`
 
 ### How-to guides
 
@@ -27,7 +29,7 @@
 ### Typical questions and where to read
 
 - **“How does a run become a manifest?”**  
-  → `ARCHITECTURE_FLOWS.md` (Flow A) + `ARCHITECTURE_COMPONENTS.md` (DecisionEngineService)
+  → `ARCHITECTURE_FLOWS.md` (Flow A) + `ARCHITECTURE_COMPONENTS.md` (DecisionEngineService) + `KNOWLEDGE_GRAPH.md` (graph → findings → manifest)
 
 - **“How do I replay a comparison and re-export it?”**  
   → `COMPARISON_REPLAY.md` + `ARCHITECTURE_FLOWS.md` (Flow C)

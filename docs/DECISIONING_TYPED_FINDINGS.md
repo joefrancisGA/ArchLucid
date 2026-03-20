@@ -29,6 +29,7 @@ Currently included:
 - `TopologyGapFindingPayload`
 - `SecurityControlFindingPayload`
 - `CostConstraintFindingPayload`
+- `PolicyApplicabilityFindingPayload`
 
 Engines should set:
 
@@ -44,6 +45,7 @@ Use `ArchiForge.Decisioning.Findings.Factories.FindingFactory` for consistent cr
 
 - `CreateRequirementFinding(...)`
 - `CreateTopologyGapFinding(...)`
+- `CreatePolicyApplicabilityFinding(...)` / `CreatePolicyApplicabilityGapFinding(...)`
 
 This ensures the correct `FindingType`, `Category`, `PayloadType`, and payload shape are always emitted.
 
@@ -63,6 +65,22 @@ Examples:
 - `FindingPayloadConverter.ToTopologyGapPayload(finding)`
 - `FindingPayloadConverter.ToSecurityControlPayload(finding)`
 - `FindingPayloadConverter.ToCostConstraintPayload(finding)`
+- `FindingPayloadConverter.ToPolicyApplicabilityPayload(finding)`
+
+---
+
+### Graph-aware finding engines
+
+Several engines use **`ArchiForge.KnowledgeGraph.Models.GraphSnapshotExtensions`** over typed edges:
+
+| Engine | Graph usage (examples) |
+|--------|-------------------------|
+| **`RequirementFindingEngine`** | **`RELATES_TO`** → expands **`RelatedNodeIds`** / trace |
+| **`SecurityBaselineFindingEngine`** | **`PROTECTS`** → related topology node IDs |
+| **`PolicyApplicabilityFindingEngine`** | **`APPLIES_TO`** → info vs gap (**Warning** when topology exists but no links) |
+| **`TopologySanityFindingEngine`** | **`TopologyResource`** nodes + **`Category`** for coverage gaps |
+
+See **`docs/KNOWLEDGE_GRAPH.md`** for how those edges are produced.
 
 ---
 
@@ -98,14 +116,17 @@ Validations include:
 
 ---
 
-### Decision engine typed extraction
+### Golden manifest population (Decisioning)
 
-`RuleBasedDecisionEngine` uses typed payload extraction for stronger manifest output:
+**`DefaultGoldenManifestBuilder`** (not `RuleBasedDecisionEngine`) maps findings + graph into **`GoldenManifest`**:
 
-- `RequirementFinding` (require): builds a `ResolvedArchitectureDecision` using payload `RequirementName` / `RequirementText` when present.
-- `TopologyGap` (allow): emits warnings using payload `Description` when present.
-- `SecurityControlFinding` (allow): treats `Status=missing` as warning; otherwise records an assumption.
-- `CostConstraintFinding` (allow): emits a formatted warning including budget/risk/max cost when present.
+- **Requirements** — `RequirementFinding` → coverage + decisions.
+- **Topology** — `TopologyGap` → gaps, warnings, unresolved issues; **plus** `TopologyResource` **labels** from **`GraphSnapshot`** (`PopulateTopologyFromGraph`).
+- **Security** — `SecurityControlFinding` → controls, gaps, remediation decisions when `Status=missing`.
+- **Cost** — `CostConstraintFinding` → max monthly cost and risk list.
+- **Policy** — `PolicyApplicabilityFinding` → **Info**: assumptions (applicability count); **Warning**: warnings + `UnresolvedIssues` (`PolicyApplicabilityGap`).
+
+**`RuleBasedDecisionEngine`** evaluates **`InMemoryDecisionRuleProvider`** rules against **`FindingType`** (accept/reject/trace) before the manifest is built; it does not deserialize payloads for manifest sections.
 
 ---
 
