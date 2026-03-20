@@ -2,7 +2,7 @@ using ArchiForge.ContextIngestion.Canonicalization;
 using ArchiForge.ContextIngestion.Models;
 using FluentAssertions;
 
-namespace ArchiForge.Coordinator.Tests;
+namespace ArchiForge.ContextIngestion.Tests;
 
 public sealed class CanonicalDeduplicatorTests
 {

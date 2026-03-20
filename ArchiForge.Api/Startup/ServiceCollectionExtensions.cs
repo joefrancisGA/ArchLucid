@@ -29,6 +29,7 @@ using ArchiForge.ContextIngestion.Canonicalization;
 using ArchiForge.ContextIngestion.Connectors;
 using ArchiForge.ContextIngestion.Contracts;
 using ArchiForge.ContextIngestion.Parsing;
+using ArchiForge.ContextIngestion.Summaries;
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextIngestionService;
 using GraphBuilder = ArchiForge.KnowledgeGraph.Interfaces.IGraphBuilder;
@@ -151,6 +152,7 @@ internal static partial class ServiceCollectionExtensions
         });
 
         services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();
+        services.AddSingleton<IContextDeltaSummaryBuilder, DefaultContextDeltaSummaryBuilder>();
 
         services.AddScoped<ContextIngestionService, ArchiForge.ContextIngestion.Services.ContextIngestionService>();
         services.AddScoped<GraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();

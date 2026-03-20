@@ -1,3 +1,4 @@
+using ArchiForge.ContextIngestion;
 using ArchiForge.Contracts.Requests;
 using FluentValidation;
 
@@ -5,12 +6,6 @@ namespace ArchiForge.Api.Validators;
 
 public sealed class ContextDocumentRequestValidator : AbstractValidator<ContextDocumentRequest>
 {
-    public static readonly string[] SupportedContentTypes =
-    [
-        "text/plain",
-        "text/markdown"
-    ];
-
     public ContextDocumentRequestValidator()
     {
         RuleFor(x => x.Name)
@@ -20,7 +15,7 @@ public sealed class ContextDocumentRequestValidator : AbstractValidator<ContextD
         RuleFor(x => x.ContentType)
             .NotEmpty().WithMessage("Document ContentType is required.")
             .MaximumLength(255)
-            .Must(ct => SupportedContentTypes.Contains(ct, StringComparer.OrdinalIgnoreCase))
+            .Must(SupportedContextDocumentContentTypes.IsSupported)
             .WithMessage(
                 "Document ContentType must be a supported type (e.g. text/plain, text/markdown).");
 

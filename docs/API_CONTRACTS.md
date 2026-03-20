@@ -46,7 +46,7 @@ Swagger documents the comparison replay **422** response, **404** with `#run-not
 | Field | Type | Notes |
 |-------|------|--------|
 | `inlineRequirements` | `string[]` | Each entry becomes a canonical **Requirement** (see `docs/CONTEXT_INGESTION.md`). Max **100** items, each max **4000** chars. |
-| `documents` | object[] | Inline uploads: **`name`**, **`contentType`**, **`content`** (not multipart files). Max **50** documents. **`contentType`** must be supported (currently **`text/plain`**, **`text/markdown`**). **`content`** max **500000** chars. |
+| `documents` | object[] | Inline uploads: **`name`**, **`contentType`**, **`content`** (not multipart files). Max **50** documents. **`contentType`** must be in **`ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes.All`** (today: **`text/plain`**, **`text/markdown`**). **`content`** max **500000** chars. |
 | `policyReferences` | `string[]` | Max **100** items, each max **500** chars → **PolicyControl** objects. |
 | `topologyHints` | `string[]` | Max **100** items, each max **2000** chars. |
 | `securityBaselineHints` | `string[]` | Max **100** items, each max **2000** chars. |

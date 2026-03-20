@@ -1,6 +1,7 @@
 using ArchiForge.ContextIngestion.Canonicalization;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
+using ArchiForge.ContextIngestion.Summaries;
 
 namespace ArchiForge.ContextIngestion.Services;
 
@@ -9,15 +10,18 @@ public class ContextIngestionService : IContextIngestionService
     private readonly IEnumerable<IContextConnector> _connectors;
     private readonly ICanonicalDeduplicator _deduplicator;
     private readonly IContextSnapshotRepository _snapshotRepository;
+    private readonly IContextDeltaSummaryBuilder _deltaSummaryBuilder;
 
     public ContextIngestionService(
         IEnumerable<IContextConnector> connectors,
         ICanonicalDeduplicator deduplicator,
-        IContextSnapshotRepository snapshotRepository)
+        IContextSnapshotRepository snapshotRepository,
+        IContextDeltaSummaryBuilder deltaSummaryBuilder)
     {
         _connectors = connectors;
         _deduplicator = deduplicator;
         _snapshotRepository = snapshotRepository;
+        _deltaSummaryBuilder = deltaSummaryBuilder;
     }
 
     public async Task<ContextSnapshot> IngestAsync(
@@ -37,6 +41,7 @@ public class ContextIngestionService : IContextIngestionService
 
         var allObjects = new List<CanonicalObject>();
         var deltaSummaries = new List<string>();
+        var connectorIndex = 0;
 
         foreach (var connector in _connectors)
         {
@@ -47,10 +52,14 @@ public class ContextIngestionService : IContextIngestionService
             allObjects.AddRange(normalized.CanonicalObjects);
             snapshot.Warnings.AddRange(normalized.Warnings);
 
-            if (!string.IsNullOrWhiteSpace(delta.Summary))
-            {
-                deltaSummaries.Add(delta.Summary);
-            }
+            var segment = _deltaSummaryBuilder.BuildSegment(
+                connector.ConnectorType,
+                delta.Summary,
+                normalized,
+                previous,
+                isFirstConnector: connectorIndex == 0);
+            deltaSummaries.Add(segment);
+            connectorIndex++;
         }
 
         snapshot.CanonicalObjects = _deduplicator.Deduplicate(allObjects).ToList();

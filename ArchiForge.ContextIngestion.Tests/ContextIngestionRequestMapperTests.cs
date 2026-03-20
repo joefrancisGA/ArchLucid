@@ -3,7 +3,7 @@ using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using FluentAssertions;
 
-namespace ArchiForge.Coordinator.Tests;
+namespace ArchiForge.ContextIngestion.Tests;
 
 public sealed class ContextIngestionRequestMapperTests
 {

@@ -695,3 +695,73 @@ Candidates for the next round of refactors, in rough priority order.
 - [x] 50. Refactor: deduplicator fingerprint for `reference` / non-text properties
 - [x] 51. Refactor: extract API → `ContextIngestionRequest` mapper
 - [x] 52. Refactor/docs: explicit connector order + validation or warnings for documents
+
+---
+
+## 53. Single source of truth for supported document content types
+
+**Problem:** **`ContextDocumentRequestValidator`** and **`PlainTextContextDocumentParser`** both encode which MIME types are supported (`text/plain`, `text/markdown`). Adding a parser for `application/json` requires editing two places and risks API validation rejecting what ingestion could parse (or the reverse).
+
+**Change:**
+- Add a small shared type in **`ArchiForge.ContextIngestion`** (e.g. **`SupportedContextDocumentContentTypes`** static class, or **`IContextDocumentParserRegistry`** that exposes `IsSupported(string contentType)`), used by the validator via a reference from **Api** to the same definitions **or** by generating the FluentValidation rule from the parser collection at startup.
+- Update **`docs/CONTEXT_INGESTION.md`** to say “supported types are defined in X”.
+
+**Outcome:** One list to extend when adding **`IContextDocumentParser`** implementations.
+
+---
+
+## 54. `ArchiForge.ContextIngestion.Tests` + move ingestion unit tests
+
+**Problem:** **`CanonicalDeduplicatorTests`** and **`ContextIngestionRequestMapperTests`** live in **`ArchiForge.Coordinator.Tests`**, which couples coordinator tests to ingestion internals. There is no dedicated test project for **`ArchiForge.ContextIngestion`**.
+
+**Change:**
+- Add **`ArchiForge.ContextIngestion.Tests`** (xUnit, same pattern as **Coordinator.Tests**).
+- Move dedupe/mapper tests there; add tests for **`PlainTextContextDocumentParser`** (line prefixes), **`DocumentConnector`** warnings when no parser matches, and **`ContextIngestionService`** behavior with a fake **`IContextSnapshotRepository`** + fake connectors if useful.
+
+**Outcome:** Ingestion changes get fast, local tests without pulling the full coordinator graph.
+
+---
+
+## 55. API integration test: create run with full ingestion payload
+
+**Problem:** Multi-field **`ArchitectureRequest`** (documents, inline requirements, policy/topology/security hints) is validated by FluentValidation but not covered by an end-to-end test that proves the run completes and authority persistence sees expected context shape.
+
+**Change:**
+- In **`ArchiForge.Api.Tests`**, add a test (integration, **`IntegrationTestBase`**) that **`POST`**s create run with a minimal valid body including **`inlineRequirements`**, one **`documents`** entry (`text/plain` with a `REQ:` line), and one **`policyReferences`** entry.
+- Assert **200** and optionally query an internal/debug endpoint or DB (if the test stack exposes it) **or** assert response payload includes run id and no error — tighten over time to assert snapshot canonical object count via a test-only hook if needed.
+
+**Outcome:** Regression protection for the public create-run contract and ingestion wiring.
+
+---
+
+## 56. Richer connector delta summaries (counts / diff hints)
+
+**Problem:** **`DeltaAsync`** messages are binary (“Initial …” vs “Updated …”) and do not reflect how many objects a connector produced or how they differ from **`previous`** canonical sets. **`DeltaSummary`** is a long concatenated string with limited operational value.
+
+**Change:**
+- Optionally inject a small **`IContextDeltaSummaryBuilder`** that, given **`previous`** and **`current` `NormalizedContextBatch`**, emits a short per-connector line (e.g. “documents: +2 Requirement, +1 PolicyControl”).
+- Keep backward-compatible **`DeltaSummary`** text or add structured **`ContextDelta.Details`** (list of strings) later.
+
+**Outcome:** Easier debugging and future UI/audit without full graph diff yet.
+
+---
+
+## 57. OpenAPI / Swagger examples for expanded `ArchitectureRequest`
+
+**Problem:** Swagger shows **`ArchitectureRequest`** properties but not a realistic example with **`documents`**, **`inlineRequirements`**, etc., so integrators miss the ingestion features described in **`docs/CONTEXT_INGESTION.md`**.
+
+**Change:**
+- Add **`IOperationFilter`** or schema example for the create-run request body (minimal JSON with **`documents`**: one object, **`inlineRequirements`**: one string, optional **`policyReferences`**).
+- Cross-link in description to **`docs/CONTEXT_INGESTION.md`** or duplicate one sentence on line prefixes (`REQ:`, …).
+
+**Outcome:** Discoverability parity between docs and interactive API clients.
+
+---
+
+## Checklist (context ingestion — next five)
+
+- [x] 53. Refactor: single source of truth for supported document content types (validator + parsers)
+- [x] 54. Tests: add `ArchiForge.ContextIngestion.Tests`; move dedupe/mapper tests; add parser/connector/service tests
+- [x] 55. Api.Tests: integration test create run with full ingestion payload
+- [x] 56. Refactor: richer per-connector delta summaries (counts or diff hints vs `previous`)
+- [x] 57. Api: OpenAPI examples (and optional description) for expanded `ArchitectureRequest`

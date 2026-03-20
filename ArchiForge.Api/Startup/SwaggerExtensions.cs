@@ -10,9 +10,10 @@ internal static class SwaggerExtensions
             {
                 Title = "ArchiForge API",
                 Version = "v1",
-                Description = "API for orchestrating AI-driven architecture design. URL versioning: /v1/... (default 1.0). See docs/API_CONTRACTS.md for versioning, correlation ID (X-Correlation-ID), 422 (comparison verification failed), 404 run-not-found, 409 conflict, and request validation (400)."
+                Description = "API for orchestrating AI-driven architecture design. URL versioning: /v1/... (default 1.0). See docs/API_CONTRACTS.md for versioning, correlation ID (X-Correlation-ID), 422 (comparison verification failed), 404 run-not-found, 409 conflict, and request validation (400). Create-run body may include context-ingestion fields (inline requirements, documents, policy/topology/security hints); see docs/CONTEXT_INGESTION.md and the POST /v1/architecture/request example."
             });
             c.OperationFilter<Swagger.ReplayExamplesOperationFilter>();
+            c.OperationFilter<Swagger.ArchitectureRequestExamplesOperationFilter>();
             c.OperationFilter<Swagger.ComparisonHistoryQueryOperationFilter>();
             c.OperationFilter<Swagger.ProblemDetailsResponsesOperationFilter>();
         });

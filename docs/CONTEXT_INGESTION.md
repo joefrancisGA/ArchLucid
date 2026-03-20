@@ -33,7 +33,13 @@ Connectors implement **`IContextConnector`**. Registration order is explicit (se
 5. **`TopologyHintsConnector`**
 6. **`SecurityBaselineHintsConnector`**
 
-Summaries from each connector’s **`DeltaAsync`** are concatenated into **`ContextSnapshot.DeltaSummary`**. **`DeltaAsync`** receives the **latest persisted `ContextSnapshot` for `ProjectId`** (if any), so messaging can distinguish first ingest vs update for that project.
+Each connector’s **`DeltaAsync`** returns a short base summary; **`IContextDeltaSummaryBuilder`** (default: **`DefaultContextDeltaSummaryBuilder`**) enriches it with normalized object counts, a per-type breakdown (e.g. `Requirement×2`), and a one-time baseline clause against the **latest persisted `ContextSnapshot` for `ProjectId`** (if any). The enriched segments are joined into **`ContextSnapshot.DeltaSummary`**.
+
+---
+
+## Supported document content types (single source of truth)
+
+The canonical MIME list for inline documents is **`ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes.All`**. The API FluentValidation rule (**`ContextDocumentRequestValidator`**) and **`PlainTextContextDocumentParser.CanParse`** both use **`SupportedContextDocumentContentTypes.IsSupported`**. When adding a new parser for another type, extend **`All`** and implement **`IContextDocumentParser`**.
 
 ---
 
@@ -41,7 +47,7 @@ Summaries from each connector’s **`DeltaAsync`** are concatenated into **`Cont
 
 ### `PlainTextContextDocumentParser`
 
-Supports **`text/plain`** and **`text/markdown`**. Non-empty lines may start with:
+Supports the MIME types listed in **`SupportedContextDocumentContentTypes`**. Non-empty lines may start with:
 
 | Prefix | Canonical `ObjectType` | `Properties` |
 |--------|-------------------------|--------------|

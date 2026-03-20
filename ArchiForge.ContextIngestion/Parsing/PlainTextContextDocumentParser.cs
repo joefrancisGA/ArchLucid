@@ -1,15 +1,12 @@
 using ArchiForge.ContextIngestion.Contracts;
 using ArchiForge.ContextIngestion.Models;
+using static global::ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes;
 
 namespace ArchiForge.ContextIngestion.Parsing;
 
 public class PlainTextContextDocumentParser : IContextDocumentParser
 {
-    public bool CanParse(string contentType)
-    {
-        return string.Equals(contentType, "text/plain", StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(contentType, "text/markdown", StringComparison.OrdinalIgnoreCase);
-    }
+    public bool CanParse(string contentType) => IsSupported(contentType);
 
     public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
         ContextDocumentReference document,

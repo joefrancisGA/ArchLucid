@@ -34,6 +34,7 @@ Typical gaps we fixed:
 | **ArchiForge.AgentRuntime** | **AgentSimulator** |
 | **ArchiForge.AgentRuntime.Tests** | **Coordinator**, **ContextIngestion**, **Decisioning**, **DecisionEngine**, **KnowledgeGraph** |
 | **ArchiForge.Coordinator.Tests** | **AgentSimulator**, **ContextIngestion**, **DecisionEngine**, **Decisioning**, **KnowledgeGraph** |
+| **ArchiForge.ContextIngestion.Tests** | **ContextIngestion**, **Contracts** (mapper tests) |
 | **ArchiForge.DecisionEngine.Tests** | **Contracts** (for `ManifestDeltaProposal`, `AgentResult`, etc.) |
 
 **Quick audit:** search new `using ArchiForge.*` in a project; if the namespace’s assembly is not referenced by that **.csproj**, add the project reference.

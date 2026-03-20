@@ -4,6 +4,7 @@
 
 - **ArchiForge.Api.Tests** — API integration tests using `WebApplicationFactory` (full app, in-memory SQLite). Heavier; use for HTTP contracts, comparison replay, exports, run-not-found, 422/409.
 - **ArchiForge.DecisionEngine.Tests** — Unit and scenario tests for the decision engine; optional integration tests with real JSON schemas (see `SchemaValidationIntegrationTests`).
+- **ArchiForge.ContextIngestion.Tests** — Fast unit tests for ingestion parsers, deduplication, document connector warnings, delta summary builder, and **`ContextIngestionService`** (in-memory snapshot repo + fake connectors).
 - **ArchiForge.Coordinator.Tests**, **ArchiForge.AgentRuntime.Tests**, **ArchiForge.Decisioning.Tests**, etc. — Domain/component tests; no web stack unless explicitly added.
 
 ## Categories (optional filtering)
