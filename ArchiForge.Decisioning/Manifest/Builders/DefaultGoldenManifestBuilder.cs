@@ -48,7 +48,77 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             ? "Resolved"
             : "NeedsAttention";
 
+        NormalizeManifestOrdering(manifest);
+
         return manifest;
+    }
+
+    private static void NormalizeManifestOrdering(GoldenManifest manifest)
+    {
+        manifest.Requirements.Covered = manifest.Requirements.Covered
+            .OrderBy(x => x.RequirementName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Requirements.Uncovered = manifest.Requirements.Uncovered
+            .OrderBy(x => x.RequirementName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.Topology.SelectedPatterns = manifest.Topology.SelectedPatterns
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Topology.Resources = manifest.Topology.Resources
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Topology.Gaps = manifest.Topology.Gaps
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.Security.Controls = manifest.Security.Controls
+            .OrderBy(x => x.ControlName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Security.Gaps = manifest.Security.Gaps
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.Cost.CostRisks = manifest.Cost.CostRisks
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Cost.Notes = manifest.Cost.Notes
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.UnresolvedIssues.Items = manifest.UnresolvedIssues.Items
+            .OrderBy(x => x.Title, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.Decisions = manifest.Decisions
+            .OrderBy(x => x.Category, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(x => x.Title, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.Assumptions = manifest.Assumptions
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.Warnings = manifest.Warnings
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.Constraints.MandatoryConstraints = manifest.Constraints.MandatoryConstraints
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Constraints.Preferences = manifest.Constraints.Preferences
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.Provenance.SourceFindingIds = manifest.Provenance.SourceFindingIds
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Provenance.SourceGraphNodeIds = manifest.Provenance.SourceGraphNodeIds
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Provenance.AppliedRuleIds = manifest.Provenance.AppliedRuleIds
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     private static void PopulateRequirements(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)

@@ -41,6 +41,30 @@ public sealed class SqlContextSnapshotRepository : IContextSnapshotRepository
         return row is null ? null : Map(row);
     }
 
+    public async Task<ContextSnapshot?> GetByIdAsync(Guid snapshotId, CancellationToken ct)
+    {
+        const string sql = """
+            SELECT
+                SnapshotId,
+                RunId,
+                ProjectId,
+                CreatedUtc,
+                CanonicalObjectsJson,
+                DeltaSummary,
+                WarningsJson,
+                ErrorsJson,
+                SourceHashesJson
+            FROM dbo.ContextSnapshots
+            WHERE SnapshotId = @SnapshotId;
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        var row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
+            new CommandDefinition(sql, new { SnapshotId = snapshotId }, cancellationToken: ct));
+
+        return row is null ? null : Map(row);
+    }
+
     public async Task SaveAsync(ContextSnapshot snapshot, CancellationToken ct)
     {
         const string sql = """

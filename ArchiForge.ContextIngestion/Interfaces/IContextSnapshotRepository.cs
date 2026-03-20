@@ -6,6 +6,8 @@ public interface IContextSnapshotRepository
 {
     Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct);
 
+    Task<ContextSnapshot?> GetByIdAsync(Guid snapshotId, CancellationToken ct);
+
     Task SaveAsync(ContextSnapshot snapshot, CancellationToken ct);
 }
 

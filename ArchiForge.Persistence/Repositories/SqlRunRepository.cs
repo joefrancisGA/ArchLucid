@@ -52,6 +52,28 @@ public sealed class SqlRunRepository : IRunRepository
             new CommandDefinition(sql, new { RunId = runId }, cancellationToken: ct));
     }
 
+    public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(string projectId, int take, CancellationToken ct)
+    {
+        const string sql = """
+            SELECT TOP (@Take)
+                RunId, ProjectId, Description, CreatedUtc,
+                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                GoldenManifestId, DecisionTraceId, ArtifactBundleId
+            FROM dbo.Runs
+            WHERE ProjectId = @ProjectId
+            ORDER BY CreatedUtc DESC;
+            """;
+
+        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        var rows = await connection.QueryAsync<RunRecord>(
+            new CommandDefinition(
+                sql,
+                new { ProjectId = projectId, Take = take <= 0 ? 20 : take },
+                cancellationToken: ct));
+
+        return rows.ToList();
+    }
+
     public async Task UpdateAsync(RunRecord run, CancellationToken ct)
     {
         const string sql = """

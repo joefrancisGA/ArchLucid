@@ -9,6 +9,8 @@ using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Repositories;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Interfaces;
+using ArchiForge.Persistence.Compare;
+using ArchiForge.Persistence.Queries;
 using ArchiForge.Persistence.Repositories;
 using ArchiForge.Persistence.Sql;
 using Microsoft.Extensions.Configuration;
@@ -39,6 +41,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
             services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
             services.AddSingleton<IRunRepository, InMemoryRunRepository>();
+            services.AddSingleton<IAuthorityQueryService, InMemoryAuthorityQueryService>();
+            services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
             return services;
         }
 
@@ -64,6 +68,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IGoldenManifestRepository, SqlGoldenManifestRepository>();
         services.AddScoped<IArtifactBundleRepository, SqlArtifactBundleRepository>();
         services.AddScoped<IRunRepository, SqlRunRepository>();
+        services.AddScoped<IAuthorityQueryService, DapperAuthorityQueryService>();
+        services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
 
         return services;
     }

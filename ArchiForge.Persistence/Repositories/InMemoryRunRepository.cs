@@ -21,6 +21,18 @@ public sealed class InMemoryRunRepository : IRunRepository
         return Task.FromResult(_store.TryGetValue(runId, out var r) ? r : null);
     }
 
+    public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(string projectId, int take, CancellationToken ct)
+    {
+        _ = ct;
+        var n = take <= 0 ? 20 : take;
+        var list = _store.Values
+            .Where(r => string.Equals(r.ProjectId, projectId, StringComparison.Ordinal))
+            .OrderByDescending(r => r.CreatedUtc)
+            .Take(n)
+            .ToList();
+        return Task.FromResult<IReadOnlyList<RunRecord>>(list);
+    }
+
     public Task UpdateAsync(RunRecord run, CancellationToken ct)
     {
         _ = ct;

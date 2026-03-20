@@ -10,8 +10,16 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
     public Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(_store.LastOrDefault(s =>
-            string.Equals(s.ProjectId, projectId, StringComparison.Ordinal)));
+        return Task.FromResult(_store
+            .Where(s => string.Equals(s.ProjectId, projectId, StringComparison.Ordinal))
+            .OrderByDescending(s => s.CreatedUtc)
+            .FirstOrDefault());
+    }
+
+    public Task<ContextSnapshot?> GetByIdAsync(Guid snapshotId, CancellationToken ct)
+    {
+        _ = ct;
+        return Task.FromResult(_store.FirstOrDefault(s => s.SnapshotId == snapshotId));
     }
 
     public Task SaveAsync(ContextSnapshot snapshot, CancellationToken ct)

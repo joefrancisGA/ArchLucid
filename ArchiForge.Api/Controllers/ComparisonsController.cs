@@ -4,6 +4,7 @@ using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application.Analysis;
+using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 using Asp.Versioning;
 using FluentValidation;
@@ -152,7 +153,7 @@ public sealed class ComparisonsController(
         var sortBy = query.SortBy ?? "createdUtc";
         var sortDir = query.SortDir ?? "desc";
 
-        IReadOnlyList<Contracts.Metadata.ComparisonRecord> records;
+        IReadOnlyList<ArchiForge.Contracts.Metadata.ComparisonRecord> records;
         if (!string.IsNullOrWhiteSpace(query.Cursor))
         {
             records = await comparisonRecordRepository.SearchByCursorAsync(
