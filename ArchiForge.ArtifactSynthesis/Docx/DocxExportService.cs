@@ -1,4 +1,5 @@
 using ArchiForge.ArtifactSynthesis.Docx.Builders;
+using ArchiForge.ArtifactSynthesis.Docx.Helpers;
 using ArchiForge.ArtifactSynthesis.Docx.Models;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Decisioning.Models;
@@ -17,20 +18,32 @@ public sealed class DocxExportService : IDocxExportService
         CancellationToken ct)
     {
         _ = ct;
-        using var stream = new MemoryStream();
+        using var stream = TemplateLoader.OpenWritableTemplate();
 
-        using (var wordDocument = WordprocessingDocument.Create(
-                   stream,
-                   WordprocessingDocumentType.Document,
-                   true))
+        using (var doc = WordprocessingDocument.Open(stream, true))
         {
-            var mainPart = wordDocument.AddMainDocumentPart();
-            var body = new Body();
-            mainPart.Document = new Document(body);
+            var main = doc.MainDocumentPart ?? throw new InvalidOperationException("Invalid template: missing main document part.");
+            var body = main.Document?.Body ?? throw new InvalidOperationException("Invalid template: missing body.");
 
-            BuildDocument(body, request, manifest, artifacts);
+            var sectPr = body.Elements<SectionProperties>().LastOrDefault();
+            sectPr?.Remove();
 
-            mainPart.Document.Save();
+            foreach (var child in body.ChildElements.ToList())
+                child.Remove();
+
+            BuildDocument(doc, body, request, manifest, artifacts);
+
+            if (sectPr is not null)
+                body.AppendChild(sectPr);
+            else
+            {
+                body.AppendChild(
+                    new SectionProperties(
+                        new PageSize { Width = 12240U, Height = 15840U },
+                        new PageMargin { Top = 1440, Right = 1440, Bottom = 1440, Left = 1440 }));
+            }
+
+            doc.Save();
         }
 
         return Task.FromResult(new DocxExportResult
@@ -41,164 +54,198 @@ public sealed class DocxExportService : IDocxExportService
     }
 
     private static void BuildDocument(
+        WordprocessingDocument doc,
         Body body,
         DocxExportRequest request,
         GoldenManifest manifest,
         IReadOnlyList<SynthesizedArtifact> artifacts)
     {
-        WordDocumentBuilder.AddHeading(body, request.DocumentTitle, "Title");
-        WordDocumentBuilder.AddParagraph(body, request.Subtitle);
-        WordDocumentBuilder.AddParagraph(body, $"Run ID: {manifest.RunId}");
-        WordDocumentBuilder.AddParagraph(body, $"Manifest ID: {manifest.ManifestId}");
-        WordDocumentBuilder.AddParagraph(body, $"Generated: {manifest.CreatedUtc:u}");
+        WordDocumentBuilder.AddStyledParagraph(body, request.DocumentTitle, DocxStyleIds.Title);
+        WordDocumentBuilder.AddBodyText(body, request.Subtitle);
+        WordDocumentBuilder.AddSpacer(body);
+        WordDocumentBuilder.AddBodyText(body, $"Run ID: {manifest.RunId}");
+        WordDocumentBuilder.AddBodyText(body, $"Manifest ID: {manifest.ManifestId}");
+        WordDocumentBuilder.AddBodyText(body, $"Generated: {manifest.CreatedUtc:u}");
+        WordDocumentBuilder.AddSpacer(body, 2);
 
-        WordDocumentBuilder.AddHeading(body, "Executive Summary");
-        WordDocumentBuilder.AddParagraph(body, string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
-            ? "No summary was recorded for this manifest."
-            : manifest.Metadata.Summary);
+        WordDocumentBuilder.AddHeading(body, "Executive Summary", DocxStyleIds.Heading1);
+        if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
+            WordDocumentBuilder.AddBodyText(body, "No summary was recorded for this manifest.");
+        else
+            WordDocumentBuilder.AddMultilineBodyText(body, manifest.Metadata.Summary);
+
+        WordDocumentBuilder.AddSpacer(body);
+
+        if (request.IncludeArchitectureDiagram)
+        {
+            WordDocumentBuilder.AddHeading(body, "Architecture Diagram", DocxStyleIds.Heading1);
+            ImageHelper.AddPngToBody(
+                doc,
+                body,
+                DiagramPlaceholderBytes.Png.ToArray(),
+                "Architecture overview (placeholder)",
+                ImageHelper.DefaultDiagramWidthEmu,
+                ImageHelper.DefaultDiagramHeightEmu);
+            WordDocumentBuilder.AddBodyText(
+                body,
+                "Placeholder image — future releases can embed Mermaid renders or knowledge-graph snapshots.");
+            WordDocumentBuilder.AddSpacer(body, 2);
+        }
 
         if (request.IncludeCoverageSection)
         {
-            WordDocumentBuilder.AddHeading(body, "Requirements Coverage");
-            if (manifest.Requirements.Covered.Count == 0 && manifest.Requirements.Uncovered.Count == 0)
-            {
-                WordDocumentBuilder.AddParagraph(body, "No requirements were recorded.");
-            }
-            else
-            {
-                foreach (var item in manifest.Requirements.Covered)
-                    WordDocumentBuilder.AddParagraph(body, $"Covered: {item.RequirementName}");
+            WordDocumentBuilder.AddHeading(body, "Requirements Coverage", DocxStyleIds.Heading1);
+            var reqRows = new List<(string Name, string Status, string Mandatory)>();
+            foreach (var item in manifest.Requirements.Covered)
+                reqRows.Add((item.RequirementName, item.CoverageStatus, item.IsMandatory ? "Yes" : "No"));
+            foreach (var item in manifest.Requirements.Uncovered)
+                reqRows.Add((item.RequirementName, item.CoverageStatus, item.IsMandatory ? "Yes" : "No"));
 
-                foreach (var item in manifest.Requirements.Uncovered)
-                    WordDocumentBuilder.AddParagraph(body, $"Uncovered: {item.RequirementName}");
-            }
+            if (reqRows.Count == 0)
+                WordDocumentBuilder.AddBodyText(body, "No requirements were recorded.");
+            else
+                WordDocumentBuilder.AddThreeColumnTable(
+                    body,
+                    reqRows,
+                    ("Requirement", "Coverage", "Mandatory"));
+            WordDocumentBuilder.AddSpacer(body);
         }
 
-        WordDocumentBuilder.AddHeading(body, "Topology Posture");
+        WordDocumentBuilder.AddHeading(body, "Topology Posture", DocxStyleIds.Heading1);
         if (manifest.Topology.Resources.Count > 0)
         {
             foreach (var resource in manifest.Topology.Resources)
-                WordDocumentBuilder.AddParagraph(body, $"Resource: {resource}");
+                WordDocumentBuilder.AddBodyText(body, $"Resource: {resource}");
         }
         else
-        {
-            WordDocumentBuilder.AddParagraph(body, "No concrete topology resources were recorded.");
-        }
+            WordDocumentBuilder.AddBodyText(body, "No concrete topology resources were recorded.");
 
         if (manifest.Topology.SelectedPatterns.Count > 0)
         {
-            WordDocumentBuilder.AddParagraph(body, "Selected patterns:");
+            WordDocumentBuilder.AddBodyText(body, "Selected patterns:");
             WordDocumentBuilder.AddBulletList(body, manifest.Topology.SelectedPatterns);
         }
 
         foreach (var gap in manifest.Topology.Gaps)
-            WordDocumentBuilder.AddParagraph(body, $"Gap: {gap}");
+            WordDocumentBuilder.AddBodyText(body, $"Gap: {gap}");
+        WordDocumentBuilder.AddSpacer(body);
 
-        WordDocumentBuilder.AddHeading(body, "Security Posture");
+        WordDocumentBuilder.AddHeading(body, "Security Posture", DocxStyleIds.Heading1);
         if (manifest.Security.Controls.Count == 0)
         {
-            WordDocumentBuilder.AddParagraph(body, "No security controls were recorded.");
+            WordDocumentBuilder.AddBodyText(body, "No security controls were recorded.");
         }
         else
         {
-            foreach (var control in manifest.Security.Controls)
-                WordDocumentBuilder.AddParagraph(body, $"{control.ControlName}: {control.Status}");
+            var secRows = manifest.Security.Controls
+                .Select(c => (c.ControlId, c.ControlName, c.Status, c.Impact ?? string.Empty))
+                .ToList();
+            WordDocumentBuilder.AddFourColumnTable(
+                body,
+                ("Control ID", "Control", "Status", "Impact"),
+                secRows);
         }
 
         foreach (var gap in manifest.Security.Gaps)
-            WordDocumentBuilder.AddParagraph(body, $"Security Gap: {gap}");
+            WordDocumentBuilder.AddBodyText(body, $"Security gap: {gap}");
+        WordDocumentBuilder.AddSpacer(body);
 
         if (request.IncludeComplianceSection)
         {
-            WordDocumentBuilder.AddHeading(body, "Compliance Posture");
+            WordDocumentBuilder.AddHeading(body, "Compliance Posture", DocxStyleIds.Heading1);
             if (manifest.Compliance.Controls.Count == 0)
             {
-                WordDocumentBuilder.AddParagraph(body, "No compliance posture items were recorded.");
+                WordDocumentBuilder.AddBodyText(body, "No compliance posture items were recorded.");
             }
             else
             {
-                foreach (var control in manifest.Compliance.Controls)
-                {
-                    WordDocumentBuilder.AddParagraph(
-                        body,
-                        $"{control.ControlId} {control.ControlName}: {control.Status}");
-                }
+                var compRows = manifest.Compliance.Controls
+                    .Select(c => (c.ControlId, c.ControlName, c.AppliesToCategory ?? string.Empty, c.Status))
+                    .ToList();
+                WordDocumentBuilder.AddFourColumnTable(
+                    body,
+                    ("Control ID", "Control", "Category", "Status"),
+                    compRows);
             }
 
             foreach (var gap in manifest.Compliance.Gaps)
-                WordDocumentBuilder.AddParagraph(body, $"Compliance Gap: {gap}");
+                WordDocumentBuilder.AddBodyText(body, $"Compliance gap: {gap}");
+            WordDocumentBuilder.AddSpacer(body);
         }
 
-        WordDocumentBuilder.AddHeading(body, "Cost Posture");
-        WordDocumentBuilder.AddParagraph(
+        WordDocumentBuilder.AddHeading(body, "Cost Posture", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddBodyText(
             body,
-            $"Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
+            $"Max monthly cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
 
         foreach (var risk in manifest.Cost.CostRisks)
-            WordDocumentBuilder.AddParagraph(body, $"Cost Risk: {risk}");
+            WordDocumentBuilder.AddBodyText(body, $"Cost risk: {risk}");
 
         foreach (var note in manifest.Cost.Notes)
-            WordDocumentBuilder.AddParagraph(body, $"Cost Note: {note}");
+            WordDocumentBuilder.AddBodyText(body, $"Cost note: {note}");
+        WordDocumentBuilder.AddSpacer(body);
 
         if (request.IncludeIssuesSection)
         {
-            WordDocumentBuilder.AddHeading(body, "Unresolved Issues");
+            WordDocumentBuilder.AddHeading(body, "Unresolved Issues", DocxStyleIds.Heading1);
             if (manifest.UnresolvedIssues.Items.Count == 0)
-            {
-                WordDocumentBuilder.AddParagraph(body, "No unresolved issues.");
-            }
+                WordDocumentBuilder.AddBodyText(body, "No unresolved issues.");
             else
-            {
-                foreach (var issue in manifest.UnresolvedIssues.Items)
-                {
-                    WordDocumentBuilder.AddParagraph(
-                        body,
-                        $"[{issue.Severity}] {issue.Title}: {issue.Description}");
-                }
-            }
+                WordDocumentBuilder.AddIssuesTable(body, manifest.UnresolvedIssues.Items);
+            WordDocumentBuilder.AddSpacer(body);
         }
 
-        WordDocumentBuilder.AddHeading(body, "Decisions");
+        WordDocumentBuilder.AddHeading(body, "Decisions", DocxStyleIds.Heading1);
         if (manifest.Decisions.Count == 0)
         {
-            WordDocumentBuilder.AddParagraph(body, "No decisions recorded.");
+            WordDocumentBuilder.AddBodyText(body, "No decisions recorded.");
         }
         else
         {
-            foreach (var decision in manifest.Decisions)
-            {
-                WordDocumentBuilder.AddParagraph(
-                    body,
-                    $"{decision.Category}: {decision.Title} -> {decision.SelectedOption}");
-            }
+            var decRows = manifest.Decisions
+                .Select(d => (d.Category, d.Title, d.SelectedOption))
+                .ToList();
+            WordDocumentBuilder.AddThreeColumnTable(
+                body,
+                decRows,
+                ("Category", "Decision", "Selected option"));
         }
+
+        WordDocumentBuilder.AddSpacer(body);
 
         if (request.IncludeArtifactsAppendix)
         {
-            WordDocumentBuilder.AddHeading(body, "Appendix A - Artifacts");
+            WordDocumentBuilder.AddHeading(body, "Appendix A — Artifacts", DocxStyleIds.Heading1);
             if (artifacts.Count == 0)
             {
-                WordDocumentBuilder.AddParagraph(body, "No synthesized artifacts were available.");
+                WordDocumentBuilder.AddBodyText(body, "No synthesized artifacts were available.");
             }
             else
             {
-                foreach (var artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
-                {
-                    WordDocumentBuilder.AddParagraph(
-                        body,
-                        $"{artifact.Name} ({artifact.ArtifactType}, {artifact.Format})");
-                }
+                var artRows = artifacts
+                    .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+                    .Select(a => (a.Name, a.ArtifactType, a.Format))
+                    .ToList();
+                WordDocumentBuilder.AddThreeColumnTable(
+                    body,
+                    artRows,
+                    ("Name", "Type", "Format"));
             }
+
+            WordDocumentBuilder.AddSpacer(body);
         }
 
-        WordDocumentBuilder.AddHeading(body, "Appendix B - Provenance Summary");
-        WordDocumentBuilder.AddSimpleTable(body,
-        [
-            ("Rule Set", $"{manifest.RuleSetId} {manifest.RuleSetVersion}"),
-            ("Manifest Hash", manifest.ManifestHash),
-            ("Source Findings", manifest.Provenance.SourceFindingIds.Count.ToString()),
-            ("Source Graph Nodes", manifest.Provenance.SourceGraphNodeIds.Count.ToString()),
-            ("Applied Rules", manifest.Provenance.AppliedRuleIds.Count.ToString())
-        ]);
+        WordDocumentBuilder.AddHeading(body, "Appendix B — Provenance Summary", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddSimpleTable(
+            body,
+            [
+                ("Metric", "Value"),
+                ("Rule set", $"{manifest.RuleSetId} {manifest.RuleSetVersion}"),
+                ("Manifest hash", manifest.ManifestHash),
+                ("Source findings", manifest.Provenance.SourceFindingIds.Count.ToString()),
+                ("Source graph nodes", manifest.Provenance.SourceGraphNodeIds.Count.ToString()),
+                ("Applied rules", manifest.Provenance.AppliedRuleIds.Count.ToString())
+            ],
+            headerRow: true);
     }
 }

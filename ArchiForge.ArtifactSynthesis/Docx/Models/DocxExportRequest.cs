@@ -12,4 +12,7 @@ public class DocxExportRequest
     public bool IncludeComplianceSection { get; set; } = true;
     public bool IncludeCoverageSection { get; set; } = true;
     public bool IncludeIssuesSection { get; set; } = true;
+
+    /// <summary>Embeds a diagram image (v1: PNG placeholder; later Mermaid/graph render).</summary>
+    public bool IncludeArchitectureDiagram { get; set; } = true;
 }

@@ -16,4 +16,10 @@
     <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="Exists('Docx\Templates\architecture-template.docx')">
+    <None Include="Docx\Templates\architecture-template.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
