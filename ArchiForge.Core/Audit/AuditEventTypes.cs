@@ -38,4 +38,8 @@ public static class AuditEventTypes
     public const string AlertRoutingSubscriptionToggled = "AlertRoutingSubscriptionToggled";
     public const string AlertDeliverySucceeded = "AlertDeliverySucceeded";
     public const string AlertDeliveryFailed = "AlertDeliveryFailed";
+
+    public const string CompositeAlertRuleCreated = "CompositeAlertRuleCreated";
+    public const string CompositeAlertTriggered = "CompositeAlertTriggered";
+    public const string AlertSuppressedByPolicy = "AlertSuppressedByPolicy";
 }

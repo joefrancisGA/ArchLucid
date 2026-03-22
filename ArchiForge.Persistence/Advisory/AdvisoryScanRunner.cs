@@ -9,6 +9,7 @@ using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Alerts;
+using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Comparison;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Queries;
@@ -23,6 +24,7 @@ public sealed class AdvisoryScanRunner(
     IArchitectureDigestRepository digestRepository,
     IDigestDeliveryDispatcher deliveryDispatcher,
     IAlertService alertService,
+    ICompositeAlertService compositeAlertService,
     IRecommendationRepository recommendationRepository,
     IRecommendationLearningService recommendationLearningService,
     IAdvisoryScanExecutionRepository executionRepository,
@@ -140,6 +142,14 @@ public sealed class AdvisoryScanRunner(
 
             var alertOutcome = await alertService.EvaluateAndPersistAsync(alertContext, ct).ConfigureAwait(false);
 
+            var compositeOutcome = await compositeAlertService
+                .EvaluateAndPersistAsync(alertContext, ct)
+                .ConfigureAwait(false);
+
+            var digestAlerts = alertOutcome.Evaluated
+                .Concat(compositeOutcome.Created)
+                .ToList();
+
             var digest = digestBuilder.Build(
                 schedule.TenantId,
                 schedule.WorkspaceId,
@@ -147,7 +157,7 @@ public sealed class AdvisoryScanRunner(
                 latest.RunId,
                 comparedToRunId,
                 plan,
-                alertOutcome.Evaluated);
+                digestAlerts);
 
             await digestRepository.CreateAsync(digest, ct).ConfigureAwait(false);
 
@@ -163,6 +173,8 @@ public sealed class AdvisoryScanRunner(
                 digestId = digest.DigestId,
                 alertsEvaluated = alertOutcome.Evaluated.Count,
                 alertsNewlyPersisted = alertOutcome.NewlyPersisted.Count,
+                compositeAlertsCreated = compositeOutcome.Created.Count,
+                compositeAlertsSuppressed = compositeOutcome.SuppressedMatchCount,
             });
 
             await executionRepository.UpdateAsync(execution, ct).ConfigureAwait(false);

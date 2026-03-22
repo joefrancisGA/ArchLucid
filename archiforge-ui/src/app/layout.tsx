@@ -31,6 +31,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/alerts">Alerts</Link>
               <Link href="/alert-rules">Alert Rules</Link>
               <Link href="/alert-routing">Alert Routing</Link>
+              <Link href="/composite-alert-rules">Composite Rules</Link>
             </nav>
           </header>
           <AuthStatus />

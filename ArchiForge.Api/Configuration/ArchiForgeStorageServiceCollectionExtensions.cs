@@ -6,6 +6,7 @@ using ArchiForge.ContextIngestion.Repositories;
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Alerts;
+using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Interfaces;
@@ -72,6 +73,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IDigestDeliveryAttemptRepository, InMemoryDigestDeliveryAttemptRepository>();
             services.AddSingleton<IAlertRuleRepository, InMemoryAlertRuleRepository>();
             services.AddSingleton<IAlertRecordRepository, InMemoryAlertRecordRepository>();
+            services.AddSingleton<IAlertRoutingSubscriptionRepository, InMemoryAlertRoutingSubscriptionRepository>();
+            services.AddSingleton<IAlertDeliveryAttemptRepository, InMemoryAlertDeliveryAttemptRepository>();
+            services.AddSingleton<ICompositeAlertRuleRepository, InMemoryCompositeAlertRuleRepository>();
             return services;
         }
 
@@ -122,6 +126,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IAlertRecordRepository, DapperAlertRecordRepository>();
         services.AddScoped<IAlertRoutingSubscriptionRepository, DapperAlertRoutingSubscriptionRepository>();
         services.AddScoped<IAlertDeliveryAttemptRepository, DapperAlertDeliveryAttemptRepository>();
+        services.AddScoped<ICompositeAlertRuleRepository, DapperCompositeAlertRuleRepository>();
 
         return services;
     }

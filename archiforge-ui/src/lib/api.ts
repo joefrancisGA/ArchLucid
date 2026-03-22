@@ -26,6 +26,7 @@ import type {
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
 import type { AlertRecord, AlertRule } from "@/types/alerts";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
+import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -379,6 +380,40 @@ export async function listAlertRoutingDeliveryAttempts(
   return apiGet<AlertRoutingDeliveryAttempt[]>(
     `/api/alert-routing-subscriptions/${encodeURIComponent(routingSubscriptionId)}/attempts?take=${take}`,
   );
+}
+
+export async function listCompositeAlertRules(): Promise<CompositeAlertRule[]> {
+  return apiGet<CompositeAlertRule[]>("/api/composite-alert-rules");
+}
+
+export async function createCompositeAlertRule(body: {
+  name: string;
+  severity: string;
+  operator: string;
+  suppressionWindowMinutes: number;
+  cooldownMinutes: number;
+  reopenDeltaThreshold: number;
+  dedupeScope: string;
+  isEnabled?: boolean;
+  targetChannelType?: string;
+  conditions: { metricType: string; operator: string; thresholdValue: number }[];
+}): Promise<CompositeAlertRule> {
+  return apiPostJson<CompositeAlertRule>("/api/composite-alert-rules", {
+    name: body.name,
+    severity: body.severity,
+    operator: body.operator,
+    isEnabled: body.isEnabled ?? true,
+    suppressionWindowMinutes: body.suppressionWindowMinutes,
+    cooldownMinutes: body.cooldownMinutes,
+    reopenDeltaThreshold: body.reopenDeltaThreshold,
+    dedupeScope: body.dedupeScope,
+    targetChannelType: body.targetChannelType ?? "AlertRouting",
+    conditions: body.conditions.map((c) => ({
+      metricType: c.metricType,
+      operator: c.operator,
+      thresholdValue: c.thresholdValue,
+    })),
+  });
 }
 
 export async function rebuildLearningProfile(): Promise<LearningProfile> {
