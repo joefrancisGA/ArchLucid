@@ -16,6 +16,7 @@ import type {
   ConversationMessage,
   ConversationThread,
 } from "@/types/conversation";
+import type { ImprovementPlan } from "@/types/advisory";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -176,6 +177,15 @@ export async function listConversationThreads(take = 50): Promise<ConversationTh
 
 export async function getConversationMessages(threadId: string, take = 200): Promise<ConversationMessage[]> {
   return apiGet(`/api/conversations/${encodeURIComponent(threadId)}/messages?take=${take}`);
+}
+
+export async function getImprovementPlan(runId: string, compareToRunId?: string): Promise<ImprovementPlan> {
+  const params = new URLSearchParams();
+  if (compareToRunId?.trim()) params.set("compareToRunId", compareToRunId.trim());
+  const q = params.toString();
+  return apiGet<ImprovementPlan>(
+    `/api/advisory/runs/${encodeURIComponent(runId)}/improvements${q ? `?${q}` : ""}`,
+  );
 }
 
 export async function replayRun(runId: string, mode: string): Promise<ReplayResponse> {

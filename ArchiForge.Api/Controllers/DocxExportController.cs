@@ -92,16 +92,15 @@ public sealed class DocxExportController : ControllerBase
         }
 
         var result = await _docxExportService.ExportAsync(
-            new DocxExportRequest
-            {
-                RunId = runId,
-                ManifestId = manifest.ManifestId,
-                DocumentTitle = "ArchiForge Architecture Package",
-                Subtitle = $"Generated for Run {runId}",
-                ManifestComparison = manifestComparison,
-                ComparisonExplanation = comparisonNarrative,
-                RunExplanation = runNarrative
-            },
+            DocxExportRequest.ForArchitecturePackage(
+                runId,
+                manifest.ManifestId,
+                "ArchiForge Architecture Package",
+                $"Generated for Run {runId}",
+                manifestComparison,
+                comparisonNarrative,
+                runNarrative,
+                runDetail.FindingsSnapshot),
             manifest,
             artifacts,
             ct);

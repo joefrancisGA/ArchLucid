@@ -502,34 +502,32 @@ internal static class ConsultingDocxOpenXmlComposer
             AddPageBreak(body);
         }
 
-        if (options.IncludeAppendixDeterminismAndComparison)
+        if (!options.IncludeAppendixDeterminismAndComparison) return;
+
+        AddHeading(body, "Appendix C. Determinism and Comparison", 1);
+
+        if (report.Determinism is not null)
         {
-            AddHeading(body, "Appendix C. Determinism and Comparison", 1);
-
-            if (report.Determinism is not null)
-            {
-                AddStyledParagraph(body, "Determinism", "Strong");
-                AddBullet(body, $"Iterations: {report.Determinism.Iterations}");
-                AddBullet(body, $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
-            }
-
-            if (report.ManifestDiff is not null)
-            {
-                AddSpacer(body);
-                AddStyledParagraph(body, "Manifest Diff", "Strong");
-                AddBullet(body, $"Added Services: {report.ManifestDiff.AddedServices.Count}");
-                AddBullet(body, $"Removed Services: {report.ManifestDiff.RemovedServices.Count}");
-                AddBullet(body, $"Added Required Controls: {report.ManifestDiff.AddedRequiredControls.Count}");
-                AddBullet(body, $"Removed Required Controls: {report.ManifestDiff.RemovedRequiredControls.Count}");
-            }
-
-            if (report.AgentResultDiff is not null)
-            {
-                AddSpacer(body);
-                AddStyledParagraph(body, "Agent Result Diff", "Strong");
-                AddBullet(body, $"Agent Delta Count: {report.AgentResultDiff.AgentDeltas.Count}");
-            }
+            AddStyledParagraph(body, "Determinism", "Strong");
+            AddBullet(body, $"Iterations: {report.Determinism.Iterations}");
+            AddBullet(body, $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
         }
+
+        if (report.ManifestDiff is not null)
+        {
+            AddSpacer(body);
+            AddStyledParagraph(body, "Manifest Diff", "Strong");
+            AddBullet(body, $"Added Services: {report.ManifestDiff.AddedServices.Count}");
+            AddBullet(body, $"Removed Services: {report.ManifestDiff.RemovedServices.Count}");
+            AddBullet(body, $"Added Required Controls: {report.ManifestDiff.AddedRequiredControls.Count}");
+            AddBullet(body, $"Removed Required Controls: {report.ManifestDiff.RemovedRequiredControls.Count}");
+        }
+
+        if (report.AgentResultDiff is null) return;
+
+        AddSpacer(body);
+        AddStyledParagraph(body, "Agent Result Diff", "Strong");
+        AddBullet(body, $"Agent Delta Count: {report.AgentResultDiff.AgentDeltas.Count}");
     }
 
     private static void AddStylesPart(

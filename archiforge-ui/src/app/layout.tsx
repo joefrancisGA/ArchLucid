@@ -23,6 +23,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/graph">Graph</Link>
               <Link href="/ask">Ask</Link>
               <Link href="/search">Search</Link>
+              <Link href="/advisory">Advisory</Link>
             </nav>
           </header>
           <AuthStatus />

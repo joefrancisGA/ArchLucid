@@ -4,6 +4,8 @@ using ArchiForge.ArtifactSynthesis.Docx.Models;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Explanation;
+using ArchiForge.Decisioning.Advisory.Models;
+using ArchiForge.Decisioning.Advisory.Services;
 using ArchiForge.Decisioning.Models;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -11,15 +13,23 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ArchiForge.ArtifactSynthesis.Docx;
 
-public sealed class DocxExportService : IDocxExportService
+public sealed class DocxExportService(IImprovementAdvisorService improvementAdvisorService) : IDocxExportService
 {
-    public Task<DocxExportResult> ExportAsync(
+    public async Task<DocxExportResult> ExportAsync(
         DocxExportRequest request,
         GoldenManifest manifest,
         IReadOnlyList<SynthesizedArtifact> artifacts,
         CancellationToken ct)
     {
-        _ = ct;
+        var findings = request.FindingsSnapshot ?? CreateFallbackFindings(manifest);
+        ImprovementPlan improvementPlan = request.ManifestComparison is not null
+            ? await improvementAdvisorService
+                .GeneratePlanAsync(manifest, findings, request.ManifestComparison, ct)
+                .ConfigureAwait(false)
+            : await improvementAdvisorService
+                .GeneratePlanAsync(manifest, findings, ct)
+                .ConfigureAwait(false);
+
         using var stream = TemplateLoader.OpenWritableTemplate();
 
         using (var doc = WordprocessingDocument.Open(stream, true))
@@ -33,7 +43,7 @@ public sealed class DocxExportService : IDocxExportService
             foreach (var child in body.ChildElements.ToList())
                 child.Remove();
 
-            BuildDocument(doc, body, request, manifest, artifacts);
+            BuildDocument(doc, body, request, manifest, artifacts, improvementPlan);
 
             if (sectPr is not null)
                 body.AppendChild(sectPr);
@@ -48,19 +58,33 @@ public sealed class DocxExportService : IDocxExportService
             doc.Save();
         }
 
-        return Task.FromResult(new DocxExportResult
+        return new DocxExportResult
         {
             FileName = $"archiforge-architecture-package-{manifest.ManifestId:N}.docx",
             Content = stream.ToArray()
-        });
+        };
     }
+
+    /// <summary>Empty findings aligned with the manifest when the export request has no persisted snapshot.</summary>
+    private static FindingsSnapshot CreateFallbackFindings(GoldenManifest manifest) =>
+        new()
+        {
+            SchemaVersion = FindingsSchema.CurrentSnapshotVersion,
+            FindingsSnapshotId = manifest.FindingsSnapshotId,
+            RunId = manifest.RunId,
+            ContextSnapshotId = manifest.ContextSnapshotId,
+            GraphSnapshotId = manifest.GraphSnapshotId,
+            CreatedUtc = manifest.CreatedUtc,
+            Findings = []
+        };
 
     private static void BuildDocument(
         WordprocessingDocument doc,
         Body body,
         DocxExportRequest request,
         GoldenManifest manifest,
-        IReadOnlyList<SynthesizedArtifact> artifacts)
+        IReadOnlyList<SynthesizedArtifact> artifacts,
+        ImprovementPlan improvementPlan)
     {
         WordDocumentBuilder.AddStyledParagraph(body, request.DocumentTitle, DocxStyleIds.Title);
         WordDocumentBuilder.AddBodyText(body, request.Subtitle);
@@ -199,6 +223,25 @@ public sealed class DocxExportService : IDocxExportService
                 WordDocumentBuilder.AddIssuesTable(body, manifest.UnresolvedIssues.Items);
             WordDocumentBuilder.AddSpacer(body);
         }
+
+        WordDocumentBuilder.AddHeading(body, "Recommended Improvements", DocxStyleIds.Heading1);
+        if (improvementPlan.Recommendations.Count == 0)
+        {
+            WordDocumentBuilder.AddBodyText(body, "No significant improvements were identified.");
+        }
+        else
+        {
+            foreach (var recommendation in improvementPlan.Recommendations.Take(10))
+            {
+                WordDocumentBuilder.AddBodyText(body, $"{recommendation.Title} [{recommendation.Urgency}]");
+                WordDocumentBuilder.AddBodyText(body, $"Rationale: {recommendation.Rationale}");
+                WordDocumentBuilder.AddBodyText(body, $"Suggested Action: {recommendation.SuggestedAction}");
+                WordDocumentBuilder.AddBodyText(body, $"Expected Impact: {recommendation.ExpectedImpact}");
+                WordDocumentBuilder.AddSpacer(body);
+            }
+        }
+
+        WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Decisions", DocxStyleIds.Heading1);
         if (manifest.Decisions.Count == 0)

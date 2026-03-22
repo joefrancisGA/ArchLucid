@@ -1,5 +1,6 @@
 using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Explanation;
+using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Docx.Models;
 
@@ -27,4 +28,29 @@ public class DocxExportRequest
 
     /// <summary>Optional AI narrative for the primary run (executive / stakeholder wording).</summary>
     public ExplanationResult? RunExplanation { get; set; }
+
+    /// <summary>When null, DOCX export synthesizes an empty findings snapshot for advisory only.</summary>
+    public FindingsSnapshot? FindingsSnapshot { get; set; }
+
+    /// <summary>Builds the request used by <c>GET api/docx/runs/.../architecture-package</c>.</summary>
+    public static DocxExportRequest ForArchitecturePackage(
+        Guid runId,
+        Guid manifestId,
+        string documentTitle,
+        string subtitle,
+        ComparisonResult? manifestComparison,
+        ComparisonExplanationResult? comparisonExplanation,
+        ExplanationResult? runExplanation,
+        FindingsSnapshot? findingsSnapshot) =>
+        new()
+        {
+            RunId = runId,
+            ManifestId = manifestId,
+            DocumentTitle = documentTitle,
+            Subtitle = subtitle,
+            ManifestComparison = manifestComparison,
+            ComparisonExplanation = comparisonExplanation,
+            RunExplanation = runExplanation,
+            FindingsSnapshot = findingsSnapshot,
+        };
 }
