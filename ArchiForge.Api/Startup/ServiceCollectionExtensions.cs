@@ -23,10 +23,12 @@ using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.AgentRuntime.Explanation;
 using ArchiForge.Api.Ask;
+using ArchiForge.Api.Hosted;
 using ArchiForge.Api.Services.Ask;
 using ArchiForge.Core.Ask;
 using ArchiForge.Decisioning.Advisory.Analysis;
 using ArchiForge.Decisioning.Advisory.Learning;
+using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
 using ArchiForge.Decisioning.Comparison;
 using ArchiForge.Data.Infrastructure;
@@ -52,6 +54,7 @@ using KnowledgeGraphService = ArchiForge.KnowledgeGraph.Interfaces.IKnowledgeGra
 using ArchiForge.Retrieval.Chunking;
 using ArchiForge.Retrieval.Embedding;
 using ArchiForge.Retrieval.Indexing;
+using ArchiForge.Persistence.Advisory;
 using ArchiForge.Retrieval.Queries;
 
 namespace ArchiForge.Api.Startup;
@@ -63,6 +66,7 @@ internal static partial class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddArchiForgeStorage(configuration);
+        RegisterAdvisoryScheduling(services);
         RegisterDataInfrastructure(services);
         RegisterBackgroundJobs(services);
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
@@ -76,6 +80,14 @@ internal static partial class ServiceCollectionExtensions
         RegisterRetrieval(services, configuration);
         services.AddScoped<ArchitectureRunOrchestrator>();
         return services;
+    }
+
+    private static void RegisterAdvisoryScheduling(IServiceCollection services)
+    {
+        services.AddScoped<IScanScheduleCalculator, SimpleScanScheduleCalculator>();
+        services.AddScoped<IArchitectureDigestBuilder, ArchitectureDigestBuilder>();
+        services.AddScoped<IAdvisoryScanRunner, AdvisoryScanRunner>();
+        services.AddHostedService<AdvisoryScanHostedService>();
     }
 
     private static void RegisterDataInfrastructure(IServiceCollection services)

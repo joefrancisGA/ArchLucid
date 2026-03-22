@@ -18,4 +18,8 @@ public static class AuditEventTypes
     public const string RecommendationImplemented = "RecommendationImplemented";
 
     public const string RecommendationLearningProfileRebuilt = "RecommendationLearningProfileRebuilt";
+
+    public const string AdvisoryScanScheduled = "AdvisoryScanScheduled";
+    public const string AdvisoryScanExecuted = "AdvisoryScanExecuted";
+    public const string ArchitectureDigestGenerated = "ArchitectureDigestGenerated";
 }

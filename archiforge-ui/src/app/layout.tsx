@@ -25,6 +25,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/search">Search</Link>
               <Link href="/advisory">Advisory</Link>
               <Link href="/recommendation-learning">Learning</Link>
+              <Link href="/advisory-scheduling">Schedules</Link>
+              <Link href="/digests">Digests</Link>
             </nav>
           </header>
           <AuthStatus />

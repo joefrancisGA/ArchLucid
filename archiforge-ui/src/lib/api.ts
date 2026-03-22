@@ -18,6 +18,11 @@ import type {
 } from "@/types/conversation";
 import type { ImprovementPlan } from "@/types/advisory";
 import type { LearningProfile } from "@/types/recommendation-learning";
+import type {
+  AdvisoryScanExecution,
+  AdvisoryScanSchedule,
+  ArchitectureDigest,
+} from "@/types/advisory-scheduling";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -197,6 +202,55 @@ export async function getLatestLearningProfile(): Promise<LearningProfile | null
     throw new Error(`Request failed: ${response.status} ${response.statusText}`);
   }
   return response.json() as Promise<LearningProfile>;
+}
+
+export async function listAdvisorySchedules(): Promise<AdvisoryScanSchedule[]> {
+  return apiGet<AdvisoryScanSchedule[]>("/api/advisory-scheduling/schedules");
+}
+
+export async function createAdvisorySchedule(body: {
+  name: string;
+  cronExpression: string;
+  runProjectSlug?: string;
+  isEnabled?: boolean;
+}): Promise<AdvisoryScanSchedule> {
+  return apiPostJson<AdvisoryScanSchedule>("/api/advisory-scheduling/schedules", {
+    name: body.name,
+    cronExpression: body.cronExpression,
+    runProjectSlug: body.runProjectSlug?.trim() || "default",
+    isEnabled: body.isEnabled ?? true,
+  });
+}
+
+export async function runAdvisoryScheduleNow(scheduleId: string): Promise<void> {
+  const { url, headers } = resolveRequest(
+    `/api/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/run`,
+  );
+  const h = new Headers(headers);
+  h.set("Content-Type", "application/json");
+  const response = await fetch(url, { method: "POST", headers: h, cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`Run now failed: ${response.status} ${response.statusText}`);
+  }
+}
+
+export async function listScheduleExecutions(
+  scheduleId: string,
+  take = 30,
+): Promise<AdvisoryScanExecution[]> {
+  return apiGet<AdvisoryScanExecution[]>(
+    `/api/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/executions?take=${take}`,
+  );
+}
+
+export async function listArchitectureDigests(take = 20): Promise<ArchitectureDigest[]> {
+  return apiGet<ArchitectureDigest[]>(`/api/advisory-scheduling/digests?take=${take}`);
+}
+
+export async function getArchitectureDigest(digestId: string): Promise<ArchitectureDigest> {
+  return apiGet<ArchitectureDigest>(
+    `/api/advisory-scheduling/digests/${encodeURIComponent(digestId)}`,
+  );
 }
 
 export async function rebuildLearningProfile(): Promise<LearningProfile> {

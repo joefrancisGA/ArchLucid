@@ -61,6 +61,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddScoped<IRecommendationFeedbackAnalyzer, RecommendationFeedbackAnalyzer>();
             services.AddSingleton<IRecommendationLearningProfileRepository, InMemoryRecommendationLearningProfileRepository>();
             services.AddScoped<IRecommendationLearningService, RecommendationLearningService>();
+            services.AddSingleton<IAdvisoryScanScheduleRepository, InMemoryAdvisoryScanScheduleRepository>();
+            services.AddSingleton<IAdvisoryScanExecutionRepository, InMemoryAdvisoryScanExecutionRepository>();
+            services.AddSingleton<IArchitectureDigestRepository, InMemoryArchitectureDigestRepository>();
             return services;
         }
 
@@ -102,6 +105,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IRecommendationFeedbackAnalyzer, RecommendationFeedbackAnalyzer>();
         services.AddScoped<IRecommendationLearningProfileRepository, DapperRecommendationLearningProfileRepository>();
         services.AddScoped<IRecommendationLearningService, RecommendationLearningService>();
+        services.AddScoped<IAdvisoryScanScheduleRepository, DapperAdvisoryScanScheduleRepository>();
+        services.AddScoped<IAdvisoryScanExecutionRepository, DapperAdvisoryScanExecutionRepository>();
+        services.AddScoped<IArchitectureDigestRepository, DapperArchitectureDigestRepository>();
 
         return services;
     }
