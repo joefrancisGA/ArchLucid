@@ -2,6 +2,7 @@ using ArchiForge.Core.Comparison;
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Models;
 using ArchiForge.Decisioning.Advisory.Workflow;
+using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Decisioning.Alerts;
 
@@ -19,4 +20,10 @@ public class AlertEvaluationContext
 
     public IReadOnlyList<RecommendationRecord> RecommendationRecords { get; set; } = Array.Empty<RecommendationRecord>();
     public RecommendationLearningProfile? LearningProfile { get; set; }
+
+    /// <summary>
+    /// When set (e.g. advisory scan), alert services reuse this merged document instead of calling
+    /// <see cref="IEffectiveGovernanceLoader.LoadEffectiveContentAsync"/> again.
+    /// </summary>
+    public PolicyPackContentDocument? EffectiveGovernanceContent { get; set; }
 }

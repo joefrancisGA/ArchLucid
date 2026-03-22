@@ -57,3 +57,23 @@ Validation is performed with **FluentValidation** (`ArchitectureRequestValidator
 If a document’s content type is not supported by any registered parser, ingestion may still record **warnings** on the persisted **`ContextSnapshot`** (`warnings`) when that path is hit (e.g. non-HTTP callers). Normal API clients receive **400** before ingest for unknown document content types.
 
 Full pipeline behavior: **`docs/CONTEXT_INGESTION.md`**.
+
+## Policy packs (`/api/policy-packs`)
+
+Governance is packaged as **versioned, assignable** bundles. Pack **content** is JSON matching **`PolicyPackContentDocument`**: `complianceRuleIds`, `alertRuleIds`, `compositeAlertRuleIds`, `advisoryDefaults`, `metadata` (see **`ArchiForge.Decisioning.Governance.PolicyPacks`**).
+
+| Method | Path | Notes |
+|--------|------|--------|
+| `POST` | `/api/policy-packs` | Create pack + initial **unpublished** version **1.0.0**. Requires **ExecuteAuthority**. |
+| `POST` | `/api/policy-packs/{policyPackId}/publish` | Adds a **published** version row; updates pack **Active** and **CurrentVersion**. |
+| `POST` | `/api/policy-packs/{policyPackId}/assign` | Assigns a **version string** to the **current scope** (tenant/workspace/project from headers/claims). |
+| `GET` | `/api/policy-packs` | List packs for scope. |
+| `GET` | `/api/policy-packs/{policyPackId}/versions` | List versions for a pack. |
+| `GET` | `/api/policy-packs/effective` | Resolved **enabled** assignments → pack metadata + **ContentJson** per entry. |
+| `GET` | `/api/policy-packs/effective-content` | **Merged** document: union of IDs (distinct), **advisoryDefaults** / **metadata** last-wins per key. |
+
+**Validation:** Create / publish / assign bodies are validated with **FluentValidation**. Invalid JSON in `initialContentJson` or `contentJson`, unknown `packType`, or empty `version` returns **400** with problem details (same style as other validated endpoints).
+
+**Effective governance and alerts:** When merged **`alertRuleIds`** or **`compositeAlertRuleIds`** is **non-empty**, simple and composite **alert evaluation** restricts rules to those IDs. **Empty lists** mean *no pack filter* (all enabled rules in scope still run). Advisory scans load merged content **once** per run and pass it on **`AlertEvaluationContext.EffectiveGovernanceContent`** so simple and composite evaluation do not each reload it.
+
+Scope defaults for dev/tests: **`ScopeIds`** (**`x-tenant-id`**, **`x-workspace-id`**, **`x-project-id`** optional).

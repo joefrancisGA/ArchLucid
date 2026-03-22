@@ -11,6 +11,7 @@ using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Comparison;
+using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Queries;
 
@@ -25,6 +26,7 @@ public sealed class AdvisoryScanRunner(
     IDigestDeliveryDispatcher deliveryDispatcher,
     IAlertService alertService,
     ICompositeAlertService compositeAlertService,
+    IEffectiveGovernanceLoader effectiveGovernanceLoader,
     IRecommendationRepository recommendationRepository,
     IRecommendationLearningService recommendationLearningService,
     IAdvisoryScanExecutionRepository executionRepository,
@@ -127,6 +129,10 @@ public sealed class AdvisoryScanRunner(
                 .GetLatestProfileAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
                 .ConfigureAwait(false);
 
+            var effectiveGovernance = await effectiveGovernanceLoader
+                .LoadEffectiveContentAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
+                .ConfigureAwait(false);
+
             var alertContext = new AlertEvaluationContext
             {
                 TenantId = schedule.TenantId,
@@ -138,6 +144,7 @@ public sealed class AdvisoryScanRunner(
                 ComparisonResult = comparisonResult,
                 RecommendationRecords = recommendationRecords,
                 LearningProfile = learningProfile,
+                EffectiveGovernanceContent = effectiveGovernance,
             };
 
             var alertOutcome = await alertService.EvaluateAndPersistAsync(alertContext, ct).ConfigureAwait(false);

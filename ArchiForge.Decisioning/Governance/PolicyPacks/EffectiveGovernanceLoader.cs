@@ -4,14 +4,6 @@ namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 
 public sealed class EffectiveGovernanceLoader(IPolicyPackResolver resolver) : IEffectiveGovernanceLoader
 {
-    private static readonly JsonSerializerOptions PackJsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
-    };
-
     public async Task<PolicyPackContentDocument> LoadEffectiveContentAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -27,7 +19,9 @@ public sealed class EffectiveGovernanceLoader(IPolicyPackResolver resolver) : IE
             PolicyPackContentDocument? doc;
             try
             {
-                doc = JsonSerializer.Deserialize<PolicyPackContentDocument>(pack.ContentJson, PackJsonOptions);
+                doc = JsonSerializer.Deserialize<PolicyPackContentDocument>(
+                    pack.ContentJson,
+                    PolicyPackJsonSerializerOptions.Default);
             }
             catch (JsonException)
             {

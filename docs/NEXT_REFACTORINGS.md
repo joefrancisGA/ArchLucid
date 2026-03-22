@@ -765,3 +765,73 @@ Candidates for the next round of refactors, in rough priority order.
 - [x] 55. Api.Tests: integration test create run with full ingestion payload
 - [x] 56. Refactor: richer per-connector delta summaries (counts or diff hints vs `previous`)
 - [x] 57. Api: OpenAPI examples (and optional description) for expanded `ArchitectureRequest`
+
+---
+
+## 58. Policy pack API: FluentValidation for create / publish / assign bodies
+
+**Problem:** `PolicyPacksController` accepts `CreatePolicyPackRequest`, `PublishPolicyPackVersionRequest`, and `AssignPolicyPackRequest` with only ad hoc checks (e.g. empty version → `BadRequest`). Other controllers use FluentValidation for consistent 400 + problem details.
+
+**Change:**
+- Add `AbstractValidator<>` implementations for the three DTOs (non-empty `Name` / `PackType` on create, semantic version format optional, non-empty `Version` on publish/assign, `InitialContentJson` / `ContentJson` valid JSON when non-empty).
+- Register with existing `AddValidatorsFromAssemblyContaining`; enable auto-validation for those actions or validate explicitly to match project convention.
+
+**Outcome:** Same validation story as comparison replay; Swagger/clients see predictable 400s.
+
+---
+
+## 59. Api.Tests: integration coverage for policy pack lifecycle
+
+**Problem:** Policy pack endpoints (`/api/policy-packs`, publish, assign, effective, effective-content) are not covered by `ArchiForge.Api.Tests`. Regressions in scope stamping, resolver, or storage would go unnoticed.
+
+**Change:**
+- Add an integration test class (extends `IntegrationTestBase`, `Trait("Category", "Integration")`) that: creates a pack, publishes a version with JSON containing `alertRuleIds`, assigns it, then GETs `effective` and `effective-content` and asserts merged shape / pack count.
+- Use `JsonOptions` / `JsonContent` from the test base.
+
+**Outcome:** Regression protection for governance packaging and API wiring.
+
+---
+
+## 60. Document policy packs and effective governance filtering
+
+**Problem:** Operators and integrators must read code to learn how assignments resolve, how `effective-content` merges packs, and that non-empty `alertRuleIds` / `compositeAlertRuleIds` filter alert evaluation.
+
+**Change:**
+- Add a **Policy packs** subsection to `docs/API_CONTRACTS.md` or `docs/BUILD.md`: list endpoints, assignment semantics, merge rules (union IDs, advisory defaults last-wins), and the “empty ID list = no filter” rule for alerts.
+- Optionally one sentence in README under Key documentation linking to that section.
+
+**Outcome:** Runbooks and SaaS onboarding without spelunking `PolicyPackResolver` / `AlertService`.
+
+---
+
+## 61. Centralize `JsonSerializerOptions` for policy pack content JSON
+
+**Problem:** `EffectiveGovernanceLoader` owns a private `PackJsonOptions`; any future writer (seed tooling, tests, or API) may duplicate options and drift on camelCase / trailing commas.
+
+**Change:**
+- Extract `PolicyPackJsonSerializerOptions` (static readonly) or register `IOptions<JsonSerializerOptions>` named `"PolicyPacks"` in DI; use in `EffectiveGovernanceLoader` and anywhere else that serializes `PolicyPackContentDocument`.
+- Document the options in code (why case-insensitive read).
+
+**Outcome:** One place to adjust JSON behavior for pack payloads.
+
+---
+
+## 62. Avoid duplicate `LoadEffectiveContentAsync` in a single evaluation pipeline
+
+**Problem:** `AlertService` and `CompositeAlertService` each call `IEffectiveGovernanceLoader.LoadEffectiveContentAsync` per evaluation. When both run in the same scheduled scan, effective content is loaded twice with identical scope.
+
+**Change:**
+- Prefer passing `PolicyPackContentDocument?` on `AlertEvaluationContext` (set once by the orchestration path that runs both), **or** add a scoped `IEffectiveGovernanceCache` / `AsyncLocal` keyed by tenant/workspace/project for the duration of one “scan” operation.
+- Fall back to loading when context has no cached document (tests, standalone calls).
+
+**Outcome:** Half the resolver/merge work on hot paths; clearer lifecycle for “effective governance for this run.”
+
+---
+
+## Checklist (governance / policy packs — next five)
+
+- [x] 58. Api: FluentValidation for policy pack create / publish / assign DTOs
+- [x] 59. Api.Tests: integration tests for policy pack create → publish → assign → effective(-content)
+- [x] 60. Docs: policy packs + effective governance filtering (`API_CONTRACTS` or `BUILD` + optional README link)
+- [x] 61. Refactor: shared `JsonSerializerOptions` (or options type) for policy pack content JSON
+- [x] 62. Refactor: cache or pass-through effective governance document when both alert services run in one pipeline

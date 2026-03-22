@@ -66,9 +66,6 @@ public sealed class PolicyPacksController(
         [FromBody] PublishPolicyPackVersionRequest request,
         CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(request.Version))
-            return BadRequest("Version is required.");
-
         var version = await managementService.PublishVersionAsync(
             policyPackId,
             request.Version.Trim(),
@@ -94,9 +91,6 @@ public sealed class PolicyPacksController(
         [FromBody] AssignPolicyPackRequest request,
         CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(request.Version))
-            return BadRequest("Version is required.");
-
         var scope = scopeProvider.GetCurrentScope();
 
         var assignment = await managementService.AssignAsync(

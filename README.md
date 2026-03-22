@@ -8,7 +8,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 |-----|---------|
 | [docs/BUILD.md](docs/BUILD.md) | Build, CPM, project references, DecisionEngine bundle |
 | [docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md) | Test categories (`Integration` / `Unit`) and filter examples |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | HTTP behaviors (422 verify, 404 run-not-found, 409 commit, validation) |
+| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | HTTP behaviors (422 verify, 404 run-not-found, 409 commit, validation, **policy packs** / effective governance) |
 | [docs/CLI_USAGE.md](docs/CLI_USAGE.md) | CLI reference |
 | [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md) | Comparison replay concepts |
 | [docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md) | Architecture overview and cross-links |
