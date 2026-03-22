@@ -33,6 +33,7 @@ using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Simulation;
+using ArchiForge.Decisioning.Alerts.Tuning;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
@@ -127,6 +128,9 @@ internal static partial class ServiceCollectionExtensions
 
         services.AddScoped<IAlertSimulationContextProvider, AlertSimulationContextProvider>();
         services.AddScoped<IRuleSimulationService, RuleSimulationService>();
+
+        services.AddScoped<IAlertNoiseScorer, AlertNoiseScorer>();
+        services.AddScoped<IThresholdRecommendationService, ThresholdRecommendationService>();
     }
 
     private static void RegisterDataInfrastructure(IServiceCollection services)

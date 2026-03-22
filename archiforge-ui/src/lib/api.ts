@@ -31,6 +31,7 @@ import type {
   RuleCandidateComparisonResult,
   RuleSimulationResult,
 } from "@/types/alert-simulation";
+import type { ThresholdRecommendationResult } from "@/types/alert-tuning";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -401,6 +402,20 @@ export async function simulateAlertRule(body: {
   runProjectSlug?: string;
 }): Promise<RuleSimulationResult> {
   return apiPostJson<RuleSimulationResult>("/api/alert-simulation/simulate", body);
+}
+
+export async function recommendAlertThreshold(body: {
+  ruleKind: string;
+  tunedMetricType: string;
+  candidateThresholds: number[];
+  recentRunCount?: number;
+  targetCreatedAlertCountMin?: number;
+  targetCreatedAlertCountMax?: number;
+  runProjectSlug?: string;
+  baseSimpleRule?: Record<string, unknown> | null;
+  baseCompositeRule?: Record<string, unknown> | null;
+}): Promise<ThresholdRecommendationResult> {
+  return apiPostJson<ThresholdRecommendationResult>("/api/alert-tuning/recommend-threshold", body);
 }
 
 export async function compareAlertRuleCandidates(body: {

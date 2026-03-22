@@ -45,4 +45,6 @@ public static class AuditEventTypes
 
     public const string AlertRuleSimulationExecuted = "AlertRuleSimulationExecuted";
     public const string AlertRuleCandidateComparisonExecuted = "AlertRuleCandidateComparisonExecuted";
+
+    public const string AlertThresholdRecommendationExecuted = "AlertThresholdRecommendationExecuted";
 }
