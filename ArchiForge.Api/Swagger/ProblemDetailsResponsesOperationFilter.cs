@@ -18,6 +18,8 @@ public sealed class ProblemDetailsResponsesOperationFilter : IOperationFilter
                 notFound.Description = (notFound.Description ?? "").TrimEnd() + " Problem type: `#run-not-found` when the referenced run does not exist.";
             if (path.Contains("comparisons"))
                 notFound.Description = (notFound.Description ?? "").TrimEnd() + " Problem type: `#run-not-found` when a referenced run is missing.";
+            if (path.Contains("policy-packs") && path.Contains("assign"))
+                notFound.Description = (notFound.Description ?? "").TrimEnd() + " Problem type: `#policy-pack-version-not-found` when the pack has no row for the requested version.";
         }
 
         if (operation.Responses.TryGetValue("409", out var conflict))

@@ -217,8 +217,8 @@ public sealed class AuthorityCompareService(
     private static void CompareStringLists(
         ManifestComparisonResult result,
         string section,
-        IEnumerable<string> left,
-        IEnumerable<string> right)
+        IEnumerable<string>? left,
+        IEnumerable<string>? right)
     {
         var leftSet = new HashSet<string>(left ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
         var rightSet = new HashSet<string>(right ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
@@ -323,7 +323,7 @@ public sealed class AuthorityCompareService(
         }
     }
 
-    private static void AddRunDiff(
+    public void AddRunDiff(
         IList<DiffItem> diffs,
         string section,
         string key,

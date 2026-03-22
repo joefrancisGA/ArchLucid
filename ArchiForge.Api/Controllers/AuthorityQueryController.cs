@@ -1,5 +1,5 @@
 using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.HttpContracts;
+using ArchiForge.Api.Contracts;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Queries;
 using Asp.Versioning;

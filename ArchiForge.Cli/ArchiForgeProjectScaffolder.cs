@@ -38,7 +38,7 @@ namespace ArchiForge.Cli;
 public static class ArchiForgeProjectScaffolder
 {
     /// <summary>Shared options for archiforge.json read/write (CA1869: single cached instance).</summary>
-    private static readonly JsonSerializerOptions s_jsonManifest = new()
+    private static readonly JsonSerializerOptions SJsonManifest = new()
     {
         WriteIndented = true,
         PropertyNameCaseInsensitive = true,
@@ -242,7 +242,7 @@ public static class ArchiForgeProjectScaffolder
                 Assumptions = ["Moderate query volume", "Internal enterprise usage only"]
             }
         };
-        return JsonSerializer.Serialize(config, s_jsonManifest) + Environment.NewLine;
+        return JsonSerializer.Serialize(config, SJsonManifest) + Environment.NewLine;
     }
 
     public static ArchiForgeConfig LoadConfig(string? projectRoot)
@@ -256,7 +256,7 @@ public static class ArchiForgeProjectScaffolder
         ArchiForgeConfig? config;
         try
         {
-            config = JsonSerializer.Deserialize<ArchiForgeConfig>(json, s_jsonManifest);
+            config = JsonSerializer.Deserialize<ArchiForgeConfig>(json, SJsonManifest);
         }
         catch (JsonException ex)
         {

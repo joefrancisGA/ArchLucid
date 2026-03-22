@@ -833,3 +833,63 @@ Candidates for the next round of refactors, in rough priority order.
 - [x] 60. Docs: policy packs + effective governance filtering (`API_CONTRACTS` or `BUILD` + optional README link)
 - [x] 61. Refactor: shared `JsonSerializerOptions` (or options type) for policy pack content JSON
 - [x] 62. Refactor: cache or pass-through effective governance document when both alert services run in one pipeline
+
+---
+
+## 63. Swagger: policy pack request examples (create / publish / assign)
+
+**Problem:** Integrators discover `PolicyPackContentDocument` shape only from code or `API_CONTRACTS.md`; Swagger did not show example JSON for governance POST bodies.
+
+**Change:** Add **`PolicyPackExamplesOperationFilter`** (markdown JSON blocks on **PolicyPacksController** `Create`, `Publish`, `Assign`) and register it in **`AddArchiForgeSwagger`**.
+
+**Outcome:** Interactive docs parity with architecture create-run examples.
+
+---
+
+## 64. OpenAPI: document `#policy-pack-version-not-found` on assign
+
+**Problem:** `POST .../policy-packs/{id}/assign` returns **404** with a specific problem type; Swagger 404 descriptions did not mention it.
+
+**Change:** Extend **`ProblemDetailsResponsesOperationFilter`** when path contains `policy-packs` and `assign`.
+
+**Outcome:** Swagger describes assign-not-found alongside run-not-found.
+
+---
+
+## 65. Unit tests: `ComplianceRulePackGovernanceFilter`
+
+**Problem:** Compliance rule filtering by policy keys/GUIDs is easy to regress without fast tests.
+
+**Change:** Add **`ComplianceRulePackGovernanceFilterTests`** in **`ArchiForge.Decisioning.Tests`** (empty filter, keys case-insensitive, GUID `RuleId`, combined keys+ids).
+
+**Outcome:** Local regression protection without API harness.
+
+---
+
+## 66. Api.Tests: `effective-content` merges `complianceRuleKeys`
+
+**Problem:** Integration coverage asserted advisory defaults and metadata but not merged **`complianceRuleKeys`**.
+
+**Change:** Add **`EffectiveContent_MergesComplianceRuleKeys_FromAssignedPack`** to **`PolicyPacksIntegrationTests`**; extend response DTO with **`ComplianceRuleKeys`**.
+
+**Outcome:** End-to-end proof that resolver + merge surface string compliance rule IDs.
+
+---
+
+## 67. Swagger document description: governance + alert `v1` routes
+
+**Problem:** Top-level Swagger blurb listed architecture and ingestion but not where policy packs and operator alerts live.
+
+**Change:** Append one sentence to **`SwaggerExtensions`** `SwaggerDoc` description listing **`/v1/policy-packs`** and alert/digest/tuning/simulation paths.
+
+**Outcome:** First-screen discoverability for governance and alerting APIs.
+
+---
+
+## Checklist (governance / policy packs — follow-up five)
+
+- [x] 63. Api: Swagger operation filter with policy pack JSON examples (create / publish / assign)
+- [x] 64. Api: ProblemDetails OpenAPI hint for assign → `#policy-pack-version-not-found`
+- [x] 65. Decisioning.Tests: `ComplianceRulePackGovernanceFilter` unit tests
+- [x] 66. Api.Tests: integration test for merged `complianceRuleKeys` on `effective-content`
+- [x] 67. Api: Swagger top-level description mentions `v1` policy packs + alert-related routes

@@ -61,6 +61,46 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
     }
 
     [Fact]
+    public async Task EffectiveContent_MergesComplianceRuleKeys_FromAssignedPack()
+    {
+        var contentJson = """
+            {
+              "complianceRuleIds": [],
+              "complianceRuleKeys": [ "rule-alpha", "rule-beta" ],
+              "alertRuleIds": [],
+              "compositeAlertRuleIds": [],
+              "advisoryDefaults": {},
+              "metadata": {}
+            }
+            """;
+
+        var createResponse = await Client.PostAsync(
+            "/v1/policy-packs",
+            JsonContent(
+                new
+                {
+                    name = "Compliance keys pack",
+                    description = "",
+                    packType = "ProjectCustom",
+                    initialContentJson = contentJson,
+                }));
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+        var packId = created!.PolicyPackId;
+
+        var assignResponse = await Client.PostAsync(
+            $"/v1/policy-packs/{packId}/assign",
+            JsonContent(new { version = "1.0.0" }));
+        assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
+        mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
+        merged.Should().NotBeNull();
+        merged!.ComplianceRuleKeys.Should().BeEquivalentTo(["rule-alpha", "rule-beta"]);
+    }
+
+    [Fact]
     public async Task PublishSameVersionTwice_IsIdempotent_SingleVersionRow()
     {
         var createResponse = await Client.PostAsync(
@@ -172,6 +212,7 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
     private sealed class PolicyPackContentResponse
     {
+        public List<string> ComplianceRuleKeys { get; init; } = [];
         public Dictionary<string, string> AdvisoryDefaults { get; init; } = new();
         public Dictionary<string, string> Metadata { get; init; } = new();
     }

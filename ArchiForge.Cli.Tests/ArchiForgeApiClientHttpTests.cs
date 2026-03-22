@@ -10,7 +10,7 @@ namespace ArchiForge.Cli.Tests;
 /// </summary>
 public sealed class ArchiForgeApiClientHttpTests
 {
-    private static readonly JsonSerializerOptions s_jsonCamelCase = new()
+    private static readonly JsonSerializerOptions SJsonCamelCase = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
@@ -38,7 +38,7 @@ public sealed class ArchiForgeApiClientHttpTests
         {
             run = new { runId, requestId = "req-1", status = 0, createdUtc = DateTime.UtcNow, currentManifestVersion = (string?)null },
             tasks = Array.Empty<object>()
-        }, s_jsonCamelCase);
+        }, SJsonCamelCase);
         var response = new HttpResponseMessage(HttpStatusCode.Created) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
@@ -75,7 +75,7 @@ public sealed class ArchiForgeApiClientHttpTests
             run = new { runId, requestId = "req-1", status = 0, createdUtc = DateTime.UtcNow, currentManifestVersion = (string?)null },
             tasks = Array.Empty<object>(),
             results = Array.Empty<object>()
-        }, s_jsonCamelCase);
+        }, SJsonCamelCase);
         var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
@@ -112,7 +112,7 @@ public sealed class ArchiForgeApiClientHttpTests
                 metadata = new { manifestVersion = version }
             },
             warnings = Array.Empty<string>()
-        }, s_jsonCamelCase);
+        }, SJsonCamelCase);
         var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 

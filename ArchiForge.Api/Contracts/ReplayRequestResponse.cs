@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.HttpContracts;
+namespace ArchiForge.Api.Contracts;
 
 public class ReplayRequestResponse
 {

@@ -189,7 +189,7 @@ public sealed class RuleSimulationService(
                     new RuleSimulationRequest
                     {
                         RuleKind = "Simple",
-                        SimpleRule = request.CandidateA_SimpleRule,
+                        SimpleRule = request.CandidateASimpleRule,
                         RecentRunCount = request.RecentRunCount,
                         RunProjectSlug = request.RunProjectSlug,
                     },
@@ -203,7 +203,7 @@ public sealed class RuleSimulationService(
                     new RuleSimulationRequest
                     {
                         RuleKind = "Simple",
-                        SimpleRule = request.CandidateB_SimpleRule,
+                        SimpleRule = request.CandidateBSimpleRule,
                         RecentRunCount = request.RecentRunCount,
                         RunProjectSlug = request.RunProjectSlug,
                     },
@@ -219,7 +219,7 @@ public sealed class RuleSimulationService(
                     new RuleSimulationRequest
                     {
                         RuleKind = "Composite",
-                        CompositeRule = request.CandidateA_CompositeRule,
+                        CompositeRule = request.CandidateACompositeRule,
                         RecentRunCount = request.RecentRunCount,
                         RunProjectSlug = request.RunProjectSlug,
                     },
@@ -233,7 +233,7 @@ public sealed class RuleSimulationService(
                     new RuleSimulationRequest
                     {
                         RuleKind = "Composite",
-                        CompositeRule = request.CandidateB_CompositeRule,
+                        CompositeRule = request.CandidateBCompositeRule,
                         RecentRunCount = request.RecentRunCount,
                         RunProjectSlug = request.RunProjectSlug,
                     },

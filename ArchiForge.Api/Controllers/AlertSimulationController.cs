@@ -98,23 +98,22 @@ public sealed class AlertSimulationController(
             request.SimpleRule.ProjectId = scope.ProjectId;
         }
 
-        if (request.CompositeRule is not null)
-        {
-            request.CompositeRule.TenantId = scope.TenantId;
-            request.CompositeRule.WorkspaceId = scope.WorkspaceId;
-            request.CompositeRule.ProjectId = scope.ProjectId;
-        }
+        if (request.CompositeRule is null) return;
+
+        request.CompositeRule.TenantId = scope.TenantId;
+        request.CompositeRule.WorkspaceId = scope.WorkspaceId;
+        request.CompositeRule.ProjectId = scope.ProjectId;
     }
 
     private static void StampComparisonScope(ScopeContext scope, RuleCandidateComparisonRequest request)
     {
-        stampSimple(request.CandidateA_SimpleRule);
-        stampSimple(request.CandidateB_SimpleRule);
-        stampComposite(request.CandidateA_CompositeRule);
-        stampComposite(request.CandidateB_CompositeRule);
+        StampSimple(request.CandidateASimpleRule);
+        StampSimple(request.CandidateBSimpleRule);
+        StampComposite(request.CandidateACompositeRule);
+        StampComposite(request.CandidateBCompositeRule);
         return;
 
-        void stampSimple(AlertRule? r)
+        void StampSimple(AlertRule? r)
         {
             if (r is null) return;
             r.TenantId = scope.TenantId;
@@ -122,7 +121,7 @@ public sealed class AlertSimulationController(
             r.ProjectId = scope.ProjectId;
         }
 
-        void stampComposite(CompositeAlertRule? r)
+        void StampComposite(CompositeAlertRule? r)
         {
             if (r is null) return;
             r.TenantId = scope.TenantId;

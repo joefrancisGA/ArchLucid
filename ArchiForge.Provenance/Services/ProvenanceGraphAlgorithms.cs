@@ -6,7 +6,7 @@ public static class ProvenanceGraphAlgorithms
     /// <summary>
     /// Resolves a route/query key to the internal provenance node id of a <see cref="ProvenanceNodeType.Decision"/> node.
     /// </summary>
-    public static bool TryResolveDecisionNodeId(DecisionProvenanceGraph graph, string decisionKey, out Guid decisionInternalNodeId)
+    public static bool TryResolveDecisionNodeId(DecisionProvenanceGraph graph, string? decisionKey, out Guid decisionInternalNodeId)
     {
         decisionInternalNodeId = Guid.Empty;
         var key = decisionKey?.Trim() ?? string.Empty;

@@ -39,7 +39,7 @@ public sealed class ArchitectureApplicationService(
         return new GetRunResult(run, tasks, results);
     }
 
-    public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult result, CancellationToken cancellationToken = default)
+    public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult? result, CancellationToken cancellationToken = default)
     {
         if (result is null)
             return new SubmitResultResult(false, null, "Agent result is required.", ApplicationServiceFailureKind.BadRequest);

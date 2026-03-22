@@ -27,7 +27,7 @@ public sealed class SqlSchemaBootstrapper(
         }
     }
 
-    private static IReadOnlyList<string> SplitGoBatches(string script)
+    public IReadOnlyList<string> SplitGoBatches(string script)
     {
         var lines = script.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
         var batches = new List<string>();

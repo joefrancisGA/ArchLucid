@@ -1,8 +1,8 @@
 using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.HttpContracts;
 using ArchiForge.Core.Audit;
 using ArchiForge.Persistence.Replay;
 using System.Text.Json;
+using ArchiForge.Api.Contracts;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

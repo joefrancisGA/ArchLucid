@@ -4,6 +4,7 @@ namespace ArchiForge.Persistence.Compare;
 
 public interface IAuthorityCompareService
 {
+    void AddRunDiff(IList<DiffItem> diffs, string section, string key, string? beforeValue, string? afterValue);
     Task<ManifestComparisonResult?> CompareManifestsAsync(
         ScopeContext scope,
         Guid leftManifestId,
