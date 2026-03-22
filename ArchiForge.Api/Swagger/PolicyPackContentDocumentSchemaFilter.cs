@@ -7,7 +7,7 @@ namespace ArchiForge.Api.Swagger;
 /// <summary>Enriches the generated OpenAPI schema for merged policy content (see also operation examples on policy pack POSTs).</summary>
 public sealed class PolicyPackContentDocumentSchemaFilter : ISchemaFilter
 {
-    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
     {
         if (context.Type != typeof(PolicyPackContentDocument))
             return;
