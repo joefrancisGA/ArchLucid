@@ -14,22 +14,12 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/alerts")]
 [EnableRateLimiting("fixed")]
-public sealed class AlertsController : ControllerBase
+public sealed class AlertsController(
+    IScopeContextProvider scopeProvider,
+    IAlertRecordRepository alertRepository,
+    IAlertService alertService)
+    : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly IAlertRecordRepository _alertRepository;
-    private readonly IAlertService _alertService;
-
-    public AlertsController(
-        IScopeContextProvider scopeProvider,
-        IAlertRecordRepository alertRepository,
-        IAlertService alertService)
-    {
-        _scopeProvider = scopeProvider;
-        _alertRepository = alertRepository;
-        _alertService = alertService;
-    }
-
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AlertRecord>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<AlertRecord>>> List(
@@ -37,9 +27,9 @@ public sealed class AlertsController : ControllerBase
         [FromQuery] int take = 100,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var alerts = await _alertRepository.ListByScopeAsync(
+        var alerts = await alertRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -59,15 +49,15 @@ public sealed class AlertsController : ControllerBase
         [FromBody] AlertActionRequest request,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var existing = await _alertRepository.GetByIdAsync(alertId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var existing = await alertRepository.GetByIdAsync(alertId, ct);
         if (existing is null || !MatchesScope(existing, scope))
             return NotFound();
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         var userName = User.Identity?.Name ?? "unknown";
 
-        var updated = await _alertService.ApplyActionAsync(
+        var updated = await alertService.ApplyActionAsync(
             alertId,
             userId,
             userName,

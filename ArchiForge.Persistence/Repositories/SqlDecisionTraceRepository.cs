@@ -9,15 +9,8 @@ using Dapper;
 namespace ArchiForge.Persistence.Repositories;
 
 /// <summary>Persists <see cref="DecisionTrace"/> from decisioning (not API <c>DecisionTraces</c> table).</summary>
-public sealed class SqlDecisionTraceRepository : IDecisionTraceRepository
+public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionFactory) : IDecisionTraceRepository
 {
-    private readonly ISqlConnectionFactory _connectionFactory;
-
-    public SqlDecisionTraceRepository(ISqlConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task SaveAsync(
         DecisionTrace trace,
         CancellationToken ct,
@@ -64,7 +57,7 @@ public sealed class SqlDecisionTraceRepository : IDecisionTraceRepository
             return;
         }
 
-        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
@@ -83,7 +76,7 @@ public sealed class SqlDecisionTraceRepository : IDecisionTraceRepository
               AND DecisionTraceId = @DecisionTraceId;
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var row = await connection.QuerySingleOrDefaultAsync<DecisionTraceRow>(
             new CommandDefinition(
                 sql,

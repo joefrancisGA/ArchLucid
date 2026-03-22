@@ -3,6 +3,7 @@ using ArchiForge.Core.Audit;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Delivery;
+using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Persistence.Alerts;
 
@@ -13,7 +14,8 @@ public sealed class CompositeAlertService(
     IAlertSuppressionPolicy suppressionPolicy,
     IAlertRecordRepository alertRepository,
     IAlertDeliveryDispatcher alertDeliveryDispatcher,
-    IAuditService auditService) : ICompositeAlertService
+    IAuditService auditService,
+    IEffectiveGovernanceLoader effectiveGovernanceLoader) : ICompositeAlertService
 {
     public async Task<CompositeAlertEvaluationResult> EvaluateAndPersistAsync(
         AlertEvaluationContext context,
@@ -22,6 +24,11 @@ public sealed class CompositeAlertService(
         var rules = await ruleRepository
             .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
+
+        var effective = await effectiveGovernanceLoader
+            .LoadEffectiveContentAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
+            .ConfigureAwait(false);
+        rules = PolicyPackGovernanceFilter.FilterCompositeRules(rules, effective);
 
         var snapshot = snapshotBuilder.Build(context);
         var created = new List<AlertRecord>();

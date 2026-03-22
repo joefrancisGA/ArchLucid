@@ -14,24 +14,15 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/audit")]
 [EnableRateLimiting("fixed")]
-public sealed class AuditController : ControllerBase
+public sealed class AuditController(IAuditRepository repo, IScopeContextProvider scopeProvider) : ControllerBase
 {
-    private readonly IAuditRepository _repo;
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public AuditController(IAuditRepository repo, IScopeContextProvider scopeProvider)
-    {
-        _repo = repo;
-        _scopeProvider = scopeProvider;
-    }
-
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AuditEvent>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAudit([FromQuery] int take = 100, CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var events = await _repo.GetByScopeAsync(
+        var events = await repo.GetByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,

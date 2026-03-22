@@ -8,53 +8,35 @@ using ArchiForge.Persistence.Models;
 
 namespace ArchiForge.Persistence.Queries;
 
-public sealed class DapperAuthorityQueryService : IAuthorityQueryService
+public sealed class DapperAuthorityQueryService(
+    IRunRepository runRepository,
+    IContextSnapshotRepository contextSnapshotRepository,
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
+    IDecisionTraceRepository decisionTraceRepository,
+    IGoldenManifestRepository goldenManifestRepository,
+    IArtifactBundleRepository artifactBundleRepository)
+    : IAuthorityQueryService
 {
-    private readonly IRunRepository _runRepository;
-    private readonly IContextSnapshotRepository _contextSnapshotRepository;
-    private readonly IGraphSnapshotRepository _graphSnapshotRepository;
-    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository;
-    private readonly IDecisionTraceRepository _decisionTraceRepository;
-    private readonly IGoldenManifestRepository _goldenManifestRepository;
-    private readonly IArtifactBundleRepository _artifactBundleRepository;
-
-    public DapperAuthorityQueryService(
-        IRunRepository runRepository,
-        IContextSnapshotRepository contextSnapshotRepository,
-        IGraphSnapshotRepository graphSnapshotRepository,
-        IFindingsSnapshotRepository findingsSnapshotRepository,
-        IDecisionTraceRepository decisionTraceRepository,
-        IGoldenManifestRepository goldenManifestRepository,
-        IArtifactBundleRepository artifactBundleRepository)
-    {
-        _runRepository = runRepository;
-        _contextSnapshotRepository = contextSnapshotRepository;
-        _graphSnapshotRepository = graphSnapshotRepository;
-        _findingsSnapshotRepository = findingsSnapshotRepository;
-        _decisionTraceRepository = decisionTraceRepository;
-        _goldenManifestRepository = goldenManifestRepository;
-        _artifactBundleRepository = artifactBundleRepository;
-    }
-
     public async Task<IReadOnlyList<RunSummaryDto>> ListRunsByProjectAsync(
         ScopeContext scope,
         string projectId,
         int take,
         CancellationToken ct)
     {
-        var runs = await _runRepository.ListByProjectAsync(scope, projectId, take, ct);
+        var runs = await runRepository.ListByProjectAsync(scope, projectId, take, ct);
         return runs.Select(MapSummary).ToList();
     }
 
     public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        var run = await _runRepository.GetByIdAsync(scope, runId, ct);
+        var run = await runRepository.GetByIdAsync(scope, runId, ct);
         return run is null ? null : MapSummary(run);
     }
 
     public async Task<RunDetailDto?> GetRunDetailAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        var run = await _runRepository.GetByIdAsync(scope, runId, ct);
+        var run = await runRepository.GetByIdAsync(scope, runId, ct);
         if (run is null)
             return null;
 
@@ -62,32 +44,32 @@ public sealed class DapperAuthorityQueryService : IAuthorityQueryService
 
         if (run.ContextSnapshotId.HasValue)
         {
-            result.ContextSnapshot = await _contextSnapshotRepository.GetByIdAsync(run.ContextSnapshotId.Value, ct);
+            result.ContextSnapshot = await contextSnapshotRepository.GetByIdAsync(run.ContextSnapshotId.Value, ct);
         }
 
         if (run.GraphSnapshotId.HasValue)
         {
-            result.GraphSnapshot = await _graphSnapshotRepository.GetByIdAsync(run.GraphSnapshotId.Value, ct);
+            result.GraphSnapshot = await graphSnapshotRepository.GetByIdAsync(run.GraphSnapshotId.Value, ct);
         }
 
         if (run.FindingsSnapshotId.HasValue)
         {
-            result.FindingsSnapshot = await _findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct);
+            result.FindingsSnapshot = await findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct);
         }
 
         if (run.DecisionTraceId.HasValue)
         {
-            result.DecisionTrace = await _decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct);
+            result.DecisionTrace = await decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct);
         }
 
         if (run.GoldenManifestId.HasValue)
         {
-            result.GoldenManifest = await _goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct);
+            result.GoldenManifest = await goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct);
         }
 
         if (run.ArtifactBundleId.HasValue && run.GoldenManifestId.HasValue)
         {
-            result.ArtifactBundle = await _artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct);
+            result.ArtifactBundle = await artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct);
         }
 
         return result;
@@ -95,7 +77,7 @@ public sealed class DapperAuthorityQueryService : IAuthorityQueryService
 
     public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
-        var manifest = await _goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
+        var manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
         if (manifest is null)
             return null;
 

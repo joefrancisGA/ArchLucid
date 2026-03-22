@@ -4,15 +4,8 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Audit;
 
-public sealed class DapperAuditRepository : IAuditRepository
+public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactory) : IAuditRepository
 {
-    private readonly ISqlConnectionFactory _connectionFactory;
-
-    public DapperAuditRepository(ISqlConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
     {
         const string sql = """
@@ -32,7 +25,7 @@ public sealed class DapperAuditRepository : IAuditRepository
             );
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
     }
 
@@ -57,7 +50,7 @@ public sealed class DapperAuditRepository : IAuditRepository
             ORDER BY OccurredUtc DESC;
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var rows = await connection.QueryAsync<AuditEvent>(
             new CommandDefinition(
                 sql,

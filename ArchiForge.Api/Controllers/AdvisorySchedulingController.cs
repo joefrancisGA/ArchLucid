@@ -16,34 +16,16 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/advisory-scheduling")]
 [EnableRateLimiting("fixed")]
-public sealed class AdvisorySchedulingController : ControllerBase
+public sealed class AdvisorySchedulingController(
+    IScopeContextProvider scopeProvider,
+    IAdvisoryScanScheduleRepository scheduleRepository,
+    IAdvisoryScanExecutionRepository executionRepository,
+    IArchitectureDigestRepository digestRepository,
+    IAdvisoryScanRunner scanRunner,
+    IScanScheduleCalculator scheduleCalculator,
+    IAuditService auditService)
+    : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly IAdvisoryScanScheduleRepository _scheduleRepository;
-    private readonly IAdvisoryScanExecutionRepository _executionRepository;
-    private readonly IArchitectureDigestRepository _digestRepository;
-    private readonly IAdvisoryScanRunner _scanRunner;
-    private readonly IScanScheduleCalculator _scheduleCalculator;
-    private readonly IAuditService _auditService;
-
-    public AdvisorySchedulingController(
-        IScopeContextProvider scopeProvider,
-        IAdvisoryScanScheduleRepository scheduleRepository,
-        IAdvisoryScanExecutionRepository executionRepository,
-        IArchitectureDigestRepository digestRepository,
-        IAdvisoryScanRunner scanRunner,
-        IScanScheduleCalculator scheduleCalculator,
-        IAuditService auditService)
-    {
-        _scopeProvider = scopeProvider;
-        _scheduleRepository = scheduleRepository;
-        _executionRepository = executionRepository;
-        _digestRepository = digestRepository;
-        _scanRunner = scanRunner;
-        _scheduleCalculator = scheduleCalculator;
-        _auditService = auditService;
-    }
-
     [HttpPost("schedules")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AdvisoryScanSchedule), StatusCodes.Status200OK)]
@@ -51,7 +33,7 @@ public sealed class AdvisorySchedulingController : ControllerBase
         [FromBody] AdvisoryScanSchedule request,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
         request.ScheduleId = Guid.NewGuid();
         request.TenantId = scope.TenantId;
@@ -60,11 +42,11 @@ public sealed class AdvisorySchedulingController : ControllerBase
         if (string.IsNullOrWhiteSpace(request.RunProjectSlug))
             request.RunProjectSlug = "default";
         request.CreatedUtc = DateTime.UtcNow;
-        request.NextRunUtc = _scheduleCalculator.ComputeNextRunUtc(request.CronExpression, DateTime.UtcNow);
+        request.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(request.CronExpression, DateTime.UtcNow);
 
-        await _scheduleRepository.CreateAsync(request, ct);
+        await scheduleRepository.CreateAsync(request, ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AdvisoryScanScheduled,
@@ -79,9 +61,9 @@ public sealed class AdvisorySchedulingController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<AdvisoryScanSchedule>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<AdvisoryScanSchedule>>> ListSchedules(CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var result = await _scheduleRepository.ListByScopeAsync(
+        var result = await scheduleRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -98,15 +80,15 @@ public sealed class AdvisorySchedulingController : ControllerBase
         [FromQuery] int take = 30,
         CancellationToken ct = default)
     {
-        var schedule = await _scheduleRepository.GetByIdAsync(scheduleId, ct);
+        var schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
         if (schedule is null)
             return NotFound();
 
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(schedule, scope))
             return NotFound();
 
-        var items = await _executionRepository.ListByScheduleAsync(scheduleId, take, ct);
+        var items = await executionRepository.ListByScheduleAsync(scheduleId, take, ct);
         return Ok(items);
     }
 
@@ -116,15 +98,15 @@ public sealed class AdvisorySchedulingController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RunNow(Guid scheduleId, CancellationToken ct = default)
     {
-        var schedule = await _scheduleRepository.GetByIdAsync(scheduleId, ct);
+        var schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
         if (schedule is null)
             return NotFound();
 
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(schedule, scope))
             return NotFound();
 
-        await _scanRunner.RunScheduleAsync(schedule, ct);
+        await scanRunner.RunScheduleAsync(schedule, ct);
         return Ok();
     }
 
@@ -134,9 +116,9 @@ public sealed class AdvisorySchedulingController : ControllerBase
         [FromQuery] int take = 20,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var digests = await _digestRepository.ListByScopeAsync(
+        var digests = await digestRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -151,11 +133,11 @@ public sealed class AdvisorySchedulingController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ArchitectureDigest>> GetDigest(Guid digestId, CancellationToken ct = default)
     {
-        var digest = await _digestRepository.GetByIdAsync(digestId, ct);
+        var digest = await digestRepository.GetByIdAsync(digestId, ct);
         if (digest is null)
             return NotFound();
 
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         if (digest.TenantId != scope.TenantId ||
             digest.WorkspaceId != scope.WorkspaceId ||
             digest.ProjectId != scope.ProjectId)

@@ -5,15 +5,8 @@ using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Generators;
 
-public class MermaidDiagramArtifactGenerator : IArtifactGenerator
+public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtifactGenerator
 {
-    private readonly IDiagramRenderer _renderer;
-
-    public MermaidDiagramArtifactGenerator(IDiagramRenderer renderer)
-    {
-        _renderer = renderer;
-    }
-
     public string ArtifactType => global::ArchiForge.ArtifactSynthesis.Models.ArtifactType.MermaidDiagram;
 
     public Task<SynthesizedArtifact> GenerateAsync(
@@ -51,7 +44,7 @@ public class MermaidDiagramArtifactGenerator : IArtifactGenerator
             });
         }
 
-        var content = _renderer.Render(ast);
+        var content = renderer.Render(ast);
 
         return Task.FromResult(new SynthesizedArtifact
         {
@@ -61,7 +54,7 @@ public class MermaidDiagramArtifactGenerator : IArtifactGenerator
             CreatedUtc = DateTime.UtcNow,
             ArtifactType = global::ArchiForge.ArtifactSynthesis.Models.ArtifactType.MermaidDiagram,
             Name = "architecture.mmd",
-            Format = _renderer.Format,
+            Format = renderer.Format,
             Content = content,
             ContentHash = ArtifactHashing.ComputeHash(content),
             Metadata = new Dictionary<string, string>

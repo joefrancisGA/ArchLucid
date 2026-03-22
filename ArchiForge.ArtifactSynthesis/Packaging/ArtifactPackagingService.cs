@@ -5,7 +5,7 @@ using ArchiForge.ArtifactSynthesis.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Packaging;
 
-public class ArtifactPackagingService : IArtifactPackagingService
+public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeResolver) : IArtifactPackagingService
 {
     private static readonly JsonSerializerOptions JsonWriteIndented = new() { WriteIndented = true };
 
@@ -23,19 +23,12 @@ public class ArtifactPackagingService : IArtifactPackagingService
         "package-metadata.json"
     };
 
-    private readonly IArtifactContentTypeResolver _contentTypeResolver;
-
-    public ArtifactPackagingService(IArtifactContentTypeResolver contentTypeResolver)
-    {
-        _contentTypeResolver = contentTypeResolver;
-    }
-
     public ArtifactFileExport BuildSingleFileExport(SynthesizedArtifact artifact)
     {
         return new ArtifactFileExport
         {
             FileName = FileNameSanitizer.Sanitize(artifact.Name),
-            ContentType = _contentTypeResolver.Resolve(artifact),
+            ContentType = contentTypeResolver.Resolve(artifact),
             Content = Encoding.UTF8.GetBytes(artifact.Content)
         };
     }

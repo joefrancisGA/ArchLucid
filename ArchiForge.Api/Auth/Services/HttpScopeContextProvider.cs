@@ -2,18 +2,11 @@ using ArchiForge.Core.Scoping;
 
 namespace ArchiForge.Api.Auth.Services;
 
-public sealed class HttpScopeContextProvider : IScopeContextProvider
+public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAccessor) : IScopeContextProvider
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public HttpScopeContextProvider(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
     public ScopeContext GetCurrentScope()
     {
-        var http = _httpContextAccessor.HttpContext;
+        var http = httpContextAccessor.HttpContext;
         var user = http?.User;
         var headers = http?.Request.Headers;
 

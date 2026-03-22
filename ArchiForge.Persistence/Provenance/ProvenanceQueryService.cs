@@ -4,12 +4,8 @@ using ArchiForge.Provenance.Services;
 
 namespace ArchiForge.Persistence.Provenance;
 
-public sealed class ProvenanceQueryService : IProvenanceQueryService
+public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) : IProvenanceQueryService
 {
-    private readonly IProvenanceSnapshotRepository _repo;
-
-    public ProvenanceQueryService(IProvenanceSnapshotRepository repo) => _repo = repo;
-
     public async Task<GraphViewModel?> GetFullGraphAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         var graph = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
@@ -53,7 +49,7 @@ public sealed class ProvenanceQueryService : IProvenanceQueryService
 
     private async Task<DecisionProvenanceGraph?> LoadGraphAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        var snapshot = await _repo.GetByRunIdAsync(scope, runId, ct).ConfigureAwait(false);
+        var snapshot = await repo.GetByRunIdAsync(scope, runId, ct).ConfigureAwait(false);
         if (snapshot is null)
             return null;
 

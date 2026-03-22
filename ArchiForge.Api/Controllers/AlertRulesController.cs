@@ -15,28 +15,18 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/alert-rules")]
 [EnableRateLimiting("fixed")]
-public sealed class AlertRulesController : ControllerBase
+public sealed class AlertRulesController(
+    IScopeContextProvider scopeProvider,
+    IAlertRuleRepository ruleRepository,
+    IAuditService auditService)
+    : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly IAlertRuleRepository _ruleRepository;
-    private readonly IAuditService _auditService;
-
-    public AlertRulesController(
-        IScopeContextProvider scopeProvider,
-        IAlertRuleRepository ruleRepository,
-        IAuditService auditService)
-    {
-        _scopeProvider = scopeProvider;
-        _ruleRepository = ruleRepository;
-        _auditService = auditService;
-    }
-
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRule), StatusCodes.Status200OK)]
     public async Task<ActionResult<AlertRule>> Create([FromBody] AlertRule rule, CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
         rule.RuleId = Guid.NewGuid();
         rule.TenantId = scope.TenantId;
@@ -46,9 +36,9 @@ public sealed class AlertRulesController : ControllerBase
         if (string.IsNullOrWhiteSpace(rule.MetadataJson))
             rule.MetadataJson = "{}";
 
-        await _ruleRepository.CreateAsync(rule, ct);
+        await ruleRepository.CreateAsync(rule, ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AlertRuleCreated,
@@ -68,9 +58,9 @@ public sealed class AlertRulesController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<AlertRule>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<AlertRule>>> List(CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var rules = await _ruleRepository.ListByScopeAsync(
+        var rules = await ruleRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,

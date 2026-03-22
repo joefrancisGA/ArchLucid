@@ -2,6 +2,7 @@ using System.Text.Json;
 using ArchiForge.Core.Audit;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Delivery;
+using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Persistence.Alerts;
 
@@ -10,7 +11,8 @@ public sealed class AlertService(
     IAlertRecordRepository alertRepository,
     IAlertEvaluator alertEvaluator,
     IAlertDeliveryDispatcher alertDeliveryDispatcher,
-    IAuditService auditService) : IAlertService
+    IAuditService auditService,
+    IEffectiveGovernanceLoader effectiveGovernanceLoader) : IAlertService
 {
     public async Task<AlertEvaluationOutcome> EvaluateAndPersistAsync(
         AlertEvaluationContext context,
@@ -19,6 +21,11 @@ public sealed class AlertService(
         var rules = await ruleRepository
             .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
+
+        var effective = await effectiveGovernanceLoader
+            .LoadEffectiveContentAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
+            .ConfigureAwait(false);
+        rules = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
 
         var generated = alertEvaluator.Evaluate(rules, context);
         var persisted = new List<AlertRecord>();

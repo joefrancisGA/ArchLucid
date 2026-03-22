@@ -7,15 +7,8 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Repositories;
 
-public sealed class SqlContextSnapshotRepository : IContextSnapshotRepository
+public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectionFactory) : IContextSnapshotRepository
 {
-    private readonly ISqlConnectionFactory _connectionFactory;
-
-    public SqlContextSnapshotRepository(ISqlConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)
     {
         const string sql = """
@@ -34,7 +27,7 @@ public sealed class SqlContextSnapshotRepository : IContextSnapshotRepository
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
             new CommandDefinition(sql, new { ProjectId = projectId }, cancellationToken: ct));
 
@@ -58,7 +51,7 @@ public sealed class SqlContextSnapshotRepository : IContextSnapshotRepository
             WHERE SnapshotId = @SnapshotId;
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
             new CommandDefinition(sql, new { SnapshotId = snapshotId }, cancellationToken: ct));
 
@@ -103,7 +96,7 @@ public sealed class SqlContextSnapshotRepository : IContextSnapshotRepository
             return;
         }
 
-        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 

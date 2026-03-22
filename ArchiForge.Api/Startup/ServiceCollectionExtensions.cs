@@ -34,6 +34,7 @@ using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Simulation;
 using ArchiForge.Decisioning.Alerts.Tuning;
+using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
@@ -65,6 +66,7 @@ using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Alerts;
 using ArchiForge.Persistence.Alerts.Simulation;
 using ArchiForge.Retrieval.Queries;
+using ArchiForge.Api.Configuration;
 
 namespace ArchiForge.Api.Startup;
 
@@ -131,6 +133,10 @@ internal static partial class ServiceCollectionExtensions
 
         services.AddScoped<IAlertNoiseScorer, AlertNoiseScorer>();
         services.AddScoped<IThresholdRecommendationService, ThresholdRecommendationService>();
+
+        services.AddScoped<IPolicyPackResolver, PolicyPackResolver>();
+        services.AddScoped<IPolicyPackManagementService, PolicyPackManagementService>();
+        services.AddScoped<IEffectiveGovernanceLoader, EffectiveGovernanceLoader>();
     }
 
     private static void RegisterDataInfrastructure(IServiceCollection services)

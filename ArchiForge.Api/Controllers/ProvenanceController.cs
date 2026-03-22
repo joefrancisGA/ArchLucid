@@ -14,26 +14,18 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/provenance")]
 [EnableRateLimiting("fixed")]
-public sealed class ProvenanceController : ControllerBase
+public sealed class ProvenanceController(
+    IProvenanceQueryService service,
+    IScopeContextProvider scopeProvider)
+    : ControllerBase
 {
-    private readonly IProvenanceQueryService _service;
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public ProvenanceController(
-        IProvenanceQueryService service,
-        IScopeContextProvider scopeProvider)
-    {
-        _service = service;
-        _scopeProvider = scopeProvider;
-    }
-
     [HttpGet("runs/{runId:guid}/graph")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFullGraph(Guid runId, CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var vm = await _service.GetFullGraphAsync(scope, runId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var vm = await service.GetFullGraphAsync(scope, runId, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 
@@ -46,8 +38,8 @@ public sealed class ProvenanceController : ControllerBase
         string decisionKey,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var vm = await _service.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var vm = await service.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 
@@ -60,8 +52,8 @@ public sealed class ProvenanceController : ControllerBase
         [FromQuery] int depth = 1,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var vm = await _service.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var vm = await service.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 }

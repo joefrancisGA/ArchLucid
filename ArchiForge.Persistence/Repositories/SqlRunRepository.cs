@@ -7,15 +7,8 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Repositories;
 
-public sealed class SqlRunRepository : IRunRepository
+public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : IRunRepository
 {
-    private readonly ISqlConnectionFactory _connectionFactory;
-
-    public SqlRunRepository(ISqlConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task SaveAsync(
         RunRecord run,
         CancellationToken ct,
@@ -43,7 +36,7 @@ public sealed class SqlRunRepository : IRunRepository
             return;
         }
 
-        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
     }
 
@@ -61,7 +54,7 @@ public sealed class SqlRunRepository : IRunRepository
               AND ScopeProjectId = @ScopeProjectId;
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QuerySingleOrDefaultAsync<RunRecord>(
             new CommandDefinition(
                 sql,
@@ -94,7 +87,7 @@ public sealed class SqlRunRepository : IRunRepository
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var rows = await connection.QueryAsync<RunRecord>(
             new CommandDefinition(
                 sql,
@@ -140,7 +133,7 @@ public sealed class SqlRunRepository : IRunRepository
             return;
         }
 
-        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
     }
 }

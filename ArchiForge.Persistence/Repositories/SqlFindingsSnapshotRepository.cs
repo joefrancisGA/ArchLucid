@@ -7,15 +7,8 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Repositories;
 
-public sealed class SqlFindingsSnapshotRepository : IFindingsSnapshotRepository
+public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connectionFactory) : IFindingsSnapshotRepository
 {
-    private readonly ISqlConnectionFactory _connectionFactory;
-
-    public SqlFindingsSnapshotRepository(ISqlConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task SaveAsync(
         FindingsSnapshot snapshot,
         CancellationToken ct,
@@ -49,7 +42,7 @@ public sealed class SqlFindingsSnapshotRepository : IFindingsSnapshotRepository
             return;
         }
 
-        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
@@ -61,7 +54,7 @@ public sealed class SqlFindingsSnapshotRepository : IFindingsSnapshotRepository
             WHERE FindingsSnapshotId = @FindingsSnapshotId;
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var json = await connection.QuerySingleOrDefaultAsync<string>(
             new CommandDefinition(sql, new { FindingsSnapshotId = findingsSnapshotId }, cancellationToken: ct));
 

@@ -9,15 +9,8 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Repositories;
 
-public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
+public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connectionFactory) : IGoldenManifestRepository
 {
-    private readonly ISqlConnectionFactory _connectionFactory;
-
-    public SqlGoldenManifestRepository(ISqlConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task SaveAsync(
         GoldenManifest manifest,
         CancellationToken ct,
@@ -81,7 +74,7 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
             return;
         }
 
-        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
@@ -102,7 +95,7 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
               AND ManifestId = @ManifestId;
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var row = await connection.QuerySingleOrDefaultAsync<GoldenManifestRow>(
             new CommandDefinition(
                 sql,

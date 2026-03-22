@@ -13,29 +13,19 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/conversations")]
 [EnableRateLimiting("fixed")]
-public sealed class ConversationController : ControllerBase
+public sealed class ConversationController(
+    IConversationThreadRepository threadRepository,
+    IConversationMessageRepository messageRepository,
+    IScopeContextProvider scopeProvider)
+    : ControllerBase
 {
-    private readonly IConversationThreadRepository _threadRepository;
-    private readonly IConversationMessageRepository _messageRepository;
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public ConversationController(
-        IConversationThreadRepository threadRepository,
-        IConversationMessageRepository messageRepository,
-        IScopeContextProvider scopeProvider)
-    {
-        _threadRepository = threadRepository;
-        _messageRepository = messageRepository;
-        _scopeProvider = scopeProvider;
-    }
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> ListThreads(int take = 50, CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var threads = await _threadRepository.ListByScopeAsync(
+        var threads = await threadRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -50,8 +40,8 @@ public sealed class ConversationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMessages(Guid threadId, int take = 100, CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var thread = await _threadRepository.GetByIdAsync(threadId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var thread = await threadRepository.GetByIdAsync(threadId, ct);
         if (thread is null ||
             thread.TenantId != scope.TenantId ||
             thread.WorkspaceId != scope.WorkspaceId ||
@@ -60,7 +50,7 @@ public sealed class ConversationController : ControllerBase
             return NotFound();
         }
 
-        var messages = await _messageRepository.GetByThreadIdAsync(threadId, take, ct);
+        var messages = await messageRepository.GetByThreadIdAsync(threadId, take, ct);
         return Ok(messages);
     }
 }

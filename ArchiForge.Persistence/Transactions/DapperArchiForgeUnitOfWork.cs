@@ -2,20 +2,15 @@ using System.Data;
 
 namespace ArchiForge.Persistence.Transactions;
 
-public sealed class DapperArchiForgeUnitOfWork : IArchiForgeUnitOfWork
+public sealed class DapperArchiForgeUnitOfWork(IDbConnection connection, IDbTransaction transaction)
+    : IArchiForgeUnitOfWork
 {
     private bool _completed;
 
-    public DapperArchiForgeUnitOfWork(IDbConnection connection, IDbTransaction transaction)
-    {
-        Connection = connection;
-        Transaction = transaction;
-    }
-
     public bool SupportsExternalTransaction => true;
 
-    public IDbConnection Connection { get; }
-    public IDbTransaction Transaction { get; }
+    public IDbConnection Connection { get; } = connection;
+    public IDbTransaction Transaction { get; } = transaction;
 
     public Task CommitAsync(CancellationToken ct)
     {

@@ -4,15 +4,9 @@ using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Connectors;
 
-public class InfrastructureDeclarationConnector : IContextConnector
+public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDeclarationParser> parsers)
+    : IContextConnector
 {
-    private readonly IEnumerable<IInfrastructureDeclarationParser> _parsers;
-
-    public InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDeclarationParser> parsers)
-    {
-        _parsers = parsers;
-    }
-
     public string ConnectorType => "infrastructure-declarations";
 
     public Task<RawContextPayload> FetchAsync(
@@ -34,7 +28,7 @@ public class InfrastructureDeclarationConnector : IContextConnector
 
         foreach (var declaration in payload.InfrastructureDeclarations)
         {
-            var parser = _parsers.FirstOrDefault(x => x.CanParse(declaration.Format));
+            var parser = parsers.FirstOrDefault(x => x.CanParse(declaration.Format));
             if (parser is null)
             {
                 batch.Warnings.Add(

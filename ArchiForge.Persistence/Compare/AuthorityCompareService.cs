@@ -5,27 +5,19 @@ using ArchiForge.Persistence.Queries;
 
 namespace ArchiForge.Persistence.Compare;
 
-public sealed class AuthorityCompareService : IAuthorityCompareService
+public sealed class AuthorityCompareService(
+    IGoldenManifestRepository manifestRepository,
+    IAuthorityQueryService queryService)
+    : IAuthorityCompareService
 {
-    private readonly IGoldenManifestRepository _manifestRepository;
-    private readonly IAuthorityQueryService _queryService;
-
-    public AuthorityCompareService(
-        IGoldenManifestRepository manifestRepository,
-        IAuthorityQueryService queryService)
-    {
-        _manifestRepository = manifestRepository;
-        _queryService = queryService;
-    }
-
     public async Task<ManifestComparisonResult?> CompareManifestsAsync(
         ScopeContext scope,
         Guid leftManifestId,
         Guid rightManifestId,
         CancellationToken ct)
     {
-        var left = await _manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
-        var right = await _manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
+        var left = await manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
+        var right = await manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
 
         if (left is null || right is null)
             return null;
@@ -61,8 +53,8 @@ public sealed class AuthorityCompareService : IAuthorityCompareService
         Guid rightRunId,
         CancellationToken ct)
     {
-        var leftRun = await _queryService.GetRunSummaryAsync(scope, leftRunId, ct);
-        var rightRun = await _queryService.GetRunSummaryAsync(scope, rightRunId, ct);
+        var leftRun = await queryService.GetRunSummaryAsync(scope, leftRunId, ct);
+        var rightRun = await queryService.GetRunSummaryAsync(scope, rightRunId, ct);
 
         if (leftRun is null || rightRun is null)
             return null;

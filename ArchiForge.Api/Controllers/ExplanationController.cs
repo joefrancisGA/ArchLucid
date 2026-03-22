@@ -17,44 +17,30 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/explain")]
 [EnableRateLimiting("fixed")]
-public sealed class ExplanationController : ControllerBase
+public sealed class ExplanationController(
+    IAuthorityQueryService query,
+    IComparisonService comparison,
+    IExplanationService explanation,
+    IProvenanceSnapshotRepository provenanceRepo,
+    IScopeContextProvider scopeProvider)
+    : ControllerBase
 {
-    private readonly IAuthorityQueryService _query;
-    private readonly IComparisonService _comparison;
-    private readonly IExplanationService _explanation;
-    private readonly IProvenanceSnapshotRepository _provenanceRepo;
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public ExplanationController(
-        IAuthorityQueryService query,
-        IComparisonService comparison,
-        IExplanationService explanation,
-        IProvenanceSnapshotRepository provenanceRepo,
-        IScopeContextProvider scopeProvider)
-    {
-        _query = query;
-        _comparison = comparison;
-        _explanation = explanation;
-        _provenanceRepo = provenanceRepo;
-        _scopeProvider = scopeProvider;
-    }
-
     [HttpGet("runs/{runId:guid}/explain")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExplainRun(Guid runId, CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var detail = await _query.GetRunDetailAsync(scope, runId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var detail = await query.GetRunDetailAsync(scope, runId, ct);
         if (detail?.GoldenManifest is null)
             return NotFound();
 
         DecisionProvenanceGraph? graph = null;
-        var snapshot = await _provenanceRepo.GetByRunIdAsync(scope, runId, ct);
+        var snapshot = await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
         if (snapshot is not null)
             graph = ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
 
-        var result = await _explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
+        var result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
         return Ok(result);
     }
 
@@ -67,14 +53,14 @@ public sealed class ExplanationController : ControllerBase
         [FromQuery] Guid targetRunId,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var baseRun = await _query.GetRunDetailAsync(scope, baseRunId, ct);
-        var targetRun = await _query.GetRunDetailAsync(scope, targetRunId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
+        var targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
         if (baseRun?.GoldenManifest is null || targetRun?.GoldenManifest is null)
             return NotFound();
 
-        var comparison = _comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
-        var result = await _explanation.ExplainComparisonAsync(comparison, ct);
+        var comparison1 = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
+        var result = await explanation.ExplainComparisonAsync(comparison1, ct);
         return Ok(result);
     }
 }

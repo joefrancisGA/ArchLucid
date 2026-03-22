@@ -5,15 +5,9 @@ using ArchiForge.ArtifactSynthesis.Packaging;
 
 namespace ArchiForge.Persistence.Queries;
 
-public sealed class DapperArtifactQueryService : IArtifactQueryService
+public sealed class DapperArtifactQueryService(IArtifactBundleRepository artifactBundleRepository)
+    : IArtifactQueryService
 {
-    private readonly IArtifactBundleRepository _artifactBundleRepository;
-
-    public DapperArtifactQueryService(IArtifactBundleRepository artifactBundleRepository)
-    {
-        _artifactBundleRepository = artifactBundleRepository;
-    }
-
     public async Task<IReadOnlyList<ArtifactDescriptor>> ListArtifactsByManifestIdAsync(
         ScopeContext scope,
         Guid manifestId,
@@ -51,7 +45,7 @@ public sealed class DapperArtifactQueryService : IArtifactQueryService
         Guid manifestId,
         CancellationToken ct)
     {
-        var bundle = await _artifactBundleRepository.GetByManifestIdAsync(scope, manifestId, ct);
+        var bundle = await artifactBundleRepository.GetByManifestIdAsync(scope, manifestId, ct);
         return bundle?.Artifacts ?? [];
     }
 }

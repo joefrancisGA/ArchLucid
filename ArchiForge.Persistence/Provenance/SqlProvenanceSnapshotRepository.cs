@@ -6,15 +6,9 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Provenance;
 
-public sealed class SqlProvenanceSnapshotRepository : IProvenanceSnapshotRepository
+public sealed class SqlProvenanceSnapshotRepository(ISqlConnectionFactory connectionFactory)
+    : IProvenanceSnapshotRepository
 {
-    private readonly ISqlConnectionFactory _connectionFactory;
-
-    public SqlProvenanceSnapshotRepository(ISqlConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task SaveAsync(
         DecisionProvenanceSnapshot snapshot,
         CancellationToken ct,
@@ -36,7 +30,7 @@ public sealed class SqlProvenanceSnapshotRepository : IProvenanceSnapshotReposit
             return;
         }
 
-        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, snapshot, cancellationToken: ct));
     }
 
@@ -53,7 +47,7 @@ public sealed class SqlProvenanceSnapshotRepository : IProvenanceSnapshotReposit
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QuerySingleOrDefaultAsync<DecisionProvenanceSnapshot>(
             new CommandDefinition(
                 sql,

@@ -6,19 +6,11 @@ using ArchiForge.KnowledgeGraph.Models;
 
 namespace ArchiForge.KnowledgeGraph.Builders;
 
-public class DefaultGraphBuilder : IGraphBuilder
+public class DefaultGraphBuilder(
+    IGraphNodeFactory nodeFactory,
+    IGraphEdgeInferer edgeInferer)
+    : IGraphBuilder
 {
-    private readonly IGraphNodeFactory _nodeFactory;
-    private readonly IGraphEdgeInferer _edgeInferer;
-
-    public DefaultGraphBuilder(
-        IGraphNodeFactory nodeFactory,
-        IGraphEdgeInferer edgeInferer)
-    {
-        _nodeFactory = nodeFactory;
-        _edgeInferer = edgeInferer;
-    }
-
     public Task<GraphBuildResult> BuildAsync(
         ContextSnapshot contextSnapshot,
         CancellationToken ct)
@@ -44,10 +36,10 @@ public class DefaultGraphBuilder : IGraphBuilder
 
         foreach (var item in contextSnapshot.CanonicalObjects)
         {
-            result.Nodes.Add(_nodeFactory.CreateNode(item));
+            result.Nodes.Add(nodeFactory.CreateNode(item));
         }
 
-        var inferredEdges = _edgeInferer.InferEdges(
+        var inferredEdges = edgeInferer.InferEdges(
             contextSnapshot,
             result.Nodes);
 

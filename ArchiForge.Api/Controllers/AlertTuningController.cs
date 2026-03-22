@@ -17,39 +17,29 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/alert-tuning")]
 [EnableRateLimiting("fixed")]
-public sealed class AlertTuningController : ControllerBase
+public sealed class AlertTuningController(
+    IScopeContextProvider scopeProvider,
+    IThresholdRecommendationService thresholdRecommendationService,
+    IAuditService auditService)
+    : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly IThresholdRecommendationService _thresholdRecommendationService;
-    private readonly IAuditService _auditService;
-
-    public AlertTuningController(
-        IScopeContextProvider scopeProvider,
-        IThresholdRecommendationService thresholdRecommendationService,
-        IAuditService auditService)
-    {
-        _scopeProvider = scopeProvider;
-        _thresholdRecommendationService = thresholdRecommendationService;
-        _auditService = auditService;
-    }
-
     [HttpPost("recommend-threshold")]
     [ProducesResponseType(typeof(ThresholdRecommendationResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<ThresholdRecommendationResult>> RecommendThreshold(
         [FromBody] ThresholdRecommendationRequest request,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         StampTuningScope(scope, request);
 
-        var result = await _thresholdRecommendationService.RecommendAsync(
+        var result = await thresholdRecommendationService.RecommendAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             request,
             ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AlertThresholdRecommendationExecuted,

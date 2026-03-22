@@ -7,43 +7,23 @@ using ArchiForge.Persistence.Queries;
 
 namespace ArchiForge.Persistence.Replay;
 
-public sealed class AuthorityReplayService : IAuthorityReplayService
+public sealed class AuthorityReplayService(
+    IAuthorityQueryService queryService,
+    IScopeContextProvider scopeContextProvider,
+    IDecisionEngine decisionEngine,
+    IArtifactSynthesisService artifactSynthesisService,
+    IManifestHashService manifestHashService,
+    IDecisionTraceRepository decisionTraceRepository,
+    IGoldenManifestRepository goldenManifestRepository,
+    IArtifactBundleRepository artifactBundleRepository)
+    : IAuthorityReplayService
 {
-    private readonly IAuthorityQueryService _queryService;
-    private readonly IScopeContextProvider _scopeContextProvider;
-    private readonly IDecisionEngine _decisionEngine;
-    private readonly IArtifactSynthesisService _artifactSynthesisService;
-    private readonly IManifestHashService _manifestHashService;
-    private readonly IDecisionTraceRepository _decisionTraceRepository;
-    private readonly IGoldenManifestRepository _goldenManifestRepository;
-    private readonly IArtifactBundleRepository _artifactBundleRepository;
-
-    public AuthorityReplayService(
-        IAuthorityQueryService queryService,
-        IScopeContextProvider scopeContextProvider,
-        IDecisionEngine decisionEngine,
-        IArtifactSynthesisService artifactSynthesisService,
-        IManifestHashService manifestHashService,
-        IDecisionTraceRepository decisionTraceRepository,
-        IGoldenManifestRepository goldenManifestRepository,
-        IArtifactBundleRepository artifactBundleRepository)
-    {
-        _queryService = queryService;
-        _scopeContextProvider = scopeContextProvider;
-        _decisionEngine = decisionEngine;
-        _artifactSynthesisService = artifactSynthesisService;
-        _manifestHashService = manifestHashService;
-        _decisionTraceRepository = decisionTraceRepository;
-        _goldenManifestRepository = goldenManifestRepository;
-        _artifactBundleRepository = artifactBundleRepository;
-    }
-
     public async Task<ReplayResult?> ReplayAsync(
         ReplayRequest request,
         CancellationToken ct)
     {
-        var readScope = _scopeContextProvider.GetCurrentScope();
-        var original = await _queryService.GetRunDetailAsync(readScope, request.RunId, ct);
+        var readScope = scopeContextProvider.GetCurrentScope();
+        var original = await queryService.GetRunDetailAsync(readScope, request.RunId, ct);
         if (original is null)
             return null;
 
@@ -70,7 +50,7 @@ public sealed class AuthorityReplayService : IAuthorityReplayService
 
         if (original.GoldenManifest is not null)
         {
-            var computedHash = _manifestHashService.ComputeHash(original.GoldenManifest);
+            var computedHash = manifestHashService.ComputeHash(original.GoldenManifest);
             result.Validation.ManifestHashMatches =
                 string.Equals(computedHash, original.GoldenManifest.ManifestHash, StringComparison.OrdinalIgnoreCase);
 
@@ -96,7 +76,7 @@ public sealed class AuthorityReplayService : IAuthorityReplayService
             return result;
         }
 
-        var decisionResult = await _decisionEngine.DecideAsync(
+        var decisionResult = await decisionEngine.DecideAsync(
             original.Run.RunId,
             original.ContextSnapshot.SnapshotId,
             original.GraphSnapshot,
@@ -106,14 +86,14 @@ public sealed class AuthorityReplayService : IAuthorityReplayService
         var writeScope = WriteScopeFromRun(original.Run);
         ApplyScope(decisionResult.Trace, writeScope);
         ApplyScope(decisionResult.Manifest, writeScope);
-        decisionResult.Manifest.ManifestHash = _manifestHashService.ComputeHash(decisionResult.Manifest);
+        decisionResult.Manifest.ManifestHash = manifestHashService.ComputeHash(decisionResult.Manifest);
 
-        await _decisionTraceRepository.SaveAsync(decisionResult.Trace, ct);
-        await _goldenManifestRepository.SaveAsync(decisionResult.Manifest, ct);
+        await decisionTraceRepository.SaveAsync(decisionResult.Trace, ct);
+        await goldenManifestRepository.SaveAsync(decisionResult.Manifest, ct);
 
         result.RebuiltManifest = decisionResult.Manifest;
 
-        var rebuiltHash = _manifestHashService.ComputeHash(decisionResult.Manifest);
+        var rebuiltHash = manifestHashService.ComputeHash(decisionResult.Manifest);
 
         if (original.GoldenManifest is not null)
         {
@@ -131,11 +111,11 @@ public sealed class AuthorityReplayService : IAuthorityReplayService
 
         if (string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase))
         {
-            var rebuiltArtifacts = await _artifactSynthesisService.SynthesizeAsync(
+            var rebuiltArtifacts = await artifactSynthesisService.SynthesizeAsync(
                 decisionResult.Manifest,
                 ct);
 
-            await _artifactBundleRepository.SaveAsync(rebuiltArtifacts, ct);
+            await artifactBundleRepository.SaveAsync(rebuiltArtifacts, ct);
 
             result.RebuiltArtifactBundle = rebuiltArtifacts;
             result.Validation.ArtifactBundlePresentAfterReplay = rebuiltArtifacts.Artifacts.Count > 0;

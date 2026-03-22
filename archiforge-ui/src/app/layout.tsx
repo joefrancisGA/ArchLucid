@@ -34,6 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/composite-alert-rules">Composite Rules</Link>
               <Link href="/alert-simulation">Alert simulation</Link>
               <Link href="/alert-tuning">Alert tuning</Link>
+              <Link href="/policy-packs">Policy packs</Link>
             </nav>
           </header>
           <AuthStatus />

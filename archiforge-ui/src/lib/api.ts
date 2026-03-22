@@ -32,6 +32,13 @@ import type {
   RuleSimulationResult,
 } from "@/types/alert-simulation";
 import type { ThresholdRecommendationResult } from "@/types/alert-tuning";
+import type {
+  EffectivePolicyPackSet,
+  PolicyPack,
+  PolicyPackAssignment,
+  PolicyPackContentDocument,
+  PolicyPackVersion,
+} from "@/types/policy-packs";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -402,6 +409,53 @@ export async function simulateAlertRule(body: {
   runProjectSlug?: string;
 }): Promise<RuleSimulationResult> {
   return apiPostJson<RuleSimulationResult>("/api/alert-simulation/simulate", body);
+}
+
+export async function listPolicyPacks(): Promise<PolicyPack[]> {
+  return apiGet<PolicyPack[]>("/api/policy-packs");
+}
+
+export async function listPolicyPackVersions(policyPackId: string): Promise<PolicyPackVersion[]> {
+  return apiGet<PolicyPackVersion[]>(
+    `/api/policy-packs/${encodeURIComponent(policyPackId)}/versions`,
+  );
+}
+
+export async function getEffectivePolicyPacks(): Promise<EffectivePolicyPackSet> {
+  return apiGet<EffectivePolicyPackSet>("/api/policy-packs/effective");
+}
+
+export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocument> {
+  return apiGet<PolicyPackContentDocument>("/api/policy-packs/effective-content");
+}
+
+export async function createPolicyPack(body: {
+  name: string;
+  description?: string;
+  packType: string;
+  initialContentJson?: string;
+}): Promise<PolicyPack> {
+  return apiPostJson<PolicyPack>("/api/policy-packs", body);
+}
+
+export async function publishPolicyPackVersion(
+  policyPackId: string,
+  body: { version: string; contentJson?: string },
+): Promise<PolicyPackVersion> {
+  return apiPostJson<PolicyPackVersion>(
+    `/api/policy-packs/${encodeURIComponent(policyPackId)}/publish`,
+    body,
+  );
+}
+
+export async function assignPolicyPack(
+  policyPackId: string,
+  body: { version: string },
+): Promise<PolicyPackAssignment> {
+  return apiPostJson<PolicyPackAssignment>(
+    `/api/policy-packs/${encodeURIComponent(policyPackId)}/assign`,
+    body,
+  );
 }
 
 export async function recommendAlertThreshold(body: {

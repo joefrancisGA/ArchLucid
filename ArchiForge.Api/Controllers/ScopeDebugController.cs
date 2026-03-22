@@ -10,20 +10,13 @@ namespace ArchiForge.Api.Controllers;
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("api/scope")]
-public sealed class ScopeDebugController : ControllerBase
+public sealed class ScopeDebugController(IScopeContextProvider scopeProvider) : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public ScopeDebugController(IScopeContextProvider scopeProvider)
-    {
-        _scopeProvider = scopeProvider;
-    }
-
     [HttpGet]
     [ProducesResponseType(typeof(ScopeContext), StatusCodes.Status200OK)]
     public IActionResult GetScope()
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         return Ok(scope);
     }
 }

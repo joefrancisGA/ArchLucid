@@ -4,19 +4,11 @@ using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Services;
 
-public class ArtifactSynthesisService : IArtifactSynthesisService
+public class ArtifactSynthesisService(
+    IEnumerable<IArtifactGenerator> generators,
+    IArtifactBundleValidator validator)
+    : IArtifactSynthesisService
 {
-    private readonly IEnumerable<IArtifactGenerator> _generators;
-    private readonly IArtifactBundleValidator _validator;
-
-    public ArtifactSynthesisService(
-        IEnumerable<IArtifactGenerator> generators,
-        IArtifactBundleValidator validator)
-    {
-        _generators = generators;
-        _validator = validator;
-    }
-
     public async Task<ArtifactBundle> SynthesizeAsync(
         GoldenManifest manifest,
         CancellationToken ct)
@@ -42,7 +34,7 @@ public class ArtifactSynthesisService : IArtifactSynthesisService
 
         var decisionIds = manifest.Decisions.Select(x => x.DecisionId).ToList();
 
-        foreach (var generator in _generators.OrderBy(x => x.ArtifactType, StringComparer.OrdinalIgnoreCase))
+        foreach (var generator in generators.OrderBy(x => x.ArtifactType, StringComparer.OrdinalIgnoreCase))
         {
             var artifact = await generator.GenerateAsync(manifest, ct);
             foreach (var id in decisionIds)
@@ -56,7 +48,7 @@ public class ArtifactSynthesisService : IArtifactSynthesisService
             bundle.Trace.Notes.Add("No artifacts were generated.");
         }
 
-        _validator.Validate(bundle);
+        validator.Validate(bundle);
 
         return bundle;
     }

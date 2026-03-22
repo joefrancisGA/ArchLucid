@@ -16,28 +16,14 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/digest-subscriptions")]
 [EnableRateLimiting("fixed")]
-public sealed class DigestSubscriptionsController : ControllerBase
+public sealed class DigestSubscriptionsController(
+    IScopeContextProvider scopeProvider,
+    IDigestSubscriptionRepository subscriptionRepository,
+    IDigestDeliveryAttemptRepository attemptRepository,
+    IArchitectureDigestRepository digestRepository,
+    IAuditService auditService)
+    : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly IDigestSubscriptionRepository _subscriptionRepository;
-    private readonly IDigestDeliveryAttemptRepository _attemptRepository;
-    private readonly IArchitectureDigestRepository _digestRepository;
-    private readonly IAuditService _auditService;
-
-    public DigestSubscriptionsController(
-        IScopeContextProvider scopeProvider,
-        IDigestSubscriptionRepository subscriptionRepository,
-        IDigestDeliveryAttemptRepository attemptRepository,
-        IArchitectureDigestRepository digestRepository,
-        IAuditService auditService)
-    {
-        _scopeProvider = scopeProvider;
-        _subscriptionRepository = subscriptionRepository;
-        _attemptRepository = attemptRepository;
-        _digestRepository = digestRepository;
-        _auditService = auditService;
-    }
-
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
@@ -45,7 +31,7 @@ public sealed class DigestSubscriptionsController : ControllerBase
         [FromBody] DigestSubscription subscription,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
         subscription.SubscriptionId = Guid.NewGuid();
         subscription.TenantId = scope.TenantId;
@@ -55,9 +41,9 @@ public sealed class DigestSubscriptionsController : ControllerBase
         if (string.IsNullOrWhiteSpace(subscription.MetadataJson))
             subscription.MetadataJson = "{}";
 
-        await _subscriptionRepository.CreateAsync(subscription, ct);
+        await subscriptionRepository.CreateAsync(subscription, ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.DigestSubscriptionCreated,
@@ -77,9 +63,9 @@ public sealed class DigestSubscriptionsController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<DigestSubscription>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<DigestSubscription>>> List(CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var result = await _subscriptionRepository.ListByScopeAsync(
+        var result = await subscriptionRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -96,18 +82,18 @@ public sealed class DigestSubscriptionsController : ControllerBase
         Guid subscriptionId,
         CancellationToken ct = default)
     {
-        var subscription = await _subscriptionRepository.GetByIdAsync(subscriptionId, ct);
+        var subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
         if (subscription is null)
             return NotFound();
 
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
             return NotFound();
 
         subscription.IsEnabled = !subscription.IsEnabled;
-        await _subscriptionRepository.UpdateAsync(subscription, ct);
+        await subscriptionRepository.UpdateAsync(subscription, ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.DigestSubscriptionToggled,
@@ -130,15 +116,15 @@ public sealed class DigestSubscriptionsController : ControllerBase
         [FromQuery] int take = 50,
         CancellationToken ct = default)
     {
-        var subscription = await _subscriptionRepository.GetByIdAsync(subscriptionId, ct);
+        var subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
         if (subscription is null)
             return NotFound();
 
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
             return NotFound();
 
-        var attempts = await _attemptRepository.ListBySubscriptionAsync(subscriptionId, take, ct);
+        var attempts = await attemptRepository.ListBySubscriptionAsync(subscriptionId, take, ct);
         return Ok(attempts);
     }
 
@@ -149,8 +135,8 @@ public sealed class DigestSubscriptionsController : ControllerBase
         Guid digestId,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var digest = await _digestRepository.GetByIdAsync(digestId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var digest = await digestRepository.GetByIdAsync(digestId, ct);
         if (digest is null)
             return NotFound();
         if (digest.TenantId != scope.TenantId ||
@@ -158,7 +144,7 @@ public sealed class DigestSubscriptionsController : ControllerBase
             digest.ProjectId != scope.ProjectId)
             return NotFound();
 
-        var attempts = await _attemptRepository.ListByDigestAsync(digestId, ct);
+        var attempts = await attemptRepository.ListByDigestAsync(digestId, ct);
         return Ok(attempts);
     }
 

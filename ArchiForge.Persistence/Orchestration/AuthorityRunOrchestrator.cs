@@ -19,7 +19,28 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Persistence.Orchestration;
 
-public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
+public sealed class AuthorityRunOrchestrator(
+    IArchiForgeUnitOfWorkFactory unitOfWorkFactory,
+    IScopeContextProvider scopeContextProvider,
+    IAuditService auditService,
+    IManifestHashService manifestHashService,
+    IRunRepository runRepository,
+    IContextIngestionService contextIngestionService,
+    IContextSnapshotRepository contextSnapshotRepository,
+    IKnowledgeGraphService knowledgeGraphService,
+    IGraphSnapshotRepository graphSnapshotRepository,
+    IFindingsOrchestrator findingsOrchestrator,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
+    IDecisionEngine decisionEngine,
+    IDecisionTraceRepository decisionTraceRepository,
+    IGoldenManifestRepository goldenManifestRepository,
+    IArtifactSynthesisService artifactSynthesisService,
+    IArtifactBundleRepository artifactBundleRepository,
+    IProvenanceBuilder provenanceBuilder,
+    IProvenanceSnapshotRepository provenanceSnapshotRepository,
+    IRetrievalRunCompletionIndexer retrievalRunCompletionIndexer,
+    ILogger<AuthorityRunOrchestrator> logger)
+    : IAuthorityRunOrchestrator
 {
     private static readonly JsonSerializerOptions AuditJsonOptions = new()
     {
@@ -27,80 +48,15 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
         WriteIndented = false
     };
 
-    private readonly IArchiForgeUnitOfWorkFactory _unitOfWorkFactory;
-    private readonly IScopeContextProvider _scopeContextProvider;
-    private readonly IAuditService _auditService;
-    private readonly IManifestHashService _manifestHashService;
-    private readonly IRunRepository _runRepository;
-    private readonly IContextIngestionService _contextIngestionService;
-    private readonly IContextSnapshotRepository _contextSnapshotRepository;
-    private readonly IKnowledgeGraphService _knowledgeGraphService;
-    private readonly IGraphSnapshotRepository _graphSnapshotRepository;
-    private readonly IFindingsOrchestrator _findingsOrchestrator;
-    private readonly IFindingsSnapshotRepository _findingsSnapshotRepository;
-    private readonly IDecisionEngine _decisionEngine;
-    private readonly IDecisionTraceRepository _decisionTraceRepository;
-    private readonly IGoldenManifestRepository _goldenManifestRepository;
-    private readonly IArtifactSynthesisService _artifactSynthesisService;
-    private readonly IArtifactBundleRepository _artifactBundleRepository;
-    private readonly IProvenanceBuilder _provenanceBuilder;
-    private readonly IProvenanceSnapshotRepository _provenanceSnapshotRepository;
-    private readonly IRetrievalRunCompletionIndexer _retrievalRunCompletionIndexer;
-    private readonly ILogger<AuthorityRunOrchestrator> _logger;
-
-    public AuthorityRunOrchestrator(
-        IArchiForgeUnitOfWorkFactory unitOfWorkFactory,
-        IScopeContextProvider scopeContextProvider,
-        IAuditService auditService,
-        IManifestHashService manifestHashService,
-        IRunRepository runRepository,
-        IContextIngestionService contextIngestionService,
-        IContextSnapshotRepository contextSnapshotRepository,
-        IKnowledgeGraphService knowledgeGraphService,
-        IGraphSnapshotRepository graphSnapshotRepository,
-        IFindingsOrchestrator findingsOrchestrator,
-        IFindingsSnapshotRepository findingsSnapshotRepository,
-        IDecisionEngine decisionEngine,
-        IDecisionTraceRepository decisionTraceRepository,
-        IGoldenManifestRepository goldenManifestRepository,
-        IArtifactSynthesisService artifactSynthesisService,
-        IArtifactBundleRepository artifactBundleRepository,
-        IProvenanceBuilder provenanceBuilder,
-        IProvenanceSnapshotRepository provenanceSnapshotRepository,
-        IRetrievalRunCompletionIndexer retrievalRunCompletionIndexer,
-        ILogger<AuthorityRunOrchestrator> logger)
-    {
-        _unitOfWorkFactory = unitOfWorkFactory;
-        _scopeContextProvider = scopeContextProvider;
-        _auditService = auditService;
-        _manifestHashService = manifestHashService;
-        _runRepository = runRepository;
-        _contextIngestionService = contextIngestionService;
-        _contextSnapshotRepository = contextSnapshotRepository;
-        _knowledgeGraphService = knowledgeGraphService;
-        _graphSnapshotRepository = graphSnapshotRepository;
-        _findingsOrchestrator = findingsOrchestrator;
-        _findingsSnapshotRepository = findingsSnapshotRepository;
-        _decisionEngine = decisionEngine;
-        _decisionTraceRepository = decisionTraceRepository;
-        _goldenManifestRepository = goldenManifestRepository;
-        _artifactSynthesisService = artifactSynthesisService;
-        _artifactBundleRepository = artifactBundleRepository;
-        _provenanceBuilder = provenanceBuilder;
-        _provenanceSnapshotRepository = provenanceSnapshotRepository;
-        _retrievalRunCompletionIndexer = retrievalRunCompletionIndexer;
-        _logger = logger;
-    }
-
     public async Task<RunRecord> ExecuteAsync(
         ContextIngestionRequest request,
         CancellationToken ct)
     {
-        await using var uow = await _unitOfWorkFactory.CreateAsync(ct);
+        await using var uow = await unitOfWorkFactory.CreateAsync(ct);
 
         try
         {
-            var scope = _scopeContextProvider.GetCurrentScope();
+            var scope = scopeContextProvider.GetCurrentScope();
             var run = new RunRecord
             {
                 RunId = Guid.NewGuid(),
@@ -113,19 +69,19 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             await SaveRunAsync(run, ct, uow);
 
             request.RunId = run.RunId;
-            var contextSnapshot = await _contextIngestionService.IngestAsync(request, ct);
+            var contextSnapshot = await contextIngestionService.IngestAsync(request, ct);
             await SaveContextAsync(contextSnapshot, ct, uow);
 
             run.ContextSnapshotId = contextSnapshot.SnapshotId;
             await UpdateRunAsync(run, ct, uow);
 
-            var graphSnapshot = await _knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
+            var graphSnapshot = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
             await SaveGraphAsync(graphSnapshot, ct, uow);
 
             run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
             await UpdateRunAsync(run, ct, uow);
 
-            var findingsSnapshot = await _findingsOrchestrator.GenerateFindingsSnapshotAsync(
+            var findingsSnapshot = await findingsOrchestrator.GenerateFindingsSnapshotAsync(
                 run.RunId,
                 contextSnapshot.SnapshotId,
                 graphSnapshot,
@@ -136,7 +92,7 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
             await UpdateRunAsync(run, ct, uow);
 
-            var decisionResult = await _decisionEngine.DecideAsync(
+            var decisionResult = await decisionEngine.DecideAsync(
                 run.RunId,
                 contextSnapshot.SnapshotId,
                 graphSnapshot,
@@ -145,12 +101,12 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
 
             ApplyScope(decisionResult.Trace, scope);
             ApplyScope(decisionResult.Manifest, scope);
-            decisionResult.Manifest.ManifestHash = _manifestHashService.ComputeHash(decisionResult.Manifest);
+            decisionResult.Manifest.ManifestHash = manifestHashService.ComputeHash(decisionResult.Manifest);
 
             await SaveTraceAsync(decisionResult.Trace, ct, uow);
             await SaveManifestAsync(decisionResult.Manifest, ct, uow);
 
-            await _auditService.LogAsync(
+            await auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.ManifestGenerated,
@@ -166,10 +122,10 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             run.GoldenManifestId = decisionResult.Manifest.ManifestId;
             await UpdateRunAsync(run, ct, uow);
 
-            var artifactBundle = await _artifactSynthesisService.SynthesizeAsync(decisionResult.Manifest, ct);
+            var artifactBundle = await artifactSynthesisService.SynthesizeAsync(decisionResult.Manifest, ct);
             await SaveArtifactBundleAsync(artifactBundle, ct, uow);
 
-            await _auditService.LogAsync(
+            await auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.ArtifactsGenerated,
@@ -184,7 +140,7 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             run.ArtifactBundleId = artifactBundle.BundleId;
             await UpdateRunAsync(run, ct, uow);
 
-            var provenanceGraph = _provenanceBuilder.Build(
+            var provenanceGraph = provenanceBuilder.Build(
                 run.RunId,
                 findingsSnapshot,
                 graphSnapshot,
@@ -194,7 +150,7 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
 
             await uow.CommitAsync(ct);
 
-            await _auditService.LogAsync(
+            await auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.RunCompleted,
@@ -213,7 +169,7 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
 
             try
             {
-                await _retrievalRunCompletionIndexer.IndexAuthorityRunAsync(
+                await retrievalRunCompletionIndexer.IndexAuthorityRunAsync(
                     scope.TenantId,
                     scope.WorkspaceId,
                     scope.ProjectId,
@@ -224,7 +180,7 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Retrieval indexing failed for run {RunId}", run.RunId);
+                logger.LogWarning(ex, "Retrieval indexing failed for run {RunId}", run.RunId);
             }
 
             return run;
@@ -239,65 +195,65 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
     private async Task SaveRunAsync(RunRecord run, CancellationToken ct, IArchiForgeUnitOfWork uow)
     {
         if (uow.SupportsExternalTransaction)
-            await _runRepository.SaveAsync(run, ct, uow.Connection, uow.Transaction);
+            await runRepository.SaveAsync(run, ct, uow.Connection, uow.Transaction);
         else
-            await _runRepository.SaveAsync(run, ct);
+            await runRepository.SaveAsync(run, ct);
     }
 
     private async Task UpdateRunAsync(RunRecord run, CancellationToken ct, IArchiForgeUnitOfWork uow)
     {
         if (uow.SupportsExternalTransaction)
-            await _runRepository.UpdateAsync(run, ct, uow.Connection, uow.Transaction);
+            await runRepository.UpdateAsync(run, ct, uow.Connection, uow.Transaction);
         else
-            await _runRepository.UpdateAsync(run, ct);
+            await runRepository.UpdateAsync(run, ct);
     }
 
     private async Task SaveContextAsync(ContextSnapshot snapshot, CancellationToken ct, IArchiForgeUnitOfWork uow)
     {
         if (uow.SupportsExternalTransaction)
-            await _contextSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
+            await contextSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
         else
-            await _contextSnapshotRepository.SaveAsync(snapshot, ct);
+            await contextSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
     private async Task SaveGraphAsync(GraphSnapshot snapshot, CancellationToken ct, IArchiForgeUnitOfWork uow)
     {
         if (uow.SupportsExternalTransaction)
-            await _graphSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
+            await graphSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
         else
-            await _graphSnapshotRepository.SaveAsync(snapshot, ct);
+            await graphSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
     private async Task SaveFindingsAsync(FindingsSnapshot snapshot, CancellationToken ct, IArchiForgeUnitOfWork uow)
     {
         if (uow.SupportsExternalTransaction)
-            await _findingsSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
+            await findingsSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
         else
-            await _findingsSnapshotRepository.SaveAsync(snapshot, ct);
+            await findingsSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
     private async Task SaveTraceAsync(DecisionTrace trace, CancellationToken ct, IArchiForgeUnitOfWork uow)
     {
         if (uow.SupportsExternalTransaction)
-            await _decisionTraceRepository.SaveAsync(trace, ct, uow.Connection, uow.Transaction);
+            await decisionTraceRepository.SaveAsync(trace, ct, uow.Connection, uow.Transaction);
         else
-            await _decisionTraceRepository.SaveAsync(trace, ct);
+            await decisionTraceRepository.SaveAsync(trace, ct);
     }
 
     private async Task SaveManifestAsync(GoldenManifest manifest, CancellationToken ct, IArchiForgeUnitOfWork uow)
     {
         if (uow.SupportsExternalTransaction)
-            await _goldenManifestRepository.SaveAsync(manifest, ct, uow.Connection, uow.Transaction);
+            await goldenManifestRepository.SaveAsync(manifest, ct, uow.Connection, uow.Transaction);
         else
-            await _goldenManifestRepository.SaveAsync(manifest, ct);
+            await goldenManifestRepository.SaveAsync(manifest, ct);
     }
 
     private async Task SaveArtifactBundleAsync(ArtifactBundle bundle, CancellationToken ct, IArchiForgeUnitOfWork uow)
     {
         if (uow.SupportsExternalTransaction)
-            await _artifactBundleRepository.SaveAsync(bundle, ct, uow.Connection, uow.Transaction);
+            await artifactBundleRepository.SaveAsync(bundle, ct, uow.Connection, uow.Transaction);
         else
-            await _artifactBundleRepository.SaveAsync(bundle, ct);
+            await artifactBundleRepository.SaveAsync(bundle, ct);
     }
 
     private async Task SaveProvenanceAsync(
@@ -306,9 +262,9 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
         IArchiForgeUnitOfWork uow)
     {
         if (uow.SupportsExternalTransaction)
-            await _provenanceSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
+            await provenanceSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
         else
-            await _provenanceSnapshotRepository.SaveAsync(snapshot, ct);
+            await provenanceSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
     private static void ApplyScope(RunRecord run, ScopeContext scope)

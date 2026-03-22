@@ -3,28 +3,20 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Sql;
 
-public sealed class SqlSchemaBootstrapper : ISchemaBootstrapper
+public sealed class SqlSchemaBootstrapper(
+    ISqlConnectionFactory connectionFactory,
+    string scriptPath)
+    : ISchemaBootstrapper
 {
-    private readonly ISqlConnectionFactory _connectionFactory;
-    private readonly string _scriptPath;
-
-    public SqlSchemaBootstrapper(
-        ISqlConnectionFactory connectionFactory,
-        string scriptPath)
-    {
-        _connectionFactory = connectionFactory;
-        _scriptPath = scriptPath;
-    }
-
     public async Task EnsureSchemaAsync(CancellationToken ct)
     {
-        if (!File.Exists(_scriptPath))
-            throw new FileNotFoundException($"Schema script not found: {_scriptPath}");
+        if (!File.Exists(scriptPath))
+            throw new FileNotFoundException($"Schema script not found: {scriptPath}");
 
-        var script = await File.ReadAllTextAsync(_scriptPath, ct);
+        var script = await File.ReadAllTextAsync(scriptPath, ct);
         var batches = SplitGoBatches(script);
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         foreach (var batch in batches)
         {

@@ -56,13 +56,13 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
         return new ComparisonExplanationResult
         {
             HighLevelSummary = !string.IsNullOrWhiteSpace(parsed?.HighLevelSummary)
-                ? parsed!.HighLevelSummary.Trim()
+                ? parsed.HighLevelSummary.Trim()
                 : BuildComparisonHeuristicSummary(comparison),
             MajorChanges = majorChanges,
             KeyTradeoffs = parsed?.KeyTradeoffs?.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim())
                 .ToList() ?? [],
             Narrative = !string.IsNullOrWhiteSpace(parsed?.Narrative)
-                ? parsed!.Narrative.Trim()
+                ? parsed.Narrative.Trim()
                 : BuildComparisonNarrativeFallback(comparison, majorChanges)
         };
     }
@@ -102,7 +102,7 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
         return new ExplanationResult
         {
             Summary = !string.IsNullOrWhiteSpace(parsed?.Summary)
-                ? parsed!.Summary.Trim()
+                ? parsed.Summary.Trim()
                 : (string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
                     ? $"Run {manifest.RunId} manifest ({manifest.Decisions.Count} decisions, {manifest.UnresolvedIssues.Items.Count} open issues)."
                     : manifest.Metadata.Summary.Trim()),
@@ -111,7 +111,7 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
             CostImplications = costs,
             ComplianceImplications = compliance,
             DetailedNarrative = !string.IsNullOrWhiteSpace(parsed?.DetailedNarrative)
-                ? parsed!.DetailedNarrative.Trim()
+                ? parsed.DetailedNarrative.Trim()
                 : BuildRunNarrativeFallback(manifest, keyDrivers, risks)
         };
     }

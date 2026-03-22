@@ -399,7 +399,7 @@ public sealed partial class RunsController(
 
     private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind, string defaultBadRequestDetail)
     {
-        var detail = string.IsNullOrWhiteSpace(error) ? defaultBadRequestDetail : error!;
+        var detail = string.IsNullOrWhiteSpace(error) ? defaultBadRequestDetail : error;
         return kind switch
         {
             ApplicationServiceFailureKind.RunNotFound => this.NotFoundProblem(detail, ProblemTypes.RunNotFound),

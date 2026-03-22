@@ -22,34 +22,16 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/advisory")]
 [EnableRateLimiting("fixed")]
-public sealed class AdvisoryController : ControllerBase
+public sealed class AdvisoryController(
+    IAuthorityQueryService authorityQueryService,
+    IComparisonService comparisonService,
+    IImprovementAdvisorService improvementAdvisorService,
+    IScopeContextProvider scopeProvider,
+    IRecommendationWorkflowService recommendationWorkflowService,
+    IRecommendationRepository recommendationRepository,
+    IAuditService auditService)
+    : ControllerBase
 {
-    private readonly IAuthorityQueryService _authorityQueryService;
-    private readonly IComparisonService _comparisonService;
-    private readonly IImprovementAdvisorService _improvementAdvisorService;
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly IRecommendationWorkflowService _recommendationWorkflowService;
-    private readonly IRecommendationRepository _recommendationRepository;
-    private readonly IAuditService _auditService;
-
-    public AdvisoryController(
-        IAuthorityQueryService authorityQueryService,
-        IComparisonService comparisonService,
-        IImprovementAdvisorService improvementAdvisorService,
-        IScopeContextProvider scopeProvider,
-        IRecommendationWorkflowService recommendationWorkflowService,
-        IRecommendationRepository recommendationRepository,
-        IAuditService auditService)
-    {
-        _authorityQueryService = authorityQueryService;
-        _comparisonService = comparisonService;
-        _improvementAdvisorService = improvementAdvisorService;
-        _scopeProvider = scopeProvider;
-        _recommendationWorkflowService = recommendationWorkflowService;
-        _recommendationRepository = recommendationRepository;
-        _auditService = auditService;
-    }
-
     [HttpGet("runs/{runId:guid}/improvements")]
     [ProducesResponseType(typeof(ImprovementPlanResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -58,8 +40,8 @@ public sealed class AdvisoryController : ControllerBase
         [FromQuery] Guid? compareToRunId = null,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var run = await _authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var run = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         if (run?.GoldenManifest is null)
             return NotFound();
 
@@ -68,13 +50,13 @@ public sealed class AdvisoryController : ControllerBase
         ImprovementPlan plan;
         if (compareToRunId.HasValue)
         {
-            var baseRun = await _authorityQueryService.GetRunDetailAsync(scope, compareToRunId.Value, ct);
+            var baseRun = await authorityQueryService.GetRunDetailAsync(scope, compareToRunId.Value, ct);
             if (baseRun?.GoldenManifest is null)
                 return NotFound();
 
-            var comparison = _comparisonService.Compare(baseRun.GoldenManifest, run.GoldenManifest);
+            var comparison = comparisonService.Compare(baseRun.GoldenManifest, run.GoldenManifest);
 
-            plan = await _improvementAdvisorService.GeneratePlanAsync(
+            plan = await improvementAdvisorService.GeneratePlanAsync(
                 run.GoldenManifest,
                 findings,
                 comparison,
@@ -82,20 +64,20 @@ public sealed class AdvisoryController : ControllerBase
         }
         else
         {
-            plan = await _improvementAdvisorService.GeneratePlanAsync(
+            plan = await improvementAdvisorService.GeneratePlanAsync(
                 run.GoldenManifest,
                 findings,
                 ct);
         }
 
-        await _recommendationWorkflowService.PersistPlanAsync(
+        await recommendationWorkflowService.PersistPlanAsync(
             plan,
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.RecommendationGenerated,
@@ -113,9 +95,9 @@ public sealed class AdvisoryController : ControllerBase
         Guid runId,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var items = await _recommendationRepository.ListByRunAsync(
+        var items = await recommendationRepository.ListByRunAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -141,7 +123,7 @@ public sealed class AdvisoryController : ControllerBase
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         var userName = User.Identity?.Name ?? "unknown";
 
-        var updated = await _recommendationWorkflowService.ApplyActionAsync(
+        var updated = await recommendationWorkflowService.ApplyActionAsync(
             recommendationId,
             userId,
             userName,
@@ -160,7 +142,7 @@ public sealed class AdvisoryController : ControllerBase
             _ => "RecommendationAction"
         };
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = eventType,

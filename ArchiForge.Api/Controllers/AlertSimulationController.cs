@@ -17,39 +17,29 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/alert-simulation")]
 [EnableRateLimiting("fixed")]
-public sealed class AlertSimulationController : ControllerBase
+public sealed class AlertSimulationController(
+    IScopeContextProvider scopeProvider,
+    IRuleSimulationService simulationService,
+    IAuditService auditService)
+    : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly IRuleSimulationService _simulationService;
-    private readonly IAuditService _auditService;
-
-    public AlertSimulationController(
-        IScopeContextProvider scopeProvider,
-        IRuleSimulationService simulationService,
-        IAuditService auditService)
-    {
-        _scopeProvider = scopeProvider;
-        _simulationService = simulationService;
-        _auditService = auditService;
-    }
-
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(RuleSimulationResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<RuleSimulationResult>> Simulate(
         [FromBody] RuleSimulationRequest request,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         StampSimulationScope(scope, request);
 
-        var result = await _simulationService.SimulateAsync(
+        var result = await simulationService.SimulateAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             request,
             ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AlertRuleSimulationExecuted,
@@ -73,17 +63,17 @@ public sealed class AlertSimulationController : ControllerBase
         [FromBody] RuleCandidateComparisonRequest request,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         StampComparisonScope(scope, request);
 
-        var result = await _simulationService.CompareCandidatesAsync(
+        var result = await simulationService.CompareCandidatesAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             request,
             ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AlertRuleCandidateComparisonExecuted,

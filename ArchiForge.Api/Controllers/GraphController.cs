@@ -15,26 +15,18 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/graph")]
 [EnableRateLimiting("fixed")]
-public sealed class GraphController : ControllerBase
+public sealed class GraphController(
+    IAuthorityQueryService authorityQueryService,
+    IScopeContextProvider scopeProvider)
+    : ControllerBase
 {
-    private readonly IAuthorityQueryService _authorityQueryService;
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public GraphController(
-        IAuthorityQueryService authorityQueryService,
-        IScopeContextProvider scopeProvider)
-    {
-        _authorityQueryService = authorityQueryService;
-        _scopeProvider = scopeProvider;
-    }
-
     [HttpGet("runs/{runId:guid}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetArchitectureGraph(Guid runId, CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var detail = await _authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         if (detail?.GraphSnapshot is null)
             return NotFound();
 

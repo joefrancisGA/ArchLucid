@@ -9,27 +9,17 @@ namespace ArchiForge.Api.Auth.Services;
 /// <summary>
 /// Fills actor, scope, default DataJson, and correlation id before appending to the audit store.
 /// </summary>
-public sealed class AuditService : IAuditService
+public sealed class AuditService(
+    IAuditRepository repo,
+    IHttpContextAccessor httpContextAccessor,
+    IScopeContextProvider scopeProvider)
+    : IAuditService
 {
-    private readonly IAuditRepository _repo;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public AuditService(
-        IAuditRepository repo,
-        IHttpContextAccessor httpContextAccessor,
-        IScopeContextProvider scopeProvider)
-    {
-        _repo = repo;
-        _httpContextAccessor = httpContextAccessor;
-        _scopeProvider = scopeProvider;
-    }
-
     public async Task LogAsync(AuditEvent auditEvent, CancellationToken ct)
     {
-        var http = _httpContextAccessor.HttpContext;
+        var http = httpContextAccessor.HttpContext;
         var user = http?.User;
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
         auditEvent.ActorUserId =
             user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
@@ -51,6 +41,6 @@ public sealed class AuditService : IAuditService
                 ?? http?.TraceIdentifier;
         }
 
-        await _repo.AppendAsync(auditEvent, ct);
+        await repo.AppendAsync(auditEvent, ct);
     }
 }

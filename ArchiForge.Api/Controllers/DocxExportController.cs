@@ -21,34 +21,16 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/docx")]
 [EnableRateLimiting("fixed")]
-public sealed class DocxExportController : ControllerBase
+public sealed class DocxExportController(
+    IAuthorityQueryService authorityQueryService,
+    IArtifactQueryService artifactQueryService,
+    IDocxExportService docxExportService,
+    IComparisonService comparisonService,
+    IExplanationService explanationService,
+    IProvenanceSnapshotRepository provenanceSnapshotRepository,
+    IScopeContextProvider scopeProvider)
+    : ControllerBase
 {
-    private readonly IAuthorityQueryService _authorityQueryService;
-    private readonly IArtifactQueryService _artifactQueryService;
-    private readonly IDocxExportService _docxExportService;
-    private readonly IComparisonService _comparisonService;
-    private readonly IExplanationService _explanationService;
-    private readonly IProvenanceSnapshotRepository _provenanceSnapshotRepository;
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public DocxExportController(
-        IAuthorityQueryService authorityQueryService,
-        IArtifactQueryService artifactQueryService,
-        IDocxExportService docxExportService,
-        IComparisonService comparisonService,
-        IExplanationService explanationService,
-        IProvenanceSnapshotRepository provenanceSnapshotRepository,
-        IScopeContextProvider scopeProvider)
-    {
-        _authorityQueryService = authorityQueryService;
-        _artifactQueryService = artifactQueryService;
-        _docxExportService = docxExportService;
-        _comparisonService = comparisonService;
-        _explanationService = explanationService;
-        _provenanceSnapshotRepository = provenanceSnapshotRepository;
-        _scopeProvider = scopeProvider;
-    }
-
     [HttpGet("runs/{runId:guid}/architecture-package")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -59,13 +41,13 @@ public sealed class DocxExportController : ControllerBase
         [FromQuery] bool includeComparisonExplanation = true,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var runDetail = await _authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         if (runDetail?.GoldenManifest is null)
             return NotFound();
 
         var manifest = runDetail.GoldenManifest;
-        var artifacts = await _artifactQueryService.GetArtifactsByManifestIdAsync(
+        var artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
             scope,
             manifest.ManifestId,
             ct);
@@ -73,25 +55,25 @@ public sealed class DocxExportController : ControllerBase
         ComparisonResult? manifestComparison = null;
         if (compareWithRunId is not null)
         {
-            var targetDetail = await _authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
+            var targetDetail = await authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
             if (targetDetail?.GoldenManifest is null)
                 return NotFound();
-            manifestComparison = _comparisonService.Compare(manifest, targetDetail.GoldenManifest);
+            manifestComparison = comparisonService.Compare(manifest, targetDetail.GoldenManifest);
         }
 
         ComparisonExplanationResult? comparisonNarrative = null;
         if (manifestComparison is not null && includeComparisonExplanation)
-            comparisonNarrative = await _explanationService.ExplainComparisonAsync(manifestComparison, ct);
+            comparisonNarrative = await explanationService.ExplainComparisonAsync(manifestComparison, ct);
 
         ExplanationResult? runNarrative = null;
         if (explainRun)
         {
-            var snapshot = await _provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
+            var snapshot = await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
             var graph = snapshot is null ? null : ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
-            runNarrative = await _explanationService.ExplainRunAsync(manifest, graph, ct);
+            runNarrative = await explanationService.ExplainRunAsync(manifest, graph, ct);
         }
 
-        var result = await _docxExportService.ExportAsync(
+        var result = await docxExportService.ExportAsync(
             DocxExportRequest.ForArchitecturePackage(
                 runId,
                 manifest.ManifestId,

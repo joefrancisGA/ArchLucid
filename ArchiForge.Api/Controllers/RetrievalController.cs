@@ -14,19 +14,11 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/retrieval")]
 [EnableRateLimiting("fixed")]
-public sealed class RetrievalController : ControllerBase
+public sealed class RetrievalController(
+    IRetrievalQueryService retrievalQueryService,
+    IScopeContextProvider scopeProvider)
+    : ControllerBase
 {
-    private readonly IRetrievalQueryService _retrievalQueryService;
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public RetrievalController(
-        IRetrievalQueryService retrievalQueryService,
-        IScopeContextProvider scopeProvider)
-    {
-        _retrievalQueryService = retrievalQueryService;
-        _scopeProvider = scopeProvider;
-    }
-
     [HttpGet("search")]
     [ProducesResponseType(typeof(IReadOnlyList<RetrievalHit>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -40,9 +32,9 @@ public sealed class RetrievalController : ControllerBase
         if (string.IsNullOrWhiteSpace(q))
             return BadRequest(new { error = "Query parameter 'q' is required." });
 
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var result = await _retrievalQueryService.SearchAsync(
+        var result = await retrievalQueryService.SearchAsync(
             new RetrievalQuery
             {
                 TenantId = scope.TenantId,

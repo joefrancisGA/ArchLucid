@@ -4,15 +4,8 @@ using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Connectors;
 
-public class DocumentConnector : IContextConnector
+public class DocumentConnector(IEnumerable<IContextDocumentParser> parsers) : IContextConnector
 {
-    private readonly IEnumerable<IContextDocumentParser> _parsers;
-
-    public DocumentConnector(IEnumerable<IContextDocumentParser> parsers)
-    {
-        _parsers = parsers;
-    }
-
     public string ConnectorType => "documents";
 
     public Task<RawContextPayload> FetchAsync(
@@ -34,7 +27,7 @@ public class DocumentConnector : IContextConnector
 
         foreach (var document in payload.Documents)
         {
-            var parser = _parsers.FirstOrDefault(x => x.CanParse(document.ContentType));
+            var parser = parsers.FirstOrDefault(x => x.CanParse(document.ContentType));
             if (parser is null)
             {
                 batch.Warnings.Add(

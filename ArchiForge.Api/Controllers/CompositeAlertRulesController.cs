@@ -15,22 +15,12 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/composite-alert-rules")]
 [EnableRateLimiting("fixed")]
-public sealed class CompositeAlertRulesController : ControllerBase
+public sealed class CompositeAlertRulesController(
+    IScopeContextProvider scopeProvider,
+    ICompositeAlertRuleRepository repository,
+    IAuditService auditService)
+    : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly ICompositeAlertRuleRepository _repository;
-    private readonly IAuditService _auditService;
-
-    public CompositeAlertRulesController(
-        IScopeContextProvider scopeProvider,
-        ICompositeAlertRuleRepository repository,
-        IAuditService auditService)
-    {
-        _scopeProvider = scopeProvider;
-        _repository = repository;
-        _auditService = auditService;
-    }
-
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CompositeAlertRule), StatusCodes.Status200OK)]
@@ -38,7 +28,7 @@ public sealed class CompositeAlertRulesController : ControllerBase
         [FromBody] CompositeAlertRule rule,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
         rule.CompositeRuleId = Guid.NewGuid();
         rule.TenantId = scope.TenantId;
@@ -52,9 +42,9 @@ public sealed class CompositeAlertRulesController : ControllerBase
                 c.ConditionId = Guid.NewGuid();
         }
 
-        await _repository.CreateAsync(rule, ct);
+        await repository.CreateAsync(rule, ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.CompositeAlertRuleCreated,
@@ -75,9 +65,9 @@ public sealed class CompositeAlertRulesController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<CompositeAlertRule>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<CompositeAlertRule>>> List(CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var result = await _repository.ListByScopeAsync(
+        var result = await repository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,

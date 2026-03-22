@@ -13,17 +13,8 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/ask")]
 [EnableRateLimiting("fixed")]
-public sealed class AskController : ControllerBase
+public sealed class AskController(IAskService ask, IScopeContextProvider scopeProvider) : ControllerBase
 {
-    private readonly IAskService _ask;
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public AskController(IAskService ask, IScopeContextProvider scopeProvider)
-    {
-        _ask = ask;
-        _scopeProvider = scopeProvider;
-    }
-
     /// <summary>Grounded Q&amp;A over GoldenManifest, provenance graph, and optional run comparison.</summary>
     [HttpPost]
     [ProducesResponseType(typeof(AskResponse), StatusCodes.Status200OK)]
@@ -49,8 +40,8 @@ public sealed class AskController : ControllerBase
 
         try
         {
-            var scope = _scopeProvider.GetCurrentScope();
-            var result = await _ask.AskAsync(request, scope, ct);
+            var scope = scopeProvider.GetCurrentScope();
+            var result = await ask.AskAsync(request, scope, ct);
             return Ok(result);
         }
         catch (InvalidOperationException ex)

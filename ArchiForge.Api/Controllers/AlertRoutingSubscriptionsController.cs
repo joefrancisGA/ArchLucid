@@ -15,25 +15,13 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/alert-routing-subscriptions")]
 [EnableRateLimiting("fixed")]
-public sealed class AlertRoutingSubscriptionsController : ControllerBase
+public sealed class AlertRoutingSubscriptionsController(
+    IScopeContextProvider scopeProvider,
+    IAlertRoutingSubscriptionRepository subscriptionRepository,
+    IAlertDeliveryAttemptRepository attemptRepository,
+    IAuditService auditService)
+    : ControllerBase
 {
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly IAlertRoutingSubscriptionRepository _subscriptionRepository;
-    private readonly IAlertDeliveryAttemptRepository _attemptRepository;
-    private readonly IAuditService _auditService;
-
-    public AlertRoutingSubscriptionsController(
-        IScopeContextProvider scopeProvider,
-        IAlertRoutingSubscriptionRepository subscriptionRepository,
-        IAlertDeliveryAttemptRepository attemptRepository,
-        IAuditService auditService)
-    {
-        _scopeProvider = scopeProvider;
-        _subscriptionRepository = subscriptionRepository;
-        _attemptRepository = attemptRepository;
-        _auditService = auditService;
-    }
-
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRoutingSubscription), StatusCodes.Status200OK)]
@@ -41,7 +29,7 @@ public sealed class AlertRoutingSubscriptionsController : ControllerBase
         [FromBody] AlertRoutingSubscription subscription,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
         subscription.RoutingSubscriptionId = Guid.NewGuid();
         subscription.TenantId = scope.TenantId;
@@ -51,9 +39,9 @@ public sealed class AlertRoutingSubscriptionsController : ControllerBase
         if (string.IsNullOrWhiteSpace(subscription.MetadataJson))
             subscription.MetadataJson = "{}";
 
-        await _subscriptionRepository.CreateAsync(subscription, ct);
+        await subscriptionRepository.CreateAsync(subscription, ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AlertRoutingSubscriptionCreated,
@@ -74,9 +62,9 @@ public sealed class AlertRoutingSubscriptionsController : ControllerBase
     [ProducesResponseType(typeof(IReadOnlyList<AlertRoutingSubscription>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<AlertRoutingSubscription>>> List(CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var result = await _subscriptionRepository.ListByScopeAsync(
+        var result = await subscriptionRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -93,18 +81,18 @@ public sealed class AlertRoutingSubscriptionsController : ControllerBase
         Guid routingSubscriptionId,
         CancellationToken ct = default)
     {
-        var subscription = await _subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
+        var subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
         if (subscription is null)
             return NotFound();
 
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
             return NotFound();
 
         subscription.IsEnabled = !subscription.IsEnabled;
-        await _subscriptionRepository.UpdateAsync(subscription, ct);
+        await subscriptionRepository.UpdateAsync(subscription, ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AlertRoutingSubscriptionToggled,
@@ -127,15 +115,15 @@ public sealed class AlertRoutingSubscriptionsController : ControllerBase
         [FromQuery] int take = 50,
         CancellationToken ct = default)
     {
-        var subscription = await _subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
+        var subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
         if (subscription is null)
             return NotFound();
 
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
             return NotFound();
 
-        var attempts = await _attemptRepository.ListBySubscriptionAsync(routingSubscriptionId, take, ct);
+        var attempts = await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId, take, ct);
         return Ok(attempts);
     }
 

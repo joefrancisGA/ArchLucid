@@ -47,4 +47,8 @@ public static class AuditEventTypes
     public const string AlertRuleCandidateComparisonExecuted = "AlertRuleCandidateComparisonExecuted";
 
     public const string AlertThresholdRecommendationExecuted = "AlertThresholdRecommendationExecuted";
+
+    public const string PolicyPackCreated = "PolicyPackCreated";
+    public const string PolicyPackVersionPublished = "PolicyPackVersionPublished";
+    public const string PolicyPackAssigned = "PolicyPackAssigned";
 }

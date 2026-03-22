@@ -15,30 +15,20 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/recommendation-learning")]
 [EnableRateLimiting("fixed")]
-public sealed class RecommendationLearningController : ControllerBase
+public sealed class RecommendationLearningController(
+    IRecommendationLearningService learningService,
+    IScopeContextProvider scopeProvider,
+    IAuditService auditService)
+    : ControllerBase
 {
-    private readonly IRecommendationLearningService _learningService;
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly IAuditService _auditService;
-
-    public RecommendationLearningController(
-        IRecommendationLearningService learningService,
-        IScopeContextProvider scopeProvider,
-        IAuditService auditService)
-    {
-        _learningService = learningService;
-        _scopeProvider = scopeProvider;
-        _auditService = auditService;
-    }
-
     [HttpGet("latest")]
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RecommendationLearningProfile>> GetLatest(CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var profile = await _learningService.GetLatestProfileAsync(
+        var profile = await learningService.GetLatestProfileAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -55,15 +45,15 @@ public sealed class RecommendationLearningController : ControllerBase
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]
     public async Task<ActionResult<RecommendationLearningProfile>> Rebuild(CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
+        var scope = scopeProvider.GetCurrentScope();
 
-        var profile = await _learningService.RebuildProfileAsync(
+        var profile = await learningService.RebuildProfileAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             ct);
 
-        await _auditService.LogAsync(
+        await auditService.LogAsync(
             new AuditEvent
             {
                 EventType = AuditEventTypes.RecommendationLearningProfileRebuilt,

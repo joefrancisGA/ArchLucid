@@ -14,29 +14,19 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/authority")]
 [EnableRateLimiting("fixed")]
-public sealed class ProvenanceQueryController : ControllerBase
+public sealed class ProvenanceQueryController(
+    IProvenanceSnapshotRepository repo,
+    IProvenanceQueryService graphQuery,
+    IScopeContextProvider scopeProvider)
+    : ControllerBase
 {
-    private readonly IProvenanceSnapshotRepository _repo;
-    private readonly IProvenanceQueryService _graphQuery;
-    private readonly IScopeContextProvider _scopeProvider;
-
-    public ProvenanceQueryController(
-        IProvenanceSnapshotRepository repo,
-        IProvenanceQueryService graphQuery,
-        IScopeContextProvider scopeProvider)
-    {
-        _repo = repo;
-        _graphQuery = graphQuery;
-        _scopeProvider = scopeProvider;
-    }
-
     [HttpGet("runs/{runId:guid}/provenance")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProvenance(Guid runId, CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var snapshot = await _repo.GetByRunIdAsync(scope, runId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
         if (snapshot is null)
             return NotFound();
 
@@ -48,8 +38,8 @@ public sealed class ProvenanceQueryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFullGraph(Guid runId, CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var vm = await _graphQuery.GetFullGraphAsync(scope, runId, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var vm = await graphQuery.GetFullGraphAsync(scope, runId, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 
@@ -62,8 +52,8 @@ public sealed class ProvenanceQueryController : ControllerBase
         string decisionKey,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var vm = await _graphQuery.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var vm = await graphQuery.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 
@@ -76,8 +66,8 @@ public sealed class ProvenanceQueryController : ControllerBase
         [FromQuery] int depth = 1,
         CancellationToken ct = default)
     {
-        var scope = _scopeProvider.GetCurrentScope();
-        var vm = await _graphQuery.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
+        var scope = scopeProvider.GetCurrentScope();
+        var vm = await graphQuery.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 }

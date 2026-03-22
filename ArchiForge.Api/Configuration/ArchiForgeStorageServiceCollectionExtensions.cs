@@ -1,4 +1,3 @@
-using ArchiForge.Api.Configuration;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ContextIngestion.Interfaces;
@@ -7,6 +6,7 @@ using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
+using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Interfaces;
@@ -20,6 +20,7 @@ using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Provenance;
 using ArchiForge.Provenance;
 using ArchiForge.Persistence.Interfaces;
+using ArchiForge.Persistence.Governance;
 using ArchiForge.Persistence.Compare;
 using ArchiForge.Persistence.Conversation;
 using ArchiForge.Persistence.Orchestration;
@@ -29,7 +30,7 @@ using ArchiForge.Persistence.Repositories;
 using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace ArchiForge.Api.Configuration;
 
 public static class ArchiForgeStorageServiceCollectionExtensions
 {
@@ -76,6 +77,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IAlertRoutingSubscriptionRepository, InMemoryAlertRoutingSubscriptionRepository>();
             services.AddSingleton<IAlertDeliveryAttemptRepository, InMemoryAlertDeliveryAttemptRepository>();
             services.AddSingleton<ICompositeAlertRuleRepository, InMemoryCompositeAlertRuleRepository>();
+            services.AddSingleton<IPolicyPackRepository, InMemoryPolicyPackRepository>();
+            services.AddSingleton<IPolicyPackVersionRepository, InMemoryPolicyPackVersionRepository>();
+            services.AddSingleton<IPolicyPackAssignmentRepository, InMemoryPolicyPackAssignmentRepository>();
             return services;
         }
 
@@ -127,6 +131,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IAlertRoutingSubscriptionRepository, DapperAlertRoutingSubscriptionRepository>();
         services.AddScoped<IAlertDeliveryAttemptRepository, DapperAlertDeliveryAttemptRepository>();
         services.AddScoped<ICompositeAlertRuleRepository, DapperCompositeAlertRuleRepository>();
+        services.AddScoped<IPolicyPackRepository, DapperPolicyPackRepository>();
+        services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
+        services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
 
         return services;
     }
