@@ -1,26 +1,42 @@
+using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Models;
 
 namespace ArchiForge.Decisioning.Advisory.Services;
 
-public sealed class RecommendationGenerator : IRecommendationGenerator
+public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adaptiveScorer) : IRecommendationGenerator
 {
-    public IReadOnlyList<ImprovementRecommendation> Generate(IReadOnlyList<ImprovementSignal> signals)
+    public IReadOnlyList<ImprovementRecommendation> Generate(
+        IReadOnlyList<ImprovementSignal> signals,
+        RecommendationLearningProfile? profile = null)
     {
         var recommendations = new List<ImprovementRecommendation>();
 
         foreach (var signal in signals)
         {
+            var baseScore = ComputePriority(signal);
+            var urgency = MapUrgency(signal.Severity);
+
+            var scoring = adaptiveScorer.Score(
+                new AdaptiveScoringInput
+                {
+                    Category = signal.Category,
+                    Urgency = urgency,
+                    SignalType = signal.SignalType,
+                    BasePriorityScore = baseScore
+                },
+                profile);
+
             recommendations.Add(new ImprovementRecommendation
             {
                 Title = BuildTitle(signal),
                 Category = signal.Category,
                 Rationale = signal.Description,
                 SuggestedAction = BuildSuggestedAction(signal),
-                Urgency = MapUrgency(signal.Severity),
+                Urgency = urgency,
                 ExpectedImpact = BuildImpact(signal),
                 SupportingFindingIds = signal.FindingIds.ToList(),
                 SupportingDecisionIds = signal.DecisionIds.ToList(),
-                PriorityScore = ComputePriority(signal)
+                PriorityScore = scoring.AdaptedPriorityScore
             });
         }
 

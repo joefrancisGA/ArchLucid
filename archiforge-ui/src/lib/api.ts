@@ -17,6 +17,7 @@ import type {
   ConversationThread,
 } from "@/types/conversation";
 import type { ImprovementPlan } from "@/types/advisory";
+import type { LearningProfile } from "@/types/recommendation-learning";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -186,6 +187,31 @@ export async function getImprovementPlan(runId: string, compareToRunId?: string)
   return apiGet<ImprovementPlan>(
     `/api/advisory/runs/${encodeURIComponent(runId)}/improvements${q ? `?${q}` : ""}`,
   );
+}
+
+export async function getLatestLearningProfile(): Promise<LearningProfile | null> {
+  const { url, headers } = resolveRequest("/api/recommendation-learning/latest");
+  const response = await fetch(url, { cache: "no-store", headers });
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+  }
+  return response.json() as Promise<LearningProfile>;
+}
+
+export async function rebuildLearningProfile(): Promise<LearningProfile> {
+  const { url, headers } = resolveRequest("/api/recommendation-learning/rebuild");
+  const h = new Headers(headers);
+  h.set("Content-Type", "application/json");
+  const response = await fetch(url, {
+    method: "POST",
+    headers: h,
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+  }
+  return response.json() as Promise<LearningProfile>;
 }
 
 export async function replayRun(runId: string, mode: string): Promise<ReplayResponse> {

@@ -3,6 +3,7 @@ using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Repositories;
+using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Repositories;
@@ -55,6 +56,11 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IAuditRepository, InMemoryAuditRepository>();
             services.AddSingleton<IProvenanceSnapshotRepository, InMemoryProvenanceSnapshotRepository>();
             services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
+            services.AddSingleton<IRecommendationRepository, InMemoryRecommendationRepository>();
+            services.AddScoped<IRecommendationWorkflowService, RecommendationWorkflowService>();
+            services.AddScoped<IRecommendationFeedbackAnalyzer, RecommendationFeedbackAnalyzer>();
+            services.AddSingleton<IRecommendationLearningProfileRepository, InMemoryRecommendationLearningProfileRepository>();
+            services.AddScoped<IRecommendationLearningService, RecommendationLearningService>();
             return services;
         }
 
@@ -94,6 +100,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IRecommendationRepository, DapperRecommendationRepository>();
         services.AddScoped<IRecommendationWorkflowService, RecommendationWorkflowService>();
         services.AddScoped<IRecommendationFeedbackAnalyzer, RecommendationFeedbackAnalyzer>();
+        services.AddScoped<IRecommendationLearningProfileRepository, DapperRecommendationLearningProfileRepository>();
+        services.AddScoped<IRecommendationLearningService, RecommendationLearningService>();
 
         return services;
     }

@@ -1,0 +1,96 @@
+using System.Text.Json;
+using ArchiForge.Decisioning.Advisory.Learning;
+using ArchiForge.Persistence.Connections;
+using Dapper;
+
+namespace ArchiForge.Persistence.Advisory;
+
+public sealed class DapperRecommendationLearningProfileRepository(ISqlConnectionFactory connectionFactory)
+    : IRecommendationLearningProfileRepository
+{
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        WriteIndented = false
+    };
+
+    public async Task SaveAsync(RecommendationLearningProfile profile, CancellationToken ct)
+    {
+        const string sql = """
+            INSERT INTO dbo.RecommendationLearningProfiles
+            (
+                ProfileId,
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                GeneratedUtc,
+                ProfileJson
+            )
+            VALUES
+            (
+                @ProfileId,
+                @TenantId,
+                @WorkspaceId,
+                @ProjectId,
+                @GeneratedUtc,
+                @ProfileJson
+            );
+            """;
+
+        var profileId = Guid.NewGuid();
+        var json = JsonSerializer.Serialize(profile, JsonOptions);
+
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ProfileId = profileId,
+                    profile.TenantId,
+                    profile.WorkspaceId,
+                    profile.ProjectId,
+                    profile.GeneratedUtc,
+                    ProfileJson = json
+                },
+                cancellationToken: ct));
+    }
+
+    public async Task<RecommendationLearningProfile?> GetLatestAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        const string sql = """
+            SELECT TOP (1) ProfileJson
+            FROM dbo.RecommendationLearningProfiles
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+            ORDER BY GeneratedUtc DESC;
+            """;
+
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        var json = await connection.QueryFirstOrDefaultAsync<string>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                cancellationToken: ct));
+
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
+
+        var profile = JsonSerializer.Deserialize<RecommendationLearningProfile>(json, JsonOptions);
+        return profile is null ? null : NormalizeDictionaryComparers(profile);
+    }
+
+    private static RecommendationLearningProfile NormalizeDictionaryComparers(RecommendationLearningProfile profile)
+    {
+        profile.CategoryWeights = new Dictionary<string, double>(profile.CategoryWeights, StringComparer.OrdinalIgnoreCase);
+        profile.UrgencyWeights = new Dictionary<string, double>(profile.UrgencyWeights, StringComparer.OrdinalIgnoreCase);
+        profile.SignalTypeWeights = new Dictionary<string, double>(profile.SignalTypeWeights, StringComparer.OrdinalIgnoreCase);
+        return profile;
+    }
+}

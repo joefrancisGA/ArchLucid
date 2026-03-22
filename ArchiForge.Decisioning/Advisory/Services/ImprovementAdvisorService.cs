@@ -1,5 +1,6 @@
 using ArchiForge.Core.Comparison;
 using ArchiForge.Decisioning.Advisory.Analysis;
+using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Models;
 using ArchiForge.Decisioning.Models;
 
@@ -7,45 +8,54 @@ namespace ArchiForge.Decisioning.Advisory.Services;
 
 public sealed class ImprovementAdvisorService(
     IImprovementSignalAnalyzer signalAnalyzer,
-    IRecommendationGenerator recommendationGenerator) : IImprovementAdvisorService
+    IRecommendationGenerator recommendationGenerator,
+    IRecommendationLearningService learningService) : IImprovementAdvisorService
 {
-    public Task<ImprovementPlan> GeneratePlanAsync(
+    public async Task<ImprovementPlan> GeneratePlanAsync(
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct)
     {
-        _ = ct;
-        var signals = signalAnalyzer.Analyze(manifest, findingsSnapshot);
-        var recommendations = recommendationGenerator.Generate(signals);
+        var profile = await learningService
+            .GetLatestProfileAsync(manifest.TenantId, manifest.WorkspaceId, manifest.ProjectId, ct)
+            .ConfigureAwait(false);
 
-        return Task.FromResult(new ImprovementPlan
+        var signals = signalAnalyzer.Analyze(manifest, findingsSnapshot);
+        var recommendations = recommendationGenerator.Generate(signals, profile);
+
+        return new ImprovementPlan
         {
             RunId = manifest.RunId,
             Recommendations = recommendations.ToList(),
-            SummaryNotes = BuildSummary(recommendations)
-        });
+            SummaryNotes = BuildSummary(recommendations, profile)
+        };
     }
 
-    public Task<ImprovementPlan> GeneratePlanAsync(
+    public async Task<ImprovementPlan> GeneratePlanAsync(
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot,
         ComparisonResult comparison,
         CancellationToken ct)
     {
-        _ = ct;
-        var signals = signalAnalyzer.Analyze(manifest, findingsSnapshot, comparison);
-        var recommendations = recommendationGenerator.Generate(signals);
+        var profile = await learningService
+            .GetLatestProfileAsync(manifest.TenantId, manifest.WorkspaceId, manifest.ProjectId, ct)
+            .ConfigureAwait(false);
 
-        return Task.FromResult(new ImprovementPlan
+        var signals = signalAnalyzer.Analyze(manifest, findingsSnapshot, comparison);
+        var recommendations = recommendationGenerator.Generate(signals, profile);
+
+        return new ImprovementPlan
         {
             RunId = manifest.RunId,
             ComparedToRunId = comparison.BaseRunId,
             Recommendations = recommendations.ToList(),
-            SummaryNotes = BuildSummary(recommendations)
-        });
+            SummaryNotes = BuildSummary(recommendations, profile)
+        };
     }
 
-    private static List<string> BuildSummary(IReadOnlyList<ImprovementRecommendation> recommendations)
+    private static List<string> BuildSummary(
+        IReadOnlyList<ImprovementRecommendation> recommendations,
+        RecommendationLearningProfile? profile)
     {
         var notes = new List<string>();
 
@@ -56,6 +66,11 @@ public sealed class ImprovementAdvisorService(
         }
 
         notes.Add($"Generated {recommendations.Count} improvement recommendations.");
+
+        if (profile is not null)
+            notes.Add("Adaptive prioritization was applied using historical recommendation outcomes.");
+        else
+            notes.Add("No adaptive learning profile was available. Base prioritization was used.");
 
         var high = recommendations.Count(x =>
             string.Equals(x.Urgency, "High", StringComparison.OrdinalIgnoreCase) ||

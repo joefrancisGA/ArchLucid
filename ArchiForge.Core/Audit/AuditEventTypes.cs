@@ -16,4 +16,6 @@ public static class AuditEventTypes
     public const string RecommendationRejected = "RecommendationRejected";
     public const string RecommendationDeferred = "RecommendationDeferred";
     public const string RecommendationImplemented = "RecommendationImplemented";
+
+    public const string RecommendationLearningProfileRebuilt = "RecommendationLearningProfileRebuilt";
 }

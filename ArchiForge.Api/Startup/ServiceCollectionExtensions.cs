@@ -26,6 +26,7 @@ using ArchiForge.Api.Ask;
 using ArchiForge.Api.Services.Ask;
 using ArchiForge.Core.Ask;
 using ArchiForge.Decisioning.Advisory.Analysis;
+using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Services;
 using ArchiForge.Decisioning.Comparison;
 using ArchiForge.Data.Infrastructure;
@@ -197,8 +198,10 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IDecisionEngineV2, DecisionEngineV2>();
         services.AddSingleton<IComparisonService, ComparisonService>();
         services.AddSingleton<IImprovementSignalAnalyzer, ImprovementSignalAnalyzer>();
+        services.AddSingleton<IAdaptiveRecommendationScorer, AdaptiveRecommendationScorer>();
+        services.AddSingleton<IRecommendationLearningAnalyzer, RecommendationLearningAnalyzer>();
         services.AddSingleton<IRecommendationGenerator, RecommendationGenerator>();
-        services.AddSingleton<IImprovementAdvisorService, ImprovementAdvisorService>();
+        services.AddScoped<IImprovementAdvisorService, ImprovementAdvisorService>();
         services.AddScoped<IExplanationService, ExplanationService>();
         services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<IAskService, AskService>();
@@ -235,7 +238,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IArtifactGenerator, CostSummaryArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, UnresolvedIssuesArtifactGenerator>();
         services.AddScoped<IArtifactSynthesisService, ArtifactSynthesisService>();
-        services.AddSingleton<IDocxExportService, DocxExportService>();
+        services.AddScoped<IDocxExportService, DocxExportService>();
     }
 
     private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)
