@@ -81,6 +81,8 @@ public sealed class PolicyPacksController(
             scope.ProjectId,
             policyPackId,
             versionKey,
+            request.ScopeLevel,
+            request.IsPinned,
             ct);
 
         if (assignment is null)

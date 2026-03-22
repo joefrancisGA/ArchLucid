@@ -4,6 +4,7 @@
  */
 export const ApiV1Routes = {
   policyPacks: "v1/policy-packs",
+  governanceResolution: "v1/governance-resolution",
   alertRules: "v1/alert-rules",
   alerts: "v1/alerts",
   compositeAlertRules: "v1/composite-alert-rules",

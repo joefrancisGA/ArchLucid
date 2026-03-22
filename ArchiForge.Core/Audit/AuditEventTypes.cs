@@ -51,4 +51,8 @@ public static class AuditEventTypes
     public const string PolicyPackCreated = "PolicyPackCreated";
     public const string PolicyPackVersionPublished = "PolicyPackVersionPublished";
     public const string PolicyPackAssigned = "PolicyPackAssigned";
+    public const string PolicyPackAssignmentCreated = "PolicyPackAssignmentCreated";
+
+    public const string GovernanceResolutionExecuted = "GovernanceResolutionExecuted";
+    public const string GovernanceConflictDetected = "GovernanceConflictDetected";
 }

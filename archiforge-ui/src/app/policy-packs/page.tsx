@@ -21,6 +21,7 @@ const PACK_TYPES = [
 
 const DEFAULT_CONTENT = `{
   "complianceRuleIds": [],
+  "complianceRuleKeys": [],
   "alertRuleIds": [],
   "compositeAlertRuleIds": [],
   "advisoryDefaults": {},
@@ -44,6 +45,8 @@ export default function PolicyPacksPage() {
   const [publishJson, setPublishJson] = useState(DEFAULT_CONTENT);
 
   const [assignVersion, setAssignVersion] = useState("1.0.0");
+  const [assignScopeLevel, setAssignScopeLevel] = useState("Project");
+  const [assignPinned, setAssignPinned] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -149,7 +152,11 @@ export default function PolicyPacksPage() {
     setError(null);
     setLoading(true);
     try {
-      await assignPolicyPack(selectedPackId, { version: assignVersion.trim() });
+      await assignPolicyPack(selectedPackId, {
+        version: assignVersion.trim(),
+        scopeLevel: assignScopeLevel,
+        isPinned: assignPinned,
+      });
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Assign failed");
@@ -162,9 +169,10 @@ export default function PolicyPacksPage() {
     <main style={{ maxWidth: 960 }}>
       <h2 style={{ marginTop: 0 }}>Policy packs</h2>
       <p style={{ color: "#444", fontSize: 14 }}>
-        Versioned governance bundles (compliance / alert / composite rule IDs + advisory defaults). Assign packs to the
-        current scope; alert evaluators use merged <code>alertRuleIds</code> / <code>compositeAlertRuleIds</code> when
-        non-empty.
+        Versioned governance bundles (compliance / alert / composite rule IDs + advisory defaults). Assign with a{" "}
+        <strong>scope level</strong> (tenant baseline, workspace, or project); effective content is{" "}
+        <strong>hierarchically resolved</strong> (see Governance resolution). Alert evaluators use resolved{" "}
+        <code>alertRuleIds</code> / <code>compositeAlertRuleIds</code> when non-empty.
       </p>
 
       <p>
@@ -303,6 +311,22 @@ export default function PolicyPacksPage() {
               style={{ display: "block", padding: 8, marginTop: 4, width: 160 }}
             />
           </label>
+          <label>
+            Scope level
+            <select
+              value={assignScopeLevel}
+              onChange={(e) => setAssignScopeLevel(e.target.value)}
+              style={{ display: "block", padding: 8, marginTop: 4, minWidth: 140 }}
+            >
+              <option value="Tenant">Tenant</option>
+              <option value="Workspace">Workspace</option>
+              <option value="Project">Project</option>
+            </select>
+          </label>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+            <input type="checkbox" checked={assignPinned} onChange={(e) => setAssignPinned(e.target.checked)} />
+            Pinned
+          </label>
           <button type="button" onClick={() => void onAssign()} disabled={loading || !selectedPackId}>
             Assign
           </button>
@@ -325,7 +349,7 @@ export default function PolicyPacksPage() {
       </section>
 
       <section>
-        <h3>Merged effective content</h3>
+        <h3>Resolved effective content</h3>
         <pre
           style={{
             background: "#f5f5f5",

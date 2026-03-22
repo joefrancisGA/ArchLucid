@@ -29,6 +29,8 @@ export type PolicyPackAssignment = {
   policyPackId: string;
   policyPackVersion: string;
   isEnabled: boolean;
+  scopeLevel: string;
+  isPinned: boolean;
   assignedUtc: string;
 };
 
@@ -49,6 +51,7 @@ export type EffectivePolicyPackSet = {
 
 export type PolicyPackContentDocument = {
   complianceRuleIds: string[];
+  complianceRuleKeys: string[];
   alertRuleIds: string[];
   compositeAlertRuleIds: string[];
   advisoryDefaults: Record<string, string>;

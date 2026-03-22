@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using ArchiForge.Api.Routing;
 using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
@@ -231,6 +232,46 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
             ? camel.GetString()
             : root.GetProperty("Type").GetString();
         typeString.Should().Contain("policy-pack-version-not-found");
+    }
+
+    [Fact]
+    public async Task GovernanceResolution_Get_ReturnsNotesAndEffectiveContent()
+    {
+        var createResponse = await Client.PostAsync(
+            "/v1/policy-packs",
+            JsonContent(
+                new
+                {
+                    name = "Resolution inspect pack",
+                    description = "",
+                    packType = "ProjectCustom",
+                    initialContentJson = """
+                        {
+                          "complianceRuleIds": [],
+                          "complianceRuleKeys": [],
+                          "alertRuleIds": [],
+                          "compositeAlertRuleIds": [],
+                          "advisoryDefaults": {},
+                          "metadata": { "k": "v" }
+                        }
+                        """,
+                }));
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+        var packId = created!.PolicyPackId;
+
+        (await Client.PostAsync(
+                $"/v1/policy-packs/{packId}/assign",
+                JsonContent(new { version = "1.0.0", scopeLevel = "Project", isPinned = false })))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var res = await Client.GetAsync($"/{ApiV1Routes.GovernanceResolution}");
+        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync());
+        var root = doc.RootElement;
+        root.GetProperty("notes").EnumerateArray().Should().NotBeEmpty();
+        root.GetProperty("decisions").EnumerateArray().Should().NotBeEmpty();
+        root.GetProperty("effectiveContent").GetProperty("metadata").GetProperty("k").GetString().Should().Be("v");
     }
 
     [Fact]

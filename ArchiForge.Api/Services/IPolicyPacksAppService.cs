@@ -28,5 +28,7 @@ public interface IPolicyPacksAppService
         Guid projectId,
         Guid policyPackId,
         string version,
+        string scopeLevel,
+        bool isPinned,
         CancellationToken ct);
 }

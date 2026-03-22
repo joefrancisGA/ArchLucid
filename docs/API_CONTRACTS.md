@@ -66,7 +66,7 @@ Governance is packaged as **versioned, assignable** bundles. Pack **content** is
 |--------|------|--------|
 | `POST` | `/v1/policy-packs` | Create pack + initial **unpublished** version **1.0.0**. Requires **ExecuteAuthority**. |
 | `POST` | `/v1/policy-packs/{policyPackId}/publish` | **Upserts** a **published** version row for `(pack, version)`; updates pack **Active** and **CurrentVersion**. Re-publishing the same version updates **ContentJson** in place (no duplicate rows). **`version`** must be **SemVer 2**-style (`MAJOR.MINOR.PATCH`, optional pre-release/build, optional leading `v`). |
-| `POST` | `/v1/policy-packs/{policyPackId}/assign` | Assigns a **version string** to the **current scope** (tenant/workspace/project from headers/claims). **`version`** must match the same **SemVer 2** rules as publish. **404** `#policy-pack-version-not-found` if that version does not exist for the pack. |
+| `POST` | `/v1/policy-packs/{policyPackId}/assign` | Assigns a **version** with optional **`scopeLevel`** (`Tenant` \| `Workspace` \| `Project`, default **Project**) and **`isPinned`**. Tenant assignments store `workspaceId`/`projectId` as empty GUIDs; workspace assignments store `projectId` as empty. **`version`** must match the same **SemVer 2** rules as publish. **404** `#policy-pack-version-not-found` if that version does not exist for the pack. |
 | `GET` | `/v1/policy-packs` | List packs for scope. |
 | `GET` | `/v1/policy-packs/{policyPackId}/versions` | List versions for a pack. |
 | `GET` | `/v1/policy-packs/effective` | Resolved **enabled** assignments → pack metadata + **ContentJson** per entry. |
@@ -80,7 +80,13 @@ Governance is packaged as **versioned, assignable** bundles. Pack **content** is
 
 Compliance filtering in API requests follows **`IScopeContextProvider`**. For **advisory scheduled scans**, the runner pushes an **ambient `ScopeContext`** (see **`AmbientScopeContext`**) for the duration of the scan so scoped services (including filtered compliance) see the schedule’s tenant/workspace/project even without an HTTP request.
 
-**Multiple assignments:** Enabled assignments for the same scope are returned in **`AssignedUtc` descending** order. **`GET .../effective`** lists each resolved pack separately; **`GET .../effective-content`** merges all of them (union of ID lists, **`complianceRuleKeys`** / **`complianceRuleIds`** distinct, **`advisoryDefaults`** / **`metadata`** last-wins per key).
+**Multiple assignments:** Assignments applicable to the project context include **tenant-wide**, matching **workspace**, and matching **project** rows (see **`PolicyPackAssignment.ScopeLevel`**). Enabled rows are listed in **`AssignedUtc` descending** order on **`GET .../effective`**. **`GET .../effective-content`** applies hierarchical resolution (not a naive union). Inspect **`GET /v1/governance-resolution`** for **decisions**, **conflicts**, and **notes**.
+
+## Governance resolution (`/v1/governance-resolution`)
+
+| Method | Path | Notes |
+|--------|------|--------|
+| `GET` | `/v1/governance-resolution` | Returns **`EffectiveGovernanceResolutionResult`**: **`effectiveContent`**, per-item **`decisions`** (winner pack, scope level, reason), **`conflicts`** (duplicate definitions / value conflicts), and **`notes`**. Emits audit **`GovernanceResolutionExecuted`**; **`GovernanceConflictDetected`** when **`conflicts`** is non-empty. Requires **ReadAuthority**. |
 
 **Rate limiting:** Governance and alert **`/v1/...`** controllers use the **`fixed`** window unless noted elsewhere (e.g. **expensive** / **replay** on architecture flows). See **README.md** (Rate limiting table) and **`RateLimiting:*`** configuration keys.
 

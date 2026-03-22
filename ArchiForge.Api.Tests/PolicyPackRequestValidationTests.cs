@@ -50,4 +50,30 @@ public sealed class PolicyPackRequestValidationTests(ArchiForgeApiFactory factor
         var text = await publishResponse.Content.ReadAsStringAsync();
         text.Should().ContainEquivalentOf("Version");
     }
+
+    [Fact]
+    public async Task AssignPolicyPack_InvalidScopeLevel_Returns400()
+    {
+        var createResponse = await Client.PostAsync(
+            "/v1/policy-packs",
+            JsonContent(
+                new
+                {
+                    name = "Scope validation pack",
+                    description = "",
+                    packType = "ProjectCustom",
+                    initialContentJson = "{}",
+                }));
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var created = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync());
+        var packId = created.RootElement.GetProperty("policyPackId").GetGuid();
+
+        var assignResponse = await Client.PostAsync(
+            $"/v1/policy-packs/{packId}/assign",
+            JsonContent(new { version = "1.0.0", scopeLevel = "Planet" }));
+
+        assignResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var text = await assignResponse.Content.ReadAsStringAsync();
+        text.Should().ContainEquivalentOf("ScopeLevel");
+    }
 }

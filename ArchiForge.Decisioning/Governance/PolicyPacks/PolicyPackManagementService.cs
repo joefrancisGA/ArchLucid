@@ -1,3 +1,5 @@
+using ArchiForge.Decisioning.Governance.Resolution;
+
 namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 
 public sealed class PolicyPackManagementService(
@@ -101,17 +103,35 @@ public sealed class PolicyPackManagementService(
         Guid projectId,
         Guid policyPackId,
         string version,
+        string scopeLevel,
+        bool isPinned,
         CancellationToken ct)
     {
+        var normalized = GovernanceScopeLevel.TryNormalize(scopeLevel) ?? GovernanceScopeLevel.Project;
+
+        Guid ws = workspaceId;
+        Guid proj = projectId;
+        if (string.Equals(normalized, GovernanceScopeLevel.Tenant, StringComparison.Ordinal))
+        {
+            ws = Guid.Empty;
+            proj = Guid.Empty;
+        }
+        else if (string.Equals(normalized, GovernanceScopeLevel.Workspace, StringComparison.Ordinal))
+        {
+            proj = Guid.Empty;
+        }
+
         var assignment = new PolicyPackAssignment
         {
             AssignmentId = Guid.NewGuid(),
             TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
+            WorkspaceId = ws,
+            ProjectId = proj,
             PolicyPackId = policyPackId,
             PolicyPackVersion = version,
             IsEnabled = true,
+            ScopeLevel = normalized,
+            IsPinned = isPinned,
             AssignedUtc = DateTime.UtcNow,
         };
 

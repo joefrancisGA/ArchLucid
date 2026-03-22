@@ -35,6 +35,7 @@ using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Simulation;
 using ArchiForge.Decisioning.Alerts.Tuning;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchiForge.Decisioning.Governance.Resolution;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
@@ -137,6 +138,7 @@ internal static partial class ServiceCollectionExtensions
 
         services.AddScoped<IPolicyPackResolver, PolicyPackResolver>();
         services.AddScoped<IPolicyPackManagementService, PolicyPackManagementService>();
+        services.AddScoped<IEffectiveGovernanceResolver, EffectiveGovernanceResolver>();
         services.AddScoped<IEffectiveGovernanceLoader, EffectiveGovernanceLoader>();
         services.AddScoped<IPolicyPacksAppService, PolicyPacksAppService>();
     }

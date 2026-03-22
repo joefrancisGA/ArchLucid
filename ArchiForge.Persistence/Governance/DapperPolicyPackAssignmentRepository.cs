@@ -13,12 +13,12 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
             INSERT INTO dbo.PolicyPackAssignments
             (
                 AssignmentId, TenantId, WorkspaceId, ProjectId,
-                PolicyPackId, PolicyPackVersion, IsEnabled, AssignedUtc
+                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc
             )
             VALUES
             (
                 @AssignmentId, @TenantId, @WorkspaceId, @ProjectId,
-                @PolicyPackId, @PolicyPackVersion, @IsEnabled, @AssignedUtc
+                @PolicyPackId, @PolicyPackVersion, @IsEnabled, @ScopeLevel, @IsPinned, @AssignedUtc
             );
             """;
 
@@ -48,8 +48,11 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
             SELECT *
             FROM dbo.PolicyPackAssignments
             WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
+              AND (
+                    (ScopeLevel = N'Tenant')
+                 OR (ScopeLevel = N'Workspace' AND WorkspaceId = @WorkspaceId)
+                 OR (ScopeLevel = N'Project' AND WorkspaceId = @WorkspaceId AND ProjectId = @ProjectId)
+              )
             ORDER BY AssignedUtc DESC;
             """;
 

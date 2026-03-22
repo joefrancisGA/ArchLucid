@@ -61,6 +61,8 @@ public sealed class PolicyPacksAppService(
         Guid projectId,
         Guid policyPackId,
         string version,
+        string scopeLevel,
+        bool isPinned,
         CancellationToken ct)
     {
         var packVersion = await versionRepository
@@ -70,15 +72,22 @@ public sealed class PolicyPacksAppService(
             return null;
 
         var assignment = await managementService
-            .AssignAsync(tenantId, workspaceId, projectId, policyPackId, version, ct)
+            .AssignAsync(tenantId, workspaceId, projectId, policyPackId, version, scopeLevel, isPinned, ct)
             .ConfigureAwait(false);
 
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = AuditEventTypes.PolicyPackAssigned,
+                EventType = AuditEventTypes.PolicyPackAssignmentCreated,
                 DataJson = JsonSerializer.Serialize(
-                    new { assignment.AssignmentId, policyPackId, version = assignment.PolicyPackVersion }),
+                    new
+                    {
+                        assignment.AssignmentId,
+                        policyPackId,
+                        version = assignment.PolicyPackVersion,
+                        assignment.ScopeLevel,
+                        assignment.IsPinned,
+                    }),
             },
             ct).ConfigureAwait(false);
 

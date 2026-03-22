@@ -4,6 +4,7 @@ namespace ArchiForge.Api.Routing;
 public static class ApiV1Routes
 {
     public const string PolicyPacks = "v1/policy-packs";
+    public const string GovernanceResolution = "v1/governance-resolution";
     public const string AlertRules = "v1/alert-rules";
     public const string Alerts = "v1/alerts";
     public const string CompositeAlertRules = "v1/composite-alert-rules";

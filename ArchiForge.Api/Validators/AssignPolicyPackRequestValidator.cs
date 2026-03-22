@@ -1,4 +1,5 @@
 using ArchiForge.Api.Controllers;
+using ArchiForge.Decisioning.Governance.Resolution;
 using FluentValidation;
 
 namespace ArchiForge.Api.Validators;
@@ -14,5 +15,9 @@ public sealed class AssignPolicyPackRequestValidator : AbstractValidator<AssignP
             .MaximumLength(50)
             .Must(PolicyPackRequestValidationRules.BePolicyPackSemVerVersion)
             .WithMessage("Version must be SemVer 2 style (e.g. 1.0.0, 2.1.0-rc.1, optional leading 'v').");
+
+        RuleFor(x => x.ScopeLevel)
+            .Must(sl => GovernanceScopeLevel.TryNormalize(sl) is not null)
+            .WithMessage($"ScopeLevel must be one of: {string.Join(", ", GovernanceScopeLevel.All)}.");
     }
 }

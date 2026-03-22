@@ -35,6 +35,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/alert-simulation">Alert simulation</Link>
               <Link href="/alert-tuning">Alert tuning</Link>
               <Link href="/policy-packs">Policy packs</Link>
+              <Link href="/governance-resolution">Governance resolution</Link>
             </nav>
           </header>
           <AuthStatus />

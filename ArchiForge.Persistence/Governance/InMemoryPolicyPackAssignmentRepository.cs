@@ -1,4 +1,5 @@
 using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchiForge.Decisioning.Governance.Resolution;
 
 namespace ArchiForge.Persistence.Governance;
 
@@ -38,7 +39,13 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
         lock (_gate)
         {
             var result = _items
-                .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId)
+                .Where(x => x.TenantId == tenantId)
+                .Where(x =>
+                    string.Equals(x.ScopeLevel, GovernanceScopeLevel.Tenant, StringComparison.Ordinal) ||
+                    (string.Equals(x.ScopeLevel, GovernanceScopeLevel.Workspace, StringComparison.Ordinal) &&
+                     x.WorkspaceId == workspaceId) ||
+                    (string.Equals(x.ScopeLevel, GovernanceScopeLevel.Project, StringComparison.Ordinal) &&
+                     x.WorkspaceId == workspaceId && x.ProjectId == projectId))
                 .OrderByDescending(x => x.AssignedUtc)
                 .ToList();
             return Task.FromResult<IReadOnlyList<PolicyPackAssignment>>(result);

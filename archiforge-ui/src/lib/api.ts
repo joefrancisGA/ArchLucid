@@ -40,6 +40,7 @@ import type {
   PolicyPackContentDocument,
   PolicyPackVersion,
 } from "@/types/policy-packs";
+import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -451,7 +452,7 @@ export async function publishPolicyPackVersion(
 
 export async function assignPolicyPack(
   policyPackId: string,
-  body: { version: string },
+  body: { version: string; scopeLevel?: string; isPinned?: boolean },
 ): Promise<PolicyPackAssignment> {
   return apiPostJson<PolicyPackAssignment>(
     `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/assign`,
