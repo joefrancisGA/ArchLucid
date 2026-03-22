@@ -1,6 +1,7 @@
 using System.Text.Json;
 using ArchiForge.Core.Audit;
 using ArchiForge.Decisioning.Alerts;
+using ArchiForge.Decisioning.Alerts.Delivery;
 
 namespace ArchiForge.Persistence.Alerts;
 
@@ -8,6 +9,7 @@ public sealed class AlertService(
     IAlertRuleRepository ruleRepository,
     IAlertRecordRepository alertRepository,
     IAlertEvaluator alertEvaluator,
+    IAlertDeliveryDispatcher alertDeliveryDispatcher,
     IAuditService auditService) : IAlertService
 {
     public async Task<AlertEvaluationOutcome> EvaluateAndPersistAsync(
@@ -53,6 +55,8 @@ public sealed class AlertService(
                     }),
                 },
                 ct).ConfigureAwait(false);
+
+            await alertDeliveryDispatcher.DeliverAsync(alert, ct).ConfigureAwait(false);
         }
 
         return new AlertEvaluationOutcome(generated, persisted);

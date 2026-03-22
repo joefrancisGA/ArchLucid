@@ -1,0 +1,104 @@
+using System.Text.Json;
+using ArchiForge.Core.Audit;
+using ArchiForge.Decisioning.Alerts;
+using ArchiForge.Decisioning.Alerts.Delivery;
+
+namespace ArchiForge.Persistence.Alerts;
+
+public sealed class AlertDeliveryDispatcher(
+    IEnumerable<IAlertDeliveryChannel> channels,
+    IAlertRoutingSubscriptionRepository subscriptionRepository,
+    IAlertDeliveryAttemptRepository attemptRepository,
+    IAuditService auditService) : IAlertDeliveryDispatcher
+{
+    public async Task DeliverAsync(AlertRecord alert, CancellationToken ct)
+    {
+        var subscriptions = await subscriptionRepository
+            .ListEnabledByScopeAsync(alert.TenantId, alert.WorkspaceId, alert.ProjectId, ct)
+            .ConfigureAwait(false);
+
+        var matching = subscriptions
+            .Where(x => AlertSeverityComparer.MeetsMinimum(alert.Severity, x.MinimumSeverity))
+            .ToList();
+
+        foreach (var subscription in matching)
+        {
+            var attempt = new AlertDeliveryAttempt
+            {
+                AlertDeliveryAttemptId = Guid.NewGuid(),
+                AlertId = alert.AlertId,
+                RoutingSubscriptionId = subscription.RoutingSubscriptionId,
+                TenantId = alert.TenantId,
+                WorkspaceId = alert.WorkspaceId,
+                ProjectId = alert.ProjectId,
+                AttemptedUtc = DateTime.UtcNow,
+                Status = AlertDeliveryAttemptStatus.Started,
+                ChannelType = subscription.ChannelType,
+                Destination = subscription.Destination,
+                RetryCount = 0,
+            };
+
+            await attemptRepository.CreateAsync(attempt, ct).ConfigureAwait(false);
+
+            try
+            {
+                var channel = channels.FirstOrDefault(x =>
+                    string.Equals(x.ChannelType, subscription.ChannelType, StringComparison.OrdinalIgnoreCase));
+
+                if (channel is null)
+                    throw new InvalidOperationException($"No alert delivery channel registered for {subscription.ChannelType}.");
+
+                await channel
+                    .SendAsync(
+                        new AlertDeliveryPayload
+                        {
+                            Alert = alert,
+                            Subscription = subscription,
+                        },
+                        ct)
+                    .ConfigureAwait(false);
+
+                attempt.Status = AlertDeliveryAttemptStatus.Succeeded;
+                subscription.LastDeliveredUtc = DateTime.UtcNow;
+
+                await attemptRepository.UpdateAsync(attempt, ct).ConfigureAwait(false);
+                await subscriptionRepository.UpdateAsync(subscription, ct).ConfigureAwait(false);
+
+                await auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.AlertDeliverySucceeded,
+                        RunId = alert.RunId,
+                        DataJson = JsonSerializer.Serialize(new
+                        {
+                            alertId = alert.AlertId,
+                            subscription.RoutingSubscriptionId,
+                            subscription.ChannelType,
+                        }),
+                    },
+                    ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                attempt.Status = AlertDeliveryAttemptStatus.Failed;
+                attempt.ErrorMessage = ex.Message;
+                await attemptRepository.UpdateAsync(attempt, ct).ConfigureAwait(false);
+
+                await auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.AlertDeliveryFailed,
+                        RunId = alert.RunId,
+                        DataJson = JsonSerializer.Serialize(new
+                        {
+                            alertId = alert.AlertId,
+                            subscription.RoutingSubscriptionId,
+                            subscription.ChannelType,
+                            error = ex.Message,
+                        }),
+                    },
+                    ct).ConfigureAwait(false);
+            }
+        }
+    }
+}

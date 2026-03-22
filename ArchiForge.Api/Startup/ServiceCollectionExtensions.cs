@@ -31,6 +31,7 @@ using ArchiForge.Decisioning.Advisory.Analysis;
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Alerts;
+using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
 using ArchiForge.Decisioning.Comparison;
@@ -109,6 +110,11 @@ internal static partial class ServiceCollectionExtensions
     private static void RegisterAlerts(IServiceCollection services)
     {
         services.AddScoped<IAlertEvaluator, AlertEvaluator>();
+        services.AddScoped<IAlertDeliveryChannel, AlertEmailDeliveryChannel>();
+        services.AddScoped<IAlertDeliveryChannel, AlertTeamsWebhookDeliveryChannel>();
+        services.AddScoped<IAlertDeliveryChannel, AlertSlackWebhookDeliveryChannel>();
+        services.AddScoped<IAlertDeliveryChannel, AlertOnCallWebhookDeliveryChannel>();
+        services.AddScoped<IAlertDeliveryDispatcher, AlertDeliveryDispatcher>();
         services.AddScoped<IAlertService, AlertService>();
     }
 

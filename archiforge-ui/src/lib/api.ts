@@ -25,6 +25,7 @@ import type {
 } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
 import type { AlertRecord, AlertRule } from "@/types/alerts";
+import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -338,6 +339,46 @@ export async function applyAlertAction(
     action,
     comment: comment ?? "",
   });
+}
+
+export async function listAlertRoutingSubscriptions(): Promise<AlertRoutingSubscription[]> {
+  return apiGet<AlertRoutingSubscription[]>("/api/alert-routing-subscriptions");
+}
+
+export async function createAlertRoutingSubscription(body: {
+  name: string;
+  channelType: string;
+  destination: string;
+  minimumSeverity: string;
+  isEnabled?: boolean;
+  metadataJson?: string;
+}): Promise<AlertRoutingSubscription> {
+  return apiPostJson<AlertRoutingSubscription>("/api/alert-routing-subscriptions", {
+    name: body.name,
+    channelType: body.channelType,
+    destination: body.destination,
+    minimumSeverity: body.minimumSeverity,
+    isEnabled: body.isEnabled ?? true,
+    metadataJson: body.metadataJson ?? "{}",
+  });
+}
+
+export async function toggleAlertRoutingSubscription(
+  routingSubscriptionId: string,
+): Promise<AlertRoutingSubscription> {
+  return apiPostJson<AlertRoutingSubscription>(
+    `/api/alert-routing-subscriptions/${encodeURIComponent(routingSubscriptionId)}/toggle`,
+    {},
+  );
+}
+
+export async function listAlertRoutingDeliveryAttempts(
+  routingSubscriptionId: string,
+  take = 30,
+): Promise<AlertRoutingDeliveryAttempt[]> {
+  return apiGet<AlertRoutingDeliveryAttempt[]>(
+    `/api/alert-routing-subscriptions/${encodeURIComponent(routingSubscriptionId)}/attempts?take=${take}`,
+  );
 }
 
 export async function rebuildLearningProfile(): Promise<LearningProfile> {

@@ -6,6 +6,7 @@ using ArchiForge.ContextIngestion.Repositories;
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Alerts;
+using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Repositories;
@@ -119,6 +120,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IDigestDeliveryAttemptRepository, DapperDigestDeliveryAttemptRepository>();
         services.AddScoped<IAlertRuleRepository, DapperAlertRuleRepository>();
         services.AddScoped<IAlertRecordRepository, DapperAlertRecordRepository>();
+        services.AddScoped<IAlertRoutingSubscriptionRepository, DapperAlertRoutingSubscriptionRepository>();
+        services.AddScoped<IAlertDeliveryAttemptRepository, DapperAlertDeliveryAttemptRepository>();
 
         return services;
     }
