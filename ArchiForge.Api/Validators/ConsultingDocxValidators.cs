@@ -15,8 +15,8 @@ public sealed class ConsultingDocxExportRequestValidator : AbstractValidator<Con
             .MaximumLength(500).WithMessage("Audience must not exceed 500 characters.");
 
         RuleFor(x => x.DeterminismIterations)
-            .InclusiveBetween(1, 20)
-            .WithMessage("DeterminismIterations must be between 1 and 20.");
+            .InclusiveBetween(2, 20)
+            .WithMessage("DeterminismIterations must be between 2 and 20.");
 
         When(x => x.IncludeManifestCompare, () =>
         {

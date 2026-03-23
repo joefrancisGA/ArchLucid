@@ -9,6 +9,7 @@ namespace ArchiForge.Decisioning.Repositories;
 public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 {
     private readonly List<DecisionTrace> _store = [];
+    private readonly Lock _lock = new();
 
     public Task SaveAsync(
         DecisionTrace trace,
@@ -19,18 +20,24 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         _ = ct;
         _ = connection;
         _ = transaction;
-        _store.Add(trace);
+        lock (_lock)
+        {
+            _store.Add(trace);
+        }
         return Task.CompletedTask;
     }
 
     public Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
-        var result = _store.FirstOrDefault(x =>
-            x.DecisionTraceId == decisionTraceId &&
-            x.TenantId == scope.TenantId &&
-            x.WorkspaceId == scope.WorkspaceId &&
-            x.ProjectId == scope.ProjectId);
-        return Task.FromResult(result);
+        lock (_lock)
+        {
+            var result = _store.FirstOrDefault(x =>
+                x.DecisionTraceId == decisionTraceId &&
+                x.TenantId == scope.TenantId &&
+                x.WorkspaceId == scope.WorkspaceId &&
+                x.ProjectId == scope.ProjectId);
+            return Task.FromResult(result);
+        }
     }
 }
 

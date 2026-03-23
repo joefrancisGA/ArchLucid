@@ -12,6 +12,17 @@ internal static class PipelineExtensions
         {
             exceptionHandlerApp.Run(async context =>
             {
+                var exceptionFeature = context.Features
+                    .Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+
+                if (exceptionFeature?.Error is { } ex)
+                {
+                    var logger = context.RequestServices
+                        .GetRequiredService<ILogger<WebApplication>>();
+                    logger.LogError(ex, "Unhandled exception for {Method} {Path}",
+                        context.Request.Method, context.Request.Path);
+                }
+
                 var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
                 {
                     Type = ProblemTypes.InternalError,

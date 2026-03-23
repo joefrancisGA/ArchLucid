@@ -58,19 +58,29 @@ public sealed class EffectiveGovernanceResolver(
             .ToList();
 
         var resolvedPacks = new List<ResolvedPackRow>();
+        var skippedNotes = new List<string>();
 
         foreach (var assignment in applicable)
         {
             var pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct).ConfigureAwait(false);
             if (pack is null)
+            {
+                skippedNotes.Add(
+                    $"Skipped assignment for policy pack '{assignment.PolicyPackId}': pack not found.");
                 continue;
+            }
 
             var version = await versionRepository
                 .GetByPackAndVersionAsync(assignment.PolicyPackId, assignment.PolicyPackVersion, ct)
                 .ConfigureAwait(false);
 
             if (version is null)
+            {
+                skippedNotes.Add(
+                    $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}): " +
+                    $"version '{assignment.PolicyPackVersion}' not found.");
                 continue;
+            }
 
             PolicyPackContentDocument? content;
             try
@@ -79,13 +89,21 @@ public sealed class EffectiveGovernanceResolver(
                     version.ContentJson,
                     PolicyPackJsonSerializerOptions.Default);
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
+                skippedNotes.Add(
+                    $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
+                    $"version '{assignment.PolicyPackVersion}': content JSON is corrupt ({ex.Message}).");
                 continue;
             }
 
             if (content is null)
+            {
+                skippedNotes.Add(
+                    $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
+                    $"version '{assignment.PolicyPackVersion}': content deserialized to null.");
                 continue;
+            }
 
             resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
         }
@@ -96,6 +114,9 @@ public sealed class EffectiveGovernanceResolver(
             WorkspaceId = workspaceId,
             ProjectId = projectId,
         };
+
+        foreach (var note in skippedNotes)
+            result.Notes.Add(note);
 
         ResolveGuidIdList(
             result,
@@ -130,14 +151,14 @@ public sealed class EffectiveGovernanceResolver(
             "AdvisoryDefault",
             resolvedPacks,
             x => x.Content.AdvisoryDefaults,
-            (content, dict) => content.AdvisoryDefaults = dict);
+            (content, dict) => content.AdvisoryDefaults = dict ?? []);
 
         ResolveDictionary(
             result,
             "Metadata",
             resolvedPacks,
             x => x.Content.Metadata,
-            (content, dict) => content.Metadata = dict);
+            (content, dict) => content.Metadata = dict ?? []);
 
         result.Notes.Add($"Resolved {resolvedPacks.Count} applicable policy pack assignment(s).");
         result.Notes.Add($"Produced {result.Decisions.Count} resolution decision(s).");
@@ -249,11 +270,11 @@ public sealed class EffectiveGovernanceResolver(
         EffectiveGovernanceResolutionResult result,
         string itemType,
         List<ResolvedPackRow> packs,
-        Func<ResolvedPackRow, List<Guid>> selector,
+        Func<ResolvedPackRow, List<Guid>?> selector,
         Action<PolicyPackContentDocument, List<Guid>> setter)
     {
         var allIds = packs
-            .SelectMany(selector)
+            .SelectMany(x => selector(x) ?? [])
             .Distinct()
             .ToList();
 
@@ -264,7 +285,7 @@ public sealed class EffectiveGovernanceResolver(
             var raw = id.ToString("D");
             var candidates = OrderCandidates(
                 packs
-                    .Where(x => selector(x).Contains(id))
+                    .Where(x => (selector(x) ?? []).Contains(id))
                     .Select(x => ToCandidate(x, raw)));
 
             if (candidates.Count == 0)
@@ -311,11 +332,11 @@ public sealed class EffectiveGovernanceResolver(
         EffectiveGovernanceResolutionResult result,
         string itemType,
         List<ResolvedPackRow> packs,
-        Func<ResolvedPackRow, List<string>> selector,
+        Func<ResolvedPackRow, List<string>?> selector,
         Action<PolicyPackContentDocument, List<string>> setter)
     {
         var allKeys = packs
-            .SelectMany(selector)
+            .SelectMany(x => selector(x) ?? [])
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -325,10 +346,11 @@ public sealed class EffectiveGovernanceResolver(
         {
             var candidates = OrderCandidates(
                 packs
-                    .Where(x => selector(x).Contains(key, StringComparer.OrdinalIgnoreCase))
+                    .Where(x => (selector(x) ?? []).Contains(key, StringComparer.OrdinalIgnoreCase))
                     .Select(x =>
                     {
-                        var v = selector(x).First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
+                        var list = selector(x) ?? [];
+                        var v = list.First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
                         return ToCandidate(x, JsonSerializer.Serialize(v, PolicyPackJsonSerializerOptions.Default));
                     }));
 
@@ -337,7 +359,7 @@ public sealed class EffectiveGovernanceResolver(
 
             candidates[0].WasSelected = true;
             var canonical = packs
-                .SelectMany(selector)
+                .SelectMany(x => selector(x) ?? [])
                 .First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
             effective.Add(canonical);
 
@@ -381,11 +403,11 @@ public sealed class EffectiveGovernanceResolver(
         EffectiveGovernanceResolutionResult result,
         string itemType,
         List<ResolvedPackRow> packs,
-        Func<ResolvedPackRow, Dictionary<string, string>> selector,
+        Func<ResolvedPackRow, Dictionary<string, string>?> selector,
         Action<PolicyPackContentDocument, Dictionary<string, string>> setter)
     {
         var keys = packs
-            .SelectMany(x => selector(x).Keys)
+            .SelectMany(x => (selector(x) ?? []).Keys)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -396,10 +418,10 @@ public sealed class EffectiveGovernanceResolver(
             var candidates = OrderCandidates(
                 packs
                     .Where(x =>
-                        selector(x).Keys.Any(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase)))
+                        (selector(x) ?? []).Keys.Any(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase)))
                     .Select(x =>
                     {
-                        var dict = selector(x);
+                        var dict = selector(x) ?? [];
                         var actualKey = dict.Keys.First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
                         var val = dict[actualKey];
                         return ToCandidate(x, val);
@@ -410,7 +432,7 @@ public sealed class EffectiveGovernanceResolver(
 
             candidates[0].WasSelected = true;
             var canonicalKey = packs
-                .SelectMany(x => selector(x).Keys)
+                .SelectMany(x => (selector(x) ?? []).Keys)
                 .First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
             effective[canonicalKey] = candidates[0].ValueJson;
 

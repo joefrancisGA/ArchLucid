@@ -9,6 +9,7 @@ namespace ArchiForge.Decisioning.Repositories;
 public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
 {
     private readonly List<GoldenManifest> _store = [];
+    private readonly Lock _lock = new();
 
     public Task SaveAsync(
         GoldenManifest manifest,
@@ -19,18 +20,24 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         _ = ct;
         _ = connection;
         _ = transaction;
-        _store.Add(manifest);
+        lock (_lock)
+        {
+            _store.Add(manifest);
+        }
         return Task.CompletedTask;
     }
 
     public Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
-        var result = _store.FirstOrDefault(x =>
-            x.ManifestId == manifestId &&
-            x.TenantId == scope.TenantId &&
-            x.WorkspaceId == scope.WorkspaceId &&
-            x.ProjectId == scope.ProjectId);
-        return Task.FromResult(result);
+        lock (_lock)
+        {
+            var result = _store.FirstOrDefault(x =>
+                x.ManifestId == manifestId &&
+                x.TenantId == scope.TenantId &&
+                x.WorkspaceId == scope.WorkspaceId &&
+                x.ProjectId == scope.ProjectId);
+            return Task.FromResult(result);
+        }
     }
 }
 

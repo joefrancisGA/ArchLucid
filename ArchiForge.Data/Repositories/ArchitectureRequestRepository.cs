@@ -70,8 +70,24 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
             },
             cancellationToken: cancellationToken));
 
-        return json is null
-            ? null
-            : JsonSerializer.Deserialize<ArchitectureRequest>(json, ContractJson.Default);
+        if (json is null)
+            return null;
+
+        ArchitectureRequest? request;
+        try
+        {
+            request = JsonSerializer.Deserialize<ArchitectureRequest>(json, ContractJson.Default);
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Request JSON for '{requestId}' could not be deserialized. " +
+                "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+        }
+
+        return request
+            ?? throw new InvalidOperationException(
+                $"Request JSON for '{requestId}' deserialized to null. " +
+                "The stored JSON may be empty or corrupt.");
     }
 }

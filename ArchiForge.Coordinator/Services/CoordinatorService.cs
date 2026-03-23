@@ -18,6 +18,8 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
         ArchitectureRequest request,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         var output = new CoordinationResult();
 
         var validationErrors = ValidateRequest(request);

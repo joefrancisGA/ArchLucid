@@ -22,12 +22,16 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         var nodeIds = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var usedNodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        var services = manifest.Services ?? [];
+        var datastores = manifest.Datastores ?? [];
+        var manifestRelationships = manifest.Relationships ?? [];
+
         // Optional grouping (subgraphs) for services only.
-        if (manifest.Services.Count > 0)
+        if (services.Count > 0)
         {
             if (groupBy == "none")
             {
-                foreach (var service in manifest.Services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
+                foreach (var service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
                 {
                     var nodeId = GetOrCreateNodeId("svc", service.ServiceId, service.ServiceName);
                     var label = BuildServiceLabel(service, options.IncludeRuntimePlatform);
@@ -36,7 +40,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             }
             else
             {
-                var groups = manifest.Services
+                var groups = services
                     .GroupBy(s => groupBy == "runtimeplatform"
                         ? (s.RuntimePlatform.ToString())
                         : (s.ServiceType.ToString()), StringComparer.OrdinalIgnoreCase)
@@ -56,17 +60,17 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             }
         }
 
-        foreach (var datastore in manifest.Datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
+        foreach (var datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
         {
             var nodeId = GetOrCreateNodeId("ds", datastore.DatastoreId, datastore.DatastoreName);
             var label = BuildDatastoreLabel(datastore, options.IncludeRuntimePlatform);
             sb.AppendLine($"    {nodeId}[(\"{EscapeLabel(label)}\")]");
         }
 
-        if (manifest.Services.Count > 0 || manifest.Datastores.Count > 0)
+        if (services.Count > 0 || datastores.Count > 0)
             sb.AppendLine();
 
-        foreach (var relationship in manifest.Relationships)
+        foreach (var relationship in manifestRelationships)
         {
             var source = ResolveExistingNodeId(relationship.SourceId, manifest, nodeIds)
                          ?? SanitizeId(relationship.SourceId);
@@ -113,7 +117,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         if (string.IsNullOrWhiteSpace(sourceOrTargetId))
             return null;
 
-        var svc = manifest.Services.FirstOrDefault(s =>
+        var svc = (manifest.Services ?? []).FirstOrDefault(s =>
             s.ServiceId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
 
         if (svc is not null)
@@ -124,7 +128,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             return SanitizeId(string.IsNullOrWhiteSpace(svc.ServiceId) ? svc.ServiceName : svc.ServiceId);
         }
 
-        var ds = manifest.Datastores.FirstOrDefault(d =>
+        var ds = (manifest.Datastores ?? []).FirstOrDefault(d =>
             d.DatastoreId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
 
         if (ds is null)

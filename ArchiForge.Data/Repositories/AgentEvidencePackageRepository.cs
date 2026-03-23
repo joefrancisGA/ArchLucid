@@ -49,6 +49,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
         var json = JsonSerializer.Serialize(evidencePackage, ContractJson.Default);
 
         using var connection = connectionFactory.CreateConnection();
+        connection.Open();
 
         var parameters = new
         {
@@ -62,15 +63,21 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             evidencePackage.CreatedUtc
         };
 
+        using var tx = connection.BeginTransaction();
+
         await connection.ExecuteAsync(new CommandDefinition(
             deleteSql,
             new { evidencePackage.RunId },
+            transaction: tx,
             cancellationToken: cancellationToken));
 
         await connection.ExecuteAsync(new CommandDefinition(
             insertSql,
             parameters,
+            transaction: tx,
             cancellationToken: cancellationToken));
+
+        tx.Commit();
     }
 
     public async Task<AgentEvidencePackage?> GetByRunIdAsync(
@@ -94,9 +101,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             },
             cancellationToken: cancellationToken));
 
-        return json is null
-            ? null
-            : JsonSerializer.Deserialize<AgentEvidencePackage>(json, ContractJson.Default);
+        return DeserializePackage(json, $"run '{runId}'");
     }
 
     public async Task<AgentEvidencePackage?> GetByIdAsync(
@@ -119,8 +124,29 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             },
             cancellationToken: cancellationToken));
 
-        return json is null
-            ? null
-            : JsonSerializer.Deserialize<AgentEvidencePackage>(json, ContractJson.Default);
+        return DeserializePackage(json, $"package '{evidencePackageId}'");
+    }
+
+    private static AgentEvidencePackage? DeserializePackage(string? json, string context)
+    {
+        if (json is null)
+            return null;
+
+        AgentEvidencePackage? package;
+        try
+        {
+            package = JsonSerializer.Deserialize<AgentEvidencePackage>(json, ContractJson.Default);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Evidence package JSON for {context} could not be deserialized. " +
+                "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+        }
+
+        return package
+            ?? throw new InvalidOperationException(
+                $"Evidence package JSON for {context} deserialized to null. " +
+                "The stored JSON may be empty or corrupt.");
     }
 }

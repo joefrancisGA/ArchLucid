@@ -74,9 +74,21 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
         if (json is null)
             return null;
 
-        return JsonSerializer.Deserialize<GoldenManifest>(json, ContractJson.Default)
-            ?? throw new InvalidOperationException(
+        GoldenManifest? manifest;
+        try
+        {
+            manifest = JsonSerializer.Deserialize<GoldenManifest>(json, ContractJson.Default);
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            throw new InvalidOperationException(
                 $"Manifest JSON for version '{manifestVersion}' could not be deserialized. " +
-                "The stored JSON may be corrupt or written by an incompatible schema version.");
+                "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+        }
+
+        return manifest
+            ?? throw new InvalidOperationException(
+                $"Manifest JSON for version '{manifestVersion}' deserialized to null. " +
+                "The stored JSON may be empty or corrupt.");
     }
 }

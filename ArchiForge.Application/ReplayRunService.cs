@@ -122,6 +122,12 @@ public sealed class ReplayRunService(
 
             await manifestRepository.CreateAsync(manifest, cancellationToken);
             await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
+            await runRepository.UpdateStatusAsync(
+                replayRunId,
+                ArchitectureRunStatus.Committed,
+                currentManifestVersion: manifest.Metadata.ManifestVersion,
+                completedUtc: DateTime.UtcNow,
+                cancellationToken: cancellationToken);
 
             scope.Complete();
         }
@@ -150,13 +156,15 @@ public sealed class ReplayRunService(
             SystemName = original.SystemName,
             Environment = original.Environment,
             CloudProvider = original.CloudProvider,
-            Request = new RequestEvidence
-            {
-                Description = original.Request.Description,
-                Constraints = (original.Request.Constraints ?? []).ToList(),
-                RequiredCapabilities = (original.Request.RequiredCapabilities ?? []).ToList(),
-                Assumptions = (original.Request.Assumptions ?? []).ToList()
-            },
+            Request = original.Request is null
+                ? new RequestEvidence()
+                : new RequestEvidence
+                {
+                    Description = original.Request.Description,
+                    Constraints = (original.Request.Constraints ?? []).ToList(),
+                    RequiredCapabilities = (original.Request.RequiredCapabilities ?? []).ToList(),
+                    Assumptions = (original.Request.Assumptions ?? []).ToList()
+                },
             Policies = (original.Policies ?? []).Select(p => new PolicyEvidence
             {
                 PolicyId = p.PolicyId,

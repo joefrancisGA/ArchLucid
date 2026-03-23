@@ -52,16 +52,23 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         };
 
         using var connection = connectionFactory.CreateConnection();
+        connection.Open();
+
+        using var tx = connection.BeginTransaction();
 
         await connection.ExecuteAsync(new CommandDefinition(
             deleteSql,
             new { result.RunId, result.TaskId },
+            transaction: tx,
             cancellationToken: cancellationToken));
 
         await connection.ExecuteAsync(new CommandDefinition(
             insertSql,
             parameters,
+            transaction: tx,
             cancellationToken: cancellationToken));
+
+        tx.Commit();
     }
 
     public async Task CreateManyAsync(IReadOnlyList<AgentResult> results, CancellationToken cancellationToken = default)

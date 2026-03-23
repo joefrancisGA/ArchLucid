@@ -47,7 +47,8 @@ public partial class Program
             if (string.Equals(options?.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
             {
                 var bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
-                bootstrapper.EnsureSchemaAsync(CancellationToken.None).GetAwaiter().GetResult();
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
             }
         }
 

@@ -18,6 +18,10 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
 
         var sb = new StringBuilder();
 
+        var services = manifest.Services ?? [];
+        var datastores = manifest.Datastores ?? [];
+        var relationships = manifest.Relationships ?? [];
+
         sb.AppendLine($"# Architecture Summary: {manifest.SystemName}");
         sb.AppendLine();
 
@@ -25,16 +29,16 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine();
         sb.AppendLine(
             $"{manifest.SystemName} is represented by a GoldenManifest containing " +
-            $"{manifest.Services.Count} service(s), {manifest.Datastores.Count} datastore(s), " +
-            $"and {manifest.Relationships.Count} relationship(s).");
+            $"{services.Count} service(s), {datastores.Count} datastore(s), " +
+            $"and {relationships.Count} relationship(s).");
         sb.AppendLine();
 
-        if (manifest.Services.Count > 0)
+        if (services.Count > 0)
         {
             sb.AppendLine("## Services");
             sb.AppendLine();
 
-            foreach (var service in manifest.Services.OrderBy(s => s.ServiceName))
+            foreach (var service in services.OrderBy(s => s.ServiceName))
             {
                 sb.AppendLine($"- **{service.ServiceName}**");
                 sb.AppendLine($"  - Type: {service.ServiceType}");
@@ -45,26 +49,28 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
                     sb.AppendLine($"  - Purpose: {service.Purpose}");
                 }
 
-                if (service.RequiredControls.Count > 0)
+                var requiredControls = service.RequiredControls ?? [];
+                if (requiredControls.Count > 0)
                 {
-                    sb.AppendLine($"  - Required Controls: {string.Join(", ", service.RequiredControls)}");
+                    sb.AppendLine($"  - Required Controls: {string.Join(", ", requiredControls)}");
                 }
 
-                if (service.Tags.Count > 0)
+                var tags = service.Tags ?? [];
+                if (tags.Count > 0)
                 {
-                    sb.AppendLine($"  - Tags: {string.Join(", ", service.Tags)}");
+                    sb.AppendLine($"  - Tags: {string.Join(", ", tags)}");
                 }
             }
 
             sb.AppendLine();
         }
 
-        if (manifest.Datastores.Count > 0)
+        if (datastores.Count > 0)
         {
             sb.AppendLine("## Datastores");
             sb.AppendLine();
 
-            foreach (var datastore in manifest.Datastores.OrderBy(d => d.DatastoreName))
+            foreach (var datastore in datastores.OrderBy(d => d.DatastoreName))
             {
                 sb.AppendLine($"- **{datastore.DatastoreName}**");
                 sb.AppendLine($"  - Type: {datastore.DatastoreType}");
@@ -82,12 +88,12 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
             sb.AppendLine();
         }
 
-        if (manifest.Relationships.Count > 0)
+        if (relationships.Count > 0)
         {
             sb.AppendLine("## Relationships");
             sb.AppendLine();
 
-            foreach (var relationship in manifest.Relationships
+            foreach (var relationship in relationships
                          .OrderBy(r => r.SourceId)
                          .ThenBy(r => r.TargetId))
             {
@@ -105,56 +111,63 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine("## Governance");
         sb.AppendLine();
 
-        if (manifest.Governance.RequiredControls.Count > 0)
+        var requiredControlsList = manifest.Governance?.RequiredControls ?? [];
+        if (requiredControlsList.Count > 0)
         {
-            sb.AppendLine($"- Required Controls: {string.Join(", ", manifest.Governance.RequiredControls)}");
+            sb.AppendLine($"- Required Controls: {string.Join(", ", requiredControlsList)}");
         }
         else
         {
             sb.AppendLine("- Required Controls: None recorded");
         }
 
-        if (manifest.Governance.ComplianceTags.Count > 0)
+        var complianceTags = manifest.Governance?.ComplianceTags ?? [];
+        if (complianceTags.Count > 0)
         {
-            sb.AppendLine($"- Compliance Tags: {string.Join(", ", manifest.Governance.ComplianceTags)}");
+            sb.AppendLine($"- Compliance Tags: {string.Join(", ", complianceTags)}");
         }
         else
         {
             sb.AppendLine("- Compliance Tags: None recorded");
         }
 
-        if (manifest.Governance.PolicyConstraints.Count > 0)
+        var policyConstraints = manifest.Governance?.PolicyConstraints ?? [];
+        if (policyConstraints.Count > 0)
         {
-            sb.AppendLine($"- Policy Constraints: {string.Join(", ", manifest.Governance.PolicyConstraints)}");
+            sb.AppendLine($"- Policy Constraints: {string.Join(", ", policyConstraints)}");
         }
         else
         {
             sb.AppendLine("- Policy Constraints: None recorded");
         }
 
-        sb.AppendLine($"- Risk Classification: {manifest.Governance.RiskClassification}");
-        sb.AppendLine($"- Cost Classification: {manifest.Governance.CostClassification}");
+        sb.AppendLine($"- Risk Classification: {manifest.Governance?.RiskClassification}");
+        sb.AppendLine($"- Cost Classification: {manifest.Governance?.CostClassification}");
         sb.AppendLine();
 
         sb.AppendLine("## Metadata");
         sb.AppendLine();
-        sb.AppendLine($"- Manifest Version: {manifest.Metadata.ManifestVersion}");
+        sb.AppendLine($"- Manifest Version: {manifest.Metadata?.ManifestVersion}");
 
-        if (!string.IsNullOrWhiteSpace(manifest.Metadata.ParentManifestVersion))
+        if (!string.IsNullOrWhiteSpace(manifest.Metadata?.ParentManifestVersion))
         {
             sb.AppendLine($"- Parent Manifest Version: {manifest.Metadata.ParentManifestVersion}");
         }
 
-        if (!string.IsNullOrWhiteSpace(manifest.Metadata.ChangeDescription))
+        if (!string.IsNullOrWhiteSpace(manifest.Metadata?.ChangeDescription))
         {
             sb.AppendLine($"- Change Description: {manifest.Metadata.ChangeDescription}");
         }
 
-        sb.AppendLine($"- Created UTC: {manifest.Metadata.CreatedUtc:O}");
-
-        if (manifest.Metadata.DecisionTraceIds.Count > 0)
+        if (manifest.Metadata is not null)
         {
-            sb.AppendLine($"- Decision Trace Count: {manifest.Metadata.DecisionTraceIds.Count}");
+            sb.AppendLine($"- Created UTC: {manifest.Metadata.CreatedUtc:O}");
+        }
+
+        var traceIds = manifest.Metadata?.DecisionTraceIds ?? [];
+        if (traceIds.Count > 0)
+        {
+            sb.AppendLine($"- Decision Trace Count: {traceIds.Count}");
         }
 
         if (evidence is not null)
