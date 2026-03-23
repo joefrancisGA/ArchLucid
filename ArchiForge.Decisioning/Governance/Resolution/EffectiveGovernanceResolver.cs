@@ -5,20 +5,43 @@ using ArchiForge.Decisioning.Governance.PolicyPacks;
 namespace ArchiForge.Decisioning.Governance.Resolution;
 
 /// <summary>
-/// Resolves layered policy pack assignments with explicit scope precedence:
-/// project &gt; workspace &gt; tenant; pinned adds a bonus within the same tier; newer <see cref="PolicyPackAssignment.AssignedUtc"/> wins ties.
+/// Default <see cref="IEffectiveGovernanceResolver"/>: merges applicable pack contents into one <see cref="PolicyPackContentDocument"/>
+/// using explicit precedence (project &gt; workspace &gt; tenant, pin boost, then <see cref="PolicyPackAssignment.AssignedUtc"/>).
 /// </summary>
+/// <remarks>
+/// <para>
+/// <strong>Why:</strong> Enterprise governance is layered; operators need deterministic “effective” state and an explainable trace
+/// (<see cref="GovernanceResolutionDecision"/>, <see cref="GovernanceConflictRecord"/>) for audits and the governance-resolution API.
+/// </para>
+/// <para>
+/// <strong>Callers:</strong> <see cref="EffectiveGovernanceLoader"/>, HTTP governance-resolution endpoint (API layer), and
+/// <c>EffectiveGovernanceResolverTests</c>.
+/// </para>
+/// </remarks>
+/// <param name="assignmentRepository">Supplies hierarchical assignment rows for the scope.</param>
+/// <param name="packRepository">Resolves pack metadata for each assignment.</param>
+/// <param name="versionRepository">Loads <c>ContentJson</c> for the assigned version string.</param>
 public sealed class EffectiveGovernanceResolver(
     IPolicyPackAssignmentRepository assignmentRepository,
     IPolicyPackRepository packRepository,
     IPolicyPackVersionRepository versionRepository) : IEffectiveGovernanceResolver
 {
+    /// <summary>
+    /// One materialized pack contribution: assignment + pack + version + parsed <see cref="PolicyPackContentDocument"/>.
+    /// </summary>
+    /// <remarks>Internal to <see cref="ResolveAsync"/>; keeps merge helpers strongly typed.</remarks>
     private sealed record ResolvedPackRow(
         PolicyPackAssignment Assignment,
         PolicyPack Pack,
         PolicyPackVersion Version,
         PolicyPackContentDocument Content);
 
+    /// <inheritdoc />
+    /// <remarks>
+    /// Pipeline: (1) list assignments, (2) filter enabled + <see cref="AppliesToScope"/>, (3) load pack/version and deserialize JSON
+    /// (skip bad rows), (4) merge each facet via <see cref="ResolveGuidIdList"/>, <see cref="ResolveStringKeyList"/>, <see cref="ResolveDictionary"/>.
+    /// Appends human-readable counts to <see cref="EffectiveGovernanceResolutionResult.Notes"/>.
+    /// </remarks>
     public async Task<EffectiveGovernanceResolutionResult> ResolveAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -123,6 +146,13 @@ public sealed class EffectiveGovernanceResolver(
         return result;
     }
 
+    /// <summary>
+    /// Determines whether an assignment row applies to the runtime project context, independent of repository SQL details.
+    /// </summary>
+    /// <remarks>
+    /// Called only from <see cref="ResolveAsync"/>. Tenant rows ignore workspace/project columns; workspace rows require workspace match;
+    /// project rows require both workspace and project match.
+    /// </remarks>
     private static bool AppliesToScope(
         PolicyPackAssignment assignment,
         Guid tenantId,
@@ -142,8 +172,12 @@ public sealed class EffectiveGovernanceResolver(
     }
 
     /// <summary>
-    /// Higher wins. Scope dominates: tenant=1000, workspace=2000, project=3000; +100 if pinned.
+    /// Computes a single sortable rank: base tier (tenant 1000, workspace 2000, project 3000) plus 100 when <see cref="PolicyPackAssignment.IsPinned"/>.
     /// </summary>
+    /// <remarks>
+    /// <strong>Why tier &gt; pin:</strong> an unpinned project assignment (3000) still beats a pinned tenant assignment (1100), so scope always wins over pin.
+    /// Exposed as <c>internal</c> for unit tests. Used by <see cref="OrderCandidates"/>.
+    /// </remarks>
     internal static int GetPrecedenceRank(PolicyPackAssignment assignment)
     {
         var tier = assignment.ScopeLevel switch
@@ -157,6 +191,8 @@ public sealed class EffectiveGovernanceResolver(
         return assignment.IsPinned ? tier + 100 : tier;
     }
 
+    /// <summary>Projects a <see cref="ResolvedPackRow"/> into a <see cref="GovernanceResolutionCandidate"/> for UI/API.</summary>
+    /// <remarks>Called from resolve-* helpers when building candidate lists per item key.</remarks>
     private static GovernanceResolutionCandidate ToCandidate(ResolvedPackRow row, string valueJson)
     {
         var a = row.Assignment;
@@ -173,6 +209,8 @@ public sealed class EffectiveGovernanceResolver(
         };
     }
 
+    /// <summary>Deterministic ordering: higher <see cref="GovernanceResolutionCandidate.PrecedenceRank"/>, then newer <see cref="GovernanceResolutionCandidate.AssignedUtc"/>, then <see cref="GovernanceResolutionCandidate.AssignmentId"/>.</summary>
+    /// <remarks>Shared by all merge strategies so ties never depend on enumeration order.</remarks>
     private static List<GovernanceResolutionCandidate> OrderCandidates(IEnumerable<GovernanceResolutionCandidate> candidates) =>
         candidates
             .OrderByDescending(c => c.PrecedenceRank)
@@ -180,6 +218,8 @@ public sealed class EffectiveGovernanceResolver(
             .ThenByDescending(c => c.AssignmentId)
             .ToList();
 
+    /// <summary>Builds operator-facing text explaining why the first candidate in an ordered list won.</summary>
+    /// <remarks>Called when appending <see cref="GovernanceResolutionDecision.ResolutionReason"/>.</remarks>
     private static string BuildResolutionReason(IReadOnlyList<GovernanceResolutionCandidate> ordered)
     {
         if (ordered.Count == 0)
@@ -198,6 +238,13 @@ public sealed class EffectiveGovernanceResolver(
         return "Same scope tier, pin state, and timestamp; winner chosen by deterministic tie-break (AssignmentId).";
     }
 
+    /// <summary>
+    /// Merges a list-valued facet keyed by <see cref="Guid"/> (e.g. compliance / alert rule ids): union of distinct ids, winner per id.
+    /// </summary>
+    /// <remarks>
+    /// Emits <see cref="GovernanceConflictRecord"/> with <c>DuplicateDefinition</c> when multiple packs mention the same id.
+    /// Invoked from <see cref="ResolveAsync"/> for ComplianceRule, AlertRule, and CompositeAlertRule facets.
+    /// </remarks>
     private static void ResolveGuidIdList(
         EffectiveGovernanceResolutionResult result,
         string itemType,
@@ -255,6 +302,11 @@ public sealed class EffectiveGovernanceResolver(
         setter(result.EffectiveContent, effective);
     }
 
+    /// <summary>Merges string list facets (e.g. <see cref="PolicyPackContentDocument.ComplianceRuleKeys"/>) with case-insensitive key equality.</summary>
+    /// <remarks>
+    /// Stores JSON-encoded <see cref="GovernanceResolutionCandidate.ValueJson"/> for keys so UI can show quoted strings consistently.
+    /// <c>DuplicateDefinition</c> conflicts when the same key appears in multiple packs.
+    /// </remarks>
     private static void ResolveStringKeyList(
         EffectiveGovernanceResolutionResult result,
         string itemType,
@@ -318,6 +370,13 @@ public sealed class EffectiveGovernanceResolver(
         setter(result.EffectiveContent, effective);
     }
 
+    /// <summary>
+    /// Merges dictionary facets (<see cref="PolicyPackContentDocument.AdvisoryDefaults"/>, <see cref="PolicyPackContentDocument.Metadata"/>):
+    /// last-winner per key by precedence; <c>ValueConflict</c> when values differ across packs.
+    /// </summary>
+    /// <remarks>
+    /// Unlike id lists, duplicate keys with identical values do not produce a value conflict—only <see cref="GovernanceResolutionDecision"/> entries.
+    /// </remarks>
     private static void ResolveDictionary(
         EffectiveGovernanceResolutionResult result,
         string itemType,

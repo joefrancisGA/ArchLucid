@@ -1,10 +1,25 @@
+using ArchiForge.Decisioning.Governance.Resolution;
+
 namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 
+/// <summary>
+/// Default <see cref="IPolicyPackResolver"/>: loads hierarchical assignments, filters <see cref="PolicyPackAssignment.IsEnabled"/>,
+/// and attaches each pack’s <see cref="PolicyPackVersion.ContentJson"/>.
+/// </summary>
+/// <remarks>
+/// Differs from <see cref="IEffectiveGovernanceResolver"/> in that it does not merge IDs/dictionaries or emit decisions/conflicts.
+/// Used for operator visibility of “which packs are attached” (see HTTP effective-set endpoint).
+/// </remarks>
 public sealed class PolicyPackResolver(
     IPolicyPackAssignmentRepository assignmentRepository,
     IPolicyPackRepository packRepository,
     IPolicyPackVersionRepository versionRepository) : IPolicyPackResolver
 {
+    /// <inheritdoc />
+    /// <remarks>
+    /// Iterates assignments in repository order (typically <see cref="PolicyPackAssignment.AssignedUtc"/> descending).
+    /// Missing <see cref="PolicyPack"/> or <see cref="PolicyPackVersion"/> causes that assignment to be skipped (orphan-safe).
+    /// </remarks>
     public async Task<EffectivePolicyPackSet> ResolveAsync(
         Guid tenantId,
         Guid workspaceId,

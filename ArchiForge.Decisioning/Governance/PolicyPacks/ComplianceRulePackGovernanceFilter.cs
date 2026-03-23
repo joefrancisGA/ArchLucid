@@ -3,11 +3,23 @@ using ArchiForge.Decisioning.Compliance.Models;
 namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
-/// When effective policy content lists compliance rule IDs or keys, restrict evaluation to those rules.
-/// Empty lists mean no filter (full file-based pack).
+/// Narrows an in-memory <see cref="ComplianceRulePack"/> using effective compliance ids/keys from policy packs.
 /// </summary>
+/// <remarks>
+/// <para>
+/// <strong>Semantics:</strong> If both <see cref="PolicyPackContentDocument.ComplianceRuleIds"/> and
+/// <see cref="PolicyPackContentDocument.ComplianceRuleKeys"/> are empty, returns <paramref name="source"/> unchanged (full pack).
+/// Otherwise, keeps rules whose <see cref="ComplianceRule.RuleId"/> matches a key or parses as a listed GUID.
+/// </para>
+/// <para>
+/// <strong>Caller:</strong> <c>ArchiForge.Persistence.Compliance.PolicyFilteredComplianceRulePackProvider</c> when building packs for evaluation.
+/// </para>
+/// </remarks>
 public static class ComplianceRulePackGovernanceFilter
 {
+    /// <summary>Returns a new pack instance with <see cref="ComplianceRulePack.Rules"/> filtered; does not mutate <paramref name="source"/>.</summary>
+    /// <param name="source">Full file-backed or merged pack before policy narrowing.</param>
+    /// <param name="effective">Merged governance document for the evaluation scope.</param>
     public static ComplianceRulePack Filter(ComplianceRulePack source, PolicyPackContentDocument effective)
     {
         if (effective.ComplianceRuleIds.Count == 0 && effective.ComplianceRuleKeys.Count == 0)

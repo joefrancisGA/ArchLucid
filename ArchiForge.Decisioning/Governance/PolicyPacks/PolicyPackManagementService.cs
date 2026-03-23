@@ -2,11 +2,15 @@ using ArchiForge.Decisioning.Governance.Resolution;
 
 namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 
+/// <summary>
+/// Default <see cref="IPolicyPackManagementService"/> implementation: orchestrates repositories for create / publish / assign flows.
+/// </summary>
 public sealed class PolicyPackManagementService(
     IPolicyPackRepository packRepository,
     IPolicyPackVersionRepository versionRepository,
     IPolicyPackAssignmentRepository assignmentRepository) : IPolicyPackManagementService
 {
+    /// <inheritdoc />
     public async Task<PolicyPack> CreatePackAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -50,6 +54,7 @@ public sealed class PolicyPackManagementService(
         return pack;
     }
 
+    /// <inheritdoc />
     public async Task<PolicyPackVersion> PublishVersionAsync(
         Guid policyPackId,
         string version,
@@ -97,6 +102,11 @@ public sealed class PolicyPackManagementService(
         return packVersion;
     }
 
+    /// <inheritdoc />
+    /// <remarks>
+    /// Persists <see cref="GovernanceScopeLevel"/>-appropriate workspace/project ids (empty GUIDs when not part of the tier)
+    /// so <see cref="IPolicyPackAssignmentRepository.ListByScopeAsync"/> can match tenant-wide and workspace-wide rows.
+    /// </remarks>
     public async Task<PolicyPackAssignment> AssignAsync(
         Guid tenantId,
         Guid workspaceId,

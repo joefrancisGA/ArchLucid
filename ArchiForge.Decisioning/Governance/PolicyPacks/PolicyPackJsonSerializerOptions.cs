@@ -1,16 +1,20 @@
 using System.Text.Json;
 
+using ArchiForge.Decisioning.Governance.Resolution;
+
 namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
-/// Shared options for serializing/deserializing <see cref="PolicyPackContentDocument"/> and pack <c>ContentJson</c> payloads.
+/// Shared <see cref="JsonSerializerOptions"/> for serializing/deserializing <see cref="PolicyPackContentDocument"/> and pack <c>ContentJson</c>.
 /// </summary>
+/// <remarks>
+/// <strong>Why static:</strong> avoids allocating new options per IO operation (analyzers / performance). Do not mutate after first use.
+/// Used by <see cref="EffectiveGovernanceResolver"/>, loaders, and API surfaces that round-trip JSON.
+/// </remarks>
 public static class PolicyPackJsonSerializerOptions
 {
-    public static JsonSerializerOptions Default
-    {
-        get;
-    } = new()
+    /// <summary>Case-insensitive read, camelCase write, trailing commas and comments allowed on read.</summary>
+    public static JsonSerializerOptions Default { get; } = new()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
