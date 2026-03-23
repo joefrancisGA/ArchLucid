@@ -12,7 +12,11 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 {
     public async Task CreateAsync(AgentResult result, CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        // Delete-then-insert by (RunId, TaskId) so that a duplicate submission from a
+        // retrying agent replaces the previous row rather than violating a unique constraint.
+        const string deleteSql = "DELETE FROM AgentResults WHERE RunId = @RunId AND TaskId = @TaskId;";
+
+        const string insertSql = """
             INSERT INTO AgentResults
             (
                 ResultId,
@@ -36,21 +40,27 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             """;
 
         var json = JsonSerializer.Serialize(result, ContractJson.Default);
+        var parameters = new
+        {
+            result.ResultId,
+            result.TaskId,
+            result.RunId,
+            AgentType = result.AgentType.ToString(),
+            result.Confidence,
+            ResultJson = json,
+            result.CreatedUtc
+        };
 
         using var connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
-            {
-                result.ResultId,
-                result.TaskId,
-                result.RunId,
-                AgentType = result.AgentType.ToString(),
-                result.Confidence,
-                ResultJson = json,
-                result.CreatedUtc
-            },
+            deleteSql,
+            new { result.RunId, result.TaskId },
+            cancellationToken: cancellationToken));
+
+        await connection.ExecuteAsync(new CommandDefinition(
+            insertSql,
+            parameters,
             cancellationToken: cancellationToken));
     }
 
@@ -59,7 +69,11 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         if (results.Count == 0)
             return;
 
-        const string sql = """
+        // Delete all existing results for this run before bulk-inserting so that a retry
+        // of ExecuteRunAsync (inside a TransactionScope) does not produce duplicate rows.
+        const string deleteSql = "DELETE FROM AgentResults WHERE RunId = @RunId;";
+
+        const string insertSql = """
             INSERT INTO AgentResults
             (
                 ResultId,
@@ -94,7 +108,13 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         });
 
         using var connection = connectionFactory.CreateConnection();
-        await connection.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: cancellationToken));
+
+        await connection.ExecuteAsync(new CommandDefinition(
+            deleteSql,
+            new { results[0].RunId },
+            cancellationToken: cancellationToken));
+
+        await connection.ExecuteAsync(new CommandDefinition(insertSql, args, cancellationToken: cancellationToken));
     }
 
     public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)

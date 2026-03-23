@@ -19,7 +19,11 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             return;
         }
 
-        const string sql = """
+        // Delete all existing evaluations for this run before inserting so that a retry
+        // of ExecuteRunAsync (inside a TransactionScope) does not produce duplicate rows.
+        const string deleteSql = "DELETE FROM AgentEvaluations WHERE RunId = @RunId;";
+
+        const string insertSql = """
             INSERT INTO AgentEvaluations
             (
                 EvaluationId,
@@ -46,11 +50,16 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
 
         using var connection = connectionFactory.CreateConnection();
 
+        await connection.ExecuteAsync(new CommandDefinition(
+            deleteSql,
+            new { evaluations.First().RunId },
+            cancellationToken: cancellationToken));
+
         foreach (var e in evaluations)
         {
             var payload = JsonSerializer.Serialize(e, ContractJson.Default);
             await connection.ExecuteAsync(new CommandDefinition(
-                sql,
+                insertSql,
                 new
                 {
                     e.EvaluationId,

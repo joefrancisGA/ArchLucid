@@ -22,6 +22,7 @@ public sealed class DefaultAgentEvaluationService : IAgentEvaluationService
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
         ArgumentNullException.ThrowIfNull(results);
+        cancellationToken.ThrowIfCancellationRequested();
 
         return Task.FromResult<IReadOnlyList<AgentEvaluation>>([]);
     }

@@ -132,16 +132,12 @@ public sealed class ArchitectureRunService(
 
         var evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
-        await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
-
         var results = await agentExecutor.ExecuteAsync(
             runId,
             request,
             evidence,
             tasks,
             cancellationToken);
-
-        await resultRepository.CreateManyAsync(results, cancellationToken);
 
         var evaluations = await agentEvaluationService.EvaluateAsync(
             runId,
@@ -151,14 +147,24 @@ public sealed class ArchitectureRunService(
             results,
             cancellationToken);
 
-        await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
-
-        await runRepository.UpdateStatusAsync(
-            runId,
-            ArchitectureRunStatus.ReadyForCommit,
-            currentManifestVersion: run.CurrentManifestVersion,
-            completedUtc: null,
-            cancellationToken: cancellationToken);
+        // Persist all four writes atomically: a partial failure followed by a retry would
+        // otherwise append duplicate result/evaluation rows because the repos are now
+        // idempotent (delete-by-RunId + bulk insert) but only within a single transaction.
+        using (var scope = new TransactionScope(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
+            await resultRepository.CreateManyAsync(results, cancellationToken);
+            await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
+            await runRepository.UpdateStatusAsync(
+                runId,
+                ArchitectureRunStatus.ReadyForCommit,
+                currentManifestVersion: run.CurrentManifestVersion,
+                completedUtc: null,
+                cancellationToken: cancellationToken);
+            scope.Complete();
+        }
 
         logger.LogInformation(
             "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",

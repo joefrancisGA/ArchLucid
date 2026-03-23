@@ -87,6 +87,40 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             .Cast<AgentExecutionTrace>()];
     }
 
+    public async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
+        string runId,
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT TraceJson,
+                   COUNT(*) OVER () AS TotalCount
+            FROM AgentExecutionTraces
+            WHERE RunId = @RunId
+            ORDER BY CreatedUtc
+            OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;
+            """;
+
+        using var connection = connectionFactory.CreateConnection();
+
+        var rows = await connection.QueryAsync(new CommandDefinition(
+            sql,
+            new { RunId = runId, Offset = offset, Limit = limit },
+            cancellationToken: cancellationToken));
+
+        var list = rows.ToList();
+        var totalCount = list.Count > 0 ? (int)list[0].TotalCount : 0;
+
+        var traces = list
+            .Select(row => JsonSerializer.Deserialize<AgentExecutionTrace>((string)row.TraceJson, ContractJson.Default))
+            .Where(x => x is not null)
+            .Cast<AgentExecutionTrace>()
+            .ToList();
+
+        return (traces, totalCount);
+    }
+
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(
         string taskId,
         CancellationToken cancellationToken = default)

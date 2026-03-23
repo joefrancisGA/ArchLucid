@@ -331,20 +331,19 @@ public sealed partial class RunsController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var allTraces = await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
         var paging = new PagingParameters { PageNumber = pageNumber, PageSize = pageSize };
         var (skip, take) = paging.Normalize();
 
-        var pagedTraces = allTraces
-            .OrderBy(t => t.CreatedUtc)
-            .Skip(skip)
-            .Take(take)
-            .ToList();
+        var (pagedTraces, totalCount) = await agentExecutionTraceRepository.GetPagedByRunIdAsync(
+            runId,
+            offset: skip,
+            limit: take,
+            cancellationToken: cancellationToken);
 
         return Ok(new AgentExecutionTraceResponse
         {
-            Traces = pagedTraces,
-            TotalCount = allTraces.Count,
+            Traces = pagedTraces.ToList(),
+            TotalCount = totalCount,
             PageNumber = paging.PageNumber,
             PageSize = paging.PageSize
         });

@@ -12,7 +12,6 @@ using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Provenance;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
 using ArchiForge.Retrieval.Indexing;
@@ -26,7 +25,7 @@ namespace ArchiForge.Persistence.Orchestration;
 /// </summary>
 /// <remarks>
 /// Persists run, context, graph, findings, trace, manifest, and artifact bundle inside a unit of work, then commits before audit tail events and <see cref="IRetrievalRunCompletionIndexer.IndexAuthorityRunAsync"/>.
-/// Builds a <see cref="ArchiForge.Provenance.DecisionProvenanceGraph"/> for indexing; does not call <c>SaveProvenanceAsync</c> in the current flow (snapshot persistence may be added separately).
+/// Builds a <see cref="ArchiForge.Provenance.DecisionProvenanceGraph"/> for retrieval indexing only; provenance snapshot persistence is not part of the current flow.
 /// </remarks>
 public sealed class AuthorityRunOrchestrator(
     IArchiForgeUnitOfWorkFactory unitOfWorkFactory,
@@ -46,7 +45,6 @@ public sealed class AuthorityRunOrchestrator(
     IArtifactSynthesisService artifactSynthesisService,
     IArtifactBundleRepository artifactBundleRepository,
     IProvenanceBuilder provenanceBuilder,
-    IProvenanceSnapshotRepository provenanceSnapshotRepository,
     IRetrievalRunCompletionIndexer retrievalRunCompletionIndexer,
     ILogger<AuthorityRunOrchestrator> logger)
     : IAuthorityRunOrchestrator
@@ -275,18 +273,6 @@ public sealed class AuthorityRunOrchestrator(
             await artifactBundleRepository.SaveAsync(bundle, ct, uow.Connection, uow.Transaction);
         else
             await artifactBundleRepository.SaveAsync(bundle, ct);
-    }
-
-    // ReSharper disable once UnusedMember.Local
-    private async Task SaveProvenanceAsync(
-        DecisionProvenanceSnapshot snapshot,
-        IArchiForgeUnitOfWork uow,
-        CancellationToken ct)
-    {
-        if (uow.SupportsExternalTransaction)
-            await provenanceSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
-        else
-            await provenanceSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
     private static void ApplyScope(RunRecord run, ScopeContext scope)
