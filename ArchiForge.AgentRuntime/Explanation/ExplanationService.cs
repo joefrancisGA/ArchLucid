@@ -5,6 +5,8 @@ using ArchiForge.Core.Explanation;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Provenance;
 
+using JetBrains.Annotations;
+
 namespace ArchiForge.AgentRuntime.Explanation;
 
 /// <summary>
@@ -307,10 +309,7 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
 
     private static string FormatProvenanceSummary(DecisionProvenanceGraph? g)
     {
-        if (g is null)
-            return "No provenance graph supplied.";
-        return
-            $"Nodes: {g.Nodes.Count}, Edges: {g.Edges.Count}. RunId on graph: {g.RunId}.";
+        return g is null ? "No provenance graph supplied." : $"Nodes: {g.Nodes.Count}, Edges: {g.Edges.Count}. RunId on graph: {g.RunId}.";
     }
 
     private static string BuildRunNarrativeFallback(
@@ -327,28 +326,35 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
             }.Where(x => !string.IsNullOrWhiteSpace(x)));
     }
 
+    [UsedImplicitly]
     private sealed class LlmComparisonJson
     {
+        [UsedImplicitly]
         public string? HighLevelSummary
         {
             get;
         }
+        [UsedImplicitly]
         public List<string>? KeyTradeoffs
         {
             get;
         }
+        [UsedImplicitly]
         public string? Narrative
         {
             get;
         }
     }
 
+    [UsedImplicitly]
     private sealed class LlmRunJson
     {
+        [UsedImplicitly]
         public string? Summary
         {
             get;
         }
+        [UsedImplicitly]
         public string? DetailedNarrative
         {
             get;

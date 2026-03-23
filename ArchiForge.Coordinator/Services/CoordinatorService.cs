@@ -3,7 +3,6 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
-using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Orchestration;
 
@@ -35,19 +34,8 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
         var runId = authorityRun.RunId.ToString("N");
         var run = BuildRunFromAuthority(authorityRun, request);
 
-        var graphSnapshot = new GraphSnapshot
-        {
-            GraphSnapshotId = authorityRun.GraphSnapshotId ?? Guid.Empty,
-            ContextSnapshotId = authorityRun.ContextSnapshotId ?? Guid.Empty,
-            RunId = authorityRun.RunId,
-            CreatedUtc = DateTime.UtcNow,
-            Nodes = [],
-            Edges = [],
-            Warnings = []
-        };
-
         var evidenceBundle = BuildEvidenceBundle(request);
-        var tasks = BuildStarterTasks(runId, evidenceBundle, request, graphSnapshot);
+        var tasks = BuildStarterTasks(runId, evidenceBundle, request);
         run.TaskIds = [.. tasks.Select(t => t.TaskId)];
 
         output.Run = run;
@@ -128,15 +116,11 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
             "policy-pack:azure-security-baseline"
         };
 
-        if (request.Constraints.Any(c => c.Contains("private", StringComparison.OrdinalIgnoreCase)))
-        {
+        if (RequestConstraintClassifier.HasPrivateNetworkingConstraint(request))
             refs.Add("policy:private-networking-required");
-        }
 
-        if (request.Constraints.Any(c => c.Contains("managed identity", StringComparison.OrdinalIgnoreCase)))
-        {
+        if (RequestConstraintClassifier.HasManagedIdentityConstraint(request))
             refs.Add("policy:managed-identity-required");
-        }
 
         return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
@@ -148,24 +132,14 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
             "catalog:azure-core-services"
         };
 
-        if (request.RequiredCapabilities.Any(c =>
-            c.Contains("search", StringComparison.OrdinalIgnoreCase)))
-        {
+        if (RequestConstraintClassifier.RequiresSearchCapability(request))
             refs.Add("catalog:azure-ai-search");
-        }
 
-        if (request.RequiredCapabilities.Any(c =>
-            c.Contains("sql", StringComparison.OrdinalIgnoreCase)))
-        {
+        if (RequestConstraintClassifier.RequiresSqlCapability(request))
             refs.Add("catalog:azure-sql");
-        }
 
-        if (request.RequiredCapabilities.Any(c =>
-            c.Contains("openai", StringComparison.OrdinalIgnoreCase) ||
-            c.Contains("ai", StringComparison.OrdinalIgnoreCase)))
-        {
+        if (RequestConstraintClassifier.RequiresAiCapability(request))
             refs.Add("catalog:azure-ai-services");
-        }
 
         return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
@@ -173,10 +147,8 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
     private static List<AgentTask> BuildStarterTasks(
         string runId,
         EvidenceBundle evidenceBundle,
-        ArchitectureRequest request,
-        GraphSnapshot graphSnapshot)
+        ArchitectureRequest request)
     {
-        _ = graphSnapshot;
         return
         [
             CreateTopologyTask(runId, evidenceBundle, request),

@@ -69,7 +69,9 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
         var manifest = CreateBaseManifest(runId, request, manifestVersion, parentManifestVersion);
 
-        MergeAgentResultsIntoManifest(request, validResults, manifest, output);
+        MergeAgentResultsIntoManifest(runId, validResults, manifest, output);
+
+        ApplyEvaluationSignals(runId, evaluations, validResults, output);
 
         ApplyDecisionNodes(runId, decisionNodes, manifest, output);
 
@@ -259,7 +261,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
     }
 
     private static void MergeAgentResultsIntoManifest(
-        ArchitectureRequest request,
+        string runId,
         IReadOnlyCollection<AgentResult> validResults,
         GoldenManifest manifest,
         DecisionMergeResult output)
@@ -268,7 +270,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         {
             AddTrace(
                 output,
-                request.RequestId,
+                runId,
                 "AgentResultAccepted",
                 $"Accepted {result.AgentType} result with confidence {result.Confidence:F2}.",
                 new Dictionary<string, string>
@@ -345,11 +347,12 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
                 continue;
             }
 
-            MergeServiceProperties(existing, service, output, agentType);
+            MergeServiceProperties(manifest.RunId, existing, service, output, agentType);
         }
     }
 
     private static void MergeServiceProperties(
+        string runId,
         ManifestService existing,
         ManifestService incoming,
         DecisionMergeResult output,
@@ -370,7 +373,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
         AddTrace(
             output,
-            string.Empty,
+            runId,
             "ServiceMerged",
             $"Merged service '{existing.ServiceName}' from {agentType}.",
             new Dictionary<string, string>
@@ -640,6 +643,53 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 #pragma warning restore IDE0305 // Simplify collection initialization
+    }
+
+    /// <summary>
+    /// Surfaces evaluation signals in the merge output: adds a trace entry per result
+    /// that received at least one evaluation, and promotes a warning when net opposition
+    /// is significant (net delta below -0.30).
+    /// </summary>
+    private static void ApplyEvaluationSignals(
+        string runId,
+        IReadOnlyCollection<AgentEvaluation> evaluations,
+        IReadOnlyCollection<AgentResult> results,
+        DecisionMergeResult output)
+    {
+        foreach (var result in results)
+        {
+            var taskEvals = evaluations
+                .Where(e => e.TargetAgentTaskId == result.TaskId)
+                .ToList();
+
+            if (taskEvals.Count == 0)
+                continue;
+
+            var netDelta = taskEvals.Sum(e => e.ConfidenceDelta);
+            var types = string.Join(", ",
+                taskEvals.Select(e => e.EvaluationType).Distinct(StringComparer.OrdinalIgnoreCase));
+
+            AddTrace(
+                output,
+                runId,
+                "EvaluationSignalApplied",
+                $"{result.AgentType} received {taskEvals.Count} evaluation(s) " +
+                $"(net delta: {netDelta:+0.000;-0.000}): {types}",
+                new Dictionary<string, string>
+                {
+                    ["resultId"] = result.ResultId,
+                    ["agentType"] = result.AgentType.ToString(),
+                    ["evaluationCount"] = taskEvals.Count.ToString(),
+                    ["netConfidenceDelta"] = netDelta.ToString("F3")
+                });
+
+            if (netDelta < -0.30)
+            {
+                output.Warnings.Add(
+                    $"{result.AgentType} result '{result.ResultId}' received net opposition " +
+                    $"signal ({netDelta:F3}); review decision traces for details.");
+            }
+        }
     }
 
     private static void AddTrace(

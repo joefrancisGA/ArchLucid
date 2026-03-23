@@ -1,3 +1,5 @@
+using System.Transactions;
+
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
@@ -56,10 +58,16 @@ public sealed class ArchitectureRunService(
             request.SystemName,
             request.Environment);
 
-        await requestRepository.CreateAsync(request, cancellationToken);
-        await runRepository.CreateAsync(coordination.Run, cancellationToken);
-        await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
-        await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
+        using (var scope = new TransactionScope(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await requestRepository.CreateAsync(request, cancellationToken);
+            await runRepository.CreateAsync(coordination.Run, cancellationToken);
+            await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
+            await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
+            scope.Complete();
+        }
 
         logger.LogInformation(
             "Architecture run created: RunId={RunId}, TaskCount={TaskCount}",
@@ -262,15 +270,20 @@ public sealed class ArchitectureRunService(
                 $"CommitRun failed: {string.Join("; ", merge.Errors)}");
         }
 
-        await manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
-        await decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
-
-        await runRepository.UpdateStatusAsync(
-            runId,
-            ArchitectureRunStatus.Committed,
-            merge.Manifest.Metadata.ManifestVersion,
-            DateTime.UtcNow,
-            cancellationToken);
+        using (var scope = new TransactionScope(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
+            await decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
+            await runRepository.UpdateStatusAsync(
+                runId,
+                ArchitectureRunStatus.Committed,
+                merge.Manifest.Metadata.ManifestVersion,
+                DateTime.UtcNow,
+                cancellationToken);
+            scope.Complete();
+        }
 
         logger.LogInformation(
             "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",

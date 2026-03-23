@@ -1,6 +1,8 @@
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 
+using static ArchiForge.Contracts.Requests.RequestConstraintClassifier;
+
 namespace ArchiForge.Application.Evidence;
 
 public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
@@ -52,7 +54,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
             }
         };
 
-        if (request.Constraints.Any(c => c.Contains("managed identity", StringComparison.OrdinalIgnoreCase)))
+        if (HasManagedIdentityConstraint(request))
         {
             policies.Add(new PolicyEvidence
             {
@@ -64,9 +66,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
             });
         }
 
-        if (request.Constraints.Any(c =>
-                c.Contains("private endpoint", StringComparison.OrdinalIgnoreCase) ||
-                c.Contains("private networking", StringComparison.OrdinalIgnoreCase)))
+        if (HasPrivateNetworkingConstraint(request))
         {
             policies.Add(new PolicyEvidence
             {
@@ -78,7 +78,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
             });
         }
 
-        if (request.Constraints.Any(c => c.Contains("encryption", StringComparison.OrdinalIgnoreCase)))
+        if (HasEncryptionConstraint(request))
         {
             policies.Add(new PolicyEvidence
             {
@@ -117,7 +117,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
             }
         };
 
-        if (request.RequiredCapabilities.Any(c => c.Contains("search", StringComparison.OrdinalIgnoreCase)))
+        if (RequiresSearchCapability(request))
         {
             services.Add(new ServiceCatalogEvidence
             {
@@ -130,9 +130,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
             });
         }
 
-        if (request.RequiredCapabilities.Any(c =>
-                c.Contains("ai", StringComparison.OrdinalIgnoreCase) ||
-                c.Contains("openai", StringComparison.OrdinalIgnoreCase)))
+        if (RequiresAiCapability(request))
         {
             services.Add(new ServiceCatalogEvidence
             {
@@ -152,7 +150,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
     {
         var patterns = new List<PatternEvidence>();
 
-        if (request.RequiredCapabilities.Any(c => c.Contains("search", StringComparison.OrdinalIgnoreCase)))
+        if (RequiresSearchCapability(request))
         {
             patterns.Add(new PatternEvidence
             {
@@ -195,7 +193,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
             }
         };
 
-        if (request.RequiredCapabilities.Any(c => c.Contains("search", StringComparison.OrdinalIgnoreCase)))
+        if (RequiresSearchCapability(request))
         {
             notes.Add(new EvidenceNote
             {

@@ -58,7 +58,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
 
     public async Task<ArchitectureRun?> GetByIdAsync(string runId, CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        const string runSql = """
             SELECT
                 RunId,
                 RequestId,
@@ -73,32 +73,44 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             WHERE RunId = @RunId;
             """;
 
+        const string taskSql = """
+            SELECT TaskId
+            FROM AgentTasks
+            WHERE RunId = @RunId
+            ORDER BY CreatedUtc;
+            """;
+
         using var connection = connectionFactory.CreateConnection();
 
         var row = await connection.QuerySingleOrDefaultAsync<ArchitectureRunRow>(new CommandDefinition(
-            sql,
-            new
-            {
-                RunId = runId
-            },
+            runSql,
+            new { RunId = runId },
             cancellationToken: cancellationToken));
 
         if (row is null)
             return null;
 
+        if (!Enum.TryParse<ArchitectureRunStatus>(row.Status, true, out var status))
+            throw new InvalidOperationException(
+                $"Unrecognised ArchitectureRunStatus '{row.Status}' for run '{row.RunId}'. " +
+                "The database row may have been written by a newer version of the application.");
+
+        var taskIds = await connection.QueryAsync<string>(new CommandDefinition(
+            taskSql,
+            new { RunId = runId },
+            cancellationToken: cancellationToken));
+
         return new ArchitectureRun
         {
             RunId = row.RunId,
             RequestId = row.RequestId,
-            Status = Enum.TryParse<ArchitectureRunStatus>(row.Status, true, out var status)
-                ? status
-                : ArchitectureRunStatus.Created,
+            Status = status,
             CreatedUtc = row.CreatedUtc,
             CompletedUtc = row.CompletedUtc,
             CurrentManifestVersion = row.CurrentManifestVersion,
             ContextSnapshotId = row.ContextSnapshotId,
             GraphSnapshotId = row.GraphSnapshotId,
-            TaskIds = []
+            TaskIds = [.. taskIds]
         };
     }
 
@@ -187,8 +199,15 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             sql,
             cancellationToken: cancellationToken));
 
-        return rows
-            .Select(row => new ArchitectureRunListItem
+        var items = new List<ArchitectureRunListItem>();
+        foreach (var row in rows)
+        {
+            if (!Enum.TryParse<ArchitectureRunStatus>(row.Status, true, out _))
+                throw new InvalidOperationException(
+                    $"Unrecognised ArchitectureRunStatus '{row.Status}' for run '{row.RunId}'. " +
+                    "The database row may have been written by a newer version of the application.");
+
+            items.Add(new ArchitectureRunListItem
             {
                 RunId = row.RunId,
                 RequestId = row.RequestId,
@@ -197,8 +216,9 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
                 CompletedUtc = row.CompletedUtc,
                 CurrentManifestVersion = row.CurrentManifestVersion,
                 SystemName = row.SystemName
-            })
-            .ToList();
+            });
+        }
+        return items;
     }
 
     private sealed class ArchitectureRunListItemRow
