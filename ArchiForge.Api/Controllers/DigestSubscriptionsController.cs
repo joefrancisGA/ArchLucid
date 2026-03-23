@@ -14,6 +14,13 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Manages <see cref="DigestSubscription"/> routes for architecture digests (email/webhook delivery after advisory scans).
+/// </summary>
+/// <remarks>
+/// Parallels alert routing: create/list/toggle subscriptions and inspect <see cref="DigestDeliveryAttempt"/> history.
+/// Invoked after <see cref="IArchitectureDigestRepository"/> persistence from <c>AdvisoryScanRunner</c> via <see cref="IDigestDeliveryDispatcher"/>.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -27,6 +34,7 @@ public sealed class DigestSubscriptionsController(
     IAuditService auditService)
     : ControllerBase
 {
+    /// <summary>Creates a subscription stamped with the current scope; mutating action requires execute authority.</summary>
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
@@ -62,6 +70,7 @@ public sealed class DigestSubscriptionsController(
         return Ok(subscription);
     }
 
+    /// <summary>Lists digest subscriptions for the caller’s tenant/workspace/project.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<DigestSubscription>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<DigestSubscription>>> List(CancellationToken ct = default)
@@ -77,6 +86,7 @@ public sealed class DigestSubscriptionsController(
         return Ok(result);
     }
 
+    /// <summary>Toggles <see cref="DigestSubscription.IsEnabled"/> when the row is in scope.</summary>
     [HttpPost("{subscriptionId:guid}/toggle")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
@@ -111,6 +121,7 @@ public sealed class DigestSubscriptionsController(
         return Ok(subscription);
     }
 
+    /// <summary>Recent delivery attempts for a subscription in scope.</summary>
     [HttpGet("{subscriptionId:guid}/attempts")]
     [ProducesResponseType(typeof(IReadOnlyList<DigestDeliveryAttempt>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -131,6 +142,7 @@ public sealed class DigestSubscriptionsController(
         return Ok(attempts);
     }
 
+    /// <summary>All delivery attempts recorded for a digest that belongs to the current scope.</summary>
     [HttpGet("digests/{digestId:guid}/attempts")]
     [ProducesResponseType(typeof(IReadOnlyList<DigestDeliveryAttempt>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

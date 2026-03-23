@@ -5,9 +5,12 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <summary>Dapper implementation of <see cref="IDigestSubscriptionRepository"/> over <c>dbo.DigestSubscriptions</c>.</summary>
+/// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
 public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory connectionFactory)
     : IDigestSubscriptionRepository
 {
+    /// <inheritdoc />
     public async Task CreateAsync(DigestSubscription subscription, CancellationToken ct)
     {
         const string sql = """
@@ -47,6 +50,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
         await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<DigestSubscription?> GetByIdAsync(Guid subscriptionId, CancellationToken ct)
     {
         const string sql = """
@@ -99,6 +103,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
         return result.ToList();
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<DigestSubscription>> ListEnabledByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

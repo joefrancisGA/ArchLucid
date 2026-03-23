@@ -1,5 +1,8 @@
 namespace ArchiForge.Decisioning.Advisory.Delivery;
 
+/// <summary>
+/// <see cref="IDigestDeliveryChannel.ChannelType"/> and <see cref="DigestSubscription.ChannelType"/> discriminator strings.
+/// </summary>
 public static class DigestDeliveryChannelType
 {
     public const string Email = "Email";

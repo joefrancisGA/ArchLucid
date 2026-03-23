@@ -67,9 +67,9 @@ This document summarizes the persisted data model used by ArchiForge. It is base
 
 ---
 
-### Authority chain / context & graph (`ArchiForge.Persistence/Scripts/001_AuthorityStore.sql`)
+### Authority chain / context & graph (`ArchiForge.Data/SQL/ArchiForge.sql`)
 
-These tables support the persisted authority pipeline (context → graph → findings → decisions → artifacts). They complement the legacy `ArchiForge.Data` schema.
+These tables support the persisted authority pipeline (context → graph → findings → decisions → artifacts). They complement the legacy `ArchiForge.Data` API schema. The same DDL is applied at runtime via `Scripts/ArchiForge.sql` (linked from `ArchiForge.Data/SQL/ArchiForge.sql` in the Persistence build output).
 
 #### `ContextSnapshots`
 
@@ -80,7 +80,7 @@ These tables support the persisted authority pipeline (context → graph → fin
 
 #### `GraphSnapshots`, `FindingsSnapshots`, …
 
-Linked to runs and context snapshots; see `001_AuthorityStore.sql` for full DDL. **Graph** node/edge JSON and semantics: **`docs/KNOWLEDGE_GRAPH.md`**.
+Linked to runs and context snapshots; see the authority section in `ArchiForge.Data/SQL/ArchiForge.sql` for full DDL. **Graph** node/edge JSON and semantics: **`docs/KNOWLEDGE_GRAPH.md`**.
 
 ---
 

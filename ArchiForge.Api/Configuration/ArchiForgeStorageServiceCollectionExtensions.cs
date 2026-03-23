@@ -91,7 +91,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
 
         var persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
         var dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;
-        var scriptPath = Path.Combine(dir, "Scripts", "001_AuthorityStore.sql");
+        var scriptPath = Path.Combine(dir, "Scripts", "ArchiForge.sql");
 
         services.AddSingleton<ISchemaBootstrapper>(sp =>
             new SqlSchemaBootstrapper(

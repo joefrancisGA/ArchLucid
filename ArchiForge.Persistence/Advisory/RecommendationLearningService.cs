@@ -3,11 +3,18 @@ using ArchiForge.Decisioning.Advisory.Workflow;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <summary>
+/// Default <see cref="IRecommendationLearningService"/>: pulls recommendation history, builds a profile via <see cref="IRecommendationLearningAnalyzer"/>, and persists via <see cref="IRecommendationLearningProfileRepository"/>.
+/// </summary>
+/// <param name="recommendationRepository">Historical rows for the scope (capped batch).</param>
+/// <param name="analyzer">Pure aggregation into <see cref="RecommendationLearningProfile"/>.</param>
+/// <param name="profileRepository">Stores and loads latest profile.</param>
 public sealed class RecommendationLearningService(
     IRecommendationRepository recommendationRepository,
     IRecommendationLearningAnalyzer analyzer,
     IRecommendationLearningProfileRepository profileRepository) : IRecommendationLearningService
 {
+    /// <inheritdoc />
     public async Task<RecommendationLearningProfile> RebuildProfileAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -24,6 +31,7 @@ public sealed class RecommendationLearningService(
         return profile;
     }
 
+    /// <inheritdoc />
     public Task<RecommendationLearningProfile?> GetLatestProfileAsync(
         Guid tenantId,
         Guid workspaceId,

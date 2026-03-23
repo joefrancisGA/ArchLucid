@@ -24,7 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Scripts\001_AuthorityStore.sql">
+    <None Include="..\ArchiForge.Data\SQL\ArchiForge.sql">
+      <Link>Scripts\ArchiForge.sql</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

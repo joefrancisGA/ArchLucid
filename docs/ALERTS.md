@@ -42,8 +42,16 @@ Validators: `RuleSimulationRequestValidator`, `RuleCandidateComparisonRequestVal
 |------|--------------|------------|
 | Improvement plan & recommendation actions | `api/advisory` | `AdvisoryController` |
 | CRON schedules, run-now, digests | `api/advisory-scheduling` | `AdvisorySchedulingController` |
+| Digest delivery subscriptions & attempt history | `v{version}/digest-subscriptions` | `DigestSubscriptionsController` |
+| Recommendation learning profile (latest / rebuild) | `api/recommendation-learning` | `RecommendationLearningController` |
 
-Scheduled runs use `IAdvisoryScanRunner` / `AdvisoryScanRunner`: ambient scope, single load of effective governance, advisory defaults on the plan, then simple + composite alert evaluation (details in `API_CONTRACTS.md`).
+Scheduled runs use `IAdvisoryScanRunner` / `AdvisoryScanRunner`: ambient scope, single load of effective governance, advisory defaults on the plan, then simple + composite alert evaluation, digest persistence, and **`IDigestDeliveryDispatcher`** fan-out (details in `API_CONTRACTS.md`).
+
+## Scope debug
+
+| Area | Route | Controller |
+|------|-------|------------|
+| Resolved tenant/workspace/project for the request | `GET api/scope` | `ScopeDebugController` |
 
 ## Scope
 

@@ -13,6 +13,13 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Reads and rebuilds <see cref="RecommendationLearningProfile"/> aggregates for the caller’s scope (acceptance/rejection patterns by category, urgency, etc.).
+/// </summary>
+/// <remarks>
+/// Profiles feed composite alert metrics (acceptance rate via <c>AlertMetricSnapshotBuilder</c>) and advisory UX. Rebuild scans recent recommendation rows via
+/// <c>RecommendationLearningService</c>. Routes: <c>api/recommendation-learning</c>.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -24,6 +31,7 @@ public sealed class RecommendationLearningController(
     IAuditService auditService)
     : ControllerBase
 {
+    /// <summary>Returns the newest stored profile for the scope, or 404 if none exists.</summary>
     [HttpGet("latest")]
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -43,6 +51,7 @@ public sealed class RecommendationLearningController(
         return Ok(profile);
     }
 
+    /// <summary>Recomputes the profile from recommendation history, persists it, and audits (execute authority).</summary>
     [HttpPost("rebuild")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]

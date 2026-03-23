@@ -6,12 +6,20 @@ using ArchiForge.Decisioning.Advisory.Scheduling;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <summary>
+/// Default <see cref="IDigestDeliveryDispatcher"/>: loads enabled digest subscriptions, records attempts, invokes <see cref="IDigestDeliveryChannel"/>s, and audits per subscription.
+/// </summary>
+/// <param name="channels">Registered digest channels (email, Teams, Slack, …).</param>
+/// <param name="subscriptionRepository">Scope-scoped routing rows.</param>
+/// <param name="attemptRepository">Persists delivery attempt lifecycle.</param>
+/// <param name="auditService">Success/failure audit events.</param>
 public sealed class DigestDeliveryDispatcher(
     IEnumerable<IDigestDeliveryChannel> channels,
     IDigestSubscriptionRepository subscriptionRepository,
     IDigestDeliveryAttemptRepository attemptRepository,
     IAuditService auditService) : IDigestDeliveryDispatcher
 {
+    /// <inheritdoc />
     public async Task DeliverAsync(ArchitectureDigest digest, CancellationToken ct)
     {
         var subscriptions = await subscriptionRepository
