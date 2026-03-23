@@ -4,8 +4,12 @@ using FluentValidation;
 
 namespace ArchiForge.Api.Validators;
 
+/// <summary>
+/// FluentValidation for <see cref="RuleCandidateComparisonRequest"/> (<c>POST …/alert-simulation/compare-candidates</c>).
+/// </summary>
 public sealed class RuleCandidateComparisonRequestValidator : AbstractValidator<RuleCandidateComparisonRequest>
 {
+    /// <summary>Validates rule kind and requires both candidate payloads for the selected kind.</summary>
     public RuleCandidateComparisonRequestValidator()
     {
         RuleFor(x => x.RuleKind)

@@ -13,6 +13,13 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// API to create and list <see cref="CompositeAlertRule"/> definitions (multi-metric AND/OR rules) for the caller’s scope.
+/// </summary>
+/// <remarks>
+/// Validated with <see cref="ArchiForge.Api.Validators.CompositeAlertRuleBodyValidator"/> on create. Child <see cref="AlertRuleCondition.ConditionId"/> values are generated when empty.
+/// Evaluated in production by <c>CompositeAlertService</c> after governance filtering. Mutations require <see cref="ArchiForgePolicies.ExecuteAuthority"/>.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -24,6 +31,7 @@ public sealed class CompositeAlertRulesController(
     IAuditService auditService)
     : ControllerBase
 {
+    /// <summary>Persists the rule and conditions in one repository operation; stamps scope and rule id.</summary>
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CompositeAlertRule), StatusCodes.Status200OK)]
@@ -64,6 +72,7 @@ public sealed class CompositeAlertRulesController(
         return Ok(rule);
     }
 
+    /// <summary>Lists composite rules for the scope including conditions as loaded from persistence.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<CompositeAlertRule>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<CompositeAlertRule>>> List(CancellationToken ct = default)

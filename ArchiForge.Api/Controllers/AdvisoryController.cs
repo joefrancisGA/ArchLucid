@@ -20,6 +20,13 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Advisory workflow HTTP surface: improvement plans from authority runs, persisted recommendations, and operator actions (accept/defer/etc.).
+/// </summary>
+/// <remarks>
+/// Routes are under <c>api/advisory</c> (unversioned path). Uses <see cref="IScopeContextProvider"/> for tenant/workspace/project.
+/// Plans feed learning and composite alert metrics; scheduled scans extend this path via <see cref="AdvisorySchedulingController"/> and <c>AdvisoryScanRunner</c>.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -35,6 +42,9 @@ public sealed class AdvisoryController(
     IAuditService auditService)
     : ControllerBase
 {
+    /// <summary>
+    /// Builds an <see cref="ImprovementPlan"/> from the run’s golden manifest and findings, optionally compared to another run, then persists recommendations for the scope.
+    /// </summary>
     [HttpGet("runs/{runId:guid}/improvements")]
     [ProducesResponseType(typeof(ImprovementPlanResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -92,6 +102,7 @@ public sealed class AdvisoryController(
         return Ok(ToResponse(plan));
     }
 
+    /// <summary>Lists recommendation rows previously stored for the given run in the current scope.</summary>
     [HttpGet("runs/{runId:guid}/recommendations")]
     [ProducesResponseType(typeof(IReadOnlyList<RecommendationRecordResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<RecommendationRecordResponse>>> ListRecommendations(
@@ -110,6 +121,9 @@ public sealed class AdvisoryController(
         return Ok(items.Select(ToRecordResponse).ToList());
     }
 
+    /// <summary>
+    /// Applies accept/reject/defer/implemented to a recommendation; requires execute authority and audits the outcome.
+    /// </summary>
     [HttpPost("recommendations/{recommendationId:guid}/action")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationRecordResponse), StatusCodes.Status200OK)]

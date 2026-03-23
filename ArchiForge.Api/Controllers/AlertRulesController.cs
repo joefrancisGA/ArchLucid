@@ -13,6 +13,13 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// CRUD-style API for simple (metric) <see cref="AlertRule"/> rows scoped to the caller’s tenant/workspace/project.
+/// </summary>
+/// <remarks>
+/// Create uses FluentValidation (<see cref="ArchiForge.Api.Validators.AlertRuleBodyValidator"/>). Rules are later filtered at evaluation time by effective policy packs
+/// (<c>PolicyPackGovernanceFilter.FilterAlertRules</c>). Mutations require <see cref="ArchiForgePolicies.ExecuteAuthority"/>.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -24,6 +31,7 @@ public sealed class AlertRulesController(
     IAuditService auditService)
     : ControllerBase
 {
+    /// <summary>Creates a rule with new id, scope from <see cref="IScopeContextProvider"/>, and default metadata JSON.</summary>
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRule), StatusCodes.Status200OK)]
@@ -57,6 +65,7 @@ public sealed class AlertRulesController(
         return Ok(rule);
     }
 
+    /// <summary>Lists all simple alert rules for the current scope (enabled and disabled).</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AlertRule>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<AlertRule>>> List(CancellationToken ct = default)

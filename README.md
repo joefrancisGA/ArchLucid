@@ -9,6 +9,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/BUILD.md](docs/BUILD.md) | Build, CPM, project references, DecisionEngine bundle |
 | [docs/FORMATTING.md](docs/FORMATTING.md) | C# layout / blank lines (`dotnet format`, `.editorconfig`) |
 | [docs/METHOD_DOCUMENTATION.md](docs/METHOD_DOCUMENTATION.md) | XML doc conventions; piece-by-piece API commentary |
+| [docs/ALERTS.md](docs/ALERTS.md) | Alerts, routing, simulation/tuning, advisory schedules (links to API contracts & doc tracker) |
 | [docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md) | Test categories (`Integration` / `Unit`) and filter examples |
 | [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | HTTP behaviors (422 verify, 404 run-not-found, 409 commit, validation, **policy packs** / effective governance) |
 | [docs/CLI_USAGE.md](docs/CLI_USAGE.md) | CLI reference |

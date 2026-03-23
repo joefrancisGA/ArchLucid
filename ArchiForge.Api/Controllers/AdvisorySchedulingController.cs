@@ -14,6 +14,13 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// CRON-style advisory scan schedules, on-demand runs, execution history, and persisted architecture digests for the caller’s scope.
+/// </summary>
+/// <remarks>
+/// <see cref="IAdvisoryScanRunner.RunScheduleAsync"/> loads effective governance once per successful scan, merges advisory defaults into the plan,
+/// and drives alert evaluation (see <c>docs/API_CONTRACTS.md</c> and the governance piece tracker in <c>docs/METHOD_DOCUMENTATION.md</c>). Routes: <c>api/advisory-scheduling</c>.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -29,6 +36,7 @@ public sealed class AdvisorySchedulingController(
     IAuditService auditService)
     : ControllerBase
 {
+    /// <summary>Creates a schedule with scope ids, normalizes slug, and computes initial <see cref="AdvisoryScanSchedule.NextRunUtc"/>.</summary>
     [HttpPost("schedules")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AdvisoryScanSchedule), StatusCodes.Status200OK)]
@@ -60,6 +68,7 @@ public sealed class AdvisorySchedulingController(
         return Ok(request);
     }
 
+    /// <summary>Lists all advisory schedules for the current scope.</summary>
     [HttpGet("schedules")]
     [ProducesResponseType(typeof(IReadOnlyList<AdvisoryScanSchedule>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<AdvisoryScanSchedule>>> ListSchedules(CancellationToken ct = default)
@@ -75,6 +84,7 @@ public sealed class AdvisorySchedulingController(
         return Ok(result);
     }
 
+    /// <summary>Returns recent execution rows for a schedule in scope.</summary>
     [HttpGet("schedules/{scheduleId:guid}/executions")]
     [ProducesResponseType(typeof(IReadOnlyList<AdvisoryScanExecution>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -95,6 +105,7 @@ public sealed class AdvisorySchedulingController(
         return Ok(items);
     }
 
+    /// <summary>Runs the advisory pipeline immediately for the schedule (same path as the background worker).</summary>
     [HttpPost("schedules/{scheduleId:guid}/run")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -113,6 +124,7 @@ public sealed class AdvisorySchedulingController(
         return Ok();
     }
 
+    /// <summary>Lists recent architecture digests for the scope (newest first, capped by <paramref name="take"/>).</summary>
     [HttpGet("digests")]
     [ProducesResponseType(typeof(IReadOnlyList<ArchitectureDigest>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<ArchitectureDigest>>> ListDigests(
@@ -131,6 +143,7 @@ public sealed class AdvisorySchedulingController(
         return Ok(digests);
     }
 
+    /// <summary>Gets a single digest by id when it belongs to the current scope.</summary>
     [HttpGet("digests/{digestId:guid}")]
     [ProducesResponseType(typeof(ArchitectureDigest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
