@@ -1,8 +1,12 @@
 /*
   ArchiForge — SQL Server consolidated schema (idempotent)
 
-  Safe to run multiple times: skips existing tables/indexes/FKs; adds missing columns
-  when tables already exist from an older baseline.
+  Safe to run multiple times: skips existing tables/indexes/FKs. Additive ALTER batches
+  for columns live only in DbUp migrations where needed; this consolidated script assumes
+  greenfield CREATE or that migrations have already been applied. Optional batches below
+  may ADD CONSTRAINT (FK) when a legacy table exists but is missing a foreign key.
+
+  Upgrading existing databases: use DbUp migrations in ArchiForge.Data/Migrations/.
 
   Includes:
     - API / agent / commit trail (DbUp 001–007 equivalent)
@@ -54,22 +58,6 @@ BEGIN
             REFERENCES dbo.ArchitectureRequests (RequestId)
     );
 END
-GO
-
-/* Additive columns if table predates migrations 005/006 */
-IF OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.ArchitectureRuns') AND name = N'ContextSnapshotId')
-    ALTER TABLE dbo.ArchitectureRuns ADD ContextSnapshotId NVARCHAR(64) NULL;
-GO
-
-IF OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.ArchitectureRuns') AND name = N'GraphSnapshotId')
-    ALTER TABLE dbo.ArchitectureRuns ADD GraphSnapshotId UNIQUEIDENTIFIER NULL;
-GO
-
-IF OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.ArchitectureRuns') AND name = N'ArtifactBundleId')
-    ALTER TABLE dbo.ArchitectureRuns ADD ArtifactBundleId UNIQUEIDENTIFIER NULL;
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ArchitectureRuns_Request')
@@ -126,19 +114,14 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Task')
-   AND OBJECT_ID(N'dbo.AgentResults', N'U') IS NOT NULL
+IF OBJECT_ID(N'dbo.AgentResults', N'U') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.AgentResults ADD CONSTRAINT FK_AgentResults_Task FOREIGN KEY (TaskId)
-        REFERENCES dbo.AgentTasks (TaskId);
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Run')
-   AND OBJECT_ID(N'dbo.AgentResults', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.AgentResults ADD CONSTRAINT FK_AgentResults_Run FOREIGN KEY (RunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Task')
+        ALTER TABLE dbo.AgentResults ADD CONSTRAINT FK_AgentResults_Task FOREIGN KEY (TaskId)
+            REFERENCES dbo.AgentTasks (TaskId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Run')
+        ALTER TABLE dbo.AgentResults ADD CONSTRAINT FK_AgentResults_Run FOREIGN KEY (RunId)
+            REFERENCES dbo.ArchitectureRuns (RunId);
 END
 GO
 
@@ -162,19 +145,14 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifestVersions_Run')
-   AND OBJECT_ID(N'dbo.GoldenManifestVersions', N'U') IS NOT NULL
+IF OBJECT_ID(N'dbo.GoldenManifestVersions', N'U') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.GoldenManifestVersions ADD CONSTRAINT FK_GoldenManifestVersions_Run FOREIGN KEY (RunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifestVersions_Parent')
-   AND OBJECT_ID(N'dbo.GoldenManifestVersions', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.GoldenManifestVersions ADD CONSTRAINT FK_GoldenManifestVersions_Parent
-        FOREIGN KEY (ParentManifestVersion) REFERENCES dbo.GoldenManifestVersions (ManifestVersion);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifestVersions_Run')
+        ALTER TABLE dbo.GoldenManifestVersions ADD CONSTRAINT FK_GoldenManifestVersions_Run FOREIGN KEY (RunId)
+            REFERENCES dbo.ArchitectureRuns (RunId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifestVersions_Parent')
+        ALTER TABLE dbo.GoldenManifestVersions ADD CONSTRAINT FK_GoldenManifestVersions_Parent
+            FOREIGN KEY (ParentManifestVersion) REFERENCES dbo.GoldenManifestVersions (ManifestVersion);
 END
 GO
 
@@ -233,19 +211,14 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvidencePackages_Run')
-   AND OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NOT NULL
+IF OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.AgentEvidencePackages ADD CONSTRAINT FK_AgentEvidencePackages_Run FOREIGN KEY (RunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvidencePackages_Request')
-   AND OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.AgentEvidencePackages ADD CONSTRAINT FK_AgentEvidencePackages_Request
-        FOREIGN KEY (RequestId) REFERENCES dbo.ArchitectureRequests (RequestId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvidencePackages_Run')
+        ALTER TABLE dbo.AgentEvidencePackages ADD CONSTRAINT FK_AgentEvidencePackages_Run FOREIGN KEY (RunId)
+            REFERENCES dbo.ArchitectureRuns (RunId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvidencePackages_Request')
+        ALTER TABLE dbo.AgentEvidencePackages ADD CONSTRAINT FK_AgentEvidencePackages_Request
+            FOREIGN KEY (RequestId) REFERENCES dbo.ArchitectureRequests (RequestId);
 END
 GO
 
@@ -269,19 +242,14 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentExecutionTraces_Run')
-   AND OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
+IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.AgentExecutionTraces ADD CONSTRAINT FK_AgentExecutionTraces_Run FOREIGN KEY (RunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentExecutionTraces_Task')
-   AND OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.AgentExecutionTraces ADD CONSTRAINT FK_AgentExecutionTraces_Task FOREIGN KEY (TaskId)
-        REFERENCES dbo.AgentTasks (TaskId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentExecutionTraces_Run')
+        ALTER TABLE dbo.AgentExecutionTraces ADD CONSTRAINT FK_AgentExecutionTraces_Run FOREIGN KEY (RunId)
+            REFERENCES dbo.ArchitectureRuns (RunId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentExecutionTraces_Task')
+        ALTER TABLE dbo.AgentExecutionTraces ADD CONSTRAINT FK_AgentExecutionTraces_Task FOREIGN KEY (TaskId)
+            REFERENCES dbo.AgentTasks (TaskId);
 END
 GO
 
@@ -321,54 +289,7 @@ BEGIN
 END
 GO
 
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'AnalysisRequestJson')
-    ALTER TABLE dbo.RunExportRecords ADD AnalysisRequestJson NVARCHAR(MAX) NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'IncludedEvidence')
-    ALTER TABLE dbo.RunExportRecords ADD IncludedEvidence BIT NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'IncludedExecutionTraces')
-    ALTER TABLE dbo.RunExportRecords ADD IncludedExecutionTraces BIT NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'IncludedManifest')
-    ALTER TABLE dbo.RunExportRecords ADD IncludedManifest BIT NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'IncludedDiagram')
-    ALTER TABLE dbo.RunExportRecords ADD IncludedDiagram BIT NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'IncludedSummary')
-    ALTER TABLE dbo.RunExportRecords ADD IncludedSummary BIT NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'IncludedDeterminismCheck')
-    ALTER TABLE dbo.RunExportRecords ADD IncludedDeterminismCheck BIT NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'DeterminismIterations')
-    ALTER TABLE dbo.RunExportRecords ADD DeterminismIterations INT NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'IncludedManifestCompare')
-    ALTER TABLE dbo.RunExportRecords ADD IncludedManifestCompare BIT NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'CompareManifestVersion')
-    ALTER TABLE dbo.RunExportRecords ADD CompareManifestVersion NVARCHAR(100) NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'IncludedAgentResultCompare')
-    ALTER TABLE dbo.RunExportRecords ADD IncludedAgentResultCompare BIT NULL;
-GO
-IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.RunExportRecords') AND name = N'CompareRunId')
-    ALTER TABLE dbo.RunExportRecords ADD CompareRunId NVARCHAR(64) NULL;
-GO
+/* RunExportRecords: full column set is in CREATE above (matches DbUp 001); no per-column ALTERs. */
 
 IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_RunExportRecords_Run')
    AND OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
@@ -408,27 +329,13 @@ END
 GO
 
 IF OBJECT_ID(N'dbo.ComparisonRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.ComparisonRecords') AND name = N'Label')
-    ALTER TABLE dbo.ComparisonRecords ADD Label NVARCHAR(256) NULL;
-GO
-IF OBJECT_ID(N'dbo.ComparisonRecords', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.ComparisonRecords') AND name = N'Tags')
-    ALTER TABLE dbo.ComparisonRecords ADD Tags NVARCHAR(MAX) NULL;
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ComparisonRecords_LeftRun')
-   AND OBJECT_ID(N'dbo.ComparisonRecords', N'U') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.ComparisonRecords ADD CONSTRAINT FK_ComparisonRecords_LeftRun FOREIGN KEY (LeftRunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ComparisonRecords_RightRun')
-   AND OBJECT_ID(N'dbo.ComparisonRecords', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.ComparisonRecords ADD CONSTRAINT FK_ComparisonRecords_RightRun FOREIGN KEY (RightRunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ComparisonRecords_LeftRun')
+        ALTER TABLE dbo.ComparisonRecords ADD CONSTRAINT FK_ComparisonRecords_LeftRun FOREIGN KEY (LeftRunId)
+            REFERENCES dbo.ArchitectureRuns (RunId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ComparisonRecords_RightRun')
+        ALTER TABLE dbo.ComparisonRecords ADD CONSTRAINT FK_ComparisonRecords_RightRun FOREIGN KEY (RightRunId)
+            REFERENCES dbo.ArchitectureRuns (RunId);
 END
 GO
 
@@ -479,19 +386,14 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvaluations_Run')
-   AND OBJECT_ID(N'dbo.AgentEvaluations', N'U') IS NOT NULL
+IF OBJECT_ID(N'dbo.AgentEvaluations', N'U') IS NOT NULL
 BEGIN
-    ALTER TABLE dbo.AgentEvaluations ADD CONSTRAINT FK_AgentEvaluations_Run FOREIGN KEY (RunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvaluations_Task')
-   AND OBJECT_ID(N'dbo.AgentEvaluations', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.AgentEvaluations ADD CONSTRAINT FK_AgentEvaluations_Task FOREIGN KEY (TargetAgentTaskId)
-        REFERENCES dbo.AgentTasks (TaskId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvaluations_Run')
+        ALTER TABLE dbo.AgentEvaluations ADD CONSTRAINT FK_AgentEvaluations_Run FOREIGN KEY (RunId)
+            REFERENCES dbo.ArchitectureRuns (RunId);
+    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvaluations_Task')
+        ALTER TABLE dbo.AgentEvaluations ADD CONSTRAINT FK_AgentEvaluations_Task FOREIGN KEY (TargetAgentTaskId)
+            REFERENCES dbo.AgentTasks (TaskId);
 END
 GO
 
@@ -638,7 +540,13 @@ BEGIN
         FindingsSnapshotId UNIQUEIDENTIFIER NULL,
         GoldenManifestId UNIQUEIDENTIFIER NULL,
         DecisionTraceId UNIQUEIDENTIFIER NULL,
-        ArtifactBundleId UNIQUEIDENTIFIER NULL
+        ArtifactBundleId UNIQUEIDENTIFIER NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_Runs_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111'),
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_Runs_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222'),
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_Runs_ScopeProjectId DEFAULT ('33333333-3333-3333-3333-333333333333')
     );
 
     CREATE INDEX IX_Runs_ProjectId_CreatedUtc
@@ -726,7 +634,13 @@ BEGIN
         AppliedRuleIdsJson NVARCHAR(MAX) NOT NULL,
         AcceptedFindingIdsJson NVARCHAR(MAX) NOT NULL,
         RejectedFindingIdsJson NVARCHAR(MAX) NOT NULL,
-        NotesJson NVARCHAR(MAX) NOT NULL
+        NotesJson NVARCHAR(MAX) NOT NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_DecisioningTraces_TenantId_Create DEFAULT ('11111111-1111-1111-1111-111111111111'),
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_DecisioningTraces_WorkspaceId_Create DEFAULT ('22222222-2222-2222-2222-222222222222'),
+        ProjectId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_DecisioningTraces_ProjectId_Create DEFAULT ('33333333-3333-3333-3333-333333333333')
     );
 
     CREATE INDEX IX_DecisioningTraces_RunId
@@ -760,7 +674,13 @@ BEGIN
         DecisionsJson NVARCHAR(MAX) NOT NULL,
         AssumptionsJson NVARCHAR(MAX) NOT NULL,
         WarningsJson NVARCHAR(MAX) NOT NULL,
-        ProvenanceJson NVARCHAR(MAX) NOT NULL
+        ProvenanceJson NVARCHAR(MAX) NOT NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_GoldenManifests_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111'),
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_GoldenManifests_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222'),
+        ProjectId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_GoldenManifests_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333')
     );
 
     CREATE INDEX IX_GoldenManifests_RunId
@@ -777,7 +697,13 @@ BEGIN
         ManifestId UNIQUEIDENTIFIER NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         ArtifactsJson NVARCHAR(MAX) NOT NULL,
-        TraceJson NVARCHAR(MAX) NOT NULL
+        TraceJson NVARCHAR(MAX) NOT NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_ArtifactBundles_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111'),
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_ArtifactBundles_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222'),
+        ProjectId UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_ArtifactBundles_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333')
     );
 
     CREATE INDEX IX_ArtifactBundles_RunId
@@ -785,99 +711,6 @@ BEGIN
 
     CREATE INDEX IX_ArtifactBundles_ManifestId
         ON dbo.ArtifactBundles(ManifestId);
-END;
-GO
-
-IF COL_LENGTH('dbo.GoldenManifests', 'ComplianceJson') IS NULL
-BEGIN
-    ALTER TABLE dbo.GoldenManifests
-        ADD ComplianceJson NVARCHAR(MAX) NOT NULL CONSTRAINT DF_GoldenManifests_ComplianceJson DEFAULT (N'{}');
-END;
-GO
-
-/* --- Multi-tenant scope (Tenant / Workspace / Project GUID) --- */
-
-IF COL_LENGTH('dbo.Runs', 'TenantId') IS NULL
-BEGIN
-    ALTER TABLE dbo.Runs ADD TenantId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_Runs_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111');
-END;
-GO
-
-IF COL_LENGTH('dbo.Runs', 'WorkspaceId') IS NULL
-BEGIN
-    ALTER TABLE dbo.Runs ADD WorkspaceId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_Runs_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222');
-END;
-GO
-
-IF COL_LENGTH('dbo.Runs', 'ScopeProjectId') IS NULL
-BEGIN
-    ALTER TABLE dbo.Runs ADD ScopeProjectId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_Runs_ScopeProjectId DEFAULT ('33333333-3333-3333-3333-333333333333');
-END;
-GO
-
-IF COL_LENGTH('dbo.DecisioningTraces', 'TenantId') IS NULL
-BEGIN
-    ALTER TABLE dbo.DecisioningTraces ADD TenantId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_DecisioningTraces_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111');
-END;
-GO
-
-IF COL_LENGTH('dbo.DecisioningTraces', 'WorkspaceId') IS NULL
-BEGIN
-    ALTER TABLE dbo.DecisioningTraces ADD WorkspaceId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_DecisioningTraces_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222');
-END;
-GO
-
-IF COL_LENGTH('dbo.DecisioningTraces', 'ProjectId') IS NULL
-BEGIN
-    ALTER TABLE dbo.DecisioningTraces ADD ProjectId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_DecisioningTraces_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333');
-END;
-GO
-
-IF COL_LENGTH('dbo.GoldenManifests', 'TenantId') IS NULL
-BEGIN
-    ALTER TABLE dbo.GoldenManifests ADD TenantId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_GoldenManifests_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111');
-END;
-GO
-
-IF COL_LENGTH('dbo.GoldenManifests', 'WorkspaceId') IS NULL
-BEGIN
-    ALTER TABLE dbo.GoldenManifests ADD WorkspaceId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_GoldenManifests_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222');
-END;
-GO
-
-IF COL_LENGTH('dbo.GoldenManifests', 'ProjectId') IS NULL
-BEGIN
-    ALTER TABLE dbo.GoldenManifests ADD ProjectId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_GoldenManifests_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333');
-END;
-GO
-
-IF COL_LENGTH('dbo.ArtifactBundles', 'TenantId') IS NULL
-BEGIN
-    ALTER TABLE dbo.ArtifactBundles ADD TenantId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_ArtifactBundles_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111');
-END;
-GO
-
-IF COL_LENGTH('dbo.ArtifactBundles', 'WorkspaceId') IS NULL
-BEGIN
-    ALTER TABLE dbo.ArtifactBundles ADD WorkspaceId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_ArtifactBundles_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222');
-END;
-GO
-
-IF COL_LENGTH('dbo.ArtifactBundles', 'ProjectId') IS NULL
-BEGIN
-    ALTER TABLE dbo.ArtifactBundles ADD ProjectId UNIQUEIDENTIFIER NOT NULL
-        CONSTRAINT DF_ArtifactBundles_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333');
 END;
 GO
 
@@ -1339,23 +1172,6 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_PolicyPackAssignments_Scope_Enabled
         ON dbo.PolicyPackAssignments (TenantId, WorkspaceId, ProjectId, IsEnabled, AssignedUtc DESC);
-END;
-GO
-
-/* Existing deployments created before ScopeLevel/IsPinned (DbUp 015 baseline). */
-IF OBJECT_ID('dbo.PolicyPackAssignments', 'U') IS NOT NULL
-BEGIN
-    IF COL_LENGTH('dbo.PolicyPackAssignments', 'ScopeLevel') IS NULL
-    BEGIN
-        ALTER TABLE dbo.PolicyPackAssignments ADD ScopeLevel NVARCHAR(50) NOT NULL
-            CONSTRAINT DF_PolicyPackAssignments_ScopeLevel DEFAULT (N'Project');
-    END;
-
-    IF COL_LENGTH('dbo.PolicyPackAssignments', 'IsPinned') IS NULL
-    BEGIN
-        ALTER TABLE dbo.PolicyPackAssignments ADD IsPinned BIT NOT NULL
-            CONSTRAINT DF_PolicyPackAssignments_IsPinned DEFAULT (0);
-    END;
 END;
 GO
 

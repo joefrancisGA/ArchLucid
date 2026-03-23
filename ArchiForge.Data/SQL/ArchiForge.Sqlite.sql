@@ -3,9 +3,9 @@
 
   Idempotency:
     - CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS → safe to run repeatedly.
-    - SQLite cannot ADD COLUMN idempotently in plain SQL; if you open an older DB file that
-      predates a column (e.g. GraphSnapshotId on ArchitectureRuns), use DbUp migrations or
-      add the column once manually, then this script remains re-runnable.
+    - All columns are defined on CREATE (same principle as ArchiForge.sql). Older DB files
+      that predate a column are not upgraded by this script — use a migration path or a new
+      database for tests.
 
   Aligns with DbUp migrations 001–016 and the authority / decisioning section of
   ArchiForge.sql (GUID Runs, recommendations, advisory, digests, alerts, policy packs).
@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS ArchitectureRuns
     CurrentManifestVersion TEXT NULL,
     ContextSnapshotId TEXT NULL,
     GraphSnapshotId TEXT NULL,
+    ArtifactBundleId TEXT NULL,
     FOREIGN KEY (RequestId) REFERENCES ArchitectureRequests (RequestId)
 );
 
