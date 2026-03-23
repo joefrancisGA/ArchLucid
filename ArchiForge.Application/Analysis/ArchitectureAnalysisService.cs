@@ -23,6 +23,8 @@ public sealed class ArchitectureAnalysisService(
         ArchitectureAnalysisRequest request,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         if (string.IsNullOrWhiteSpace(request.RunId))
         {
             throw new InvalidOperationException("RunId is required.");

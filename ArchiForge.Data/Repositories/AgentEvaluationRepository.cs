@@ -19,6 +19,17 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             return;
         }
 
+        var distinctRunIds = evaluations.Select(e => e.RunId).Distinct().ToList();
+        if (distinctRunIds.Count > 1)
+        {
+            throw new ArgumentException(
+                $"All evaluations in a batch must belong to the same run. " +
+                $"Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
+                nameof(evaluations));
+        }
+
+        var runId = evaluations.First().RunId;
+
         // Delete all existing evaluations for this run before inserting so that a retry
         // of ExecuteRunAsync (inside a TransactionScope) does not produce duplicate rows.
         const string deleteSql = "DELETE FROM AgentEvaluations WHERE RunId = @RunId;";
@@ -49,10 +60,12 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             """;
 
         using var connection = connectionFactory.CreateConnection();
+        using var transaction = connection.BeginTransaction();
 
         await connection.ExecuteAsync(new CommandDefinition(
             deleteSql,
-            new { evaluations.First().RunId },
+            new { RunId = runId },
+            transaction: transaction,
             cancellationToken: cancellationToken));
 
         foreach (var e in evaluations)
@@ -71,8 +84,11 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
                     EvaluationJson = payload,
                     e.CreatedUtc
                 },
+                transaction: transaction,
                 cancellationToken: cancellationToken));
         }
+
+        transaction.Commit();
     }
 
     public async Task<IReadOnlyList<AgentEvaluation>> GetByRunIdAsync(
@@ -90,17 +106,23 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                RunId = runId
-            },
+            new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        return rows
-            .Select(json => JsonSerializer.Deserialize<AgentEvaluation>(json, ContractJson.Default))
-            .Where(x => x is not null)
-            .Cast<AgentEvaluation>()
-            .ToList();
+        var evaluations = new List<AgentEvaluation>();
+        foreach (var json in rows)
+        {
+            var evaluation = JsonSerializer.Deserialize<AgentEvaluation>(json, ContractJson.Default);
+            if (evaluation is null)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to deserialize an AgentEvaluation for run '{runId}'. " +
+                    "The stored JSON may be corrupt or written by an incompatible schema version.");
+            }
+
+            evaluations.Add(evaluation);
+        }
+
+        return evaluations;
     }
 }
-

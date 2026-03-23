@@ -72,10 +72,20 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             },
             cancellationToken: cancellationToken));
 
-        return rows
-            .Select(json => JsonSerializer.Deserialize<DecisionTrace>(json, ContractJson.Default))
-            .Where(x => x is not null)
-            .Cast<DecisionTrace>()
-            .ToList();
+        var traces = new List<DecisionTrace>();
+        foreach (var json in rows)
+        {
+            var trace = JsonSerializer.Deserialize<DecisionTrace>(json, ContractJson.Default);
+            if (trace is null)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to deserialize a DecisionTrace for run '{runId}'. " +
+                    "The stored JSON may be corrupt or written by an incompatible schema version.");
+            }
+
+            traces.Add(trace);
+        }
+
+        return traces;
     }
 }

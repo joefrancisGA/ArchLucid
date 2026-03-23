@@ -13,7 +13,6 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
     public Task<IReadOnlyList<DecisionNode>> ResolveAsync(
         string runId,
         ArchitectureRequest request,
-        AgentEvidencePackage evidence,
         IReadOnlyCollection<AgentTask> tasks,
         IReadOnlyCollection<AgentResult> results,
         IReadOnlyCollection<AgentEvaluation> evaluations,
@@ -21,10 +20,10 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
         ArgumentNullException.ThrowIfNull(results);
         ArgumentNullException.ThrowIfNull(evaluations);
+        cancellationToken.ThrowIfCancellationRequested();
 
         var decisions = new List<DecisionNode>();
 
@@ -37,8 +36,8 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         }
 
         decisions.Add(BuildTopologyAcceptanceDecision(runId, topologyTask, topologyResult, evaluations));
-        decisions.Add(BuildSecurityControlsDecision(runId, topologyTask, evaluations));
-        decisions.Add(BuildComplexityDecision(runId, topologyTask, evaluations));
+        decisions.Add(BuildSecurityControlsDecision(runId, tasks, evaluations));
+        decisions.Add(BuildComplexityDecision(runId, tasks, evaluations));
 
         return Task.FromResult<IReadOnlyList<DecisionNode>>(decisions);
     }
@@ -109,11 +108,14 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
 
     private static DecisionNode BuildSecurityControlsDecision(
         string runId,
-        AgentTask topologyTask,
+        IReadOnlyCollection<AgentTask> tasks,
         IReadOnlyCollection<AgentEvaluation> evaluations)
     {
+        // Include evaluations targeting any task, not just topology, so signals from
+        // Compliance and Critic agents influence security control promotion.
+        var taskIds = tasks.Select(t => t.TaskId).ToHashSet(StringComparer.Ordinal);
         var relevant = evaluations
-            .Where(e => e.TargetAgentTaskId == topologyTask.TaskId)
+            .Where(e => taskIds.Contains(e.TargetAgentTaskId))
             .ToList();
 
         var promotePrivateEndpoints = relevant.Any(e =>
@@ -161,11 +163,13 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
 
     private static DecisionNode BuildComplexityDecision(
         string runId,
-        AgentTask topologyTask,
+        IReadOnlyCollection<AgentTask> tasks,
         IReadOnlyCollection<AgentEvaluation> evaluations)
     {
+        // Include evaluations targeting any task so Critic/Compliance cautions contribute.
+        var taskIds = tasks.Select(t => t.TaskId).ToHashSet(StringComparer.Ordinal);
         var relevant = evaluations
-            .Where(e => e.TargetAgentTaskId == topologyTask.TaskId)
+            .Where(e => taskIds.Contains(e.TargetAgentTaskId))
             .ToList();
 
         var cautions = relevant
@@ -211,4 +215,3 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         };
     }
 }
-

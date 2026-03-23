@@ -54,33 +54,41 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
 
             sb.AppendLine("### Request Context");
             sb.AppendLine();
-            sb.AppendLine($"- Description: {report.Evidence.Request.Description}");
 
-            if (report.Evidence.Request.Constraints.Count > 0)
+            if (report.Evidence.Request is not null)
             {
-                sb.AppendLine("- Constraints:");
-                foreach (var item in report.Evidence.Request.Constraints)
+                sb.AppendLine($"- Description: {report.Evidence.Request.Description}");
+
+                if ((report.Evidence.Request.Constraints ?? []).Count > 0)
                 {
-                    sb.AppendLine($"  - {item}");
+                    sb.AppendLine("- Constraints:");
+                    foreach (var item in report.Evidence.Request.Constraints!)
+                    {
+                        sb.AppendLine($"  - {item}");
+                    }
+                }
+
+                if ((report.Evidence.Request.RequiredCapabilities ?? []).Count > 0)
+                {
+                    sb.AppendLine("- Required Capabilities:");
+                    foreach (var item in report.Evidence.Request.RequiredCapabilities!)
+                    {
+                        sb.AppendLine($"  - {item}");
+                    }
+                }
+
+                if ((report.Evidence.Request.Assumptions ?? []).Count > 0)
+                {
+                    sb.AppendLine("- Assumptions:");
+                    foreach (var item in report.Evidence.Request.Assumptions!)
+                    {
+                        sb.AppendLine($"  - {item}");
+                    }
                 }
             }
-
-            if (report.Evidence.Request.RequiredCapabilities.Count > 0)
+            else
             {
-                sb.AppendLine("- Required Capabilities:");
-                foreach (var item in report.Evidence.Request.RequiredCapabilities)
-                {
-                    sb.AppendLine($"  - {item}");
-                }
-            }
-
-            if (report.Evidence.Request.Assumptions.Count > 0)
-            {
-                sb.AppendLine("- Assumptions:");
-                foreach (var item in report.Evidence.Request.Assumptions)
-                {
-                    sb.AppendLine($"  - {item}");
-                }
+                sb.AppendLine("- Request context not available.");
             }
 
             sb.AppendLine();

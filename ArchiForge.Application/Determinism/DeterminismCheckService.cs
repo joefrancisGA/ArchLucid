@@ -12,6 +12,8 @@ public sealed class DeterminismCheckService(
         DeterminismCheckRequest request,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         if (string.IsNullOrWhiteSpace(request.RunId))
             throw new InvalidOperationException("RunId is required.");
 
@@ -96,9 +98,17 @@ public sealed class DeterminismCheckService(
                     iteration.ManifestDriftWarnings.Add("Manifest differs from baseline replay.");
                 }
             }
+            else if (baseline.Manifest is null && replay.Manifest is null)
+            {
+                // Neither run produced a manifest; treat as matching.
+                iteration.MatchesBaselineManifest = true;
+            }
             else
             {
-                iteration.MatchesBaselineManifest = true;
+                // One run produced a manifest and the other did not — this is drift.
+                iteration.MatchesBaselineManifest = false;
+                iteration.ManifestDriftWarnings.Add(
+                    "Manifest presence is asymmetric: one replay produced a manifest while the other did not.");
             }
 
             output.IterationResults.Add(iteration);

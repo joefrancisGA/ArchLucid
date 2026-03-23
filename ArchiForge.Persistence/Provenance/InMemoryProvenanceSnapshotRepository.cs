@@ -8,7 +8,10 @@ namespace ArchiForge.Persistence.Provenance;
 public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRepository
 {
     private readonly object _gate = new();
-    private readonly List<DecisionProvenanceSnapshot> _store = [];
+
+    // Key: (TenantId, WorkspaceId, ProjectId, RunId) → latest snapshot.
+    // Last-write-wins semantics prevent unbounded memory growth for repeated saves.
+    private readonly Dictionary<(Guid, Guid, Guid, Guid), DecisionProvenanceSnapshot> _store = [];
 
     public Task SaveAsync(
         DecisionProvenanceSnapshot snapshot,
@@ -19,9 +22,11 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
         _ = ct;
         _ = connection;
         _ = transaction;
+
+        var key = (snapshot.TenantId, snapshot.WorkspaceId, snapshot.ProjectId, snapshot.RunId);
         lock (_gate)
         {
-            _store.Add(snapshot);
+            _store[key] = snapshot;
         }
 
         return Task.CompletedTask;
@@ -30,16 +35,10 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
     public Task<DecisionProvenanceSnapshot?> GetByRunIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         _ = ct;
+        var key = (scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId);
         lock (_gate)
         {
-            var hit = _store
-                .Where(x =>
-                    x.TenantId == scope.TenantId &&
-                    x.WorkspaceId == scope.WorkspaceId &&
-                    x.ProjectId == scope.ProjectId &&
-                    x.RunId == runId)
-                .OrderByDescending(x => x.CreatedUtc)
-                .FirstOrDefault();
+            _store.TryGetValue(key, out var hit);
             return Task.FromResult(hit);
         }
     }

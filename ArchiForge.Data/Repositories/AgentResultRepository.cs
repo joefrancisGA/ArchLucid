@@ -69,6 +69,15 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         if (results.Count == 0)
             return;
 
+        var distinctRunIds = results.Select(r => r.RunId).Distinct().ToList();
+        if (distinctRunIds.Count > 1)
+        {
+            throw new ArgumentException(
+                $"All results in a batch must belong to the same run. " +
+                $"Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
+                nameof(results));
+        }
+
         // Delete all existing results for this run before bulk-inserting so that a retry
         // of ExecuteRunAsync (inside a TransactionScope) does not produce duplicate rows.
         const string deleteSql = "DELETE FROM AgentResults WHERE RunId = @RunId;";

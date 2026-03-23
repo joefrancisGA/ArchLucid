@@ -45,6 +45,7 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             """;
 
         using var connection = connectionFactory.CreateConnection();
+        using var transaction = connection.BeginTransaction();
 
         foreach (var decision in decisions)
         {
@@ -62,8 +63,11 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
                     DecisionJson = payload,
                     decision.CreatedUtc
                 },
+                transaction: transaction,
                 cancellationToken: cancellationToken));
         }
+
+        transaction.Commit();
     }
 
     public async Task<IReadOnlyList<DecisionNode>> GetByRunIdAsync(
@@ -81,17 +85,23 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new
-            {
-                RunId = runId
-            },
+            new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        return rows
-            .Select(json => JsonSerializer.Deserialize<DecisionNode>(json, ContractJson.Default))
-            .Where(x => x is not null)
-            .Cast<DecisionNode>()
-            .ToList();
+        var nodes = new List<DecisionNode>();
+        foreach (var json in rows)
+        {
+            var node = JsonSerializer.Deserialize<DecisionNode>(json, ContractJson.Default);
+            if (node is null)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to deserialize a DecisionNode for run '{runId}'. " +
+                    "The stored JSON may be corrupt or written by an incompatible schema version.");
+            }
+
+            nodes.Add(node);
+        }
+
+        return nodes;
     }
 }
-

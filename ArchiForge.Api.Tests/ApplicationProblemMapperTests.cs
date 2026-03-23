@@ -19,8 +19,7 @@ public sealed class ApplicationProblemMapperTests
         var result = ApplicationProblemMapper.MapInvalidOperation(
             new InvalidOperationException(message),
             instance: null,
-            badRequestProblemType: ProblemTypes.BadRequest,
-            notFoundTypeOverride: null);
+            badRequestProblemType: ProblemTypes.BadRequest);
 
         result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }

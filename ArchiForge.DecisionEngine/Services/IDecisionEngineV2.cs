@@ -9,10 +9,8 @@ public interface IDecisionEngineV2
     Task<IReadOnlyList<DecisionNode>> ResolveAsync(
         string runId,
         ArchitectureRequest request,
-        AgentEvidencePackage evidence,
         IReadOnlyCollection<AgentTask> tasks,
         IReadOnlyCollection<AgentResult> results,
         IReadOnlyCollection<AgentEvaluation> evaluations,
         CancellationToken cancellationToken = default);
 }
-

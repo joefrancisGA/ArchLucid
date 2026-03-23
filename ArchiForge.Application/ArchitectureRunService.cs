@@ -192,27 +192,38 @@ public sealed class ArchitectureRunService(
 
         // Idempotency: if the run is already committed and has a manifest version,
         // return the existing manifest and decision traces instead of creating a new manifest version.
-        if (run.Status is ArchitectureRunStatus.Committed &&
-            !string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+        if (run.Status is ArchitectureRunStatus.Committed)
         {
-            var existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
-            if (existingManifest is not null)
+            if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
             {
-                var existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
-
-                logger.LogInformation(
-                    "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
-                    runId,
-                    run.CurrentManifestVersion,
-                    existingTraces.Count);
-
-                return new CommitRunResult
-                {
-                    Manifest = existingManifest,
-                    DecisionTraces = existingTraces.ToList(),
-                    Warnings = []
-                };
+                throw new ConflictException(
+                    $"Run '{runId}' is already committed but no manifest version was recorded. " +
+                    "The run record may be corrupt; check storage integrity.");
             }
+
+            var existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
+            if (existingManifest is null)
+            {
+                throw new ConflictException(
+                    $"Run '{runId}' is already committed (manifest version '{run.CurrentManifestVersion}') " +
+                    "but the manifest could not be found in storage. " +
+                    "It may have been deleted or there is a replication lag.");
+            }
+
+            var existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+
+            logger.LogInformation(
+                "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
+                runId,
+                run.CurrentManifestVersion,
+                existingTraces.Count);
+
+            return new CommitRunResult
+            {
+                Manifest = existingManifest,
+                DecisionTraces = existingTraces.ToList(),
+                Warnings = []
+            };
         }
 
         if (run.Status != ArchitectureRunStatus.ReadyForCommit)
@@ -220,12 +231,6 @@ public sealed class ArchitectureRunService(
             if (run.Status == ArchitectureRunStatus.Failed)
             {
                 throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
-            }
-
-            if (run.Status == ArchitectureRunStatus.Committed)
-            {
-                throw new ConflictException(
-                    $"Run '{runId}' is already committed but the manifest could not be loaded for idempotent replay.");
             }
 
             throw new ConflictException(
@@ -249,7 +254,6 @@ public sealed class ArchitectureRunService(
         var decisionNodes = await decisionEngineV2.ResolveAsync(
             runId,
             request,
-            evidence,
             tasks,
             results,
             evaluations,

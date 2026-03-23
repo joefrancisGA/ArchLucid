@@ -169,19 +169,9 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 
     private static PriorManifestEvidence? BuildPriorManifest(ArchitectureRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.PriorManifestVersion))
-        {
-            return null;
-        }
-
-        return new PriorManifestEvidence
-        {
-            ManifestVersion = request.PriorManifestVersion,
-            Summary = "Prior manifest reference supplied, but hydrated prior manifest loading is not yet implemented.",
-            ExistingServices = [],
-            ExistingDatastores = [],
-            ExistingRequiredControls = []
-        };
+        // Return null until real manifest hydration is implemented; agents must not treat
+        // an empty placeholder as valid prior-state evidence.
+        return null;
     }
 
     private static List<EvidenceNote> BuildNotes(ArchitectureRequest request)
@@ -194,6 +184,16 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 Message = "Evidence package was built using the default deterministic builder."
             }
         };
+
+        if (!string.IsNullOrWhiteSpace(request.PriorManifestVersion))
+        {
+            notes.Add(new EvidenceNote
+            {
+                NoteType = "PriorManifestUnavailable",
+                Message = $"A prior manifest version '{request.PriorManifestVersion}' was requested " +
+                          "but prior manifest hydration is not yet implemented. Agents should treat this as a greenfield design."
+            });
+        }
 
         if (RequiresSearchCapability(request))
         {

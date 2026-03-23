@@ -36,6 +36,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             """;
 
         using var connection = connectionFactory.CreateConnection();
+        using var transaction = connection.BeginTransaction();
 
         var rows = tasks.Select(t => new
         {
@@ -52,7 +53,10 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
             rows,
+            transaction: transaction,
             cancellationToken: cancellationToken));
+
+        transaction.Commit();
     }
 
     public async Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
@@ -76,13 +80,24 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
 
         var rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
             sql,
-            new
-            {
-                RunId = runId
-            },
+            new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        return [.. rows.Select(r => new AgentTask { TaskId = r.TaskId, RunId = r.RunId, AgentType = Enum.TryParse<AgentType>(r.AgentType, true, out var agentType) ? agentType : AgentType.Topology, Objective = r.Objective, Status = Enum.TryParse<AgentTaskStatus>(r.Status, true, out var status) ? status : AgentTaskStatus.Created, CreatedUtc = r.CreatedUtc, CompletedUtc = r.CompletedUtc, EvidenceBundleRef = r.EvidenceBundleRef })];
+        return [.. rows.Select(r => new AgentTask
+        {
+            TaskId = r.TaskId,
+            RunId = r.RunId,
+            AgentType = Enum.TryParse<AgentType>(r.AgentType, true, out var agentType)
+                ? agentType
+                : throw new InvalidOperationException($"Unknown AgentType '{r.AgentType}' for task '{r.TaskId}'."),
+            Objective = r.Objective,
+            Status = Enum.TryParse<AgentTaskStatus>(r.Status, true, out var status)
+                ? status
+                : throw new InvalidOperationException($"Unknown AgentTaskStatus '{r.Status}' for task '{r.TaskId}'."),
+            CreatedUtc = r.CreatedUtc,
+            CompletedUtc = r.CompletedUtc,
+            EvidenceBundleRef = r.EvidenceBundleRef
+        })];
     }
 
     private sealed class AgentTaskRow
@@ -92,17 +107,8 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
         public string AgentType { get; init; } = string.Empty;
         public string Objective { get; init; } = string.Empty;
         public string Status { get; init; } = string.Empty;
-        public DateTime CreatedUtc
-        {
-            get; init;
-        }
-        public DateTime? CompletedUtc
-        {
-            get; init;
-        }
-        public string? EvidenceBundleRef
-        {
-            get; init;
-        }
+        public DateTime CreatedUtc { get; init; }
+        public DateTime? CompletedUtc { get; init; }
+        public string? EvidenceBundleRef { get; init; }
     }
 }

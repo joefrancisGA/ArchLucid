@@ -86,8 +86,7 @@ public static class ProblemDetailsExtensions
     public static IActionResult InvalidOperationProblem(
         this ControllerBase controller,
         InvalidOperationException exception,
-        string badRequestType,
-        string? notFoundType = null)
+        string badRequestType)
     {
         if (exception is ConflictException)
             return controller.ConflictProblem(exception.Message, ProblemTypes.Conflict);
@@ -96,7 +95,6 @@ public static class ProblemDetailsExtensions
         return ApplicationProblemMapper.MapInvalidOperation(
             exception,
             instance,
-            badRequestType,
-            notFoundType);
+            badRequestType);
     }
 }

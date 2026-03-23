@@ -1,3 +1,5 @@
+using System.Transactions;
+
 using ArchiForge.Application.Agents;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
@@ -32,6 +34,8 @@ public sealed class ReplayRunService(
         var request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
 
+        cancellationToken.ThrowIfCancellationRequested();
+
         var tasks = await taskRepository.GetByRunIdAsync(originalRunId, cancellationToken);
         if (tasks.Count == 0)
         {
@@ -42,6 +46,18 @@ public sealed class ReplayRunService(
             ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
         var replayRunId = Guid.NewGuid().ToString("N");
+
+        var replayRun = new ArchitectureRun
+        {
+            RunId = replayRunId,
+            RequestId = originalRun.RequestId,
+            Status = ArchitectureRunStatus.Created,
+            CreatedUtc = DateTime.UtcNow
+        };
+
+        await runRepository.CreateAsync(replayRun, cancellationToken);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         var replayTasks = tasks
             .Select(t => new AgentTask
@@ -54,8 +70,8 @@ public sealed class ReplayRunService(
                 CreatedUtc = DateTime.UtcNow,
                 CompletedUtc = null,
                 EvidenceBundleRef = t.EvidenceBundleRef,
-                AllowedTools = t.AllowedTools.ToList(),
-                AllowedSources = t.AllowedSources.ToList()
+                AllowedTools = (t.AllowedTools ?? []).ToList(),
+                AllowedSources = (t.AllowedSources ?? []).ToList()
             })
             .ToList();
 
@@ -68,6 +84,8 @@ public sealed class ReplayRunService(
             replayEvidence,
             replayTasks,
             cancellationToken);
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         GoldenManifest? manifest = null;
         List<DecisionTrace> decisionTraces = [];
@@ -98,8 +116,14 @@ public sealed class ReplayRunService(
             decisionTraces = merge.DecisionTraces;
             warnings = merge.Warnings;
 
+            using var scope = new TransactionScope(
+                TransactionScopeOption.Required,
+                TransactionScopeAsyncFlowOption.Enabled);
+
             await manifestRepository.CreateAsync(manifest, cancellationToken);
             await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
+
+            scope.Complete();
         }
 
         return new ReplayRunResult
@@ -129,34 +153,34 @@ public sealed class ReplayRunService(
             Request = new RequestEvidence
             {
                 Description = original.Request.Description,
-                Constraints = original.Request.Constraints.ToList(),
-                RequiredCapabilities = original.Request.RequiredCapabilities.ToList(),
-                Assumptions = original.Request.Assumptions.ToList()
+                Constraints = (original.Request.Constraints ?? []).ToList(),
+                RequiredCapabilities = (original.Request.RequiredCapabilities ?? []).ToList(),
+                Assumptions = (original.Request.Assumptions ?? []).ToList()
             },
-            Policies = original.Policies.Select(p => new PolicyEvidence
+            Policies = (original.Policies ?? []).Select(p => new PolicyEvidence
             {
                 PolicyId = p.PolicyId,
                 Title = p.Title,
                 Summary = p.Summary,
-                RequiredControls = p.RequiredControls.ToList(),
-                Tags = p.Tags.ToList()
+                RequiredControls = (p.RequiredControls ?? []).ToList(),
+                Tags = (p.Tags ?? []).ToList()
             }).ToList(),
-            ServiceCatalog = original.ServiceCatalog.Select(s => new ServiceCatalogEvidence
+            ServiceCatalog = (original.ServiceCatalog ?? []).Select(s => new ServiceCatalogEvidence
             {
                 ServiceId = s.ServiceId,
                 ServiceName = s.ServiceName,
                 Category = s.Category,
                 Summary = s.Summary,
-                Tags = s.Tags.ToList(),
-                RecommendedUseCases = s.RecommendedUseCases.ToList()
+                Tags = (s.Tags ?? []).ToList(),
+                RecommendedUseCases = (s.RecommendedUseCases ?? []).ToList()
             }).ToList(),
-            Patterns = original.Patterns.Select(p => new PatternEvidence
+            Patterns = (original.Patterns ?? []).Select(p => new PatternEvidence
             {
                 PatternId = p.PatternId,
                 Name = p.Name,
                 Summary = p.Summary,
-                ApplicableCapabilities = p.ApplicableCapabilities.ToList(),
-                SuggestedServices = p.SuggestedServices.ToList()
+                ApplicableCapabilities = (p.ApplicableCapabilities ?? []).ToList(),
+                SuggestedServices = (p.SuggestedServices ?? []).ToList()
             }).ToList(),
             PriorManifest = original.PriorManifest is null
                 ? null
@@ -164,11 +188,11 @@ public sealed class ReplayRunService(
                 {
                     ManifestVersion = original.PriorManifest.ManifestVersion,
                     Summary = original.PriorManifest.Summary,
-                    ExistingServices = original.PriorManifest.ExistingServices.ToList(),
-                    ExistingDatastores = original.PriorManifest.ExistingDatastores.ToList(),
-                    ExistingRequiredControls = original.PriorManifest.ExistingRequiredControls.ToList()
+                    ExistingServices = (original.PriorManifest.ExistingServices ?? []).ToList(),
+                    ExistingDatastores = (original.PriorManifest.ExistingDatastores ?? []).ToList(),
+                    ExistingRequiredControls = (original.PriorManifest.ExistingRequiredControls ?? []).ToList()
                 },
-            Notes = original.Notes.Select(n => new EvidenceNote
+            Notes = (original.Notes ?? []).Select(n => new EvidenceNote
             {
                 NoteType = n.NoteType,
                 Message = n.Message

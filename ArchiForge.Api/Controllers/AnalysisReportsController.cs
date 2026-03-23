@@ -64,7 +64,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest, ProblemTypes.RunNotFound);
+            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }
 
@@ -102,7 +102,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed, ProblemTypes.RunNotFound);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
 
@@ -134,7 +134,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed, ProblemTypes.RunNotFound);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
 
@@ -171,7 +171,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed, ProblemTypes.RunNotFound);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
 
@@ -291,7 +291,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed, ProblemTypes.RunNotFound);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
 

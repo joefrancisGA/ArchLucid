@@ -13,8 +13,8 @@ public sealed class ManifestDiffService : IManifestDiffService
 
         var result = new ManifestDiffResult
         {
-            LeftManifestVersion = left.Metadata.ManifestVersion,
-            RightManifestVersion = right.Metadata.ManifestVersion,
+            LeftManifestVersion = left.Metadata?.ManifestVersion,
+            RightManifestVersion = right.Metadata?.ManifestVersion,
             AddedServices = GetAddedServiceNames(left, right),
             RemovedServices = GetRemovedServiceNames(left, right),
             AddedDatastores = GetAddedDatastoreNames(left, right),
@@ -31,11 +31,11 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetAddedServiceNames(GoldenManifest left, GoldenManifest right)
     {
-        var leftSet = left.Services
+        var leftSet = (left.Services ?? [])
             .Select(s => s.ServiceName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return right.Services
+        return (right.Services ?? [])
             .Select(s => s.ServiceName)
             .Where(name => !leftSet.Contains(name))
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -45,11 +45,11 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetRemovedServiceNames(GoldenManifest left, GoldenManifest right)
     {
-        var rightSet = right.Services
+        var rightSet = (right.Services ?? [])
             .Select(s => s.ServiceName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return left.Services
+        return (left.Services ?? [])
             .Select(s => s.ServiceName)
             .Where(name => !rightSet.Contains(name))
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -59,11 +59,11 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetAddedDatastoreNames(GoldenManifest left, GoldenManifest right)
     {
-        var leftSet = left.Datastores
+        var leftSet = (left.Datastores ?? [])
             .Select(d => d.DatastoreName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return right.Datastores
+        return (right.Datastores ?? [])
             .Select(d => d.DatastoreName)
             .Where(name => !leftSet.Contains(name))
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -73,11 +73,11 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetRemovedDatastoreNames(GoldenManifest left, GoldenManifest right)
     {
-        var rightSet = right.Datastores
+        var rightSet = (right.Datastores ?? [])
             .Select(d => d.DatastoreName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return left.Datastores
+        return (left.Datastores ?? [])
             .Select(d => d.DatastoreName)
             .Where(name => !rightSet.Contains(name))
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -87,10 +87,10 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetAddedRequiredControls(GoldenManifest left, GoldenManifest right)
     {
-        var leftSet = left.Governance.RequiredControls
+        var leftSet = (left.Governance?.RequiredControls ?? [])
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return right.Governance.RequiredControls
+        return (right.Governance?.RequiredControls ?? [])
             .Where(control => !leftSet.Contains(control))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(x => x)
@@ -99,10 +99,10 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetRemovedRequiredControls(GoldenManifest left, GoldenManifest right)
     {
-        var rightSet = right.Governance.RequiredControls
+        var rightSet = (right.Governance?.RequiredControls ?? [])
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return left.Governance.RequiredControls
+        return (left.Governance?.RequiredControls ?? [])
             .Where(control => !rightSet.Contains(control))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(x => x)
@@ -111,11 +111,11 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<RelationshipDiffItem> GetAddedRelationships(GoldenManifest left, GoldenManifest right)
     {
-        var leftSet = left.Relationships
+        var leftSet = (left.Relationships ?? [])
             .Select(ToRelationshipKey)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return right.Relationships
+        return (right.Relationships ?? [])
             .Where(r => !leftSet.Contains(ToRelationshipKey(r)))
             .Select(ToDiffItem)
             .OrderBy(r => r.SourceId)
@@ -126,11 +126,11 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<RelationshipDiffItem> GetRemovedRelationships(GoldenManifest left, GoldenManifest right)
     {
-        var rightSet = right.Relationships
+        var rightSet = (right.Relationships ?? [])
             .Select(ToRelationshipKey)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return left.Relationships
+        return (left.Relationships ?? [])
             .Where(r => !rightSet.Contains(ToRelationshipKey(r)))
             .Select(ToDiffItem)
             .OrderBy(r => r.SourceId)

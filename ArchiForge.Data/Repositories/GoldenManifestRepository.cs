@@ -12,6 +12,8 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
 {
     public async Task CreateAsync(GoldenManifest manifest, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(manifest);
+
         const string sql = """
             INSERT INTO GoldenManifestVersions
             (
@@ -69,8 +71,12 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
             },
             cancellationToken: cancellationToken));
 
-        return json is null
-            ? null
-            : JsonSerializer.Deserialize<GoldenManifest>(json, ContractJson.Default);
+        if (json is null)
+            return null;
+
+        return JsonSerializer.Deserialize<GoldenManifest>(json, ContractJson.Default)
+            ?? throw new InvalidOperationException(
+                $"Manifest JSON for version '{manifestVersion}' could not be deserialized. " +
+                "The stored JSON may be corrupt or written by an incompatible schema version.");
     }
 }

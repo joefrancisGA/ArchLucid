@@ -38,7 +38,6 @@ public sealed class DecisionEngineV2Tests
         var decisions = await _engine.ResolveAsync(
             "RUN-1",
             request: new ArchitectureRequest { RequestId = "REQ-1", SystemName = "S", Description = "d" },
-            evidence: new AgentEvidencePackage { RunId = "RUN-1", RequestId = "REQ-1", SystemName = "S" },
             tasks: new List<AgentTask> { new() { TaskId = "T-1", RunId = "RUN-1", AgentType = AgentType.Topology, Status = AgentTaskStatus.Completed } },
             results: results,
             evaluations: []);
@@ -86,7 +85,6 @@ public sealed class DecisionEngineV2Tests
         var decisions = await _engine.ResolveAsync(
             "RUN-1",
             request: new ArchitectureRequest { RequestId = "REQ-1", SystemName = "S", Description = "d" },
-            evidence: new AgentEvidencePackage { RunId = "RUN-1", RequestId = "REQ-1", SystemName = "S" },
             tasks: new List<AgentTask> { new() { TaskId = "T-1", RunId = "RUN-1", AgentType = AgentType.Topology, Status = AgentTaskStatus.Completed } },
             results: results,
             evaluations: evals);

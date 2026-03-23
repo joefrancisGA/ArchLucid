@@ -50,7 +50,7 @@ public static class ApplicationProblemMapper
 
         if (ex is InvalidOperationException ioe)
         {
-            result = MapInvalidOperation(ioe, instance, ProblemTypes.BadRequest, notFoundTypeOverride: null);
+            result = MapInvalidOperation(ioe, instance, ProblemTypes.BadRequest);
             return true;
         }
 
@@ -77,8 +77,7 @@ public static class ApplicationProblemMapper
     public static ObjectResult MapInvalidOperation(
         InvalidOperationException ex,
         string? instance,
-        string badRequestProblemType,
-        string? notFoundTypeOverride)
+        string badRequestProblemType)
     {
         return CreateProblemResult(
             StatusCodes.Status400BadRequest,

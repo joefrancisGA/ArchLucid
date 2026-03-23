@@ -41,7 +41,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             return output;
         }
 
-        var validResults = ValidateAndFilterResults(results, output);
+        var validResults = ValidateAndFilterResults(runId, results, output);
 
         if (output.Errors.Count > 0)
         {
@@ -101,11 +101,29 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         GoldenManifest manifest,
         DecisionMergeResult output)
     {
+        // Warn on duplicate topics; only the first node per topic is applied.
+        foreach (var dup in decisionNodes
+                     .GroupBy(d => d.Topic, StringComparer.OrdinalIgnoreCase)
+                     .Where(g => g.Count() > 1))
+        {
+            output.Warnings.Add(
+                $"Decision topic '{dup.Key}' has {dup.Count()} duplicate nodes; only the first will be applied.");
+        }
+
         var topologyAcceptance = decisionNodes.FirstOrDefault(d =>
             string.Equals(d.Topic, "TopologyAcceptance", StringComparison.OrdinalIgnoreCase));
         if (topologyAcceptance is not null)
         {
             var selected = topologyAcceptance.Options.FirstOrDefault(o => o.OptionId == topologyAcceptance.SelectedOptionId);
+
+            if (selected is null && !string.IsNullOrWhiteSpace(topologyAcceptance.SelectedOptionId))
+            {
+                output.Errors.Add(
+                    $"TopologyAcceptance node has SelectedOptionId '{topologyAcceptance.SelectedOptionId}' " +
+                    "that does not match any option. Merge aborted to prevent corrupt decision semantics.");
+                return;
+            }
+
             if (selected is not null &&
                 selected.Description.StartsWith("Reject", StringComparison.OrdinalIgnoreCase))
             {
@@ -187,6 +205,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
     }
 
     private static List<AgentResult> ValidateAndFilterResults(
+        string runId,
         IReadOnlyCollection<AgentResult> results,
         DecisionMergeResult output)
     {
@@ -194,7 +213,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
         foreach (var result in results)
         {
-            var errors = ValidateResult(result);
+            var errors = ValidateResult(result, runId);
             if (errors.Count > 0)
             {
                 output.Errors.AddRange(errors.Select(e => $"AgentResult {result.ResultId}: {e}"));
@@ -207,7 +226,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         return valid;
     }
 
-    private static List<string> ValidateResult(AgentResult result)
+    private static List<string> ValidateResult(AgentResult result, string runId)
     {
         var errors = new List<string>();
 
@@ -219,6 +238,8 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
         if (string.IsNullOrWhiteSpace(result.RunId))
             errors.Add("RunId is required.");
+        else if (!string.Equals(result.RunId, runId, StringComparison.Ordinal))
+            errors.Add($"RunId '{result.RunId}' does not match the merge run '{runId}'; cross-run results must not be merged.");
 
         if (result.Confidence < 0.0 || result.Confidence > 1.0)
             errors.Add("Confidence must be between 0 and 1.");
@@ -243,7 +264,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             Governance = new ManifestGovernance
             {
                 ComplianceTags = [],
-                PolicyConstraints = request.Constraints.ToList(),
+                PolicyConstraints = (request.Constraints ?? []).ToList(),
                 RequiredControls = [],
                 RiskClassification = "Moderate",
                 CostClassification = "Moderate"
@@ -364,12 +385,12 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         }
 
 #pragma warning disable IDE0305 // Simplify collection initialization   
-        existing.Tags = existing.Tags
-            .Union(incoming.Tags, StringComparer.OrdinalIgnoreCase)
+        existing.Tags = (existing.Tags ?? [])
+            .Union(incoming.Tags ?? [], StringComparer.OrdinalIgnoreCase)
             .ToList();
 #pragma warning restore IDE0305 // Simplify collection initialization
 
-        existing.RequiredControls = existing.RequiredControls.Union(incoming.RequiredControls, StringComparer.OrdinalIgnoreCase).ToList();
+        existing.RequiredControls = (existing.RequiredControls ?? []).Union(incoming.RequiredControls ?? [], StringComparer.OrdinalIgnoreCase).ToList();
 
         AddTrace(
             output,
@@ -447,6 +468,12 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
     {
         foreach (var relationship in relationships)
         {
+            if (string.IsNullOrWhiteSpace(relationship.SourceId) || string.IsNullOrWhiteSpace(relationship.TargetId))
+            {
+                output.Warnings.Add($"Skipped relationship with blank SourceId or TargetId from {agentType}.");
+                continue;
+            }
+
             var duplicate = manifest.Relationships.Any(r =>
                 r.SourceId.Equals(relationship.SourceId, StringComparison.OrdinalIgnoreCase) &&
                 r.TargetId.Equals(relationship.TargetId, StringComparison.OrdinalIgnoreCase) &&
@@ -525,7 +552,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         AgentResult result,
         DecisionMergeResult output)
     {
-        foreach (var finding in result.Findings)
+        foreach (var finding in result.Findings ?? [])
         {
             if (string.Equals(finding.Category, "Compliance", StringComparison.OrdinalIgnoreCase) &&
                 !string.IsNullOrWhiteSpace(finding.Message))
@@ -557,13 +584,13 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         IReadOnlyCollection<AgentResult> validResults,
         DecisionMergeResult output)
     {
-        if (request.RequiredCapabilities.Any(c =>
+        if ((request.RequiredCapabilities ?? []).Any(c =>
             c.Contains("private", StringComparison.OrdinalIgnoreCase)))
         {
             AddRequiredControlIfMissing(manifest, "Private Networking", output);
         }
 
-        if (request.RequiredCapabilities.Any(c =>
+        if ((request.RequiredCapabilities ?? []).Any(c =>
             c.Contains("managed identity", StringComparison.OrdinalIgnoreCase)))
         {
             AddRequiredControlIfMissing(manifest, "Managed Identity", output);

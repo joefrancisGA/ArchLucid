@@ -7,6 +7,9 @@ namespace ArchiForge.AgentRuntime;
 public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository repository)
     : IAgentExecutionTraceRecorder
 {
+    /// <summary>Maximum stored length for prompt/response fields to prevent unbounded PII retention.</summary>
+    private const int MaxContentLength = 8192;
+
     public async Task RecordAsync(
         string runId,
         string taskId,
@@ -19,15 +22,18 @@ public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository r
         string? errorMessage,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
+
         var trace = new AgentExecutionTrace
         {
             TraceId = Guid.NewGuid().ToString("N"),
             RunId = runId,
             TaskId = taskId,
             AgentType = agentType,
-            SystemPrompt = systemPrompt,
-            UserPrompt = userPrompt,
-            RawResponse = rawResponse,
+            SystemPrompt = Truncate(systemPrompt, MaxContentLength),
+            UserPrompt = Truncate(userPrompt, MaxContentLength),
+            RawResponse = Truncate(rawResponse, MaxContentLength),
             ParsedResultJson = parsedResultJson,
             ParseSucceeded = parseSucceeded,
             ErrorMessage = errorMessage,
@@ -36,4 +42,7 @@ public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository r
 
         await repository.CreateAsync(trace, cancellationToken);
     }
+
+    private static string Truncate(string value, int maxLength) =>
+        value.Length <= maxLength ? value : string.Concat(value.AsSpan(0, maxLength), "...[truncated]");
 }

@@ -23,6 +23,13 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (!string.Equals(task.RunId, runId, StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    $"Task '{task.TaskId}' belongs to run '{task.RunId}', not '{runId}'. " +
+                    "Tasks from a different run must not be executed together.");
+            }
+
             var result = task.AgentType switch
             {
                 Contracts.Common.AgentType.Topology => CreateTopologyResult(runId, task.TaskId, request),

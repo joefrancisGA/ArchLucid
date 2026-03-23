@@ -48,9 +48,14 @@ public sealed partial class RunsController(
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateRun(
-        [FromBody] ArchitectureRequest request,
+        [FromBody] ArchitectureRequest? request,
         CancellationToken cancellationToken)
     {
+        if (request is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
         var user = User.Identity?.Name ?? "anonymous";
         var correlationId = HttpContext.TraceIdentifier;
 
@@ -72,7 +77,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest, ProblemTypes.RunNotFound);
+            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }
 
@@ -101,7 +106,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.InvalidOperationProblem(ex, ProblemTypes.DeterminismFailed, ProblemTypes.RunNotFound);
+            return this.InvalidOperationProblem(ex, ProblemTypes.DeterminismFailed);
         }
     }
 
@@ -145,7 +150,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed, ProblemTypes.RunNotFound);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
 
@@ -174,7 +179,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed, ProblemTypes.RunNotFound);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
 
@@ -211,7 +216,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed, ProblemTypes.RunNotFound);
+            return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
 
@@ -331,6 +336,14 @@ public sealed partial class RunsController(
         [FromQuery] int pageSize = 50,
         CancellationToken cancellationToken = default)
     {
+        if (pageNumber < 1)
+            return this.BadRequestProblem("pageNumber must be at least 1.", ProblemTypes.ValidationFailed);
+
+        if (pageSize < 1 || pageSize > PagingParameters.MaxPageSize)
+            return this.BadRequestProblem(
+                $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
+                ProblemTypes.ValidationFailed);
+
         var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
