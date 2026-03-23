@@ -6,11 +6,16 @@ namespace ArchiForge.Application;
 /// </summary>
 public sealed class ConflictException : InvalidOperationException
 {
+    /// <summary>Creates a conflict exception with the given message (maps to HTTP 409 in the API).</summary>
+    /// <param name="message">Human-readable conflict description.</param>
     public ConflictException(string message)
         : base(message)
     {
     }
 
+    /// <summary>Creates a conflict exception with an inner cause.</summary>
+    /// <param name="message">Human-readable conflict description.</param>
+    /// <param name="innerException">Underlying exception.</param>
     public ConflictException(string message, Exception innerException)
         : base(message, innerException)
     {

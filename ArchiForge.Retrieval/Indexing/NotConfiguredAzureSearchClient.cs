@@ -2,13 +2,19 @@ using ArchiForge.Retrieval.Models;
 
 namespace ArchiForge.Retrieval.Indexing;
 
-/// <summary>Throws until a real Azure AI Search client is registered.</summary>
+/// <summary>
+/// Default <see cref="IAzureSearchClient"/> registration when Azure AI Search is not configured; fails fast with an actionable message.
+/// </summary>
 public sealed class NotConfiguredAzureSearchClient : IAzureSearchClient
 {
+    /// <inheritdoc />
+    /// <exception cref="InvalidOperationException">Always — search is not configured.</exception>
     public Task UpsertChunksAsync(IReadOnlyList<RetrievalChunk> chunks, CancellationToken ct) =>
         throw new InvalidOperationException(
             "Azure AI Search is not configured. Register a concrete IAzureSearchClient or use InMemoryVectorIndex (Retrieval:VectorIndex = InMemory).");
 
+    /// <inheritdoc />
+    /// <exception cref="InvalidOperationException">Always — search is not configured.</exception>
     public Task<IReadOnlyList<RetrievalHit>> SearchAsync(
         RetrievalQuery query,
         float[] queryEmbedding,

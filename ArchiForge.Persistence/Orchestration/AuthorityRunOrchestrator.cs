@@ -21,6 +21,13 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Persistence.Orchestration;
 
+/// <summary>
+/// <see cref="IAuthorityRunOrchestrator"/> implementation coordinating ingestion, knowledge graph, findings, decisioning, artifact synthesis, audit, and post-commit retrieval indexing.
+/// </summary>
+/// <remarks>
+/// Persists run, context, graph, findings, trace, manifest, and artifact bundle inside a unit of work, then commits before audit tail events and <see cref="IRetrievalRunCompletionIndexer.IndexAuthorityRunAsync"/>.
+/// Builds a <see cref="ArchiForge.Provenance.DecisionProvenanceGraph"/> for indexing; does not call <c>SaveProvenanceAsync</c> in the current flow (snapshot persistence may be added separately).
+/// </remarks>
 public sealed class AuthorityRunOrchestrator(
     IArchiForgeUnitOfWorkFactory unitOfWorkFactory,
     IScopeContextProvider scopeContextProvider,
@@ -50,6 +57,10 @@ public sealed class AuthorityRunOrchestrator(
         WriteIndented = false
     };
 
+    /// <inheritdoc />
+    /// <remarks>
+    /// Repository writes use the unit of work’s connection/transaction when <see cref="IArchiForgeUnitOfWork.SupportsExternalTransaction"/> is <see langword="true"/>.
+    /// </remarks>
     public async Task<RunRecord> ExecuteAsync(
         ContextIngestionRequest request,
         CancellationToken ct)

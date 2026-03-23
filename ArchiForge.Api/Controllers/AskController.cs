@@ -10,6 +10,10 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Grounded architect assistant: manifest + provenance + optional comparison + retrieval, with threaded conversations.
+/// </summary>
+/// <remarks>POST <c>api/ask</c>. Maps validation errors to 400; <see cref="InvalidOperationException"/> from the service to 404.</remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -17,7 +21,10 @@ namespace ArchiForge.Api.Controllers;
 [EnableRateLimiting("fixed")]
 public sealed class AskController(IAskService ask, IScopeContextProvider scopeProvider) : ControllerBase
 {
-    /// <summary>Grounded Q&amp;A over GoldenManifest, provenance graph, and optional run comparison.</summary>
+    /// <summary>Grounded Q&amp;A over GoldenManifest, provenance graph, optional run comparison, and retrieval hits.</summary>
+    /// <param name="request">Thread/run anchors and question (see validation rules in method body).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="AskResponse"/> on success.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(AskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -5,9 +5,13 @@ using ArchiForge.Core.Scoping;
 
 namespace ArchiForge.Persistence.Queries;
 
+/// <summary>
+/// Same behavior as <see cref="DapperArtifactQueryService"/>; type name reflects typical registration in storage-off mode.
+/// </summary>
 public sealed class InMemoryArtifactQueryService(IArtifactBundleRepository artifactBundleRepository)
     : IArtifactQueryService
 {
+    /// <inheritdoc />
     public async Task<IReadOnlyList<ArtifactDescriptor>> ListArtifactsByManifestIdAsync(
         ScopeContext scope,
         Guid manifestId,
@@ -39,6 +43,7 @@ public sealed class InMemoryArtifactQueryService(IArtifactBundleRepository artif
         return artifacts.FirstOrDefault(x => x.ArtifactId == artifactId);
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<SynthesizedArtifact>> GetArtifactsByManifestIdAsync(
         ScopeContext scope,
         Guid manifestId,

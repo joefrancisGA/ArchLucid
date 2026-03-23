@@ -2,11 +2,16 @@ using ArchiForge.Retrieval.Models;
 
 namespace ArchiForge.Retrieval.Indexing;
 
+/// <summary>
+/// Thread-safe in-memory <see cref="IVectorIndex"/> using cosine similarity over stored embeddings (dev/tests or single-node deployments).
+/// </summary>
+/// <remarks>Replaces existing rows by <see cref="RetrievalChunk.ChunkId"/> on upsert. Filters require exact tenant/workspace/project match; optional run/manifest must match when provided.</remarks>
 public sealed class InMemoryVectorIndex : IVectorIndex
 {
     private readonly List<RetrievalChunk> _chunks = [];
     private readonly object _sync = new();
 
+    /// <inheritdoc />
     public Task UpsertChunksAsync(IReadOnlyList<RetrievalChunk> chunks, CancellationToken ct)
     {
         lock (_sync)
@@ -21,6 +26,7 @@ public sealed class InMemoryVectorIndex : IVectorIndex
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task<IReadOnlyList<RetrievalHit>> SearchAsync(
         RetrievalQuery query,
         float[] queryEmbedding,

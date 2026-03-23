@@ -3,10 +3,14 @@ using ArchiForge.Persistence.Conversation;
 
 namespace ArchiForge.Api.Ask;
 
+/// <summary>
+/// <see cref="IConversationService"/> implementation backed by thread and message repositories.
+/// </summary>
 public sealed class ConversationService(
     IConversationThreadRepository threadRepository,
     IConversationMessageRepository messageRepository) : IConversationService
 {
+    /// <inheritdoc />
     public async Task<ConversationThread> GetOrCreateThreadAsync(
         Guid? threadId,
         Guid tenantId,
@@ -71,6 +75,7 @@ public sealed class ConversationService(
         await threadRepository.UpdateLastUpdatedAsync(threadId, DateTime.UtcNow, ct);
     }
 
+    /// <inheritdoc />
     public async Task AppendAssistantMessageAsync(
         Guid threadId,
         string content,

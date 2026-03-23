@@ -11,6 +11,10 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// HTTP semantic search over retrieval chunks scoped to the caller’s tenant/workspace/project.
+/// </summary>
+/// <remarks>GET <c>api/retrieval/search</c>; delegates to <see cref="IRetrievalQueryService"/> (same path used indirectly by <c>AskService</c>).</remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -21,6 +25,13 @@ public sealed class RetrievalController(
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
+    /// <summary>Runs a vector search for query string <paramref name="q"/>.</summary>
+    /// <param name="q">Required natural-language query.</param>
+    /// <param name="runId">Optional run filter.</param>
+    /// <param name="manifestId">Optional manifest filter.</param>
+    /// <param name="topK">Result count (clamped to 1–50; invalid values default to 8).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="RetrievalHit"/> list, or 400 when <paramref name="q"/> is missing.</returns>
     [HttpGet("search")]
     [ProducesResponseType(typeof(IReadOnlyList<RetrievalHit>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

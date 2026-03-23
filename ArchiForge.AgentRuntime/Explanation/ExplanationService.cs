@@ -10,6 +10,7 @@ namespace ArchiForge.AgentRuntime.Explanation;
 /// <summary>
 /// Structured signals first, then LLM narrative (JSON). Falls back to signal-only text if the model fails.
 /// </summary>
+/// <inheritdoc cref="IExplanationService"/>
 public sealed class ExplanationService(IAgentCompletionClient completionClient) : IExplanationService
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -23,6 +24,7 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
         "You are a senior enterprise architect. Be concise but authoritative. " +
         "Ground every statement in the facts provided; do not invent services or decisions not listed.";
 
+    /// <inheritdoc />
     public async Task<ComparisonExplanationResult> ExplainComparisonAsync(
         ComparisonResult comparison,
         CancellationToken ct)
@@ -68,6 +70,7 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
         };
     }
 
+    /// <inheritdoc />
     public async Task<ExplanationResult> ExplainRunAsync(
         GoldenManifest manifest,
         DecisionProvenanceGraph? provenance,

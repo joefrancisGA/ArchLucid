@@ -5,9 +5,13 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Conversation;
 
+/// <summary>
+/// SQL Server <see cref="IConversationThreadRepository"/> for <c>dbo.ConversationThreads</c>.
+/// </summary>
 public sealed class DapperConversationThreadRepository(ISqlConnectionFactory connectionFactory)
     : IConversationThreadRepository
 {
+    /// <inheritdoc />
     public async Task CreateAsync(ConversationThread thread, CancellationToken ct)
     {
         const string sql = """
@@ -29,6 +33,7 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
         await connection.ExecuteAsync(new CommandDefinition(sql, thread, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<ConversationThread?> GetByIdAsync(Guid threadId, CancellationToken ct)
     {
         const string sql = """
@@ -47,6 +52,7 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             }, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<ConversationThread>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -81,6 +87,7 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
         return rows.ToList();
     }
 
+    /// <inheritdoc />
     public async Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct)
     {
         const string sql = """

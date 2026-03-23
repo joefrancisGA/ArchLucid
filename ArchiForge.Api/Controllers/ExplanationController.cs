@@ -1,5 +1,6 @@
 using ArchiForge.AgentRuntime.Explanation;
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Core.Explanation;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Comparison;
 using ArchiForge.Persistence.Provenance;
@@ -14,6 +15,10 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// LLM explanations for a single run (with optional provenance) and for manifest deltas between two runs.
+/// </summary>
+/// <remarks>Routes under <c>api/explain</c>; uses <see cref="IExplanationService"/> and <see cref="IComparisonService"/> for compare narrative.</remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -27,6 +32,10 @@ public sealed class ExplanationController(
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
+    /// <summary>Stakeholder explanation for one run’s golden manifest, optionally enriched with stored provenance graph JSON.</summary>
+    /// <param name="runId">Run to load.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="ExplanationResult"/> JSON, or 404 when the run or manifest is missing in scope.</returns>
     [HttpGet("runs/{runId:guid}/explain")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,6 +56,10 @@ public sealed class ExplanationController(
     }
 
     /// <summary>AI narrative for manifest delta between two runs (base → target).</summary>
+    /// <param name="baseRunId">Baseline run.</param>
+    /// <param name="targetRunId">Target run.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="ComparisonExplanationResult"/> JSON, or 404 when either run lacks a golden manifest in scope.</returns>
     [HttpGet("compare/explain")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

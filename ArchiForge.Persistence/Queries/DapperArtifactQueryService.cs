@@ -5,9 +5,13 @@ using ArchiForge.Core.Scoping;
 
 namespace ArchiForge.Persistence.Queries;
 
+/// <summary>
+/// <see cref="IArtifactQueryService"/> backed by <see cref="ArchiForge.ArtifactSynthesis.Interfaces.IArtifactBundleRepository"/> (SQL or in-memory depending on DI).
+/// </summary>
 public sealed class DapperArtifactQueryService(IArtifactBundleRepository artifactBundleRepository)
     : IArtifactQueryService
 {
+    /// <inheritdoc />
     public async Task<IReadOnlyList<ArtifactDescriptor>> ListArtifactsByManifestIdAsync(
         ScopeContext scope,
         Guid manifestId,
@@ -40,6 +44,7 @@ public sealed class DapperArtifactQueryService(IArtifactBundleRepository artifac
         return artifacts.FirstOrDefault(x => x.ArtifactId == artifactId);
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<SynthesizedArtifact>> GetArtifactsByManifestIdAsync(
         ScopeContext scope,
         Guid manifestId,

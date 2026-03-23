@@ -13,8 +13,12 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ArchiForge.ArtifactSynthesis.Docx;
 
+/// <summary>
+/// <see cref="IDocxExportService"/> implementation using embedded template, <see cref="IImprovementAdvisorService"/> for advisory sections, and OpenXML builders.
+/// </summary>
 public sealed class DocxExportService(IImprovementAdvisorService improvementAdvisorService) : IDocxExportService
 {
+    /// <inheritdoc />
     public async Task<DocxExportResult> ExportAsync(
         DocxExportRequest request,
         GoldenManifest manifest,

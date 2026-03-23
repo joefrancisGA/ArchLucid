@@ -18,6 +18,10 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Downloads a Word architecture package for a run, with optional compare run, optional run explanation, and optional comparison narrative.
+/// </summary>
+/// <remarks>Route prefix <c>api/docx</c>; combines <see cref="IAuthorityQueryService"/>, artifacts, <see cref="IComparisonService"/>, and <see cref="IExplanationService"/>.</remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -33,6 +37,13 @@ public sealed class DocxExportController(
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
+    /// <summary>Streams a DOCX architecture package for <paramref name="runId"/>.</summary>
+    /// <param name="runId">Primary run (must have golden manifest).</param>
+    /// <param name="compareWithRunId">When set, embeds manifest comparison (and optional comparison narrative) vs this run.</param>
+    /// <param name="explainRun">When <see langword="true"/>, generates run-level <see cref="ExplanationResult"/> via LLM.</param>
+    /// <param name="includeComparisonExplanation">When <see langword="true"/> and comparison exists, generates <see cref="ComparisonExplanationResult"/>.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>DOCX file download, or 404 when primary (or compare) run/manifest is missing.</returns>
     [HttpGet("runs/{runId:guid}/architecture-package")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -8,6 +8,9 @@ using ArchiForge.Retrieval.Models;
 
 namespace ArchiForge.Retrieval.Indexing;
 
+/// <summary>
+/// <see cref="IRetrievalDocumentBuilder"/> with stable <see cref="RetrievalDocument.DocumentId"/> patterns per source type.
+/// </summary>
 public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -16,6 +19,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
+    /// <inheritdoc />
     public IReadOnlyList<RetrievalDocument> BuildForManifest(GoldenManifest manifest)
     {
         return
@@ -38,6 +42,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         ];
     }
 
+    /// <inheritdoc />
     public IReadOnlyList<RetrievalDocument> BuildForArtifacts(
         Guid tenantId,
         Guid workspaceId,
@@ -59,6 +64,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             CreatedUtc = x.CreatedUtc
         }).ToList();
 
+    /// <inheritdoc />
     public IReadOnlyList<RetrievalDocument> BuildForConversation(
         Guid tenantId,
         Guid workspaceId,
@@ -80,6 +86,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
             CreatedUtc = x.CreatedUtc
         }).ToList();
 
+    /// <inheritdoc />
     public IReadOnlyList<RetrievalDocument> BuildForProvenance(
         Guid tenantId,
         Guid workspaceId,

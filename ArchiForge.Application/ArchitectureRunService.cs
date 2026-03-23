@@ -11,6 +11,12 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Application;
 
+/// <summary>
+/// Orchestrates the three-phase architecture run workflow: coordinate and persist a new run, execute simulated agents with evidence and evaluations, then resolve decisions and commit a <see cref="ArchiForge.Contracts.Manifest.GoldenManifest"/>.
+/// </summary>
+/// <remarks>
+/// Dependencies include <see cref="ArchiForge.Coordinator.Services.ICoordinatorService"/>, repositories under <c>ArchiForge.Data.Repositories</c>, <see cref="ArchiForge.AgentSimulator.Services.IAgentExecutor"/>, <see cref="ArchiForge.Application.Evidence.IEvidenceBuilder"/>, and decision services from <c>ArchiForge.DecisionEngine</c>.
+/// </remarks>
 public sealed class ArchitectureRunService(
     ICoordinatorService coordinator,
     IAgentExecutor agentExecutor,
@@ -68,6 +74,7 @@ public sealed class ArchitectureRunService(
         };
     }
 
+    /// <inheritdoc />
     public async Task<ExecuteRunResult> ExecuteRunAsync(
         string runId,
         CancellationToken cancellationToken = default)
@@ -279,6 +286,9 @@ public sealed class ArchitectureRunService(
         };
     }
 
+    /// <summary>
+    /// Parses a <c>vN</c> manifest version string and returns <c>v(N+1)</c>; otherwise returns <c>v1</c>.
+    /// </summary>
     private static string IncrementManifestVersion(string currentVersion)
     {
         if (string.IsNullOrWhiteSpace(currentVersion))

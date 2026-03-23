@@ -4,14 +4,19 @@ using ArchiForge.Provenance.Services;
 
 namespace ArchiForge.Persistence.Provenance;
 
+/// <summary>
+/// <see cref="IProvenanceQueryService"/> implementation using <see cref="IProvenanceSnapshotRepository"/> and in-memory graph algorithms.
+/// </summary>
 public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) : IProvenanceQueryService
 {
+    /// <inheritdoc />
     public async Task<GraphViewModel?> GetFullGraphAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         var graph = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
         return graph is null ? null : ProvenanceGraphViewMapper.ToViewModel(graph);
     }
 
+    /// <inheritdoc />
     public async Task<GraphViewModel?> GetDecisionSubgraphAsync(
         ScopeContext scope,
         Guid runId,
@@ -29,6 +34,7 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
         return ProvenanceGraphViewMapper.ToViewModel(sub);
     }
 
+    /// <inheritdoc />
     public async Task<GraphViewModel?> GetNodeNeighborhoodAsync(
         ScopeContext scope,
         Guid runId,

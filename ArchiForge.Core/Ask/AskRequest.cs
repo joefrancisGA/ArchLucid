@@ -1,6 +1,7 @@
 namespace ArchiForge.Core.Ask;
 
 /// <summary>Natural-language question against grounded run (and optional comparison) context.</summary>
+/// <remarks>API validation: supply both <see cref="BaseRunId"/> and <see cref="TargetRunId"/> or neither.</remarks>
 public sealed class AskRequest
 {
     /// <summary>Existing conversation thread; omit to start a new thread.</summary>
@@ -21,10 +22,12 @@ public sealed class AskRequest
         get; set;
     }
 
+    /// <summary>Comparison “target” run; must be paired with <see cref="BaseRunId"/>.</summary>
     public Guid? TargetRunId
     {
         get; set;
     }
 
+    /// <summary>End-user question (required).</summary>
     public string Question { get; set; } = "";
 }

@@ -4,11 +4,15 @@ using ArchiForge.Retrieval.Models;
 
 namespace ArchiForge.Retrieval.Indexing;
 
+/// <summary>
+/// <see cref="IRetrievalIndexingService"/> pipeline: <see cref="ITextChunker"/> → <see cref="IEmbeddingService.EmbedManyAsync"/> → <see cref="RetrievalChunk"/> → <see cref="IVectorIndex.UpsertChunksAsync"/>.
+/// </summary>
 public sealed class RetrievalIndexingService(
     ITextChunker chunker,
     IEmbeddingService embeddingService,
     IVectorIndex vectorIndex) : IRetrievalIndexingService
 {
+    /// <inheritdoc />
     public async Task IndexDocumentsAsync(IReadOnlyList<RetrievalDocument> documents, CancellationToken ct)
     {
         if (documents.Count == 0)

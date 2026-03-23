@@ -2,16 +2,25 @@ using System.Data;
 
 namespace ArchiForge.Persistence.Transactions;
 
+/// <summary>
+/// Dapper-backed unit of work holding an open <see cref="IDbConnection"/> and <see cref="IDbTransaction"/>; <see cref="CommitAsync"/> commits once, <see cref="RollbackAsync"/> rolls back, and <see cref="DisposeAsync"/> rolls back if still pending then disposes both.
+/// </summary>
 public sealed class DapperArchiForgeUnitOfWork(IDbConnection connection, IDbTransaction transaction)
     : IArchiForgeUnitOfWork
 {
     private bool _completed;
 
+    /// <inheritdoc />
     public bool SupportsExternalTransaction => true;
 
+    /// <inheritdoc />
     public IDbConnection Connection { get; } = connection;
+
+    /// <inheritdoc />
     public IDbTransaction Transaction { get; } = transaction;
 
+    /// <inheritdoc />
+    /// <exception cref="InvalidOperationException">Thrown when commit is called after the unit of work has already been completed.</exception>
     public Task CommitAsync(CancellationToken ct)
     {
         _ = ct;
@@ -23,6 +32,7 @@ public sealed class DapperArchiForgeUnitOfWork(IDbConnection connection, IDbTran
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task RollbackAsync(CancellationToken ct)
     {
         _ = ct;
@@ -34,6 +44,7 @@ public sealed class DapperArchiForgeUnitOfWork(IDbConnection connection, IDbTran
         return Task.CompletedTask;
     }
 
+    /// <summary>Best-effort rollback if not completed, then disposes transaction and connection.</summary>
     public ValueTask DisposeAsync()
     {
         if (!_completed)

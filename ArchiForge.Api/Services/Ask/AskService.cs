@@ -15,6 +15,12 @@ using ArchiForge.Retrieval.Queries;
 
 namespace ArchiForge.Api.Services.Ask;
 
+/// <summary>
+/// <see cref="IAskService"/> implementation: conversation thread + structured JSON context + optional retrieval + LLM JSON answer shape.
+/// </summary>
+/// <remarks>
+/// Retrieval and post-answer indexing failures are logged and do not fail the request. LLM failures return a short fallback <see cref="AskResponse"/>.
+/// </remarks>
 public sealed class AskService(
     IAuthorityQueryService query,
     IProvenanceQueryService provenanceQuery,
@@ -58,6 +64,11 @@ public sealed class AskService(
         "answer (string), referencedDecisions (array of strings), referencedFindings (array of strings), " +
         "referencedArtifacts (array of strings — use provenance graph node labels where Type suggests an artifact, or empty array).";
 
+    /// <inheritdoc />
+    /// <remarks>
+    /// Loads manifest for <see cref="AskRequest.RunId"/> or thread default; builds comparison when both base and target run ids resolve.
+    /// Appends user message before LLM call and assistant message after; indexes the turn best-effort.
+    /// </remarks>
     public async Task<AskResponse> AskAsync(AskRequest request, ScopeContext scope, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(request.Question))

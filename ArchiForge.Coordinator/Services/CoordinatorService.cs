@@ -9,8 +9,12 @@ using ArchiForge.Persistence.Orchestration;
 
 namespace ArchiForge.Coordinator.Services;
 
+/// <summary>
+/// Validates <see cref="ArchitectureRequest"/> input, delegates persistence to <see cref="IAuthorityRunOrchestrator"/>, and assembles <see cref="CoordinationResult"/> (run, evidence bundle, starter tasks, graph shell).
+/// </summary>
 public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrchestrator) : ICoordinatorService
 {
+    /// <inheritdoc />
     public async Task<CoordinationResult> CreateRunAsync(
         ArchitectureRequest request,
         CancellationToken cancellationToken = default)

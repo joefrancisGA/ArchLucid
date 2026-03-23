@@ -1,7 +1,11 @@
 namespace ArchiForge.Retrieval.Chunking;
 
+/// <summary>
+/// Character-window chunker with fixed stride <c>max(1, maxChars − overlap)</c>; no sentence awareness.
+/// </summary>
 public sealed class SimpleTextChunker : ITextChunker
 {
+    /// <inheritdoc />
     public IReadOnlyList<string> Chunk(string text, int maxChars = 1200, int overlap = 150)
     {
         if (string.IsNullOrWhiteSpace(text))

@@ -2,10 +2,14 @@ using ArchiForge.Core.Conversation;
 
 namespace ArchiForge.Persistence.Conversation;
 
+/// <summary>
+/// Thread-safe in-memory <see cref="IConversationThreadRepository"/> for tests and storage-off mode.
+/// </summary>
 public sealed class InMemoryConversationThreadRepository : IConversationThreadRepository
 {
     private readonly List<ConversationThread> _threads = [];
 
+    /// <inheritdoc />
     public Task CreateAsync(ConversationThread thread, CancellationToken ct)
     {
         lock (_threads)
@@ -19,6 +23,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
             return Task.FromResult(_threads.FirstOrDefault(x => x.ThreadId == threadId));
     }
 
+    /// <inheritdoc />
     public Task<IReadOnlyList<ConversationThread>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -39,6 +44,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         }
     }
 
+    /// <inheritdoc />
     public Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct)
     {
         lock (_threads)

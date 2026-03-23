@@ -6,11 +6,17 @@ using OpenAI.Embeddings;
 
 namespace ArchiForge.Retrieval.Embedding;
 
-/// <summary>Azure OpenAI text embeddings using the shared endpoint/key.</summary>
+/// <summary>
+/// Azure OpenAI text embeddings for a named embedding deployment on the resource.
+/// </summary>
+/// <remarks>Uses synchronous SDK calls wrapped in <see cref="Task"/>; suitable for app startup registration as singleton.</remarks>
 public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
 {
     private readonly EmbeddingClient _embeddingClient;
 
+    /// <param name="endpoint">Azure OpenAI endpoint URI.</param>
+    /// <param name="apiKey">API key credential.</param>
+    /// <param name="embeddingDeploymentName">Embeddings deployment name (not the chat deployment).</param>
     public AzureOpenAiEmbeddingClient(string endpoint, string apiKey, string embeddingDeploymentName)
     {
         var azureClient = new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
@@ -24,6 +30,7 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
         return Task.FromResult(result.Value.ToFloats().ToArray());
     }
 
+    /// <inheritdoc />
     public Task<IReadOnlyList<float[]>> EmbedManyAsync(IReadOnlyList<string> texts, CancellationToken ct)
     {
         _ = ct;

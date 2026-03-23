@@ -4,22 +4,39 @@ using ArchiForge.Contracts.Metadata;
 
 namespace ArchiForge.Application;
 
+/// <summary>
+/// Outcome of <see cref="IArchitectureRunService.CreateRunAsync"/> after successful coordination and persistence.
+/// </summary>
 public sealed class CreateRunResult
 {
+    /// <summary>Run record written to storage (status typically <see cref="ArchiForge.Contracts.Common.ArchitectureRunStatus.TasksGenerated"/>).</summary>
     public ArchitectureRun Run { get; set; } = new();
+    /// <summary>Evidence bundle referenced by starter agent tasks.</summary>
     public EvidenceBundle EvidenceBundle { get; set; } = new();
+    /// <summary>Topology, cost, compliance, and critic starter tasks.</summary>
     public List<AgentTask> Tasks { get; set; } = [];
 }
 
+/// <summary>
+/// Outcome of <see cref="IArchitectureRunService.ExecuteRunAsync"/>: persisted agent outputs for the run.
+/// </summary>
 public sealed class ExecuteRunResult
 {
+    /// <summary>Same run id passed to execute.</summary>
     public string RunId { get; set; } = string.Empty;
+    /// <summary>Agent results stored for this run (possibly loaded idempotently).</summary>
     public List<AgentResult> Results { get; set; } = [];
 }
 
+/// <summary>
+/// Outcome of <see cref="IArchitectureRunService.CommitRunAsync"/>: committed golden manifest and associated decision traces.
+/// </summary>
 public sealed class CommitRunResult
 {
+    /// <summary>Golden manifest produced by merge and persisted for this commit.</summary>
     public GoldenManifest Manifest { get; set; } = new();
+    /// <summary>Decision traces persisted with the manifest.</summary>
     public List<DecisionTrace> DecisionTraces { get; set; } = [];
+    /// <summary>Non-fatal merge warnings (empty when none).</summary>
     public List<string> Warnings { get; set; } = [];
 }

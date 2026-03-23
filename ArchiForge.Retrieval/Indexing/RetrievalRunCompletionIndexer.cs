@@ -5,10 +5,14 @@ using ArchiForge.Retrieval.Models;
 
 namespace ArchiForge.Retrieval.Indexing;
 
+/// <summary>
+/// <see cref="IRetrievalRunCompletionIndexer"/> orchestration: <see cref="IRetrievalDocumentBuilder"/> (manifest, artifacts, provenance) then <see cref="IRetrievalIndexingService"/>.
+/// </summary>
 public sealed class RetrievalRunCompletionIndexer(
     IRetrievalDocumentBuilder documentBuilder,
     IRetrievalIndexingService indexingService) : IRetrievalRunCompletionIndexer
 {
+    /// <inheritdoc />
     public async Task IndexAuthorityRunAsync(
         Guid tenantId,
         Guid workspaceId,
