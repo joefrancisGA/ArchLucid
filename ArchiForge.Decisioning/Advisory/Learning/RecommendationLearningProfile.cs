@@ -2,9 +2,18 @@ namespace ArchiForge.Decisioning.Advisory.Learning;
 
 public class RecommendationLearningProfile
 {
-    public Guid TenantId { get; set; }
-    public Guid WorkspaceId { get; set; }
-    public Guid ProjectId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     public DateTime GeneratedUtc { get; set; } = DateTime.UtcNow;
 

@@ -1,41 +1,43 @@
 using ArchiForge.Application.Diagrams;
+
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+
+using DrBlip = DocumentFormat.OpenXml.Drawing.Blip;
+using DrBlipFill = DocumentFormat.OpenXml.Drawing.Pictures.BlipFill;
+using DrFillRectangle = DocumentFormat.OpenXml.Drawing.FillRectangle;
+using DrGraphicFrameLocks = DocumentFormat.OpenXml.Drawing.GraphicFrameLocks;
+using DrNonVisualDrawingProperties = DocumentFormat.OpenXml.Drawing.Pictures.NonVisualDrawingProperties;
+using DrNonVisualPictureDrawingProperties = DocumentFormat.OpenXml.Drawing.Pictures.NonVisualPictureDrawingProperties;
+using DrNonVisualPictureProperties = DocumentFormat.OpenXml.Drawing.Pictures.NonVisualPictureProperties;
+using DrPicture = DocumentFormat.OpenXml.Drawing.Pictures.Picture;
+using DrShapeProperties = DocumentFormat.OpenXml.Drawing.Pictures.ShapeProperties;
+using DrStretch = DocumentFormat.OpenXml.Drawing.Stretch;
+using WpBottomBorder = DocumentFormat.OpenXml.Wordprocessing.BottomBorder;
 using WpBreak = DocumentFormat.OpenXml.Wordprocessing.Break;
+using WpInsideHorizontalBorder = DocumentFormat.OpenXml.Wordprocessing.InsideHorizontalBorder;
+using WpInsideVerticalBorder = DocumentFormat.OpenXml.Wordprocessing.InsideVerticalBorder;
+using WpLeftBorder = DocumentFormat.OpenXml.Wordprocessing.LeftBorder;
+using WpNonVisualGraphicFrameDrawingProperties =
+    DocumentFormat.OpenXml.Drawing.Wordprocessing.NonVisualGraphicFrameDrawingProperties;
 using WpParagraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using WpParagraphProperties = DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties;
+using WpRightBorder = DocumentFormat.OpenXml.Wordprocessing.RightBorder;
 using WpRun = DocumentFormat.OpenXml.Wordprocessing.Run;
 using WpRunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
+using WpShading = DocumentFormat.OpenXml.Wordprocessing.Shading;
+using WpSpacingBetweenLines = DocumentFormat.OpenXml.Wordprocessing.SpacingBetweenLines;
 using WpTable = DocumentFormat.OpenXml.Wordprocessing.Table;
 using WpTableCell = DocumentFormat.OpenXml.Wordprocessing.TableCell;
 using WpTableCellProperties = DocumentFormat.OpenXml.Wordprocessing.TableCellProperties;
+using WpTableCellWidth = DocumentFormat.OpenXml.Wordprocessing.TableCellWidth;
 using WpTableProperties = DocumentFormat.OpenXml.Wordprocessing.TableProperties;
 using WpTableRow = DocumentFormat.OpenXml.Wordprocessing.TableRow;
 using WpText = DocumentFormat.OpenXml.Wordprocessing.Text;
 using WpTopBorder = DocumentFormat.OpenXml.Wordprocessing.TopBorder;
-using WpBottomBorder = DocumentFormat.OpenXml.Wordprocessing.BottomBorder;
-using WpLeftBorder = DocumentFormat.OpenXml.Wordprocessing.LeftBorder;
-using WpRightBorder = DocumentFormat.OpenXml.Wordprocessing.RightBorder;
-using WpInsideHorizontalBorder = DocumentFormat.OpenXml.Wordprocessing.InsideHorizontalBorder;
-using WpInsideVerticalBorder = DocumentFormat.OpenXml.Wordprocessing.InsideVerticalBorder;
-using WpTableCellWidth = DocumentFormat.OpenXml.Wordprocessing.TableCellWidth;
-using WpSpacingBetweenLines = DocumentFormat.OpenXml.Wordprocessing.SpacingBetweenLines;
-using WpShading = DocumentFormat.OpenXml.Wordprocessing.Shading;
-using WpNonVisualGraphicFrameDrawingProperties =
-    DocumentFormat.OpenXml.Drawing.Wordprocessing.NonVisualGraphicFrameDrawingProperties;
-using DrGraphicFrameLocks = DocumentFormat.OpenXml.Drawing.GraphicFrameLocks;
-using DrBlip = DocumentFormat.OpenXml.Drawing.Blip;
-using DrStretch = DocumentFormat.OpenXml.Drawing.Stretch;
-using DrFillRectangle = DocumentFormat.OpenXml.Drawing.FillRectangle;
-using DrPicture = DocumentFormat.OpenXml.Drawing.Pictures.Picture;
-using DrNonVisualPictureProperties = DocumentFormat.OpenXml.Drawing.Pictures.NonVisualPictureProperties;
-using DrNonVisualDrawingProperties = DocumentFormat.OpenXml.Drawing.Pictures.NonVisualDrawingProperties;
-using DrNonVisualPictureDrawingProperties = DocumentFormat.OpenXml.Drawing.Pictures.NonVisualPictureDrawingProperties;
-using DrBlipFill = DocumentFormat.OpenXml.Drawing.Pictures.BlipFill;
-using DrShapeProperties = DocumentFormat.OpenXml.Drawing.Pictures.ShapeProperties;
 
 namespace ArchiForge.Application.Analysis;
 
@@ -312,7 +314,8 @@ internal static class ConsultingDocxOpenXmlComposer
             }
         }
 
-        if (report.Evidence.Policies.Count <= 0) return;
+        if (report.Evidence.Policies.Count <= 0)
+            return;
 
         AddHeading(body, "Policy Evidence", 2);
 
@@ -363,7 +366,8 @@ internal static class ConsultingDocxOpenXmlComposer
             }
         }
 
-        if (report.Manifest.Datastores.Count <= 0) return;
+        if (report.Manifest.Datastores.Count <= 0)
+            return;
 
         {
             AddHeading(body, "Datastores", 2);
@@ -440,7 +444,8 @@ internal static class ConsultingDocxOpenXmlComposer
             AddBullet(body, $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
         }
 
-        if (report.ManifestDiff is null && report.AgentResultDiff is null) return;
+        if (report.ManifestDiff is null && report.AgentResultDiff is null)
+            return;
 
         AddSpacer(body);
         AddCallout(body, "Comparison artifacts were included in this report. See Appendix C for detail.", options);
@@ -455,7 +460,8 @@ internal static class ConsultingDocxOpenXmlComposer
 
         AddStyledParagraph(body, options.ConclusionsText, "BodyText");
 
-        if (report.Warnings.Count <= 0) return;
+        if (report.Warnings.Count <= 0)
+            return;
 
         AddSpacer(body);
         AddCallout(body, "Open warnings remain and should be resolved or explicitly accepted.", options);
@@ -502,7 +508,8 @@ internal static class ConsultingDocxOpenXmlComposer
             AddPageBreak(body);
         }
 
-        if (!options.IncludeAppendixDeterminismAndComparison) return;
+        if (!options.IncludeAppendixDeterminismAndComparison)
+            return;
 
         AddHeading(body, "Appendix C. Determinism and Comparison", 1);
 
@@ -523,7 +530,8 @@ internal static class ConsultingDocxOpenXmlComposer
             AddBullet(body, $"Removed Required Controls: {report.ManifestDiff.RemovedRequiredControls.Count}");
         }
 
-        if (report.AgentResultDiff is null) return;
+        if (report.AgentResultDiff is null)
+            return;
 
         AddSpacer(body);
         AddStyledParagraph(body, "Agent Result Diff", "Strong");

@@ -53,7 +53,8 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             var resultJson = SchemaValidationSerializer.Serialize(result);
             var schemaValidation = _schemaValidationService.ValidateAgentResultJson(resultJson);
 
-            if (schemaValidation.IsValid) continue;
+            if (schemaValidation.IsValid)
+                continue;
 
             foreach (var error in schemaValidation.Errors)
             {
@@ -158,7 +159,8 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
         var complexityDecision = decisionNodes.FirstOrDefault(d =>
             string.Equals(d.Topic, "ComplexityDisposition", StringComparison.OrdinalIgnoreCase));
-        if (complexityDecision is null) return;
+        if (complexityDecision is null)
+            return;
 
         {
             var selected = complexityDecision.Options.FirstOrDefault(o => o.OptionId == complexityDecision.SelectedOptionId);
@@ -611,7 +613,8 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             }
 
             if (!control.Equals("Private Endpoints", StringComparison.OrdinalIgnoreCase) &&
-                !control.Equals("Private Networking", StringComparison.OrdinalIgnoreCase)) continue;
+                !control.Equals("Private Networking", StringComparison.OrdinalIgnoreCase))
+                continue;
 
             foreach (var datastore in manifest.Datastores)
             {

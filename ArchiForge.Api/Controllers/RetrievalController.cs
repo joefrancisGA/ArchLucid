@@ -2,7 +2,9 @@ using ArchiForge.Api.Auth.Models;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Retrieval.Models;
 using ArchiForge.Retrieval.Queries;
+
 using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -30,7 +32,10 @@ public sealed class RetrievalController(
         CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(q))
-            return BadRequest(new { error = "Query parameter 'q' is required." });
+            return BadRequest(new
+            {
+                error = "Query parameter 'q' is required."
+            });
 
         var scope = scopeProvider.GetCurrentScope();
 

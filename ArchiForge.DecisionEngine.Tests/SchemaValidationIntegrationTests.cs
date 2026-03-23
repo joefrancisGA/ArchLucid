@@ -1,5 +1,7 @@
 using ArchiForge.DecisionEngine.Validation;
+
 using FluentAssertions;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.DecisionEngine.Tests;

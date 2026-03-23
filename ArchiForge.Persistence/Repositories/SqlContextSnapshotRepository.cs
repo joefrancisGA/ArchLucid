@@ -1,8 +1,10 @@
 using System.Data;
+
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Serialization;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Repositories;
@@ -29,7 +31,10 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
-            new CommandDefinition(sql, new { ProjectId = projectId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                ProjectId = projectId
+            }, cancellationToken: ct));
 
         return row is null ? null : Map(row);
     }
@@ -53,7 +58,10 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
-            new CommandDefinition(sql, new { SnapshotId = snapshotId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                SnapshotId = snapshotId
+            }, cancellationToken: ct));
 
         return row is null ? null : Map(row);
     }
@@ -118,12 +126,24 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
 
     private sealed class ContextSnapshotRow
     {
-        public Guid SnapshotId { get; init; }
-        public Guid RunId { get; init; }
+        public Guid SnapshotId
+        {
+            get; init;
+        }
+        public Guid RunId
+        {
+            get; init;
+        }
         public string ProjectId { get; init; } = null!;
-        public DateTime CreatedUtc { get; init; }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
         public string CanonicalObjectsJson { get; init; } = null!;
-        public string? DeltaSummary { get; init; }
+        public string? DeltaSummary
+        {
+            get; init;
+        }
         public string WarningsJson { get; init; } = null!;
         public string ErrorsJson { get; init; } = null!;
         public string SourceHashesJson { get; init; } = null!;

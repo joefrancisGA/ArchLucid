@@ -151,7 +151,8 @@ public sealed class ComparisonReplayService(
         var result = await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
         result.ReplayMode = FormatReplayMode(mode);
 
-        if (mode != ComparisonReplayMode.Verify) return result;
+        if (mode != ComparisonReplayMode.Verify)
+            return result;
 
         result.VerificationPassed = true;
         result.VerificationMessage = "Regenerated comparison matches stored payload.";

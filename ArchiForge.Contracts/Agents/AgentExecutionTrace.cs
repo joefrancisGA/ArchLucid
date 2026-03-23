@@ -10,7 +10,10 @@ public sealed class AgentExecutionTrace
 
     public string TaskId { get; set; } = string.Empty;
 
-    public AgentType AgentType { get; set; }
+    public AgentType AgentType
+    {
+        get; set;
+    }
 
     public string SystemPrompt { get; set; } = string.Empty;
 
@@ -18,11 +21,20 @@ public sealed class AgentExecutionTrace
 
     public string RawResponse { get; set; } = string.Empty;
 
-    public string? ParsedResultJson { get; set; }
+    public string? ParsedResultJson
+    {
+        get; set;
+    }
 
-    public bool ParseSucceeded { get; set; }
+    public bool ParseSucceeded
+    {
+        get; set;
+    }
 
-    public string? ErrorMessage { get; set; }
+    public string? ErrorMessage
+    {
+        get; set;
+    }
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }

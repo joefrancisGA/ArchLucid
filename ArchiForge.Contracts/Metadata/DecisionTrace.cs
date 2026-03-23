@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Contracts.Metadata;
+namespace ArchiForge.Contracts.Metadata;
 
 public sealed class DecisionTrace
 {

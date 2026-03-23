@@ -1,15 +1,17 @@
 using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Models;
 using ArchiForge.Api.Mapping;
+using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Determinism;
-using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Manifest;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.Data.Repositories;
+
 using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -62,7 +64,10 @@ public sealed partial class RunsController(
 
             return CreatedAtAction(
                 nameof(GetRun),
-                new { runId = result.Run.RunId },
+                new
+                {
+                    runId = result.Run.RunId
+                },
                 response);
         }
         catch (InvalidOperationException ex)
@@ -365,7 +370,7 @@ public sealed partial class RunsController(
         CancellationToken cancellationToken)
     {
         var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        
+
         if (run is null)
         {
             return null;
@@ -384,7 +389,7 @@ public sealed partial class RunsController(
                 results.ToList(),
                 manifest,
                 decisionTraces);
-        
+
         manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
         decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
 

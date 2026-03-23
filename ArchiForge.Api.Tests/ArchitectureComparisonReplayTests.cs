@@ -1,4 +1,5 @@
 using System.Net;
+
 using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
@@ -16,7 +17,10 @@ public sealed class ArchitectureComparisonReplayTests(ArchiForgeApiFactory facto
 
         var replayComparisonResponse = await Client.PostAsync(
             $"/v1/architecture/comparisons/{comparisonRecordId}/replay",
-            JsonContent(new { format = "markdown" }));
+            JsonContent(new
+            {
+                format = "markdown"
+            }));
 
         replayComparisonResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         replayComparisonResponse.Content.Headers.ContentType!.MediaType

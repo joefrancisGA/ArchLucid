@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Contracts.Agents;
+namespace ArchiForge.Contracts.Agents;
 
 public sealed class EvidenceBundle
 {

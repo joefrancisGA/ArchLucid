@@ -6,7 +6,10 @@ namespace ArchiForge.Application.Analysis;
 /// </summary>
 public sealed class ComparisonVerificationFailedException : InvalidOperationException
 {
-    public DriftAnalysisResult? Drift { get; }
+    public DriftAnalysisResult? Drift
+    {
+        get;
+    }
 
     public ComparisonVerificationFailedException(string message, DriftAnalysisResult? drift = null)
         : base(message)

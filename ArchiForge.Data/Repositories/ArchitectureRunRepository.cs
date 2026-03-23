@@ -1,6 +1,7 @@
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -76,7 +77,10 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
 
         var row = await connection.QuerySingleOrDefaultAsync<ArchitectureRunRow>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         if (row is null)
@@ -133,12 +137,30 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         public string RunId { get; init; } = string.Empty;
         public string RequestId { get; init; } = string.Empty;
         public string Status { get; init; } = string.Empty;
-        public DateTime CreatedUtc { get; init; }
-        public DateTime? CompletedUtc { get; init; }
-        public string? CurrentManifestVersion { get; init; }
-        public string? ContextSnapshotId { get; init; }
-        public Guid? GraphSnapshotId { get; init; }
-        public Guid? ArtifactBundleId { get; init; }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
+        public DateTime? CompletedUtc
+        {
+            get; init;
+        }
+        public string? CurrentManifestVersion
+        {
+            get; init;
+        }
+        public string? ContextSnapshotId
+        {
+            get; init;
+        }
+        public Guid? GraphSnapshotId
+        {
+            get; init;
+        }
+        public Guid? ArtifactBundleId
+        {
+            get; init;
+        }
     }
 
     public async Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(
@@ -184,9 +206,18 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         public string RunId { get; init; } = string.Empty;
         public string RequestId { get; init; } = string.Empty;
         public string Status { get; init; } = string.Empty;
-        public DateTime CreatedUtc { get; init; }
-        public DateTime? CompletedUtc { get; init; }
-        public string? CurrentManifestVersion { get; init; }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
+        public DateTime? CompletedUtc
+        {
+            get; init;
+        }
+        public string? CurrentManifestVersion
+        {
+            get; init;
+        }
         public string SystemName { get; init; } = string.Empty;
     }
 }

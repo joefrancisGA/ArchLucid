@@ -1,4 +1,5 @@
 using System.Reflection;
+
 using DbUp;
 
 namespace ArchiForge.Data.Infrastructure;

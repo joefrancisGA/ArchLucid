@@ -1,7 +1,9 @@
 using System.Text.Json;
+
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -73,7 +75,10 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return [.. rows
@@ -97,7 +102,10 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { TaskId = taskId },
+            new
+            {
+                TaskId = taskId
+            },
             cancellationToken: cancellationToken));
 
         return rows

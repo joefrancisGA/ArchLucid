@@ -1,9 +1,12 @@
 using System.Text.Json;
+
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Alerts.Tuning;
+
 using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -64,8 +67,9 @@ public sealed class AlertTuningController(
             request.BaseSimpleRule.ProjectId = scope.ProjectId;
         }
 
-        if (request.BaseCompositeRule is null) return;
-        
+        if (request.BaseCompositeRule is null)
+            return;
+
         request.BaseCompositeRule.TenantId = scope.TenantId;
         request.BaseCompositeRule.WorkspaceId = scope.WorkspaceId;
         request.BaseCompositeRule.ProjectId = scope.ProjectId;

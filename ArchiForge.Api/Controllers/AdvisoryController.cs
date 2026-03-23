@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
 using ArchiForge.Core.Audit;
@@ -10,7 +11,9 @@ using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Comparison;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Queries;
+
 using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -118,7 +121,10 @@ public sealed class AdvisoryController(
         CancellationToken ct = default)
     {
         if (!IsKnownRecommendationAction(request.Action))
-            return BadRequest(new { error = "Unknown or missing action." });
+            return BadRequest(new
+            {
+                error = "Unknown or missing action."
+            });
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         var userName = User.Identity?.Name ?? "unknown";

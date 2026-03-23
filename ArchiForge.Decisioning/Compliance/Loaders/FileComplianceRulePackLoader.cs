@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+
 using ArchiForge.Decisioning.Compliance.Models;
 
 namespace ArchiForge.Decisioning.Compliance.Loaders;
@@ -24,24 +25,24 @@ public class FileComplianceRulePackLoader(string filePath) : IComplianceRulePack
         return doc is null
             ? throw new InvalidOperationException("Failed to deserialize compliance rule pack.")
             : new ComplianceRulePack
-        {
-            RulePackId = doc.RulePackId,
-            Name = doc.Name,
-            Version = doc.Version,
-            SourcePath = filePath,
-            RulePackHash = ComputeHash(json),
-            Rules = doc.Rules.Select(x => new ComplianceRule
             {
-                RuleId = x.RuleId,
-                ControlId = x.ControlId,
-                ControlName = x.ControlName,
-                AppliesToCategory = x.AppliesToCategory,
-                RequiredNodeType = x.RequiredNodeType,
-                RequiredEdgeType = x.RequiredEdgeType,
-                Severity = x.Severity,
-                Description = x.Description
-            }).ToList()
-        };
+                RulePackId = doc.RulePackId,
+                Name = doc.Name,
+                Version = doc.Version,
+                SourcePath = filePath,
+                RulePackHash = ComputeHash(json),
+                Rules = doc.Rules.Select(x => new ComplianceRule
+                {
+                    RuleId = x.RuleId,
+                    ControlId = x.ControlId,
+                    ControlName = x.ControlName,
+                    AppliesToCategory = x.AppliesToCategory,
+                    RequiredNodeType = x.RequiredNodeType,
+                    RequiredEdgeType = x.RequiredEdgeType,
+                    Severity = x.Severity,
+                    Description = x.Description
+                }).ToList()
+            };
     }
 
     private static string ComputeHash(string content)

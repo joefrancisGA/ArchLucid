@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text.Json;
+
 using ArchiForge.Contracts.Requests;
+
 using FluentAssertions;
 
 namespace ArchiForge.Cli.Tests;
@@ -36,7 +38,14 @@ public sealed class ArchiForgeApiClientHttpTests
         var runId = "run-abc-123";
         var json = JsonSerializer.Serialize(new
         {
-            run = new { runId, requestId = "req-1", status = 0, createdUtc = DateTime.UtcNow, currentManifestVersion = (string?)null },
+            run = new
+            {
+                runId,
+                requestId = "req-1",
+                status = 0,
+                createdUtc = DateTime.UtcNow,
+                currentManifestVersion = (string?)null
+            },
             tasks = Array.Empty<object>()
         }, SJsonCamelCase);
         var response = new HttpResponseMessage(HttpStatusCode.Created) { Content = new StringContent(json) };
@@ -54,7 +63,10 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task CreateRunAsync_On400_ReturnsFailureWithParsedError()
     {
-        var json = JsonSerializer.Serialize(new { detail = "Validation failed" });
+        var json = JsonSerializer.Serialize(new
+        {
+            detail = "Validation failed"
+        });
         var response = new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
@@ -72,7 +84,14 @@ public sealed class ArchiForgeApiClientHttpTests
         var runId = "run-x";
         var json = JsonSerializer.Serialize(new
         {
-            run = new { runId, requestId = "req-1", status = 0, createdUtc = DateTime.UtcNow, currentManifestVersion = (string?)null },
+            run = new
+            {
+                runId,
+                requestId = "req-1",
+                status = 0,
+                createdUtc = DateTime.UtcNow,
+                currentManifestVersion = (string?)null
+            },
             tasks = Array.Empty<object>(),
             results = Array.Empty<object>()
         }, SJsonCamelCase);
@@ -109,7 +128,10 @@ public sealed class ArchiForgeApiClientHttpTests
             {
                 runId = "run-1",
                 systemName = "Test",
-                metadata = new { manifestVersion = version }
+                metadata = new
+                {
+                    manifestVersion = version
+                }
             },
             warnings = Array.Empty<string>()
         }, SJsonCamelCase);

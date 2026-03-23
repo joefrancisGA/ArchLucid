@@ -1,4 +1,5 @@
 using System.Net;
+
 using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
@@ -15,7 +16,11 @@ public sealed class ComparisonReplayValidationTests(ArchiForgeApiFactory factory
         var comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
             Client, runId, replayRunId);
 
-        var invalidBody = new { format = "invalid", replayMode = "bad" };
+        var invalidBody = new
+        {
+            format = "invalid",
+            replayMode = "bad"
+        };
         var response = await Client.PostAsync(
             $"/v1/architecture/comparisons/{comparisonRecordId}/replay",
             JsonContent(invalidBody));
@@ -29,7 +34,12 @@ public sealed class ComparisonReplayValidationTests(ArchiForgeApiFactory factory
     [Fact]
     public async Task BatchReplay_EmptyComparisonRecordIdsAndInvalidFormat_Returns400WithValidationErrors()
     {
-        var invalidBody = new { comparisonRecordIds = Array.Empty<string>(), format = "invalid", replayMode = "bad" };
+        var invalidBody = new
+        {
+            comparisonRecordIds = Array.Empty<string>(),
+            format = "invalid",
+            replayMode = "bad"
+        };
         var response = await Client.PostAsync(
             "/v1/architecture/comparisons/replay/batch",
             JsonContent(invalidBody));

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+
 using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
@@ -44,7 +45,11 @@ public sealed class PolicyPackRequestValidationTests(ArchiForgeApiFactory factor
 
         var publishResponse = await Client.PostAsync(
             $"/v1/policy-packs/{packId}/publish",
-            JsonContent(new { version = "1.0", contentJson = "{}" }));
+            JsonContent(new
+            {
+                version = "1.0",
+                contentJson = "{}"
+            }));
 
         publishResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var text = await publishResponse.Content.ReadAsStringAsync();
@@ -70,7 +75,11 @@ public sealed class PolicyPackRequestValidationTests(ArchiForgeApiFactory factor
 
         var assignResponse = await Client.PostAsync(
             $"/v1/policy-packs/{packId}/assign",
-            JsonContent(new { version = "1.0.0", scopeLevel = "Planet" }));
+            JsonContent(new
+            {
+                version = "1.0.0",
+                scopeLevel = "Planet"
+            }));
 
         assignResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var text = await assignResponse.Content.ReadAsStringAsync();

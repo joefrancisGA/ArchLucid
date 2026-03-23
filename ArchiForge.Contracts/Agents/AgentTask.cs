@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+
 using ArchiForge.Contracts.Common;
 
 namespace ArchiForge.Contracts.Agents;
@@ -12,7 +13,10 @@ public sealed class AgentTask
     public string RunId { get; set; } = string.Empty;
 
     [Required]
-    public AgentType AgentType { get; set; }
+    public AgentType AgentType
+    {
+        get; set;
+    }
 
     [Required]
     public string Objective { get; set; } = string.Empty;
@@ -22,9 +26,15 @@ public sealed class AgentTask
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
-    public DateTime? CompletedUtc { get; set; }
+    public DateTime? CompletedUtc
+    {
+        get; set;
+    }
 
-    public string? EvidenceBundleRef { get; set; }
+    public string? EvidenceBundleRef
+    {
+        get; set;
+    }
 
     public List<string> AllowedTools { get; set; } = [];
 

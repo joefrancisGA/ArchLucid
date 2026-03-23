@@ -168,14 +168,14 @@ public sealed class ArchitectureApplicationService(
         }
 
         var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        
+
         if (tasks.Count == 0)
         {
             return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
         }
 
         var existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        
+
         if (existingResults.Count > 0)
         {
             if (logger.IsEnabled(LogLevel.Information))

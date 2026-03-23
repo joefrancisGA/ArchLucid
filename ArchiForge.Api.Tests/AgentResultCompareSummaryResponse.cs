@@ -24,9 +24,15 @@ public sealed class AgentResultDeltaDto
 {
     public string AgentType { get; set; } = string.Empty;
 
-    public bool LeftExists { get; set; }
+    public bool LeftExists
+    {
+        get; set;
+    }
 
-    public bool RightExists { get; set; }
+    public bool RightExists
+    {
+        get; set;
+    }
 
     public List<string> AddedClaims { get; set; } = [];
 
@@ -48,7 +54,13 @@ public sealed class AgentResultDeltaDto
 
     public List<string> RemovedWarnings { get; set; } = [];
 
-    public double? LeftConfidence { get; set; }
+    public double? LeftConfidence
+    {
+        get; set;
+    }
 
-    public double? RightConfidence { get; set; }
+    public double? RightConfidence
+    {
+        get; set;
+    }
 }

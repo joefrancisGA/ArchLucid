@@ -1,9 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
-using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
+
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.Api.Tests;
 

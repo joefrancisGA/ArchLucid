@@ -1,4 +1,5 @@
 using ArchiForge.Decisioning.Manifest.Sections;
+
 using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ArchiForge.ArtifactSynthesis.Docx.Builders;

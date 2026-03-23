@@ -4,6 +4,7 @@ using ArchiForge.ContextIngestion.Models;
 using ArchiForge.ContextIngestion.Repositories;
 using ArchiForge.ContextIngestion.Services;
 using ArchiForge.ContextIngestion.Summaries;
+
 using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;

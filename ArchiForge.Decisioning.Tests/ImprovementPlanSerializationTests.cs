@@ -1,5 +1,7 @@
 using System.Text.Json;
+
 using ArchiForge.Decisioning.Advisory.Models;
+
 using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;

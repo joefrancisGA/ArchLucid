@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Compliance.Models;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
+
 using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;

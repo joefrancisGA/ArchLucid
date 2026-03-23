@@ -1,5 +1,5 @@
-using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Decisions;
+using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 
 namespace ArchiForge.DecisionEngine.Services;

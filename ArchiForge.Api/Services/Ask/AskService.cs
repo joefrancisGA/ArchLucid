@@ -1,4 +1,5 @@
 using System.Text.Json;
+
 using ArchiForge.AgentRuntime;
 using ArchiForge.Api.Ask;
 using ArchiForge.Core.Ask;
@@ -324,9 +325,21 @@ public sealed class AskService(
 
     private sealed class LlmAskShape
     {
-        public string? Answer { get; init; }
-        public List<string>? ReferencedDecisions { get; init; }
-        public List<string>? ReferencedFindings { get; init; }
-        public List<string>? ReferencedArtifacts { get; init; }
+        public string? Answer
+        {
+            get; init;
+        }
+        public List<string>? ReferencedDecisions
+        {
+            get; init;
+        }
+        public List<string>? ReferencedFindings
+        {
+            get; init;
+        }
+        public List<string>? ReferencedArtifacts
+        {
+            get; init;
+        }
     }
 }

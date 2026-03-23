@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+
 using ArchiForge.Contracts.Common;
 
 namespace ArchiForge.Contracts.Requests;
@@ -27,7 +28,10 @@ public sealed class ArchitectureRequest
 
     public List<string> Assumptions { get; set; } = [];
 
-    public string? PriorManifestVersion { get; set; }
+    public string? PriorManifestVersion
+    {
+        get; set;
+    }
 
     public List<string> InlineRequirements { get; set; } = [];
 

@@ -8,5 +8,8 @@ public sealed class RelationshipDiffItem
 
     public string RelationshipType { get; set; } = string.Empty;
 
-    public string? Description { get; set; }
+    public string? Description
+    {
+        get; set;
+    }
 }

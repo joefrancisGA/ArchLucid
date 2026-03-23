@@ -3,13 +3,15 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Orchestration;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.Persistence.Models;
+using ArchiForge.Persistence.Orchestration;
+
+using FluentAssertions;
+
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using FluentAssertions;
 
 namespace ArchiForge.AgentRuntime.Tests;
 

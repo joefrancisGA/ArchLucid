@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Governance;
@@ -47,7 +48,11 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
         return await connection.QueryFirstOrDefaultAsync<PolicyPackVersion>(
             new CommandDefinition(
                 sql,
-                new { PolicyPackId = policyPackId, Ver = version },
+                new
+                {
+                    PolicyPackId = policyPackId,
+                    Ver = version
+                },
                 cancellationToken: ct));
     }
 
@@ -62,7 +67,10 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var rows = await connection.QueryAsync<PolicyPackVersion>(
-            new CommandDefinition(sql, new { PolicyPackId = policyPackId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                PolicyPackId = policyPackId
+            }, cancellationToken: ct));
         return rows.ToList();
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Findings;
@@ -17,7 +18,10 @@ public sealed class AgentResult
     public string RunId { get; set; } = string.Empty;
 
     [Required]
-    public AgentType AgentType { get; set; }
+    public AgentType AgentType
+    {
+        get; set;
+    }
 
     [Required]
     public List<string> Claims { get; set; } = [];
@@ -26,11 +30,17 @@ public sealed class AgentResult
     public List<string> EvidenceRefs { get; set; } = [];
 
     [Range(0.0, 1.0)]
-    public double Confidence { get; set; }
+    public double Confidence
+    {
+        get; set;
+    }
 
     public List<ArchitectureFinding> Findings { get; set; } = [];
 
-    public ManifestDeltaProposal? ProposedChanges { get; set; }
+    public ManifestDeltaProposal? ProposedChanges
+    {
+        get; set;
+    }
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }

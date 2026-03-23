@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Advisory;
@@ -78,7 +79,10 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<RecommendationRecord>(
-            new CommandDefinition(sql, new { RecommendationId = recommendationId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                RecommendationId = recommendationId
+            }, cancellationToken: ct));
     }
 
     public async Task<IReadOnlyList<RecommendationRecord>> ListByRunAsync(
@@ -108,7 +112,13 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
         var result = await connection.QueryAsync<RecommendationRecord>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, RunId = runId },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    RunId = runId
+                },
                 cancellationToken: ct));
 
         return result.ToList();

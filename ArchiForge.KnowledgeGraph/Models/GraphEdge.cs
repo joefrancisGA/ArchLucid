@@ -10,7 +10,10 @@ public class GraphEdge
 
     public string EdgeType { get; set; } = null!;
 
-    public string? Label { get; set; }
+    public string? Label
+    {
+        get; set;
+    }
 
     public Dictionary<string, string> Properties { get; set; } = [];
 }

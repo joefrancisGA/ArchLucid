@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Advisory;
@@ -51,7 +52,13 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
         var result = await connection.QueryAsync<ArchitectureDigest>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, Take = take },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    Take = take
+                },
                 cancellationToken: ct));
 
         return result.ToList();
@@ -70,6 +77,9 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<ArchitectureDigest>(
-            new CommandDefinition(sql, new { DigestId = digestId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                DigestId = digestId
+            }, cancellationToken: ct));
     }
 }

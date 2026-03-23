@@ -1,5 +1,7 @@
 using System.Data;
+
 using Dapper;
+
 using Microsoft.Data.Sqlite;
 
 namespace ArchiForge.Data.Repositories;
@@ -78,7 +80,8 @@ internal static class ComparisonRecordSearchPredicateBuilder
             for (var i = 0; i < tags.Count; i++)
             {
                 var t = tags[i];
-                if (string.IsNullOrWhiteSpace(t)) continue;
+                if (string.IsNullOrWhiteSpace(t))
+                    continue;
                 var paramName = $"@Tag{i}";
                 parameters.Add(paramName, t);
                 conditions.Add(isSqlite

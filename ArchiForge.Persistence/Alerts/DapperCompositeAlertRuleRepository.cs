@@ -1,6 +1,8 @@
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
+
 using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Alerts;
@@ -103,7 +105,10 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     deleteConditions,
-                    new { rule.CompositeRuleId },
+                    new
+                    {
+                        rule.CompositeRuleId
+                    },
                     transaction: tx,
                     cancellationToken: ct));
 
@@ -147,7 +152,10 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var rule = await connection.QueryFirstOrDefaultAsync<CompositeAlertRule>(
-            new CommandDefinition(sqlRule, new { CompositeRuleId = compositeRuleId }, cancellationToken: ct));
+            new CommandDefinition(sqlRule, new
+            {
+                CompositeRuleId = compositeRuleId
+            }, cancellationToken: ct));
 
         if (rule is null)
             return null;
@@ -180,7 +188,12 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         var rules = (await connection.QueryAsync<CompositeAlertRule>(
                 new CommandDefinition(
                     sql,
-                    new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                    new
+                    {
+                        TenantId = tenantId,
+                        WorkspaceId = workspaceId,
+                        ProjectId = projectId
+                    },
                     cancellationToken: ct)))
             .ToList();
 
@@ -226,7 +239,12 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         var rules = (await connection.QueryAsync<CompositeAlertRule>(
                 new CommandDefinition(
                     sql,
-                    new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                    new
+                    {
+                        TenantId = tenantId,
+                        WorkspaceId = workspaceId,
+                        ProjectId = projectId
+                    },
                     cancellationToken: ct)))
             .ToList();
 
@@ -252,7 +270,10 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         var ids = rules.Select(r => r.CompositeRuleId).ToArray();
         List<ConditionRow> rows = (await connection
                 .QueryAsync<ConditionRow>(
-                    new CommandDefinition(sql, new { Ids = ids }, cancellationToken: ct))
+                    new CommandDefinition(sql, new
+                    {
+                        Ids = ids
+                    }, cancellationToken: ct))
                 .ConfigureAwait(false))
             .ToList();
 
@@ -281,10 +302,19 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
 
     private sealed class ConditionRow
     {
-        public Guid ConditionId { get; init; }
-        public Guid CompositeRuleId { get; init; }
+        public Guid ConditionId
+        {
+            get; init;
+        }
+        public Guid CompositeRuleId
+        {
+            get; init;
+        }
         public string MetricType { get; init; } = null!;
         public string Operator { get; init; } = null!;
-        public decimal ThresholdValue { get; init; }
+        public decimal ThresholdValue
+        {
+            get; init;
+        }
     }
 }

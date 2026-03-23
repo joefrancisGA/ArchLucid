@@ -18,5 +18,8 @@ public sealed class AssignPolicyPackRequest
 {
     public string Version { get; set; } = null!;
     public string ScopeLevel { get; set; } = "Project";
-    public bool IsPinned { get; set; }
+    public bool IsPinned
+    {
+        get; set;
+    }
 }

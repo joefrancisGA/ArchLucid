@@ -2,7 +2,10 @@ namespace ArchiForge.Decisioning.Alerts.Delivery;
 
 public interface IAlertDeliveryChannel
 {
-    string ChannelType { get; }
+    string ChannelType
+    {
+        get;
+    }
 
     Task SendAsync(
         AlertDeliveryPayload payload,

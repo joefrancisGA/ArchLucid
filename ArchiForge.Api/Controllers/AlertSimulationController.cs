@@ -1,11 +1,14 @@
 using System.Text.Json;
+
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Simulation;
+
 using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -98,7 +101,8 @@ public sealed class AlertSimulationController(
             request.SimpleRule.ProjectId = scope.ProjectId;
         }
 
-        if (request.CompositeRule is null) return;
+        if (request.CompositeRule is null)
+            return;
 
         request.CompositeRule.TenantId = scope.TenantId;
         request.CompositeRule.WorkspaceId = scope.WorkspaceId;
@@ -115,7 +119,8 @@ public sealed class AlertSimulationController(
 
         void StampSimple(AlertRule? r)
         {
-            if (r is null) return;
+            if (r is null)
+                return;
             r.TenantId = scope.TenantId;
             r.WorkspaceId = scope.WorkspaceId;
             r.ProjectId = scope.ProjectId;
@@ -123,7 +128,8 @@ public sealed class AlertSimulationController(
 
         void StampComposite(CompositeAlertRule? r)
         {
-            if (r is null) return;
+            if (r is null)
+                return;
             r.TenantId = scope.TenantId;
             r.WorkspaceId = scope.WorkspaceId;
             r.ProjectId = scope.ProjectId;

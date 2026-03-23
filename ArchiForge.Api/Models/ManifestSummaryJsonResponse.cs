@@ -6,11 +6,20 @@ public sealed class ManifestSummaryJsonResponse
 
     public string SystemName { get; set; } = string.Empty;
 
-    public int ServiceCount { get; set; }
+    public int ServiceCount
+    {
+        get; set;
+    }
 
-    public int DatastoreCount { get; set; }
+    public int DatastoreCount
+    {
+        get; set;
+    }
 
-    public int RelationshipCount { get; set; }
+    public int RelationshipCount
+    {
+        get; set;
+    }
 
     public List<string> RequiredControls { get; set; } = [];
 
@@ -29,7 +38,10 @@ public sealed class ManifestSummaryServiceItem
 
     public string RuntimePlatform { get; set; } = string.Empty;
 
-    public string? Purpose { get; set; }
+    public string? Purpose
+    {
+        get; set;
+    }
 
     public List<string> RequiredControls { get; set; } = [];
 
@@ -44,11 +56,20 @@ public sealed class ManifestSummaryDatastoreItem
 
     public string RuntimePlatform { get; set; } = string.Empty;
 
-    public string? Purpose { get; set; }
+    public string? Purpose
+    {
+        get; set;
+    }
 
-    public bool PrivateEndpointRequired { get; set; }
+    public bool PrivateEndpointRequired
+    {
+        get; set;
+    }
 
-    public bool EncryptionAtRestRequired { get; set; }
+    public bool EncryptionAtRestRequired
+    {
+        get; set;
+    }
 }
 
 public sealed class ManifestSummaryRelationshipItem
@@ -59,6 +80,9 @@ public sealed class ManifestSummaryRelationshipItem
 
     public string RelationshipType { get; set; } = string.Empty;
 
-    public string? Description { get; set; }
+    public string? Description
+    {
+        get; set;
+    }
 }
 

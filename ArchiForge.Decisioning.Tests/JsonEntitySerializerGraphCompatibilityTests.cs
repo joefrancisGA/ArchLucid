@@ -1,5 +1,6 @@
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Serialization;
+
 using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;

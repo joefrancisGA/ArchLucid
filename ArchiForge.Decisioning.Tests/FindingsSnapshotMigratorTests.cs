@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Findings.Serialization;
 using ArchiForge.Decisioning.Models;
+
 using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;

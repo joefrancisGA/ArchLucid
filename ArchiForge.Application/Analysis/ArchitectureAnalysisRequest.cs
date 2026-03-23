@@ -20,9 +20,15 @@ public sealed class ArchitectureAnalysisRequest
 
     public bool IncludeManifestCompare { get; set; } = false;
 
-    public string? CompareManifestVersion { get; set; }
+    public string? CompareManifestVersion
+    {
+        get; set;
+    }
 
     public bool IncludeAgentResultCompare { get; set; } = false;
 
-    public string? CompareRunId { get; set; }
+    public string? CompareRunId
+    {
+        get; set;
+    }
 }

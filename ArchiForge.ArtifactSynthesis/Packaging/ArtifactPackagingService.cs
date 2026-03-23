@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
+
 using ArchiForge.ArtifactSynthesis.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Packaging;
@@ -57,7 +58,12 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             WriteBundleIndex(archive, artifacts);
             WritePackageMetadata(
                 archive,
-                new { CreatedUtc = DateTime.UtcNow, ManifestId = manifestId, ArtifactCount = artifacts.Count });
+                new
+                {
+                    CreatedUtc = DateTime.UtcNow,
+                    ManifestId = manifestId,
+                    ArtifactCount = artifacts.Count
+                });
         }
 
         return new ArtifactPackage

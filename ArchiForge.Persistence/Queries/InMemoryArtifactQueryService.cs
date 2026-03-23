@@ -1,7 +1,7 @@
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Scoping;
 using ArchiForge.ArtifactSynthesis.Packaging;
+using ArchiForge.Core.Scoping;
 
 namespace ArchiForge.Persistence.Queries;
 

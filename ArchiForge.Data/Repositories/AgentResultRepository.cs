@@ -1,7 +1,9 @@
 using System.Text.Json;
+
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -108,7 +110,10 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return [.. rows.Select(json => JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default)).Where(x => x is not null).Cast<AgentResult>()];

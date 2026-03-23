@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Governance;
@@ -55,7 +56,10 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<PolicyPack>(
-            new CommandDefinition(sql, new { PolicyPackId = policyPackId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                PolicyPackId = policyPackId
+            }, cancellationToken: ct));
     }
 
     public async Task<IReadOnlyList<PolicyPack>> ListByScopeAsync(
@@ -77,7 +81,12 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
         var rows = await connection.QueryAsync<PolicyPack>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
                 cancellationToken: ct));
         return rows.ToList();
     }

@@ -1,4 +1,5 @@
 using ArchiForge.KnowledgeGraph.Models;
+
 using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;

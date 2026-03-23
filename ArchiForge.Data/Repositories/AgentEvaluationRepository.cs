@@ -1,7 +1,9 @@
 using System.Text.Json;
+
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -79,7 +81,10 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return rows

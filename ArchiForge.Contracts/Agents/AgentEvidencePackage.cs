@@ -22,7 +22,10 @@ public sealed class AgentEvidencePackage
 
     public List<PatternEvidence> Patterns { get; set; } = [];
 
-    public PriorManifestEvidence? PriorManifest { get; set; }
+    public PriorManifestEvidence? PriorManifest
+    {
+        get; set;
+    }
 
     public List<EvidenceNote> Notes { get; set; } = [];
 

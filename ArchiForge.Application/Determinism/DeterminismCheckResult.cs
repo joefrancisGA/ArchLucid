@@ -4,11 +4,17 @@ public sealed class DeterminismCheckResult
 {
     public string SourceRunId { get; set; } = string.Empty;
 
-    public int Iterations { get; set; }
+    public int Iterations
+    {
+        get; set;
+    }
 
     public string ExecutionMode { get; set; } = string.Empty;
 
-    public bool IsDeterministic { get; set; }
+    public bool IsDeterministic
+    {
+        get; set;
+    }
 
     public string BaselineReplayRunId { get; set; } = string.Empty;
 

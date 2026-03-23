@@ -6,7 +6,10 @@ namespace ArchiForge.AgentRuntime;
 
 public interface IAgentHandler
 {
-    AgentType AgentType { get; }
+    AgentType AgentType
+    {
+        get;
+    }
 
     Task<AgentResult> ExecuteAsync(
         string runId,

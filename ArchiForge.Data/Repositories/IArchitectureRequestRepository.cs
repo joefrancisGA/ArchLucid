@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Requests;
+using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.Data.Repositories;
 

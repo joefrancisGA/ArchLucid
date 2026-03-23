@@ -109,8 +109,9 @@ public sealed class AuthorityReplayService(
             }
         }
 
-        if (!string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase)) return result;
-        
+        if (!string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase))
+            return result;
+
         var rebuiltArtifacts = await artifactSynthesisService.SynthesizeAsync(
             manifest,
             ct);
@@ -120,7 +121,8 @@ public sealed class AuthorityReplayService(
         result.RebuiltArtifactBundle = rebuiltArtifacts;
         result.Validation.ArtifactBundlePresentAfterReplay = rebuiltArtifacts.Artifacts.Count > 0;
 
-        if (original.ArtifactBundle is null) return result;
+        if (original.ArtifactBundle is null)
+            return result;
 
         result.Validation.Notes.Add(original.ArtifactBundle.Artifacts.Count == rebuiltArtifacts.Artifacts.Count
             ? "Rebuilt artifact count matches original artifact count."

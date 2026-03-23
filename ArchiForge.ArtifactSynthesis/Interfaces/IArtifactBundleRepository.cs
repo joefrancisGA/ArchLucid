@@ -1,4 +1,5 @@
 using System.Data;
+
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Scoping;
 

@@ -1,4 +1,5 @@
 using System.IO.Compression;
+
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
@@ -7,8 +8,11 @@ using ArchiForge.Api.Services;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
+
 using Asp.Versioning;
+
 using FluentValidation;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -303,24 +307,24 @@ public sealed class ComparisonsController(
         switch (normalizedFormat)
         {
             case "markdown":
-            {
-                var content = driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
-                return ApiFileResults.RangeText(Request, content, "text/markdown", $"drift-report_{comparisonRecordId}.md");
-            }
+                {
+                    var content = driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
+                    return ApiFileResults.RangeText(Request, content, "text/markdown", $"drift-report_{comparisonRecordId}.md");
+                }
             case "html":
-            {
-                var content = driftReportFormatter.FormatHtml(drift, comparisonRecordId);
-                return ApiFileResults.RangeText(Request, content, "text/html", $"drift-report_{comparisonRecordId}.html");
-            }
+                {
+                    var content = driftReportFormatter.FormatHtml(drift, comparisonRecordId);
+                    return ApiFileResults.RangeText(Request, content, "text/html", $"drift-report_{comparisonRecordId}.html");
+                }
             case "docx":
-            {
-                var bytes = driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
-                return ApiFileResults.RangeBytes(
-                    Request,
-                    bytes,
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    $"drift-report_{comparisonRecordId}.docx");
-            }
+                {
+                    var bytes = driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
+                    return ApiFileResults.RangeBytes(
+                        Request,
+                        bytes,
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        $"drift-report_{comparisonRecordId}.docx");
+                }
             default:
                 return this.BadRequestProblem(
                     $"Unsupported drift report format '{format}'. Use markdown, html, or docx.",

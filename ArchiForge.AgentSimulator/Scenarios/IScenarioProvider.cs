@@ -1,4 +1,5 @@
 using ArchiForge.Contracts.Requests;
+
 using JetBrains.Annotations;
 
 namespace ArchiForge.AgentSimulator.Scenarios;

@@ -1,7 +1,9 @@
 using System.Text.Json;
+
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -62,7 +64,10 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new { RequestId = requestId },
+            new
+            {
+                RequestId = requestId
+            },
             cancellationToken: cancellationToken));
 
         return json is null

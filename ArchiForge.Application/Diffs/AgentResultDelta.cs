@@ -4,11 +4,20 @@ namespace ArchiForge.Application.Diffs;
 
 public sealed class AgentResultDelta
 {
-    public AgentType AgentType { get; set; }
+    public AgentType AgentType
+    {
+        get; set;
+    }
 
-    public bool LeftExists { get; set; }
+    public bool LeftExists
+    {
+        get; set;
+    }
 
-    public bool RightExists { get; set; }
+    public bool RightExists
+    {
+        get; set;
+    }
 
     public List<string> AddedClaims { get; set; } = [];
 
@@ -30,7 +39,13 @@ public sealed class AgentResultDelta
 
     public List<string> RemovedWarnings { get; set; } = [];
 
-    public double? LeftConfidence { get; set; }
+    public double? LeftConfidence
+    {
+        get; set;
+    }
 
-    public double? RightConfidence { get; set; }
+    public double? RightConfidence
+    {
+        get; set;
+    }
 }

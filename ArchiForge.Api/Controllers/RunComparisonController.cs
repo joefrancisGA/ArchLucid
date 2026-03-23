@@ -1,12 +1,15 @@
 using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Models;
 using ArchiForge.Api.Mapping;
+using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Data.Repositories;
+
 using Asp.Versioning;
+
 using FluentValidation;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -99,9 +102,10 @@ public sealed class RunComparisonController(
         request ??= new PersistComparisonRequest();
         var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
         var summary = endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report);
-        
-        if (!request.Persist) return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
-        
+
+        if (!request.Persist)
+            return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
+
         var comparisonRecordId = await comparisonAuditService.RecordEndToEndAsync(report, summary, cancellationToken);
         Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
 
@@ -181,7 +185,7 @@ public sealed class RunComparisonController(
             return this.NotFoundProblem($"Run '{query.LeftRunId}' was not found.", ProblemTypes.RunNotFound);
 
         var rightRun = await runRepository.GetByIdAsync(query.RightRunId, cancellationToken);
-        
+
         return rightRun is null ? this.NotFoundProblem($"Run '{query.RightRunId}' was not found.", ProblemTypes.RunNotFound) : null;
     }
 }

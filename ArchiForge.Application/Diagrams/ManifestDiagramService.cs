@@ -1,4 +1,5 @@
 using System.Text;
+
 using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Diagrams;
@@ -126,7 +127,8 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         var ds = manifest.Datastores.FirstOrDefault(d =>
             d.DatastoreId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
 
-        if (ds is null) return null;
+        if (ds is null)
+            return null;
 
         {
             var key = $"ds:{ds.DatastoreId}";

@@ -1,8 +1,10 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Jobs;
+
+using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Asp.Versioning;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -16,7 +18,8 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     public IActionResult GetJob([FromRoute] string jobId)
     {
         var info = jobs.GetInfo(jobId);
-        if (info is null) return NotFound();
+        if (info is null)
+            return NotFound();
         return Ok(info);
     }
 
@@ -24,11 +27,14 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     public IActionResult DownloadJobFile([FromRoute] string jobId)
     {
         var info = jobs.GetInfo(jobId);
-        if (info is null) return NotFound();
-        if (info.State != BackgroundJobState.Succeeded) return Conflict(info);
+        if (info is null)
+            return NotFound();
+        if (info.State != BackgroundJobState.Succeeded)
+            return Conflict(info);
 
         var file = jobs.GetFile(jobId);
-        if (file is null) return Conflict(info);
+        if (file is null)
+            return Conflict(info);
 
         return File(file.Bytes, file.ContentType, file.FileName);
     }

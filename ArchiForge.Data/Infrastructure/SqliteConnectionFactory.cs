@@ -1,5 +1,6 @@
 using System.Data;
 using System.Reflection;
+
 using Microsoft.Data.Sqlite;
 
 namespace ArchiForge.Data.Infrastructure;

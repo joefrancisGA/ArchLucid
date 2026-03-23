@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Contracts.Decisions;
@@ -7,7 +7,10 @@ public sealed class ManifestDeltaProposal
 {
     public string ProposalId { get; set; } = Guid.NewGuid().ToString("N");
 
-    public AgentType SourceAgent { get; set; }
+    public AgentType SourceAgent
+    {
+        get; set;
+    }
 
     public List<ManifestService> AddedServices { get; set; } = [];
 

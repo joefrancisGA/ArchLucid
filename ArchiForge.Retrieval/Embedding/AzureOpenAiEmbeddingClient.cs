@@ -1,5 +1,7 @@
 using System.ClientModel;
+
 using Azure.AI.OpenAI;
+
 using OpenAI.Embeddings;
 
 namespace ArchiForge.Retrieval.Embedding;

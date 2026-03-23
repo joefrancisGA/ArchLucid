@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Contracts.Tests
+namespace ArchiForge.Contracts.Tests
 {
     public class UnitTest1
     {

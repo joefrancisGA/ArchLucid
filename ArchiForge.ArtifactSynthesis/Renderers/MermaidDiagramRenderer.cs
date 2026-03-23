@@ -1,4 +1,5 @@
 using System.Text;
+
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 

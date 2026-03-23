@@ -1,5 +1,6 @@
 using ArchiForge.Core.Conversation;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Conversation;
@@ -43,7 +44,11 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var rows = await connection.QueryAsync<ConversationMessage>(
-            new CommandDefinition(sql, new { ThreadId = threadId, Take = take }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                ThreadId = threadId,
+                Take = take
+            }, cancellationToken: ct));
         return rows.ToList();
     }
 }

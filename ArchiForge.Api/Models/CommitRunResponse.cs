@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Manifest;
+using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 
 namespace ArchiForge.Api.Models;

@@ -55,7 +55,8 @@ public static class ContextBuilder
             ComplianceGaps = manifest.Compliance.Gaps,
             Cost = new
             {
-                manifest.Cost.MaxMonthlyCost, manifest.Cost.CostRisks
+                manifest.Cost.MaxMonthlyCost,
+                manifest.Cost.CostRisks
             },
             UnresolvedIssues = manifest.UnresolvedIssues.Items.Take(25).Select(i => new
             {

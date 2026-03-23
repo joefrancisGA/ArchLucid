@@ -5,7 +5,10 @@ public class GovernanceResolutionDecision
     public string ItemType { get; set; } = default!;
     public string ItemKey { get; set; } = default!;
 
-    public Guid WinningPolicyPackId { get; set; }
+    public Guid WinningPolicyPackId
+    {
+        get; set;
+    }
     public string WinningPolicyPackName { get; set; } = default!;
     public string WinningVersion { get; set; } = default!;
 

@@ -4,9 +4,18 @@ public class CompositeAlertRule
 {
     public Guid CompositeRuleId { get; set; } = Guid.NewGuid();
 
-    public Guid TenantId { get; set; }
-    public Guid WorkspaceId { get; set; }
-    public Guid ProjectId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     public string Name { get; set; } = null!;
     public string Severity { get; set; } = AlertSeverity.Warning;
@@ -19,7 +28,10 @@ public class CompositeAlertRule
     public int SuppressionWindowMinutes { get; set; } = 1440;
     public int CooldownMinutes { get; set; } = 60;
 
-    public decimal ReopenDeltaThreshold { get; set; }
+    public decimal ReopenDeltaThreshold
+    {
+        get; set;
+    }
     public string DedupeScope { get; set; } = CompositeDedupeScope.RuleAndRun;
 
     public string TargetChannelType { get; set; } = "AlertRouting";

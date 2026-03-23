@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Alerts;
@@ -56,7 +57,10 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRule>(
-            new CommandDefinition(sql, new { RuleId = ruleId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                RuleId = ruleId
+            }, cancellationToken: ct));
     }
 
     public async Task<IReadOnlyList<AlertRule>> ListByScopeAsync(
@@ -76,7 +80,12 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var rows = await connection.QueryAsync<AlertRule>(
-            new CommandDefinition(sql, new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId
+            }, cancellationToken: ct));
         return rows.ToList();
     }
 
@@ -98,7 +107,12 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var rows = await connection.QueryAsync<AlertRule>(
-            new CommandDefinition(sql, new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId
+            }, cancellationToken: ct));
         return rows.ToList();
     }
 }

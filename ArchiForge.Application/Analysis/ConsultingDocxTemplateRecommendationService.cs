@@ -84,7 +84,8 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
 
     private static string Fallback(HashSet<string> available)
     {
-        if (available.Contains("client")) return "client";
+        if (available.Contains("client"))
+            return "client";
         return available.FirstOrDefault() ?? "client";
     }
 }

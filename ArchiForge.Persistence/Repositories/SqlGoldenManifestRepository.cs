@@ -1,10 +1,12 @@
 using System.Data;
+
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Serialization;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Repositories;
@@ -151,16 +153,46 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
 
     private sealed class GoldenManifestRow
     {
-        public Guid TenantId { get; init; }
-        public Guid WorkspaceId { get; init; }
-        public Guid ProjectId { get; init; }
-        public Guid ManifestId { get; init; }
-        public Guid RunId { get; init; }
-        public Guid ContextSnapshotId { get; init; }
-        public Guid GraphSnapshotId { get; init; }
-        public Guid FindingsSnapshotId { get; init; }
-        public Guid DecisionTraceId { get; init; }
-        public DateTime CreatedUtc { get; init; }
+        public Guid TenantId
+        {
+            get; init;
+        }
+        public Guid WorkspaceId
+        {
+            get; init;
+        }
+        public Guid ProjectId
+        {
+            get; init;
+        }
+        public Guid ManifestId
+        {
+            get; init;
+        }
+        public Guid RunId
+        {
+            get; init;
+        }
+        public Guid ContextSnapshotId
+        {
+            get; init;
+        }
+        public Guid GraphSnapshotId
+        {
+            get; init;
+        }
+        public Guid FindingsSnapshotId
+        {
+            get; init;
+        }
+        public Guid DecisionTraceId
+        {
+            get; init;
+        }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
         public string ManifestHash { get; init; } = null!;
         public string RuleSetId { get; init; } = null!;
         public string RuleSetVersion { get; init; } = null!;
@@ -169,7 +201,10 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
         public string RequirementsJson { get; init; } = null!;
         public string TopologyJson { get; init; } = null!;
         public string SecurityJson { get; init; } = null!;
-        public string? ComplianceJson { get; init; }
+        public string? ComplianceJson
+        {
+            get; init;
+        }
         public string CostJson { get; init; } = null!;
         public string ConstraintsJson { get; init; } = null!;
         public string UnresolvedIssuesJson { get; init; } = null!;

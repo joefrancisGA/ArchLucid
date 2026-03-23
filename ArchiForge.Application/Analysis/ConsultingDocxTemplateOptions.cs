@@ -54,14 +54,26 @@ public sealed class ConsultingDocxTemplateOptions
 
     public bool IncludeLogo { get; set; } = false;
 
-    public string? LogoPath { get; set; }
+    public string? LogoPath
+    {
+        get; set;
+    }
 
-    public string ExecutiveSummaryTextTemplate { get; set; } =
+    public string ExecutiveSummaryTextTemplate
+    {
+        get; set;
+    } =
         "{SystemName} was analyzed by {OrganizationName} and resolved into an architecture containing {ServiceCount} service(s), {DatastoreCount} datastore(s), and {ControlCount} required control(s).";
 
-    public string ArchitectureOverviewIntro { get; set; } =
+    public string ArchitectureOverviewIntro
+    {
+        get; set;
+    } =
         "The following section summarizes the resolved architecture and presents the primary runtime view.";
 
-    public string ConclusionsText { get; set; } =
+    public string ConclusionsText
+    {
+        get; set;
+    } =
         "The architecture analysis produced a resolved manifest and supporting explainability artifacts suitable for technical review.";
 }

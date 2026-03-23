@@ -2,13 +2,28 @@ namespace ArchiForge.Api.Contracts;
 
 public class ReplayResponse
 {
-    public Guid RunId { get; set; }
+    public Guid RunId
+    {
+        get; set;
+    }
     public string Mode { get; set; } = null!;
-    public DateTime ReplayedUtc { get; set; }
+    public DateTime ReplayedUtc
+    {
+        get; set;
+    }
 
-    public Guid? RebuiltManifestId { get; set; }
-    public string? RebuiltManifestHash { get; set; }
-    public Guid? RebuiltArtifactBundleId { get; set; }
+    public Guid? RebuiltManifestId
+    {
+        get; set;
+    }
+    public string? RebuiltManifestHash
+    {
+        get; set;
+    }
+    public Guid? RebuiltArtifactBundleId
+    {
+        get; set;
+    }
 
     public ReplayValidationResponse Validation { get; set; } = new();
 }

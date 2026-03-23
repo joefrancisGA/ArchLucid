@@ -7,15 +7,18 @@ public static class ManifestPresentation
 {
     public static string ResolveComponentName(string componentId, GoldenManifest manifest)
     {
-        if (string.IsNullOrWhiteSpace(componentId)) return componentId;
+        if (string.IsNullOrWhiteSpace(componentId))
+            return componentId;
 
         var service = manifest.Services.FirstOrDefault(s =>
             s.ServiceId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
-        if (service is not null) return service.ServiceName;
+        if (service is not null)
+            return service.ServiceName;
 
         var datastore = manifest.Datastores.FirstOrDefault(d =>
             d.DatastoreId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
-        if (datastore is not null) return datastore.DatastoreName;
+        if (datastore is not null)
+            return datastore.DatastoreName;
 
         return componentId;
     }

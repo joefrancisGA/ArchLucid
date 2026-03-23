@@ -8,5 +8,8 @@ public class RetrievalHit
     public string SourceId { get; set; } = null!;
     public string Title { get; set; } = null!;
     public string Text { get; set; } = null!;
-    public double Score { get; set; }
+    public double Score
+    {
+        get; set;
+    }
 }

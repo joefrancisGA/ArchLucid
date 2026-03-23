@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
+
 using Polly;
 using Polly.Retry;
 
@@ -563,12 +565,18 @@ namespace ArchiForge.Cli
         {
             public string Category { get; set; } = string.Empty;
             public string Path { get; set; } = string.Empty;
-            public string? Description { get; set; }
+            public string? Description
+            {
+                get; set;
+            }
         }
 
         public sealed class DriftAnalysis
         {
-            public bool DriftDetected { get; set; }
+            public bool DriftDetected
+            {
+                get; set;
+            }
             public string Summary { get; set; } = string.Empty;
             public List<DriftItem> Items { get; set; } = [];
         }
@@ -619,16 +627,34 @@ namespace ArchiForge.Cli
 
         public sealed class ReplayDiagnosticsEntry
         {
-            public DateTime TimestampUtc { get; set; }
+            public DateTime TimestampUtc
+            {
+                get; set;
+            }
             public string ComparisonRecordId { get; set; } = string.Empty;
             public string ComparisonType { get; set; } = string.Empty;
             public string Format { get; set; } = string.Empty;
             public string ReplayMode { get; set; } = string.Empty;
-            public long DurationMs { get; set; }
-            public bool Success { get; set; }
-            public bool MetadataOnly { get; set; }
-            public string? PersistedReplayRecordId { get; set; }
-            public string? ErrorMessage { get; set; }
+            public long DurationMs
+            {
+                get; set;
+            }
+            public bool Success
+            {
+                get; set;
+            }
+            public bool MetadataOnly
+            {
+                get; set;
+            }
+            public string? PersistedReplayRecordId
+            {
+                get; set;
+            }
+            public string? ErrorMessage
+            {
+                get; set;
+            }
         }
 
         public async Task<ReplayDiagnostics?> GetReplayDiagnosticsAsync(int maxCount, CancellationToken ct = default)
@@ -680,7 +706,11 @@ namespace ArchiForge.Cli
             try
             {
                 var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}";
-                var body = new { label, tags = tags ?? (object?)null };
+                var body = new
+                {
+                    label,
+                    tags = tags ?? (object?)null
+                };
                 using var request = new HttpRequestMessage(HttpMethod.Patch, uri);
                 request.Content = JsonContent.Create(body, options: _jsonOptions);
                 var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.SendAsync(request, cancellationToken)), ct);
@@ -696,19 +726,40 @@ namespace ArchiForge.Cli
         {
             public List<ComparisonRecordSummary> Records { get; set; } = [];
 
-            public string? NextCursor { get; set; }
+            public string? NextCursor
+            {
+                get; set;
+            }
         }
 
         public sealed class ComparisonRecordSummary
         {
             public string ComparisonRecordId { get; set; } = string.Empty;
             public string ComparisonType { get; set; } = string.Empty;
-            public string? LeftRunId { get; set; }
-            public string? RightRunId { get; set; }
-            public string? LeftExportRecordId { get; set; }
-            public string? RightExportRecordId { get; set; }
-            public DateTime CreatedUtc { get; set; }
-            public string? Label { get; set; }
+            public string? LeftRunId
+            {
+                get; set;
+            }
+            public string? RightRunId
+            {
+                get; set;
+            }
+            public string? LeftExportRecordId
+            {
+                get; set;
+            }
+            public string? RightExportRecordId
+            {
+                get; set;
+            }
+            public DateTime CreatedUtc
+            {
+                get; set;
+            }
+            public string? Label
+            {
+                get; set;
+            }
             public List<string> Tags { get; set; } = [];
         }
 
@@ -754,19 +805,37 @@ namespace ArchiForge.Cli
         {
             public string RunId { get; set; } = "";
             public string RequestId { get; set; } = "";
-            public int Status { get; set; }
-            public DateTime CreatedUtc { get; set; }
-            public DateTime? CompletedUtc { get; set; }
-            public string? CurrentManifestVersion { get; set; }
+            public int Status
+            {
+                get; set;
+            }
+            public DateTime CreatedUtc
+            {
+                get; set;
+            }
+            public DateTime? CompletedUtc
+            {
+                get; set;
+            }
+            public string? CurrentManifestVersion
+            {
+                get; set;
+            }
         }
 
         public sealed class AgentTaskInfo
         {
             public string TaskId { get; set; } = "";
             public string RunId { get; set; } = "";
-            public int AgentType { get; set; }
+            public int AgentType
+            {
+                get; set;
+            }
             public string Objective { get; set; } = "";
-            public int Status { get; set; }
+            public int Status
+            {
+                get; set;
+            }
         }
 
         public sealed class GetRunResult
@@ -802,7 +871,10 @@ namespace ArchiForge.Cli
         {
             public string Message { get; set; } = "";
             public string RunId { get; set; } = "";
-            public int ResultCount { get; set; }
+            public int ResultCount
+            {
+                get; set;
+            }
         }
 
         public sealed record SubmitResultResult(bool Success, string? ResultId, string? Error);

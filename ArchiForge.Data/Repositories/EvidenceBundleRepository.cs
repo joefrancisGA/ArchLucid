@@ -1,7 +1,9 @@
 using System.Text.Json;
+
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -55,7 +57,10 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new { EvidenceBundleId = evidenceBundleId },
+            new
+            {
+                EvidenceBundleId = evidenceBundleId
+            },
             cancellationToken: cancellationToken));
 
         return json is null

@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+
 using ArchiForge.Api.Routing;
+
 using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
@@ -41,7 +43,10 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
         var assignResponse = await Client.PostAsync(
             $"/v1/policy-packs/{packId}/assign",
-            JsonContent(new { version = "1.0.0" }));
+            JsonContent(new
+            {
+                version = "1.0.0"
+            }));
 
         assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -92,7 +97,10 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
         var assignResponse = await Client.PostAsync(
             $"/v1/policy-packs/{packId}/assign",
-            JsonContent(new { version = "1.0.0" }));
+            JsonContent(new
+            {
+                version = "1.0.0"
+            }));
         assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
@@ -134,7 +142,10 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
         var assignResponse = await Client.PostAsync(
             $"/v1/policy-packs/{packId}/assign",
-            JsonContent(new { version = "1.0.0" }));
+            JsonContent(new
+            {
+                version = "1.0.0"
+            }));
         assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
@@ -161,8 +172,16 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         var created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
         var packId = created!.PolicyPackId;
 
-        var bodyA = new { version = "1.0.0", contentJson = """{"metadata":{"k":"a"}}""" };
-        var bodyB = new { version = "1.0.0", contentJson = """{"metadata":{"k":"b"}}""" };
+        var bodyA = new
+        {
+            version = "1.0.0",
+            contentJson = """{"metadata":{"k":"a"}}"""
+        };
+        var bodyB = new
+        {
+            version = "1.0.0",
+            contentJson = """{"metadata":{"k":"b"}}"""
+        };
 
         var p1 = await Client.PostAsync($"/v1/policy-packs/{packId}/publish", JsonContent(bodyA));
         p1.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -222,7 +241,10 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
         var assign = await Client.PostAsync(
             $"/v1/policy-packs/{packId}/assign",
-            JsonContent(new { version = "99.0.0" }));
+            JsonContent(new
+            {
+                version = "99.0.0"
+            }));
 
         assign.StatusCode.Should().Be(HttpStatusCode.NotFound);
         var text = await assign.Content.ReadAsStringAsync();
@@ -262,7 +284,12 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
         (await Client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new { version = "1.0.0", scopeLevel = "Project", isPinned = false })))
+                JsonContent(new
+                {
+                    version = "1.0.0",
+                    scopeLevel = "Project",
+                    isPinned = false
+                })))
             .StatusCode.Should().Be(HttpStatusCode.OK);
 
         var res = await Client.GetAsync($"/{ApiV1Routes.GovernanceResolution}");
@@ -282,11 +309,17 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
         (await Client.PostAsync(
                 $"/v1/policy-packs/{packA}/assign",
-                JsonContent(new { version = "1.0.0" })))
+                JsonContent(new
+                {
+                    version = "1.0.0"
+                })))
             .StatusCode.Should().Be(HttpStatusCode.OK);
         (await Client.PostAsync(
                 $"/v1/policy-packs/{packB}/assign",
-                JsonContent(new { version = "1.0.0" })))
+                JsonContent(new
+                {
+                    version = "1.0.0"
+                })))
             .StatusCode.Should().Be(HttpStatusCode.OK);
 
         var effectiveResponse = await Client.GetAsync("/v1/policy-packs/effective");
@@ -331,16 +364,25 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
     private sealed class PolicyPackResponse
     {
-        public Guid PolicyPackId { get; init; }
+        public Guid PolicyPackId
+        {
+            get; init;
+        }
         public string Name { get; init; } = "";
     }
 
     private sealed class PolicyPackVersionResponse
     {
-        public Guid PolicyPackVersionId { get; init; }
+        public Guid PolicyPackVersionId
+        {
+            get; init;
+        }
         public string Version { get; init; } = "";
         public string ContentJson { get; init; } = "";
-        public bool IsPublished { get; init; }
+        public bool IsPublished
+        {
+            get; init;
+        }
     }
 
     private sealed class EffectivePolicyPackSetResponse
@@ -350,7 +392,10 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
     private sealed class ResolvedPackResponse
     {
-        public Guid PolicyPackId { get; }
+        public Guid PolicyPackId
+        {
+            get;
+        }
         public static string Version => "";
     }
 

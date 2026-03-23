@@ -70,7 +70,8 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
 
     private static string EscapeTableCell(string? value)
     {
-        if (value == null) return "";
+        if (value == null)
+            return "";
         return value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\r", "").Replace("\n", " ");
     }
 }

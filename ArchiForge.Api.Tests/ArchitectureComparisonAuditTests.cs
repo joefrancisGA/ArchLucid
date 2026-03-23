@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+
 using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
@@ -45,7 +46,10 @@ public sealed class ArchitectureComparisonAuditTests(ArchiForgeApiFactory factor
 
         var compareResponse = await Client.PostAsync(
             $"/v1/architecture/run/compare/end-to-end/summary?leftRunId={runId}&rightRunId={replayRunId}",
-            JsonContent(new { persist = true }));
+            JsonContent(new
+            {
+                persist = true
+            }));
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         compareResponse.Headers.TryGetValues("X-ArchiForge-ComparisonRecordId", out var ids).Should().BeTrue();

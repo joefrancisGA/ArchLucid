@@ -7,7 +7,10 @@ namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 /// </summary>
 public static class PolicyPackJsonSerializerOptions
 {
-    public static JsonSerializerOptions Default { get; } = new()
+    public static JsonSerializerOptions Default
+    {
+        get;
+    } = new()
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -1,5 +1,7 @@
 using System.Data.Common;
+
 using ArchiForge.Data.Infrastructure;
+
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchiForge.Api.Health;

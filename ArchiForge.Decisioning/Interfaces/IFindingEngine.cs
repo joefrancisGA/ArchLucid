@@ -5,9 +5,15 @@ namespace ArchiForge.Decisioning.Interfaces;
 
 public interface IFindingEngine
 {
-    string EngineType { get; }
+    string EngineType
+    {
+        get;
+    }
 
-    string Category { get; }
+    string Category
+    {
+        get;
+    }
 
     Task<IReadOnlyList<Finding>> AnalyzeAsync(
         GraphSnapshot graphSnapshot,

@@ -1,4 +1,5 @@
 using Microsoft.OpenApi;
+
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ArchiForge.Api.Swagger;
@@ -8,7 +9,8 @@ public sealed class ProblemDetailsResponsesOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        if (operation.Responses == null) return;
+        if (operation.Responses == null)
+            return;
 
         var path = (context.ApiDescription.RelativePath ?? "").ToLowerInvariant();
 

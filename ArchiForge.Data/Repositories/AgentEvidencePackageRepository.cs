@@ -1,7 +1,9 @@
 using System.Text.Json;
+
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -73,7 +75,10 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return json is null
@@ -95,7 +100,10 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new { EvidencePackageId = evidencePackageId },
+            new
+            {
+                EvidencePackageId = evidencePackageId
+            },
             cancellationToken: cancellationToken));
 
         return json is null

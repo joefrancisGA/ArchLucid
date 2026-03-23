@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Advisory;
@@ -65,7 +66,11 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var result = await connection.QueryAsync<AdvisoryScanSchedule>(
-            new CommandDefinition(sql, new { UtcNow = utcNow, Take = take }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                UtcNow = utcNow,
+                Take = take
+            }, cancellationToken: ct));
 
         return result.ToList();
     }
@@ -92,7 +97,12 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
         var result = await connection.QueryAsync<AdvisoryScanSchedule>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
                 cancellationToken: ct));
 
         return result.ToList();
@@ -111,6 +121,9 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AdvisoryScanSchedule>(
-            new CommandDefinition(sql, new { ScheduleId = scheduleId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                ScheduleId = scheduleId
+            }, cancellationToken: ct));
     }
 }

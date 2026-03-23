@@ -1,4 +1,5 @@
 using System.Data;
+
 using ArchiForge.KnowledgeGraph.Models;
 
 namespace ArchiForge.KnowledgeGraph.Interfaces;

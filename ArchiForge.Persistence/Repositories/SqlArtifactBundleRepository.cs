@@ -1,9 +1,11 @@
 using System.Data;
+
 using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.Core.Scoping;
 using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Serialization;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Repositories;
@@ -93,13 +95,34 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
 
     private sealed class ArtifactBundleRow
     {
-        public Guid TenantId { get; init; }
-        public Guid WorkspaceId { get; init; }
-        public Guid ProjectId { get; init; }
-        public Guid BundleId { get; init; }
-        public Guid RunId { get; init; }
-        public Guid ManifestId { get; init; }
-        public DateTime CreatedUtc { get; init; }
+        public Guid TenantId
+        {
+            get; init;
+        }
+        public Guid WorkspaceId
+        {
+            get; init;
+        }
+        public Guid ProjectId
+        {
+            get; init;
+        }
+        public Guid BundleId
+        {
+            get; init;
+        }
+        public Guid RunId
+        {
+            get; init;
+        }
+        public Guid ManifestId
+        {
+            get; init;
+        }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
         public string ArtifactsJson { get; init; } = null!;
         public string TraceJson { get; init; } = null!;
     }

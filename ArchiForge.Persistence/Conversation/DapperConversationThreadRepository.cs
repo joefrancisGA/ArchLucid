@@ -1,5 +1,6 @@
 using ArchiForge.Core.Conversation;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Conversation;
@@ -40,7 +41,10 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<ConversationThread>(
-            new CommandDefinition(sql, new { ThreadId = threadId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                ThreadId = threadId
+            }, cancellationToken: ct));
     }
 
     public async Task<IReadOnlyList<ConversationThread>> ListByScopeAsync(
@@ -66,7 +70,13 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
         var rows = await connection.QueryAsync<ConversationThread>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, Take = take },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    Take = take
+                },
                 cancellationToken: ct));
         return rows.ToList();
     }
@@ -81,6 +91,10 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { ThreadId = threadId, UpdatedUtc = updatedUtc }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                ThreadId = threadId,
+                UpdatedUtc = updatedUtc
+            }, cancellationToken: ct));
     }
 }

@@ -1,10 +1,11 @@
 using System.Text.Json;
+
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
-using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Interfaces;
@@ -15,6 +16,7 @@ using ArchiForge.Persistence.Provenance;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
 using ArchiForge.Retrieval.Indexing;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Persistence.Orchestration;
@@ -113,7 +115,11 @@ public sealed class AuthorityRunOrchestrator(
                     RunId = run.RunId,
                     ManifestId = manifest.ManifestId,
                     DataJson = JsonSerializer.Serialize(
-                        new { manifest.ManifestHash, manifest.RuleSetId },
+                        new
+                        {
+                            manifest.ManifestHash,
+                            manifest.RuleSetId
+                        },
                         AuditJsonOptions)
                 },
                 ct);
@@ -132,7 +138,11 @@ public sealed class AuthorityRunOrchestrator(
                     RunId = run.RunId,
                     ManifestId = manifest.ManifestId,
                     DataJson = JsonSerializer.Serialize(
-                        new { artifactBundle.BundleId, ArtifactCount = artifactBundle.Artifacts.Count },
+                        new
+                        {
+                            artifactBundle.BundleId,
+                            ArtifactCount = artifactBundle.Artifacts.Count
+                        },
                         AuditJsonOptions)
                 },
                 ct);

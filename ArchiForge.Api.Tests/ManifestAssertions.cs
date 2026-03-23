@@ -1,11 +1,11 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
 public static class ManifestAssertions
 {
     public static void MatchSummary(
-        ManifestDto manifest, 
+        ManifestDto manifest,
         ExpectedManifestSummary expected)
     {
         manifest.SystemName.Should().Be(expected.SystemName);

@@ -1,6 +1,7 @@
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Decisioning.Governance.Resolution;
 using ArchiForge.Persistence.Governance;
+
 using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;

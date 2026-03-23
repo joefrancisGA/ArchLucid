@@ -1,5 +1,7 @@
 using System.Security.Claims;
+
 using ArchiForge.Api.Auth.Models;
+
 using Microsoft.AspNetCore.Authentication;
 
 namespace ArchiForge.Api.Auth.Services;

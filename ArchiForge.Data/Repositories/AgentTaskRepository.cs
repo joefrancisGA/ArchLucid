@@ -1,6 +1,7 @@
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -75,7 +76,10 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
 
         var rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return [.. rows.Select(r => new AgentTask { TaskId = r.TaskId, RunId = r.RunId, AgentType = Enum.TryParse<AgentType>(r.AgentType, true, out var agentType) ? agentType : AgentType.Topology, Objective = r.Objective, Status = Enum.TryParse<AgentTaskStatus>(r.Status, true, out var status) ? status : AgentTaskStatus.Created, CreatedUtc = r.CreatedUtc, CompletedUtc = r.CompletedUtc, EvidenceBundleRef = r.EvidenceBundleRef })];
@@ -88,8 +92,17 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
         public string AgentType { get; init; } = string.Empty;
         public string Objective { get; init; } = string.Empty;
         public string Status { get; init; } = string.Empty;
-        public DateTime CreatedUtc { get; init; }
-        public DateTime? CompletedUtc { get; init; }
-        public string? EvidenceBundleRef { get; init; }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
+        public DateTime? CompletedUtc
+        {
+            get; init;
+        }
+        public string? EvidenceBundleRef
+        {
+            get; init;
+        }
     }
 }

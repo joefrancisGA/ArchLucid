@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Advisory;
@@ -58,7 +59,11 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var result = await connection.QueryAsync<AdvisoryScanExecution>(
-            new CommandDefinition(sql, new { ScheduleId = scheduleId, Take = take }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                ScheduleId = scheduleId,
+                Take = take
+            }, cancellationToken: ct));
 
         return result.ToList();
     }

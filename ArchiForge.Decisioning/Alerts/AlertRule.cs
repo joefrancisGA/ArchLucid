@@ -4,15 +4,27 @@ public class AlertRule
 {
     public Guid RuleId { get; set; } = Guid.NewGuid();
 
-    public Guid TenantId { get; set; }
-    public Guid WorkspaceId { get; set; }
-    public Guid ProjectId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     public string Name { get; set; } = null!;
     public string RuleType { get; set; } = null!;
     public string Severity { get; set; } = AlertSeverity.Warning;
 
-    public decimal ThresholdValue { get; set; }
+    public decimal ThresholdValue
+    {
+        get; set;
+    }
     public bool IsEnabled { get; set; } = true;
 
     public string TargetChannelType { get; set; } = "DigestOnly";

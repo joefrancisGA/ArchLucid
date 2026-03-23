@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
+
 using JetBrains.Annotations;
 
 namespace ArchiForge.Api.Jobs;
@@ -44,13 +45,15 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
 
     public BackgroundJobInfo? GetInfo(string jobId)
     {
-        if (string.IsNullOrWhiteSpace(jobId)) return null;
+        if (string.IsNullOrWhiteSpace(jobId))
+            return null;
         return _info.TryGetValue(jobId, out var info) ? info : null;
     }
 
     public BackgroundJobFile? GetFile(string jobId)
     {
-        if (string.IsNullOrWhiteSpace(jobId)) return null;
+        if (string.IsNullOrWhiteSpace(jobId))
+            return null;
         return _files.TryGetValue(jobId, out var file) ? file : null;
     }
 

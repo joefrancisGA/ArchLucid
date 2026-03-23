@@ -1,4 +1,5 @@
 using ArchiForge.Api.Auth.Models;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

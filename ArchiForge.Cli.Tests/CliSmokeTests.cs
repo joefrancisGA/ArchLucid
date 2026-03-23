@@ -1,4 +1,5 @@
 using System.Text;
+
 using FluentAssertions;
 
 namespace ArchiForge.Cli.Tests;

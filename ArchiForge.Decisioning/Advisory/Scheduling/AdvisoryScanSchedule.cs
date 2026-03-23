@@ -4,9 +4,18 @@ public class AdvisoryScanSchedule
 {
     public Guid ScheduleId { get; set; } = Guid.NewGuid();
 
-    public Guid TenantId { get; set; }
-    public Guid WorkspaceId { get; set; }
-    public Guid ProjectId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     /// <summary>Authority store <c>Runs.ProjectId</c> slug (e.g. <c>default</c>), not the scope GUID.</summary>
     public string RunProjectSlug { get; set; } = "default";
@@ -16,6 +25,12 @@ public class AdvisoryScanSchedule
     public bool IsEnabled { get; set; } = true;
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
-    public DateTime? LastRunUtc { get; set; }
-    public DateTime? NextRunUtc { get; set; }
+    public DateTime? LastRunUtc
+    {
+        get; set;
+    }
+    public DateTime? NextRunUtc
+    {
+        get; set;
+    }
 }

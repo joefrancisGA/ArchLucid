@@ -1,8 +1,10 @@
 using System.Data;
+
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Serialization;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Repositories;
@@ -61,7 +63,10 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         var row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotRow>(
-            new CommandDefinition(sql, new { GraphSnapshotId = graphSnapshotId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                GraphSnapshotId = graphSnapshotId
+            }, cancellationToken: ct));
 
         if (row is null)
             return null;
@@ -80,10 +85,22 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
 
     private sealed class GraphSnapshotRow
     {
-        public Guid GraphSnapshotId { get; init; }
-        public Guid ContextSnapshotId { get; init; }
-        public Guid RunId { get; init; }
-        public DateTime CreatedUtc { get; init; }
+        public Guid GraphSnapshotId
+        {
+            get; init;
+        }
+        public Guid ContextSnapshotId
+        {
+            get; init;
+        }
+        public Guid RunId
+        {
+            get; init;
+        }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
         public string NodesJson { get; init; } = null!;
         public string EdgesJson { get; init; } = null!;
         public string WarningsJson { get; init; } = null!;

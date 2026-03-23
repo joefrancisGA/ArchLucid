@@ -1,26 +1,27 @@
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
-using WpParagraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
-using WpRun = DocumentFormat.OpenXml.Wordprocessing.Run;
-using WpText = DocumentFormat.OpenXml.Wordprocessing.Text;
-using WpRunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
-using WpParagraphProperties = DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties;
-using DrRun = DocumentFormat.OpenXml.Drawing.Run;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+
+using DrBlip = DocumentFormat.OpenXml.Drawing.Blip;
+using DrBlipFill = DocumentFormat.OpenXml.Drawing.BlipFill;
+using DrFillRectangle = DocumentFormat.OpenXml.Drawing.FillRectangle;
 using DrGraphicFrameLocks = DocumentFormat.OpenXml.Drawing.GraphicFrameLocks;
-using DrPicture = DocumentFormat.OpenXml.Drawing.Picture;
-using DrNonVisualPictureProperties = DocumentFormat.OpenXml.Drawing.NonVisualPictureProperties;
 using DrNonVisualDrawingProperties = DocumentFormat.OpenXml.Drawing.NonVisualDrawingProperties;
 using DrNonVisualPictureDrawingProperties = DocumentFormat.OpenXml.Drawing.NonVisualPictureDrawingProperties;
-using DrBlipFill = DocumentFormat.OpenXml.Drawing.BlipFill;
-using DrBlip = DocumentFormat.OpenXml.Drawing.Blip;
-using DrStretch = DocumentFormat.OpenXml.Drawing.Stretch;
-using DrFillRectangle = DocumentFormat.OpenXml.Drawing.FillRectangle;
+using DrNonVisualPictureProperties = DocumentFormat.OpenXml.Drawing.NonVisualPictureProperties;
+using DrPicture = DocumentFormat.OpenXml.Drawing.Picture;
+using DrRun = DocumentFormat.OpenXml.Drawing.Run;
 using DrShapeProperties = DocumentFormat.OpenXml.Drawing.ShapeProperties;
+using DrStretch = DocumentFormat.OpenXml.Drawing.Stretch;
 using WpNonVisualGraphicFrameDrawingProperties =
     DocumentFormat.OpenXml.Drawing.Wordprocessing.NonVisualGraphicFrameDrawingProperties;
+using WpParagraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
+using WpParagraphProperties = DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties;
+using WpRun = DocumentFormat.OpenXml.Wordprocessing.Run;
+using WpRunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
+using WpText = DocumentFormat.OpenXml.Wordprocessing.Text;
 
 namespace ArchiForge.Application.Analysis;
 
@@ -29,8 +30,14 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
     private readonly MemoryStream _stream;
     private readonly WordprocessingDocument _document;
 
-    public Body Body { get; }
-    public MainDocumentPart MainPart { get; }
+    public Body Body
+    {
+        get;
+    }
+    public MainDocumentPart MainPart
+    {
+        get;
+    }
 
     public OpenXmlDocxDocumentBuilder()
     {

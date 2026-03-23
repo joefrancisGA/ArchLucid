@@ -1,7 +1,9 @@
 using System.Text.Json;
+
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -61,7 +63,10 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new { ManifestVersion = manifestVersion },
+            new
+            {
+                ManifestVersion = manifestVersion
+            },
             cancellationToken: cancellationToken));
 
         return json is null

@@ -1,13 +1,16 @@
 using System.Net;
 using System.Text;
+
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using WpDocument = DocumentFormat.OpenXml.Wordprocessing.Document;
-using QuestPdfDocument = QuestPDF.Fluent.Document;
+
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+
+using QuestPdfDocument = QuestPDF.Fluent.Document;
+using WpDocument = DocumentFormat.OpenXml.Wordprocessing.Document;
 
 namespace ArchiForge.Application.Analysis;
 
@@ -323,7 +326,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendMarkdownAgentResultDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.AgentResultDiff is null) return;
+        if (report.AgentResultDiff is null)
+            return;
         sb.AppendLine("## Agent Result Diff");
         sb.AppendLine();
         foreach (var delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
@@ -348,7 +352,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendMarkdownManifestDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ManifestDiff is null) return;
+        if (report.ManifestDiff is null)
+            return;
         sb.AppendLine("## Manifest Diff");
         sb.AppendLine();
         AppendList(sb, "Added Services", report.ManifestDiff.AddedServices);
@@ -377,7 +382,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendMarkdownExportDiffs(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ExportDiffs.Count == 0) return;
+        if (report.ExportDiffs.Count == 0)
+            return;
         sb.AppendLine("## Export Diffs");
         sb.AppendLine();
         foreach (var diff in report.ExportDiffs)
@@ -395,7 +401,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static string MarkdownToSimpleHtml(string markdown)
     {
-        if (string.IsNullOrEmpty(markdown)) return "";
+        if (string.IsNullOrEmpty(markdown))
+            return "";
         var sb = new StringBuilder();
         foreach (var line in markdown.Split('\n'))
         {
@@ -445,41 +452,54 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendHtmlAgentResultDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.AgentResultDiff is null) return;
+        if (report.AgentResultDiff is null)
+            return;
         sb.AppendLine("<h2>Agent Result Diff</h2>");
         foreach (var delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
         {
             sb.AppendLine("<h3>" + EscapeHtml(delta.AgentType.ToString()) + "</h3><ul>");
             sb.AppendLine("<li>Left Exists: " + (delta.LeftExists ? "Yes" : "No") + "</li>");
             sb.AppendLine("<li>Right Exists: " + (delta.RightExists ? "Yes" : "No") + "</li>");
-            foreach (var c in delta.AddedClaims) sb.AppendLine("<li>Added claim: " + EscapeHtml(c) + "</li>");
-            foreach (var c in delta.RemovedClaims) sb.AppendLine("<li>Removed claim: " + EscapeHtml(c) + "</li>");
-            foreach (var f in delta.AddedFindings) sb.AppendLine("<li>Added finding: " + EscapeHtml(f) + "</li>");
-            foreach (var f in delta.RemovedFindings) sb.AppendLine("<li>Removed finding: " + EscapeHtml(f) + "</li>");
+            foreach (var c in delta.AddedClaims)
+                sb.AppendLine("<li>Added claim: " + EscapeHtml(c) + "</li>");
+            foreach (var c in delta.RemovedClaims)
+                sb.AppendLine("<li>Removed claim: " + EscapeHtml(c) + "</li>");
+            foreach (var f in delta.AddedFindings)
+                sb.AppendLine("<li>Added finding: " + EscapeHtml(f) + "</li>");
+            foreach (var f in delta.RemovedFindings)
+                sb.AppendLine("<li>Removed finding: " + EscapeHtml(f) + "</li>");
             sb.AppendLine("</ul>");
         }
     }
 
     private static void AppendHtmlManifestDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ManifestDiff is null) return;
+        if (report.ManifestDiff is null)
+            return;
         sb.AppendLine("<h2>Manifest Diff</h2><ul>");
-        foreach (var s in report.ManifestDiff.AddedServices) sb.AppendLine("<li>Added service: " + EscapeHtml(s) + "</li>");
-        foreach (var s in report.ManifestDiff.RemovedServices) sb.AppendLine("<li>Removed service: " + EscapeHtml(s) + "</li>");
-        foreach (var d in report.ManifestDiff.AddedDatastores) sb.AppendLine("<li>Added datastore: " + EscapeHtml(d) + "</li>");
-        foreach (var d in report.ManifestDiff.RemovedDatastores) sb.AppendLine("<li>Removed datastore: " + EscapeHtml(d) + "</li>");
+        foreach (var s in report.ManifestDiff.AddedServices)
+            sb.AppendLine("<li>Added service: " + EscapeHtml(s) + "</li>");
+        foreach (var s in report.ManifestDiff.RemovedServices)
+            sb.AppendLine("<li>Removed service: " + EscapeHtml(s) + "</li>");
+        foreach (var d in report.ManifestDiff.AddedDatastores)
+            sb.AppendLine("<li>Added datastore: " + EscapeHtml(d) + "</li>");
+        foreach (var d in report.ManifestDiff.RemovedDatastores)
+            sb.AppendLine("<li>Removed datastore: " + EscapeHtml(d) + "</li>");
         sb.AppendLine("</ul>");
     }
 
     private static void AppendHtmlExportDiffs(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ExportDiffs.Count == 0) return;
+        if (report.ExportDiffs.Count == 0)
+            return;
         sb.AppendLine("<h2>Export Diffs</h2>");
         foreach (var diff in report.ExportDiffs)
         {
             sb.AppendLine("<h3>" + EscapeHtml(diff.LeftExportRecordId + " -> " + diff.RightExportRecordId) + "</h3><ul>");
-            foreach (var f in diff.ChangedTopLevelFields) sb.AppendLine("<li>" + EscapeHtml(f) + "</li>");
-            foreach (var w in diff.Warnings) sb.AppendLine("<li>Warning: " + EscapeHtml(w) + "</li>");
+            foreach (var f in diff.ChangedTopLevelFields)
+                sb.AppendLine("<li>" + EscapeHtml(f) + "</li>");
+            foreach (var w in diff.Warnings)
+                sb.AppendLine("<li>Warning: " + EscapeHtml(w) + "</li>");
             sb.AppendLine("</ul>");
         }
     }

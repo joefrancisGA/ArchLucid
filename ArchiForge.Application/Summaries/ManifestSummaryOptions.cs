@@ -12,7 +12,10 @@ public sealed class ManifestSummaryOptions
 
     public bool IncludeRelationships { get; set; } = true;
 
-    public int? MaxRelationships { get; set; }
+    public int? MaxRelationships
+    {
+        get; set;
+    }
 
     public bool IncludeComplianceTags { get; set; } = true;
 }

@@ -1,8 +1,10 @@
 using System.Diagnostics;
+
 using ArchiForge.Decisioning.Findings.Serialization;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Decisioning.Services;

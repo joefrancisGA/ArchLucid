@@ -6,6 +6,7 @@ using ArchiForge.Decisioning.Manifest.Builders;
 using ArchiForge.Decisioning.Rules;
 using ArchiForge.Decisioning.Services;
 using ArchiForge.KnowledgeGraph.Models;
+
 using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;

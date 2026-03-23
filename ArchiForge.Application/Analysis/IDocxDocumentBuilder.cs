@@ -1,13 +1,22 @@
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+
 using JetBrains.Annotations;
 
 namespace ArchiForge.Application.Analysis;
 
 public interface IDocxDocumentBuilder
 {
-    [UsedImplicitly] Body Body { get; }
-    [UsedImplicitly] MainDocumentPart MainPart { get; }
+    [UsedImplicitly]
+    Body Body
+    {
+        get;
+    }
+    [UsedImplicitly]
+    MainDocumentPart MainPart
+    {
+        get;
+    }
 
     [UsedImplicitly]
     void AddHeading(string text, int level);

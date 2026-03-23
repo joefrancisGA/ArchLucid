@@ -6,5 +6,8 @@ public class AlertRuleCondition
 
     public string MetricType { get; set; } = null!;
     public string Operator { get; set; } = AlertConditionOperator.GreaterThanOrEqual;
-    public decimal ThresholdValue { get; set; }
+    public decimal ThresholdValue
+    {
+        get; set;
+    }
 }

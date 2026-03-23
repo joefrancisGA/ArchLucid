@@ -1,5 +1,6 @@
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -79,7 +80,10 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         return await connection.QuerySingleOrDefaultAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { ComparisonRecordId = comparisonRecordId },
+            new
+            {
+                ComparisonRecordId = comparisonRecordId
+            },
             cancellationToken: cancellationToken));
     }
 
@@ -98,7 +102,10 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
 #pragma warning disable IDE0305 // Simplify collection initialization
@@ -121,7 +128,10 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new { ExportRecordId = exportRecordId },
+            new
+            {
+                ExportRecordId = exportRecordId
+            },
             cancellationToken: cancellationToken));
 
 #pragma warning disable IDE0305 // Simplify collection initialization
@@ -306,7 +316,12 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         var tagsJson = tags == null || tags.Count == 0 ? null : System.Text.Json.JsonSerializer.Serialize(tags);
         var rows = await connection.ExecuteAsync(new CommandDefinition(
             sql,
-            new { ComparisonRecordId = comparisonRecordId, Label = label ?? (object)DBNull.Value, Tags = tagsJson ?? (object)DBNull.Value },
+            new
+            {
+                ComparisonRecordId = comparisonRecordId,
+                Label = label ?? (object)DBNull.Value,
+                Tags = tagsJson ?? (object)DBNull.Value
+            },
             cancellationToken: cancellationToken));
         return rows > 0;
     }

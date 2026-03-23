@@ -6,5 +6,8 @@ public sealed class ReplayRunRequest
 
     public string ExecutionMode { get; set; } = "Current";
 
-    public string? ManifestVersionOverride { get; set; }
+    public string? ManifestVersionOverride
+    {
+        get; set;
+    }
 }

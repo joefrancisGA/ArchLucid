@@ -33,7 +33,8 @@ public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAcc
 
         Guid TryHeader(string key, Guid fallback)
         {
-            if (headers is null || !headers.TryGetValue(key, out var value)) return fallback;
+            if (headers is null || !headers.TryGetValue(key, out var value))
+                return fallback;
             return Guid.TryParse(value.ToString(), out var parsed) ? parsed : fallback;
         }
     }

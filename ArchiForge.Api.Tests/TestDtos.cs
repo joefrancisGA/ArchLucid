@@ -12,7 +12,10 @@ public sealed class RunDto
     public string RunId { get; set; } = string.Empty;
     public string RequestId { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
-    public string? CurrentManifestVersion { get; set; }
+    public string? CurrentManifestVersion
+    {
+        get; set;
+    }
 }
 
 public sealed class EvidenceBundleDto
@@ -38,7 +41,10 @@ public sealed class SeedFakeResultsResponseDto
 {
     public string Message { get; set; } = string.Empty;
     public string RunId { get; set; } = string.Empty;
-    public int ResultCount { get; set; }
+    public int ResultCount
+    {
+        get; set;
+    }
 }
 
 public sealed class ExecuteRunResponseDto
@@ -75,7 +81,10 @@ public sealed class ManifestDatastoreDto
 {
     public string DatastoreId { get; set; } = string.Empty;
     public string DatastoreName { get; set; } = string.Empty;
-    public bool PrivateEndpointRequired { get; set; }
+    public bool PrivateEndpointRequired
+    {
+        get; set;
+    }
 }
 
 public sealed class ManifestGovernanceDto
@@ -87,7 +96,10 @@ public sealed class ManifestGovernanceDto
 public sealed class ManifestMetadataDto
 {
     public string ManifestVersion { get; set; } = string.Empty;
-    public string? ParentManifestVersion { get; set; }
+    public string? ParentManifestVersion
+    {
+        get; set;
+    }
     public List<string> DecisionTraceIds { get; set; } = [];
 }
 

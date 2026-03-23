@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Contracts.Common;
+namespace ArchiForge.Contracts.Common;
 
 public enum CloudProvider
 {

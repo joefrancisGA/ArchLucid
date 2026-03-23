@@ -1,7 +1,9 @@
 using ArchiForge.ContextIngestion.Connectors;
 using ArchiForge.ContextIngestion.Contracts;
 using ArchiForge.ContextIngestion.Models;
+
 using FluentAssertions;
+
 using Moq;
 
 namespace ArchiForge.ContextIngestion.Tests;

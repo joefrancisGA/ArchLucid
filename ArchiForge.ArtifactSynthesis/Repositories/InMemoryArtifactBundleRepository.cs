@@ -1,7 +1,8 @@
 using System.Data;
+
 using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.Core.Scoping;
 using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.Core.Scoping;
 
 namespace ArchiForge.ArtifactSynthesis.Repositories;
 

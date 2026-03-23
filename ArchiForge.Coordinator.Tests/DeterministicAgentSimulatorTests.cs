@@ -1,12 +1,14 @@
-using ArchiForge.Contracts.Agents;
 using ArchiForge.AgentSimulator.Services;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
+
+using FluentAssertions;
+
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using FluentAssertions;
 
 namespace ArchiForge.Coordinator.Tests;
 

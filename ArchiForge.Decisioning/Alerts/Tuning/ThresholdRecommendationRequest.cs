@@ -6,8 +6,14 @@ public class ThresholdRecommendationRequest
 {
     public string RuleKind { get; set; } = null!;
 
-    public AlertRule? BaseSimpleRule { get; set; }
-    public CompositeAlertRule? BaseCompositeRule { get; set; }
+    public AlertRule? BaseSimpleRule
+    {
+        get; set;
+    }
+    public CompositeAlertRule? BaseCompositeRule
+    {
+        get; set;
+    }
 
     public string TunedMetricType { get; set; } = null!;
     public List<decimal> CandidateThresholds { get; set; } = [];

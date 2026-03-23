@@ -1,4 +1,5 @@
 using ArchiForge.Decisioning.Alerts.Simulation;
+
 using FluentValidation;
 
 namespace ArchiForge.Api.Validators;

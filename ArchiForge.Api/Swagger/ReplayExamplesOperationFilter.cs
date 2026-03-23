@@ -1,4 +1,5 @@
 using Microsoft.OpenApi;
+
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ArchiForge.Api.Swagger;
@@ -7,7 +8,8 @@ public sealed class ReplayExamplesOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        if (operation.RequestBody?.Content == null) return;
+        if (operation.RequestBody?.Content == null)
+            return;
 
         var path = context.ApiDescription.RelativePath ?? "";
         if (!path.Contains("comparisons", StringComparison.OrdinalIgnoreCase) || !path.Contains("replay", StringComparison.OrdinalIgnoreCase))
@@ -27,10 +29,10 @@ public sealed class ReplayExamplesOperationFilter : IOperationFilter
             : operation.Description + " " + baseDesc;
 
         operation.Responses?.TryAdd("422", new OpenApiResponse
-            {
-                Description =
+        {
+            Description =
                     "Comparison verification failed: regenerated output does not match the stored comparison payload. "
                     + "Problem details may include driftDetected and driftSummary."
-            });
+        });
     }
 }

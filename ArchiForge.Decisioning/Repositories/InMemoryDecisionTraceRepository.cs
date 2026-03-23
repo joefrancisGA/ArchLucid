@@ -1,4 +1,5 @@
 using System.Data;
+
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;

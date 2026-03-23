@@ -1,7 +1,8 @@
 using System.Data;
+using System.Text.Json;
+
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
-using System.Text.Json;
 
 namespace ArchiForge.Decisioning.Repositories;
 

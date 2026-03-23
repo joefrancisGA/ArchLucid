@@ -12,7 +12,10 @@ public sealed class RunDetailsResponse
 
     public List<AgentResult> Results { get; set; } = [];
 
-    public GoldenManifest? Manifest { get; set; }
+    public GoldenManifest? Manifest
+    {
+        get; set;
+    }
 
     public List<DecisionTrace> DecisionTraces { get; set; } = [];
 }
@@ -25,11 +28,20 @@ public sealed class RunListItemResponse
 
     public string Status { get; set; } = string.Empty;
 
-    public DateTime CreatedUtc { get; set; }
+    public DateTime CreatedUtc
+    {
+        get; set;
+    }
 
-    public DateTime? CompletedUtc { get; set; }
+    public DateTime? CompletedUtc
+    {
+        get; set;
+    }
 
-    public string? CurrentManifestVersion { get; set; }
+    public string? CurrentManifestVersion
+    {
+        get; set;
+    }
 
     public string SystemName { get; set; } = string.Empty;
 }

@@ -8,7 +8,10 @@ public sealed class ConsultingDocxExportResponse
 
     public string SelectedProfileDisplayName { get; set; } = string.Empty;
 
-    public bool WasAutoSelected { get; set; }
+    public bool WasAutoSelected
+    {
+        get; set;
+    }
 
     public string ResolutionReason { get; set; } = string.Empty;
 

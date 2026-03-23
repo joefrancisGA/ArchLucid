@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Governance;
@@ -60,7 +61,12 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
         var rows = await connection.QueryAsync<PolicyPackAssignment>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
                 cancellationToken: ct));
         return rows.ToList();
     }

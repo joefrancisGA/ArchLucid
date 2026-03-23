@@ -1,5 +1,6 @@
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.ContextIngestion.Parsing;
+
 using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;

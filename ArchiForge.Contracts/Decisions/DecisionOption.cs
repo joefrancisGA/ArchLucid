@@ -6,11 +6,20 @@ public sealed class DecisionOption
 
     public string Description { get; set; } = string.Empty;
 
-    public double BaseConfidence { get; set; }
+    public double BaseConfidence
+    {
+        get; set;
+    }
 
-    public double SupportScore { get; set; }
+    public double SupportScore
+    {
+        get; set;
+    }
 
-    public double OppositionScore { get; set; }
+    public double OppositionScore
+    {
+        get; set;
+    }
 
     public double FinalScore => BaseConfidence + SupportScore - OppositionScore;
 

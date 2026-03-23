@@ -1,6 +1,6 @@
 using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Diagrams;
+using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Summaries;
 using ArchiForge.Data.Repositories;
 
@@ -113,7 +113,8 @@ public sealed class ArchitectureAnalysisService(
             }
         }
 
-        if (!request.IncludeAgentResultCompare) return report;
+        if (!request.IncludeAgentResultCompare)
+            return report;
 
         if (string.IsNullOrWhiteSpace(request.CompareRunId))
         {

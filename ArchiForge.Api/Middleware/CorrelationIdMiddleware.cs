@@ -1,4 +1,5 @@
 using System.Diagnostics;
+
 using Serilog.Context;
 
 namespace ArchiForge.Api.Middleware;

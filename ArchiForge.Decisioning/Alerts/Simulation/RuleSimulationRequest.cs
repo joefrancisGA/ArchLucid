@@ -7,11 +7,23 @@ public class RuleSimulationRequest
     /// <summary>Simple or Composite</summary>
     public string RuleKind { get; set; } = null!;
 
-    public AlertRule? SimpleRule { get; set; }
-    public CompositeAlertRule? CompositeRule { get; set; }
+    public AlertRule? SimpleRule
+    {
+        get; set;
+    }
+    public CompositeAlertRule? CompositeRule
+    {
+        get; set;
+    }
 
-    public Guid? RunId { get; set; }
-    public Guid? ComparedToRunId { get; set; }
+    public Guid? RunId
+    {
+        get; set;
+    }
+    public Guid? ComparedToRunId
+    {
+        get; set;
+    }
 
     public int RecentRunCount { get; set; } = 5;
 

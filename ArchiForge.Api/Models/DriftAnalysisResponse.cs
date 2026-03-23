@@ -2,7 +2,10 @@ namespace ArchiForge.Api.Models;
 
 public sealed class DriftAnalysisResponse
 {
-    public bool DriftDetected { get; set; }
+    public bool DriftDetected
+    {
+        get; set;
+    }
 
     public string Summary { get; set; } = string.Empty;
 

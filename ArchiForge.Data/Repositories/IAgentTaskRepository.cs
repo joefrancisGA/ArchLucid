@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Agents;
 
 namespace ArchiForge.Data.Repositories;
 

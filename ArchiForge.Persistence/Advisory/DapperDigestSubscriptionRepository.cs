@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Advisory;
@@ -59,7 +60,10 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<DigestSubscription>(
-            new CommandDefinition(sql, new { SubscriptionId = subscriptionId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                SubscriptionId = subscriptionId
+            }, cancellationToken: ct));
     }
 
     public async Task<IReadOnlyList<DigestSubscription>> ListByScopeAsync(
@@ -84,7 +88,12 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
         var result = await connection.QueryAsync<DigestSubscription>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
                 cancellationToken: ct));
 
         return result.ToList();
@@ -113,7 +122,12 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
         var result = await connection.QueryAsync<DigestSubscription>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
                 cancellationToken: ct));
 
         return result.ToList();

@@ -3,7 +3,10 @@ namespace ArchiForge.Core.Ask;
 /// <summary>Grounded answer plus explicit references the model was instructed to cite.</summary>
 public sealed class AskResponse
 {
-    public Guid ThreadId { get; set; }
+    public Guid ThreadId
+    {
+        get; set;
+    }
 
     public string Answer { get; set; } = "";
 

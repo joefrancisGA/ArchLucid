@@ -17,5 +17,8 @@ public class ImprovementRecommendation
     public List<string> SupportingDecisionIds { get; set; } = [];
     public List<string> SupportingArtifactIds { get; set; } = [];
 
-    public int PriorityScore { get; set; }
+    public int PriorityScore
+    {
+        get; set;
+    }
 }

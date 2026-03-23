@@ -1,6 +1,7 @@
 using System.Text;
-using ArchiForge.Contracts.Manifest;
+
 using ArchiForge.Application.Manifests;
+using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Diagrams;
 

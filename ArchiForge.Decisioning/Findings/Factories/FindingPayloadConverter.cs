@@ -1,4 +1,5 @@
 using System.Text.Json;
+
 using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Models;
 

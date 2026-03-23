@@ -1,4 +1,5 @@
 using ArchiForge.Api.Models;
+
 using AppReplayComparisonRequest = ArchiForge.Application.Analysis.ReplayComparisonRequest;
 
 namespace ArchiForge.Api.Mapping;

@@ -2,12 +2,14 @@ using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
-using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Diagrams;
+using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
 using ArchiForge.Data.Repositories;
+
 using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -370,7 +372,12 @@ public sealed class ManifestsController(
         var summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
         var markdown = exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
 
-        return Ok(new { manifestVersion = version, format = "markdown", content = markdown });
+        return Ok(new
+        {
+            manifestVersion = version,
+            format = "markdown",
+            content = markdown
+        });
     }
 
     [HttpGet("manifest/{version}/export/download")]

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+
 using ArchiForge.Contracts.Common;
 
 namespace ArchiForge.Contracts.Manifest;
@@ -15,7 +16,13 @@ public sealed class ManifestRelationship
     public string TargetId { get; set; } = string.Empty;
 
     [Required]
-    public RelationshipType RelationshipType { get; set; }
+    public RelationshipType RelationshipType
+    {
+        get; set;
+    }
 
-    public string? Description { get; set; }
+    public string? Description
+    {
+        get; set;
+    }
 }

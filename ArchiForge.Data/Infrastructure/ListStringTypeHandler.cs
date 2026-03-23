@@ -1,5 +1,6 @@
 using System.Data;
 using System.Text.Json;
+
 using Dapper;
 
 namespace ArchiForge.Data.Infrastructure;
@@ -15,7 +16,8 @@ public sealed class ListStringTypeHandler : SqlMapper.TypeHandler<List<string>>
             return [];
         if (value is string s)
         {
-            if (string.IsNullOrWhiteSpace(s)) return [];
+            if (string.IsNullOrWhiteSpace(s))
+                return [];
             try
             {
                 return JsonSerializer.Deserialize<List<string>>(s) ?? [];
@@ -38,7 +40,8 @@ public sealed class ListStringTypeHandler : SqlMapper.TypeHandler<List<string>>
 
     public static void Register()
     {
-        if (_registered) return;
+        if (_registered)
+            return;
         SqlMapper.AddTypeHandler(new ListStringTypeHandler());
         _registered = true;
     }

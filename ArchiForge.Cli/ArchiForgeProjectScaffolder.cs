@@ -2,6 +2,7 @@ using System.Data;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 using Microsoft.Data.SqlClient;
 
 
@@ -82,12 +83,12 @@ public static class ArchiForgeProjectScaffolder
         WriteFile(Path.Combine(projectRoot, "archiforge.json"), BuildArchiForgeJson(options.ProjectName), options.OverwriteExistingFiles);
         WriteFile(Path.Combine(projectRoot, "inputs", "brief.md"), BuildBriefMd(options.ProjectName), options.OverwriteExistingFiles);
         WriteFile(Path.Combine(projectRoot, "outputs", ".gitkeep"), "", options.OverwriteExistingFiles);
-        WriteFile(Path.Combine(projectRoot, "plugins", "plugin-lock.json"),BuildPluginLockJson(), options.OverwriteExistingFiles);
+        WriteFile(Path.Combine(projectRoot, "plugins", "plugin-lock.json"), BuildPluginLockJson(), options.OverwriteExistingFiles);
 
         if (options.IncludeTerraformStubs)
         {
-            WriteFile(Path.Combine(projectRoot, "infra", "terraform", "main.tf"), BuildTerraformMainTf(),options.OverwriteExistingFiles);
-            WriteFile( Path.Combine(projectRoot, "infra", "terraform", "variables.tf"), BuildTerraformVariablesTf(), options.OverwriteExistingFiles);
+            WriteFile(Path.Combine(projectRoot, "infra", "terraform", "main.tf"), BuildTerraformMainTf(), options.OverwriteExistingFiles);
+            WriteFile(Path.Combine(projectRoot, "infra", "terraform", "variables.tf"), BuildTerraformVariablesTf(), options.OverwriteExistingFiles);
         }
 
         WriteFile(Path.Combine(projectRoot, "docs", "README.md"), BuildDocsReadme(options.ProjectName), options.OverwriteExistingFiles);
@@ -127,7 +128,7 @@ public static class ArchiForgeProjectScaffolder
     {
         Directory.CreateDirectory(path);
     }
-        
+
     private static void WriteFile(string path, string contents, bool overwrite)
     {
         if (File.Exists(path) && !overwrite)
@@ -147,7 +148,10 @@ public static class ArchiForgeProjectScaffolder
         public string ProjectName { get; set; } = "";
 
         [JsonPropertyName("apiUrl")]
-        public string? ApiUrl { get; set; }
+        public string? ApiUrl
+        {
+            get; set;
+        }
 
         [JsonPropertyName("inputs")]
         public InputsSection Inputs { get; set; } = new();
@@ -162,28 +166,49 @@ public static class ArchiForgeProjectScaffolder
         public InfraSection Infra { get; set; } = new();
 
         [JsonPropertyName("architecture")]
-        public ArchitectureSection? Architecture { get; set; }
+        public ArchitectureSection? Architecture
+        {
+            get; set;
+        }
     }
 
     public sealed class ArchitectureSection
     {
         [JsonPropertyName("environment")]
-        public string? Environment { get; set; }
+        public string? Environment
+        {
+            get; set;
+        }
 
         [JsonPropertyName("cloudProvider")]
-        public string? CloudProvider { get; set; }
+        public string? CloudProvider
+        {
+            get; set;
+        }
 
         [JsonPropertyName("constraints")]
-        public List<string>? Constraints { get; set; }
+        public List<string>? Constraints
+        {
+            get; set;
+        }
 
         [JsonPropertyName("requiredCapabilities")]
-        public List<string>? RequiredCapabilities { get; set; }
+        public List<string>? RequiredCapabilities
+        {
+            get; set;
+        }
 
         [JsonPropertyName("assumptions")]
-        public List<string>? Assumptions { get; set; }
+        public List<string>? Assumptions
+        {
+            get; set;
+        }
 
         [JsonPropertyName("priorManifestVersion")]
-        public string? PriorManifestVersion { get; set; }
+        public string? PriorManifestVersion
+        {
+            get; set;
+        }
     }
 
     public sealed class InputsSection
@@ -213,7 +238,10 @@ public static class ArchiForgeProjectScaffolder
     public sealed class TerraformSection
     {
         [JsonPropertyName("enabled")]
-        public bool Enabled { get; set; }
+        public bool Enabled
+        {
+            get; set;
+        }
 
         [JsonPropertyName("path")]
         public string Path { get; set; } = "infra/terraform";
@@ -264,7 +292,8 @@ public static class ArchiForgeProjectScaffolder
         }
         if (config is null)
             throw new InvalidDataException($"Unable to parse {manifestPath} into ArchiForgeConfig.");
-        if (projectRoot != null) ValidateConfigOrThrow(config, projectRoot);
+        if (projectRoot != null)
+            ValidateConfigOrThrow(config, projectRoot);
         return config;
     }
 
@@ -296,7 +325,8 @@ public static class ArchiForgeProjectScaffolder
         if (!File.Exists(lockPath))
             throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
 
-        if (!config.Infra.Terraform.Enabled) return;
+        if (!config.Infra.Terraform.Enabled)
+            return;
 
         var tfDir = Path.Combine(projectRoot, config.Infra.Terraform.Path);
 

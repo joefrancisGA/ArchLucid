@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+
 using ArchiForge.Api.Auth.Models;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 

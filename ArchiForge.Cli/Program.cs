@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -565,8 +566,10 @@ namespace ArchiForge.Cli
                     limit = parsed;
                     i++;
                 }
-                if (args[i] == "--json") asJson = true;
-                if (args[i] == "--table") asTable = true;
+                if (args[i] == "--json")
+                    asJson = true;
+                if (args[i] == "--table")
+                    asTable = true;
             }
 
             var diagnostics = await client.GetReplayDiagnosticsAsync(limit);
@@ -652,8 +655,10 @@ namespace ArchiForge.Cli
                 if (exitCode != 0)
                 {
                     Console.WriteLine("Error: Failed to start containers.");
-                    if (!string.IsNullOrEmpty(error)) Console.WriteLine(error);
-                    if (!string.IsNullOrEmpty(output)) Console.WriteLine(output);
+                    if (!string.IsNullOrEmpty(error))
+                        Console.WriteLine(error);
+                    if (!string.IsNullOrEmpty(output))
+                        Console.WriteLine(output);
                     return 1;
                 }
 
@@ -731,7 +736,8 @@ namespace ArchiForge.Cli
 
         private static CloudProvider ParseCloudProvider(string? value)
         {
-            if (string.IsNullOrWhiteSpace(value)) return CloudProvider.Azure;
+            if (string.IsNullOrWhiteSpace(value))
+                return CloudProvider.Azure;
             return value.Trim().ToLowerInvariant() switch
             {
                 _ => CloudProvider.Azure

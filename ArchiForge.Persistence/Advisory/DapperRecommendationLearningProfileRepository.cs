@@ -1,6 +1,8 @@
 using System.Text.Json;
+
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Advisory;
@@ -76,7 +78,12 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
         var json = await connection.QueryFirstOrDefaultAsync<string>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
                 cancellationToken: ct));
 
         if (string.IsNullOrWhiteSpace(json))

@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Contracts.Manifest;
+namespace ArchiForge.Contracts.Manifest;
 
 public sealed class ManifestGovernance
 {

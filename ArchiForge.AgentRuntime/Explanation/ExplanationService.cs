@@ -1,4 +1,5 @@
 using System.Text.Json;
+
 using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Explanation;
 using ArchiForge.Decisioning.Models;
@@ -135,7 +136,8 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
             return raw;
         var s = raw.Trim();
 
-        if (!s.StartsWith("```", StringComparison.Ordinal)) return s;
+        if (!s.StartsWith("```", StringComparison.Ordinal))
+            return s;
 
         var firstNl = s.IndexOf('\n');
         if (firstNl > 0)
@@ -251,7 +253,8 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
         if (m.Compliance.Gaps.Count > 0)
             list.Add($"{m.Compliance.Gaps.Count} compliance gap(s).");
 
-        if (g is null) return list;
+        if (g is null)
+            return list;
 
         var byType = g.Nodes.GroupBy(n => n.Type).ToDictionary(x => x.Key, x => x.Count());
         list.Add(
@@ -292,7 +295,7 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
 
         if (m.Compliance.Controls.Count > 0)
             list.Insert(0, $"{m.Compliance.Controls.Count} compliance control(s) evaluated.");
-        
+
         if (list.Count == 0)
             list.Add("No compliance gaps listed.");
 
@@ -323,14 +326,29 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
 
     private sealed class LlmComparisonJson
     {
-        public string? HighLevelSummary { get; }
-        public List<string>? KeyTradeoffs { get; }
-        public string? Narrative { get; }
+        public string? HighLevelSummary
+        {
+            get;
+        }
+        public List<string>? KeyTradeoffs
+        {
+            get;
+        }
+        public string? Narrative
+        {
+            get;
+        }
     }
 
     private sealed class LlmRunJson
     {
-        public string? Summary { get; }
-        public string? DetailedNarrative { get; }
+        public string? Summary
+        {
+            get;
+        }
+        public string? DetailedNarrative
+        {
+            get;
+        }
     }
 }

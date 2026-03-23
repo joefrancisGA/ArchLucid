@@ -6,11 +6,23 @@ public class RuleCandidateComparisonRequest
 {
     public string RuleKind { get; set; } = null!;
 
-    public AlertRule? CandidateASimpleRule { get; set; }
-    public AlertRule? CandidateBSimpleRule { get; set; }
+    public AlertRule? CandidateASimpleRule
+    {
+        get; set;
+    }
+    public AlertRule? CandidateBSimpleRule
+    {
+        get; set;
+    }
 
-    public CompositeAlertRule? CandidateACompositeRule { get; set; }
-    public CompositeAlertRule? CandidateBCompositeRule { get; set; }
+    public CompositeAlertRule? CandidateACompositeRule
+    {
+        get; set;
+    }
+    public CompositeAlertRule? CandidateBCompositeRule
+    {
+        get; set;
+    }
 
     public int RecentRunCount { get; set; } = 5;
 

@@ -1,21 +1,23 @@
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.Jobs;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.Jobs;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Data.Repositories;
+
 using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
 using ApiConsultingDocxProfileRecommendationRequest =
     ArchiForge.Api.Models.ConsultingDocxProfileRecommendationRequest;
-using AppConsultingDocxProfileRecommendationRequest =
-    ArchiForge.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
 using AppConsultingDocxExportProfileSelector =
     ArchiForge.Application.Analysis.IConsultingDocxExportProfileSelector;
+using AppConsultingDocxProfileRecommendationRequest =
+    ArchiForge.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
 
 namespace ArchiForge.Api.Controllers;
 

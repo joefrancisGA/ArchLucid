@@ -1,6 +1,7 @@
 using ArchiForge.ContextIngestion.Mapping;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
+
 using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;

@@ -11,12 +11,24 @@ public sealed class SchemaValidationResult
 
 public sealed class SchemaValidationError
 {
-    public required string Message { get; init; }
+    public required string Message
+    {
+        get; init;
+    }
 
-    public required string Location { get; init; }
+    public required string Location
+    {
+        get; init;
+    }
 
-    public string? SchemaPath { get; init; }
+    public string? SchemaPath
+    {
+        get; init;
+    }
 
-    public string? Keyword { get; init; }
+    public string? Keyword
+    {
+        get; init;
+    }
 }
 

@@ -10,9 +10,15 @@ public sealed class EndToEndReplayComparisonReport
 
     public RunMetadataDiffResult RunDiff { get; set; } = new();
 
-    public AgentResultDiffResult? AgentResultDiff { get; set; }
+    public AgentResultDiffResult? AgentResultDiff
+    {
+        get; set;
+    }
 
-    public ManifestDiffResult? ManifestDiff { get; set; }
+    public ManifestDiffResult? ManifestDiff
+    {
+        get; set;
+    }
 
     public List<ExportRecordDiffResult> ExportDiffs { get; set; } = [];
 

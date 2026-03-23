@@ -1,7 +1,9 @@
 using System.Text.Json;
+
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Infrastructure;
+
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -123,7 +125,10 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
-            new { RunId = runId },
+            new
+            {
+                RunId = runId
+            },
             cancellationToken: cancellationToken));
 
         return rows
@@ -147,7 +152,10 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new { ExportRecordId = exportRecordId },
+            new
+            {
+                ExportRecordId = exportRecordId
+            },
             cancellationToken: cancellationToken));
 
         return json is null

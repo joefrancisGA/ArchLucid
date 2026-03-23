@@ -4,9 +4,18 @@ namespace ArchiForge.Decisioning.Governance.Resolution;
 
 public class EffectiveGovernanceResolutionResult
 {
-    public Guid TenantId { get; set; }
-    public Guid WorkspaceId { get; set; }
-    public Guid ProjectId { get; set; }
+    public Guid TenantId
+    {
+        get; set;
+    }
+    public Guid WorkspaceId
+    {
+        get; set;
+    }
+    public Guid ProjectId
+    {
+        get; set;
+    }
 
     public PolicyPackContentDocument EffectiveContent { get; set; } = new();
 

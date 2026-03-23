@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Alerts;
@@ -57,7 +58,10 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRoutingSubscription>(
-            new CommandDefinition(sql, new { RoutingSubscriptionId = routingSubscriptionId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                RoutingSubscriptionId = routingSubscriptionId
+            }, cancellationToken: ct));
     }
 
     public async Task<IReadOnlyList<AlertRoutingSubscription>> ListByScopeAsync(
@@ -79,7 +83,12 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
         var rows = await connection.QueryAsync<AlertRoutingSubscription>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
                 cancellationToken: ct));
         return rows.ToList();
     }
@@ -104,7 +113,12 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
         var rows = await connection.QueryAsync<AlertRoutingSubscription>(
             new CommandDefinition(
                 sql,
-                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
                 cancellationToken: ct));
         return rows.ToList();
     }

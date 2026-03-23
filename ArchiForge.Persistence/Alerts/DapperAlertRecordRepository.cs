@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Persistence.Connections;
+
 using Dapper;
 
 namespace ArchiForge.Persistence.Alerts;
@@ -60,7 +61,10 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
 
         await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRecord>(
-            new CommandDefinition(sql, new { AlertId = alertId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                AlertId = alertId
+            }, cancellationToken: ct));
     }
 
     public async Task<AlertRecord?> GetOpenByDeduplicationKeyAsync(

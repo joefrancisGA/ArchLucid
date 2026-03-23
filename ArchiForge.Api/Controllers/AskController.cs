@@ -1,7 +1,9 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Core.Ask;
 using ArchiForge.Core.Scoping;
+
 using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -23,7 +25,10 @@ public sealed class AskController(IAskService ask, IScopeContextProvider scopePr
     public async Task<IActionResult> Ask([FromBody] AskRequest request, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(request.Question))
-            return BadRequest(new { error = "Question is required." });
+            return BadRequest(new
+            {
+                error = "Question is required."
+            });
 
         if (request.RunId is null && request.ThreadId is null)
         {
@@ -36,7 +41,10 @@ public sealed class AskController(IAskService ask, IScopeContextProvider scopePr
         var hasBase = request.BaseRunId.HasValue;
         var hasTarget = request.TargetRunId.HasValue;
         if (hasBase != hasTarget)
-            return BadRequest(new { error = "Provide both baseRunId and targetRunId for comparison, or omit both." });
+            return BadRequest(new
+            {
+                error = "Provide both baseRunId and targetRunId for comparison, or omit both."
+            });
 
         try
         {
@@ -46,11 +54,17 @@ public sealed class AskController(IAskService ask, IScopeContextProvider scopePr
         }
         catch (InvalidOperationException ex)
         {
-            return NotFound(new { error = ex.Message });
+            return NotFound(new
+            {
+                error = ex.Message
+            });
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(new { error = ex.Message });
+            return BadRequest(new
+            {
+                error = ex.Message
+            });
         }
     }
 }
