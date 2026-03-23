@@ -7,6 +7,11 @@ namespace ArchiForge.Decisioning.Compliance.Loaders;
 
 public class FileComplianceRulePackLoader(string filePath) : IComplianceRulePackLoader
 {
+    private static readonly JsonSerializerOptions DeserializeOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
+
     public async Task<ComplianceRulePack> LoadAsync(CancellationToken ct)
     {
         if (!File.Exists(filePath))
@@ -14,12 +19,7 @@ public class FileComplianceRulePackLoader(string filePath) : IComplianceRulePack
 
         var json = await File.ReadAllTextAsync(filePath, ct);
 
-        var doc = JsonSerializer.Deserialize<ComplianceRulePackDocument>(
-            json,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+        var doc = JsonSerializer.Deserialize<ComplianceRulePackDocument>(json, DeserializeOptions);
 
         return doc is null
             ? throw new InvalidOperationException("Failed to deserialize compliance rule pack.")

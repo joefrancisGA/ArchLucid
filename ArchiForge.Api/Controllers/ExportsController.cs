@@ -112,14 +112,18 @@ public sealed class ExportsController(
         var diff = exportRecordDiffService.Compare(left, right);
         var summary = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
 
-        if (request.Persist)
-        {
-            var comparisonRecordId = await comparisonAuditService.RecordExportDiffAsync(
-                diff,
-                summary,
-                cancellationToken);
-            Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
-        }
+        if (!request.Persist)
+            return Ok(new ExportRecordDiffSummaryResponse
+            {
+                Format = "markdown",
+                Summary = summary
+            });
+        
+        var comparisonRecordId = await comparisonAuditService.RecordExportDiffAsync(
+            diff,
+            summary,
+            cancellationToken);
+        Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
 
         return Ok(new ExportRecordDiffSummaryResponse
         {

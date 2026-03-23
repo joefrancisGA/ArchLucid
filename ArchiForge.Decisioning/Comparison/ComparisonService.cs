@@ -189,7 +189,7 @@ public sealed class ComparisonService : IComparisonService
 
         return;
 
-        string Key(SecurityPostureItem c) =>
+        static string Key(SecurityPostureItem c) =>
             string.IsNullOrWhiteSpace(c.ControlId) ? c.ControlName : $"{c.ControlId}|{c.ControlName}";
     }
 
@@ -198,16 +198,14 @@ public sealed class ComparisonService : IComparisonService
         var baseSet = new HashSet<string>(baseM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
         var targetSet = new HashSet<string>(targetM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
 
-        foreach (var r in targetSet)
+        foreach (var r in targetSet.Where(r => !baseSet.Contains(r)))
         {
-            if (!baseSet.Contains(r))
-                result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Added" });
+            result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Added" });
         }
 
-        foreach (var r in baseSet)
+        foreach (var r in baseSet.Where(r => !targetSet.Contains(r)))
         {
-            if (!targetSet.Contains(r))
-                result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Removed" });
+            result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Removed" });
         }
     }
 

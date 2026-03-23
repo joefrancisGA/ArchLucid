@@ -688,13 +688,13 @@ internal static class ConsultingDocxOpenXmlComposer
 
         table.AppendChild(props);
 
-        foreach (var row in rows)
+        foreach (var (key, value) in rows)
         {
             var tr = new WpTableRow();
 
             tr.Append(
-                BuildCell(row.Key, bold: true, width: "2800"),
-                BuildCell(row.Value, bold: false, width: "6200"));
+                BuildCell(key, bold: true, width: "2800"),
+                BuildCell(value, bold: false, width: "6200"));
 
             table.Append(tr);
         }

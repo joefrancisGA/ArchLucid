@@ -152,7 +152,8 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         if (rule is null)
             return null;
 
-        await HydrateConditionsAsync(connection, [rule], ct).ConfigureAwait(false);
+        var singleRule = new List<CompositeAlertRule> { rule };
+        await HydrateConditionsAsync(connection, singleRule, ct).ConfigureAwait(false);
         return rule;
     }
 
@@ -187,14 +188,17 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         return rules;
     }
 
-    public Task<IReadOnlyList<CompositeAlertRule>> ListEnabledByScopeAsync(
+    public async Task<IReadOnlyList<CompositeAlertRule>> ListEnabledByScopeAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
-        CancellationToken ct) =>
-        ListByScopeFilteredAsync(tenantId, workspaceId, projectId, enabledOnly: true, ct);
+        CancellationToken ct)
+    {
+        return await ListByScopeFilteredAsync(tenantId, workspaceId, projectId, enabledOnly: true, ct)
+            .ConfigureAwait(false);
+    }
 
-    private async Task<IReadOnlyList<CompositeAlertRule>> ListByScopeFilteredAsync(
+    private async Task<List<CompositeAlertRule>> ListByScopeFilteredAsync(
         Guid tenantId,
         Guid workspaceId,
         Guid projectId,
@@ -232,7 +236,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
 
     private static async Task HydrateConditionsAsync(
         SqlConnection connection,
-        IReadOnlyList<CompositeAlertRule> rules,
+        List<CompositeAlertRule> rules,
         CancellationToken ct)
     {
         if (rules.Count == 0)
@@ -246,10 +250,15 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             """;
 
         var ids = rules.Select(r => r.CompositeRuleId).ToArray();
-        var rows = await connection.QueryAsync<ConditionRow>(
-            new CommandDefinition(sql, new { Ids = ids }, cancellationToken: ct));
+        List<ConditionRow> rows = (await connection
+                .QueryAsync<ConditionRow>(
+                    new CommandDefinition(sql, new { Ids = ids }, cancellationToken: ct))
+                .ConfigureAwait(false))
+            .ToList();
 
-        var byRule = rows.GroupBy(x => x.CompositeRuleId).ToDictionary(g => g.Key, g => g.ToList());
+        Dictionary<Guid, List<ConditionRow>> byRule = rows
+            .GroupBy(x => x.CompositeRuleId)
+            .ToDictionary(g => g.Key, g => g.ToList());
         foreach (var rule in rules)
         {
             rule.Conditions.Clear();

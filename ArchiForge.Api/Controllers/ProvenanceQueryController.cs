@@ -43,7 +43,9 @@ public sealed class ProvenanceQueryController(
         return vm is null ? NotFound() : Ok(vm);
     }
 
+    /// <param name="runId"></param>
     /// <param name="decisionKey">Provenance decision node id (GUID) or architecture decision reference id.</param>
+    /// <param name="ct"></param>
     [HttpGet("runs/{runId:guid}/graph/decision/{decisionKey}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

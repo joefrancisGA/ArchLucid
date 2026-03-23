@@ -1,4 +1,3 @@
-using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using DocumentFormat.OpenXml.Packaging;
@@ -60,7 +59,6 @@ public static class ImageHelper
 
         var relationshipId = headerPart.GetIdOfPart(imagePart);
         var drawing = CreateInlineDrawing(relationshipId, imageName, widthEmu, heightEmu);
-        headerPart.Header ??= new Header();
         headerPart.Header.AppendChild(new WpParagraph(new WpRun(drawing)));
     }
 
@@ -69,7 +67,7 @@ public static class ImageHelper
         string imageName,
         long widthEmu,
         long heightEmu) =>
-        new WpDrawing(
+        new(
             new Inline(
                 new Extent { Cx = widthEmu, Cy = heightEmu },
                 new EffectExtent

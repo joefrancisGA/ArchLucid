@@ -68,7 +68,6 @@ using ArchiForge.Persistence.Alerts;
 using ArchiForge.Persistence.Alerts.Simulation;
 using ArchiForge.Retrieval.Queries;
 using ArchiForge.Api.Configuration;
-using ArchiForge.Api.Services;
 
 namespace ArchiForge.Api.Startup;
 

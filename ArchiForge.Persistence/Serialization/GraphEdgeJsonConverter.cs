@@ -46,10 +46,14 @@ internal sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
     private static Dictionary<string, string> ReadProperties(JsonElement root, JsonSerializerOptions options)
     {
         if (!TryGetIgnoreCase(root, "properties", out var propsEl) || propsEl.ValueKind != JsonValueKind.Object)
+#pragma warning disable IDE0028 // Simplify collection initialization
             return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+#pragma warning restore IDE0028 // Simplify collection initialization
 
+#pragma warning disable IDE0028 // Simplify collection initialization
         return JsonSerializer.Deserialize<Dictionary<string, string>>(propsEl.GetRawText(), options)
                ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+#pragma warning restore IDE0028 // Simplify collection initialization
     }
 
     private static string? ReadFirstString(JsonElement root, params string[] names)

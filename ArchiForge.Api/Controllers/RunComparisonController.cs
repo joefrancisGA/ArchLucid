@@ -99,11 +99,11 @@ public sealed class RunComparisonController(
         request ??= new PersistComparisonRequest();
         var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
         var summary = endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report);
-        if (request.Persist)
-        {
-            var comparisonRecordId = await comparisonAuditService.RecordEndToEndAsync(report, summary, cancellationToken);
-            Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
-        }
+        
+        if (!request.Persist) return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
+        
+        var comparisonRecordId = await comparisonAuditService.RecordEndToEndAsync(report, summary, cancellationToken);
+        Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
 
         return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
     }
@@ -181,9 +181,7 @@ public sealed class RunComparisonController(
             return this.NotFoundProblem($"Run '{query.LeftRunId}' was not found.", ProblemTypes.RunNotFound);
 
         var rightRun = await runRepository.GetByIdAsync(query.RightRunId, cancellationToken);
-        if (rightRun is null)
-            return this.NotFoundProblem($"Run '{query.RightRunId}' was not found.", ProblemTypes.RunNotFound);
-
-        return null;
+        
+        return rightRun is null ? this.NotFoundProblem($"Run '{query.RightRunId}' was not found.", ProblemTypes.RunNotFound) : null;
     }
 }

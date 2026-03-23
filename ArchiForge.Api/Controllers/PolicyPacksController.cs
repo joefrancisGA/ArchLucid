@@ -38,9 +38,9 @@ public sealed class PolicyPacksController(
             scope.WorkspaceId,
             scope.ProjectId,
             request.Name,
-            request.Description ?? "",
+            request.Description,
             request.PackType,
-            request.InitialContentJson ?? "{}",
+            request.InitialContentJson,
             ct);
 
         return Ok(pack);
@@ -57,7 +57,7 @@ public sealed class PolicyPacksController(
         var version = await policyPacksApp.PublishVersionAsync(
             policyPackId,
             request.Version.Trim(),
-            request.ContentJson ?? "{}",
+            request.ContentJson,
             ct);
 
         return Ok(version);
@@ -74,6 +74,7 @@ public sealed class PolicyPacksController(
     {
         var scope = scopeProvider.GetCurrentScope();
         var versionKey = request.Version.Trim();
+        var scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
 
         var assignment = await policyPacksApp.TryAssignAsync(
             scope.TenantId,
@@ -81,7 +82,7 @@ public sealed class PolicyPacksController(
             scope.ProjectId,
             policyPackId,
             versionKey,
-            request.ScopeLevel,
+            scopeLevel,
             request.IsPinned,
             ct);
 

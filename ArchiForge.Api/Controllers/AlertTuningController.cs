@@ -2,8 +2,6 @@ using System.Text.Json;
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Tuning;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
@@ -66,11 +64,10 @@ public sealed class AlertTuningController(
             request.BaseSimpleRule.ProjectId = scope.ProjectId;
         }
 
-        if (request.BaseCompositeRule is not null)
-        {
-            request.BaseCompositeRule.TenantId = scope.TenantId;
-            request.BaseCompositeRule.WorkspaceId = scope.WorkspaceId;
-            request.BaseCompositeRule.ProjectId = scope.ProjectId;
-        }
+        if (request.BaseCompositeRule is null) return;
+        
+        request.BaseCompositeRule.TenantId = scope.TenantId;
+        request.BaseCompositeRule.WorkspaceId = scope.WorkspaceId;
+        request.BaseCompositeRule.ProjectId = scope.ProjectId;
     }
 }

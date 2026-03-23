@@ -41,7 +41,7 @@ public class JsonInfrastructureDeclarationParser : IInfrastructureDeclarationPar
             var objectType = ResolveObjectType(resource.Type);
 
             var properties = new Dictionary<string, string>(
-                resource.Properties ?? new Dictionary<string, string>(),
+                resource.Properties,
                 StringComparer.OrdinalIgnoreCase);
 
             if (!string.IsNullOrWhiteSpace(resource.Subtype))

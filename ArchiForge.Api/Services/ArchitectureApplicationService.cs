@@ -115,8 +115,9 @@ public sealed class ArchitectureApplicationService(
                 cancellationToken: cancellationToken);
         }
 
-        logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
-            runId, result.ResultId, result.AgentType, newStatus);
+        if (logger.IsEnabled(LogLevel.Information))
+            logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
+                runId, result.ResultId, result.AgentType, newStatus);
 
         return new SubmitResultResult(true, result.ResultId, null);
     }
@@ -167,15 +168,18 @@ public sealed class ArchitectureApplicationService(
         }
 
         var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        
         if (tasks.Count == 0)
         {
             return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
         }
 
         var existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        
         if (existingResults.Count > 0)
         {
-            logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", runId, existingResults.Count);
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", runId, existingResults.Count);
             return new SeedFakeResultsResult(true, 0, null);
         }
 
@@ -192,7 +196,8 @@ public sealed class ArchitectureApplicationService(
             completedUtc: null,
             cancellationToken: cancellationToken);
 
-        logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", runId, fakeResults.Count, newStatus);
+        if (logger.IsEnabled(LogLevel.Information))
+            logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", runId, fakeResults.Count, newStatus);
 
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
     }

@@ -51,7 +51,7 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         effective.Should().NotBeNull();
         effective.Packs.Should().HaveCount(1);
         effective.Packs[0].PolicyPackId.Should().Be(packId);
-        effective.Packs[0].Version.Should().Be("1.0.0");
+        ResolvedPackResponse.Version.Should().Be("1.0.0");
 
         var mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
         mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -350,15 +350,15 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
     private sealed class ResolvedPackResponse
     {
-        public Guid PolicyPackId { get; set; }
-        public string Version { get; set; } = "";
+        public Guid PolicyPackId { get; }
+        public static string Version => "";
     }
 
     private sealed class PolicyPackContentResponse
     {
         public List<string> ComplianceRuleKeys { get; init; } = [];
         public List<Guid> AlertRuleIds { get; init; } = [];
-        public Dictionary<string, string> AdvisoryDefaults { get; init; } = new();
+        public Dictionary<string, string> AdvisoryDefaults { get; init; } = [];
         public Dictionary<string, string> Metadata { get; init; } = [];
     }
 }

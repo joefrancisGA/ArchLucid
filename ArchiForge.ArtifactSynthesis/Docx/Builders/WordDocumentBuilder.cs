@@ -1,6 +1,4 @@
-using ArchiForge.ArtifactSynthesis.Docx;
 using ArchiForge.Decisioning.Manifest.Sections;
-using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ArchiForge.ArtifactSynthesis.Docx.Builders;
@@ -102,13 +100,13 @@ public static class WordDocumentBuilder
                 CreateHeaderCell(header.C2),
                 CreateHeaderCell(header.C3)));
 
-        foreach (var row in rows)
+        foreach (var (c1, c2, c3) in rows)
         {
             table.AppendChild(
                 new TableRow(
-                    new TableCell(new Paragraph(new Run(new Text(Sanitize(row.C1))))),
-                    new TableCell(new Paragraph(new Run(new Text(Sanitize(row.C2))))),
-                    new TableCell(new Paragraph(new Run(new Text(Sanitize(row.C3)))))));
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(c1))))),
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(c2))))),
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(c3)))))));
         }
 
         body.AppendChild(table);
@@ -152,14 +150,14 @@ public static class WordDocumentBuilder
                 CreateHeaderCell(header.C),
                 CreateHeaderCell(header.D)));
 
-        foreach (var row in rows)
+        foreach ((string a, string b, string c, string d) in rows)
         {
             table.AppendChild(
                 new TableRow(
-                    new TableCell(new Paragraph(new Run(new Text(Sanitize(row.A))))),
-                    new TableCell(new Paragraph(new Run(new Text(Sanitize(row.B))))),
-                    new TableCell(new Paragraph(new Run(new Text(Sanitize(row.C))))),
-                    new TableCell(new Paragraph(new Run(new Text(Sanitize(row.D)))))));
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(a))))),
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(b))))),
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(c))))),
+                    new TableCell(new Paragraph(new Run(new Text(Sanitize(d)))))));
         }
 
         body.AppendChild(table);

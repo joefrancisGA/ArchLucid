@@ -13,6 +13,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -37,7 +38,7 @@ public sealed partial class RunsController(
     ILogger<RunsController> logger)
     : ControllerBase
 {
-    // Explicit field for Microsoft.Extensions.Logging LoggerMessage source generator (SYSLIB1019 with primary constructors).
+    // Required by LoggerMessage source generator (SYSLIB1019): concrete ILogger field named _logger.
     private readonly ILogger<RunsController> _logger = logger;
 
     [HttpPost("request")]
@@ -218,12 +219,7 @@ public sealed partial class RunsController(
         CancellationToken cancellationToken)
     {
         var response = await BuildRunDetailsResponseAsync(runId, cancellationToken);
-        if (response is null)
-        {
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
-
-        return Ok(response);
+        return response is null ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) : Ok(response);
     }
 
     [HttpPost("run/{runId}/result")]
@@ -237,10 +233,7 @@ public sealed partial class RunsController(
     {
         var result = await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
 
-        if (result.Success)
-            return Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! });
-
-        return MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
+        return result.Success ? Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! }) : MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
     }
 
     [HttpPost("run/{runId}/seed-fake-results")]
@@ -372,6 +365,7 @@ public sealed partial class RunsController(
         CancellationToken cancellationToken)
     {
         var run = await runRepository.GetByIdAsync(runId, cancellationToken);
+        
         if (run is null)
         {
             return null;
@@ -383,11 +377,16 @@ public sealed partial class RunsController(
         GoldenManifest? manifest = null;
         List<DecisionTrace> decisionTraces = [];
 
-        if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-        {
-            manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
-            decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
-        }
+        if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+            return RunResponseMapper.ToRunDetailsResponse(
+                run,
+                tasks.ToList(),
+                results.ToList(),
+                manifest,
+                decisionTraces);
+        
+        manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
+        decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
 
         return RunResponseMapper.ToRunDetailsResponse(
             run,

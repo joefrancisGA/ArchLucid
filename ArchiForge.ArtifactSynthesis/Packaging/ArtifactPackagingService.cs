@@ -9,13 +9,17 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 {
     private static readonly JsonSerializerOptions JsonWriteIndented = new() { WriteIndented = true };
 
+#pragma warning disable IDE0028 // Simplify collection initialization
     private static readonly HashSet<string> BundleReservedEntryNames = new(StringComparer.OrdinalIgnoreCase)
+#pragma warning restore IDE0028 // Simplify collection initialization
     {
         "bundle-index.json",
         "package-metadata.json"
     };
 
+#pragma warning disable IDE0028 // Simplify collection initialization
     private static readonly HashSet<string> RunExportReservedEntryNames = new(StringComparer.OrdinalIgnoreCase)
+#pragma warning restore IDE0028 // Simplify collection initialization
     {
         "manifest.json",
         "decision-trace.json",

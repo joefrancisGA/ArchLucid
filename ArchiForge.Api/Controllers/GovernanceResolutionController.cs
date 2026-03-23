@@ -1,7 +1,7 @@
 using System.Text.Json;
 using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Auth.Services;
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Governance.Resolution;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
