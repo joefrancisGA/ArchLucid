@@ -16,6 +16,8 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md) | Comparison replay concepts |
 | [docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md) | Architecture overview and cross-links |
 | [docs/KNOWLEDGE_GRAPH.md](docs/KNOWLEDGE_GRAPH.md) | Typed graph from `ContextSnapshot`, edge inference, validation, manifest hooks |
+| [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Persisted tables & domains (migrations + authority DDL overview) |
+| [docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md) | **SQL reference:** DbUp migrations, consolidated scripts, bootstrap paths, troubleshooting, change checklist |
 
 ## Prerequisites
 
@@ -58,7 +60,7 @@ Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pas
 ## Database Setup
 
 1. Create a database (e.g. `ArchiForge2`), or use `archiforge dev up` to run SQL Server in Docker.
-2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use in-memory SQLite and do not run this migration path.
+2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use in-memory SQLite and do not run this migration path. Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchiForge.sql`, SQLite script, Persistence bootstrap, two “run” tables).
 
 ## Secrets (development)
 

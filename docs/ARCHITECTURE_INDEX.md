@@ -12,6 +12,8 @@
   - `docs/ARCHITECTURE_FLOWS.md`
 - **Data model** – core tables/records and relationships  
   - `docs/DATA_MODEL.md`
+- **SQL scripts** – migrations, consolidated SQL Server/SQLite DDL, DbUp vs Persistence bootstrap  
+  - `docs/SQL_SCRIPTS.md`
 - **Context ingestion** – connectors, parsers, deduplication, create-run fields  
   - `docs/CONTEXT_INGESTION.md`
 - **Knowledge graph** – typed nodes/edges from `ContextSnapshot`, inference, validation, SQL JSON  
@@ -36,6 +38,9 @@
 
 - **“Where do comparison records live and how do I query them?”**  
   → `DATA_MODEL.md` (ComparisonRecords) + `ARCHITECTURE_COMPONENTS.md` (ComparisonRecordRepository, ComparisonReplayService)
+
+- **“Which SQL file runs when? How do I add a migration?”**  
+  → `SQL_SCRIPTS.md`
 
 - **“Where should I add a new feature?”**  
   → `ARCHITECTURE_CONTAINERS.md` first, then the relevant section of `ARCHITECTURE_COMPONENTS.md`.

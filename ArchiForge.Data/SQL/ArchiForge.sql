@@ -1,23 +1,31 @@
 /*
   ArchiForge — SQL Server consolidated schema (idempotent)
 
-  Safe to run multiple times: skips existing tables/indexes/FKs. Nonclustered indexes are
-  declared inline on each CREATE TABLE (INDEX … NONCLUSTERED), not as separate CREATE INDEX
-  statements. Additive ALTER batches for columns live only in DbUp migrations where needed;
-  this consolidated script assumes greenfield CREATE or that migrations have already been
-  applied. Optional batches below may ADD CONSTRAINT (FK) when a legacy table exists but is
-  missing a foreign key.
+  DOCUMENTATION
+    Full guide: docs/SQL_SCRIPTS.md (DbUp vs this file vs SQLite; migration catalog;
+    two Run tables; change checklist; troubleshooting).
 
-  Upgrading existing databases: use DbUp migrations in ArchiForge.Data/Migrations/.
+  EXECUTION
+    - Persistence: SqlSchemaBootstrapper reads ArchiForge.Persistence/Scripts/ArchiForge.sql
+      (MSBuild-linked copy of this file), splits on GO, executes each batch via Dapper.
+    - Manual / SSMS: run as-is; requires SQL Server 2014+ style inline INDEX on CREATE TABLE.
 
-  Includes:
-    - API / agent / commit trail (DbUp 001–007 equivalent)
-    - Authority-chain + Dapper persistence + Decisioning (recommendations, advisory,
-      digests, alerts, composite rules, policy packs) — same DDL as Persistence bootstrap.
+  SEMANTICS
+    - Safe to run multiple times: CREATE TABLE only if missing (IF OBJECT_ID … IS NULL).
+    - Nonclustered indexes: inline INDEX … NONCLUSTERED inside CREATE TABLE (incl. filtered).
+    - Column additions for existing DBs: use DbUp migrations in ArchiForge.Data/Migrations/;
+      this script assumes greenfield CREATE or migrations already applied.
+    - FK repair: some batches ALTER TABLE ADD CONSTRAINT FK … IF NOT EXISTS (sys.foreign_keys).
 
-  DbUp migrations remain the authoritative upgrade path for deployed apps; this script
-  is for greenfield / manual / tooling. Persistence bootstrap executes this file (copy
-  under ArchiForge.Persistence output as Scripts/ArchiForge.sql).
+  CONTENT OVERVIEW
+    - Core / Agents / Manifest & evidence / RunExportRecords / ComparisonRecords /
+      DecisionNodes & AgentEvaluations (≈ DbUp 001–007 + labels/tags).
+    - Authority + Dapper + Decisioning: dbo.Runs (UNIQUEIDENTIFIER), snapshots, manifests,
+      bundles, audit, provenance, conversations, recommendations, advisory, digests, alerts,
+      composite rules, policy packs (aligned with Persistence repositories).
+
+  NOTE: dbo.ArchitectureRuns.RunId (NVARCHAR) and dbo.Runs.RunId (UNIQUEIDENTIFIER) are
+    different tables and purposes — see docs/SQL_SCRIPTS.md §3.5.
 
   SET ANSI_NULLS ON;
   SET QUOTED_IDENTIFIER ON;

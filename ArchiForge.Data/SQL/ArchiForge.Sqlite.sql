@@ -1,22 +1,28 @@
 /*
   ArchiForge — SQLite consolidated schema (tests / local / reference)
 
-  Idempotency:
+  DOCUMENTATION
+    Full guide: docs/SQL_SCRIPTS.md (how this differs from ArchiForge.sql and DbUp).
+
+  EXECUTION
+    - Embedded resource: ArchiForge.Data.SQL.ArchiForge.Sqlite.sql (see ArchiForge.Data.csproj).
+    - SqliteConnectionFactory loads once per distinct connection string and runs this script
+      as a single ExecuteNonQuery (multi-statement).
+
+  IDEMPOTENCY
     - CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS → safe to run repeatedly.
-    - Each table’s indexes follow immediately after that table’s CREATE (SQLite has no inline
-      INDEX … syntax for arbitrary non-unique indexes, unlike SQL Server’s CREATE TABLE).
-    - All columns are defined on CREATE (same principle as ArchiForge.sql). Older DB files
-      that predate a column are not upgraded by this script — use a migration path or a new
-      database for tests.
+    - Indexes follow each CREATE TABLE (SQLite cannot name arbitrary non-unique indexes
+      inside CREATE TABLE like SQL Server inline INDEX … NONCLUSTERED).
+    - All columns on CREATE; older DB files are not ALTER’d — recreate DB or migrate manually.
 
-  Aligns with DbUp migrations 001–016 and the authority / decisioning section of
-  ArchiForge.sql (GUID Runs, recommendations, advisory, digests, alerts, policy packs).
+  ALIGNMENT
+    - Intended parity with ArchiForge.sql + DbUp 001–016 scope for test scenarios (API string
+      runs + authority GUID Runs + decisioning). Production SQL Server uses migrations + bootstrap.
 
-  Enable foreign keys per connection:
+  Enable foreign keys per connection when you need enforcement:
     PRAGMA foreign_keys = ON;
 
-  GraphSnapshotId: TEXT (canonical GUID string), analogous to SQL Server UNIQUEIDENTIFIER.
-  Date/time columns: TEXT (ISO-8601).
+  Types: GraphSnapshotId etc. as TEXT (GUID strings); datetimes as TEXT (ISO-8601).
 */
 
 CREATE TABLE IF NOT EXISTS ArchitectureRequests
