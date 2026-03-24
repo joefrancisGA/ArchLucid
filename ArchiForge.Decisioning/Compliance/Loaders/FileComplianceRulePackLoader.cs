@@ -20,7 +20,16 @@ public class FileComplianceRulePackLoader(string filePath) : IComplianceRulePack
 
         var json = await File.ReadAllTextAsync(filePath, ct);
 
-        var doc = JsonSerializer.Deserialize<ComplianceRulePackDocument>(json, DeserializeOptions);
+        ComplianceRulePackDocument? doc;
+        try
+        {
+            doc = JsonSerializer.Deserialize<ComplianceRulePackDocument>(json, DeserializeOptions);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Compliance rule pack at '{filePath}' contains invalid JSON.", ex);
+        }
 
         return doc is null
             ? throw new InvalidOperationException("Failed to deserialize compliance rule pack.")

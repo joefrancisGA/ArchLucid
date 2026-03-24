@@ -15,6 +15,8 @@ public class DefaultGraphBuilder(
         ContextSnapshot contextSnapshot,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(contextSnapshot);
+
         var result = new GraphBuildResult();
 
         var contextNode = new GraphNode
@@ -34,7 +36,7 @@ public class DefaultGraphBuilder(
 
         result.Nodes.Add(contextNode);
 
-        foreach (var item in contextSnapshot.CanonicalObjects)
+        foreach (var item in contextSnapshot.CanonicalObjects ?? [])
         {
             result.Nodes.Add(nodeFactory.CreateNode(item));
         }

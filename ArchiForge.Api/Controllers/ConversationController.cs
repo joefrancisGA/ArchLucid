@@ -25,13 +25,14 @@ public sealed class ConversationController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> ListThreads(int take = 50, CancellationToken ct = default)
     {
+        var safeTake = Math.Clamp(take, 1, 200);
         var scope = scopeProvider.GetCurrentScope();
 
         var threads = await threadRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
-            take,
+            safeTake,
             ct);
 
         return Ok(threads);
@@ -42,6 +43,7 @@ public sealed class ConversationController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMessages(Guid threadId, int take = 100, CancellationToken ct = default)
     {
+        var safeTake = Math.Clamp(take, 1, 500);
         var scope = scopeProvider.GetCurrentScope();
         var thread = await threadRepository.GetByIdAsync(threadId, ct);
         if (thread is null ||
@@ -52,7 +54,7 @@ public sealed class ConversationController(
             return NotFound();
         }
 
-        var messages = await messageRepository.GetByThreadIdAsync(threadId, take, ct);
+        var messages = await messageRepository.GetByThreadIdAsync(threadId, safeTake, ct);
         return Ok(messages);
     }
 }

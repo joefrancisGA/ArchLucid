@@ -29,8 +29,11 @@ public sealed class AskController(IAskService ask, IScopeContextProvider scopePr
     [ProducesResponseType(typeof(AskResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Ask([FromBody] AskRequest request, CancellationToken ct = default)
+    public async Task<IActionResult> Ask([FromBody] AskRequest? request, CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         if (string.IsNullOrWhiteSpace(request.Question))
             return BadRequest(new
             {

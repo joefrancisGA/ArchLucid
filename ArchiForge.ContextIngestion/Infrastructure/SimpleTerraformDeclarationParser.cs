@@ -18,8 +18,9 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
         InfrastructureDeclarationReference declaration,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(declaration);
         _ = ct;
-        var matches = ResourceRegex.Matches(declaration.Content);
+        var matches = ResourceRegex.Matches(declaration.Content ?? string.Empty);
         var results = new List<CanonicalObject>();
 
         foreach (Match match in matches)

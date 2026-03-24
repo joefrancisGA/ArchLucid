@@ -25,7 +25,16 @@ public static class JsonEntitySerializer
         if (string.IsNullOrWhiteSpace(json))
             throw new InvalidOperationException("Cannot deserialize empty JSON.");
 
-        var value = JsonSerializer.Deserialize<T>(json, Options);
+        T? value;
+        try
+        {
+            value = JsonSerializer.Deserialize<T>(json, Options);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException($"JSON for {typeof(T).Name} is corrupt and cannot be deserialized.", ex);
+        }
+
         if (value is null)
             throw new InvalidOperationException($"Failed to deserialize {typeof(T).Name}.");
 

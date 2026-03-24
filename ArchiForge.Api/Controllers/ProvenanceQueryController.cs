@@ -56,6 +56,9 @@ public sealed class ProvenanceQueryController(
         string decisionKey,
         CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(decisionKey))
+            return BadRequest(new { error = "decisionKey is required." });
+
         var scope = scopeProvider.GetCurrentScope();
         var vm = await graphQuery.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
         return vm is null ? NotFound() : Ok(vm);
@@ -70,8 +73,9 @@ public sealed class ProvenanceQueryController(
         [FromQuery] int depth = 1,
         CancellationToken ct = default)
     {
+        var safeDepth = Math.Clamp(depth, 1, 10);
         var scope = scopeProvider.GetCurrentScope();
-        var vm = await graphQuery.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
+        var vm = await graphQuery.GetNodeNeighborhoodAsync(scope, runId, nodeId, safeDepth, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 }

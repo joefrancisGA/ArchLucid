@@ -7,13 +7,17 @@ using ArchiForge.Provenance;
 
 using JetBrains.Annotations;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchiForge.AgentRuntime.Explanation;
 
 /// <summary>
 /// Structured signals first, then LLM narrative (JSON). Falls back to signal-only text if the model fails.
 /// </summary>
 /// <inheritdoc cref="IExplanationService"/>
-public sealed class ExplanationService(IAgentCompletionClient completionClient) : IExplanationService
+public sealed class ExplanationService(
+    IAgentCompletionClient completionClient,
+    ILogger<ExplanationService> logger) : IExplanationService
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -129,8 +133,13 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
             var raw = await completionClient.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, ct);
             return UnwrapJsonFence(raw);
         }
-        catch
+        catch (OperationCanceledException)
         {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "LLM completion failed in ExplanationService; falling back to heuristic response.");
             return null;
         }
     }
@@ -156,7 +165,7 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
         return s;
     }
 
-    private static T? TryDeserialize<T>(string? json) where T : class
+    private T? TryDeserialize<T>(string? json) where T : class
     {
         if (string.IsNullOrWhiteSpace(json))
             return null;
@@ -164,8 +173,9 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
         {
             return JsonSerializer.Deserialize<T>(json, JsonOptions);
         }
-        catch
+        catch (JsonException ex)
         {
+            logger.LogWarning(ex, "Failed to deserialize LLM Explanation response as {Type}; falling back to heuristic.", typeof(T).Name);
             return null;
         }
     }

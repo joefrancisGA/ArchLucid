@@ -15,6 +15,19 @@ public static class ProvenanceGraphSerializer
     public static string Serialize(DecisionProvenanceGraph graph) =>
         JsonSerializer.Serialize(graph, Options);
 
-    public static DecisionProvenanceGraph? Deserialize(string json) =>
-        string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<DecisionProvenanceGraph>(json, Options);
+    public static DecisionProvenanceGraph? Deserialize(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<DecisionProvenanceGraph>(json, Options);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                "Provenance graph JSON is corrupt and cannot be deserialized.", ex);
+        }
+    }
 }

@@ -98,23 +98,31 @@ public sealed class ArchitectureApplicationService(
                 ApplicationServiceFailureKind.BadRequest);
         }
 
-        await resultRepository.CreateAsync(result, cancellationToken);
-
-        // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
-        var allResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        var hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
-        var newStatus = hasAllRequiredAgentTypes
-            ? ArchitectureRunStatus.ReadyForCommit
-            : ArchitectureRunStatus.WaitingForResults;
-
-        if (newStatus != run.Status)
+        ArchitectureRunStatus newStatus;
+        using (var tx = new TransactionScope(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled))
         {
-            await runRepository.UpdateStatusAsync(
-                runId,
-                newStatus,
-                currentManifestVersion: run.CurrentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken);
+            await resultRepository.CreateAsync(result, cancellationToken);
+
+            // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
+            var allResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+            var hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
+            newStatus = hasAllRequiredAgentTypes
+                ? ArchitectureRunStatus.ReadyForCommit
+                : ArchitectureRunStatus.WaitingForResults;
+
+            if (newStatus != run.Status)
+            {
+                await runRepository.UpdateStatusAsync(
+                    runId,
+                    newStatus,
+                    currentManifestVersion: run.CurrentManifestVersion,
+                    completedUtc: null,
+                    cancellationToken: cancellationToken);
+            }
+
+            tx.Complete();
         }
 
         if (logger.IsEnabled(LogLevel.Information))

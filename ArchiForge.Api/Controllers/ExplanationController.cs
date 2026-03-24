@@ -29,7 +29,8 @@ public sealed class ExplanationController(
     IComparisonService comparison,
     IExplanationService explanation,
     IProvenanceSnapshotRepository provenanceRepo,
-    IScopeContextProvider scopeProvider)
+    IScopeContextProvider scopeProvider,
+    ILogger<ExplanationController> logger)
     : ControllerBase
 {
     /// <summary>Stakeholder explanation for one run’s golden manifest, optionally enriched with stored provenance graph JSON.</summary>
@@ -49,7 +50,16 @@ public sealed class ExplanationController(
         DecisionProvenanceGraph? graph = null;
         var snapshot = await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
         if (snapshot is not null)
-            graph = ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
+        {
+            try
+            {
+                graph = ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
+            }
+            catch (InvalidOperationException ex)
+            {
+                logger.LogWarning(ex, "Provenance graph JSON for run {RunId} is corrupt; explanation will proceed without provenance.", runId);
+            }
+        }
 
         var result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
         return Ok(result);

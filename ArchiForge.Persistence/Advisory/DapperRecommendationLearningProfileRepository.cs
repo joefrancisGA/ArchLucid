@@ -89,7 +89,17 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
         if (string.IsNullOrWhiteSpace(json))
             return null;
 
-        var profile = JsonSerializer.Deserialize<RecommendationLearningProfile>(json, JsonOptions);
+        RecommendationLearningProfile? profile;
+        try
+        {
+            profile = JsonSerializer.Deserialize<RecommendationLearningProfile>(json, JsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"RecommendationLearningProfile JSON for tenant={tenantId}/workspace={workspaceId}/project={projectId} is corrupt.", ex);
+        }
+
         return profile is null ? null : NormalizeDictionaryComparers(profile);
     }
 

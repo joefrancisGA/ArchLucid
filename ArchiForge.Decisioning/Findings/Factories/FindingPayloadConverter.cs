@@ -15,19 +15,31 @@ public static class FindingPayloadConverter
         if (finding.Payload is T typed)
             return typed;
 
+        var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
         if (finding.Payload is JsonElement jsonElement)
         {
-            return jsonElement.Deserialize<T>(new JsonSerializerOptions
+            try
             {
-                PropertyNameCaseInsensitive = true
-            });
+                return jsonElement.Deserialize<T>(opts);
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException(
+                    $"Finding payload cannot be deserialized as {typeof(T).Name} (FindingId={finding.FindingId}).", ex);
+            }
         }
 
-        var json = JsonSerializer.Serialize(finding.Payload);
-        return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
+        try
         {
-            PropertyNameCaseInsensitive = true
-        });
+            var json = JsonSerializer.Serialize(finding.Payload);
+            return JsonSerializer.Deserialize<T>(json, opts);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Finding payload cannot be serialized/deserialized as {typeof(T).Name} (FindingId={finding.FindingId}).", ex);
+        }
     }
 
     public static RequirementFindingPayload? ToRequirementPayload(Finding finding)

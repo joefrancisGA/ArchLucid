@@ -13,10 +13,11 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
         ContextDocumentReference document,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(document);
         _ = ct;
         var results = new List<CanonicalObject>();
 
-        var lines = document.Content
+        var lines = (document.Content ?? string.Empty)
             .Replace("\r\n", "\n")
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 

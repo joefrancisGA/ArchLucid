@@ -13,6 +13,9 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
         string? ContentTypeHint,
         Func<CancellationToken, Task<BackgroundJobFile>> Work);
 
+    /// <summary>Maximum number of terminal jobs (Succeeded/Failed) retained in memory before evicting the oldest.</summary>
+    private const int MaxRetainedTerminalJobs = 200;
+
     private readonly Channel<WorkItem> _queue = Channel.CreateUnbounded<WorkItem>(new UnboundedChannelOptions
     {
         SingleReader = true,
@@ -95,6 +98,29 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
                     Error = ex.Message
                 };
             }
+
+            EvictOldTerminalJobs();
+        }
+    }
+
+    /// <summary>
+    /// Removes the oldest terminal-state jobs when the retained count exceeds <see cref="MaxRetainedTerminalJobs"/>.
+    /// This prevents unbounded memory growth for long-running server instances.
+    /// </summary>
+    private void EvictOldTerminalJobs()
+    {
+        var terminal = _info.Values
+            .Where(j => j.State is BackgroundJobState.Succeeded or BackgroundJobState.Failed)
+            .OrderBy(j => j.CompletedUtc)
+            .ToList();
+
+        if (terminal.Count <= MaxRetainedTerminalJobs)
+            return;
+
+        foreach (var old in terminal.Take(terminal.Count - MaxRetainedTerminalJobs))
+        {
+            _info.TryRemove(old.JobId, out _);
+            _files.TryRemove(old.JobId, out _);
         }
     }
 }

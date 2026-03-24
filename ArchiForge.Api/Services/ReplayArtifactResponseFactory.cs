@@ -11,6 +11,8 @@ public static class ReplayArtifactResponseFactory
 {
     public static IActionResult FromExportReplay(HttpRequest request, ReplayExportResult result)
     {
+        ArgumentNullException.ThrowIfNull(result);
+
         if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
             return ApiFileResults.RangeBytes(request, result.Content, "text/markdown", result.FileName);
 
@@ -29,6 +31,8 @@ public static class ReplayArtifactResponseFactory
     /// <summary>Returns a ranged file response for a comparison replay result, or null if format is unsupported.</summary>
     public static IActionResult? TryComparisonReplayFile(HttpRequest request, ReplayComparisonResult result)
     {
+        ArgumentNullException.ThrowIfNull(result);
+
         if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
             return ApiFileResults.RangeText(request, result.Content, "text/markdown", result.FileName);
 
@@ -61,6 +65,8 @@ public static class ReplayArtifactResponseFactory
     /// <summary>Payload bytes for ZIP batch packaging (text vs binary formats).</summary>
     public static byte[] GetComparisonReplayEntryBytes(ReplayComparisonResult result)
     {
+        ArgumentNullException.ThrowIfNull(result);
+
         if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase)
             || string.Equals(result.Format, "html", StringComparison.OrdinalIgnoreCase))
             return System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);

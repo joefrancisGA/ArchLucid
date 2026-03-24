@@ -7,7 +7,10 @@ public class GraphNodeFactory : IGraphNodeFactory
 {
     public GraphNode CreateNode(CanonicalObject item)
     {
-        item.Properties.TryGetValue("category", out var category);
+        ArgumentNullException.ThrowIfNull(item);
+
+        var properties = item.Properties ?? new Dictionary<string, string>();
+        properties.TryGetValue("category", out var category);
 
         return new GraphNode
         {
@@ -17,7 +20,7 @@ public class GraphNodeFactory : IGraphNodeFactory
             Category = category,
             SourceType = item.SourceType,
             SourceId = item.SourceId,
-            Properties = new Dictionary<string, string>(item.Properties, StringComparer.OrdinalIgnoreCase)
+            Properties = new Dictionary<string, string>(properties, StringComparer.OrdinalIgnoreCase)
         };
     }
 }

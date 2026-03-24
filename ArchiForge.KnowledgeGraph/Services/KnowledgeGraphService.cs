@@ -13,6 +13,8 @@ public class KnowledgeGraphService(
         ContextSnapshot contextSnapshot,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(contextSnapshot);
+
         var buildResult = await graphBuilder.BuildAsync(contextSnapshot, ct);
 
         var snapshot = new GraphSnapshot
