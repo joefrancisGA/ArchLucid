@@ -59,6 +59,15 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
         if (snapshot is null)
             return null;
 
-        return ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
+        try
+        {
+            return ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to deserialize provenance graph for run '{runId}'. " +
+                "The stored JSON may be corrupt or from an incompatible schema version.", ex);
+        }
     }
 }

@@ -141,7 +141,7 @@ public sealed class DigestSubscriptionsController(
         if (!MatchesScope(subscription, scope))
             return NotFound();
 
-        var attempts = await attemptRepository.ListBySubscriptionAsync(subscriptionId, take, ct);
+        var attempts = await attemptRepository.ListBySubscriptionAsync(subscriptionId, Math.Clamp(take, 1, 200), ct);
         return Ok(attempts);
     }
 

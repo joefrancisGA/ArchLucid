@@ -141,7 +141,7 @@ public sealed class AlertRoutingSubscriptionsController(
         if (!MatchesScope(subscription, scope))
             return NotFound();
 
-        var attempts = await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId, take, ct);
+        var attempts = await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId, Math.Clamp(take, 1, 200), ct);
         return Ok(attempts);
     }
 

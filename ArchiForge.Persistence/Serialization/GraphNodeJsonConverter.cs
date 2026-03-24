@@ -60,10 +60,19 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
             return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 #pragma warning restore IDE0028 // Simplify collection initialization
 
+        try
+        {
 #pragma warning disable IDE0028 // Simplify collection initialization
-        return JsonSerializer.Deserialize<Dictionary<string, string>>(propsEl.GetRawText(), options)
-               ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(propsEl.GetRawText(), options)
+                   ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 #pragma warning restore IDE0028 // Simplify collection initialization
+        }
+        catch (JsonException)
+        {
+#pragma warning disable IDE0028 // Simplify collection initialization
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+#pragma warning restore IDE0028 // Simplify collection initialization
+        }
     }
 
     private static string? ReadFirstString(JsonElement root, params string[] names)

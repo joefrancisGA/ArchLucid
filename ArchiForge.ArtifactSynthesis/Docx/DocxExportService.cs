@@ -25,6 +25,9 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         IReadOnlyList<SynthesizedArtifact> artifacts,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(manifest);
+        ArgumentNullException.ThrowIfNull(artifacts);
         var findings = request.FindingsSnapshot ?? CreateFallbackFindings(manifest);
         ImprovementPlan improvementPlan = request.ManifestComparison is not null
             ? await improvementAdvisorService

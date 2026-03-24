@@ -79,18 +79,27 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
         if (row is null)
             return null;
 
-        return new ArtifactBundle
+        try
         {
-            TenantId = row.TenantId,
-            WorkspaceId = row.WorkspaceId,
-            ProjectId = row.ProjectId,
-            BundleId = row.BundleId,
-            RunId = row.RunId,
-            ManifestId = row.ManifestId,
-            CreatedUtc = row.CreatedUtc,
-            Artifacts = JsonEntitySerializer.Deserialize<List<SynthesizedArtifact>>(row.ArtifactsJson),
-            Trace = JsonEntitySerializer.Deserialize<SynthesisTrace>(row.TraceJson)
-        };
+            return new ArtifactBundle
+            {
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ProjectId,
+                BundleId = row.BundleId,
+                RunId = row.RunId,
+                ManifestId = row.ManifestId,
+                CreatedUtc = row.CreatedUtc,
+                Artifacts = JsonEntitySerializer.Deserialize<List<SynthesizedArtifact>>(row.ArtifactsJson),
+                Trace = JsonEntitySerializer.Deserialize<SynthesisTrace>(row.TraceJson)
+            };
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to deserialize ArtifactBundle '{row.BundleId}' for manifest '{row.ManifestId}'. " +
+                "The stored JSON may be corrupt or from an incompatible schema version.", ex);
+        }
     }
 
     private sealed class ArtifactBundleRow

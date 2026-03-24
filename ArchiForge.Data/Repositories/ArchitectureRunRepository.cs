@@ -77,7 +77,8 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             SELECT TaskId
             FROM AgentTasks
             WHERE RunId = @RunId
-            ORDER BY CreatedUtc;
+            ORDER BY CreatedUtc
+            LIMIT 500;
             """;
 
         using var connection = connectionFactory.CreateConnection();

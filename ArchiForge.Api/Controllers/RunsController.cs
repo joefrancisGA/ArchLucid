@@ -244,9 +244,12 @@ public sealed partial class RunsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SubmitAgentResult(
         [FromRoute] string runId,
-        [FromBody] SubmitAgentResultRequest request,
+        [FromBody] SubmitAgentResultRequest? request,
         CancellationToken cancellationToken)
     {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+
         var result = await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
 
         return result.Success ? Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! }) : MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");

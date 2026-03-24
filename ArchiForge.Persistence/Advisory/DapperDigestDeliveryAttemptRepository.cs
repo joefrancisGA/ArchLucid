@@ -54,7 +54,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
         CancellationToken ct)
     {
         const string sql = """
-            SELECT
+            SELECT TOP 200
                 AttemptId, DigestId, SubscriptionId,
                 TenantId, WorkspaceId, ProjectId,
                 AttemptedUtc, Status, ErrorMessage,
@@ -80,6 +80,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
         int take,
         CancellationToken ct)
     {
+        take = Math.Clamp(take, 1, 200);
         const string sql = """
             SELECT TOP (@Take)
                 AttemptId, DigestId, SubscriptionId,

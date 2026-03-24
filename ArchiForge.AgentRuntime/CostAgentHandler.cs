@@ -16,6 +16,9 @@ public sealed class CostAgentHandler : IAgentHandler
         AgentTask task,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(evidence);
+        ArgumentNullException.ThrowIfNull(task);
         var result = FakeScenarioFactory.CreateCostResult(
             runId,
             task.TaskId,

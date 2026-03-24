@@ -8,20 +8,25 @@ namespace ArchiForge.Persistence.Alerts;
 /// <remarks>Semantics mirror <see cref="DapperAlertRecordRepository"/> for open dedup (Open + Acknowledged only).</remarks>
 public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
 {
+    private const int MaxEntries = 500;
     private readonly List<AlertRecord> _items = [];
     private readonly object _gate = new();
 
     public Task CreateAsync(AlertRecord alert, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
             _items.Add(alert);
+            if (_items.Count > MaxEntries)
+                _items.RemoveRange(0, _items.Count - MaxEntries);
+        }
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(AlertRecord alert, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var i = _items.FindIndex(x => x.AlertId == alert.AlertId);
@@ -34,7 +39,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
 
     public Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
             return Task.FromResult(_items.FirstOrDefault(x => x.AlertId == alertId));
     }
@@ -46,7 +51,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         string deduplicationKey,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var match = _items
@@ -71,7 +76,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
         int take,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var q = _items.Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId);

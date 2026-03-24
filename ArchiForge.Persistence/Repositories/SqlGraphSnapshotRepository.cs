@@ -71,16 +71,25 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         if (row is null)
             return null;
 
-        return new GraphSnapshot
+        try
         {
-            GraphSnapshotId = row.GraphSnapshotId,
-            ContextSnapshotId = row.ContextSnapshotId,
-            RunId = row.RunId,
-            CreatedUtc = row.CreatedUtc,
-            Nodes = JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson),
-            Edges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson),
-            Warnings = JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson)
-        };
+            return new GraphSnapshot
+            {
+                GraphSnapshotId = row.GraphSnapshotId,
+                ContextSnapshotId = row.ContextSnapshotId,
+                RunId = row.RunId,
+                CreatedUtc = row.CreatedUtc,
+                Nodes = JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson),
+                Edges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson),
+                Warnings = JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson)
+            };
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException(
+                $"Failed to deserialize GraphSnapshot '{row.GraphSnapshotId}'. " +
+                "The stored JSON may be corrupt or from an incompatible schema version.", ex);
+        }
     }
 
     private sealed class GraphSnapshotRow

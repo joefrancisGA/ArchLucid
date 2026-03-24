@@ -75,7 +75,7 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
     public async Task<IReadOnlyList<PolicyPackVersion>> ListByPackAsync(Guid policyPackId, CancellationToken ct)
     {
         const string sql = """
-            SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
+            SELECT TOP 200 PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
             FROM dbo.PolicyPackVersions
             WHERE PolicyPackId = @PolicyPackId
             ORDER BY CreatedUtc DESC;

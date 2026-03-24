@@ -38,6 +38,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         string userPrompt,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
+        ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
         var messages = new List<ChatMessage>
         {
             new SystemChatMessage(systemPrompt),

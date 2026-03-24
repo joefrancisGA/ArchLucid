@@ -30,9 +30,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             RecommendedActions = ReadStringList(root, "recommendedActions"),
             Properties = ReadStringDict(root, "properties"),
             PayloadType = root.TryGetProperty("payloadType", out var pt) ? pt.GetString() : null,
-            Trace = root.TryGetProperty("trace", out var tr)
-                ? JsonSerializer.Deserialize<ExplainabilityTrace>(tr.GetRawText(), options) ?? new ExplainabilityTrace()
-                : new ExplainabilityTrace()
+            Trace = ReadTrace(root, options)
         };
 
         if (!root.TryGetProperty("payload", out var payloadEl) || payloadEl.ValueKind == JsonValueKind.Null)
@@ -40,7 +38,17 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
 
         var typeName = finding.PayloadType;
         var payloadType = FindingPayloadRegistry.ResolvePayloadType(typeName);
-        finding.Payload = payloadType is not null ? JsonSerializer.Deserialize(payloadEl.GetRawText(), payloadType, options) : payloadEl.Clone();
+        try
+        {
+            finding.Payload = payloadType is not null
+                ? JsonSerializer.Deserialize(payloadEl.GetRawText(), payloadType, options)
+                : payloadEl.Clone();
+        }
+        catch (JsonException ex)
+        {
+            throw new JsonException(
+                $"Failed to deserialize payload of type '{typeName}' for finding '{finding.FindingId}'.", ex);
+        }
 
         return finding;
     }
@@ -74,6 +82,20 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         writer.WritePropertyName("trace");
         JsonSerializer.Serialize(writer, value.Trace, options);
         writer.WriteEndObject();
+    }
+
+    private static ExplainabilityTrace ReadTrace(JsonElement root, JsonSerializerOptions options)
+    {
+        if (!root.TryGetProperty("trace", out var tr))
+            return new ExplainabilityTrace();
+        try
+        {
+            return JsonSerializer.Deserialize<ExplainabilityTrace>(tr.GetRawText(), options) ?? new ExplainabilityTrace();
+        }
+        catch (JsonException)
+        {
+            return new ExplainabilityTrace();
+        }
     }
 
     private static List<string> ReadStringList(JsonElement root, string name)

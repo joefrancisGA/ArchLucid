@@ -16,6 +16,8 @@ public sealed class ComparisonService : IComparisonService
     /// <inheritdoc />
     public ComparisonResult Compare(GoldenManifest baseM, GoldenManifest targetM)
     {
+        ArgumentNullException.ThrowIfNull(baseM);
+        ArgumentNullException.ThrowIfNull(targetM);
         var result = new ComparisonResult
         {
             BaseRunId = baseM.RunId,

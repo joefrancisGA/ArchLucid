@@ -7,6 +7,7 @@ namespace ArchiForge.KnowledgeGraph.Repositories;
 
 public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
 {
+    private const int MaxEntries = 500;
     private readonly Dictionary<Guid, GraphSnapshot> _store = [];
     private readonly Lock _lock = new();
 
@@ -16,12 +17,17 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
         lock (_lock)
         {
             _store[snapshot.GraphSnapshotId] = snapshot;
+            if (_store.Count > MaxEntries)
+            {
+                var oldest = _store.Keys.First();
+                _store.Remove(oldest);
+            }
         }
 
         return Task.CompletedTask;
@@ -29,7 +35,7 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
 
     public Task<GraphSnapshot?> GetByIdAsync(Guid graphSnapshotId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_lock)
         {
             _store.TryGetValue(graphSnapshotId, out var result);

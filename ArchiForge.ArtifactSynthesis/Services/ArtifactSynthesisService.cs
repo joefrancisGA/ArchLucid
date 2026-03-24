@@ -13,6 +13,7 @@ public class ArtifactSynthesisService(
         GoldenManifest manifest,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(manifest);
         var bundle = new ArtifactBundle
         {
             TenantId = manifest.TenantId,

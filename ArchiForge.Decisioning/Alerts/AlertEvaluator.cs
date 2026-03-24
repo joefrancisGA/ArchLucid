@@ -18,6 +18,8 @@ public sealed class AlertEvaluator : IAlertEvaluator
         IReadOnlyList<AlertRule> rules,
         AlertEvaluationContext context)
     {
+        ArgumentNullException.ThrowIfNull(rules);
+        ArgumentNullException.ThrowIfNull(context);
         var alerts = new List<AlertRecord>();
 
         foreach (var rule in rules.Where(x => x.IsEnabled))
