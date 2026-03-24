@@ -4,8 +4,14 @@ using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Diagrams;
 
+/// <summary>
+/// Generates a Mermaid flowchart from a <see cref="GoldenManifest"/> with configurable layout,
+/// relationship labels, and optional subgraph grouping via <see cref="ManifestDiagramOptions"/>.
+/// Produces collision-safe, sanitized node IDs for all services and datastores.
+/// </summary>
 public sealed class ManifestDiagramService : IManifestDiagramService
 {
+    /// <inheritdoc />
     public string GenerateMermaid(GoldenManifest manifest, ManifestDiagramOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(manifest);
@@ -29,7 +35,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         // Optional grouping (subgraphs) for services only.
         if (services.Count > 0)
         {
-            if (groupBy == "none")
+            if (groupBy == ManifestDiagramConstants.GroupByNone)
             {
                 foreach (var service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
                 {
@@ -41,7 +47,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             else
             {
                 var groups = services
-                    .GroupBy(s => groupBy == "runtimeplatform"
+                    .GroupBy(s => groupBy == ManifestDiagramConstants.GroupByRuntimePlatform
                         ? (s.RuntimePlatform.ToString())
                         : (s.ServiceType.ToString()), StringComparer.OrdinalIgnoreCase)
                     .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
@@ -81,7 +87,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target))
                 continue;
 
-            if (relationshipLabels == "none")
+            if (relationshipLabels == ManifestDiagramConstants.RelationshipLabelsNone)
             {
                 sb.AppendLine($"    {source} --> {target}");
                 continue;
@@ -178,50 +184,38 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         return guidCandidate;
     }
 
-    private static string SanitizeId(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return "node_unknown";
-
-        var chars = value.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray();
-        var cleaned = new string(chars);
-        if (string.IsNullOrWhiteSpace(cleaned))
-            cleaned = "node_unknown";
-        if (char.IsDigit(cleaned[0]))
-            cleaned = $"n_{cleaned}";
-        return cleaned;
-    }
+    private static string SanitizeId(string value) => DiagramIdSanitizer.Sanitize(value);
 
     private static string EscapeLabel(string value) => (value).Replace("\"", "\\\"");
 
     private static string NormalizeLayout(string? value)
     {
-        var v = (value ?? "LR").Trim().ToUpperInvariant();
+        var v = (value ?? ManifestDiagramConstants.LayoutLr).Trim().ToUpperInvariant();
         return v switch
         {
-            "TB" => "TB",
-            _ => "LR"
+            "TB" => ManifestDiagramConstants.LayoutTb,
+            _ => ManifestDiagramConstants.LayoutLr
         };
     }
 
     private static string NormalizeRelationshipLabels(string? value)
     {
-        var v = (value ?? "type").Trim().ToLowerInvariant();
+        var v = (value ?? ManifestDiagramConstants.RelationshipLabelsType).Trim().ToLowerInvariant();
         return v switch
         {
-            "none" => "none",
-            _ => "type"
+            "none" => ManifestDiagramConstants.RelationshipLabelsNone,
+            _ => ManifestDiagramConstants.RelationshipLabelsType
         };
     }
 
     private static string NormalizeGroupBy(string? value)
     {
-        var v = (value ?? "none").Trim().ToLowerInvariant();
+        var v = (value ?? ManifestDiagramConstants.GroupByNone).Trim().ToLowerInvariant();
         return v switch
         {
-            "runtimeplatform" => "runtimeplatform",
-            "servicetype" => "servicetype",
-            _ => "none"
+            "runtimeplatform" => ManifestDiagramConstants.GroupByRuntimePlatform,
+            "servicetype" => ManifestDiagramConstants.GroupByServiceType,
+            _ => ManifestDiagramConstants.GroupByNone
         };
     }
 }

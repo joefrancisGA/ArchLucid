@@ -14,6 +14,11 @@ using WpDocument = DocumentFormat.OpenXml.Wordprocessing.Document;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Generates exportable artifacts (Markdown, HTML, DOCX, PDF) from an
+/// <see cref="EndToEndReplayComparisonReport"/>. Output verbosity is controlled by the
+/// <see cref="EndToEndComparisonExportProfile"/> constants (<c>detailed</c>, <c>executive</c>, <c>short</c>).
+/// </summary>
 public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayComparisonSummaryFormatter summaryFormatter)
     : IEndToEndReplayComparisonExportService
 {
@@ -22,6 +27,10 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         QuestPDF.Settings.License = LicenseType.Community;
     }
 
+    /// <summary>
+    /// Renders <paramref name="report"/> as a Markdown document under the given export <paramref name="profile"/>.
+    /// Defaults to <see cref="EndToEndComparisonExportProfile.Default"/> when <paramref name="profile"/> is <c>null</c>.
+    /// </summary>
     public string GenerateMarkdown(EndToEndReplayComparisonReport report, string? profile = null)
     {
         ArgumentNullException.ThrowIfNull(report);
@@ -58,6 +67,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Renders <paramref name="report"/> as a self-contained HTML document under the given export <paramref name="profile"/>.
+    /// </summary>
     public string GenerateHtml(EndToEndReplayComparisonReport report, string? profile = null)
     {
         ArgumentNullException.ThrowIfNull(report);
@@ -105,6 +117,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Renders <paramref name="report"/> as a DOCX byte array using OpenXml under the given export <paramref name="profile"/>.
+    /// </summary>
     public Task<byte[]> GenerateDocxAsync(
         EndToEndReplayComparisonReport report,
         CancellationToken cancellationToken = default,
@@ -218,6 +233,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         return Task.FromResult(stream.ToArray());
     }
 
+    /// <summary>
+    /// Renders <paramref name="report"/> as a PDF byte array using QuestPDF under the given export <paramref name="profile"/>.
+    /// </summary>
     public Task<byte[]> GeneratePdfAsync(
         EndToEndReplayComparisonReport report,
         CancellationToken cancellationToken = default,

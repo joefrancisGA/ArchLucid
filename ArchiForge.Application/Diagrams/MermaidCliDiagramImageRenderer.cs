@@ -5,9 +5,18 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Application.Diagrams;
 
+/// <summary>
+/// Renders a Mermaid diagram to a PNG image by invoking the <c>mmdc</c> Mermaid CLI tool.
+/// Writes the diagram to a temporary file, runs <c>mmdc</c>, reads the output PNG, and cleans up.
+/// Register <see cref="NullDiagramImageRenderer"/> in environments where <c>mmdc</c> is not installed.
+/// </summary>
 public sealed class MermaidCliDiagramImageRenderer(
     ILogger<MermaidCliDiagramImageRenderer> logger) : IDiagramImageRenderer
 {
+    /// <summary>Maximum time to wait for the <c>mmdc</c> process before cancelling and throwing.</summary>
+    private static readonly TimeSpan ProcessTimeout = TimeSpan.FromSeconds(30);
+
+    /// <inheritdoc />
     public async Task<byte[]?> RenderMermaidPngAsync(
         string mermaidDiagram,
         CancellationToken cancellationToken = default)
@@ -37,14 +46,17 @@ public sealed class MermaidCliDiagramImageRenderer(
                 CreateNoWindow = true
             };
 
+            using var timeoutCts = new CancellationTokenSource(ProcessTimeout);
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
             using var process = new Process();
             process.StartInfo = psi;
             process.Start();
 
-            await process.StandardOutput.ReadToEndAsync(cancellationToken);
-            var stdErr = await process.StandardError.ReadToEndAsync(cancellationToken);
+            await process.StandardOutput.ReadToEndAsync(linkedCts.Token);
+            var stdErr = await process.StandardError.ReadToEndAsync(linkedCts.Token);
 
-            await process.WaitForExitAsync(cancellationToken);
+            await process.WaitForExitAsync(linkedCts.Token);
 
             if (process.ExitCode != 0)
             {

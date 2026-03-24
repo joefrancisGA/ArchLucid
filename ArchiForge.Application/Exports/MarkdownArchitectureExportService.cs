@@ -5,8 +5,13 @@ using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Exports;
 
+/// <summary>
+/// Produces a Markdown export document containing the architecture diagram (as a Mermaid code fence),
+/// the Markdown summary, and an optional compact evidence snapshot.
+/// </summary>
 public sealed class MarkdownArchitectureExportService : IArchitectureExportService
 {
+    /// <inheritdoc />
     public string GenerateMarkdownPackage(
         GoldenManifest manifest,
         string mermaidDiagram,

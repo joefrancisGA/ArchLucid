@@ -21,8 +21,8 @@ public sealed class ManifestDiffService : IManifestDiffService
 
         var result = new ManifestDiffResult
         {
-            LeftManifestVersion = left.Metadata?.ManifestVersion,
-            RightManifestVersion = right.Metadata?.ManifestVersion,
+            LeftManifestVersion = left.Metadata?.ManifestVersion ?? string.Empty,
+            RightManifestVersion = right.Metadata?.ManifestVersion ?? string.Empty,
             AddedServices = GetAddedServiceNames(left, right),
             RemovedServices = GetRemovedServiceNames(left, right),
             AddedDatastores = GetAddedDatastoreNames(left, right),

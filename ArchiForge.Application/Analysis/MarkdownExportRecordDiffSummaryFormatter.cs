@@ -2,8 +2,13 @@ using System.Text;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Formats an <see cref="ExportRecordDiffResult"/> as Markdown, reporting changed top-level
+/// export fields, changed request flags, changed request values, and any warnings.
+/// </summary>
 public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiffSummaryFormatter
 {
+    /// <inheritdoc />
     public string FormatMarkdown(ExportRecordDiffResult diff)
     {
         ArgumentNullException.ThrowIfNull(diff);

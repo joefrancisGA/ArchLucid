@@ -5,8 +5,14 @@ using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Diagrams;
 
+/// <summary>
+/// Fixed-layout Mermaid diagram generator that uses opinionated defaults (LR flowchart, runtime-platform
+/// node labels, relationship-type edge labels). For configurable rendering use
+/// <see cref="ManifestDiagramService"/> with <see cref="ManifestDiagramOptions"/> instead.
+/// </summary>
 public sealed class MermaidDiagramGenerator : IDiagramGenerator
 {
+    /// <inheritdoc />
     public string GenerateMermaid(GoldenManifest manifest)
     {
         ArgumentNullException.ThrowIfNull(manifest);
@@ -37,42 +43,26 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
         return sb.ToString();
     }
 
+    /// <summary>Returns a two-line label: service name + runtime platform.</summary>
     private static string BuildServiceLabel(ManifestService service)
     {
         return $"{service.ServiceName}\\n{service.RuntimePlatform}";
     }
 
+    /// <summary>Returns a multi-line label: datastore name + runtime platform + optional private-endpoint flag.</summary>
     private static string BuildDatastoreLabel(ManifestDatastore datastore)
     {
         var suffix = datastore.PrivateEndpointRequired ? "\\nPrivate Endpoint" : string.Empty;
         return $"{datastore.DatastoreName}\\n{datastore.RuntimePlatform}{suffix}";
     }
 
+    /// <summary>Returns the terse edge label via <see cref="ManifestPresentation.RelationshipLabel"/>.</summary>
     private static string BuildRelationshipLabel(ManifestRelationship relationship)
     {
         return ManifestPresentation.RelationshipLabel(relationship.RelationshipType);
     }
 
-    private static string SanitizeId(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return $"node_{Guid.NewGuid():N}";
-        }
-
-        var chars = value
-            .Select(c => char.IsLetterOrDigit(c) ? c : '_')
-            .ToArray();
-
-        var result = new string(chars);
-
-        if (result.Length > 0 && char.IsDigit(result[0]))
-        {
-            result = $"n_{result}";
-        }
-
-        return result;
-    }
+    private static string SanitizeId(string value) => DiagramIdSanitizer.Sanitize(value);
 
     private static string EscapeLabel(string value)
     {
