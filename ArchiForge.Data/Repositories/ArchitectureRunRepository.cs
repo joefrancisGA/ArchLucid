@@ -10,6 +10,8 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
 {
     public async Task CreateAsync(ArchitectureRun run, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(run);
+
         const string sql = """
             INSERT INTO ArchitectureRuns
             (

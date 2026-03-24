@@ -9,6 +9,8 @@ namespace ArchiForge.Persistence.Repositories;
 
 public sealed class InMemoryRunRepository : IRunRepository
 {
+    private const int MaxEntries = 2_000;
+
     private readonly ConcurrentDictionary<Guid, RunRecord> _store = new();
 
     public Task SaveAsync(
@@ -17,9 +19,18 @@ public sealed class InMemoryRunRepository : IRunRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(run);
         ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
+
+        if (_store.Count >= MaxEntries && !_store.ContainsKey(run.RunId))
+        {
+            var oldest = _store.Values.OrderBy(r => r.CreatedUtc).FirstOrDefault();
+            if (oldest is not null)
+                _store.TryRemove(oldest.RunId, out _);
+        }
+
         _store[run.RunId] = run;
         return Task.CompletedTask;
     }
@@ -35,7 +46,7 @@ public sealed class InMemoryRunRepository : IRunRepository
     public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        var n = take <= 0 ? 20 : take;
+        var n = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
         var list = _store.Values
             .Where(r =>
                 MatchesScope(r, scope) &&
@@ -57,6 +68,7 @@ public sealed class InMemoryRunRepository : IRunRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(run);
         ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;

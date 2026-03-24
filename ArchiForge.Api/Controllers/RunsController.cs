@@ -76,6 +76,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
+            _logger.LogWarning(ex, "CreateRun failed for request '{RequestId}'.", request.RequestId);
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }
@@ -105,6 +106,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
+            _logger.LogWarning(ex, "ExecuteRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.DeterminismFailed);
         }
     }
@@ -149,6 +151,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
+            _logger.LogWarning(ex, "ReplayRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -178,6 +181,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
+            _logger.LogWarning(ex, "DeterminismCheck failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -215,6 +219,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
+            _logger.LogWarning(ex, "CommitRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }

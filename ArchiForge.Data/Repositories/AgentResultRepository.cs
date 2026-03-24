@@ -12,6 +12,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 {
     public async Task CreateAsync(AgentResult result, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(result);
+
         // Delete-then-insert by (RunId, TaskId) so that a duplicate submission from a
         // retrying agent replaces the previous row rather than violating a unique constraint.
         const string deleteSql = "DELETE FROM AgentResults WHERE RunId = @RunId AND TaskId = @TaskId;";

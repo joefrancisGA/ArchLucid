@@ -12,6 +12,8 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
 {
     public async Task CreateManyAsync(IEnumerable<DecisionTrace> traces, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(traces);
+
         const string sql = """
             INSERT INTO DecisionTraces
             (

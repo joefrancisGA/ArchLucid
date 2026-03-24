@@ -10,6 +10,8 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
 {
     public async Task CreateManyAsync(IEnumerable<AgentTask> tasks, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(tasks);
+
         const string sql = """
             INSERT INTO AgentTasks
             (

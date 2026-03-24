@@ -19,6 +19,7 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(trace);
         ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
@@ -33,6 +34,7 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 
     public Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
         lock (_lock)
         {
             var result = _store.FirstOrDefault(x =>

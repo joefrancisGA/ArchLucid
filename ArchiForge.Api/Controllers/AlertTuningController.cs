@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Alerts.Tuning;
@@ -33,12 +34,13 @@ public sealed class AlertTuningController(
     /// <summary>Invokes <see cref="IThresholdRecommendationService.RecommendAsync"/> and audits candidate/recommended threshold metadata.</summary>
     [HttpPost("recommend-threshold")]
     [ProducesResponseType(typeof(ThresholdRecommendationResult), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ThresholdRecommendationResult>> RecommendThreshold(
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RecommendThreshold(
         [FromBody] ThresholdRecommendationRequest? request,
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
         StampTuningScope(scope, request);

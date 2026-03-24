@@ -17,6 +17,8 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
         const string sql = """
             INSERT INTO dbo.GraphSnapshots
             (

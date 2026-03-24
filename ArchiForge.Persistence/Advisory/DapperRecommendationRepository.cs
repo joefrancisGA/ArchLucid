@@ -163,7 +163,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                     WorkspaceId = workspaceId,
                     ProjectId = projectId,
                     Status = status,
-                    Take = take
+                    Take = Math.Clamp(take <= 0 ? 50 : take, 1, 500)
                 },
                 cancellationToken: ct));
 

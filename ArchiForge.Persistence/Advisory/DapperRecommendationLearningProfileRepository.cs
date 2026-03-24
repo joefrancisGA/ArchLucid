@@ -19,6 +19,8 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
 
     public async Task SaveAsync(RecommendationLearningProfile profile, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(profile);
+
         const string sql = """
             INSERT INTO dbo.RecommendationLearningProfiles
             (

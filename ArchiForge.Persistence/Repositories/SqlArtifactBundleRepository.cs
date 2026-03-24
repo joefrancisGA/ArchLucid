@@ -18,6 +18,8 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(bundle);
+
         const string sql = """
             INSERT INTO dbo.ArtifactBundles
             (

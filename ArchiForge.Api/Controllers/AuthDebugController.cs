@@ -11,6 +11,7 @@ namespace ArchiForge.Api.Controllers;
 public sealed class AuthDebugController : ControllerBase
 {
     [HttpGet("me")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult Me()
     {
         return Ok(new

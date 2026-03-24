@@ -39,7 +39,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
         Guid runId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var result = _items
@@ -50,6 +50,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
                     x.RunId == runId)
                 .OrderByDescending(x => x.PriorityScore)
                 .ThenByDescending(x => x.CreatedUtc)
+                .Take(500)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<RecommendationRecord>>(result);
@@ -65,7 +66,8 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
         int take,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
+        var n = Math.Clamp(take <= 0 ? 50 : take, 1, 500);
         lock (_gate)
         {
             var result = _items
@@ -75,7 +77,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
                     x.ProjectId == projectId &&
                     (status == null || x.Status == status))
                 .OrderByDescending(x => x.LastUpdatedUtc)
-                .Take(take)
+                .Take(n)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<RecommendationRecord>>(result);
