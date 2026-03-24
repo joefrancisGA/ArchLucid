@@ -22,159 +22,18 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
-        var sb = new StringBuilder();
-
         var services = manifest.Services ?? [];
         var datastores = manifest.Datastores ?? [];
         var relationships = manifest.Relationships ?? [];
 
-        sb.AppendLine($"# Architecture Summary: {manifest.SystemName}");
-        sb.AppendLine();
+        var sb = new StringBuilder();
 
-        sb.AppendLine("## Overview");
-        sb.AppendLine();
-        sb.AppendLine(
-            $"{manifest.SystemName} is represented by a GoldenManifest containing " +
-            $"{services.Count} service(s), {datastores.Count} datastore(s), " +
-            $"and {relationships.Count} relationship(s).");
-        sb.AppendLine();
-
-        if (services.Count > 0)
-        {
-            sb.AppendLine("## Services");
-            sb.AppendLine();
-
-            foreach (var service in services.OrderBy(s => s.ServiceName))
-            {
-                sb.AppendLine($"- **{service.ServiceName}**");
-                sb.AppendLine($"  - Type: {service.ServiceType}");
-                sb.AppendLine($"  - Platform: {service.RuntimePlatform}");
-
-                if (!string.IsNullOrWhiteSpace(service.Purpose))
-                {
-                    sb.AppendLine($"  - Purpose: {service.Purpose}");
-                }
-
-                var requiredControls = service.RequiredControls ?? [];
-                if (requiredControls.Count > 0)
-                {
-                    sb.AppendLine($"  - Required Controls: {string.Join(", ", requiredControls)}");
-                }
-
-                var tags = service.Tags ?? [];
-                if (tags.Count > 0)
-                {
-                    sb.AppendLine($"  - Tags: {string.Join(", ", tags)}");
-                }
-            }
-
-            sb.AppendLine();
-        }
-
-        if (datastores.Count > 0)
-        {
-            sb.AppendLine("## Datastores");
-            sb.AppendLine();
-
-            foreach (var datastore in datastores.OrderBy(d => d.DatastoreName))
-            {
-                sb.AppendLine($"- **{datastore.DatastoreName}**");
-                sb.AppendLine($"  - Type: {datastore.DatastoreType}");
-                sb.AppendLine($"  - Platform: {datastore.RuntimePlatform}");
-
-                if (!string.IsNullOrWhiteSpace(datastore.Purpose))
-                {
-                    sb.AppendLine($"  - Purpose: {datastore.Purpose}");
-                }
-
-                sb.AppendLine($"  - Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-                sb.AppendLine($"  - Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
-            }
-
-            sb.AppendLine();
-        }
-
-        if (relationships.Count > 0)
-        {
-            sb.AppendLine("## Relationships");
-            sb.AppendLine();
-
-            foreach (var relationship in relationships
-                         .OrderBy(r => r.SourceId)
-                         .ThenBy(r => r.TargetId))
-            {
-                sb.AppendLine($"- **{relationship.SourceId}** {FormatRelationship(relationship)} **{relationship.TargetId}**");
-
-                if (!string.IsNullOrWhiteSpace(relationship.Description))
-                {
-                    sb.AppendLine($"  - {relationship.Description}");
-                }
-            }
-
-            sb.AppendLine();
-        }
-
-        sb.AppendLine("## Governance");
-        sb.AppendLine();
-
-        var requiredControlsList = manifest.Governance?.RequiredControls ?? [];
-        if (requiredControlsList.Count > 0)
-        {
-            sb.AppendLine($"- Required Controls: {string.Join(", ", requiredControlsList)}");
-        }
-        else
-        {
-            sb.AppendLine("- Required Controls: None recorded");
-        }
-
-        var complianceTags = manifest.Governance?.ComplianceTags ?? [];
-        if (complianceTags.Count > 0)
-        {
-            sb.AppendLine($"- Compliance Tags: {string.Join(", ", complianceTags)}");
-        }
-        else
-        {
-            sb.AppendLine("- Compliance Tags: None recorded");
-        }
-
-        var policyConstraints = manifest.Governance?.PolicyConstraints ?? [];
-        if (policyConstraints.Count > 0)
-        {
-            sb.AppendLine($"- Policy Constraints: {string.Join(", ", policyConstraints)}");
-        }
-        else
-        {
-            sb.AppendLine("- Policy Constraints: None recorded");
-        }
-
-        sb.AppendLine($"- Risk Classification: {manifest.Governance?.RiskClassification}");
-        sb.AppendLine($"- Cost Classification: {manifest.Governance?.CostClassification}");
-        sb.AppendLine();
-
-        sb.AppendLine("## Metadata");
-        sb.AppendLine();
-        sb.AppendLine($"- Manifest Version: {manifest.Metadata?.ManifestVersion}");
-
-        if (!string.IsNullOrWhiteSpace(manifest.Metadata?.ParentManifestVersion))
-        {
-            sb.AppendLine($"- Parent Manifest Version: {manifest.Metadata.ParentManifestVersion}");
-        }
-
-        if (!string.IsNullOrWhiteSpace(manifest.Metadata?.ChangeDescription))
-        {
-            sb.AppendLine($"- Change Description: {manifest.Metadata.ChangeDescription}");
-        }
-
-        if (manifest.Metadata is not null)
-        {
-            sb.AppendLine($"- Created UTC: {manifest.Metadata.CreatedUtc:O}");
-        }
-
-        var traceIds = manifest.Metadata?.DecisionTraceIds ?? [];
-        if (traceIds.Count > 0)
-        {
-            sb.AppendLine($"- Decision Trace Count: {traceIds.Count}");
-        }
+        AppendOverview(sb, manifest, services, datastores, relationships);
+        AppendServices(sb, services);
+        AppendDatastores(sb, datastores);
+        AppendRelationships(sb, relationships);
+        AppendGovernance(sb, manifest.Governance);
+        AppendMetadata(sb, manifest.Metadata);
 
         if (evidence is not null)
         {
@@ -188,14 +47,148 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         return sb.ToString();
     }
 
+    private static void AppendOverview(
+        StringBuilder sb,
+        GoldenManifest manifest,
+        IReadOnlyList<ManifestService> services,
+        IReadOnlyList<ManifestDatastore> datastores,
+        IReadOnlyList<ManifestRelationship> relationships)
+    {
+        sb.AppendLine($"# Architecture Summary: {manifest.SystemName}");
+        sb.AppendLine();
+        sb.AppendLine("## Overview");
+        sb.AppendLine();
+        sb.AppendLine(
+            $"{manifest.SystemName} is represented by a GoldenManifest containing " +
+            $"{services.Count} service(s), {datastores.Count} datastore(s), " +
+            $"and {relationships.Count} relationship(s).");
+        sb.AppendLine();
+    }
+
+    private static void AppendServices(StringBuilder sb, IReadOnlyList<ManifestService> services)
+    {
+        if (services.Count == 0)
+            return;
+
+        sb.AppendLine("## Services");
+        sb.AppendLine();
+
+        foreach (var service in services.OrderBy(s => s.ServiceName))
+        {
+            sb.AppendLine($"- **{service.ServiceName}**");
+            sb.AppendLine($"  - Type: {service.ServiceType}");
+            sb.AppendLine($"  - Platform: {service.RuntimePlatform}");
+
+            if (!string.IsNullOrWhiteSpace(service.Purpose))
+                sb.AppendLine($"  - Purpose: {service.Purpose}");
+
+            var controls = service.RequiredControls ?? [];
+            if (controls.Count > 0)
+                sb.AppendLine($"  - Required Controls: {string.Join(", ", controls)}");
+
+            var tags = service.Tags ?? [];
+            if (tags.Count > 0)
+                sb.AppendLine($"  - Tags: {string.Join(", ", tags)}");
+        }
+
+        sb.AppendLine();
+    }
+
+    private static void AppendDatastores(StringBuilder sb, IReadOnlyList<ManifestDatastore> datastores)
+    {
+        if (datastores.Count == 0)
+            return;
+
+        sb.AppendLine("## Datastores");
+        sb.AppendLine();
+
+        foreach (var datastore in datastores.OrderBy(d => d.DatastoreName))
+        {
+            sb.AppendLine($"- **{datastore.DatastoreName}**");
+            sb.AppendLine($"  - Type: {datastore.DatastoreType}");
+            sb.AppendLine($"  - Platform: {datastore.RuntimePlatform}");
+
+            if (!string.IsNullOrWhiteSpace(datastore.Purpose))
+                sb.AppendLine($"  - Purpose: {datastore.Purpose}");
+
+            sb.AppendLine($"  - Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
+            sb.AppendLine($"  - Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+        }
+
+        sb.AppendLine();
+    }
+
+    private static void AppendRelationships(StringBuilder sb, IReadOnlyList<ManifestRelationship> relationships)
+    {
+        if (relationships.Count == 0)
+            return;
+
+        sb.AppendLine("## Relationships");
+        sb.AppendLine();
+
+        foreach (var r in relationships.OrderBy(r => r.SourceId).ThenBy(r => r.TargetId))
+        {
+            sb.AppendLine($"- **{r.SourceId}** {FormatRelationshipType(r)} **{r.TargetId}**");
+
+            if (!string.IsNullOrWhiteSpace(r.Description))
+                sb.AppendLine($"  - {r.Description}");
+        }
+
+        sb.AppendLine();
+    }
+
+    private static void AppendGovernance(StringBuilder sb, ManifestGovernance? governance)
+    {
+        sb.AppendLine("## Governance");
+        sb.AppendLine();
+
+        var controls = governance?.RequiredControls ?? [];
+        sb.AppendLine(controls.Count > 0
+            ? $"- Required Controls: {string.Join(", ", controls)}"
+            : "- Required Controls: None recorded");
+
+        var tags = governance?.ComplianceTags ?? [];
+        sb.AppendLine(tags.Count > 0
+            ? $"- Compliance Tags: {string.Join(", ", tags)}"
+            : "- Compliance Tags: None recorded");
+
+        var constraints = governance?.PolicyConstraints ?? [];
+        sb.AppendLine(constraints.Count > 0
+            ? $"- Policy Constraints: {string.Join(", ", constraints)}"
+            : "- Policy Constraints: None recorded");
+
+        sb.AppendLine($"- Risk Classification: {governance?.RiskClassification}");
+        sb.AppendLine($"- Cost Classification: {governance?.CostClassification}");
+        sb.AppendLine();
+    }
+
+    private static void AppendMetadata(StringBuilder sb, ManifestMetadata? metadata)
+    {
+        sb.AppendLine("## Metadata");
+        sb.AppendLine();
+        sb.AppendLine($"- Manifest Version: {metadata?.ManifestVersion}");
+
+        if (!string.IsNullOrWhiteSpace(metadata?.ParentManifestVersion))
+            sb.AppendLine($"- Parent Manifest Version: {metadata.ParentManifestVersion}");
+
+        if (!string.IsNullOrWhiteSpace(metadata?.ChangeDescription))
+            sb.AppendLine($"- Change Description: {metadata.ChangeDescription}");
+
+        if (metadata is not null)
+            sb.AppendLine($"- Created UTC: {metadata.CreatedUtc:O}");
+
+        var traceIds = metadata?.DecisionTraceIds ?? [];
+        if (traceIds.Count > 0)
+            sb.AppendLine($"- Decision Trace Count: {traceIds.Count}");
+    }
+
     /// <summary>
     /// Returns a prose-style label for a relationship (e.g. "reads from", "writes to").
     /// Intentionally uses fuller prose labels rather than the terse diagram labels in
     /// <see cref="ArchiForge.Application.Manifests.ManifestPresentation.RelationshipLabel"/>.
     /// </summary>
-    private static string FormatRelationship(ManifestRelationship relationship)
-    {
-        return relationship.RelationshipType switch
+    private static string FormatRelationshipType(ManifestRelationship relationship) =>
+        relationship.RelationshipType switch
         {
             RelationshipType.Calls => "calls",
             RelationshipType.ReadsFrom => "reads from",
@@ -205,5 +198,4 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
             RelationshipType.AuthenticatesWith => "authenticates with",
             _ => relationship.RelationshipType.ToString()
         };
-    }
 }

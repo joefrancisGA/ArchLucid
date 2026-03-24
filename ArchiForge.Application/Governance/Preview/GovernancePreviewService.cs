@@ -16,6 +16,9 @@ public sealed class GovernancePreviewService(
     IGoldenManifestRepository manifestRepository)
     : IGovernancePreviewService
 {
+    private const string DiffOnlyNote =
+        "Only governance keys that differ are listed; unchanged keys are omitted.";
+
     public async Task<GovernancePreviewResult> PreviewActivationAsync(
         GovernancePreviewRequest request,
         CancellationToken cancellationToken = default)
@@ -39,8 +42,8 @@ public sealed class GovernancePreviewService(
             && string.Equals(runDetail.Run.CurrentManifestVersion, request.ManifestVersion, StringComparison.Ordinal)
                 ? runDetail.Manifest
                 : await manifestRepository.GetByVersionAsync(request.ManifestVersion, cancellationToken)
-                    ?? throw new InvalidOperationException(
-                        $"Golden manifest version '{request.ManifestVersion}' was not found.");
+                    ?? throw new RunNotFoundException(
+                        $"Golden manifest version '{request.ManifestVersion}' was not found for run '{request.RunId}'.");
 
         if (!string.Equals(candidateManifest.RunId, request.RunId, StringComparison.Ordinal))
         {
@@ -55,10 +58,7 @@ public sealed class GovernancePreviewService(
         if (active is not null)
             currentManifest = await manifestRepository.GetByVersionAsync(active.ManifestVersion, cancellationToken);
 
-        var notes = new List<string>
-        {
-            "Only governance keys that differ are listed; unchanged keys are omitted."
-        };
+        var notes = new List<string> { DiffOnlyNote };
 
         if (active is null)
         {
@@ -108,10 +108,7 @@ public sealed class GovernancePreviewService(
                 nameof(request));
         }
 
-        var notes = new List<string>
-        {
-            "Only governance keys that differ are listed; unchanged keys are omitted."
-        };
+        var notes = new List<string> { DiffOnlyNote };
 
         var sourceRows = await activationRepository.GetByEnvironmentAsync(source, cancellationToken);
         var targetRows = await activationRepository.GetByEnvironmentAsync(target, cancellationToken);

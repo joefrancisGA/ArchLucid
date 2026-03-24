@@ -51,7 +51,15 @@ public sealed class RecommendationLearningController(
         return Ok(profile);
     }
 
-    /// <summary>Recomputes the profile from recommendation history, persists it, and audits (execute authority).</summary>
+    /// <summary>Recomputes the recommendation learning profile from history, persists it, and records an audit event.</summary>
+    /// <remarks>
+    /// Scans recent recommendation acceptance/rejection rows for the current scope via
+    /// <c>RebuildProfileAsync</c> and overwrites the stored profile. An audit event of type
+    /// <c>RecommendationLearningProfileRebuilt</c> is written after a successful rebuild.
+    /// Requires <see cref="ArchiForgePolicies.ExecuteAuthority"/>.
+    /// </remarks>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The newly rebuilt <see cref="RecommendationLearningProfile"/>.</returns>
     [HttpPost("rebuild")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]

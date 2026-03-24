@@ -20,6 +20,12 @@ public sealed class ManifestSummaryService : IManifestSummaryService
         ArgumentNullException.ThrowIfNull(manifest);
         options ??= ManifestSummaryOptions.Default;
 
+        var governance = manifest.Governance ?? new ManifestGovernance();
+        var metadata = manifest.Metadata ?? new ManifestMetadata();
+        var services = manifest.Services ?? [];
+        var datastores = manifest.Datastores ?? [];
+        var relationships = manifest.Relationships ?? [];
+
         var sb = new StringBuilder();
 
         sb.AppendLine($"# Architecture Summary: {manifest.SystemName}");
@@ -28,18 +34,18 @@ public sealed class ManifestSummaryService : IManifestSummaryService
         sb.AppendLine("## Overview");
         sb.AppendLine();
         sb.AppendLine($"- **System Name:** {manifest.SystemName}");
-        sb.AppendLine($"- **Manifest Version:** {manifest.Metadata.ManifestVersion}");
-        sb.AppendLine($"- **Service Count:** {manifest.Services.Count}");
-        sb.AppendLine($"- **Datastore Count:** {manifest.Datastores.Count}");
-        sb.AppendLine($"- **Relationship Count:** {manifest.Relationships.Count}");
+        sb.AppendLine($"- **Manifest Version:** {metadata.ManifestVersion}");
+        sb.AppendLine($"- **Service Count:** {services.Count}");
+        sb.AppendLine($"- **Datastore Count:** {datastores.Count}");
+        sb.AppendLine($"- **Relationship Count:** {relationships.Count}");
         sb.AppendLine();
 
-        if (options.IncludeRequiredControls && manifest.Governance.RequiredControls.Count > 0)
+        if (options.IncludeRequiredControls && governance.RequiredControls.Count > 0)
         {
             sb.AppendLine("## Required Controls");
             sb.AppendLine();
 
-            foreach (var control in manifest.Governance.RequiredControls
+            foreach (var control in governance.RequiredControls
                          .OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
             {
                 sb.AppendLine($"- {control}");
@@ -48,12 +54,12 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine();
         }
 
-        if (manifest.Services.Count > 0)
+        if (services.Count > 0)
         {
             sb.AppendLine("## Services");
             sb.AppendLine();
 
-            foreach (var service in manifest.Services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
+            foreach (var service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
             {
                 sb.AppendLine($"### {service.ServiceName}");
                 sb.AppendLine();
@@ -79,12 +85,12 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             }
         }
 
-        if (manifest.Datastores.Count > 0)
+        if (datastores.Count > 0)
         {
             sb.AppendLine("## Datastores");
             sb.AppendLine();
 
-            foreach (var datastore in manifest.Datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
+            foreach (var datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
             {
                 sb.AppendLine($"### {datastore.DatastoreName}");
                 sb.AppendLine();
@@ -102,13 +108,13 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             }
         }
 
-        if (options.IncludeRelationships && manifest.Relationships.Count > 0)
+        if (options.IncludeRelationships && relationships.Count > 0)
         {
             sb.AppendLine("## Relationships");
             sb.AppendLine();
 
             var max = options.MaxRelationships ?? int.MaxValue;
-            foreach (var relationship in manifest.Relationships
+            foreach (var relationship in relationships
                          .Select(r => new
                          {
                              Relationship = r,
@@ -132,12 +138,12 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine();
         }
 
-        if (options.IncludeComplianceTags && manifest.Governance.ComplianceTags.Count > 0)
+        if (options.IncludeComplianceTags && governance.ComplianceTags.Count > 0)
         {
             sb.AppendLine("## Compliance Tags");
             sb.AppendLine();
 
-            foreach (var tag in manifest.Governance.ComplianceTags
+            foreach (var tag in governance.ComplianceTags
                          .OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
             {
                 sb.AppendLine($"- {tag}");

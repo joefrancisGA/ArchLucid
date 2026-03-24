@@ -16,6 +16,8 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
     {
         ArgumentNullException.ThrowIfNull(evidence);
 
+        var request = evidence.Request ?? new RequestEvidence();
+
         var sb = new StringBuilder();
 
         sb.AppendLine("## Evidence Context");
@@ -26,39 +28,39 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
         sb.AppendLine($"- System Name: {evidence.SystemName}");
         sb.AppendLine($"- Environment: {evidence.Environment}");
         sb.AppendLine($"- Cloud Provider: {evidence.CloudProvider}");
-        sb.AppendLine($"- Description: {evidence.Request.Description}");
+        sb.AppendLine($"- Description: {request.Description}");
 
-        if (evidence.Request.Constraints.Count > 0)
+        if (request.Constraints.Count > 0)
         {
             sb.AppendLine();
             sb.AppendLine("### Constraints");
             sb.AppendLine();
 
-            foreach (var constraint in evidence.Request.Constraints)
+            foreach (var constraint in request.Constraints)
             {
                 sb.AppendLine($"- {constraint}");
             }
         }
 
-        if (evidence.Request.RequiredCapabilities.Count > 0)
+        if (request.RequiredCapabilities.Count > 0)
         {
             sb.AppendLine();
             sb.AppendLine("### Required Capabilities");
             sb.AppendLine();
 
-            foreach (var capability in evidence.Request.RequiredCapabilities)
+            foreach (var capability in request.RequiredCapabilities)
             {
                 sb.AppendLine($"- {capability}");
             }
         }
 
-        if (evidence.Request.Assumptions.Count > 0)
+        if (request.Assumptions.Count > 0)
         {
             sb.AppendLine();
             sb.AppendLine("### Assumptions");
             sb.AppendLine();
 
-            foreach (var assumption in evidence.Request.Assumptions)
+            foreach (var assumption in request.Assumptions)
             {
                 sb.AppendLine($"- {assumption}");
             }

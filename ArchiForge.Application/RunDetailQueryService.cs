@@ -63,7 +63,8 @@ public sealed class RunDetailQueryService(
             Tasks = tasks.ToList(),
             Results = results.ToList(),
             Manifest = manifest,
-            DecisionTraces = decisionTraces
+            DecisionTraces = decisionTraces,
+            HasBrokenManifestReference = !string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && manifest is null
         };
     }
 

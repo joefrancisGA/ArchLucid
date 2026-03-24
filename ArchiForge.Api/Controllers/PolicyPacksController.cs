@@ -44,12 +44,13 @@ public sealed class PolicyPacksController(
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PolicyPack>> Create(
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Create(
         [FromBody] CreatePolicyPackRequest? request,
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
 
@@ -71,13 +72,14 @@ public sealed class PolicyPacksController(
     [HttpPost("{policyPackId:guid}/publish")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PolicyPackVersion>> Publish(
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Publish(
         Guid policyPackId,
         [FromBody] PublishPolicyPackVersionRequest? request,
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var version = await policyPacksApp.PublishVersionAsync(
             policyPackId,
@@ -103,7 +105,7 @@ public sealed class PolicyPacksController(
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
         var versionKey = request.Version.Trim();
@@ -146,12 +148,27 @@ public sealed class PolicyPacksController(
     }
 
     /// <summary>Lists all version rows for a pack (newest first by repository ordering).</summary>
+    /// <returns>Version list, or 404 when the pack does not exist in the current scope.</returns>
     [HttpGet("{policyPackId:guid}/versions")]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPackVersion>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<PolicyPackVersion>>> ListVersions(
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListVersions(
         Guid policyPackId,
         CancellationToken ct = default)
     {
+        var scope = scopeProvider.GetCurrentScope();
+        var pack = await packRepository.GetByIdAsync(policyPackId, ct);
+
+        if (pack is null ||
+            pack.TenantId != scope.TenantId ||
+            pack.WorkspaceId != scope.WorkspaceId ||
+            pack.ProjectId != scope.ProjectId)
+        {
+            return this.NotFoundProblem(
+                $"Policy pack '{policyPackId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+        }
+
         var versions = await versionRepository.ListByPackAsync(policyPackId, ct);
         return Ok(versions);
     }

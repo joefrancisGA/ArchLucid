@@ -31,4 +31,13 @@ public sealed class ArchitectureRunDetail
 
     /// <summary>Convenience accessor: <see langword="true"/> when the run has a committed manifest.</summary>
     public bool IsCommitted => Manifest is not null;
+
+    /// <summary>
+    /// <see langword="true"/> when the run's <c>CurrentManifestVersion</c> is set but the
+    /// corresponding <see cref="GoldenManifest"/> row could not be loaded from storage.
+    /// Indicates a broken storage reference (e.g. the manifest was deleted or there is
+    /// replication lag). Callers should treat this as a 409 Conflict / inconsistent state
+    /// rather than a normal "not yet committed" case.
+    /// </summary>
+    public bool HasBrokenManifestReference { get; set; }
 }

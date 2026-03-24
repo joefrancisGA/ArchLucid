@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Alerts;
 
@@ -63,19 +64,22 @@ public sealed class AlertsController(
     [HttpPost("{alertId:guid}/action")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRecord), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<AlertRecord>> ApplyAction(
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ApplyAction(
         Guid alertId,
         [FromBody] AlertActionRequest? request,
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
         var existing = await alertRepository.GetByIdAsync(alertId, ct);
         if (existing is null || !MatchesScope(existing, scope))
-            return NotFound();
+            return this.NotFoundProblem(
+                $"Alert '{alertId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         var userName = User.Identity?.Name ?? "unknown";
@@ -87,7 +91,12 @@ public sealed class AlertsController(
             request,
             ct);
 
-        return updated is null ? NotFound() : Ok(updated);
+        if (updated is null)
+            return this.NotFoundProblem(
+                $"Alert '{alertId}' could not be updated.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(updated);
     }
 
     private static bool MatchesScope(AlertRecord alert, ScopeContext scope) =>

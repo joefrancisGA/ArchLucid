@@ -5,8 +5,19 @@ using static ArchiForge.Contracts.Requests.RequestConstraintClassifier;
 
 namespace ArchiForge.Application.Evidence;
 
+/// <summary>
+/// Default implementation of <see cref="IEvidenceBuilder"/> that produces a deterministic,
+/// stub-catalog evidence package from an <see cref="ArchitectureRequest"/>.
+/// </summary>
+/// <remarks>
+/// This implementation is suitable for development, integration tests, and demo environments.
+/// It injects a fixed set of enterprise policies and service catalog entries rather than
+/// querying a live policy or catalog store. Replace or decorate it in production when dynamic
+/// catalog resolution is required.
+/// </remarks>
 public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 {
+    /// <inheritdoc />
     public Task<AgentEvidencePackage> BuildAsync(
         string runId,
         ArchitectureRequest request,
@@ -48,7 +59,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         {
             new()
             {
-                PolicyId = "policy-enterprise-default",
+                PolicyId = BuiltInPolicyIds.EnterpriseDefault,
                 Title = "Enterprise Default Security Baseline",
                 Summary = "Baseline governance expectations for internal enterprise workloads.",
                 RequiredControls = ["RBAC", "Diagnostic Logging"],
@@ -60,7 +71,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         {
             policies.Add(new PolicyEvidence
             {
-                PolicyId = "policy-managed-identity",
+                PolicyId = BuiltInPolicyIds.ManagedIdentity,
                 Title = "Managed Identity Required",
                 Summary = "Services should prefer managed identity over embedded secrets.",
                 RequiredControls = ["Managed Identity"],
@@ -72,7 +83,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         {
             policies.Add(new PolicyEvidence
             {
-                PolicyId = "policy-private-networking",
+                PolicyId = BuiltInPolicyIds.PrivateNetworking,
                 Title = "Private Networking Required",
                 Summary = "Data-bearing services should use private connectivity patterns.",
                 RequiredControls = ["Private Endpoints", "Private Networking"],
@@ -84,7 +95,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         {
             policies.Add(new PolicyEvidence
             {
-                PolicyId = "policy-encryption-at-rest",
+                PolicyId = BuiltInPolicyIds.EncryptionAtRest,
                 Title = "Encryption At Rest Required",
                 Summary = "Persistent storage must enforce encryption at rest.",
                 RequiredControls = ["Encryption At Rest"],
@@ -180,7 +191,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         {
             new()
             {
-                NoteType = "ExecutionMode",
+                NoteType = EvidenceNoteTypes.ExecutionMode,
                 Message = "Evidence package was built using the default deterministic builder."
             }
         };
@@ -189,7 +200,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         {
             notes.Add(new EvidenceNote
             {
-                NoteType = "PriorManifestUnavailable",
+                NoteType = EvidenceNoteTypes.PriorManifestUnavailable,
                 Message = $"A prior manifest version '{request.PriorManifestVersion}' was requested " +
                           "but prior manifest hydration is not yet implemented. Agents should treat this as a greenfield design."
             });
@@ -199,7 +210,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         {
             notes.Add(new EvidenceNote
             {
-                NoteType = "PatternHint",
+                NoteType = EvidenceNoteTypes.PatternHint,
                 Message = "Search-oriented architecture requested; enterprise RAG pattern is applicable."
             });
         }
