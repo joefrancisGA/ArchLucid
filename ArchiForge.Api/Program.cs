@@ -1,6 +1,7 @@
 using ArchiForge.Api.Auth.Services;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Startup;
+using ArchiForge.Application.Governance.Preview;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Data.Infrastructure;
@@ -36,6 +37,7 @@ public partial class Program
         builder.Services.AddArchiForgeRateLimiting(builder.Configuration);
         builder.Services.AddArchiForgeCors(builder.Configuration);
         builder.Services.AddArchiForgeApplicationServices(builder.Configuration);
+        builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
 
         var app = builder.Build();
 
