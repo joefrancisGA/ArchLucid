@@ -4,8 +4,14 @@ using ArchiForge.Contracts.Agents;
 
 namespace ArchiForge.Application.Evidence;
 
+/// <summary>
+/// Formats an <see cref="AgentEvidencePackage"/> as a Markdown document, producing sections for
+/// request context, constraints, capabilities, assumptions, policy evidence, service catalog hints,
+/// pattern hints, prior manifest context, and evidence notes.
+/// </summary>
 public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 {
+    /// <inheritdoc />
     public string FormatMarkdown(AgentEvidencePackage evidence)
     {
         ArgumentNullException.ThrowIfNull(evidence);

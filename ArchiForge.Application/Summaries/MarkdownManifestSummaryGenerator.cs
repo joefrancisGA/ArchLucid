@@ -7,9 +7,15 @@ using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Summaries;
 
+/// <summary>
+/// Generates a narrative Markdown summary of a <see cref="GoldenManifest"/>, optionally followed
+/// by an evidence context section when an <see cref="AgentEvidencePackage"/> is supplied.
+/// Intended for LLM-facing and export-facing surfaces.
+/// </summary>
 public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter evidenceFormatter)
     : IManifestSummaryGenerator
 {
+    /// <inheritdoc />
     public string GenerateMarkdown(
         GoldenManifest manifest,
         AgentEvidencePackage? evidence = null)
@@ -182,6 +188,11 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Returns a prose-style label for a relationship (e.g. "reads from", "writes to").
+    /// Intentionally uses fuller prose labels rather than the terse diagram labels in
+    /// <see cref="ArchiForge.Application.Manifests.ManifestPresentation.RelationshipLabel"/>.
+    /// </summary>
     private static string FormatRelationship(ManifestRelationship relationship)
     {
         return relationship.RelationshipType switch

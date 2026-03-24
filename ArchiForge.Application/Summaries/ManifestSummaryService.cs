@@ -5,8 +5,14 @@ using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Summaries;
 
+/// <summary>
+/// Options-driven Markdown summary of a <see cref="GoldenManifest"/>.
+/// Unlike <see cref="MarkdownManifestSummaryGenerator"/>, this service is evidence-agnostic
+/// and controlled by <see cref="ManifestSummaryOptions"/> for selective section inclusion.
+/// </summary>
 public sealed class ManifestSummaryService : IManifestSummaryService
 {
+    /// <inheritdoc />
     public string GenerateMarkdown(
         GoldenManifest manifest,
         ManifestSummaryOptions? options = null)

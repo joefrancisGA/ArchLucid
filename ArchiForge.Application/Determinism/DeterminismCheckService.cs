@@ -2,23 +2,27 @@ using ArchiForge.Application.Diffs;
 
 namespace ArchiForge.Application.Determinism;
 
+/// <summary>
+/// Checks the determinism of an architecture run by replaying it multiple times and comparing
+/// agent results and manifest output across iterations. Returns a <see cref="DeterminismCheckResult"/>
+/// indicating whether the run produces consistent output.
+/// </summary>
 public sealed class DeterminismCheckService(
     IReplayRunService replayRunService,
     IAgentResultDiffService agentResultDiffService,
     IManifestDiffService manifestDiffService)
     : IDeterminismCheckService
 {
+    /// <inheritdoc />
     public async Task<DeterminismCheckResult> RunAsync(
         DeterminismCheckRequest request,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-
-        if (string.IsNullOrWhiteSpace(request.RunId))
-            throw new InvalidOperationException("RunId is required.");
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
 
         if (request.Iterations < 2)
-            throw new InvalidOperationException("Iterations must be at least 2.");
+            throw new ArgumentOutOfRangeException(nameof(request), "Iterations must be at least 2.");
 
         var output = new DeterminismCheckResult
         {
@@ -51,19 +55,7 @@ public sealed class DeterminismCheckService(
                 replay.ReplayRunId,
                 replay.Results);
 
-            var hasAgentDrift = agentDiff.AgentDeltas.Any(d =>
-                d.AddedClaims.Count > 0 ||
-                d.RemovedClaims.Count > 0 ||
-                d.AddedEvidenceRefs.Count > 0 ||
-                d.RemovedEvidenceRefs.Count > 0 ||
-                d.AddedFindings.Count > 0 ||
-                d.RemovedFindings.Count > 0 ||
-                d.AddedRequiredControls.Count > 0 ||
-                d.RemovedRequiredControls.Count > 0 ||
-                d.AddedWarnings.Count > 0 ||
-                d.RemovedWarnings.Count > 0 ||
-                // ReSharper disable once CompareOfFloatsByEqualityOperator
-                d.LeftConfidence != d.RightConfidence);
+            var hasAgentDrift = HasAgentDrift(agentDiff);
 
             var iteration = new DeterminismIterationResult
             {
@@ -80,17 +72,7 @@ public sealed class DeterminismCheckService(
             if (baseline.Manifest is not null && replay.Manifest is not null)
             {
                 var manifestDiff = manifestDiffService.Compare(baseline.Manifest, replay.Manifest);
-
-                var hasManifestDrift =
-                    manifestDiff.AddedServices.Count > 0 ||
-                    manifestDiff.RemovedServices.Count > 0 ||
-                    manifestDiff.AddedDatastores.Count > 0 ||
-                    manifestDiff.RemovedDatastores.Count > 0 ||
-                    manifestDiff.AddedRequiredControls.Count > 0 ||
-                    manifestDiff.RemovedRequiredControls.Count > 0 ||
-                    manifestDiff.AddedRelationships.Count > 0 ||
-                    manifestDiff.RemovedRelationships.Count > 0;
-
+                var hasManifestDrift = HasManifestDrift(manifestDiff);
                 iteration.MatchesBaselineManifest = !hasManifestDrift;
 
                 if (hasManifestDrift)
@@ -124,4 +106,37 @@ public sealed class DeterminismCheckService(
 
         return output;
     }
+
+    /// <summary>
+    /// Returns <c>true</c> when any agent delta in <paramref name="diff"/> contains at least one
+    /// added or removed claim, evidence ref, finding, required control, warning, or a confidence change.
+    /// </summary>
+    private static bool HasAgentDrift(AgentResultDiffResult diff) =>
+        diff.AgentDeltas.Any(d =>
+            d.AddedClaims.Count > 0 ||
+            d.RemovedClaims.Count > 0 ||
+            d.AddedEvidenceRefs.Count > 0 ||
+            d.RemovedEvidenceRefs.Count > 0 ||
+            d.AddedFindings.Count > 0 ||
+            d.RemovedFindings.Count > 0 ||
+            d.AddedRequiredControls.Count > 0 ||
+            d.RemovedRequiredControls.Count > 0 ||
+            d.AddedWarnings.Count > 0 ||
+            d.RemovedWarnings.Count > 0 ||
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            d.LeftConfidence != d.RightConfidence);
+
+    /// <summary>
+    /// Returns <c>true</c> when <paramref name="diff"/> reports any added or removed services,
+    /// datastores, required controls, or relationships.
+    /// </summary>
+    private static bool HasManifestDrift(ManifestDiffResult diff) =>
+        diff.AddedServices.Count > 0 ||
+        diff.RemovedServices.Count > 0 ||
+        diff.AddedDatastores.Count > 0 ||
+        diff.RemovedDatastores.Count > 0 ||
+        diff.AddedRequiredControls.Count > 0 ||
+        diff.RemovedRequiredControls.Count > 0 ||
+        diff.AddedRelationships.Count > 0 ||
+        diff.RemovedRelationships.Count > 0;
 }

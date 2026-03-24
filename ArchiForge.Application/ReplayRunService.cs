@@ -10,6 +10,12 @@ using ArchiForge.DecisionEngine.Services;
 
 namespace ArchiForge.Application;
 
+/// <summary>
+/// Replays an existing architecture run by cloning its tasks and evidence, re-executing agents,
+/// and optionally committing the result as a new manifest version.
+/// Used by <see cref="ArchiForge.Application.Determinism.DeterminismCheckService"/> for multi-iteration
+/// determinism checks and by comparison services for regenerating stored payloads.
+/// </summary>
 public sealed class ReplayRunService(
     IAgentExecutorResolver agentExecutorResolver,
     IDecisionEngineService decisionEngineService,
@@ -21,6 +27,14 @@ public sealed class ReplayRunService(
     IAgentEvidencePackageRepository agentEvidencePackageRepository)
     : IReplayRunService
 {
+    /// <summary>
+    /// Creates a new run record seeded from <paramref name="originalRunId"/>, re-executes agents,
+    /// and (when <paramref name="commitReplay"/> is <c>true</c>) commits a new manifest.
+    /// </summary>
+    /// <exception cref="RunNotFoundException">Thrown when <paramref name="originalRunId"/> does not exist.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the original run has no tasks, no evidence package, or merge fails.
+    /// </exception>
     public async Task<ReplayRunResult> ReplayAsync(
         string originalRunId,
         string executionMode = "Current",
@@ -144,6 +158,11 @@ public sealed class ReplayRunService(
         };
     }
 
+    /// <summary>
+    /// Creates a deep copy of <paramref name="original"/> bound to <paramref name="replayRunId"/>.
+    /// A clone is required so the replay run's evidence is isolated from the original run's mutable
+    /// collections — shared references would corrupt both runs if either were mutated.
+    /// </summary>
     private static AgentEvidencePackage CloneEvidenceForReplay(
         AgentEvidencePackage original,
         string replayRunId)
@@ -209,6 +228,10 @@ public sealed class ReplayRunService(
         };
     }
 
+    /// <summary>
+    /// Derives a replay manifest version by appending <c>-replay</c> to the current version,
+    /// or returns <c>v1-replay</c> when no current version exists.
+    /// </summary>
     private static string BuildReplayManifestVersion(string? currentManifestVersion)
     {
         if (string.IsNullOrWhiteSpace(currentManifestVersion))

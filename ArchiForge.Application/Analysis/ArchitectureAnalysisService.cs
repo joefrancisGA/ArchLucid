@@ -25,7 +25,7 @@ public sealed class ArchitectureAnalysisService(
     IAgentResultDiffService agentResultDiffService)
     : IArchitectureAnalysisService
 {
-    private const string ExecutionModeCurrent = "Current";
+    private const string ExecutionModeCurrent = ExecutionModes.Current;
 
     /// <inheritdoc />
     public async Task<ArchitectureAnalysisReport> BuildAsync(
