@@ -81,7 +81,7 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
         CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT TOP 200 *
             FROM dbo.PolicyPacks
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId

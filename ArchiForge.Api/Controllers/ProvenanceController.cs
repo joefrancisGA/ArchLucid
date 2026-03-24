@@ -56,6 +56,7 @@ public sealed class ProvenanceController(
         [FromQuery] int depth = 1,
         CancellationToken ct = default)
     {
+        depth = Math.Clamp(depth, 1, 5);
         var scope = scopeProvider.GetCurrentScope();
         var vm = await service.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
         return vm is null ? NotFound() : Ok(vm);

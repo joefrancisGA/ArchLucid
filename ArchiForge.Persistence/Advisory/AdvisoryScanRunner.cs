@@ -93,6 +93,10 @@ public sealed class AdvisoryScanRunner(
                 await RunScheduleCoreAsync(schedule, scope, execution, ct).ConfigureAwait(false);
             }
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             execution.Status = "Failed";

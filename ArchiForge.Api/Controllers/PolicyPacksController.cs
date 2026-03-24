@@ -45,9 +45,12 @@ public sealed class PolicyPacksController(
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
     public async Task<ActionResult<PolicyPack>> Create(
-        [FromBody] CreatePolicyPackRequest request,
+        [FromBody] CreatePolicyPackRequest? request,
         CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
 
         var pack = await policyPacksApp.CreatePackAsync(
@@ -70,9 +73,12 @@ public sealed class PolicyPacksController(
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
     public async Task<ActionResult<PolicyPackVersion>> Publish(
         Guid policyPackId,
-        [FromBody] PublishPolicyPackVersionRequest request,
+        [FromBody] PublishPolicyPackVersionRequest? request,
         CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var version = await policyPacksApp.PublishVersionAsync(
             policyPackId,
             request.Version.Trim(),
@@ -93,9 +99,12 @@ public sealed class PolicyPacksController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Assign(
         Guid policyPackId,
-        [FromBody] AssignPolicyPackRequest request,
+        [FromBody] AssignPolicyPackRequest? request,
         CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
         var versionKey = request.Version.Trim();
         var scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;

@@ -4,20 +4,25 @@ namespace ArchiForge.Persistence.Advisory;
 
 public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRepository
 {
+    private const int MaxEntries = 500;
     private readonly List<DigestSubscription> _items = [];
     private readonly Lock _gate = new();
 
     public Task CreateAsync(DigestSubscription subscription, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
             _items.Add(subscription);
+            if (_items.Count > MaxEntries)
+                _items.RemoveRange(0, _items.Count - MaxEntries);
+        }
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(DigestSubscription subscription, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var i = _items.FindIndex(x => x.SubscriptionId == subscription.SubscriptionId);
@@ -30,7 +35,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
 
     public Task<DigestSubscription?> GetByIdAsync(Guid subscriptionId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
             return Task.FromResult(_items.FirstOrDefault(x => x.SubscriptionId == subscriptionId));
     }
@@ -41,7 +46,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var result = _items
@@ -62,7 +67,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var result = _items

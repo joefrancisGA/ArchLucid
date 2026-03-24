@@ -41,6 +41,10 @@ public sealed class AdvisoryScanHostedService(IServiceProvider serviceProvider, 
                     {
                         await runner.RunScheduleAsync(schedule, stoppingToken).ConfigureAwait(false);
                     }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
                     catch (Exception ex)
                     {
                         logger.LogError(ex, "Advisory scan failed for schedule {ScheduleId}.", schedule.ScheduleId);

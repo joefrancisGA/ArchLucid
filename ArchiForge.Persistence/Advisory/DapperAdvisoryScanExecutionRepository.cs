@@ -15,6 +15,7 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
     /// <inheritdoc />
     public async Task CreateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(execution);
         const string sql = """
             INSERT INTO dbo.AdvisoryScanExecutions
             (
@@ -35,6 +36,7 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
     /// <inheritdoc />
     public async Task UpdateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(execution);
         const string sql = """
             UPDATE dbo.AdvisoryScanExecutions
             SET

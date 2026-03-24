@@ -36,9 +36,12 @@ public sealed class AlertSimulationController(
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(RuleSimulationResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<RuleSimulationResult>> Simulate(
-        [FromBody] RuleSimulationRequest request,
+        [FromBody] RuleSimulationRequest? request,
         CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
         StampSimulationScope(scope, request);
 
@@ -71,9 +74,12 @@ public sealed class AlertSimulationController(
     [HttpPost("compare-candidates")]
     [ProducesResponseType(typeof(RuleCandidateComparisonResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<RuleCandidateComparisonResult>> CompareCandidates(
-        [FromBody] RuleCandidateComparisonRequest request,
+        [FromBody] RuleCandidateComparisonRequest? request,
         CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
         StampComparisonScope(scope, request);
 

@@ -19,7 +19,7 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
 
@@ -34,7 +34,7 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
 
     public Task<DecisionProvenanceSnapshot?> GetByRunIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         var key = (scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId);
         lock (_gate)
         {

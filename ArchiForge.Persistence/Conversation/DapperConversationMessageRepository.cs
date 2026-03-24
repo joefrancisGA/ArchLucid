@@ -14,6 +14,7 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
     /// <inheritdoc />
     public async Task AddAsync(ConversationMessage message, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(message);
         const string sql = """
             INSERT INTO dbo.ConversationMessages
             (
@@ -35,6 +36,7 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
         int take,
         CancellationToken ct)
     {
+        take = Math.Clamp(take, 1, 500);
         const string sql = """
             SELECT MessageId, ThreadId, Role, Content, CreatedUtc, MetadataJson
             FROM (

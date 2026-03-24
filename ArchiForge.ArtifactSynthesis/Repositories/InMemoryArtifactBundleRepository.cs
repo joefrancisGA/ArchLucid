@@ -8,6 +8,7 @@ namespace ArchiForge.ArtifactSynthesis.Repositories;
 
 public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
 {
+    private const int MaxEntries = 500;
     private readonly List<ArtifactBundle> _store = [];
     private readonly Lock _lock = new();
 
@@ -17,12 +18,14 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
         lock (_lock)
         {
             _store.Add(bundle);
+            if (_store.Count > MaxEntries)
+                _store.RemoveRange(0, _store.Count - MaxEntries);
         }
         return Task.CompletedTask;
     }

@@ -38,6 +38,7 @@ public sealed class AuthorityQueryController(
         [FromQuery] int take = 20,
         CancellationToken ct = default)
     {
+        take = Math.Clamp(take, 1, 200);
         var scope = scopeProvider.GetCurrentScope();
         var results = await queryService.ListRunsByProjectAsync(scope, projectId, take, ct);
 

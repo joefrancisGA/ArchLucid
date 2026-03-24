@@ -97,7 +97,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
         CancellationToken ct)
     {
         const string sql = """
-            SELECT RecommendationId,
+            SELECT TOP 500 RecommendationId,
                    TenantId, WorkspaceId, ProjectId,
                    RunId, ComparedToRunId,
                    Title, Category, Rationale, SuggestedAction, Urgency, ExpectedImpact,

@@ -12,6 +12,7 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
     /// <inheritdoc />
     public async Task CreateAsync(AlertRule rule, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(rule);
         const string sql = """
             INSERT INTO dbo.AlertRules
             (
@@ -34,6 +35,7 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
     /// <inheritdoc />
     public async Task UpdateAsync(AlertRule rule, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(rule);
         const string sql = """
             UPDATE dbo.AlertRules
             SET
@@ -75,7 +77,7 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
         CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT TOP 200 *
             FROM dbo.AlertRules
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -102,7 +104,7 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
         CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT TOP 200 *
             FROM dbo.AlertRules
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId

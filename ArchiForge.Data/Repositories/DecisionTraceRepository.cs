@@ -59,7 +59,8 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             SELECT EventJson
             FROM DecisionTraces
             WHERE RunId = @RunId
-            ORDER BY CreatedUtc;
+            ORDER BY CreatedUtc
+            LIMIT 2000;
             """;
 
         using var connection = connectionFactory.CreateConnection();

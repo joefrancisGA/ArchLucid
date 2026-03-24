@@ -70,7 +70,7 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
         CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT TOP 200 *
             FROM dbo.PolicyPackAssignments
             WHERE TenantId = @TenantId
               AND (

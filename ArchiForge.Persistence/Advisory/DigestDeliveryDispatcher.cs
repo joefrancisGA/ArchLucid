@@ -82,6 +82,10 @@ public sealed class DigestDeliveryDispatcher(
                     },
                     ct).ConfigureAwait(false);
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 attempt.Status = DigestDeliveryStatus.Failed;

@@ -61,6 +61,11 @@ public partial class FindingsOrchestrator(
             {
                 findings = await engine.AnalyzeAsync(graphSnapshot, ct);
             }
+            catch (OperationCanceledException)
+            {
+                sw.Stop();
+                throw;
+            }
             catch (Exception ex)
             {
                 sw.Stop();

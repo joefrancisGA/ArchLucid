@@ -22,6 +22,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
     [ProducesResponseType(typeof(IReadOnlyList<AuditEvent>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAudit([FromQuery] int take = 100, CancellationToken ct = default)
     {
+        take = Math.Clamp(take, 1, 500);
         var scope = scopeProvider.GetCurrentScope();
 
         var events = await repo.GetByScopeAsync(

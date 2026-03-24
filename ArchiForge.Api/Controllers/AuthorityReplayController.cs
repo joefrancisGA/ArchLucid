@@ -36,9 +36,12 @@ public sealed class AuthorityReplayController(
     [ProducesResponseType(typeof(ReplayResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ReplayResponse>> Replay(
-        [FromBody] ReplayRequestResponse request,
+        [FromBody] ReplayRequestResponse? request,
         CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var mode = string.IsNullOrWhiteSpace(request.Mode)
             ? ReplayMode.ReconstructOnly
             : request.Mode.Trim();

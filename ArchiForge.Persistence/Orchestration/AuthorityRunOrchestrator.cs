@@ -197,7 +197,7 @@ public sealed class AuthorityRunOrchestrator(
                     provenanceGraph,
                     ct);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 logger.LogWarning(ex, "Retrieval indexing failed for run {RunId}", run.RunId);
             }

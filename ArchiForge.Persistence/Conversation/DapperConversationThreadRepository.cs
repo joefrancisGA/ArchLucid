@@ -14,6 +14,7 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
     /// <inheritdoc />
     public async Task CreateAsync(ConversationThread thread, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(thread);
         const string sql = """
             INSERT INTO dbo.ConversationThreads
             (
@@ -60,6 +61,7 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
         int take,
         CancellationToken ct)
     {
+        take = Math.Clamp(take, 1, 200);
         const string sql = """
             SELECT TOP (@Take)
                 ThreadId, TenantId, WorkspaceId, ProjectId,

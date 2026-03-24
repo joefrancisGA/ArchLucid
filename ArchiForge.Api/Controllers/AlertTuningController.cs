@@ -34,9 +34,12 @@ public sealed class AlertTuningController(
     [HttpPost("recommend-threshold")]
     [ProducesResponseType(typeof(ThresholdRecommendationResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<ThresholdRecommendationResult>> RecommendThreshold(
-        [FromBody] ThresholdRecommendationRequest request,
+        [FromBody] ThresholdRecommendationRequest? request,
         CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
         StampTuningScope(scope, request);
 

@@ -76,7 +76,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
         CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT TOP 200 *
             FROM dbo.AlertRoutingSubscriptions
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -106,7 +106,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
         CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT TOP 200 *
             FROM dbo.AlertRoutingSubscriptions
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId

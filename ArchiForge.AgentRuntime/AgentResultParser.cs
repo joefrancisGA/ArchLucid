@@ -28,9 +28,13 @@ public sealed class AgentResultParser : IAgentResultParser
         {
             result = JsonSerializer.Deserialize<AgentResult>(json, _jsonOptions);
         }
-        catch (Exception ex)
+        catch (JsonException ex)
         {
             throw new InvalidOperationException("Failed to deserialize AgentResult JSON.", ex);
+        }
+        catch (NotSupportedException ex)
+        {
+            throw new InvalidOperationException("AgentResult JSON contains an unsupported type mapping.", ex);
         }
 
         if (result is null)

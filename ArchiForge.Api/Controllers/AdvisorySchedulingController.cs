@@ -44,9 +44,12 @@ public sealed class AdvisorySchedulingController(
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AdvisoryScanSchedule), StatusCodes.Status200OK)]
     public async Task<ActionResult<AdvisoryScanSchedule>> CreateSchedule(
-        [FromBody] AdvisoryScanSchedule request,
+        [FromBody] AdvisoryScanSchedule? request,
         CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
 
         request.ScheduleId = Guid.NewGuid();
@@ -100,6 +103,7 @@ public sealed class AdvisorySchedulingController(
         [FromQuery] int take = 30,
         CancellationToken ct = default)
     {
+        take = Math.Clamp(take, 1, 200);
         var schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
         if (schedule is null)
             return NotFound();
@@ -146,6 +150,7 @@ public sealed class AdvisorySchedulingController(
         [FromQuery] int take = 20,
         CancellationToken ct = default)
     {
+        take = Math.Clamp(take, 1, 200);
         var scope = scopeProvider.GetCurrentScope();
 
         var digests = await digestRepository.ListByScopeAsync(

@@ -56,11 +56,11 @@ public sealed class GraphController(
             meta[kv.Key] = kv.Value;
 
         if (!string.IsNullOrEmpty(x.Category))
-            meta["category"] = x.Category!;
+            meta["category"] = x.Category;
         if (!string.IsNullOrEmpty(x.SourceType))
-            meta["sourceType"] = x.SourceType!;
+            meta["sourceType"] = x.SourceType;
         if (!string.IsNullOrEmpty(x.SourceId))
-            meta["sourceId"] = x.SourceId!;
+            meta["sourceId"] = x.SourceId;
 
         return new GraphNodeVm
         {

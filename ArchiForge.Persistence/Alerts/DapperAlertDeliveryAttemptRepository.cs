@@ -55,7 +55,7 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
         CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT TOP 200 *
             FROM dbo.AlertDeliveryAttempts
             WHERE AlertId = @AlertId
             ORDER BY AttemptedUtc DESC;

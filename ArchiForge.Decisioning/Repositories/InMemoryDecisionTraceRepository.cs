@@ -8,6 +8,8 @@ namespace ArchiForge.Decisioning.Repositories;
 
 public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 {
+    private const int MaxEntries = 500;
+
     private readonly List<DecisionTrace> _store = [];
     private readonly Lock _lock = new();
 
@@ -17,12 +19,14 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
         lock (_lock)
         {
             _store.Add(trace);
+            if (_store.Count > MaxEntries)
+                _store.RemoveRange(0, _store.Count - MaxEntries);
         }
         return Task.CompletedTask;
     }

@@ -15,6 +15,8 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
     /// <inheritdoc />
     public async Task CreateAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(schedule);
+
         const string sql = """
             INSERT INTO dbo.AdvisoryScanSchedules
             (
@@ -36,6 +38,8 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
 
     public async Task UpdateAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(schedule);
+
         const string sql = """
             UPDATE dbo.AdvisoryScanSchedules
             SET
@@ -89,7 +93,7 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
         CancellationToken ct)
     {
         const string sql = """
-            SELECT
+            SELECT TOP 200
                 ScheduleId, TenantId, WorkspaceId, ProjectId, RunProjectSlug,
                 Name, CronExpression, IsEnabled,
                 CreatedUtc, LastRunUtc, NextRunUtc

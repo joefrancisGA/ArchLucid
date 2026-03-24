@@ -17,7 +17,7 @@ public sealed class InMemoryRunRepository : IRunRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
         _store[run.RunId] = run;
@@ -26,7 +26,7 @@ public sealed class InMemoryRunRepository : IRunRepository
 
     public Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         if (!_store.TryGetValue(runId, out var r))
             return Task.FromResult<RunRecord?>(null);
         return Task.FromResult(MatchesScope(r, scope) ? r : null);
@@ -34,7 +34,7 @@ public sealed class InMemoryRunRepository : IRunRepository
 
     public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         var n = take <= 0 ? 20 : take;
         var list = _store.Values
             .Where(r =>
@@ -57,7 +57,7 @@ public sealed class InMemoryRunRepository : IRunRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
         _store[run.RunId] = run;

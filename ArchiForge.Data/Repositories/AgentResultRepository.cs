@@ -145,7 +145,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             SELECT ResultJson
             FROM AgentResults
             WHERE RunId = @RunId
-            ORDER BY CreatedUtc;
+            ORDER BY CreatedUtc
+            LIMIT 1000;
             """;
 
         using var connection = connectionFactory.CreateConnection();

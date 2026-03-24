@@ -13,6 +13,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
     /// <inheritdoc />
     public async Task CreateAsync(DigestSubscription subscription, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(subscription);
         const string sql = """
             INSERT INTO dbo.DigestSubscriptions
             (
@@ -34,6 +35,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
 
     public async Task UpdateAsync(DigestSubscription subscription, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(subscription);
         const string sql = """
             UPDATE dbo.DigestSubscriptions
             SET
@@ -77,7 +79,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
         CancellationToken ct)
     {
         const string sql = """
-            SELECT
+            SELECT TOP 200
                 SubscriptionId, TenantId, WorkspaceId, ProjectId,
                 Name, ChannelType, Destination, IsEnabled,
                 CreatedUtc, LastDeliveredUtc, MetadataJson
@@ -111,7 +113,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
         CancellationToken ct)
     {
         const string sql = """
-            SELECT
+            SELECT TOP 200
                 SubscriptionId, TenantId, WorkspaceId, ProjectId,
                 Name, ChannelType, Destination, IsEnabled,
                 CreatedUtc, LastDeliveredUtc, MetadataJson

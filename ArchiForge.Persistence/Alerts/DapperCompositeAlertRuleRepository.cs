@@ -179,7 +179,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         CancellationToken ct)
     {
         const string sql = """
-            SELECT
+            SELECT TOP 200
                 CompositeRuleId, TenantId, WorkspaceId, ProjectId,
                 Name, Severity, [Operator] AS Operator, IsEnabled,
                 SuppressionWindowMinutes, CooldownMinutes, ReopenDeltaThreshold,
@@ -226,7 +226,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         CancellationToken ct)
     {
         var sql = """
-            SELECT
+            SELECT TOP 200
                 CompositeRuleId, TenantId, WorkspaceId, ProjectId,
                 Name, Severity, [Operator] AS Operator, IsEnabled,
                 SuppressionWindowMinutes, CooldownMinutes, ReopenDeltaThreshold,

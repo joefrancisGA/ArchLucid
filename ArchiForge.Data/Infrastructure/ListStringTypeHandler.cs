@@ -22,7 +22,7 @@ public sealed class ListStringTypeHandler : SqlMapper.TypeHandler<List<string>>
             {
                 return JsonSerializer.Deserialize<List<string>>(s) ?? [];
             }
-            catch
+            catch (JsonException)
             {
                 return [];
             }

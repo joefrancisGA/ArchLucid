@@ -90,6 +90,10 @@ public sealed class AlertDeliveryDispatcher(
                     },
                     ct).ConfigureAwait(false);
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 attempt.Status = AlertDeliveryAttemptStatus.Failed;
