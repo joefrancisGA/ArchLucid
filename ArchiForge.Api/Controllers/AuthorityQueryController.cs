@@ -34,11 +34,17 @@ public sealed class AuthorityQueryController(
     /// <returns><see cref="RunSummaryResponse"/> items newest-first.</returns>
     [HttpGet("projects/{projectId}/runs")]
     [ProducesResponseType(typeof(IReadOnlyList<RunSummaryResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> ListRunsByProject(
         string projectId,
         [FromQuery] int take = 20,
         CancellationToken ct = default)
     {
+        if (string.IsNullOrWhiteSpace(projectId))
+            return this.BadRequestProblem("projectId is required.", ProblemTypes.BadRequest);
+
         take = Math.Clamp(take, 1, 200);
         var scope = scopeProvider.GetCurrentScope();
         var results = await queryService.ListRunsByProjectAsync(scope, projectId, take, ct);
@@ -61,6 +67,8 @@ public sealed class AuthorityQueryController(
     [HttpGet("runs/{runId:guid}/summary")]
     [ProducesResponseType(typeof(RunSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetRunSummary(
         Guid runId,
         CancellationToken ct = default)
@@ -92,6 +100,8 @@ public sealed class AuthorityQueryController(
     [HttpGet("runs/{runId:guid}")]
     [ProducesResponseType(typeof(RunDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetRunDetail(
         Guid runId,
         CancellationToken ct = default)
@@ -111,6 +121,8 @@ public sealed class AuthorityQueryController(
     [HttpGet("manifests/{manifestId:guid}/summary")]
     [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetManifestSummary(
         Guid manifestId,
         CancellationToken ct = default)

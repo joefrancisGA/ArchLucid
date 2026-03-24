@@ -73,38 +73,8 @@ public sealed class InMemoryAuthorityQueryService(
     public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         var manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
-        if (manifest is null)
-            return null;
-
-        return new ManifestSummaryDto
-        {
-            ManifestId = manifest.ManifestId,
-            RunId = manifest.RunId,
-            CreatedUtc = manifest.CreatedUtc,
-            ManifestHash = manifest.ManifestHash,
-            RuleSetId = manifest.RuleSetId,
-            RuleSetVersion = manifest.RuleSetVersion,
-            DecisionCount = manifest.Decisions.Count,
-            WarningCount = manifest.Warnings.Count,
-            UnresolvedIssueCount = manifest.UnresolvedIssues.Items.Count,
-            Status = manifest.Metadata.Status
-        };
+        return manifest is null ? null : AuthorityRunMapper.MapManifestSummary(manifest);
     }
 
-    private static RunSummaryDto MapSummary(RunRecord run)
-    {
-        return new RunSummaryDto
-        {
-            RunId = run.RunId,
-            ProjectId = run.ProjectId,
-            Description = run.Description,
-            CreatedUtc = run.CreatedUtc,
-            ContextSnapshotId = run.ContextSnapshotId,
-            GraphSnapshotId = run.GraphSnapshotId,
-            FindingsSnapshotId = run.FindingsSnapshotId,
-            GoldenManifestId = run.GoldenManifestId,
-            DecisionTraceId = run.DecisionTraceId,
-            ArtifactBundleId = run.ArtifactBundleId
-        };
-    }
+    private static RunSummaryDto MapSummary(RunRecord run) => AuthorityRunMapper.MapSummary(run);
 }

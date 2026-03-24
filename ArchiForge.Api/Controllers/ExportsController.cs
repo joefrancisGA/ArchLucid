@@ -1,4 +1,5 @@
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.Http;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
@@ -116,7 +117,7 @@ public sealed class ExportsController(
             diff,
             summary,
             cancellationToken);
-        Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
+        Response.Headers[ArchiForgeHttpHeaders.ComparisonRecordId] = comparisonRecordId;
 
         return Ok(new ExportRecordDiffSummaryResponse
         {

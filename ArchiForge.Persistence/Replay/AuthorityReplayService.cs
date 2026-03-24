@@ -29,6 +29,8 @@ public sealed class AuthorityReplayService(
         ReplayRequest request,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         var readScope = scopeContextProvider.GetCurrentScope();
         var original = await queryService.GetRunDetailAsync(readScope, request.RunId, ct);
         if (original is null)

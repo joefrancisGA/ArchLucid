@@ -33,7 +33,10 @@ public sealed class AuthorityCompareService(
         if (left.TenantId != right.TenantId ||
             left.WorkspaceId != right.WorkspaceId ||
             left.ProjectId != right.ProjectId)
-            return null;
+            throw new InvalidOperationException(
+                $"Cannot compare manifests across different scopes. " +
+                $"Left scope: {left.TenantId}/{left.WorkspaceId}/{left.ProjectId}, " +
+                $"Right scope: {right.TenantId}/{right.WorkspaceId}/{right.ProjectId}.");
 
         var result = new ManifestComparisonResult
         {
@@ -96,11 +99,8 @@ public sealed class AuthorityCompareService(
         GoldenManifest right,
         ManifestComparisonResult result)
     {
-        var leftMap = left.Requirements.Covered
-            .ToDictionary(x => x.RequirementName, StringComparer.OrdinalIgnoreCase);
-
-        var rightMap = right.Requirements.Covered
-            .ToDictionary(x => x.RequirementName, StringComparer.OrdinalIgnoreCase);
+        var leftMap = ToFirstWins(left.Requirements.Covered, x => x.RequirementName);
+        var rightMap = ToFirstWins(right.Requirements.Covered, x => x.RequirementName);
 
         CompareKeyedSets(
             result,
@@ -128,11 +128,8 @@ public sealed class AuthorityCompareService(
         GoldenManifest right,
         ManifestComparisonResult result)
     {
-        var leftMap = left.Security.Controls
-            .ToDictionary(x => x.ControlName, StringComparer.OrdinalIgnoreCase);
-
-        var rightMap = right.Security.Controls
-            .ToDictionary(x => x.ControlName, StringComparer.OrdinalIgnoreCase);
+        var leftMap = ToFirstWins(left.Security.Controls, x => x.ControlName);
+        var rightMap = ToFirstWins(right.Security.Controls, x => x.ControlName);
 
         CompareKeyedSets(
             result,
@@ -168,11 +165,8 @@ public sealed class AuthorityCompareService(
         GoldenManifest right,
         ManifestComparisonResult result)
     {
-        var leftMap = left.UnresolvedIssues.Items
-            .ToDictionary(x => x.Title, StringComparer.OrdinalIgnoreCase);
-
-        var rightMap = right.UnresolvedIssues.Items
-            .ToDictionary(x => x.Title, StringComparer.OrdinalIgnoreCase);
+        var leftMap = ToFirstWins(left.UnresolvedIssues.Items, x => x.Title);
+        var rightMap = ToFirstWins(right.UnresolvedIssues.Items, x => x.Title);
 
         CompareKeyedSets(
             result,
@@ -206,11 +200,8 @@ public sealed class AuthorityCompareService(
         GoldenManifest right,
         ManifestComparisonResult result)
     {
-        var leftMap = left.Decisions
-            .ToDictionary(x => $"{x.Category}:{x.Title}", StringComparer.OrdinalIgnoreCase);
-
-        var rightMap = right.Decisions
-            .ToDictionary(x => $"{x.Category}:{x.Title}", StringComparer.OrdinalIgnoreCase);
+        var leftMap = ToFirstWins(left.Decisions, x => $"{x.Category}:{x.Title}");
+        var rightMap = ToFirstWins(right.Decisions, x => $"{x.Category}:{x.Title}");
 
         CompareKeyedSets(
             result,
@@ -331,6 +322,17 @@ public sealed class AuthorityCompareService(
             });
         }
     }
+
+    /// <summary>
+    /// Builds a case-insensitive dictionary from <paramref name="source"/>, taking the first element
+    /// when duplicate keys are present. Prevents <see cref="ArgumentException"/> on bad persisted data.
+    /// </summary>
+    private static Dictionary<string, T> ToFirstWins<T>(
+        IEnumerable<T> source,
+        Func<T, string> keySelector) =>
+        source
+            .GroupBy(keySelector, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
     /// <inheritdoc />
     public void AddRunDiff(

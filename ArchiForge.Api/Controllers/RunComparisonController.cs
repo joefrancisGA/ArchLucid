@@ -1,4 +1,5 @@
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.Http;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
@@ -81,12 +82,9 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        var error = await ValidateRunPairQueryAsync(query, cancellationToken);
-        if (error is not null)
-            return error;
-
-        var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
-        return Ok(ComparisonResponseMapper.ToEndToEndResponse(report));
+        var (error, report) = await BuildEndToEndReportAsync(query, cancellationToken);
+        if (error is not null) return error;
+        return Ok(ComparisonResponseMapper.ToEndToEndResponse(report!));
     }
 
     [HttpPost("run/compare/end-to-end/summary")]
@@ -99,19 +97,17 @@ public sealed class RunComparisonController(
         [FromBody] PersistComparisonRequest? request,
         CancellationToken cancellationToken)
     {
-        var queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
-        if (queryError is not null)
-            return queryError;
+        var (error, report) = await BuildEndToEndReportAsync(query, cancellationToken);
+        if (error is not null) return error;
 
         request ??= new PersistComparisonRequest();
-        var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
-        var summary = endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report);
+        var summary = endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report!);
 
         if (!request.Persist)
             return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
 
-        var comparisonRecordId = await comparisonAuditService.RecordEndToEndAsync(report, summary, cancellationToken);
-        Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
+        var comparisonRecordId = await comparisonAuditService.RecordEndToEndAsync(report!, summary, cancellationToken);
+        Response.Headers[ArchiForgeHttpHeaders.ComparisonRecordId] = comparisonRecordId;
 
         return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
     }
@@ -124,12 +120,9 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        var queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
-        if (queryError is not null)
-            return queryError;
-
-        var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
-        var markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report);
+        var (error, report) = await BuildEndToEndReportAsync(query, cancellationToken);
+        if (error is not null) return error;
+        var markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report!);
         var fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.md";
         return Ok(ComparisonResponseMapper.ToEndToEndExportResponse(fileName, markdown));
     }
@@ -142,12 +135,9 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        var queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
-        if (queryError is not null)
-            return queryError;
-
-        var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
-        var markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report);
+        var (error, report) = await BuildEndToEndReportAsync(query, cancellationToken);
+        if (error is not null) return error;
+        var markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report!);
         var fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.md";
         return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
     }
@@ -160,18 +150,31 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        var queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
-        if (queryError is not null)
-            return queryError;
-
-        var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
-        var bytes = await endToEndReplayComparisonExportService.GenerateDocxAsync(report, cancellationToken);
+        var (error, report) = await BuildEndToEndReportAsync(query, cancellationToken);
+        if (error is not null) return error;
+        var bytes = await endToEndReplayComparisonExportService.GenerateDocxAsync(report!, cancellationToken);
         var fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.docx";
         return ApiFileResults.RangeBytes(
             Request,
             bytes,
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             fileName);
+    }
+
+    /// <summary>
+    /// Validates the query and builds the end-to-end comparison report.
+    /// Returns a non-null error result when validation fails.
+    /// </summary>
+    private async Task<(IActionResult? Error, EndToEndReplayComparisonReport? Report)> BuildEndToEndReportAsync(
+        RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        var error = await ValidateRunPairQueryAsync(query, cancellationToken);
+        if (error is not null)
+            return (error, null);
+
+        var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
+        return (null, report);
     }
 
     private async Task<IActionResult?> ValidateRunPairQueryAsync(RunPairQuery query, CancellationToken cancellationToken)

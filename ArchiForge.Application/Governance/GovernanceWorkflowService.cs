@@ -94,10 +94,13 @@ public sealed class GovernanceWorkflowService(
 
         await approvalRepo.UpdateAsync(request, cancellationToken);
 
-        logger.LogInformation(
-            "Governance approval request approved: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
-            request.ApprovalRequestId,
-            reviewedBy);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Governance approval request approved: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
+                request.ApprovalRequestId,
+                reviewedBy);
+        }
 
         return request;
     }
