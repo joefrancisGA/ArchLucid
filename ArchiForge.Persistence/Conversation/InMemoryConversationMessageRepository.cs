@@ -13,6 +13,7 @@ public sealed class InMemoryConversationMessageRepository : IConversationMessage
     /// <inheritdoc />
     public Task AddAsync(ConversationMessage message, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(message);
         ct.ThrowIfCancellationRequested();
         lock (_messages)
         {

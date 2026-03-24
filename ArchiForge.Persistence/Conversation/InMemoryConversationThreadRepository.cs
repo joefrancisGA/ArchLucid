@@ -13,6 +13,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
     /// <inheritdoc />
     public Task CreateAsync(ConversationThread thread, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(thread);
         ct.ThrowIfCancellationRequested();
         lock (_threads)
         {
@@ -23,6 +24,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task<ConversationThread?> GetByIdAsync(Guid threadId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();

@@ -55,6 +55,7 @@ public sealed class AuthorityCompareService(
         return result;
     }
 
+    /// <inheritdoc />
     public async Task<RunComparisonResult?> CompareRunsAsync(
         ScopeContext scope,
         Guid leftRunId,

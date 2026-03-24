@@ -6,6 +6,9 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
+/// <summary>
+/// Dapper-backed persistence for <see cref="AgentTask"/> entities.
+/// </summary>
 public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) : IAgentTaskRepository
 {
     public async Task CreateManyAsync(IEnumerable<AgentTask> tasks, CancellationToken cancellationToken = default)

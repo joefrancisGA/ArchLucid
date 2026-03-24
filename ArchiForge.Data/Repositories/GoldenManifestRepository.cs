@@ -8,6 +8,9 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
+/// <summary>
+/// Dapper-backed persistence for <see cref="GoldenManifest"/> versions, serialising manifest state as JSON.
+/// </summary>
 public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFactory) : IGoldenManifestRepository
 {
     public async Task CreateAsync(GoldenManifest manifest, CancellationToken cancellationToken = default)

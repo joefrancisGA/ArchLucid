@@ -5,6 +5,7 @@ using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
+using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
@@ -26,7 +27,7 @@ namespace ArchiForge.Api.Controllers;
 [Route("v{version:apiVersion}/architecture")]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 public sealed class ComparisonsController(
-    IArchitectureRunRepository runRepository,
+    IRunDetailQueryService runDetailQueryService,
     IRunExportRecordRepository runExportRecordRepository,
     IComparisonRecordRepository comparisonRecordRepository,
     IComparisonReplayApiService comparisonReplayApiService,
@@ -43,8 +44,8 @@ public sealed class ComparisonsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (runDetail is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
@@ -232,9 +233,6 @@ public sealed class ComparisonsController(
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-        var exists = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
-        if (exists is null)
-            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
         var updated = await comparisonRecordRepository.UpdateLabelAndTagsAsync(
             comparisonRecordId,

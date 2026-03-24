@@ -6,6 +6,10 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Builds an <see cref="ArchitectureAnalysisReport"/> by orchestrating manifest, evidence, trace,
+/// diagram, summary, determinism, and diff sub-services for a given run.
+/// </summary>
 public sealed class ArchitectureAnalysisService(
     IArchitectureRunRepository runRepository,
     IGoldenManifestRepository manifestRepository,
@@ -19,20 +23,20 @@ public sealed class ArchitectureAnalysisService(
     IAgentResultDiffService agentResultDiffService)
     : IArchitectureAnalysisService
 {
+    private const string ExecutionModeCurrent = "Current";
+
+    /// <inheritdoc />
     public async Task<ArchitectureAnalysisReport> BuildAsync(
         ArchitectureAnalysisRequest request,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (string.IsNullOrWhiteSpace(request.RunId))
-        {
-            throw new InvalidOperationException("RunId is required.");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
 
         var run = request.PreloadedRun
             ?? await runRepository.GetByIdAsync(request.RunId, cancellationToken)
-            ?? throw new InvalidOperationException($"Run '{request.RunId}' not found.");
+            ?? throw new RunNotFoundException(request.RunId);
 
         var report = new ArchitectureAnalysisReport
         {
@@ -97,7 +101,7 @@ public sealed class ArchitectureAnalysisService(
                 {
                     RunId = request.RunId,
                     Iterations = request.DeterminismIterations,
-                    ExecutionMode = "Current",
+                    ExecutionMode = ExecutionModeCurrent,
                     CommitReplays = false
                 },
                 cancellationToken);

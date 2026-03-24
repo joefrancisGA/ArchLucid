@@ -6,6 +6,9 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
+/// <summary>
+/// Dapper-backed persistence for <see cref="ArchitectureRun"/> entities.
+/// </summary>
 public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFactory) : IArchitectureRunRepository
 {
     public async Task CreateAsync(ArchitectureRun run, CancellationToken cancellationToken = default)
@@ -216,7 +219,8 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             FROM ArchitectureRuns r
             INNER JOIN ArchitectureRequests req
                 ON r.RequestId = req.RequestId
-            ORDER BY r.CreatedUtc DESC, r.RunId DESC;
+            ORDER BY r.CreatedUtc DESC, r.RunId DESC
+            LIMIT 200;
             """;
 
         using var connection = connectionFactory.CreateConnection();

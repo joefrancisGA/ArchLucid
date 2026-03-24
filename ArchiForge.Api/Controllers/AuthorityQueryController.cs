@@ -1,5 +1,6 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Queries;
 
@@ -33,7 +34,7 @@ public sealed class AuthorityQueryController(
     /// <returns><see cref="RunSummaryResponse"/> items newest-first.</returns>
     [HttpGet("projects/{projectId}/runs")]
     [ProducesResponseType(typeof(IReadOnlyList<RunSummaryResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<RunSummaryResponse>>> ListRunsByProject(
+    public async Task<IActionResult> ListRunsByProject(
         string projectId,
         [FromQuery] int take = 20,
         CancellationToken ct = default)
@@ -60,14 +61,14 @@ public sealed class AuthorityQueryController(
     [HttpGet("runs/{runId:guid}/summary")]
     [ProducesResponseType(typeof(RunSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RunSummaryResponse>> GetRunSummary(
+    public async Task<IActionResult> GetRunSummary(
         Guid runId,
         CancellationToken ct = default)
     {
         var scope = scopeProvider.GetCurrentScope();
         var result = await queryService.GetRunSummaryAsync(scope, runId, ct);
         if (result is null)
-            return NotFound();
+            return this.NotFoundProblem($"Run summary '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         return Ok(new RunSummaryResponse
         {
@@ -91,14 +92,14 @@ public sealed class AuthorityQueryController(
     [HttpGet("runs/{runId:guid}")]
     [ProducesResponseType(typeof(RunDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RunDetailDto>> GetRunDetail(
+    public async Task<IActionResult> GetRunDetail(
         Guid runId,
         CancellationToken ct = default)
     {
         var scope = scopeProvider.GetCurrentScope();
         var result = await queryService.GetRunDetailAsync(scope, runId, ct);
         if (result is null)
-            return NotFound();
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         return Ok(result);
     }
@@ -110,14 +111,14 @@ public sealed class AuthorityQueryController(
     [HttpGet("manifests/{manifestId:guid}/summary")]
     [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ManifestSummaryResponse>> GetManifestSummary(
+    public async Task<IActionResult> GetManifestSummary(
         Guid manifestId,
         CancellationToken ct = default)
     {
         var scope = scopeProvider.GetCurrentScope();
         var result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
         if (result is null)
-            return NotFound();
+            return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
 
         return Ok(new ManifestSummaryResponse
         {

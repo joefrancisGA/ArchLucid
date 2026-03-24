@@ -8,6 +8,9 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
+/// <summary>
+/// Dapper-backed persistence for <see cref="ArchitectureRequest"/> entities, serialising request state as JSON.
+/// </summary>
 public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectionFactory)
     : IArchitectureRequestRepository
 {

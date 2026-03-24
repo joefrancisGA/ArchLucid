@@ -6,6 +6,8 @@ using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
+using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Manifest;
 using ArchiForge.Data.Repositories;
 
 using Asp.Versioning;
@@ -31,9 +33,17 @@ public sealed class ManifestsController(
     IManifestSummaryGenerator summaryGenerator,
     IManifestSummaryService manifestSummaryService,
     IArchitectureExportService exportService,
-    IAgentEvidencePackageRepository agentEvidencePackageRepository)
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IManifestDiagramService manifestDiagramService)
     : ControllerBase
 {
+    private const string FormatMarkdown = "markdown";
+    private const string FormatJson = "json";
+    private const string FormatMermaid = "mermaid";
+    private const string DiagramTypeMermaid = "Mermaid";
+    private const string DiagramLayoutDefault = "LR";
+    private const string RelationshipLabelsDefault = "type";
+    private const string GroupByDefault = "none";
     [HttpGet("manifest/compare")]
     [ProducesResponseType(typeof(ManifestCompareResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -42,26 +52,14 @@ public sealed class ManifestsController(
         [FromQuery] string rightVersion,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(leftVersion))
-            return this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed);
-        if (string.IsNullOrWhiteSpace(rightVersion))
-            return this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed);
-
-        var left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
-        if (left is null)
-            return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        var right = await manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
-        if (right is null)
-            return this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        var diff = manifestDiffService.Compare(left, right);
+        var loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
+        if (loaded.Error is not null) return loaded.Error;
 
         return Ok(new ManifestCompareResponse
         {
-            LeftManifest = left,
-            RightManifest = right,
-            Diff = diff
+            LeftManifest = loaded.Left!,
+            RightManifest = loaded.Right!,
+            Diff = loaded.Diff!
         });
     }
 
@@ -73,29 +71,18 @@ public sealed class ManifestsController(
         [FromQuery] string rightVersion,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(leftVersion))
-            return this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed);
-        if (string.IsNullOrWhiteSpace(rightVersion))
-            return this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed);
+        var loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
+        if (loaded.Error is not null) return loaded.Error;
 
-        var left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
-        if (left is null)
-            return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        var right = await manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
-        if (right is null)
-            return this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        var diff = manifestDiffService.Compare(left, right);
-        var summary = manifestDiffSummaryFormatter.FormatMarkdown(diff);
+        var summary = manifestDiffSummaryFormatter.FormatMarkdown(loaded.Diff!);
 
         return Ok(new ManifestCompareSummaryResponse
         {
             LeftManifestVersion = leftVersion,
             RightManifestVersion = rightVersion,
-            Format = "markdown",
+            Format = FormatMarkdown,
             Summary = summary,
-            Diff = diff
+            Diff = loaded.Diff!
         });
     }
 
@@ -107,28 +94,17 @@ public sealed class ManifestsController(
         [FromQuery] string rightVersion,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(leftVersion))
-            return this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed);
-        if (string.IsNullOrWhiteSpace(rightVersion))
-            return this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed);
+        var loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
+        if (loaded.Error is not null) return loaded.Error;
 
-        var left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
-        if (left is null)
-            return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        var right = await manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
-        if (right is null)
-            return this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        var diff = manifestDiffService.Compare(left, right);
-        var summary = manifestDiffSummaryFormatter.FormatMarkdown(diff);
-        var content = manifestDiffExportService.GenerateMarkdownExport(left, right, diff, summary);
+        var summary = manifestDiffSummaryFormatter.FormatMarkdown(loaded.Diff!);
+        var content = manifestDiffExportService.GenerateMarkdownExport(loaded.Left!, loaded.Right!, loaded.Diff!, summary);
 
         return Ok(new ManifestCompareExportResponse
         {
             LeftManifestVersion = leftVersion,
             RightManifestVersion = rightVersion,
-            Format = "markdown",
+            Format = FormatMarkdown,
             FileName = $"compare_{leftVersion}_to_{rightVersion}.md",
             Content = content
         });
@@ -142,22 +118,11 @@ public sealed class ManifestsController(
         [FromQuery] string rightVersion,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(leftVersion))
-            return this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed);
-        if (string.IsNullOrWhiteSpace(rightVersion))
-            return this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed);
+        var loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
+        if (loaded.Error is not null) return loaded.Error;
 
-        var left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
-        if (left is null)
-            return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        var right = await manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
-        if (right is null)
-            return this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound);
-
-        var diff = manifestDiffService.Compare(left, right);
-        var summary = manifestDiffSummaryFormatter.FormatMarkdown(diff);
-        var content = manifestDiffExportService.GenerateMarkdownExport(left, right, diff, summary);
+        var summary = manifestDiffSummaryFormatter.FormatMarkdown(loaded.Diff!);
+        var content = manifestDiffExportService.GenerateMarkdownExport(loaded.Left!, loaded.Right!, loaded.Diff!, summary);
 
         var fileName = $"compare_{leftVersion}_to_{rightVersion}.md";
         return ApiFileResults.RangeText(Request, content, "text/markdown", fileName);
@@ -193,7 +158,7 @@ public sealed class ManifestsController(
         return Ok(new DiagramResponse
         {
             ManifestVersion = version,
-            Format = "mermaid",
+            Format = FormatMermaid,
             Diagram = mermaid
         });
     }
@@ -204,11 +169,10 @@ public sealed class ManifestsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestDiagramV2(
         [FromRoute] string version,
-        [FromQuery] string? layout = "LR",
+        [FromQuery] string? layout = DiagramLayoutDefault,
         [FromQuery] bool includeRuntimePlatform = true,
-        [FromQuery] string? relationshipLabels = "type",
-        [FromQuery] string? groupBy = "none",
-        [FromServices] IManifestDiagramService manifestDiagramService = null!,
+        [FromQuery] string? relationshipLabels = RelationshipLabelsDefault,
+        [FromQuery] string? groupBy = GroupByDefault,
         CancellationToken cancellationToken = default)
     {
         var manifest = await architectureApplicationService.GetManifestAsync(version, cancellationToken);
@@ -217,10 +181,10 @@ public sealed class ManifestsController(
 
         var opts = new ManifestDiagramOptions
         {
-            Layout = layout ?? "LR",
+            Layout = layout ?? DiagramLayoutDefault,
             IncludeRuntimePlatform = includeRuntimePlatform,
-            RelationshipLabels = relationshipLabels ?? "type",
-            GroupBy = groupBy ?? "none"
+            RelationshipLabels = relationshipLabels ?? RelationshipLabelsDefault,
+            GroupBy = groupBy ?? GroupByDefault
         };
 
         var mermaid = manifestDiagramService.GenerateMermaid(manifest, opts);
@@ -228,7 +192,7 @@ public sealed class ManifestsController(
         return Ok(new ManifestDiagramResponse
         {
             ManifestVersion = version,
-            DiagramType = "Mermaid",
+            DiagramType = DiagramTypeMermaid,
             Content = mermaid
         });
     }
@@ -254,7 +218,7 @@ public sealed class ManifestsController(
             ? Math.Clamp(maxRelationships.Value, 1, 1000)
             : (int?)null;
 
-        if (string.Equals(format, "json", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(format, FormatJson, StringComparison.OrdinalIgnoreCase))
         {
             return Ok(new ManifestSummaryJsonResponse
             {
@@ -306,10 +270,10 @@ public sealed class ManifestsController(
             });
         }
 
-        if (!string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(format, FormatMarkdown, StringComparison.OrdinalIgnoreCase))
         {
             return this.BadRequestProblem(
-                "format must be 'markdown' or 'json'.",
+                $"format must be '{FormatMarkdown}' or '{FormatJson}'.",
                 ProblemTypes.ValidationFailed);
         }
 
@@ -327,7 +291,7 @@ public sealed class ManifestsController(
         return Ok(new ManifestSummaryResponse
         {
             ManifestVersion = version,
-            Format = "markdown",
+            Format = FormatMarkdown,
             Content = content,
             Summary = content
         });
@@ -340,67 +304,64 @@ public sealed class ManifestsController(
         [FromRoute] string version,
         CancellationToken cancellationToken)
     {
-        var manifest = await manifestRepository.GetByVersionAsync(version, cancellationToken);
+        var (manifest, evidence) = await LoadManifestWithEvidenceAsync(version, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
 
-        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
         var markdown = summaryGenerator.GenerateMarkdown(manifest, evidence);
 
         return Ok(new ManifestSummaryResponse
         {
             ManifestVersion = version,
-            Format = "markdown",
+            Format = FormatMarkdown,
             Content = markdown,
             Summary = markdown
         });
     }
 
     [HttpGet("manifest/{version}/bundle")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ManifestBundleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestBundle(
         [FromRoute] string version,
         CancellationToken cancellationToken)
     {
-        var manifest = await manifestRepository.GetByVersionAsync(version, cancellationToken);
+        var (manifest, evidence) = await LoadManifestWithEvidenceAsync(version, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
 
-        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
         var diagram = diagramGenerator.GenerateMermaid(manifest);
         var summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
 
-        return Ok(new
+        return Ok(new ManifestBundleResponse
         {
-            manifestVersion = version,
-            manifest,
-            diagram,
-            summary
+            ManifestVersion = version,
+            Manifest = manifest,
+            Diagram = diagram,
+            Summary = summary
         });
     }
 
     [HttpGet("manifest/{version}/export")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ManifestExportContentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestExport(
         [FromRoute] string version,
         CancellationToken cancellationToken)
     {
-        var manifest = await manifestRepository.GetByVersionAsync(version, cancellationToken);
+        var (manifest, evidence) = await LoadManifestWithEvidenceAsync(version, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
 
-        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
         var diagram = diagramGenerator.GenerateMermaid(manifest);
         var summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
         var markdown = exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
 
-        return Ok(new
+        return Ok(new ManifestExportContentResponse
         {
-            manifestVersion = version,
-            format = "markdown",
-            content = markdown
+            ManifestVersion = version,
+            Format = FormatMarkdown,
+            Content = markdown
         });
     }
 
@@ -411,17 +372,65 @@ public sealed class ManifestsController(
         [FromRoute] string version,
         CancellationToken cancellationToken)
     {
-        var manifest = await manifestRepository.GetByVersionAsync(version, cancellationToken);
+        var (manifest, evidence) = await LoadManifestWithEvidenceAsync(version, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
 
-        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
         var diagram = diagramGenerator.GenerateMermaid(manifest);
         var summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
         var markdown = exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
 
         var fileName = $"architecture-export-{version}.md";
         return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
+    }
+
+    // ── Private helpers ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Validates and loads both manifest versions, then produces their diff.
+    /// Returns a non-null <see cref="LoadedManifestPair.Error"/> on any validation or 404 failure.
+    /// </summary>
+    private async Task<LoadedManifestPair> LoadAndCompareManifestPairAsync(
+        string leftVersion,
+        string rightVersion,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(leftVersion))
+            return new LoadedManifestPair { Error = this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed) };
+        if (string.IsNullOrWhiteSpace(rightVersion))
+            return new LoadedManifestPair { Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed) };
+
+        var left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
+        if (left is null)
+            return new LoadedManifestPair { Error = this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound) };
+
+        var right = await manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
+        if (right is null)
+            return new LoadedManifestPair { Error = this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound) };
+
+        return new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };
+    }
+
+    /// <summary>
+    /// Loads a manifest by version together with its associated evidence package.
+    /// Returns <c>(null, null)</c> when the manifest does not exist.
+    /// </summary>
+    private async Task<(GoldenManifest? Manifest, AgentEvidencePackage? Evidence)> LoadManifestWithEvidenceAsync(
+        string version,
+        CancellationToken cancellationToken)
+    {
+        var manifest = await manifestRepository.GetByVersionAsync(version, cancellationToken);
+        if (manifest is null) return (null, null);
+        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
+        return (manifest, evidence);
+    }
+
+    private sealed class LoadedManifestPair
+    {
+        public GoldenManifest? Left { get; init; }
+        public GoldenManifest? Right { get; init; }
+        public ManifestDiffResult? Diff { get; init; }
+        public IActionResult? Error { get; init; }
     }
 }
 
