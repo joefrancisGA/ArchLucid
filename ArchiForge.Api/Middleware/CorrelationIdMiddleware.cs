@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 using Serilog.Context;
 
@@ -7,11 +8,18 @@ namespace ArchiForge.Api.Middleware;
 public sealed class CorrelationIdMiddleware(RequestDelegate next)
 {
     private const string HeaderName = "X-Correlation-ID";
+    private const int MaxCorrelationIdLength = 64;
+
+    // Only allow safe characters: alphanumeric, hyphens, underscores, and dots.
+    private static readonly Regex SafeCorrelationIdPattern =
+        new(@"^[a-zA-Z0-9\-_.]+$", RegexOptions.Compiled);
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var correlationId = context.Request.Headers[HeaderName].FirstOrDefault()
-            ?? context.TraceIdentifier;
+        var rawHeader = context.Request.Headers[HeaderName].FirstOrDefault();
+        var correlationId = IsValidCorrelationId(rawHeader)
+            ? rawHeader!
+            : context.TraceIdentifier;
 
         context.Response.Headers[HeaderName] = correlationId;
         context.TraceIdentifier = correlationId;
@@ -31,4 +39,9 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
             await next(context);
         }
     }
+
+    private static bool IsValidCorrelationId(string? value) =>
+        !string.IsNullOrWhiteSpace(value)
+        && value.Length <= MaxCorrelationIdLength
+        && SafeCorrelationIdPattern.IsMatch(value);
 }

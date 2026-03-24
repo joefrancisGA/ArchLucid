@@ -71,16 +71,33 @@ public sealed class EndToEndReplayComparisonService(
         var leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
         var rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
 
-        var exportPairs = Math.Min(leftExports.Count, rightExports.Count);
+        // Match by ExportType so that ordering differences between runs don't produce nonsensical diffs.
+        var leftByType = leftExports
+            .GroupBy(e => e.ExportType, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
-        for (var i = 0; i < exportPairs; i++)
-        {
-            report.ExportDiffs.Add(exportRecordDiffService.Compare(leftExports[i], rightExports[i]));
-        }
+        var rightByType = rightExports
+            .GroupBy(e => e.ExportType, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
-        if (leftExports.Count != rightExports.Count)
+        foreach (var exportType in leftByType.Keys.Union(rightByType.Keys, StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(t => t, StringComparer.OrdinalIgnoreCase))
         {
-            report.Warnings.Add("The runs have different numbers of export records.");
+            var hasLeft = leftByType.TryGetValue(exportType, out var leftRecord);
+            var hasRight = rightByType.TryGetValue(exportType, out var rightRecord);
+
+            if (hasLeft && hasRight)
+            {
+                report.ExportDiffs.Add(exportRecordDiffService.Compare(leftRecord!, rightRecord!));
+            }
+            else if (!hasLeft)
+            {
+                report.Warnings.Add($"Export type '{exportType}' exists on the right run but not the left.");
+            }
+            else
+            {
+                report.Warnings.Add($"Export type '{exportType}' exists on the left run but not the right.");
+            }
         }
 
         AddInterpretationNotes(report);

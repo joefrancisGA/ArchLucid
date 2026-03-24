@@ -18,6 +18,8 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
     /// <inheritdoc />
     public async Task CreateAsync(PolicyPackVersion version, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(version);
+
         const string sql = """
             INSERT INTO dbo.PolicyPackVersions
             (PolicyPackVersionId, PolicyPackId, [Version], ContentJson, CreatedUtc, IsPublished)
@@ -32,6 +34,8 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
     /// <inheritdoc />
     public async Task UpdateAsync(PolicyPackVersion version, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(version);
+
         const string sql = """
             UPDATE dbo.PolicyPackVersions
             SET ContentJson = @ContentJson, IsPublished = @IsPublished

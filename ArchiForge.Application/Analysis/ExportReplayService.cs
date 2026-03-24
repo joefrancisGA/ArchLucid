@@ -14,6 +14,8 @@ public sealed class ExportReplayService(
         ReplayExportRequest request,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         if (string.IsNullOrWhiteSpace(request.ExportRecordId))
         {
             throw new InvalidOperationException("ExportRecordId is required.");

@@ -91,12 +91,23 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
         var nodes = new List<DecisionNode>();
         foreach (var json in rows)
         {
-            var node = JsonSerializer.Deserialize<DecisionNode>(json, ContractJson.Default);
-            if (node is null)
+            DecisionNode? node;
+            try
+            {
+                node = JsonSerializer.Deserialize<DecisionNode>(json, ContractJson.Default);
+            }
+            catch (JsonException ex)
             {
                 throw new InvalidOperationException(
                     $"Failed to deserialize a DecisionNode for run '{runId}'. " +
-                    "The stored JSON may be corrupt or written by an incompatible schema version.");
+                    "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+            }
+
+            if (node is null)
+            {
+                throw new InvalidOperationException(
+                    $"A DecisionNode row for run '{runId}' deserialized to null. " +
+                    "The stored JSON may be empty or corrupt.");
             }
 
             nodes.Add(node);

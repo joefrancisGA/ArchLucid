@@ -3,11 +3,14 @@ using ArchiForge.ContextIngestion.Models;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace ArchiForge.ContextIngestion.Tests;
 
 public sealed class JsonInfrastructureDeclarationParserTests
 {
-    private readonly JsonInfrastructureDeclarationParser _sut = new();
+    private readonly JsonInfrastructureDeclarationParser _sut =
+        new(NullLogger<JsonInfrastructureDeclarationParser>.Instance);
 
     [Fact]
     public async Task ParseAsync_MapsVnetSubnetStorageApp_KeyVault()

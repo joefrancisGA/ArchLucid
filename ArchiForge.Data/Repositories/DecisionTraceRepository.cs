@@ -75,12 +75,23 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
         var traces = new List<DecisionTrace>();
         foreach (var json in rows)
         {
-            var trace = JsonSerializer.Deserialize<DecisionTrace>(json, ContractJson.Default);
-            if (trace is null)
+            DecisionTrace? trace;
+            try
+            {
+                trace = JsonSerializer.Deserialize<DecisionTrace>(json, ContractJson.Default);
+            }
+            catch (JsonException ex)
             {
                 throw new InvalidOperationException(
                     $"Failed to deserialize a DecisionTrace for run '{runId}'. " +
-                    "The stored JSON may be corrupt or written by an incompatible schema version.");
+                    "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+            }
+
+            if (trace is null)
+            {
+                throw new InvalidOperationException(
+                    $"A DecisionTrace row for run '{runId}' deserialized to null. " +
+                    "The stored JSON may be empty or corrupt.");
             }
 
             traces.Add(trace);

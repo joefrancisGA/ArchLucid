@@ -26,6 +26,11 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository)
         string? notes = null,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(exportType);
+        ArgumentException.ThrowIfNullOrWhiteSpace(format);
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
+
         var record = new RunExportRecord
         {
             ExportRecordId = Guid.NewGuid().ToString("N"),

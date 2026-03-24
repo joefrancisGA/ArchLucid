@@ -12,6 +12,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
 {
     public async Task CreateAsync(EvidenceBundle evidenceBundle, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(evidenceBundle);
         const string sql = """
             INSERT INTO EvidenceBundles
             (
@@ -63,8 +64,24 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
             },
             cancellationToken: cancellationToken));
 
-        return json is null
-            ? null
-            : JsonSerializer.Deserialize<EvidenceBundle>(json, ContractJson.Default);
+        if (json is null)
+            return null;
+
+        EvidenceBundle? bundle;
+        try
+        {
+            bundle = JsonSerializer.Deserialize<EvidenceBundle>(json, ContractJson.Default);
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Evidence bundle JSON for '{evidenceBundleId}' could not be deserialized. " +
+                "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+        }
+
+        return bundle
+            ?? throw new InvalidOperationException(
+                $"Evidence bundle JSON for '{evidenceBundleId}' deserialized to null. " +
+                "The stored JSON may be empty or corrupt.");
     }
 }

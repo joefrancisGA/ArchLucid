@@ -13,14 +13,23 @@ public static class AnalysisExportRequestRehydrator
 
     public static PersistedAnalysisExportRequest? Rehydrate(RunExportRecord record)
     {
-        if (string.IsNullOrWhiteSpace(record.AnalysisRequestJson))
-        {
-            return null;
-        }
+        ArgumentNullException.ThrowIfNull(record);
 
-        return JsonSerializer.Deserialize<PersistedAnalysisExportRequest>(
-            record.AnalysisRequestJson,
-            JsonOptions);
+        if (string.IsNullOrWhiteSpace(record.AnalysisRequestJson))
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<PersistedAnalysisExportRequest>(
+                record.AnalysisRequestJson,
+                JsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Export record '{record.ExportRecordId}' AnalysisRequestJson could not be deserialized. " +
+                "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+        }
     }
 }
 

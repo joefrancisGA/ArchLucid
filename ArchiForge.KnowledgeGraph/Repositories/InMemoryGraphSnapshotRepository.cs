@@ -7,7 +7,8 @@ namespace ArchiForge.KnowledgeGraph.Repositories;
 
 public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
 {
-    private readonly List<GraphSnapshot> _store = [];
+    private readonly Dictionary<Guid, GraphSnapshot> _store = [];
+    private readonly Lock _lock = new();
 
     public Task SaveAsync(
         GraphSnapshot snapshot,
@@ -18,14 +19,21 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
         _ = ct;
         _ = connection;
         _ = transaction;
-        _store.Add(snapshot);
+        lock (_lock)
+        {
+            _store[snapshot.GraphSnapshotId] = snapshot;
+        }
+
         return Task.CompletedTask;
     }
 
     public Task<GraphSnapshot?> GetByIdAsync(Guid graphSnapshotId, CancellationToken ct)
     {
-        var result = _store.FirstOrDefault(x => x.GraphSnapshotId == graphSnapshotId);
-        return Task.FromResult(result);
+        _ = ct;
+        lock (_lock)
+        {
+            _store.TryGetValue(graphSnapshotId, out var result);
+            return Task.FromResult(result);
+        }
     }
 }
-

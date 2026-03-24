@@ -2,9 +2,11 @@ using System.Text.Json;
 
 using ArchiForge.ContextIngestion.Models;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchiForge.ContextIngestion.Infrastructure;
 
-public class JsonInfrastructureDeclarationParser : IInfrastructureDeclarationParser
+public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDeclarationParser> logger) : IInfrastructureDeclarationParser
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -24,8 +26,12 @@ public class JsonInfrastructureDeclarationParser : IInfrastructureDeclarationPar
         {
             doc = JsonSerializer.Deserialize<ResourceDeclarationDocument>(declaration.Content, JsonOptions);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            logger.LogWarning(ex,
+                "Failed to parse infrastructure declaration '{Name}' (DeclarationId={DeclarationId}) as JSON; skipping.",
+                declaration.Name,
+                declaration.DeclarationId);
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
         }
 

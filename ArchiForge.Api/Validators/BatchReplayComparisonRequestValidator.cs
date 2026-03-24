@@ -9,7 +9,11 @@ public sealed class BatchReplayComparisonRequestValidator : AbstractValidator<Ba
     public BatchReplayComparisonRequestValidator()
     {
         RuleFor(x => x.ComparisonRecordIds)
-            .NotEmpty().WithMessage("At least one comparison record ID is required.");
+            .NotEmpty().WithMessage("At least one comparison record ID is required.")
+            .Must(ids => ids == null || ids.All(id => !string.IsNullOrWhiteSpace(id)))
+                .WithMessage("comparisonRecordIds must not contain blank or whitespace-only entries.")
+            .Must(ids => ids == null || ids.Count <= 50)
+                .WithMessage("comparisonRecordIds may contain at most 50 entries.");
 
         RuleFor(x => x.Format)
             .NotEmpty().WithMessage("Format is required.")

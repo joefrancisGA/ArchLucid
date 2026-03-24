@@ -66,14 +66,28 @@ public sealed class ArchitectureAnalysisService(
             }
         }
 
-        if (request.IncludeDiagram && report.Manifest is not null)
+        if (request.IncludeDiagram)
         {
-            report.Diagram = diagramGenerator.GenerateMermaid(report.Manifest);
+            if (report.Manifest is not null)
+            {
+                report.Diagram = diagramGenerator.GenerateMermaid(report.Manifest);
+            }
+            else
+            {
+                report.Warnings.Add("Diagram was requested but the manifest is unavailable; diagram was not generated.");
+            }
         }
 
-        if (request.IncludeSummary && report.Manifest is not null)
+        if (request.IncludeSummary)
         {
-            report.Summary = summaryGenerator.GenerateMarkdown(report.Manifest, report.Evidence);
+            if (report.Manifest is not null)
+            {
+                report.Summary = summaryGenerator.GenerateMarkdown(report.Manifest, report.Evidence);
+            }
+            else
+            {
+                report.Warnings.Add("Summary was requested but the manifest is unavailable; summary was not generated.");
+            }
         }
 
         if (request.IncludeDeterminismCheck)

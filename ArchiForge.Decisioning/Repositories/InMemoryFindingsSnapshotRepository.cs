@@ -8,8 +8,10 @@ namespace ArchiForge.Decisioning.Repositories;
 
 public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 {
-    private readonly List<string> _store = [];
-    private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
+    private readonly Dictionary<Guid, string> _store = [];
+    private readonly Lock _lock = new();
+
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = false
     };
@@ -24,23 +26,28 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         _ = connection;
         _ = transaction;
         // Store as JSON to simulate durable persistence and ensure payload round-trips.
-        var json = JsonSerializer.Serialize(snapshot, _jsonOptions);
-        _store.Add(json);
+        var json = JsonSerializer.Serialize(snapshot, JsonOptions);
+        lock (_lock)
+        {
+            _store[snapshot.FindingsSnapshotId] = json;
+        }
+
         return Task.CompletedTask;
     }
 
     public Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct)
     {
-        foreach (var json in _store)
+        _ = ct;
+        string? json;
+        lock (_lock)
         {
-            var snapshot = JsonSerializer.Deserialize<FindingsSnapshot>(json, _jsonOptions);
-            if (snapshot is not null && snapshot.FindingsSnapshotId == findingsSnapshotId)
-            {
-                return Task.FromResult<FindingsSnapshot?>(snapshot);
-            }
+            _store.TryGetValue(findingsSnapshotId, out json);
         }
 
-        return Task.FromResult<FindingsSnapshot?>(null);
+        if (json is null)
+            return Task.FromResult<FindingsSnapshot?>(null);
+
+        var snapshot = JsonSerializer.Deserialize<FindingsSnapshot>(json, JsonOptions);
+        return Task.FromResult(snapshot);
     }
 }
-

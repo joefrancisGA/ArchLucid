@@ -14,27 +14,41 @@ public static class ComparisonRecordPayloadRehydrator
     public static EndToEndReplayComparisonReport? RehydrateEndToEnd(
         ComparisonRecord record)
     {
-        if (string.IsNullOrWhiteSpace(record.PayloadJson))
-        {
-            return null;
-        }
+        ArgumentNullException.ThrowIfNull(record);
 
-        return JsonSerializer.Deserialize<EndToEndReplayComparisonReport>(
-            record.PayloadJson,
-            JsonOptions);
+        if (string.IsNullOrWhiteSpace(record.PayloadJson))
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<EndToEndReplayComparisonReport>(record.PayloadJson, JsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Comparison record '{record.ComparisonRecordId}' PayloadJson could not be deserialized as EndToEndReplayComparisonReport. " +
+                "The stored JSON may be corrupt.", ex);
+        }
     }
 
     public static ExportRecordDiffResult? RehydrateExportDiff(
         ComparisonRecord record)
     {
-        if (string.IsNullOrWhiteSpace(record.PayloadJson))
-        {
-            return null;
-        }
+        ArgumentNullException.ThrowIfNull(record);
 
-        return JsonSerializer.Deserialize<ExportRecordDiffResult>(
-            record.PayloadJson,
-            JsonOptions);
+        if (string.IsNullOrWhiteSpace(record.PayloadJson))
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<ExportRecordDiffResult>(record.PayloadJson, JsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"Comparison record '{record.ComparisonRecordId}' PayloadJson could not be deserialized as ExportRecordDiffResult. " +
+                "The stored JSON may be corrupt.", ex);
+        }
     }
 }
 

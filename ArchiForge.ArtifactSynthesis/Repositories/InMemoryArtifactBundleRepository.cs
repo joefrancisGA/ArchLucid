@@ -9,6 +9,7 @@ namespace ArchiForge.ArtifactSynthesis.Repositories;
 public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
 {
     private readonly List<ArtifactBundle> _store = [];
+    private readonly Lock _lock = new();
 
     public Task SaveAsync(
         ArtifactBundle bundle,
@@ -19,17 +20,23 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
         _ = ct;
         _ = connection;
         _ = transaction;
-        _store.Add(bundle);
+        lock (_lock)
+        {
+            _store.Add(bundle);
+        }
         return Task.CompletedTask;
     }
 
     public Task<ArtifactBundle?> GetByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
-        var result = _store.LastOrDefault(x =>
-            x.ManifestId == manifestId &&
-            x.TenantId == scope.TenantId &&
-            x.WorkspaceId == scope.WorkspaceId &&
-            x.ProjectId == scope.ProjectId);
-        return Task.FromResult(result);
+        lock (_lock)
+        {
+            var result = _store.LastOrDefault(x =>
+                x.ManifestId == manifestId &&
+                x.TenantId == scope.TenantId &&
+                x.WorkspaceId == scope.WorkspaceId &&
+                x.ProjectId == scope.ProjectId);
+            return Task.FromResult(result);
+        }
     }
 }

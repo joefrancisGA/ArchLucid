@@ -19,6 +19,8 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         ComparisonRecord record,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(record);
+
         const string sql = """
             INSERT INTO ComparisonRecords
             (
@@ -91,21 +93,26 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         string runId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
-            SELECT *
-            FROM ComparisonRecords
-            WHERE LeftRunId = @RunId OR RightRunId = @RunId
-            ORDER BY CreatedUtc DESC;
-            """;
-
         using var connection = _connectionFactory.CreateConnection();
+        var isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
+
+        var sql = isSqlite
+            ? """
+              SELECT * FROM ComparisonRecords
+              WHERE LeftRunId = @RunId OR RightRunId = @RunId
+              ORDER BY CreatedUtc DESC
+              LIMIT 200;
+              """
+            : """
+              SELECT TOP 200 *
+              FROM ComparisonRecords
+              WHERE LeftRunId = @RunId OR RightRunId = @RunId
+              ORDER BY CreatedUtc DESC;
+              """;
 
         var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new
-            {
-                RunId = runId
-            },
+            new { RunId = runId },
             cancellationToken: cancellationToken));
 
 #pragma warning disable IDE0305 // Simplify collection initialization
@@ -117,21 +124,26 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         string exportRecordId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
-            SELECT *
-            FROM ComparisonRecords
-            WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
-            ORDER BY CreatedUtc DESC;
-            """;
-
         using var connection = _connectionFactory.CreateConnection();
+        var isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
+
+        var sql = isSqlite
+            ? """
+              SELECT * FROM ComparisonRecords
+              WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
+              ORDER BY CreatedUtc DESC
+              LIMIT 200;
+              """
+            : """
+              SELECT TOP 200 *
+              FROM ComparisonRecords
+              WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
+              ORDER BY CreatedUtc DESC;
+              """;
 
         var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
-            new
-            {
-                ExportRecordId = exportRecordId
-            },
+            new { ExportRecordId = exportRecordId },
             cancellationToken: cancellationToken));
 
 #pragma warning disable IDE0305 // Simplify collection initialization
@@ -305,6 +317,8 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         IReadOnlyList<string>? tags,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
+
         const string sql = """
             UPDATE ComparisonRecords
             SET Label = @Label,

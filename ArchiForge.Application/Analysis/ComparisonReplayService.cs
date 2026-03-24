@@ -371,7 +371,9 @@ public sealed class ComparisonReplayService(
             "artifact" => ComparisonReplayMode.ArtifactReplay,
             "regenerate" => ComparisonReplayMode.Regenerate,
             "verify" => ComparisonReplayMode.Verify,
-            _ => ComparisonReplayMode.ArtifactReplay
+            _ => throw new ArgumentException(
+                $"Unknown replay mode '{replayMode}'. Supported modes: artifact, regenerate, verify.",
+                nameof(replayMode))
         };
     }
 

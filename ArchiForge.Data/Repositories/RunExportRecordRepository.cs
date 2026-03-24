@@ -131,11 +131,32 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             },
             cancellationToken: cancellationToken));
 
-        return rows
-            .Select(json => JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default))
-            .Where(x => x is not null)
-            .Cast<RunExportRecord>()
-            .ToList();
+        var records = new List<RunExportRecord>();
+        foreach (var json in rows)
+        {
+            RunExportRecord? record;
+            try
+            {
+                record = JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException(
+                    $"A RunExportRecord for run '{runId}' could not be deserialized. " +
+                    "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+            }
+
+            if (record is null)
+            {
+                throw new InvalidOperationException(
+                    $"A RunExportRecord row for run '{runId}' deserialized to null. " +
+                    "The stored JSON may be empty or corrupt.");
+            }
+
+            records.Add(record);
+        }
+
+        return records;
     }
 
     public async Task<RunExportRecord?> GetByIdAsync(
@@ -158,9 +179,25 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             },
             cancellationToken: cancellationToken));
 
-        return json is null
-            ? null
-            : JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
+        if (json is null)
+            return null;
+
+        RunExportRecord? record;
+        try
+        {
+            record = JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException(
+                $"RunExportRecord JSON for '{exportRecordId}' could not be deserialized. " +
+                "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+        }
+
+        return record
+            ?? throw new InvalidOperationException(
+                $"RunExportRecord JSON for '{exportRecordId}' deserialized to null. " +
+                "The stored JSON may be empty or corrupt.");
     }
 }
 

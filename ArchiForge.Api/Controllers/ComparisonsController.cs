@@ -244,7 +244,10 @@ public sealed class ComparisonsController(
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
         var record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
-        return Ok(new ComparisonRecordResponse { Record = record! });
+        if (record is null)
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found after update.", ProblemTypes.ResourceNotFound);
+
+        return Ok(new ComparisonRecordResponse { Record = record });
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
@@ -397,14 +400,24 @@ public sealed class ComparisonsController(
                 ProblemTypes.ValidationFailed);
         }
 
+        var blankIds = request.ComparisonRecordIds
+            .Where(string.IsNullOrWhiteSpace)
+            .ToList();
+        if (blankIds.Count > 0)
+        {
+            return this.BadRequestProblem(
+                "comparisonRecordIds must not contain blank or whitespace-only entries.",
+                ProblemTypes.ValidationFailed);
+        }
+
         var format = request.Format;
         var mode = request.ReplayMode;
 
-        await using var ms = new MemoryStream();
+        var ms = new MemoryStream();
 
         await using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
         {
-            foreach (var id in request.ComparisonRecordIds.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (var id in request.ComparisonRecordIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 var result = await comparisonReplayApiService.ReplayAsync(
                     ReplayComparisonRequestMapper.ToApplicationForBatchEntry(
@@ -430,7 +443,7 @@ public sealed class ComparisonsController(
         }
 
         ms.Position = 0;
-        return ApiFileResults.SimpleBytes(ms.ToArray(), "application/zip", "comparison_replays.zip");
+        return File(ms, "application/zip", "comparison_replays.zip");
     }
 
     private static DriftAnalysisResponse MapDriftAnalysis(DriftAnalysisResult drift)

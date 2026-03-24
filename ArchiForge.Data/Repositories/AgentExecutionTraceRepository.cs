@@ -81,10 +81,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             },
             cancellationToken: cancellationToken));
 
-        return [.. rows
-            .Select(json => JsonSerializer.Deserialize<AgentExecutionTrace>(json, ContractJson.Default))
-            .Where(x => x is not null)
-            .Cast<AgentExecutionTrace>()];
+        return DeserializeTraces(rows, $"run '{runId}'");
     }
 
     public async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
@@ -112,11 +109,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         var list = rows.ToList();
         var totalCount = list.Count > 0 ? (int)list[0].TotalCount : 0;
 
-        var traces = list
-            .Select(row => JsonSerializer.Deserialize<AgentExecutionTrace>((string)row.TraceJson, ContractJson.Default))
-            .Where(x => x is not null)
-            .Cast<AgentExecutionTrace>()
-            .ToList();
+        var traces = DeserializeTraces(list.Select(row => (string)row.TraceJson), $"run '{runId}' (paged)");
 
         return (traces, totalCount);
     }
@@ -142,10 +135,38 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             },
             cancellationToken: cancellationToken));
 
-        return rows
-            .Select(json => JsonSerializer.Deserialize<AgentExecutionTrace>(json, ContractJson.Default))
-            .Where(x => x is not null)
-            .Cast<AgentExecutionTrace>()
-            .ToList();
+        return DeserializeTraces(rows, $"task '{taskId}'");
+    }
+
+    private static IReadOnlyList<AgentExecutionTrace> DeserializeTraces(
+        IEnumerable<string> jsonRows,
+        string context)
+    {
+        var traces = new List<AgentExecutionTrace>();
+        foreach (var json in jsonRows)
+        {
+            AgentExecutionTrace? trace;
+            try
+            {
+                trace = JsonSerializer.Deserialize<AgentExecutionTrace>(json, ContractJson.Default);
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to deserialize an AgentExecutionTrace for {context}. " +
+                    "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+            }
+
+            if (trace is null)
+            {
+                throw new InvalidOperationException(
+                    $"An AgentExecutionTrace row for {context} deserialized to null. " +
+                    "The stored JSON may be empty or corrupt.");
+            }
+
+            traces.Add(trace);
+        }
+
+        return traces;
     }
 }

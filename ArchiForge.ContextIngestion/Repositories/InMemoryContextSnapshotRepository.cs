@@ -7,21 +7,32 @@ namespace ArchiForge.ContextIngestion.Repositories;
 
 public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
 {
-    private readonly List<ContextSnapshot> _store = [];
+    private const int MaxSnapshots = 500;
+
+    private readonly Dictionary<Guid, ContextSnapshot> _store = [];
+    private readonly Lock _lock = new();
 
     public Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(_store
-            .Where(s => string.Equals(s.ProjectId, projectId, StringComparison.Ordinal))
-            .OrderByDescending(s => s.CreatedUtc)
-            .FirstOrDefault());
+        lock (_lock)
+        {
+            var result = _store.Values
+                .Where(s => string.Equals(s.ProjectId, projectId, StringComparison.Ordinal))
+                .OrderByDescending(s => s.CreatedUtc)
+                .FirstOrDefault();
+            return Task.FromResult(result);
+        }
     }
 
     public Task<ContextSnapshot?> GetByIdAsync(Guid snapshotId, CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult(_store.FirstOrDefault(s => s.SnapshotId == snapshotId));
+        lock (_lock)
+        {
+            _store.TryGetValue(snapshotId, out var snapshot);
+            return Task.FromResult(snapshot);
+        }
     }
 
     public Task SaveAsync(
@@ -33,8 +44,23 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
         _ = ct;
         _ = connection;
         _ = transaction;
-        _store.Add(snapshot);
+        lock (_lock)
+        {
+            _store[snapshot.SnapshotId] = snapshot;
+
+            // Evict oldest entries when the store exceeds the cap.
+            if (_store.Count > MaxSnapshots)
+            {
+                var toRemove = _store.Values
+                    .OrderBy(s => s.CreatedUtc)
+                    .Take(_store.Count - MaxSnapshots)
+                    .Select(s => s.SnapshotId)
+                    .ToList();
+                foreach (var id in toRemove)
+                    _store.Remove(id);
+            }
+        }
+
         return Task.CompletedTask;
     }
 }
-

@@ -17,6 +17,11 @@ public class ContextIngestionService(
         ContextIngestionRequest request,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        if (request.RunId == Guid.Empty)
+            throw new ArgumentException("RunId must be a non-empty GUID.", nameof(request));
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.ProjectId, nameof(request));
+
         var snapshot = new ContextSnapshot
         {
             SnapshotId = Guid.NewGuid(),

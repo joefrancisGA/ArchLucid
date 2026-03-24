@@ -112,12 +112,23 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         var evaluations = new List<AgentEvaluation>();
         foreach (var json in rows)
         {
-            var evaluation = JsonSerializer.Deserialize<AgentEvaluation>(json, ContractJson.Default);
-            if (evaluation is null)
+            AgentEvaluation? evaluation;
+            try
+            {
+                evaluation = JsonSerializer.Deserialize<AgentEvaluation>(json, ContractJson.Default);
+            }
+            catch (JsonException ex)
             {
                 throw new InvalidOperationException(
                     $"Failed to deserialize an AgentEvaluation for run '{runId}'. " +
-                    "The stored JSON may be corrupt or written by an incompatible schema version.");
+                    "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+            }
+
+            if (evaluation is null)
+            {
+                throw new InvalidOperationException(
+                    $"An AgentEvaluation row for run '{runId}' deserialized to null. " +
+                    "The stored JSON may be empty or corrupt.");
             }
 
             evaluations.Add(evaluation);

@@ -71,6 +71,8 @@ public sealed class AskService(
     /// </remarks>
     public async Task<AskResponse> AskAsync(AskRequest request, ScopeContext scope, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         if (string.IsNullOrWhiteSpace(request.Question))
             throw new ArgumentException("Question is required.", nameof(request));
 
@@ -160,8 +162,13 @@ public sealed class AskService(
         {
             raw = await llm.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, ct);
         }
-        catch
+        catch (OperationCanceledException)
         {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "LLM completion failed for Ask (ThreadId={ThreadId}); returning fallback response.", thread.ThreadId);
             return new AskResponse
             {
                 ThreadId = thread.ThreadId,
@@ -320,7 +327,7 @@ public sealed class AskService(
         return s;
     }
 
-    private static LlmAskShape? TryDeserialize(string? json)
+    private LlmAskShape? TryDeserialize(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))
             return null;
@@ -328,8 +335,9 @@ public sealed class AskService(
         {
             return JsonSerializer.Deserialize<LlmAskShape>(json, JsonRead);
         }
-        catch
+        catch (JsonException ex)
         {
+            logger.LogWarning(ex, "Failed to deserialize LLM Ask response as JSON; falling back to raw text.");
             return null;
         }
     }

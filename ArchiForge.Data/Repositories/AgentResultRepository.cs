@@ -124,13 +124,19 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         });
 
         using var connection = connectionFactory.CreateConnection();
+        connection.Open();
+
+        using var tx = connection.BeginTransaction();
 
         await connection.ExecuteAsync(new CommandDefinition(
             deleteSql,
             new { results[0].RunId },
+            transaction: tx,
             cancellationToken: cancellationToken));
 
-        await connection.ExecuteAsync(new CommandDefinition(insertSql, args, cancellationToken: cancellationToken));
+        await connection.ExecuteAsync(new CommandDefinition(insertSql, args, transaction: tx, cancellationToken: cancellationToken));
+
+        tx.Commit();
     }
 
     public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
@@ -152,6 +158,31 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             },
             cancellationToken: cancellationToken));
 
-        return [.. rows.Select(json => JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default)).Where(x => x is not null).Cast<AgentResult>()];
+        var results = new List<AgentResult>();
+        foreach (var json in rows)
+        {
+            AgentResult? result;
+            try
+            {
+                result = JsonSerializer.Deserialize<AgentResult>(json, ContractJson.Default);
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to deserialize an AgentResult for run '{runId}'. " +
+                    "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
+            }
+
+            if (result is null)
+            {
+                throw new InvalidOperationException(
+                    $"An AgentResult row for run '{runId}' deserialized to null. " +
+                    "The stored JSON may be empty or corrupt.");
+            }
+
+            results.Add(result);
+        }
+
+        return results;
     }
 }
