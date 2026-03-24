@@ -100,7 +100,7 @@ public sealed partial class RunsController(
         catch (InvalidOperationException ex)
         {
             logger.LogWarning(ex, "ExecuteRun failed for run '{RunId}'.", runId);
-            return this.InvalidOperationProblem(ex, ProblemTypes.DeterminismFailed);
+            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }
 

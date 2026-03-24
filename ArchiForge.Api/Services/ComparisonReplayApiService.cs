@@ -70,8 +70,7 @@ public sealed class ComparisonReplayApiService(
                 MetadataOnly = metadataOnly
             });
 
-            var notFound = ex is RunNotFoundException
-                || (ex is InvalidOperationException && ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase));
+            var notFound = ex is RunNotFoundException;
             logger.LogWarning(
                 ex,
                 "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, NotFound={NotFound}, MetadataOnly={MetadataOnly}, Error={Error}",

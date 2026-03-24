@@ -224,7 +224,8 @@ public sealed class ComparisonsController(
     }
 
     [HttpPatch("comparisons/{comparisonRecordId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ComparisonRecordResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateComparisonRecord(
         [FromRoute] string comparisonRecordId,

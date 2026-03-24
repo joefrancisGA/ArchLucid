@@ -129,7 +129,7 @@ public sealed class ManifestsController(
     }
 
     [HttpGet("manifest/{version}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GoldenManifest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifest(
         [FromRoute] string version,
@@ -366,7 +366,7 @@ public sealed class ManifestsController(
     }
 
     [HttpGet("manifest/{version}/export/download")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DownloadManifestExport(
         [FromRoute] string version,

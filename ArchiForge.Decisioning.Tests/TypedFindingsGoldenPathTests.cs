@@ -9,6 +9,8 @@ using ArchiForge.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace ArchiForge.Decisioning.Tests;
 
 public sealed class TypedFindingsGoldenPathTests
@@ -125,7 +127,7 @@ public sealed class TypedFindingsGoldenPathTests
             new CostConstraintFindingEngine()
         ];
 
-        var orchestrator = new FindingsOrchestrator(engines, new FindingPayloadValidator());
+        var orchestrator = new FindingsOrchestrator(engines, new FindingPayloadValidator(), NullLogger<FindingsOrchestrator>.Instance);
 
         var snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);
 

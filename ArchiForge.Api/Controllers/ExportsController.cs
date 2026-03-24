@@ -4,6 +4,7 @@ using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
+using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
 using Asp.Versioning;
@@ -75,20 +76,10 @@ public sealed class ExportsController(
         [FromQuery] string rightExportRecordId,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(leftExportRecordId))
-            return this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed);
-        if (string.IsNullOrWhiteSpace(rightExportRecordId))
-            return this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed);
+        var loaded = await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
+        if (loaded.Error is not null) return loaded.Error;
 
-        var left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
-        if (left is null)
-            return this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        var right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
-        if (right is null)
-            return this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        var diff = exportRecordDiffService.Compare(left, right);
+        var diff = exportRecordDiffService.Compare(loaded.Left!, loaded.Right!);
 
         return Ok(new ExportRecordDiffResponse
         {
@@ -106,22 +97,12 @@ public sealed class ExportsController(
         [FromBody] PersistComparisonRequest? request,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(leftExportRecordId))
-            return this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed);
-        if (string.IsNullOrWhiteSpace(rightExportRecordId))
-            return this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed);
+        var loaded = await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
+        if (loaded.Error is not null) return loaded.Error;
 
         request ??= new PersistComparisonRequest();
 
-        var left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
-        if (left is null)
-            return this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        var right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
-        if (right is null)
-            return this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        var diff = exportRecordDiffService.Compare(left, right);
+        var diff = exportRecordDiffService.Compare(loaded.Left!, loaded.Right!);
         var summary = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
 
         if (!request.Persist)
@@ -193,6 +174,40 @@ public sealed class ExportsController(
             Format = result.Format,
             FileName = result.FileName
         });
+    }
+
+    // ── Private helpers ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Validates query parameters and loads both export records.
+    /// Returns a non-null <see cref="LoadedExportRecordPair.Error"/> on any validation or 404 failure.
+    /// </summary>
+    private async Task<LoadedExportRecordPair> LoadExportRecordPairAsync(
+        string leftExportRecordId,
+        string rightExportRecordId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(leftExportRecordId))
+            return new LoadedExportRecordPair { Error = this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed) };
+        if (string.IsNullOrWhiteSpace(rightExportRecordId))
+            return new LoadedExportRecordPair { Error = this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed) };
+
+        var left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
+        if (left is null)
+            return new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) };
+
+        var right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
+        if (right is null)
+            return new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) };
+
+        return new LoadedExportRecordPair { Left = left, Right = right };
+    }
+
+    private sealed class LoadedExportRecordPair
+    {
+        public IActionResult? Error { get; init; }
+        public RunExportRecord? Left { get; init; }
+        public RunExportRecord? Right { get; init; }
     }
 }
 

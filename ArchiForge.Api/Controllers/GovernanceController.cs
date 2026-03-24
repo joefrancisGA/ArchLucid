@@ -3,6 +3,7 @@ using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application;
 using ArchiForge.Application.Governance;
+using ArchiForge.Contracts.Governance;
 using ArchiForge.Data.Repositories;
 
 using Asp.Versioning;
@@ -31,7 +32,7 @@ public sealed class GovernanceController(
 {
     [HttpPost("approval-requests")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SubmitApprovalRequest(
@@ -65,7 +66,7 @@ public sealed class GovernanceController(
 
     [HttpPost("approval-requests/{approvalRequestId}/approve")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Approve(
         [FromRoute] string approvalRequestId,
@@ -98,7 +99,7 @@ public sealed class GovernanceController(
 
     [HttpPost("approval-requests/{approvalRequestId}/reject")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Reject(
         [FromRoute] string approvalRequestId,
@@ -131,7 +132,7 @@ public sealed class GovernanceController(
 
     [HttpPost("promotions")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GovernancePromotionRecord), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Promote(
         [FromBody] CreateGovernancePromotionRequest? request,
@@ -167,7 +168,7 @@ public sealed class GovernanceController(
 
     [HttpPost("activations")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GovernanceEnvironmentActivation), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Activate(
@@ -195,7 +196,7 @@ public sealed class GovernanceController(
     }
 
     [HttpGet("runs/{runId}/approval-requests")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IReadOnlyList<GovernanceApprovalRequest>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetApprovalRequests(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
@@ -205,7 +206,7 @@ public sealed class GovernanceController(
     }
 
     [HttpGet("runs/{runId}/promotions")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IReadOnlyList<GovernancePromotionRecord>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPromotions(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
@@ -215,7 +216,7 @@ public sealed class GovernanceController(
     }
 
     [HttpGet("runs/{runId}/activations")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IReadOnlyList<GovernanceEnvironmentActivation>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetActivations(
         [FromRoute] string runId,
         CancellationToken cancellationToken)

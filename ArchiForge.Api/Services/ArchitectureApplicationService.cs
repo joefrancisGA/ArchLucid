@@ -9,6 +9,15 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Api.Services;
 
+/// <summary>
+/// API-facing orchestration service that coordinates run retrieval, agent result submission,
+/// manifest access, and fake-result seeding for the architecture run lifecycle.
+/// </summary>
+/// <remarks>
+/// All run reads are routed through <c>IRunDetailQueryService</c> to ensure a single authoritative
+/// data-loading path. State-changing operations (result submission, status transitions) execute
+/// inside a <see cref="System.Transactions.TransactionScope"/> to guarantee atomicity.
+/// </remarks>
 public sealed class ArchitectureApplicationService(
     IRunDetailQueryService runDetailQueryService,
     IArchitectureRunRepository runRepository,

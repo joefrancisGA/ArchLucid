@@ -3,6 +3,8 @@ using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Requests;
 
+using EvalTypes = ArchiForge.Contracts.Decisions.EvaluationTypes;
+
 namespace ArchiForge.DecisionEngine.Services;
 
 /// <summary>
@@ -54,13 +56,13 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
 
         var baseConfidence = topologyResult.Confidence;
         var support = relevant
-            .Where(e => e.EvaluationType.Equals("support", StringComparison.OrdinalIgnoreCase) ||
-                        e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase))
+            .Where(e => e.EvaluationType.Equals(EvalTypes.Support, StringComparison.OrdinalIgnoreCase) ||
+                        e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase))
             .Sum(e => Math.Max(0, e.ConfidenceDelta));
 
         var opposition = relevant
-            .Where(e => e.EvaluationType.Equals("oppose", StringComparison.OrdinalIgnoreCase) ||
-                        e.EvaluationType.Equals("caution", StringComparison.OrdinalIgnoreCase))
+            .Where(e => e.EvaluationType.Equals(EvalTypes.Oppose, StringComparison.OrdinalIgnoreCase) ||
+                        e.EvaluationType.Equals(EvalTypes.Caution, StringComparison.OrdinalIgnoreCase))
             .Sum(e => Math.Abs(e.ConfidenceDelta));
 
         var accept = new DecisionOption
@@ -93,13 +95,13 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
                 ? "Topology proposal retained after applying support and opposition signals."
                 : "Topology proposal rejected due to accumulated opposition signals.",
             SupportingEvaluationIds = relevant
-                .Where(e => e.EvaluationType.Equals("support", StringComparison.OrdinalIgnoreCase) ||
-                            e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase))
+                .Where(e => e.EvaluationType.Equals(EvalTypes.Support, StringComparison.OrdinalIgnoreCase) ||
+                            e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase))
                 .Select(e => e.EvaluationId)
                 .ToList(),
             OpposingEvaluationIds = relevant
-                .Where(e => e.EvaluationType.Equals("oppose", StringComparison.OrdinalIgnoreCase) ||
-                            e.EvaluationType.Equals("caution", StringComparison.OrdinalIgnoreCase))
+                .Where(e => e.EvaluationType.Equals(EvalTypes.Oppose, StringComparison.OrdinalIgnoreCase) ||
+                            e.EvaluationType.Equals(EvalTypes.Caution, StringComparison.OrdinalIgnoreCase))
                 .Select(e => e.EvaluationId)
                 .ToList(),
             CreatedUtc = DateTime.UtcNow
@@ -119,11 +121,11 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             .ToList();
 
         var promotePrivateEndpoints = relevant.Any(e =>
-            e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase) &&
+            e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase) &&
             e.Rationale.Contains("private", StringComparison.OrdinalIgnoreCase));
 
         var promoteManagedIdentity = relevant.Any(e =>
-            e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase) &&
+            e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase) &&
             e.Rationale.Contains("managed identity", StringComparison.OrdinalIgnoreCase));
 
         var controls = new List<string>();
@@ -140,7 +142,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
                 ? "No control promotion"
                 : $"Promote controls: {string.Join(", ", controls)}",
             BaseConfidence = controls.Count == 0 ? 0.30 : 0.80,
-            SupportScore = relevant.Where(e => e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase))
+            SupportScore = relevant.Where(e => e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase))
                 .Sum(e => Math.Max(0, e.ConfidenceDelta)),
             OppositionScore = 0
         };
@@ -154,7 +156,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             Confidence = promote.FinalScore,
             Rationale = promote.Description,
             SupportingEvaluationIds = relevant
-                .Where(e => e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase))
+                .Where(e => e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase))
                 .Select(e => e.EvaluationId)
                 .ToList(),
             CreatedUtc = DateTime.UtcNow
@@ -173,15 +175,15 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             .ToList();
 
         var cautions = relevant
-            .Where(e => e.EvaluationType.Equals("caution", StringComparison.OrdinalIgnoreCase) ||
-                        e.EvaluationType.Equals("oppose", StringComparison.OrdinalIgnoreCase))
+            .Where(e => e.EvaluationType.Equals(EvalTypes.Caution, StringComparison.OrdinalIgnoreCase) ||
+                        e.EvaluationType.Equals(EvalTypes.Oppose, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         var keep = new DecisionOption
         {
             Description = "Keep current solution complexity",
             BaseConfidence = 0.60,
-            SupportScore = relevant.Where(e => e.EvaluationType.Equals("support", StringComparison.OrdinalIgnoreCase))
+            SupportScore = relevant.Where(e => e.EvaluationType.Equals(EvalTypes.Support, StringComparison.OrdinalIgnoreCase))
                 .Sum(e => Math.Max(0, e.ConfidenceDelta)),
             OppositionScore = cautions.Sum(e => Math.Abs(e.ConfidenceDelta))
         };
@@ -207,7 +209,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
                 ? "Complexity retained because opposition did not outweigh the base design confidence."
                 : "Complexity reduction recommended due to caution and opposition signals.",
             SupportingEvaluationIds = relevant
-                .Where(e => e.EvaluationType.Equals("support", StringComparison.OrdinalIgnoreCase))
+                .Where(e => e.EvaluationType.Equals(EvalTypes.Support, StringComparison.OrdinalIgnoreCase))
                 .Select(e => e.EvaluationId)
                 .ToList(),
             OpposingEvaluationIds = cautions.Select(e => e.EvaluationId).ToList(),

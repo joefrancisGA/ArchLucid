@@ -13,6 +13,33 @@ namespace ArchiForge.Coordinator.Services;
 /// </summary>
 public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrchestrator) : ICoordinatorService
 {
+    // Policy pack references injected into every evidence bundle.
+    private const string PolicyPackEnterpriseDefault = "policy-pack:enterprise-default";
+    private const string PolicyPackAzureSecurityBaseline = "policy-pack:azure-security-baseline";
+    private const string PolicyPrivateNetworkingRequired = "policy:private-networking-required";
+    private const string PolicyManagedIdentityRequired = "policy:managed-identity-required";
+    private const string PolicyEncryptionAtRestRequired = "policy:encryption-at-rest-required";
+
+    // Service catalog references injected into every evidence bundle.
+    private const string CatalogAzureCoreServices = "catalog:azure-core-services";
+    private const string CatalogAzureSql = "catalog:azure-sql";
+    private const string CatalogAzureAiSearch = "catalog:azure-ai-search";
+    private const string CatalogAzureAiServices = "catalog:azure-ai-services";
+
+    // Allowed tools per agent type.
+    private const string ToolServiceCatalogReader = "service-catalog-reader";
+    private const string ToolPatternLibraryReader = "pattern-library-reader";
+    private const string ToolPricingProfileReader = "pricing-profile-reader";
+    private const string ToolCostEstimator = "cost-estimator";
+    private const string ToolPolicyPackReader = "policy-pack-reader";
+    private const string ToolControlMapper = "control-mapper";
+
+    // Allowed evidence sources shared across agent tasks.
+    private const string SourceArchitectureRequest = "architecture-request";
+    private const string SourcePolicyPack = "policy-pack";
+    private const string SourceServiceCatalog = "service-catalog";
+    private const string SourcePriorManifest = "prior-manifest";
+    private const string SourcePricingProfile = "pricing-profile";
     /// <inheritdoc />
     public async Task<CoordinationResult> CreateRunAsync(
         ArchitectureRequest request,
@@ -114,37 +141,37 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
     {
         var refs = new List<string>
         {
-            "policy-pack:enterprise-default",
-            "policy-pack:azure-security-baseline"
+            PolicyPackEnterpriseDefault,
+            PolicyPackAzureSecurityBaseline
         };
 
         if (RequestConstraintClassifier.HasPrivateNetworkingConstraint(request))
-            refs.Add("policy:private-networking-required");
+            refs.Add(PolicyPrivateNetworkingRequired);
 
         if (RequestConstraintClassifier.HasManagedIdentityConstraint(request))
-            refs.Add("policy:managed-identity-required");
+            refs.Add(PolicyManagedIdentityRequired);
 
         if (RequestConstraintClassifier.HasEncryptionConstraint(request))
-            refs.Add("policy:encryption-at-rest-required");
+            refs.Add(PolicyEncryptionAtRestRequired);
 
         return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     private static List<string> BuildServiceCatalogRefs(ArchitectureRequest request)
     {
-        // catalog:azure-sql is always included because DefaultEvidenceBuilder always
+        // CatalogAzureSql is always included because DefaultEvidenceBuilder always
         // provides SQL catalog evidence as a baseline service, keeping both in sync.
         var refs = new List<string>
         {
-            "catalog:azure-core-services",
-            "catalog:azure-sql"
+            CatalogAzureCoreServices,
+            CatalogAzureSql
         };
 
         if (RequestConstraintClassifier.RequiresSearchCapability(request))
-            refs.Add("catalog:azure-ai-search");
+            refs.Add(CatalogAzureAiSearch);
 
         if (RequestConstraintClassifier.RequiresAiCapability(request))
-            refs.Add("catalog:azure-ai-services");
+            refs.Add(CatalogAzureAiServices);
 
         return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
@@ -180,15 +207,15 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools =
             [
-                "service-catalog-reader",
-                "pattern-library-reader"
+                ToolServiceCatalogReader,
+                ToolPatternLibraryReader
             ],
             AllowedSources =
             [
-                "architecture-request",
-                "policy-pack",
-                "service-catalog",
-                "prior-manifest"
+                SourceArchitectureRequest,
+                SourcePolicyPack,
+                SourceServiceCatalog,
+                SourcePriorManifest
             ]
         };
     }
@@ -210,15 +237,15 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools =
             [
-                "pricing-profile-reader",
-                "cost-estimator"
+                ToolPricingProfileReader,
+                ToolCostEstimator
             ],
             AllowedSources =
             [
-                "architecture-request",
-                "pricing-profile",
-                "service-catalog",
-                "prior-manifest"
+                SourceArchitectureRequest,
+                SourcePricingProfile,
+                SourceServiceCatalog,
+                SourcePriorManifest
             ]
         };
     }
@@ -240,15 +267,15 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
             EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
             AllowedTools =
             [
-                "policy-pack-reader",
-                "control-mapper"
+                ToolPolicyPackReader,
+                ToolControlMapper
             ],
             AllowedSources =
             [
-                "architecture-request",
-                "policy-pack",
-                "service-catalog",
-                "prior-manifest"
+                SourceArchitectureRequest,
+                SourcePolicyPack,
+                SourceServiceCatalog,
+                SourcePriorManifest
             ]
         };
     }
@@ -293,14 +320,14 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
             AllowedTools =
             [
                 "architecture-review-checklist",
-                "policy-pack-reader"
+                ToolPolicyPackReader
             ],
             AllowedSources =
             [
-                "architecture-request",
-                "policy-pack",
-                "service-catalog",
-                "prior-manifest"
+                SourceArchitectureRequest,
+                SourcePolicyPack,
+                SourceServiceCatalog,
+                SourcePriorManifest
             ]
         };
     }

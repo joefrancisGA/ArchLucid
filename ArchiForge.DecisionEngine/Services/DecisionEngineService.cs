@@ -12,6 +12,14 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 {
     private readonly ISchemaValidationService _schemaValidationService = schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
 
+    private const string TopicTopologyAcceptance = "TopologyAcceptance";
+    private const string TopicSecurityControlPromotion = "SecurityControlPromotion";
+    private const string TopicComplexityDisposition = "ComplexityDisposition";
+    private const string EventTypeDecisionResolution = "DecisionResolution";
+    private const string ControlPrivateEndpoints = "Private Endpoints";
+    private const string ControlPrivateNetworking = "Private Networking";
+    private const string ControlManagedIdentity = "Managed Identity";
+
     public DecisionMergeResult MergeResults(
         string runId,
         ArchitectureRequest request,
@@ -21,6 +29,10 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         IReadOnlyCollection<DecisionNode> decisionNodes,
         string? parentManifestVersion = null)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(evaluations);
+        ArgumentNullException.ThrowIfNull(decisionNodes);
+
         var output = new DecisionMergeResult();
 
         if (string.IsNullOrWhiteSpace(runId))
@@ -111,7 +123,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         }
 
         var topologyAcceptance = decisionNodes.FirstOrDefault(d =>
-            string.Equals(d.Topic, "TopologyAcceptance", StringComparison.OrdinalIgnoreCase));
+            string.Equals(d.Topic, TopicTopologyAcceptance, StringComparison.OrdinalIgnoreCase));
         if (topologyAcceptance is not null)
         {
             var selected = topologyAcceptance.Options.FirstOrDefault(o => o.OptionId == topologyAcceptance.SelectedOptionId);
@@ -119,7 +131,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             if (selected is null && !string.IsNullOrWhiteSpace(topologyAcceptance.SelectedOptionId))
             {
                 output.Errors.Add(
-                    $"TopologyAcceptance node has SelectedOptionId '{topologyAcceptance.SelectedOptionId}' " +
+                    $"{TopicTopologyAcceptance} node has SelectedOptionId '{topologyAcceptance.SelectedOptionId}' " +
                     "that does not match any option. Merge aborted to prevent corrupt decision semantics.");
                 return;
             }
@@ -134,43 +146,43 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             AddTrace(
                 output,
                 runId,
-                "DecisionResolution",
-                $"TopologyAcceptance: {selected?.Description ?? "Unknown"} | {topologyAcceptance.Rationale}",
+                EventTypeDecisionResolution,
+                $"{TopicTopologyAcceptance}: {selected?.Description ?? "Unknown"} | {topologyAcceptance.Rationale}",
                 new Dictionary<string, string>
                 {
-                    ["decisionTopic"] = "TopologyAcceptance",
+                    ["decisionTopic"] = TopicTopologyAcceptance,
                     ["outcome"] = selected?.Description ?? "Unknown",
                     ["confidence"] = topologyAcceptance.Confidence.ToString("F3")
                 });
         }
 
         var securityPromotion = decisionNodes.FirstOrDefault(d =>
-            string.Equals(d.Topic, "SecurityControlPromotion", StringComparison.OrdinalIgnoreCase));
+            string.Equals(d.Topic, TopicSecurityControlPromotion, StringComparison.OrdinalIgnoreCase));
         if (securityPromotion is not null)
         {
             var selected = securityPromotion.Options.FirstOrDefault(o => o.OptionId == securityPromotion.SelectedOptionId);
             if (selected is not null)
             {
-                if (selected.Description.Contains("Private Endpoints", StringComparison.OrdinalIgnoreCase) &&
-                    !manifest.Governance.RequiredControls.Contains("Private Endpoints", StringComparer.OrdinalIgnoreCase))
+                if (selected.Description.Contains(ControlPrivateEndpoints, StringComparison.OrdinalIgnoreCase) &&
+                    !manifest.Governance.RequiredControls.Contains(ControlPrivateEndpoints, StringComparer.OrdinalIgnoreCase))
                 {
-                    manifest.Governance.RequiredControls.Add("Private Endpoints");
+                    manifest.Governance.RequiredControls.Add(ControlPrivateEndpoints);
                 }
 
-                if (selected.Description.Contains("Managed Identity", StringComparison.OrdinalIgnoreCase) &&
-                    !manifest.Governance.RequiredControls.Contains("Managed Identity", StringComparer.OrdinalIgnoreCase))
+                if (selected.Description.Contains(ControlManagedIdentity, StringComparison.OrdinalIgnoreCase) &&
+                    !manifest.Governance.RequiredControls.Contains(ControlManagedIdentity, StringComparer.OrdinalIgnoreCase))
                 {
-                    manifest.Governance.RequiredControls.Add("Managed Identity");
+                    manifest.Governance.RequiredControls.Add(ControlManagedIdentity);
                 }
 
                 AddTrace(
                     output,
                     runId,
-                    "DecisionResolution",
-                    $"SecurityControlPromotion: {selected.Description} | {securityPromotion.Rationale}",
+                    EventTypeDecisionResolution,
+                    $"{TopicSecurityControlPromotion}: {selected.Description} | {securityPromotion.Rationale}",
                     new Dictionary<string, string>
                     {
-                        ["decisionTopic"] = "SecurityControlPromotion",
+                        ["decisionTopic"] = TopicSecurityControlPromotion,
                         ["outcome"] = selected.Description,
                         ["confidence"] = securityPromotion.Confidence.ToString("F3")
                     });
@@ -178,7 +190,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         }
 
         var complexityDecision = decisionNodes.FirstOrDefault(d =>
-            string.Equals(d.Topic, "ComplexityDisposition", StringComparison.OrdinalIgnoreCase));
+            string.Equals(d.Topic, TopicComplexityDisposition, StringComparison.OrdinalIgnoreCase));
         if (complexityDecision is null)
             return;
 
@@ -193,11 +205,11 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             AddTrace(
                 output,
                 runId,
-                "DecisionResolution",
-                $"ComplexityDisposition: {selected?.Description ?? "Unknown"} | {complexityDecision.Rationale}",
+                EventTypeDecisionResolution,
+                $"{TopicComplexityDisposition}: {selected?.Description ?? "Unknown"} | {complexityDecision.Rationale}",
                 new Dictionary<string, string>
                 {
-                    ["decisionTopic"] = "ComplexityDisposition",
+                    ["decisionTopic"] = TopicComplexityDisposition,
                     ["outcome"] = selected?.Description ?? "Unknown",
                     ["confidence"] = complexityDecision.Confidence.ToString("F3")
                 });
@@ -587,13 +599,13 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         if ((request.RequiredCapabilities ?? []).Any(c =>
             c.Contains("private", StringComparison.OrdinalIgnoreCase)))
         {
-            AddRequiredControlIfMissing(manifest, "Private Networking", output);
+            AddRequiredControlIfMissing(manifest, ControlPrivateNetworking, output);
         }
 
         if ((request.RequiredCapabilities ?? []).Any(c =>
             c.Contains("managed identity", StringComparison.OrdinalIgnoreCase)))
         {
-            AddRequiredControlIfMissing(manifest, "Managed Identity", output);
+            AddRequiredControlIfMissing(manifest, ControlManagedIdentity, output);
         }
 
         if (validResults.Any(r => r.AgentType == AgentType.Compliance))
@@ -642,8 +654,8 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
                 }
             }
 
-            if (!control.Equals("Private Endpoints", StringComparison.OrdinalIgnoreCase) &&
-                !control.Equals("Private Networking", StringComparison.OrdinalIgnoreCase))
+            if (!control.Equals(ControlPrivateEndpoints, StringComparison.OrdinalIgnoreCase) &&
+                !control.Equals(ControlPrivateNetworking, StringComparison.OrdinalIgnoreCase))
                 continue;
 
             foreach (var datastore in manifest.Datastores)
