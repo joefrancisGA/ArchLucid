@@ -7,13 +7,19 @@ namespace ArchiForge.Persistence.Conversation;
 /// </summary>
 public sealed class InMemoryConversationMessageRepository : IConversationMessageRepository
 {
+    private const int MaxEntries = 2000;
     private readonly List<ConversationMessage> _messages = [];
 
     /// <inheritdoc />
     public Task AddAsync(ConversationMessage message, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
         lock (_messages)
+        {
             _messages.Add(message);
+            if (_messages.Count > MaxEntries)
+                _messages.RemoveRange(0, _messages.Count - MaxEntries);
+        }
         return Task.CompletedTask;
     }
 
@@ -23,6 +29,8 @@ public sealed class InMemoryConversationMessageRepository : IConversationMessage
         int take,
         CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+        take = Math.Clamp(take, 1, 500);
         lock (_messages)
         {
             var result = _messages

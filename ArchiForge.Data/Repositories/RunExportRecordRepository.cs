@@ -14,6 +14,8 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         RunExportRecord record,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(record);
+
         const string sql = """
             INSERT INTO RunExportRecords
             (
@@ -118,7 +120,8 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             SELECT RecordJson
             FROM RunExportRecords
             WHERE RunId = @RunId
-            ORDER BY CreatedUtc DESC;
+            ORDER BY CreatedUtc DESC
+            LIMIT 500;
             """;
 
         using var connection = connectionFactory.CreateConnection();

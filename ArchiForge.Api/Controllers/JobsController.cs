@@ -15,6 +15,9 @@ namespace ArchiForge.Api.Controllers;
 public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
 {
     [HttpGet("{jobId}")]
+    [ProducesResponseType(typeof(BackgroundJobInfo), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult GetJob([FromRoute] string jobId)
     {
         if (string.IsNullOrWhiteSpace(jobId))
@@ -27,6 +30,10 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     }
 
     [HttpGet("{jobId}/file")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(BackgroundJobInfo), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BackgroundJobInfo), StatusCodes.Status409Conflict)]
     public IActionResult DownloadJobFile([FromRoute] string jobId)
     {
         if (string.IsNullOrWhiteSpace(jobId))

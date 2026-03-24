@@ -7,18 +7,25 @@ namespace ArchiForge.Persistence.Conversation;
 /// </summary>
 public sealed class InMemoryConversationThreadRepository : IConversationThreadRepository
 {
+    private const int MaxEntries = 500;
     private readonly List<ConversationThread> _threads = [];
 
     /// <inheritdoc />
     public Task CreateAsync(ConversationThread thread, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
         lock (_threads)
+        {
             _threads.Add(thread);
+            if (_threads.Count > MaxEntries)
+                _threads.RemoveRange(0, _threads.Count - MaxEntries);
+        }
         return Task.CompletedTask;
     }
 
     public Task<ConversationThread?> GetByIdAsync(Guid threadId, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
         lock (_threads)
             return Task.FromResult(_threads.FirstOrDefault(x => x.ThreadId == threadId));
     }
@@ -31,6 +38,8 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         int take,
         CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
+        take = Math.Clamp(take, 1, 200);
         lock (_threads)
         {
             var result = _threads
@@ -47,6 +56,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
     /// <inheritdoc />
     public Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct)
     {
+        ct.ThrowIfCancellationRequested();
         lock (_threads)
         {
             var thread = _threads.FirstOrDefault(x => x.ThreadId == threadId);

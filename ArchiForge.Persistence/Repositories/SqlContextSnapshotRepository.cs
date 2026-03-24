@@ -72,6 +72,8 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
         const string sql = """
             INSERT INTO dbo.ContextSnapshots
             (

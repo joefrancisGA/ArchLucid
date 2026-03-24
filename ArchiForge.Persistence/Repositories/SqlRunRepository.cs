@@ -99,7 +99,7 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
                     scope.TenantId,
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId,
-                    Take = take <= 0 ? 20 : take
+                    Take = Math.Clamp(take <= 0 ? 20 : take, 1, 200)
                 },
                 cancellationToken: ct));
 

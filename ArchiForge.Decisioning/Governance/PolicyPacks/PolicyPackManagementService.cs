@@ -1,3 +1,5 @@
+using System.Transactions;
+
 using ArchiForge.Decisioning.Governance.Resolution;
 
 namespace ArchiForge.Decisioning.Governance.PolicyPacks;
@@ -38,21 +40,28 @@ public sealed class PolicyPackManagementService(
             CurrentVersion = "1.0.0",
         };
 
-        await packRepository.CreateAsync(pack, ct).ConfigureAwait(false);
+        using (var scope = new TransactionScope(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await packRepository.CreateAsync(pack, ct).ConfigureAwait(false);
 
-        await versionRepository
-            .CreateAsync(
-                new PolicyPackVersion
-                {
-                    PolicyPackVersionId = Guid.NewGuid(),
-                    PolicyPackId = pack.PolicyPackId,
-                    Version = "1.0.0",
-                    ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
-                    CreatedUtc = DateTime.UtcNow,
-                    IsPublished = false,
-                },
-                ct)
-            .ConfigureAwait(false);
+            await versionRepository
+                .CreateAsync(
+                    new PolicyPackVersion
+                    {
+                        PolicyPackVersionId = Guid.NewGuid(),
+                        PolicyPackId = pack.PolicyPackId,
+                        Version = "1.0.0",
+                        ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
+                        CreatedUtc = DateTime.UtcNow,
+                        IsPublished = false,
+                    },
+                    ct)
+                .ConfigureAwait(false);
+
+            scope.Complete();
+        }
 
         return pack;
     }

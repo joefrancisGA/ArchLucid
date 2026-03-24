@@ -142,7 +142,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
                     WorkspaceId = workspaceId,
                     ProjectId = projectId,
                     Status = status,
-                    Take = take,
+                    Take = Math.Clamp(take, 1, 500),
                 },
                 cancellationToken: ct));
         return rows.ToList();

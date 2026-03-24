@@ -17,6 +17,8 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
         const string sql = """
             INSERT INTO dbo.FindingsSnapshots
             (

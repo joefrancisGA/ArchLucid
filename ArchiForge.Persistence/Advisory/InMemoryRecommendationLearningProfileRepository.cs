@@ -4,14 +4,19 @@ namespace ArchiForge.Persistence.Advisory;
 
 public sealed class InMemoryRecommendationLearningProfileRepository : IRecommendationLearningProfileRepository
 {
+    private const int MaxEntries = 500;
     private readonly List<RecommendationLearningProfile> _profiles = [];
     private readonly Lock _gate = new();
 
     public Task SaveAsync(RecommendationLearningProfile profile, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
             _profiles.Add(profile);
+            if (_profiles.Count > MaxEntries)
+                _profiles.RemoveRange(0, _profiles.Count - MaxEntries);
+        }
 
         return Task.CompletedTask;
     }
@@ -22,7 +27,7 @@ public sealed class InMemoryRecommendationLearningProfileRepository : IRecommend
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var result = _profiles

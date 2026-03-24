@@ -124,7 +124,9 @@ public sealed class AlertRoutingSubscriptionsController(
     }
 
     /// <summary>Returns recent delivery attempts for a subscription in the current scope.</summary>
+    /// <param name="routingSubscriptionId"></param>
     /// <param name="take">Max rows (passed to repository).</param>
+    /// <param name="ct"></param>
     [HttpGet("{routingSubscriptionId:guid}/attempts")]
     [ProducesResponseType(typeof(IReadOnlyList<AlertDeliveryAttempt>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

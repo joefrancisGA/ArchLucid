@@ -78,7 +78,8 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             SELECT DecisionJson
             FROM DecisionNodes
             WHERE RunId = @RunId
-            ORDER BY CreatedUtc;
+            ORDER BY CreatedUtc
+            LIMIT 1000;
             """;
 
         using var connection = connectionFactory.CreateConnection();

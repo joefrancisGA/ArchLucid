@@ -13,6 +13,8 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
 {
     public async Task CreateAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         const string sql = """
             INSERT INTO ArchitectureRequests
             (

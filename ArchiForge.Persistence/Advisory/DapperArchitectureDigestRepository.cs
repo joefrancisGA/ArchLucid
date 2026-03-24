@@ -12,6 +12,8 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
     /// <inheritdoc />
     public async Task CreateAsync(ArchitectureDigest digest, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(digest);
+
         const string sql = """
             INSERT INTO dbo.ArchitectureDigests
             (
@@ -59,7 +61,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
                     ProjectId = projectId,
-                    Take = take
+                    Take = Math.Clamp(take, 1, 200)
                 },
                 cancellationToken: ct));
 

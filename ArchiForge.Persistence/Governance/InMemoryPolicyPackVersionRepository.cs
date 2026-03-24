@@ -4,20 +4,25 @@ namespace ArchiForge.Persistence.Governance;
 
 public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepository
 {
+    private const int MaxEntries = 500;
     private readonly List<PolicyPackVersion> _items = [];
     private readonly object _gate = new();
 
     public Task CreateAsync(PolicyPackVersion version, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
             _items.Add(version);
+            if (_items.Count > MaxEntries)
+                _items.RemoveRange(0, _items.Count - MaxEntries);
+        }
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(PolicyPackVersion version, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var idx = _items.FindIndex(x => x.PolicyPackVersionId == version.PolicyPackVersionId);
@@ -33,7 +38,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         string version,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var row = _items.FirstOrDefault(
@@ -45,7 +50,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
 
     public Task<IReadOnlyList<PolicyPackVersion>> ListByPackAsync(Guid policyPackId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var result = _items

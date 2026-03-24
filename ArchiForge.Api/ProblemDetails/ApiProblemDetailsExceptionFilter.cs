@@ -15,10 +15,9 @@ public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
 
         var instance = context.HttpContext.Request.Path.Value;
 
-        if (ApplicationProblemMapper.TryMapUnhandledException(context.Exception, instance, out var result))
-        {
-            context.Result = result;
-            context.ExceptionHandled = true;
-        }
+        if (!ApplicationProblemMapper.TryMapUnhandledException(context.Exception, instance, out var result)) return;
+        
+        context.Result = result;
+        context.ExceptionHandled = true;
     }
 }

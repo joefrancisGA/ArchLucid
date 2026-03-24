@@ -60,7 +60,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
                     ProjectId = projectId,
-                    Take = take <= 0 ? 100 : take
+                    Take = Math.Clamp(take <= 0 ? 100 : take, 1, 500)
                 },
                 cancellationToken: ct));
 

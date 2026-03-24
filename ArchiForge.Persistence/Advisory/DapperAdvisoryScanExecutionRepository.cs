@@ -71,7 +71,7 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
             new CommandDefinition(sql, new
             {
                 ScheduleId = scheduleId,
-                Take = take
+                Take = Math.Clamp(take, 1, 200)
             }, cancellationToken: ct));
 
         return result.ToList();
