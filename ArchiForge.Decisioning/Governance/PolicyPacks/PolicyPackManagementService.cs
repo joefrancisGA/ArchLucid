@@ -21,6 +21,9 @@ public sealed class PolicyPackManagementService(
         string initialContentJson,
         CancellationToken ct)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(packType);
+
         var pack = new PolicyPack
         {
             PolicyPackId = Guid.NewGuid(),
@@ -61,6 +64,8 @@ public sealed class PolicyPackManagementService(
         string contentJson,
         CancellationToken ct)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(version);
+
         var normalizedJson = string.IsNullOrWhiteSpace(contentJson) ? "{}" : contentJson;
 
         var existing = await versionRepository

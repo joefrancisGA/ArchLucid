@@ -14,6 +14,9 @@ public sealed class RetrievalQueryService(
     /// <inheritdoc />
     public async Task<IReadOnlyList<RetrievalHit>> SearchAsync(RetrievalQuery query, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(query);
+        ArgumentException.ThrowIfNullOrWhiteSpace(query.QueryText);
+
         var embedding = await embeddingService.EmbedAsync(query.QueryText, ct).ConfigureAwait(false);
         return await vectorIndex.SearchAsync(query, embedding, ct).ConfigureAwait(false);
     }

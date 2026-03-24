@@ -18,6 +18,8 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
         Guid projectId,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(plan);
+
         foreach (var recommendation in plan.Recommendations)
         {
             var existing = await repository.GetByIdAsync(recommendation.RecommendationId, ct).ConfigureAwait(false);
@@ -68,6 +70,8 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
         RecommendationActionRequest request,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         var recommendation = await repository.GetByIdAsync(recommendationId, ct).ConfigureAwait(false);
         if (recommendation is null)
             return null;

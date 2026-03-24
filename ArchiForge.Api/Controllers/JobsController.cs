@@ -17,6 +17,9 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     [HttpGet("{jobId}")]
     public IActionResult GetJob([FromRoute] string jobId)
     {
+        if (string.IsNullOrWhiteSpace(jobId))
+            return BadRequest(new { error = "jobId is required." });
+
         var info = jobs.GetInfo(jobId);
         if (info is null)
             return NotFound();
@@ -26,6 +29,9 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     [HttpGet("{jobId}/file")]
     public IActionResult DownloadJobFile([FromRoute] string jobId)
     {
+        if (string.IsNullOrWhiteSpace(jobId))
+            return BadRequest(new { error = "jobId is required." });
+
         var info = jobs.GetInfo(jobId);
         if (info is null)
             return NotFound();

@@ -8,6 +8,8 @@ namespace ArchiForge.Retrieval.Indexing;
 /// <remarks>Replaces existing rows by <see cref="RetrievalChunk.ChunkId"/> on upsert. Filters require exact tenant/workspace/project match; optional run/manifest must match when provided.</remarks>
 public sealed class InMemoryVectorIndex : IVectorIndex
 {
+    private const int MaxChunks = 10_000;
+
     private readonly List<RetrievalChunk> _chunks = [];
     private readonly object _sync = new();
 
@@ -21,6 +23,9 @@ public sealed class InMemoryVectorIndex : IVectorIndex
                 _chunks.RemoveAll(x => x.ChunkId == chunk.ChunkId);
                 _chunks.Add(chunk);
             }
+
+            if (_chunks.Count > MaxChunks)
+                _chunks.RemoveRange(0, _chunks.Count - MaxChunks);
         }
 
         return Task.CompletedTask;

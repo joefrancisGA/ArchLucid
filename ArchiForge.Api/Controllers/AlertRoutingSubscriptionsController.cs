@@ -37,9 +37,12 @@ public sealed class AlertRoutingSubscriptionsController(
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRoutingSubscription), StatusCodes.Status200OK)]
     public async Task<ActionResult<AlertRoutingSubscription>> Create(
-        [FromBody] AlertRoutingSubscription subscription,
+        [FromBody] AlertRoutingSubscription? subscription,
         CancellationToken ct = default)
     {
+        if (subscription is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
 
         subscription.RoutingSubscriptionId = Guid.NewGuid();

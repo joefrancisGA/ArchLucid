@@ -36,9 +36,12 @@ public sealed class CompositeAlertRulesController(
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CompositeAlertRule), StatusCodes.Status200OK)]
     public async Task<ActionResult<CompositeAlertRule>> Create(
-        [FromBody] CompositeAlertRule rule,
+        [FromBody] CompositeAlertRule? rule,
         CancellationToken ct = default)
     {
+        if (rule is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
 
         rule.CompositeRuleId = Guid.NewGuid();
@@ -46,6 +49,7 @@ public sealed class CompositeAlertRulesController(
         rule.WorkspaceId = scope.WorkspaceId;
         rule.ProjectId = scope.ProjectId;
         rule.CreatedUtc = DateTime.UtcNow;
+        rule.Conditions ??= [];
 
         foreach (var c in rule.Conditions)
         {

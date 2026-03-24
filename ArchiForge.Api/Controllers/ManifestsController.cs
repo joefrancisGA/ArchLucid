@@ -42,6 +42,11 @@ public sealed class ManifestsController(
         [FromQuery] string rightVersion,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(leftVersion))
+            return this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(rightVersion))
+            return this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed);
+
         var left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
         if (left is null)
             return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
@@ -68,6 +73,11 @@ public sealed class ManifestsController(
         [FromQuery] string rightVersion,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(leftVersion))
+            return this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(rightVersion))
+            return this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed);
+
         var left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
         if (left is null)
             return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
@@ -97,6 +107,11 @@ public sealed class ManifestsController(
         [FromQuery] string rightVersion,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(leftVersion))
+            return this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(rightVersion))
+            return this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed);
+
         var left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
         if (left is null)
             return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);
@@ -127,6 +142,11 @@ public sealed class ManifestsController(
         [FromQuery] string rightVersion,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(leftVersion))
+            return this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(rightVersion))
+            return this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed);
+
         var left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
         if (left is null)
             return this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound);

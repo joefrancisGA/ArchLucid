@@ -35,8 +35,11 @@ public sealed class AlertRulesController(
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRule), StatusCodes.Status200OK)]
-    public async Task<ActionResult<AlertRule>> Create([FromBody] AlertRule rule, CancellationToken ct = default)
+    public async Task<ActionResult<AlertRule>> Create([FromBody] AlertRule? rule, CancellationToken ct = default)
     {
+        if (rule is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
 
         rule.RuleId = Guid.NewGuid();

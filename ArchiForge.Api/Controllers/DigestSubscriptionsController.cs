@@ -39,9 +39,12 @@ public sealed class DigestSubscriptionsController(
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
     public async Task<ActionResult<DigestSubscription>> Create(
-        [FromBody] DigestSubscription subscription,
+        [FromBody] DigestSubscription? subscription,
         CancellationToken ct = default)
     {
+        if (subscription is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
 
         subscription.SubscriptionId = Guid.NewGuid();

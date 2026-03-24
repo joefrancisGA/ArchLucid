@@ -17,6 +17,8 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
     /// <inheritdoc />
     public async Task CreateAsync(AlertRecord alert, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(alert);
+
         const string sql = """
             INSERT INTO dbo.AlertRecords
             (
@@ -45,6 +47,8 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
     /// <inheritdoc />
     public async Task UpdateAsync(AlertRecord alert, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(alert);
+
         const string sql = """
             UPDATE dbo.AlertRecords
             SET

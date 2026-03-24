@@ -75,6 +75,11 @@ public sealed class ExportsController(
         [FromQuery] string rightExportRecordId,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(leftExportRecordId))
+            return this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(rightExportRecordId))
+            return this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed);
+
         var left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
         if (left is null)
             return this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -101,6 +106,11 @@ public sealed class ExportsController(
         [FromBody] PersistComparisonRequest? request,
         CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(leftExportRecordId))
+            return this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(rightExportRecordId))
+            return this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed);
+
         request ??= new PersistComparisonRequest();
 
         var left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);

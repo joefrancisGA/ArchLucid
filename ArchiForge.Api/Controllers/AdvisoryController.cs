@@ -144,9 +144,12 @@ public sealed class AdvisoryController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RecommendationRecordResponse>> ApplyRecommendationAction(
         Guid recommendationId,
-        [FromBody] RecommendationActionRequest request,
+        [FromBody] RecommendationActionRequest? request,
         CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         if (!IsKnownRecommendationAction(request.Action))
             return BadRequest(new
             {

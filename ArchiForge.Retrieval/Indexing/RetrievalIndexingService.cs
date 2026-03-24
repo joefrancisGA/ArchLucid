@@ -15,6 +15,8 @@ public sealed class RetrievalIndexingService(
     /// <inheritdoc />
     public async Task IndexDocumentsAsync(IReadOnlyList<RetrievalDocument> documents, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(documents);
+
         if (documents.Count == 0)
             return;
 
@@ -22,6 +24,11 @@ public sealed class RetrievalIndexingService(
 
         foreach (var doc in documents)
         {
+            ct.ThrowIfCancellationRequested();
+
+            if (doc is null)
+                continue;
+
             var split = chunker.Chunk(doc.Content);
             if (split.Count == 0)
                 continue;

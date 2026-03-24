@@ -107,6 +107,8 @@ public sealed class AlertService(
         AlertActionRequest request,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         var alert = await alertRepository.GetByIdAsync(alertId, ct).ConfigureAwait(false);
         if (alert is null)
             return null;

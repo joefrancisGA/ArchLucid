@@ -41,6 +41,7 @@ public sealed class AlertsController(
         [FromQuery] int take = 100,
         CancellationToken ct = default)
     {
+        take = Math.Clamp(take, 1, 500);
         var scope = scopeProvider.GetCurrentScope();
 
         var alerts = await alertRepository.ListByScopeAsync(
@@ -65,9 +66,12 @@ public sealed class AlertsController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AlertRecord>> ApplyAction(
         Guid alertId,
-        [FromBody] AlertActionRequest request,
+        [FromBody] AlertActionRequest? request,
         CancellationToken ct = default)
     {
+        if (request is null)
+            return BadRequest(new { error = "Request body is required." });
+
         var scope = scopeProvider.GetCurrentScope();
         var existing = await alertRepository.GetByIdAsync(alertId, ct);
         if (existing is null || !MatchesScope(existing, scope))
