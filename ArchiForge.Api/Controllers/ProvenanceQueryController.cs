@@ -1,4 +1,5 @@
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Provenance;
 using ArchiForge.Provenance;
@@ -45,11 +46,13 @@ public sealed class ProvenanceQueryController(
         return vm is null ? NotFound() : Ok(vm);
     }
 
-    /// <param name="runId"></param>
+    /// <summary>Returns the provenance subgraph rooted at the specified decision node.</summary>
+    /// <param name="runId">Run that owns the graph.</param>
     /// <param name="decisionKey">Provenance decision node id (GUID) or architecture decision reference id.</param>
-    /// <param name="ct"></param>
+    /// <param name="ct">Cancellation token.</param>
     [HttpGet("runs/{runId:guid}/graph/decision/{decisionKey}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetDecisionGraph(
         Guid runId,
@@ -57,7 +60,7 @@ public sealed class ProvenanceQueryController(
         CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(decisionKey))
-            return BadRequest(new { error = "decisionKey is required." });
+            return this.BadRequestProblem("decisionKey is required.", ProblemTypes.BadRequest);
 
         var scope = scopeProvider.GetCurrentScope();
         var vm = await graphQuery.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);

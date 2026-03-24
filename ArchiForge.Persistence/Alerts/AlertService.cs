@@ -38,6 +38,8 @@ public sealed class AlertService(
         AlertEvaluationContext context,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(context);
+
         var rules = await ruleRepository
             .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);

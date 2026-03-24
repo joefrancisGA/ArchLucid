@@ -4,6 +4,16 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Builds a full <see cref="EndToEndReplayComparisonReport"/> by loading both runs through
+/// <see cref="IRunDetailQueryService"/>, diffing agent results, manifests, and export records
+/// side-by-side, and appending human-readable interpretation notes.
+/// </summary>
+/// <remarks>
+/// Warnings are added to <see cref="EndToEndReplayComparisonReport.Warnings"/> rather than
+/// thrown when optional data (manifests, exports) is missing for one or both runs.
+/// Throws <see cref="RunNotFoundException"/> when either run cannot be resolved.
+/// </remarks>
 public sealed class EndToEndReplayComparisonService(
     IRunDetailQueryService runDetailQueryService,
     IRunExportRecordRepository runExportRecordRepository,
@@ -17,6 +27,9 @@ public sealed class EndToEndReplayComparisonService(
         string rightRunId,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(leftRunId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(rightRunId);
+
         var leftDetail = await runDetailQueryService.GetRunDetailAsync(leftRunId, cancellationToken)
             ?? throw new RunNotFoundException(leftRunId);
 

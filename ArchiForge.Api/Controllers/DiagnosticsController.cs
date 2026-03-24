@@ -18,7 +18,7 @@ namespace ArchiForge.Api.Controllers;
 public sealed class DiagnosticsController(IReplayDiagnosticsRecorder replayDiagnosticsRecorder) : ControllerBase
 {
     [HttpGet("comparisons/diagnostics/replay")]
-    [Authorize(Policy = "CanViewReplayDiagnostics")]
+    [Authorize(Policy = ArchiForgePolicies.CanViewReplayDiagnostics)]
     [ProducesResponseType(typeof(ReplayDiagnosticsResponse), StatusCodes.Status200OK)]
     public IActionResult GetReplayDiagnostics([FromQuery] int maxCount = 50)
     {

@@ -55,8 +55,14 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
         switch (left.ValueKind)
         {
             case JsonValueKind.Object:
-                var leftProps = left.EnumerateObject().ToDictionary(p => p.Name);
-                var rightProps = right.EnumerateObject().ToDictionary(p => p.Name);
+                // GroupBy guards against malformed JSON with duplicate property names;
+                // first occurrence wins, matching System.Text.Json's own lenient behaviour.
+                var leftProps = left.EnumerateObject()
+                    .GroupBy(p => p.Name, StringComparer.Ordinal)
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+                var rightProps = right.EnumerateObject()
+                    .GroupBy(p => p.Name, StringComparer.Ordinal)
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
 
                 foreach (var prop in leftProps.Keys.Union(rightProps.Keys))
                 {

@@ -1,0 +1,38 @@
+using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.ArtifactSynthesis.Packaging;
+
+namespace ArchiForge.Persistence.Queries;
+
+/// <summary>
+/// Shared projection helper used by both <see cref="DapperArtifactQueryService"/> and
+/// <see cref="InMemoryArtifactQueryService"/> to map <see cref="SynthesizedArtifact"/>
+/// instances to lightweight <see cref="ArtifactDescriptor"/> projections.
+/// Centralised here to prevent the two implementations from diverging silently.
+/// </summary>
+internal static class ArtifactDescriptorMapper
+{
+    /// <summary>
+    /// Projects a <see cref="SynthesizedArtifact"/> to an <see cref="ArtifactDescriptor"/>
+    /// (omits the raw content bytes).
+    /// </summary>
+    internal static ArtifactDescriptor ToDescriptor(SynthesizedArtifact artifact) => new()
+    {
+        ArtifactId = artifact.ArtifactId,
+        ArtifactType = artifact.ArtifactType,
+        Name = artifact.Name,
+        Format = artifact.Format,
+        CreatedUtc = artifact.CreatedUtc,
+        ContentHash = artifact.ContentHash
+    };
+
+    /// <summary>
+    /// Projects and orders a collection of <see cref="SynthesizedArtifact"/> instances to a
+    /// read-only list of <see cref="ArtifactDescriptor"/> records sorted by name ascending.
+    /// </summary>
+    internal static IReadOnlyList<ArtifactDescriptor> ToDescriptorList(
+        IEnumerable<SynthesizedArtifact> artifacts) =>
+        artifacts
+            .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(ToDescriptor)
+            .ToList();
+}

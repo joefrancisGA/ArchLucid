@@ -4,6 +4,20 @@ using ArchiForge.KnowledgeGraph.Models;
 
 namespace ArchiForge.Decisioning.Services;
 
+/// <summary>
+/// <see cref="IDecisionEngine"/> implementation that applies an ordered, priority-sorted
+/// rule set to each finding in a <see cref="FindingsSnapshot"/>, then delegates manifest
+/// construction to <see cref="IGoldenManifestBuilder"/>.
+/// </summary>
+/// <remarks>
+/// Rules are applied in descending <c>Priority</c> order. For each finding the first matching
+/// rule per action type wins; unmatched findings are recorded in
+/// <see cref="DecisionTrace.Notes"/>. After manifest construction,
+/// <see cref="IGoldenManifestValidator.Validate"/> is called and a content hash is computed
+/// via <see cref="IManifestHashService"/>.
+/// Cancellation is forwarded to <see cref="IDecisionRuleProvider.GetRuleSetAsync"/>; the
+/// synchronous rule evaluation and manifest build steps do not observe the token.
+/// </remarks>
 public class RuleBasedDecisionEngine(
     IDecisionRuleProvider ruleProvider,
     IGoldenManifestBuilder manifestBuilder,
@@ -11,6 +25,7 @@ public class RuleBasedDecisionEngine(
     IManifestHashService manifestHashService)
     : IDecisionEngine
 {
+    /// <inheritdoc />
     public async Task<(GoldenManifest Manifest, DecisionTrace Trace)> DecideAsync(
         Guid runId,
         Guid contextSnapshotId,

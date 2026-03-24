@@ -23,6 +23,8 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
         string decisionKey,
         CancellationToken ct)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(decisionKey);
+
         var full = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
         if (full is null)
             return null;

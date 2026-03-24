@@ -27,6 +27,8 @@ public sealed class RuleSimulationService(
         RuleSimulationRequest request,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         if (request is { UseHistoricalWindow: false, RunId: null })
         {
             return new RuleSimulationResult

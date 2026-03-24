@@ -18,19 +18,7 @@ public sealed class DapperArtifactQueryService(IArtifactBundleRepository artifac
         CancellationToken ct)
     {
         var artifacts = await GetArtifactsByManifestIdAsync(scope, manifestId, ct);
-
-        return artifacts
-            .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-            .Select(x => new ArtifactDescriptor
-            {
-                ArtifactId = x.ArtifactId,
-                ArtifactType = x.ArtifactType,
-                Name = x.Name,
-                Format = x.Format,
-                CreatedUtc = x.CreatedUtc,
-                ContentHash = x.ContentHash
-            })
-            .ToList();
+        return ArtifactDescriptorMapper.ToDescriptorList(artifacts);
     }
 
     public async Task<SynthesizedArtifact?> GetArtifactByIdAsync(
