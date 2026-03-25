@@ -8,6 +8,8 @@ using ArchiForge.Decisioning.Governance.Resolution;
 
 using Asp.Versioning;
 
+using JetBrains.Annotations;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -73,38 +75,37 @@ public sealed class GovernanceResolutionController(
             },
             ct).ConfigureAwait(false);
 
-        if (result.Conflicts.Count > 0)
-        {
-            List<GovernanceConflictAuditEntry> conflictEntries = result.Conflicts
-                .Select(c => new GovernanceConflictAuditEntry(c.ItemType, c.ItemKey, c.ConflictType))
-                .ToList();
+        if (result.Conflicts.Count <= 0) return Ok(result);
+        
+        List<GovernanceConflictAuditEntry> conflictEntries = result.Conflicts
+            .Select(c => new GovernanceConflictAuditEntry(c.ItemType, c.ItemKey, c.ConflictType))
+            .ToList();
 
-            await auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.GovernanceConflictDetected,
-                    DataJson = JsonSerializer.Serialize(new GovernanceConflictAuditData(
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        scope.ProjectId,
-                        result.Conflicts.Count,
-                        conflictEntries)),
-                },
-                ct).ConfigureAwait(false);
-        }
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.GovernanceConflictDetected,
+                DataJson = JsonSerializer.Serialize(new GovernanceConflictAuditData(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    result.Conflicts.Count,
+                    conflictEntries)),
+            },
+            ct).ConfigureAwait(false);
 
         return Ok(result);
     }
 
     private sealed record GovernanceResolutionAuditData(
-        Guid TenantId,
+        [UsedImplicitly] Guid TenantId,
         Guid WorkspaceId,
         Guid ProjectId,
         int DecisionCount,
         int ConflictCount);
 
     private sealed record GovernanceConflictAuditData(
-        Guid TenantId,
+        [UsedImplicitly] Guid TenantId,
         Guid WorkspaceId,
         Guid ProjectId,
         int ConflictCount,
@@ -112,6 +113,6 @@ public sealed class GovernanceResolutionController(
 
     private sealed record GovernanceConflictAuditEntry(
         string ItemType,
-        string ItemKey,
+        [UsedImplicitly] string ItemKey,
         string ConflictType);
 }

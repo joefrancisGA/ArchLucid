@@ -8,6 +8,7 @@ namespace ArchiForge.Persistence.Conversation;
 public sealed class InMemoryConversationMessageRepository : IConversationMessageRepository
 {
     private const int MaxEntries = 2000;
+    private readonly Lock _gate = new();
     private readonly List<ConversationMessage> _messages = [];
 
     /// <inheritdoc />
@@ -15,7 +16,7 @@ public sealed class InMemoryConversationMessageRepository : IConversationMessage
     {
         ArgumentNullException.ThrowIfNull(message);
         ct.ThrowIfCancellationRequested();
-        lock (_messages)
+        lock (_gate)
         {
             _messages.Add(message);
             if (_messages.Count > MaxEntries)
@@ -32,7 +33,7 @@ public sealed class InMemoryConversationMessageRepository : IConversationMessage
     {
         ct.ThrowIfCancellationRequested();
         take = Math.Clamp(take, 1, 500);
-        lock (_messages)
+        lock (_gate)
         {
             List<ConversationMessage> result = _messages
                 .Where(x => x.ThreadId == threadId)

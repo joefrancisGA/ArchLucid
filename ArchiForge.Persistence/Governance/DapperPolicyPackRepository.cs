@@ -19,6 +19,8 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
     /// <inheritdoc />
     public async Task CreateAsync(PolicyPack pack, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(pack);
+
         const string sql = """
             INSERT INTO dbo.PolicyPacks
             (
@@ -41,6 +43,8 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
     /// <inheritdoc />
     public async Task UpdateAsync(PolicyPack pack, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(pack);
+
         const string sql = """
             UPDATE dbo.PolicyPacks
             SET

@@ -2,9 +2,15 @@ using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Persistence.Governance;
 
+/// <summary>
+/// In-memory implementation of <see cref="IPolicyPackRepository"/> for testing and storage-off mode.
+/// Capped at <see cref="MaxEntries"/> packs; oldest entry is evicted on each insert when the cap is reached.
+/// All operations are thread-safe via an exclusive lock.
+/// </summary>
 public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
 {
     private const int MaxEntries = 2_000;
+    private const int ListScopeCap = 500;
 
     private readonly List<PolicyPack> _items = [];
     private readonly Lock _gate = new();
@@ -57,7 +63,7 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
             List<PolicyPack> result = _items
                 .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
-                .Take(500)
+                .Take(ListScopeCap)
                 .ToList();
             return Task.FromResult<IReadOnlyList<PolicyPack>>(result);
         }

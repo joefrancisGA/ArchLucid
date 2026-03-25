@@ -55,6 +55,8 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
         string version,
         CancellationToken ct)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(version);
+
         const string sql = """
             SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
             FROM dbo.PolicyPackVersions

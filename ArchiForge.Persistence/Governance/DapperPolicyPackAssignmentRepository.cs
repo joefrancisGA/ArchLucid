@@ -8,14 +8,13 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Governance;
 
-// ReSharper disable InvalidXmlDocComment
 /// <summary>
 /// SQL Server implementation of <see cref="IPolicyPackAssignmentRepository"/> using Dapper against <c>dbo.PolicyPackAssignments</c>.
 /// </summary>
 /// <remarks>
 /// <para>
-/// <strong>List semantics:</strong> Returns tenant-wide rows, workspace rows matching <paramref name="WorkspaceId"/>, and project rows matching
-/// both workspace and <paramref name="ProjectId"/>. Aligns with <see cref="InMemoryPolicyPackAssignmentRepository"/> and
+/// <strong>List semantics:</strong> Returns tenant-wide rows, workspace rows matching the caller's workspace id, and project rows
+/// matching both workspace and project id. Aligns with <see cref="InMemoryPolicyPackAssignmentRepository"/> and
 /// <see cref="EffectiveGovernanceResolver"/> filtering.
 /// </para>
 /// <para>
@@ -23,7 +22,6 @@ namespace ArchiForge.Persistence.Governance;
 /// assignment writes from <c>PolicyPackManagementService</c>.
 /// </para>
 /// </remarks>
-/// // ReSharper enable InvalidXmlDocComment
 public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory connectionFactory)
     : IPolicyPackAssignmentRepository
 {
@@ -31,6 +29,8 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
     /// <remarks>Inserts all columns including <c>ScopeLevel</c> and <c>IsPinned</c> (Change 46 schema).</remarks>
     public async Task CreateAsync(PolicyPackAssignment assignment, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(assignment);
+
         const string sql = """
             INSERT INTO dbo.PolicyPackAssignments
             (
@@ -52,6 +52,8 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
     /// <remarks>Currently only toggles <c>IsEnabled</c>; other columns require future migration if editable.</remarks>
     public async Task UpdateAsync(PolicyPackAssignment assignment, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(assignment);
+
         const string sql = """
             UPDATE dbo.PolicyPackAssignments
             SET IsEnabled = @IsEnabled

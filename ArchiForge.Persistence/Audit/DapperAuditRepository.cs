@@ -7,6 +7,11 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Audit;
 
+/// <summary>
+/// SQL Server-backed implementation of <see cref="IAuditRepository"/>.
+/// Appends <see cref="AuditEvent"/> rows to <c>dbo.AuditEvents</c> and retrieves them
+/// scoped to tenant/workspace/project with a configurable paged cap.
+/// </summary>
 public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactory) : IAuditRepository
 {
     public async Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)

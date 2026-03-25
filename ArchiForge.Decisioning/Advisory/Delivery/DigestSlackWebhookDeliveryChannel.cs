@@ -1,3 +1,5 @@
+using ArchiForge.Decisioning.Advisory.Scheduling;
+
 namespace ArchiForge.Decisioning.Advisory.Delivery;
 
 /// <summary>Delivers an <see cref="ArchitectureDigest"/> to a Slack channel via an incoming webhook.</summary>

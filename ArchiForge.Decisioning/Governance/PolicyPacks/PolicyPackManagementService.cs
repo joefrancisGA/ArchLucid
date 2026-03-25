@@ -12,6 +12,7 @@ public sealed class PolicyPackManagementService(
     IPolicyPackVersionRepository versionRepository,
     IPolicyPackAssignmentRepository assignmentRepository) : IPolicyPackManagementService
 {
+    private const string InitialVersion = "1.0.0";
     /// <inheritdoc />
     public async Task<PolicyPack> CreatePackAsync(
         Guid tenantId,
@@ -37,7 +38,7 @@ public sealed class PolicyPackManagementService(
             PackType = packType,
             Status = PolicyPackStatus.Draft,
             CreatedUtc = DateTime.UtcNow,
-            CurrentVersion = "1.0.0",
+            CurrentVersion = InitialVersion,
         };
 
         using TransactionScope scope = new(
@@ -51,7 +52,7 @@ public sealed class PolicyPackManagementService(
                 {
                     PolicyPackVersionId = Guid.NewGuid(),
                     PolicyPackId = pack.PolicyPackId,
-                    Version = "1.0.0",
+                    Version = InitialVersion,
                     ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
                     CreatedUtc = DateTime.UtcNow,
                     IsPublished = false,
@@ -102,12 +103,9 @@ public sealed class PolicyPackManagementService(
             await versionRepository.CreateAsync(packVersion, ct).ConfigureAwait(false);
         }
 
-        PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct).ConfigureAwait(false);
-
-        if (pack is null)
-            throw new InvalidOperationException(
+        PolicyPack pack = await packRepository.GetByIdAsync(policyPackId, ct).ConfigureAwait(false) ?? throw new InvalidOperationException(
                 $"Policy pack '{policyPackId}' was not found. Cannot promote version '{version}' on a non-existent pack.");
-        
+
         pack.CurrentVersion = version;
         pack.Status = PolicyPackStatus.Active;
         pack.ActivatedUtc = DateTime.UtcNow;

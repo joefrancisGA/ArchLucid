@@ -2,6 +2,11 @@ using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Persistence.Governance;
 
+/// <summary>
+/// In-memory implementation of <see cref="IPolicyPackVersionRepository"/> for testing and storage-off mode.
+/// Size-bounded at <see cref="MaxEntries"/>; oldest entries are trimmed from the front when the cap is exceeded.
+/// All operations are thread-safe via an exclusive lock.
+/// </summary>
 public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepository
 {
     private const int MaxEntries = 500;

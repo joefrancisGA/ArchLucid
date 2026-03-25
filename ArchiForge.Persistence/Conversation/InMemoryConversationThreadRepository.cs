@@ -8,6 +8,7 @@ namespace ArchiForge.Persistence.Conversation;
 public sealed class InMemoryConversationThreadRepository : IConversationThreadRepository
 {
     private const int MaxEntries = 500;
+    private readonly Lock _gate = new();
     private readonly List<ConversationThread> _threads = [];
 
     /// <inheritdoc />
@@ -15,7 +16,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
     {
         ArgumentNullException.ThrowIfNull(thread);
         ct.ThrowIfCancellationRequested();
-        lock (_threads)
+        lock (_gate)
         {
             _threads.Add(thread);
             if (_threads.Count > MaxEntries)
@@ -28,7 +29,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
     public Task<ConversationThread?> GetByIdAsync(Guid threadId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        lock (_threads)
+        lock (_gate)
             return Task.FromResult(_threads.FirstOrDefault(x => x.ThreadId == threadId));
     }
 
@@ -42,7 +43,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
     {
         ct.ThrowIfCancellationRequested();
         take = Math.Clamp(take, 1, 200);
-        lock (_threads)
+        lock (_gate)
         {
             List<ConversationThread> result = _threads
                 .Where(x => x.TenantId == tenantId &&
@@ -59,7 +60,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
     public Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        lock (_threads)
+        lock (_gate)
         {
             ConversationThread? thread = _threads.FirstOrDefault(x => x.ThreadId == threadId);
             if (thread is not null)

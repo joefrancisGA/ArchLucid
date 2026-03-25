@@ -2,6 +2,12 @@ using ArchiForge.Core.Audit;
 
 namespace ArchiForge.Persistence.Audit;
 
+/// <summary>
+/// In-memory implementation of <see cref="IAuditRepository"/> for testing and storage-off mode.
+/// Bounded at <see cref="MaxEvents"/> entries; when full, the oldest <see cref="EvictCount"/> events are
+/// removed in a single batch rather than one at a time to amortize eviction cost.
+/// All operations are thread-safe via an exclusive lock.
+/// </summary>
 public sealed class InMemoryAuditRepository : IAuditRepository
 {
     private const int MaxEvents = 5_000;
