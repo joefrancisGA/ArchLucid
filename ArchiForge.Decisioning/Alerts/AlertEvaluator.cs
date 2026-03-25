@@ -131,21 +131,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
     {
         var cutoff = DateTime.UtcNow.AddDays(-(double)rule.ThresholdValue);
 
-        foreach (var item in context.RecommendationRecords.Where(x =>
-                     string.Equals(x.Status, RecommendationStatus.Deferred, StringComparison.OrdinalIgnoreCase) &&
-                     x.PriorityScore >= 80 &&
-                     x.LastUpdatedUtc <= cutoff))
-        {
-            alerts.Add(BuildAlert(
-                rule,
-                context,
-                title: "Deferred high-priority recommendation is aging",
-                category: "Recommendation",
-                triggerValue: item.LastUpdatedUtc.ToString("u"),
-                description: $"Recommendation '{item.Title}' has remained deferred beyond the configured threshold.",
-                recommendationId: item.RecommendationId,
-                dedupeSuffix: $"deferred-aging:{item.RecommendationId}"));
-        }
+        alerts.AddRange(context.RecommendationRecords.Where(x => string.Equals(x.Status, RecommendationStatus.Deferred, StringComparison.OrdinalIgnoreCase) && x.PriorityScore >= 80 && x.LastUpdatedUtc <= cutoff).Select(item => BuildAlert(rule, context, title: "Deferred high-priority recommendation is aging", category: "Recommendation", triggerValue: item.LastUpdatedUtc.ToString("u"), description: $"Recommendation '{item.Title}' has remained deferred beyond the configured threshold.", recommendationId: item.RecommendationId, dedupeSuffix: $"deferred-aging:{item.RecommendationId}")));
     }
 
     private static void EvaluateRejectedSecurityRecommendation(
@@ -153,20 +139,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         AlertEvaluationContext context,
         List<AlertRecord> alerts)
     {
-        foreach (var item in context.RecommendationRecords.Where(x =>
-                     string.Equals(x.Status, RecommendationStatus.Rejected, StringComparison.OrdinalIgnoreCase) &&
-                     x.Category.Equals("Security", StringComparison.OrdinalIgnoreCase)))
-        {
-            alerts.Add(BuildAlert(
-                rule,
-                context,
-                title: "Security recommendation was rejected",
-                category: "Security",
-                triggerValue: item.RecommendationId.ToString(),
-                description: $"Security recommendation '{item.Title}' was rejected.",
-                recommendationId: item.RecommendationId,
-                dedupeSuffix: $"rejected-security:{item.RecommendationId}"));
-        }
+        alerts.AddRange(context.RecommendationRecords.Where(x => string.Equals(x.Status, RecommendationStatus.Rejected, StringComparison.OrdinalIgnoreCase) && x.Category.Equals("Security", StringComparison.OrdinalIgnoreCase)).Select(item => BuildAlert(rule, context, title: "Security recommendation was rejected", category: "Security", triggerValue: item.RecommendationId.ToString(), description: $"Security recommendation '{item.Title}' was rejected.", recommendationId: item.RecommendationId, dedupeSuffix: $"rejected-security:{item.RecommendationId}")));
     }
 
     private static void EvaluateAcceptanceRateDrop(

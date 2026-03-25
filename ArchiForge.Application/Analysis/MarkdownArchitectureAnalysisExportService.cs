@@ -55,40 +55,33 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             sb.AppendLine("### Request Context");
             sb.AppendLine();
 
-            if (report.Evidence.Request is not null)
+            sb.AppendLine($"- Description: {report.Evidence.Request.Description}");
+
+            if (report.Evidence.Request.Constraints.Count > 0)
             {
-                sb.AppendLine($"- Description: {report.Evidence.Request.Description}");
-
-                if ((report.Evidence.Request.Constraints ?? []).Count > 0)
+                sb.AppendLine("- Constraints:");
+                foreach (var item in report.Evidence.Request.Constraints)
                 {
-                    sb.AppendLine("- Constraints:");
-                    foreach (var item in report.Evidence.Request.Constraints!)
-                    {
-                        sb.AppendLine($"  - {item}");
-                    }
-                }
-
-                if ((report.Evidence.Request.RequiredCapabilities ?? []).Count > 0)
-                {
-                    sb.AppendLine("- Required Capabilities:");
-                    foreach (var item in report.Evidence.Request.RequiredCapabilities!)
-                    {
-                        sb.AppendLine($"  - {item}");
-                    }
-                }
-
-                if ((report.Evidence.Request.Assumptions ?? []).Count > 0)
-                {
-                    sb.AppendLine("- Assumptions:");
-                    foreach (var item in report.Evidence.Request.Assumptions!)
-                    {
-                        sb.AppendLine($"  - {item}");
-                    }
+                    sb.AppendLine($"  - {item}");
                 }
             }
-            else
+
+            if (report.Evidence.Request.RequiredCapabilities.Count > 0)
             {
-                sb.AppendLine("- Request context not available.");
+                sb.AppendLine("- Required Capabilities:");
+                foreach (var item in report.Evidence.Request.RequiredCapabilities)
+                {
+                    sb.AppendLine($"  - {item}");
+                }
+            }
+
+            if (report.Evidence.Request.Assumptions.Count > 0)
+            {
+                sb.AppendLine("- Assumptions:");
+                foreach (var item in report.Evidence.Request.Assumptions)
+                {
+                    sb.AppendLine($"  - {item}");
+                }
             }
 
             sb.AppendLine();
@@ -196,15 +189,14 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine("```");
                 sb.AppendLine();
 
-                if (!string.IsNullOrWhiteSpace(trace.ParsedResultJson))
-                {
-                    sb.AppendLine("#### Parsed Result");
-                    sb.AppendLine();
-                    sb.AppendLine("```json");
-                    sb.AppendLine(trace.ParsedResultJson);
-                    sb.AppendLine("```");
-                    sb.AppendLine();
-                }
+                if (string.IsNullOrWhiteSpace(trace.ParsedResultJson)) continue;
+                
+                sb.AppendLine("#### Parsed Result");
+                sb.AppendLine();
+                sb.AppendLine("```json");
+                sb.AppendLine(trace.ParsedResultJson);
+                sb.AppendLine("```");
+                sb.AppendLine();
             }
         }
 
@@ -359,7 +351,8 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             }
         }
 
-        if (report.AgentResultDiff is not null)
+        if (report.AgentResultDiff is null) return sb.ToString();
+        
         {
             sb.AppendLine("## Agent Result Diff");
             sb.AppendLine();

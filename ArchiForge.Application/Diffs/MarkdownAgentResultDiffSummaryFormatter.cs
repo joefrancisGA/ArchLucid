@@ -39,18 +39,17 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
             AppendSection(sb, "Removed Warnings", delta.RemovedWarnings);
         }
 
-        if (diff.Warnings.Count > 0)
+        if (diff.Warnings.Count <= 0) return sb.ToString();
+        
+        sb.AppendLine("## Warnings");
+        sb.AppendLine();
+
+        foreach (var warning in diff.Warnings)
         {
-            sb.AppendLine("## Warnings");
-            sb.AppendLine();
-
-            foreach (var warning in diff.Warnings)
-            {
-                sb.AppendLine($"- {warning}");
-            }
-
-            sb.AppendLine();
+            sb.AppendLine($"- {warning}");
         }
+
+        sb.AppendLine();
 
         return sb.ToString();
     }

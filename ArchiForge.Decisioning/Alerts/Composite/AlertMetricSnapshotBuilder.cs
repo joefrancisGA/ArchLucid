@@ -34,9 +34,9 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
                     x.Category.Equals("Security", StringComparison.OrdinalIgnoreCase)),
 
             AcceptanceRatePercent = BuildAcceptanceRatePercent(context),
+            CostIncreasePercent = BuildCostIncreasePercent(context)
         };
 
-        snapshot.CostIncreasePercent = BuildCostIncreasePercent(context);
         return snapshot;
     }
 

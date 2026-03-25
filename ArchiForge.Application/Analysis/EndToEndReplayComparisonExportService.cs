@@ -380,6 +380,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         AppendList(sb, "Removed Datastores", report.ManifestDiff.RemovedDatastores);
         AppendList(sb, "Added Required Controls", report.ManifestDiff.AddedRequiredControls);
         AppendList(sb, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
+        
         if (report.ManifestDiff.AddedRelationships.Count > 0)
         {
             sb.AppendLine("### Added Relationships");
@@ -388,7 +389,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                 sb.AppendLine($"- {rel.SourceId} -> {rel.TargetId} ({rel.RelationshipType})");
             sb.AppendLine();
         }
-        if (report.ManifestDiff.RemovedRelationships.Count > 0)
+
+        if (report.ManifestDiff.RemovedRelationships.Count <= 0) return;
+        
         {
             sb.AppendLine("### Removed Relationships");
             sb.AppendLine();

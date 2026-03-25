@@ -37,20 +37,20 @@ public sealed class MarkdownManifestDiffExportService : IManifestDiffExportServi
         sb.AppendLine();
         sb.AppendLine($"- System Name: {left.SystemName}");
         sb.AppendLine($"- Run ID: {left.RunId}");
-        sb.AppendLine($"- Manifest Version: {left.Metadata?.ManifestVersion}");
-        sb.AppendLine($"- Service Count: {(left.Services ?? []).Count}");
-        sb.AppendLine($"- Datastore Count: {(left.Datastores ?? []).Count}");
-        sb.AppendLine($"- Relationship Count: {(left.Relationships ?? []).Count}");
+        sb.AppendLine($"- Manifest Version: {left.Metadata.ManifestVersion}");
+        sb.AppendLine($"- Service Count: {left.Services.Count}");
+        sb.AppendLine($"- Datastore Count: {left.Datastores.Count}");
+        sb.AppendLine($"- Relationship Count: {left.Relationships.Count}");
         sb.AppendLine();
 
         sb.AppendLine("## Right Manifest Snapshot");
         sb.AppendLine();
         sb.AppendLine($"- System Name: {right.SystemName}");
         sb.AppendLine($"- Run ID: {right.RunId}");
-        sb.AppendLine($"- Manifest Version: {right.Metadata?.ManifestVersion}");
-        sb.AppendLine($"- Service Count: {(right.Services ?? []).Count}");
-        sb.AppendLine($"- Datastore Count: {(right.Datastores ?? []).Count}");
-        sb.AppendLine($"- Relationship Count: {(right.Relationships ?? []).Count}");
+        sb.AppendLine($"- Manifest Version: {right.Metadata.ManifestVersion}");
+        sb.AppendLine($"- Service Count: {right.Services.Count}");
+        sb.AppendLine($"- Datastore Count: {right.Datastores.Count}");
+        sb.AppendLine($"- Relationship Count: {right.Relationships.Count}");
         sb.AppendLine();
 
         return sb.ToString();

@@ -15,12 +15,11 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
             TenantId = tenantId,
             WorkspaceId = workspaceId,
             ProjectId = projectId,
-            GeneratedUtc = DateTime.UtcNow
+            GeneratedUtc = DateTime.UtcNow,
+            CategoryStats = BuildStats(recommendations, x => x.Category),
+            UrgencyStats = BuildStats(recommendations, x => x.Urgency),
+            SignalTypeStats = BuildStats(recommendations, InferSignalType)
         };
-
-        profile.CategoryStats = BuildStats(recommendations, x => x.Category);
-        profile.UrgencyStats = BuildStats(recommendations, x => x.Urgency);
-        profile.SignalTypeStats = BuildStats(recommendations, InferSignalType);
 
         profile.CategoryWeights = BuildWeights(profile.CategoryStats);
         profile.UrgencyWeights = BuildWeights(profile.UrgencyStats);
@@ -87,9 +86,6 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
         if (record.Category.Equals("Topology", StringComparison.OrdinalIgnoreCase))
             return "TopologyGap";
 
-        if (record.Category.Equals("Cost", StringComparison.OrdinalIgnoreCase))
-            return "CostRisk";
-
-        return "General";
+        return record.Category.Equals("Cost", StringComparison.OrdinalIgnoreCase) ? "CostRisk" : "General";
     }
 }

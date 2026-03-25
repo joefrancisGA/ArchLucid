@@ -54,7 +54,8 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
             builder.AddSpacer();
         }
 
-        if (diff.Warnings.Count > 0)
+        if (diff.Warnings.Count <= 0) return Task.FromResult(builder.Build());
+        
         {
             builder.AddHeading("Warnings", 2);
             foreach (var item in diff.Warnings)

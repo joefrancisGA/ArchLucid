@@ -31,7 +31,7 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
             sb.AppendLine($"    {SanitizeId(datastore.DatastoreId)}[(\"{EscapeLabel(BuildDatastoreLabel(datastore))}\")]");
         }
 
-        foreach (var relationship in (manifest.Relationships ?? []).OrderBy(r => r.SourceId).ThenBy(r => r.TargetId))
+        foreach (var relationship in manifest.Relationships.OrderBy(r => r.SourceId).ThenBy(r => r.TargetId))
         {
             var source = SanitizeId(relationship.SourceId);
             var target = SanitizeId(relationship.TargetId);
