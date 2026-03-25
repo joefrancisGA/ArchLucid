@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Alerts.Delivery;
@@ -36,12 +37,15 @@ public sealed class AlertRoutingSubscriptionsController(
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRoutingSubscription), StatusCodes.Status200OK)]
-    public async Task<ActionResult<AlertRoutingSubscription>> Create(
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> Create(
         [FromBody] AlertRoutingSubscription? subscription,
         CancellationToken ct = default)
     {
         if (subscription is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
 

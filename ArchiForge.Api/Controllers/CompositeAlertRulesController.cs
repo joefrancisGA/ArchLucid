@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Alerts.Composite;
@@ -35,12 +36,12 @@ public sealed class CompositeAlertRulesController(
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CompositeAlertRule), StatusCodes.Status200OK)]
-    public async Task<ActionResult<CompositeAlertRule>> Create(
+    public async Task<IActionResult> Create(
         [FromBody] CompositeAlertRule? rule,
         CancellationToken ct = default)
     {
         if (rule is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
 

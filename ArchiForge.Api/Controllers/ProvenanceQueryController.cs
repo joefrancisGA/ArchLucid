@@ -31,7 +31,7 @@ public sealed class ProvenanceQueryController(
         var scope = scopeProvider.GetCurrentScope();
         var snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
         if (snapshot is null)
-            return NotFound();
+            return this.NotFoundProblem($"Provenance snapshot for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
 
         return Ok(snapshot);
     }

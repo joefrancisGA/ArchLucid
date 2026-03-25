@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Scheduling;
@@ -43,12 +44,15 @@ public sealed class AdvisorySchedulingController(
     [HttpPost("schedules")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AdvisoryScanSchedule), StatusCodes.Status200OK)]
-    public async Task<ActionResult<AdvisoryScanSchedule>> CreateSchedule(
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> CreateSchedule(
         [FromBody] AdvisoryScanSchedule? request,
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
 

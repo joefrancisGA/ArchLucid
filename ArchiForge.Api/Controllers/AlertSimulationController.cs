@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Alerts;
@@ -35,12 +36,12 @@ public sealed class AlertSimulationController(
     /// <summary>Runs <see cref="IRuleSimulationService.SimulateAsync"/> and audits aggregate counts.</summary>
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(RuleSimulationResult), StatusCodes.Status200OK)]
-    public async Task<ActionResult<RuleSimulationResult>> Simulate(
+    public async Task<IActionResult> Simulate(
         [FromBody] RuleSimulationRequest? request,
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
         StampSimulationScope(scope, request);
@@ -73,12 +74,12 @@ public sealed class AlertSimulationController(
     /// <summary>Runs <see cref="IRuleSimulationService.CompareCandidatesAsync"/> and audits would-create counts per candidate.</summary>
     [HttpPost("compare-candidates")]
     [ProducesResponseType(typeof(RuleCandidateComparisonResult), StatusCodes.Status200OK)]
-    public async Task<ActionResult<RuleCandidateComparisonResult>> CompareCandidates(
+    public async Task<IActionResult> CompareCandidates(
         [FromBody] RuleCandidateComparisonRequest? request,
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
         StampComparisonScope(scope, request);

@@ -6,6 +6,15 @@ using ArchiForge.ArtifactSynthesis.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Packaging;
 
+/// <summary>
+/// Packages <see cref="SynthesizedArtifact"/> instances into single-file exports, manifest-scoped ZIP bundles,
+/// or full run-export ZIP packages containing the manifest JSON and an optional decision trace.
+/// </summary>
+/// <remarks>
+/// Entry names are sanitized with <see cref="FileNameSanitizer"/> and made unique within each archive.
+/// Reserved names (<c>bundle-index.json</c>, <c>package-metadata.json</c>, etc.) are prefixed with
+/// <c>artifact-</c> to avoid collisions.
+/// </remarks>
 public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeResolver) : IArtifactPackagingService
 {
     private static readonly JsonSerializerOptions JsonWriteIndented = new() { WriteIndented = true };
@@ -30,6 +39,8 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
     public ArtifactFileExport BuildSingleFileExport(SynthesizedArtifact artifact)
     {
+        ArgumentNullException.ThrowIfNull(artifact);
+
         return new ArtifactFileExport
         {
             FileName = FileNameSanitizer.Sanitize(artifact.Name),
@@ -42,6 +53,8 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
         Guid manifestId,
         IReadOnlyList<SynthesizedArtifact> artifacts)
     {
+        ArgumentNullException.ThrowIfNull(artifacts);
+
         using var memoryStream = new MemoryStream();
 
         using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
@@ -80,6 +93,9 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
         string manifestJson,
         string? traceJson = null)
     {
+        ArgumentNullException.ThrowIfNull(artifacts);
+        ArgumentException.ThrowIfNullOrWhiteSpace(manifestJson);
+
         using var memoryStream = new MemoryStream();
 
         using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))

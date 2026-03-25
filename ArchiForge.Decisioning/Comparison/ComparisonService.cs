@@ -144,10 +144,13 @@ public sealed class ComparisonService : IComparisonService
     private static Dictionary<string, RequirementState> RequirementStates(RequirementsCoverageSection section)
     {
         var map = new Dictionary<string, RequirementState>(StringComparer.OrdinalIgnoreCase);
+
+        // First-wins: if a name appears in both lists, the Covered entry takes priority.
         foreach (var x in section.Covered)
-            map[x.RequirementName] = new RequirementState(RequirementBucket.Covered, x.CoverageStatus, x.IsMandatory);
+            map.TryAdd(x.RequirementName, new RequirementState(RequirementBucket.Covered, x.CoverageStatus, x.IsMandatory));
         foreach (var x in section.Uncovered)
-            map[x.RequirementName] = new RequirementState(RequirementBucket.Uncovered, x.CoverageStatus, x.IsMandatory);
+            map.TryAdd(x.RequirementName, new RequirementState(RequirementBucket.Uncovered, x.CoverageStatus, x.IsMandatory));
+
         return map;
     }
 

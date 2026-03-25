@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Models;
@@ -53,15 +54,17 @@ public sealed class AdvisoryController(
     [HttpGet("runs/{runId:guid}/improvements")]
     [ProducesResponseType(typeof(ImprovementPlanResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ImprovementPlanResponse>> GetImprovements(
+    public async Task<IActionResult> GetImprovements(
         Guid runId,
         [FromQuery] Guid? compareToRunId = null,
         CancellationToken ct = default)
     {
         var scope = scopeProvider.GetCurrentScope();
         var run = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (run?.GoldenManifest is null)
-            return NotFound();
+        if (run is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (run.GoldenManifest is null)
+            return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
         var findings = run.FindingsSnapshot ?? CreateEmptyFindings(run.GoldenManifest);
 
@@ -69,8 +72,10 @@ public sealed class AdvisoryController(
         if (compareToRunId.HasValue)
         {
             var baseRun = await authorityQueryService.GetRunDetailAsync(scope, compareToRunId.Value, ct);
-            if (baseRun?.GoldenManifest is null)
-                return NotFound();
+            if (baseRun is null)
+                return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' was not found.", ProblemTypes.RunNotFound);
+            if (baseRun.GoldenManifest is null)
+                return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
             var comparison = comparisonService.Compare(baseRun.GoldenManifest, run.GoldenManifest);
 
@@ -108,6 +113,7 @@ public sealed class AdvisoryController(
     }
 
     /// <summary>Lists recommendation rows previously stored for the given run in the current scope.</summary>
+
     /// <param name="runId">Authority run id; must match persisted <see cref="RecommendationRecord.RunId"/>.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Rows ordered per <see cref="IRecommendationRepository.ListByRunAsync"/>.</returns>
@@ -142,19 +148,16 @@ public sealed class AdvisoryController(
     [ProducesResponseType(typeof(RecommendationRecordResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RecommendationRecordResponse>> ApplyRecommendationAction(
+    public async Task<IActionResult> ApplyRecommendationAction(
         Guid recommendationId,
         [FromBody] RecommendationActionRequest? request,
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         if (!IsKnownRecommendationAction(request.Action))
-            return BadRequest(new
-            {
-                error = "Unknown or missing action."
-            });
+            return this.BadRequestProblem("Unknown or missing action.", ProblemTypes.ValidationFailed);
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
         var userName = User.Identity?.Name ?? "unknown";
@@ -167,7 +170,7 @@ public sealed class AdvisoryController(
             ct);
 
         if (updated is null)
-            return NotFound();
+            return this.NotFoundProblem($"Recommendation '{recommendationId}' was not found.", ProblemTypes.ResourceNotFound);
 
         var eventType = request.Action switch
         {

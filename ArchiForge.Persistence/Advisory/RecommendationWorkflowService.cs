@@ -70,6 +70,8 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
         RecommendationActionRequest request,
         CancellationToken ct)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(userName);
         ArgumentNullException.ThrowIfNull(request);
 
         var recommendation = await repository.GetByIdAsync(recommendationId, ct).ConfigureAwait(false);

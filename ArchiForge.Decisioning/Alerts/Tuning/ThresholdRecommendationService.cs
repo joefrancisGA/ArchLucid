@@ -12,6 +12,9 @@ public sealed class ThresholdRecommendationService(
     IRuleSimulationService simulationService,
     IAlertNoiseScorer noiseScorer) : IThresholdRecommendationService
 {
+    private const string RuleKindSimple = "Simple";
+    private const string RuleKindComposite = "Composite";
+
     /// <inheritdoc />
     public async Task<ThresholdRecommendationResult> RecommendAsync(
         Guid tenantId,
@@ -20,6 +23,8 @@ public sealed class ThresholdRecommendationService(
         ThresholdRecommendationRequest request,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         var result = new ThresholdRecommendationResult
         {
             EvaluatedUtc = DateTime.UtcNow,
@@ -33,7 +38,7 @@ public sealed class ThresholdRecommendationService(
         {
             RuleSimulationResult? simulation = null;
 
-            if (request.RuleKind.Equals("Simple", StringComparison.OrdinalIgnoreCase) &&
+            if (request.RuleKind.Equals(RuleKindSimple, StringComparison.OrdinalIgnoreCase) &&
                 request.BaseSimpleRule is not null)
             {
                 var baseRule = AlignSimpleRuleMetric(request.BaseSimpleRule, request.TunedMetricType);
@@ -55,7 +60,7 @@ public sealed class ThresholdRecommendationService(
                         ct)
                     .ConfigureAwait(false);
             }
-            else if (request.RuleKind.Equals("Composite", StringComparison.OrdinalIgnoreCase) &&
+            else if (request.RuleKind.Equals(RuleKindComposite, StringComparison.OrdinalIgnoreCase) &&
                      request.BaseCompositeRule is not null)
             {
                 var candidateRule = CloneCompositeRuleWithThreshold(
@@ -70,7 +75,7 @@ public sealed class ThresholdRecommendationService(
                         projectId,
                         new RuleSimulationRequest
                         {
-                            RuleKind = "Composite",
+                            RuleKind = RuleKindComposite,
                             CompositeRule = candidateRule,
                             RecentRunCount = request.RecentRunCount,
                             UseHistoricalWindow = true,

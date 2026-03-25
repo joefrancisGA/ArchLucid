@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Delivery;
@@ -38,12 +39,15 @@ public sealed class DigestSubscriptionsController(
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
-    public async Task<ActionResult<DigestSubscription>> Create(
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> Create(
         [FromBody] DigestSubscription? subscription,
         CancellationToken ct = default)
     {
         if (subscription is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
 

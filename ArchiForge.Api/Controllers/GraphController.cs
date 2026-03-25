@@ -1,4 +1,5 @@
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Scoping;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Queries;
@@ -12,6 +13,14 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// HTTP API for retrieving the architecture knowledge graph snapshot associated with a run.
+/// </summary>
+/// <remarks>
+/// Routes are prefixed <c>api/graph</c> and require the <see cref="ArchiForgePolicies.ReadAuthority"/> policy.
+/// The graph is projected from the <see cref="ArchiForge.KnowledgeGraph.Models.GraphSnapshot"/> stored in the
+/// canonical run detail and returned as a <see cref="GraphViewModel"/> with typed node and edge view models.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -29,8 +38,10 @@ public sealed class GraphController(
     {
         var scope = scopeProvider.GetCurrentScope();
         var detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (detail?.GraphSnapshot is null)
-            return NotFound();
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (detail.GraphSnapshot is null)
+            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.", ProblemTypes.ResourceNotFound);
 
         var vm = MapArchitectureGraph(detail.GraphSnapshot);
         return Ok(vm);
@@ -51,16 +62,19 @@ public sealed class GraphController(
 
     private static GraphNodeVm MapNode(GraphNode x)
     {
-        var meta = new Dictionary<string, string>();
-        foreach (var kv in x.Properties)
-            meta[kv.Key] = kv.Value;
+        var meta = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+        // Known structured fields take priority over raw property bag entries.
         if (!string.IsNullOrEmpty(x.Category))
             meta["category"] = x.Category;
         if (!string.IsNullOrEmpty(x.SourceType))
             meta["sourceType"] = x.SourceType;
         if (!string.IsNullOrEmpty(x.SourceId))
             meta["sourceId"] = x.SourceId;
+
+        // Additional properties are merged; duplicate keys from Properties are skipped.
+        foreach (var kv in x.Properties)
+            meta.TryAdd(kv.Key, kv.Value);
 
         return new GraphNodeVm
         {

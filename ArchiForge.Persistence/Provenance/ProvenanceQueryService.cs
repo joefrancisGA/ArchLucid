@@ -12,6 +12,10 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
     /// <inheritdoc />
     public async Task<GraphViewModel?> GetFullGraphAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+        if (runId == Guid.Empty)
+            throw new ArgumentException("runId must be a non-empty GUID.", nameof(runId));
+
         var graph = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
         return graph is null ? null : ProvenanceGraphViewMapper.ToViewModel(graph);
     }
@@ -44,6 +48,11 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
         int depth,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+        if (runId == Guid.Empty)
+            throw new ArgumentException("runId must be a non-empty GUID.", nameof(runId));
+        var safeDepth = Math.Clamp(depth, 1, 10);
+
         var full = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
         if (full is null)
             return null;
@@ -51,7 +60,7 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
         if (full.Nodes.All(n => n.Id != nodeId))
             return null;
 
-        var sub = ProvenanceGraphAlgorithms.ExtractNeighborhood(full, nodeId, depth);
+        var sub = ProvenanceGraphAlgorithms.ExtractNeighborhood(full, nodeId, safeDepth);
         return ProvenanceGraphViewMapper.ToViewModel(sub);
     }
 

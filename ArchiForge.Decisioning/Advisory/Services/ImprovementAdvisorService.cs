@@ -18,6 +18,9 @@ public sealed class ImprovementAdvisorService(
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(manifest);
+        ArgumentNullException.ThrowIfNull(findingsSnapshot);
+
         var profile = await learningService
             .GetLatestProfileAsync(manifest.TenantId, manifest.WorkspaceId, manifest.ProjectId, ct)
             .ConfigureAwait(false);
@@ -40,6 +43,10 @@ public sealed class ImprovementAdvisorService(
         ComparisonResult comparison,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(manifest);
+        ArgumentNullException.ThrowIfNull(findingsSnapshot);
+        ArgumentNullException.ThrowIfNull(comparison);
+
         var profile = await learningService
             .GetLatestProfileAsync(manifest.TenantId, manifest.WorkspaceId, manifest.ProjectId, ct)
             .ConfigureAwait(false);

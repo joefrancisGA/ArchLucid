@@ -1,5 +1,6 @@
 using ArchiForge.AgentRuntime.Explanation;
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.ArtifactSynthesis.Docx;
 using ArchiForge.ArtifactSynthesis.Docx.Models;
 using ArchiForge.Core.Comparison;
@@ -56,8 +57,10 @@ public sealed class DocxExportController(
     {
         var scope = scopeProvider.GetCurrentScope();
         var runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (runDetail?.GoldenManifest is null)
-            return NotFound();
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (runDetail.GoldenManifest is null)
+            return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
         var manifest = runDetail.GoldenManifest;
         var artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
@@ -69,8 +72,10 @@ public sealed class DocxExportController(
         if (compareWithRunId is not null)
         {
             var targetDetail = await authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
-            if (targetDetail?.GoldenManifest is null)
-                return NotFound();
+            if (targetDetail is null)
+                return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' was not found.", ProblemTypes.RunNotFound);
+            if (targetDetail.GoldenManifest is null)
+                return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
             manifestComparison = comparisonService.Compare(manifest, targetDetail.GoldenManifest);
         }
 

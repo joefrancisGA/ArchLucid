@@ -39,26 +39,19 @@ public sealed class AskController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         if (string.IsNullOrWhiteSpace(request.Question))
-            return BadRequest(new
-            {
-                error = "Question is required."
-            });
+            return this.BadRequestProblem("Question is required.", ProblemTypes.ValidationFailed);
 
         if (request.RunId is null && request.ThreadId is null)
-        {
-            return BadRequest(new
-            {
-                error = "Provide runId (new conversation) or threadId (continue an existing conversation)."
-            });
-        }
+            return this.BadRequestProblem(
+                "Provide runId (new conversation) or threadId (continue an existing conversation).",
+                ProblemTypes.ValidationFailed);
 
         var hasBase = request.BaseRunId.HasValue;
         var hasTarget = request.TargetRunId.HasValue;
         if (hasBase != hasTarget)
-            return BadRequest(new
-            {
-                error = "Provide both baseRunId and targetRunId for comparison, or omit both."
-            });
+            return this.BadRequestProblem(
+                "Provide both baseRunId and targetRunId for comparison, or omit both.",
+                ProblemTypes.ValidationFailed);
 
         try
         {

@@ -7,10 +7,22 @@ using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.Decisioning.Services;
 
+/// <summary>
+/// Computes a deterministic SHA-256 hash over a canonical JSON projection of a <see cref="GoldenManifest"/>.
+/// </summary>
+/// <remarks>
+/// The canonical projection includes all structural manifest fields (topology, decisions, requirements,
+/// security, compliance, cost, constraints, provenance) but excludes non-deterministic metadata like
+/// <c>CreatedUtc</c>. Collection entries are sorted before serialization so that insertion-order
+/// differences do not produce different hashes.
+/// </remarks>
 public sealed class ManifestHashService : IManifestHashService
 {
+    /// <inheritdoc />
     public string ComputeHash(GoldenManifest manifest)
     {
+        ArgumentNullException.ThrowIfNull(manifest);
+
         var canonical = JsonSerializer.Serialize(new
         {
             manifest.TenantId,

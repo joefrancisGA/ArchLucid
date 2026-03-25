@@ -5,6 +5,11 @@ using ArchiForge.ContextIngestion.Summaries;
 
 namespace ArchiForge.ContextIngestion.Services;
 
+/// <summary>
+/// Orchestrates the context ingestion pipeline: collects raw objects from all registered
+/// <see cref="IContextConnector"/> implementations, canonicalizes and deduplicates them,
+/// then persists the resulting <see cref="ContextSnapshot"/> for downstream pipeline stages.
+/// </summary>
 public class ContextIngestionService(
     IEnumerable<IContextConnector> connectors,
     ICanonicalEnricher enricher,

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Alerts;
@@ -35,10 +36,10 @@ public sealed class AlertRulesController(
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRule), StatusCodes.Status200OK)]
-    public async Task<ActionResult<AlertRule>> Create([FromBody] AlertRule? rule, CancellationToken ct = default)
+    public async Task<IActionResult> Create([FromBody] AlertRule? rule, CancellationToken ct = default)
     {
         if (rule is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var scope = scopeProvider.GetCurrentScope();
 
