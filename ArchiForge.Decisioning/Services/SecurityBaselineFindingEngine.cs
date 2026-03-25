@@ -14,7 +14,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        List<Finding> findings = new();
+        List<Finding> findings = [];
 
         IReadOnlyList<GraphNode> securityNodes = graphSnapshot.GetNodesByType("SecurityBaseline");
 
@@ -28,7 +28,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 .Select(n => n.NodeId)
                 .ToList();
 
-            List<string> relatedNodeIds = new() { node.NodeId };
+            List<string> relatedNodeIds = [node.NodeId];
             foreach (string id in protectedIds)
             {
                 if (!relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase))

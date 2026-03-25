@@ -12,8 +12,8 @@ public sealed class CanonicalInfrastructureEnricherTests
     [Fact]
     public void Enrich_AddsCategory_ForJsonResourceTypes()
     {
-        List<CanonicalObject> items = new()
-        {
+        List<CanonicalObject> items =
+        [
             new()
             {
                 ObjectType = "TopologyResource",
@@ -22,11 +22,10 @@ public sealed class CanonicalInfrastructureEnricherTests
                 SourceId = "id",
                 Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["resourceType"] = "vnet",
-                    ["region"] = "eastus"
+                    ["resourceType"] = "vnet", ["region"] = "eastus"
                 }
             }
-        };
+        ];
 
         IReadOnlyList<CanonicalObject> enriched = _sut.Enrich(items);
 
@@ -36,8 +35,8 @@ public sealed class CanonicalInfrastructureEnricherTests
     [Fact]
     public void Enrich_AddsCategory_AndStatus_ForTerraformAndSecurity()
     {
-        List<CanonicalObject> items = new()
-        {
+        List<CanonicalObject> items =
+        [
             new()
             {
                 ObjectType = "TopologyResource",
@@ -49,6 +48,7 @@ public sealed class CanonicalInfrastructureEnricherTests
                     ["terraformType"] = "azurerm_virtual_network"
                 }
             },
+
             new()
             {
                 ObjectType = "SecurityBaseline",
@@ -60,7 +60,7 @@ public sealed class CanonicalInfrastructureEnricherTests
                     ["terraformType"] = "azurerm_key_vault"
                 }
             }
-        };
+        ];
 
         IReadOnlyList<CanonicalObject> enriched = _sut.Enrich(items);
 

@@ -25,7 +25,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
 
-        List<AgentResult> results = new();
+        List<AgentResult> results = [];
 
         foreach (AgentTask task in tasks.OrderBy(t => t.AgentType))
         {

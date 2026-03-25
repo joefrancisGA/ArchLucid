@@ -27,7 +27,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         ArgumentNullException.ThrowIfNull(evaluations);
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<DecisionNode> decisions = new();
+        List<DecisionNode> decisions = [];
 
         AgentTask? topologyTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Topology);
         AgentResult? topologyResult = results.FirstOrDefault(r => r.AgentType == AgentType.Topology);
@@ -128,7 +128,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase) &&
             e.Rationale.Contains("managed identity", StringComparison.OrdinalIgnoreCase));
 
-        List<string> controls = new();
+        List<string> controls = [];
 
         if (promotePrivateEndpoints)
             controls.Add("Private Endpoints");

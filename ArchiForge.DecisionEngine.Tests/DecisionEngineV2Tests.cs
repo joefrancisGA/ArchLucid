@@ -15,8 +15,8 @@ public sealed class DecisionEngineV2Tests
     [Fact]
     public async Task ResolveAsync_WhenSingleProposal_SelectsInclude()
     {
-        List<AgentResult> results = new()
-        {
+        List<AgentResult> results =
+        [
             new()
             {
                 RunId = "RUN-1",
@@ -32,7 +32,7 @@ public sealed class DecisionEngineV2Tests
                     ]
                 }
             }
-        };
+        ];
 
 #pragma warning disable IDE0028 // Simplify collection initialization
         IReadOnlyList<DecisionNode> decisions = await _engine.ResolveAsync(
@@ -51,8 +51,8 @@ public sealed class DecisionEngineV2Tests
     [Fact]
     public async Task ResolveAsync_WhenOpposed_SelectsExclude()
     {
-        List<AgentResult> results = new()
-        {
+        List<AgentResult> results =
+        [
             new()
             {
                 RunId = "RUN-1",
@@ -67,10 +67,10 @@ public sealed class DecisionEngineV2Tests
                     ]
                 }
             }
-        };
+        ];
 
-        List<AgentEvaluation> evals = new()
-        {
+        List<AgentEvaluation> evals =
+        [
             new()
             {
                 RunId = "RUN-1",
@@ -79,7 +79,7 @@ public sealed class DecisionEngineV2Tests
                 ConfidenceDelta = -1.0,
                 Rationale = "Oppose topology changes."
             }
-        };
+        ];
 
 #pragma warning disable IDE0028 // Simplify collection initialization
         IReadOnlyList<DecisionNode> decisions = await _engine.ResolveAsync(

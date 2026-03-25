@@ -319,10 +319,10 @@ namespace ArchiForge.Cli
                 using JsonDocument doc = JsonDocument.Parse(content);
                 JsonElement root = doc.RootElement;
                 JsonElement recordsProp = root.GetProperty("records");
-                List<ComparisonRecordSummary> list = new();
+                List<ComparisonRecordSummary> list = [];
                 foreach (JsonElement item in recordsProp.EnumerateArray())
                 {
-                    List<string> tagsList = new();
+                    List<string> tagsList = [];
                     if (item.TryGetProperty("tags", out JsonElement tagsEl) && tagsEl.ValueKind == JsonValueKind.Array)
                     {
                         foreach (JsonElement t in tagsEl.EnumerateArray())

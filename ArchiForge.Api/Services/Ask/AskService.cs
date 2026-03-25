@@ -229,27 +229,27 @@ public sealed class AskService(
         {
             DateTime now = DateTime.UtcNow;
             List<ConversationMessage> conversationTurn =
+            [
                 new()
                 {
-                    new()
-                    {
-                        MessageId = Guid.NewGuid(),
-                        ThreadId = thread.ThreadId,
-                        Role = ConversationMessageRole.User,
-                        Content = request.Question.Trim(),
-                        CreatedUtc = now,
-                        MetadataJson = "{}"
-                    },
-                    new()
-                    {
-                        MessageId = Guid.NewGuid(),
-                        ThreadId = thread.ThreadId,
-                        Role = ConversationMessageRole.Assistant,
-                        Content = response.Answer,
-                        CreatedUtc = now,
-                        MetadataJson = metadataJson
-                    }
-                };
+                    MessageId = Guid.NewGuid(),
+                    ThreadId = thread.ThreadId,
+                    Role = ConversationMessageRole.User,
+                    Content = request.Question.Trim(),
+                    CreatedUtc = now,
+                    MetadataJson = "{}"
+                },
+
+                new()
+                {
+                    MessageId = Guid.NewGuid(),
+                    ThreadId = thread.ThreadId,
+                    Role = ConversationMessageRole.Assistant,
+                    Content = response.Answer,
+                    CreatedUtc = now,
+                    MetadataJson = metadataJson
+                }
+            ];
 
             IReadOnlyList<RetrievalDocument> convDocs = retrievalDocumentBuilder.BuildForConversation(
                 scope.TenantId,

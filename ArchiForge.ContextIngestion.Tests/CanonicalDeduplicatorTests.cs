@@ -12,8 +12,8 @@ public sealed class CanonicalDeduplicatorTests
     [Fact]
     public void Deduplicate_UsesReferenceFingerprint_WhenTextMissing()
     {
-        List<CanonicalObject> items = new()
-        {
+        List<CanonicalObject> items =
+        [
             new()
             {
                 ObjectType = "PolicyControl",
@@ -22,10 +22,10 @@ public sealed class CanonicalDeduplicatorTests
                 SourceId = "ref-a",
                 Properties = new Dictionary<string, string>
                 {
-                    ["reference"] = "ORG-POL-001",
-                    ["status"] = "referenced"
+                    ["reference"] = "ORG-POL-001", ["status"] = "referenced"
                 }
             },
+
             new()
             {
                 ObjectType = "PolicyControl",
@@ -34,11 +34,10 @@ public sealed class CanonicalDeduplicatorTests
                 SourceId = "ref-b",
                 Properties = new Dictionary<string, string>
                 {
-                    ["reference"] = "ORG-POL-001",
-                    ["status"] = "referenced"
+                    ["reference"] = "ORG-POL-001", ["status"] = "referenced"
                 }
             }
-        };
+        ];
 
         IReadOnlyList<CanonicalObject> result = _sut.Deduplicate(items);
 
@@ -48,33 +47,26 @@ public sealed class CanonicalDeduplicatorTests
     [Fact]
     public void Deduplicate_PrefersTextOverReference_ForFingerprint()
     {
-        List<CanonicalObject> items = new()
-        {
+        List<CanonicalObject> items =
+        [
             new()
             {
                 ObjectType = "PolicyControl",
                 Name = "x",
                 SourceType = "A",
                 SourceId = "a",
-                Properties = new Dictionary<string, string>
-                {
-                    ["text"] = "alpha",
-                    ["reference"] = "R1"
-                }
+                Properties = new Dictionary<string, string> { ["text"] = "alpha", ["reference"] = "R1" }
             },
+
             new()
             {
                 ObjectType = "PolicyControl",
                 Name = "x",
                 SourceType = "B",
                 SourceId = "b",
-                Properties = new Dictionary<string, string>
-                {
-                    ["text"] = "beta",
-                    ["reference"] = "R1"
-                }
+                Properties = new Dictionary<string, string> { ["text"] = "beta", ["reference"] = "R1" }
             }
-        };
+        ];
 
         IReadOnlyList<CanonicalObject> result = _sut.Deduplicate(items);
 

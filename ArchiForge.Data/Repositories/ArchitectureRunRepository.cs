@@ -231,7 +231,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             sql,
             cancellationToken: cancellationToken));
 
-        List<ArchitectureRunListItem> items = new();
+        List<ArchitectureRunListItem> items = [];
         foreach (ArchitectureRunListItemRow row in rows)
         {
             if (!Enum.TryParse<ArchitectureRunStatus>(row.Status, true, out _))

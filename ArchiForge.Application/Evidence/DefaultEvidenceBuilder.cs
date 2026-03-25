@@ -55,8 +55,8 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 
     private static List<PolicyEvidence> BuildPolicies(ArchitectureRequest request)
     {
-        List<PolicyEvidence> policies = new()
-        {
+        List<PolicyEvidence> policies =
+        [
             new()
             {
                 PolicyId = BuiltInPolicyIds.EnterpriseDefault,
@@ -65,7 +65,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 RequiredControls = ["RBAC", "Diagnostic Logging"],
                 Tags = ["enterprise", "security", "baseline"]
             }
-        };
+        ];
 
         if (HasManagedIdentityConstraint(request))
         {
@@ -108,8 +108,8 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 
     private static List<ServiceCatalogEvidence> BuildServiceCatalog(ArchitectureRequest request)
     {
-        List<ServiceCatalogEvidence> services = new()
-        {
+        List<ServiceCatalogEvidence> services =
+        [
             new()
             {
                 ServiceId = "svc-catalog-app-service",
@@ -119,6 +119,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 Tags = ["compute", "managed", "web", "api"],
                 RecommendedUseCases = ["Api", "Ui", "LowOpsMvp"]
             },
+
             new()
             {
                 ServiceId = "svc-catalog-sql",
@@ -128,7 +129,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 Tags = ["data", "sql", "relational"],
                 RecommendedUseCases = ["Metadata", "TransactionalData"]
             }
-        };
+        ];
 
         if (RequiresSearchCapability(request))
         {
@@ -161,7 +162,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 
     private static List<PatternEvidence> BuildPatterns(ArchitectureRequest request)
     {
-        List<PatternEvidence> patterns = new();
+        List<PatternEvidence> patterns = [];
 
         if (RequiresSearchCapability(request))
         {
@@ -188,14 +189,14 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 
     private static List<EvidenceNote> BuildNotes(ArchitectureRequest request)
     {
-        List<EvidenceNote> notes = new()
-        {
+        List<EvidenceNote> notes =
+        [
             new()
             {
                 NoteType = EvidenceNoteTypes.ExecutionMode,
                 Message = "Evidence package was built using the default deterministic builder."
             }
-        };
+        ];
 
         if (!string.IsNullOrWhiteSpace(request.PriorManifestVersion))
         {

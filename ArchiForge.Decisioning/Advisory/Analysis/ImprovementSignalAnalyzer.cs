@@ -21,7 +21,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
     {
         _ = findingsSnapshot;
 
-        List<ImprovementSignal> signals = new();
+        List<ImprovementSignal> signals = [];
 
         AnalyzeRequirementSignals(manifest, signals);
         AnalyzeSecuritySignals(manifest, signals);

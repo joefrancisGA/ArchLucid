@@ -98,8 +98,8 @@ public sealed class ArchitectureApplicationServiceTests
     public async Task GetRunAsync_WhenRunExists_ReturnsRunWithTasksAndResults()
     {
         ArchitectureRun run = ValidRun();
-        List<AgentTask> tasks = new() { ValidTask() };
-        List<AgentResult> results = new() { ValidResult() };
+        List<AgentTask> tasks = [ValidTask()];
+        List<AgentResult> results = [ValidResult()];
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, results));
@@ -172,7 +172,7 @@ public sealed class ArchitectureApplicationServiceTests
     {
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
-        List<AgentTask> tasks = new() { ValidTask() };
+        List<AgentTask> tasks = [ValidTask()];
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
@@ -215,20 +215,20 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult("run-1", AgentType.Compliance);
         result.TaskId = "task-compliance";
-        List<AgentTask> tasks = new()
-        {
+        List<AgentTask> tasks =
+        [
             ValidTask(),
             ValidTask("run-1", AgentType.Cost),
             ValidTask("run-1", AgentType.Compliance)
-        };
+        ];
         tasks[0].TaskId = "task-topology";
         tasks[1].TaskId = "task-cost";
         tasks[2].TaskId = "task-compliance";
-        List<AgentResult> existingResults = new()
-        {
+        List<AgentResult> existingResults =
+        [
             ValidResult(),
             ValidResult("run-1", AgentType.Cost)
-        };
+        ];
         existingResults[0].TaskId = "task-topology";
         existingResults[1].TaskId = "task-cost";
 
@@ -249,20 +249,20 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
         result.TaskId = "task-topology-3";
-        List<AgentTask> tasks = new()
-        {
+        List<AgentTask> tasks =
+        [
             ValidTask(),
             ValidTask(),
             ValidTask()
-        };
+        ];
         tasks[0].TaskId = "task-topology-1";
         tasks[1].TaskId = "task-topology-2";
         tasks[2].TaskId = "task-topology-3";
-        List<AgentResult> existingResults = new()
-        {
+        List<AgentResult> existingResults =
+        [
             ValidResult(),
             ValidResult()
-        };
+        ];
         existingResults[0].TaskId = "task-topology-1";
         existingResults[1].TaskId = "task-topology-2";
 
@@ -333,7 +333,7 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
         result.RunId = "RUN-1";
-        List<AgentTask> tasks = new() { ValidTask() };
+        List<AgentTask> tasks = [ValidTask()];
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
@@ -351,8 +351,8 @@ public sealed class ArchitectureApplicationServiceTests
     {
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
-        List<AgentTask> tasks = new() { ValidTask() };
-        List<AgentResult> existingResults = new() { result };
+        List<AgentTask> tasks = [ValidTask()];
+        List<AgentResult> existingResults = [result];
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, existingResults));
@@ -370,7 +370,7 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
         result.TaskId = "nonexistent-task";
-        List<AgentTask> tasks = new() { ValidTask() };
+        List<AgentTask> tasks = [ValidTask()];
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
@@ -388,7 +388,7 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult("run-1", AgentType.Cost);
         result.TaskId = "task-1";
-        List<AgentTask> tasks = new() { ValidTask() };
+        List<AgentTask> tasks = [ValidTask()];
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
@@ -461,7 +461,8 @@ public sealed class ArchitectureApplicationServiceTests
     {
         ArchitectureRun run = ValidRun();
         ArchitectureRequest request = ValidRequest();
-        List<AgentTask> tasks = new() { ValidTask(), ValidTask("run-1", AgentType.Cost), ValidTask("run-1", AgentType.Compliance) };
+        List<AgentTask> tasks =
+            [ValidTask(), ValidTask("run-1", AgentType.Cost), ValidTask("run-1", AgentType.Compliance)];
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
@@ -545,8 +546,8 @@ public sealed class ArchitectureApplicationServiceTests
     {
         ArchitectureRun run = ValidRun();
         ArchitectureRequest request = ValidRequest();
-        List<AgentTask> tasks = new() { ValidTask() };
-        List<AgentResult> existingResults = new() { ValidResult() };
+        List<AgentTask> tasks = [ValidTask()];
+        List<AgentResult> existingResults = [ValidResult()];
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, existingResults));

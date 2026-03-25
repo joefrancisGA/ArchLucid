@@ -181,12 +181,12 @@ public static class FakeScenarioFactory
         string taskId,
         ArchitectureRequest request)
     {
-        List<string> requiredControls = new()
-        {
+        List<string> requiredControls =
+        [
             "Managed Identity",
             "Private Endpoints",
             "Key Vault"
-        };
+        ];
 
         if (request.Constraints.Any(c =>
             c.Contains("encryption", StringComparison.OrdinalIgnoreCase)))

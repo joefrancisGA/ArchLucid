@@ -182,7 +182,7 @@ public sealed class ExplanationService(
 
     private static List<string> ExtractMajorChanges(ComparisonResult c)
     {
-        List<string> list = new();
+        List<string> list = [];
         foreach (DecisionDelta d in c.DecisionChanges)
         {
             if (d.ChangeType == "Modified")
@@ -231,7 +231,7 @@ public sealed class ExplanationService(
 
     private static string BuildComparisonHeuristicSummary(ComparisonResult c)
     {
-        List<string> parts = new();
+        List<string> parts = [];
         if (c.DecisionChanges.Count > 0)
             parts.Add($"{c.DecisionChanges.Count} decision change(s)");
         if (c.RequirementChanges.Count > 0)
@@ -249,11 +249,11 @@ public sealed class ExplanationService(
 
     private static string BuildComparisonNarrativeFallback(ComparisonResult c, List<string> majorChanges)
     {
-        List<string> lines = new()
-        {
+        List<string> lines =
+        [
             "The target run differs from the base run in the areas summarized below.",
             string.Join(" ", c.SummaryHighlights)
-        };
+        ];
         lines.AddRange(majorChanges.Take(15));
         return string.Join("\n\n", lines.Where(x => !string.IsNullOrWhiteSpace(x)));
     }
@@ -292,12 +292,12 @@ public sealed class ExplanationService(
 
     private static List<string> ExtractCostImplications(GoldenManifest m)
     {
-        List<string> list = new()
-        {
+        List<string> list =
+        [
             m.Cost.MaxMonthlyCost.HasValue
                 ? $"Max monthly cost: {m.Cost.MaxMonthlyCost.Value:0.00}"
                 : "Max monthly cost not specified."
-        };
+        ];
 
         list.AddRange(m.Cost.CostRisks.Take(10).Select(r => $"Cost risk: {r}"));
 

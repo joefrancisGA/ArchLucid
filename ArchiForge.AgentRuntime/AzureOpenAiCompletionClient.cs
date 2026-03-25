@@ -40,11 +40,11 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
         ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
-        List<ChatMessage> messages = new()
-        {
+        List<ChatMessage> messages =
+        [
             new SystemChatMessage(systemPrompt),
             new UserChatMessage(userPrompt)
-        };
+        ];
 
         ChatCompletionOptions options = new()
         {

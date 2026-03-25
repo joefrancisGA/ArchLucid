@@ -21,7 +21,7 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
         ArgumentNullException.ThrowIfNull(declaration);
         _ = ct;
         MatchCollection matches = ResourceRegex.Matches(declaration.Content ?? string.Empty);
-        List<CanonicalObject> results = new();
+        List<CanonicalObject> results = [];
 
         foreach (Match match in matches)
         {

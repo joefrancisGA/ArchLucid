@@ -342,7 +342,7 @@ namespace ArchiForge.Cli
                 r.Tags.Count == 0 ? "" : string.Join(",", r.Tags)
             }).ToList();
 
-            string[] headers = new[] { "CreatedUtc", "ComparisonRecordId", "Type", "LeftRunId", "RightRunId", "Label", "Tags" };
+            string[] headers = ["CreatedUtc", "ComparisonRecordId", "Type", "LeftRunId", "RightRunId", "Label", "Tags"];
             rows.Insert(0, headers);
 
             int[] widths = new int[headers.Length];
@@ -368,7 +368,7 @@ namespace ArchiForge.Cli
 
             string comparisonRecordId = args[0];
             string? label = null;
-            List<string> tags = new();
+            List<string> tags = [];
 
             for (int i = 1; i < args.Length; i++)
             {
@@ -616,7 +616,8 @@ namespace ArchiForge.Cli
                 e.ErrorMessage ?? ""
             }).ToList();
 
-            string[] headers = new[] { "TimestampUtc", "ComparisonRecordId", "Type", "Format", "Mode", "Success", "Ms", "MetaOnly", "PersistedReplayRecordId", "Error" };
+            string[] headers = ["TimestampUtc", "ComparisonRecordId", "Type", "Format", "Mode", "Success", "Ms", "MetaOnly", "PersistedReplayRecordId", "Error"
+            ];
             rows.Insert(0, headers);
 
             int[] widths = new int[headers.Length];

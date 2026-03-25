@@ -51,7 +51,7 @@ public sealed class AlertService(
         rules = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
 
         IReadOnlyList<AlertRecord> generated = alertEvaluator.Evaluate(rules, context);
-        List<AlertRecord> persisted = new();
+        List<AlertRecord> persisted = [];
 
         foreach (AlertRecord alert in generated)
         {

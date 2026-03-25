@@ -15,7 +15,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
     {
         ArgumentNullException.ThrowIfNull(document);
         _ = ct;
-        List<CanonicalObject> results = new();
+        List<CanonicalObject> results = [];
 
         string[] lines = (document.Content ?? string.Empty)
             .Replace("\r\n", "\n")

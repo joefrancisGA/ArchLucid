@@ -18,7 +18,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
     [Fact]
     public async Task SearchComparisons_PagingDoesNotOverlap_AndSortAscWorks()
     {
-        List<string> ids = new();
+        List<string> ids = [];
 
         using (IServiceScope scope = _factory.Services.CreateScope())
         {

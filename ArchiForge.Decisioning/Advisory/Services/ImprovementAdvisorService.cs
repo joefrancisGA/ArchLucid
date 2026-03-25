@@ -67,7 +67,7 @@ public sealed class ImprovementAdvisorService(
         IReadOnlyList<ImprovementRecommendation> recommendations,
         RecommendationLearningProfile? profile)
     {
-        List<string> notes = new();
+        List<string> notes = [];
 
         if (recommendations.Count == 0)
         {

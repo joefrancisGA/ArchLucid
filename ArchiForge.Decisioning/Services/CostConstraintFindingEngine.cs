@@ -14,7 +14,7 @@ public class CostConstraintFindingEngine : IFindingEngine
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        List<Finding> findings = new();
+        List<Finding> findings = [];
 
         IReadOnlyList<GraphNode> costNodes = graphSnapshot.GetNodesByType("CostConstraint");
 

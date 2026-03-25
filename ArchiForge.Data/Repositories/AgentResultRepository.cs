@@ -164,7 +164,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             },
             cancellationToken: cancellationToken));
 
-        List<AgentResult> results = new();
+        List<AgentResult> results = [];
         foreach (string json in rows)
         {
             AgentResult? result;

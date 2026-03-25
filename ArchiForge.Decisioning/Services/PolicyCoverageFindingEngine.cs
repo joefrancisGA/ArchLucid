@@ -17,7 +17,7 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
         CancellationToken ct)
     {
         PolicyCoverageResult result = analyzer.AnalyzePolicy(graphSnapshot);
-        List<Finding> findings = new();
+        List<Finding> findings = [];
 
         if (result.PolicyNodeCount == 0)
         {

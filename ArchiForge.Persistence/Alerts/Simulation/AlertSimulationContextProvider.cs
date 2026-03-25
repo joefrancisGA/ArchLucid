@@ -48,7 +48,7 @@ public sealed class AlertSimulationContextProvider(
             ProjectId = projectId,
         };
 
-        List<AlertEvaluationContext> results = new();
+        List<AlertEvaluationContext> results = [];
 
         if (runId.HasValue)
         {

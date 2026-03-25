@@ -13,8 +13,8 @@ public sealed class AgentResultDiffServiceTests
     [Fact]
     public void Compare_ShouldDetectClaimAndControlChanges()
     {
-        AgentResult[] left = new[]
-        {
+        AgentResult[] left =
+        [
             new AgentResult
             {
                 ResultId = "R1",
@@ -31,10 +31,10 @@ public sealed class AgentResultDiffServiceTests
                     RequiredControls = ["Managed Identity"]
                 }
             }
-        };
+        ];
 
-        AgentResult[] right = new[]
-        {
+        AgentResult[] right =
+        [
             new AgentResult
             {
                 ResultId = "R2",
@@ -51,7 +51,7 @@ public sealed class AgentResultDiffServiceTests
                     RequiredControls = ["Managed Identity", "Private Endpoints"]
                 }
             }
-        };
+        ];
 
         AgentResultDiffService service = new();
 

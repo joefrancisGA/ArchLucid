@@ -69,11 +69,11 @@ public static class WordDocumentBuilder
         Table table = CreateTableGrid();
         if (headerRow)
         {
-            TableCell[] headerCells = new[]
-            {
+            TableCell[] headerCells =
+            [
                 CreateHeaderCell(list[0].Item1),
                 CreateHeaderCell(list[0].Item2)
-            };
+            ];
             table.AppendChild(new TableRow(headerCells[0], headerCells[1]));
             list = list.Skip(1).ToList();
         }

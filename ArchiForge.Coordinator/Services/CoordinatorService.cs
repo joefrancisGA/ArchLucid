@@ -76,7 +76,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
 
     private static List<string> ValidateRequest(ArchitectureRequest request)
     {
-        List<string> errors = new();
+        List<string> errors = [];
 
         if (string.IsNullOrWhiteSpace(request.RequestId))
             errors.Add("RequestId is required.");
@@ -139,11 +139,11 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
 
     private static List<string> BuildPolicyRefs(ArchitectureRequest request)
     {
-        List<string> refs = new()
-        {
+        List<string> refs =
+        [
             PolicyPackEnterpriseDefault,
             PolicyPackAzureSecurityBaseline
-        };
+        ];
 
         if (RequestConstraintClassifier.HasPrivateNetworkingConstraint(request))
             refs.Add(PolicyPrivateNetworkingRequired);
@@ -161,11 +161,11 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
     {
         // CatalogAzureSql is always included because DefaultEvidenceBuilder always
         // provides SQL catalog evidence as a baseline service, keeping both in sync.
-        List<string> refs = new()
-        {
+        List<string> refs =
+        [
             CatalogAzureCoreServices,
             CatalogAzureSql
-        };
+        ];
 
         if (RequestConstraintClassifier.RequiresSearchCapability(request))
             refs.Add(CatalogAzureAiSearch);

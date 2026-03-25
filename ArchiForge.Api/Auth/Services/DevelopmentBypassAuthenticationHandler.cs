@@ -22,12 +22,12 @@ public sealed class DevelopmentBypassAuthenticationHandler(
         ArchiForgeAuthOptions opts = authOptions.Value;
         string role = string.IsNullOrWhiteSpace(opts.DevRole) ? ArchiForgeRoles.Admin : opts.DevRole.Trim();
 
-        List<Claim> claims = new()
-        {
+        List<Claim> claims =
+        [
             new(ClaimTypes.NameIdentifier, opts.DevUserId),
             new(ClaimTypes.Name, opts.DevUserName),
             new(ClaimTypes.Role, role)
-        };
+        ];
 
         ClaimsIdentity identity = new(claims, SchemeName);
         ClaimsPrincipal principal = new(identity);

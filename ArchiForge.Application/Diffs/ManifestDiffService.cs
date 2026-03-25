@@ -165,7 +165,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> BuildWarnings(GoldenManifest left, GoldenManifest right)
     {
-        List<string> warnings = new();
+        List<string> warnings = [];
 
         if (!string.Equals(left.SystemName, right.SystemName, StringComparison.OrdinalIgnoreCase))
         {

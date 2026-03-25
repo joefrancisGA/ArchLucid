@@ -38,7 +38,7 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
         if (doc?.Resources is null || doc.Resources.Count == 0)
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
-        List<CanonicalObject> results = new();
+        List<CanonicalObject> results = [];
 
         foreach (ResourceDeclarationItem resource in doc.Resources)
         {

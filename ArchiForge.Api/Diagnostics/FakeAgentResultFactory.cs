@@ -199,12 +199,12 @@ public static class FakeAgentResultFactory
         string taskId,
         ArchitectureRequest request)
     {
-        List<string> requiredControls = new()
-        {
+        List<string> requiredControls =
+        [
             "Managed Identity",
             "Key Vault",
             "Private Endpoints"
-        };
+        ];
 
         if (!request.RequiredCapabilities.Any(x =>
                 x.Contains("private", StringComparison.OrdinalIgnoreCase)))

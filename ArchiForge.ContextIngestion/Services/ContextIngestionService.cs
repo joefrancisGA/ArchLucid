@@ -38,8 +38,8 @@ public class ContextIngestionService(
         // Latest persisted snapshot for this project (any prior run), used for connector delta messaging.
         ContextSnapshot? previous = await snapshotRepository.GetLatestAsync(request.ProjectId, ct);
 
-        List<CanonicalObject> allObjects = new();
-        List<string> deltaSummaries = new();
+        List<CanonicalObject> allObjects = [];
+        List<string> deltaSummaries = [];
         int connectorIndex = 0;
 
         foreach (IContextConnector connector in connectors)

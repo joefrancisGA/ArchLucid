@@ -222,7 +222,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         IReadOnlyCollection<AgentResult> results,
         DecisionMergeResult output)
     {
-        List<AgentResult> valid = new();
+        List<AgentResult> valid = [];
 
         foreach (AgentResult result in results)
         {
@@ -241,7 +241,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
     private static List<string> ValidateResult(AgentResult result, string runId)
     {
-        List<string> errors = new();
+        List<string> errors = [];
 
         if (string.IsNullOrWhiteSpace(result.ResultId))
             errors.Add("ResultId is required.");

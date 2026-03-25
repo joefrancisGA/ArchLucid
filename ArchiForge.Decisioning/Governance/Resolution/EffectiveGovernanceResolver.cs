@@ -57,8 +57,8 @@ public sealed class EffectiveGovernanceResolver(
             .Where(x => AppliesToScope(x, tenantId, workspaceId, projectId))
             .ToList();
 
-        List<ResolvedPackRow> resolvedPacks = new();
-        List<string> skippedNotes = new();
+        List<ResolvedPackRow> resolvedPacks = [];
+        List<string> skippedNotes = [];
 
         foreach (PolicyPackAssignment assignment in applicable)
         {
@@ -278,7 +278,7 @@ public sealed class EffectiveGovernanceResolver(
             .Distinct()
             .ToList();
 
-        List<Guid> effective = new();
+        List<Guid> effective = [];
 
         foreach (Guid id in allIds)
         {
@@ -340,7 +340,7 @@ public sealed class EffectiveGovernanceResolver(
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        List<string> effective = new();
+        List<string> effective = [];
 
         foreach (string key in allKeys)
         {

@@ -20,7 +20,7 @@ public sealed class RetrievalIndexingService(
         if (documents.Count == 0)
             return;
 
-        List<RetrievalChunk> chunks = new();
+        List<RetrievalChunk> chunks = [];
 
         foreach (var doc in documents)
         {

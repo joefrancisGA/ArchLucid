@@ -70,7 +70,7 @@ public partial class FindingsOrchestrator(
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        List<Finding> allFindings = new();
+        List<Finding> allFindings = [];
 
         foreach (IFindingEngine engine in engines)
         {

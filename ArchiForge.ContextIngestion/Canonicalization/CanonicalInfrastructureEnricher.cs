@@ -6,7 +6,7 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
 {
     public IReadOnlyList<CanonicalObject> Enrich(IEnumerable<CanonicalObject> items)
     {
-        List<CanonicalObject> results = new();
+        List<CanonicalObject> results = [];
 
         foreach (CanonicalObject item in items)
         {
