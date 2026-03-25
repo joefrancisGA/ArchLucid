@@ -103,21 +103,10 @@ public sealed class PolicyPackManagementService(
         }
 
         PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct).ConfigureAwait(false);
-        
-        if (pack is null) return packVersion;
-        
+
         if (pack is null)
-        {
-            // This should ideally not happen if versionRepository.GetByPackAndVersionAsync worked,
-            // but as a safeguard, we can log or throw an exception.
-            // For now, we'll assume pack is not null if version was found and proceed.
-            // If packRepository.GetByIdAsync returns null, it indicates a data inconsistency.
-            // Depending on requirements, you might want to throw an exception here.
-            // For this completion, we'll assume the pack exists if the version did.
-            // However, to be safe, let's add a null check.
             throw new InvalidOperationException(
-                $"Policy pack with ID {policyPackId} not found after publishing version.");
-        }
+                $"Policy pack '{policyPackId}' was not found. Cannot promote version '{version}' on a non-existent pack.");
         
         pack.CurrentVersion = version;
         pack.Status = PolicyPackStatus.Active;
