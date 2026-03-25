@@ -36,5 +36,5 @@ public class RuleCandidateComparisonRequest
     public int RecentRunCount { get; set; } = 5;
 
     /// <summary>Project slug for authority run listing.</summary>
-    public string RunProjectSlug { get; set; } = "default";
+    public string RunProjectSlug { get; set; } = Advisory.Scheduling.AdvisoryScanSchedule.DefaultProjectSlug;
 }

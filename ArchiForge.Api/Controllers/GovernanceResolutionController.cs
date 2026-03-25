@@ -64,42 +64,54 @@ public sealed class GovernanceResolutionController(
             new AuditEvent
             {
                 EventType = AuditEventTypes.GovernanceResolutionExecuted,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        scope.TenantId,
-                        scope.WorkspaceId,
-                        scope.ProjectId,
-                        decisionCount = result.Decisions.Count,
-                        conflictCount = result.Conflicts.Count,
-                    }),
+                DataJson = JsonSerializer.Serialize(new GovernanceResolutionAuditData(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    result.Decisions.Count,
+                    result.Conflicts.Count)),
             },
             ct).ConfigureAwait(false);
 
         if (result.Conflicts.Count > 0)
         {
+            List<GovernanceConflictAuditEntry> conflictEntries = result.Conflicts
+                .Select(c => new GovernanceConflictAuditEntry(c.ItemType, c.ItemKey, c.ConflictType))
+                .ToList();
+
             await auditService.LogAsync(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.GovernanceConflictDetected,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            scope.TenantId,
-                            scope.WorkspaceId,
-                            scope.ProjectId,
-                            conflictCount = result.Conflicts.Count,
-                            conflicts = result.Conflicts.Select(c => new
-                            {
-                                c.ItemType,
-                                c.ItemKey,
-                                c.ConflictType,
-                            }),
-                        }),
+                    DataJson = JsonSerializer.Serialize(new GovernanceConflictAuditData(
+                        scope.TenantId,
+                        scope.WorkspaceId,
+                        scope.ProjectId,
+                        result.Conflicts.Count,
+                        conflictEntries)),
                 },
                 ct).ConfigureAwait(false);
         }
 
         return Ok(result);
     }
+
+    private sealed record GovernanceResolutionAuditData(
+        Guid TenantId,
+        Guid WorkspaceId,
+        Guid ProjectId,
+        int DecisionCount,
+        int ConflictCount);
+
+    private sealed record GovernanceConflictAuditData(
+        Guid TenantId,
+        Guid WorkspaceId,
+        Guid ProjectId,
+        int ConflictCount,
+        IReadOnlyList<GovernanceConflictAuditEntry> Conflicts);
+
+    private sealed record GovernanceConflictAuditEntry(
+        string ItemType,
+        string ItemKey,
+        string ConflictType);
 }

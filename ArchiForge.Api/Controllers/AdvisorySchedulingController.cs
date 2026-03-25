@@ -61,7 +61,7 @@ public sealed class AdvisorySchedulingController(
         request.WorkspaceId = scope.WorkspaceId;
         request.ProjectId = scope.ProjectId;
         if (string.IsNullOrWhiteSpace(request.RunProjectSlug))
-            request.RunProjectSlug = "default";
+            request.RunProjectSlug = AdvisoryScanSchedule.DefaultProjectSlug;
         request.CreatedUtc = DateTime.UtcNow;
         request.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(request.CronExpression, DateTime.UtcNow);
 

@@ -14,6 +14,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
     /// <inheritdoc />
     public async Task UpsertAsync(RecommendationRecord recommendation, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(recommendation);
+
         const string sql = """
             MERGE dbo.RecommendationRecords AS target
             USING (SELECT @RecommendationId AS RecommendationId) AS source

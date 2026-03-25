@@ -11,6 +11,13 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Returns a pageable audit event log for the caller's tenant/workspace/project scope.
+/// </summary>
+/// <remarks>
+/// Events are appended by all mutating operations across the ArchiForge API (run creation, governance promotion, alert delivery, etc.).
+/// Results are ordered newest-first and capped by the <c>take</c> parameter (max 500).
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -18,6 +25,10 @@ namespace ArchiForge.Api.Controllers;
 [EnableRateLimiting("fixed")]
 public sealed class AuditController(IAuditRepository repo, IScopeContextProvider scopeProvider) : ControllerBase
 {
+    /// <summary>Returns recent audit events for the current scope, newest first.</summary>
+    /// <param name="take">Maximum events to return (1–500, default 100).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>List of <see cref="AuditEvent"/> rows ordered by most-recent first.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AuditEvent>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAudit([FromQuery] int take = 100, CancellationToken ct = default)

@@ -35,6 +35,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
         await connection.ExecuteAsync(new CommandDefinition(sql, digest, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<ArchitectureDigest>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

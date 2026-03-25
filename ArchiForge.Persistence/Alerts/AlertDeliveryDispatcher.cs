@@ -29,6 +29,8 @@ public sealed class AlertDeliveryDispatcher(
     /// <inheritdoc />
     public async Task DeliverAsync(AlertRecord alert, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(alert);
+
         IReadOnlyList<AlertRoutingSubscription> subscriptions = await subscriptionRepository
             .ListEnabledByScopeAsync(alert.TenantId, alert.WorkspaceId, alert.ProjectId, ct)
             .ConfigureAwait(false);

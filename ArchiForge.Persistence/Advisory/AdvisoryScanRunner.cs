@@ -69,6 +69,8 @@ public sealed class AdvisoryScanRunner(
     /// <param name="ct">Cancellation token.</param>
     public async Task RunScheduleAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(schedule);
+
         ScopeContext scope = new()
         {
             TenantId = schedule.TenantId,

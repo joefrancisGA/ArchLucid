@@ -9,6 +9,16 @@ namespace ArchiForge.Decisioning.Advisory.Scheduling;
 /// <inheritdoc cref="IArchitectureDigestBuilder" />
 public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
 {
+    private const string HeadingDigest = "# Daily Architecture Digest";
+    private const string HeadingSummary = "## Summary";
+    private const string HeadingTopRecommendations = "## Top Recommendations";
+    private const string HeadingAlerts = "## Alerts";
+    private const string DigestTitle = "Daily Architecture Digest";
+    private const string NoRecommendationsNote = "No significant recommendations were identified.";
+    private const string NoAlertsNote = "No alerts were triggered.";
+    private const string NoIssuesSummary = "No major architecture issues were identified in the latest scan.";
+    private const int TopRecommendationCount = 5;
+
     /// <inheritdoc />
     /// <remarks>
     /// Includes up to five highest-priority recommendations, all summary notes, and every alert as a bullet line.
@@ -23,28 +33,30 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
         ImprovementPlan plan,
         IReadOnlyList<AlertRecord>? evaluatedAlerts = null)
     {
+        ArgumentNullException.ThrowIfNull(plan);
+
         List<ImprovementRecommendation> top = plan.Recommendations
             .OrderByDescending(x => x.PriorityScore)
-            .Take(5)
+            .Take(TopRecommendationCount)
             .ToList();
 
         StringBuilder sb = new();
-        sb.AppendLine("# Daily Architecture Digest");
+        sb.AppendLine(HeadingDigest);
         sb.AppendLine();
         sb.AppendLine($"Generated: {plan.GeneratedUtc:u}");
         if (comparedToRunId.HasValue)
             sb.AppendLine($"Compared to prior run: {comparedToRunId:N}");
         sb.AppendLine();
 
-        sb.AppendLine("## Summary");
+        sb.AppendLine(HeadingSummary);
         foreach (string note in plan.SummaryNotes)
             sb.AppendLine($"- {note}");
         sb.AppendLine();
 
-        sb.AppendLine("## Top Recommendations");
+        sb.AppendLine(HeadingTopRecommendations);
         if (top.Count == 0)
         {
-            sb.AppendLine("No significant recommendations were identified.");
+            sb.AppendLine(NoRecommendationsNote);
         }
         else
         {
@@ -67,10 +79,10 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
                 string.Equals(a.Severity, AlertSeverity.High, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(a.Severity, AlertSeverity.Critical, StringComparison.OrdinalIgnoreCase));
 
-        sb.AppendLine("## Alerts");
+        sb.AppendLine(HeadingAlerts);
         if (alerts.Count == 0)
         {
-            sb.AppendLine("No alerts were triggered.");
+            sb.AppendLine(NoAlertsNote);
         }
         else
         {
@@ -81,7 +93,7 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
         sb.AppendLine();
 
         string summary = top.Count == 0
-            ? "No major architecture issues were identified in the latest scan."
+            ? NoIssuesSummary
             : $"Top advisory items: {string.Join("; ", top.Select(x => x.Title))}";
 
         return new ArchitectureDigest
@@ -93,7 +105,7 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
             RunId = runId,
             ComparedToRunId = comparedToRunId,
             GeneratedUtc = plan.GeneratedUtc,
-            Title = "Daily Architecture Digest",
+            Title = DigestTitle,
             Summary = summary,
             ContentMarkdown = sb.ToString(),
             MetadataJson = JsonSerializer.Serialize(new

@@ -2,11 +2,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Serves static developer-facing HTML documentation pages (excluded from OpenAPI/Swagger).
+/// </summary>
+/// <remarks>Intentionally hidden from the API explorer via <c>IgnoreApi = true</c>.</remarks>
 [ApiController]
 [Route("[controller]")]
 [ApiExplorerSettings(IgnoreApi = true)]
 public sealed class DocsController : ControllerBase
 {
+    /// <summary>Returns an HTML page with step-by-step comparison replay recipes.</summary>
     [HttpGet("replay-recipes")]
     [Produces("text/html")]
     public IActionResult ReplayRecipes()

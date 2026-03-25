@@ -23,9 +23,7 @@ public class FindingPayloadValidator : IFindingPayloadValidator
 
         if (finding.FindingType.Equals("RequirementFinding", StringComparison.OrdinalIgnoreCase))
         {
-            RequirementFindingPayload? payload = FindingPayloadConverter.ToRequirementPayload(finding);
-            if (payload is null)
-                throw new InvalidOperationException("RequirementFinding payload is invalid.");
+            _ = FindingPayloadConverter.ToRequirementPayload(finding) ?? throw new InvalidOperationException("RequirementFinding payload is invalid.");
         }
 
         if (finding.FindingType.Equals("TopologyGap", StringComparison.OrdinalIgnoreCase))
@@ -51,30 +49,22 @@ public class FindingPayloadValidator : IFindingPayloadValidator
 
         if (finding.FindingType.Equals("PolicyApplicabilityFinding", StringComparison.OrdinalIgnoreCase))
         {
-            PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
-            if (payload is null)
-                throw new InvalidOperationException("PolicyApplicabilityFinding payload is invalid.");
+            _ = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding) ?? throw new InvalidOperationException("PolicyApplicabilityFinding payload is invalid.");
         }
 
         if (finding.FindingType.Equals("TopologyCoverageFinding", StringComparison.OrdinalIgnoreCase))
         {
-            TopologyCoverageFindingPayload? payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
-            if (payload is null)
-                throw new InvalidOperationException("TopologyCoverageFinding payload is invalid.");
+            _ = FindingPayloadConverter.ToTopologyCoveragePayload(finding) ?? throw new InvalidOperationException("TopologyCoverageFinding payload is invalid.");
         }
 
         if (finding.FindingType.Equals("SecurityCoverageFinding", StringComparison.OrdinalIgnoreCase))
         {
-            SecurityCoverageFindingPayload? payload = FindingPayloadConverter.ToSecurityCoveragePayload(finding);
-            if (payload is null)
-                throw new InvalidOperationException("SecurityCoverageFinding payload is invalid.");
+            _ = FindingPayloadConverter.ToSecurityCoveragePayload(finding) ?? throw new InvalidOperationException("SecurityCoverageFinding payload is invalid.");
         }
 
         if (finding.FindingType.Equals("PolicyCoverageFinding", StringComparison.OrdinalIgnoreCase))
         {
-            PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
-            if (payload is null)
-                throw new InvalidOperationException("PolicyCoverageFinding payload is invalid.");
+            _ = FindingPayloadConverter.ToPolicyCoveragePayload(finding) ?? throw new InvalidOperationException("PolicyCoverageFinding payload is invalid.");
         }
 
         if (finding.FindingType.Equals("RequirementCoverageFinding", StringComparison.OrdinalIgnoreCase))

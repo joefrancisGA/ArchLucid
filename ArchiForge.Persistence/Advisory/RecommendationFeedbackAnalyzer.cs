@@ -23,7 +23,9 @@ public sealed class RecommendationFeedbackAnalyzer(IRecommendationRepository rep
             .ConfigureAwait(false);
 
         return items
-            .GroupBy(x => $"{x.Category}:{x.Status}")
-            .ToDictionary(g => g.Key, g => g.Count());
+            .GroupBy(x => (x.Category, x.Status))
+            .ToDictionary(
+                g => $"{g.Key.Category}:{g.Key.Status}",
+                g => g.Count());
     }
 }

@@ -9,6 +9,9 @@ namespace ArchiForge.Decisioning.Advisory.Scheduling;
 /// </remarks>
 public class AdvisoryScanSchedule
 {
+    /// <summary>Default value used for <see cref="RunProjectSlug"/> when none is supplied.</summary>
+    public const string DefaultProjectSlug = "default";
+
     /// <summary>Primary key for the schedule row.</summary>
     public Guid ScheduleId { get; set; } = Guid.NewGuid();
 
@@ -32,7 +35,7 @@ public class AdvisoryScanSchedule
 
     /// <summary>Authority store <c>Runs.ProjectId</c> slug (e.g. <c>default</c>), not the scope GUID.</summary>
     /// <remarks>Trimmed when running scans; empty becomes <c>default</c>.</remarks>
-    public string RunProjectSlug { get; set; } = "default";
+    public string RunProjectSlug { get; set; } = DefaultProjectSlug;
 
     /// <summary>Human-readable label for operators and audit.</summary>
     public string Name { get; set; } = "Daily Advisory Scan";

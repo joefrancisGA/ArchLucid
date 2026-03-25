@@ -14,6 +14,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
 
     public Task CreateAsync(AlertRecord alert, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(alert);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
@@ -26,6 +27,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
 
     public Task UpdateAsync(AlertRecord alert, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(alert);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {

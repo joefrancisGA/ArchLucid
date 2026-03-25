@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+
+Never expose SMB (port 445) publicly.
+
+All storage access must use private endpoints and controlled network boundaries unless explicitly overridden.

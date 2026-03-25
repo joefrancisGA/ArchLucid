@@ -19,7 +19,10 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
         AlertMetricSnapshot snapshot,
         CancellationToken ct)
     {
-        _ = snapshot;
+        ArgumentNullException.ThrowIfNull(rule);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(snapshot);
+
         string dedupeKey = BuildDeduplicationKey(rule, context);
 
         AlertRecord? existing = await alertRepository

@@ -245,6 +245,7 @@ public sealed class EffectiveGovernanceResolver(
     {
         if (ordered.Count == 0)
             return "No candidates.";
+        
         if (ordered.Count == 1)
             return "Only one applicable candidate existed.";
 

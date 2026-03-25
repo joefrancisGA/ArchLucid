@@ -398,7 +398,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         FindingsSnapshot findingsSnapshot,
         DecisionTrace trace)
     {
-        foreach (var finding in trace.AcceptedFindingIds.Select(findingId => findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId)).OfType<Finding>())
+        foreach (Finding finding in trace.AcceptedFindingIds.Select(findingId => findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId)).OfType<Finding>())
         {
             if (finding.Severity == FindingSeverity.Critical || finding.Severity == FindingSeverity.Error)
             {

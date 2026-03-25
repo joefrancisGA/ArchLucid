@@ -1,5 +1,6 @@
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>Source-generated structured log methods for <see cref="RunsController"/>.</summary>
 public sealed partial class RunsController
 {
     [LoggerMessage(EventId = 2001, Level = LogLevel.Information, Message = "Run created: RunId={RunId}, RequestId={RequestId}, User={User}, CorrelationId={CorrelationId}")]

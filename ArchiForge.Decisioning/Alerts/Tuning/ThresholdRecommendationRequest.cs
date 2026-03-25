@@ -38,5 +38,5 @@ public class ThresholdRecommendationRequest
     public int TargetCreatedAlertCountMax { get; set; } = 5;
 
     /// <summary>Authority slug for listing runs (same as simulation).</summary>
-    public string RunProjectSlug { get; set; } = "default";
+    public string RunProjectSlug { get; set; } = Advisory.Scheduling.AdvisoryScanSchedule.DefaultProjectSlug;
 }

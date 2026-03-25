@@ -10,6 +10,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
 
     public Task CreateAsync(CompositeAlertRule rule, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(rule);
         _ = ct;
         lock (_gate)
             _items.Add(CloneRule(rule));
@@ -18,6 +19,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
 
     public Task UpdateAsync(CompositeAlertRule rule, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(rule);
         _ = ct;
         lock (_gate)
         {

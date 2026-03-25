@@ -17,6 +17,8 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
         IReadOnlyList<ImprovementSignal> signals,
         RecommendationLearningProfile? profile = null)
     {
+        ArgumentNullException.ThrowIfNull(signals);
+
         List<ImprovementRecommendation> recommendations = [];
 
         foreach (ImprovementSignal signal in signals)

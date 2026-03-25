@@ -39,5 +39,5 @@ public class RuleSimulationRequest
     public bool UseHistoricalWindow { get; set; } = true;
 
     /// <summary>Authority slug for listing runs (e.g. scheduled advisory scans).</summary>
-    public string RunProjectSlug { get; set; } = "default";
+    public string RunProjectSlug { get; set; } = Advisory.Scheduling.AdvisoryScanSchedule.DefaultProjectSlug;
 }
