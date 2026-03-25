@@ -13,13 +13,13 @@ public class GovernanceResolutionCandidate
     public Guid PolicyPackId { get; set; }
 
     /// <summary>Pack display name.</summary>
-    public string PolicyPackName { get; set; } = default!;
+    public string PolicyPackName { get; set; } = null!;
 
     /// <summary>Published version used for this contribution.</summary>
-    public string Version { get; set; } = default!;
+    public string Version { get; set; } = null!;
 
     /// <summary>Assignment scope tier (<see cref="GovernanceScopeLevel"/>).</summary>
-    public string ScopeLevel { get; set; } = default!;
+    public string ScopeLevel { get; set; } = null!;
 
     /// <summary>Sort key from <see cref="EffectiveGovernanceResolver.GetPrecedenceRank"/>.</summary>
     public int PrecedenceRank { get; set; }
@@ -28,7 +28,7 @@ public class GovernanceResolutionCandidate
     public bool WasSelected { get; set; }
 
     /// <summary>Serialized value or identifier as appropriate for the item type.</summary>
-    public string ValueJson { get; set; } = default!;
+    public string ValueJson { get; set; } = null!;
 
     /// <summary>Assignment row id (tie-breaker and correlation to persistence).</summary>
     public Guid AssignmentId { get; set; }

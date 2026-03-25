@@ -76,7 +76,7 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
 
     private static string InferSignalType(RecommendationRecord record)
     {
-        string? category = record.Category;
+        string category = record.Category;
 
         if (string.Equals(category, "Security", StringComparison.OrdinalIgnoreCase))
             return "SecurityGap";

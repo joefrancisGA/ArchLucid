@@ -36,7 +36,7 @@ public sealed class ThresholdRecommendationService(
 
         foreach (decimal threshold in request.CandidateThresholds.Distinct().OrderBy(x => x))
         {
-            RuleSimulationResult? simulation = null;
+            RuleSimulationResult? simulation;
 
             if (request.RuleKind.Equals(RuleKindSimple, StringComparison.OrdinalIgnoreCase) &&
                 request.BaseSimpleRule is not null)
@@ -88,9 +88,6 @@ public sealed class ThresholdRecommendationService(
             {
                 continue;
             }
-
-            if (simulation is null)
-                continue;
 
             NoiseScoreBreakdown score = noiseScorer.Score(
                 simulation,

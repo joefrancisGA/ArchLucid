@@ -29,8 +29,12 @@ public interface IRecommendationRepository
         CancellationToken ct);
 
     /// <summary>Lists the most recently updated recommendations in the scope, optionally filtered by status string.</summary>
+    /// <param name="projectId"></param>
     /// <param name="status">When non-null, only rows whose <see cref="RecommendationRecord.Status"/> equals this value.</param>
     /// <param name="take">Maximum rows to return (SQL Server: <c>TOP</c>).</param>
+    /// <param name="tenantId"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="ct"></param>
     /// <returns>Newest <see cref="RecommendationRecord.LastUpdatedUtc"/> first.</returns>
     Task<IReadOnlyList<RecommendationRecord>> ListByScopeAsync(
         Guid tenantId,

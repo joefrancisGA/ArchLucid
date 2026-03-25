@@ -2,6 +2,7 @@ using ArchiForge.Decisioning.Compliance.Models;
 
 namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 
+// ReSharper disable InvalidXmlDocComment
 /// <summary>
 /// Narrows an in-memory <see cref="ComplianceRulePack"/> using effective compliance ids/keys from policy packs.
 /// </summary>
@@ -15,6 +16,7 @@ namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 /// <strong>Caller:</strong> <c>ArchiForge.Persistence.Compliance.PolicyFilteredComplianceRulePackProvider</c> when building packs for evaluation.
 /// </para>
 /// </remarks>
+/// // ReSharper enable InvalidXmlDocComment
 public static class ComplianceRulePackGovernanceFilter
 {
     /// <summary>Returns a new pack instance with <see cref="ComplianceRulePack.Rules"/> filtered; does not mutate <paramref name="source"/>.</summary>

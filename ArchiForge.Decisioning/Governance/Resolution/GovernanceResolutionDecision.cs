@@ -12,25 +12,25 @@ namespace ArchiForge.Decisioning.Governance.Resolution;
 public class GovernanceResolutionDecision
 {
     /// <summary>Facet name, e.g. <c>AlertRule</c>, <c>Metadata</c>, <c>ComplianceRuleKey</c>.</summary>
-    public string ItemType { get; set; } = default!;
+    public string ItemType { get; set; } = null!;
 
     /// <summary>Key within the facet: GUID string, dictionary key, or compliance key string.</summary>
-    public string ItemKey { get; set; } = default!;
+    public string ItemKey { get; set; } = null!;
 
     /// <summary><see cref="PolicyPack.PolicyPackId"/> of the winning pack.</summary>
     public Guid WinningPolicyPackId { get; set; }
 
     /// <summary>Display name of the winning pack (operator UX).</summary>
-    public string WinningPolicyPackName { get; set; } = default!;
+    public string WinningPolicyPackName { get; set; } = null!;
 
     /// <summary>Winning published version label.</summary>
-    public string WinningVersion { get; set; } = default!;
+    public string WinningVersion { get; set; } = null!;
 
     /// <summary><see cref="GovernanceScopeLevel"/> of the winning assignment.</summary>
-    public string WinningScopeLevel { get; set; } = default!;
+    public string WinningScopeLevel { get; set; } = null!;
 
     /// <summary>Natural language justification (tie-breakers, precedence).</summary>
-    public string ResolutionReason { get; set; } = default!;
+    public string ResolutionReason { get; set; } = null!;
 
     /// <summary>All competing contributions, ordered by precedence then recency.</summary>
     public List<GovernanceResolutionCandidate> Candidates { get; set; } = [];

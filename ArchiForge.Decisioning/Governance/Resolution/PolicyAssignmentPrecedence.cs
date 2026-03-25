@@ -12,7 +12,7 @@ public class PolicyAssignmentPrecedence
     public Guid AssignmentId { get; set; }
 
     /// <summary><see cref="GovernanceScopeLevel"/> string.</summary>
-    public string ScopeLevel { get; set; } = default!;
+    public string ScopeLevel { get; set; } = null!;
 
     /// <summary>Numeric rank comparable across assignments (<see cref="EffectiveGovernanceResolver.GetPrecedenceRank"/>).</summary>
     public int PrecedenceRank { get; set; }

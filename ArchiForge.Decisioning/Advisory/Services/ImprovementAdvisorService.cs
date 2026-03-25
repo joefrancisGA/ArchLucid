@@ -77,10 +77,9 @@ public sealed class ImprovementAdvisorService(
 
         notes.Add($"Generated {recommendations.Count} improvement recommendations.");
 
-        if (profile is not null)
-            notes.Add("Adaptive prioritization was applied using historical recommendation outcomes.");
-        else
-            notes.Add("No adaptive learning profile was available. Base prioritization was used.");
+        notes.Add(profile is not null
+            ? "Adaptive prioritization was applied using historical recommendation outcomes."
+            : "No adaptive learning profile was available. Base prioritization was used.");
 
         int high = recommendations.Count(x =>
             string.Equals(x.Urgency, "High", StringComparison.OrdinalIgnoreCase) ||

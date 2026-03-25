@@ -151,14 +151,14 @@ public sealed class EffectiveGovernanceResolver(
             "AdvisoryDefault",
             resolvedPacks,
             x => x.Content.AdvisoryDefaults,
-            (content, dict) => content.AdvisoryDefaults = dict ?? []);
+            (content, dict) => content.AdvisoryDefaults = dict);
 
         ResolveDictionary(
             result,
             "Metadata",
             resolvedPacks,
             x => x.Content.Metadata,
-            (content, dict) => content.Metadata = dict ?? []);
+            (content, dict) => content.Metadata = dict);
 
         result.Notes.Add($"Resolved {resolvedPacks.Count} applicable policy pack assignment(s).");
         result.Notes.Add($"Produced {result.Decisions.Count} resolution decision(s).");
@@ -253,10 +253,7 @@ public sealed class EffectiveGovernanceResolver(
         if (winner.PrecedenceRank != second.PrecedenceRank)
             return "Higher governance scope tier (project > workspace > tenant), or pinned assignment within a tier, outranked the other candidate(s).";
 
-        if (winner.AssignedUtc != second.AssignedUtc)
-            return "Same scope tier and pin state; the newer assignment (AssignedUtc) won.";
-
-        return "Same scope tier, pin state, and timestamp; winner chosen by deterministic tie-break (AssignmentId).";
+        return winner.AssignedUtc != second.AssignedUtc ? "Same scope tier and pin state; the newer assignment (AssignedUtc) won." : "Same scope tier, pin state, and timestamp; winner chosen by deterministic tie-break (AssignmentId).";
     }
 
     /// <summary>
@@ -448,7 +445,8 @@ public sealed class EffectiveGovernanceResolver(
                 Candidates = candidates,
             });
 
-            if (candidates.Count > 1)
+            if (candidates.Count <= 1) continue;
+            
             {
                 int distinctValues = candidates
                     .Select(x => x.ValueJson)

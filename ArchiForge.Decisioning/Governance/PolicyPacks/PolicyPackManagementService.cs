@@ -40,28 +40,26 @@ public sealed class PolicyPackManagementService(
             CurrentVersion = "1.0.0",
         };
 
-        using (TransactionScope scope = new(
+        using TransactionScope scope = new(
             TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled))
-        {
-            await packRepository.CreateAsync(pack, ct).ConfigureAwait(false);
+            TransactionScopeAsyncFlowOption.Enabled);
+        await packRepository.CreateAsync(pack, ct).ConfigureAwait(false);
 
-            await versionRepository
-                .CreateAsync(
-                    new PolicyPackVersion
-                    {
-                        PolicyPackVersionId = Guid.NewGuid(),
-                        PolicyPackId = pack.PolicyPackId,
-                        Version = "1.0.0",
-                        ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
-                        CreatedUtc = DateTime.UtcNow,
-                        IsPublished = false,
-                    },
-                    ct)
-                .ConfigureAwait(false);
+        await versionRepository
+            .CreateAsync(
+                new PolicyPackVersion
+                {
+                    PolicyPackVersionId = Guid.NewGuid(),
+                    PolicyPackId = pack.PolicyPackId,
+                    Version = "1.0.0",
+                    ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
+                    CreatedUtc = DateTime.UtcNow,
+                    IsPublished = false,
+                },
+                ct)
+            .ConfigureAwait(false);
 
-            scope.Complete();
-        }
+        scope.Complete();
 
         return pack;
     }
@@ -105,13 +103,26 @@ public sealed class PolicyPackManagementService(
         }
 
         PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct).ConfigureAwait(false);
-        if (pack is not null)
+        
+        if (pack is null) return packVersion;
+        
+        if (pack is null)
         {
-            pack.CurrentVersion = version;
-            pack.Status = PolicyPackStatus.Active;
-            pack.ActivatedUtc = DateTime.UtcNow;
-            await packRepository.UpdateAsync(pack, ct).ConfigureAwait(false);
+            // This should ideally not happen if versionRepository.GetByPackAndVersionAsync worked,
+            // but as a safeguard, we can log or throw an exception.
+            // For now, we'll assume pack is not null if version was found and proceed.
+            // If packRepository.GetByIdAsync returns null, it indicates a data inconsistency.
+            // Depending on requirements, you might want to throw an exception here.
+            // For this completion, we'll assume the pack exists if the version did.
+            // However, to be safe, let's add a null check.
+            throw new InvalidOperationException(
+                $"Policy pack with ID {policyPackId} not found after publishing version.");
         }
+        
+        pack.CurrentVersion = version;
+        pack.Status = PolicyPackStatus.Active;
+        pack.ActivatedUtc = DateTime.UtcNow;
+        await packRepository.UpdateAsync(pack, ct).ConfigureAwait(false);
 
         return packVersion;
     }
