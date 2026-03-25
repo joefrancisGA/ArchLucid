@@ -10,7 +10,7 @@ namespace ArchiForge.Application.Analysis;
 /// </summary>
 public sealed class ComparisonAuditService(IComparisonRecordRepository repository) : IComparisonAuditService
 {
-    private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
     };
@@ -21,6 +21,8 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         string summaryMarkdown,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(report);
+
         ComparisonRecord record = new()
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
@@ -29,12 +31,12 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             RightRunId = report.RightRunId,
             Format = ComparisonTypes.FormatJsonMarkdown,
             SummaryMarkdown = summaryMarkdown,
-            PayloadJson = JsonSerializer.Serialize(report, _jsonOptions),
+            PayloadJson = JsonSerializer.Serialize(report, JsonOptions),
             Notes = "Persisted end-to-end replay comparison.",
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(record, cancellationToken);
+        await repository.CreateAsync(record, cancellationToken).ConfigureAwait(false);
         return record.ComparisonRecordId;
     }
 
@@ -44,6 +46,8 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         string summaryMarkdown,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(diff);
+
         ComparisonRecord record = new()
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
@@ -54,12 +58,12 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             RightExportRecordId = diff.RightExportRecordId,
             Format = ComparisonTypes.FormatJsonMarkdown,
             SummaryMarkdown = summaryMarkdown,
-            PayloadJson = JsonSerializer.Serialize(diff, _jsonOptions),
+            PayloadJson = JsonSerializer.Serialize(diff, JsonOptions),
             Notes = "Persisted export record diff.",
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(record, cancellationToken);
+        await repository.CreateAsync(record, cancellationToken).ConfigureAwait(false);
         return record.ComparisonRecordId;
     }
 
@@ -69,6 +73,8 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         string? notes = null,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(sourceRecord);
+
         ComparisonRecord record = new()
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
@@ -86,7 +92,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(record, cancellationToken);
+        await repository.CreateAsync(record, cancellationToken).ConfigureAwait(false);
         return record.ComparisonRecordId;
     }
 }

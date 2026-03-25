@@ -14,6 +14,8 @@ public sealed class ExportReplayService(
     IRunExportAuditService runExportAuditService)
     : IExportReplayService
 {
+    private const string ExportTypeConsultingDocx = "analysis-report-consulting-docx";
+    private const string FallbackReplayFileName = "replayed_export.docx";
     /// <summary>
     /// Replays the export identified by <see cref="ReplayExportRequest.ExportRecordId"/>.
     /// </summary>
@@ -64,7 +66,7 @@ public sealed class ExportReplayService(
 
         return record.ExportType switch
         {
-            "analysis-report-consulting-docx" => await ReplayConsultingDocxAsync(
+            ExportTypeConsultingDocx => await ReplayConsultingDocxAsync(
                 record,
                 persistedRequest,
                 report,
@@ -129,7 +131,7 @@ public sealed class ExportReplayService(
     {
         if (string.IsNullOrWhiteSpace(originalFileName))
         {
-            return "replayed_export.docx";
+            return FallbackReplayFileName;
         }
 
         string extension = Path.GetExtension(originalFileName);

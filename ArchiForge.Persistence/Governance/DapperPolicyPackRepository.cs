@@ -65,7 +65,10 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
     public async Task<PolicyPack?> GetByIdAsync(Guid policyPackId, CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT
+                PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                Name, Description, PackType, Status,
+                CreatedUtc, ActivatedUtc, CurrentVersion
             FROM dbo.PolicyPacks
             WHERE PolicyPackId = @PolicyPackId;
             """;
@@ -87,7 +90,10 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
         CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP 200 *
+            SELECT TOP 200
+                PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                Name, Description, PackType, Status,
+                CreatedUtc, ActivatedUtc, CurrentVersion
             FROM dbo.PolicyPacks
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId

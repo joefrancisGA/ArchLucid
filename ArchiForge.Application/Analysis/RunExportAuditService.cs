@@ -5,9 +5,14 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Records export operations against a run to the <see cref="IRunExportRecordRepository"/>.
+/// Captures the full export configuration (template profile, included sections, determinism options)
+/// so that exports can be audited, replayed, and diffed after the fact.
+/// </summary>
 public sealed class RunExportAuditService(IRunExportRecordRepository repository) : IRunExportAuditService
 {
-    private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
     };
@@ -46,7 +51,7 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository)
             Notes = notes,
             AnalysisRequestJson = analysisRequest is null
                 ? null
-                : JsonSerializer.Serialize(analysisRequest, _jsonOptions),
+                : JsonSerializer.Serialize(analysisRequest, JsonOptions),
             IncludedEvidence = analysisRequest?.IncludeEvidence,
             IncludedExecutionTraces = analysisRequest?.IncludeExecutionTraces,
             IncludedManifest = analysisRequest?.IncludeManifest,
@@ -61,7 +66,7 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository)
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(record, cancellationToken);
+        await repository.CreateAsync(record, cancellationToken).ConfigureAwait(false);
 
         return record;
     }

@@ -446,8 +446,7 @@ public sealed class EffectiveGovernanceResolver(
                 Candidates = candidates,
             });
 
-            if (candidates.Count <= 1) continue;
-            
+            if (candidates.Count > 1)
             {
                 int distinctValues = candidates
                     .Select(x => x.ValueJson)

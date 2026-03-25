@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 
 namespace ArchiForge.Application.Analysis;
@@ -62,20 +63,20 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
         sb.AppendLine("</head><body>");
         sb.AppendLine("<h1>ArchiForge Comparison Drift Report</h1>");
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))
-            sb.AppendLine($"<p><strong>Comparison record:</strong> <code>{System.Net.WebUtility.HtmlEncode(comparisonRecordId)}</code></p>");
+            sb.AppendLine($"<p><strong>Comparison record:</strong> <code>{WebUtility.HtmlEncode(comparisonRecordId)}</code></p>");
         sb.AppendLine($"<p><strong>Drift detected:</strong> {(drift.DriftDetected ? "Yes" : "No")}</p>");
         if (!string.IsNullOrWhiteSpace(drift.Summary))
-            sb.AppendLine($"<p>{System.Net.WebUtility.HtmlEncode(drift.Summary)}</p>");
+            sb.AppendLine($"<p>{WebUtility.HtmlEncode(drift.Summary)}</p>");
         if (drift.Items.Count > 0)
         {
             sb.AppendLine("<h2>Differences</h2><table><thead><tr><th>Category</th><th>Path</th><th>Stored</th><th>Regenerated</th><th>Description</th></tr></thead><tbody>");
             foreach (DriftItem item in drift.Items)
             {
-                sb.Append("<tr><td>").Append(System.Net.WebUtility.HtmlEncode(item.Category))
-                    .Append("</td><td>").Append(System.Net.WebUtility.HtmlEncode(item.Path))
-                    .Append("</td><td>").Append(System.Net.WebUtility.HtmlEncode(item.StoredValue ?? ""))
-                    .Append("</td><td>").Append(System.Net.WebUtility.HtmlEncode(item.RegeneratedValue ?? ""))
-                    .Append("</td><td>").Append(System.Net.WebUtility.HtmlEncode(item.Description))
+                sb.Append("<tr><td>").Append(WebUtility.HtmlEncode(item.Category))
+                    .Append("</td><td>").Append(WebUtility.HtmlEncode(item.Path))
+                    .Append("</td><td>").Append(WebUtility.HtmlEncode(item.StoredValue ?? ""))
+                    .Append("</td><td>").Append(WebUtility.HtmlEncode(item.RegeneratedValue ?? ""))
+                    .Append("</td><td>").Append(WebUtility.HtmlEncode(item.Description))
                     .AppendLine("</td></tr>");
             }
             sb.AppendLine("</tbody></table>");
