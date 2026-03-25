@@ -40,21 +40,30 @@ public sealed class RunDetailQueryService(
         Contracts.Manifest.GoldenManifest? manifest = null;
         var decisionTraces = new List<Contracts.Metadata.DecisionTrace>();
 
-        if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-        {
-            manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
+        if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+            return new ArchitectureRunDetail
+            {
+                Run = run,
+                Tasks = tasks.ToList(),
+                Results = results.ToList(),
+                Manifest = manifest,
+                DecisionTraces = decisionTraces,
+                HasBrokenManifestReference =
+                    !string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && manifest is null
+            };
+        
+        manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
 
-            if (manifest is null)
-            {
-                logger.LogWarning(
-                    "RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
-                    runId,
-                    run.CurrentManifestVersion);
-            }
-            else
-            {
-                decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
-            }
+        if (manifest is null)
+        {
+            logger.LogWarning(
+                "RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
+                runId,
+                run.CurrentManifestVersion);
+        }
+        else
+        {
+            decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
         }
 
         return new ArchitectureRunDetail

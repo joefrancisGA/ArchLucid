@@ -89,8 +89,8 @@ public sealed class ReplayRunService(
                 CreatedUtc = DateTime.UtcNow,
                 CompletedUtc = null,
                 EvidenceBundleRef = t.EvidenceBundleRef,
-                AllowedTools = (t.AllowedTools ?? []).ToList(),
-                AllowedSources = (t.AllowedSources ?? []).ToList()
+                AllowedTools = t.AllowedTools.ToList(),
+                AllowedSources = t.AllowedSources.ToList()
             })
             .ToList();
 
@@ -110,46 +110,55 @@ public sealed class ReplayRunService(
         List<DecisionTrace> decisionTraces = [];
         List<string> warnings = [];
 
-        if (commitReplay)
-        {
-            var manifestVersion = string.IsNullOrWhiteSpace(manifestVersionOverride)
-                ? BuildReplayManifestVersion(originalRun.CurrentManifestVersion)
-                : manifestVersionOverride;
-
-            var merge = decisionEngineService.MergeResults(
-                replayRunId,
-                request,
-                manifestVersion,
-                results,
-                evaluations: [],
-                decisionNodes: [],
-                parentManifestVersion: originalRun.CurrentManifestVersion);
-
-            if (!merge.Success)
+        if (!commitReplay)
+            return new ReplayRunResult
             {
-                throw new InvalidOperationException(
-                    $"Replay merge failed: {string.Join("; ", merge.Errors)}");
-            }
+                OriginalRunId = originalRunId,
+                ReplayRunId = replayRunId,
+                ExecutionMode = executionMode,
+                Results = results.ToList(),
+                Manifest = manifest,
+                DecisionTraces = decisionTraces,
+                Warnings = warnings
+            };
+        
+        var manifestVersion = string.IsNullOrWhiteSpace(manifestVersionOverride)
+            ? BuildReplayManifestVersion(originalRun.CurrentManifestVersion)
+            : manifestVersionOverride;
 
-            manifest = merge.Manifest;
-            decisionTraces = merge.DecisionTraces;
-            warnings = merge.Warnings;
+        var merge = decisionEngineService.MergeResults(
+            replayRunId,
+            request,
+            manifestVersion,
+            results,
+            evaluations: [],
+            decisionNodes: [],
+            parentManifestVersion: originalRun.CurrentManifestVersion);
 
-            using var scope = new TransactionScope(
-                TransactionScopeOption.Required,
-                TransactionScopeAsyncFlowOption.Enabled);
-
-            await manifestRepository.CreateAsync(manifest, cancellationToken);
-            await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
-            await runRepository.UpdateStatusAsync(
-                replayRunId,
-                ArchitectureRunStatus.Committed,
-                currentManifestVersion: manifest.Metadata.ManifestVersion,
-                completedUtc: DateTime.UtcNow,
-                cancellationToken: cancellationToken);
-
-            scope.Complete();
+        if (!merge.Success)
+        {
+            throw new InvalidOperationException(
+                $"Replay merge failed: {string.Join("; ", merge.Errors)}");
         }
+
+        manifest = merge.Manifest;
+        decisionTraces = merge.DecisionTraces;
+        warnings = merge.Warnings;
+
+        using var scope = new TransactionScope(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled);
+
+        await manifestRepository.CreateAsync(manifest, cancellationToken);
+        await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
+        await runRepository.UpdateStatusAsync(
+            replayRunId,
+            ArchitectureRunStatus.Committed,
+            currentManifestVersion: manifest.Metadata.ManifestVersion,
+            completedUtc: DateTime.UtcNow,
+            cancellationToken: cancellationToken);
+
+        scope.Complete();
 
         return new ReplayRunResult
         {
@@ -180,39 +189,37 @@ public sealed class ReplayRunService(
             SystemName = original.SystemName,
             Environment = original.Environment,
             CloudProvider = original.CloudProvider,
-            Request = original.Request is null
-                ? new RequestEvidence()
-                : new RequestEvidence
-                {
-                    Description = original.Request.Description,
-                    Constraints = (original.Request.Constraints ?? []).ToList(),
-                    RequiredCapabilities = (original.Request.RequiredCapabilities ?? []).ToList(),
-                    Assumptions = (original.Request.Assumptions ?? []).ToList()
-                },
-            Policies = (original.Policies ?? []).Select(p => new PolicyEvidence
+            Request = new RequestEvidence
+            {
+                Description = original.Request.Description,
+                Constraints = original.Request.Constraints.ToList(),
+                RequiredCapabilities = original.Request.RequiredCapabilities.ToList(),
+                Assumptions = original.Request.Assumptions.ToList()
+            },
+            Policies = original.Policies.Select(p => new PolicyEvidence
             {
                 PolicyId = p.PolicyId,
                 Title = p.Title,
                 Summary = p.Summary,
-                RequiredControls = (p.RequiredControls ?? []).ToList(),
-                Tags = (p.Tags ?? []).ToList()
+                RequiredControls = p.RequiredControls.ToList(),
+                Tags = p.Tags.ToList()
             }).ToList(),
-            ServiceCatalog = (original.ServiceCatalog ?? []).Select(s => new ServiceCatalogEvidence
+            ServiceCatalog = (original.ServiceCatalog).Select(s => new ServiceCatalogEvidence
             {
                 ServiceId = s.ServiceId,
                 ServiceName = s.ServiceName,
                 Category = s.Category,
                 Summary = s.Summary,
-                Tags = (s.Tags ?? []).ToList(),
-                RecommendedUseCases = (s.RecommendedUseCases ?? []).ToList()
+                Tags = s.Tags.ToList(),
+                RecommendedUseCases = s.RecommendedUseCases.ToList()
             }).ToList(),
-            Patterns = (original.Patterns ?? []).Select(p => new PatternEvidence
+            Patterns = (original.Patterns).Select(p => new PatternEvidence
             {
                 PatternId = p.PatternId,
                 Name = p.Name,
                 Summary = p.Summary,
-                ApplicableCapabilities = (p.ApplicableCapabilities ?? []).ToList(),
-                SuggestedServices = (p.SuggestedServices ?? []).ToList()
+                ApplicableCapabilities = p.ApplicableCapabilities.ToList(),
+                SuggestedServices = p.SuggestedServices.ToList()
             }).ToList(),
             PriorManifest = original.PriorManifest is null
                 ? null
@@ -220,11 +227,11 @@ public sealed class ReplayRunService(
                 {
                     ManifestVersion = original.PriorManifest.ManifestVersion,
                     Summary = original.PriorManifest.Summary,
-                    ExistingServices = (original.PriorManifest.ExistingServices ?? []).ToList(),
-                    ExistingDatastores = (original.PriorManifest.ExistingDatastores ?? []).ToList(),
-                    ExistingRequiredControls = (original.PriorManifest.ExistingRequiredControls ?? []).ToList()
+                    ExistingServices = original.PriorManifest.ExistingServices.ToList(),
+                    ExistingDatastores = original.PriorManifest.ExistingDatastores.ToList(),
+                    ExistingRequiredControls = original.PriorManifest.ExistingRequiredControls.ToList()
                 },
-            Notes = (original.Notes ?? []).Select(n => new EvidenceNote
+            Notes = (original.Notes).Select(n => new EvidenceNote
             {
                 NoteType = n.NoteType,
                 Message = n.Message
@@ -239,11 +246,6 @@ public sealed class ReplayRunService(
     /// </summary>
     private static string BuildReplayManifestVersion(string? currentManifestVersion)
     {
-        if (string.IsNullOrWhiteSpace(currentManifestVersion))
-        {
-            return "v1-replay";
-        }
-
-        return $"{currentManifestVersion}-replay";
+        return string.IsNullOrWhiteSpace(currentManifestVersion) ? "v1-replay" : $"{currentManifestVersion}-replay";
     }
 }

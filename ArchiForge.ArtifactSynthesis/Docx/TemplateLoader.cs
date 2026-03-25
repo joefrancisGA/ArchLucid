@@ -18,26 +18,19 @@ public static class TemplateLoader
 
     private static byte[]? TryLoadFromDisk()
     {
-        foreach (var dir in GetSearchDirectories())
-        {
-            var path = Path.Combine(dir, "Docx", "Templates", FileName);
-            if (File.Exists(path))
-                return File.ReadAllBytes(path);
-        }
-
-        return null;
+        return (from dir in GetSearchDirectories() select Path.Combine(dir, "Docx", "Templates", FileName) into path where File.Exists(path) select File.ReadAllBytes(path)).FirstOrDefault();
     }
 
     private static IEnumerable<string> GetSearchDirectories()
     {
         yield return AppContext.BaseDirectory;
 
-        var loc = Assembly.GetExecutingAssembly().Location;
-        if (!string.IsNullOrEmpty(loc))
-        {
-            var bin = Path.GetDirectoryName(loc);
-            if (!string.IsNullOrEmpty(bin))
-                yield return bin;
-        }
+        string loc = Assembly.GetExecutingAssembly().Location;
+        
+        if (string.IsNullOrEmpty(loc)) yield break;
+        
+        var bin = Path.GetDirectoryName(loc);
+        if (!string.IsNullOrEmpty(bin))
+            yield return bin;
     }
 }

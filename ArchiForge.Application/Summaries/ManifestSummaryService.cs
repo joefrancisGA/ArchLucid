@@ -20,11 +20,11 @@ public sealed class ManifestSummaryService : IManifestSummaryService
         ArgumentNullException.ThrowIfNull(manifest);
         options ??= ManifestSummaryOptions.Default;
 
-        var governance = manifest.Governance ?? new ManifestGovernance();
-        var metadata = manifest.Metadata ?? new ManifestMetadata();
-        var services = manifest.Services ?? [];
-        var datastores = manifest.Datastores ?? [];
-        var relationships = manifest.Relationships ?? [];
+        var governance = manifest.Governance;
+        var metadata = manifest.Metadata;
+        var services = manifest.Services;
+        var datastores = manifest.Datastores;
+        var relationships = manifest.Relationships;
 
         var sb = new StringBuilder();
 
@@ -138,7 +138,8 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine();
         }
 
-        if (options.IncludeComplianceTags && governance.ComplianceTags.Count > 0)
+        if (!options.IncludeComplianceTags || governance.ComplianceTags.Count <= 0) return sb.ToString().TrimEnd();
+        
         {
             sb.AppendLine("## Compliance Tags");
             sb.AppendLine();

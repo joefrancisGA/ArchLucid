@@ -178,6 +178,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         return patterns;
     }
 
+    // ReSharper disable once UnusedParameter.Local
     private static PriorManifestEvidence? BuildPriorManifest(ArchitectureRequest request)
     {
         // Return null until real manifest hydration is implemented; agents must not treat

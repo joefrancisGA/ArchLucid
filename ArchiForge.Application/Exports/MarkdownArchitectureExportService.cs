@@ -38,21 +38,20 @@ public sealed class MarkdownArchitectureExportService : IArchitectureExportServi
         sb.AppendLine(markdownSummary.TrimEnd());
         sb.AppendLine();
 
-        if (evidence is not null)
-        {
-            sb.AppendLine("---");
-            sb.AppendLine();
-            sb.AppendLine("## Evidence Package Snapshot");
-            sb.AppendLine();
-            sb.AppendLine($"- Evidence Package ID: {evidence.EvidencePackageId}");
-            sb.AppendLine($"- Run ID: {evidence.RunId}");
-            sb.AppendLine($"- Request ID: {evidence.RequestId}");
-            sb.AppendLine($"- Policy Count: {evidence.Policies.Count}");
-            sb.AppendLine($"- Service Catalog Hint Count: {evidence.ServiceCatalog.Count}");
-            sb.AppendLine($"- Pattern Hint Count: {evidence.Patterns.Count}");
-            sb.AppendLine($"- Evidence Note Count: {evidence.Notes.Count}");
-            sb.AppendLine();
-        }
+        if (evidence is null) return sb.ToString();
+        
+        sb.AppendLine("---");
+        sb.AppendLine();
+        sb.AppendLine("## Evidence Package Snapshot");
+        sb.AppendLine();
+        sb.AppendLine($"- Evidence Package ID: {evidence.EvidencePackageId}");
+        sb.AppendLine($"- Run ID: {evidence.RunId}");
+        sb.AppendLine($"- Request ID: {evidence.RequestId}");
+        sb.AppendLine($"- Policy Count: {evidence.Policies.Count}");
+        sb.AppendLine($"- Service Catalog Hint Count: {evidence.ServiceCatalog.Count}");
+        sb.AppendLine($"- Pattern Hint Count: {evidence.Patterns.Count}");
+        sb.AppendLine($"- Evidence Note Count: {evidence.Notes.Count}");
+        sb.AppendLine();
 
         return sb.ToString();
     }

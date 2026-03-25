@@ -16,7 +16,7 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
     {
         ArgumentNullException.ThrowIfNull(evidence);
 
-        var request = evidence.Request ?? new RequestEvidence();
+        var request = evidence.Request;
 
         var sb = new StringBuilder();
 
@@ -162,16 +162,15 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             }
         }
 
-        if (evidence.Notes.Count > 0)
-        {
-            sb.AppendLine();
-            sb.AppendLine("### Evidence Notes");
-            sb.AppendLine();
+        if (evidence.Notes.Count <= 0) return sb.ToString();
+        
+        sb.AppendLine();
+        sb.AppendLine("### Evidence Notes");
+        sb.AppendLine();
 
-            foreach (var note in evidence.Notes)
-            {
-                sb.AppendLine($"- **{note.NoteType}**: {note.Message}");
-            }
+        foreach (var note in evidence.Notes)
+        {
+            sb.AppendLine($"- **{note.NoteType}**: {note.Message}");
         }
 
         return sb.ToString();

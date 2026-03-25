@@ -42,7 +42,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         using (var doc = WordprocessingDocument.Open(stream, true))
         {
             var main = doc.MainDocumentPart ?? throw new InvalidOperationException("Invalid template: missing main document part.");
-            var body = main.Document?.Body ?? throw new InvalidOperationException("Invalid template: missing body.");
+            var body = main.Document.Body ?? throw new InvalidOperationException("Invalid template: missing body.");
 
             var sectPr = body.Elements<SectionProperties>().LastOrDefault();
             sectPr?.Remove();
@@ -101,7 +101,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         WordDocumentBuilder.AddBodyText(body, $"Generated: {manifest.CreatedUtc:u}");
         WordDocumentBuilder.AddSpacer(body, 2);
 
-        WordDocumentBuilder.AddHeading(body, "Executive Summary", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddHeading(body, "Executive Summary");
         if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
             WordDocumentBuilder.AddBodyText(body, "No summary was recorded for this manifest.");
         else
@@ -114,14 +114,12 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         if (request.IncludeArchitectureDiagram)
         {
-            WordDocumentBuilder.AddHeading(body, "Architecture Diagram", DocxStyleIds.Heading1);
+            WordDocumentBuilder.AddHeading(body, "Architecture Diagram");
             ImageHelper.AddPngToBody(
                 doc,
                 body,
                 DiagramPlaceholderBytes.Png.ToArray(),
-                "Architecture overview (placeholder)",
-                ImageHelper.DefaultDiagramWidthEmu,
-                ImageHelper.DefaultDiagramHeightEmu);
+                "Architecture overview (placeholder)");
             WordDocumentBuilder.AddBodyText(
                 body,
                 "Placeholder image — future releases can embed Mermaid renders or knowledge-graph snapshots.");
@@ -130,7 +128,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         if (request.IncludeCoverageSection)
         {
-            WordDocumentBuilder.AddHeading(body, "Requirements Coverage", DocxStyleIds.Heading1);
+            WordDocumentBuilder.AddHeading(body, "Requirements Coverage");
             var reqRows = new List<(string Name, string Status, string Mandatory)>();
             foreach (var item in manifest.Requirements.Covered)
                 reqRows.Add((item.RequirementName, item.CoverageStatus, item.IsMandatory ? "Yes" : "No"));
@@ -147,7 +145,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddSpacer(body);
         }
 
-        WordDocumentBuilder.AddHeading(body, "Topology Posture", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddHeading(body, "Topology Posture");
         if (manifest.Topology.Resources.Count > 0)
         {
             foreach (var resource in manifest.Topology.Resources)
@@ -166,7 +164,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddBodyText(body, $"Gap: {gap}");
         WordDocumentBuilder.AddSpacer(body);
 
-        WordDocumentBuilder.AddHeading(body, "Security Posture", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddHeading(body, "Security Posture");
         if (manifest.Security.Controls.Count == 0)
         {
             WordDocumentBuilder.AddBodyText(body, "No security controls were recorded.");
@@ -174,7 +172,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         else
         {
             var secRows = manifest.Security.Controls
-                .Select(c => (c.ControlId, c.ControlName, c.Status, c.Impact ?? string.Empty))
+                .Select(c => (c.ControlId, c.ControlName, c.Status, c.Impact))
                 .ToList();
             WordDocumentBuilder.AddFourColumnTable(
                 body,
@@ -188,7 +186,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         if (request.IncludeComplianceSection)
         {
-            WordDocumentBuilder.AddHeading(body, "Compliance Posture", DocxStyleIds.Heading1);
+            WordDocumentBuilder.AddHeading(body, "Compliance Posture");
             if (manifest.Compliance.Controls.Count == 0)
             {
                 WordDocumentBuilder.AddBodyText(body, "No compliance posture items were recorded.");
@@ -196,7 +194,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             else
             {
                 var compRows = manifest.Compliance.Controls
-                    .Select(c => (c.ControlId, c.ControlName, c.AppliesToCategory ?? string.Empty, c.Status))
+                    .Select(c => (c.ControlId, c.ControlName, c.AppliesToCategory, c.Status))
                     .ToList();
                 WordDocumentBuilder.AddFourColumnTable(
                     body,
@@ -209,7 +207,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddSpacer(body);
         }
 
-        WordDocumentBuilder.AddHeading(body, "Cost Posture", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddHeading(body, "Cost Posture");
         WordDocumentBuilder.AddBodyText(
             body,
             $"Max monthly cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
@@ -223,7 +221,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         if (request.IncludeIssuesSection)
         {
-            WordDocumentBuilder.AddHeading(body, "Unresolved Issues", DocxStyleIds.Heading1);
+            WordDocumentBuilder.AddHeading(body, "Unresolved Issues");
             if (manifest.UnresolvedIssues.Items.Count == 0)
                 WordDocumentBuilder.AddBodyText(body, "No unresolved issues.");
             else
@@ -231,7 +229,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddSpacer(body);
         }
 
-        WordDocumentBuilder.AddHeading(body, "Recommended Improvements", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddHeading(body, "Recommended Improvements");
         if (improvementPlan.Recommendations.Count == 0)
         {
             WordDocumentBuilder.AddBodyText(body, "No significant improvements were identified.");
@@ -250,7 +248,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         WordDocumentBuilder.AddSpacer(body);
 
-        WordDocumentBuilder.AddHeading(body, "Decisions", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddHeading(body, "Decisions");
         if (manifest.Decisions.Count == 0)
         {
             WordDocumentBuilder.AddBodyText(body, "No decisions recorded.");
@@ -276,7 +274,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         if (request.IncludeArtifactsAppendix)
         {
-            WordDocumentBuilder.AddHeading(body, "Appendix A — Artifacts", DocxStyleIds.Heading1);
+            WordDocumentBuilder.AddHeading(body, "Appendix A — Artifacts");
             if (artifacts.Count == 0)
             {
                 WordDocumentBuilder.AddBodyText(body, "No synthesized artifacts were available.");
@@ -296,7 +294,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddSpacer(body);
         }
 
-        WordDocumentBuilder.AddHeading(body, "Appendix B — Provenance Summary", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddHeading(body, "Appendix B — Provenance Summary");
         WordDocumentBuilder.AddSimpleTable(
             body,
             [
@@ -312,7 +310,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
     private static void AppendManifestComparison(Body body, ComparisonResult c)
     {
-        WordDocumentBuilder.AddHeading(body, "Architecture Comparison", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddHeading(body, "Architecture Comparison");
         WordDocumentBuilder.AddBodyText(
             body,
             $"Base run: {c.BaseRunId} → Target run: {c.TargetRunId}");
@@ -386,7 +384,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
     private static void AppendRunExplanation(Body body, ExplanationResult e)
     {
-        WordDocumentBuilder.AddHeading(body, "Executive Narrative (AI)", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddHeading(body, "Executive Narrative (AI)");
         WordDocumentBuilder.AddBodyText(body, e.Summary);
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Key Drivers", DocxStyleIds.Heading2);
@@ -404,7 +402,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
     private static void AppendComparisonExplanation(Body body, ComparisonExplanationResult e)
     {
-        WordDocumentBuilder.AddHeading(body, "Executive Change Narrative (AI)", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddHeading(body, "Executive Change Narrative (AI)");
         WordDocumentBuilder.AddBodyText(body, e.HighLevelSummary);
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);

@@ -22,9 +22,9 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
-        var services = manifest.Services ?? [];
-        var datastores = manifest.Datastores ?? [];
-        var relationships = manifest.Relationships ?? [];
+        var services = manifest.Services;
+        var datastores = manifest.Datastores;
+        var relationships = manifest.Relationships;
 
         var sb = new StringBuilder();
 
@@ -35,14 +35,13 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         AppendGovernance(sb, manifest.Governance);
         AppendMetadata(sb, manifest.Metadata);
 
-        if (evidence is not null)
-        {
-            sb.AppendLine();
-            sb.AppendLine("---");
-            sb.AppendLine();
-            sb.AppendLine(evidenceFormatter.FormatMarkdown(evidence).Trim());
-            sb.AppendLine();
-        }
+        if (evidence is null) return sb.ToString();
+        
+        sb.AppendLine();
+        sb.AppendLine("---");
+        sb.AppendLine();
+        sb.AppendLine(evidenceFormatter.FormatMarkdown(evidence).Trim());
+        sb.AppendLine();
 
         return sb.ToString();
     }
@@ -82,11 +81,12 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
             if (!string.IsNullOrWhiteSpace(service.Purpose))
                 sb.AppendLine($"  - Purpose: {service.Purpose}");
 
-            var controls = service.RequiredControls ?? [];
+            var controls = service.RequiredControls;
             if (controls.Count > 0)
                 sb.AppendLine($"  - Required Controls: {string.Join(", ", controls)}");
 
-            var tags = service.Tags ?? [];
+            var tags = service.Tags;
+            
             if (tags.Count > 0)
                 sb.AppendLine($"  - Tags: {string.Join(", ", tags)}");
         }
