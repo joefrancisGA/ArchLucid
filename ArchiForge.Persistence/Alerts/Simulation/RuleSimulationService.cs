@@ -19,6 +19,8 @@ public sealed class RuleSimulationService(
     IAlertSuppressionPolicy suppressionPolicy,
     IAlertSimulationContextProvider contextProvider) : IRuleSimulationService
 {
+    private const string RuleKindSimple = "Simple";
+    private const string RuleKindComposite = "Composite";
     /// <inheritdoc />
     public async Task<RuleSimulationResult> SimulateAsync(
         Guid tenantId,
@@ -67,7 +69,7 @@ public sealed class RuleSimulationService(
 
         foreach (AlertEvaluationContext context in contexts)
         {
-            if (request.RuleKind.Equals("Simple", StringComparison.OrdinalIgnoreCase) &&
+            if (request.RuleKind.Equals(RuleKindSimple, StringComparison.OrdinalIgnoreCase) &&
                 request.SimpleRule is not null)
             {
                 AlertRule rule = CloneSimpleForSimulation(request.SimpleRule);
@@ -90,7 +92,7 @@ public sealed class RuleSimulationService(
                                 Description = alert.Description,
                                 DeduplicationKey = alert.DeduplicationKey,
                                 SuppressionReason = "No suppression logic applied for simple rule dry-run.",
-                                EvaluationMode = "Simple",
+                                EvaluationMode = RuleKindSimple,
                                 Notes = ["Simple rule matched (production evaluator; no persistence or delivery)."],
                             });
                     }
@@ -110,12 +112,12 @@ public sealed class RuleSimulationService(
                             Description = "Rule did not match.",
                             DeduplicationKey = string.Empty,
                             SuppressionReason = string.Empty,
-                            EvaluationMode = "Simple",
+                            EvaluationMode = RuleKindSimple,
                             Notes = ["Simple rule did not match."],
                         });
                 }
             }
-            else if (request.RuleKind.Equals("Composite", StringComparison.OrdinalIgnoreCase) &&
+            else if (request.RuleKind.Equals(RuleKindComposite, StringComparison.OrdinalIgnoreCase) &&
                      request.CompositeRule is not null)
             {
                 CompositeAlertRule compositeRule = CloneCompositeForSimulation(request.CompositeRule);
@@ -137,7 +139,7 @@ public sealed class RuleSimulationService(
                             Description = "Composite rule did not match.",
                             DeduplicationKey = string.Empty,
                             SuppressionReason = string.Empty,
-                            EvaluationMode = "Composite",
+                            EvaluationMode = RuleKindComposite,
                             Notes = ["Composite rule did not match current metric snapshot."],
                         });
                     continue;
@@ -160,7 +162,7 @@ public sealed class RuleSimulationService(
                         Description = suppression.Reason,
                         DeduplicationKey = suppression.DeduplicationKey,
                         SuppressionReason = suppression.Reason,
-                        EvaluationMode = "Composite",
+                        EvaluationMode = RuleKindComposite,
                         Notes =
                         [
                             "Composite rule matched; suppression uses live alert store (read-only for simulation).",
@@ -192,7 +194,7 @@ public sealed class RuleSimulationService(
         RuleSimulationResult candidateA;
         RuleSimulationResult candidateB;
 
-        if (request.RuleKind.Equals("Simple", StringComparison.OrdinalIgnoreCase))
+        if (request.RuleKind.Equals(RuleKindSimple, StringComparison.OrdinalIgnoreCase))
         {
             candidateA = await SimulateAsync(
                     tenantId,
@@ -200,7 +202,7 @@ public sealed class RuleSimulationService(
                     projectId,
                     new RuleSimulationRequest
                     {
-                        RuleKind = "Simple",
+                        RuleKind = RuleKindSimple,
                         SimpleRule = request.CandidateASimpleRule,
                         RecentRunCount = request.RecentRunCount,
                         RunProjectSlug = request.RunProjectSlug,
@@ -214,7 +216,7 @@ public sealed class RuleSimulationService(
                     projectId,
                     new RuleSimulationRequest
                     {
-                        RuleKind = "Simple",
+                        RuleKind = RuleKindSimple,
                         SimpleRule = request.CandidateBSimpleRule,
                         RecentRunCount = request.RecentRunCount,
                         RunProjectSlug = request.RunProjectSlug,
@@ -230,7 +232,7 @@ public sealed class RuleSimulationService(
                     projectId,
                     new RuleSimulationRequest
                     {
-                        RuleKind = "Composite",
+                        RuleKind = RuleKindComposite,
                         CompositeRule = request.CandidateACompositeRule,
                         RecentRunCount = request.RecentRunCount,
                         RunProjectSlug = request.RunProjectSlug,
@@ -244,7 +246,7 @@ public sealed class RuleSimulationService(
                     projectId,
                     new RuleSimulationRequest
                     {
-                        RuleKind = "Composite",
+                        RuleKind = RuleKindComposite,
                         CompositeRule = request.CandidateBCompositeRule,
                         RecentRunCount = request.RecentRunCount,
                         RunProjectSlug = request.RunProjectSlug,

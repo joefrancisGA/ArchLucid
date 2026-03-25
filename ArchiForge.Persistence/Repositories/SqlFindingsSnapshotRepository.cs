@@ -11,6 +11,11 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Repositories;
 
+/// <summary>
+/// SQL Server-backed implementation of <see cref="IFindingsSnapshotRepository"/>.
+/// Persists <see cref="FindingsSnapshot"/> to the <c>dbo.FindingsSnapshots</c> table as a single
+/// <c>FindingsJson</c> column and retrieves by deserialization.
+/// </summary>
 public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connectionFactory) : IFindingsSnapshotRepository
 {
     public async Task SaveAsync(
@@ -32,7 +37,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             );
             """;
 
-        var args = new
+        object args = new
         {
             snapshot.FindingsSnapshotId,
             snapshot.RunId,

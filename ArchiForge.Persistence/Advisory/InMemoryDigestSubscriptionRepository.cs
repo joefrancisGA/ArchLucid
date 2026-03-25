@@ -2,6 +2,11 @@ using ArchiForge.Decisioning.Advisory.Delivery;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <summary>
+/// In-memory implementation of <see cref="IDigestSubscriptionRepository"/> for testing and storage-off mode.
+/// Size-bounded at <see cref="MaxEntries"/>; oldest entries are trimmed from the front when the cap is exceeded.
+/// All operations are thread-safe via an exclusive lock.
+/// </summary>
 public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRepository
 {
     private const int MaxEntries = 500;

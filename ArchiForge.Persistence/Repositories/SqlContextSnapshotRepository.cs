@@ -11,10 +11,17 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Repositories;
 
+/// <summary>
+/// SQL Server-backed implementation of <see cref="IContextSnapshotRepository"/>.
+/// Persists and retrieves <see cref="ContextSnapshot"/> rows from the <c>dbo.ContextSnapshots</c> table,
+/// serializing collection properties to JSON columns via <see cref="JsonEntitySerializer"/>.
+/// </summary>
 public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectionFactory) : IContextSnapshotRepository
 {
     public async Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(projectId);
+
         const string sql = """
             SELECT TOP 1
                 SnapshotId,
@@ -89,7 +96,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             );
             """;
 
-        var args = new
+        object args = new
         {
             snapshot.SnapshotId,
             snapshot.RunId,

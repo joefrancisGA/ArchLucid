@@ -13,6 +13,11 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Repositories;
 
+/// <summary>
+/// SQL Server-backed implementation of <see cref="IGoldenManifestRepository"/>.
+/// Persists and retrieves <see cref="GoldenManifest"/> rows from the <c>dbo.GoldenManifests</c> table,
+/// serializing all section properties to JSON columns via <see cref="JsonEntitySerializer"/>.
+/// </summary>
 public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connectionFactory) : IGoldenManifestRepository
 {
     public async Task SaveAsync(
@@ -44,7 +49,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
             );
             """;
 
-        var args = new
+        object args = new
         {
             manifest.TenantId,
             manifest.WorkspaceId,
@@ -86,6 +91,8 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
 
     public async Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         const string sql = """
             SELECT
                 TenantId, WorkspaceId, ProjectId,

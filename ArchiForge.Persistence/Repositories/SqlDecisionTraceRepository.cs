@@ -40,7 +40,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             );
             """;
 
-        var args = new
+        object args = new
         {
             trace.TenantId,
             trace.WorkspaceId,
@@ -69,6 +69,8 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
 
     public async Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         const string sql = """
             SELECT
                 TenantId, WorkspaceId, ProjectId,

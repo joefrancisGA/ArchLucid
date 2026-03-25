@@ -7,6 +7,12 @@ using ArchiForge.Persistence.Models;
 
 namespace ArchiForge.Persistence.Repositories;
 
+/// <summary>
+/// In-memory implementation of <see cref="IRunRepository"/> for testing and local development.
+/// Capped at <see cref="MaxEntries"/> entries; when full, the oldest run (by <c>CreatedUtc</c>) is
+/// evicted on each new insert to prevent unbounded growth.
+/// All reads are filtered to the caller's tenant, workspace, and project scope.
+/// </summary>
 public sealed class InMemoryRunRepository : IRunRepository
 {
     private const int MaxEntries = 2_000;

@@ -11,6 +11,11 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Repositories;
 
+/// <summary>
+/// SQL Server-backed implementation of <see cref="IRunRepository"/>.
+/// Persists and retrieves <see cref="RunRecord"/> rows from the <c>dbo.Runs</c> table.
+/// All read operations are scoped to the caller's tenant, workspace, and project.
+/// </summary>
 public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : IRunRepository
 {
     public async Task SaveAsync(
@@ -48,6 +53,8 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
 
     public async Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         const string sql = """
             SELECT
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
@@ -80,6 +87,8 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
         int take,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         const string sql = """
             SELECT TOP (@Take)
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,

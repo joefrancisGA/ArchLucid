@@ -11,6 +11,11 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Repositories;
 
+/// <summary>
+/// SQL Server-backed implementation of <see cref="IGraphSnapshotRepository"/>.
+/// Persists and retrieves <see cref="GraphSnapshot"/> rows from the <c>dbo.GraphSnapshots</c> table,
+/// serializing node, edge, and warning collections to JSON columns.
+/// </summary>
 public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionFactory) : IGraphSnapshotRepository
 {
     public async Task SaveAsync(
@@ -34,7 +39,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             );
             """;
 
-        var args = new
+        object args = new
         {
             snapshot.GraphSnapshotId,
             snapshot.ContextSnapshotId,

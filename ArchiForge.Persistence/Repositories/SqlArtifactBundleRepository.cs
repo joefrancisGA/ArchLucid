@@ -12,6 +12,11 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Repositories;
 
+/// <summary>
+/// SQL Server-backed implementation of <see cref="IArtifactBundleRepository"/>.
+/// Persists and retrieves <see cref="ArtifactBundle"/> rows from the <c>dbo.ArtifactBundles</c> table,
+/// serializing the artifact list and synthesis trace to JSON columns.
+/// </summary>
 public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connectionFactory) : IArtifactBundleRepository
 {
     public async Task SaveAsync(
@@ -33,7 +38,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
             );
             """;
 
-        var args = new
+        object args = new
         {
             bundle.BundleId,
             bundle.RunId,
@@ -55,6 +60,8 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
 
     public async Task<ArtifactBundle?> GetByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         const string sql = """
             SELECT TOP 1
                 TenantId, WorkspaceId, ProjectId,
