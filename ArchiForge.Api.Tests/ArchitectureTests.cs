@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchiForge.Api.Tests.TestDtos;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.DecisionEngine.Services;

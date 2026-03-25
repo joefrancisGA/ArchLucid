@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Tests;
+namespace ArchiForge.Api.Tests.TestDtos;
 
 public sealed class GetRunResponseDto
 {

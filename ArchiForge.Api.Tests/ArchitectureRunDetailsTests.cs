@@ -1,5 +1,7 @@
 using System.Net.Http.Json;
 
+using ArchiForge.Api.Tests.TestDtos;
+
 using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;

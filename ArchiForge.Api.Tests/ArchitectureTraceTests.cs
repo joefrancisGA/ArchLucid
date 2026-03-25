@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 
 using ArchiForge.Api.Models;
+using ArchiForge.Api.Tests.TestDtos;
 
 using FluentAssertions;
 

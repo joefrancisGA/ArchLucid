@@ -15,7 +15,7 @@ public sealed class AgentResultDiffServiceTests
     {
         AgentResult[] left =
         [
-            new AgentResult
+            new()
             {
                 ResultId = "R1",
                 TaskId = "T1",
@@ -35,7 +35,7 @@ public sealed class AgentResultDiffServiceTests
 
         AgentResult[] right =
         [
-            new AgentResult
+            new()
             {
                 ResultId = "R2",
                 TaskId = "T2",

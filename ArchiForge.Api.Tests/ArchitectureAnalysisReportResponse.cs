@@ -1,3 +1,5 @@
+using ArchiForge.Api.Tests.TestDtos;
+
 namespace ArchiForge.Api.Tests;
 
 public sealed class ArchitectureAnalysisReportResponse

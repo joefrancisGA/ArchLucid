@@ -2,6 +2,8 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
+using ArchiForge.Api.Tests.TestDtos;
+
 namespace ArchiForge.Api.Tests;
 
 /// <summary>Shared helpers for comparison-replay integration tests (run creation, replay, persist).</summary>
