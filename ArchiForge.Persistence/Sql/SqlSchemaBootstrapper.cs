@@ -6,6 +6,10 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Sql;
 
+/// <summary>
+/// Bootstraps the SQL schema by reading a T-SQL script file from <paramref name="scriptPath"/>,
+/// splitting it on <c>GO</c> batch separators, and executing each batch against the database.
+/// </summary>
 public sealed class SqlSchemaBootstrapper(
     ISqlConnectionFactory connectionFactory,
     string scriptPath)
@@ -16,16 +20,16 @@ public sealed class SqlSchemaBootstrapper(
         if (!File.Exists(scriptPath))
             throw new FileNotFoundException($"Schema script not found: {scriptPath}");
 
-        string script = await File.ReadAllTextAsync(scriptPath, ct);
+        string script = await File.ReadAllTextAsync(scriptPath, ct).ConfigureAwait(false);
         IReadOnlyList<string> batches = SplitGoBatches(script);
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
 
         foreach (string batch in batches)
         {
             if (!string.IsNullOrWhiteSpace(batch))
             {
-                await connection.ExecuteAsync(new CommandDefinition(batch, cancellationToken: ct));
+                await connection.ExecuteAsync(new CommandDefinition(batch, cancellationToken: ct)).ConfigureAwait(false);
             }
         }
     }

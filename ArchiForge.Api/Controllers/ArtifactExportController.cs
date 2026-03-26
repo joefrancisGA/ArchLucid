@@ -65,8 +65,11 @@ public sealed class ArtifactExportController(
     }
 
     [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}")]
+    [Produces("application/octet-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadArtifact(
         Guid manifestId,
         Guid artifactId,
@@ -92,8 +95,11 @@ public sealed class ArtifactExportController(
     }
 
     [HttpGet("manifests/{manifestId:guid}/bundle")]
+    [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadBundle(
         Guid manifestId,
         CancellationToken ct = default)
@@ -117,8 +123,11 @@ public sealed class ArtifactExportController(
     }
 
     [HttpGet("runs/{runId:guid}/export")]
+    [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> DownloadRunExport(
         Guid runId,
         CancellationToken ct = default)

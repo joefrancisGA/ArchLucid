@@ -59,12 +59,12 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct)).ConfigureAwait(false);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
@@ -84,7 +84,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
               AND DecisionTraceId = @DecisionTraceId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         DecisionTraceRow? row = await connection.QuerySingleOrDefaultAsync<DecisionTraceRow>(
             new CommandDefinition(
                 sql,
@@ -95,7 +95,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
                     ScopeProjectId = scope.ProjectId,
                     DecisionTraceId = decisionTraceId
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         if (row is null)
             return null;

@@ -16,8 +16,15 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
     /// <summary>Maximum number of terminal jobs (Succeeded/Failed) retained in memory before evicting the oldest.</summary>
     private const int MaxRetainedTerminalJobs = 200;
 
-    private readonly Channel<WorkItem> _queue = Channel.CreateUnbounded<WorkItem>(new UnboundedChannelOptions
+    /// <summary>
+    /// Maximum number of jobs that may wait in the channel before <see cref="Enqueue"/> throws.
+    /// Prevents unbounded memory growth under sustained load; callers should back off and retry on failure.
+    /// </summary>
+    private const int MaxPendingJobs = 500;
+
+    private readonly Channel<WorkItem> _queue = Channel.CreateBounded<WorkItem>(new BoundedChannelOptions(MaxPendingJobs)
     {
+        FullMode = BoundedChannelFullMode.DropWrite,
         SingleReader = true,
         SingleWriter = false
     });
@@ -42,7 +49,13 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
             FileName: fileNameHint,
             ContentType: contentTypeHint);
 
-        _queue.Writer.TryWrite(new WorkItem(id, fileNameHint, contentTypeHint, work));
+        if (!_queue.Writer.TryWrite(new WorkItem(id, fileNameHint, contentTypeHint, work)))
+        {
+            _info.TryRemove(id, out _);
+            throw new InvalidOperationException(
+                $"The background job queue is at capacity ({MaxPendingJobs} pending jobs). Try again later.");
+        }
+
         return id;
     }
 

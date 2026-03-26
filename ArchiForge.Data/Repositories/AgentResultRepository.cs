@@ -152,7 +152,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             LIMIT 1000;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,

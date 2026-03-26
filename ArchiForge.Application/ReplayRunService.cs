@@ -64,7 +64,7 @@ public sealed class ReplayRunService(
             throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
         }
 
-        AgentEvidencePackage evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken)
+        AgentEvidencePackage evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken).ConfigureAwait(false)
                                         ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
         string replayRunId = Guid.NewGuid().ToString("N");

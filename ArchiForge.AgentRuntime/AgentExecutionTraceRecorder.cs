@@ -40,7 +40,7 @@ public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository r
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(trace, cancellationToken);
+        await repository.CreateAsync(trace, cancellationToken).ConfigureAwait(false);
     }
 
     private static string Truncate(string value, int maxLength) =>

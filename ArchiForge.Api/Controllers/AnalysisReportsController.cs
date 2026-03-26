@@ -27,6 +27,8 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class AnalysisReportsController(
     IRunDetailQueryService runDetailQueryService,
     IArchitectureAnalysisService architectureAnalysisService,

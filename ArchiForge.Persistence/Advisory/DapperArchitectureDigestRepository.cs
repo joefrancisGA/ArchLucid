@@ -31,8 +31,8 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, digest, cancellationToken: ct));
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(sql, digest, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -55,7 +55,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
             ORDER BY GeneratedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         IEnumerable<ArchitectureDigest> result = await connection.QueryAsync<ArchitectureDigest>(
             new CommandDefinition(
                 sql,
@@ -66,7 +66,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
                     ProjectId = projectId,
                     Take = Math.Clamp(take, 1, 200)
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         return result.ToList();
     }
@@ -83,11 +83,11 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
             WHERE DigestId = @DigestId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         return await connection.QueryFirstOrDefaultAsync<ArchitectureDigest>(
             new CommandDefinition(sql, new
             {
                 DigestId = digestId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
     }
 }

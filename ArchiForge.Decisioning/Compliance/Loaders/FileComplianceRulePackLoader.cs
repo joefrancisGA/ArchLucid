@@ -6,7 +6,11 @@ using ArchiForge.Decisioning.Compliance.Models;
 
 namespace ArchiForge.Decisioning.Compliance.Loaders;
 
-public class FileComplianceRulePackLoader(string filePath) : IComplianceRulePackLoader
+/// <summary>
+/// Loads a <see cref="ComplianceRulePack"/> from a JSON file at the path provided at construction.
+/// Computes an SHA-256 hash of the raw JSON for pack identity and cache-busting.
+/// </summary>
+public sealed class FileComplianceRulePackLoader(string filePath) : IComplianceRulePackLoader
 {
     private static readonly JsonSerializerOptions DeserializeOptions = new()
     {
@@ -18,7 +22,7 @@ public class FileComplianceRulePackLoader(string filePath) : IComplianceRulePack
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"Compliance rule pack not found: {filePath}");
 
-        string json = await File.ReadAllTextAsync(filePath, ct);
+        string json = await File.ReadAllTextAsync(filePath, ct).ConfigureAwait(false);
 
         ComplianceRulePackDocument? doc;
         try

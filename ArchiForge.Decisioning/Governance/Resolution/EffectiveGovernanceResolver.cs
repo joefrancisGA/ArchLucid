@@ -60,6 +60,11 @@ public sealed class EffectiveGovernanceResolver(
         List<ResolvedPackRow> resolvedPacks = [];
         List<string> skippedNotes = [];
 
+        // Cache deserialized content per (packId, version) — the same version may appear
+        // across multiple scope-level assignments and deserializing the same JSON repeatedly
+        // is pure waste.
+        Dictionary<(Guid PackId, string Version), PolicyPackContentDocument> contentCache = [];
+
         foreach (PolicyPackAssignment assignment in applicable)
         {
             PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct).ConfigureAwait(false);
@@ -82,27 +87,32 @@ public sealed class EffectiveGovernanceResolver(
                 continue;
             }
 
-            PolicyPackContentDocument? content;
-            try
+            (Guid, string) cacheKey = (assignment.PolicyPackId, assignment.PolicyPackVersion);
+            if (!contentCache.TryGetValue(cacheKey, out PolicyPackContentDocument? content))
             {
-                content = JsonSerializer.Deserialize<PolicyPackContentDocument>(
-                    version.ContentJson,
-                    PolicyPackJsonSerializerOptions.Default);
-            }
-            catch (JsonException ex)
-            {
-                skippedNotes.Add(
-                    $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
-                    $"version '{assignment.PolicyPackVersion}': content JSON is corrupt ({ex.Message}).");
-                continue;
-            }
+                try
+                {
+                    content = JsonSerializer.Deserialize<PolicyPackContentDocument>(
+                        version.ContentJson,
+                        PolicyPackJsonSerializerOptions.Default);
+                }
+                catch (JsonException ex)
+                {
+                    skippedNotes.Add(
+                        $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
+                        $"version '{assignment.PolicyPackVersion}': content JSON is corrupt ({ex.Message}).");
+                    continue;
+                }
 
-            if (content is null)
-            {
-                skippedNotes.Add(
-                    $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
-                    $"version '{assignment.PolicyPackVersion}': content deserialized to null.");
-                continue;
+                if (content is null)
+                {
+                    skippedNotes.Add(
+                        $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
+                        $"version '{assignment.PolicyPackVersion}': content deserialized to null.");
+                    continue;
+                }
+
+                contentCache[cacheKey] = content;
             }
 
             resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));

@@ -13,7 +13,7 @@ public sealed class DapperArchiForgeUnitOfWorkFactory(ISqlConnectionFactory conn
     /// <inheritdoc />
     public async Task<IArchiForgeUnitOfWork> CreateAsync(CancellationToken ct)
     {
-        SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         SqlTransaction? transaction = connection.BeginTransaction();
         return new DapperArchiForgeUnitOfWork(connection, transaction);
     }

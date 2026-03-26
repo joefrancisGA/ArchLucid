@@ -149,6 +149,7 @@ public sealed class ComparisonsController(
 
     [HttpGet("comparisons")]
     [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SearchComparisonRecords(
         [FromQuery] ComparisonHistoryQuery query,
         CancellationToken cancellationToken = default)
@@ -210,7 +211,7 @@ public sealed class ComparisonsController(
         }
 
         string? nextCursor = records.Count > 0 && string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase)
-            ? $"{records.Last().CreatedUtc.Ticks}:{records.Last().ComparisonRecordId}"
+            ? $"{records[^1].CreatedUtc.Ticks}:{records[^1].ComparisonRecordId}"
             : null;
 
         return Ok(new ComparisonHistoryResponse

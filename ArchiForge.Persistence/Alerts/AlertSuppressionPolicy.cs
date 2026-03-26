@@ -12,6 +12,10 @@ namespace ArchiForge.Persistence.Alerts;
 /// </remarks>
 public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepository) : IAlertSuppressionPolicy
 {
+    private const string KeyPrefixComposite = "composite";
+    private const string KeySegmentRun = "run";
+    private const string KeySegmentCompare = "compare";
+
     /// <inheritdoc />
     public async Task<AlertSuppressionDecision> DecideAsync(
         CompositeAlertRule rule,
@@ -91,11 +95,13 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
     {
         return rule.DedupeScope switch
         {
-            CompositeDedupeScope.RuleOnly => $"composite:{rule.CompositeRuleId}",
-            CompositeDedupeScope.RuleAndRun => $"composite:{rule.CompositeRuleId}:run:{context.RunId}",
+            CompositeDedupeScope.RuleOnly =>
+                $"{KeyPrefixComposite}:{rule.CompositeRuleId}",
+            CompositeDedupeScope.RuleAndRun =>
+                $"{KeyPrefixComposite}:{rule.CompositeRuleId}:{KeySegmentRun}:{context.RunId}",
             CompositeDedupeScope.RuleAndComparison =>
-                $"composite:{rule.CompositeRuleId}:run:{context.RunId}:compare:{context.ComparedToRunId}",
-            _ => $"composite:{rule.CompositeRuleId}:run:{context.RunId}",
+                $"{KeyPrefixComposite}:{rule.CompositeRuleId}:{KeySegmentRun}:{context.RunId}:{KeySegmentCompare}:{context.ComparedToRunId}",
+            _ => $"{KeyPrefixComposite}:{rule.CompositeRuleId}:{KeySegmentRun}:{context.RunId}",
         };
     }
 }

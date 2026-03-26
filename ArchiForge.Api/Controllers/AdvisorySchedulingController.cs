@@ -127,8 +127,10 @@ public sealed class AdvisorySchedulingController(
     /// <remarks>Advances <see cref="AdvisoryScanSchedule.LastRunUtc"/> / <see cref="AdvisoryScanSchedule.NextRunUtc"/> like a scheduled tick.</remarks>
     [HttpPost("schedules/{scheduleId:guid}/run")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> RunNow(Guid scheduleId, CancellationToken ct = default)
     {
         AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
@@ -140,7 +142,7 @@ public sealed class AdvisorySchedulingController(
             return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
         await scanRunner.RunScheduleAsync(schedule, ct);
-        return Ok();
+        return NoContent();
     }
 
     /// <summary>Lists recent architecture digests for the scope (newest first, capped by <paramref name="take"/>).</summary>

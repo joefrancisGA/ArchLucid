@@ -36,8 +36,8 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, pack, cancellationToken: ct));
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(sql, pack, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -57,8 +57,8 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
             WHERE PolicyPackId = @PolicyPackId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, pack, cancellationToken: ct));
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(sql, pack, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -73,12 +73,12 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
             WHERE PolicyPackId = @PolicyPackId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         return await connection.QueryFirstOrDefaultAsync<PolicyPack>(
             new CommandDefinition(sql, new
             {
                 PolicyPackId = policyPackId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -101,7 +101,7 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         IEnumerable<PolicyPack> rows = await connection.QueryAsync<PolicyPack>(
             new CommandDefinition(
                 sql,
@@ -111,7 +111,7 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
                     WorkspaceId = workspaceId,
                     ProjectId = projectId
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
         return rows.ToList();
     }
 }

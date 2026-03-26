@@ -20,6 +20,9 @@ namespace ArchiForge.Api.Controllers;
 [EnableRateLimiting("fixed")]
 public sealed class DiagnosticsController(IReplayDiagnosticsRecorder replayDiagnosticsRecorder) : ControllerBase
 {
+    /// <summary>Returns the most recent in-memory replay diagnostic entries captured by <see cref="IReplayDiagnosticsRecorder"/>.</summary>
+    /// <param name="maxCount">Maximum number of entries to return (1–100; defaults to 50).</param>
+    /// <returns>200 with a <see cref="ReplayDiagnosticsResponse"/> containing up to <paramref name="maxCount"/> entries.</returns>
     [HttpGet("comparisons/diagnostics/replay")]
     [Authorize(Policy = ArchiForgePolicies.CanViewReplayDiagnostics)]
     [ProducesResponseType(typeof(ReplayDiagnosticsResponse), StatusCodes.Status200OK)]
