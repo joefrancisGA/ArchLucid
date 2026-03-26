@@ -1,3 +1,8 @@
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 using Json.Schema;
@@ -9,10 +14,29 @@ namespace ArchiForge.DecisionEngine.Validation;
 
 public sealed class SchemaValidationService : ISchemaValidationService
 {
+    /// <summary>OpenTelemetry meter name for schema validation metrics.</summary>
+    public const string MeterName = "ArchiForge.DecisionEngine.SchemaValidation";
+
+    private static readonly Meter SMeter = new(MeterName, "1.0");
+
+    /// <summary>Counts total validation calls by schema name and outcome (valid/invalid).</summary>
+    private static readonly Counter<long> SValidationCounter =
+        SMeter.CreateCounter<long>("schema_validation_total", description: "Total schema validation calls.");
+
+    /// <summary>Records validation duration in milliseconds by schema name.</summary>
+    private static readonly Histogram<double> SValidationDurationMs =
+        SMeter.CreateHistogram<double>("schema_validation_duration_ms", unit: "ms", description: "Schema validation duration.");
+
     private readonly ILogger<SchemaValidationService> _logger;
     private readonly SchemaValidationOptions _options;
     private readonly Lazy<JsonSchema> _agentResultSchema;
     private readonly Lazy<JsonSchema> _goldenManifestSchema;
+
+    /// <summary>
+    /// Optional LRU-style result cache keyed by SHA-256(json).
+    /// Cleared when it reaches <see cref="SchemaValidationOptions.ResultCacheMaxSize"/> to bound memory.
+    /// </summary>
+    private readonly ConcurrentDictionary<string, SchemaValidationResult>? _resultCache;
 
     public SchemaValidationService(
         ILogger<SchemaValidationService> logger,
@@ -25,6 +49,11 @@ public sealed class SchemaValidationService : ISchemaValidationService
             LoadSchema(_options.AgentResultSchemaPath, "AgentResult"));
         _goldenManifestSchema = new Lazy<JsonSchema>(() =>
             LoadSchema(_options.GoldenManifestSchemaPath, "GoldenManifest"));
+
+        if (_options.EnableResultCaching)
+        {
+            _resultCache = new ConcurrentDictionary<string, SchemaValidationResult>(StringComparer.Ordinal);
+        }
     }
 
     public SchemaValidationResult ValidateAgentResultJson(string json)
@@ -94,16 +123,42 @@ public sealed class SchemaValidationService : ISchemaValidationService
         JsonSchema schema,
         string objectName)
     {
+        if (_resultCache is not null)
+        {
+            string cacheKey = ComputeHash(objectName, json);
+
+            if (_resultCache.TryGetValue(cacheKey, out SchemaValidationResult? cached))
+            {
+                return cached;
+            }
+
+            SchemaValidationResult fresh = ValidateCore(json, schema, objectName);
+            AddToCache(cacheKey, fresh);
+            return fresh;
+        }
+
+        return ValidateCore(json, schema, objectName);
+    }
+
+    private SchemaValidationResult ValidateCore(
+        string json,
+        JsonSchema schema,
+        string objectName)
+    {
+        Stopwatch sw = Stopwatch.StartNew();
         SchemaValidationResult result = new();
 
         if (string.IsNullOrWhiteSpace(json))
         {
             string error = $"{objectName} JSON payload is empty.";
             result.Errors.Add(error);
+
             if (_logger.IsEnabled(LogLevel.Warning))
             {
                 _logger.LogWarning("Validation failed for {ObjectName}: Empty payload", objectName);
             }
+
+            EmitMetrics(objectName, valid: false, sw.Elapsed.TotalMilliseconds);
             return result;
         }
 
@@ -116,10 +171,13 @@ public sealed class SchemaValidationService : ISchemaValidationService
         {
             string error = $"{objectName} JSON could not be parsed: {ex.Message}";
             result.Errors.Add(error);
+
             if (_logger.IsEnabled(LogLevel.Warning))
             {
                 _logger.LogWarning(ex, "Validation failed for {ObjectName}: Invalid JSON", objectName);
             }
+
+            EmitMetrics(objectName, valid: false, sw.Elapsed.TotalMilliseconds);
             return result;
         }
 
@@ -138,10 +196,13 @@ public sealed class SchemaValidationService : ISchemaValidationService
                 {
                     _logger.LogDebug("Validation succeeded for {ObjectName}", objectName);
                 }
+
+                EmitMetrics(objectName, valid: true, sw.Elapsed.TotalMilliseconds);
                 return result;
             }
 
             CollectErrors(evaluation, result, objectName);
+
             if (_logger.IsEnabled(LogLevel.Warning))
             {
                 _logger.LogWarning(
@@ -150,8 +211,43 @@ public sealed class SchemaValidationService : ISchemaValidationService
                     result.Errors.Count);
             }
 
+            EmitMetrics(objectName, valid: false, sw.Elapsed.TotalMilliseconds);
             return result;
         }
+    }
+
+    private void AddToCache(string key, SchemaValidationResult result)
+    {
+        if (_resultCache is null)
+        {
+            return;
+        }
+
+        if (_resultCache.Count >= _options.ResultCacheMaxSize)
+        {
+            _resultCache.Clear();
+        }
+
+        _resultCache.TryAdd(key, result);
+    }
+
+    /// <summary>Computes a SHA-256 hash over schemaName + json to use as a cache key.</summary>
+    private static string ComputeHash(string schemaName, string json)
+    {
+        byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(schemaName + "|" + json));
+        return Convert.ToHexString(bytes);
+    }
+
+    private static void EmitMetrics(string objectName, bool valid, double elapsedMs)
+    {
+        TagList tags = new()
+        {
+            { "schema", objectName },
+            { "outcome", valid ? "valid" : "invalid" }
+        };
+
+        SValidationCounter.Add(1, tags);
+        SValidationDurationMs.Record(elapsedMs, new KeyValuePair<string, object?>("schema", objectName));
     }
 
     private Task<SchemaValidationResult> ValidateAsync(

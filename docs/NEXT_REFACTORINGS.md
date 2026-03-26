@@ -924,3 +924,99 @@ The following were implemented together for safer operator APIs, tests, and back
 | 4 | `IPolicyPacksAppService` / `PolicyPacksAppService` | Create, publish, assign + audit orchestration; thin `PolicyPacksController`. |
 | 5 | Integration tests | `PublishPolicyPack_InvalidSemVerVersion_Returns400`; `EffectiveContent_MergesAlertRuleIds_FromAssignedPack`; repaired `ResolvedPackResponse` DTO. |
 | — | `ApiV1Routes` (C#) | Extended to mirror UI segments (composite alerts, simulation, tuning, routing, digest). |
+
+---
+
+## §88 — KnowledgeGraph.Tests project
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.KnowledgeGraph.Tests` project (xUnit + FluentAssertions + Moq). Added to solution under the `tests` folder.
+- `GraphValidatorTests` — 7 cases covering null/blank NodeId, blank NodeType, missing edge node, case-insensitive node lookup, valid graph.
+- `GraphNodeFactoryTests` — 8 cases covering NodeId prefix, NodeType, Label, Category from property, SourceType/SourceId passthrough, and null guard.
+- `DefaultGraphEdgeInfererTests` — 8 cases covering null guards, topology CONTAINS, security PROTECTS, policy APPLIES_TO, requirement RELATES_TO (text match), network→subnet CONTAINS_RESOURCE, edge deduplication.
+- `KnowledgeGraphServiceTests` — 5 cases: null snapshot, builder+validator call order, IDs propagated, nodes/edges copied, validator exception propagated.
+
+---
+
+## §89 — First-class `PolicySection` on `GoldenManifest`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning/Manifest/Sections/PolicySection.cs` — `SatisfiedControls`, `Violations`, `Exemptions`, `Notes`.
+- `ArchiForge.Decisioning/Manifest/Sections/PolicyControlItem.cs` — `ControlId`, `ControlName`, `PolicyPack`, `Description`.
+- `ArchiForge.Decisioning/Manifest/Sections/PolicyExemption.cs` — `ControlId`, `Justification`, `ExpiresUtc`.
+- `ArchiForge.Decisioning/Models/GoldenManifest.cs` — added `PolicySection Policy { get; set; } = new();`.
+
+**Follow-up:**
+- SQL column (e.g. `PolicyJson NVARCHAR(MAX)`) is a future migration if policy data must be queryable outside manifests. For now it serialises with the manifest blob.
+- `GoldenManifestBuilder` should populate `Policy.SatisfiedControls` from `ComplianceSection.Controls` where status is satisfied, and `Policy.Violations` for gaps.
+
+---
+
+## §90 — Schema validation service: result caching + OTel metrics
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `SchemaValidationOptions.EnableResultCaching` (bool, default false) and `ResultCacheMaxSize` (int, default 256).
+- `SchemaValidationService`: when caching is enabled, results are keyed by SHA-256(`schemaName|json`) in a `ConcurrentDictionary`. Cache is cleared (not evicted) when it reaches `ResultCacheMaxSize`.
+- OTel `Meter` (`ArchiForge.DecisionEngine.SchemaValidation`): `schema_validation_total` counter tagged by schema name + outcome; `schema_validation_duration_ms` histogram tagged by schema name.
+- `ValidateCore` replaces the old `Validate` private method; caching is an outer wrapper.
+
+**Future:**
+- Replace clear-on-max with an LRU eviction pattern if hot-path caching matters.
+- Wire `MeterName` into `AddArchiForgeOpenTelemetry` so Prometheus sees it.
+
+---
+
+## §91 — CLI scaffold hardening
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ScaffoldOptions.ConnectionString` property (nullable string). `RegisterProject = true` now throws `InvalidOperationException` when `ConnectionString` is null or whitespace — no hardcoded server address.
+- `docs/CLI_API_IMPLEMENTATION_PLAN.md` Current State table updated to reflect all phases complete.
+
+---
+
+## §92 — Test coverage: `ExportReplayService` + `ComparisonDriftAnalyzer`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Api.Tests/ExportReplayServiceTests.cs` — 6 unit tests for `BuildReplayFileName` (via reflection): blank/whitespace/null → fallback, simple `.docx` suffix, dotted name, no-extension case.
+- `ArchiForge.Api.Tests/ComparisonDriftAnalyzerTests.cs` — 9 unit tests: no drift, scalar value change, property added/removed, array length/element change, type change, nested path, summary count.
+
+---
+
+## §93 — CI migration + seeding regression loop (docs)
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `docs/CI_MIGRATION_CHECKLIST.md` — local pre-push command sequence; per-migration and per-seed-change sub-checklists; CI YAML snippet; security notes.
+- `docs/SQL_SCRIPTS.md §6` — expanded to a structured checklist with Required/data-access/seeding/CI-gate sections and a link to `CI_MIGRATION_CHECKLIST.md`.
+
+---
+
+## §94 — `docs/HOWTO_ADD_COMPARISON_TYPE.md`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- Full how-to: type constant, service+formatter interfaces, implementation rules, dispatcher branch, DI registration, OpenAPI, SQL migration checklist, data flow diagram, security model, test inventory, reference implementations.
+
+---
+
+## Checklist (§88–94)
+
+- [x] 88. KnowledgeGraph.Tests: project + GraphValidator / GraphNodeFactory / DefaultGraphEdgeInferer / KnowledgeGraphService tests
+- [x] 89. Decisioning: PolicySection + PolicyControlItem + PolicyExemption on GoldenManifest
+- [x] 90. DecisionEngine: schema validation result caching + OTel metrics (counter + histogram)
+- [x] 91. Cli: ScaffoldOptions.ConnectionString; remove hardcoded server address
+- [x] 92. Api.Tests: ExportReplayServiceTests + ComparisonDriftAnalyzerTests
+- [x] 93. Docs: CI_MIGRATION_CHECKLIST.md; expanded SQL_SCRIPTS §6 checklist
+- [x] 94. Docs: HOWTO_ADD_COMPARISON_TYPE.md

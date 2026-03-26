@@ -23,8 +23,10 @@
 
 - **Comparison replay** – formats, modes, headers, examples  
   - `docs/COMPARISON_REPLAY.md`
-- **(Planned) Add a new comparison type**  
-  - `docs/HOWTO_ADD_COMPARISON_TYPE.md` (see below)
+- **Add a new comparison type** – step-by-step: type constant → service → replay formatter → DI → tests  
+  - `docs/HOWTO_ADD_COMPARISON_TYPE.md`
+- **CI migration and seeding regression loop** – pre-push checklist, per-migration checklist, CI YAML  
+  - `docs/CI_MIGRATION_CHECKLIST.md`
 
 ---
 

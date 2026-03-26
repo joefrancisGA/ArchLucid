@@ -18,6 +18,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/KNOWLEDGE_GRAPH.md](docs/KNOWLEDGE_GRAPH.md) | Typed graph from `ContextSnapshot`, edge inference, validation, manifest hooks |
 | [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Persisted tables & domains (migrations + authority DDL overview) |
 | [docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md) | **SQL reference:** DbUp migrations, consolidated scripts, bootstrap paths, troubleshooting, change checklist |
+| [docs/demo-quickstart.md](docs/demo-quickstart.md) | **Demo / 50R:** DbUp + Contoso seed, `Demo:*` config, `POST /v1.0/demo/seed`, verification endpoints |
 
 ## Prerequisites
 
@@ -60,7 +61,11 @@ Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pas
 ## Database Setup
 
 1. Create a database (e.g. `ArchiForge2`), or use `archiforge dev up` to run SQL Server in Docker.
-2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use in-memory SQLite and do not run this migration path. Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchiForge.sql`, SQLite script, Persistence bootstrap, two “run” tables).
+2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use in-memory SQLite and do not run this migration path. Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchiForge.sql`, SQLite script, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
+
+### Optional: Contoso demo dataset (50R)
+
+For a deterministic **baseline vs hardened** story (runs, manifests, governance approvals, environment activations, sample export), see **[docs/demo-quickstart.md](docs/demo-quickstart.md)**. Summary: set `ArchiForge:StorageProvider` to `Sql`, configure `Demo:Enabled` / `Demo:SeedOnStartup` (Development only for startup), or call **`POST /v1.0/demo/seed`** when `Demo:Enabled` is true.
 
 ## Secrets (development)
 

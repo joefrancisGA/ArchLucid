@@ -1,11 +1,15 @@
 using ArchiForge.Api.Auth.Services;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Startup;
+using ArchiForge.Application;
+using ArchiForge.Application.Bootstrap;
 using ArchiForge.Application.Governance.Preview;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Persistence.Sql;
+
+using Microsoft.Extensions.Configuration;
 
 using Serilog;
 
@@ -58,6 +62,17 @@ public partial class Program
         if (!string.IsNullOrEmpty(connectionString) && !DatabaseMigrator.Run(connectionString))
         {
             throw new InvalidOperationException("Database migration failed.");
+        }
+
+        if (app.Environment.IsDevelopment())
+        {
+            DemoOptions? demo = app.Configuration.GetSection(DemoOptions.SectionName).Get<DemoOptions>();
+            if (demo is { Enabled: true, SeedOnStartup: true })
+            {
+                using IServiceScope seedScope = app.Services.CreateScope();
+                IDemoSeedService demoSeed = seedScope.ServiceProvider.GetRequiredService<IDemoSeedService>();
+                demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
         }
 
         app.UseArchiForgePipeline();

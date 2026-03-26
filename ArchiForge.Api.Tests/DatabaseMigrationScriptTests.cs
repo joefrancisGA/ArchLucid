@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 using FluentAssertions;
 
@@ -7,6 +8,11 @@ namespace ArchiForge.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class DatabaseMigrationScriptTests
 {
+    private static readonly Regex MigrationFileNameRegex = new(
+        @"^\d{3}_[^.]+\.sql$",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+        TimeSpan.FromMilliseconds(100));
+
     [Fact]
     public void ArchiForgeDataAssembly_HasEmbeddedMigrationScripts_InNumericOrder()
     {
@@ -20,12 +26,13 @@ public sealed class DatabaseMigrationScriptTests
 
         scripts.Should().NotBeEmpty("DbUp expects embedded .sql migration scripts under a Migrations folder");
 
-        // Ensure scripts are prefixed like 001_, 002_, ... to keep deterministic ordering.
-        scripts.All(n =>
+        foreach (string n in scripts)
         {
-            string file = n.Split('.').LastOrDefault() ?? n;
-            return file.Length >= 4 && char.IsDigit(file[0]) && char.IsDigit(file[1]) && char.IsDigit(file[2]) && file[3] == '_';
-        }).Should().BeTrue("migration scripts should start with a numeric prefix like 001_ for deterministic DbUp ordering");
+            int idx = n.IndexOf(".Migrations.", StringComparison.OrdinalIgnoreCase);
+            string tail = idx >= 0 ? n[(idx + ".Migrations.".Length)..] : n;
+            MigrationFileNameRegex.IsMatch(tail).Should().BeTrue(
+                $"migration embedded name should end with Migrations.###_Name.sql (got tail '{tail}' from '{n}')");
+        }
     }
 }
 

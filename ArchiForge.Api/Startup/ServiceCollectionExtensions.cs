@@ -15,6 +15,7 @@ using ArchiForge.Api.Startup.Validation;
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
 using ArchiForge.Application.Analysis;
+using ArchiForge.Application.Bootstrap;
 using ArchiForge.Application.Governance;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diagrams;
@@ -82,6 +83,8 @@ internal static partial class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
+        services.AddScoped<IDemoSeedService, DemoSeedService>();
         services.AddArchiForgeStorage(configuration);
         RegisterAdvisoryScheduling(services);
         RegisterDigestDelivery(services);

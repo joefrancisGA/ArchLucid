@@ -66,6 +66,13 @@ public class GoldenManifest
     public List<string> Assumptions { get; set; } = [];
     public List<string> Warnings { get; set; } = [];
 
+    /// <summary>
+    /// First-class policy section: satisfied controls, violations, and exemptions.
+    /// Policy data used to live scattered across <see cref="Assumptions"/> and <see cref="Warnings"/>;
+    /// this section is the authoritative location going forward.
+    /// </summary>
+    public PolicySection Policy { get; set; } = new();
+
     public ManifestProvenance Provenance { get; set; } = new();
 }
 

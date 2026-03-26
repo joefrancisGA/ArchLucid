@@ -50,11 +50,22 @@ public static class ArchiForgeProjectScaffolder
     public sealed class ScaffoldOptions
     {
         public string ProjectName { get; set; } = "";
-        public string? BaseDirectory { get; set; } = null; // default: current directory
+        public string? BaseDirectory { get; set; } = null;
         public bool OverwriteExistingFiles { get; set; } = false;
-        public bool IncludeTerraformStubs { get; set; } = true; // "optional; you can stub it initially"
-        /// <summary>When true, attempt to register the project in SQL Server (PROJECTS table). Default false so scaffolding works without a database.</summary>
+        public bool IncludeTerraformStubs { get; set; } = true;
+
+        /// <summary>
+        /// When true, attempt to register the project in SQL Server (PROJECTS table).
+        /// Default false so scaffolding works without a database connection.
+        /// </summary>
         public bool RegisterProject { get; set; } = false;
+
+        /// <summary>
+        /// SQL Server connection string used when <see cref="RegisterProject"/> is true.
+        /// Must be set explicitly; there is no hardcoded default to avoid accidental production writes.
+        /// Example: "Server=localhost;Database=ArchiForge;Trusted_Connection=True;"
+        /// </summary>
+        public string? ConnectionString { get; set; } = null;
     }
 
     public static string CreateProject(ScaffoldOptions options)
@@ -95,12 +106,20 @@ public static class ArchiForgeProjectScaffolder
 
         if (options.RegisterProject)
         {
-            const string connectionString = "Server=LOCALHOST;Database=ArchiForge;Trusted_Connection=True;";
-            string sqlQuery = "INSERT INTO PROJECTS (ProjectName, BaseDirectory, OverwriteExistingFiles, IncludeTerraformStubs) VALUES (@ProjectName, @BaseDirectory, @OverwriteExistingFiles, @IncludeTerraformStubs)";
+            if (string.IsNullOrWhiteSpace(options.ConnectionString))
+            {
+                throw new InvalidOperationException(
+                    "ScaffoldOptions.ConnectionString must be set when RegisterProject is true. " +
+                    "Set it explicitly; there is no hardcoded default connection string.");
+            }
+
+            const string sqlQuery =
+                "INSERT INTO PROJECTS (ProjectName, BaseDirectory, OverwriteExistingFiles, IncludeTerraformStubs) " +
+                "VALUES (@ProjectName, @BaseDirectory, @OverwriteExistingFiles, @IncludeTerraformStubs)";
 
             try
             {
-                using SqlConnection connection = new(connectionString);
+                using SqlConnection connection = new(options.ConnectionString);
                 connection.Open();
                 Console.WriteLine("Connection successful.");
                 using SqlCommand command = new(sqlQuery, connection);

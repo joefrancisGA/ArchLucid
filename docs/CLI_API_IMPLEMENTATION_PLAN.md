@@ -11,9 +11,14 @@ Repository-specific plan for **ArchiForge**: CLI calling the ArchiForge API. Inc
 | Config + URL resolution | Done | `ArchiForge.Cli/ArchiForgeProjectScaffolder.cs`, `ArchiForge.Cli/Program.cs` |
 | HTTP client (ArchiForgeApiClient) | Done | `ArchiForge.Cli/ArchiForgeApiClient.cs` |
 | CLI commands (run, status, submit, commit, seed, artifacts, health, dev up, new) | Done | `ArchiForge.Cli/Program.cs` |
-| CLI test project | Not created | — |
-| API client unit tests (mocked HTTP) | Not added | — |
-| README CLI section | Optional | `README.md` |
+| CLI test project | Done | `ArchiForge.Cli.Tests/ArchiForge.Cli.Tests.csproj` |
+| Config / URL resolution tests | Done | `ArchiForge.Cli.Tests/ArchiForgeConfigTests.cs`, `ArchiForge.Cli.Tests/ArchiForgeApiClientTests.cs` |
+| API client unit tests (mocked HTTP) | Done | `ArchiForge.Cli.Tests/ArchiForgeApiClientHttpTests.cs` |
+| Command-line / exit-code tests | Done | `ArchiForge.Cli.Tests/CommandLineTests.cs` |
+| Smoke tests | Done | `ArchiForge.Cli.Tests/CliSmokeTests.cs` |
+| CLI USAGE docs | Done | `docs/CLI_USAGE.md` |
+| README CLI section | Done | `README.md` |
+| Scaffold SQL path hardened | Done | `RegisterProject = false` by default; connection string moved to `ScaffoldOptions.ConnectionString` |
 
 ---
 

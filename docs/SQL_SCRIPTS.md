@@ -30,7 +30,7 @@ ArchiForge does **not** use a single script for all environments. Three mechanis
 | `ArchiForge.Data/SQL/ArchiForge.sql` | SQL Server **consolidated** schema (API + authority + decisioning). Source of truth for **greenfield** / manual runs / Persistence bootstrap copy. |
 | `ArchiForge.Data/SQL/ArchiForge.Sqlite.sql` | SQLite **consolidated** schema for tests/reference. |
 | `ArchiForge.Data/SQL/README.md` | Short pointer to this doc for repo browsers. |
-| `ArchiForge.Data/Migrations/001_*.sql` … `016_*.sql` | Incremental **DbUp** scripts (SQL Server). |
+| `ArchiForge.Data/Migrations/001_*.sql` … `017_*.sql` | Incremental **DbUp** scripts (SQL Server); **`017_GovernanceWorkflow.sql`** adds governance approval / promotion / environment activation tables. |
 | `ArchiForge.Data/Migrations/README.md` | Short pointer + naming rule for DbUp ordering. |
 | `ArchiForge.Persistence` output | `Scripts/ArchiForge.sql` — MSBuild **linked copy** of `ArchiForge.Data/SQL/ArchiForge.sql` (`CopyToOutputDirectory`). |
 
@@ -164,12 +164,29 @@ They are **different domains**; names overlap conceptually but not at the databa
 
 ## 6. Change checklist (schema work)
 
-- [ ] **DbUp:** new `0NN_*.sql` migration for SQL Server incremental change.
-- [ ] **`ArchiForge.sql`:** same objects/columns/indexes for greenfield + bootstrap parity.
-- [ ] **`ArchiForge.Sqlite.sql`:** if SQLite-backed tests must see the change.
-- [ ] **C# repositories / contracts** as needed.
-- [ ] **`docs/DATA_MODEL.md`** for conceptual updates.
-- [ ] **`docs/SQL_SCRIPTS.md`** migration table (this file) for new migration numbers.
+Treat this checklist as a **definition of done** for every schema change. Do not merge without completing each applicable item.
+
+### Required for every SQL change
+
+- [ ] **DbUp migration:** new `ArchiForge.Data/Migrations/0NN_*.sql` for SQL Server incremental change. Use `IF NOT EXISTS` / `IF OBJECT_ID IS NULL` patterns; migrations must be idempotent.
+- [ ] **`ArchiForge.Data/SQL/ArchiForge.sql`:** same objects, columns, and indexes as the migration — keeps greenfield provisioning in parity.
+- [ ] **`ArchiForge.Data/SQL/ArchiForge.Sqlite.sql`:** add equivalent SQLite DDL if any integration test must see the new schema. SQLite syntax differs (no `ALTER COLUMN`, no `NVARCHAR`).
+- [ ] **Migration catalog:** update §5.2 of this file with the new migration number and description.
+
+### Required when schema changes affect data access
+
+- [ ] **C# repositories / contracts:** update Dapper queries, `IRepository` methods, and any affected DTOs in `ArchiForge.Contracts` or `ArchiForge.Data`.
+- [ ] **`docs/DATA_MODEL.md`:** update the conceptual data model to reflect new or modified tables/columns.
+
+### Required when schema changes affect seeding or demos
+
+- [ ] **`DemoSeedService`:** if demo data references the new table or column, update `EnsureXxxAsync` to include it.
+- [ ] **`DemoSeedServiceTests`:** verify the idempotency test still passes after the change.
+- [ ] **`DatabaseMigrationScriptTests`:** extend if new ordering or naming rules need to be enforced.
+
+### CI gate
+
+Before opening a PR with SQL changes, run the full local pre-push loop from `docs/CI_MIGRATION_CHECKLIST.md`.
 
 ---
 

@@ -1,0 +1,48 @@
+using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.Configuration;
+using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Application;
+using ArchiForge.Application.Bootstrap;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+
+namespace ArchiForge.Api.Controllers;
+
+/// <summary>Development-only endpoints for deterministic demo data (Change 50R).</summary>
+[ApiController]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/demo")]
+public sealed class DemoController(
+    IDemoSeedService demoSeedService,
+    IOptions<DemoOptions> demoOptions,
+    IWebHostEnvironment environment) : ControllerBase
+{
+    /// <summary>Runs the Contoso Retail Modernization demo seed. No-op for missing rows; safe to repeat.</summary>
+    /// <remarks>Available only when <c>Demo:Enabled</c> is true and the host environment is Development.</remarks>
+    [HttpPost("seed")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SeedAsync(CancellationToken cancellationToken = default)
+    {
+        if (!environment.IsDevelopment())
+        {
+            return NotFound();
+        }
+
+        if (!demoOptions.Value.Enabled)
+        {
+            return this.BadRequestProblem(
+                "Demo seeding is disabled. Set Demo:Enabled to true in configuration.",
+                ProblemTypes.BadRequest);
+        }
+
+        await demoSeedService.SeedAsync(cancellationToken).ConfigureAwait(false);
+        return NoContent();
+    }
+}
