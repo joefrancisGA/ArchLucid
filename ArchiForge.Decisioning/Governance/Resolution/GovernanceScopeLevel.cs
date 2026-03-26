@@ -33,15 +33,6 @@ public static class GovernanceScopeLevel
     /// <remarks>Used by <see cref="PolicyPacks.PolicyPackManagementService.AssignAsync"/> and API validators.</remarks>
     public static string? TryNormalize(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return Project;
-
-        foreach (string level in All)
-        {
-            if (string.Equals(value, level, StringComparison.OrdinalIgnoreCase))
-                return level;
-        }
-
-        return null;
+        return string.IsNullOrWhiteSpace(value) ? Project : All.FirstOrDefault(level => string.Equals(value, level, StringComparison.OrdinalIgnoreCase));
     }
 }

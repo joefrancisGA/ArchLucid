@@ -108,10 +108,7 @@ public sealed class AuthorityQueryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? result = await queryService.GetRunDetailAsync(scope, runId, ct);
-        if (result is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        return Ok(result);
+        return result is null ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) : Ok(result);
     }
 
     /// <summary>Gets compact counts/metadata for a golden manifest in the current scope.</summary>

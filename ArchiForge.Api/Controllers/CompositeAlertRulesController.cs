@@ -52,10 +52,9 @@ public sealed class CompositeAlertRulesController(
         rule.ProjectId = scope.ProjectId;
         rule.CreatedUtc = DateTime.UtcNow;
 
-        foreach (AlertRuleCondition c in rule.Conditions)
+        foreach (AlertRuleCondition c in rule.Conditions.Where(c => c.ConditionId == Guid.Empty))
         {
-            if (c.ConditionId == Guid.Empty)
-                c.ConditionId = Guid.NewGuid();
+            c.ConditionId = Guid.NewGuid();
         }
 
         await repository.CreateAsync(rule, ct);

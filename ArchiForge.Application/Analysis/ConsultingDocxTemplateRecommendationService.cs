@@ -104,9 +104,6 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
     /// </summary>
     private static string Prefer(string preferred, HashSet<string> available)
     {
-        if (available.Contains(preferred))
-            return preferred;
-
-        return available.First();
+        return available.Contains(preferred) ? preferred : available.First();
     }
 }

@@ -38,9 +38,7 @@ public static class FindingsSnapshotMigrator
             return "Topology";
         if (string.Equals(findingType, "SecurityControlFinding", StringComparison.OrdinalIgnoreCase))
             return "Security";
-        if (string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase))
-            return "Cost";
-        return "General";
+        return string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase) ? "Cost" : "General";
     }
 
     private static string? InferPayloadTypeName(string findingType)
@@ -51,8 +49,6 @@ public static class FindingsSnapshotMigrator
             return nameof(Payloads.TopologyGapFindingPayload);
         if (string.Equals(findingType, "SecurityControlFinding", StringComparison.OrdinalIgnoreCase))
             return nameof(Payloads.SecurityControlFindingPayload);
-        if (string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase))
-            return nameof(Payloads.CostConstraintFindingPayload);
-        return null;
+        return string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase) ? nameof(Payloads.CostConstraintFindingPayload) : null;
     }
 }

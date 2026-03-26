@@ -35,9 +35,6 @@ public static class JsonEntitySerializer
             throw new InvalidOperationException($"JSON for {typeof(T).Name} is corrupt and cannot be deserialized.", ex);
         }
 
-        if (value is null)
-            throw new InvalidOperationException($"Failed to deserialize {typeof(T).Name}.");
-
-        return value;
+        return value ?? throw new InvalidOperationException($"Failed to deserialize {typeof(T).Name}.");
     }
 }

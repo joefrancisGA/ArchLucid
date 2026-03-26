@@ -356,9 +356,7 @@ public sealed class AnalysisReportsController(
     private async Task<RunDetailLookup> LoadRunDetailOrNotFoundAsync(string runId, CancellationToken cancellationToken)
     {
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
-        if (detail is null)
-            return new RunDetailLookup { Error = this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) };
-        return new RunDetailLookup { Detail = detail };
+        return detail is null ? new RunDetailLookup { Error = this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) } : new RunDetailLookup { Detail = detail };
     }
 
     private sealed class RunDetailLookup

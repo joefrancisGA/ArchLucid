@@ -157,9 +157,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
 
     private static ComplianceSection DeserializeCompliance(string? json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return new ComplianceSection();
-        return JsonEntitySerializer.Deserialize<ComplianceSection>(json);
+        return string.IsNullOrWhiteSpace(json) ? new ComplianceSection() : JsonEntitySerializer.Deserialize<ComplianceSection>(json);
     }
 
     private sealed class GoldenManifestRow

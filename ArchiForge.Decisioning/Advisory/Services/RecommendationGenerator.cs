@@ -20,35 +20,23 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
         ArgumentNullException.ThrowIfNull(signals);
 
         List<ImprovementRecommendation> recommendations = [];
-
-        foreach (ImprovementSignal signal in signals)
+        recommendations.AddRange(from signal in signals
+        let baseScore = ComputePriority(signal)
+        let urgency = MapUrgency(signal.Severity)
+        
+        let scoring = adaptiveScorer.Score(new AdaptiveScoringInput { Category = signal.Category, Urgency = urgency, SignalType = signal.SignalType, BasePriorityScore = baseScore }, profile)
+        select new ImprovementRecommendation
         {
-            int baseScore = ComputePriority(signal);
-            string urgency = MapUrgency(signal.Severity);
-
-            AdaptiveScoringResult scoring = adaptiveScorer.Score(
-                new AdaptiveScoringInput
-                {
-                    Category = signal.Category,
-                    Urgency = urgency,
-                    SignalType = signal.SignalType,
-                    BasePriorityScore = baseScore
-                },
-                profile);
-
-            recommendations.Add(new ImprovementRecommendation
-            {
-                Title = BuildTitle(signal),
-                Category = signal.Category,
-                Rationale = signal.Description,
-                SuggestedAction = BuildSuggestedAction(signal),
-                Urgency = urgency,
-                ExpectedImpact = BuildImpact(signal),
-                SupportingFindingIds = signal.FindingIds.ToList(),
-                SupportingDecisionIds = signal.DecisionIds.ToList(),
-                PriorityScore = scoring.AdaptedPriorityScore
-            });
-        }
+            Title = BuildTitle(signal),
+            Category = signal.Category,
+            Rationale = signal.Description,
+            SuggestedAction = BuildSuggestedAction(signal),
+            Urgency = urgency,
+            ExpectedImpact = BuildImpact(signal),
+            SupportingFindingIds = signal.FindingIds.ToList(),
+            SupportingDecisionIds = signal.DecisionIds.ToList(),
+            PriorityScore = scoring.AdaptedPriorityScore
+        });
 
         return recommendations
             .OrderByDescending(x => x.PriorityScore)

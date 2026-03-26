@@ -22,8 +22,6 @@ public static class FindingPayloadRegistry
 
     public static Type? ResolvePayloadType(string? payloadTypeName)
     {
-        if (string.IsNullOrWhiteSpace(payloadTypeName))
-            return null;
-        return ByPayloadTypeName.GetValueOrDefault(payloadTypeName);
+        return string.IsNullOrWhiteSpace(payloadTypeName) ? null : ByPayloadTypeName.GetValueOrDefault(payloadTypeName);
     }
 }

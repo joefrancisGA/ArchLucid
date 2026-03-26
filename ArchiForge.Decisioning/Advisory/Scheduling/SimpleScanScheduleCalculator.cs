@@ -25,8 +25,6 @@ public sealed class SimpleScanScheduleCalculator : IScanScheduleCalculator
     private static DateTime NextDailyAtSevenAmUtc(DateTime fromUtc)
     {
         DateTime todaySeven = fromUtc.Date.AddHours(7);
-        if (fromUtc < todaySeven)
-            return todaySeven;
-        return fromUtc.Date.AddDays(1).AddHours(7);
+        return fromUtc < todaySeven ? todaySeven : fromUtc.Date.AddDays(1).AddHours(7);
     }
 }

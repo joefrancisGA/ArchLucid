@@ -1,5 +1,7 @@
 using ArchiForge.Core.Scoping;
 
+using JetBrains.Annotations;
+
 namespace ArchiForge.Persistence.Compare;
 
 /// <summary>
@@ -14,6 +16,7 @@ public interface IAuthorityCompareService
     /// Appends a single <see cref="DiffKind.Changed"/> <see cref="DiffItem"/> when <paramref name="beforeValue"/> and <paramref name="afterValue"/> differ (ordinal).
     /// </summary>
     /// <remarks>No-op when values are equal; used for run-level fields and available for custom comparers.</remarks>
+    [UsedImplicitly]
     void AddRunDiff(IList<DiffItem> diffs, string section, string key, string? beforeValue, string? afterValue);
 
     /// <summary>

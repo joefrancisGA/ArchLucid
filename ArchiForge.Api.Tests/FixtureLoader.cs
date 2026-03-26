@@ -18,9 +18,6 @@ public static class FixtureLoader
             PropertyNameCaseInsensitive = true
         });
 
-        if (result is null)
-            throw new InvalidOperationException($"Failed to deserialize fixture: {relativePath}");
-
-        return result;
+        return result ?? throw new InvalidOperationException($"Failed to deserialize fixture: {relativePath}");
     }
 }

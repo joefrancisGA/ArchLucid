@@ -28,10 +28,10 @@ public class RequirementFindingEngine : IFindingEngine
                 .ToList();
 
             List<string> relatedNodeIds = [node.NodeId];
-            foreach (string id in relatedFromGraph)
+            
+            foreach (string id in relatedFromGraph.Where(id => !relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase)))
             {
-                if (!relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase))
-                    relatedNodeIds.Add(id);
+                relatedNodeIds.Add(id);
             }
 
             Finding finding = FindingFactory.CreateRequirementFinding(

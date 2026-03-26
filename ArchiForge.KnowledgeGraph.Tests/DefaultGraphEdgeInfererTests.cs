@@ -172,7 +172,7 @@ public sealed class DefaultGraphEdgeInfererTests
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(snapshot, [contextNode, network, subnet1]);
 
         // ContainsResource net-1 → sub-1 should appear exactly once.
-        int count = edges.Count(e => e.FromNodeId == "net-1" && e.ToNodeId == "sub-1" && e.EdgeType == GraphEdgeTypes.ContainsResource);
+        int count = edges.Count(e => e is { FromNodeId: "net-1", ToNodeId: "sub-1", EdgeType: GraphEdgeTypes.ContainsResource });
         count.Should().Be(1);
     }
 

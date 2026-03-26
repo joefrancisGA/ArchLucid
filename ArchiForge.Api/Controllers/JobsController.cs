@@ -34,10 +34,7 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
             return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
 
         BackgroundJobInfo? info = jobs.GetInfo(jobId);
-        if (info is null)
-            return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        return Ok(info);
+        return info is null ? this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(info);
     }
 
     /// <summary>Downloads the result file produced by a completed background job.</summary>

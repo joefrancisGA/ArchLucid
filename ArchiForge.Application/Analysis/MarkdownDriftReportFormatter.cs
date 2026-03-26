@@ -91,8 +91,6 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
     /// </summary>
     private static string EscapeTableCell(string? value)
     {
-        if (value is null)
-            return "";
-        return value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\r", "").Replace("\n", " ");
+        return value is null ? "" : value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\r", "").Replace("\n", " ");
     }
 }

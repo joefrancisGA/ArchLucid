@@ -24,10 +24,7 @@ public static class ManifestPresentation
 
         ManifestDatastore? datastore = manifest.Datastores.FirstOrDefault(d =>
             d.DatastoreId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
-        if (datastore is not null)
-            return datastore.DatastoreName;
-
-        return componentId;
+        return datastore is not null ? datastore.DatastoreName : componentId;
     }
 
     /// <summary>

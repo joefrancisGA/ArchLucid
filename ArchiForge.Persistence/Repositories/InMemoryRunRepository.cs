@@ -44,9 +44,7 @@ public sealed class InMemoryRunRepository : IRunRepository
     public Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (!_store.TryGetValue(runId, out RunRecord? r))
-            return Task.FromResult<RunRecord?>(null);
-        return Task.FromResult(MatchesScope(r, scope) ? r : null);
+        return !_store.TryGetValue(runId, out RunRecord? r) ? Task.FromResult<RunRecord?>(null) : Task.FromResult(MatchesScope(r, scope) ? r : null);
     }
 
     public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take, CancellationToken ct)
