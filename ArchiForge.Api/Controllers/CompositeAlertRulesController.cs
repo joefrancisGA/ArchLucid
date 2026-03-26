@@ -36,6 +36,7 @@ public sealed class CompositeAlertRulesController(
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CompositeAlertRule), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(
         [FromBody] CompositeAlertRule? rule,
         CancellationToken ct = default)

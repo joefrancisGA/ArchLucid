@@ -89,7 +89,7 @@ public sealed class ArchitectureAnalysisService(
         if (request.IncludeManifest && !string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
         {
             report.Manifest = primaryDetail?.Manifest
-                ?? await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion!, cancellationToken);
+                ?? await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion!, cancellationToken).ConfigureAwait(false);
             if (report.Manifest is null)
             {
                 report.Warnings.Add($"Manifest '{run.CurrentManifestVersion}' was not found.");
@@ -169,7 +169,7 @@ public sealed class ArchitectureAnalysisService(
         }
         else
         {
-            ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
+            ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken).ConfigureAwait(false);
 
             if (compareDetail is null)
             {

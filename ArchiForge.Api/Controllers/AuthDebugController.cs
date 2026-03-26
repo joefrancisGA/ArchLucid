@@ -1,4 +1,5 @@
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,19 +16,19 @@ namespace ArchiForge.Api.Controllers;
 public sealed class AuthDebugController : ControllerBase
 {
     /// <summary>Returns the caller's identity name and full claims list.</summary>
-    /// <returns>200 with <c>name</c> and <c>claims</c> array.</returns>
+    /// <returns>200 with a <see cref="CallerIdentityResponse"/> containing the caller's name and claims.</returns>
     [HttpGet("me")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CallerIdentityResponse), StatusCodes.Status200OK)]
     public IActionResult Me()
     {
-        return Ok(new
+        CallerIdentityResponse response = new()
         {
-            User.Identity?.Name,
-            Claims = User.Claims.Select(x => new
-            {
-                x.Type,
-                x.Value
-            }).ToList()
-        });
+            Name = User.Identity?.Name,
+            Claims = User.Claims
+                .Select(x => new CallerClaimResponse { Type = x.Type, Value = x.Value })
+                .ToList()
+        };
+
+        return Ok(response);
     }
 }

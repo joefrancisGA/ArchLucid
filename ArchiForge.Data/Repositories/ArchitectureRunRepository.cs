@@ -44,7 +44,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             );
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -60,7 +60,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
                 run.GraphSnapshotId,
                 run.ArtifactBundleId
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 
     public async Task<ArchitectureRun?> GetByIdAsync(string runId, CancellationToken cancellationToken = default)
@@ -88,12 +88,12 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             LIMIT 500;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         ArchitectureRunRow? row = await connection.QuerySingleOrDefaultAsync<ArchitectureRunRow>(new CommandDefinition(
             runSql,
             new { RunId = runId },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         if (row is null)
             return null;
@@ -106,7 +106,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         IEnumerable<string> taskIds = await connection.QueryAsync<string>(new CommandDefinition(
             taskSql,
             new { RunId = runId },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return new ArchitectureRun
         {
@@ -153,7 +153,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
               WHERE RunId = @RunId;
               """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         int rowsAffected = await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -165,7 +165,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
                 CompletedUtc = completedUtc,
                 ExpectedStatus = expectedStatus?.ToString()
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         if (expectedStatus.HasValue && rowsAffected == 0)
         {
@@ -225,11 +225,11 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             LIMIT 200;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<ArchitectureRunListItemRow> rows = await connection.QueryAsync<ArchitectureRunListItemRow>(new CommandDefinition(
             sql,
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         List<ArchitectureRunListItem> items = [];
         foreach (ArchitectureRunListItemRow row in rows)

@@ -81,12 +81,12 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct)).ConfigureAwait(false);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
@@ -108,7 +108,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
               AND ManifestId = @ManifestId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         GoldenManifestRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestRow>(
             new CommandDefinition(
                 sql,
@@ -119,7 +119,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
                     scope.ProjectId,
                     ManifestId = manifestId
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         if (row is null)
             return null;

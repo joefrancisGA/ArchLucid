@@ -63,7 +63,7 @@ public sealed class AuthorityRunOrchestrator(
         ContextIngestionRequest request,
         CancellationToken ct)
     {
-        await using IArchiForgeUnitOfWork uow = await unitOfWorkFactory.CreateAsync(ct);
+        await using IArchiForgeUnitOfWork uow = await unitOfWorkFactory.CreateAsync(ct).ConfigureAwait(false);
 
         try
         {
@@ -77,45 +77,45 @@ public sealed class AuthorityRunOrchestrator(
             };
             ApplyScope(run, scope);
 
-            await SaveRunAsync(run, uow, ct);
+            await SaveRunAsync(run, uow, ct).ConfigureAwait(false);
 
             request.RunId = run.RunId;
-            ContextSnapshot contextSnapshot = await contextIngestionService.IngestAsync(request, ct);
-            await SaveContextAsync(contextSnapshot, uow, ct);
+            ContextSnapshot contextSnapshot = await contextIngestionService.IngestAsync(request, ct).ConfigureAwait(false);
+            await SaveContextAsync(contextSnapshot, uow, ct).ConfigureAwait(false);
 
             run.ContextSnapshotId = contextSnapshot.SnapshotId;
-            await UpdateRunAsync(run, uow, ct);
+            await UpdateRunAsync(run, uow, ct).ConfigureAwait(false);
 
-            GraphSnapshot graphSnapshot = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
-            await SaveGraphAsync(graphSnapshot, uow, ct);
+            GraphSnapshot graphSnapshot = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct).ConfigureAwait(false);
+            await SaveGraphAsync(graphSnapshot, uow, ct).ConfigureAwait(false);
 
             run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
-            await UpdateRunAsync(run, uow, ct);
+            await UpdateRunAsync(run, uow, ct).ConfigureAwait(false);
 
             FindingsSnapshot findingsSnapshot = await findingsOrchestrator.GenerateFindingsSnapshotAsync(
                 run.RunId,
                 contextSnapshot.SnapshotId,
                 graphSnapshot,
-                ct);
+                ct).ConfigureAwait(false);
 
-            await SaveFindingsAsync(findingsSnapshot, uow, ct);
+            await SaveFindingsAsync(findingsSnapshot, uow, ct).ConfigureAwait(false);
 
             run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
-            await UpdateRunAsync(run, uow, ct);
+            await UpdateRunAsync(run, uow, ct).ConfigureAwait(false);
 
             (GoldenManifest manifest, DecisionTrace trace) = await decisionEngine.DecideAsync(
                 run.RunId,
                 contextSnapshot.SnapshotId,
                 graphSnapshot,
                 findingsSnapshot,
-                ct);
+                ct).ConfigureAwait(false);
 
             ApplyScope(trace, scope);
             ApplyScope(manifest, scope);
             manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
 
-            await SaveTraceAsync(trace, uow, ct);
-            await SaveManifestAsync(manifest, uow, ct);
+            await SaveTraceAsync(trace, uow, ct).ConfigureAwait(false);
+            await SaveManifestAsync(manifest, uow, ct).ConfigureAwait(false);
 
             await auditService.LogAsync(
                 new AuditEvent
@@ -131,14 +131,14 @@ public sealed class AuthorityRunOrchestrator(
                         },
                         AuditJsonOptions)
                 },
-                ct);
+                ct).ConfigureAwait(false);
 
             run.DecisionTraceId = trace.DecisionTraceId;
             run.GoldenManifestId = manifest.ManifestId;
-            await UpdateRunAsync(run, uow, ct);
+            await UpdateRunAsync(run, uow, ct).ConfigureAwait(false);
 
-            ArtifactBundle artifactBundle = await artifactSynthesisService.SynthesizeAsync(manifest, ct);
-            await SaveArtifactBundleAsync(artifactBundle, uow, ct);
+            ArtifactBundle artifactBundle = await artifactSynthesisService.SynthesizeAsync(manifest, ct).ConfigureAwait(false);
+            await SaveArtifactBundleAsync(artifactBundle, uow, ct).ConfigureAwait(false);
 
             await auditService.LogAsync(
                 new AuditEvent
@@ -154,10 +154,10 @@ public sealed class AuthorityRunOrchestrator(
                         },
                         AuditJsonOptions)
                 },
-                ct);
+                ct).ConfigureAwait(false);
 
             run.ArtifactBundleId = artifactBundle.BundleId;
-            await UpdateRunAsync(run, uow, ct);
+            await UpdateRunAsync(run, uow, ct).ConfigureAwait(false);
 
             DecisionProvenanceGraph provenanceGraph = provenanceBuilder.Build(
                 run.RunId,
@@ -167,7 +167,7 @@ public sealed class AuthorityRunOrchestrator(
                 trace,
                 artifactBundle.Artifacts);
 
-            await uow.CommitAsync(ct);
+            await uow.CommitAsync(ct).ConfigureAwait(false);
 
             await auditService.LogAsync(
                 new AuditEvent
@@ -184,7 +184,7 @@ public sealed class AuthorityRunOrchestrator(
                         },
                         AuditJsonOptions)
                 },
-                ct);
+                ct).ConfigureAwait(false);
 
             try
             {
@@ -195,7 +195,7 @@ public sealed class AuthorityRunOrchestrator(
                     manifest,
                     artifactBundle.Artifacts,
                     provenanceGraph,
-                    ct);
+                    ct).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -206,7 +206,7 @@ public sealed class AuthorityRunOrchestrator(
         }
         catch
         {
-            await uow.RollbackAsync(ct);
+            await uow.RollbackAsync(ct).ConfigureAwait(false);
             throw;
         }
     }
@@ -214,65 +214,65 @@ public sealed class AuthorityRunOrchestrator(
     private async Task SaveRunAsync(RunRecord run, IArchiForgeUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
-            await runRepository.SaveAsync(run, ct, uow.Connection, uow.Transaction);
+            await runRepository.SaveAsync(run, ct, uow.Connection, uow.Transaction).ConfigureAwait(false);
         else
-            await runRepository.SaveAsync(run, ct);
+            await runRepository.SaveAsync(run, ct).ConfigureAwait(false);
     }
 
     private async Task UpdateRunAsync(RunRecord run, IArchiForgeUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
-            await runRepository.UpdateAsync(run, ct, uow.Connection, uow.Transaction);
+            await runRepository.UpdateAsync(run, ct, uow.Connection, uow.Transaction).ConfigureAwait(false);
         else
-            await runRepository.UpdateAsync(run, ct);
+            await runRepository.UpdateAsync(run, ct).ConfigureAwait(false);
     }
 
     private async Task SaveContextAsync(ContextSnapshot snapshot, IArchiForgeUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
-            await contextSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
+            await contextSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction).ConfigureAwait(false);
         else
-            await contextSnapshotRepository.SaveAsync(snapshot, ct);
+            await contextSnapshotRepository.SaveAsync(snapshot, ct).ConfigureAwait(false);
     }
 
     private async Task SaveGraphAsync(GraphSnapshot snapshot, IArchiForgeUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
-            await graphSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
+            await graphSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction).ConfigureAwait(false);
         else
-            await graphSnapshotRepository.SaveAsync(snapshot, ct);
+            await graphSnapshotRepository.SaveAsync(snapshot, ct).ConfigureAwait(false);
     }
 
     private async Task SaveFindingsAsync(FindingsSnapshot snapshot, IArchiForgeUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
-            await findingsSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
+            await findingsSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction).ConfigureAwait(false);
         else
-            await findingsSnapshotRepository.SaveAsync(snapshot, ct);
+            await findingsSnapshotRepository.SaveAsync(snapshot, ct).ConfigureAwait(false);
     }
 
     private async Task SaveTraceAsync(DecisionTrace trace, IArchiForgeUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
-            await decisionTraceRepository.SaveAsync(trace, ct, uow.Connection, uow.Transaction);
+            await decisionTraceRepository.SaveAsync(trace, ct, uow.Connection, uow.Transaction).ConfigureAwait(false);
         else
-            await decisionTraceRepository.SaveAsync(trace, ct);
+            await decisionTraceRepository.SaveAsync(trace, ct).ConfigureAwait(false);
     }
 
     private async Task SaveManifestAsync(GoldenManifest manifest, IArchiForgeUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
-            await goldenManifestRepository.SaveAsync(manifest, ct, uow.Connection, uow.Transaction);
+            await goldenManifestRepository.SaveAsync(manifest, ct, uow.Connection, uow.Transaction).ConfigureAwait(false);
         else
-            await goldenManifestRepository.SaveAsync(manifest, ct);
+            await goldenManifestRepository.SaveAsync(manifest, ct).ConfigureAwait(false);
     }
 
     private async Task SaveArtifactBundleAsync(ArtifactBundle bundle, IArchiForgeUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
-            await artifactBundleRepository.SaveAsync(bundle, ct, uow.Connection, uow.Transaction);
+            await artifactBundleRepository.SaveAsync(bundle, ct, uow.Connection, uow.Transaction).ConfigureAwait(false);
         else
-            await artifactBundleRepository.SaveAsync(bundle, ct);
+            await artifactBundleRepository.SaveAsync(bundle, ct).ConfigureAwait(false);
     }
 
     private static void ApplyScope(RunRecord run, ScopeContext scope)

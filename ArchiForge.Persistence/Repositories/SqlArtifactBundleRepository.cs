@@ -50,12 +50,12 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct)).ConfigureAwait(false);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<ArtifactBundle?> GetByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
@@ -74,7 +74,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         ArtifactBundleRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleRow>(
             new CommandDefinition(
                 sql,
@@ -85,7 +85,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
                     ScopeProjectId = scope.ProjectId,
                     ManifestId = manifestId
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         if (row is null)
             return null;

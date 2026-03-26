@@ -38,12 +38,12 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         ContextSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
             new CommandDefinition(sql, new
             {
                 ProjectId = projectId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
 
         return row is null ? null : Map(row);
     }
@@ -65,12 +65,12 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             WHERE SnapshotId = @SnapshotId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         ContextSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
             new CommandDefinition(sql, new
             {
                 SnapshotId = snapshotId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
 
         return row is null ? null : Map(row);
     }
@@ -111,12 +111,12 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct)).ConfigureAwait(false);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     private static ContextSnapshot Map(ContextSnapshotRow row)

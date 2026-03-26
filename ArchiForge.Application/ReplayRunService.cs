@@ -48,13 +48,13 @@ public sealed class ReplayRunService(
         ArgumentException.ThrowIfNullOrWhiteSpace(originalRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
 
-        ArchitectureRunDetail sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken)
+        ArchitectureRunDetail sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken).ConfigureAwait(false)
                                              ?? throw new RunNotFoundException(originalRunId);
 
         ArchitectureRun originalRun = sourceDetail.Run;
         List<AgentTask> tasks = sourceDetail.Tasks;
 
-        ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
+        ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken).ConfigureAwait(false)
                                       ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -77,7 +77,7 @@ public sealed class ReplayRunService(
             CreatedUtc = DateTime.UtcNow
         };
 
-        await runRepository.CreateAsync(replayRun, cancellationToken);
+        await runRepository.CreateAsync(replayRun, cancellationToken).ConfigureAwait(false);
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -105,7 +105,7 @@ public sealed class ReplayRunService(
             request,
             replayEvidence,
             replayTasks,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -152,14 +152,14 @@ public sealed class ReplayRunService(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled);
 
-        await manifestRepository.CreateAsync(manifest, cancellationToken);
-        await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
+        await manifestRepository.CreateAsync(manifest, cancellationToken).ConfigureAwait(false);
+        await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken).ConfigureAwait(false);
         await runRepository.UpdateStatusAsync(
             replayRunId,
             ArchitectureRunStatus.Committed,
             currentManifestVersion: manifest.Metadata.ManifestVersion,
             completedUtc: DateTime.UtcNow,
-            cancellationToken: cancellationToken);
+            cancellationToken: cancellationToken).ConfigureAwait(false);
 
         scope.Complete();
 

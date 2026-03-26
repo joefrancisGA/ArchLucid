@@ -36,7 +36,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             );
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         var rows = traces.Select(t => new
         {
@@ -51,7 +51,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
             rows,
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<DecisionTrace>> GetByRunIdAsync(
@@ -66,7 +66,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             LIMIT 2000;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
@@ -74,7 +74,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             {
                 RunId = runId
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         List<DecisionTrace> traces = [];
         foreach (string json in rows)

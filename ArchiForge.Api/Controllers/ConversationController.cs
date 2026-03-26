@@ -32,7 +32,7 @@ public sealed class ConversationController(
     /// <param name="take">Number of threads to return (clamped to 1–200; defaults to 50).</param>
     /// <param name="ct">Cancellation token.</param>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IReadOnlyList<ConversationThread>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListThreads(int take = 50, CancellationToken ct = default)
     {
         int safeTake = Math.Clamp(take, 1, 200);
@@ -54,7 +54,7 @@ public sealed class ConversationController(
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Message list, or 404 when the thread does not exist or belongs to another scope.</returns>
     [HttpGet("{threadId:guid}/messages")]
-    [ProducesResponseType(typeof(IReadOnlyList<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IReadOnlyList<ConversationMessage>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMessages(Guid threadId, int take = 100, CancellationToken ct = default)
     {

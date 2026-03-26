@@ -9,9 +9,18 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
+/// <summary>
+/// Dapper-backed persistence for <see cref="AgentExecutionTrace"/> entities.
+/// </summary>
 public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectionFactory)
     : IAgentExecutionTraceRepository
 {
+    private sealed class TracePageRow
+    {
+        public string TraceJson { get; init; } = string.Empty;
+        public int TotalCount { get; init; }
+    }
+
     public async Task CreateAsync(
         AgentExecutionTrace trace,
         CancellationToken cancellationToken = default)
@@ -45,7 +54,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         string json = JsonSerializer.Serialize(trace, ContractJson.Default);
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -60,7 +69,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 TraceJson = json,
                 trace.CreatedUtc
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
@@ -75,7 +84,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             LIMIT 500;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
@@ -83,7 +92,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             {
                 RunId = runId
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return DeserializeTraces(rows, $"run '{runId}'");
     }
@@ -106,17 +115,17 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         int clampedOffset = Math.Max(0, offset);
         int clampedLimit = Math.Clamp(limit, 1, 500);
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
-        IEnumerable<dynamic> rows = await connection.QueryAsync(new CommandDefinition(
+        IEnumerable<TracePageRow> rows = await connection.QueryAsync<TracePageRow>(new CommandDefinition(
             sql,
             new { RunId = runId, Offset = clampedOffset, Limit = clampedLimit },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
-        List<dynamic> list = rows.ToList();
-        int totalCount = list.Count > 0 ? (int)list[0].TotalCount : 0;
+        List<TracePageRow> list = rows.ToList();
+        int totalCount = list.Count > 0 ? list[0].TotalCount : 0;
 
-        IReadOnlyList<AgentExecutionTrace> traces = DeserializeTraces(list.Select(row => (string)row.TraceJson), $"run '{runId}' (paged)");
+        IReadOnlyList<AgentExecutionTrace> traces = DeserializeTraces(list.Select(row => row.TraceJson), $"run '{runId}' (paged)");
 
         return (traces, totalCount);
     }
@@ -133,7 +142,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             LIMIT 500;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
@@ -141,7 +150,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             {
                 TaskId = taskId
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return DeserializeTraces(rows, $"task '{taskId}'");
     }

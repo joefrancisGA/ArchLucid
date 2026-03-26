@@ -31,8 +31,8 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task UpdateAsync(DigestSubscription subscription, CancellationToken ct)
@@ -50,8 +50,8 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
             WHERE SubscriptionId = @SubscriptionId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -66,12 +66,12 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
             WHERE SubscriptionId = @SubscriptionId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         return await connection.QueryFirstOrDefaultAsync<DigestSubscription>(
             new CommandDefinition(sql, new
             {
                 SubscriptionId = subscriptionId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<DigestSubscription>> ListByScopeAsync(
@@ -92,7 +92,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         IEnumerable<DigestSubscription> result = await connection.QueryAsync<DigestSubscription>(
             new CommandDefinition(
                 sql,
@@ -102,7 +102,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
                     WorkspaceId = workspaceId,
                     ProjectId = projectId
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         return result.ToList();
     }
@@ -127,7 +127,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         IEnumerable<DigestSubscription> result = await connection.QueryAsync<DigestSubscription>(
             new CommandDefinition(
                 sql,
@@ -137,7 +137,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
                     WorkspaceId = workspaceId,
                     ProjectId = projectId
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         return result.ToList();
     }

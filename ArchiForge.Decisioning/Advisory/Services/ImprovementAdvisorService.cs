@@ -12,6 +12,9 @@ public sealed class ImprovementAdvisorService(
     IRecommendationGenerator recommendationGenerator,
     IRecommendationLearningService learningService) : IImprovementAdvisorService
 {
+    private const string UrgencyHigh = "High";
+    private const string UrgencyCritical = "Critical";
+
     /// <inheritdoc />
     public async Task<ImprovementPlan> GeneratePlanAsync(
         GoldenManifest manifest,
@@ -82,8 +85,8 @@ public sealed class ImprovementAdvisorService(
             : "No adaptive learning profile was available. Base prioritization was used.");
 
         int high = recommendations.Count(x =>
-            string.Equals(x.Urgency, "High", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(x.Urgency, "Critical", StringComparison.OrdinalIgnoreCase));
+            string.Equals(x.Urgency, UrgencyHigh, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(x.Urgency, UrgencyCritical, StringComparison.OrdinalIgnoreCase));
 
         notes.Add($"{high} recommendations are high urgency or above.");
 

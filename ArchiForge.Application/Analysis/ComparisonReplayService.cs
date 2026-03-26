@@ -92,7 +92,7 @@ public sealed class ComparisonReplayService(
         EndToEndReplayComparisonReport stored = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record)
                                                 ?? throw new InvalidOperationException(
                                                     $"Comparison record '{record.ComparisonRecordId}' did not contain a valid end-to-end payload.");
-        EndToEndReplayComparisonReport regenerated = await RegenerateEndToEndAsync(record, cancellationToken);
+        EndToEndReplayComparisonReport regenerated = await RegenerateEndToEndAsync(record, cancellationToken).ConfigureAwait(false);
         return driftAnalyzer.Analyze(stored, regenerated);
     }
 
@@ -168,7 +168,7 @@ public sealed class ComparisonReplayService(
         return await endToEndReplayComparisonService.BuildAsync(
             record.LeftRunId,
             record.RightRunId,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<ReplayComparisonResult> BuildEndToEndResultAsync(

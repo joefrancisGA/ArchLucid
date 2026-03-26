@@ -30,20 +30,20 @@ public sealed class DapperAuthorityQueryService(
         int take,
         CancellationToken ct)
     {
-        IReadOnlyList<RunRecord> runs = await runRepository.ListByProjectAsync(scope, projectId, take, ct);
+        IReadOnlyList<RunRecord> runs = await runRepository.ListByProjectAsync(scope, projectId, take, ct).ConfigureAwait(false);
         return runs.Select(MapSummary).ToList();
     }
 
     /// <inheritdoc />
     public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
+        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct).ConfigureAwait(false);
         return run is null ? null : MapSummary(run);
     }
 
     public async Task<RunDetailDto?> GetRunDetailAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
+        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct).ConfigureAwait(false);
         if (run is null)
             return null;
 
@@ -51,32 +51,32 @@ public sealed class DapperAuthorityQueryService(
 
         if (run.ContextSnapshotId.HasValue)
         {
-            result.ContextSnapshot = await contextSnapshotRepository.GetByIdAsync(run.ContextSnapshotId.Value, ct);
+            result.ContextSnapshot = await contextSnapshotRepository.GetByIdAsync(run.ContextSnapshotId.Value, ct).ConfigureAwait(false);
         }
 
         if (run.GraphSnapshotId.HasValue)
         {
-            result.GraphSnapshot = await graphSnapshotRepository.GetByIdAsync(run.GraphSnapshotId.Value, ct);
+            result.GraphSnapshot = await graphSnapshotRepository.GetByIdAsync(run.GraphSnapshotId.Value, ct).ConfigureAwait(false);
         }
 
         if (run.FindingsSnapshotId.HasValue)
         {
-            result.FindingsSnapshot = await findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct);
+            result.FindingsSnapshot = await findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct).ConfigureAwait(false);
         }
 
         if (run.DecisionTraceId.HasValue)
         {
-            result.DecisionTrace = await decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct);
+            result.DecisionTrace = await decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct).ConfigureAwait(false);
         }
 
         if (run.GoldenManifestId.HasValue)
         {
-            result.GoldenManifest = await goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct);
+            result.GoldenManifest = await goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct).ConfigureAwait(false);
         }
 
         if (run is { ArtifactBundleId: not null, GoldenManifestId: not null })
         {
-            result.ArtifactBundle = await artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct);
+            result.ArtifactBundle = await artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct).ConfigureAwait(false);
         }
 
         return result;
@@ -85,7 +85,7 @@ public sealed class DapperAuthorityQueryService(
     /// <inheritdoc />
     public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
-        GoldenManifest? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
+        GoldenManifest? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct).ConfigureAwait(false);
         return manifest is null ? null : AuthorityRunMapper.MapManifestSummary(manifest);
     }
 

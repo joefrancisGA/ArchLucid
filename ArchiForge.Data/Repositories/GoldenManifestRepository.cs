@@ -41,7 +41,7 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
 
         string json = JsonSerializer.Serialize(manifest, ContractJson.Default);
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -54,7 +54,7 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
                 manifest.Metadata.ParentManifestVersion,
                 manifest.Metadata.CreatedUtc
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 
     public async Task<GoldenManifest?> GetByVersionAsync(string manifestVersion, CancellationToken cancellationToken = default)
@@ -65,7 +65,7 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
             WHERE ManifestVersion = @ManifestVersion;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
@@ -73,7 +73,7 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
             {
                 ManifestVersion = manifestVersion
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         if (json is null)
             return null;

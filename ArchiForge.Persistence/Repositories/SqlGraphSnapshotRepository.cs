@@ -52,12 +52,12 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct)).ConfigureAwait(false);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<GraphSnapshot?> GetByIdAsync(Guid graphSnapshotId, CancellationToken ct)
@@ -70,12 +70,12 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             WHERE GraphSnapshotId = @GraphSnapshotId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         GraphSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotRow>(
             new CommandDefinition(sql, new
             {
                 GraphSnapshotId = graphSnapshotId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
 
         if (row is null)
             return null;

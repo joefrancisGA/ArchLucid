@@ -43,7 +43,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             """;
 
         string json = JsonSerializer.Serialize(result, ContractJson.Default);
-        var parameters = new
+        object parameters = new
         {
             result.ResultId,
             result.TaskId,
@@ -54,8 +54,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.CreatedUtc
         };
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
-        connection.Open();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         using IDbTransaction tx = connection.BeginTransaction();
 
@@ -63,13 +62,13 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             deleteSql,
             new { result.RunId, result.TaskId },
             transaction: tx,
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         await connection.ExecuteAsync(new CommandDefinition(
             insertSql,
             parameters,
             transaction: tx,
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         tx.Commit();
     }
@@ -117,7 +116,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             );
             """;
 
-        var args = results.Select(result => new
+        IEnumerable<object> args = results.Select(result => (object)new
         {
             result.ResultId,
             result.TaskId,
@@ -128,8 +127,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.CreatedUtc
         });
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
-        connection.Open();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         using IDbTransaction tx = connection.BeginTransaction();
 
@@ -137,9 +135,9 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             deleteSql,
             new { results[0].RunId },
             transaction: tx,
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
-        await connection.ExecuteAsync(new CommandDefinition(insertSql, args, transaction: tx, cancellationToken: cancellationToken));
+        await connection.ExecuteAsync(new CommandDefinition(insertSql, args, transaction: tx, cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         tx.Commit();
     }
@@ -162,7 +160,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             {
                 RunId = runId
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         List<AgentResult> results = [];
         foreach (string json in rows)

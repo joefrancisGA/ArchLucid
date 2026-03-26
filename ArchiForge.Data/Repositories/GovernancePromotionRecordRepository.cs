@@ -41,7 +41,7 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
             );
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -57,7 +57,7 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
                 item.ApprovalRequestId,
                 item.Notes
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<GovernancePromotionRecord>> GetByRunIdAsync(
@@ -81,12 +81,12 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
             LIMIT 200;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<GovernancePromotionRecord> rows = await connection.QueryAsync<GovernancePromotionRecord>(new CommandDefinition(
             sql,
             new { RunId = runId },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return [.. rows];
     }

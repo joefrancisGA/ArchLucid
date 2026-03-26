@@ -41,7 +41,7 @@ public sealed class ComplianceAgentHandler(
             rawJson = await completionClient.CompleteJsonAsync(
                 systemPrompt,
                 userPrompt,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
             AgentResult parsed = resultParser.ParseAndValidate(
                 rawJson,
@@ -61,7 +61,7 @@ public sealed class ComplianceAgentHandler(
                 parsedJson,
                 parseSucceeded: true,
                 errorMessage: null,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken).ConfigureAwait(false);
 
             return parsed;
         }
@@ -77,7 +77,7 @@ public sealed class ComplianceAgentHandler(
                 parsedResultJson: null,
                 parseSucceeded: false,
                 errorMessage: ex.Message,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken).ConfigureAwait(false);
 
             throw;
         }

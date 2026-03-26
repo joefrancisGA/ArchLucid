@@ -7,7 +7,7 @@ namespace ArchiForge.AgentRuntime;
 
 public sealed class AgentResultParser : IAgentResultParser
 {
-    private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true
     };
@@ -26,7 +26,7 @@ public sealed class AgentResultParser : IAgentResultParser
         AgentResult? result;
         try
         {
-            result = JsonSerializer.Deserialize<AgentResult>(json, _jsonOptions);
+            result = JsonSerializer.Deserialize<AgentResult>(json, JsonOptions);
         }
         catch (JsonException ex)
         {

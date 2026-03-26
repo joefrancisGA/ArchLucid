@@ -13,6 +13,7 @@ public sealed class ThresholdRecommendationService(
     IAlertNoiseScorer noiseScorer) : IThresholdRecommendationService
 {
     private const string RuleKindSimple = "Simple";
+    private const string DefaultProjectSlug = "default";
     private const string RuleKindComposite = "Composite";
 
     /// <inheritdoc />
@@ -32,7 +33,7 @@ public sealed class ThresholdRecommendationService(
             TunedMetricType = request.TunedMetricType,
         };
 
-        string slug = string.IsNullOrWhiteSpace(request.RunProjectSlug) ? "default" : request.RunProjectSlug.Trim();
+        string slug = string.IsNullOrWhiteSpace(request.RunProjectSlug) ? DefaultProjectSlug : request.RunProjectSlug.Trim();
 
         foreach (decimal threshold in request.CandidateThresholds.Distinct().OrderBy(x => x))
         {

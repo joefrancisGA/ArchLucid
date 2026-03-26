@@ -1,4 +1,3 @@
-using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Decisioning.Interfaces;
@@ -6,8 +5,14 @@ using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.Decisioning.Repositories;
 
+/// <summary>
+/// In-memory implementation of <see cref="IFindingsSnapshotRepository"/> for testing and local development.
+/// Stores snapshots as serialized JSON, capped at 500 entries (evicting the oldest by insertion order).
+/// </summary>
 public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 {
+    private const int MaxEntries = 500;
+
     private readonly Dictionary<Guid, string> _store = [];
     private readonly Lock _lock = new();
 
@@ -29,6 +34,12 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         string json = JsonSerializer.Serialize(snapshot, JsonOptions);
         lock (_lock)
         {
+            if (_store.Count >= MaxEntries && !_store.ContainsKey(snapshot.FindingsSnapshotId))
+            {
+                Guid evict = _store.Keys.First();
+                _store.Remove(evict);
+            }
+
             _store[snapshot.FindingsSnapshotId] = json;
         }
 

@@ -19,6 +19,9 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchiForge.Api.Controllers;
 
 [ApiController]
+/// <summary>
+/// Provides read access to golden manifests, manifest diffs, and manifest-level export operations.
+/// </summary>
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]

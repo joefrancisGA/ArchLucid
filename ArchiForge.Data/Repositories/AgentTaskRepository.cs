@@ -42,10 +42,10 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             );
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         using IDbTransaction transaction = connection.BeginTransaction();
 
-        var rows = tasks.Select(t => new
+        IEnumerable<object> rows = tasks.Select(t => (object)new
         {
             t.TaskId,
             t.RunId,
@@ -61,7 +61,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             sql,
             rows,
             transaction: transaction,
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         transaction.Commit();
     }
@@ -84,12 +84,12 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             LIMIT 500;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<AgentTaskRow> rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
             sql,
             new { RunId = runId },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         return [.. rows.Select(r => new AgentTask
         {

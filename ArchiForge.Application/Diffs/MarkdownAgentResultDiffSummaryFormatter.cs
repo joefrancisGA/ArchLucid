@@ -2,6 +2,11 @@ using System.Text;
 
 namespace ArchiForge.Application.Diffs;
 
+/// <summary>
+/// Implements <see cref="IAgentResultDiffSummaryFormatter"/> by rendering a per-agent-type Markdown report
+/// from an <see cref="AgentResultDiffResult"/>. Each agent section lists existence, confidence scores,
+/// and added/removed claims, evidence references, findings, required controls, and warnings.
+/// </summary>
 public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSummaryFormatter
 {
     public string FormatMarkdown(AgentResultDiffResult diff)

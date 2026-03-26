@@ -36,6 +36,7 @@ public sealed class AlertSimulationController(
     /// <summary>Runs <see cref="IRuleSimulationService.SimulateAsync"/> and audits aggregate counts.</summary>
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(RuleSimulationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Simulate(
         [FromBody] RuleSimulationRequest? request,
         CancellationToken ct = default)
@@ -74,6 +75,7 @@ public sealed class AlertSimulationController(
     /// <summary>Runs <see cref="IRuleSimulationService.CompareCandidatesAsync"/> and audits would-create counts per candidate.</summary>
     [HttpPost("compare-candidates")]
     [ProducesResponseType(typeof(RuleCandidateComparisonResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CompareCandidates(
         [FromBody] RuleCandidateComparisonRequest? request,
         CancellationToken ct = default)

@@ -2,6 +2,11 @@ using System.Text;
 
 namespace ArchiForge.Application.Diffs;
 
+/// <summary>
+/// Implements <see cref="IManifestDiffSummaryFormatter"/> by rendering a structured Markdown summary
+/// of a <see cref="ManifestDiffResult"/>, covering added/removed services, datastores, required controls,
+/// and relationships. Used as input to <see cref="IManifestDiffExportService"/> and inline report sections.
+/// </summary>
 public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryFormatter
 {
     public string FormatMarkdown(ManifestDiffResult diff)

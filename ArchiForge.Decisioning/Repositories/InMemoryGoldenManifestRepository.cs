@@ -6,6 +6,10 @@ using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.Decisioning.Repositories;
 
+/// <summary>
+/// In-memory implementation of <see cref="IGoldenManifestRepository"/> for testing and local development.
+/// Capped at 500 entries; oldest entries are evicted when the cap is exceeded.
+/// </summary>
 public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
 {
     private const int MaxEntries = 500;
@@ -19,6 +23,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(manifest);
         ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;

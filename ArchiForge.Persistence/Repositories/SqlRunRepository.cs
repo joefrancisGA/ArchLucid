@@ -43,12 +43,12 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, run, transaction, cancellationToken: ct));
+            await connection.ExecuteAsync(new CommandDefinition(sql, run, transaction, cancellationToken: ct)).ConfigureAwait(false);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
@@ -67,7 +67,7 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
               AND ScopeProjectId = @ScopeProjectId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         return await connection.QuerySingleOrDefaultAsync<RunRecord>(
             new CommandDefinition(
                 sql,
@@ -78,7 +78,7 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
                     scope.WorkspaceId,
                     ScopeProjectId = scope.ProjectId
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
@@ -102,7 +102,7 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
             new CommandDefinition(
                 sql,
@@ -114,7 +114,7 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
                     ScopeProjectId = scope.ProjectId,
                     Take = Math.Clamp(take <= 0 ? 20 : take, 1, 200)
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         return rows.ToList();
     }
@@ -146,11 +146,11 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, run, transaction, cancellationToken: ct));
+            await connection.ExecuteAsync(new CommandDefinition(sql, run, transaction, cancellationToken: ct)).ConfigureAwait(false);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct)).ConfigureAwait(false);
     }
 }

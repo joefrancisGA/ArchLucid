@@ -9,6 +9,9 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
+/// <summary>
+/// Dapper-backed persistence for <see cref="IAgentEvaluationRepository"/>; writes and reads agent evaluation records from the <c>AgentEvaluations</c> table.
+/// </summary>
 public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFactory) : IAgentEvaluationRepository
 {
     public async Task CreateManyAsync(
@@ -62,14 +65,14 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             );
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         using IDbTransaction transaction = connection.BeginTransaction();
 
         await connection.ExecuteAsync(new CommandDefinition(
             deleteSql,
             new { RunId = runId },
             transaction: transaction,
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         foreach (AgentEvaluation e in evaluations)
         {
@@ -88,7 +91,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
                     e.CreatedUtc
                 },
                 transaction: transaction,
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
         }
 
         transaction.Commit();
@@ -106,12 +109,12 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             LIMIT 500;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new { RunId = runId },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         List<AgentEvaluation> evaluations = [];
         foreach (string json in rows)

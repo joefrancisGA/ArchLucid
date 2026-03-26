@@ -30,6 +30,7 @@ public sealed partial class RunsController(
     IArchitectureApplicationService architectureApplicationService,
     IRunDetailQueryService runDetailQueryService,
     IDeterminismCheckService determinismCheckService,
+    IArchitectureRunRepository runRepository,
     IDecisionNodeRepository decisionNodeRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
@@ -299,7 +300,7 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
+        if (await runRepository.GetByIdAsync(runId, cancellationToken) is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
@@ -326,7 +327,7 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
+        if (await runRepository.GetByIdAsync(runId, cancellationToken) is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
@@ -360,7 +361,7 @@ public sealed partial class RunsController(
                 $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
                 ProblemTypes.ValidationFailed);
 
-        if (await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
+        if (await runRepository.GetByIdAsync(runId, cancellationToken) is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }

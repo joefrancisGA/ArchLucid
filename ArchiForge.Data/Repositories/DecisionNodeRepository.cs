@@ -47,7 +47,7 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             );
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         using IDbTransaction transaction = connection.BeginTransaction();
 
         foreach (DecisionNode decision in decisions)
@@ -67,7 +67,7 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
                     decision.CreatedUtc
                 },
                 transaction: transaction,
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken)).ConfigureAwait(false);
         }
 
         transaction.Commit();
@@ -85,12 +85,12 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             LIMIT 1000;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new { RunId = runId },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         List<DecisionNode> nodes = [];
         foreach (string json in rows)

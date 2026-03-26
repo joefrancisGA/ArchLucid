@@ -31,6 +31,12 @@ public sealed class AlertTuningController(
     IAuditService auditService)
     : ControllerBase
 {
+    private static readonly JsonSerializerOptions AuditJsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = false
+    };
+
     /// <summary>Invokes <see cref="IThresholdRecommendationService.RecommendAsync"/> and audits candidate/recommended threshold metadata.</summary>
     [HttpPost("recommend-threshold")]
     [ProducesResponseType(typeof(ThresholdRecommendationResult), StatusCodes.Status200OK)]
@@ -63,7 +69,7 @@ public sealed class AlertTuningController(
                     requestedCandidateCount = request.CandidateThresholds.Count,
                     evaluatedCandidateCount = result.Candidates.Count,
                     recommendedThreshold = result.RecommendedCandidate?.Candidate.ThresholdValue,
-                }),
+                }, AuditJsonOptions),
             },
             ct);
 

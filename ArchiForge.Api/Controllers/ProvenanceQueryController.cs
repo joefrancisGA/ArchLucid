@@ -24,7 +24,7 @@ public sealed class ProvenanceQueryController(
     : ControllerBase
 {
     [HttpGet("runs/{runId:guid}/provenance")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(DecisionProvenanceSnapshot), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProvenance(Guid runId, CancellationToken ct = default)
     {
@@ -43,7 +43,9 @@ public sealed class ProvenanceQueryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await graphQuery.GetFullGraphAsync(scope, runId, ct);
-        return vm is null ? NotFound() : Ok(vm);
+        if (vm is null)
+            return this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
+        return Ok(vm);
     }
 
     /// <summary>Returns the provenance subgraph rooted at the specified decision node.</summary>
@@ -64,7 +66,9 @@ public sealed class ProvenanceQueryController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await graphQuery.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
-        return vm is null ? NotFound() : Ok(vm);
+        if (vm is null)
+            return this.NotFoundProblem($"Decision subgraph '{decisionKey}' for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
+        return Ok(vm);
     }
 
     [HttpGet("runs/{runId:guid}/graph/node/{nodeId:guid}")]
@@ -79,6 +83,8 @@ public sealed class ProvenanceQueryController(
         int safeDepth = Math.Clamp(depth, 1, 10);
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await graphQuery.GetNodeNeighborhoodAsync(scope, runId, nodeId, safeDepth, ct);
-        return vm is null ? NotFound() : Ok(vm);
+        if (vm is null)
+            return this.NotFoundProblem($"Node '{nodeId}' in run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
+        return Ok(vm);
     }
 }

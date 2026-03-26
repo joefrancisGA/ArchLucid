@@ -9,6 +9,9 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
+/// <summary>
+/// Dapper-backed persistence for <see cref="IEvidenceBundleRepository"/>; writes and reads evidence bundle records from the <c>EvidenceBundles</c> table.
+/// </summary>
 public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFactory) : IEvidenceBundleRepository
 {
     public async Task CreateAsync(EvidenceBundle evidenceBundle, CancellationToken cancellationToken = default)
@@ -33,7 +36,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
 
         string json = JsonSerializer.Serialize(evidenceBundle, ContractJson.Default);
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -44,7 +47,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
                 EvidenceJson = json,
                 CreatedUtc = DateTime.UtcNow
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 
     public async Task<EvidenceBundle?> GetByIdAsync(string evidenceBundleId, CancellationToken cancellationToken = default)
@@ -55,7 +58,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
             WHERE EvidenceBundleId = @EvidenceBundleId;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
@@ -63,7 +66,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
             {
                 EvidenceBundleId = evidenceBundleId
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         if (json is null)
             return null;

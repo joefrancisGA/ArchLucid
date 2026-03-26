@@ -9,6 +9,9 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
+/// <summary>
+/// Dapper-backed persistence for <see cref="IRunExportRecordRepository"/>; persists and retrieves export records from the <c>RunExportRecords</c> table.
+/// </summary>
 public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFactory) : IRunExportRecordRepository
 {
     public async Task CreateAsync(
@@ -78,7 +81,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
 
         string json = JsonSerializer.Serialize(record, ContractJson.Default);
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -110,7 +113,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
                 RecordJson = json,
                 record.CreatedUtc
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<RunExportRecord>> GetByRunIdAsync(
@@ -125,7 +128,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             LIMIT 500;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
@@ -133,7 +136,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             {
                 RunId = runId
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         List<RunExportRecord> records = [];
         foreach (string json in rows)
@@ -173,7 +176,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             WHERE ExportRecordId = @ExportRecordId;
             """;
 
-        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
@@ -181,7 +184,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             {
                 ExportRecordId = exportRecordId
             },
-            cancellationToken: cancellationToken));
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
 
         if (json is null)
             return null;

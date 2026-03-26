@@ -52,6 +52,8 @@ public sealed class GovernanceResolutionController(
     /// </remarks>
     [HttpGet]
     [ProducesResponseType(typeof(EffectiveGovernanceResolutionResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Resolve(CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();

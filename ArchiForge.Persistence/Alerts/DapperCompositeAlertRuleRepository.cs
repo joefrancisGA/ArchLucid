@@ -44,12 +44,12 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             VALUES (@ConditionId, @CompositeRuleId, @MetricType, @Operator, @ThresholdValue);
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await using DbTransaction tx = await connection.BeginTransactionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using DbTransaction tx = await connection.BeginTransactionAsync(ct).ConfigureAwait(false);
         try
         {
             await connection.ExecuteAsync(
-                new CommandDefinition(insertRule, rule, transaction: tx, cancellationToken: ct));
+                new CommandDefinition(insertRule, rule, transaction: tx, cancellationToken: ct)).ConfigureAwait(false);
 
             foreach (AlertRuleCondition c in rule.Conditions)
             {
@@ -65,14 +65,14 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                             c.ThresholdValue,
                         },
                         transaction: tx,
-                        cancellationToken: ct));
+                        cancellationToken: ct)).ConfigureAwait(false);
             }
 
-            await tx.CommitAsync(ct);
+            await tx.CommitAsync(ct).ConfigureAwait(false);
         }
         catch
         {
-            await tx.RollbackAsync(ct);
+            await tx.RollbackAsync(ct).ConfigureAwait(false);
             throw;
         }
     }
@@ -105,12 +105,12 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             VALUES (@ConditionId, @CompositeRuleId, @MetricType, @Operator, @ThresholdValue);
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await using DbTransaction tx = await connection.BeginTransactionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using DbTransaction tx = await connection.BeginTransactionAsync(ct).ConfigureAwait(false);
         try
         {
             await connection.ExecuteAsync(
-                new CommandDefinition(updateRule, rule, transaction: tx, cancellationToken: ct));
+                new CommandDefinition(updateRule, rule, transaction: tx, cancellationToken: ct)).ConfigureAwait(false);
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     deleteConditions,
@@ -119,7 +119,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         rule.CompositeRuleId
                     },
                     transaction: tx,
-                    cancellationToken: ct));
+                    cancellationToken: ct)).ConfigureAwait(false);
 
             foreach (AlertRuleCondition c in rule.Conditions)
             {
@@ -135,14 +135,14 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                             c.ThresholdValue,
                         },
                         transaction: tx,
-                        cancellationToken: ct));
+                        cancellationToken: ct)).ConfigureAwait(false);
             }
 
-            await tx.CommitAsync(ct);
+            await tx.CommitAsync(ct).ConfigureAwait(false);
         }
         catch
         {
-            await tx.RollbackAsync(ct);
+            await tx.RollbackAsync(ct).ConfigureAwait(false);
             throw;
         }
     }
@@ -159,12 +159,12 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             WHERE CompositeRuleId = @CompositeRuleId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         CompositeAlertRule? rule = await connection.QueryFirstOrDefaultAsync<CompositeAlertRule>(
             new CommandDefinition(sqlRule, new
             {
                 CompositeRuleId = compositeRuleId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
 
         if (rule is null)
             return null;
@@ -193,7 +193,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         List<CompositeAlertRule> rules = (await connection.QueryAsync<CompositeAlertRule>(
                 new CommandDefinition(
                     sql,
@@ -203,7 +203,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         WorkspaceId = workspaceId,
                         ProjectId = projectId
                     },
-                    cancellationToken: ct)))
+                    cancellationToken: ct)).ConfigureAwait(false))
             .ToList();
 
         await HydrateConditionsAsync(connection, rules, ct).ConfigureAwait(false);
@@ -244,7 +244,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
 
         sql += " ORDER BY CreatedUtc DESC;";
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         List<CompositeAlertRule> rules = (await connection.QueryAsync<CompositeAlertRule>(
                 new CommandDefinition(
                     sql,
@@ -254,7 +254,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         WorkspaceId = workspaceId,
                         ProjectId = projectId
                     },
-                    cancellationToken: ct)))
+                    cancellationToken: ct)).ConfigureAwait(false))
             .ToList();
 
         await HydrateConditionsAsync(connection, rules, ct).ConfigureAwait(false);

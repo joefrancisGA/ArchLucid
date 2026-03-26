@@ -20,6 +20,14 @@ public sealed class SqliteConnectionFactory(string connectionString) : IDbConnec
         return new SqliteConnection(connectionString);
     }
 
+    public async Task<IDbConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken = default)
+    {
+        EnsureSchema();
+        SqliteConnection connection = new(connectionString);
+        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        return connection;
+    }
+
     private void EnsureSchema()
     {
         lock (SchemaLock)

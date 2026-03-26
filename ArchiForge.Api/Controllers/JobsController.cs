@@ -48,7 +48,7 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     [HttpGet("{jobId}/file")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(BackgroundJobInfo), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BackgroundJobInfo), StatusCodes.Status409Conflict)]
     public IActionResult DownloadJobFile([FromRoute] string jobId)
     {

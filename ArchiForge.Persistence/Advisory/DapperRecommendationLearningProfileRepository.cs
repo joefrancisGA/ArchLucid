@@ -52,7 +52,7 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
         Guid profileId = Guid.NewGuid();
         string json = JsonSerializer.Serialize(profile, JsonOptions);
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
@@ -65,7 +65,7 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
                     profile.GeneratedUtc,
                     ProfileJson = json
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<RecommendationLearningProfile?> GetLatestAsync(
@@ -83,7 +83,7 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
             ORDER BY GeneratedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         string? json = await connection.QueryFirstOrDefaultAsync<string>(
             new CommandDefinition(
                 sql,
@@ -93,7 +93,7 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
                     WorkspaceId = workspaceId,
                     ProjectId = projectId
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         if (string.IsNullOrWhiteSpace(json))
             return null;

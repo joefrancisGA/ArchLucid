@@ -49,12 +49,12 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct)).ConfigureAwait(false);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct)
@@ -65,12 +65,12 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             WHERE FindingsSnapshotId = @FindingsSnapshotId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         string? json = await connection.QuerySingleOrDefaultAsync<string>(
             new CommandDefinition(sql, new
             {
                 FindingsSnapshotId = findingsSnapshotId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
 
         return json is null ? null : JsonEntitySerializer.Deserialize<FindingsSnapshot>(json);
     }
