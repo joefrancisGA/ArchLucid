@@ -32,10 +32,10 @@ public sealed class EndToEndReplayComparisonService(
         ArgumentException.ThrowIfNullOrWhiteSpace(leftRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(rightRunId);
 
-        ArchitectureRunDetail leftDetail = await runDetailQueryService.GetRunDetailAsync(leftRunId, cancellationToken)
+        ArchitectureRunDetail leftDetail = await runDetailQueryService.GetRunDetailAsync(leftRunId, cancellationToken).ConfigureAwait(false)
                                            ?? throw new RunNotFoundException(leftRunId);
 
-        ArchitectureRunDetail rightDetail = await runDetailQueryService.GetRunDetailAsync(rightRunId, cancellationToken)
+        ArchitectureRunDetail rightDetail = await runDetailQueryService.GetRunDetailAsync(rightRunId, cancellationToken).ConfigureAwait(false)
                                             ?? throw new RunNotFoundException(rightRunId);
 
         ArchitectureRun leftRun = leftDetail.Run;
@@ -77,8 +77,8 @@ public sealed class EndToEndReplayComparisonService(
             }
         }
 
-        IReadOnlyList<RunExportRecord> leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
-        IReadOnlyList<RunExportRecord> rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+        IReadOnlyList<RunExportRecord> leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<RunExportRecord> rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken).ConfigureAwait(false);
 
         // Match by ExportType so that ordering differences between runs don't produce nonsensical diffs.
         Dictionary<string, RunExportRecord> leftByType = leftExports

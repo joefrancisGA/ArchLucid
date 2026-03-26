@@ -51,7 +51,7 @@ public sealed class ThresholdRecommendationService(
                         projectId,
                         new RuleSimulationRequest
                         {
-                            RuleKind = "Simple",
+                            RuleKind = RuleKindSimple,
                             SimpleRule = candidateRule,
                             RecentRunCount = request.RecentRunCount,
                             UseHistoricalWindow = true,

@@ -5,9 +5,14 @@ using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Generates a structured DOCX analysis report from an <see cref="ArchitectureAnalysisReport"/>,
+/// rendering the Mermaid diagram as an embedded PNG image where possible.
+/// </summary>
 public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer diagramImageRenderer)
     : IArchitectureAnalysisDocxExportService
 {
+    private const string MermaidLanguage = "mermaid";
     public async Task<byte[]> GenerateDocxAsync(
         ArchitectureAnalysisReport report,
         CancellationToken cancellationToken = default)
@@ -130,7 +135,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
             byte[]? diagramBytes = await diagramImageRenderer.RenderMermaidPngAsync(
                 report.Diagram,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
             if (diagramBytes is not null && diagramBytes.Length > 0)
             {
@@ -139,7 +144,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             else
             {
                 builder.AddParagraph("Diagram image rendering was not available. Mermaid source is included below.");
-                builder.AddCodeBlock(report.Diagram, "mermaid");
+                builder.AddCodeBlock(report.Diagram, MermaidLanguage);
             }
 
             builder.AddSpacer();

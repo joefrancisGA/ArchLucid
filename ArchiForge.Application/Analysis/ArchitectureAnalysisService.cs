@@ -58,7 +58,7 @@ public sealed class ArchitectureAnalysisService(
         }
         else
         {
-            primaryDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken)
+            primaryDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken).ConfigureAwait(false)
                 ?? throw new RunNotFoundException(request.RunId);
             run = primaryDetail.Run;
         }
@@ -70,7 +70,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeEvidence)
         {
-            report.Evidence = await evidenceRepository.GetByRunIdAsync(request.RunId, cancellationToken);
+            report.Evidence = await evidenceRepository.GetByRunIdAsync(request.RunId, cancellationToken).ConfigureAwait(false);
             if (report.Evidence is null)
             {
                 report.Warnings.Add("Evidence package was not found for this run.");
@@ -79,7 +79,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeExecutionTraces)
         {
-            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(request.RunId, cancellationToken)).ToList();
+            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(request.RunId, cancellationToken).ConfigureAwait(false)).ToList();
             if (report.ExecutionTraces.Count == 0)
             {
                 report.Warnings.Add("No execution traces were found for this run.");
@@ -130,7 +130,7 @@ public sealed class ArchitectureAnalysisService(
                     ExecutionMode = ExecutionModeCurrent,
                     CommitReplays = false
                 },
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
         }
 
         if (request.IncludeManifestCompare)
@@ -147,7 +147,7 @@ public sealed class ArchitectureAnalysisService(
             {
                 GoldenManifest? compareManifest = await manifestRepository.GetByVersionAsync(
                     request.CompareManifestVersion,
-                    cancellationToken);
+                    cancellationToken).ConfigureAwait(false);
 
                 if (compareManifest is null)
                 {
@@ -178,7 +178,7 @@ public sealed class ArchitectureAnalysisService(
             else
             {
                 IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results
-                                                         ?? await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken);
+                                                         ?? await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken).ConfigureAwait(false);
                 List<AgentResult> rightResults = compareDetail.Results;
 
                 report.AgentResultDiff = agentResultDiffService.Compare(

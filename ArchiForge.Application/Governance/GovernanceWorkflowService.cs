@@ -39,7 +39,7 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(targetEnvironment);
         ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
 
-        ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
+        ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken).ConfigureAwait(false)
                                           ?? throw new RunNotFoundException(runId);
         ArchitectureRun run = runDetail.Run;
 
@@ -55,7 +55,7 @@ public sealed class GovernanceWorkflowService(
             RequestedUtc = DateTime.UtcNow
         };
 
-        await approvalRepo.CreateAsync(request, cancellationToken);
+        await approvalRepo.CreateAsync(request, cancellationToken).ConfigureAwait(false);
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -79,7 +79,7 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
 
-        GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
+        GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken).ConfigureAwait(false)
                                             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
@@ -94,7 +94,7 @@ public sealed class GovernanceWorkflowService(
         request.ReviewComment = reviewComment;
         request.ReviewedUtc = DateTime.UtcNow;
 
-        await approvalRepo.UpdateAsync(request, cancellationToken);
+        await approvalRepo.UpdateAsync(request, cancellationToken).ConfigureAwait(false);
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -117,7 +117,7 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
 
-        GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
+        GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken).ConfigureAwait(false)
                                             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
@@ -132,7 +132,7 @@ public sealed class GovernanceWorkflowService(
         request.ReviewComment = reviewComment;
         request.ReviewedUtc = DateTime.UtcNow;
 
-        await approvalRepo.UpdateAsync(request, cancellationToken);
+        await approvalRepo.UpdateAsync(request, cancellationToken).ConfigureAwait(false);
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -162,7 +162,7 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(targetEnvironment);
         ArgumentException.ThrowIfNullOrWhiteSpace(promotedBy);
 
-        _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
+        _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken).ConfigureAwait(false)
             ?? throw new RunNotFoundException(runId);
 
         if (string.Equals(targetEnvironment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase))
@@ -173,7 +173,7 @@ public sealed class GovernanceWorkflowService(
                     "Promotion to prod requires an approved approval request. Provide an approvalRequestId.");
             }
 
-            GovernanceApprovalRequest? approvalRequest = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
+            GovernanceApprovalRequest? approvalRequest = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken).ConfigureAwait(false);
             if (approvalRequest?.Status != GovernanceApprovalStatus.Approved)
             {
                 throw new InvalidOperationException(
@@ -203,7 +203,7 @@ public sealed class GovernanceWorkflowService(
             }
 
             approvalRequest.Status = GovernanceApprovalStatus.Promoted;
-            await approvalRepo.UpdateAsync(approvalRequest, cancellationToken);
+            await approvalRepo.UpdateAsync(approvalRequest, cancellationToken).ConfigureAwait(false);
         }
 
         GovernancePromotionRecord record = new()
@@ -218,7 +218,7 @@ public sealed class GovernanceWorkflowService(
             Notes = notes
         };
 
-        await promotionRepo.CreateAsync(record, cancellationToken);
+        await promotionRepo.CreateAsync(record, cancellationToken).ConfigureAwait(false);
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -244,10 +244,10 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
         ArgumentException.ThrowIfNullOrWhiteSpace(environment);
 
-        _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
+        _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken).ConfigureAwait(false)
             ?? throw new RunNotFoundException(runId);
 
-        IReadOnlyList<GovernanceEnvironmentActivation> existing = await activationRepo.GetByEnvironmentAsync(environment, cancellationToken);
+        IReadOnlyList<GovernanceEnvironmentActivation> existing = await activationRepo.GetByEnvironmentAsync(environment, cancellationToken).ConfigureAwait(false);
 
         GovernanceEnvironmentActivation activation = new()
         {
@@ -265,10 +265,10 @@ public sealed class GovernanceWorkflowService(
             foreach (GovernanceEnvironmentActivation active in existing.Where(a => a.IsActive))
             {
                 active.IsActive = false;
-                await activationRepo.UpdateAsync(active, cancellationToken);
+                await activationRepo.UpdateAsync(active, cancellationToken).ConfigureAwait(false);
             }
 
-            await activationRepo.CreateAsync(activation, cancellationToken);
+            await activationRepo.CreateAsync(activation, cancellationToken).ConfigureAwait(false);
             scope.Complete();
         }
 

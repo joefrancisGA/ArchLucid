@@ -34,7 +34,7 @@ public sealed class GovernancePreviewService(
         string environment = NormalizeAndValidateEnvironment(request.Environment, nameof(request.Environment));
 
         // Use the canonical run detail path to validate run existence and load its manifest.
-        ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken)
+        ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken).ConfigureAwait(false)
                                           ?? throw new RunNotFoundException(request.RunId);
 
         // The candidate manifest is the specific version being previewed — it may differ from
@@ -42,7 +42,7 @@ public sealed class GovernancePreviewService(
         GoldenManifest? candidateManifest = runDetail.Manifest is not null
                                             && string.Equals(runDetail.Run.CurrentManifestVersion, request.ManifestVersion, StringComparison.Ordinal)
                 ? runDetail.Manifest
-                : await manifestRepository.GetByVersionAsync(request.ManifestVersion, cancellationToken);
+                : await manifestRepository.GetByVersionAsync(request.ManifestVersion, cancellationToken).ConfigureAwait(false);
 
         if (candidateManifest is null)
             throw new InvalidOperationException(
@@ -55,12 +55,12 @@ public sealed class GovernancePreviewService(
                 $"Manifest version '{request.ManifestVersion}' belongs to run '{candidateManifest.RunId}', not '{request.RunId}'.");
         }
 
-        IReadOnlyList<GovernanceEnvironmentActivation> activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
+        IReadOnlyList<GovernanceEnvironmentActivation> activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken).ConfigureAwait(false);
         GovernanceEnvironmentActivation? active = activationRows.FirstOrDefault(a => a.IsActive);
 
         GoldenManifest? currentManifest = null;
         if (active is not null)
-            currentManifest = await manifestRepository.GetByVersionAsync(active.ManifestVersion, cancellationToken);
+            currentManifest = await manifestRepository.GetByVersionAsync(active.ManifestVersion, cancellationToken).ConfigureAwait(false);
 
         List<string> notes = [DiffOnlyNote];
 
@@ -114,8 +114,8 @@ public sealed class GovernancePreviewService(
 
         List<string> notes = [DiffOnlyNote];
 
-        IReadOnlyList<GovernanceEnvironmentActivation> sourceRows = await activationRepository.GetByEnvironmentAsync(source, cancellationToken);
-        IReadOnlyList<GovernanceEnvironmentActivation> targetRows = await activationRepository.GetByEnvironmentAsync(target, cancellationToken);
+        IReadOnlyList<GovernanceEnvironmentActivation> sourceRows = await activationRepository.GetByEnvironmentAsync(source, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<GovernanceEnvironmentActivation> targetRows = await activationRepository.GetByEnvironmentAsync(target, cancellationToken).ConfigureAwait(false);
         GovernanceEnvironmentActivation? sourceActive = sourceRows.FirstOrDefault(a => a.IsActive);
         GovernanceEnvironmentActivation? targetActive = targetRows.FirstOrDefault(a => a.IsActive);
 
@@ -125,10 +125,10 @@ public sealed class GovernancePreviewService(
             notes.Add($"No active governance activation exists for target environment '{target}'.");
 
         GoldenManifest? sourceManifest = sourceActive is not null
-            ? await manifestRepository.GetByVersionAsync(sourceActive.ManifestVersion, cancellationToken)
+            ? await manifestRepository.GetByVersionAsync(sourceActive.ManifestVersion, cancellationToken).ConfigureAwait(false)
             : null;
         GoldenManifest? targetManifest = targetActive is not null
-            ? await manifestRepository.GetByVersionAsync(targetActive.ManifestVersion, cancellationToken)
+            ? await manifestRepository.GetByVersionAsync(targetActive.ManifestVersion, cancellationToken).ConfigureAwait(false)
             : null;
 
         if (sourceActive is not null && sourceManifest is null)

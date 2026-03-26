@@ -50,6 +50,8 @@ namespace ArchiForge.Application.Analysis;
 /// </summary>
 internal static class ConsultingDocxOpenXmlComposer
 {
+    private const string MermaidLanguage = "mermaid";
+
     public static async Task<byte[]> GenerateAsync(
         ArchitectureAnalysisReport report,
         ConsultingDocxTemplateOptions options,
@@ -75,7 +77,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
             AddStylesPart(mainPart, options);
 
-            await AddCoverPageAsync(mainPart, body, report, options, logoProvider, cancellationToken);
+            await AddCoverPageAsync(mainPart, body, report, options, logoProvider, cancellationToken).ConfigureAwait(false);
             AddPageBreak(body);
 
             if (options.IncludeDocumentControl)
@@ -97,7 +99,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
             if (options.IncludeArchitectureOverview)
             {
-                await AddArchitectureOverviewAsync(body, mainPart, report, options, diagramImageRenderer, cancellationToken);
+                await AddArchitectureOverviewAsync(body, mainPart, report, options, diagramImageRenderer, cancellationToken).ConfigureAwait(false);
             }
 
             if (options.IncludeEvidenceAndConstraints)
@@ -143,7 +145,7 @@ internal static class ConsultingDocxOpenXmlComposer
     {
         if (options.IncludeLogo)
         {
-            byte[]? logoBytes = await logoProvider.GetLogoBytesAsync(options, cancellationToken);
+            byte[]? logoBytes = await logoProvider.GetLogoBytesAsync(options, cancellationToken).ConfigureAwait(false);
             if (logoBytes is not null && logoBytes.Length > 0)
             {
                 AddImageToBody(mainPart, body, logoBytes, "Document Logo", 2_200_000L, 700_000L);
@@ -273,7 +275,7 @@ internal static class ConsultingDocxOpenXmlComposer
         {
             byte[]? imageBytes = await diagramImageRenderer.RenderMermaidPngAsync(
                 report.Diagram,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
             if (imageBytes is not null && imageBytes.Length > 0)
             {
@@ -481,7 +483,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
             if (!string.IsNullOrWhiteSpace(report.Diagram))
             {
-                AddCodeBlock(body, report.Diagram, "mermaid");
+                AddCodeBlock(body, report.Diagram, MermaidLanguage);
             }
             else
             {
