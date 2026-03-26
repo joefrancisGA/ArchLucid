@@ -84,8 +84,7 @@ public sealed class RunComparisonController(
         CancellationToken cancellationToken)
     {
         (IActionResult? error, EndToEndReplayComparisonReport? report) = await BuildEndToEndReportAsync(query, cancellationToken);
-        if (error is not null) return error;
-        return Ok(ComparisonResponseMapper.ToEndToEndResponse(report!));
+        return error ?? Ok(ComparisonResponseMapper.ToEndToEndResponse(report!));
     }
 
     [HttpPost("run/compare/end-to-end/summary")]

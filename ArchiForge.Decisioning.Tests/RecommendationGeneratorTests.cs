@@ -131,8 +131,8 @@ public sealed class RecommendationGeneratorTests
 
         List<ImprovementSignal> signals =
         [
-            new ImprovementSignal { SignalType = "CostRisk", Category = "Cost", Title = "Cost risk", Description = "d", Severity = "Medium" },
-            new ImprovementSignal { SignalType = "SecurityGap", Category = "Security", Title = "Security gap", Description = "d", Severity = "High" }
+            new() { SignalType = "CostRisk", Category = "Cost", Title = "Cost risk", Description = "d", Severity = "Medium" },
+            new() { SignalType = "SecurityGap", Category = "Security", Title = "Security gap", Description = "d", Severity = "High" }
         ];
 
         IReadOnlyList<ImprovementRecommendation> result = sut.Generate(signals);

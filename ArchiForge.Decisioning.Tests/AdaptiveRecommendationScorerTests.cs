@@ -33,8 +33,7 @@ public sealed class AdaptiveRecommendationScorerTests
     [Fact]
     public void Score_ProfileWithCategoryWeight_AffectsScore()
     {
-        RecommendationLearningProfile profile = new();
-        profile.CategoryWeights["Security"] = 1.5;
+        RecommendationLearningProfile profile = new() { CategoryWeights = { ["Security"] = 1.5 } };
 
         AdaptiveScoringResult result = _sut.Score(BaseInput(100), profile);
 
@@ -46,8 +45,7 @@ public sealed class AdaptiveRecommendationScorerTests
     [Fact]
     public void Score_ProfileWithUrgencyWeight_AffectsScore()
     {
-        RecommendationLearningProfile profile = new();
-        profile.UrgencyWeights["High"] = 2.0;
+        RecommendationLearningProfile profile = new() { UrgencyWeights = { ["High"] = 2.0 } };
 
         AdaptiveScoringResult result = _sut.Score(BaseInput(50), profile);
 
@@ -58,10 +56,9 @@ public sealed class AdaptiveRecommendationScorerTests
     [Fact]
     public void Score_ProfileWithSignalTypeWeight_AffectsScore()
     {
-        RecommendationLearningProfile profile = new();
-        profile.SignalTypeWeights["SecurityGap"] = 1.25;
+        RecommendationLearningProfile profile = new() { SignalTypeWeights = { ["SecurityGap"] = 1.25 } };
 
-        AdaptiveScoringResult result = _sut.Score(BaseInput(80), profile);
+        AdaptiveScoringResult result = _sut.Score(BaseInput(), profile);
 
         result.SignalTypeWeight.Should().Be(1.25);
         result.AdaptedPriorityScore.Should().Be(100);
@@ -70,10 +67,13 @@ public sealed class AdaptiveRecommendationScorerTests
     [Fact]
     public void Score_AllWeightsApplied_MultipliesCorrectly()
     {
-        RecommendationLearningProfile profile = new();
-        profile.CategoryWeights["Security"] = 2.0;
-        profile.UrgencyWeights["High"] = 1.5;
-        profile.SignalTypeWeights["SecurityGap"] = 0.5;
+        RecommendationLearningProfile profile = new()
+        {
+            CategoryWeights = { ["Security"] = 2.0 }, UrgencyWeights = { ["High"] = 1.5 }, SignalTypeWeights =
+            {
+                ["SecurityGap"] = 0.5
+            }
+        };
 
         AdaptiveScoringResult result = _sut.Score(BaseInput(100), profile);
 
@@ -97,8 +97,7 @@ public sealed class AdaptiveRecommendationScorerTests
     [Fact]
     public void Score_NullSignalType_DoesNotApplySignalWeight()
     {
-        RecommendationLearningProfile profile = new();
-        profile.SignalTypeWeights["SecurityGap"] = 2.0;
+        RecommendationLearningProfile profile = new() { SignalTypeWeights = { ["SecurityGap"] = 2.0 } };
 
         AdaptiveScoringInput input = new()
         {

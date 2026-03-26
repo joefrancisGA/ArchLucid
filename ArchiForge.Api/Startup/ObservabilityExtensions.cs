@@ -29,6 +29,7 @@ internal static class ObservabilityExtensions
                 tracing.AddAspNetCoreInstrumentation();
                 tracing.AddHttpClientInstrumentation();
                 tracing.AddSqlClientInstrumentation();
+                
                 if (consoleExporterEnabled)
                 {
                     tracing.AddConsoleExporter();

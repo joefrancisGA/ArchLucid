@@ -28,9 +28,7 @@ public sealed class ReplayDiagnosticsRecorder : IReplayDiagnosticsRecorder
         lock (_lock)
         {
             ReplayDiagnosticsEntry[] list = _recent.ToArray();
-            if (list.Length <= maxCount)
-                return list;
-            return list.Skip(list.Length - maxCount).ToArray();
+            return list.Length <= maxCount ? list : list.Skip(list.Length - maxCount).ToArray();
         }
     }
 }

@@ -46,10 +46,7 @@ public sealed class RecommendationLearningController(
             scope.ProjectId,
             ct);
 
-        if (profile is null)
-            return this.NotFoundProblem("No recommendation learning profile found for the current scope.", ProblemTypes.ResourceNotFound);
-
-        return Ok(profile);
+        return profile is null ? this.NotFoundProblem("No recommendation learning profile found for the current scope.", ProblemTypes.ResourceNotFound) : Ok(profile);
     }
 
     /// <summary>Recomputes the recommendation learning profile from history, persists it, and records an audit event.</summary>

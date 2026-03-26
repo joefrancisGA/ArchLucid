@@ -43,10 +43,7 @@ public sealed class ArchitectureApplicationService(
             return null;
 
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
-        if (detail is null)
-            return null;
-
-        return new GetRunResult(detail.Run, detail.Tasks, detail.Results);
+        return detail is null ? null : new GetRunResult(detail.Run, detail.Tasks, detail.Results);
     }
 
     public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult? result, CancellationToken cancellationToken = default)

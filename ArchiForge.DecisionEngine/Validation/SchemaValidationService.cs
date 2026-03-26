@@ -123,21 +123,19 @@ public sealed class SchemaValidationService : ISchemaValidationService
         JsonSchema schema,
         string objectName)
     {
-        if (_resultCache is not null)
+        if (_resultCache is null) return ValidateCore(json, schema, objectName);
+        
+        string cacheKey = ComputeHash(objectName, json);
+
+        if (_resultCache.TryGetValue(cacheKey, out SchemaValidationResult? cached))
         {
-            string cacheKey = ComputeHash(objectName, json);
-
-            if (_resultCache.TryGetValue(cacheKey, out SchemaValidationResult? cached))
-            {
-                return cached;
-            }
-
-            SchemaValidationResult fresh = ValidateCore(json, schema, objectName);
-            AddToCache(cacheKey, fresh);
-            return fresh;
+            return cached;
         }
 
-        return ValidateCore(json, schema, objectName);
+        SchemaValidationResult fresh = ValidateCore(json, schema, objectName);
+        AddToCache(cacheKey, fresh);
+        return fresh;
+
     }
 
     private SchemaValidationResult ValidateCore(

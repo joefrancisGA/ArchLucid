@@ -48,10 +48,7 @@ public static class ReplayArtifactResponseFactory
                 result.FileName);
         }
 
-        if (string.Equals(result.Format, "pdf", StringComparison.OrdinalIgnoreCase))
-            return ApiFileResults.RangeBytes(request, result.BinaryContent, "application/pdf", result.FileName);
-
-        return null;
+        return string.Equals(result.Format, "pdf", StringComparison.OrdinalIgnoreCase) ? ApiFileResults.RangeBytes(request, result.BinaryContent, "application/pdf", result.FileName) : null;
     }
 
     public static IActionResult ComparisonReplayFileOrBadRequest(
