@@ -28,6 +28,11 @@ public sealed class RetrievalRunCompletionIndexer(
         using Activity? indexActivity = ArchiForgeInstrumentation.RetrievalIndex.StartActivity(nameof(IndexAuthorityRunAsync));
         indexActivity?.SetTag("archiforge.run_id", manifest.RunId.ToString("D"));
 
+        string logicalCorrelation =
+            ActivityCorrelation.FindTagValueInChain(indexActivity?.Parent, ActivityCorrelation.LogicalCorrelationIdTag)
+            ?? manifest.RunId.ToString("D");
+        indexActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
+
         List<RetrievalDocument> retrievalDocuments = [];
         retrievalDocuments.AddRange(documentBuilder.BuildForManifest(manifest));
         retrievalDocuments.AddRange(documentBuilder.BuildForArtifacts(

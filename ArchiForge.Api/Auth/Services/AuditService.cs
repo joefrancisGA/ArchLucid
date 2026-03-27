@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Diagnostics;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Audit;
 
@@ -37,9 +38,14 @@ public sealed class AuditService(
 
         if (string.IsNullOrWhiteSpace(auditEvent.CorrelationId))
         {
+            string? fromActivityChain = ActivityCorrelation.FindTagValueInChain(
+                Activity.Current,
+                ActivityCorrelation.LogicalCorrelationIdTag);
+
             auditEvent.CorrelationId =
-                Activity.Current?.Id
-                ?? http?.TraceIdentifier;
+                fromActivityChain
+                ?? http?.TraceIdentifier
+                ?? Activity.Current?.Id;
         }
 
         await repo.AppendAsync(auditEvent, ct);

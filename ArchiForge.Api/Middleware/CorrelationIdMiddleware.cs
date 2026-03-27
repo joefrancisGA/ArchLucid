@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
+using ArchiForge.Core.Diagnostics;
+
 using Serilog.Context;
 
 namespace ArchiForge.Api.Middleware;
@@ -27,7 +29,7 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
         Activity? activity = Activity.Current;
         if (activity is not null)
         {
-            activity.SetTag("correlation.id", correlationId);
+            activity.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, correlationId);
             activity.SetTag("http.request_id", context.TraceIdentifier);
             string? runId = context.Request.RouteValues["runId"]?.ToString();
             if (!string.IsNullOrEmpty(runId))

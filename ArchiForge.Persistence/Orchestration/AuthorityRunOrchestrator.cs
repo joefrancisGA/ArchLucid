@@ -84,6 +84,11 @@ public sealed class AuthorityRunOrchestrator(
             using Activity? runActivity = ArchiForgeInstrumentation.AuthorityRun.StartActivity(nameof(ExecuteAsync));
             runActivity?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
 
+            string logicalCorrelation =
+                ActivityCorrelation.FindTagValueInChain(runActivity?.Parent, ActivityCorrelation.LogicalCorrelationIdTag)
+                ?? run.RunId.ToString("D");
+            runActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
+
             await SaveRunAsync(run, uow, ct).ConfigureAwait(false);
 
             request.RunId = run.RunId;

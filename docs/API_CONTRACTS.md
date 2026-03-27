@@ -9,6 +9,7 @@
 ## Correlation ID
 
 - Optional request header **`X-Correlation-ID`**: if present, the API echoes it on the response and uses it for logging/tracing context; if absent, a value is generated (e.g. from the ASP.NET Core trace identifier).
+- **Audit rows:** **`IAuditService`** (API host) stamps **`AuditEvent.CorrelationId`** from the **`correlation.id`** tag on the current or ancestor **`Activity`** (same value the middleware sets on the request activity), then falls back to **`HttpContext.TraceIdentifier`**, then the innermost activity id. Background advisory scans use a synthetic id of the form **`advisory-schedule:{scheduleId}`** on the advisory activity so digest/alert audits remain joinable in logs.
 
 ## Comparison replay — verify mode
 

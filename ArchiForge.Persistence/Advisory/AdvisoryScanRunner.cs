@@ -76,6 +76,9 @@ public sealed class AdvisoryScanRunner(
 
         using Activity? scanActivity = ArchiForgeInstrumentation.AdvisoryScan.StartActivity(nameof(RunScheduleAsync));
         scanActivity?.SetTag("archiforge.schedule_id", schedule.ScheduleId.ToString("D"));
+        scanActivity?.SetTag(
+            ActivityCorrelation.LogicalCorrelationIdTag,
+            FormattableString.Invariant($"advisory-schedule:{schedule.ScheduleId:D}"));
 
         ScopeContext scope = new()
         {
