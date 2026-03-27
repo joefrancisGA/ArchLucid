@@ -11,6 +11,7 @@
 | **ArchiForge.DecisionEngine.Tests** | Schema validation, manifest/decision JSON contracts. |
 | **ArchiForge.KnowledgeGraph.Tests** | Graph models, edge inference contracts. |
 | **ArchiForge.Retrieval.Tests** | `RetrievalQueryService`, `InMemoryVectorIndex` (empty index, ranking, scope filters). |
+| **ArchiForge.Persistence.Tests** | Dapper repositories against **real SQL Server** in Docker (`Testcontainers.MsSql`); schema from **`DatabaseMigrator`** (same DbUp migrations as production SQL Server). |
 
 ## Projects
 
@@ -18,6 +19,7 @@
 - **ArchiForge.DecisionEngine.Tests** — Unit and scenario tests for the decision engine; optional integration tests with real JSON schemas (see `SchemaValidationIntegrationTests`).
 - **ArchiForge.ContextIngestion.Tests** — Fast unit tests for ingestion parsers, deduplication, document connector warnings, delta summary builder, and **`ContextIngestionService`** (in-memory snapshot repo + fake connectors).
 - **ArchiForge.Coordinator.Tests**, **ArchiForge.AgentRuntime.Tests**, **ArchiForge.Decisioning.Tests**, **ArchiForge.Retrieval.Tests**, etc. — Domain/component tests; no web stack unless explicitly added.
+- **ArchiForge.Persistence.Tests** — SQL integration tests for `DapperArchitectureDigestRepository`, `DapperAlertRuleRepository`, and future Dapper round-trips. Requires **Docker** (Linux SQL Server image). After container start, tests run **`ArchiForge.Data.Infrastructure.DatabaseMigrator.Run`** so DDL matches embedded **`ArchiForge.Data/Migrations/*.sql`**, not the consolidated `ArchiForge.sql` reference script alone.
 
 ## Categories (optional filtering)
 
@@ -28,6 +30,30 @@ All tests in **ArchiForge.Api.Tests** that extend **IntegrationTestBase** (and t
 ```
 
 Use this to filter runs: exclude with `Category!=Integration` for faster feedback, or run only integration tests with `Category=Integration`. Other projects (e.g. **DecisionEngine.Tests**) use the same trait on individual tests that need real I/O (e.g. `SchemaValidationIntegrationTests`).
+
+**SQL Server container tests** in **ArchiForge.Persistence.Tests** are tagged:
+
+```csharp
+[Trait("Category", "SqlServerContainer")]
+```
+
+Exclude them when Docker is unavailable (CI agents without Docker, local quick runs):
+
+```bash
+dotnet test --filter "Category!=SqlServerContainer"
+```
+
+To skip both full API integration tests and SQL container tests:
+
+```bash
+dotnet test --filter "Category!=Integration&Category!=SqlServerContainer"
+```
+
+To run only Persistence SQL integration tests:
+
+```bash
+dotnet test --filter "Category=SqlServerContainer"
+```
 
 To run only fast/unit tests (exclude integration):
 
