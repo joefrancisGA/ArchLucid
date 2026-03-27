@@ -2,6 +2,7 @@ namespace ArchiForge.Api.Middleware;
 
 /// <summary>
 /// Adds baseline security headers for API responses (defense in depth; does not replace WAF or browser CSP for SPAs).
+/// Production hosts also enable <c>UseHsts()</c> in the pipeline (see <c>PipelineExtensions</c>) for HTTPS clients.
 /// </summary>
 public sealed class SecurityHeadersMiddleware(RequestDelegate next)
 {

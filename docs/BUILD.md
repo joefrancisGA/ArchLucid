@@ -14,6 +14,17 @@ dotnet build
 dotnet test
 ```
 
+## SQL Server vs Testcontainers (contributors)
+
+**Default / CI-friendly:** Most **ArchiForge.Api.Tests** integration tests use **in-memory SQLite** via **`ArchiForgeApiFactory`** and a shared connection string — no Docker required.
+
+**When you need SQL Server fidelity:** For behaviors that differ between SQLite and SQL Server (locking, types, T-SQL), prefer either:
+
+1. **Testcontainers.MsSql** (or similar) in a dedicated test fixture that boots a throwaway container and sets **`ConnectionStrings:ArchiForge`** before building the host, or  
+2. A **narrow repository integration test** project that targets a developer-owned SQL instance (document connection string via user secrets / env, never commit secrets).
+
+Keep **one DDL source of truth** (`ArchiForge.Data/SQL/ArchiForge.sql`) and run **`DatabaseMigrator`** (or your migration tool) against the test database before tests that assume schema.
+
 ## Central Package Management (CPM)
 
 Versions live in **`Directory.Packages.props`**. Project **`.csproj`** files use `<PackageReference Include="Id" />` without `Version=`.

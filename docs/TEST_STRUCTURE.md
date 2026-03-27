@@ -1,5 +1,16 @@
 # Test structure
 
+## Bounded context map (quick reference)
+
+| Test project | Primary bounded contexts / seams exercised |
+|--------------|---------------------------------------------|
+| **ArchiForge.Api.Tests** | HTTP API, auth policies, ProblemDetails, CORS, comparison replay, runs, governance, alerts (integration), SQLite-backed persistence through the real host. |
+| **ArchiForge.Decisioning.Tests** | Findings, compliance, alerts (pure logic), advisory scheduling math, governance resolution, graph mappers, JSON persistence contracts. |
+| **ArchiForge.ContextIngestion.Tests** | Connectors, parsers, deduplication, `ContextIngestionService`, delta summaries. |
+| **ArchiForge.Coordinator.Tests** | Run coordination, agent orchestration boundaries (with fakes). |
+| **ArchiForge.DecisionEngine.Tests** | Schema validation, manifest/decision JSON contracts. |
+| **ArchiForge.KnowledgeGraph.Tests** | Graph models, edge inference contracts. |
+
 ## Projects
 
 - **ArchiForge.Api.Tests** — API integration tests using `WebApplicationFactory` (full app, in-memory SQLite). Heavier; use for HTTP contracts, comparison replay, exports, run-not-found, 422/409.

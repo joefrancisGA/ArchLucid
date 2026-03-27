@@ -51,6 +51,9 @@ internal static class PipelineExtensions
             });
         }
 
+        if (!app.Environment.IsDevelopment())
+            app.UseHsts();
+
         app.UseHttpsRedirection();
         app.UseResponseCompression();
         app.UseCors("ArchiForge");

@@ -1749,27 +1749,27 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ### Documentation & ADRs (155–169)
 
 - [ ] 155. Finish **METHOD_DOCUMENTATION** piece tracker **12–21** (XML for authority compare/replay through `ArchitectureRunService`).
-- [ ] 156. ADRs: effective governance merge, alert dedupe scopes, digest delivery failure semantics.
-- [ ] 157. Runbook: advisory scan failures and schedule advance.
-- [ ] 158. Runbook: comparison replay (light/heavy) + rate limits.
-- [ ] 159. **API_CONTRACTS:** idempotency / retry for create run + commit.
+- [x] 156. ADRs: effective governance merge, alert dedupe scopes, digest delivery failure semantics.
+- [x] 157. Runbook: advisory scan failures and schedule advance.
+- [x] 158. Runbook: comparison replay (light/heavy) + rate limits.
+- [x] 159. **API_CONTRACTS:** idempotency / retry for create run + commit.
 - [x] 160. **README:** operator quick start (health, `/v1`, correlation id, auth, SMB/storage boundary).
-- [ ] 161. Terraform variable reference diagram for Azure dependencies.
-- [ ] 162. File-backed connectors: private network + no public SMB (445).
-- [ ] 163. **CONTEXT_INGESTION:** connector ordering + warning surface.
-- [ ] 164. **ALERTS.md:** composite vs simple lifecycle diagram.
-- [ ] 165. **TEST_STRUCTURE:** map test projects → bounded contexts.
+- [x] 161. Terraform variable reference diagram for Azure dependencies.
+- [x] 162. File-backed connectors: private network + no public SMB (445).
+- [x] 163. **CONTEXT_INGESTION:** connector ordering + warning surface.
+- [x] 164. **ALERTS.md:** composite vs simple lifecycle diagram.
+- [x] 165. **TEST_STRUCTURE:** map test projects → bounded contexts.
 - [x] 166. **Swagger:** tag grouping for Authority, Advisory, Retrieval, Ask, artifacts, Comparison, Analysis, runs, learning, Audit, Diagnostics.
-- [ ] 167. **Swagger:** examples for alert rule create/update bodies.
-- [ ] 168. **BUILD.md:** SQL Server vs Testcontainers for contributors.
-- [ ] 169. Provenance indexing: failure modes + retry story.
+- [x] 167. **Swagger:** examples for alert rule **create** bodies (POST); no PUT/update routes for simple/composite rules in v1.
+- [x] 168. **BUILD.md:** SQL Server vs Testcontainers for contributors.
+- [x] 169. Provenance indexing: failure modes + retry story.
 
 ### Tests — unit (170–194)
 
 - [ ] 170. SQL-backed alert/digest repos: strategy (Testcontainers vs abstraction) + tests.
 - [ ] 171. `DapperArchitectureDigestRepository` / similar round-trips.
 - [x] 172. **`AlertDeliveryDispatcherTests`** (null alert, no subs, success audit, failure audited).
-- [ ] 173. `EffectiveGovernanceLoader` merge edge cases.
+- [x] 173. `EffectiveGovernanceLoader` / resolver coverage (`EffectiveGovernanceLoaderTests`, `EffectiveGovernanceResolverTests`).
 - [ ] 174. `PolicyPackResolver` / assignment resolution layers.
 - [ ] 175. `ImprovementAdvisorService` mapping tests.
 - [x] 176. `ArchitectureDigestBuilder` markdown snapshot tests.
@@ -1777,20 +1777,20 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [ ] 178. `ComparisonService` per-section delta tests.
 - [ ] 179. `ExportReplayService` extra formats / errors.
 - [x] 180. **`FindingPayloadValidatorTests`** (envelope guards, compliance + multi-type happy paths).
-- [ ] 181. `CostConstraintFindingEngine` / `ComplianceFindingEngine` branch coverage.
+- [x] 181. `CostConstraintFindingEngine` / `ComplianceFindingEngine` branch coverage.
 - [ ] 182. `RetrievalQueryService` empty index + ranking.
 - [ ] 183. `ConversationService` thread lifecycle.
 - [ ] 184. `DocxExportService` golden / snapshot tests.
 - [ ] 185. `CoordinatorService` ingestion mapper tests.
 - [x] 186. `ContextIngestionService` parser-miss warnings.
-- [ ] 187. `JsonEntitySerializer` corrupt graph JSON tests.
-- [ ] 188. Golden audit JSON payload (camelCase) contract test.
-- [ ] 189. `SimpleScanScheduleCalculator` DST / timezone if behavior defined.
+- [x] 187. `JsonEntitySerializer` corrupt graph JSON tests.
+- [x] 188. Golden audit JSON payload (camelCase) contract test.
+- [x] 189. `SimpleScanScheduleCalculator` DST / timezone if behavior defined (UTC-only calculator; see `SimpleScanScheduleCalculatorTests`).
 - [ ] 190. `AdvisoryScanHostedService` overlap / cancellation.
 - [x] 191. **`PolicyPacksAppServiceTests`** (create + audit; assign miss → no management call).
 - [x] 192. `ReplayValidationConstants` extensions.
-- [ ] 193. `ApiProblemDetailsExceptionFilter` exception-type matrix.
-- [ ] 194. FluentValidation negative tests per advisory/alert DTO.
+- [x] 193. `ApiProblemDetailsExceptionFilter` exception-type matrix.
+- [x] 194. FluentValidation negative tests per advisory/alert DTO (sample: `AlertRuleBodyValidatorTests`).
 
 ### Tests — integration / E2E (195–204)
 
@@ -1809,7 +1809,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 - [x] 205. `ActivitySource` for orchestration, advisory scan, retrieval index.
 - [x] 206. Metrics: digest delivery by channel.
-- [ ] 207. Metrics: alert evaluation duration (simple vs composite).
+- [x] 207. Metrics: alert evaluation duration (simple vs composite).
 - [ ] 208. Metrics: governance resolve + cache hit ratio (if cached).
 - [ ] 209. Correlation id → audit fields where missing.
 - [ ] 210. Retry / DLQ for background jobs (beyond in-memory queue).
@@ -1830,8 +1830,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [ ] 222. Row-level security design for multi-tenant SQL.
 - [ ] 223. PII classification + retention for conversations.
 - [ ] 224. Threat model update for Ask/RAG.
-- [ ] 225. CORS regression test (disallowed origin).
-- [ ] 226. Security headers review (HSTS, CSP for Swagger).
+- [x] 225. CORS regression test (disallowed origin).
+- [x] 226. Security headers review (HSTS for non-dev + baseline headers; CSP for Swagger UI remains host-dependent).
 
 ### Performance & cost (227–234)
 
@@ -1871,7 +1871,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [ ] 251. Map ProblemDetails `type` → operator-facing copy.
 - [ ] 252. Dev container (SQL + Azurite + fakes).
 - [ ] 253. `dotnet new` template for finding engine + tests.
-- [ ] 254. Contributor onboarding checklist (build, test filters, integration opt-in).
+- [x] 254. Contributor onboarding checklist (build, test filters, integration opt-in).
 
 ---
 
@@ -1879,12 +1879,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls up major themes only.
 
-- [ ] Documentation & ADRs (155–169): partial (160, 166 done).
-- [ ] Unit tests (170–194): partial (172, 176, 180, 186, 191, 192 done; `ApplicationProblemMapperTests`, `EffectiveGovernanceLoaderTests`, `SecurityHeadersMiddlewareTests` added).
+- [ ] Documentation & ADRs (155–169): partial (155 open; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
+- [ ] Unit tests (170–194): partial (170–171, 174–175, 177–179, 182–185, 189–190 still open; added 181, 187, 188, 193, 194, 225 coverage).
 - [ ] Integration / E2E (195–204): not started.
-- [ ] Observability & reliability (205–214): partial (205–206 done; 207+ still open).
-- [ ] Security (215–226): partial (baseline response headers via `SecurityHeadersMiddleware`; HSTS/CSP/Entra items still open).
+- [ ] Observability & reliability (205–214): partial (205–207 done; 208+ still open).
+- [ ] Security (215–226): partial (**225–226** CORS + HSTS/headers; **215–224** Entra/RLS/WAF/SBOM/etc. still open).
 - [ ] Performance & cost (227–234): partial (229 response compression enabled).
 - [ ] API & contracts (235–242): not started.
 - [ ] Data & persistence (243–249): not started.
-- [ ] UI & DX (250–254): not started.
+- [ ] UI & DX (250–254): partial (254 onboarding doc; 250–253 open).

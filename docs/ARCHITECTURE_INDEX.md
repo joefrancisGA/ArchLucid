@@ -19,6 +19,13 @@
 - **Knowledge graph** – typed nodes/edges from `ContextSnapshot`, inference, validation, SQL JSON  
   - `docs/KNOWLEDGE_GRAPH.md`
 
+### Decisions and onboarding
+
+- **ADRs** – governance merge, alert dedupe, digest delivery semantics  
+  - `docs/adr/README.md`
+- **Contributor onboarding** – build, test filters  
+  - `docs/CONTRIBUTOR_ONBOARDING.md`
+
 ### API and contracts
 
 - **HTTP contracts** – status codes, validation, problem details  
@@ -40,6 +47,10 @@
   - `docs/demo-quickstart.md`
 - **Replay drift runbook**  
   - `docs/RUNBOOK_REPLAY_DRIFT.md`
+- **Advisory scan failures** – `docs/runbooks/ADVISORY_SCAN_FAILURES.md`
+- **Comparison replay rate limits** – `docs/runbooks/COMPARISON_REPLAY_RATE_LIMITS.md`
+- **Provenance / retrieval indexing** – `docs/runbooks/PROVENANCE_INDEXING.md`
+- **Terraform variable sketch (Azure)** – `docs/terraform-azure-variables.md`
 - **Rate limiting / CORS / auth** – see `README.md` and `docs/BUILD.md` (cross-links from backlog `docs/NEXT_REFACTORINGS.md`)
 
 ### Contributing and process

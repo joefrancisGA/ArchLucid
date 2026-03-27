@@ -1,4 +1,5 @@
 using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 
 using FluentAssertions;
@@ -17,39 +18,113 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     [Fact]
     public void ComparisonVerificationFailedException_Produces422WithDriftExtensions()
     {
-        ApiProblemDetailsExceptionFilter filter = new();
-        DefaultHttpContext httpContext = new()
-        {
-            Request =
-            {
-                Path = "/v1/architecture/comparisons/r1/replay"
-            }
-        };
-        ActionContext actionContext = new(
-            httpContext,
-            new RouteData(),
-            new ControllerActionDescriptor());
         DriftAnalysisResult drift = new()
         {
             DriftDetected = true,
             Summary = "payload mismatch"
         };
         ComparisonVerificationFailedException ex = new("Verification failed.", drift);
+
+        ExceptionContext context = CreateExceptionContext(ex, "/v1/architecture/comparisons/r1/replay");
+
+        RunFilter(context);
+
+        context.ExceptionHandled.Should().BeTrue();
+        ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
+        result.StatusCode.Should().Be(422);
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        problem.Extensions.Should().ContainKey("driftDetected");
+        problem.Extensions["driftDetected"].Should().Be(true);
+        problem.Extensions["driftSummary"].Should().Be("payload mismatch");
+    }
+
+    [Fact]
+    public void ConflictException_Produces409()
+    {
+        ExceptionContext context = CreateExceptionContext(new ConflictException("state"), "/v1/run/r/commit");
+
+        RunFilter(context);
+
+        context.ExceptionHandled.Should().BeTrue();
+        ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
+        result.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.Conflict);
+    }
+
+    [Fact]
+    public void RunNotFoundException_Produces404()
+    {
+        ExceptionContext context = CreateExceptionContext(new RunNotFoundException("missing"), "/v1/run/missing");
+
+        RunFilter(context);
+
+        context.ExceptionHandled.Should().BeTrue();
+        ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
+        result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.RunNotFound);
+    }
+
+    [Fact]
+    public void InvalidOperationException_Produces400BadRequestType()
+    {
+        ExceptionContext context = CreateExceptionContext(new InvalidOperationException("bad"), "/v1/x");
+
+        RunFilter(context);
+
+        context.ExceptionHandled.Should().BeTrue();
+        ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
+        result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.BadRequest);
+    }
+
+    [Fact]
+    public void ArgumentException_Produces400ValidationType()
+    {
+        ExceptionContext context = CreateExceptionContext(new ArgumentException("arg"), "/v1/x");
+
+        RunFilter(context);
+
+        context.ExceptionHandled.Should().BeTrue();
+        ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public void UnmappedException_LeavesContextUnchanged()
+    {
+        ExceptionContext context = CreateExceptionContext(new NotSupportedException(), "/v1/x");
+
+        RunFilter(context);
+
+        context.ExceptionHandled.Should().BeFalse();
+        context.Result.Should().BeNull();
+    }
+
+    private static ExceptionContext CreateExceptionContext(Exception ex, string path)
+    {
+        DefaultHttpContext httpContext = new()
+        {
+            Request = { Path = path }
+        };
+        ActionContext actionContext = new(
+            httpContext,
+            new RouteData(),
+            new ControllerActionDescriptor());
 #pragma warning disable IDE0028 // Simplify collection initialization
-        ExceptionContext context = new(actionContext, new List<IFilterMetadata>())
+        return new ExceptionContext(actionContext, new List<IFilterMetadata>())
         {
             Exception = ex
         };
 #pragma warning restore IDE0028 // Simplify collection initialization
+    }
 
+    private static void RunFilter(ExceptionContext context)
+    {
+        ApiProblemDetailsExceptionFilter filter = new();
         filter.OnException(context);
-
-        context.ExceptionHandled.Should().BeTrue();
-        ObjectResult? result = context.Result.Should().BeOfType<ObjectResult>().Subject;
-        result.StatusCode.Should().Be(422);
-        Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
-        problem.Extensions.Should().ContainKey("driftDetected");
-        problem.Extensions["driftDetected"].Should().Be(true);
-        problem.Extensions["driftSummary"].Should().Be("payload mismatch");
     }
 }

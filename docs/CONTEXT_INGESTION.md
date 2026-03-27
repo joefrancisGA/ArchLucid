@@ -23,6 +23,12 @@ HTTP clients send **`ArchitectureRequest`** (see `ArchiForge.Contracts.Requests`
 
 ---
 
+## File-backed connectors and SMB (port 445)
+
+**Enterprise default:** Do not expose **SMB (TCP 445)** to the public internet. File-backed ingestion should use **private endpoints** (VPN, ExpressRoute, private VNet integration, or managed file shares reachable only from the workload network). Align Terraform/network design with deny-by-default NSGs and private DNS.
+
+When documenting connector deployments, treat **on-prem file shares** as **data-plane** dependencies with the same classification as database connection strings.
+
 ## Connector pipeline (fixed order)
 
 Connectors implement **`IContextConnector`**. Registration order is explicit (see **`RegisterContextIngestionAndKnowledgeGraph`** in `ArchiForge.Api` startup):

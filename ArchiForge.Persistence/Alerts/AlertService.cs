@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Diagnostics;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
@@ -42,6 +44,10 @@ public sealed class AlertService(
     {
         ArgumentNullException.ThrowIfNull(context);
 
+        Stopwatch evaluationStopwatch = Stopwatch.StartNew();
+
+        try
+        {
         IReadOnlyList<AlertRule> rules = await ruleRepository
             .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
@@ -60,10 +66,20 @@ public sealed class AlertService(
             bool wasCreated = await PersistAndDeliverAlertAsync(alert, context, ct).ConfigureAwait(false);
 
             if (wasCreated)
+            {
                 persisted.Add(alert);
+            }
         }
 
         return new AlertEvaluationOutcome(generated, persisted);
+        }
+        finally
+        {
+            evaluationStopwatch.Stop();
+            ArchiForgeInstrumentation.AlertEvaluationDurationMilliseconds.Record(
+                evaluationStopwatch.Elapsed.TotalMilliseconds,
+                new KeyValuePair<string, object?>("rule_kind", "simple"));
+        }
     }
 
     /// <summary>

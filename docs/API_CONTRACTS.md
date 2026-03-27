@@ -91,3 +91,18 @@ Compliance filtering in API requests follows **`IScopeContextProvider`**. For **
 **Rate limiting:** Governance and alert **`/v1/...`** controllers use the **`fixed`** window unless noted elsewhere (e.g. **expensive** / **replay** on architecture flows). See **README.md** (Rate limiting table) and **`RateLimiting:*`** configuration keys.
 
 Scope defaults for dev/tests: **`ScopeIds`** (**`x-tenant-id`**, **`x-workspace-id`**, **`x-project-id`** optional).
+
+## Create run and commit — retries and idempotency (v1)
+
+**Current behavior (v1):**
+
+- **`POST .../architecture/run`** (create + execute authority chain) and **`POST .../architecture/run/{runId}/commit`** do **not** accept an **`Idempotency-Key`** header. Each successful call performs real work and persists new state.
+- Clients that retry on timeouts or **`5xx`** must tolerate **at-most-once** semantics unless they implement their own idempotency (e.g. cache the returned **`runId`** and avoid issuing a second create for the same logical operation, or use conditional checks before commit).
+
+**Recommended client pattern:**
+
+1. Create run → capture **`runId`** from the response body.
+2. On ambiguous failure (gateway timeout, connection reset), **GET** run detail or list if your integration supports it before creating another run.
+3. Commit only when the run is in an expected phase; handle **`409`** **`#conflict`** as the authoritative “already committed / invalid phase” signal.
+
+**Future (backlog):** optional **`Idempotency-Key`** on create and/or commit, backed by a short-lived server-side store, to make safe retries first-class without duplicate runs.

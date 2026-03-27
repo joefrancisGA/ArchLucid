@@ -53,6 +53,28 @@ Scheduled runs use `IAdvisoryScanRunner` / `AdvisoryScanRunner`: ambient scope, 
 |------|-------|------------|
 | Resolved tenant/workspace/project for the request | `GET api/scope` | `ScopeDebugController` |
 
+## Simple vs composite evaluation (lifecycle sketch)
+
+At a high level, **simple** rules are evaluated in **`AlertService`** (per-rule metrics vs **`AlertEvaluationContext`**), while **composite** rules run in **`CompositeAlertService`** (snapshot → **`ICompositeAlertRuleEvaluator`** → suppression → persist). Both paths share governance filtering and scope.
+
+```mermaid
+flowchart LR
+  subgraph Simple["Simple alerts (AlertService)"]
+    R1[List enabled rules] --> G1[Filter by effective governance]
+    G1 --> E1[AlertEvaluator.Evaluate]
+    E1 --> D1[Dedupe + persist + deliver]
+  end
+  subgraph Composite["Composite alerts (CompositeAlertService)"]
+    R2[List composite rules] --> G2[Filter by effective governance]
+    G2 --> S2[Build AlertMetricSnapshot]
+    S2 --> E2[CompositeAlertRuleEvaluator]
+    E2 --> P2[Suppression policy]
+    P2 --> D2[Persist + deliver when not suppressed]
+  end
+  C[AlertEvaluationContext] --> R1
+  C --> R2
+```
+
 ## Scope
 
 All of the above rely on **`IScopeContextProvider`** (JWT claims / headers, or `AmbientScopeContext` for background jobs) so tenant, workspace, and project match stored rows and governance resolution.

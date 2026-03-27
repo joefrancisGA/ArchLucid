@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Diagnostics;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Delivery;
@@ -46,6 +48,10 @@ public sealed class CompositeAlertService(
     {
         ArgumentNullException.ThrowIfNull(context);
 
+        Stopwatch evaluationStopwatch = Stopwatch.StartNew();
+
+        try
+        {
         IReadOnlyList<CompositeAlertRule> rules = await ruleRepository
             .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
@@ -63,6 +69,7 @@ public sealed class CompositeAlertService(
         foreach (CompositeAlertRule rule in rules)
         {
             bool matched = ruleEvaluator.Evaluate(rule, snapshot);
+
             if (!matched)
                 continue;
 
@@ -140,6 +147,14 @@ public sealed class CompositeAlertService(
         }
 
         return new CompositeAlertEvaluationResult(created, suppressedMatches);
+        }
+        finally
+        {
+            evaluationStopwatch.Stop();
+            ArchiForgeInstrumentation.AlertEvaluationDurationMilliseconds.Record(
+                evaluationStopwatch.Elapsed.TotalMilliseconds,
+                new KeyValuePair<string, object?>("rule_kind", "composite"));
+        }
     }
 
     /// <summary>Compact string stored on <see cref="AlertRecord.TriggerValue"/> for operator triage.</summary>

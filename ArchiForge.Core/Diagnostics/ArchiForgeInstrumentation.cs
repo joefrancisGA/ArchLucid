@@ -27,4 +27,12 @@ public static class ArchiForgeInstrumentation
 
     /// <summary>Digest channel send failed after non-cancellation error (labels: <c>channel</c>).</summary>
     public static readonly Counter<long> DigestDeliveryFailed = AppMeter.CreateCounter<long>("digest_delivery_failed");
+
+    /// <summary>
+    /// Wall time for <c>EvaluateAndPersistAsync</c> (labels: <c>rule_kind</c> = <c>simple</c> | <c>composite</c>).
+    /// </summary>
+    public static readonly Histogram<double> AlertEvaluationDurationMilliseconds = AppMeter.CreateHistogram<double>(
+        "alert_evaluation_duration_ms",
+        unit: "ms",
+        description: "Time spent in alert EvaluateAndPersistAsync per rule kind.");
 }
