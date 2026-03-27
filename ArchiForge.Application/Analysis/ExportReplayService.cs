@@ -5,16 +5,24 @@ namespace ArchiForge.Application.Analysis;
 
 /// <summary>
 /// Replays a persisted <see cref="RunExportRecord"/> by rehydrating the original analysis request and
-/// regenerating the export artifact (e.g. consulting DOCX), optionally recording the replay as a new export record.
+/// regenerating the export artifact (consulting or standard analysis DOCX), optionally recording the replay as a new export record.
 /// </summary>
 public sealed class ExportReplayService(
     IRunExportRecordRepository runExportRecordRepository,
     IArchitectureAnalysisService architectureAnalysisService,
+    IArchitectureAnalysisDocxExportService analysisDocxExportService,
     IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService,
     IRunExportAuditService runExportAuditService)
     : IExportReplayService
 {
     private const string ExportTypeConsultingDocx = "analysis-report-consulting-docx";
+
+    /// <summary>
+    /// Standard (non-consulting) analysis DOCX exports; must match the <see cref="RunExportRecord.ExportType"/>
+    /// stored when those exports are audited.
+    /// </summary>
+    private const string ExportTypeAnalysisDocx = "analysis-report-docx";
+
     private const string FallbackReplayFileName = "replayed_export.docx";
     /// <summary>
     /// Replays the export identified by <see cref="ReplayExportRequest.ExportRecordId"/>.
@@ -66,11 +74,20 @@ public sealed class ExportReplayService(
 
         return record.ExportType switch
         {
-            ExportTypeConsultingDocx => await ReplayConsultingDocxAsync(
+            ExportTypeConsultingDocx => await ReplayDocxAsync(
                 record,
                 persistedRequest,
                 report,
                 request.RecordReplayExport,
+                consultingDocxExportService.GenerateDocxAsync,
+                cancellationToken),
+
+            ExportTypeAnalysisDocx => await ReplayDocxAsync(
+                record,
+                persistedRequest,
+                report,
+                request.RecordReplayExport,
+                analysisDocxExportService.GenerateDocxAsync,
                 cancellationToken),
 
             _ => throw new InvalidOperationException(
@@ -78,16 +95,15 @@ public sealed class ExportReplayService(
         };
     }
 
-    private async Task<ReplayExportResult> ReplayConsultingDocxAsync(
+    private async Task<ReplayExportResult> ReplayDocxAsync(
         RunExportRecord record,
         PersistedAnalysisExportRequest persistedRequest,
         ArchitectureAnalysisReport report,
         bool recordReplayExport,
+        Func<ArchitectureAnalysisReport, CancellationToken, Task<byte[]>> generateDocxAsync,
         CancellationToken cancellationToken)
     {
-        byte[] bytes = await consultingDocxExportService.GenerateDocxAsync(
-            report,
-            cancellationToken).ConfigureAwait(false);
+        byte[] bytes = await generateDocxAsync(report, cancellationToken).ConfigureAwait(false);
 
         string replayFileName = BuildReplayFileName(record.FileName);
 
