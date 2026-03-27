@@ -5,6 +5,7 @@ using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Alerts.Helpers;
+using ArchiForge.Persistence.Serialization;
 
 namespace ArchiForge.Persistence.Alerts;
 
@@ -93,14 +94,16 @@ public sealed class AlertService(
             {
                 EventType = AuditEventTypes.AlertTriggered,
                 RunId = context.RunId,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    alertId = alert.AlertId,
-                    ruleId = alert.RuleId,
-                    alert.Title,
-                    alert.Severity,
-                    alert.DeduplicationKey,
-                }),
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        alertId = alert.AlertId,
+                        ruleId = alert.RuleId,
+                        alert.Title,
+                        alert.Severity,
+                        alert.DeduplicationKey,
+                    },
+                    AuditJsonSerializationOptions.Instance),
             },
             ct).ConfigureAwait(false);
 
@@ -167,12 +170,14 @@ public sealed class AlertService(
                 {
                     EventType = eventType,
                     RunId = alert.RunId,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        alertId,
-                        request.Action,
-                        comment = request.Comment,
-                    }),
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            alertId,
+                            request.Action,
+                            comment = request.Comment,
+                        },
+                        AuditJsonSerializationOptions.Instance),
                 },
                 ct).ConfigureAwait(false);
         }

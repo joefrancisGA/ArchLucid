@@ -104,7 +104,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        GraphSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotRow>(
+        GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
             new CommandDefinition(sql, new
             {
                 GraphSnapshotId = graphSnapshotId
@@ -113,25 +113,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         if (row is null)
             return null;
 
-        try
-        {
-            return new GraphSnapshot
-            {
-                GraphSnapshotId = row.GraphSnapshotId,
-                ContextSnapshotId = row.ContextSnapshotId,
-                RunId = row.RunId,
-                CreatedUtc = row.CreatedUtc,
-                Nodes = JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson),
-                Edges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson),
-                Warnings = JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson)
-            };
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw new InvalidOperationException(
-                $"Failed to deserialize GraphSnapshot '{row.GraphSnapshotId}'. " +
-                "The stored JSON may be corrupt or from an incompatible schema version.", ex);
-        }
+        return GraphSnapshotStorageMapper.ToSnapshot(row);
     }
 
     public async Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct)
@@ -146,7 +128,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        GraphSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotRow>(
+        GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
             new CommandDefinition(sql, new
             {
                 ContextSnapshotId = contextSnapshotId
@@ -155,25 +137,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         if (row is null)
             return null;
 
-        try
-        {
-            return new GraphSnapshot
-            {
-                GraphSnapshotId = row.GraphSnapshotId,
-                ContextSnapshotId = row.ContextSnapshotId,
-                RunId = row.RunId,
-                CreatedUtc = row.CreatedUtc,
-                Nodes = JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson),
-                Edges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson),
-                Warnings = JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson)
-            };
-        }
-        catch (InvalidOperationException ex)
-        {
-            throw new InvalidOperationException(
-                $"Failed to deserialize GraphSnapshot '{row.GraphSnapshotId}'. " +
-                "The stored JSON may be corrupt or from an incompatible schema version.", ex);
-        }
+        return GraphSnapshotStorageMapper.ToSnapshot(row);
     }
 
     public async Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId, CancellationToken ct)
@@ -204,28 +168,5 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         public string ToNodeId { get; init; } = null!;
         public string EdgeType { get; init; } = null!;
         public double Weight { get; init; }
-    }
-
-    private sealed class GraphSnapshotRow
-    {
-        public Guid GraphSnapshotId
-        {
-            get; init;
-        }
-        public Guid ContextSnapshotId
-        {
-            get; init;
-        }
-        public Guid RunId
-        {
-            get; init;
-        }
-        public DateTime CreatedUtc
-        {
-            get; init;
-        }
-        public string NodesJson { get; init; } = null!;
-        public string EdgesJson { get; init; } = null!;
-        public string WarningsJson { get; init; } = null!;
     }
 }

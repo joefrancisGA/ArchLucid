@@ -1631,3 +1631,111 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 142. `SecurityBaselineFindingEngineTests` — 5 scenarios (empty, single, missing/Error, present/Info, PROTECTS edge)
 - [x] 143. `DigestDeliveryDispatcher.DeliverToSubscriptionAsync` method extraction
 - [x] 144. `RecommendationFeedbackAnalyzerTests` — 5 aggregation tests (empty, single, multi-bucket, cap, key format)
+
+---
+
+## §145 — `DigestDeliveryDispatcher` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/DigestDeliveryDispatcherTests.cs` — null digest, no subscriptions, success path (audit + subscription update), channel failure audited without throwing.
+
+---
+
+## §146 — `RuleSimulationService` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/RuleSimulationServiceTests.cs` — early exit when `UseHistoricalWindow` is false and no `RunId`; empty contexts note; simple-rule match outcome; composite path with suppression decision.
+
+---
+
+## §147 — `AlertGovernanceResolver` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `InternalsVisibleTo("ArchiForge.Decisioning.Tests")` on **ArchiForge.Persistence**.
+- `ArchiForge.Decisioning.Tests/AlertGovernanceResolverTests.cs` — preloaded governance skips loader; otherwise loads once by scope.
+
+---
+
+## §148 — `AlertSuppressionPolicy` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/AlertSuppressionPolicyTests.cs` — no prior alert allows create; cooldown; suppression window; `RuleAndRun` dedupe key shape.
+
+---
+
+## §149 — `CompositeAlertService` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/CompositeAlertServiceTests.cs` — no rules + governance load; preloaded governance skips loader; match + allow → create, deliver, `CompositeAlertTriggered` audit; suppressed match → `AlertSuppressedByPolicy` audit.
+
+---
+
+## §150 — `TopologyCoverageFindingEngine` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/TopologyCoverageFindingEngineTests.cs` — zero topology nodes; missing categories payload; full coverage → empty list (mock `IGraphCoverageAnalyzer`).
+
+---
+
+## §151 — `GraphSnapshotStorageMapper` + repository reuse
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `GraphSnapshotStorageRow.cs`, `GraphSnapshotStorageMapper.cs`; **SqlGraphSnapshotRepository** delegates deserialization to the mapper (single error message path).
+- `ArchiForge.Decisioning.Tests/GraphSnapshotStorageMapperTests.cs` — valid round-trip via `JsonEntitySerializer`, null row, corrupt nodes JSON (wrapped exception chain).
+
+---
+
+## §152 — `DefaultGraphEdgeInferer` connector contract tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.KnowledgeGraph.Tests/DefaultGraphEdgeInfererContractTests.cs` — `parentNodeId` → `CONTAINS_RESOURCE` (weight 1); `applicableTopologyNodeIds` → targeted `AppliesTo` only for listed topology ids.
+
+---
+
+## §153 — CA1869: cached audit JSON options
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Persistence/Serialization/AuditJsonSerializationOptions.cs` — shared `JsonSerializerOptions` instance (`CamelCase`, not indented).
+- Wired into **DigestDeliveryDispatcher**, **AdvisoryScanRunner**, **CompositeAlertService**, **AlertService**, **AlertDeliveryDispatcher**; **AuthorityRunOrchestrator** now uses the same static instance instead of a duplicate field.
+
+---
+
+## §154 — `AdvisoryScanRunnerTests`: digest delivery verification
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `RunScheduleAsync_WhenLatestRunHasGoldenManifest_PersistsDigestAndDelivers` — mocks full happy path through plan, alerts, digest build/persist, verifies `IDigestDeliveryDispatcher.DeliverAsync` for the built digest.
+
+---
+
+## Checklist (§145–154)
+
+- [x] 145. `DigestDeliveryDispatcherTests`
+- [x] 146. `RuleSimulationServiceTests`
+- [x] 147. `AlertGovernanceResolverTests` + `InternalsVisibleTo`
+- [x] 148. `AlertSuppressionPolicyTests`
+- [x] 149. `CompositeAlertServiceTests`
+- [x] 150. `TopologyCoverageFindingEngineTests`
+- [x] 151. `GraphSnapshotStorageMapper` / row types + `SqlGraphSnapshotRepository` + mapper tests
+- [x] 152. `DefaultGraphEdgeInfererContractTests` (KnowledgeGraph.Tests)
+- [x] 153. `AuditJsonSerializationOptions` + persistence audit/result JSON call sites
+- [x] 154. `AdvisoryScanRunner` digest persist + `DeliverAsync` verification test

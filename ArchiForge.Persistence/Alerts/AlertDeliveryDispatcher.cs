@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchiForge.Core.Audit;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Delivery;
+using ArchiForge.Persistence.Serialization;
 
 namespace ArchiForge.Persistence.Alerts;
 
@@ -107,13 +108,15 @@ public sealed class AlertDeliveryDispatcher(
                     {
                         EventType = AuditEventTypes.AlertDeliveryFailed,
                         RunId = alert.RunId,
-                        DataJson = JsonSerializer.Serialize(new
-                        {
-                            alertId = alert.AlertId,
-                            subscription.RoutingSubscriptionId,
-                            subscription.ChannelType,
-                            error = ex.Message,
-                        }),
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                alertId = alert.AlertId,
+                                subscription.RoutingSubscriptionId,
+                                subscription.ChannelType,
+                                error = ex.Message,
+                            },
+                            AuditJsonSerializationOptions.Instance),
                     },
                     ct).ConfigureAwait(false);
             }

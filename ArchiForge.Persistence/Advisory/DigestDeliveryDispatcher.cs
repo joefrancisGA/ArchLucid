@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchiForge.Core.Audit;
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchiForge.Persistence.Serialization;
 
 namespace ArchiForge.Persistence.Advisory;
 
@@ -91,12 +92,14 @@ public sealed class DigestDeliveryDispatcher(
                 {
                     EventType = AuditEventTypes.DigestDeliverySucceeded,
                     RunId = digest.RunId,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        digestId = digest.DigestId,
-                        subscriptionId = subscription.SubscriptionId,
-                        channelType = subscription.ChannelType
-                    }),
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            digestId = digest.DigestId,
+                            subscriptionId = subscription.SubscriptionId,
+                            channelType = subscription.ChannelType
+                        },
+                        AuditJsonSerializationOptions.Instance),
                 },
                 ct).ConfigureAwait(false);
         }
@@ -116,13 +119,15 @@ public sealed class DigestDeliveryDispatcher(
                 {
                     EventType = AuditEventTypes.DigestDeliveryFailed,
                     RunId = digest.RunId,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        digestId = digest.DigestId,
-                        subscriptionId = subscription.SubscriptionId,
-                        channelType = subscription.ChannelType,
-                        error = ex.Message
-                    }),
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            digestId = digest.DigestId,
+                            subscriptionId = subscription.SubscriptionId,
+                            channelType = subscription.ChannelType,
+                            error = ex.Message
+                        },
+                        AuditJsonSerializationOptions.Instance),
                 },
                 ct).ConfigureAwait(false);
         }

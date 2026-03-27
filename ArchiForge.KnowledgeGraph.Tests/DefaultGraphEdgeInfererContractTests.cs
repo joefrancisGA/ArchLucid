@@ -1,0 +1,84 @@
+using ArchiForge.ContextIngestion.Models;
+using ArchiForge.KnowledgeGraph;
+using ArchiForge.KnowledgeGraph.Inference;
+using ArchiForge.KnowledgeGraph.Models;
+
+using FluentAssertions;
+
+namespace ArchiForge.KnowledgeGraph.Tests;
+
+[Trait("Category", "Unit")]
+public sealed class DefaultGraphEdgeInfererContractTests
+{
+    private readonly DefaultGraphEdgeInferer _sut = new();
+
+    [Fact]
+    public void InferEdges_WhenChildDeclaresParentNodeId_AddsContainsResourceFromParentToChild()
+    {
+        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
+        GraphNode parent = new()
+        {
+            NodeId = "topo-parent",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "parent",
+            Category = GraphTopologyCategories.Storage,
+        };
+        GraphNode child = new()
+        {
+            NodeId = "topo-child",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "child",
+            Category = GraphTopologyCategories.Storage,
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["parentNodeId"] = "topo-parent",
+            },
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [parent, child]);
+
+        GraphEdge? edge = edges.SingleOrDefault(
+            e => e.EdgeType == GraphEdgeTypes.ContainsResource
+                && e.FromNodeId == "topo-parent"
+                && e.ToNodeId == "topo-child");
+
+        edge.Should().NotBeNull();
+        edge!.Weight.Should().Be(1d);
+    }
+
+    [Fact]
+    public void InferEdges_WhenPolicyListsApplicableTopologyNodeIds_OnlyTargetsListedResources()
+    {
+        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
+        GraphNode topoA = new()
+        {
+            NodeId = "res-a",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "a",
+            Category = GraphTopologyCategories.Compute,
+        };
+        GraphNode topoB = new()
+        {
+            NodeId = "res-b",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "b",
+            Category = GraphTopologyCategories.Compute,
+        };
+        GraphNode policy = new()
+        {
+            NodeId = "pol-1",
+            NodeType = GraphNodeTypes.PolicyControl,
+            Label = "policy",
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [CanonicalGraphPropertyKeys.ApplicableTopologyNodeIds] = "res-a",
+            },
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [topoA, topoB, policy]);
+
+        edges.Should().Contain(
+            e => e.EdgeType == GraphEdgeTypes.AppliesTo && e.FromNodeId == "pol-1" && e.ToNodeId == "res-a" && e.Weight == 1d);
+        edges.Should().NotContain(e => e.FromNodeId == "pol-1" && e.ToNodeId == "res-b");
+    }
+}

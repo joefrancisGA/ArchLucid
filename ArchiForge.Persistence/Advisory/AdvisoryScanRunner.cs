@@ -15,6 +15,7 @@ using ArchiForge.Decisioning.Comparison;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Queries;
+using ArchiForge.Persistence.Serialization;
 
 namespace ArchiForge.Persistence.Advisory;
 
@@ -114,13 +115,15 @@ public sealed class AdvisoryScanRunner(
                 new AuditEvent
                 {
                     EventType = AuditEventTypes.AdvisoryScanExecuted,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        scheduleId = schedule.ScheduleId,
-                        executionId = execution.ExecutionId,
-                        failed = true,
-                        error = ex.Message
-                    }),
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            scheduleId = schedule.ScheduleId,
+                            executionId = execution.ExecutionId,
+                            failed = true,
+                            error = ex.Message
+                        },
+                        AuditJsonSerializationOptions.Instance),
                 },
                 ct).ConfigureAwait(false);
 
@@ -258,17 +261,19 @@ public sealed class AdvisoryScanRunner(
 
         execution.Status = StatusCompleted;
         execution.CompletedUtc = DateTime.UtcNow;
-        execution.ResultJson = JsonSerializer.Serialize(new
-        {
-            runId = latest.RunId,
-            comparedToRunId,
-            recommendationCount = plan.Recommendations.Count,
-            digestId = digest.DigestId,
-            alertsEvaluated = alertOutcome.Evaluated.Count,
-            alertsNewlyPersisted = alertOutcome.NewlyPersisted.Count,
-            compositeAlertsCreated = compositeOutcome.Created.Count,
-            compositeAlertsSuppressed = compositeOutcome.SuppressedMatchCount,
-        });
+        execution.ResultJson = JsonSerializer.Serialize(
+            new
+            {
+                runId = latest.RunId,
+                comparedToRunId,
+                recommendationCount = plan.Recommendations.Count,
+                digestId = digest.DigestId,
+                alertsEvaluated = alertOutcome.Evaluated.Count,
+                alertsNewlyPersisted = alertOutcome.NewlyPersisted.Count,
+                compositeAlertsCreated = compositeOutcome.Created.Count,
+                compositeAlertsSuppressed = compositeOutcome.SuppressedMatchCount,
+            },
+            AuditJsonSerializationOptions.Instance);
 
         await executionRepository.UpdateAsync(execution, ct).ConfigureAwait(false);
 
@@ -277,7 +282,9 @@ public sealed class AdvisoryScanRunner(
             {
                 EventType = AuditEventTypes.AdvisoryScanExecuted,
                 RunId = latest.RunId,
-                DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, executionId = execution.ExecutionId }),
+                DataJson = JsonSerializer.Serialize(
+                    new { scheduleId = schedule.ScheduleId, executionId = execution.ExecutionId },
+                    AuditJsonSerializationOptions.Instance),
             },
             ct).ConfigureAwait(false);
 
@@ -307,7 +314,9 @@ public sealed class AdvisoryScanRunner(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AdvisoryScanExecuted,
-                DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, message = "no_runs" }),
+                DataJson = JsonSerializer.Serialize(
+                    new { scheduleId = schedule.ScheduleId, message = "no_runs" },
+                    AuditJsonSerializationOptions.Instance),
             },
             ct).ConfigureAwait(false);
 
@@ -329,7 +338,9 @@ public sealed class AdvisoryScanRunner(
             new AuditEvent
             {
                 EventType = AuditEventTypes.AdvisoryScanExecuted,
-                DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, failed = true, message }),
+                DataJson = JsonSerializer.Serialize(
+                    new { scheduleId = schedule.ScheduleId, failed = true, message },
+                    AuditJsonSerializationOptions.Instance),
             },
             ct).ConfigureAwait(false);
 

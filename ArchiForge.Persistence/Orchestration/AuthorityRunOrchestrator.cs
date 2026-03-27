@@ -13,6 +13,7 @@ using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.KnowledgeGraph.Services;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
+using ArchiForge.Persistence.Serialization;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
 using ArchiForge.Retrieval.Indexing;
@@ -140,7 +141,7 @@ public sealed class AuthorityRunOrchestrator(
                             manifest.ManifestHash,
                             manifest.RuleSetId
                         },
-                        AuditJsonOptions)
+                        AuditJsonSerializationOptions.Instance)
                 },
                 ct).ConfigureAwait(false);
 
@@ -163,7 +164,7 @@ public sealed class AuthorityRunOrchestrator(
                             artifactBundle.BundleId,
                             ArtifactCount = artifactBundle.Artifacts.Count
                         },
-                        AuditJsonOptions)
+                        AuditJsonSerializationOptions.Instance)
                 },
                 ct).ConfigureAwait(false);
 
@@ -193,7 +194,7 @@ public sealed class AuthorityRunOrchestrator(
                             run.ArtifactBundleId,
                             run.DecisionTraceId
                         },
-                        AuditJsonOptions)
+                        AuditJsonSerializationOptions.Instance)
                 },
                 ct).ConfigureAwait(false);
 

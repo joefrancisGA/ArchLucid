@@ -6,6 +6,7 @@ using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Alerts.Helpers;
+using ArchiForge.Persistence.Serialization;
 
 namespace ArchiForge.Persistence.Alerts;
 
@@ -77,13 +78,15 @@ public sealed class CompositeAlertService(
                     {
                         EventType = AuditEventTypes.AlertSuppressedByPolicy,
                         RunId = context.RunId,
-                        DataJson = JsonSerializer.Serialize(new
-                        {
-                            compositeRuleId = rule.CompositeRuleId,
-                            rule.Name,
-                            suppression.Reason,
-                            suppression.DeduplicationKey,
-                        }),
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                compositeRuleId = rule.CompositeRuleId,
+                                rule.Name,
+                                suppression.Reason,
+                                suppression.DeduplicationKey,
+                            },
+                            AuditJsonSerializationOptions.Instance),
                     },
                     ct).ConfigureAwait(false);
                 continue;
@@ -123,13 +126,15 @@ public sealed class CompositeAlertService(
                 {
                     EventType = AuditEventTypes.CompositeAlertTriggered,
                     RunId = context.RunId,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        alertId = alert.AlertId,
-                        compositeRuleId = rule.CompositeRuleId,
-                        rule.Name,
-                        alert.DeduplicationKey,
-                    }),
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            alertId = alert.AlertId,
+                            compositeRuleId = rule.CompositeRuleId,
+                            rule.Name,
+                            alert.DeduplicationKey,
+                        },
+                        AuditJsonSerializationOptions.Instance),
                 },
                 ct).ConfigureAwait(false);
         }
