@@ -1770,7 +1770,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [ ] 171. `DapperArchitectureDigestRepository` / similar round-trips.
 - [x] 172. **`AlertDeliveryDispatcherTests`** (null alert, no subs, success audit, failure audited).
 - [x] 173. `EffectiveGovernanceLoader` / resolver coverage (`EffectiveGovernanceLoaderTests`, `EffectiveGovernanceResolverTests`).
-- [ ] 174. `PolicyPackResolver` / assignment resolution layers.
+- [x] 174. `PolicyPackResolver` / assignment resolution layers (`PolicyPackResolverTests`).
 - [ ] 175. `ImprovementAdvisorService` mapping tests.
 - [x] 176. `ArchitectureDigestBuilder` markdown snapshot tests.
 - [ ] 177. `AuthorityQueryService` DTO mapping tests.
@@ -1880,7 +1880,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls up major themes only.
 
 - [ ] Documentation & ADRs (155–169): partial (155 open; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
-- [ ] Unit tests (170–194): partial (170–171, 174–175, 177–179, 182–185, 189–190 still open; added 181, 187, 188, 193, 194, 225 coverage).
+- [ ] Unit tests (170–194): partial (170–171, 175, 177–179, 182–185, 189–190 still open; added 174, 181, 187, 188, 193, 194, 225 coverage).
 - [ ] Integration / E2E (195–204): not started.
 - [ ] Observability & reliability (205–214): partial (205–209 done; 210+ still open).
 - [ ] Security (215–226): partial (**225–226** CORS + HSTS/headers; **215–224** Entra/RLS/WAF/SBOM/etc. still open).
