@@ -19,8 +19,8 @@ public sealed class RuleSimulationService(
     IAlertSuppressionPolicy suppressionPolicy,
     IAlertSimulationContextProvider contextProvider) : IRuleSimulationService
 {
-    private const string RuleKindSimple = "Simple";
-    private const string RuleKindComposite = "Composite";
+    private const string RuleKindSimple = RuleKindConstants.Simple;
+    private const string RuleKindComposite = RuleKindConstants.Composite;
     /// <inheritdoc />
     public async Task<RuleSimulationResult> SimulateAsync(
         Guid tenantId,

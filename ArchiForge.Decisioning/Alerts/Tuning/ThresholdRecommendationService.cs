@@ -1,5 +1,8 @@
-using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Simulation;
+
+// Type aliases avoid importing sibling namespace `...Alerts.Composite` (bare `Composite` → CS0118 here).
+using AlertRuleCondition = ArchiForge.Decisioning.Alerts.Composite.AlertRuleCondition;
+using CompositeAlertRule = ArchiForge.Decisioning.Alerts.Composite.CompositeAlertRule;
 
 namespace ArchiForge.Decisioning.Alerts.Tuning;
 
@@ -12,9 +15,9 @@ public sealed class ThresholdRecommendationService(
     IRuleSimulationService simulationService,
     IAlertNoiseScorer noiseScorer) : IThresholdRecommendationService
 {
-    private const string RuleKindSimple = "Simple";
+    private const string RuleKindSimple = global::ArchiForge.Decisioning.Alerts.Simulation.RuleKindConstants.Simple;
     private const string DefaultProjectSlug = "default";
-    private const string RuleKindComposite = "Composite";
+    private const string RuleKindComposite = global::ArchiForge.Decisioning.Alerts.Simulation.RuleKindConstants.Composite;
 
     /// <inheritdoc />
     public async Task<ThresholdRecommendationResult> RecommendAsync(

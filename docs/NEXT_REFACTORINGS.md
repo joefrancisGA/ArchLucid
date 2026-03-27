@@ -1482,3 +1482,152 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 132. `AuthorityReplayServiceTests` — 4 path tests
 - [x] 133. `GoldenManifestValidator` `PolicySection` list null guards + 3 tests
 - [x] 134. `InfrastructureDeclarationConnector.DeltaAsync` meaningful object-count delta
+
+---
+
+## §135 — `AlertMetricSnapshotBuilder`: constant-class adoption
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- Replaced hardcoded `"Critical"` / `"High"` urgency strings with `AlertUrgencies.Critical` / `AlertUrgencies.High`.
+- Replaced hardcoded `"Security"` category string with `AlertCategories.Security`.
+- No change to runtime behaviour; eliminates two silent magic-string drift sites.
+
+---
+
+## §136 — `AlertMetricSnapshotBuilderTests`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/AlertMetricSnapshotBuilderTests.cs` — 12 tests:
+  - `CriticalRecommendationCount`: null plan → 0; mixed urgencies → counts only Critical + High.
+  - `NewComplianceGapCount`: null comparison → 0; three `SecurityDelta` rows → 3.
+  - `CostIncreasePercent`: no delta → 0; zero base cost → 0; valid delta → correct percent.
+  - `DeferredHighPriorityRecommendationCount`: deferred + low priority → 0; deferred + high priority → 1.
+  - `RejectedSecurityRecommendationCount`: rejected non-security → 0; rejected security → 1.
+  - `AcceptanceRatePercent`: null profile → 0; zero proposed → 0; typical profile → 40 %.
+
+---
+
+## §137 — `CompositeAlertRuleEvaluatorTests`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/CompositeAlertRuleEvaluatorTests.cs` — 12 tests:
+  - Empty conditions → false; unknown operator → false.
+  - AND: all pass → true; one fails → false.
+  - OR: any passes → true; all fail → false.
+  - Six condition operators (`>=`, `>`, `<=`, `<`, `==`, `!=`) each tested at the exact boundary value.
+  - Unknown metric type resolves to 0 (two variants: 0 ≥ 1 → false; 0 == 0 → true).
+
+---
+
+## §138 — `RuleKindConstants` shared class
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning/Alerts/Simulation/RuleKindConstants.cs` — `public const string Simple = "Simple"; Composite = "Composite"`.
+- `RuleSimulationService` and `ThresholdRecommendationService` both replaced their private `const string` duplicates with `using static RuleKindConstants`.
+
+---
+
+## §139 — `RecommendationLearningAnalyzerTests`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/RecommendationLearningAnalyzerTests.cs` — 8 tests:
+  - Empty input → empty stats and weights; notes always present.
+  - Two categories → one `RecommendationOutcomeStats` bucket each with correct counts.
+  - Urgency stats grouped independently of category stats.
+  - All-accepted weight clamped at 2.0; all-rejected weight floor at 0.5.
+  - Six category→signal-type mappings (Security, Compliance, Requirement, Topology, Cost, Unknown).
+  - Notes contain count summary and category-weight phrase.
+
+---
+
+## §140 — `ThresholdRecommendationServiceTests`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/ThresholdRecommendationServiceTests.cs` — 5 tests:
+  - Empty threshold list → `RecommendedCandidate` null, candidates empty, summary note.
+  - Simple rule: `SimulateAsync` called once per threshold (3 × verified); `Candidates` count matches.
+  - Simple rule: highest scorer is the `RecommendedCandidate`.
+  - Composite rule: simulation called with `RuleKind = "Composite"` (verified) 2 ×.
+  - Unknown `RuleKind` → `SimulateAsync` never called; candidates empty.
+
+---
+
+## §141 — `AlertService.ApplyActionAsync` tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/AlertServiceApplyActionTests.cs` — 6 tests:
+  - Unknown alertId → returns null; repo `UpdateAsync` not called.
+  - Unknown action → returns unchanged record; no update or audit.
+  - Same-status no-op → no update or audit emitted.
+  - `Acknowledge` → `Status = Acknowledged`; repo updated once; `AlertAcknowledged` audit event.
+  - `Resolve` → `Status = Resolved`; `AlertResolved` audit event.
+  - `Suppress` → `Status = Suppressed`; `AlertSuppressed` audit event.
+
+---
+
+## §142 — `SecurityBaselineFindingEngineTests`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/SecurityBaselineFindingEngineTests.cs` — 5 tests:
+  - Empty graph → no findings.
+  - Single `SecurityBaseline` node with no edges → one finding; `RelatedNodeIds` contains only that node.
+  - `status = "missing"` → `FindingSeverity.Error`; payload `Impact` mentions "missing".
+  - `status = "Present"` (case-insensitive) → `FindingSeverity.Info`.
+  - `PROTECTS` edge to resource node → target node ID included in `RelatedNodeIds`; rationale mentions "PROTECTS".
+
+---
+
+## §143 — `DigestDeliveryDispatcher.DeliverToSubscriptionAsync` extraction
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `DeliverAsync` now delegates the per-subscription loop body to a new private `DeliverToSubscriptionAsync(digest, subscription, ct)`.
+- `DeliverToSubscriptionAsync` owns: attempt creation, channel resolution, `SendAsync`, status update, subscription `LastDeliveredUtc` stamp, and success/failure audit events.
+- `OperationCanceledException` is documented as explicitly re-thrown; all other exceptions are caught and audited without propagating.
+- No behaviour change; the refactor improves testability and reduces method length.
+
+---
+
+## §144 — `RecommendationFeedbackAnalyzerTests`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/RecommendationFeedbackAnalyzerTests.cs` — 5 tests:
+  - Empty list → empty dictionary.
+  - Single bucket (same category+status twice) → key `"Category:Status"` with count 2.
+  - Multi-bucket (Security×Proposed, Security×Accepted ×2, Cost×Rejected) → 3 entries with correct counts.
+  - Repository called with batch cap of 1 000 (verified via Moq).
+  - Key format verified as `"Category:Status"` (no normalisation).
+
+---
+
+## Checklist (§135–144)
+
+- [x] 135. `AlertMetricSnapshotBuilder` — adopt `AlertUrgencies` / `AlertCategories` constants
+- [x] 136. `AlertMetricSnapshotBuilderTests` — 12 metric tests (null guards + value paths for all 6 metrics)
+- [x] 137. `CompositeAlertRuleEvaluatorTests` — 12 tests (empty, AND, OR, 6 operators, unknown metric)
+- [x] 138. `RuleKindConstants` class; wire `RuleSimulationService` + `ThresholdRecommendationService`
+- [x] 139. `RecommendationLearningAnalyzerTests` — 8 tests (stats, weights, signal-type inference, notes)
+- [x] 140. `ThresholdRecommendationServiceTests` — 5 tests (no-candidates, Simple, highest score, Composite, unknown kind)
+- [x] 141. `AlertService.ApplyActionAsync` tests — 6 paths (unknown id, unknown action, same-status, Ack/Resolve/Suppress)
+- [x] 142. `SecurityBaselineFindingEngineTests` — 5 scenarios (empty, single, missing/Error, present/Info, PROTECTS edge)
+- [x] 143. `DigestDeliveryDispatcher.DeliverToSubscriptionAsync` method extraction
+- [x] 144. `RecommendationFeedbackAnalyzerTests` — 5 aggregation tests (empty, single, multi-bucket, cap, key format)

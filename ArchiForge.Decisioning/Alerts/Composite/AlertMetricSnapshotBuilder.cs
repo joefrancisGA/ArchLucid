@@ -19,8 +19,8 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
         {
             CriticalRecommendationCount =
                 context.ImprovementPlan?.Recommendations.Count(x =>
-                    string.Equals(x.Urgency, "Critical", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(x.Urgency, "High", StringComparison.OrdinalIgnoreCase)) ?? 0,
+                    string.Equals(x.Urgency, AlertUrgencies.Critical, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(x.Urgency, AlertUrgencies.High, StringComparison.OrdinalIgnoreCase)) ?? 0,
 
             NewComplianceGapCount =
                 context.ComparisonResult?.SecurityChanges.Count ?? 0,
@@ -33,7 +33,7 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
             RejectedSecurityRecommendationCount =
                 context.RecommendationRecords.Count(x =>
                     string.Equals(x.Status, RecommendationStatus.Rejected, StringComparison.OrdinalIgnoreCase) &&
-                    x.Category.Equals("Security", StringComparison.OrdinalIgnoreCase)),
+                    x.Category.Equals(AlertCategories.Security, StringComparison.OrdinalIgnoreCase)),
 
             AcceptanceRatePercent = BuildAcceptanceRatePercent(context),
             CostIncreasePercent = BuildCostIncreasePercent(context)

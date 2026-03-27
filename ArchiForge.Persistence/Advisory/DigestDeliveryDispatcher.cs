@@ -34,81 +34,97 @@ public sealed class DigestDeliveryDispatcher(
 
         foreach (DigestSubscription subscription in subscriptions)
         {
-            DigestDeliveryAttempt attempt = new()
-            {
-                AttemptId = Guid.NewGuid(),
-                DigestId = digest.DigestId,
-                SubscriptionId = subscription.SubscriptionId,
-                TenantId = digest.TenantId,
-                WorkspaceId = digest.WorkspaceId,
-                ProjectId = digest.ProjectId,
-                AttemptedUtc = DateTime.UtcNow,
-                Status = DigestDeliveryStatus.Started,
-                ChannelType = subscription.ChannelType,
-                Destination = subscription.Destination
-            };
+            await DeliverToSubscriptionAsync(digest, subscription, ct).ConfigureAwait(false);
+        }
+    }
 
-            await attemptRepository.CreateAsync(attempt, ct).ConfigureAwait(false);
+    /// <summary>
+    /// Creates an attempt row, resolves the channel, sends the digest, then updates the attempt status and audits the result.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="OperationCanceledException"/> is re-thrown to allow callers to honour cancellation.
+    /// All other exceptions are caught, recorded on the attempt row, and audited as failures without propagating.
+    /// </remarks>
+    private async Task DeliverToSubscriptionAsync(
+        ArchitectureDigest digest,
+        DigestSubscription subscription,
+        CancellationToken ct)
+    {
+        DigestDeliveryAttempt attempt = new()
+        {
+            AttemptId = Guid.NewGuid(),
+            DigestId = digest.DigestId,
+            SubscriptionId = subscription.SubscriptionId,
+            TenantId = digest.TenantId,
+            WorkspaceId = digest.WorkspaceId,
+            ProjectId = digest.ProjectId,
+            AttemptedUtc = DateTime.UtcNow,
+            Status = DigestDeliveryStatus.Started,
+            ChannelType = subscription.ChannelType,
+            Destination = subscription.Destination
+        };
 
-            try
-            {
-                IDigestDeliveryChannel channel = ResolveChannel(channels, subscription.ChannelType);
+        await attemptRepository.CreateAsync(attempt, ct).ConfigureAwait(false);
 
-                await channel
-                    .SendAsync(
-                        new DigestDeliveryPayload
-                        {
-                            Digest = digest,
-                            Subscription = subscription
-                        },
-                        ct)
-                    .ConfigureAwait(false);
+        try
+        {
+            IDigestDeliveryChannel channel = ResolveChannel(channels, subscription.ChannelType);
 
-                attempt.Status = DigestDeliveryStatus.Succeeded;
-                subscription.LastDeliveredUtc = DateTime.UtcNow;
-
-                await attemptRepository.UpdateAsync(attempt, ct).ConfigureAwait(false);
-                await subscriptionRepository.UpdateAsync(subscription, ct).ConfigureAwait(false);
-
-                await auditService.LogAsync(
-                    new AuditEvent
+            await channel
+                .SendAsync(
+                    new DigestDeliveryPayload
                     {
-                        EventType = AuditEventTypes.DigestDeliverySucceeded,
-                        RunId = digest.RunId,
-                        DataJson = JsonSerializer.Serialize(new
-                        {
-                            digestId = digest.DigestId,
-                            subscriptionId = subscription.SubscriptionId,
-                            channelType = subscription.ChannelType
-                        }),
+                        Digest = digest,
+                        Subscription = subscription
                     },
-                    ct).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                attempt.Status = DigestDeliveryStatus.Failed;
-                attempt.ErrorMessage = ex.Message;
-                await attemptRepository.UpdateAsync(attempt, ct).ConfigureAwait(false);
+                    ct)
+                .ConfigureAwait(false);
 
-                await auditService.LogAsync(
-                    new AuditEvent
+            attempt.Status = DigestDeliveryStatus.Succeeded;
+            subscription.LastDeliveredUtc = DateTime.UtcNow;
+
+            await attemptRepository.UpdateAsync(attempt, ct).ConfigureAwait(false);
+            await subscriptionRepository.UpdateAsync(subscription, ct).ConfigureAwait(false);
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.DigestDeliverySucceeded,
+                    RunId = digest.RunId,
+                    DataJson = JsonSerializer.Serialize(new
                     {
-                        EventType = AuditEventTypes.DigestDeliveryFailed,
-                        RunId = digest.RunId,
-                        DataJson = JsonSerializer.Serialize(new
-                        {
-                            digestId = digest.DigestId,
-                            subscriptionId = subscription.SubscriptionId,
-                            channelType = subscription.ChannelType,
-                            error = ex.Message
-                        }),
-                    },
-                    ct).ConfigureAwait(false);
-            }
+                        digestId = digest.DigestId,
+                        subscriptionId = subscription.SubscriptionId,
+                        channelType = subscription.ChannelType
+                    }),
+                },
+                ct).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            attempt.Status = DigestDeliveryStatus.Failed;
+            attempt.ErrorMessage = ex.Message;
+
+            await attemptRepository.UpdateAsync(attempt, ct).ConfigureAwait(false);
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.DigestDeliveryFailed,
+                    RunId = digest.RunId,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        digestId = digest.DigestId,
+                        subscriptionId = subscription.SubscriptionId,
+                        channelType = subscription.ChannelType,
+                        error = ex.Message
+                    }),
+                },
+                ct).ConfigureAwait(false);
         }
     }
 }
