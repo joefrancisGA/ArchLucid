@@ -3,6 +3,7 @@ using ArchiForge.Application.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
+using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 
@@ -33,6 +34,7 @@ public sealed class ReplayRunServiceTests
     {
         _sut = new ReplayRunService(
             _executorResolver.Object,
+            Mock.Of<IDbConnectionFactory>(),
             _decisionEngine.Object,
             _requestRepository.Object,
             _runDetailQueryService.Object,

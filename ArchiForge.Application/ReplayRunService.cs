@@ -8,6 +8,7 @@ using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 
@@ -21,6 +22,7 @@ namespace ArchiForge.Application;
 /// </summary>
 public sealed class ReplayRunService(
     IAgentExecutorResolver agentExecutorResolver,
+    IDbConnectionFactory connectionFactory,
     IDecisionEngineService decisionEngineService,
     IArchitectureRequestRepository requestRepository,
     IRunDetailQueryService runDetailQueryService,
@@ -173,6 +175,22 @@ public sealed class ReplayRunService(
             DecisionTraces = decisionTraces,
             Warnings = warnings
         };
+    }
+
+    private async Task PersistReplayCommitRowsAsync(
+        string replayRunId,
+        GoldenManifest manifest,
+        List<DecisionTrace> decisionTraces,
+        CancellationToken cancellationToken)
+    {
+        await manifestRepository.CreateAsync(manifest, cancellationToken).ConfigureAwait(false);
+        await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken).ConfigureAwait(false);
+        await runRepository.UpdateStatusAsync(
+            replayRunId,
+            ArchitectureRunStatus.Committed,
+            currentManifestVersion: manifest.Metadata.ManifestVersion,
+            completedUtc: DateTime.UtcNow,
+            cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

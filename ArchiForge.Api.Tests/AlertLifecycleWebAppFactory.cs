@@ -14,10 +14,13 @@ namespace ArchiForge.Api.Tests;
 /// </remarks>
 public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
 {
+    private readonly string _sqliteConnectionString =
+        $"Data Source=file:alert-lifecycle-{Guid.NewGuid():N}?mode=memory&cache=shared";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("ArchiForge:StorageProvider", "InMemory");
-        builder.UseSetting("ConnectionStrings:ArchiForge", ArchiForgeApiFactory.SqliteInMemoryConnectionString);
+        builder.UseSetting("ConnectionStrings:ArchiForge", _sqliteConnectionString);
 
         builder.ConfigureServices(services =>
         {
@@ -29,7 +32,7 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
             }
 
             services.AddSingleton<IDbConnectionFactory>(
-                new SqliteConnectionFactory(ArchiForgeApiFactory.SqliteInMemoryConnectionString));
+                new SqliteConnectionFactory(_sqliteConnectionString));
         });
     }
 }

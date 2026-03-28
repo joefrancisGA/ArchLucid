@@ -8,6 +8,7 @@ using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Api.Services;
@@ -22,6 +23,7 @@ namespace ArchiForge.Api.Services;
 /// inside a <see cref="System.Transactions.TransactionScope"/> to guarantee atomicity.
 /// </remarks>
 public sealed class ArchitectureApplicationService(
+    IDbConnectionFactory connectionFactory,
     IRunDetailQueryService runDetailQueryService,
     IArchitectureRunRepository runRepository,
     IAgentResultRepository resultRepository,
@@ -102,30 +104,28 @@ public sealed class ArchitectureApplicationService(
         }
 
         ArchitectureRunStatus newStatus;
-        using (TransactionScope tx = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled))
+        if (connectionFactory.SupportsAmbientTransactionScope)
         {
-            await resultRepository.CreateAsync(result, cancellationToken);
-
-            // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
-            IReadOnlyList<AgentResult> allResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
-            bool hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
-            newStatus = hasAllRequiredAgentTypes
-                ? ArchitectureRunStatus.ReadyForCommit
-                : ArchitectureRunStatus.WaitingForResults;
-
-            if (newStatus != run.Status)
+            using (TransactionScope tx = new(
+                       TransactionScopeOption.Required,
+                       TransactionScopeAsyncFlowOption.Enabled))
             {
-                await runRepository.UpdateStatusAsync(
+                newStatus = await SubmitAgentResultPersistAsync(
                     runId,
-                    newStatus,
-                    currentManifestVersion: run.CurrentManifestVersion,
-                    completedUtc: null,
-                    cancellationToken: cancellationToken);
-            }
+                    result,
+                    run,
+                    cancellationToken).ConfigureAwait(false);
 
-            tx.Complete();
+                tx.Complete();
+            }
+        }
+        else
+        {
+            newStatus = await SubmitAgentResultPersistAsync(
+                runId,
+                result,
+                run,
+                cancellationToken).ConfigureAwait(false);
         }
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -209,23 +209,68 @@ public sealed class ArchitectureApplicationService(
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
 
-        using (TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled))
+        if (connectionFactory.SupportsAmbientTransactionScope)
         {
-            await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
-            await runRepository.UpdateStatusAsync(
-                runId,
-                newStatus,
-                currentManifestVersion: run.CurrentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken);
-            scope.Complete();
+            using (TransactionScope scope = new(
+                       TransactionScopeOption.Required,
+                       TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await SeedFakeResultsPersistAsync(runId, fakeResults, run, newStatus, cancellationToken).ConfigureAwait(false);
+                scope.Complete();
+            }
+        }
+        else
+        {
+            await SeedFakeResultsPersistAsync(runId, fakeResults, run, newStatus, cancellationToken).ConfigureAwait(false);
         }
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", runId, fakeResults.Count, newStatus);
 
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
+    }
+
+    private async Task<ArchitectureRunStatus> SubmitAgentResultPersistAsync(
+        string runId,
+        AgentResult result,
+        ArchitectureRun run,
+        CancellationToken cancellationToken)
+    {
+        await resultRepository.CreateAsync(result, cancellationToken);
+
+        // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
+        IReadOnlyList<AgentResult> allResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        bool hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
+        ArchitectureRunStatus newStatus = hasAllRequiredAgentTypes
+            ? ArchitectureRunStatus.ReadyForCommit
+            : ArchitectureRunStatus.WaitingForResults;
+
+        if (newStatus != run.Status)
+        {
+            await runRepository.UpdateStatusAsync(
+                runId,
+                newStatus,
+                currentManifestVersion: run.CurrentManifestVersion,
+                completedUtc: null,
+                cancellationToken: cancellationToken);
+        }
+
+        return newStatus;
+    }
+
+    private async Task SeedFakeResultsPersistAsync(
+        string runId,
+        IReadOnlyList<AgentResult> fakeResults,
+        ArchitectureRun run,
+        ArchitectureRunStatus newStatus,
+        CancellationToken cancellationToken)
+    {
+        await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
+        await runRepository.UpdateStatusAsync(
+            runId,
+            newStatus,
+            currentManifestVersion: run.CurrentManifestVersion,
+            completedUtc: null,
+            cancellationToken: cancellationToken);
     }
 }

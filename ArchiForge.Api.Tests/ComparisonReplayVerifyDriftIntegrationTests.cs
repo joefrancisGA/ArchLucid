@@ -27,7 +27,7 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFac
             Client, runId, replayRunId);
 
         string payloadJson;
-        await using (SqliteConnection conn = new(ArchiForgeApiFactory.SqliteInMemoryConnectionString))
+        await using (SqliteConnection conn = new(factory.SqliteConnectionString))
         {
             await conn.OpenAsync();
             await using SqliteCommand cmd = conn.CreateCommand();
@@ -42,7 +42,7 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFac
         node["leftRunId"] = "tampered-run-id-for-drift";
         string corrupted = node.ToJsonString();
 
-        await using (SqliteConnection conn = new(ArchiForgeApiFactory.SqliteInMemoryConnectionString))
+        await using (SqliteConnection conn = new(factory.SqliteConnectionString))
         {
             await conn.OpenAsync();
             await using SqliteCommand cmd = conn.CreateCommand();

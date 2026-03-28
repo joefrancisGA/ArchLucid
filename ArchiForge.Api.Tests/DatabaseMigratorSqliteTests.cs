@@ -10,7 +10,7 @@ public sealed class DatabaseMigratorSqliteTests
     [Fact]
     public void IsSqliteConnection_ReturnsTrue_ForSharedInMemoryTestConnectionString()
     {
-        DatabaseMigrator.IsSqliteConnection(ArchiForgeApiFactory.SqliteInMemoryConnectionString).Should().BeTrue();
+        DatabaseMigrator.IsSqliteConnection("Data Source=file:migrator-test?mode=memory&cache=shared").Should().BeTrue();
     }
 
     [Fact]
