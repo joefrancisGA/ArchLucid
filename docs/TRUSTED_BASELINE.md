@@ -1,6 +1,12 @@
-# Trusted baseline (49R pass 2 — Corrected 50R)
+# Trusted baseline (49R pass 2 — Corrected 50R, Corrected 51R discipline)
 
 This document defines what the repo treats as **intentionally complete and demo-worthy** for the v1 foundation. It exists so bootstrap, demo seed, and docs stay honest when later-phase code is present but not baseline-complete.
+
+## Corrected 51R — actor, auth, mutation audit (baseline only)
+
+- **Actor resolution:** Application code resolves the acting principal via **`IActorContext`** (`ArchiForge.Application/Common`), backed by **`IHttpContextAccessor`**. When no identity name is present, the fallback is the non-empty string **`api-user`** (not an empty string). Baseline services should use **`IActorContext`** instead of reading **`HttpContext.User`** directly.
+- **Auth on baseline controllers:** **`RunsController`**, **`GovernanceController`**, and **`RunComparisonController`** use the existing **`ReadAuthority`** / **`ExecuteAuthority`** policy split consistent with **`ArchiForgePolicies`**. Controllers outside this set may still differ until intentionally aligned.
+- **Mutation audit (logging, not SQL `AuditEvents`):** Successful and failed **trusted baseline mutations** emit structured **`ILogger`** lines via **`IBaselineMutationAuditService`** / **`BaselineMutationAuditService`**. This is separate from **`ArchiForge.Core.Audit.IAuditService`**, which persists to the database for other scenarios. Event type strings live in **`AuditEventTypes`** (e.g. **`Architecture.RunStarted`**, **`Architecture.RunCompleted`**, **`Governance.ManifestPromoted`**). Failed or blocked operations must not log a **success** event; blocked commits and merge failures emit **`Architecture.RunFailed`** with a short reason.
 
 ## What is trusted (Category A)
 

@@ -15,6 +15,7 @@ using FluentValidation.Results;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -23,6 +24,9 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[EnableRateLimiting("fixed")]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class RunComparisonController(
     IRunDetailQueryService runDetailQueryService,
     IAgentResultDiffService agentResultDiffService,

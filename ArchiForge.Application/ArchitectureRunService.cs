@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Transactions;
 
 using ArchiForge.AgentSimulator.Services;
+using ArchiForge.Application.Common;
 using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Runs;
@@ -43,6 +44,8 @@ public sealed class ArchitectureRunService(
     IDecisionTraceRepository decisionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
+    IActorContext actorContext,
+    IBaselineMutationAuditService baselineMutationAudit,
     ILogger<ArchitectureRunService> logger)
     : IArchitectureRunService
 {
@@ -53,6 +56,8 @@ public sealed class ArchitectureRunService(
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        string actor = actorContext.GetActor();
 
         if (idempotency is not null)
         {
@@ -65,54 +70,81 @@ public sealed class ArchitectureRunService(
 
         if (!coordination.Success)
         {
+            string detail = string.Join("; ", coordination.Errors);
+
+            await baselineMutationAudit
+                .RecordAsync(
+                    AuditEventTypes.Architecture.RunFailed,
+                    actor,
+                    request.RequestId,
+                    $"Coordination failed: {detail}",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
             throw new InvalidOperationException(
-                $"CreateRun failed: {string.Join("; ", coordination.Errors)}");
+                $"CreateRun failed: {detail}");
         }
 
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation(
-            "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
-            coordination.Run.RunId,
-            request.RequestId,
-            request.SystemName,
-            request.Environment);
+                "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
+                coordination.Run.RunId,
+                request.RequestId,
+                request.SystemName,
+                request.Environment);
         }
 
         bool inserted = false;
 
-        using (TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled))
+        try
         {
-            await requestRepository.CreateAsync(request, cancellationToken).ConfigureAwait(false);
-            await runRepository.CreateAsync(coordination.Run, cancellationToken).ConfigureAwait(false);
-            await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken).ConfigureAwait(false);
-            await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken).ConfigureAwait(false);
-
-            if (idempotency is not null)
+            using (TransactionScope scope = new(
+                TransactionScopeOption.Required,
+                TransactionScopeAsyncFlowOption.Enabled))
             {
-                inserted = await architectureRunIdempotencyRepository
-                    .TryInsertAsync(
-                        idempotency.TenantId,
-                        idempotency.WorkspaceId,
-                        idempotency.ProjectId,
-                        idempotency.IdempotencyKeyHash,
-                        idempotency.RequestFingerprint,
-                        coordination.Run.RunId,
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                await requestRepository.CreateAsync(request, cancellationToken).ConfigureAwait(false);
+                await runRepository.CreateAsync(coordination.Run, cancellationToken).ConfigureAwait(false);
+                await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken).ConfigureAwait(false);
+                await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken).ConfigureAwait(false);
 
-                if (!inserted)
+                if (idempotency is not null)
                 {
-                    logger.LogWarning(
-                        "CreateRun idempotency insert lost race for RunId={RunId}; rolling back legacy row and returning winner.",
-                        coordination.Run.RunId);
-                }
-            }
+                    inserted = await architectureRunIdempotencyRepository
+                        .TryInsertAsync(
+                            idempotency.TenantId,
+                            idempotency.WorkspaceId,
+                            idempotency.ProjectId,
+                            idempotency.IdempotencyKeyHash,
+                            idempotency.RequestFingerprint,
+                            coordination.Run.RunId,
+                            cancellationToken)
+                        .ConfigureAwait(false);
 
-            if (inserted || idempotency is null)
-                scope.Complete();
+                    if (!inserted)
+                    {
+                        logger.LogWarning(
+                            "CreateRun idempotency insert lost race for RunId={RunId}; rolling back legacy row and returning winner.",
+                            coordination.Run.RunId);
+                    }
+                }
+
+                if (inserted || idempotency is null)
+                    scope.Complete();
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            await baselineMutationAudit
+                .RecordAsync(
+                    AuditEventTypes.Architecture.RunFailed,
+                    actor,
+                    coordination.Run.RunId,
+                    $"Persist failed: {ex.GetType().Name}",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            throw;
         }
 
         if (idempotency is not null && !inserted)
@@ -125,10 +157,22 @@ public sealed class ArchitectureRunService(
                 "Idempotency insert failed but no winning row was found; retry the request.");
         }
 
-        logger.LogInformation(
-            "Architecture run created: RunId={RunId}, TaskCount={TaskCount}",
-            coordination.Run.RunId,
-            coordination.Tasks.Count);
+        await baselineMutationAudit
+            .RecordAsync(
+                AuditEventTypes.Architecture.RunCreated,
+                actor,
+                coordination.Run.RunId,
+                $"RequestId={request.RequestId}; Environment={request.Environment}",
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Architecture run created: RunId={RunId}, TaskCount={TaskCount}",
+                coordination.Run.RunId,
+                coordination.Tasks.Count);
+        }
 
         return new CreateRunResult
         {
@@ -228,6 +272,32 @@ public sealed class ArchitectureRunService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
+        string actor = actorContext.GetActor();
+
+        try
+        {
+            return await ExecuteRunCoreAsync(runId, actor, cancellationToken).ConfigureAwait(false);
+        }
+        catch (RunNotFoundException)
+        {
+            await baselineMutationAudit
+                .RecordAsync(
+                    AuditEventTypes.Architecture.RunFailed,
+                    actor,
+                    runId,
+                    "Run not found.",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            throw;
+        }
+    }
+
+    private async Task<ExecuteRunResult> ExecuteRunCoreAsync(
+        string runId,
+        string actor,
+        CancellationToken cancellationToken)
+    {
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation(
                 "Executing architecture run: RunId={RunId}",
@@ -240,51 +310,88 @@ public sealed class ArchitectureRunService(
         if (idempotent is not null)
             return idempotent;
 
-        ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken).ConfigureAwait(false)
-                                      ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
+        await baselineMutationAudit
+            .RecordAsync(
+                AuditEventTypes.Architecture.RunStarted,
+                actor,
+                runId,
+                null,
+                cancellationToken)
+            .ConfigureAwait(false);
 
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
-        if (tasks.Count == 0)
+        try
         {
-            throw new InvalidOperationException($"No tasks found for run '{runId}'.");
+            ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken).ConfigureAwait(false)
+                                          ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
+
+            IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+            if (tasks.Count == 0)
+            {
+                throw new InvalidOperationException($"No tasks found for run '{runId}'.");
+            }
+
+            AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken).ConfigureAwait(false);
+
+            IReadOnlyList<AgentResult> results = await agentExecutor.ExecuteAsync(
+                runId,
+                request,
+                evidence,
+                tasks,
+                cancellationToken).ConfigureAwait(false);
+
+            IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationService.EvaluateAsync(
+                runId,
+                request,
+                evidence,
+                tasks,
+                results,
+                cancellationToken).ConfigureAwait(false);
+
+            await PersistExecutePhaseAsync(
+                runId,
+                run.Status,
+                run.CurrentManifestVersion,
+                evidence,
+                results,
+                evaluations,
+                cancellationToken).ConfigureAwait(false);
+
+            await baselineMutationAudit
+                .RecordAsync(
+                    AuditEventTypes.Architecture.RunExecuteSucceeded,
+                    actor,
+                    runId,
+                    $"ResultCount={results.Count}",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation(
+                    "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",
+                    runId,
+                    results.Count);
+            }
+
+            return new ExecuteRunResult
+            {
+                RunId = runId,
+                Results = results.ToList()
+            };
         }
-
-        AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken).ConfigureAwait(false);
-
-        IReadOnlyList<AgentResult> results = await agentExecutor.ExecuteAsync(
-            runId,
-            request,
-            evidence,
-            tasks,
-            cancellationToken).ConfigureAwait(false);
-
-        IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationService.EvaluateAsync(
-            runId,
-            request,
-            evidence,
-            tasks,
-            results,
-            cancellationToken).ConfigureAwait(false);
-
-        await PersistExecutePhaseAsync(
-            runId,
-            run.Status,
-            run.CurrentManifestVersion,
-            evidence,
-            results,
-            evaluations,
-            cancellationToken).ConfigureAwait(false);
-
-        logger.LogInformation(
-            "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",
-            runId,
-            results.Count);
-
-        return new ExecuteRunResult
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            RunId = runId,
-            Results = results.ToList()
-        };
+            await baselineMutationAudit
+                .RecordAsync(
+                    AuditEventTypes.Architecture.RunFailed,
+                    actor,
+                    runId,
+                    ex.GetType().Name,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            throw;
+        }
     }
 
     /// <summary>
@@ -355,9 +462,38 @@ public sealed class ArchitectureRunService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        logger.LogInformation(
-            "Committing architecture run: RunId={RunId}",
-            runId);
+        string actor = actorContext.GetActor();
+
+        try
+        {
+            return await CommitRunCoreAsync(runId, actor, cancellationToken).ConfigureAwait(false);
+        }
+        catch (RunNotFoundException)
+        {
+            await baselineMutationAudit
+                .RecordAsync(
+                    AuditEventTypes.Architecture.RunFailed,
+                    actor,
+                    runId,
+                    "Run not found.",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            throw;
+        }
+    }
+
+    private async Task<CommitRunResult> CommitRunCoreAsync(
+        string runId,
+        string actor,
+        CancellationToken cancellationToken)
+    {
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Committing architecture run: RunId={RunId}",
+                runId);
+        }
 
         ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken).ConfigureAwait(false)
                               ?? throw new RunNotFoundException(runId);
@@ -366,55 +502,117 @@ public sealed class ArchitectureRunService(
         if (idempotent is not null)
             return idempotent;
 
-        EnforceCommitAllowedForStatus(run, runId);
-
-        ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken).ConfigureAwait(false)
-                                      ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
-
-        await EnsureCommitPrerequisitesAsync(runId, cancellationToken).ConfigureAwait(false);
-
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
-        IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
-        if (results.Count == 0)
+        try
         {
-            throw new InvalidOperationException($"No agent results found for run '{runId}'.");
+            EnforceCommitAllowedForStatus(run, runId);
+        }
+        catch (ConflictException ex)
+        {
+            await baselineMutationAudit
+                .RecordAsync(
+                    AuditEventTypes.Architecture.RunFailed,
+                    actor,
+                    runId,
+                    $"Commit blocked: {ex.Message}",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            throw;
         }
 
-        IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
-        IReadOnlyList<DecisionNode> decisionNodes = await decisionEngineV2.ResolveAsync(
-            runId,
-            request,
-            tasks,
-            results,
-            evaluations,
-            cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<DecisionNode> decisionNodes;
+        DecisionMergeResult merge;
 
-        string manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
-            ? "v1"
-            : IncrementManifestVersion(run.CurrentManifestVersion);
+        try
+        {
+            ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken).ConfigureAwait(false)
+                                          ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-        DecisionMergeResult merge = decisionEngine.MergeResults(
-            runId,
-            request,
-            manifestVersion,
-            results,
-            evaluations,
-            decisionNodes,
-            run.CurrentManifestVersion);
+            await EnsureCommitPrerequisitesAsync(runId, cancellationToken).ConfigureAwait(false);
+
+            IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+            if (results.Count == 0)
+            {
+                throw new InvalidOperationException($"No agent results found for run '{runId}'.");
+            }
+
+            IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+            decisionNodes = await decisionEngineV2.ResolveAsync(
+                runId,
+                request,
+                tasks,
+                results,
+                evaluations,
+                cancellationToken).ConfigureAwait(false);
+
+            string manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+                ? "v1"
+                : IncrementManifestVersion(run.CurrentManifestVersion);
+
+            merge = decisionEngine.MergeResults(
+                runId,
+                request,
+                manifestVersion,
+                results,
+                evaluations,
+                decisionNodes,
+                run.CurrentManifestVersion);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            await baselineMutationAudit
+                .RecordAsync(
+                    AuditEventTypes.Architecture.RunFailed,
+                    actor,
+                    runId,
+                    ex.GetType().Name,
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            throw;
+        }
 
         if (!merge.Success)
         {
-            await FailRunAfterMergeFailureAsync(runId, run.CurrentManifestVersion, merge.Errors, cancellationToken).ConfigureAwait(false);
+            await FailRunAfterMergeFailureAsync(runId, run.CurrentManifestVersion, merge.Errors, actor, cancellationToken).ConfigureAwait(false);
         }
 
-        await PersistCommittedRunAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            await PersistCommittedRunAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            await baselineMutationAudit
+                .RecordAsync(
+                    AuditEventTypes.Architecture.RunFailed,
+                    actor,
+                    runId,
+                    $"Persist failed: {ex.GetType().Name}",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            throw;
+        }
+
+        await baselineMutationAudit
+            .RecordAsync(
+                AuditEventTypes.Architecture.RunCompleted,
+                actor,
+                runId,
+                $"ManifestVersion={merge.Manifest.Metadata.ManifestVersion}; WarningCount={merge.Warnings.Count}",
+                cancellationToken)
+            .ConfigureAwait(false);
 
         if (logger.IsEnabled(LogLevel.Information))
+        {
             logger.LogInformation(
                 "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
                 runId,
                 merge.Manifest.Metadata.ManifestVersion,
                 merge.Warnings.Count);
+        }
 
         return new CommitRunResult
         {
@@ -488,8 +686,20 @@ public sealed class ArchitectureRunService(
         string runId,
         string? currentManifestVersion,
         IReadOnlyList<string> mergeErrors,
+        string actor,
         CancellationToken cancellationToken)
     {
+        string detail = string.Join("; ", mergeErrors);
+
+        await baselineMutationAudit
+            .RecordAsync(
+                AuditEventTypes.Architecture.RunFailed,
+                actor,
+                runId,
+                $"Merge failed: {detail}",
+                cancellationToken)
+            .ConfigureAwait(false);
+
         await runRepository.UpdateStatusAsync(
             runId,
             ArchitectureRunStatus.Failed,
@@ -498,7 +708,7 @@ public sealed class ArchitectureRunService(
             cancellationToken).ConfigureAwait(false);
 
         throw new InvalidOperationException(
-            $"CommitRun failed: {string.Join("; ", mergeErrors)}");
+            $"CommitRun failed: {detail}");
     }
 
     private async Task PersistCommittedRunAsync(

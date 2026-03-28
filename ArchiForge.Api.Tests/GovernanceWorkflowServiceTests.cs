@@ -1,4 +1,5 @@
 using ArchiForge.Application;
+using ArchiForge.Application.Common;
 using ArchiForge.Application.Governance;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
@@ -71,6 +72,15 @@ public sealed class GovernanceWorkflowServiceTests
         result.RequestedBy.Should().Be("alice");
 
         _approvalRepo.Verify(r => r.CreateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                AuditEventTypes.Governance.ApprovalRequestSubmitted,
+                "alice",
+                It.IsAny<string>(),
+                It.Is<string>(d => d.Contains("run-1", StringComparison.Ordinal) && d.Contains("v1", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -84,6 +94,15 @@ public sealed class GovernanceWorkflowServiceTests
 
         await act.Should().ThrowAsync<RunNotFoundException>()
             .WithMessage("*missing-run*");
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ── Approve ──────────────────────────────────────────────────────────────
@@ -114,6 +133,15 @@ public sealed class GovernanceWorkflowServiceTests
         _approvalRepo.Verify(r => r.UpdateAsync(
             It.Is<GovernanceApprovalRequest>(x => x.Status == GovernanceApprovalStatus.Approved),
             It.IsAny<CancellationToken>()), Times.Once);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                AuditEventTypes.Governance.ApprovalRequestApproved,
+                "bob",
+                "apr-1",
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -151,6 +179,15 @@ public sealed class GovernanceWorkflowServiceTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*cannot be approved*");
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ── Reject ───────────────────────────────────────────────────────────────
@@ -174,6 +211,15 @@ public sealed class GovernanceWorkflowServiceTests
         result.Status.Should().Be(GovernanceApprovalStatus.Rejected);
         result.ReviewedBy.Should().Be("carol");
         result.ReviewComment.Should().Be("Needs more detail");
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                AuditEventTypes.Governance.ApprovalRequestRejected,
+                "carol",
+                "apr-2",
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -208,6 +254,15 @@ public sealed class GovernanceWorkflowServiceTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*approved approval request*");
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -219,6 +274,8 @@ public sealed class GovernanceWorkflowServiceTests
             Status = GovernanceApprovalStatus.Submitted
         };
 
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-pending", It.IsAny<CancellationToken>()))
             .ReturnsAsync(pendingApproval);
 
@@ -228,6 +285,15 @@ public sealed class GovernanceWorkflowServiceTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*approved approval request*");
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -264,11 +330,22 @@ public sealed class GovernanceWorkflowServiceTests
             It.Is<GovernanceApprovalRequest>(x => x.Status == GovernanceApprovalStatus.Promoted),
             It.IsAny<CancellationToken>()), Times.Once);
         _promotionRepo.Verify(r => r.CreateAsync(It.IsAny<GovernancePromotionRecord>(), It.IsAny<CancellationToken>()), Times.Once);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                AuditEventTypes.Governance.ManifestPromoted,
+                "alice",
+                It.IsAny<string>(),
+                It.Is<string>(d => d.Contains("run-1", StringComparison.Ordinal) && d.Contains("prod", StringComparison.OrdinalIgnoreCase)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
     public async Task Promote_ToTest_WithoutApproval_Succeeds()
     {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
         _promotionRepo.Setup(r => r.CreateAsync(It.IsAny<GovernancePromotionRecord>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -278,6 +355,15 @@ public sealed class GovernanceWorkflowServiceTests
 
         result.TargetEnvironment.Should().Be(GovernanceEnvironment.Test);
         _promotionRepo.Verify(r => r.CreateAsync(It.IsAny<GovernancePromotionRecord>(), It.IsAny<CancellationToken>()), Times.Once);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                AuditEventTypes.Governance.ManifestPromoted,
+                "alice",
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     // ── Activate ─────────────────────────────────────────────────────────────
@@ -303,7 +389,7 @@ public sealed class GovernanceWorkflowServiceTests
         _activationRepo.Setup(r => r.CreateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        GovernanceEnvironmentActivation result = await _sut.ActivateAsync("run-2", "v2", "dev");
+        GovernanceEnvironmentActivation result = await _sut.ActivateAsync("run-2", "v2", "dev", "activator");
 
         result.IsActive.Should().BeTrue();
         result.ManifestVersion.Should().Be("v2");
@@ -328,13 +414,22 @@ public sealed class GovernanceWorkflowServiceTests
         _activationRepo.Setup(r => r.CreateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        GovernanceEnvironmentActivation result = await _sut.ActivateAsync("run-1", "v1", "test");
+        GovernanceEnvironmentActivation result = await _sut.ActivateAsync("run-1", "v1", "test", "activator");
 
         result.IsActive.Should().BeTrue();
         result.Environment.Should().Be("test");
 
         _activationRepo.Verify(r => r.UpdateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()), Times.Never);
         _activationRepo.Verify(r => r.CreateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()), Times.Once);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                AuditEventTypes.Governance.EnvironmentActivated,
+                "activator",
+                It.IsAny<string>(),
+                It.Is<string>(d => d.Contains("run-1", StringComparison.Ordinal) && d.Contains("test", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -343,9 +438,18 @@ public sealed class GovernanceWorkflowServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("no-such-run", It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
-        Func<Task<GovernanceEnvironmentActivation>> act = () => _sut.ActivateAsync("no-such-run", "v1", "dev");
+        Func<Task<GovernanceEnvironmentActivation>> act = () => _sut.ActivateAsync("no-such-run", "v1", "dev", "activator");
 
         await act.Should().ThrowAsync<RunNotFoundException>()
             .WithMessage("*no-such-run*");
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

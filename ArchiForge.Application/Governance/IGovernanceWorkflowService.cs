@@ -102,6 +102,7 @@ public interface IGovernanceWorkflowService
     /// <param name="runId">The run whose manifest is being activated.</param>
     /// <param name="manifestVersion">The manifest version to activate.</param>
     /// <param name="environment">The environment in which the manifest becomes the active version.</param>
+    /// <param name="activatedBy">Identity of the actor performing activation (typically from HTTP context).</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The newly created <see cref="GovernanceEnvironmentActivation"/>.</returns>
     /// <exception cref="RunNotFoundException">Thrown when <paramref name="runId"/> does not exist.</exception>
@@ -109,5 +110,6 @@ public interface IGovernanceWorkflowService
         string runId,
         string manifestVersion,
         string environment,
+        string activatedBy,
         CancellationToken cancellationToken = default);
 }

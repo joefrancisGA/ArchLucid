@@ -1,5 +1,6 @@
 using System.Transactions;
 
+using ArchiForge.Application.Common;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Contracts.Metadata;
@@ -20,6 +21,7 @@ public sealed class GovernanceWorkflowService(
     IGovernancePromotionRecordRepository promotionRepo,
     IGovernanceEnvironmentActivationRepository activationRepo,
     IRunDetailQueryService runDetailQueryService,
+    IBaselineMutationAuditService baselineMutationAudit,
     ILogger<GovernanceWorkflowService> logger)
     : IGovernanceWorkflowService
 {
@@ -95,6 +97,15 @@ public sealed class GovernanceWorkflowService(
         request.ReviewedUtc = DateTime.UtcNow;
 
         await approvalRepo.UpdateAsync(request, cancellationToken).ConfigureAwait(false);
+
+        await baselineMutationAudit
+            .RecordAsync(
+                AuditEventTypes.Governance.ApprovalRequestApproved,
+                reviewedBy,
+                approvalRequestId,
+                $"Status={GovernanceApprovalStatus.Approved}",
+                cancellationToken)
+            .ConfigureAwait(false);
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -220,6 +231,15 @@ public sealed class GovernanceWorkflowService(
 
         await promotionRepo.CreateAsync(record, cancellationToken).ConfigureAwait(false);
 
+        await baselineMutationAudit
+            .RecordAsync(
+                AuditEventTypes.Governance.ManifestPromoted,
+                promotedBy,
+                record.PromotionRecordId,
+                $"RunId={runId}; ManifestVersion={manifestVersion}; {sourceEnvironment}->{targetEnvironment}",
+                cancellationToken)
+            .ConfigureAwait(false);
+
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation(
@@ -238,11 +258,13 @@ public sealed class GovernanceWorkflowService(
         string runId,
         string manifestVersion,
         string environment,
+        string activatedBy,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
         ArgumentException.ThrowIfNullOrWhiteSpace(environment);
+        ArgumentException.ThrowIfNullOrWhiteSpace(activatedBy);
 
         _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken).ConfigureAwait(false)
             ?? throw new RunNotFoundException(runId);
@@ -271,6 +293,15 @@ public sealed class GovernanceWorkflowService(
             await activationRepo.CreateAsync(activation, cancellationToken).ConfigureAwait(false);
             scope.Complete();
         }
+
+        await baselineMutationAudit
+            .RecordAsync(
+                AuditEventTypes.Governance.EnvironmentActivated,
+                activatedBy,
+                activation.ActivationId,
+                $"RunId={runId}; ManifestVersion={manifestVersion}; Environment={environment}",
+                cancellationToken)
+            .ConfigureAwait(false);
 
         if (logger.IsEnabled(LogLevel.Information))
         {

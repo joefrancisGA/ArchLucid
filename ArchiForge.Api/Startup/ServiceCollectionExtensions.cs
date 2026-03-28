@@ -15,6 +15,7 @@ using ArchiForge.Api.Services.Delivery;
 using ArchiForge.Api.Startup.Validation;
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
+using ArchiForge.Application.Common;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Application.Bootstrap;
 using ArchiForge.Application.Governance;
@@ -210,6 +211,8 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterRunReplayManifestAndDiffs(IServiceCollection services)
     {
+        services.AddScoped<IActorContext, ActorContext>();
+        services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
         services.AddScoped<IReplayRunService, ReplayRunService>();

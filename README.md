@@ -19,7 +19,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Persisted tables & domains (migrations + authority DDL overview) |
 | [docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md) | **SQL reference:** DbUp migrations, consolidated scripts, bootstrap paths, troubleshooting, change checklist |
 | [docs/demo-quickstart.md](docs/demo-quickstart.md) | **Corrected 50R demo:** DbUp + Contoso trusted-baseline seed, `Demo:*` config, `POST /v1.0/demo/seed`, verification endpoints |
-| [docs/TRUSTED_BASELINE.md](docs/TRUSTED_BASELINE.md) | **49R pass 2 boundary:** what is baseline-trusted vs optional (export replay, later phases) |
+| [docs/TRUSTED_BASELINE.md](docs/TRUSTED_BASELINE.md) | **49R pass 2 boundary + Corrected 51R:** baseline-trusted surface, optional features, centralized actor (`IActorContext`), log-only baseline mutation audit (`IBaselineMutationAuditService`) vs SQL audit |
 
 ## Operator quick start
 

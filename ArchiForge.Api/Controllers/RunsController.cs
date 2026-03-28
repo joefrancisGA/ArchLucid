@@ -4,6 +4,7 @@ using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
+using ArchiForge.Application.Common;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Runs;
 using ArchiForge.Core.Scoping;
@@ -39,6 +40,7 @@ public sealed partial class RunsController(
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IScopeContextProvider scopeContextProvider,
+    IActorContext actorContext,
     ILogger<RunsController> logger)
     : ControllerBase
 {
@@ -59,7 +61,7 @@ public sealed partial class RunsController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
         }
 
-        string user = User.Identity?.Name ?? "anonymous";
+        string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
 
         if (Request.Headers.TryGetValue("Idempotency-Key", out Microsoft.Extensions.Primitives.StringValues rawKeyHeader))
@@ -155,6 +157,10 @@ public sealed partial class RunsController(
             logger.LogWarning(ex, "ExecuteRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
     }
 
     [HttpPost("run/{runId}/replay")]
@@ -248,7 +254,7 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        string user = User.Identity?.Name ?? "anonymous";
+        string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
 
         try
@@ -269,10 +275,19 @@ public sealed partial class RunsController(
 
             return Ok(response);
         }
+        catch (ConflictException ex)
+        {
+            logger.LogWarning(ex, "CommitRun conflict for run '{RunId}'.", runId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarning(ex, "CommitRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
+        }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
     }
 
@@ -330,7 +345,7 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        string user = User.Identity?.Name ?? "anonymous";
+        string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
 
         SeedFakeResultsResult result = await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);

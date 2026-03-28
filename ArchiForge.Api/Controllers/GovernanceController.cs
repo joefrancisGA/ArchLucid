@@ -2,6 +2,7 @@ using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application;
+using ArchiForge.Application.Common;
 using ArchiForge.Application.Governance;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Data.Repositories;
@@ -22,11 +23,14 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/governance")]
 [EnableRateLimiting("fixed")]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class GovernanceController(
     IGovernanceWorkflowService workflowService,
     IGovernanceApprovalRequestRepository approvalRepo,
     IGovernancePromotionRecordRepository promotionRepo,
     IGovernanceEnvironmentActivationRepository activationRepo,
+    IActorContext actorContext,
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
@@ -42,7 +46,7 @@ public sealed class GovernanceController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        string requestedBy = User.Identity?.Name ?? "anonymous";
+        string requestedBy = actorContext.GetActor();
 
         try
         {
@@ -77,7 +81,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         string reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
-            ? User.Identity?.Name ?? "anonymous"
+            ? actorContext.GetActor()
             : request.ReviewedBy;
 
         try
@@ -110,7 +114,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         string reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
-            ? User.Identity?.Name ?? "anonymous"
+            ? actorContext.GetActor()
             : request.ReviewedBy;
 
         try
@@ -184,6 +188,7 @@ public sealed class GovernanceController(
                 request.RunId,
                 request.ManifestVersion,
                 request.Environment,
+                actorContext.GetActor(),
                 cancellationToken);
 
             return Ok(result);
