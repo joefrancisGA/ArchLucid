@@ -10,11 +10,13 @@ namespace ArchiForge.Persistence.Compare;
 /// </remarks>
 public class RunComparisonResult
 {
+    /// <summary>Id of the baseline (left) authority run.</summary>
     public Guid LeftRunId
     {
         get; set;
     }
 
+    /// <summary>Id of the target (right) authority run.</summary>
     public Guid RightRunId
     {
         get; set;

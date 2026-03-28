@@ -16,11 +16,8 @@ public static class SqlPagingSyntax
     /// </summary>
     public static string FirstRowsOnly(IDbConnection connection, int rowCount)
     {
-        if (rowCount <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(rowCount));
-        }
-
-        return IsSqlite(connection) ? $"LIMIT {rowCount}" : $"OFFSET 0 ROWS FETCH NEXT {rowCount} ROWS ONLY";
+        return rowCount <= 0
+            ? throw new ArgumentOutOfRangeException(nameof(rowCount))
+            : IsSqlite(connection) ? $"LIMIT {rowCount}" : $"OFFSET 0 ROWS FETCH NEXT {rowCount} ROWS ONLY";
     }
 }

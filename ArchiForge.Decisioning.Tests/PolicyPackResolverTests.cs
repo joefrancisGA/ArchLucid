@@ -55,7 +55,7 @@ public sealed class PolicyPackResolverTests
         Mock<IPolicyPackAssignmentRepository> assignments = new();
         assignments
             .Setup(a => a.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<PolicyPackAssignment> { disabled });
+            .ReturnsAsync([disabled]);
 
         Mock<IPolicyPackRepository> packs = new();
         Mock<IPolicyPackVersionRepository> versions = new();
@@ -90,7 +90,7 @@ public sealed class PolicyPackResolverTests
         Mock<IPolicyPackAssignmentRepository> assignments = new();
         assignments
             .Setup(a => a.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<PolicyPackAssignment> { assignment });
+            .ReturnsAsync([assignment]);
 
         PolicyPack pack = new()
         {
@@ -146,7 +146,7 @@ public sealed class PolicyPackResolverTests
         Mock<IPolicyPackAssignmentRepository> assignments = new();
         assignments
             .Setup(a => a.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<PolicyPackAssignment> { assignment });
+            .ReturnsAsync([assignment]);
 
         Mock<IPolicyPackRepository> packs = new();
         packs
@@ -184,7 +184,7 @@ public sealed class PolicyPackResolverTests
         Mock<IPolicyPackAssignmentRepository> assignments = new();
         assignments
             .Setup(a => a.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<PolicyPackAssignment> { assignment });
+            .ReturnsAsync([assignment]);
 
         Mock<IPolicyPackRepository> packs = new();
         packs

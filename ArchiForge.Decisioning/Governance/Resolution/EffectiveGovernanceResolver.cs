@@ -269,7 +269,7 @@ public sealed class EffectiveGovernanceResolver(
 
     /// <summary>Builds operator-facing text explaining why the first candidate in an ordered list won.</summary>
     /// <remarks>Called when appending <see cref="GovernanceResolutionDecision.ResolutionReason"/>.</remarks>
-    private static string BuildResolutionReason(IReadOnlyList<GovernanceResolutionCandidate> ordered)
+    private static string BuildResolutionReason(List<GovernanceResolutionCandidate> ordered)
     {
         if (ordered.Count == 0)
             return "No candidates.";
@@ -437,7 +437,9 @@ public sealed class EffectiveGovernanceResolver(
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
+#pragma warning disable IDE0028 // Simplify collection initialization
         Dictionary<string, string> effective = new(StringComparer.OrdinalIgnoreCase);
+#pragma warning restore IDE0028 // Simplify collection initialization
 
         foreach (string key in keys)
         {

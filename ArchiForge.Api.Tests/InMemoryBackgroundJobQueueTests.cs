@@ -95,6 +95,77 @@ public sealed class InMemoryBackgroundJobQueueTests
         await queue.StopAsync(CancellationToken.None);
     }
 
+    [Fact]
+    public async Task Enqueue_WithRetry_RetriesOnFailureThenSucceeds()
+    {
+        int attempt = 0;
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue queue = new(logger.Object);
+        await queue.StartAsync(CancellationToken.None);
+
+        string jobId = queue.Enqueue("retry-ok", "plain", _ =>
+        {
+            attempt++;
+
+            if (attempt < 3)
+                throw new InvalidOperationException($"Transient failure #{attempt}");
+
+            return Task.FromResult(OkFile());
+        }, maxRetries: 3);
+
+        await WaitForTerminalStateAsync(queue, jobId, TimeSpan.FromSeconds(30));
+
+        BackgroundJobInfo? info = queue.GetInfo(jobId);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Succeeded);
+        info.RetryCount.Should().Be(2, "two retries should have occurred before success");
+
+        await queue.StopAsync(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task Enqueue_WithRetry_ExhaustsRetriesThenFails()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue queue = new(logger.Object);
+        await queue.StartAsync(CancellationToken.None);
+
+        string jobId = queue.Enqueue("retry-fail", "plain",
+            _ => throw new InvalidOperationException("Always fails"),
+            maxRetries: 2);
+
+        await WaitForTerminalStateAsync(queue, jobId, TimeSpan.FromSeconds(30));
+
+        BackgroundJobInfo? info = queue.GetInfo(jobId);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Failed);
+        info.RetryCount.Should().Be(3, "initial attempt + 2 retries = 3 total attempts");
+        info.Error.Should().Contain("Always fails");
+
+        await queue.StopAsync(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task Enqueue_WithZeroRetries_FailsImmediately()
+    {
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        InMemoryBackgroundJobQueue queue = new(logger.Object);
+        await queue.StartAsync(CancellationToken.None);
+
+        string jobId = queue.Enqueue("no-retry", "plain",
+            _ => throw new InvalidOperationException("Immediate fail"),
+            maxRetries: 0);
+
+        await WaitForTerminalStateAsync(queue, jobId, TimeSpan.FromSeconds(5));
+
+        BackgroundJobInfo? info = queue.GetInfo(jobId);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Failed);
+        info.RetryCount.Should().Be(1, "one attempt, no retries");
+
+        await queue.StopAsync(CancellationToken.None);
+    }
+
     private static async Task WaitForTerminalStateAsync(
         InMemoryBackgroundJobQueue queue,
         string jobId,

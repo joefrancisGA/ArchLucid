@@ -17,7 +17,8 @@ public static class AdvisoryIntegrationSeed
     /// <summary>
     /// Inserts one authority run + golden manifest for <see cref="ScopeIds"/> defaults and project slug <c>default</c>.
     /// </summary>
-    public static async Task SeedDefaultScopeAuthorityRunAsync(IServiceProvider services, CancellationToken ct)
+    /// <returns>The seeded run id (useful for Ask tests that need a run anchor).</returns>
+    public static async Task<Guid> SeedDefaultScopeAuthorityRunAsync(IServiceProvider services, CancellationToken ct)
     {
         using IServiceScope scope = services.CreateScope();
         AuthorityGoldenManifestRepository goldenRepo = scope.ServiceProvider.GetRequiredService<AuthorityGoldenManifestRepository>();
@@ -58,5 +59,7 @@ public static class AdvisoryIntegrationSeed
         };
 
         await runRepo.SaveAsync(run, ct).ConfigureAwait(false);
+
+        return runId;
     }
 }

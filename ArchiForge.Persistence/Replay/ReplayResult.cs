@@ -10,6 +10,7 @@ namespace ArchiForge.Persistence.Replay;
 /// <remarks>Mapped to <c>ArchiForge.Api.Contracts.ReplayResponse</c> for HTTP (subset of fields).</remarks>
 public class ReplayResult
 {
+    /// <summary>The authority run that was replayed.</summary>
     public Guid RunId
     {
         get; set;

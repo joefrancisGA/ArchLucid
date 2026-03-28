@@ -242,7 +242,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         };
     }
 
-    private static IReadOnlyList<GraphEdge> Deduplicate(IEnumerable<GraphEdge> edges)
+    private static List<GraphEdge> Deduplicate(List<GraphEdge> edges)
     {
         return edges
             .GroupBy(

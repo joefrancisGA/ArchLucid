@@ -23,6 +23,7 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
         _embeddingClient = azureClient.GetEmbeddingClient(embeddingDeploymentName);
     }
 
+    /// <inheritdoc />
     public Task<float[]> EmbedAsync(string text, CancellationToken ct)
     {
         _ = ct;

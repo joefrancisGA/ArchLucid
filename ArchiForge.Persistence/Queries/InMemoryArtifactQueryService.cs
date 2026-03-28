@@ -21,6 +21,7 @@ public sealed class InMemoryArtifactQueryService(IArtifactBundleRepository artif
         return ArtifactDescriptorMapper.ToDescriptorList(artifacts);
     }
 
+    /// <inheritdoc />
     public async Task<SynthesizedArtifact?> GetArtifactByIdAsync(
         ScopeContext scope,
         Guid manifestId,

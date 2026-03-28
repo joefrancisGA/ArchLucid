@@ -1748,7 +1748,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Documentation & ADRs (155–169)
 
-- [ ] 155. Finish **METHOD_DOCUMENTATION** piece tracker **12–21** (XML for authority compare/replay through `ArchitectureRunService`).
+- [x] 155. Finish **METHOD_DOCUMENTATION** piece tracker **12–21** (XML for authority compare/replay through `ArchitectureRunService`) — completed: `<param>`, `<returns>`, `<summary>` on all gap types per audit (pieces 12–21 types documented).
 - [x] 156. ADRs: effective governance merge, alert dedupe scopes, digest delivery failure semantics.
 - [x] 157. Runbook: advisory scan failures and schedule advance.
 - [x] 158. Runbook: comparison replay (light/heavy) + rate limits.
@@ -1797,8 +1797,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 195. Api.Tests: full alert lifecycle (rule → evaluate → list) — <c>AlertLifecycleIntegrationTests</c> + <c>AlertLifecycleWebAppFactory</c> (InMemory storage, seeded authority run, POST rule + schedule run + GET alerts).
 - [x] 196. Api.Tests: digest subscription → delivery attempt row (`DigestDeliveryLifecycleIntegrationTests`).
 - [x] 197. Api.Tests: governance two-pack merge + effective-content (`EffectiveContent_MergesAdvisoryDefaults_FromTwoAssignedPacks`; compliance union already in `EffectiveContent_UnionsComplianceRuleKeys_FromTwoAssignments`).
-- [ ] 198. Api.Tests: retrieval index + query smoke (fake vector).
-- [ ] 199. Api.Tests: Ask thread + fake LLM.
+- [x] 198. Api.Tests: retrieval index + query smoke (fake vector) — `RetrievalQuerySmokeIntegrationTests` (index documents via DI, query via `GET api/retrieval/search`, empty index, topK clamp, validation).
+- [x] 199. Api.Tests: Ask thread + fake LLM — `AskThreadIntegrationTests` (POST `api/ask` with seeded authority run, verify thread, follow-up on same thread, messages list, validation).
 - [ ] 200. Committed OpenAPI snapshot diff in CI.
 - [ ] 201. Load test: expensive rate-limit boundary.
 - [ ] 202. Resilience: SQL timeout → health / problem details.
@@ -1812,10 +1812,10 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 207. Metrics: alert evaluation duration (simple vs composite).
 - [x] 208. Metrics: governance resolve + cache hit ratio (if cached) — `governance_resolve_duration_ms`; `governance_pack_content_deserialize_cache_hits` / `_misses` for per-resolve `(packId, version)` JSON dedupe.
 - [x] 209. Correlation id → audit fields where missing (activity `correlation.id` chain + advisory/authority/index tags; `AuditService` enrichment).
-- [ ] 210. Retry / DLQ for background jobs (beyond in-memory queue).
+- [x] 210. Retry / DLQ for background jobs — `InMemoryBackgroundJobQueue` now supports `maxRetries` (exponential backoff, DLQ on exhaustion); `BackgroundJobInfo` tracks `RetryCount`/`MaxRetries`; tests: retry→succeed, retry→exhaust→fail, zero-retry immediate fail.
 - [ ] 211. Outbox for post-commit indexing.
 - [ ] 212. Circuit breaker for OpenAI / embedding clients.
-- [ ] 213. Graceful shutdown: advisory poller + host.
+- [x] 213. Graceful shutdown: advisory poller + host — `AdvisoryScanHostedServiceShutdownTests` (clean exit on cancellation during delay, continues after non-cancellation exception, handles OCE during processing).
 - [ ] 214. SLO dashboards (Grafana + Prometheus).
 
 ### Security (215–226)
@@ -1847,7 +1847,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ### API & contracts (235–242)
 
 - [ ] 235. Deprecation: `Sunset` + versioned routes policy.
-- [ ] 236. Standard list pagination (`page`/`pageSize` or cursor).
+- [x] 236. Standard list pagination (`page`/`pageSize` or cursor) — `PagedResponse<T>`, `PaginationDefaults`, `PagedResponseBuilder` in `ArchiForge.Core.Pagination`; `AlertsController.List` and `ConversationController.ListThreads` accept optional `page`/`pageSize` (backward-compatible with `take`-only).
 - [ ] 237. ProblemDetails `extensions` machine codes on all 4xx/5xx.
 - [ ] 238. OpenAPI `securitySchemes` for Entra when enabled.
 - [ ] 239. Webhook HMAC for digest/alert channels.
@@ -1879,12 +1879,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls up major themes only.
 
-- [ ] Documentation & ADRs (155–169): partial (155 open; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
+- [x] Documentation & ADRs (155–169): complete (155 XML doc pieces 12–21 done; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
 - [x] Unit tests (170–194): complete for 170–190, 191–194 (170–171 Persistence.Tests; 183–185, 190 as listed above; 189 UTC calculator documented).
-- [ ] Integration / E2E (195–204): partial (195–197 done; 198–204 open).
-- [ ] Observability & reliability (205–214): partial (205–209 done; 210+ still open).
+- [ ] Integration / E2E (195–204): partial (195–199 done; 200–204 open).
+- [ ] Observability & reliability (205–214): partial (205–210, 213 done; 211–212, 214 still open).
 - [ ] Security (215–226): partial (**225–226** CORS + HSTS/headers; **215–224** Entra/RLS/WAF/SBOM/etc. still open).
 - [ ] Performance & cost (227–234): partial (229 response compression enabled).
-- [ ] API & contracts (235–242): not started.
+- [ ] API & contracts (235–242): partial (236 standard pagination done; 235, 237–242 open).
 - [ ] Data & persistence (243–249): not started.
 - [ ] UI & DX (250–254): partial (254 onboarding doc; 250–253 open).

@@ -16,7 +16,9 @@ public sealed record BackgroundJobInfo(
     DateTimeOffset? CompletedUtc,
     string? Error,
     string? FileName,
-    string? ContentType);
+    string? ContentType,
+    int RetryCount = 0,
+    int MaxRetries = 0);
 
 public sealed record BackgroundJobFile(
     string FileName,

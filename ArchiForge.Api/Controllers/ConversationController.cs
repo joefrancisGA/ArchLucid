@@ -1,6 +1,7 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Conversation;
+using ArchiForge.Core.Pagination;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Conversation;
 
@@ -29,14 +30,31 @@ public sealed class ConversationController(
     : ControllerBase
 {
     /// <summary>Lists conversation threads for the current scope.</summary>
-    /// <param name="take">Number of threads to return (clamped to 1–200; defaults to 50).</param>
+    /// <param name="take">Number of threads to return (clamped to 1–200; defaults to 50). Used when <paramref name="page"/> is not set.</param>
+    /// <param name="page">One-based page number. When provided, the response is a <see cref="PagedResponse{T}"/>.</param>
+    /// <param name="pageSize">Items per page (clamped 1–200; default 50). Only used when <paramref name="page"/> is set.</param>
     /// <param name="ct">Cancellation token.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<ConversationThread>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ListThreads(int take = 50, CancellationToken ct = default)
+    [ProducesResponseType(typeof(PagedResponse<ConversationThread>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListThreads(
+        int take = 50,
+        [FromQuery] int? page = null,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken ct = default)
     {
-        int safeTake = Math.Clamp(take, 1, 200);
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        if (page.HasValue)
+        {
+            IReadOnlyList<ConversationThread> all = await threadRepository.ListByScopeAsync(
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                PaginationDefaults.MaxPageSize * 10, ct);
+
+            return Ok(PagedResponseBuilder.Build(all, page.Value, pageSize));
+        }
+
+        int safeTake = Math.Clamp(take, 1, 200);
 
         IReadOnlyList<ConversationThread> threads = await threadRepository.ListByScopeAsync(
             scope.TenantId,

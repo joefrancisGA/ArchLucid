@@ -43,6 +43,7 @@ public sealed class ArchitectureRunService(
     ILogger<ArchitectureRunService> logger)
     : IArchitectureRunService
 {
+    /// <inheritdoc />
     public async Task<CreateRunResult> CreateRunAsync(
         ArchitectureRequest request,
         CancellationToken cancellationToken = default)
@@ -214,6 +215,7 @@ public sealed class ArchitectureRunService(
         scope.Complete();
     }
 
+    /// <inheritdoc />
     public async Task<CommitRunResult> CommitRunAsync(
         string runId,
         CancellationToken cancellationToken = default)
@@ -274,11 +276,12 @@ public sealed class ArchitectureRunService(
 
         await PersistCommittedRunAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
 
-        logger.LogInformation(
-            "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
-            runId,
-            merge.Manifest.Metadata.ManifestVersion,
-            merge.Warnings.Count);
+        if (logger.IsEnabled(LogLevel.Information))
+            logger.LogInformation(
+                "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
+                runId,
+                merge.Manifest.Metadata.ManifestVersion,
+                merge.Warnings.Count);
 
         return new CommitRunResult
         {
@@ -306,22 +309,19 @@ public sealed class ArchitectureRunService(
                 "The run record may be corrupt; check storage integrity.");
         }
 
-        GoldenManifest? existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken).ConfigureAwait(false);
-        if (existingManifest is null)
-        {
-            throw new ConflictException(
+        GoldenManifest existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken).ConfigureAwait(false) ?? throw new ConflictException(
                 $"Run '{runId}' is already committed (manifest version '{run.CurrentManifestVersion}') " +
                 "but the manifest could not be found in storage. " +
                 "It may have been deleted or there is a replication lag.");
-        }
 
         IReadOnlyList<DecisionTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
 
-        logger.LogInformation(
-            "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
-            runId,
-            run.CurrentManifestVersion,
-            existingTraces.Count);
+        if (logger.IsEnabled(LogLevel.Information))
+            logger.LogInformation(
+                "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
+                runId,
+                run.CurrentManifestVersion,
+                existingTraces.Count);
 
         return new CommitRunResult
         {

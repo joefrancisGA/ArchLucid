@@ -32,12 +32,13 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
     private readonly ConcurrentDictionary<string, BackgroundJobInfo> _info = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, BackgroundJobFile> _files = new(StringComparer.Ordinal);
 
-    public string Enqueue(string? fileNameHint, string? contentTypeHint, Func<CancellationToken, Task<BackgroundJobFile>> work)
+    public string Enqueue(string? fileNameHint, string? contentTypeHint, Func<CancellationToken, Task<BackgroundJobFile>> work, int maxRetries = 0)
     {
         ArgumentNullException.ThrowIfNull(work);
 
         string id = Guid.NewGuid().ToString("n");
         DateTimeOffset now = DateTimeOffset.UtcNow;
+        int safeMaxRetries = Math.Clamp(maxRetries, 0, 10);
 
         _info[id] = new BackgroundJobInfo(
             JobId: id,
@@ -47,12 +48,14 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
             CompletedUtc: null,
             Error: null,
             FileName: fileNameHint,
-            ContentType: contentTypeHint);
+            ContentType: contentTypeHint,
+            RetryCount: 0,
+            MaxRetries: safeMaxRetries);
 
         if (_queue.Writer.TryWrite(new WorkItem(id, fileNameHint, contentTypeHint, work))) return id;
-        
+
         _info.TryRemove(id, out _);
-        
+
         throw new InvalidOperationException(
             $"The background job queue is at capacity ({MaxPendingJobs} pending jobs). Try again later.");
     }
@@ -81,7 +84,7 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
             _info[item.JobId] = current with
             {
                 State = BackgroundJobState.Running,
-                StartedUtc = DateTimeOffset.UtcNow
+                StartedUtc = current.StartedUtc ?? DateTimeOffset.UtcNow
             };
 
             try
@@ -101,15 +104,44 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Background job {JobId} failed.", item.JobId);
-
                 BackgroundJobInfo failed = _info[item.JobId];
-                _info[item.JobId] = failed with
+                int nextRetry = failed.RetryCount + 1;
+
+                if (nextRetry <= failed.MaxRetries)
                 {
-                    State = BackgroundJobState.Failed,
-                    CompletedUtc = DateTimeOffset.UtcNow,
-                    Error = ex.Message
-                };
+                    logger.LogWarning(
+                        ex,
+                        "Background job {JobId} failed (attempt {Attempt}/{Max}); scheduling retry.",
+                        item.JobId, nextRetry, failed.MaxRetries);
+
+                    _info[item.JobId] = failed with
+                    {
+                        State = BackgroundJobState.Pending,
+                        RetryCount = nextRetry,
+                        Error = ex.Message
+                    };
+
+                    // Exponential backoff before re-enqueue: 1s, 2s, 4s, ...
+                    int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
+                    await Task.Delay(delayMs, stoppingToken).ConfigureAwait(false);
+
+                    _queue.Writer.TryWrite(item);
+                }
+                else
+                {
+                    logger.LogError(
+                        ex,
+                        "Background job {JobId} failed after {Attempts} attempt(s); moving to DLQ.",
+                        item.JobId, nextRetry);
+
+                    _info[item.JobId] = failed with
+                    {
+                        State = BackgroundJobState.Failed,
+                        CompletedUtc = DateTimeOffset.UtcNow,
+                        RetryCount = nextRetry,
+                        Error = ex.Message
+                    };
+                }
             }
 
             EvictOldTerminalJobs();

@@ -21,6 +21,7 @@ public sealed class DapperArtifactQueryService(IArtifactBundleRepository artifac
         return ArtifactDescriptorMapper.ToDescriptorList(artifacts);
     }
 
+    /// <inheritdoc />
     public async Task<SynthesizedArtifact?> GetArtifactByIdAsync(
         ScopeContext scope,
         Guid manifestId,

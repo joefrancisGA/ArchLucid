@@ -162,7 +162,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
 
         ReplayExportResult result = await sut.ReplayAsync(new ReplayExportRequest { ExportRecordId = record.ExportRecordId });
 
-        result.Content.Should().Equal(9);
+        result.Content.Should().Equal("\t"u8.ToArray());
         standardDocx.Verify(
             s => s.GenerateDocxAsync(built, It.IsAny<CancellationToken>()),
             Times.Once);

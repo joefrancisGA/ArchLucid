@@ -278,7 +278,6 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         string manifestVersion,
         string? parentManifestVersion)
     {
-#pragma warning disable IDE0305 // Simplify collection initialization
         return new GoldenManifest
         {
             RunId = runId,
@@ -303,7 +302,6 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
                 CreatedUtc = DateTime.UtcNow
             }
         };
-#pragma warning restore IDE0305 // Simplify collection initialization
     }
 
     private static void MergeAgentResultsIntoManifest(
@@ -409,11 +407,9 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             existing.Purpose = incoming.Purpose;
         }
 
-#pragma warning disable IDE0305 // Simplify collection initialization   
         existing.Tags = existing.Tags
             .Union(incoming.Tags, StringComparer.OrdinalIgnoreCase)
             .ToList();
-#pragma warning restore IDE0305 // Simplify collection initialization
 
         existing.RequiredControls = existing.RequiredControls.Union(incoming.RequiredControls, StringComparer.OrdinalIgnoreCase).ToList();
 
@@ -623,12 +619,10 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
         if (validResults.Any(r => r.AgentType == AgentType.Compliance))
         {
-#pragma warning disable IDE0305 // Simplify collection initialization
             manifest.Governance.ComplianceTags =
                 manifest.Governance.ComplianceTags
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
-#pragma warning restore IDE0305 // Simplify collection initialization
         }
     }
 

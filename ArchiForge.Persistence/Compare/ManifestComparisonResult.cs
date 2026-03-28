@@ -6,17 +6,22 @@ namespace ArchiForge.Persistence.Compare;
 /// <remarks>HTTP projection: <c>ArchiForge.Api.Contracts.ManifestComparisonResponse</c>.</remarks>
 public class ManifestComparisonResult
 {
+    /// <summary>Id of the baseline (left) golden manifest.</summary>
     public Guid LeftManifestId
     {
         get; set;
     }
 
+    /// <summary>Id of the target (right) golden manifest.</summary>
     public Guid RightManifestId
     {
         get; set;
     }
 
+    /// <summary>Content hash of the baseline manifest (for quick equality check).</summary>
     public string LeftManifestHash { get; set; } = null!;
+
+    /// <summary>Content hash of the target manifest.</summary>
     public string RightManifestHash { get; set; } = null!;
 
     /// <summary>Flat diff items (<see cref="DiffKind"/> string values on each <see cref="DiffItem"/>).</summary>

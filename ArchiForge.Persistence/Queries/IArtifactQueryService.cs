@@ -14,12 +14,21 @@ namespace ArchiForge.Persistence.Queries;
 public interface IArtifactQueryService
 {
     /// <summary>Lightweight descriptors sorted by name (no full content load beyond bundle read).</summary>
+    /// <param name="scope">Caller scope for tenant/workspace/project isolation.</param>
+    /// <param name="manifestId">Golden manifest whose artifacts to list.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Descriptor list (may be empty when no artifact bundle exists).</returns>
     Task<IReadOnlyList<ArtifactDescriptor>> ListArtifactsByManifestIdAsync(
         ScopeContext scope,
         Guid manifestId,
         CancellationToken ct);
 
     /// <summary>Single artifact body when present in the bundle for <paramref name="manifestId"/>.</summary>
+    /// <param name="scope">Caller scope for tenant/workspace/project isolation.</param>
+    /// <param name="manifestId">Golden manifest id.</param>
+    /// <param name="artifactId">Artifact id within the bundle.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Full artifact, or <see langword="null"/> when not found in the bundle.</returns>
     Task<SynthesizedArtifact?> GetArtifactByIdAsync(
         ScopeContext scope,
         Guid manifestId,
@@ -27,6 +36,10 @@ public interface IArtifactQueryService
         CancellationToken ct);
 
     /// <summary>All artifacts in the bundle for the manifest, or empty when no bundle.</summary>
+    /// <param name="scope">Caller scope for tenant/workspace/project isolation.</param>
+    /// <param name="manifestId">Golden manifest id.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Full artifact list (may be empty).</returns>
     Task<IReadOnlyList<SynthesizedArtifact>> GetArtifactsByManifestIdAsync(
         ScopeContext scope,
         Guid manifestId,

@@ -2,6 +2,7 @@ using System.Security.Claims;
 
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Core.Pagination;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Alerts;
 
@@ -33,19 +34,34 @@ public sealed class AlertsController(
 {
     /// <summary>Lists recent alerts for the current scope, optionally filtered by status.</summary>
     /// <param name="status">When set, restricts to alerts with this status string (repository-defined).</param>
-    /// <param name="take">Max rows (capped by repository).</param>
+    /// <param name="take">Max rows (capped by repository). Used when <paramref name="page"/> is not set.</param>
+    /// <param name="page">One-based page number. When provided, the response is a <see cref="PagedResponse{T}"/>.</param>
+    /// <param name="pageSize">Items per page (clamped 1–200; default 50). Only used when <paramref name="page"/> is set.</param>
     /// <param name="ct">Cancellation token.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AlertRecord>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResponse<AlertRecord>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<IReadOnlyList<AlertRecord>>> List(
+    public async Task<IActionResult> List(
         [FromQuery] string? status = null,
         [FromQuery] int take = 100,
+        [FromQuery] int? page = null,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken ct = default)
     {
-        take = Math.Clamp(take, 1, 500);
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        if (page.HasValue)
+        {
+            IReadOnlyList<AlertRecord> all = await alertRepository.ListByScopeAsync(
+                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                status, PaginationDefaults.MaxPageSize * 10, ct);
+
+            return Ok(PagedResponseBuilder.Build(all, page.Value, pageSize));
+        }
+
+        take = Math.Clamp(take, 1, 500);
 
         IReadOnlyList<AlertRecord> alerts = await alertRepository.ListByScopeAsync(
             scope.TenantId,

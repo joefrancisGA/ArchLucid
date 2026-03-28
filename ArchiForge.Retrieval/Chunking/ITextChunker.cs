@@ -11,5 +11,6 @@ public interface ITextChunker
     /// <param name="text">Full document content.</param>
     /// <param name="maxChars">Maximum characters per chunk (excluding trim).</param>
     /// <param name="overlap">Characters reused between consecutive windows (<paramref name="maxChars"/> − <paramref name="overlap"/> advance step).</param>
+    /// <returns>Trimmed, non-empty text slices; empty list when <paramref name="text"/> is blank.</returns>
     IReadOnlyList<string> Chunk(string text, int maxChars = 1200, int overlap = 150);
 }
