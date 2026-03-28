@@ -74,7 +74,7 @@ public sealed class DecisionEngineServiceTests
         DecisionEngineService service = new(validationService);
 
         DecisionMergeResult result = service.MergeResults(
-            "1",
+            "RUN-1",
             request,
             "v1",
             [topology, compliance],
@@ -118,7 +118,7 @@ public sealed class DecisionEngineServiceTests
         DecisionEngineService service = new(validationService);
 
         DecisionMergeResult result = service.MergeResults(
-            "1",
+            "RUN-1",
             request,
             "v1",
             [malformed],

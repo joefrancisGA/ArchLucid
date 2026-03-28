@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\schemas\*.json" LinkBase="schemas" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\schemas\*.json" LinkBase="schemas" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
