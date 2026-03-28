@@ -2,7 +2,10 @@ using ArchiForge.Data.Infrastructure;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchiForge.Api.Tests;
 
@@ -19,20 +22,21 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseSetting("ArchiForge:StorageProvider", "InMemory");
-        builder.UseSetting("ConnectionStrings:ArchiForge", _sqliteConnectionString);
+        builder.UseEnvironment("Development");
 
-        builder.ConfigureServices(services =>
+        builder.ConfigureAppConfiguration((_, config) =>
         {
-            List<ServiceDescriptor> descriptors = services.Where(static d => d.ServiceType == typeof(IDbConnectionFactory)).ToList();
-
-            foreach (ServiceDescriptor d in descriptors)
+            config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                services.Remove(d);
-            }
+                ["ArchiForge:StorageProvider"] = "InMemory",
+                ["ConnectionStrings:ArchiForge"] = _sqliteConnectionString
+            });
+        });
 
-            services.AddSingleton<IDbConnectionFactory>(
-                new SqliteConnectionFactory(_sqliteConnectionString));
+        builder.ConfigureTestServices(services =>
+        {
+            services.RemoveAll<IDbConnectionFactory>();
+            services.AddSingleton<IDbConnectionFactory>(new SqliteConnectionFactory(_sqliteConnectionString));
         });
     }
 }

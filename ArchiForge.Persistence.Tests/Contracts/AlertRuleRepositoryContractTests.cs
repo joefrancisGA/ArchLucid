@@ -17,7 +17,7 @@ public abstract class AlertRuleRepositoryContractTests
     private static readonly Guid WorkspaceId = Guid.Parse("b0b0b0b0-b0b0-b0b0-b0b0-b0b0b0b0b0b0");
     private static readonly Guid ProjectId = Guid.Parse("c0c0c0c0-c0c0-c0c0-c0c0-c0c0c0c0c0c0");
 
-    private AlertRule CreateRule(Guid? ruleId = null, bool isEnabled = true, DateTime? createdUtc = null)
+    private static AlertRule CreateRule(Guid? ruleId = null, bool isEnabled = true, DateTime? createdUtc = null)
     {
         return new AlertRule
         {

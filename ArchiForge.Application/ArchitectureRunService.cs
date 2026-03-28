@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Transactions;
 
 using ArchiForge.AgentSimulator.Services;
+using ArchiForge.Application.Common;
 using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Runs;
@@ -96,25 +97,23 @@ public sealed class ArchitectureRunService(
                 request.Environment);
         }
 
-        bool inserted = false;
+        bool inserted;
 
         try
         {
             if (connectionFactory.SupportsAmbientTransactionScope)
             {
-                using (TransactionScope scope = new(
+                using TransactionScope scope = new(
                     TransactionScopeOption.Required,
-                    TransactionScopeAsyncFlowOption.Enabled))
-                {
-                    inserted = await PersistCreateRunRowsAsync(
-                        request,
-                        coordination,
-                        idempotency,
-                        cancellationToken).ConfigureAwait(false);
+                    TransactionScopeAsyncFlowOption.Enabled);
+                inserted = await PersistCreateRunRowsAsync(
+                    request,
+                    coordination,
+                    idempotency,
+                    cancellationToken).ConfigureAwait(false);
 
-                    if (inserted || idempotency is null)
-                        scope.Complete();
-                }
+                if (inserted || idempotency is null)
+                    scope.Complete();
             }
             else
             {
@@ -468,21 +467,19 @@ public sealed class ArchitectureRunService(
     {
         if (connectionFactory.SupportsAmbientTransactionScope)
         {
-            using (TransactionScope scope = new(
-                       TransactionScopeOption.Required,
-                       TransactionScopeAsyncFlowOption.Enabled))
-            {
-                await PersistExecutePhaseRowsAsync(
-                    runId,
-                    expectedStatus,
-                    currentManifestVersion,
-                    evidence,
-                    results,
-                    evaluations,
-                    cancellationToken).ConfigureAwait(false);
+            using TransactionScope scope = new(
+                TransactionScopeOption.Required,
+                TransactionScopeAsyncFlowOption.Enabled);
+            await PersistExecutePhaseRowsAsync(
+                runId,
+                expectedStatus,
+                currentManifestVersion,
+                evidence,
+                results,
+                evaluations,
+                cancellationToken).ConfigureAwait(false);
 
-                scope.Complete();
-            }
+            scope.Complete();
         }
         else
         {
@@ -782,13 +779,11 @@ public sealed class ArchitectureRunService(
     {
         if (connectionFactory.SupportsAmbientTransactionScope)
         {
-            using (TransactionScope scope = new(
-                       TransactionScopeOption.Required,
-                       TransactionScopeAsyncFlowOption.Enabled))
-            {
-                await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
-                scope.Complete();
-            }
+            using TransactionScope scope = new(
+                TransactionScopeOption.Required,
+                TransactionScopeAsyncFlowOption.Enabled);
+            await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
+            scope.Complete();
         }
         else
         {

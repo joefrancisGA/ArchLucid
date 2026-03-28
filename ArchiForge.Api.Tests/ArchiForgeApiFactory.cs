@@ -2,7 +2,10 @@ using ArchiForge.Data.Infrastructure;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchiForge.Api.Tests;
 
@@ -19,16 +22,24 @@ public class ArchiForgeApiFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        // Avoid SqlConnection + SQLite connection string (503) when environment omits Development overrides (e.g. Production in CI).
-        builder.UseSetting("ArchiForge:StorageProvider", "InMemory");
-        builder.UseSetting("ConnectionStrings:ArchiForge", _sqliteConnectionString);
-        builder.ConfigureServices(services =>
+        // Ensure Development appsettings (e.g. StorageProvider) apply when CI sets another environment.
+        builder.UseEnvironment("Development");
+
+        // Last configuration sources win: force in-memory authority + SQLite for ArchiForge.Data regardless of UseSetting ordering.
+        builder.ConfigureAppConfiguration((_, config) =>
         {
-            List<ServiceDescriptor> descriptors = services.Where(d => d.ServiceType == typeof(IDbConnectionFactory)).ToList();
-            foreach (ServiceDescriptor d in descriptors)
-                services.Remove(d);
-            services.AddSingleton<IDbConnectionFactory>(
-                new SqliteConnectionFactory(_sqliteConnectionString));
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchiForge:StorageProvider"] = "InMemory",
+                ["ConnectionStrings:ArchiForge"] = _sqliteConnectionString
+            });
+        });
+
+        // Must run after Program registrations; ConfigureServices in ConfigureWebHost can run too early, so SqlConnectionFactory wins over Sqlite.
+        builder.ConfigureTestServices(services =>
+        {
+            services.RemoveAll<IDbConnectionFactory>();
+            services.AddSingleton<IDbConnectionFactory>(new SqliteConnectionFactory(_sqliteConnectionString));
         });
     }
 }

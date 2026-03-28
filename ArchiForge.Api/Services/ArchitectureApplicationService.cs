@@ -106,18 +106,16 @@ public sealed class ArchitectureApplicationService(
         ArchitectureRunStatus newStatus;
         if (connectionFactory.SupportsAmbientTransactionScope)
         {
-            using (TransactionScope tx = new(
-                       TransactionScopeOption.Required,
-                       TransactionScopeAsyncFlowOption.Enabled))
-            {
-                newStatus = await SubmitAgentResultPersistAsync(
-                    runId,
-                    result,
-                    run,
-                    cancellationToken).ConfigureAwait(false);
+            using TransactionScope tx = new(
+                TransactionScopeOption.Required,
+                TransactionScopeAsyncFlowOption.Enabled);
+            newStatus = await SubmitAgentResultPersistAsync(
+                runId,
+                result,
+                run,
+                cancellationToken).ConfigureAwait(false);
 
-                tx.Complete();
-            }
+            tx.Complete();
         }
         else
         {
@@ -146,7 +144,7 @@ public sealed class ArchitectureApplicationService(
 
         foreach (AgentType required in RequiredAgentTypes)
         {
-            if (results.Count(r => r is not null && r.AgentType == required) != 1)
+            if (results.Count(r => r.AgentType == required) != 1)
                 return false;
         }
 
@@ -211,13 +209,11 @@ public sealed class ArchitectureApplicationService(
 
         if (connectionFactory.SupportsAmbientTransactionScope)
         {
-            using (TransactionScope scope = new(
-                       TransactionScopeOption.Required,
-                       TransactionScopeAsyncFlowOption.Enabled))
-            {
-                await SeedFakeResultsPersistAsync(runId, fakeResults, run, newStatus, cancellationToken).ConfigureAwait(false);
-                scope.Complete();
-            }
+            using TransactionScope scope = new(
+                TransactionScopeOption.Required,
+                TransactionScopeAsyncFlowOption.Enabled);
+            await SeedFakeResultsPersistAsync(runId, fakeResults, run, newStatus, cancellationToken).ConfigureAwait(false);
+            scope.Complete();
         }
         else
         {

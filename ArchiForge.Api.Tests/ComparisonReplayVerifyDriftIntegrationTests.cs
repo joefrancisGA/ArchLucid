@@ -17,6 +17,8 @@ namespace ArchiForge.Api.Tests;
 public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFactory factory)
     : IntegrationTestBase(factory)
 {
+    private readonly ArchiForgeApiFactory _factory = factory;
+
     [Fact]
     [Trait("Category", "Integration")]
     public async Task ComparisonReplayVerify_WhenStoredPayloadDriftsFromRegenerated_Returns422()
@@ -27,7 +29,7 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFac
             Client, runId, replayRunId);
 
         string payloadJson;
-        await using (SqliteConnection conn = new(factory.SqliteConnectionString))
+        await using (SqliteConnection conn = new(_factory.SqliteConnectionString))
         {
             await conn.OpenAsync();
             await using SqliteCommand cmd = conn.CreateCommand();
@@ -42,7 +44,7 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFac
         node["leftRunId"] = "tampered-run-id-for-drift";
         string corrupted = node.ToJsonString();
 
-        await using (SqliteConnection conn = new(factory.SqliteConnectionString))
+        await using (SqliteConnection conn = new(_factory.SqliteConnectionString))
         {
             await conn.OpenAsync();
             await using SqliteCommand cmd = conn.CreateCommand();

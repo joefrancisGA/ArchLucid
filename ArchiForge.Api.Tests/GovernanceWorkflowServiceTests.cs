@@ -1,4 +1,5 @@
 using ArchiForge.Application;
+using ArchiForge.Application.Common;
 using ArchiForge.Application.Governance;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
@@ -394,7 +395,7 @@ public sealed class GovernanceWorkflowServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailForRun("run-2"));
         _activationRepo.Setup(r => r.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GovernanceEnvironmentActivation> { previous });
+            .ReturnsAsync([previous]);
         _activationRepo.Setup(r => r.UpdateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         _activationRepo.Setup(r => r.CreateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()))
@@ -430,7 +431,7 @@ public sealed class GovernanceWorkflowServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailForRun("run-1"));
         _activationRepo.Setup(r => r.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<GovernanceEnvironmentActivation>());
+            .ReturnsAsync([]);
         _activationRepo.Setup(r => r.CreateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

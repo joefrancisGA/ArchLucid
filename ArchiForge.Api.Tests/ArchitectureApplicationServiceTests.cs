@@ -181,7 +181,7 @@ public sealed class ArchitectureApplicationServiceTests
             .ReturnsAsync(DetailFor(run, tasks, []));
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IReadOnlyList<AgentResult>)[result]);
+            .ReturnsAsync([result]);
         _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
@@ -245,7 +245,7 @@ public sealed class ArchitectureApplicationServiceTests
             .ReturnsAsync(DetailFor(run, tasks, existingResults));
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IReadOnlyList<AgentResult>)[..existingResults, result]);
+            .ReturnsAsync([..existingResults, result]);
         _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
@@ -281,7 +281,7 @@ public sealed class ArchitectureApplicationServiceTests
             .ReturnsAsync(DetailFor(run, tasks, existingResults));
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IReadOnlyList<AgentResult>)[..existingResults, result]);
+            .ReturnsAsync([..existingResults, result]);
         _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
@@ -352,7 +352,7 @@ public sealed class ArchitectureApplicationServiceTests
             .ReturnsAsync(DetailFor(run, tasks, []));
         _resultRepository.Setup(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((IReadOnlyList<AgentResult>)[result]);
+            .ReturnsAsync([result]);
         _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);

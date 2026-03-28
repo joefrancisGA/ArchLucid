@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace ArchiForge.Application;
+namespace ArchiForge.Application.Common;
 
 /// <summary>
 /// HTTP-scoped actor resolution from <see cref="HttpContext.User"/> (identity name only; no RBAC).
@@ -13,11 +13,8 @@ public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IAc
     public string GetActor()
     {
         HttpContext? httpContext = httpContextAccessor.HttpContext;
-        string? name = httpContext?.User?.Identity?.Name;
+        string? name = httpContext?.User.Identity?.Name;
 
-        if (!string.IsNullOrWhiteSpace(name))
-            return name.Trim();
-
-        return FallbackActor;
+        return !string.IsNullOrWhiteSpace(name) ? name.Trim() : FallbackActor;
     }
 }

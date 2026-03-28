@@ -136,7 +136,10 @@ public sealed class ResilientSqlConnectionFactoryTests
     [Fact]
     public void Constructor_NullInner_ThrowsArgumentNullException()
     {
-        Action act = () => new ResilientSqlConnectionFactory(null!, _logger);
+        Action act = () =>
+        {
+            _ = new ResilientSqlConnectionFactory(null!, _logger);
+        };
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("inner");
     }
@@ -144,7 +147,10 @@ public sealed class ResilientSqlConnectionFactoryTests
     [Fact]
     public void Constructor_NullLogger_ThrowsArgumentNullException()
     {
-        Action act = () => new ResilientSqlConnectionFactory(Mock.Of<ISqlConnectionFactory>(), null!);
+        Action act = () =>
+        {
+            _ = new ResilientSqlConnectionFactory(Mock.Of<ISqlConnectionFactory>(), null!);
+        };
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
     }

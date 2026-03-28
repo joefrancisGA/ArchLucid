@@ -1,4 +1,4 @@
-using ArchiForge.Application;
+using ArchiForge.Application.Common;
 
 using FluentAssertions;
 
@@ -15,11 +15,11 @@ public sealed class ActorContextTests
     public void GetActor_WhenIdentityNamePresent_ReturnsTrimmedName()
     {
         Mock<IHttpContextAccessor> accessor = new();
-        DefaultHttpContext httpContext = new();
-        httpContext.User = new System.Security.Claims.ClaimsPrincipal(
+        DefaultHttpContext httpContext = new() { User = new System.Security.Claims.ClaimsPrincipal(
             new System.Security.Claims.ClaimsIdentity(
                 [new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "  domain\\alice  ")],
-                authenticationType: "test"));
+                authenticationType: "test"))
+        };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
         ActorContext sut = new(accessor.Object);
@@ -42,9 +42,9 @@ public sealed class ActorContextTests
     public void GetActor_WhenIdentityNameEmpty_ReturnsApiUserFallback()
     {
         Mock<IHttpContextAccessor> accessor = new();
-        DefaultHttpContext httpContext = new();
-        httpContext.User = new System.Security.Claims.ClaimsPrincipal(
-            new System.Security.Claims.ClaimsIdentity(authenticationType: "test"));
+        DefaultHttpContext httpContext = new() { User = new System.Security.Claims.ClaimsPrincipal(
+            new System.Security.Claims.ClaimsIdentity(authenticationType: "test"))
+        };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
         ActorContext sut = new(accessor.Object);
