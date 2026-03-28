@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Validators;
@@ -22,6 +23,8 @@ internal static class MvcExtensions
             {
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                // Contract enums as strings (e.g. run.status, agentType) so clients and integration tests match OpenAPI expectations.
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true));
             });
         services.AddProblemDetails();
         services.AddApiVersioning(options =>
