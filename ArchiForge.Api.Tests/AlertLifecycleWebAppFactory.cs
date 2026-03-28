@@ -1,11 +1,8 @@
-using ArchiForge.Data.Infrastructure;
+using System.Collections.Generic;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchiForge.Api.Tests;
 
@@ -13,7 +10,7 @@ namespace ArchiForge.Api.Tests;
 /// API host with <c>ArchiForge:StorageProvider=InMemory</c> so advisory scans use in-memory authority + alert stores (same DI graph as production, different backing stores).
 /// </summary>
 /// <remarks>
-/// <see cref="ArchiForgeApiFactory"/> keeps <c>Sql</c> storage; alert lifecycle tests seed in-memory authority (<c>IRunRepository</c> / <c>IGoldenManifestRepository</c>) without SQL authority tables.
+/// <see cref="ArchiForgeApiFactory"/> uses the same SQLite-in-memory connection string pattern; <see cref="ArchiForge.Data.Infrastructure.IDbConnectionFactory"/> resolves to SQLite via DI.
 /// </remarks>
 public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
 {
@@ -31,12 +28,6 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
                 ["ArchiForge:StorageProvider"] = "InMemory",
                 ["ConnectionStrings:ArchiForge"] = _sqliteConnectionString
             });
-        });
-
-        builder.ConfigureTestServices(services =>
-        {
-            services.RemoveAll<IDbConnectionFactory>();
-            services.AddSingleton<IDbConnectionFactory>(new SqliteConnectionFactory(_sqliteConnectionString));
         });
     }
 }

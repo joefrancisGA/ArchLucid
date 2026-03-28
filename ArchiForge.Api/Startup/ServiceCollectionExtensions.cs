@@ -73,6 +73,7 @@ using ArchiForge.Retrieval.Embedding;
 using ArchiForge.Retrieval.Indexing;
 using ArchiForge.Retrieval.Queries;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
@@ -167,7 +168,25 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterDataInfrastructure(IServiceCollection services)
     {
-        services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
+        // Integration tests and file-backed dev DBs use SQLite; production uses SQL Server. Pick factory by connection string
+        // so tests do not depend on ConfigureTestServices ordering to replace SqlConnectionFactory.
+        services.AddSingleton<IDbConnectionFactory>(static sp =>
+        {
+            IConfiguration configuration = sp.GetRequiredService<IConfiguration>();
+            string? connectionString = configuration.GetConnectionString("ArchiForge");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("Connection string 'ArchiForge' was not found.");
+            }
+
+            if (DatabaseMigrator.IsSqliteConnection(connectionString))
+            {
+                return new SqliteConnectionFactory(connectionString);
+            }
+
+            return new SqlConnectionFactory(configuration);
+        });
+
         services.AddHealthChecks()
             .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
     }
