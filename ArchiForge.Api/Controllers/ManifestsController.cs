@@ -131,53 +131,53 @@ public sealed class ManifestsController(
         return ApiFileResults.RangeText(Request, content, "text/markdown", fileName);
     }
 
-    [HttpGet("manifest/{version}")]
+    [HttpGet("manifest/{manifestVersion}")]
     [ProducesResponseType(typeof(GoldenManifest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifest(
-        [FromRoute] string version,
+        [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        GoldenManifest? manifest = await architectureApplicationService.GetManifestAsync(version, cancellationToken);
-        return manifest is null ? this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound) : Ok(manifest);
+        GoldenManifest? manifest = await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
+        return manifest is null ? this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound) : Ok(manifest);
     }
 
-    [HttpGet("manifest/{version}/diagram")]
+    [HttpGet("manifest/{manifestVersion}/diagram")]
     [ProducesResponseType(typeof(DiagramResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestDiagram(
-        [FromRoute] string version,
+        [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        GoldenManifest? manifest = await architectureApplicationService.GetManifestAsync(version, cancellationToken);
+        GoldenManifest? manifest = await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         string mermaid = diagramGenerator.GenerateMermaid(manifest);
 
         return Ok(new DiagramResponse
         {
-            ManifestVersion = version,
+            ManifestVersion = manifestVersion,
             Format = FormatMermaid,
             Diagram = mermaid
         });
     }
 
-    [HttpGet("manifest/{version}/diagram/v2")]
+    [HttpGet("manifest/{manifestVersion}/diagram/v2")]
     [ProducesResponseType(typeof(ManifestDiagramResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestDiagramV2(
-        [FromRoute] string version,
+        [FromRoute] string manifestVersion,
         [FromQuery] string? layout = DiagramLayoutDefault,
         [FromQuery] bool includeRuntimePlatform = true,
         [FromQuery] string? relationshipLabels = RelationshipLabelsDefault,
         [FromQuery] string? groupBy = GroupByDefault,
         CancellationToken cancellationToken = default)
     {
-        GoldenManifest? manifest = await architectureApplicationService.GetManifestAsync(version, cancellationToken);
+        GoldenManifest? manifest = await architectureApplicationService.GetManifestAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         ManifestDiagramOptions opts = new()
         {
@@ -191,17 +191,17 @@ public sealed class ManifestsController(
 
         return Ok(new ManifestDiagramResponse
         {
-            ManifestVersion = version,
+            ManifestVersion = manifestVersion,
             DiagramType = DiagramTypeMermaid,
             Content = mermaid
         });
     }
 
-    [HttpGet("manifest/{version}/summary")]
+    [HttpGet("manifest/{manifestVersion}/summary")]
     [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestSummary(
-        [FromRoute] string version,
+        [FromRoute] string manifestVersion,
         [FromQuery] string? format = "markdown",
         [FromQuery] bool includeRelationships = true,
         [FromQuery] bool includeRequiredControls = true,
@@ -210,9 +210,9 @@ public sealed class ManifestsController(
         [FromQuery] int? maxRelationships = null,
         CancellationToken cancellationToken = default)
     {
-        GoldenManifest? manifest = await manifestRepository.GetByVersionAsync(version, cancellationToken);
+        GoldenManifest? manifest = await manifestRepository.GetByVersionAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         int? clampedMaxRelationships = maxRelationships.HasValue
             ? Math.Clamp(maxRelationships.Value, 1, 1000)
@@ -222,7 +222,7 @@ public sealed class ManifestsController(
         {
             return Ok(new ManifestSummaryJsonResponse
             {
-                ManifestVersion = version,
+                ManifestVersion = manifestVersion,
                 SystemName = manifest.SystemName,
                 ServiceCount = manifest.Services.Count,
                 DatastoreCount = manifest.Datastores.Count,
@@ -290,68 +290,68 @@ public sealed class ManifestsController(
 
         return Ok(new ManifestSummaryResponse
         {
-            ManifestVersion = version,
+            ManifestVersion = manifestVersion,
             Format = FormatMarkdown,
             Content = content,
             Summary = content
         });
     }
 
-    [HttpGet("manifest/{version}/summary/evidence")]
+    [HttpGet("manifest/{manifestVersion}/summary/evidence")]
     [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestSummaryEvidence(
-        [FromRoute] string version,
+        [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(version, cancellationToken);
+        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         string markdown = summaryGenerator.GenerateMarkdown(manifest, evidence);
 
         return Ok(new ManifestSummaryResponse
         {
-            ManifestVersion = version,
+            ManifestVersion = manifestVersion,
             Format = FormatMarkdown,
             Content = markdown,
             Summary = markdown
         });
     }
 
-    [HttpGet("manifest/{version}/bundle")]
+    [HttpGet("manifest/{manifestVersion}/bundle")]
     [ProducesResponseType(typeof(ManifestBundleResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestBundle(
-        [FromRoute] string version,
+        [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(version, cancellationToken);
+        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         string diagram = diagramGenerator.GenerateMermaid(manifest);
         string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
 
         return Ok(new ManifestBundleResponse
         {
-            ManifestVersion = version,
+            ManifestVersion = manifestVersion,
             Manifest = manifest,
             Diagram = diagram,
             Summary = summary
         });
     }
 
-    [HttpGet("manifest/{version}/export")]
+    [HttpGet("manifest/{manifestVersion}/export")]
     [ProducesResponseType(typeof(ManifestExportContentResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifestExport(
-        [FromRoute] string version,
+        [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(version, cancellationToken);
+        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         string diagram = diagramGenerator.GenerateMermaid(manifest);
         string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
@@ -359,28 +359,28 @@ public sealed class ManifestsController(
 
         return Ok(new ManifestExportContentResponse
         {
-            ManifestVersion = version,
+            ManifestVersion = manifestVersion,
             Format = FormatMarkdown,
             Content = markdown
         });
     }
 
-    [HttpGet("manifest/{version}/export/download")]
+    [HttpGet("manifest/{manifestVersion}/export/download")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DownloadManifestExport(
-        [FromRoute] string version,
+        [FromRoute] string manifestVersion,
         CancellationToken cancellationToken)
     {
-        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(version, cancellationToken);
+        (GoldenManifest? manifest, AgentEvidencePackage? evidence) = await LoadManifestWithEvidenceAsync(manifestVersion, cancellationToken);
         if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
+            return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         string diagram = diagramGenerator.GenerateMermaid(manifest);
         string summary = summaryGenerator.GenerateMarkdown(manifest, evidence);
         string markdown = exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
 
-        string fileName = $"architecture-export-{version}.md";
+        string fileName = $"architecture-export-{manifestVersion}.md";
         return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
     }
 
@@ -416,10 +416,10 @@ public sealed class ManifestsController(
     /// Returns <c>(null, null)</c> when the manifest does not exist.
     /// </summary>
     private async Task<(GoldenManifest? Manifest, AgentEvidencePackage? Evidence)> LoadManifestWithEvidenceAsync(
-        string version,
+        string manifestVersion,
         CancellationToken cancellationToken)
     {
-        GoldenManifest? manifest = await manifestRepository.GetByVersionAsync(version, cancellationToken);
+        GoldenManifest? manifest = await manifestRepository.GetByVersionAsync(manifestVersion, cancellationToken);
         if (manifest is null) return (null, null);
         AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
         return (manifest, evidence);

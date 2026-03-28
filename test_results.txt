@@ -1,111 +1,165 @@
   Determining projects to restore...
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\ArchiForge.ContextIngestion.Tests.csproj (in 1.14 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj (in 1.12 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\ArchiForge.KnowledgeGraph.Tests.csproj (in 1.14 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\ArchiForge.Decisioning.Tests.csproj (in 1.15 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj (in 1.12 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\ArchiForge.DecisionEngine.Tests.csproj (in 1.12 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj (in 1.14 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Core\ArchiForge.Core.csproj (in 8 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\ArchiForge.Contracts.Tests.csproj (in 39 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj (in 38 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Provenance\ArchiForge.Provenance.csproj (in 15 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\ArchiForge.Retrieval.Tests.csproj (in 66 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence\ArchiForge.Persistence.csproj (in 106 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Data\ArchiForge.Data.csproj (in 158 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj (in 21 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli\ArchiForge.Cli.csproj (in 114 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj (in 57 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\ArchiForge.Cli.Tests.csproj (in 106 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts\ArchiForge.Contracts.csproj (in 5 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj (in 87 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj (in 12 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\ArchiForge.Coordinator.Tests.csproj (in 81 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj (in 102 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Application\ArchiForge.Application.csproj (in 120 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\ArchiForge.AgentRuntime.Tests.csproj (in 145 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\ArchiForge.Persistence.Tests.csproj (in 328 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api\ArchiForge.Api.csproj (in 434 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj (in 1.96 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts\ArchiForge.Contracts.csproj (in 605 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Core\ArchiForge.Core.csproj (in 609 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj (in 2.61 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj (in 2.61 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Application\ArchiForge.Application.csproj (in 2.71 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\ArchiForge.DecisionEngine.Tests.csproj (in 2.7 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Provenance\ArchiForge.Provenance.csproj (in 21 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Data\ArchiForge.Data.csproj (in 2.86 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli\ArchiForge.Cli.csproj (in 318 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj (in 11 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\ArchiForge.Cli.Tests.csproj (in 209 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj (in 79 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj (in 181 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\ArchiForge.Retrieval.Tests.csproj (in 1.79 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj (in 15 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\ArchiForge.KnowledgeGraph.Tests.csproj (in 17 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence\ArchiForge.Persistence.csproj (in 277 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api\ArchiForge.Api.csproj (in 3.46 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj (in 23 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj (in 2.79 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj (in 51 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\ArchiForge.Decisioning.Tests.csproj (in 74 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj (in 36 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\ArchiForge.Contracts.Tests.csproj (in 85 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\ArchiForge.ContextIngestion.Tests.csproj (in 31 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\ArchiForge.Persistence.Tests.csproj (in 555 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\ArchiForge.AgentRuntime.Tests.csproj (in 400 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\ArchiForge.Coordinator.Tests.csproj (in 163 ms).
+  ArchiForge.Core -> C:\ArchiForge\ArchiForge\ArchiForge.Core\bin\Debug\net10.0\ArchiForge.Core.dll
   ArchiForge.Contracts -> C:\ArchiForge\ArchiForge\ArchiForge.Contracts\bin\Debug\net10.0\ArchiForge.Contracts.dll
   ArchiForge.DecisionEngine -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\bin\Debug\net10.0\ArchiForge.DecisionEngine.dll
+  ArchiForge.Data -> C:\ArchiForge\ArchiForge\ArchiForge.Data\bin\Debug\net10.0\ArchiForge.Data.dll
   ArchiForge.AgentSimulator -> C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\bin\Debug\net10.0\ArchiForge.AgentSimulator.dll
-  ArchiForge.Core -> C:\ArchiForge\ArchiForge\ArchiForge.Core\bin\Debug\net10.0\ArchiForge.Core.dll
   ArchiForge.ContextIngestion -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\bin\Debug\net10.0\ArchiForge.ContextIngestion.dll
   ArchiForge.Contracts.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll
-  ArchiForge.DecisionEngine.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll
-  ArchiForge.Data -> C:\ArchiForge\ArchiForge\ArchiForge.Data\bin\Debug\net10.0\ArchiForge.Data.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll (.NETCoreApp,Version=v10.0)
+  ArchiForge.DecisionEngine.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll (.NETCoreApp,Version=v10.0)
+  ArchiForge.KnowledgeGraph -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.dll
 A total of 1 test files matched the specified pattern.
-A total of 1 test files matched the specified pattern.
-  ArchiForge.ContextIngestion.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
 No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll
 
-  ArchiForge.KnowledgeGraph -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.dll
-
-Passed!  - Failed:     0, Passed:    19, Skipped:     0, Total:    19, Duration: 864 ms - ArchiForge.DecisionEngine.Tests.dll (net10.0)
-
-Passed!  - Failed:     0, Passed:    13, Skipped:     0, Total:    13, Duration: 232 ms - ArchiForge.ContextIngestion.Tests.dll (net10.0)
   ArchiForge.KnowledgeGraph.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
-  ArchiForge.Decisioning -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\bin\Debug\net10.0\ArchiForge.Decisioning.dll
-  ArchiForge.ArtifactSynthesis -> C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\bin\Debug\net10.0\ArchiForge.ArtifactSynthesis.dll
 
-Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 207 ms - ArchiForge.KnowledgeGraph.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    19, Skipped:     0, Total:    19, Duration: 1 s - ArchiForge.DecisionEngine.Tests.dll (net10.0)
+  ArchiForge.Decisioning -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\bin\Debug\net10.0\ArchiForge.Decisioning.dll
+  ArchiForge.ContextIngestion.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll (.NETCoreApp,Version=v10.0)
+  ArchiForge.ArtifactSynthesis -> C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\bin\Debug\net10.0\ArchiForge.ArtifactSynthesis.dll
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 307 ms - ArchiForge.KnowledgeGraph.Tests.dll (net10.0)
   ArchiForge.Provenance -> C:\ArchiForge\ArchiForge\ArchiForge.Provenance\bin\Debug\net10.0\ArchiForge.Provenance.dll
   ArchiForge.Retrieval -> C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\bin\Debug\net10.0\ArchiForge.Retrieval.dll
+
+Passed!  - Failed:     0, Passed:    13, Skipped:     0, Total:    13, Duration: 284 ms - ArchiForge.ContextIngestion.Tests.dll (net10.0)
+  ArchiForge.AgentRuntime -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\bin\Debug\net10.0\ArchiForge.AgentRuntime.dll
+  ArchiForge.Persistence -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence\bin\Debug\net10.0\ArchiForge.Persistence.dll
   ArchiForge.Retrieval.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
-  ArchiForge.Persistence -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence\bin\Debug\net10.0\ArchiForge.Persistence.dll
-  ArchiForge.AgentRuntime -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\bin\Debug\net10.0\ArchiForge.AgentRuntime.dll
-  ArchiForge.Coordinator -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\bin\Debug\net10.0\ArchiForge.Coordinator.dll
-No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll
-
-  ArchiForge.Coordinator.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll (.NETCoreApp,Version=v10.0)
   ArchiForge.Decisioning.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\bin\Debug\net10.0\ArchiForge.Decisioning.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\bin\Debug\net10.0\ArchiForge.Decisioning.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
-A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll
 
-Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 689 ms - ArchiForge.Coordinator.Tests.dll (net10.0)
 
-Passed!  - Failed:     0, Passed:    47, Skipped:     0, Total:    47, Duration: 367 ms - ArchiForge.Decisioning.Tests.dll (net10.0)
-  ArchiForge.Application -> C:\ArchiForge\ArchiForge\ArchiForge.Application\bin\Debug\net10.0\ArchiForge.Application.dll
-  ArchiForge.Cli -> C:\ArchiForge\ArchiForge\ArchiForge.Cli\bin\Debug\net10.0\ArchiForge.Cli.dll
-  ArchiForge.Cli.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\bin\Debug\net10.0\ArchiForge.Cli.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\bin\Debug\net10.0\ArchiForge.Cli.Tests.dll (.NETCoreApp,Version=v10.0)
+Passed!  - Failed:     0, Passed:    47, Skipped:     0, Total:    47, Duration: 352 ms - ArchiForge.Decisioning.Tests.dll (net10.0)
+  ArchiForge.Coordinator -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\bin\Debug\net10.0\ArchiForge.Coordinator.dll
   ArchiForge.Persistence.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
-  ArchiForge.AgentRuntime.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll (.NETCoreApp,Version=v10.0)
-A total of 1 test files matched the specified pattern.
-A total of 1 test files matched the specified pattern.
-
-Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 262 ms - ArchiForge.AgentRuntime.Tests.dll (net10.0)
-
-Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 4 s - ArchiForge.Cli.Tests.dll (net10.0)
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll (.NETCoreApp,Version=v10.0)
+  ArchiForge.Coordinator.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
 A total of 1 test files matched the specified pattern.
 No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
 
+
+Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 575 ms - ArchiForge.Coordinator.Tests.dll (net10.0)
+  ArchiForge.Cli -> C:\ArchiForge\ArchiForge\ArchiForge.Cli\bin\Debug\net10.0\ArchiForge.Cli.dll
+  ArchiForge.Application -> C:\ArchiForge\ArchiForge\ArchiForge.Application\bin\Debug\net10.0\ArchiForge.Application.dll
+  ArchiForge.AgentRuntime.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll (.NETCoreApp,Version=v10.0)
+  ArchiForge.Cli.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\bin\Debug\net10.0\ArchiForge.Cli.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\bin\Debug\net10.0\ArchiForge.Cli.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 525 ms - ArchiForge.AgentRuntime.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 4 s - ArchiForge.Cli.Tests.dll (net10.0)
   ArchiForge.Api -> C:\ArchiForge\ArchiForge\ArchiForge.Api\bin\Debug\net10.0\ArchiForge.Api.dll
   ArchiForge.Api.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\bin\Debug\net10.0\ArchiForge.Api.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\bin\Debug\net10.0\ArchiForge.Api.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
-  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SeedFakeResultsAsync_WhenValid_SeedsResultsAndUpdatesStatus [7 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests.CompareRunsEndToEndSummary_ReturnsUnifiedSummary [1 ms]
   Error Message:
-   System.InvalidOperationException : Critic task was not found.
+   Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
   Stack Trace:
-     at ArchiForge.Api.Diagnostics.FakeAgentResultFactory.CreateStarterResults(String runId, IReadOnlyCollection`1 tasks, ArchitectureRequest request) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Diagnostics\FakeAgentResultFactory.cs:line 397
-   at ArchiForge.Api.Services.ArchitectureApplicationService.SeedFakeResultsAsync(String runId, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 206
-   at ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SeedFakeResultsAsync_WhenValid_SeedsResultsAndUpdatesStatus() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureApplicationServiceTests.cs:line 486
+     at Microsoft.AspNetCore.Routing.Patterns.RoutePatternParser.Parse(String pattern)
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointFactory.AddEndpoints(List`1 endpoints, HashSet`1 routeNames, ActionDescriptor action, IReadOnlyList`1 routes, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions, Boolean createInertEndpoints, RoutePattern groupPrefix)
+   at Microsoft.AspNetCore.Mvc.Routing.ControllerActionEndpointDataSource.CreateEndpoints(RoutePattern groupPrefix, IReadOnlyList`1 actions, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions)
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.UpdateEndpoints()
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.Initialize()
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.GetChangeToken()
+   at Microsoft.Extensions.Primitives.ChangeToken.ChangeTokenRegistration`1..ctor(Func`1 changeTokenProducer, Action`1 changeTokenConsumer, TState state)
+   at Microsoft.Extensions.Primitives.ChangeToken.OnChange(Func`1 changeTokenProducer, Action changeTokenConsumer)
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.CreateChangeTokenUnsynchronized(Boolean collectionChanged)
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.EnsureChangeTokenInitialized()
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.GetChangeToken()
+   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.Initialize()
+   at System.Threading.LazyInitializer.EnsureInitializedCore[T](T& target, Boolean& initialized, Object& syncLock, Func`1 valueFactory)
+   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.EnsureInitialized()
+   at Microsoft.AspNetCore.Authorization.Policy.AuthorizationPolicyCache..ctor(EndpointDataSource dataSource)
+   at InvokeStub_AuthorizationPolicyCache..ctor(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)
+   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at InvokeStub_AuthorizationMiddlewareInternal..ctor(Object, Object, Object, Object, Object)
+   at System.Reflection.ConstructorInvoker.InvokeImpl(Object arg1, Object arg2, Object arg3, Object arg4)
+   at System.Reflection.ConstructorInvoker.Invoke(Span`1 arguments)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 113
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureDeterminismTests.DeterminismCheck_ReturnsResult [1 ms]
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
+   at ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureEndToEndComparisonTests.cs:line 13
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GetRun_ReturnsTasks [1 ms]
   Error Message:
    Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
   Stack Trace:
@@ -170,72 +224,10 @@ A total of 1 test files matched the specified pattern.
    at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
    at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
    at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
-   at ArchiForge.Api.Tests.ArchitectureDeterminismTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureDeterminismTests.cs:line 13
+   at ArchiForge.Api.Tests.ArchitectureControllerTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 13
    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
-  Failed ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests.CompareRunsEndToEndSummary_ReturnsUnifiedSummary [1 ms]
-  Error Message:
-   Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
-  Stack Trace:
-     at Microsoft.AspNetCore.Routing.Patterns.RoutePatternParser.Parse(String pattern)
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointFactory.AddEndpoints(List`1 endpoints, HashSet`1 routeNames, ActionDescriptor action, IReadOnlyList`1 routes, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions, Boolean createInertEndpoints, RoutePattern groupPrefix)
-   at Microsoft.AspNetCore.Mvc.Routing.ControllerActionEndpointDataSource.CreateEndpoints(RoutePattern groupPrefix, IReadOnlyList`1 actions, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions)
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.UpdateEndpoints()
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.Initialize()
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.GetChangeToken()
-   at Microsoft.Extensions.Primitives.ChangeToken.ChangeTokenRegistration`1..ctor(Func`1 changeTokenProducer, Action`1 changeTokenConsumer, TState state)
-   at Microsoft.Extensions.Primitives.ChangeToken.OnChange(Func`1 changeTokenProducer, Action changeTokenConsumer)
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.CreateChangeTokenUnsynchronized(Boolean collectionChanged)
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.EnsureChangeTokenInitialized()
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.GetChangeToken()
-   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.Initialize()
-   at System.Threading.LazyInitializer.EnsureInitializedCore[T](T& target, Boolean& initialized, Object& syncLock, Func`1 valueFactory)
-   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.EnsureInitialized()
-   at Microsoft.AspNetCore.Authorization.Policy.AuthorizationPolicyCache..ctor(EndpointDataSource dataSource)
-   at InvokeStub_AuthorizationPolicyCache..ctor(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)
-   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
-   at InvokeStub_AuthorizationMiddlewareInternal..ctor(Object, Object, Object, Object, Object)
-   at System.Reflection.ConstructorInvoker.InvokeImpl(Object arg1, Object arg2, Object arg3, Object arg4)
-   at System.Reflection.ConstructorInvoker.Invoke(Span`1 arguments)
-   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
-   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
-   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
-   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
-   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
-   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
-   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
-   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
-   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 113
-   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
-   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
---- End of stack trace from previous location ---
-   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
-   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
-   at ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureEndToEndComparisonTests.cs:line 13
-   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
-   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GetRun_ReturnsTasks [1 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureDeterminismTests.DeterminismCheck_ReturnsResult [1 ms]
   Error Message:
    Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
   Stack Trace:
@@ -294,9 +286,133 @@ A total of 1 test files matched the specified pattern.
    at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
    at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
    at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
-   at ArchiForge.Api.Tests.ArchitectureControllerTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 13
+   at ArchiForge.Api.Tests.ArchitectureDeterminismTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureDeterminismTests.cs:line 13
    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.PublishPolicyPack_InvalidSemVerVersion_Returns400 [1 ms]
+  Error Message:
+   Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
+  Stack Trace:
+     at Microsoft.AspNetCore.Routing.Patterns.RoutePatternParser.Parse(String pattern)
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointFactory.AddEndpoints(List`1 endpoints, HashSet`1 routeNames, ActionDescriptor action, IReadOnlyList`1 routes, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions, Boolean createInertEndpoints, RoutePattern groupPrefix)
+   at Microsoft.AspNetCore.Mvc.Routing.ControllerActionEndpointDataSource.CreateEndpoints(RoutePattern groupPrefix, IReadOnlyList`1 actions, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions)
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.UpdateEndpoints()
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.Initialize()
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.GetChangeToken()
+   at Microsoft.Extensions.Primitives.ChangeToken.ChangeTokenRegistration`1..ctor(Func`1 changeTokenProducer, Action`1 changeTokenConsumer, TState state)
+   at Microsoft.Extensions.Primitives.ChangeToken.OnChange(Func`1 changeTokenProducer, Action changeTokenConsumer)
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.CreateChangeTokenUnsynchronized(Boolean collectionChanged)
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.EnsureChangeTokenInitialized()
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.GetChangeToken()
+   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.Initialize()
+   at System.Threading.LazyInitializer.EnsureInitializedCore[T](T& target, Boolean& initialized, Object& syncLock, Func`1 valueFactory)
+   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.EnsureInitialized()
+   at Microsoft.AspNetCore.Authorization.Policy.AuthorizationPolicyCache..ctor(EndpointDataSource dataSource)
+   at InvokeStub_AuthorizationPolicyCache..ctor(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)
+   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at InvokeStub_AuthorizationMiddlewareInternal..ctor(Object, Object, Object, Object, Object)
+   at System.Reflection.ConstructorInvoker.InvokeImpl(Object arg1, Object arg2, Object arg3, Object arg4)
+   at System.Reflection.ConstructorInvoker.Invoke(Span`1 arguments)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 113
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
+   at ArchiForge.Api.Tests.PolicyPackRequestValidationTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\PolicyPackRequestValidationTests.cs:line 11
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.AssignPolicyPack_InvalidScopeLevel_Returns400 [1 ms]
+  Error Message:
+   Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
+  Stack Trace:
+     at Microsoft.AspNetCore.Routing.Patterns.RoutePatternParser.Parse(String pattern)
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointFactory.AddEndpoints(List`1 endpoints, HashSet`1 routeNames, ActionDescriptor action, IReadOnlyList`1 routes, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions, Boolean createInertEndpoints, RoutePattern groupPrefix)
+   at Microsoft.AspNetCore.Mvc.Routing.ControllerActionEndpointDataSource.CreateEndpoints(RoutePattern groupPrefix, IReadOnlyList`1 actions, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions)
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.UpdateEndpoints()
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.Initialize()
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.GetChangeToken()
+   at Microsoft.Extensions.Primitives.ChangeToken.ChangeTokenRegistration`1..ctor(Func`1 changeTokenProducer, Action`1 changeTokenConsumer, TState state)
+   at Microsoft.Extensions.Primitives.ChangeToken.OnChange(Func`1 changeTokenProducer, Action changeTokenConsumer)
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.CreateChangeTokenUnsynchronized(Boolean collectionChanged)
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.EnsureChangeTokenInitialized()
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.GetChangeToken()
+   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.Initialize()
+   at System.Threading.LazyInitializer.EnsureInitializedCore[T](T& target, Boolean& initialized, Object& syncLock, Func`1 valueFactory)
+   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.EnsureInitialized()
+   at Microsoft.AspNetCore.Authorization.Policy.AuthorizationPolicyCache..ctor(EndpointDataSource dataSource)
+   at InvokeStub_AuthorizationPolicyCache..ctor(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)
+   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at InvokeStub_AuthorizationMiddlewareInternal..ctor(Object, Object, Object, Object, Object)
+   at System.Reflection.ConstructorInvoker.InvokeImpl(Object arg1, Object arg2, Object arg3, Object arg4)
+   at System.Reflection.ConstructorInvoker.Invoke(Span`1 arguments)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 113
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
+   at ArchiForge.Api.Tests.PolicyPackRequestValidationTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\PolicyPackRequestValidationTests.cs:line 11
+   at InvokeStub_PolicyPackRequestValidationTests..ctor(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
   Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_ReturnsRun [1 ms]
   Error Message:
    Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
@@ -358,6 +474,68 @@ A total of 1 test files matched the specified pattern.
    at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
    at ArchiForge.Api.Tests.ArchitectureControllerTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 13
    at InvokeStub_ArchitectureControllerTests..ctor(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.CreatePolicyPack_InvalidInitialContentJson_Returns400WithValidationErrors [1 ms]
+  Error Message:
+   Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
+  Stack Trace:
+     at Microsoft.AspNetCore.Routing.Patterns.RoutePatternParser.Parse(String pattern)
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointFactory.AddEndpoints(List`1 endpoints, HashSet`1 routeNames, ActionDescriptor action, IReadOnlyList`1 routes, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions, Boolean createInertEndpoints, RoutePattern groupPrefix)
+   at Microsoft.AspNetCore.Mvc.Routing.ControllerActionEndpointDataSource.CreateEndpoints(RoutePattern groupPrefix, IReadOnlyList`1 actions, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions)
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.UpdateEndpoints()
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.Initialize()
+   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.GetChangeToken()
+   at Microsoft.Extensions.Primitives.ChangeToken.ChangeTokenRegistration`1..ctor(Func`1 changeTokenProducer, Action`1 changeTokenConsumer, TState state)
+   at Microsoft.Extensions.Primitives.ChangeToken.OnChange(Func`1 changeTokenProducer, Action changeTokenConsumer)
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.CreateChangeTokenUnsynchronized(Boolean collectionChanged)
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.EnsureChangeTokenInitialized()
+   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.GetChangeToken()
+   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.Initialize()
+   at System.Threading.LazyInitializer.EnsureInitializedCore[T](T& target, Boolean& initialized, Object& syncLock, Func`1 valueFactory)
+   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.EnsureInitialized()
+   at Microsoft.AspNetCore.Authorization.Policy.AuthorizationPolicyCache..ctor(EndpointDataSource dataSource)
+   at InvokeStub_AuthorizationPolicyCache..ctor(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)
+   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at InvokeStub_AuthorizationMiddlewareInternal..ctor(Object, Object, Object, Object, Object)
+   at System.Reflection.ConstructorInvoker.InvokeImpl(Object arg1, Object arg2, Object arg3, Object arg4)
+   at System.Reflection.ConstructorInvoker.Invoke(Span`1 arguments)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
+   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
+   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
+   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 113
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
+   at ArchiForge.Api.Tests.PolicyPackRequestValidationTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\PolicyPackRequestValidationTests.cs:line 11
+   at InvokeStub_PolicyPackRequestValidationTests..ctor(Object, Span`1)
    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
   Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_SeedsResults [1 ms]
   Error Message:
@@ -483,68 +661,6 @@ A total of 1 test files matched the specified pattern.
    at ArchiForge.Api.Tests.ArchitectureControllerTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 13
    at InvokeStub_ArchitectureControllerTests..ctor(Object, Span`1)
    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-  Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.PublishPolicyPack_InvalidSemVerVersion_Returns400 [1 ms]
-  Error Message:
-   Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
-  Stack Trace:
-     at Microsoft.AspNetCore.Routing.Patterns.RoutePatternParser.Parse(String pattern)
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointFactory.AddEndpoints(List`1 endpoints, HashSet`1 routeNames, ActionDescriptor action, IReadOnlyList`1 routes, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions, Boolean createInertEndpoints, RoutePattern groupPrefix)
-   at Microsoft.AspNetCore.Mvc.Routing.ControllerActionEndpointDataSource.CreateEndpoints(RoutePattern groupPrefix, IReadOnlyList`1 actions, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions)
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.UpdateEndpoints()
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.Initialize()
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.GetChangeToken()
-   at Microsoft.Extensions.Primitives.ChangeToken.ChangeTokenRegistration`1..ctor(Func`1 changeTokenProducer, Action`1 changeTokenConsumer, TState state)
-   at Microsoft.Extensions.Primitives.ChangeToken.OnChange(Func`1 changeTokenProducer, Action changeTokenConsumer)
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.CreateChangeTokenUnsynchronized(Boolean collectionChanged)
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.EnsureChangeTokenInitialized()
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.GetChangeToken()
-   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.Initialize()
-   at System.Threading.LazyInitializer.EnsureInitializedCore[T](T& target, Boolean& initialized, Object& syncLock, Func`1 valueFactory)
-   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.EnsureInitialized()
-   at Microsoft.AspNetCore.Authorization.Policy.AuthorizationPolicyCache..ctor(EndpointDataSource dataSource)
-   at InvokeStub_AuthorizationPolicyCache..ctor(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)
-   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
-   at InvokeStub_AuthorizationMiddlewareInternal..ctor(Object, Object, Object, Object, Object)
-   at System.Reflection.ConstructorInvoker.InvokeImpl(Object arg1, Object arg2, Object arg3, Object arg4)
-   at System.Reflection.ConstructorInvoker.Invoke(Span`1 arguments)
-   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
-   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
-   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
-   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
-   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
-   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
-   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
-   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
-   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 113
-   at InvokeStub_Program.Main(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
---- End of stack trace from previous location ---
-   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
-   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
-   at ArchiForge.Api.Tests.PolicyPackRequestValidationTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\PolicyPackRequestValidationTests.cs:line 11
-   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
-   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
   Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd [1 ms]
   Error Message:
    Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
@@ -607,68 +723,6 @@ A total of 1 test files matched the specified pattern.
    at ArchiForge.Api.Tests.ArchitectureControllerTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 13
    at InvokeStub_ArchitectureControllerTests..ctor(Object, Span`1)
    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-  Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.AssignPolicyPack_InvalidScopeLevel_Returns400 [1 ms]
-  Error Message:
-   Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
-  Stack Trace:
-     at Microsoft.AspNetCore.Routing.Patterns.RoutePatternParser.Parse(String pattern)
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointFactory.AddEndpoints(List`1 endpoints, HashSet`1 routeNames, ActionDescriptor action, IReadOnlyList`1 routes, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions, Boolean createInertEndpoints, RoutePattern groupPrefix)
-   at Microsoft.AspNetCore.Mvc.Routing.ControllerActionEndpointDataSource.CreateEndpoints(RoutePattern groupPrefix, IReadOnlyList`1 actions, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions)
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.UpdateEndpoints()
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.Initialize()
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.GetChangeToken()
-   at Microsoft.Extensions.Primitives.ChangeToken.ChangeTokenRegistration`1..ctor(Func`1 changeTokenProducer, Action`1 changeTokenConsumer, TState state)
-   at Microsoft.Extensions.Primitives.ChangeToken.OnChange(Func`1 changeTokenProducer, Action changeTokenConsumer)
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.CreateChangeTokenUnsynchronized(Boolean collectionChanged)
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.EnsureChangeTokenInitialized()
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.GetChangeToken()
-   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.Initialize()
-   at System.Threading.LazyInitializer.EnsureInitializedCore[T](T& target, Boolean& initialized, Object& syncLock, Func`1 valueFactory)
-   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.EnsureInitialized()
-   at Microsoft.AspNetCore.Authorization.Policy.AuthorizationPolicyCache..ctor(EndpointDataSource dataSource)
-   at InvokeStub_AuthorizationPolicyCache..ctor(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)
-   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
-   at InvokeStub_AuthorizationMiddlewareInternal..ctor(Object, Object, Object, Object, Object)
-   at System.Reflection.ConstructorInvoker.InvokeImpl(Object arg1, Object arg2, Object arg3, Object arg4)
-   at System.Reflection.ConstructorInvoker.Invoke(Span`1 arguments)
-   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
-   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
-   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
-   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
-   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
-   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
-   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
-   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
-   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 113
-   at InvokeStub_Program.Main(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
---- End of stack trace from previous location ---
-   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
-   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
-   at ArchiForge.Api.Tests.PolicyPackRequestValidationTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\PolicyPackRequestValidationTests.cs:line 11
-   at InvokeStub_PolicyPackRequestValidationTests..ctor(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
   Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId [1 ms]
   Error Message:
    Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
@@ -730,68 +784,6 @@ A total of 1 test files matched the specified pattern.
    at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
    at ArchiForge.Api.Tests.ArchitectureControllerTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 13
    at InvokeStub_ArchitectureControllerTests..ctor(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-  Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.CreatePolicyPack_InvalidInitialContentJson_Returns400WithValidationErrors [1 ms]
-  Error Message:
-   Microsoft.AspNetCore.Routing.Patterns.RoutePatternException : The route parameter name 'version' appears more than one time in the route template.
-  Stack Trace:
-     at Microsoft.AspNetCore.Routing.Patterns.RoutePatternParser.Parse(String pattern)
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointFactory.AddEndpoints(List`1 endpoints, HashSet`1 routeNames, ActionDescriptor action, IReadOnlyList`1 routes, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions, Boolean createInertEndpoints, RoutePattern groupPrefix)
-   at Microsoft.AspNetCore.Mvc.Routing.ControllerActionEndpointDataSource.CreateEndpoints(RoutePattern groupPrefix, IReadOnlyList`1 actions, IReadOnlyList`1 conventions, IReadOnlyList`1 groupConventions, IReadOnlyList`1 finallyConventions, IReadOnlyList`1 groupFinallyConventions)
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.UpdateEndpoints()
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.Initialize()
-   at Microsoft.AspNetCore.Mvc.Routing.ActionEndpointDataSourceBase.GetChangeToken()
-   at Microsoft.Extensions.Primitives.ChangeToken.ChangeTokenRegistration`1..ctor(Func`1 changeTokenProducer, Action`1 changeTokenConsumer, TState state)
-   at Microsoft.Extensions.Primitives.ChangeToken.OnChange(Func`1 changeTokenProducer, Action changeTokenConsumer)
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.CreateChangeTokenUnsynchronized(Boolean collectionChanged)
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.EnsureChangeTokenInitialized()
-   at Microsoft.AspNetCore.Routing.CompositeEndpointDataSource.GetChangeToken()
-   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.Initialize()
-   at System.Threading.LazyInitializer.EnsureInitializedCore[T](T& target, Boolean& initialized, Object& syncLock, Func`1 valueFactory)
-   at Microsoft.AspNetCore.Routing.DataSourceDependentCache`1.EnsureInitialized()
-   at Microsoft.AspNetCore.Authorization.Policy.AuthorizationPolicyCache..ctor(EndpointDataSource dataSource)
-   at InvokeStub_AuthorizationPolicyCache..ctor(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-   at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)
-   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
-   at InvokeStub_AuthorizationMiddlewareInternal..ctor(Object, Object, Object, Object, Object)
-   at System.Reflection.ConstructorInvoker.InvokeImpl(Object arg1, Object arg2, Object arg3, Object arg4)
-   at System.Reflection.ConstructorInvoker.Invoke(Span`1 arguments)
-   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.ConstructorMatcher.CreateInstance(IServiceProvider provider)
-   at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(IServiceProvider provider, Type instanceType, Object[] parameters)
-   at Microsoft.AspNetCore.Builder.UseMiddlewareExtensions.ReflectionMiddlewareBinder.CreateMiddleware(RequestDelegate next)
-   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
-   at Microsoft.AspNetCore.Builder.ApplicationBuilder.Build()
-   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
-   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
-   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Run(IHost host)
-   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 113
-   at InvokeStub_Program.Main(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
---- End of stack trace from previous location ---
-   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
-   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
-   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
-   at ArchiForge.Api.Tests.PolicyPackRequestValidationTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\PolicyPackRequestValidationTests.cs:line 11
-   at InvokeStub_PolicyPackRequestValidationTests..ctor(Object, Span`1)
    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
   Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd_WithExecute [1 ms]
   Error Message:
@@ -980,4 +972,4 @@ A total of 1 test files matched the specified pattern.
    at InvokeStub_ArchitectureControllerTests..ctor(Object, Span`1)
    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
 
-Failed!  - Failed:    15, Passed:    34, Skipped:     0, Total:    49, Duration: 5 s - ArchiForge.Api.Tests.dll (net10.0)
+Failed!  - Failed:    14, Passed:    35, Skipped:     0, Total:    49, Duration: 3 s - ArchiForge.Api.Tests.dll (net10.0)
