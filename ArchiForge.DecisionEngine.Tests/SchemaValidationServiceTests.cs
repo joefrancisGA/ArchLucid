@@ -204,7 +204,7 @@ public sealed class SchemaValidationServiceTests
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Empty payload")),
-                It.IsAny<Exception>(),
+                null,
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
     }
@@ -221,7 +221,7 @@ public sealed class SchemaValidationServiceTests
                 LogLevel.Warning,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Empty payload")),
-                It.IsAny<Exception>(),
+                null,
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
     }
@@ -236,7 +236,7 @@ public sealed class SchemaValidationServiceTests
                 It.IsAny<LogLevel>(),
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Loading schema")),
-                It.IsAny<Exception>(),
+                null,
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Never);
 
@@ -247,13 +247,16 @@ public sealed class SchemaValidationServiceTests
                 LogLevel.Information,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Loading schema")),
-                It.IsAny<Exception>(),
+                null,
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.AtLeastOnce);
     }
 
     private SchemaValidationService CreateService()
     {
+        // LoggerExtensions only call ILogger.Log when IsEnabled is true; Moq's default bool is false.
+        _loggerMock.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
         return new SchemaValidationService(
             _loggerMock.Object,
             Options.Create(_options));
