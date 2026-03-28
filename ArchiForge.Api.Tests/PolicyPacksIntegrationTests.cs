@@ -304,6 +304,76 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
     }
 
     [Fact]
+    public async Task EffectiveContent_MergesAdvisoryDefaults_FromTwoAssignedPacks()
+    {
+        string contentA = """
+                          {
+                            "complianceRuleIds": [],
+                            "complianceRuleKeys": [],
+                            "alertRuleIds": [],
+                            "compositeAlertRuleIds": [],
+                            "advisoryDefaults": { "scanDepth": "deep" },
+                            "metadata": { "mergeTier": "baseline" }
+                          }
+                          """;
+
+        string contentB = """
+                          {
+                            "complianceRuleIds": [],
+                            "complianceRuleKeys": [],
+                            "alertRuleIds": [],
+                            "compositeAlertRuleIds": [],
+                            "advisoryDefaults": { "notifyChannel": "email" },
+                            "metadata": { "packRole": "overlay" }
+                          }
+                          """;
+
+        HttpResponseMessage createA = await Client.PostAsync(
+            "/v1/policy-packs",
+            JsonContent(new
+            {
+                name = "Two-pack merge A",
+                description = "",
+                packType = "ProjectCustom",
+                initialContentJson = contentA,
+            }));
+        createA.StatusCode.Should().Be(HttpStatusCode.OK);
+        PolicyPackResponse? packA = await createA.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+
+        HttpResponseMessage createB = await Client.PostAsync(
+            "/v1/policy-packs",
+            JsonContent(new
+            {
+                name = "Two-pack merge B",
+                description = "",
+                packType = "ProjectCustom",
+                initialContentJson = contentB,
+            }));
+        createB.StatusCode.Should().Be(HttpStatusCode.OK);
+        PolicyPackResponse? packB = await createB.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+
+        (await Client.PostAsync(
+                $"/v1/policy-packs/{packA!.PolicyPackId}/assign",
+                JsonContent(new { version = "1.0.0" })))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        (await Client.PostAsync(
+                $"/v1/policy-packs/{packB!.PolicyPackId}/assign",
+                JsonContent(new { version = "1.0.0" })))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+
+        HttpResponseMessage mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
+        mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        PolicyPackContentResponse? merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
+        merged.Should().NotBeNull();
+        merged!.AdvisoryDefaults.Should().ContainKeys("scanDepth", "notifyChannel");
+        merged.AdvisoryDefaults["scanDepth"].Should().Be("deep");
+        merged.AdvisoryDefaults["notifyChannel"].Should().Be("email");
+        merged.Metadata.Should().ContainKeys("mergeTier", "mergeSla");
+        merged.Metadata["mergeTier"].Should().Be("baseline");
+        merged.Metadata["mergeSla"].Should().Be("p1");
+    }
+
+    [Fact]
     public async Task EffectiveContent_UnionsComplianceRuleKeys_FromTwoAssignments()
     {
         Guid packA = await CreatePackAsync("merge-pack-a", "merge-key-a");

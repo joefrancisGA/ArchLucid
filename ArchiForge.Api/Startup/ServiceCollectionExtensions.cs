@@ -109,6 +109,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IScanScheduleCalculator, SimpleScanScheduleCalculator>();
         services.AddScoped<IArchitectureDigestBuilder, ArchitectureDigestBuilder>();
         services.AddScoped<IAdvisoryScanRunner, AdvisoryScanRunner>();
+        services.AddScoped<AdvisoryDueScheduleProcessor>();
         services.AddHostedService<AdvisoryScanHostedService>();
     }
 

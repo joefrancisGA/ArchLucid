@@ -1,13 +1,10 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Persistence.Advisory;
-
 namespace ArchiForge.Api.Hosted;
 
 /// <summary>
 /// Background worker that polls due advisory scan schedules on a fixed interval (v1 — not a distributed scheduler).
 /// </summary>
 /// <remarks>
-/// Creates a scope per iteration, loads up to 10 due schedules via <see cref="IAdvisoryScanScheduleRepository.ListDueAsync"/>, and invokes <see cref="IAdvisoryScanRunner.RunScheduleAsync"/> for each.
+/// Creates a scope per iteration and delegates to <see cref="AdvisoryDueScheduleProcessor"/> (same semantics as before extraction).
 /// Per-schedule failures are logged and do not stop the loop; a missed lock means multiple hosts could run the same schedule (acceptable for v1).
 /// </remarks>
 public sealed class AdvisoryScanHostedService(IServiceProvider serviceProvider, ILogger<AdvisoryScanHostedService> logger)
@@ -28,28 +25,11 @@ public sealed class AdvisoryScanHostedService(IServiceProvider serviceProvider, 
             try
             {
                 using IServiceScope scope = serviceProvider.CreateScope();
-                IAdvisoryScanScheduleRepository scheduleRepository = scope.ServiceProvider.GetRequiredService<IAdvisoryScanScheduleRepository>();
-                IAdvisoryScanRunner runner = scope.ServiceProvider.GetRequiredService<IAdvisoryScanRunner>();
+                AdvisoryDueScheduleProcessor processor = scope.ServiceProvider.GetRequiredService<AdvisoryDueScheduleProcessor>();
 
-                IReadOnlyList<AdvisoryScanSchedule> due = await scheduleRepository
-                    .ListDueAsync(DateTime.UtcNow, 10, stoppingToken)
+                await processor
+                    .ProcessDueAsync(DateTime.UtcNow, 10, stoppingToken)
                     .ConfigureAwait(false);
-
-                foreach (AdvisoryScanSchedule schedule in due)
-                {
-                    try
-                    {
-                        await runner.RunScheduleAsync(schedule, stoppingToken).ConfigureAwait(false);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        throw;
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Advisory scan failed for schedule {ScheduleId}.", schedule.ScheduleId);
-                    }
-                }
             }
             catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
             {

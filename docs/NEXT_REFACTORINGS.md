@@ -1779,14 +1779,14 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 180. **`FindingPayloadValidatorTests`** (envelope guards, compliance + multi-type happy paths).
 - [x] 181. `CostConstraintFindingEngine` / `ComplianceFindingEngine` branch coverage.
 - [x] 182. `RetrievalQueryService` empty index + ranking (`ArchiForge.Retrieval.Tests`: `RetrievalQueryServiceTests`, `InMemoryVectorIndexTests`).
-- [ ] 183. `ConversationService` thread lifecycle.
-- [ ] 184. `DocxExportService` golden / snapshot tests.
-- [ ] 185. `CoordinatorService` ingestion mapper tests.
+- [x] 183. `ConversationService` thread lifecycle (`ArchiForge.Api.Tests`: `ConversationServiceTests`).
+- [x] 184. `DocxExportService` golden / snapshot tests (`ArchiForge.Coordinator.Tests`: `DocxExportServiceGoldenTests`).
+- [x] 185. Coordinator ingestion mapper (`ContextIngestionRequestMapper.FromArchitectureRequest`) — `ContextIngestionRequestMapperTests` in Coordinator.Tests.
 - [x] 186. `ContextIngestionService` parser-miss warnings.
 - [x] 187. `JsonEntitySerializer` corrupt graph JSON tests.
 - [x] 188. Golden audit JSON payload (camelCase) contract test.
 - [x] 189. `SimpleScanScheduleCalculator` DST / timezone if behavior defined (UTC-only calculator; see `SimpleScanScheduleCalculatorTests`).
-- [ ] 190. `AdvisoryScanHostedService` overlap / cancellation.
+- [x] 190. Advisory scan poll semantics — `AdvisoryDueScheduleProcessor` (sequential due schedules, per-schedule error isolation, OCE propagation) + `AdvisoryDueScheduleProcessorTests`; `AdvisoryScanHostedService` delegates to processor.
 - [x] 191. **`PolicyPacksAppServiceTests`** (create + audit; assign miss → no management call).
 - [x] 192. `ReplayValidationConstants` extensions.
 - [x] 193. `ApiProblemDetailsExceptionFilter` exception-type matrix.
@@ -1794,9 +1794,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Tests — integration / E2E (195–204)
 
-- [ ] 195. Api.Tests: full alert lifecycle (rule → evaluate → list).
-- [ ] 196. Api.Tests: digest subscription → delivery attempt row.
-- [ ] 197. Api.Tests: governance two-pack merge + effective-content.
+- [x] 195. Api.Tests: full alert lifecycle (rule → evaluate → list) — <c>AlertLifecycleIntegrationTests</c> + <c>AlertLifecycleWebAppFactory</c> (InMemory storage, seeded authority run, POST rule + schedule run + GET alerts).
+- [x] 196. Api.Tests: digest subscription → delivery attempt row (`DigestDeliveryLifecycleIntegrationTests`).
+- [x] 197. Api.Tests: governance two-pack merge + effective-content (`EffectiveContent_MergesAdvisoryDefaults_FromTwoAssignedPacks`; compliance union already in `EffectiveContent_UnionsComplianceRuleKeys_FromTwoAssignments`).
 - [ ] 198. Api.Tests: retrieval index + query smoke (fake vector).
 - [ ] 199. Api.Tests: Ask thread + fake LLM.
 - [ ] 200. Committed OpenAPI snapshot diff in CI.
@@ -1880,8 +1880,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls up major themes only.
 
 - [ ] Documentation & ADRs (155–169): partial (155 open; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
-- [ ] Unit tests (170–194): partial (183–185, 190 still open; 170–171 done via Persistence.Tests + Testcontainers; added 174, 175, 177, 178, 179, 181, 182, 187, 188, 193, 194, 225 coverage).
-- [ ] Integration / E2E (195–204): not started.
+- [x] Unit tests (170–194): complete for 170–190, 191–194 (170–171 Persistence.Tests; 183–185, 190 as listed above; 189 UTC calculator documented).
+- [ ] Integration / E2E (195–204): partial (195–197 done; 198–204 open).
 - [ ] Observability & reliability (205–214): partial (205–209 done; 210+ still open).
 - [ ] Security (215–226): partial (**225–226** CORS + HSTS/headers; **215–224** Entra/RLS/WAF/SBOM/etc. still open).
 - [ ] Performance & cost (227–234): partial (229 response compression enabled).

@@ -7,7 +7,7 @@
 | **ArchiForge.Api.Tests** | HTTP API, auth policies, ProblemDetails, CORS, comparison replay, runs, governance, alerts (integration), SQLite-backed persistence through the real host. |
 | **ArchiForge.Decisioning.Tests** | Findings, compliance, alerts (pure logic), advisory scheduling math, governance resolution, graph mappers, JSON persistence contracts. |
 | **ArchiForge.ContextIngestion.Tests** | Connectors, parsers, deduplication, `ContextIngestionService`, delta summaries. |
-| **ArchiForge.Coordinator.Tests** | Run coordination, agent orchestration boundaries (with fakes). |
+| **ArchiForge.Coordinator.Tests** | Run coordination, agent fakes, **`ContextIngestionRequestMapperTests`**, **`DocxExportServiceGoldenTests`** (OpenXML anchors). |
 | **ArchiForge.DecisionEngine.Tests** | Schema validation, manifest/decision JSON contracts. |
 | **ArchiForge.KnowledgeGraph.Tests** | Graph models, edge inference contracts. |
 | **ArchiForge.Retrieval.Tests** | `RetrievalQueryService`, `InMemoryVectorIndex` (empty index, ranking, scope filters). |
@@ -15,7 +15,7 @@
 
 ## Projects
 
-- **ArchiForge.Api.Tests** — API integration tests using `WebApplicationFactory` (full app, in-memory SQLite). Heavier; use for HTTP contracts, comparison replay, exports, run-not-found, 422/409.
+- **ArchiForge.Api.Tests** — API integration tests using `WebApplicationFactory` (full app, in-memory SQLite). Heavier; use for HTTP contracts, comparison replay, exports, run-not-found, 422/409. Advisory + alerts: **`AlertLifecycleIntegrationTests`**, **`DigestDeliveryLifecycleIntegrationTests`** with **`AlertLifecycleWebAppFactory`** (`ArchiForge:StorageProvider=InMemory` + **`AdvisoryIntegrationSeed`**). Unit-style: **`ConversationServiceTests`**, **`AdvisoryDueScheduleProcessorTests`** (`Category=Unit`).
 - **ArchiForge.DecisionEngine.Tests** — Unit and scenario tests for the decision engine; optional integration tests with real JSON schemas (see `SchemaValidationIntegrationTests`).
 - **ArchiForge.ContextIngestion.Tests** — Fast unit tests for ingestion parsers, deduplication, document connector warnings, delta summary builder, and **`ContextIngestionService`** (in-memory snapshot repo + fake connectors).
 - **ArchiForge.Coordinator.Tests**, **ArchiForge.AgentRuntime.Tests**, **ArchiForge.Decisioning.Tests**, **ArchiForge.Retrieval.Tests**, etc. — Domain/component tests; no web stack unless explicitly added.
