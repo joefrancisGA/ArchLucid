@@ -85,6 +85,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IPolicyPackAssignmentRepository, InMemoryPolicyPackAssignmentRepository>();
             // Required by CoordinatorService → IAuthorityRunOrchestrator.
             services.AddSingleton<IArchiForgeUnitOfWorkFactory, InMemoryArchiForgeUnitOfWorkFactory>();
+            services.AddSingleton<IRetrievalIndexingOutboxRepository, InMemoryRetrievalIndexingOutboxRepository>();
+            services.AddSingleton<IConversationThreadRepository, InMemoryConversationThreadRepository>();
+            services.AddSingleton<IConversationMessageRepository, InMemoryConversationMessageRepository>();
             services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
             return services;
         }

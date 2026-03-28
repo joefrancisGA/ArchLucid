@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using ArchiForge.AgentRuntime;
 using ArchiForge.AgentRuntime.Explanation;
@@ -336,6 +337,7 @@ internal static partial class ServiceCollectionExtensions
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
         {
             services.AddScoped<IAgentExecutor, DeterministicAgentSimulator>();
+            RegisterFakeAgentCompletionClient(services);
         }
         else
         {
@@ -377,31 +379,46 @@ internal static partial class ServiceCollectionExtensions
             }
             else
             {
-                JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
-                services.AddScoped<IAgentCompletionClient>(_ => new FakeAgentCompletionClient(
-                    (_, userPrompt) =>
-                    {
-                        string runId = "RUN-001";
-                        string taskId = "TASK-TOPO-001";
-                        foreach (string line in userPrompt.Split('\n'))
-                        {
-                            ReadOnlySpan<char> span = line.AsSpan().Trim();
-                            if (span.StartsWith("RunId:", StringComparison.OrdinalIgnoreCase))
-                                runId = span.Length > 6 ? span[6..].Trim().ToString() : runId;
-                            else if (span.StartsWith("TaskId:", StringComparison.OrdinalIgnoreCase))
-                                taskId = span.Length > 7 ? span[7..].Trim().ToString() : taskId;
-                        }
-                        ArchitectureRequest dummyRequest = new()
-                        {
-                            SystemName = "Default",
-                            Description = "Default request for fake topology response.",
-                            Environment = "prod"
-                        };
-                        AgentResult result = FakeScenarioFactory.CreateTopologyResult(runId, taskId, dummyRequest);
-                        return JsonSerializer.Serialize(result, jsonOptions);
-                    }));
+                RegisterFakeAgentCompletionClient(services);
             }
         }
+    }
+
+    /// <summary>
+    /// Ask/Explanation paths resolve <see cref="IAgentCompletionClient"/> even when <see cref="DeterministicAgentSimulator"/>
+    /// is the active executor (no real agent handlers).
+    /// </summary>
+    private static void RegisterFakeAgentCompletionClient(IServiceCollection services)
+    {
+        JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web)
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters = { new JsonStringEnumConverter() }
+        };
+
+        services.AddScoped<IAgentCompletionClient>(_ => new FakeAgentCompletionClient(
+            (_, userPrompt) =>
+            {
+                string runId = "RUN-001";
+                string taskId = "TASK-TOPO-001";
+                foreach (string line in userPrompt.Split('\n'))
+                {
+                    ReadOnlySpan<char> span = line.AsSpan().Trim();
+                    if (span.StartsWith("RunId:", StringComparison.OrdinalIgnoreCase))
+                        runId = span.Length > 6 ? span[6..].Trim().ToString() : runId;
+                    else if (span.StartsWith("TaskId:", StringComparison.OrdinalIgnoreCase))
+                        taskId = span.Length > 7 ? span[7..].Trim().ToString() : taskId;
+                }
+
+                ArchitectureRequest dummyRequest = new()
+                {
+                    SystemName = "Default",
+                    Description = "Default request for fake topology response.",
+                    Environment = "prod"
+                };
+                AgentResult result = FakeScenarioFactory.CreateTopologyResult(runId, taskId, dummyRequest);
+                return JsonSerializer.Serialize(result, jsonOptions);
+            }));
     }
 
     private static void RegisterGovernance(IServiceCollection services)

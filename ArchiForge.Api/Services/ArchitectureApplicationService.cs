@@ -136,15 +136,20 @@ public sealed class ArchitectureApplicationService(
     }
 
     /// <summary>True when there is exactly one result for each required agent type and no extra types.</summary>
-    private static bool HasAllRequiredAgentTypes(IReadOnlyList<AgentResult> results)
+    private static bool HasAllRequiredAgentTypes(IReadOnlyList<AgentResult>? results)
     {
+        if (results is null)
+            return false;
+
         if (results.Count != RequiredAgentTypes.Count)
             return false;
+
         foreach (AgentType required in RequiredAgentTypes)
         {
-            if (results.Count(r => r.AgentType == required) != 1)
+            if (results.Count(r => r is not null && r.AgentType == required) != 1)
                 return false;
         }
+
         return true;
     }
 
