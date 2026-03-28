@@ -475,21 +475,29 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         ArchitectureRequest request = ValidRequest();
         List<AgentTask> tasks =
-            [ValidTask(), ValidTask("run-1", AgentType.Cost), ValidTask("run-1", AgentType.Compliance)];
+        [
+            ValidTask(),
+            ValidTask("run-1", AgentType.Cost),
+            ValidTask("run-1", AgentType.Compliance),
+            ValidTask("run-1", AgentType.Critic)
+        ];
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
         _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
-        _resultRepository.Setup(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _resultRepository.Setup(r => r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
         _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SeedFakeResultsResult result = await _sut.SeedFakeResultsAsync("run-1");
 
         result.Should().NotBeNull();
         result.Success.Should().BeTrue();
-        result.ResultCount.Should().Be(3);
+        result.ResultCount.Should().Be(4);
         result.Error.Should().BeNull();
-        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+        _resultRepository.Verify(
+            r => r.CreateManyAsync(It.Is<IReadOnlyList<AgentResult>>(list => list.Count == 4), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
