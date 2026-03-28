@@ -1,8 +1,7 @@
 namespace ArchiForge.Core.Pagination;
 
 /// <summary>
-/// Builds <see cref="PagedResponse{T}"/> from an already-loaded collection.
-/// This is a v1 convenience for controller-level pagination; SQL-level OFFSET/FETCH should replace this for large datasets.
+/// Builds <see cref="PagedResponse{T}"/> from an in-memory collection or from database page + total count.
 /// </summary>
 public static class PagedResponseBuilder
 {
@@ -23,6 +22,26 @@ public static class PagedResponseBuilder
         {
             Items = items,
             TotalCount = allItems.Count,
+            Page = safePage,
+            PageSize = safePageSize
+        };
+    }
+
+    /// <summary>
+    /// Wraps a database page (items already limited by OFFSET/FETCH or equivalent) with total count from the server.
+    /// </summary>
+    public static PagedResponse<T> FromDatabasePage<T>(
+        IReadOnlyList<T> pageItems,
+        int totalCount,
+        int page,
+        int pageSize)
+    {
+        (int safePage, int safePageSize) = PaginationDefaults.Normalize(page, pageSize);
+
+        return new PagedResponse<T>
+        {
+            Items = pageItems,
+            TotalCount = totalCount,
             Page = safePage,
             PageSize = safePageSize
         };

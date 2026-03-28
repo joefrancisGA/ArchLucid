@@ -1,9 +1,12 @@
 using ArchiForge.ArtifactSynthesis.Interfaces;
+using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Interfaces;
+using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
 
@@ -47,39 +50,37 @@ public sealed class DapperAuthorityQueryService(
         if (run is null)
             return null;
 
-        RunDetailDto result = new() { Run = run };
+        Task<ContextSnapshot?> contextTask = run.ContextSnapshotId.HasValue
+            ? contextSnapshotRepository.GetByIdAsync(run.ContextSnapshotId.Value, ct)
+            : Task.FromResult<ContextSnapshot?>(null);
+        Task<GraphSnapshot?> graphTask = run.GraphSnapshotId.HasValue
+            ? graphSnapshotRepository.GetByIdAsync(run.GraphSnapshotId.Value, ct)
+            : Task.FromResult<GraphSnapshot?>(null);
+        Task<FindingsSnapshot?> findingsTask = run.FindingsSnapshotId.HasValue
+            ? findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct)
+            : Task.FromResult<FindingsSnapshot?>(null);
+        Task<DecisionTrace?> traceTask = run.DecisionTraceId.HasValue
+            ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
+            : Task.FromResult<DecisionTrace?>(null);
+        Task<GoldenManifest?> manifestTask = run.GoldenManifestId.HasValue
+            ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
+            : Task.FromResult<GoldenManifest?>(null);
+        Task<ArtifactBundle?> bundleTask = run is { ArtifactBundleId: not null, GoldenManifestId: not null }
+            ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct)
+            : Task.FromResult<ArtifactBundle?>(null);
 
-        if (run.ContextSnapshotId.HasValue)
+        await Task.WhenAll(contextTask, graphTask, findingsTask, traceTask, manifestTask, bundleTask).ConfigureAwait(false);
+
+        return new RunDetailDto
         {
-            result.ContextSnapshot = await contextSnapshotRepository.GetByIdAsync(run.ContextSnapshotId.Value, ct).ConfigureAwait(false);
-        }
-
-        if (run.GraphSnapshotId.HasValue)
-        {
-            result.GraphSnapshot = await graphSnapshotRepository.GetByIdAsync(run.GraphSnapshotId.Value, ct).ConfigureAwait(false);
-        }
-
-        if (run.FindingsSnapshotId.HasValue)
-        {
-            result.FindingsSnapshot = await findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct).ConfigureAwait(false);
-        }
-
-        if (run.DecisionTraceId.HasValue)
-        {
-            result.DecisionTrace = await decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct).ConfigureAwait(false);
-        }
-
-        if (run.GoldenManifestId.HasValue)
-        {
-            result.GoldenManifest = await goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct).ConfigureAwait(false);
-        }
-
-        if (run is { ArtifactBundleId: not null, GoldenManifestId: not null })
-        {
-            result.ArtifactBundle = await artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct).ConfigureAwait(false);
-        }
-
-        return result;
+            Run = run,
+            ContextSnapshot = await contextTask.ConfigureAwait(false),
+            GraphSnapshot = await graphTask.ConfigureAwait(false),
+            FindingsSnapshot = await findingsTask.ConfigureAwait(false),
+            DecisionTrace = await traceTask.ConfigureAwait(false),
+            GoldenManifest = await manifestTask.ConfigureAwait(false),
+            ArtifactBundle = await bundleTask.ConfigureAwait(false)
+        };
     }
 
     /// <inheritdoc />

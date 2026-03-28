@@ -1,3 +1,4 @@
+using ArchiForge.Core.Pagination;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Persistence.Connections;
 
@@ -166,5 +167,63 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
                 },
                 cancellationToken: ct)).ConfigureAwait(false);
         return rows.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<(IReadOnlyList<AlertRecord> Items, int TotalCount)> ListByScopePagedAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string? status,
+        int skip,
+        int take,
+        CancellationToken ct)
+    {
+        take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
+        skip = Math.Max(skip, 0);
+
+        const string countSql = """
+            SELECT COUNT(*)
+            FROM dbo.AlertRecords
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND (@Status IS NULL OR Status = @Status);
+            """;
+
+        const string pageSql = """
+            SELECT
+                AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
+                RunId, ComparedToRunId, RecommendationId,
+                Title, Category, Severity, Status,
+                TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
+                AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
+                DeduplicationKey
+            FROM dbo.AlertRecords
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND (@Status IS NULL OR Status = @Status)
+            ORDER BY CreatedUtc DESC
+            OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
+            """;
+
+        object parameters = new
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            Status = status,
+            Skip = skip,
+            Take = take
+        };
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        int total = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: ct)).ConfigureAwait(false);
+        IEnumerable<AlertRecord> rows = await connection.QueryAsync<AlertRecord>(
+            new CommandDefinition(pageSql, parameters, cancellationToken: ct)).ConfigureAwait(false);
+
+        return (rows.ToList(), total);
     }
 }

@@ -1813,7 +1813,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 208. Metrics: governance resolve + cache hit ratio (if cached) — `governance_resolve_duration_ms`; `governance_pack_content_deserialize_cache_hits` / `_misses` for per-resolve `(packId, version)` JSON dedupe.
 - [x] 209. Correlation id → audit fields where missing (activity `correlation.id` chain + advisory/authority/index tags; `AuditService` enrichment).
 - [x] 210. Retry / DLQ for background jobs — `InMemoryBackgroundJobQueue` now supports `maxRetries` (exponential backoff, DLQ on exhaustion); `BackgroundJobInfo` tracks `RetryCount`/`MaxRetries`; tests: retry→succeed, retry→exhaust→fail, zero-retry immediate fail.
-- [ ] 211. Outbox for post-commit indexing.
+- [x] 211. Outbox for post-commit indexing.
+  - **`019_RetrievalIndexingOutbox.sql`**: table `dbo.RetrievalIndexingOutbox` (`OutboxId`, `RunId`, scope Guids, `CreatedUtc`, `ProcessedUtc`); filtered index on pending rows.
+  - **`IRetrievalIndexingOutboxRepository`**: `DapperRetrievalIndexingOutboxRepository` / `InMemoryRetrievalIndexingOutboxRepository`; registered in `ArchiForgeStorageServiceCollectionExtensions` (singleton in-memory, scoped SQL).
+  - **`AuthorityRunOrchestrator`**: after successful commit + run-completed audit, enqueues `RunId` + scope; no longer calls `IRetrievalRunCompletionIndexer` inline.
+  - **`RetrievalIndexingOutboxProcessor`**: loads `RunDetailDto` via `IAuthorityQueryService`, rebuilds provenance, calls `IRetrievalRunCompletionIndexer`, marks processed.
+  - **`RetrievalIndexingOutboxHostedService`**: polls every 2s (API `Hosted/`).
 - [x] 212. Circuit breaker for OpenAI / embedding clients.
   - **`CircuitBreakerGate`** (`ArchiForge.Core.Resilience`): closed → open after N consecutive failures → half-open single probe after `DurationOfBreakSeconds` → closed on success; concurrent callers rejected while probe in flight; optional injectable `Func<DateTimeOffset>` clock for tests.
   - **`CircuitBreakerOptions`**: `FailureThreshold` (default 5), `DurationOfBreakSeconds` (default 30), bound from `AzureOpenAI:CircuitBreaker` (`FailureThreshold`, `DurationOfBreakSeconds`).
@@ -1827,7 +1832,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ### Security (215–226)
 
 - [ ] 215. Entra ID app roles migration from long-lived API keys.
-- [ ] 216. Key Vault references for all secrets in config samples.
+- [x] 216. Key Vault references for all secrets in config samples.
+  - **`ArchiForge.Api/appsettings.KeyVault.sample.json`**: example `@Microsoft.KeyVault(...)` values for SQL, Azure OpenAI, API key auth.
+  - **`docs/CONFIGURATION_KEY_VAULT.md`**: App Service / Terraform guidance and `__` nested key mapping.
 - [ ] 217. Private Link for SQL, storage, AI Search (Terraform).
 - [ ] 218. WAF / APIM in front of API.
 - [ ] 219. SBOM (CycloneDX) in CI.
@@ -1842,7 +1849,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ### Performance & cost (227–234)
 
 - [ ] 227. SQL index review (alerts, runs, graphs, digests).
-- [ ] 228. Remove N+1 on hot `ListByScope` paths.
+- [x] 228. Remove N+1 on hot `ListByScope` paths.
+  - **`IAlertRecordRepository.ListByScopePagedAsync`** / **`IConversationThreadRepository.ListByScopePagedAsync`**: COUNT + `OFFSET`/`FETCH` (Dapper) or in-memory skip/take; `AlertsController` / `ConversationController` use `PagedResponseBuilder.FromDatabasePage` instead of loading `MaxPageSize * 10` rows.
+  - **`DapperAuthorityQueryService` / `InMemoryAuthorityQueryService` `GetRunDetailAsync`**: parallel `Task.WhenAll` for snapshot/manifest/bundle loads (single run hot path).
 - [x] 229. Compression for large JSON responses.
 - [ ] 230. Cache effective governance per HTTP scope (beyond advisory path).
 - [ ] 231. Graph snapshot pagination API design.
@@ -1854,12 +1863,18 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 - [ ] 235. Deprecation: `Sunset` + versioned routes policy.
 - [x] 236. Standard list pagination (`page`/`pageSize` or cursor) — `PagedResponse<T>`, `PaginationDefaults`, `PagedResponseBuilder` in `ArchiForge.Core.Pagination`; `AlertsController.List` and `ConversationController.ListThreads` accept optional `page`/`pageSize` (backward-compatible with `take`-only).
-- [ ] 237. ProblemDetails `extensions` machine codes on all 4xx/5xx.
+- [x] 237. ProblemDetails `extensions` machine codes on all 4xx/5xx.
+  - **`ProblemErrorCodes`**: stable `UNSPECIFIED`, `CONFLICT`, `RUN_NOT_FOUND`, `DATABASE_TIMEOUT`, `CIRCUIT_BREAKER_OPEN`, etc.; `ResolveFromProblemType` maps `ProblemTypes` URIs.
+  - **`ApplicationProblemMapper.CreateProblemResult`**: always sets `extensions.errorCode`; optional post-build `extend` action (e.g. circuit breaker `retryAfterUtc`).
+  - **`MapComparisonVerificationFailed`**, **`ProblemDetailsExtensions`** (BadRequest/NotFound/Conflict/503), **`PipelineExtensions`** (500): attach `errorCode`.
+  - **Tests**: `ApiProblemDetailsExceptionFilterTests` asserts `errorCode` on conflict, run-not-found, comparison verification, circuit breaker.
 - [ ] 238. OpenAPI `securitySchemes` for Entra when enabled.
 - [ ] 239. Webhook HMAC for digest/alert channels.
 - [ ] 240. Optional `Idempotency-Key` on create run.
 - [ ] 241. Bulk endpoint limits + partial success model.
-- [ ] 242. JSON camelCase audit on public DTOs.
+- [x] 242. JSON camelCase audit on public DTOs.
+  - **`AddArchiForgeMvc`**: `AddJsonOptions` sets `PropertyNamingPolicy` and `DictionaryKeyPolicy` to **camelCase** for controller JSON.
+  - **`docs/JSON_PUBLIC_CONTRACTS.md`**: documents policy and Problem Details extensions.
 
 ### Data & persistence (243–249)
 
@@ -1899,9 +1914,9 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Documentation & ADRs (155–169): complete (155 XML doc pieces 12–21 done; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
 - [x] Unit tests (170–194): complete for 170–190, 191–194 (170–171 Persistence.Tests; 183–185, 190 as listed above; 189 UTC calculator documented).
 - [ ] Integration / E2E (195–204): partial (195–199 done; 200–204 open).
-- [ ] Observability & reliability (205–214): partial (205–210, 212–213 done; 211, 214 still open).
+- [ ] Observability & reliability (205–214): partial (205–213 done; 214 still open).
 - [ ] Security (215–226): partial (**225–226** CORS + HSTS/headers; **215–224** Entra/RLS/WAF/SBOM/etc. still open).
-- [ ] Performance & cost (227–234): partial (229 response compression enabled).
-- [ ] API & contracts (235–242): partial (236 standard pagination done; 235, 237–242 open).
+- [ ] Performance & cost (227–234): partial (**228** list paging + run detail parallel fetch; 229 response compression; 227, 230–234 open).
+- [ ] API & contracts (235–242): partial (236 pagination; **237** errorCode; **242** camelCase JSON + doc; 235, 238–241 open).
 - [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests; 243–244, 246, 248–249 open).
 - [ ] UI & DX (250–254): partial (254 onboarding doc; 250–253 open).

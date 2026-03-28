@@ -47,11 +47,17 @@ public sealed class ConversationController(
 
         if (page.HasValue)
         {
-            IReadOnlyList<ConversationThread> all = await threadRepository.ListByScopeAsync(
-                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
-                PaginationDefaults.MaxPageSize * 10, ct);
+            (int safePage, int safePageSize) = PaginationDefaults.Normalize(page.Value, pageSize);
+            int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+            (IReadOnlyList<ConversationThread> items, int total) = await threadRepository.ListByScopePagedAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                skip,
+                safePageSize,
+                ct);
 
-            return Ok(PagedResponseBuilder.Build(all, page.Value, pageSize));
+            return Ok(PagedResponseBuilder.FromDatabasePage(items, total, safePage, safePageSize));
         }
 
         int safeTake = Math.Clamp(take, 1, 200);

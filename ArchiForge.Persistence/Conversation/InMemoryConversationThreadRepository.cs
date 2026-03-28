@@ -1,4 +1,5 @@
 using ArchiForge.Core.Conversation;
+using ArchiForge.Core.Pagination;
 
 namespace ArchiForge.Persistence.Conversation;
 
@@ -53,6 +54,33 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
                 .Take(take)
                 .ToList();
             return Task.FromResult<IReadOnlyList<ConversationThread>>(result);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<(IReadOnlyList<ConversationThread> Items, int TotalCount)> ListByScopePagedAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int skip,
+        int take,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
+        skip = Math.Max(skip, 0);
+
+        lock (_gate)
+        {
+            List<ConversationThread> ordered = _threads
+                .Where(x => x.TenantId == tenantId &&
+                            x.WorkspaceId == workspaceId &&
+                            x.ProjectId == projectId)
+                .OrderByDescending(x => x.LastUpdatedUtc)
+                .ToList();
+            int total = ordered.Count;
+            List<ConversationThread> page = ordered.Skip(skip).Take(take).ToList();
+            return Task.FromResult<(IReadOnlyList<ConversationThread>, int)>((page, total));
         }
     }
 

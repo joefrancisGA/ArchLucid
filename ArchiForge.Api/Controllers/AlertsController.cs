@@ -54,11 +54,18 @@ public sealed class AlertsController(
 
         if (page.HasValue)
         {
-            IReadOnlyList<AlertRecord> all = await alertRepository.ListByScopeAsync(
-                scope.TenantId, scope.WorkspaceId, scope.ProjectId,
-                status, PaginationDefaults.MaxPageSize * 10, ct);
+            (int safePage, int safePageSize) = PaginationDefaults.Normalize(page.Value, pageSize);
+            int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+            (IReadOnlyList<AlertRecord> items, int total) = await alertRepository.ListByScopePagedAsync(
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                status,
+                skip,
+                safePageSize,
+                ct);
 
-            return Ok(PagedResponseBuilder.Build(all, page.Value, pageSize));
+            return Ok(PagedResponseBuilder.FromDatabasePage(items, total, safePage, safePageSize));
         }
 
         take = Math.Clamp(take, 1, 500);

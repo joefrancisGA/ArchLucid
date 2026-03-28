@@ -1,4 +1,5 @@
 using ArchiForge.Core.Conversation;
+using ArchiForge.Core.Pagination;
 using ArchiForge.Persistence.Connections;
 
 using Dapper;
@@ -89,6 +90,57 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
                 },
                 cancellationToken: ct)).ConfigureAwait(false);
         return rows.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<(IReadOnlyList<ConversationThread> Items, int TotalCount)> ListByScopePagedAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int skip,
+        int take,
+        CancellationToken ct)
+    {
+        take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
+        skip = Math.Max(skip, 0);
+
+        const string countSql = """
+            SELECT COUNT(*)
+            FROM dbo.ConversationThreads
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId;
+            """;
+
+        const string pageSql = """
+            SELECT
+                ThreadId, TenantId, WorkspaceId, ProjectId,
+                RunId, BaseRunId, TargetRunId,
+                Title, CreatedUtc, LastUpdatedUtc
+            FROM dbo.ConversationThreads
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+            ORDER BY LastUpdatedUtc DESC
+            OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
+            """;
+
+        object parameters = new
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            Skip = skip,
+            Take = take
+        };
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        int total = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(countSql, parameters, cancellationToken: ct)).ConfigureAwait(false);
+        IEnumerable<ConversationThread> rows = await connection.QueryAsync<ConversationThread>(
+            new CommandDefinition(pageSql, parameters, cancellationToken: ct)).ConfigureAwait(false);
+
+        return (rows.ToList(), total);
     }
 
     /// <inheritdoc />

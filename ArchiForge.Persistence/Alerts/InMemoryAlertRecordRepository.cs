@@ -1,3 +1,4 @@
+using ArchiForge.Core.Pagination;
 using ArchiForge.Decisioning.Alerts;
 
 namespace ArchiForge.Persistence.Alerts;
@@ -88,6 +89,35 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
 
             List<AlertRecord> result = q.OrderByDescending(x => x.CreatedUtc).Take(n).ToList();
             return Task.FromResult<IReadOnlyList<AlertRecord>>(result);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<(IReadOnlyList<AlertRecord> Items, int TotalCount)> ListByScopePagedAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string? status,
+        int skip,
+        int take,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
+        skip = Math.Max(skip, 0);
+
+        lock (_gate)
+        {
+            IEnumerable<AlertRecord> q = _items.Where(x =>
+                x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId);
+
+            if (!string.IsNullOrWhiteSpace(status))
+                q = q.Where(x => string.Equals(x.Status, status, StringComparison.OrdinalIgnoreCase));
+
+            List<AlertRecord> ordered = q.OrderByDescending(x => x.CreatedUtc).ToList();
+            int total = ordered.Count;
+            List<AlertRecord> page = ordered.Skip(skip).Take(take).ToList();
+            return Task.FromResult<(IReadOnlyList<AlertRecord>, int)>((page, total));
         }
     }
 }

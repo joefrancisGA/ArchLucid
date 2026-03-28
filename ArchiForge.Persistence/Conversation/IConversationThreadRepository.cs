@@ -25,6 +25,15 @@ public interface IConversationThreadRepository
         int take,
         CancellationToken ct);
 
+    /// <summary>Paged listing with total count for HTTP pagination without loading the full thread list.</summary>
+    Task<(IReadOnlyList<ConversationThread> Items, int TotalCount)> ListByScopePagedAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        int skip,
+        int take,
+        CancellationToken ct);
+
     /// <summary>Sets <see cref="ConversationThread.LastUpdatedUtc"/> after a message append.</summary>
     Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct);
 }

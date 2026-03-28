@@ -8,7 +8,7 @@ namespace ArchiForge.Retrieval.Indexing;
 /// Builds <see cref="ArchiForge.Retrieval.Models.RetrievalDocument"/> sets from a completed authority run and indexes them for semantic search.
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="RetrievalRunCompletionIndexer"/>. Invoked from <c>ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator</c> after successful run materialization.
+/// Implementation: <see cref="RetrievalRunCompletionIndexer"/>. Production hosts enqueue work via the persistence retrieval indexing outbox; a background processor calls this interface after the authority unit of work commits.
 /// </remarks>
 public interface IRetrievalRunCompletionIndexer
 {

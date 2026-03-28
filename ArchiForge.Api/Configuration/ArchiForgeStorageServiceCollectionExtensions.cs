@@ -28,6 +28,7 @@ using ArchiForge.Persistence.Provenance;
 using ArchiForge.Persistence.Queries;
 using ArchiForge.Persistence.Replay;
 using ArchiForge.Persistence.Repositories;
+using ArchiForge.Persistence.Retrieval;
 using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
@@ -122,6 +123,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
         services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
         services.AddScoped<IArchiForgeUnitOfWorkFactory, DapperArchiForgeUnitOfWorkFactory>();
+        services.AddScoped<IRetrievalIndexingOutboxRepository, DapperRetrievalIndexingOutboxRepository>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();

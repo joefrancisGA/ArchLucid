@@ -36,4 +36,16 @@ public interface IAlertRecordRepository
         string? status,
         int take,
         CancellationToken ct);
+
+    /// <summary>
+    /// Paged listing with total count (SQL OFFSET/FETCH or in-memory skip); avoids loading the full list for HTTP pagination.
+    /// </summary>
+    Task<(IReadOnlyList<AlertRecord> Items, int TotalCount)> ListByScopePagedAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        string? status,
+        int skip,
+        int take,
+        CancellationToken ct);
 }

@@ -28,6 +28,7 @@ public static class ProblemDetailsExtensions
             Detail = detail,
             Instance = instance ?? controller.Request.Path
         };
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         return new ObjectResult(problem)
         {
             StatusCode = problem.Status,
@@ -52,6 +53,7 @@ public static class ProblemDetailsExtensions
             Detail = detail,
             Instance = instance ?? controller.Request.Path
         };
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         return new ObjectResult(problem)
         {
             StatusCode = problem.Status,
@@ -97,6 +99,7 @@ public static class ProblemDetailsExtensions
             Detail = detail,
             Instance = instance ?? controller.Request.Path
         };
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         return new ObjectResult(problem)
         {
             StatusCode = problem.Status,

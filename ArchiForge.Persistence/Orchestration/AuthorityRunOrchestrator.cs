@@ -17,8 +17,7 @@ using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Serialization;
 using ArchiForge.Persistence.Transactions;
-using ArchiForge.Provenance;
-using ArchiForge.Retrieval.Indexing;
+using ArchiForge.Persistence.Retrieval;
 
 using Microsoft.Extensions.Logging;
 
@@ -48,8 +47,7 @@ public sealed class AuthorityRunOrchestrator(
     IGoldenManifestRepository goldenManifestRepository,
     IArtifactSynthesisService artifactSynthesisService,
     IArtifactBundleRepository artifactBundleRepository,
-    IProvenanceBuilder provenanceBuilder,
-    IRetrievalRunCompletionIndexer retrievalRunCompletionIndexer,
+    IRetrievalIndexingOutboxRepository retrievalIndexingOutbox,
     ILogger<AuthorityRunOrchestrator> logger)
     : IAuthorityRunOrchestrator
 {
@@ -175,14 +173,6 @@ public sealed class AuthorityRunOrchestrator(
             run.ArtifactBundleId = artifactBundle.BundleId;
             await UpdateRunAsync(run, uow, ct).ConfigureAwait(false);
 
-            DecisionProvenanceGraph provenanceGraph = provenanceBuilder.Build(
-                run.RunId,
-                findingsSnapshot,
-                graphSnapshot,
-                manifest,
-                trace,
-                artifactBundle.Artifacts);
-
             await uow.CommitAsync(ct).ConfigureAwait(false);
 
             await auditService.LogAsync(
@@ -202,21 +192,9 @@ public sealed class AuthorityRunOrchestrator(
                 },
                 ct).ConfigureAwait(false);
 
-            try
-            {
-                await retrievalRunCompletionIndexer.IndexAuthorityRunAsync(
-                    scope.TenantId,
-                    scope.WorkspaceId,
-                    scope.ProjectId,
-                    manifest,
-                    artifactBundle.Artifacts,
-                    provenanceGraph,
-                    ct).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                logger.LogWarning(ex, "Retrieval indexing failed for run {RunId}", run.RunId);
-            }
+            await retrievalIndexingOutbox
+                .EnqueueAsync(run.RunId, scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
+                .ConfigureAwait(false);
 
             return run;
         }

@@ -62,9 +62,12 @@ public static class ApplicationProblemMapper
                 "AI Service Temporarily Unavailable",
                 cbo.Message,
                 ProblemTypes.CircuitBreakerOpen,
-                instance);
-            if (result.Value is Microsoft.AspNetCore.Mvc.ProblemDetails details && cbo.RetryAfterUtc is { } until)
-                details.Extensions["retryAfterUtc"] = until;
+                instance,
+                details =>
+                {
+                    if (cbo.RetryAfterUtc is { } until)
+                        details.Extensions["retryAfterUtc"] = until;
+                });
 
             return true;
         }
@@ -119,9 +122,11 @@ public static class ApplicationProblemMapper
             Instance = string.IsNullOrWhiteSpace(instance) ? null : instance
         };
 
+        ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.ComparisonVerificationFailed);
+
         if (cvf.Drift is not { } drift)
             return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
-        
+
         problem.Extensions["driftDetected"] = drift.DriftDetected;
         if (!string.IsNullOrWhiteSpace(drift.Summary))
             problem.Extensions["driftSummary"] = drift.Summary;
@@ -187,7 +192,8 @@ public static class ApplicationProblemMapper
         string title,
         string detail,
         string type,
-        string? instance)
+        string? instance,
+        Action<Microsoft.AspNetCore.Mvc.ProblemDetails>? extend = null)
     {
         Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
@@ -197,6 +203,9 @@ public static class ApplicationProblemMapper
             Detail = detail,
             Instance = string.IsNullOrWhiteSpace(instance) ? null : instance
         };
+
+        ProblemErrorCodes.AttachErrorCode(problem, type);
+        extend?.Invoke(problem);
 
         return new ObjectResult(problem)
         {

@@ -40,6 +40,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         problem.Extensions.Should().ContainKey("driftDetected");
         problem.Extensions["driftDetected"].Should().Be(true);
         problem.Extensions["driftSummary"].Should().Be("payload mismatch");
+        problem.Extensions["errorCode"].Should().Be(ProblemErrorCodes.ComparisonVerificationFailed);
     }
 
     [Fact]
@@ -54,6 +55,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         result.StatusCode.Should().Be(StatusCodes.Status409Conflict);
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.Conflict);
+        p.Extensions["errorCode"].Should().Be(ProblemErrorCodes.Conflict);
     }
 
     [Fact]
@@ -68,6 +70,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         result.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.RunNotFound);
+        p.Extensions["errorCode"].Should().Be(ProblemErrorCodes.RunNotFound);
     }
 
     [Fact]
@@ -167,6 +170,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         Microsoft.AspNetCore.Mvc.ProblemDetails p =
             result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.CircuitBreakerOpen);
+        p.Extensions["errorCode"].Should().Be(ProblemErrorCodes.CircuitBreakerOpen);
         p.Extensions.Should().ContainKey("retryAfterUtc");
         p.Extensions["retryAfterUtc"].Should().Be(retryAfter);
     }

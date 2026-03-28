@@ -6,6 +6,7 @@ using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Api.Ask;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Health;
+using ArchiForge.Api.Hosted;
 using ArchiForge.Api.Resilience;
 using ArchiForge.Api.Hosted;
 using ArchiForge.Api.Jobs;
@@ -64,6 +65,7 @@ using ArchiForge.KnowledgeGraph.Mapping;
 using ArchiForge.KnowledgeGraph.Services;
 using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Alerts;
+using ArchiForge.Persistence.Retrieval;
 using ArchiForge.Persistence.Alerts.Simulation;
 using ArchiForge.Retrieval.Chunking;
 using ArchiForge.Retrieval.Embedding;
@@ -105,7 +107,14 @@ internal static partial class ServiceCollectionExtensions
         RegisterAgentExecution(services, configuration);
         RegisterRetrieval(services, configuration);
         RegisterGovernance(services);
+        RegisterRetrievalIndexingOutbox(services);
         return services;
+    }
+
+    private static void RegisterRetrievalIndexingOutbox(IServiceCollection services)
+    {
+        services.AddSingleton<IRetrievalIndexingOutboxProcessor, RetrievalIndexingOutboxProcessor>();
+        services.AddHostedService<RetrievalIndexingOutboxHostedService>();
     }
 
     private static void RegisterAdvisoryScheduling(IServiceCollection services)
