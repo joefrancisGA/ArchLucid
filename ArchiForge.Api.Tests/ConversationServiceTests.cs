@@ -124,7 +124,6 @@ public sealed class ConversationServiceTests
     public async Task AppendUserMessageAsync_adds_message_and_updates_thread_timestamp()
     {
         Guid threadId = Guid.NewGuid();
-        DateTime updated = DateTime.UtcNow;
 
         Mock<IConversationThreadRepository> threads = new();
         Mock<IConversationMessageRepository> messages = new();
@@ -194,7 +193,7 @@ public sealed class ConversationServiceTests
         Guid threadId = Guid.NewGuid();
         List<ConversationMessage> expected =
         [
-            new ConversationMessage
+            new()
             {
                 MessageId = Guid.NewGuid(),
                 ThreadId = threadId,

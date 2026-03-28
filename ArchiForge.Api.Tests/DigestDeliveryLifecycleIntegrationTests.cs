@@ -26,7 +26,7 @@ public sealed class DigestDeliveryLifecycleIntegrationTests
     {
         await using AlertLifecycleWebAppFactory factory = new();
         await AdvisoryIntegrationSeed.SeedDefaultScopeAuthorityRunAsync(factory.Services, CancellationToken.None)
-            .ConfigureAwait(false);
+;
 
         HttpClient client = factory.CreateClient();
 
@@ -40,14 +40,14 @@ public sealed class DigestDeliveryLifecycleIntegrationTests
                 isEnabled = true
             },
             JsonOptions,
-            CancellationToken.None).ConfigureAwait(false);
+            CancellationToken.None);
 
         subResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         DigestSubscription? subscription = await subResponse.Content
             .ReadFromJsonAsync<DigestSubscription>(JsonOptions, CancellationToken.None)
-            .ConfigureAwait(false);
+;
         subscription.Should().NotBeNull();
-        Guid subscriptionId = subscription!.SubscriptionId;
+        Guid subscriptionId = subscription.SubscriptionId;
 
         HttpResponseMessage createScheduleResponse = await client.PostAsJsonAsync(
             "api/advisory-scheduling/schedules",
@@ -59,31 +59,31 @@ public sealed class DigestDeliveryLifecycleIntegrationTests
                 runProjectSlug = AdvisoryScanSchedule.DefaultProjectSlug
             },
             JsonOptions,
-            CancellationToken.None).ConfigureAwait(false);
+            CancellationToken.None);
 
         createScheduleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         AdvisoryScanSchedule? schedule = await createScheduleResponse.Content
             .ReadFromJsonAsync<AdvisoryScanSchedule>(JsonOptions, CancellationToken.None)
-            .ConfigureAwait(false);
+;
         schedule.Should().NotBeNull();
 
         HttpResponseMessage runResponse = await client
-            .PostAsync($"api/advisory-scheduling/schedules/{schedule!.ScheduleId:D}/run", content: null, CancellationToken.None)
-            .ConfigureAwait(false);
+            .PostAsync($"api/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", content: null, CancellationToken.None)
+;
 
         runResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         HttpResponseMessage attemptsResponse = await client
             .GetAsync(new Uri($"/{ApiV1Routes.DigestSubscriptions}/{subscriptionId:D}/attempts?take=20", UriKind.Relative), CancellationToken.None)
-            .ConfigureAwait(false);
+;
 
         attemptsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         List<DigestDeliveryAttempt>? attempts = await attemptsResponse.Content
             .ReadFromJsonAsync<List<DigestDeliveryAttempt>>(JsonOptions, CancellationToken.None)
-            .ConfigureAwait(false);
+;
 
         attempts.Should().NotBeNull();
-        attempts!.Should().Contain(a =>
+        attempts.Should().Contain(a =>
             a.SubscriptionId == subscriptionId &&
             string.Equals(a.Status, DigestDeliveryStatus.Succeeded, StringComparison.OrdinalIgnoreCase));
     }

@@ -53,7 +53,7 @@ public sealed class TopologyCoverageFindingEngineTests
         findings.Should().ContainSingle();
         TopologyCoverageFindingPayload? payload = findings[0].Payload as TopologyCoverageFindingPayload;
         payload.Should().NotBeNull();
-        payload!.MissingCategories.Should().Contain("storage");
+        payload.MissingCategories.Should().Contain("storage");
     }
 
     [Fact]

@@ -54,138 +54,138 @@ public sealed class EffectiveGovernanceResolver(
 
         try
         {
-        IReadOnlyList<PolicyPackAssignment> assignments = await assignmentRepository
-            .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
-            .ConfigureAwait(false);
-
-        List<PolicyPackAssignment> applicable = assignments
-            .Where(x => x.IsEnabled)
-            .Where(x => AppliesToScope(x, tenantId, workspaceId, projectId))
-            .ToList();
-
-        List<ResolvedPackRow> resolvedPacks = [];
-        List<string> skippedNotes = [];
-
-        // Cache deserialized content per (packId, version) — the same version may appear
-        // across multiple scope-level assignments and deserializing the same JSON repeatedly
-        // is pure waste.
-        Dictionary<(Guid PackId, string Version), PolicyPackContentDocument> contentCache = [];
-
-        foreach (PolicyPackAssignment assignment in applicable)
-        {
-            PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct).ConfigureAwait(false);
-            if (pack is null)
-            {
-                skippedNotes.Add(
-                    $"Skipped assignment for policy pack '{assignment.PolicyPackId}': pack not found.");
-                continue;
-            }
-
-            PolicyPackVersion? version = await versionRepository
-                .GetByPackAndVersionAsync(assignment.PolicyPackId, assignment.PolicyPackVersion, ct)
+            IReadOnlyList<PolicyPackAssignment> assignments = await assignmentRepository
+                .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
                 .ConfigureAwait(false);
 
-            if (version is null)
-            {
-                skippedNotes.Add(
-                    $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}): " +
-                    $"version '{assignment.PolicyPackVersion}' not found.");
-                continue;
-            }
+            List<PolicyPackAssignment> applicable = assignments
+                .Where(x => x.IsEnabled)
+                .Where(x => AppliesToScope(x, tenantId, workspaceId, projectId))
+                .ToList();
 
-            (Guid, string) cacheKey = (assignment.PolicyPackId, assignment.PolicyPackVersion);
-            if (!contentCache.TryGetValue(cacheKey, out PolicyPackContentDocument? content))
+            List<ResolvedPackRow> resolvedPacks = [];
+            List<string> skippedNotes = [];
+
+            // Cache deserialized content per (packId, version) — the same version may appear
+            // across multiple scope-level assignments and deserializing the same JSON repeatedly
+            // is pure waste.
+            Dictionary<(Guid PackId, string Version), PolicyPackContentDocument> contentCache = [];
+
+            foreach (PolicyPackAssignment assignment in applicable)
             {
-                try
-                {
-                    content = JsonSerializer.Deserialize<PolicyPackContentDocument>(
-                        version.ContentJson,
-                        PolicyPackJsonSerializerOptions.Default);
-                }
-                catch (JsonException ex)
+                PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct).ConfigureAwait(false);
+                if (pack is null)
                 {
                     skippedNotes.Add(
-                        $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
-                        $"version '{assignment.PolicyPackVersion}': content JSON is corrupt ({ex.Message}).");
+                        $"Skipped assignment for policy pack '{assignment.PolicyPackId}': pack not found.");
                     continue;
                 }
 
-                if (content is null)
+                PolicyPackVersion? version = await versionRepository
+                    .GetByPackAndVersionAsync(assignment.PolicyPackId, assignment.PolicyPackVersion, ct)
+                    .ConfigureAwait(false);
+
+                if (version is null)
                 {
                     skippedNotes.Add(
-                        $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
-                        $"version '{assignment.PolicyPackVersion}': content deserialized to null.");
+                        $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}): " +
+                        $"version '{assignment.PolicyPackVersion}' not found.");
                     continue;
                 }
 
-                contentCache[cacheKey] = content;
-                ArchiForgeInstrumentation.GovernancePackContentDeserializeCacheMisses.Add(1);
+                (Guid, string) cacheKey = (assignment.PolicyPackId, assignment.PolicyPackVersion);
+                if (!contentCache.TryGetValue(cacheKey, out PolicyPackContentDocument? content))
+                {
+                    try
+                    {
+                        content = JsonSerializer.Deserialize<PolicyPackContentDocument>(
+                            version.ContentJson,
+                            PolicyPackJsonSerializerOptions.Default);
+                    }
+                    catch (JsonException ex)
+                    {
+                        skippedNotes.Add(
+                            $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
+                            $"version '{assignment.PolicyPackVersion}': content JSON is corrupt ({ex.Message}).");
+                        continue;
+                    }
+
+                    if (content is null)
+                    {
+                        skippedNotes.Add(
+                            $"Skipped policy pack '{pack.Name}' ({assignment.PolicyPackId}) " +
+                            $"version '{assignment.PolicyPackVersion}': content deserialized to null.");
+                        continue;
+                    }
+
+                    contentCache[cacheKey] = content;
+                    ArchiForgeInstrumentation.GovernancePackContentDeserializeCacheMisses.Add(1);
+                }
+                else
+                {
+                    ArchiForgeInstrumentation.GovernancePackContentDeserializeCacheHits.Add(1);
+                }
+
+                resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
             }
-            else
+
+            EffectiveGovernanceResolutionResult result = new()
             {
-                ArchiForgeInstrumentation.GovernancePackContentDeserializeCacheHits.Add(1);
-            }
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+            };
 
-            resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
-        }
+            foreach (string note in skippedNotes)
+                result.Notes.Add(note);
 
-        EffectiveGovernanceResolutionResult result = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
-        };
+            ResolveGuidIdList(
+                result,
+                "ComplianceRule",
+                resolvedPacks,
+                x => x.Content.ComplianceRuleIds,
+                (content, ids) => content.ComplianceRuleIds = ids);
 
-        foreach (string note in skippedNotes)
-            result.Notes.Add(note);
+            ResolveStringKeyList(
+                result,
+                "ComplianceRuleKey",
+                resolvedPacks,
+                x => x.Content.ComplianceRuleKeys,
+                (content, keys) => content.ComplianceRuleKeys = keys);
 
-        ResolveGuidIdList(
-            result,
-            "ComplianceRule",
-            resolvedPacks,
-            x => x.Content.ComplianceRuleIds,
-            (content, ids) => content.ComplianceRuleIds = ids);
+            ResolveGuidIdList(
+                result,
+                "AlertRule",
+                resolvedPacks,
+                x => x.Content.AlertRuleIds,
+                (content, ids) => content.AlertRuleIds = ids);
 
-        ResolveStringKeyList(
-            result,
-            "ComplianceRuleKey",
-            resolvedPacks,
-            x => x.Content.ComplianceRuleKeys,
-            (content, keys) => content.ComplianceRuleKeys = keys);
+            ResolveGuidIdList(
+                result,
+                "CompositeAlertRule",
+                resolvedPacks,
+                x => x.Content.CompositeAlertRuleIds,
+                (content, ids) => content.CompositeAlertRuleIds = ids);
 
-        ResolveGuidIdList(
-            result,
-            "AlertRule",
-            resolvedPacks,
-            x => x.Content.AlertRuleIds,
-            (content, ids) => content.AlertRuleIds = ids);
+            ResolveDictionary(
+                result,
+                "AdvisoryDefault",
+                resolvedPacks,
+                x => x.Content.AdvisoryDefaults,
+                (content, dict) => content.AdvisoryDefaults = dict);
 
-        ResolveGuidIdList(
-            result,
-            "CompositeAlertRule",
-            resolvedPacks,
-            x => x.Content.CompositeAlertRuleIds,
-            (content, ids) => content.CompositeAlertRuleIds = ids);
+            ResolveDictionary(
+                result,
+                "Metadata",
+                resolvedPacks,
+                x => x.Content.Metadata,
+                (content, dict) => content.Metadata = dict);
 
-        ResolveDictionary(
-            result,
-            "AdvisoryDefault",
-            resolvedPacks,
-            x => x.Content.AdvisoryDefaults,
-            (content, dict) => content.AdvisoryDefaults = dict);
+            result.Notes.Add($"Resolved {resolvedPacks.Count} applicable policy pack assignment(s).");
+            result.Notes.Add($"Produced {result.Decisions.Count} resolution decision(s).");
+            result.Notes.Add($"Detected {result.Conflicts.Count} conflict(s).");
 
-        ResolveDictionary(
-            result,
-            "Metadata",
-            resolvedPacks,
-            x => x.Content.Metadata,
-            (content, dict) => content.Metadata = dict);
-
-        result.Notes.Add($"Resolved {resolvedPacks.Count} applicable policy pack assignment(s).");
-        result.Notes.Add($"Produced {result.Decisions.Count} resolution decision(s).");
-        result.Notes.Add($"Detected {result.Conflicts.Count} conflict(s).");
-
-        return result;
+            return result;
         }
         finally
         {

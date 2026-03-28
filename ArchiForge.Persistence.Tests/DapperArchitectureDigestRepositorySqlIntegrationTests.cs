@@ -43,7 +43,7 @@ public sealed class DapperArchitectureDigestRepositorySqlIntegrationTests(SqlSer
 
         ArchitectureDigest? loaded = await repository.GetByIdAsync(digestId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.DigestId.Should().Be(digestId);
+        loaded.DigestId.Should().Be(digestId);
         loaded.Title.Should().Be(created.Title);
         loaded.Summary.Should().Be(created.Summary);
         loaded.ContentMarkdown.Should().Be(created.ContentMarkdown);

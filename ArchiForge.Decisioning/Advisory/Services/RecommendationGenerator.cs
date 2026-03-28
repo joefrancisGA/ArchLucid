@@ -134,9 +134,6 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
         if (string.Equals(severity, ImprovementSignalSeverities.High, StringComparison.OrdinalIgnoreCase))
             return 10;
 
-        if (string.Equals(severity, ImprovementSignalSeverities.Medium, StringComparison.OrdinalIgnoreCase))
-            return 5;
-
-        return 0;
+        return string.Equals(severity, ImprovementSignalSeverities.Medium, StringComparison.OrdinalIgnoreCase) ? 5 : 0;
     }
 }

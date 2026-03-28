@@ -124,7 +124,7 @@ public sealed class ImprovementAdvisorServiceTests
 
         List<ImprovementRecommendation> recs =
         [
-            new ImprovementRecommendation
+            new()
             {
                 Title = "t1",
                 Category = "Security",
@@ -162,7 +162,7 @@ public sealed class ImprovementAdvisorServiceTests
 
         List<ImprovementRecommendation> recs =
         [
-            new ImprovementRecommendation
+            new()
             {
                 Title = "t1",
                 Category = "Cost",

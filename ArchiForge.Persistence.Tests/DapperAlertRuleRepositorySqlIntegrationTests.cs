@@ -44,7 +44,7 @@ public sealed class DapperAlertRuleRepositorySqlIntegrationTests(SqlServerPersis
 
         AlertRule? loaded = await repository.GetByIdAsync(ruleId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Name.Should().Be("SQL integration rule");
+        loaded.Name.Should().Be("SQL integration rule");
         loaded.ThresholdValue.Should().Be(42.5m);
 
         rule.Name = "SQL integration rule (updated)";
@@ -52,7 +52,7 @@ public sealed class DapperAlertRuleRepositorySqlIntegrationTests(SqlServerPersis
 
         AlertRule? afterUpdate = await repository.GetByIdAsync(ruleId, CancellationToken.None);
         afterUpdate.Should().NotBeNull();
-        afterUpdate!.Name.Should().Be("SQL integration rule (updated)");
+        afterUpdate.Name.Should().Be("SQL integration rule (updated)");
 
         IReadOnlyList<AlertRule> list = await repository.ListByScopeAsync(
             tenantId,

@@ -8,14 +8,10 @@ namespace ArchiForge.Api.Tests;
 /// Ensures <c>Cors:AllowedOrigins</c> does not reflect arbitrary browser <c>Origin</c> values (defense in depth with auth).
 /// </summary>
 [Trait("Category", "Integration")]
-public sealed class CorsPolicyIntegrationTests : IClassFixture<CorsTrustedOriginApiFactory>
+public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory factory)
+    : IClassFixture<CorsTrustedOriginApiFactory>
 {
-    private readonly HttpClient _client;
-
-    public CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory factory)
-    {
-        _client = factory.CreateClient();
-    }
+    private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
     public async Task HealthCheck_DoesNotEmitAllowOrigin_ForDisallowedOrigin()
@@ -26,7 +22,7 @@ public sealed class CorsPolicyIntegrationTests : IClassFixture<CorsTrustedOrigin
         HttpResponseMessage response = await _client.SendAsync(request);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Headers.TryGetValues("Access-Control-Allow-Origin", out IEnumerable<string>? values).Should().BeFalse();
+        response.Headers.TryGetValues("Access-Control-Allow-Origin", out IEnumerable<string>? _).Should().BeFalse();
     }
 
     [Fact]

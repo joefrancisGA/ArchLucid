@@ -16,10 +16,7 @@ public static class GraphSnapshotCanonicalFingerprint
         if (previous is null)
             return false;
 
-        if (previous.SnapshotId == current.SnapshotId)
-            return false;
-
-        return string.Equals(Compute(previous), Compute(current), StringComparison.Ordinal);
+        return previous.SnapshotId != current.SnapshotId && string.Equals(Compute(previous), Compute(current), StringComparison.Ordinal);
     }
 
     /// <summary>Deterministic string over canonical objects (ObjectId, type, name, source).</summary>

@@ -1,5 +1,4 @@
 using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph;
 using ArchiForge.KnowledgeGraph.Inference;
 using ArchiForge.KnowledgeGraph.Models;
 
@@ -43,7 +42,7 @@ public sealed class DefaultGraphEdgeInfererContractTests
                 && e.ToNodeId == "topo-child");
 
         edge.Should().NotBeNull();
-        edge!.Weight.Should().Be(1d);
+        edge.Weight.Should().Be(1d);
     }
 
     [Fact]
@@ -77,8 +76,13 @@ public sealed class DefaultGraphEdgeInfererContractTests
 
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [topoA, topoB, policy]);
 
-        edges.Should().Contain(
-            e => e.EdgeType == GraphEdgeTypes.AppliesTo && e.FromNodeId == "pol-1" && e.ToNodeId == "res-a" && e.Weight == 1d);
+        edges.Should()
+            .ContainSingle(e =>
+                e.EdgeType == GraphEdgeTypes.AppliesTo &&
+                e.FromNodeId == "pol-1" &&
+                e.ToNodeId == "res-a")
+            .Which.Weight.Should()
+            .BeApproximately(1.0, 1e-10);
         edges.Should().NotContain(e => e.FromNodeId == "pol-1" && e.ToNodeId == "res-b");
     }
 }

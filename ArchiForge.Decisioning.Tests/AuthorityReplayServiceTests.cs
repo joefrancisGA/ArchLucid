@@ -146,7 +146,7 @@ public sealed class AuthorityReplayServiceTests
             CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Mode.Should().Be(ReplayMode.ReconstructOnly);
+        result.Mode.Should().Be(ReplayMode.ReconstructOnly);
         result.RebuiltManifest.Should().BeNull();
         engine.Verify(
             x => x.DecideAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GraphSnapshot>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()),
@@ -172,7 +172,7 @@ public sealed class AuthorityReplayServiceTests
             CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.RebuiltManifest.Should().NotBeNull();
+        result.RebuiltManifest.Should().NotBeNull();
         result.RebuiltArtifactBundle.Should().BeNull();
         engine.Verify(
             x => x.DecideAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GraphSnapshot>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()),
@@ -198,7 +198,7 @@ public sealed class AuthorityReplayServiceTests
             CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.RebuiltManifest.Should().NotBeNull();
+        result.RebuiltManifest.Should().NotBeNull();
         result.RebuiltArtifactBundle.Should().NotBeNull();
         engine.Verify(
             x => x.DecideAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<GraphSnapshot>(), It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()),

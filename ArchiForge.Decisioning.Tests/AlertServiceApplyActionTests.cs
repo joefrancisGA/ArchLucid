@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using ArchiForge.Core.Audit;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Delivery;
@@ -102,7 +100,7 @@ public sealed class AlertServiceApplyActionTests
             CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Status.Should().Be(AlertStatus.Open, "status must not change for an unknown action");
+        result.Status.Should().Be(AlertStatus.Open, "status must not change for an unknown action");
         repo.Verify(x => x.UpdateAsync(It.IsAny<AlertRecord>(), It.IsAny<CancellationToken>()), Times.Never);
         audit.Verify(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -125,7 +123,7 @@ public sealed class AlertServiceApplyActionTests
             CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Status.Should().Be(AlertStatus.Acknowledged);
+        result.Status.Should().Be(AlertStatus.Acknowledged);
         repo.Verify(x => x.UpdateAsync(It.IsAny<AlertRecord>(), It.IsAny<CancellationToken>()), Times.Never);
         audit.Verify(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()), Times.Never);
     }

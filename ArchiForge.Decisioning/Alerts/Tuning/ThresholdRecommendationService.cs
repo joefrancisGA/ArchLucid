@@ -15,9 +15,9 @@ public sealed class ThresholdRecommendationService(
     IRuleSimulationService simulationService,
     IAlertNoiseScorer noiseScorer) : IThresholdRecommendationService
 {
-    private const string RuleKindSimple = global::ArchiForge.Decisioning.Alerts.Simulation.RuleKindConstants.Simple;
+    private const string RuleKindSimple = RuleKindConstants.Simple;
     private const string DefaultProjectSlug = "default";
-    private const string RuleKindComposite = global::ArchiForge.Decisioning.Alerts.Simulation.RuleKindConstants.Composite;
+    private const string RuleKindComposite = RuleKindConstants.Composite;
 
     /// <inheritdoc />
     public async Task<ThresholdRecommendationResult> RecommendAsync(

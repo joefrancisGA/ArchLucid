@@ -44,7 +44,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         if (output.Errors.Count > 0)
             return output;
 
-        if (!ValidateAgentResultsAgainstSchema(validResults, runId, output))
+        if (!ValidateAgentResultsAgainstSchema(validResults, output))
             return output;
 
         GoldenManifest manifest = CreateBaseManifest(runId, request, manifestVersion, parentManifestVersion);
@@ -93,18 +93,14 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             return false;
         }
 
-        if (results.Count == 0)
-        {
-            output.Errors.Add("At least one agent result is required.");
-            return false;
-        }
+        if (results.Count != 0) return true;
+        output.Errors.Add("At least one agent result is required.");
+        return false;
 
-        return true;
     }
 
     private bool ValidateAgentResultsAgainstSchema(
         List<AgentResult> validResults,
-        string runId,
         DecisionMergeResult output)
     {
         foreach (AgentResult result in validResults)

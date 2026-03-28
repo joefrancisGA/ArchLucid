@@ -15,8 +15,6 @@ using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Queries;
 
-using FluentAssertions;
-
 using Moq;
 
 namespace ArchiForge.Decisioning.Tests;

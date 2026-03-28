@@ -42,9 +42,9 @@ public sealed class RecommendationLearningAnalyzerTests
     {
         IReadOnlyList<RecommendationRecord> records =
         [
-            new RecommendationRecord { Category = "Security", Urgency = "High", Status = RecommendationStatus.Accepted, Title = "s1", RecommendationId = Guid.NewGuid() },
-            new RecommendationRecord { Category = "Security", Urgency = "Low",  Status = RecommendationStatus.Rejected, Title = "s2", RecommendationId = Guid.NewGuid() },
-            new RecommendationRecord { Category = "Cost",     Urgency = "Low",  Status = RecommendationStatus.Proposed, Title = "c1", RecommendationId = Guid.NewGuid() }
+            new() { Category = "Security", Urgency = "High", Status = RecommendationStatus.Accepted, Title = "s1", RecommendationId = Guid.NewGuid() },
+            new() { Category = "Security", Urgency = "Low",  Status = RecommendationStatus.Rejected, Title = "s2", RecommendationId = Guid.NewGuid() },
+            new() { Category = "Cost",     Urgency = "Low",  Status = RecommendationStatus.Proposed, Title = "c1", RecommendationId = Guid.NewGuid() }
         ];
 
         RecommendationLearningProfile profile = _sut.BuildProfile(TenantId, WorkspaceId, ProjectId, records);
@@ -53,7 +53,7 @@ public sealed class RecommendationLearningAnalyzerTests
 
         RecommendationOutcomeStats? sec = profile.CategoryStats.FirstOrDefault(x => x.Key == "Security");
         sec.Should().NotBeNull();
-        sec!.ProposedCount.Should().Be(2);
+        sec.ProposedCount.Should().Be(2);
         sec.AcceptedCount.Should().Be(1);
         sec.RejectedCount.Should().Be(1);
     }
@@ -67,9 +67,9 @@ public sealed class RecommendationLearningAnalyzerTests
     {
         IReadOnlyList<RecommendationRecord> records =
         [
-            new RecommendationRecord { Category = "Security", Urgency = "High", Status = RecommendationStatus.Accepted, Title = "a", RecommendationId = Guid.NewGuid() },
-            new RecommendationRecord { Category = "Cost",     Urgency = "High", Status = RecommendationStatus.Proposed, Title = "b", RecommendationId = Guid.NewGuid() },
-            new RecommendationRecord { Category = "Security", Urgency = "Low",  Status = RecommendationStatus.Proposed, Title = "c", RecommendationId = Guid.NewGuid() }
+            new() { Category = "Security", Urgency = "High", Status = RecommendationStatus.Accepted, Title = "a", RecommendationId = Guid.NewGuid() },
+            new() { Category = "Cost",     Urgency = "High", Status = RecommendationStatus.Proposed, Title = "b", RecommendationId = Guid.NewGuid() },
+            new() { Category = "Security", Urgency = "Low",  Status = RecommendationStatus.Proposed, Title = "c", RecommendationId = Guid.NewGuid() }
         ];
 
         RecommendationLearningProfile profile = _sut.BuildProfile(TenantId, WorkspaceId, ProjectId, records);
@@ -77,7 +77,7 @@ public sealed class RecommendationLearningAnalyzerTests
         profile.UrgencyStats.Should().HaveCount(2, "two distinct urgency values");
         RecommendationOutcomeStats? high = profile.UrgencyStats.FirstOrDefault(x => x.Key == "High");
         high.Should().NotBeNull();
-        high!.ProposedCount.Should().Be(2);
+        high.ProposedCount.Should().Be(2);
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -90,8 +90,8 @@ public sealed class RecommendationLearningAnalyzerTests
         // All accepted + implemented → high scores → weight capped at 2.0
         IReadOnlyList<RecommendationRecord> records =
         [
-            new RecommendationRecord { Category = "Security", Urgency = "High", Status = RecommendationStatus.Accepted,    Title = "a", RecommendationId = Guid.NewGuid() },
-            new RecommendationRecord { Category = "Security", Urgency = "High", Status = RecommendationStatus.Implemented, Title = "b", RecommendationId = Guid.NewGuid() }
+            new() { Category = "Security", Urgency = "High", Status = RecommendationStatus.Accepted,    Title = "a", RecommendationId = Guid.NewGuid() },
+            new() { Category = "Security", Urgency = "High", Status = RecommendationStatus.Implemented, Title = "b", RecommendationId = Guid.NewGuid() }
         ];
 
         RecommendationLearningProfile profile = _sut.BuildProfile(TenantId, WorkspaceId, ProjectId, records);
@@ -107,8 +107,8 @@ public sealed class RecommendationLearningAnalyzerTests
         // All rejected → heavy penalty → weight clamped at 0.5
         IReadOnlyList<RecommendationRecord> records =
         [
-            new RecommendationRecord { Category = "Cost", Urgency = "Low", Status = RecommendationStatus.Rejected, Title = "a", RecommendationId = Guid.NewGuid() },
-            new RecommendationRecord { Category = "Cost", Urgency = "Low", Status = RecommendationStatus.Rejected, Title = "b", RecommendationId = Guid.NewGuid() }
+            new() { Category = "Cost", Urgency = "Low", Status = RecommendationStatus.Rejected, Title = "a", RecommendationId = Guid.NewGuid() },
+            new() { Category = "Cost", Urgency = "Low", Status = RecommendationStatus.Rejected, Title = "b", RecommendationId = Guid.NewGuid() }
         ];
 
         RecommendationLearningProfile profile = _sut.BuildProfile(TenantId, WorkspaceId, ProjectId, records);
@@ -132,7 +132,7 @@ public sealed class RecommendationLearningAnalyzerTests
     {
         IReadOnlyList<RecommendationRecord> records =
         [
-            new RecommendationRecord
+            new()
             {
                 Category = category,
                 Urgency = "Medium",
@@ -156,7 +156,7 @@ public sealed class RecommendationLearningAnalyzerTests
     {
         IReadOnlyList<RecommendationRecord> records =
         [
-            new RecommendationRecord { Category = "Security", Urgency = "High", Status = RecommendationStatus.Proposed, Title = "r", RecommendationId = Guid.NewGuid() }
+            new() { Category = "Security", Urgency = "High", Status = RecommendationStatus.Proposed, Title = "r", RecommendationId = Guid.NewGuid() }
         ];
 
         RecommendationLearningProfile profile = _sut.BuildProfile(TenantId, WorkspaceId, ProjectId, records);

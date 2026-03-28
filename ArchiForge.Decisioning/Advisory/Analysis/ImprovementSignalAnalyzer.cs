@@ -89,24 +89,18 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 
     private static void AnalyzePolicyViolationSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
     {
-        if (manifest.Policy is null)
-            return;
-
-        foreach (PolicyControlItem violation in manifest.Policy.Violations)
+        signals.AddRange(manifest.Policy.Violations.Select(violation => new ImprovementSignal
         {
-            signals.Add(new ImprovementSignal
-            {
-                SignalType = ImprovementSignalTypes.PolicyViolation,
-                Category = ImprovementSignalCategories.Compliance,
-                Title = string.IsNullOrWhiteSpace(violation.ControlName)
-                    ? "Policy violation"
-                    : $"Policy violation: {violation.ControlName}",
-                Description = string.IsNullOrWhiteSpace(violation.Description)
-                    ? violation.ControlId
-                    : violation.Description,
-                Severity = ImprovementSignalSeverities.High
-            });
-        }
+            SignalType = ImprovementSignalTypes.PolicyViolation,
+            Category = ImprovementSignalCategories.Compliance,
+            Title = string.IsNullOrWhiteSpace(violation.ControlName)
+                ? "Policy violation"
+                : $"Policy violation: {violation.ControlName}",
+            Description = string.IsNullOrWhiteSpace(violation.Description)
+                ? violation.ControlId
+                : violation.Description,
+            Severity = ImprovementSignalSeverities.High
+        }));
     }
 
     private static void AnalyzeTopologySignals(GoldenManifest manifest, List<ImprovementSignal> signals)

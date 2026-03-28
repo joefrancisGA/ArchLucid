@@ -365,7 +365,7 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         PolicyPackContentResponse? merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
         merged.Should().NotBeNull();
-        merged!.AdvisoryDefaults.Should().ContainKeys("scanDepth", "notifyChannel");
+        merged.AdvisoryDefaults.Should().ContainKeys("scanDepth", "notifyChannel");
         merged.AdvisoryDefaults["scanDepth"].Should().Be("deep");
         merged.AdvisoryDefaults["notifyChannel"].Should().Be("email");
         merged.Metadata.Should().ContainKeys("mergeTier", "mergeSla");

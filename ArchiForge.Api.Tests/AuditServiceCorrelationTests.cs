@@ -27,7 +27,7 @@ public sealed class AuditServiceCorrelationTests
         ActivityListener listener = new()
         {
             ShouldListenTo = s => s.Name == TestSource.Name,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+            Sample = (ref _) => ActivitySamplingResult.AllData,
         };
         ActivitySource.AddActivityListener(listener);
     }
@@ -85,8 +85,7 @@ public sealed class AuditServiceCorrelationTests
             .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
             .Returns(Task.CompletedTask);
 
-        DefaultHttpContext httpContext = new();
-        httpContext.TraceIdentifier = "trace-from-kestrel";
+        DefaultHttpContext httpContext = new() { TraceIdentifier = "trace-from-kestrel" };
 
         Mock<IHttpContextAccessor> httpAccessor = new();
         httpAccessor.Setup(h => h.HttpContext).Returns(httpContext);

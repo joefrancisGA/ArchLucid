@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.AspNetCore.ResponseCompression;
 
 namespace ArchiForge.Api.Startup;
 

@@ -25,7 +25,7 @@ public sealed class RetrievalRunCompletionIndexer(
         DecisionProvenanceGraph provenanceGraph,
         CancellationToken ct)
     {
-        using Activity? indexActivity = ArchiForgeInstrumentation.RetrievalIndex.StartActivity(nameof(IndexAuthorityRunAsync));
+        using Activity? indexActivity = ArchiForgeInstrumentation.RetrievalIndex.StartActivity();
         indexActivity?.SetTag("archiforge.run_id", manifest.RunId.ToString("D"));
 
         string logicalCorrelation =

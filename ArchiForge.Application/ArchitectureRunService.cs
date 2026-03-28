@@ -198,22 +198,20 @@ public sealed class ArchitectureRunService(
         IReadOnlyList<AgentEvaluation> evaluations,
         CancellationToken cancellationToken)
     {
-        using (TransactionScope scope = new(
+        using TransactionScope scope = new(
             TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled))
-        {
-            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken).ConfigureAwait(false);
-            await resultRepository.CreateManyAsync(results, cancellationToken).ConfigureAwait(false);
-            await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken).ConfigureAwait(false);
-            await runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.ReadyForCommit,
-                currentManifestVersion: currentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken,
-                expectedStatus: expectedStatus).ConfigureAwait(false);
-            scope.Complete();
-        }
+            TransactionScopeAsyncFlowOption.Enabled);
+        await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken).ConfigureAwait(false);
+        await resultRepository.CreateManyAsync(results, cancellationToken).ConfigureAwait(false);
+        await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken).ConfigureAwait(false);
+        await runRepository.UpdateStatusAsync(
+            runId,
+            ArchitectureRunStatus.ReadyForCommit,
+            currentManifestVersion: currentManifestVersion,
+            completedUtc: null,
+            cancellationToken: cancellationToken,
+            expectedStatus: expectedStatus).ConfigureAwait(false);
+        scope.Complete();
     }
 
     public async Task<CommitRunResult> CommitRunAsync(

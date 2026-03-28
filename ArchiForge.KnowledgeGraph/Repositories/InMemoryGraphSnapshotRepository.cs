@@ -62,7 +62,7 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
         ct.ThrowIfCancellationRequested();
         lock (_lock)
         {
-            if (!_store.TryGetValue(graphSnapshotId, out GraphSnapshot? snapshot) || snapshot is null)
+            if (!_store.TryGetValue(graphSnapshotId, out GraphSnapshot? snapshot))
                 return Task.FromResult<IReadOnlyList<GraphSnapshotIndexedEdge>>([]);
 
             IReadOnlyList<GraphSnapshotIndexedEdge> edges = snapshot.Edges

@@ -34,7 +34,7 @@ public sealed class InMemoryGraphSnapshotRepositoryTests
         GraphSnapshot? found = await sut.GetLatestByContextSnapshotIdAsync(contextId, CancellationToken.None);
 
         found.Should().NotBeNull();
-        found!.GraphSnapshotId.Should().Be(newSnap.GraphSnapshotId);
+        found.GraphSnapshotId.Should().Be(newSnap.GraphSnapshotId);
     }
 
     [Fact]

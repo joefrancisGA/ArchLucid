@@ -52,101 +52,101 @@ public sealed class CompositeAlertService(
 
         try
         {
-        IReadOnlyList<CompositeAlertRule> rules = await ruleRepository
-            .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
-            .ConfigureAwait(false);
-
-        PolicyPackContentDocument effective = await AlertGovernanceResolver
-            .ResolveAsync(context, effectiveGovernanceLoader, ct)
-            .ConfigureAwait(false);
-
-        rules = PolicyPackGovernanceFilter.FilterCompositeRules(rules, effective);
-
-        AlertMetricSnapshot snapshot = snapshotBuilder.Build(context);
-        List<AlertRecord> created = [];
-        int suppressedMatches = 0;
-
-        foreach (CompositeAlertRule rule in rules)
-        {
-            bool matched = ruleEvaluator.Evaluate(rule, snapshot);
-
-            if (!matched)
-                continue;
-
-            AlertSuppressionDecision suppression = await suppressionPolicy
-                .DecideAsync(rule, context, snapshot, ct)
+            IReadOnlyList<CompositeAlertRule> rules = await ruleRepository
+                .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
                 .ConfigureAwait(false);
 
-            if (!suppression.ShouldCreateAlert)
+            PolicyPackContentDocument effective = await AlertGovernanceResolver
+                .ResolveAsync(context, effectiveGovernanceLoader, ct)
+                .ConfigureAwait(false);
+
+            rules = PolicyPackGovernanceFilter.FilterCompositeRules(rules, effective);
+
+            AlertMetricSnapshot snapshot = snapshotBuilder.Build(context);
+            List<AlertRecord> created = [];
+            int suppressedMatches = 0;
+
+            foreach (CompositeAlertRule rule in rules)
             {
-                suppressedMatches++;
+                bool matched = ruleEvaluator.Evaluate(rule, snapshot);
+
+                if (!matched)
+                    continue;
+
+                AlertSuppressionDecision suppression = await suppressionPolicy
+                    .DecideAsync(rule, context, snapshot, ct)
+                    .ConfigureAwait(false);
+
+                if (!suppression.ShouldCreateAlert)
+                {
+                    suppressedMatches++;
+                    await auditService.LogAsync(
+                        new AuditEvent
+                        {
+                            EventType = AuditEventTypes.AlertSuppressedByPolicy,
+                            RunId = context.RunId,
+                            DataJson = JsonSerializer.Serialize(
+                                new
+                                {
+                                    compositeRuleId = rule.CompositeRuleId,
+                                    rule.Name,
+                                    suppression.Reason,
+                                    suppression.DeduplicationKey,
+                                },
+                                AuditJsonSerializationOptions.Instance),
+                        },
+                        ct).ConfigureAwait(false);
+                    continue;
+                }
+
+                string triggerSummary = BuildTriggerSummary(snapshot);
+                AlertRecord alert = new()
+                {
+                    AlertId = Guid.NewGuid(),
+                    RuleId = rule.CompositeRuleId,
+                    TenantId = context.TenantId,
+                    WorkspaceId = context.WorkspaceId,
+                    ProjectId = context.ProjectId,
+                    RunId = context.RunId,
+                    ComparedToRunId = context.ComparedToRunId,
+                    Title = $"Composite alert: {rule.Name}",
+                    Category = AlertCategories.CompositeAlert,
+                    Severity = rule.Severity,
+                    Status = AlertStatus.Open,
+                    TriggerValue = triggerSummary,
+                    Description =
+                        $"{suppression.Reason} Metrics: critical/high recs={snapshot.CriticalRecommendationCount}, " +
+                        $"compliance gaps={snapshot.NewComplianceGapCount}, costΔ%={snapshot.CostIncreasePercent:0.##}, " +
+                        $"deferred high-pri={snapshot.DeferredHighPriorityRecommendationCount}, " +
+                        $"rejected security={snapshot.RejectedSecurityRecommendationCount}, " +
+                        $"acceptance%={snapshot.AcceptanceRatePercent:0.##}.",
+                    CreatedUtc = DateTime.UtcNow,
+                    DeduplicationKey = suppression.DeduplicationKey,
+                };
+
+                await alertRepository.CreateAsync(alert, ct).ConfigureAwait(false);
+                await alertDeliveryDispatcher.DeliverAsync(alert, ct).ConfigureAwait(false);
+                created.Add(alert);
+
                 await auditService.LogAsync(
                     new AuditEvent
                     {
-                        EventType = AuditEventTypes.AlertSuppressedByPolicy,
+                        EventType = AuditEventTypes.CompositeAlertTriggered,
                         RunId = context.RunId,
                         DataJson = JsonSerializer.Serialize(
                             new
                             {
+                                alertId = alert.AlertId,
                                 compositeRuleId = rule.CompositeRuleId,
                                 rule.Name,
-                                suppression.Reason,
-                                suppression.DeduplicationKey,
+                                alert.DeduplicationKey,
                             },
                             AuditJsonSerializationOptions.Instance),
                     },
                     ct).ConfigureAwait(false);
-                continue;
             }
 
-            string triggerSummary = BuildTriggerSummary(snapshot);
-            AlertRecord alert = new()
-            {
-                AlertId = Guid.NewGuid(),
-                RuleId = rule.CompositeRuleId,
-                TenantId = context.TenantId,
-                WorkspaceId = context.WorkspaceId,
-                ProjectId = context.ProjectId,
-                RunId = context.RunId,
-                ComparedToRunId = context.ComparedToRunId,
-                Title = $"Composite alert: {rule.Name}",
-                Category = AlertCategories.CompositeAlert,
-                Severity = rule.Severity,
-                Status = AlertStatus.Open,
-                TriggerValue = triggerSummary,
-                Description =
-                    $"{suppression.Reason} Metrics: critical/high recs={snapshot.CriticalRecommendationCount}, " +
-                    $"compliance gaps={snapshot.NewComplianceGapCount}, costΔ%={snapshot.CostIncreasePercent:0.##}, " +
-                    $"deferred high-pri={snapshot.DeferredHighPriorityRecommendationCount}, " +
-                    $"rejected security={snapshot.RejectedSecurityRecommendationCount}, " +
-                    $"acceptance%={snapshot.AcceptanceRatePercent:0.##}.",
-                CreatedUtc = DateTime.UtcNow,
-                DeduplicationKey = suppression.DeduplicationKey,
-            };
-
-            await alertRepository.CreateAsync(alert, ct).ConfigureAwait(false);
-            await alertDeliveryDispatcher.DeliverAsync(alert, ct).ConfigureAwait(false);
-            created.Add(alert);
-
-            await auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.CompositeAlertTriggered,
-                    RunId = context.RunId,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            alertId = alert.AlertId,
-                            compositeRuleId = rule.CompositeRuleId,
-                            rule.Name,
-                            alert.DeduplicationKey,
-                        },
-                        AuditJsonSerializationOptions.Instance),
-                },
-                ct).ConfigureAwait(false);
-        }
-
-        return new CompositeAlertEvaluationResult(created, suppressedMatches);
+            return new CompositeAlertEvaluationResult(created, suppressedMatches);
         }
         finally
         {

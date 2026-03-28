@@ -66,15 +66,8 @@ public class PolicyReferenceConnector : IContextConnector
 
         HashSet<string> ids = [];
 
-        foreach (string hint in topologyHints)
+        foreach (var trimmed in from hint in topologyHints where !string.IsNullOrWhiteSpace(hint) select hint.Trim() into trimmed where PolicyReferenceOverlapsTopology(policyReference, trimmed) select trimmed)
         {
-            if (string.IsNullOrWhiteSpace(hint))
-                continue;
-
-            string trimmed = hint.Trim();
-            if (!PolicyReferenceOverlapsTopology(policyReference, trimmed))
-                continue;
-
             ids.Add($"obj-{TopologyHintStableObjectIds.FromHintName(trimmed)}");
         }
 

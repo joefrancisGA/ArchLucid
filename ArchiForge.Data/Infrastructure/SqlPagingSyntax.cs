@@ -21,11 +21,6 @@ public static class SqlPagingSyntax
             throw new ArgumentOutOfRangeException(nameof(rowCount));
         }
 
-        if (IsSqlite(connection))
-        {
-            return $"LIMIT {rowCount}";
-        }
-
-        return $"OFFSET 0 ROWS FETCH NEXT {rowCount} ROWS ONLY";
+        return IsSqlite(connection) ? $"LIMIT {rowCount}" : $"OFFSET 0 ROWS FETCH NEXT {rowCount} ROWS ONLY";
     }
 }

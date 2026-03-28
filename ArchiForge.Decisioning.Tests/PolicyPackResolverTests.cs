@@ -220,13 +220,13 @@ public sealed class PolicyPackResolverTests
 
         List<PolicyPackAssignment> rows =
         [
-            new PolicyPackAssignment
+            new()
             {
                 PolicyPackId = packA,
                 PolicyPackVersion = "1.0.0",
                 IsEnabled = true
             },
-            new PolicyPackAssignment
+            new()
             {
                 PolicyPackId = packB,
                 PolicyPackVersion = "2.0.0",

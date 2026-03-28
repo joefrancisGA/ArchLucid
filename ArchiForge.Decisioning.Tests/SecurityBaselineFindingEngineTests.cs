@@ -113,7 +113,7 @@ public sealed class SecurityBaselineFindingEngineTests
 
         SecurityControlFindingPayload? payload = f.Payload as SecurityControlFindingPayload;
         payload.Should().NotBeNull();
-        payload!.Impact.Should().Contain("missing");
+        payload.Impact.Should().Contain("missing");
     }
 
     // ──────────────────────────────────────────────────────────────────────────

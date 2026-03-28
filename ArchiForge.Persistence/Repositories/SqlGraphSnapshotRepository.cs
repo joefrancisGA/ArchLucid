@@ -110,10 +110,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 GraphSnapshotId = graphSnapshotId
             }, cancellationToken: ct)).ConfigureAwait(false);
 
-        if (row is null)
-            return null;
-
-        return GraphSnapshotStorageMapper.ToSnapshot(row);
+        return row is null ? null : GraphSnapshotStorageMapper.ToSnapshot(row);
     }
 
     public async Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct)
@@ -134,10 +131,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 ContextSnapshotId = contextSnapshotId
             }, cancellationToken: ct)).ConfigureAwait(false);
 
-        if (row is null)
-            return null;
-
-        return GraphSnapshotStorageMapper.ToSnapshot(row);
+        return row is null ? null : GraphSnapshotStorageMapper.ToSnapshot(row);
     }
 
     public async Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId, CancellationToken ct)

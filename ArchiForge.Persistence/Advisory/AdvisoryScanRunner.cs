@@ -74,7 +74,7 @@ public sealed class AdvisoryScanRunner(
     {
         ArgumentNullException.ThrowIfNull(schedule);
 
-        using Activity? scanActivity = ArchiForgeInstrumentation.AdvisoryScan.StartActivity(nameof(RunScheduleAsync));
+        using Activity? scanActivity = ArchiForgeInstrumentation.AdvisoryScan.StartActivity();
         scanActivity?.SetTag("archiforge.schedule_id", schedule.ScheduleId.ToString("D"));
         scanActivity?.SetTag(
             ActivityCorrelation.LogicalCorrelationIdTag,

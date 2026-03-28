@@ -37,8 +37,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         InferExplicitParentChildContainment(edges, nodes, nodeById);
         InferTopologyContainment(edges, topologyNodes);
         InferSecurityProtection(edges, securityNodes, topologyNodes);
-        InferPolicyApplicability(edges, policyNodes, topologyNodes, nodeById);
-        InferRequirementRelevance(edges, requirementNodes, topologyNodes, nodeById);
+        InferPolicyApplicability(edges, policyNodes, topologyNodes);
+        InferRequirementRelevance(edges, requirementNodes, topologyNodes);
 
         return Deduplicate(edges);
     }
@@ -111,8 +111,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     private static void InferPolicyApplicability(
         List<GraphEdge> edges,
         List<GraphNode> policyNodes,
-        List<GraphNode> topologyNodes,
-        Dictionary<string, GraphNode> nodeById)
+        List<GraphNode> topologyNodes)
     {
         foreach (GraphNode policy in policyNodes)
         {
@@ -150,8 +149,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     private static void InferRequirementRelevance(
         List<GraphEdge> edges,
         List<GraphNode> requirementNodes,
-        List<GraphNode> topologyNodes,
-        Dictionary<string, GraphNode> nodeById)
+        List<GraphNode> topologyNodes)
     {
         foreach (GraphNode requirement in requirementNodes)
         {
@@ -202,10 +200,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             return null;
 
         string[] parts = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        if (parts.Length == 0)
-            return null;
-
-        return parts.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return parts.Length == 0 ? null : parts.ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
     private static bool LooksRelevant(string requirementText, GraphNode resource)

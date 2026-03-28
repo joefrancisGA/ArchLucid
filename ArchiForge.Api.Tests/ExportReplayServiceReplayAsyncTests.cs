@@ -125,7 +125,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         analysis.Setup(a => a.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(built);
         consultingDocx.Setup(c => c.GenerateDocxAsync(built, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new byte[] { 1, 2, 3 });
+            .ReturnsAsync([1, 2, 3]);
 
         ReplayExportResult result = await sut.ReplayAsync(new ReplayExportRequest { ExportRecordId = record.ExportRecordId });
 
@@ -158,7 +158,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         analysis.Setup(a => a.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(built);
         standardDocx.Setup(s => s.GenerateDocxAsync(built, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new byte[] { 9 });
+            .ReturnsAsync([9]);
 
         ReplayExportResult result = await sut.ReplayAsync(new ReplayExportRequest { ExportRecordId = record.ExportRecordId });
 
@@ -190,7 +190,7 @@ public sealed class ExportReplayServiceReplayAsyncTests
         analysis.Setup(a => a.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(built);
         standardDocx.Setup(s => s.GenerateDocxAsync(built, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<byte>());
+            .ReturnsAsync([]);
 
         await sut.ReplayAsync(
             new ReplayExportRequest

@@ -1,6 +1,5 @@
 using ArchiForge.ArtifactSynthesis.Docx;
 using ArchiForge.ArtifactSynthesis.Docx.Models;
-using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Decisioning.Advisory.Models;
 using ArchiForge.Decisioning.Advisory.Services;
 using ArchiForge.Decisioning.Manifest.Sections;
@@ -89,7 +88,7 @@ public sealed class DocxExportServiceGoldenTests
         using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
         MainDocumentPart? main = wordDoc.MainDocumentPart;
         main.Should().NotBeNull();
-        string xml = main!.Document!.OuterXml;
+        string xml = main.Document.OuterXml;
 
         xml.Should().Contain("Golden Architecture Export");
         xml.Should().Contain("GOLDEN_DOCX_SUMMARY_ANCHOR");

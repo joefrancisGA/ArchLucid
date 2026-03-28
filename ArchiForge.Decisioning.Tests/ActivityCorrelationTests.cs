@@ -7,7 +7,7 @@ using FluentAssertions;
 namespace ArchiForge.Decisioning.Tests;
 
 /// <summary>
-/// <see cref="ActivityCorrelation"/> is used by the API audit path and persistence activities; tests require an <see cref="ActivityListener"/> so <see cref="ActivitySource.StartActivity"/> returns real instances.
+/// <see cref="ActivityCorrelation"/> is used by the API audit path and persistence activities; tests require an <see cref="ActivityListener"/> so <see cref="ActivitySource"/> <c>StartActivity</c> returns real instances.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ActivityCorrelationTests
@@ -19,7 +19,7 @@ public sealed class ActivityCorrelationTests
         ActivityListener listener = new()
         {
             ShouldListenTo = s => s.Name == TestSource.Name,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+            Sample = (ref _) => ActivitySamplingResult.AllData,
         };
         ActivitySource.AddActivityListener(listener);
     }

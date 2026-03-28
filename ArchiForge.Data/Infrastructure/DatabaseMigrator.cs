@@ -79,13 +79,8 @@ public static class DatabaseMigrator
                 return true;
             }
 
-            if (ds.EndsWith(".db", StringComparison.OrdinalIgnoreCase) ||
-                ds.EndsWith(".sqlite", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            return false;
+            return ds.EndsWith(".db", StringComparison.OrdinalIgnoreCase) ||
+                   ds.EndsWith(".sqlite", StringComparison.OrdinalIgnoreCase);
         }
         catch (ArgumentException)
         {

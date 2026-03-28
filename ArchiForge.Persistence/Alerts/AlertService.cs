@@ -48,30 +48,30 @@ public sealed class AlertService(
 
         try
         {
-        IReadOnlyList<AlertRule> rules = await ruleRepository
-            .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
-            .ConfigureAwait(false);
+            IReadOnlyList<AlertRule> rules = await ruleRepository
+                .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
+                .ConfigureAwait(false);
 
-        PolicyPackContentDocument effective = await AlertGovernanceResolver
-            .ResolveAsync(context, effectiveGovernanceLoader, ct)
-            .ConfigureAwait(false);
+            PolicyPackContentDocument effective = await AlertGovernanceResolver
+                .ResolveAsync(context, effectiveGovernanceLoader, ct)
+                .ConfigureAwait(false);
 
-        rules = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
+            rules = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
 
-        IReadOnlyList<AlertRecord> generated = alertEvaluator.Evaluate(rules, context);
-        List<AlertRecord> persisted = [];
+            IReadOnlyList<AlertRecord> generated = alertEvaluator.Evaluate(rules, context);
+            List<AlertRecord> persisted = [];
 
-        foreach (AlertRecord alert in generated)
-        {
-            bool wasCreated = await PersistAndDeliverAlertAsync(alert, context, ct).ConfigureAwait(false);
-
-            if (wasCreated)
+            foreach (AlertRecord alert in generated)
             {
-                persisted.Add(alert);
-            }
-        }
+                bool wasCreated = await PersistAndDeliverAlertAsync(alert, context, ct).ConfigureAwait(false);
 
-        return new AlertEvaluationOutcome(generated, persisted);
+                if (wasCreated)
+                {
+                    persisted.Add(alert);
+                }
+            }
+
+            return new AlertEvaluationOutcome(generated, persisted);
         }
         finally
         {

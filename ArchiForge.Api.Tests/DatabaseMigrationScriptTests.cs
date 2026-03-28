@@ -18,7 +18,7 @@ public sealed class DatabaseMigrationScriptTests
     [Fact]
     public void ArchiForgeDataAssembly_HasEmbeddedMigrationScripts_InNumericOrder()
     {
-        Assembly asm = typeof(Data.Infrastructure.DatabaseMigrator).Assembly;
+        Assembly asm = typeof(DatabaseMigrator).Assembly;
 
         List<string> scripts = asm.GetManifestResourceNames()
             .Where(n => n.Contains("Migrations", StringComparison.OrdinalIgnoreCase) &&

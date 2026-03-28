@@ -53,12 +53,6 @@ public sealed class AuthorityRunOrchestrator(
     ILogger<AuthorityRunOrchestrator> logger)
     : IAuthorityRunOrchestrator
 {
-    private static readonly JsonSerializerOptions AuditJsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false
-    };
-
     /// <inheritdoc />
     /// <remarks>
     /// Repository writes use the unit of work’s connection/transaction when <see cref="IArchiForgeUnitOfWork.SupportsExternalTransaction"/> is <see langword="true"/>.
@@ -81,7 +75,7 @@ public sealed class AuthorityRunOrchestrator(
             };
             ApplyScope(run, scope);
 
-            using Activity? runActivity = ArchiForgeInstrumentation.AuthorityRun.StartActivity(nameof(ExecuteAsync));
+            using Activity? runActivity = ArchiForgeInstrumentation.AuthorityRun.StartActivity();
             runActivity?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
 
             string logicalCorrelation =
