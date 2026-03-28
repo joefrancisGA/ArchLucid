@@ -115,7 +115,7 @@ public sealed class RetrievalQueryServiceTests
 
         RetrievalQuery query = ScopedQuery("needle", topK: 5);
         index.Setup(i => i.SearchAsync(query, expected, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<RetrievalHit>());
+            .ReturnsAsync([]);
 
         RetrievalQueryService sut = new(embeddings.Object, index.Object);
 

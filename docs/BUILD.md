@@ -14,6 +14,8 @@ dotnet build
 dotnet test
 ```
 
+**CI / supply chain:** GitHub Actions workflow **`.github/workflows/ci.yml`** runs **`dotnet list package --vulnerable --include-transitive`** so known-vulnerable NuGet packages fail the pipeline (see **`NEXT_REFACTORINGS.md`** §220). Run the same command locally after dependency changes.
+
 ## OpenTelemetry metrics (`ArchiForge` meter)
 
 The API registers meter **`ArchiForge`** (`ArchiForgeInstrumentation.MeterName`). Notable series:

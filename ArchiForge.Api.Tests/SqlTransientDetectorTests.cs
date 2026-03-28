@@ -42,7 +42,7 @@ public sealed class SqlTransientDetectorTests
     [Fact]
     public void IsTransient_NullSqlException_ReturnsFalse()
     {
-        SqlTransientDetector.IsTransient((SqlException)null!).Should().BeFalse();
+        SqlTransientDetector.IsTransient(null!).Should().BeFalse();
     }
 
     [Fact]
@@ -102,8 +102,8 @@ public sealed class SqlTransientDetectorTests
             typeof(SqlError),
             BindingFlags.NonPublic | BindingFlags.Instance,
             binder: null,
-            args: new object?[]
-            {
+            args:
+            [
                 number,        // infoNumber
                 (byte)0,       // errorState
                 (byte)0,       // errorClass
@@ -113,7 +113,7 @@ public sealed class SqlTransientDetectorTests
                 0,             // lineNumber
                 (uint)0,       // win32ErrorCode
                 null           // exception
-            },
+            ],
             culture: null)!;
 
         typeof(SqlErrorCollection)
@@ -124,13 +124,13 @@ public sealed class SqlTransientDetectorTests
             typeof(SqlException),
             BindingFlags.NonPublic | BindingFlags.Instance,
             binder: null,
-            args: new object?[]
-            {
+            args:
+            [
                 "Test SQL exception",   // message
                 errors,                 // errorCollection
                 null,                   // innerException
                 Guid.Empty              // conId
-            },
+            ],
             culture: null)!;
 
         return ex;

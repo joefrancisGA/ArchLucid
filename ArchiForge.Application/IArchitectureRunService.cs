@@ -1,3 +1,4 @@
+using ArchiForge.Application.Runs;
 using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.Application;
@@ -14,11 +15,14 @@ public interface IArchitectureRunService
     /// Calls <see cref="ArchiForge.Coordinator.Services.ICoordinatorService.CreateRunAsync"/> and, on success, persists the request, run, evidence bundle, and starter tasks.
     /// </summary>
     /// <param name="request">Inbound architecture request.</param>
+    /// <param name="idempotency">When non-<see langword="null"/>, deduplicates by HTTP scope + key hash; mismatched body → <see cref="ConflictException"/>.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Created run, bundle, and tasks.</returns>
     /// <exception cref="InvalidOperationException">Thrown when coordination fails validation (errors are aggregated into the message).</exception>
+    /// <exception cref="ConflictException">Thrown when the same idempotency key was used with a different request fingerprint.</exception>
     Task<CreateRunResult> CreateRunAsync(
         ArchitectureRequest request,
+        CreateRunIdempotencyState? idempotency = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>

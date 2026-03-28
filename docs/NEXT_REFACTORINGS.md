@@ -1838,7 +1838,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [ ] 217. Private Link for SQL, storage, AI Search (Terraform).
 - [ ] 218. WAF / APIM in front of API.
 - [ ] 219. SBOM (CycloneDX) in CI.
-- [ ] 220. `dotnet list package --vulnerable` gate.
+- [x] 220. `dotnet list package --vulnerable` gate.
+  - **`.github/workflows/ci.yml`**: `dotnet list package --vulnerable --include-transitive` after restore (fails build when the SDK reports vulnerable packages).
+  - **`docs/BUILD.md`**: local/CI reminder.
 - [ ] 221. Secret scanning in CI.
 - [ ] 222. Row-level security design for multi-tenant SQL.
 - [ ] 223. PII classification + retention for conversations.
@@ -1848,12 +1850,17 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Performance & cost (227–234)
 
-- [ ] 227. SQL index review (alerts, runs, graphs, digests).
+- [x] 227. SQL index review (alerts, runs, graphs, digests).
+  - **`020_PerformanceIndexes_HotLists.sql`**: **`IX_Runs_Scope_Project_CreatedUtc`** on **`dbo.Runs`** for **`SqlRunRepository.ListByProjectAsync`** filters (`TenantId`, `WorkspaceId`, `ScopeProjectId`, `ProjectId`, `ORDER BY CreatedUtc DESC`). **AlertRecords**, **ArchitectureDigests**, **ConversationThreads**, **GraphSnapshots** already had scope/time indexes in **`ArchiForge.sql`**; no change required beyond Runs.
+  - **`ArchiForge.sql`** / **`ArchiForge.Sqlite.sql`**: same index on **`Runs`** for SQLite tests.
 - [x] 228. Remove N+1 on hot `ListByScope` paths.
   - **`IAlertRecordRepository.ListByScopePagedAsync`** / **`IConversationThreadRepository.ListByScopePagedAsync`**: COUNT + `OFFSET`/`FETCH` (Dapper) or in-memory skip/take; `AlertsController` / `ConversationController` use `PagedResponseBuilder.FromDatabasePage` instead of loading `MaxPageSize * 10` rows.
   - **`DapperAuthorityQueryService` / `InMemoryAuthorityQueryService` `GetRunDetailAsync`**: parallel `Task.WhenAll` for snapshot/manifest/bundle loads (single run hot path).
 - [x] 229. Compression for large JSON responses.
-- [ ] 230. Cache effective governance per HTTP scope (beyond advisory path).
+- [x] 230. Cache effective governance per HTTP scope (beyond advisory path).
+  - **`RequestScopedCachingEffectiveGovernanceLoader`**: scoped decorator over **`EffectiveGovernanceLoader`**; first **`LoadEffectiveContentAsync`** for a `(tenant, workspace, project)` triple wins, subsequent calls on the same request reuse the document.
+  - **DI**: `ServiceCollectionExtensions` registers concrete **`EffectiveGovernanceLoader`** + **`IEffectiveGovernanceLoader`** → decorator.
+  - **Tests**: `RequestScopedCachingEffectiveGovernanceLoaderTests` (`ArchiForge.Decisioning.Tests`).
 - [ ] 231. Graph snapshot pagination API design.
 - [ ] 232. Embedding batching cost caps.
 - [ ] 233. AI Search SKU guidance (dev vs prod).
@@ -1870,7 +1877,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **Tests**: `ApiProblemDetailsExceptionFilterTests` asserts `errorCode` on conflict, run-not-found, comparison verification, circuit breaker.
 - [ ] 238. OpenAPI `securitySchemes` for Entra when enabled.
 - [ ] 239. Webhook HMAC for digest/alert channels.
-- [ ] 240. Optional `Idempotency-Key` on create run.
+- [x] 240. Optional `Idempotency-Key` on create run.
+  - **`021_ArchitectureRunIdempotency.sql`** + **`ArchitectureRunIdempotency`** in **`ArchiForge.sql`** / **`ArchiForge.Sqlite.sql`**; **`IArchitectureRunIdempotencyRepository`** / **`ArchitectureRunIdempotencyRepository`**.
+  - **`ArchitectureRunService`**: optional **`CreateRunIdempotencyState`**; replay → **`CreateRunResult.IdempotentReplay`**; key + different body → **`ConflictException`** (409).
+  - **`RunsController`**: header **`Idempotency-Key`**, **200** + **`Idempotency-Replayed`** on replay; **`ConflictException`** before **`InvalidOperationException`** catch.
+  - **`docs/API_CONTRACTS.md`**: contract table + cross-store limitation note.
+  - **Tests**: `ArchitectureControllerTests` idempotency cases.
 - [ ] 241. Bulk endpoint limits + partial success model.
 - [x] 242. JSON camelCase audit on public DTOs.
   - **`AddArchiForgeMvc`**: `AddJsonOptions` sets `PropertyNamingPolicy` and `DictionaryKeyPolicy` to **camelCase** for controller JSON.
@@ -1894,7 +1906,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **InMemory subclasses** (`InMemoryAlertRuleRepositoryContractTests`, `InMemoryArchitectureDigestRepositoryContractTests`): `Category=Unit`, no Docker needed.
   - **Dapper subclasses** (`DapperAlertRuleRepositoryContractTests`, `DapperArchitectureDigestRepositoryContractTests`): `Category=SqlServerContainer`, reuse `SqlServerPersistenceFixture`.
   - All files in `ArchiForge.Persistence.Tests/Contracts/`.
-- [ ] 248. Single DDL file discipline audit.
+- [x] 248. Single DDL file discipline audit.
+  - **`docs/SQL_DDL_DISCIPLINE.md`**: single-file rule for **`ArchiForge.sql`** / **`ArchiForge.Sqlite.sql`**, DbUp migration pairing, inventory **019–021**.
+  - **`ArchiForge.sql`** trailing section aligned with **019** (**`RetrievalIndexingOutbox`**), **020** (Runs index), **021** (idempotency table).
 - [ ] 249. Migration rollback documentation.
 
 ### UI & developer experience (250–254)
@@ -1915,8 +1929,8 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Unit tests (170–194): complete for 170–190, 191–194 (170–171 Persistence.Tests; 183–185, 190 as listed above; 189 UTC calculator documented).
 - [ ] Integration / E2E (195–204): partial (195–199 done; 200–204 open).
 - [ ] Observability & reliability (205–214): partial (205–213 done; 214 still open).
-- [ ] Security (215–226): partial (**225–226** CORS + HSTS/headers; **215–224** Entra/RLS/WAF/SBOM/etc. still open).
-- [ ] Performance & cost (227–234): partial (**228** list paging + run detail parallel fetch; 229 response compression; 227, 230–234 open).
-- [ ] API & contracts (235–242): partial (236 pagination; **237** errorCode; **242** camelCase JSON + doc; 235, 238–241 open).
-- [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests; 243–244, 246, 248–249 open).
+- [ ] Security (215–226): partial (**220** vulnerable-package CI gate; **225–226** CORS + HSTS/headers; **215–219, 221–224** still open).
+- [ ] Performance & cost (227–234): partial (**227** Runs list index; **228** list paging + run detail parallel fetch; **230** governance request cache; 229 response compression; 231–234 open).
+- [ ] API & contracts (235–242): partial (236 pagination; **237** errorCode; **240** create-run idempotency; **242** camelCase JSON + doc; 235, 238–239, 241 open).
+- [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests, **248** DDL discipline doc; 243–244, 246, 249 open).
 - [ ] UI & DX (250–254): partial (254 onboarding doc; 250–253 open).

@@ -8,7 +8,6 @@ using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Health;
 using ArchiForge.Api.Hosted;
 using ArchiForge.Api.Resilience;
-using ArchiForge.Api.Hosted;
 using ArchiForge.Api.Jobs;
 using ArchiForge.Api.Services;
 using ArchiForge.Api.Services.Ask;
@@ -72,9 +71,7 @@ using ArchiForge.Retrieval.Embedding;
 using ArchiForge.Retrieval.Indexing;
 using ArchiForge.Retrieval.Queries;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
 
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextIngestionService;
@@ -160,7 +157,9 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IPolicyPackResolver, PolicyPackResolver>();
         services.AddScoped<IPolicyPackManagementService, PolicyPackManagementService>();
         services.AddScoped<IEffectiveGovernanceResolver, EffectiveGovernanceResolver>();
-        services.AddScoped<IEffectiveGovernanceLoader, EffectiveGovernanceLoader>();
+        services.AddScoped<EffectiveGovernanceLoader>();
+        services.AddScoped<IEffectiveGovernanceLoader>(static sp =>
+            new RequestScopedCachingEffectiveGovernanceLoader(sp.GetRequiredService<EffectiveGovernanceLoader>()));
         services.AddScoped<IPolicyPacksAppService, PolicyPacksAppService>();
     }
 
@@ -298,6 +297,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
         services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
         services.AddScoped<IArchitectureRunRepository, ArchitectureRunRepository>();
+        services.AddScoped<IArchitectureRunIdempotencyRepository, ArchitectureRunIdempotencyRepository>();
         services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
         services.AddScoped<IAgentResultRepository, AgentResultRepository>();
         services.AddScoped<IGoldenManifestRepository, GoldenManifestRepository>();

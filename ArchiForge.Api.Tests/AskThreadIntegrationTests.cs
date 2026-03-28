@@ -44,7 +44,7 @@ public sealed class AskThreadIntegrationTests
             .ReadFromJsonAsync<AskResponse>(JsonOptions, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.ThreadId.Should().NotBeEmpty();
+        result.ThreadId.Should().NotBeEmpty();
         result.Answer.Should().NotBeNullOrWhiteSpace();
 
         HttpResponseMessage threadsResponse = await client.GetAsync(
@@ -79,7 +79,7 @@ public sealed class AskThreadIntegrationTests
             .ReadFromJsonAsync<AskResponse>(JsonOptions, CancellationToken.None);
 
         first.Should().NotBeNull();
-        Guid threadId = first!.ThreadId;
+        Guid threadId = first.ThreadId;
 
         HttpResponseMessage followUpResponse = await client.PostAsJsonAsync(
             "api/ask",
@@ -92,7 +92,7 @@ public sealed class AskThreadIntegrationTests
             .ReadFromJsonAsync<AskResponse>(JsonOptions, CancellationToken.None);
 
         followUp.Should().NotBeNull();
-        followUp!.ThreadId.Should().Be(threadId, "follow-up should reuse the same thread");
+        followUp.ThreadId.Should().Be(threadId, "follow-up should reuse the same thread");
 
         HttpResponseMessage messagesResponse = await client.GetAsync(
             new Uri($"api/conversations/{threadId:D}/messages?take=50", UriKind.Relative),

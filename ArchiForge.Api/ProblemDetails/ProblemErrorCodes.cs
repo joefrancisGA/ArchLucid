@@ -105,10 +105,7 @@ public static class ProblemErrorCodes
         if (problemTypeUri == ProblemTypes.DatabaseUnavailable)
             return DatabaseUnavailable;
 
-        if (problemTypeUri == ProblemTypes.CircuitBreakerOpen)
-            return CircuitBreakerOpen;
-
-        return Unspecified;
+        return problemTypeUri == ProblemTypes.CircuitBreakerOpen ? CircuitBreakerOpen : Unspecified;
     }
 
     /// <summary>Attaches <c>extensions.errorCode</c> derived from <paramref name="problemTypeUri"/>.</summary>

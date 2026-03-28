@@ -70,6 +70,19 @@ CREATE TABLE IF NOT EXISTS AgentTasks
 CREATE INDEX IF NOT EXISTS IX_AgentTasks_RunId ON AgentTasks (RunId);
 CREATE INDEX IF NOT EXISTS IX_AgentTasks_RunId_AgentType ON AgentTasks (RunId, AgentType);
 
+CREATE TABLE IF NOT EXISTS ArchitectureRunIdempotency
+(
+    TenantId TEXT NOT NULL,
+    WorkspaceId TEXT NOT NULL,
+    ProjectId TEXT NOT NULL,
+    IdempotencyKeyHash BLOB NOT NULL,
+    RequestFingerprint BLOB NOT NULL,
+    RunId TEXT NOT NULL,
+    CreatedUtc TEXT NOT NULL,
+    PRIMARY KEY (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash),
+    FOREIGN KEY (RunId) REFERENCES ArchitectureRuns (RunId)
+);
+
 CREATE TABLE IF NOT EXISTS AgentResults
 (
     ResultId TEXT NOT NULL PRIMARY KEY,
@@ -270,6 +283,7 @@ CREATE TABLE IF NOT EXISTS Runs
 );
 
 CREATE INDEX IF NOT EXISTS IX_Runs_ProjectId_CreatedUtc ON Runs (ProjectId, CreatedUtc DESC);
+CREATE INDEX IF NOT EXISTS IX_Runs_Scope_Project_CreatedUtc ON Runs (TenantId, WorkspaceId, ScopeProjectId, ProjectId, CreatedUtc DESC);
 
 CREATE TABLE IF NOT EXISTS ContextSnapshots
 (

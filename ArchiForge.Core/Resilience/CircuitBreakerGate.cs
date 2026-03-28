@@ -14,7 +14,7 @@ public sealed class CircuitBreakerGate
 
     private readonly Func<DateTimeOffset> _utcNow;
 
-    private readonly object _sync = new();
+    private readonly Lock _sync = new();
 
     private State _state = State.Closed;
 
@@ -94,11 +94,10 @@ public sealed class CircuitBreakerGate
 
             _consecutiveFailures++;
 
-            if (_consecutiveFailures >= _options.FailureThreshold)
-            {
-                _state = State.Open;
-                _openUntilUtc = _utcNow().AddSeconds(_options.DurationOfBreakSeconds);
-            }
+            if (_consecutiveFailures < _options.FailureThreshold) return;
+            
+            _state = State.Open;
+            _openUntilUtc = _utcNow().AddSeconds(_options.DurationOfBreakSeconds);
         }
     }
 

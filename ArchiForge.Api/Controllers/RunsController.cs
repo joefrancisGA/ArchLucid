@@ -5,6 +5,8 @@ using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Determinism;
+using ArchiForge.Application.Runs;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Decisions;
@@ -36,6 +38,7 @@ public sealed partial class RunsController(
     IDecisionNodeRepository decisionNodeRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IScopeContextProvider scopeContextProvider,
     ILogger<RunsController> logger)
     : ControllerBase
 {
@@ -44,7 +47,9 @@ public sealed partial class RunsController(
     [HttpPost("request")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateRun(
         [FromBody] ArchitectureRequest? request,
         CancellationToken cancellationToken)
@@ -57,27 +62,69 @@ public sealed partial class RunsController(
         string user = User.Identity?.Name ?? "anonymous";
         string correlationId = HttpContext.TraceIdentifier;
 
+        if (Request.Headers.TryGetValue("Idempotency-Key", out Microsoft.Extensions.Primitives.StringValues rawKeyHeader))
+        {
+            string trimmedKey = rawKeyHeader.ToString().Trim();
+
+            if (trimmedKey.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
+            {
+                return this.BadRequestProblem(
+                    $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
+        CreateRunIdempotencyState? idempotency = TryBuildCreateRunIdempotency(request);
+
         try
         {
-            CreateRunResult result = await architectureRunService.CreateRunAsync(request, cancellationToken);
+            CreateRunResult result = await architectureRunService.CreateRunAsync(request, idempotency, cancellationToken);
 
             CreateArchitectureRunResponse response = RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
 
             LogRunCreated(result.Run.RunId, request.RequestId, user, correlationId);
 
-            return CreatedAtAction(
-                nameof(GetRun),
-                new
-                {
-                    runId = result.Run.RunId
-                },
-                response);
+            if (!result.IdempotentReplay)
+                return CreatedAtAction(
+                    nameof(GetRun),
+                    new { runId = result.Run.RunId },
+                    response);
+            Response.Headers.Append("Idempotency-Replayed", "true");
+
+            return Ok(response);
+
+        }
+        catch (ConflictException ex)
+        {
+            logger.LogWarning(ex, "CreateRun conflict for request '{RequestId}'.", request.RequestId);
+
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
             logger.LogWarning(ex, "CreateRun failed for request '{RequestId}'.", request.RequestId);
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
+    }
+
+    private CreateRunIdempotencyState? TryBuildCreateRunIdempotency(ArchitectureRequest request)
+    {
+        if (!Request.Headers.TryGetValue("Idempotency-Key", out Microsoft.Extensions.Primitives.StringValues raw) ||
+            string.IsNullOrWhiteSpace(raw.ToString()))
+        {
+            return null;
+        }
+
+        string trimmed = raw.ToString().Trim();
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        return new CreateRunIdempotencyState(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            ArchitectureRunIdempotencyHashing.HashIdempotencyKey(trimmed),
+            ArchitectureRunIdempotencyHashing.FingerprintRequest(request));
     }
 
     [HttpPost("run/{runId}/execute")]

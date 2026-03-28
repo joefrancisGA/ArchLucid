@@ -680,12 +680,10 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         GoldenManifest manifest,
         IReadOnlyCollection<DecisionTrace> traces)
     {
-#pragma warning disable IDE0305 // Simplify collection initialization
         manifest.Metadata.DecisionTraceIds = traces
             .Select(t => t.TraceId)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
-#pragma warning restore IDE0305 // Simplify collection initialization
     }
 
     /// <summary>

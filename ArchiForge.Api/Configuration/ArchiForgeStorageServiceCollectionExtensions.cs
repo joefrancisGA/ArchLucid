@@ -33,8 +33,6 @@ using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchiForge.Api.Configuration;
 
 public static class ArchiForgeStorageServiceCollectionExtensions

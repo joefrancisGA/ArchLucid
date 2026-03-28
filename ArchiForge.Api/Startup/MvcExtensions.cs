@@ -8,8 +8,6 @@ using Asp.Versioning;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 
-using Microsoft.AspNetCore.Mvc;
-
 namespace ArchiForge.Api.Startup;
 
 internal static class MvcExtensions

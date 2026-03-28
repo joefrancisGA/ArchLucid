@@ -37,9 +37,7 @@ public sealed class DefaultGraphEdgeInfererContractTests
         IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [parent, child]);
 
         GraphEdge? edge = edges.SingleOrDefault(
-            e => e.EdgeType == GraphEdgeTypes.ContainsResource
-                && e.FromNodeId == "topo-parent"
-                && e.ToNodeId == "topo-child");
+            e => e is { EdgeType: GraphEdgeTypes.ContainsResource, FromNodeId: "topo-parent", ToNodeId: "topo-child" });
 
         edge.Should().NotBeNull();
         edge.Weight.Should().Be(1d);

@@ -227,4 +227,52 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
             c.Equals("Private Endpoints", StringComparison.OrdinalIgnoreCase));
         manifestPayload.Metadata.DecisionTraceIds.Should().NotBeEmpty();
     }
+
+    [Fact]
+    public async Task CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId()
+    {
+        object body = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-001");
+        using HttpRequestMessage first = new(HttpMethod.Post, "/v1/architecture/request");
+        first.Content = JsonContent(body);
+        first.Headers.TryAddWithoutValidation("Idempotency-Key", "idem-key-001");
+
+        HttpResponseMessage firstResponse = await Client.SendAsync(first);
+        firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        CreateRunResponseDto? firstPayload = await firstResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        firstPayload.Should().NotBeNull();
+
+        using HttpRequestMessage second = new(HttpMethod.Post, "/v1/architecture/request");
+        second.Content = JsonContent(body);
+        second.Headers.TryAddWithoutValidation("Idempotency-Key", "idem-key-001");
+
+        HttpResponseMessage secondResponse = await Client.SendAsync(second);
+        secondResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        secondResponse.Headers.TryGetValues("Idempotency-Replayed", out IEnumerable<string>? replayValues).Should().BeTrue();
+        replayValues.Should().Contain("true");
+
+        CreateRunResponseDto? secondPayload = await secondResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        secondPayload.Should().NotBeNull();
+        secondPayload.Run.RunId.Should().Be(firstPayload.Run.RunId);
+    }
+
+    [Fact]
+    public async Task CreateRun_SameIdempotencyKeyDifferentBody_Returns409()
+    {
+        object firstBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002A");
+        using HttpRequestMessage first = new(HttpMethod.Post, "/v1/architecture/request");
+        first.Content = JsonContent(firstBody);
+        first.Headers.TryAddWithoutValidation("Idempotency-Key", "idem-key-002");
+
+        HttpResponseMessage firstResponse = await Client.SendAsync(first);
+        firstResponse.EnsureSuccessStatusCode();
+
+        object secondBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002B");
+        using HttpRequestMessage second = new(HttpMethod.Post, "/v1/architecture/request");
+        second.Content = JsonContent(secondBody);
+        second.Headers.TryAddWithoutValidation("Idempotency-Key", "idem-key-002");
+
+        HttpResponseMessage secondResponse = await Client.SendAsync(second);
+        secondResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
+    }
 }

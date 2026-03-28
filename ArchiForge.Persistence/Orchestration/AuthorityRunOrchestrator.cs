@@ -18,8 +18,7 @@ using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Serialization;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Persistence.Retrieval;
-
-using Microsoft.Extensions.Logging;
+using ArchiForge.Retrieval.Indexing;
 
 namespace ArchiForge.Persistence.Orchestration;
 
@@ -47,8 +46,7 @@ public sealed class AuthorityRunOrchestrator(
     IGoldenManifestRepository goldenManifestRepository,
     IArtifactSynthesisService artifactSynthesisService,
     IArtifactBundleRepository artifactBundleRepository,
-    IRetrievalIndexingOutboxRepository retrievalIndexingOutbox,
-    ILogger<AuthorityRunOrchestrator> logger)
+    IRetrievalIndexingOutboxRepository retrievalIndexingOutbox)
     : IAuthorityRunOrchestrator
 {
     /// <inheritdoc />

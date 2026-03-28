@@ -101,7 +101,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
 
         List<RetrievalDocument> documents =
         [
-            new RetrievalDocument
+            new()
             {
                 DocumentId = "doc-arch-001",
                 TenantId = ScopeIds.DefaultTenant,
@@ -116,7 +116,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
                 ContentHash = "hash-001",
                 CreatedUtc = DateTime.UtcNow
             },
-            new RetrievalDocument
+            new()
             {
                 DocumentId = "doc-arch-002",
                 TenantId = ScopeIds.DefaultTenant,

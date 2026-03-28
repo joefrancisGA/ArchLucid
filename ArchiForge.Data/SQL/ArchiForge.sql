@@ -1039,3 +1039,51 @@ BEGIN
     );
 END;
 GO
+
+/* ---- DbUp 019–021 parity (post-bootstrap migrations; idempotent add for brownfield / reference) ---- */
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'RetrievalIndexingOutbox' AND schema_id = SCHEMA_ID('dbo'))
+BEGIN
+    CREATE TABLE dbo.RetrievalIndexingOutbox
+    (
+        OutboxId UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_RetrievalIndexingOutbox PRIMARY KEY,
+        RunId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        CreatedUtc DATETIME2 NOT NULL,
+        ProcessedUtc DATETIME2 NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_RetrievalIndexingOutbox_Pending
+        ON dbo.RetrievalIndexingOutbox (ProcessedUtc, CreatedUtc)
+        WHERE ProcessedUtc IS NULL;
+END;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'ArchitectureRunIdempotency' AND schema_id = SCHEMA_ID('dbo'))
+BEGIN
+    CREATE TABLE dbo.ArchitectureRunIdempotency
+    (
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        IdempotencyKeyHash VARBINARY(32) NOT NULL,
+        RequestFingerprint VARBINARY(32) NOT NULL,
+        RunId NVARCHAR(64) NOT NULL,
+        CreatedUtc DATETIME2 NOT NULL,
+        CONSTRAINT PK_ArchitectureRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash),
+        CONSTRAINT FK_ArchitectureRunIdempotency_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId)
+    );
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_Runs_Scope_Project_CreatedUtc'
+      AND object_id = OBJECT_ID(N'dbo.Runs'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_Runs_Scope_Project_CreatedUtc
+        ON dbo.Runs (TenantId, WorkspaceId, ScopeProjectId, ProjectId, CreatedUtc DESC);
+END;
+GO

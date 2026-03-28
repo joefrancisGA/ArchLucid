@@ -12,24 +12,16 @@ namespace ArchiForge.Persistence.Connections;
 /// Jitter (±25 %) prevents thundering-herd effects when many requests retry simultaneously.
 /// Only exceptions identified as transient by <see cref="SqlTransientDetector"/> trigger retries.
 /// </remarks>
-public sealed class ResilientSqlConnectionFactory : ISqlConnectionFactory
+public sealed class ResilientSqlConnectionFactory(
+    ISqlConnectionFactory inner,
+    ILogger<ResilientSqlConnectionFactory> logger,
+    int maxRetries = 3,
+    TimeSpan? baseDelay = null)
+    : ISqlConnectionFactory
 {
-    private readonly ISqlConnectionFactory _inner;
-    private readonly ILogger<ResilientSqlConnectionFactory> _logger;
-    private readonly int _maxRetries;
-    private readonly TimeSpan _baseDelay;
-
-    public ResilientSqlConnectionFactory(
-        ISqlConnectionFactory inner,
-        ILogger<ResilientSqlConnectionFactory> logger,
-        int maxRetries = 3,
-        TimeSpan? baseDelay = null)
-    {
-        _inner = inner ?? throw new ArgumentNullException(nameof(inner));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _maxRetries = maxRetries;
-        _baseDelay = baseDelay ?? TimeSpan.FromMilliseconds(200);
-    }
+    private readonly ISqlConnectionFactory _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+    private readonly ILogger<ResilientSqlConnectionFactory> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly TimeSpan _baseDelay = baseDelay ?? TimeSpan.FromMilliseconds(200);
 
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)
     {
@@ -41,7 +33,7 @@ public sealed class ResilientSqlConnectionFactory : ISqlConnectionFactory
             {
                 return await _inner.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
             }
-            catch (Exception ex) when (attempt < _maxRetries && SqlTransientDetector.IsTransient(ex))
+            catch (Exception ex) when (attempt < maxRetries && SqlTransientDetector.IsTransient(ex))
             {
                 attempt++;
                 TimeSpan delay = ComputeDelay(attempt);
@@ -50,7 +42,7 @@ public sealed class ResilientSqlConnectionFactory : ISqlConnectionFactory
                     ex,
                     "Transient SQL error on connection attempt {Attempt}/{MaxRetries}. Retrying in {DelayMs} ms.",
                     attempt,
-                    _maxRetries,
+                    maxRetries,
                     (int)delay.TotalMilliseconds);
 
                 await Task.Delay(delay, ct).ConfigureAwait(false);

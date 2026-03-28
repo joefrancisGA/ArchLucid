@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Api.Tests;
 
@@ -138,7 +137,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
 
         mapped.Should().BeTrue();
         result.Should().NotBeNull();
-        result!.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
     }
 
     [Fact]
@@ -149,7 +148,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
 
         mapped.Should().BeTrue();
         result.Should().NotBeNull();
-        result!.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.DatabaseUnavailable);
     }

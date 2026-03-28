@@ -151,7 +151,7 @@ public static class ApplicationProblemMapper
     {
         result = null;
 
-        if (ex is SqlException sqlEx && sqlEx.Number == -2)
+        if (ex is SqlException { Number: -2 })
         {
             result = CreateProblemResult(
                 StatusCodes.Status503ServiceUnavailable,
@@ -173,18 +173,16 @@ public static class ApplicationProblemMapper
             return true;
         }
 
-        if (ex is DbException)
-        {
-            result = CreateProblemResult(
-                StatusCodes.Status503ServiceUnavailable,
-                "Database Unavailable",
-                "The database is currently unreachable. The request may succeed on retry.",
-                ProblemTypes.DatabaseUnavailable,
-                instance);
-            return true;
-        }
-
-        return false;
+        if (ex is not DbException) return false;
+        
+        result = CreateProblemResult(
+            StatusCodes.Status503ServiceUnavailable,
+            "Database Unavailable",
+            "The database is currently unreachable. The request may succeed on retry.",
+            ProblemTypes.DatabaseUnavailable,
+            instance);
+        
+        return true;
     }
 
     public static ObjectResult CreateProblemResult(

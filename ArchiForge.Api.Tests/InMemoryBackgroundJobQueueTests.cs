@@ -107,17 +107,14 @@ public sealed class InMemoryBackgroundJobQueueTests
         {
             attempt++;
 
-            if (attempt < 3)
-                throw new InvalidOperationException($"Transient failure #{attempt}");
-
-            return Task.FromResult(OkFile());
+            return attempt < 3 ? throw new InvalidOperationException($"Transient failure #{attempt}") : Task.FromResult(OkFile());
         }, maxRetries: 3);
 
         await WaitForTerminalStateAsync(queue, jobId, TimeSpan.FromSeconds(30));
 
         BackgroundJobInfo? info = queue.GetInfo(jobId);
         info.Should().NotBeNull();
-        info!.State.Should().Be(BackgroundJobState.Succeeded);
+        info.State.Should().Be(BackgroundJobState.Succeeded);
         info.RetryCount.Should().Be(2, "two retries should have occurred before success");
 
         await queue.StopAsync(CancellationToken.None);
@@ -138,7 +135,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         BackgroundJobInfo? info = queue.GetInfo(jobId);
         info.Should().NotBeNull();
-        info!.State.Should().Be(BackgroundJobState.Failed);
+        info.State.Should().Be(BackgroundJobState.Failed);
         info.RetryCount.Should().Be(3, "initial attempt + 2 retries = 3 total attempts");
         info.Error.Should().Contain("Always fails");
 
@@ -160,7 +157,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         BackgroundJobInfo? info = queue.GetInfo(jobId);
         info.Should().NotBeNull();
-        info!.State.Should().Be(BackgroundJobState.Failed);
+        info.State.Should().Be(BackgroundJobState.Failed);
         info.RetryCount.Should().Be(1, "one attempt, no retries");
 
         await queue.StopAsync(CancellationToken.None);

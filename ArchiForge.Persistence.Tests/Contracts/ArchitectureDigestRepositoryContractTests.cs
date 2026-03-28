@@ -47,7 +47,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         ArchitectureDigest? loaded = await repo.GetByIdAsync(digest.DigestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.DigestId.Should().Be(digest.DigestId);
+        loaded.DigestId.Should().Be(digest.DigestId);
         loaded.TenantId.Should().Be(digest.TenantId);
         loaded.WorkspaceId.Should().Be(digest.WorkspaceId);
         loaded.ProjectId.Should().Be(digest.ProjectId);

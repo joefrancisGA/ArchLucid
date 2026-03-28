@@ -23,11 +23,11 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
         Mock<IAdvisoryScanScheduleRepository> scheduleRepo = new();
         scheduleRepo
             .Setup(r => r.ListDueAsync(It.IsAny<DateTime>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<AdvisoryScanSchedule>());
+            .ReturnsAsync([]);
 
         Mock<IAdvisoryScanRunner> runner = new();
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped(_ => scheduleRepo.Object);
         services.AddScoped(_ => runner.Object);
         services.AddScoped<AdvisoryDueScheduleProcessor>();
@@ -40,10 +40,10 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
 
         using CancellationTokenSource cts = new();
 
-        Task serviceTask = sut.StartAsync(cts.Token);
-        await Task.Delay(200);
+        await sut.StartAsync(cts.Token);
+        await Task.Delay(200, cts.Token);
 
-        cts.Cancel();
+        await cts.CancelAsync();
 
         Func<Task> act = () => sut.StopAsync(CancellationToken.None);
         await act.Should().NotThrowAsync("hosted service should exit cleanly on cancellation");
@@ -64,12 +64,12 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
                     throw new InvalidOperationException("Simulated transient failure");
 
                 return Task.FromResult<IReadOnlyList<AdvisoryScanSchedule>>(
-                    Array.Empty<AdvisoryScanSchedule>());
+                    []);
             });
 
         Mock<IAdvisoryScanRunner> runner = new();
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped(_ => scheduleRepo.Object);
         services.AddScoped(_ => runner.Object);
         services.AddScoped<AdvisoryDueScheduleProcessor>();
@@ -81,11 +81,11 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
             NullLogger<AdvisoryScanHostedService>.Instance);
 
         using CancellationTokenSource cts = new();
-        Task serviceTask = sut.StartAsync(cts.Token);
+        await sut.StartAsync(cts.Token);
 
         // Wait enough for at least two iterations (one fail + one success).
-        await Task.Delay(500);
-        cts.Cancel();
+        await Task.Delay(500, cts.Token);
+        await cts.CancelAsync();
 
         Func<Task> act = () => sut.StopAsync(CancellationToken.None);
         await act.Should().NotThrowAsync("service should swallow non-cancellation exceptions and continue");
@@ -105,12 +105,12 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
                 // Signal cancellation during processing
                 await cts.CancelAsync();
                 ct.ThrowIfCancellationRequested();
-                return (IReadOnlyList<AdvisoryScanSchedule>)Array.Empty<AdvisoryScanSchedule>();
+                return [];
             });
 
         Mock<IAdvisoryScanRunner> runner = new();
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped(_ => scheduleRepo.Object);
         services.AddScoped(_ => runner.Object);
         services.AddScoped<AdvisoryDueScheduleProcessor>();
@@ -122,7 +122,7 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
             NullLogger<AdvisoryScanHostedService>.Instance);
 
         await sut.StartAsync(cts.Token);
-        await Task.Delay(300);
+        await Task.Delay(300, cts.Token);
 
         Func<Task> act = () => sut.StopAsync(CancellationToken.None);
         await act.Should().NotThrowAsync("should handle OCE from mid-processing gracefully");

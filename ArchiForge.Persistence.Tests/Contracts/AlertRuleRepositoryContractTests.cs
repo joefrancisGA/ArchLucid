@@ -47,7 +47,7 @@ public abstract class AlertRuleRepositoryContractTests
         AlertRule? loaded = await repo.GetByIdAsync(rule.RuleId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.RuleId.Should().Be(rule.RuleId);
+        loaded.RuleId.Should().Be(rule.RuleId);
         loaded.Name.Should().Be(rule.Name);
         loaded.RuleType.Should().Be(rule.RuleType);
         loaded.Severity.Should().Be(rule.Severity);
@@ -84,7 +84,7 @@ public abstract class AlertRuleRepositoryContractTests
         AlertRule? after = await repo.GetByIdAsync(rule.RuleId, CancellationToken.None);
 
         after.Should().NotBeNull();
-        after!.Name.Should().Be("Updated name");
+        after.Name.Should().Be("Updated name");
         after.ThresholdValue.Should().Be(99m);
         after.IsEnabled.Should().BeFalse();
     }

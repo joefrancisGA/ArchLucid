@@ -1,8 +1,10 @@
+using System.Security.Cryptography;
 using System.Transactions;
 
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
+using ArchiForge.Application.Runs;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
@@ -40,15 +42,24 @@ public sealed class ArchitectureRunService(
     IEvidenceBundleRepository evidenceBundleRepository,
     IDecisionTraceRepository decisionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
     ILogger<ArchitectureRunService> logger)
     : IArchitectureRunService
 {
     /// <inheritdoc />
     public async Task<CreateRunResult> CreateRunAsync(
         ArchitectureRequest request,
+        CreateRunIdempotencyState? idempotency = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        if (idempotency is not null)
+        {
+            CreateRunResult? replay = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken).ConfigureAwait(false);
+            if (replay is not null)
+                return replay;
+        }
 
         CoordinationResult coordination = await coordinator.CreateRunAsync(request, cancellationToken).ConfigureAwait(false);
 
@@ -58,12 +69,17 @@ public sealed class ArchitectureRunService(
                 $"CreateRun failed: {string.Join("; ", coordination.Errors)}");
         }
 
-        logger.LogInformation(
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
             "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
             coordination.Run.RunId,
             request.RequestId,
             request.SystemName,
             request.Environment);
+        }
+
+        bool inserted = false;
 
         using (TransactionScope scope = new(
             TransactionScopeOption.Required,
@@ -73,7 +89,40 @@ public sealed class ArchitectureRunService(
             await runRepository.CreateAsync(coordination.Run, cancellationToken).ConfigureAwait(false);
             await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken).ConfigureAwait(false);
             await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken).ConfigureAwait(false);
-            scope.Complete();
+
+            if (idempotency is not null)
+            {
+                inserted = await architectureRunIdempotencyRepository
+                    .TryInsertAsync(
+                        idempotency.TenantId,
+                        idempotency.WorkspaceId,
+                        idempotency.ProjectId,
+                        idempotency.IdempotencyKeyHash,
+                        idempotency.RequestFingerprint,
+                        coordination.Run.RunId,
+                        cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (!inserted)
+                {
+                    logger.LogWarning(
+                        "CreateRun idempotency insert lost race for RunId={RunId}; rolling back legacy row and returning winner.",
+                        coordination.Run.RunId);
+                }
+            }
+
+            if (inserted || idempotency is null)
+                scope.Complete();
+        }
+
+        if (idempotency is not null && !inserted)
+        {
+            CreateRunResult? winner = await ResolveIdempotencyRaceAsync(idempotency, cancellationToken).ConfigureAwait(false);
+            if (winner is not null)
+                return winner;
+
+            throw new InvalidOperationException(
+                "Idempotency insert failed but no winning row was found; retry the request.");
         }
 
         logger.LogInformation(
@@ -89,6 +138,89 @@ public sealed class ArchitectureRunService(
         };
     }
 
+    private async Task<CreateRunResult?> TryReplayFromIdempotencyAsync(
+        CreateRunIdempotencyState idempotency,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRunIdempotencyLookup? existing = await architectureRunIdempotencyRepository
+            .TryGetAsync(
+                idempotency.TenantId,
+                idempotency.WorkspaceId,
+                idempotency.ProjectId,
+                idempotency.IdempotencyKeyHash,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (existing is null)
+            return null;
+
+        if (!CryptographicOperations.FixedTimeEquals(existing.RequestFingerprint, idempotency.RequestFingerprint))
+        {
+            throw new ConflictException(
+                "The Idempotency-Key was already used with a different request body.");
+        }
+
+        return await RehydrateCreateRunResultAsync(existing.RunId, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<CreateRunResult?> ResolveIdempotencyRaceAsync(
+        CreateRunIdempotencyState idempotency,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRunIdempotencyLookup? winner = await architectureRunIdempotencyRepository
+            .TryGetAsync(
+                idempotency.TenantId,
+                idempotency.WorkspaceId,
+                idempotency.ProjectId,
+                idempotency.IdempotencyKeyHash,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (winner is null)
+            return null;
+
+        if (!CryptographicOperations.FixedTimeEquals(winner.RequestFingerprint, idempotency.RequestFingerprint))
+        {
+            throw new ConflictException(
+                "The Idempotency-Key was already used with a different request body.");
+        }
+
+        return await RehydrateCreateRunResultAsync(winner.RunId, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task<CreateRunResult> RehydrateCreateRunResultAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken).ConfigureAwait(false)
+                              ?? throw new InvalidOperationException($"Run '{runId}' from idempotency store was not found.");
+
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+        if (tasks.Count == 0)
+        {
+            throw new InvalidOperationException($"Idempotent run '{runId}' has no tasks.");
+        }
+
+        string? bundleRef = tasks[0].EvidenceBundleRef;
+        if (string.IsNullOrWhiteSpace(bundleRef))
+        {
+            throw new InvalidOperationException($"Idempotent run '{runId}' is missing EvidenceBundleRef on the first task.");
+        }
+
+        EvidenceBundle bundle = await evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken).ConfigureAwait(false)
+                                ?? throw new InvalidOperationException($"Evidence bundle '{bundleRef}' for idempotent run was not found.");
+
+        logger.LogInformation("CreateRun idempotent replay: RunId={RunId}, TaskCount={TaskCount}", runId, tasks.Count);
+
+        return new CreateRunResult
+        {
+            Run = run,
+            EvidenceBundle = bundle,
+            Tasks = tasks.ToList(),
+            IdempotentReplay = true
+        };
+    }
+
     /// <inheritdoc />
     public async Task<ExecuteRunResult> ExecuteRunAsync(
         string runId,
@@ -96,9 +228,10 @@ public sealed class ArchitectureRunService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        logger.LogInformation(
-            "Executing architecture run: RunId={RunId}",
-            runId);
+        if (logger.IsEnabled(LogLevel.Information))
+            logger.LogInformation(
+                "Executing architecture run: RunId={RunId}",
+                runId);
 
         ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken).ConfigureAwait(false)
                               ?? throw new RunNotFoundException(runId);

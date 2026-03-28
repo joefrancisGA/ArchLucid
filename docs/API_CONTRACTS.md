@@ -59,6 +59,22 @@ If a document’s content type is not supported by any registered parser, ingest
 
 Full pipeline behavior: **`docs/CONTEXT_INGESTION.md`**.
 
+## Create run — `Idempotency-Key` (optional)
+
+`POST /v1/architecture/request` accepts optional header **`Idempotency-Key`** (trimmed, max **256** characters).
+
+| Situation | HTTP | Notes |
+|-----------|------|--------|
+| First successful create with key | **201 Created** | Mapping stored for `(tenant, workspace, project, SHA-256(key))`. |
+| Retry with same key and **same** request body fingerprint | **200 OK** | Same JSON as create; response includes **`Idempotency-Replayed: true`**. |
+| Same key, **different** body | **409 Conflict** | Problem type **`#conflict`**; message explains key reuse with different payload. |
+
+Fingerprint is **SHA-256** of the canonical **`ArchitectureRequest`** JSON using the same **`ContractJson.Default`** options as **`ArchitectureRequests.RequestJson`** persistence. Clients must send byte-identical JSON (modulo insignificant whitespace is **not** normalised—use a stable serializer).
+
+**Scope:** Keys are isolated per **`x-tenant-id` / `x-workspace-id` / `x-project-id`** (or JWT claims) via **`IScopeContextProvider`**.
+
+**Concurrency:** Under extreme parallel duplicate-key pressure, a losing request may roll back legacy **`ArchitectureRuns`** rows while authority-side **`dbo.Runs`** work may already be committed; operators should treat idempotency as **retry-safe** for typical client behaviour, not a distributed two-phase guarantee across both stores. See **`docs/SQL_DDL_DISCIPLINE.md`**.
+
 ## Policy packs (`/v1/policy-packs`)
 
 Governance is packaged as **versioned, assignable** bundles. Pack **content** is JSON matching **`PolicyPackContentDocument`**: `complianceRuleIds`, `complianceRuleKeys` (string rule IDs matching file-based compliance rules), `alertRuleIds`, `compositeAlertRuleIds`, `advisoryDefaults`, `metadata` (see **`ArchiForge.Decisioning.Governance.PolicyPacks`**).

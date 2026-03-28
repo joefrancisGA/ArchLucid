@@ -61,7 +61,9 @@ public static class DatabaseMigrator
 
         try
         {
+#pragma warning disable IDE0028 // Simplify collection initialization
             SqliteConnectionStringBuilder builder = new(connectionString);
+#pragma warning restore IDE0028 // Simplify collection initialization
             string ds = builder.DataSource.Trim();
 
             if (string.IsNullOrEmpty(ds))

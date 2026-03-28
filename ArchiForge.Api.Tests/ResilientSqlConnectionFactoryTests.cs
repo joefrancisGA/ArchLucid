@@ -47,10 +47,7 @@ public sealed class ResilientSqlConnectionFactoryTests
             {
                 callCount++;
 
-                if (callCount == 1)
-                    throw new TimeoutException("transient");
-
-                return Task.FromResult(expected);
+                return callCount == 1 ? throw new TimeoutException("transient") : Task.FromResult(expected);
             });
 
         ResilientSqlConnectionFactory sut = new(inner.Object, _logger, maxRetries: 3, baseDelay: TimeSpan.FromMilliseconds(1));
@@ -109,8 +106,8 @@ public sealed class ResilientSqlConnectionFactoryTests
         Task<SqlConnection> task = sut.CreateOpenConnectionAsync(cts.Token);
 
         // Give the first attempt time to fail and enter the retry delay.
-        await Task.Delay(50);
-        cts.Cancel();
+        await Task.Delay(50, cts.Token);
+        await cts.CancelAsync();
 
         Func<Task> act = () => task;
 
