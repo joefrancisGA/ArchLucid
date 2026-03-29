@@ -2,6 +2,7 @@ using System.Transactions;
 
 using ArchiForge.Api.Diagnostics;
 using ArchiForge.Application;
+using ArchiForge.Application.Evidence;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
@@ -27,6 +28,8 @@ public sealed class ArchitectureApplicationService(
     IAgentResultRepository resultRepository,
     IGoldenManifestRepository manifestRepository,
     IArchitectureRequestRepository requestRepository,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IEvidenceBuilder evidenceBuilder,
     ILogger<ArchitectureApplicationService> logger)
     : IArchitectureApplicationService
 {
@@ -196,7 +199,7 @@ public sealed class ArchitectureApplicationService(
         using TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled);
-        await SeedFakeResultsPersistAsync(runId, fakeResults, run, newStatus, cancellationToken);
+        await SeedFakeResultsPersistAsync(runId, fakeResults, run, architectureRequest, newStatus, cancellationToken);
         scope.Complete();
 
         if (logger.IsEnabled(LogLevel.Information))
@@ -237,9 +240,20 @@ public sealed class ArchitectureApplicationService(
         string runId,
         IReadOnlyList<AgentResult> fakeResults,
         ArchitectureRun run,
+        ArchitectureRequest request,
         ArchitectureRunStatus newStatus,
         CancellationToken cancellationToken)
     {
+        // CommitRunAsync requires a persisted evidence package (normally written during ExecuteRun). Dev-only seed
+        // skips execute, so create the package here when missing.
+        AgentEvidencePackage? existingPackage = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        if (existingPackage is null)
+        {
+            AgentEvidencePackage package = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
+            await agentEvidencePackageRepository.CreateAsync(package, cancellationToken);
+        }
+
         await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
         await runRepository.UpdateStatusAsync(
             runId,

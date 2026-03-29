@@ -1,5 +1,6 @@
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
+using ArchiForge.Application.Evidence;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
@@ -29,6 +30,8 @@ public sealed class ArchitectureApplicationServiceTests
     private readonly Mock<IAgentResultRepository> _resultRepository;
     private readonly Mock<IGoldenManifestRepository> _manifestRepository;
     private readonly Mock<IArchitectureRequestRepository> _requestRepository;
+    private readonly Mock<IAgentEvidencePackageRepository> _agentEvidencePackageRepository;
+    private readonly Mock<IEvidenceBuilder> _evidenceBuilder;
     private readonly ArchitectureApplicationService _sut;
 
     public ArchitectureApplicationServiceTests()
@@ -38,7 +41,30 @@ public sealed class ArchitectureApplicationServiceTests
         _resultRepository = new Mock<IAgentResultRepository>();
         _manifestRepository = new Mock<IGoldenManifestRepository>();
         _requestRepository = new Mock<IArchitectureRequestRepository>();
+        _agentEvidencePackageRepository = new Mock<IAgentEvidencePackageRepository>();
+        _evidenceBuilder = new Mock<IEvidenceBuilder>();
         Mock<ILogger<ArchitectureApplicationService>> logger = new();
+
+        _agentEvidencePackageRepository
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((AgentEvidencePackage?)null);
+        _evidenceBuilder
+            .Setup(b => b.BuildAsync(It.IsAny<string>(), It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string rid, ArchitectureRequest _, CancellationToken _) => new AgentEvidencePackage
+            {
+                EvidencePackageId = "pkg-1",
+                RunId = rid,
+                RequestId = "req-1",
+                SystemName = "TestSystem",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence(),
+                Policies = [],
+                ServiceCatalog = [],
+                Patterns = [],
+                Notes = [],
+                CreatedUtc = DateTime.UtcNow
+            });
 
         _sut = new ArchitectureApplicationService(
             _runDetailQueryService.Object,
@@ -46,6 +72,8 @@ public sealed class ArchitectureApplicationServiceTests
             _resultRepository.Object,
             _manifestRepository.Object,
             _requestRepository.Object,
+            _agentEvidencePackageRepository.Object,
+            _evidenceBuilder.Object,
             logger.Object);
     }
 
@@ -502,6 +530,45 @@ public sealed class ArchitectureApplicationServiceTests
         _resultRepository.Verify(
             r => r.CreateManyAsync(It.Is<IReadOnlyList<AgentResult>>(list => list.Count == 4), It.IsAny<CancellationToken>()),
             Times.Once);
+        _agentEvidencePackageRepository.Verify(
+            r => r.CreateAsync(It.IsAny<AgentEvidencePackage>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+        _evidenceBuilder.Verify(
+            b => b.BuildAsync("run-1", request, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SeedFakeResultsAsync_WhenEvidencePackageAlreadyExists_DoesNotCreatePackageAgain()
+    {
+        ArchitectureRun run = ValidRun();
+        ArchitectureRequest request = ValidRequest();
+        List<AgentTask> tasks =
+        [
+            ValidTask(),
+            ValidTask("run-1", AgentType.Cost),
+            ValidTask("run-1", AgentType.Compliance),
+            ValidTask("run-1", AgentType.Critic)
+        ];
+
+        _agentEvidencePackageRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AgentEvidencePackage { RunId = "run-1", RequestId = "req-1" });
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailFor(run, tasks, []));
+        _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
+        _resultRepository.Setup(r => r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        SeedFakeResultsResult result = await _sut.SeedFakeResultsAsync("run-1");
+
+        result.Success.Should().BeTrue();
+        _agentEvidencePackageRepository.Verify(
+            r => r.CreateAsync(It.IsAny<AgentEvidencePackage>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _evidenceBuilder.Verify(
+            b => b.BuildAsync(It.IsAny<string>(), It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
