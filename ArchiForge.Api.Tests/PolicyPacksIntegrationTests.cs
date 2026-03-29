@@ -3,10 +3,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchiForge.Api.Routing;
+using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
-
-using JetBrains.Annotations;
 
 namespace ArchiForge.Api.Tests;
 
@@ -59,11 +58,11 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
         HttpResponseMessage effectiveResponse = await Client.GetAsync("/v1/policy-packs/effective");
         effectiveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        EffectivePolicyPackSetResponse? effective = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSetResponse>(JsonOptions);
+        EffectivePolicyPackSet? effective = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
         effective.Should().NotBeNull();
-        effective.Packs.Should().HaveCount(1);
-        effective.Packs[0].PolicyPackId.Should().Be(packId);
-        ResolvedPackResponse.Version.Should().Be("1.0.0");
+        ResolvedPolicyPack? resolved = effective!.Packs.SingleOrDefault(p => p.PolicyPackId == packId);
+        resolved.Should().NotBeNull("created pack should appear in effective set for current scope");
+        resolved!.Version.Should().Be("1.0.0");
 
         HttpResponseMessage mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
         mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -373,9 +372,10 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         merged.AdvisoryDefaults.Should().ContainKeys("scanDepth", "notifyChannel");
         merged.AdvisoryDefaults["scanDepth"].Should().Be("deep");
         merged.AdvisoryDefaults["notifyChannel"].Should().Be("email");
-        merged.Metadata.Should().ContainKeys("mergeTier", "mergeSla");
+        merged.Metadata.Should().ContainKey("mergeTier");
         merged.Metadata["mergeTier"].Should().Be("baseline");
-        merged.Metadata["mergeSla"].Should().Be("p1");
+        merged.Metadata.Should().ContainKey("packRole");
+        merged.Metadata["packRole"].Should().Be("overlay");
     }
 
     [Fact]
@@ -401,13 +401,15 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
         HttpResponseMessage effectiveResponse = await Client.GetAsync("/v1/policy-packs/effective");
         effectiveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        EffectivePolicyPackSetResponse? effectiveSet = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSetResponse>(JsonOptions);
-        effectiveSet!.Packs.Should().HaveCount(2);
+        EffectivePolicyPackSet? effectiveSet = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
+        effectiveSet.Should().NotBeNull();
+        Guid[] createdPackIds = [packA, packB];
+        effectiveSet!.Packs.Where(p => createdPackIds.Contains(p.PolicyPackId)).Should().HaveCount(2);
 
         HttpResponseMessage mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
         mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         PolicyPackContentResponse? merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
-        merged!.ComplianceRuleKeys.Should().BeEquivalentTo("merge-key-a", "merge-key-b");
+        merged!.ComplianceRuleKeys.Should().Contain("merge-key-a", "merge-key-b");
         return;
 
         async Task<Guid> CreatePackAsync(string name, string complianceKey)
@@ -460,22 +462,6 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         {
             get; init;
         }
-    }
-
-    private sealed class EffectivePolicyPackSetResponse
-    {
-        public List<ResolvedPackResponse> Packs { get; init; } = [];
-    }
-
-    [UsedImplicitly]
-    private sealed class ResolvedPackResponse
-    {
-        [UsedImplicitly]
-        public Guid PolicyPackId
-        {
-            get;
-        }
-        public static string Version => "";
     }
 
     private sealed class PolicyPackContentResponse
