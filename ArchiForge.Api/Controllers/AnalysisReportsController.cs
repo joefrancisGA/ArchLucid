@@ -182,7 +182,7 @@ public sealed class AnalysisReportsController(
     }
 
     [HttpPost("run/{runId}/analysis-report/export/docx/async")]
-    [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DownloadAnalysisReportDocxAsync(
@@ -211,7 +211,7 @@ public sealed class AnalysisReportsController(
                     Bytes: bytes);
             });
 
-        return Ok(new AsyncJobResponse { JobId = jobId });
+        return Accepted(new AsyncJobResponse { JobId = jobId });
     }
 
     [HttpPost("analysis-report/export/docx/consulting/resolve-profile")]
@@ -318,7 +318,7 @@ public sealed class AnalysisReportsController(
     }
 
     [HttpPost("run/{runId}/analysis-report/export/docx/consulting/async")]
-    [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DownloadConsultingDocxAsync(
@@ -352,7 +352,7 @@ public sealed class AnalysisReportsController(
                     Bytes: bytes);
             });
 
-        return Ok(new AsyncJobResponse { JobId = jobId });
+        return Accepted(new AsyncJobResponse { JobId = jobId });
     }
 
     [HttpPost("analysis-report/export/docx/consulting/profiles/recommend")]
