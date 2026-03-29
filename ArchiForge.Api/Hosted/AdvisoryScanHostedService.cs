@@ -31,6 +31,10 @@ public sealed class AdvisoryScanHostedService(IServiceProvider serviceProvider, 
                     .ProcessDueAsync(DateTime.UtcNow, 10, stoppingToken)
                     ;
             }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
             catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
             {
                 logger.LogError(ex, "Advisory scan poll iteration failed.");

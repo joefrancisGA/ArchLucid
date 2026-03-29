@@ -122,7 +122,8 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
             NullLogger<AdvisoryScanHostedService>.Instance);
 
         await sut.StartAsync(cts.Token);
-        await Task.Delay(300, cts.Token);
+        // cts is cancelled inside ListDueAsync; do not pass cts.Token here or Delay throws TaskCanceledException.
+        await Task.Delay(300, CancellationToken.None);
 
         Func<Task> act = () => sut.StopAsync(CancellationToken.None);
         await act.Should().NotThrowAsync("should handle OCE from mid-processing gracefully");
