@@ -18,8 +18,12 @@ public sealed class ArchitectureEndToEndComparisonTests(ArchiForgeApiFactory fac
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
             Client, JsonOptions, "REQ-E2E-001");
 
-        HttpResponseMessage response = await Client.GetAsync(
-            $"/v1/architecture/run/compare/end-to-end/summary?leftRunId={runId}&rightRunId={replayRunId}");
+        string summaryUrl =
+            $"/v1/architecture/run/compare/end-to-end/summary?leftRunId={Uri.EscapeDataString(runId)}&rightRunId={Uri.EscapeDataString(replayRunId)}";
+
+        HttpResponseMessage response = await Client.PostAsync(
+            summaryUrl,
+            JsonContent(new PersistComparisonRequest { Persist = false }));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
