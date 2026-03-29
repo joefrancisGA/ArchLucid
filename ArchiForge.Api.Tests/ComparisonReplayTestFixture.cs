@@ -9,6 +9,8 @@ namespace ArchiForge.Api.Tests;
 /// <summary>Shared helpers for comparison-replay integration tests (run creation, replay, persist).</summary>
 public static class ComparisonReplayTestFixture
 {
+    private static readonly JsonSerializerOptions ReplayBodyJson = new(JsonSerializerDefaults.Web);
+
     /// <summary>
     /// Creates a run via <c>POST /v1/architecture/request</c>, executes it, and returns the run id (no commit or replay).
     /// </summary>
@@ -27,7 +29,8 @@ public static class ComparisonReplayTestFixture
         createResponse.EnsureSuccessStatusCode();
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
         string runId = created!.Run.RunId;
-        await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        executeResponse.EnsureSuccessStatusCode();
         return runId;
     }
 
@@ -89,6 +92,6 @@ public static class ComparisonReplayTestFixture
 
     private static StringContent JsonContent(object value)
     {
-        return new StringContent(JsonSerializer.Serialize(value), Encoding.UTF8, "application/json");
+        return new StringContent(JsonSerializer.Serialize(value, ReplayBodyJson), Encoding.UTF8, "application/json");
     }
 }

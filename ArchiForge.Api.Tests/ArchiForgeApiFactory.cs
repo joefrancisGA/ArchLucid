@@ -7,7 +7,11 @@ namespace ArchiForge.Api.Tests;
 /// <summary>
 /// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server database per instance, runs DbUp migrations, and wires <c>ConnectionStrings:ArchiForge</c> plus in-memory auxiliary storage.
 /// </summary>
-/// <remarks>Disposed with the test class; drops the database best-effort. Requires SQL Server on <c>localhost</c>.</remarks>
+/// <remarks>
+/// Disposed with the test class; drops the database best-effort. Requires SQL Server on <c>localhost</c>.
+/// In-memory configuration forces <c>AgentExecution:Mode=Simulator</c>, clears <c>AzureOpenAI:*</c> so user secrets
+/// cannot enable real completion clients (503 from circuit breaker), and raises rate limits for stable CI/local runs.
+/// </remarks>
 public class ArchiForgeApiFactory : WebApplicationFactory<Program>
 {
     private readonly string _connectionString;
@@ -40,10 +44,23 @@ public class ArchiForgeApiFactory : WebApplicationFactory<Program>
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
+            // Last-in wins over appsettings / user secrets: keep integration tests off real OpenAI and
+            // avoid circuit-breaker 503s; relax rate limits so parallel runs do not exhaust shared windows.
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ArchiForge:StorageProvider"] = "InMemory",
-                ["ConnectionStrings:ArchiForge"] = _connectionString
+                ["ConnectionStrings:ArchiForge"] = _connectionString,
+                ["AgentExecution:Mode"] = "Simulator",
+                ["AzureOpenAI:Endpoint"] = "",
+                ["AzureOpenAI:ApiKey"] = "",
+                ["AzureOpenAI:DeploymentName"] = "",
+                ["AzureOpenAI:EmbeddingDeploymentName"] = "",
+                ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
+                ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
+                ["RateLimiting:Expensive:PermitLimit"] = "100000",
+                ["RateLimiting:Expensive:WindowMinutes"] = "1",
+                ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
+                ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000"
             });
         });
     }
