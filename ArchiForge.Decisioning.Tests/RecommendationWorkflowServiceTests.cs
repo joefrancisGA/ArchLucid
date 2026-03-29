@@ -137,7 +137,7 @@ public sealed class RecommendationWorkflowServiceTests
         RecommendationRecord? result = await _sut.ApplyActionAsync(recId, "user-1", "User One", request, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Status.Should().Be(expectedStatus);
+        result.Status.Should().Be(expectedStatus);
         result.ReviewedByUserId.Should().Be("user-1");
         result.ReviewedByUserName.Should().Be("User One");
         result.ReviewComment.Should().Be("note");
@@ -207,7 +207,7 @@ public sealed class RecommendationWorkflowServiceTests
         RecommendationRecord? result = await _sut.ApplyActionAsync(recId, "user-1", "User One", request, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Status.Should().Be(RecommendationStatus.Proposed);
+        result.Status.Should().Be(RecommendationStatus.Proposed);
     }
 
     [Fact]
