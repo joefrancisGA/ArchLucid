@@ -8,9 +8,10 @@ public sealed class ArchitectureAnalysisRequestValidator : AbstractValidator<Arc
 {
     public ArchitectureAnalysisRequestValidator()
     {
+        // RunId is often supplied from the route after binding; API actions assign it before calling the app layer.
         RuleFor(x => x.RunId)
-            .NotEmpty().WithMessage("RunId is required.")
-            .MaximumLength(64).WithMessage("RunId must not exceed 64 characters.");
+            .MaximumLength(64)
+            .WithMessage("RunId must not exceed 64 characters.");
 
         RuleFor(x => x.DeterminismIterations)
             .InclusiveBetween(2, 20)

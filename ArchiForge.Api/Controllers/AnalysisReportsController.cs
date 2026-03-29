@@ -93,7 +93,7 @@ public sealed class AnalysisReportsController(
             {
                 RunId = runId,
                 Format = "markdown",
-                FileName = $"analysis-report-{runId}.md",
+                FileName = $"analysis_{runId}.md",
                 Content = markdown
             });
         }

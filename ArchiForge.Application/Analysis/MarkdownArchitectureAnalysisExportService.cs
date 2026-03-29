@@ -152,11 +152,16 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             }
         }
 
-        if (report.ExecutionTraces.Count > 0)
-        {
-            sb.AppendLine("## Agent Execution Traces");
-            sb.AppendLine();
+        sb.AppendLine("## Agent Execution Traces");
+        sb.AppendLine();
 
+        if (report.ExecutionTraces.Count == 0)
+        {
+            sb.AppendLine("- No execution traces were found for this run.");
+            sb.AppendLine();
+        }
+        else
+        {
             foreach (AgentExecutionTrace trace in report.ExecutionTraces
                          .OrderBy(x => x.AgentType)
                          .ThenBy(x => x.CreatedUtc))
@@ -195,7 +200,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine();
 
                 if (string.IsNullOrWhiteSpace(trace.ParsedResultJson)) continue;
-                
+
                 sb.AppendLine("#### Parsed Result");
                 sb.AppendLine();
                 sb.AppendLine("```json");
@@ -207,7 +212,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
 
         if (report.Manifest is not null)
         {
-            sb.AppendLine("## Manifest");
+            sb.AppendLine("## Architecture Manifest");
             sb.AppendLine();
             sb.AppendLine($"- System Name: {report.Manifest.SystemName}");
             sb.AppendLine($"- Run ID: {report.Manifest.RunId}");
@@ -292,7 +297,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
 
         if (!string.IsNullOrWhiteSpace(report.Summary))
         {
-            sb.AppendLine("## Summary");
+            sb.AppendLine("## Architecture Summary");
             sb.AppendLine();
             sb.AppendLine(report.Summary.Trim());
             sb.AppendLine();
