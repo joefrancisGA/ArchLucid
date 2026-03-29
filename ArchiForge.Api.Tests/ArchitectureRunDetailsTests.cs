@@ -38,8 +38,8 @@ public sealed class ArchitectureRunDetailsTests(ArchiForgeApiFactory factory) : 
 
         payload.Should().NotBeNull();
         payload.Run.RunId.Should().Be(runId);
-        payload.Tasks.Should().HaveCount(3);
-        payload.Results.Should().HaveCount(3);
+        payload.Tasks.Should().HaveCount(4);
+        payload.Results.Should().HaveCount(4);
         payload.Manifest.Should().NotBeNull();
         payload.Manifest!.SystemName.Should().Be("EnterpriseRag");
         payload.DecisionTraces.Should().NotBeEmpty();
