@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Security Headers Middleware.
+/// </summary>
+
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class SecurityHeadersMiddlewareTests

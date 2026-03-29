@@ -19,6 +19,10 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Advisory Scan Runner.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class AdvisoryScanRunnerTests
 {

@@ -4,6 +4,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Replay Validation Constants.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class ReplayValidationConstantsTests
 {

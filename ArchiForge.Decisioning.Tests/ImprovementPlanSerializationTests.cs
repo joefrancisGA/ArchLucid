@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Improvement Plan Serialization.
+/// </summary>
+
 public sealed class ImprovementPlanSerializationTests
 {
     private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);

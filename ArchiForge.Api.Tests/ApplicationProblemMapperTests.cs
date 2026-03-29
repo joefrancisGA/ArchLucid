@@ -11,6 +11,10 @@ using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Application Problem Mapper.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class ApplicationProblemMapperTests
 {

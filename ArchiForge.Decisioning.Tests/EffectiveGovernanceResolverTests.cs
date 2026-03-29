@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Effective Governance Resolver.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class EffectiveGovernanceResolverTests
 {

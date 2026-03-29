@@ -2,6 +2,10 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Supported Context Document Content Types.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class SupportedContextDocumentContentTypesTests
 {

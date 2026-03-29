@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Finding Factory.
+/// </summary>
+
 public sealed class FindingFactoryTests
 {
     [Fact]

@@ -10,6 +10,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture.
+/// </summary>
+
 [Trait("Category", "Integration")]
 public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {

@@ -8,6 +8,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture End To End Comparison Export.
+/// </summary>
+
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureEndToEndComparisonExportTests(ArchiForgeApiFactory factory)

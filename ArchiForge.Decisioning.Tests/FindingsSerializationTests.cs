@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Findings Serialization.
+/// </summary>
+
 public sealed class FindingsSerializationTests
 {
     [Fact]

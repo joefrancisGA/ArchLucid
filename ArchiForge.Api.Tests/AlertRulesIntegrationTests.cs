@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Integration tests: Alert Rules (HTTP host, database, or cross-component).
+/// </summary>
+
 [Trait("Category", "Integration")]
 public sealed class AlertRulesIntegrationTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {

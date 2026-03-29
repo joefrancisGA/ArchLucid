@@ -15,6 +15,10 @@ using Moq;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Governance Workflow Service.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class GovernanceWorkflowServiceTests
 {

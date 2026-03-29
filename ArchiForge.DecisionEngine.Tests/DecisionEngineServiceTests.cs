@@ -11,6 +11,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchiForge.DecisionEngine.Tests;
 
+/// <summary>
+/// Tests for Decision Engine Service.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class DecisionEngineServiceTests
 {

@@ -10,6 +10,10 @@ using Moq;
 
 namespace ArchiForge.DecisionEngine.Tests;
 
+/// <summary>
+/// Tests for Decision Engine Service Merge.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class DecisionEngineServiceMergeTests
 {

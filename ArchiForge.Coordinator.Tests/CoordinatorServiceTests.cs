@@ -3,6 +3,10 @@ using ArchiForge.Coordinator.Services;
 
 namespace ArchiForge.Coordinator.Tests;
 
+/// <summary>
+/// Tests for Coordinator Service.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class CoordinatorServiceTests
 {

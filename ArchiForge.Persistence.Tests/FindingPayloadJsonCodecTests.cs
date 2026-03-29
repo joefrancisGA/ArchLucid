@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Persistence.Tests;
 
+/// <summary>
+/// Tests for Finding Payload Json Codec.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class FindingPayloadJsonCodecTests
 {

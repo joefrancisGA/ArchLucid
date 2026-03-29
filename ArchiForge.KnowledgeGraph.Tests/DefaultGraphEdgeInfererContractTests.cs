@@ -6,6 +6,9 @@ using FluentAssertions;
 
 namespace ArchiForge.KnowledgeGraph.Tests;
 
+/// <summary>
+/// Unit tests for <see cref="DefaultGraphEdgeInferer"/> edge inference rules (canonical object graphs from context snapshots).
+/// </summary>
 [Trait("Category", "Unit")]
 public sealed class DefaultGraphEdgeInfererContractTests
 {

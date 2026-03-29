@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Policy Pack Json Serializer Options.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class PolicyPackJsonSerializerOptionsTests
 {

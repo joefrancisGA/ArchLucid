@@ -10,6 +10,10 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Rule Simulation Service.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class RuleSimulationServiceTests
 {

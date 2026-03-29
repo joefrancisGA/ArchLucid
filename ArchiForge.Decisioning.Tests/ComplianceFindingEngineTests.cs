@@ -12,6 +12,10 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Compliance Finding Engine.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class ComplianceFindingEngineTests
 {

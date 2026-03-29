@@ -9,6 +9,10 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Context Ingestion Service.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class ContextIngestionServiceTests
 {

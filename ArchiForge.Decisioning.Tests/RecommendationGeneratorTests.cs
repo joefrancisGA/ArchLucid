@@ -8,6 +8,10 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Recommendation Generator.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class RecommendationGeneratorTests
 {

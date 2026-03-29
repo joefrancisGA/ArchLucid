@@ -4,6 +4,10 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Topology Hint Stable Object Ids.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class TopologyHintStableObjectIdsTests
 {

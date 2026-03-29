@@ -10,6 +10,10 @@ using Moq;
 
 namespace ArchiForge.KnowledgeGraph.Tests;
 
+/// <summary>
+/// Tests for Graph Snapshot Reuse Evaluator.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class GraphSnapshotReuseEvaluatorTests
 {

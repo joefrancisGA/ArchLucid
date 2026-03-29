@@ -7,6 +7,9 @@ namespace ArchiForge.Api.Tests;
 /// </summary>
 internal static class SqlServerTestDatabaseHelper
 {
+    /// <summary>
+    /// Ensures the database named in <paramref name="connectionString"/> exists on the server (connects to <c>master</c> to create it).
+    /// </summary>
     public static void EnsureDatabaseExists(string connectionString)
     {
         SqlConnectionStringBuilder builder = new(connectionString);
@@ -28,6 +31,9 @@ END";
         cmd.ExecuteNonQuery();
     }
 
+    /// <summary>
+    /// Drops the database from <paramref name="connectionString"/> if it exists (single-user kill + <c>DROP DATABASE</c>).
+    /// </summary>
     public static void DropDatabaseIfExists(string connectionString)
     {
         SqlConnectionStringBuilder builder = new(connectionString);

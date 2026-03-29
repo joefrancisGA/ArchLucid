@@ -4,6 +4,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Graph Snapshot Extensions.
+/// </summary>
+
 public sealed class GraphSnapshotExtensionsTests
 {
     [Fact]

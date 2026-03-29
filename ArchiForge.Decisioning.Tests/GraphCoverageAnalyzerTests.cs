@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Graph Coverage Analyzer.
+/// </summary>
+
 public sealed class GraphCoverageAnalyzerTests
 {
     private readonly GraphCoverageAnalyzer _analyzer = new();

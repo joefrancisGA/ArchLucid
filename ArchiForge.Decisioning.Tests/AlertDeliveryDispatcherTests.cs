@@ -10,6 +10,10 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Alert Delivery Dispatcher.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class AlertDeliveryDispatcherTests
 {

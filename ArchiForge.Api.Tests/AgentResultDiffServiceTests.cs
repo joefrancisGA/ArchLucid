@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Agent Result Diff Service.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class AgentResultDiffServiceTests
 {

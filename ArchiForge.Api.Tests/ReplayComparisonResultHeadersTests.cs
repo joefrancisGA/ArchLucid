@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Replay Comparison Result Headers.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class ReplayComparisonResultHeadersTests
 {

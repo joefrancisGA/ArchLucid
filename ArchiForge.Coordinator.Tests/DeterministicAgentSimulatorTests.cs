@@ -12,6 +12,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Coordinator.Tests;
 
+/// <summary>
+/// Tests for Deterministic Agent Simulator.
+/// </summary>
+
 [Trait("Suite", "Core")]
 [Trait("Category", "Slow")]
 public sealed class DeterministicAgentSimulatorTests

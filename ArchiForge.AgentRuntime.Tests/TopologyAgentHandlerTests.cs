@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.AgentRuntime.Tests;
 
+/// <summary>
+/// Tests for Topology Agent Handler.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class TopologyAgentHandlerTests
 {

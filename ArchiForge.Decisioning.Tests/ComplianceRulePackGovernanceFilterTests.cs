@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Compliance Rule Pack Governance Filter.
+/// </summary>
+
 public sealed class ComplianceRulePackGovernanceFilterTests
 {
     private static ComplianceRulePack Pack(params ComplianceRule[] rules) =>

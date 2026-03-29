@@ -9,7 +9,13 @@ namespace ArchiForge.Api.Tests;
 /// <summary>Shared helpers for comparison-replay integration tests (run creation, replay, persist).</summary>
 public static class ComparisonReplayTestFixture
 {
-    /// <summary>Creates a run and executes; returns runId (no commit or replay).</summary>
+    /// <summary>
+    /// Creates a run via <c>POST /v1/architecture/request</c>, executes it, and returns the run id (no commit or replay).
+    /// </summary>
+    /// <param name="client">API test client.</param>
+    /// <param name="jsonOptions">Deserializer options for create response DTOs.</param>
+    /// <param name="requestId">Stable request id embedded in the architecture request body.</param>
+    /// <returns>The new run’s id (hex string).</returns>
     public static async Task<string> CreateRunAndExecuteAsync(
         HttpClient client,
         JsonSerializerOptions jsonOptions,
@@ -25,7 +31,13 @@ public static class ComparisonReplayTestFixture
         return runId;
     }
 
-    /// <summary>Creates a run, executes, commits, replays; returns (runId, replayRunId).</summary>
+    /// <summary>
+    /// Full golden path through commit and replay with fixed replay options; returns original and replay run ids.
+    /// </summary>
+    /// <param name="client">API test client.</param>
+    /// <param name="jsonOptions">JSON options for DTOs.</param>
+    /// <param name="requestId">Request id for the initial architecture request.</param>
+    /// <returns>Tuple of <c>(originalRunId, replayRunId)</c>.</returns>
     public static async Task<(string RunId, string ReplayRunId)> CreateRunExecuteCommitReplayAsync(
         HttpClient client,
         JsonSerializerOptions jsonOptions,
@@ -54,7 +66,14 @@ public static class ComparisonReplayTestFixture
         return (runId, replayPayload!.ReplayRunId);
     }
 
-    /// <summary>Persists an end-to-end comparison; returns comparisonRecordId from header.</summary>
+    /// <summary>
+    /// Calls the end-to-end compare summary endpoint with <c>persist: true</c> and returns <c>X-ArchiForge-ComparisonRecordId</c>.
+    /// </summary>
+    /// <param name="client">API test client.</param>
+    /// <param name="leftRunId">Baseline run id (query string).</param>
+    /// <param name="rightRunId">Comparison run id (query string).</param>
+    /// <returns>New comparison record id from the response header.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the header is missing.</exception>
     public static async Task<string> PersistEndToEndComparisonAsync(
         HttpClient client,
         string leftRunId,

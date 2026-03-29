@@ -8,6 +8,10 @@ using Moq;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Document Connector.
+/// </summary>
+
 public sealed class DocumentConnectorTests
 {
     [Fact]

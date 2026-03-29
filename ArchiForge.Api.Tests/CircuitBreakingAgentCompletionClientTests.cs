@@ -9,6 +9,10 @@ using Moq;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Circuit Breaking Agent Completion Client.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class CircuitBreakingAgentCompletionClientTests
 {

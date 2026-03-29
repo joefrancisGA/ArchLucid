@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Canonical Infrastructure Enricher.
+/// </summary>
+
 public sealed class CanonicalInfrastructureEnricherTests
 {
     private readonly CanonicalInfrastructureEnricher _sut = new();

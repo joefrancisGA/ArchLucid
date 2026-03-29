@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Integration tests: Architecture Ingestion (HTTP host, database, or cross-component).
+/// </summary>
+
 [Trait("Category", "Integration")]
 public sealed class ArchitectureIngestionIntegrationTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {

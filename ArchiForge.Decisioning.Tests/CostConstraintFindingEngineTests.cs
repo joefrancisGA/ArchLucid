@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Cost Constraint Finding Engine.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class CostConstraintFindingEngineTests
 {

@@ -8,6 +8,10 @@ using Moq;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Baseline Mutation Audit Service.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class BaselineMutationAuditServiceTests
 {

@@ -4,6 +4,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Adaptive Recommendation Scorer.
+/// </summary>
+
 public sealed class AdaptiveRecommendationScorerTests
 {
     private readonly AdaptiveRecommendationScorer _sut = new();

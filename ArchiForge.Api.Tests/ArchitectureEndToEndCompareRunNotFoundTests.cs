@@ -4,6 +4,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture End To End Compare Run Not Found.
+/// </summary>
+
 [Trait("Category", "Integration")]
 public sealed class ArchitectureEndToEndCompareRunNotFoundTests(ArchiForgeApiFactory factory)
     : IntegrationTestBase(factory)

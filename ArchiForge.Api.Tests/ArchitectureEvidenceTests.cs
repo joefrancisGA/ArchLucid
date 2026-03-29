@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture Evidence.
+/// </summary>
+
 [Trait("Category", "Integration")]
 public sealed class ArchitectureEvidenceTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {

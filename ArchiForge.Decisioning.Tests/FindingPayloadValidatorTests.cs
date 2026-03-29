@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Finding Payload Validator.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class FindingPayloadValidatorTests
 {

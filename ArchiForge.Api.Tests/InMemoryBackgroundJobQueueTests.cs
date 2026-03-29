@@ -8,6 +8,10 @@ using Moq;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for In Memory Background Job Queue.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class InMemoryBackgroundJobQueueTests
 {

@@ -14,6 +14,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Typed Findings Golden Path.
+/// </summary>
+
 [Trait("Suite", "Core")]
 [Trait("Category", "Slow")]
 public sealed class TypedFindingsGoldenPathTests

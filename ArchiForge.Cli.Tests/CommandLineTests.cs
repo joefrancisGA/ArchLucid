@@ -2,6 +2,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Cli.Tests;
 
+/// <summary>
+/// Tests for Command Line.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class CommandLineTests
 {

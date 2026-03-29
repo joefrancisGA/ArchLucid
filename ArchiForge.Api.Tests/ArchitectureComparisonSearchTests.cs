@@ -10,6 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture Comparison Search.
+/// </summary>
+
 [Trait("Category", "Integration")]
 public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {

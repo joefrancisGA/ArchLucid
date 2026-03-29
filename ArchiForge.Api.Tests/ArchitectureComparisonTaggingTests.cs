@@ -9,6 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture Comparison Tagging.
+/// </summary>
+
 [Trait("Category", "Integration")]
 public sealed class ArchitectureComparisonTaggingTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {

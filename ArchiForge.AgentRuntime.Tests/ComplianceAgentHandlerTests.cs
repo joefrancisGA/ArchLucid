@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.AgentRuntime.Tests;
 
+/// <summary>
+/// Tests for Compliance Agent Handler.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class ComplianceAgentHandlerTests
 {

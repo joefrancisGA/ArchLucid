@@ -4,10 +4,16 @@ using System.Text.Json.Serialization;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Base for API integration tests: provides an <see cref="HttpClient"/> from <see cref="ArchiForgeApiFactory"/> and JSON helpers aligned with the API’s serializer settings.
+/// </summary>
 public class IntegrationTestBase(ArchiForgeApiFactory factory) : IClassFixture<ArchiForgeApiFactory>
 {
     protected readonly HttpClient Client = factory.CreateClient();
 
+    /// <summary>
+    /// Serializes <paramref name="value"/> with <see cref="JsonOptions"/> and returns <see cref="StringContent"/> suitable for <c>application/json</c> POST bodies.
+    /// </summary>
     protected StringContent JsonContent(object value)
     {
         string json = JsonSerializer.Serialize(value, JsonOptions);

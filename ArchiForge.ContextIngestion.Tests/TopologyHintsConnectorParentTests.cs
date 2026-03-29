@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Topology Hints Connector Parent.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class TopologyHintsConnectorParentTests
 {

@@ -10,6 +10,10 @@ using JetBrains.Annotations;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Integration tests: Policy Packs (HTTP host, database, or cross-component).
+/// </summary>
+
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)

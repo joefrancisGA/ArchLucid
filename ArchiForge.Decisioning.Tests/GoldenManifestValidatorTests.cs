@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Golden Manifest Validator.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class GoldenManifestValidatorTests
 {

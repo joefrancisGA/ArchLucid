@@ -11,6 +11,10 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Findings Orchestrator.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class FindingsOrchestratorTests
 {

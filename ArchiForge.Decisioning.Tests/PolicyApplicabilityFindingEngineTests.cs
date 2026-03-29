@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Policy Applicability Finding Engine.
+/// </summary>
+
 public sealed class PolicyApplicabilityFindingEngineTests
 {
     [Fact]

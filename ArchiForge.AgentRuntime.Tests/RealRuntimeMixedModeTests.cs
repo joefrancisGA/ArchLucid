@@ -15,6 +15,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchiForge.AgentRuntime.Tests;
 
+/// <summary>
+/// Tests for Real Runtime Mixed Mode.
+/// </summary>
+
 public sealed class RealRuntimeMixedModeTests
 {
     [Fact]

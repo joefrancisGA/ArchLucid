@@ -8,6 +8,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Improvement Signal Analyzer.
+/// </summary>
+
 public sealed class ImprovementSignalAnalyzerTests
 {
     private readonly ImprovementSignalAnalyzer _sut = new();

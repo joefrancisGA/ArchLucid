@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture End To End Comparison.
+/// </summary>
+
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]

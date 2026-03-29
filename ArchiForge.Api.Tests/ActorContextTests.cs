@@ -8,6 +8,10 @@ using Moq;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Actor Context.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class ActorContextTests
 {

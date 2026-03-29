@@ -8,6 +8,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture Analysis Docx.
+/// </summary>
+
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureAnalysisDocxTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)

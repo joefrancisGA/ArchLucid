@@ -8,6 +8,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture Diagram.
+/// </summary>
+
 [Trait("Category", "Integration")]
 public sealed class ArchitectureDiagramTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {

@@ -2,6 +2,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Cli.Tests;
 
+/// <summary>
+/// Tests for Archi Forge Api Client.
+/// </summary>
+
 public sealed class ArchiForgeApiClientTests
 {
     [Fact]

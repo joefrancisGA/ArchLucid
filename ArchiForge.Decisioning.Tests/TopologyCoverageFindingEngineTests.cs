@@ -11,6 +11,10 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Topology Coverage Finding Engine.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class TopologyCoverageFindingEngineTests
 {

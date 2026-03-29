@@ -15,6 +15,10 @@ using Microsoft.AspNetCore.Routing;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Api Problem Details Exception Filter.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class ApiProblemDetailsExceptionFilterTests
 {

@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.KnowledgeGraph.Tests;
 
+/// <summary>
+/// Tests for Graph Snapshot Cloner.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class GraphSnapshotClonerTests
 {

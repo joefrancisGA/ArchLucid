@@ -4,6 +4,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture Comparison Replay.
+/// </summary>
+
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureComparisonReplayTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)

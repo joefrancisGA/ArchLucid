@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Integration tests: Default Golden Manifest Builder Graph (HTTP host, database, or cross-component).
+/// </summary>
+
 public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
 {
     [Fact]

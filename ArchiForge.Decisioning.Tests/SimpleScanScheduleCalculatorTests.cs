@@ -4,6 +4,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Simple Scan Schedule Calculator.
+/// </summary>
+
 public sealed class SimpleScanScheduleCalculatorTests
 {
     private readonly SimpleScanScheduleCalculator _sut = new();

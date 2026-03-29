@@ -8,6 +8,10 @@ using Moq;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Infrastructure Declaration Connector.
+/// </summary>
+
 public sealed class InfrastructureDeclarationConnectorTests
 {
     [Fact]

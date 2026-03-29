@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Policy Pack Governance Filter.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class PolicyPackGovernanceFilterTests
 {

@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Simple Terraform Declaration Parser.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class SimpleTerraformDeclarationParserTests
 {

@@ -2,6 +2,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Cli.Tests;
 
+/// <summary>
+/// Tests for Archi Forge Config.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class ArchiForgeConfigTests
 {

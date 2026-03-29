@@ -8,6 +8,10 @@ using Moq;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Policy Packs App Service.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class PolicyPacksAppServiceTests
 {

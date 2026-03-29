@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.KnowledgeGraph.Tests;
 
+/// <summary>
+/// Tests for Default Graph Edge Inferer.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class DefaultGraphEdgeInfererTests
 {

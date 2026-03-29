@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Plain Text Context Document Parser.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class PlainTextContextDocumentParserTests
 {

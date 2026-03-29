@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Alert Rule Body Validator.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class AlertRuleBodyValidatorTests
 {

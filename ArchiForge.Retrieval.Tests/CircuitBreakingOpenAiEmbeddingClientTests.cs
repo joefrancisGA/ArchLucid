@@ -9,6 +9,10 @@ using Moq;
 
 namespace ArchiForge.Retrieval.Tests;
 
+/// <summary>
+/// Tests for Circuit Breaking Open Ai Embedding Client.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class CircuitBreakingOpenAiEmbeddingClientTests
 {

@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Replay Comparison Request Mapper.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class ReplayComparisonRequestMapperTests
 {

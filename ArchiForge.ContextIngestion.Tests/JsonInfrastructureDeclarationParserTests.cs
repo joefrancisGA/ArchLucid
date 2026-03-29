@@ -7,6 +7,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Json Infrastructure Declaration Parser.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class JsonInfrastructureDeclarationParserTests
 {

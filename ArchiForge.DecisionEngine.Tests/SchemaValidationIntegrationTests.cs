@@ -6,6 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.DecisionEngine.Tests;
 
+/// <summary>
+/// Integration tests: Schema Validation (HTTP host, database, or cross-component).
+/// </summary>
+
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class SchemaValidationIntegrationTests

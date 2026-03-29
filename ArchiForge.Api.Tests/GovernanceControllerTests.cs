@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Governance Controller.
+/// </summary>
+
 [Trait("Category", "Integration")]
 public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {

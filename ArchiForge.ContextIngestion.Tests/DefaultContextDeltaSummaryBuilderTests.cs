@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Default Context Delta Summary Builder.
+/// </summary>
+
 public sealed class DefaultContextDeltaSummaryBuilderTests
 {
     private readonly DefaultContextDeltaSummaryBuilder _sut = new();

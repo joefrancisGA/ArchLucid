@@ -16,6 +16,10 @@ using Moq;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture Run Service Audit.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class ArchitectureRunServiceAuditTests
 {

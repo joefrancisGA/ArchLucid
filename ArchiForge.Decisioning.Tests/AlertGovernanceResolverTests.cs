@@ -9,6 +9,10 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Alert Governance Resolver.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class AlertGovernanceResolverTests
 {

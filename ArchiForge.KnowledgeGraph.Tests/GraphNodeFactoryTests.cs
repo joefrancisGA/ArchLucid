@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.KnowledgeGraph.Tests;
 
+/// <summary>
+/// Tests for Graph Node Factory.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class GraphNodeFactoryTests
 {

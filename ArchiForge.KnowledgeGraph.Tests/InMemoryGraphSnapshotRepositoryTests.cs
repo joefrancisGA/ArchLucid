@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.KnowledgeGraph.Tests;
 
+/// <summary>
+/// Tests for In Memory Graph Snapshot Repository.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class InMemoryGraphSnapshotRepositoryTests
 {

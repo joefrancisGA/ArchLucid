@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Policy Reference Connector Topology.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class PolicyReferenceConnectorTopologyTests
 {

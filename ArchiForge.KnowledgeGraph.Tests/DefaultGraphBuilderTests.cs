@@ -10,6 +10,10 @@ using Moq;
 
 namespace ArchiForge.KnowledgeGraph.Tests;
 
+/// <summary>
+/// Tests for Default Graph Builder.
+/// </summary>
+
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class DefaultGraphBuilderTests

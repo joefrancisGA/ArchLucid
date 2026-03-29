@@ -9,6 +9,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Default Golden Manifest Builder Policy Section.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class DefaultGoldenManifestBuilderPolicySectionTests
 {

@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture Compare Export.
+/// </summary>
+
 [Trait("Category", "Integration")]
 public sealed class ArchitectureCompareExportTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {

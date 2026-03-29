@@ -11,6 +11,10 @@ using Moq;
 
 namespace ArchiForge.DecisionEngine.Tests;
 
+/// <summary>
+/// Tests for Schema Validation Service.
+/// </summary>
+
 [Trait("Suite", "Core")]
 [Trait("Category", "Slow")]
 public sealed class SchemaValidationServiceTests

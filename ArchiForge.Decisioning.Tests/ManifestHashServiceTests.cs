@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Manifest Hash Service.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class ManifestHashServiceTests
 {

@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture Consulting Docx Recommendation.
+/// </summary>
+
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ArchitectureConsultingDocxRecommendationTests(ArchiForgeApiFactory factory)

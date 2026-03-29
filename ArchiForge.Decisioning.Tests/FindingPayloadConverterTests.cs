@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Finding Payload Converter.
+/// </summary>
+
 public sealed class FindingPayloadConverterTests
 {
     [Fact]

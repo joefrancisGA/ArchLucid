@@ -10,6 +10,10 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Requirement Coverage Finding Engine.
+/// </summary>
+
 public sealed class RequirementCoverageFindingEngineTests
 {
     private readonly Mock<IGraphCoverageAnalyzer> _analyzer = new(MockBehavior.Strict);

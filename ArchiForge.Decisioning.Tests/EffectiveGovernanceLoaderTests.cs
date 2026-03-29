@@ -7,6 +7,10 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Effective Governance Loader.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class EffectiveGovernanceLoaderTests
 {

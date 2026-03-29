@@ -9,6 +9,10 @@ using Moq;
 
 namespace ArchiForge.KnowledgeGraph.Tests;
 
+/// <summary>
+/// Tests for Knowledge Graph Service.
+/// </summary>
+
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class KnowledgeGraphServiceTests

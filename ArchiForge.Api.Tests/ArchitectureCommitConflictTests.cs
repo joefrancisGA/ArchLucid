@@ -8,6 +8,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Architecture Commit Conflict.
+/// </summary>
+
 [Trait("Category", "Integration")]
 public sealed class ArchitectureCommitConflictTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {

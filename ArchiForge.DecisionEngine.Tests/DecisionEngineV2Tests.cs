@@ -8,6 +8,10 @@ using FluentAssertions;
 
 namespace ArchiForge.DecisionEngine.Tests;
 
+/// <summary>
+/// Tests for Decision Engine V2.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class DecisionEngineV2Tests
 {

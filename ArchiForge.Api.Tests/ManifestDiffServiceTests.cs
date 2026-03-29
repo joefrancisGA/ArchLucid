@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// Tests for Manifest Diff Service.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class ManifestDiffServiceTests
 {

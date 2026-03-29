@@ -11,6 +11,10 @@ using Microsoft.Extensions.Options;
 
 namespace ArchiForge.DecisionEngine.Tests;
 
+/// <summary>
+/// Tests for Schema Validation.
+/// </summary>
+
 public sealed class SchemaValidationTests
 {
     [Fact]

@@ -7,6 +7,10 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+/// <summary>
+/// Tests for Context Ingestion Request Mapper.
+/// </summary>
+
 [Trait("Suite", "Core")]
 public sealed class ContextIngestionRequestMapperTests
 {

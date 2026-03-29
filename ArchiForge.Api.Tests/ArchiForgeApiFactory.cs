@@ -4,13 +4,15 @@ using Microsoft.Extensions.Configuration;
 
 namespace ArchiForge.Api.Tests;
 
+/// <summary>
+/// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server database per instance, runs DbUp migrations, and wires <c>ConnectionStrings:ArchiForge</c> plus in-memory auxiliary storage.
+/// </summary>
+/// <remarks>Disposed with the test class; drops the database best-effort. Requires SQL Server on <c>localhost</c>.</remarks>
 public class ArchiForgeApiFactory : WebApplicationFactory<Program>
 {
     private readonly string _connectionString;
-    /// <summary>
-    /// 
-    /// </summary>
-    /// 
+
+    /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
     public ArchiForgeApiFactory()
     {
         string databaseName = "ArchiForgeTest_" + Guid.NewGuid().ToString("N");
@@ -24,10 +26,11 @@ public class ArchiForgeApiFactory : WebApplicationFactory<Program>
     /// Tests that open <see cref="Microsoft.Data.SqlClient.SqlConnection"/> must use this instance property so they hit the same DB as the hosted API.
     /// </summary>
     public string SqlConnectionString => _connectionString;
+
     /// <summary>
-    /// 
+    /// Points the hosted API at this factory’s SQL connection string and sets in-memory storage for non-relational dependencies.
     /// </summary>
-    /// <param name="builder"></param>
+    /// <param name="builder">ASP.NET Core host builder.</param>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
@@ -44,11 +47,8 @@ public class ArchiForgeApiFactory : WebApplicationFactory<Program>
             });
         });
     }
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="disposing"></param>
+
+    /// <summary>Drops the per-factory SQL database when the host is disposed (best-effort).</summary>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);

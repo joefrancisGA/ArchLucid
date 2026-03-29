@@ -5,6 +5,10 @@ using FluentAssertions;
 
 namespace ArchiForge.KnowledgeGraph.Tests;
 
+/// <summary>
+/// Tests for Graph Snapshot Canonical Fingerprint.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class GraphSnapshotCanonicalFingerprintTests
 {

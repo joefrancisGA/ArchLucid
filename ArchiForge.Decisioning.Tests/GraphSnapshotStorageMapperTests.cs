@@ -6,6 +6,10 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+/// <summary>
+/// Tests for Graph Snapshot Storage Mapper.
+/// </summary>
+
 [Trait("Category", "Unit")]
 public sealed class GraphSnapshotStorageMapperTests
 {
