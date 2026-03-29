@@ -1,0 +1,15 @@
+{
+  "systemName": "EnterpriseRag",
+  "services": [
+    "rag-api",
+    "rag-search"
+  ],
+  "datastores": [
+    "rag-metadata"
+  ],
+  "requiredControls": [
+    "Managed Identity",
+    "Private Endpoints",
+    "Key Vault"
+  ]
+}

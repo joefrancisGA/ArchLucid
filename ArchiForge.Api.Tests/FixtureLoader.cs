@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ArchiForge.Api.Tests;
 
@@ -6,7 +7,8 @@ public static class FixtureLoader
 {
     private static readonly JsonSerializerOptions FixtureJsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true) }
     };
 
     public static T Load<T>(string relativePath)
