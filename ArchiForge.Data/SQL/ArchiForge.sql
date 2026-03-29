@@ -456,12 +456,9 @@ BEGIN
         GoldenManifestId UNIQUEIDENTIFIER NULL,
         DecisionTraceId UNIQUEIDENTIFIER NULL,
         ArtifactBundleId UNIQUEIDENTIFIER NULL,
-        TenantId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_Runs_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111'),
-        WorkspaceId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_Runs_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222'),
-        ScopeProjectId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_Runs_ScopeProjectId DEFAULT ('33333333-3333-3333-3333-333333333333'),
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
 END;
@@ -557,12 +554,9 @@ BEGIN
         AcceptedFindingIdsJson NVARCHAR(MAX) NOT NULL,
         RejectedFindingIdsJson NVARCHAR(MAX) NOT NULL,
         NotesJson NVARCHAR(MAX) NOT NULL,
-        TenantId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_DecisioningTraces_TenantId_Create DEFAULT ('11111111-1111-1111-1111-111111111111'),
-        WorkspaceId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_DecisioningTraces_WorkspaceId_Create DEFAULT ('22222222-2222-2222-2222-222222222222'),
-        ProjectId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_DecisioningTraces_ProjectId_Create DEFAULT ('33333333-3333-3333-3333-333333333333'),
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         INDEX IX_DecisioningTraces_RunId NONCLUSTERED (RunId)
     );
 END;
@@ -595,12 +589,9 @@ BEGIN
         AssumptionsJson NVARCHAR(MAX) NOT NULL,
         WarningsJson NVARCHAR(MAX) NOT NULL,
         ProvenanceJson NVARCHAR(MAX) NOT NULL,
-        TenantId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_GoldenManifests_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111'),
-        WorkspaceId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_GoldenManifests_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222'),
-        ProjectId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_GoldenManifests_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333'),
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         INDEX IX_GoldenManifests_RunId NONCLUSTERED (RunId)
     );
 END;
@@ -616,15 +607,68 @@ BEGIN
         CreatedUtc DATETIME2 NOT NULL,
         ArtifactsJson NVARCHAR(MAX) NOT NULL,
         TraceJson NVARCHAR(MAX) NOT NULL,
-        TenantId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_ArtifactBundles_TenantId DEFAULT ('11111111-1111-1111-1111-111111111111'),
-        WorkspaceId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_ArtifactBundles_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222'),
-        ProjectId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_ArtifactBundles_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333'),
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
         INDEX IX_ArtifactBundles_RunId NONCLUSTERED (RunId),
         INDEX IX_ArtifactBundles_ManifestId NONCLUSTERED (ManifestId)
     );
+END;
+GO
+
+/* -- Remove placeholder scope defaults from runtime-authoritative tables ----
+   Inserts must supply TenantId, WorkspaceId, ProjectId (scope), and Runs.ScopeProjectId.
+   Batches below drop legacy named defaults on existing databases (greenfield CREATE above has none).
+*/
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+BEGIN
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.Runs') AND name = N'DF_Runs_TenantId')
+        ALTER TABLE dbo.Runs DROP CONSTRAINT DF_Runs_TenantId;
+
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.Runs') AND name = N'DF_Runs_WorkspaceId')
+        ALTER TABLE dbo.Runs DROP CONSTRAINT DF_Runs_WorkspaceId;
+
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.Runs') AND name = N'DF_Runs_ScopeProjectId')
+        ALTER TABLE dbo.Runs DROP CONSTRAINT DF_Runs_ScopeProjectId;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL
+BEGIN
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.DecisioningTraces') AND name = N'DF_DecisioningTraces_TenantId_Create')
+        ALTER TABLE dbo.DecisioningTraces DROP CONSTRAINT DF_DecisioningTraces_TenantId_Create;
+
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.DecisioningTraces') AND name = N'DF_DecisioningTraces_WorkspaceId_Create')
+        ALTER TABLE dbo.DecisioningTraces DROP CONSTRAINT DF_DecisioningTraces_WorkspaceId_Create;
+
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.DecisioningTraces') AND name = N'DF_DecisioningTraces_ProjectId_Create')
+        ALTER TABLE dbo.DecisioningTraces DROP CONSTRAINT DF_DecisioningTraces_ProjectId_Create;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+BEGIN
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.GoldenManifests') AND name = N'DF_GoldenManifests_TenantId')
+        ALTER TABLE dbo.GoldenManifests DROP CONSTRAINT DF_GoldenManifests_TenantId;
+
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.GoldenManifests') AND name = N'DF_GoldenManifests_WorkspaceId')
+        ALTER TABLE dbo.GoldenManifests DROP CONSTRAINT DF_GoldenManifests_WorkspaceId;
+
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.GoldenManifests') AND name = N'DF_GoldenManifests_ProjectId')
+        ALTER TABLE dbo.GoldenManifests DROP CONSTRAINT DF_GoldenManifests_ProjectId;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ArtifactBundles', N'U') IS NOT NULL
+BEGIN
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.ArtifactBundles') AND name = N'DF_ArtifactBundles_TenantId')
+        ALTER TABLE dbo.ArtifactBundles DROP CONSTRAINT DF_ArtifactBundles_TenantId;
+
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.ArtifactBundles') AND name = N'DF_ArtifactBundles_WorkspaceId')
+        ALTER TABLE dbo.ArtifactBundles DROP CONSTRAINT DF_ArtifactBundles_WorkspaceId;
+
+    IF EXISTS (SELECT 1 FROM sys.default_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.ArtifactBundles') AND name = N'DF_ArtifactBundles_ProjectId')
+        ALTER TABLE dbo.ArtifactBundles DROP CONSTRAINT DF_ArtifactBundles_ProjectId;
 END;
 GO
 
