@@ -37,9 +37,10 @@ public sealed class DocumentConnectorTests
         NormalizedContextBatch batch = await sut.NormalizeAsync(payload, CancellationToken.None);
 
         batch.CanonicalObjects.Should().BeEmpty();
-        batch.Warnings.Should().ContainSingle()
-            .Which.Should().Contain("unknown.bin")
-            .And.Contain("application/octet-stream")
-            .And.Contain("SupportedContextDocumentContentTypes");
+        batch.Warnings.Should().ContainSingle();
+        string warning = batch.Warnings[0];
+        warning.Should().Contain("unknown.bin", because: "warning must name the skipped document");
+        warning.Should().Contain("application/octet-stream", because: "warning must include the content type");
+        warning.Should().Contain("SupportedContextDocumentContentTypes");
     }
 }
