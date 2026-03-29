@@ -54,7 +54,9 @@ public sealed class ManifestHashService : IManifestHashService
                     d.Title,
                     d.SelectedOption,
                     d.Rationale,
-                    SupportingFindingIds = d.SupportingFindingIds.OrderBy(x => x).ToArray()
+                    SupportingFindingIds = d.SupportingFindingIds.OrderBy(x => x).ToArray(),
+                    RelatedNodeIds = d.RelatedNodeIds.OrderBy(x => x).ToArray(),
+                    d.RawDecisionJson,
                 })
                 .ToArray(),
             Assumptions = manifest.Assumptions.OrderBy(x => x).ToArray(),
