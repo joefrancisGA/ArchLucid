@@ -9,7 +9,7 @@ namespace ArchiForge.Api.Tests;
 
 /// <summary>
 /// Locks DI registration for the context-ingestion connector pipeline to the order defined in
-/// <see cref="ArchiForge.ContextIngestion.Infrastructure.ContextConnectorPipeline"/>.
+/// <see cref="ArchiForge.ContextIngestion.Infrastructure.ContextConnectorPipeline.CreateOrderedContextConnectorPipeline"/>.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class ContextIngestionConnectorRegistrationTests(ArchiForgeApiFactory factory)

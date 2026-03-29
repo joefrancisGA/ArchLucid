@@ -247,7 +247,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddSingleton<IInfrastructureDeclarationParser, SimpleTerraformDeclarationParser>();
 
         // Concrete connectors (registered once each). Order here matches pipeline order for readability only;
-        // execution order is defined solely in ContextConnectorPipeline.ResolveOrdered.
+        // execution order is defined solely in ContextConnectorPipeline.CreateOrderedContextConnectorPipeline.
         services.AddSingleton<StaticRequestContextConnector>();
         services.AddSingleton<InlineRequirementsConnector>();
         services.AddSingleton<DocumentConnector>();
@@ -256,8 +256,10 @@ internal static partial class ServiceCollectionExtensions
         services.AddSingleton<SecurityBaselineHintsConnector>();
         services.AddSingleton<InfrastructureDeclarationConnector>();
 
+        // IEnumerable<IContextConnector> must come only from CreateOrderedContextConnectorPipeline — preserves
+        // deterministic DeltaSummary segment order and operator-facing narrative (see docs/CONTEXT_INGESTION.md).
         services.AddSingleton<IEnumerable<ContextConnector>>(static sp =>
-            ContextConnectorPipeline.ResolveOrdered(sp));
+            ContextConnectorPipeline.CreateOrderedContextConnectorPipeline(sp));
 
         services.AddSingleton<ICanonicalEnricher, CanonicalInfrastructureEnricher>();
         services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();

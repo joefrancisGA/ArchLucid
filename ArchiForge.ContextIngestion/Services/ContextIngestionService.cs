@@ -8,9 +8,11 @@ namespace ArchiForge.ContextIngestion.Services;
 
 /// <summary>
 /// Orchestrates the context ingestion pipeline: collects raw objects from
-/// <see cref="IContextConnector"/> instances in the order supplied by DI (the host uses
-/// <see cref="ContextConnectorPipeline.ResolveOrdered"/>), canonicalizes and deduplicates them,
-/// then persists the resulting <see cref="ContextSnapshot"/> for downstream pipeline stages.
+/// <see cref="IContextConnector"/> instances in the order supplied by DI (the host must register
+/// <c>IEnumerable&lt;IContextConnector&gt;</c> via
+/// <see cref="ContextConnectorPipeline.CreateOrderedContextConnectorPipeline"/>), concatenates
+/// per-connector delta segments into <see cref="ContextSnapshot.DeltaSummary"/>, then canonicalizes and
+/// deduplicates before persisting the <see cref="ContextSnapshot"/>.
 /// </summary>
 public class ContextIngestionService(
     IEnumerable<IContextConnector> connectors,
@@ -44,6 +46,7 @@ public class ContextIngestionService(
         List<string> deltaSummaries = [];
         int connectorIndex = 0;
 
+        // Connector order = ContextConnectorPipeline.CreateOrderedContextConnectorPipeline (host DI); drives DeltaSummary segment order.
         foreach (IContextConnector connector in connectors)
         {
             RawContextPayload raw = await connector.FetchAsync(request, ct);
