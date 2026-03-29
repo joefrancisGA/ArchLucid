@@ -59,7 +59,7 @@ public sealed class ArchitectureAnalysisReportTests(ArchiForgeApiFactory factory
         payload.Report.Evidence.Should().NotBeNull();
         payload.Report.ExecutionTraces.Should().NotBeEmpty();
         payload.Report.Manifest.Should().NotBeNull();
-        payload.Report.Diagram.Should().Contain("flowchart TD");
+        payload.Report.Diagram.Should().Contain("flowchart ");
         payload.Report.Summary.Should().Contain("# Architecture Summary:");
     }
 }

@@ -338,7 +338,8 @@ internal static partial class ServiceCollectionExtensions
         string? agentMode = configuration["AgentExecution:Mode"];
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
         {
-            services.AddScoped<IAgentExecutor, DeterministicAgentSimulator>();
+            services.AddScoped<DeterministicAgentSimulator>();
+            services.AddScoped<IAgentExecutor, SimulatorExecutionTraceRecordingExecutor>();
             RegisterFakeAgentCompletionClient(services);
         }
         else
@@ -387,8 +388,8 @@ internal static partial class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Ask/Explanation paths resolve <see cref="IAgentCompletionClient"/> even when <see cref="DeterministicAgentSimulator"/>
-    /// is the active executor (no real agent handlers).
+    /// Ask/Explanation paths resolve <see cref="IAgentCompletionClient"/> even when
+    /// <see cref="SimulatorExecutionTraceRecordingExecutor"/> wraps <see cref="DeterministicAgentSimulator"/> (no real agent handlers).
     /// </summary>
     private static void RegisterFakeAgentCompletionClient(IServiceCollection services)
     {
