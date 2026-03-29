@@ -29,16 +29,16 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
 
         if (connection is not null)
         {
-            await SaveCoreAsync(snapshot, connection, transaction, ct).ConfigureAwait(false);
+            await SaveCoreAsync(snapshot, connection, transaction, ct);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         using SqlTransaction tx = owned.BeginTransaction();
 
         try
         {
-            await SaveCoreAsync(snapshot, owned, tx, ct).ConfigureAwait(false);
+            await SaveCoreAsync(snapshot, owned, tx, ct);
             tx.Commit();
         }
         catch
@@ -79,12 +79,12 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         };
 
         await connection.ExecuteAsync(new CommandDefinition(headerSql, headerArgs, transaction, cancellationToken: ct))
-            .ConfigureAwait(false);
+            ;
 
-        await InsertNodesAndPropertiesAsync(snapshot, connection, transaction, ct).ConfigureAwait(false);
-        await InsertWarningsAsync(snapshot, connection, transaction, ct).ConfigureAwait(false);
-        await InsertIndexedEdgesAsync(connection, transaction, snapshot, ct).ConfigureAwait(false);
-        await InsertEdgePropertiesAsync(snapshot, connection, transaction, ct).ConfigureAwait(false);
+        await InsertNodesAndPropertiesAsync(snapshot, connection, transaction, ct);
+        await InsertWarningsAsync(snapshot, connection, transaction, ct);
+        await InsertIndexedEdgesAsync(connection, transaction, snapshot, ct);
+        await InsertEdgePropertiesAsync(snapshot, connection, transaction, ct);
     }
 
     private static async Task InsertNodesAndPropertiesAsync(
@@ -133,7 +133,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                         node.SourceId,
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
 
             List<KeyValuePair<string, string>> orderedProps = node.Properties
                 .OrderBy(kv => kv.Key, StringComparer.Ordinal)
@@ -154,7 +154,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                             PropertyValue = kv.Value,
                         },
                         transaction,
-                        cancellationToken: ct)).ConfigureAwait(false);
+                        cancellationToken: ct));
             }
         }
     }
@@ -182,7 +182,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                         WarningText = snapshot.Warnings[w],
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
         }
     }
 
@@ -216,7 +216,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                         r.Weight,
                     }),
                 transaction,
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
     }
 
     private static async Task InsertEdgePropertiesAsync(
@@ -249,7 +249,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                             PropertyValue = edge.Label,
                         },
                         transaction,
-                        cancellationToken: ct)).ConfigureAwait(false);
+                        cancellationToken: ct));
             }
 
             List<KeyValuePair<string, string>> orderedProps = edge.Properties
@@ -273,7 +273,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                             PropertyValue = kv.Value,
                         },
                         transaction,
-                        cancellationToken: ct)).ConfigureAwait(false);
+                        cancellationToken: ct));
             }
         }
     }
@@ -288,7 +288,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             WHERE GraphSnapshotId = @GraphSnapshotId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
             new CommandDefinition(
                 sql,
@@ -296,12 +296,12 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 {
                     GraphSnapshotId = graphSnapshotId,
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         if (row is null)
             return null;
 
-        return await HydrateAsync(connection, transaction: null, row, ct).ConfigureAwait(false);
+        return await HydrateAsync(connection, transaction: null, row, ct);
     }
 
     public async Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct)
@@ -315,7 +315,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
             new CommandDefinition(
                 sql,
@@ -323,12 +323,12 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 {
                     ContextSnapshotId = contextSnapshotId,
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         if (row is null)
             return null;
 
-        return await HydrateAsync(connection, transaction: null, row, ct).ConfigureAwait(false);
+        return await HydrateAsync(connection, transaction: null, row, ct);
     }
 
     public async Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId, CancellationToken ct)
@@ -340,7 +340,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             ORDER BY EdgeId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<IndexedEdgeRow> rows = await connection.QueryAsync<IndexedEdgeRow>(
             new CommandDefinition(
                 sql,
@@ -348,7 +348,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 {
                     GraphSnapshotId = graphSnapshotId,
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         return rows
             .Select(r => new GraphSnapshotIndexedEdge(r.EdgeId, r.FromNodeId, r.ToNodeId, r.EdgeType, r.Weight))
@@ -371,7 +371,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             {
                 GraphSnapshotId = graphSnapshotId,
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         int warningsCount = await ScalarCountAsync(
             connection,
@@ -381,7 +381,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             {
                 GraphSnapshotId = graphSnapshotId,
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         int edgesCount = await ScalarCountAsync(
             connection,
@@ -391,7 +391,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             {
                 GraphSnapshotId = graphSnapshotId,
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         int edgePropsCount = await ScalarCountAsync(
             connection,
@@ -401,13 +401,13 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             {
                 GraphSnapshotId = graphSnapshotId,
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         List<GraphNode>? nodesOverride = null;
 
         if (nodesCount > 0)
         {
-            nodesOverride = await LoadNodesRelationalAsync(connection, transaction, graphSnapshotId, ct).ConfigureAwait(false);
+            nodesOverride = await LoadNodesRelationalAsync(connection, transaction, graphSnapshotId, ct);
         }
 
         List<string>? warningsOverride = null;
@@ -424,7 +424,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 ORDER BY SortOrder;
                 """,
                 graphSnapshotId,
-                ct).ConfigureAwait(false);
+                ct);
         }
 
         List<GraphEdge>? edgesOverride = null;
@@ -433,7 +433,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         {
             bool mergeEdgeMetadataFromJson = edgePropsCount == 0;
             edgesOverride = await LoadEdgesRelationalAsync(connection, transaction, row, mergeEdgeMetadataFromJson, ct)
-                .ConfigureAwait(false);
+                ;
         }
 
         return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
@@ -447,7 +447,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         CancellationToken ct)
     {
         int count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, param, transaction, cancellationToken: ct))
-            .ConfigureAwait(false);
+            ;
         return count;
     }
 
@@ -466,7 +466,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                     GraphSnapshotId = graphSnapshotId,
                 },
                 transaction,
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         return rows.ToList();
     }
@@ -492,7 +492,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                     GraphSnapshotId = graphSnapshotId,
                 },
                 transaction,
-                cancellationToken: ct)).ConfigureAwait(false)).ToList();
+                cancellationToken: ct))).ToList();
 
         if (nodeRows.Count == 0)
             return [];
@@ -514,7 +514,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                     RowIds = rowIds,
                 },
                 transaction,
-                cancellationToken: ct)).ConfigureAwait(false)).ToList();
+                cancellationToken: ct))).ToList();
 
         Dictionary<Guid, Dictionary<string, string>> propsByNode = new();
         foreach (NodePropertyRow pr in propertyRows)
@@ -572,7 +572,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                     GraphSnapshotId = row.GraphSnapshotId,
                 },
                 transaction,
-                cancellationToken: ct)).ConfigureAwait(false)).ToList();
+                cancellationToken: ct))).ToList();
 
         if (edgeRows.Count == 0)
             return [];
@@ -590,7 +590,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                     GraphSnapshotId = row.GraphSnapshotId,
                 },
                 transaction,
-                cancellationToken: ct)).ConfigureAwait(false)).ToList();
+                cancellationToken: ct))).ToList();
 
         Dictionary<string, List<EdgePropertyRow>> propsByEdge = new(StringComparer.Ordinal);
         foreach (EdgePropertyRow pr in propertyRows)

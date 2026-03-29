@@ -36,7 +36,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         var rows = traces.Select(t => new
         {
@@ -51,14 +51,14 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
             rows,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<IReadOnlyList<DecisionTrace>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT EventJson
@@ -74,7 +74,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             {
                 RunId = runId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         List<DecisionTrace> traces = [];
         foreach (string json in rows)

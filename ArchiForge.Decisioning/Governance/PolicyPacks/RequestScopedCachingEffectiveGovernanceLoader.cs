@@ -34,7 +34,7 @@ public sealed class RequestScopedCachingEffectiveGovernanceLoader(IEffectiveGove
 
         PolicyPackContentDocument document = await inner
             .LoadEffectiveContentAsync(tenantId, workspaceId, projectId, ct)
-            .ConfigureAwait(false);
+            ;
 
         _hasCache = true;
         _tenantId = tenantId;

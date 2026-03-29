@@ -20,16 +20,16 @@ public sealed class SqlSchemaBootstrapper(
         if (!File.Exists(scriptPath))
             throw new FileNotFoundException($"Schema script not found: {scriptPath}");
 
-        string script = await File.ReadAllTextAsync(scriptPath, ct).ConfigureAwait(false);
+        string script = await File.ReadAllTextAsync(scriptPath, ct);
         IReadOnlyList<string> batches = SplitGoBatches(script);
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         foreach (string batch in batches)
         {
             if (!string.IsNullOrWhiteSpace(batch))
             {
-                await connection.ExecuteAsync(new CommandDefinition(batch, cancellationToken: ct)).ConfigureAwait(false);
+                await connection.ExecuteAsync(new CommandDefinition(batch, cancellationToken: ct));
             }
         }
     }

@@ -30,7 +30,7 @@ public sealed class RetrievalIndexingService(
             if (split.Count == 0)
                 continue;
 
-            IReadOnlyList<float[]> embeddings = await embeddingService.EmbedManyAsync(split, ct).ConfigureAwait(false);
+            IReadOnlyList<float[]> embeddings = await embeddingService.EmbedManyAsync(split, ct);
             if (embeddings.Count != split.Count)
                 throw new InvalidOperationException("Embedding count must match chunk count.");
 
@@ -54,6 +54,6 @@ public sealed class RetrievalIndexingService(
         }
 
         if (chunks.Count > 0)
-            await vectorIndex.UpsertChunksAsync(chunks, ct).ConfigureAwait(false);
+            await vectorIndex.UpsertChunksAsync(chunks, ct);
     }
 }

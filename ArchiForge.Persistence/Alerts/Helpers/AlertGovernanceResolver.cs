@@ -29,6 +29,6 @@ internal static class AlertGovernanceResolver
 
         return await loader
             .LoadEffectiveContentAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
-            .ConfigureAwait(false);
+            ;
     }
 }

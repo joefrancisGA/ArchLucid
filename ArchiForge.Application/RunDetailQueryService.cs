@@ -29,15 +29,15 @@ public sealed class RunDetailQueryService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        ArchitectureRun? run = await runRepository.GetByIdAsync(runId, cancellationToken).ConfigureAwait(false);
+        ArchitectureRun? run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             logger.LogDebug("RunDetailQueryService: run '{RunId}' not found.", runId);
             return null;
         }
 
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
-        IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
 
         Contracts.Manifest.GoldenManifest? manifest = null;
         List<DecisionTrace> decisionTraces = [];
@@ -54,7 +54,7 @@ public sealed class RunDetailQueryService(
                     !string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && manifest is null
             };
         
-        manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken).ConfigureAwait(false);
+        manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
 
         if (manifest is null)
         {
@@ -65,7 +65,7 @@ public sealed class RunDetailQueryService(
         }
         else
         {
-            decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false)).ToList();
+            decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
         }
 
         return new ArchitectureRunDetail
@@ -83,7 +83,7 @@ public sealed class RunDetailQueryService(
     public async Task<IReadOnlyList<RunSummary>> ListRunSummariesAsync(
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<ArchitectureRunListItem> items = await runRepository.ListAsync(cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<ArchitectureRunListItem> items = await runRepository.ListAsync(cancellationToken);
 
         return items
             .Select(r => new RunSummary

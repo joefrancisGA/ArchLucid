@@ -59,7 +59,7 @@ public sealed class ExplanationService(
             "Respond with a single JSON object only (no markdown fences), keys:\n" +
             "highLevelSummary (string), keyTradeoffs (array of strings), narrative (string, 2-4 short paragraphs).";
 
-        string? json = await TryCompleteJsonAsync(userPrompt, ct).ConfigureAwait(false);
+        string? json = await TryCompleteJsonAsync(userPrompt, ct);
         LlmComparisonJson? parsed = TryDeserialize<LlmComparisonJson>(json);
 
         return new ComparisonExplanationResult
@@ -106,7 +106,7 @@ public sealed class ExplanationService(
             "\n\nRespond with a single JSON object only (no markdown fences), keys:\n" +
             "summary (one paragraph), detailedNarrative (2-4 paragraphs referencing the bullets above).";
 
-        string? json = await TryCompleteJsonAsync(userPrompt, ct).ConfigureAwait(false);
+        string? json = await TryCompleteJsonAsync(userPrompt, ct);
         LlmRunJson? parsed = TryDeserialize<LlmRunJson>(json);
 
         return new ExplanationResult
@@ -130,7 +130,7 @@ public sealed class ExplanationService(
     {
         try
         {
-            string raw = await completionClient.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, ct).ConfigureAwait(false);
+            string raw = await completionClient.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, ct);
             return UnwrapJsonFence(raw);
         }
         catch (OperationCanceledException)

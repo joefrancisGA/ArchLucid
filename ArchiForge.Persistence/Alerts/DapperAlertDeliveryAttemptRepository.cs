@@ -32,8 +32,8 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct));
     }
 
     public async Task UpdateAsync(AlertDeliveryAttempt attempt, CancellationToken ct)
@@ -47,8 +47,8 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
             WHERE AlertDeliveryAttemptId = @AlertDeliveryAttemptId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -63,12 +63,12 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
             ORDER BY AttemptedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AlertDeliveryAttempt> result = await connection.QueryAsync<AlertDeliveryAttempt>(
             new CommandDefinition(sql, new
             {
                 AlertId = alertId
-            }, cancellationToken: ct)).ConfigureAwait(false);
+            }, cancellationToken: ct));
         return result.ToList();
     }
 
@@ -85,7 +85,7 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
             ORDER BY AttemptedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AlertDeliveryAttempt> result = await connection.QueryAsync<AlertDeliveryAttempt>(
             new CommandDefinition(
                 sql,
@@ -94,7 +94,7 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
                     RoutingSubscriptionId = routingSubscriptionId,
                     Take = take
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
         return result.ToList();
     }
 }

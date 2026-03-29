@@ -51,7 +51,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 
         string json = JsonSerializer.Serialize(evidencePackage, ContractJson.Default);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         var parameters = new
         {
@@ -71,13 +71,13 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             deleteSql,
             new { evidencePackage.RunId },
             transaction: tx,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         await connection.ExecuteAsync(new CommandDefinition(
             insertSql,
             parameters,
             transaction: tx,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         tx.Commit();
     }
@@ -93,7 +93,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             ORDER BY CreatedUtc DESC;
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
@@ -101,7 +101,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             {
                 RunId = runId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return DeserializePackage(json, $"run '{runId}'");
     }
@@ -116,7 +116,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             WHERE EvidencePackageId = @EvidencePackageId;
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
@@ -124,7 +124,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             {
                 EvidencePackageId = evidencePackageId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return DeserializePackage(json, $"package '{evidencePackageId}'");
     }

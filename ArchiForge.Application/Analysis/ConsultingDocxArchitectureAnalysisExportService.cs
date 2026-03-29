@@ -25,7 +25,7 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
             options,
             diagramImageRenderer,
             logoProvider,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
     }
 }
 

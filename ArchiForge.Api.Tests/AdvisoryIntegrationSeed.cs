@@ -45,7 +45,7 @@ public static class AdvisoryIntegrationSeed
             RuleSetHash = "test-rh"
         };
 
-        await goldenRepo.SaveAsync(manifest, ct).ConfigureAwait(false);
+        await goldenRepo.SaveAsync(manifest, ct);
 
         RunRecord run = new()
         {
@@ -58,7 +58,7 @@ public static class AdvisoryIntegrationSeed
             GoldenManifestId = manifestId
         };
 
-        await runRepo.SaveAsync(run, ct).ConfigureAwait(false);
+        await runRepo.SaveAsync(run, ct);
 
         return runId;
     }

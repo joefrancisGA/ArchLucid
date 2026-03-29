@@ -35,7 +35,7 @@ public sealed class DemoSeedService(
     /// <inheritdoc />
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
-        await EnsureRequestAsync(cancellationToken).ConfigureAwait(false);
+        await EnsureRequestAsync(cancellationToken);
         await EnsureCommittedRunAsync(
                 ContosoRetailDemoIdentifiers.RunBaseline,
                 DemoIds.TaskBaseline,
@@ -43,7 +43,7 @@ public sealed class DemoSeedService(
                 ContosoRetailDemoIdentifiers.ManifestBaseline,
                 isHardened: false,
                 cancellationToken)
-            .ConfigureAwait(false);
+            ;
         await EnsureCommittedRunAsync(
                 ContosoRetailDemoIdentifiers.RunHardened,
                 DemoIds.TaskHardened,
@@ -51,9 +51,9 @@ public sealed class DemoSeedService(
                 ContosoRetailDemoIdentifiers.ManifestHardened,
                 isHardened: true,
                 cancellationToken)
-            .ConfigureAwait(false);
-        await EnsureGovernanceAsync(cancellationToken).ConfigureAwait(false);
-        await EnsureExportRecordAsync(cancellationToken).ConfigureAwait(false);
+            ;
+        await EnsureGovernanceAsync(cancellationToken);
+        await EnsureExportRecordAsync(cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -66,7 +66,7 @@ public sealed class DemoSeedService(
 
     private async Task EnsureRequestAsync(CancellationToken cancellationToken)
     {
-        if (await requestRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.RequestContoso, cancellationToken).ConfigureAwait(false) is not null)
+        if (await requestRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.RequestContoso, cancellationToken) is not null)
         {
             return;
         }
@@ -81,7 +81,7 @@ public sealed class DemoSeedService(
             Constraints = ["Minimize public ingress", "Retain existing payment processor integration"]
         };
 
-        await requestRepository.CreateAsync(request, cancellationToken).ConfigureAwait(false);
+        await requestRepository.CreateAsync(request, cancellationToken);
     }
 
     private async Task EnsureCommittedRunAsync(
@@ -92,7 +92,7 @@ public sealed class DemoSeedService(
         bool isHardened,
         CancellationToken cancellationToken)
     {
-        if (await runRepository.GetByIdAsync(runId, cancellationToken).ConfigureAwait(false) is not null)
+        if (await runRepository.GetByIdAsync(runId, cancellationToken) is not null)
         {
             return;
         }
@@ -107,7 +107,7 @@ public sealed class DemoSeedService(
             CurrentManifestVersion = null
         };
 
-        await runRepository.CreateAsync(run, cancellationToken).ConfigureAwait(false);
+        await runRepository.CreateAsync(run, cancellationToken);
 
         AgentTask task = new()
         {
@@ -125,7 +125,7 @@ public sealed class DemoSeedService(
             AllowedSources = []
         };
 
-        await taskRepository.CreateManyAsync([task], cancellationToken).ConfigureAwait(false);
+        await taskRepository.CreateManyAsync([task], cancellationToken);
 
         AgentResult result = new()
         {
@@ -146,10 +146,10 @@ public sealed class DemoSeedService(
             CreatedUtc = DemoUtc
         };
 
-        await resultRepository.CreateAsync(result, cancellationToken).ConfigureAwait(false);
+        await resultRepository.CreateAsync(result, cancellationToken);
 
         GoldenManifest manifest = BuildManifest(runId, manifestVersion, isHardened);
-        await manifestRepository.CreateAsync(manifest, cancellationToken).ConfigureAwait(false);
+        await manifestRepository.CreateAsync(manifest, cancellationToken);
 
         DecisionTrace trace = new()
         {
@@ -163,7 +163,7 @@ public sealed class DemoSeedService(
             Metadata = new Dictionary<string, string> { ["demo"] = "trusted-baseline-49R" }
         };
 
-        await decisionTraceRepository.CreateManyAsync([trace], cancellationToken).ConfigureAwait(false);
+        await decisionTraceRepository.CreateManyAsync([trace], cancellationToken);
 
         await runRepository.UpdateStatusAsync(
                 runId,
@@ -171,7 +171,7 @@ public sealed class DemoSeedService(
                 currentManifestVersion: manifestVersion,
                 completedUtc: DemoUtc,
                 cancellationToken: cancellationToken)
-            .ConfigureAwait(false);
+            ;
     }
 
     private static GoldenManifest BuildManifest(string runId, string manifestVersion, bool isHardened)
@@ -237,7 +237,7 @@ public sealed class DemoSeedService(
 
     private async Task EnsureGovernanceAsync(CancellationToken cancellationToken)
     {
-        if (await approvalRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.ApprovalRequest, cancellationToken).ConfigureAwait(false) is null)
+        if (await approvalRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.ApprovalRequest, cancellationToken) is null)
         {
             GovernanceApprovalRequest approval = new()
             {
@@ -255,11 +255,11 @@ public sealed class DemoSeedService(
                 ReviewedUtc = DemoUtc.AddHours(2)
             };
 
-            await approvalRepository.CreateAsync(approval, cancellationToken).ConfigureAwait(false);
+            await approvalRepository.CreateAsync(approval, cancellationToken);
         }
 
         IReadOnlyList<GovernancePromotionRecord> promos =
-            await promotionRepository.GetByRunIdAsync(ContosoRetailDemoIdentifiers.RunHardened, cancellationToken).ConfigureAwait(false);
+            await promotionRepository.GetByRunIdAsync(ContosoRetailDemoIdentifiers.RunHardened, cancellationToken);
 
         if (promos.All(p => p.PromotionRecordId != ContosoRetailDemoIdentifiers.PromotionRecord))
         {
@@ -276,7 +276,7 @@ public sealed class DemoSeedService(
                 Notes = "Demo promotion after approval (trusted baseline seed)."
             };
 
-            await promotionRepository.CreateAsync(promotion, cancellationToken).ConfigureAwait(false);
+            await promotionRepository.CreateAsync(promotion, cancellationToken);
         }
 
         await EnsureActivationAsync(
@@ -285,7 +285,7 @@ public sealed class DemoSeedService(
                 ContosoRetailDemoIdentifiers.ManifestBaseline,
                 GovernanceEnvironment.Dev,
                 cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         await EnsureActivationAsync(
                 ContosoRetailDemoIdentifiers.ActivationTest,
@@ -293,7 +293,7 @@ public sealed class DemoSeedService(
                 ContosoRetailDemoIdentifiers.ManifestHardened,
                 GovernanceEnvironment.Test,
                 cancellationToken)
-            .ConfigureAwait(false);
+            ;
     }
 
     private async Task EnsureActivationAsync(
@@ -304,7 +304,7 @@ public sealed class DemoSeedService(
         CancellationToken cancellationToken)
     {
         IReadOnlyList<GovernanceEnvironmentActivation> rows =
-            await activationRepository.GetByEnvironmentAsync(environment, cancellationToken).ConfigureAwait(false);
+            await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
 
         if (rows.Any(r => r.ActivationId == activationId))
         {
@@ -321,13 +321,13 @@ public sealed class DemoSeedService(
             ActivatedUtc = DemoUtc
         };
 
-        await activationRepository.CreateAsync(activation, cancellationToken).ConfigureAwait(false);
+        await activationRepository.CreateAsync(activation, cancellationToken);
     }
 
     /// <summary>Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no AnalysisRequestJson).</summary>
     private async Task EnsureExportRecordAsync(CancellationToken cancellationToken)
     {
-        if (await runExportRecordRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.ExportRecord, cancellationToken).ConfigureAwait(false) is not null)
+        if (await runExportRecordRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.ExportRecord, cancellationToken) is not null)
         {
             return;
         }
@@ -350,7 +350,7 @@ public sealed class DemoSeedService(
             CreatedUtc = DemoUtc
         };
 
-        await runExportRecordRepository.CreateAsync(record, cancellationToken).ConfigureAwait(false);
+        await runExportRecordRepository.CreateAsync(record, cancellationToken);
     }
 
     private static class DemoIds

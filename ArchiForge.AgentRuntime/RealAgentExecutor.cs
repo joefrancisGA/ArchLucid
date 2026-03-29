@@ -41,7 +41,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 request,
                 evidence,
                 task,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
             results.Add(result);
         }

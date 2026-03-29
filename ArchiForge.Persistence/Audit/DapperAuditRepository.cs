@@ -35,8 +35,8 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
     }
 
     public async Task<IReadOnlyList<AuditEvent>> GetByScopeAsync(
@@ -60,7 +60,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             ORDER BY OccurredUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
             new CommandDefinition(
                 sql,
@@ -71,7 +71,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
                     ProjectId = projectId,
                     Take = Math.Clamp(take <= 0 ? 100 : take, 1, 500)
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         return rows.ToList();
     }

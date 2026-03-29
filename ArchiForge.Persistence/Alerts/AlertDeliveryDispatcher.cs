@@ -34,7 +34,7 @@ public sealed class AlertDeliveryDispatcher(
 
         IReadOnlyList<AlertRoutingSubscription> subscriptions = await subscriptionRepository
             .ListEnabledByScopeAsync(alert.TenantId, alert.WorkspaceId, alert.ProjectId, ct)
-            .ConfigureAwait(false);
+            ;
 
         List<AlertRoutingSubscription> matching = subscriptions
             .Where(x => AlertSeverityComparer.MeetsMinimum(alert.Severity, x.MinimumSeverity))
@@ -57,7 +57,7 @@ public sealed class AlertDeliveryDispatcher(
                 RetryCount = 0,
             };
 
-            await attemptRepository.CreateAsync(attempt, ct).ConfigureAwait(false);
+            await attemptRepository.CreateAsync(attempt, ct);
 
             try
             {
@@ -71,13 +71,13 @@ public sealed class AlertDeliveryDispatcher(
                             Subscription = subscription,
                         },
                         ct)
-                    .ConfigureAwait(false);
+                    ;
 
                 attempt.Status = AlertDeliveryAttemptStatus.Succeeded;
                 subscription.LastDeliveredUtc = DateTime.UtcNow;
 
-                await attemptRepository.UpdateAsync(attempt, ct).ConfigureAwait(false);
-                await subscriptionRepository.UpdateAsync(subscription, ct).ConfigureAwait(false);
+                await attemptRepository.UpdateAsync(attempt, ct);
+                await subscriptionRepository.UpdateAsync(subscription, ct);
 
                 await auditService.LogAsync(
                     new AuditEvent
@@ -93,7 +93,7 @@ public sealed class AlertDeliveryDispatcher(
                             },
                             AuditJsonSerializationOptions.Instance),
                     },
-                    ct).ConfigureAwait(false);
+                    ct);
             }
             catch (OperationCanceledException)
             {
@@ -103,7 +103,7 @@ public sealed class AlertDeliveryDispatcher(
             {
                 attempt.Status = AlertDeliveryAttemptStatus.Failed;
                 attempt.ErrorMessage = ex.Message;
-                await attemptRepository.UpdateAsync(attempt, ct).ConfigureAwait(false);
+                await attemptRepository.UpdateAsync(attempt, ct);
 
                 await auditService.LogAsync(
                     new AuditEvent
@@ -120,7 +120,7 @@ public sealed class AlertDeliveryDispatcher(
                             },
                             AuditJsonSerializationOptions.Instance),
                     },
-                    ct).ConfigureAwait(false);
+                    ct);
             }
         }
     }

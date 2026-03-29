@@ -47,6 +47,6 @@ public sealed class RetrievalRunCompletionIndexer(
             manifest.RunId,
             provenanceGraph));
 
-        await indexingService.IndexDocumentsAsync(retrievalDocuments, ct).ConfigureAwait(false);
+        await indexingService.IndexDocumentsAsync(retrievalDocuments, ct);
     }
 }

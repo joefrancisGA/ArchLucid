@@ -17,7 +17,7 @@ public sealed class RetrievalQueryService(
         ArgumentNullException.ThrowIfNull(query);
         ArgumentException.ThrowIfNullOrWhiteSpace(query.QueryText);
 
-        float[] embedding = await embeddingService.EmbedAsync(query.QueryText, ct).ConfigureAwait(false);
-        return await vectorIndex.SearchAsync(query, embedding, ct).ConfigureAwait(false);
+        float[] embedding = await embeddingService.EmbedAsync(query.QueryText, ct);
+        return await vectorIndex.SearchAsync(query, embedding, ct);
     }
 }

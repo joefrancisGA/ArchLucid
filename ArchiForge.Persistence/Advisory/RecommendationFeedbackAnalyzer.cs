@@ -20,7 +20,7 @@ public sealed class RecommendationFeedbackAnalyzer(IRecommendationRepository rep
     {
         IReadOnlyList<RecommendationRecord> items = await repository
             .ListByScopeAsync(tenantId, workspaceId, projectId, null, AnalyticsBatchCap, ct)
-            .ConfigureAwait(false);
+            ;
 
         return items
             .GroupBy(x => (x.Category, x.Status))

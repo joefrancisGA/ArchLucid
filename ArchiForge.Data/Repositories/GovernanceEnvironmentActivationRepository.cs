@@ -35,7 +35,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -48,7 +48,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
                 item.IsActive,
                 item.ActivatedUtc
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task UpdateAsync(GovernanceEnvironmentActivation item, CancellationToken cancellationToken = default)
@@ -61,7 +61,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             WHERE ActivationId = @ActivationId;
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -70,14 +70,14 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
                 item.ActivationId,
                 item.IsActive
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<IReadOnlyList<GovernanceEnvironmentActivation>> GetByEnvironmentAsync(
         string environment,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT
@@ -96,7 +96,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
         IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
             sql,
             new { Environment = environment },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return [.. rows];
     }
@@ -105,7 +105,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
         string runId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT
@@ -124,7 +124,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
         IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
             sql,
             new { RunId = runId },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return [.. rows];
     }

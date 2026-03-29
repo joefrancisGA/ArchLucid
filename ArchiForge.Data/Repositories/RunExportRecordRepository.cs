@@ -81,7 +81,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
 
         string json = JsonSerializer.Serialize(record, ContractJson.Default);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -113,14 +113,14 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
                 RecordJson = json,
                 record.CreatedUtc
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<IReadOnlyList<RunExportRecord>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT RecordJson
@@ -136,7 +136,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             {
                 RunId = runId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         List<RunExportRecord> records = [];
         foreach (string json in rows)
@@ -176,7 +176,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             WHERE ExportRecordId = @ExportRecordId;
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
@@ -184,7 +184,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             {
                 ExportRecordId = exportRecordId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         if (json is null)
             return null;

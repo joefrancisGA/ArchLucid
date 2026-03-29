@@ -34,10 +34,10 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         ImprovementPlan improvementPlan = request.ManifestComparison is not null
             ? await improvementAdvisorService
                 .GeneratePlanAsync(manifest, findings, request.ManifestComparison, ct)
-                .ConfigureAwait(false)
+                
             : await improvementAdvisorService
                 .GeneratePlanAsync(manifest, findings, ct)
-                .ConfigureAwait(false);
+                ;
 
         using MemoryStream stream = TemplateLoader.OpenWritableTemplate();
 

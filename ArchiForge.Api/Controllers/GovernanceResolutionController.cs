@@ -62,7 +62,7 @@ public sealed class GovernanceResolutionController(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
-            ct).ConfigureAwait(false);
+            ct);
 
         await auditService.LogAsync(
             new AuditEvent
@@ -75,7 +75,7 @@ public sealed class GovernanceResolutionController(
                     result.Decisions.Count,
                     result.Conflicts.Count)),
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         if (result.Conflicts.Count <= 0) return Ok(result);
         
@@ -94,7 +94,7 @@ public sealed class GovernanceResolutionController(
                     result.Conflicts.Count,
                     conflictEntries)),
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         return Ok(result);
     }

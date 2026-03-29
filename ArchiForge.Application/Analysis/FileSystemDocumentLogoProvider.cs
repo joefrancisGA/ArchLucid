@@ -27,7 +27,7 @@ public sealed class FileSystemDocumentLogoProvider : IDocumentLogoProvider
             return null;
         }
 
-        return await File.ReadAllBytesAsync(options.LogoPath, cancellationToken).ConfigureAwait(false);
+        return await File.ReadAllBytesAsync(options.LogoPath, cancellationToken);
     }
 }
 

@@ -32,16 +32,16 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
 
         if (connection is not null)
         {
-            await SaveCoreAsync(snapshot, connection, transaction, ct).ConfigureAwait(false);
+            await SaveCoreAsync(snapshot, connection, transaction, ct);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         using SqlTransaction tx = owned.BeginTransaction();
 
         try
         {
-            await SaveCoreAsync(snapshot, owned, tx, ct).ConfigureAwait(false);
+            await SaveCoreAsync(snapshot, owned, tx, ct);
             tx.Commit();
         }
         catch
@@ -84,7 +84,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
         };
 
         await connection.ExecuteAsync(new CommandDefinition(headerSql, headerArgs, transaction, cancellationToken: ct))
-            .ConfigureAwait(false);
+            ;
 
         for (int i = 0; i < snapshot.Findings.Count; i++)
         {
@@ -98,9 +98,9 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
                 recordId,
                 sortOrder: i,
                 finding,
-                ct).ConfigureAwait(false);
+                ct);
 
-            await InsertFindingChildrenAsync(connection, transaction, recordId, finding, ct).ConfigureAwait(false);
+            await InsertFindingChildrenAsync(connection, transaction, recordId, finding, ct);
         }
     }
 
@@ -145,7 +145,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             PayloadJson = FindingPayloadJsonCodec.SerializePayload(finding.Payload),
         };
 
-        await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct)).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
     }
 
     private static async Task InsertFindingChildrenAsync(
@@ -172,7 +172,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
                         NodeId = finding.RelatedNodeIds[r],
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
         }
 
         const string insertActionSql = """
@@ -192,7 +192,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
                         ActionText = finding.RecommendedActions[a],
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
         }
 
         const string insertPropSql = """
@@ -219,7 +219,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
                         PropertyValue = kv.Value,
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
         }
 
         await InsertOrderedStringRowsAsync(
@@ -231,7 +231,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             VALUES (@FindingRecordId, @SortOrder, @Text);
             """,
             finding.Trace.GraphNodeIdsExamined,
-            ct).ConfigureAwait(false);
+            ct);
 
         await InsertOrderedStringRowsAsync(
             connection,
@@ -242,7 +242,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             VALUES (@FindingRecordId, @SortOrder, @Text);
             """,
             finding.Trace.RulesApplied,
-            ct).ConfigureAwait(false);
+            ct);
 
         await InsertOrderedStringRowsAsync(
             connection,
@@ -253,7 +253,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             VALUES (@FindingRecordId, @SortOrder, @Text);
             """,
             finding.Trace.DecisionsTaken,
-            ct).ConfigureAwait(false);
+            ct);
 
         await InsertOrderedStringRowsAsync(
             connection,
@@ -264,7 +264,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             VALUES (@FindingRecordId, @SortOrder, @Text);
             """,
             finding.Trace.AlternativePathsConsidered,
-            ct).ConfigureAwait(false);
+            ct);
 
         await InsertOrderedStringRowsAsync(
             connection,
@@ -275,7 +275,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             VALUES (@FindingRecordId, @SortOrder, @Text);
             """,
             finding.Trace.Notes,
-            ct).ConfigureAwait(false);
+            ct);
     }
 
     private static async Task InsertOrderedStringRowsAsync(
@@ -298,7 +298,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
                         Text = items[i],
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
         }
     }
 
@@ -312,7 +312,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             WHERE FindingsSnapshotId = @FindingsSnapshotId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         FindingsSnapshotHeaderRow? row = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotHeaderRow>(
             new CommandDefinition(
                 sql,
@@ -320,7 +320,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
                 {
                     FindingsSnapshotId = findingsSnapshotId,
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         if (row is null)
             return null;
@@ -333,12 +333,12 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             {
                 FindingsSnapshotId = findingsSnapshotId,
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         if (recordCount == 0)
             return DeserializeFromFindingsJson(row);
 
-        FindingsSnapshot snapshot = await LoadRelationalSnapshotAsync(connection, row, ct).ConfigureAwait(false);
+        FindingsSnapshot snapshot = await LoadRelationalSnapshotAsync(connection, row, ct);
         FindingsSnapshotMigrator.Apply(snapshot);
         return snapshot;
     }
@@ -377,7 +377,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
                 {
                     row.FindingsSnapshotId,
                 },
-                cancellationToken: ct)).ConfigureAwait(false)).ToList();
+                cancellationToken: ct))).ToList();
 
         if (records.Count == 0)
         {
@@ -395,7 +395,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             ORDER BY FindingRecordId, SortOrder;
             """,
             recordIds,
-            ct).ConfigureAwait(false);
+            ct);
 
         Dictionary<Guid, List<string>> actionsByRecord = await LoadOrderedPairsAsync(
             connection,
@@ -406,10 +406,10 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             ORDER BY FindingRecordId, SortOrder;
             """,
             recordIds,
-            ct).ConfigureAwait(false);
+            ct);
 
         Dictionary<Guid, Dictionary<string, string>> propsByRecord = await LoadPropertiesAsync(connection, recordIds, ct)
-            .ConfigureAwait(false);
+            ;
 
         Dictionary<Guid, List<string>> traceNodesByRecord = await LoadOrderedPairsAsync(
             connection,
@@ -420,7 +420,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             ORDER BY FindingRecordId, SortOrder;
             """,
             recordIds,
-            ct).ConfigureAwait(false);
+            ct);
 
         Dictionary<Guid, List<string>> traceRulesByRecord = await LoadOrderedPairsAsync(
             connection,
@@ -431,7 +431,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             ORDER BY FindingRecordId, SortOrder;
             """,
             recordIds,
-            ct).ConfigureAwait(false);
+            ct);
 
         Dictionary<Guid, List<string>> traceDecisionsByRecord = await LoadOrderedPairsAsync(
             connection,
@@ -442,7 +442,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             ORDER BY FindingRecordId, SortOrder;
             """,
             recordIds,
-            ct).ConfigureAwait(false);
+            ct);
 
         Dictionary<Guid, List<string>> tracePathsByRecord = await LoadOrderedPairsAsync(
             connection,
@@ -453,7 +453,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             ORDER BY FindingRecordId, SortOrder;
             """,
             recordIds,
-            ct).ConfigureAwait(false);
+            ct);
 
         Dictionary<Guid, List<string>> traceNotesByRecord = await LoadOrderedPairsAsync(
             connection,
@@ -464,7 +464,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             ORDER BY FindingRecordId, SortOrder;
             """,
             recordIds,
-            ct).ConfigureAwait(false);
+            ct);
 
         List<Finding> findings = [];
         foreach (FindingRecordRow rec in records)
@@ -527,7 +527,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
                 {
                     Ids = recordIds,
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         foreach (FindingChildStringRow row in rows)
         {
@@ -567,7 +567,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
                 {
                     Ids = recordIds,
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         foreach (FindingPropertyRow row in rows)
         {
@@ -591,7 +591,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
         CancellationToken ct)
     {
         int count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, param, transaction, cancellationToken: ct))
-            .ConfigureAwait(false);
+            ;
         return count;
     }
 

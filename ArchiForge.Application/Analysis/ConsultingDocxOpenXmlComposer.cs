@@ -77,7 +77,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
             AddStylesPart(mainPart, options);
 
-            await AddCoverPageAsync(mainPart, body, report, options, logoProvider, cancellationToken).ConfigureAwait(false);
+            await AddCoverPageAsync(mainPart, body, report, options, logoProvider, cancellationToken);
             AddPageBreak(body);
 
             if (options.IncludeDocumentControl)
@@ -99,7 +99,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
             if (options.IncludeArchitectureOverview)
             {
-                await AddArchitectureOverviewAsync(body, mainPart, report, options, diagramImageRenderer, cancellationToken).ConfigureAwait(false);
+                await AddArchitectureOverviewAsync(body, mainPart, report, options, diagramImageRenderer, cancellationToken);
             }
 
             if (options.IncludeEvidenceAndConstraints)
@@ -145,7 +145,7 @@ internal static class ConsultingDocxOpenXmlComposer
     {
         if (options.IncludeLogo)
         {
-            byte[]? logoBytes = await logoProvider.GetLogoBytesAsync(options, cancellationToken).ConfigureAwait(false);
+            byte[]? logoBytes = await logoProvider.GetLogoBytesAsync(options, cancellationToken);
             if (logoBytes is not null && logoBytes.Length > 0)
             {
                 AddImageToBody(mainPart, body, logoBytes, "Document Logo", 2_200_000L, 700_000L);
@@ -275,7 +275,7 @@ internal static class ConsultingDocxOpenXmlComposer
         {
             byte[]? imageBytes = await diagramImageRenderer.RenderMermaidPngAsync(
                 report.Diagram,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
             if (imageBytes is not null && imageBytes.Length > 0)
             {

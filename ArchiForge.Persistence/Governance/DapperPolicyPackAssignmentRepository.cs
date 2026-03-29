@@ -44,8 +44,8 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, assignment, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, assignment, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -60,8 +60,8 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
             WHERE AssignmentId = @AssignmentId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, assignment, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, assignment, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -89,7 +89,7 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
             ORDER BY AssignedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<PolicyPackAssignment> rows = await connection.QueryAsync<PolicyPackAssignment>(
             new CommandDefinition(
                 sql,
@@ -99,7 +99,7 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
                     WorkspaceId = workspaceId,
                     ProjectId = projectId
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
         return rows.ToList();
     }
 }

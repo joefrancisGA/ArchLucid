@@ -47,7 +47,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -66,7 +66,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 item.RequestedUtc,
                 item.ReviewedUtc
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task UpdateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
@@ -83,7 +83,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             WHERE ApprovalRequestId = @ApprovalRequestId;
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -95,7 +95,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 item.ReviewComment,
                 item.ReviewedUtc
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<GovernanceApprovalRequest?> GetByIdAsync(
@@ -120,19 +120,19 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             WHERE ApprovalRequestId = @ApprovalRequestId;
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.QuerySingleOrDefaultAsync<GovernanceApprovalRequest>(new CommandDefinition(
             sql,
             new { ApprovalRequestId = approvalRequestId },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<IReadOnlyList<GovernanceApprovalRequest>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT
@@ -157,7 +157,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
             sql,
             new { RunId = runId },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return [.. rows];
     }

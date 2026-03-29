@@ -22,7 +22,7 @@ public sealed class RetrievalIndexingOutboxHostedService(
         {
             try
             {
-                await _processor.ProcessPendingBatchAsync(stoppingToken).ConfigureAwait(false);
+                await _processor.ProcessPendingBatchAsync(stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -35,7 +35,7 @@ public sealed class RetrievalIndexingOutboxHostedService(
 
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {

@@ -65,14 +65,14 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using IDbTransaction transaction = connection.BeginTransaction();
 
         await connection.ExecuteAsync(new CommandDefinition(
             deleteSql,
             new { RunId = runId },
             transaction: transaction,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         foreach (AgentEvaluation e in evaluations)
         {
@@ -91,7 +91,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
                     e.CreatedUtc
                 },
                 transaction: transaction,
-                cancellationToken: cancellationToken)).ConfigureAwait(false);
+                cancellationToken: cancellationToken));
         }
 
         transaction.Commit();
@@ -101,7 +101,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         string runId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT EvaluationJson
@@ -114,7 +114,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new { RunId = runId },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         List<AgentEvaluation> evaluations = [];
         foreach (string json in rows)

@@ -18,7 +18,7 @@ public sealed class SqlConnectionFactory(IConfiguration configuration) : IDbConn
     public async Task<IDbConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken = default)
     {
         SqlConnection connection = new(_connectionString);
-        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        await connection.OpenAsync(cancellationToken);
         return connection;
     }
 }

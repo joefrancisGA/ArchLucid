@@ -28,7 +28,7 @@ public sealed class PolicyPackResolver(
     {
         IReadOnlyList<PolicyPackAssignment> assignments = await assignmentRepository
             .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
-            .ConfigureAwait(false);
+            ;
 
         EffectivePolicyPackSet result = new()
         {
@@ -39,13 +39,13 @@ public sealed class PolicyPackResolver(
 
         foreach (PolicyPackAssignment assignment in assignments.Where(x => x.IsEnabled))
         {
-            PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct).ConfigureAwait(false);
+            PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct);
             if (pack is null)
                 continue;
 
             PolicyPackVersion? version = await versionRepository
                 .GetByPackAndVersionAsync(assignment.PolicyPackId, assignment.PolicyPackVersion, ct)
-                .ConfigureAwait(false);
+                ;
 
             if (version is null)
                 continue;

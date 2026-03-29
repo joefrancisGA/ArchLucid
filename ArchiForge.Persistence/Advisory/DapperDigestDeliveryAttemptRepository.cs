@@ -34,8 +34,8 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -49,8 +49,8 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             WHERE AttemptId = @AttemptId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -69,13 +69,13 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             ORDER BY AttemptedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<DigestDeliveryAttempt> result = await connection.QueryAsync<DigestDeliveryAttempt>(
             new CommandDefinition(sql, new
             {
                 Cap = ListByDigestCap,
                 DigestId = digestId
-            }, cancellationToken: ct)).ConfigureAwait(false);
+            }, cancellationToken: ct));
 
         return result.ToList();
     }
@@ -98,7 +98,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             ORDER BY AttemptedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<DigestDeliveryAttempt> result = await connection.QueryAsync<DigestDeliveryAttempt>(
             new CommandDefinition(
                 sql,
@@ -107,7 +107,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
                     SubscriptionId = subscriptionId,
                     Take = take
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         return result.ToList();
     }

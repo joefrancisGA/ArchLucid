@@ -31,7 +31,7 @@ public sealed class ResilientSqlConnectionFactory(
         {
             try
             {
-                return await _inner.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+                return await _inner.CreateOpenConnectionAsync(ct);
             }
             catch (Exception ex) when (attempt < maxRetries && SqlTransientDetector.IsTransient(ex))
             {
@@ -45,7 +45,7 @@ public sealed class ResilientSqlConnectionFactory(
                     maxRetries,
                     (int)delay.TotalMilliseconds);
 
-                await Task.Delay(delay, ct).ConfigureAwait(false);
+                await Task.Delay(delay, ct);
             }
         }
     }

@@ -57,7 +57,7 @@ public sealed class AlertSimulationContextProvider(
                     runId.Value,
                     comparedToRunId,
                     ct)
-                .ConfigureAwait(false);
+                ;
 
             if (single is not null)
                 results.Add(single);
@@ -68,11 +68,11 @@ public sealed class AlertSimulationContextProvider(
         int take = Math.Clamp(recentRunCount, 1, 50);
         IReadOnlyList<RunSummaryDto> runs = await authorityQueryService
             .ListRunsByProjectAsync(scope, string.IsNullOrWhiteSpace(runProjectSlug) ? "default" : runProjectSlug.Trim(), take, ct)
-            .ConfigureAwait(false);
+            ;
 
         foreach (RunSummaryDto run in runs.OrderByDescending(x => x.CreatedUtc))
         {
-            AlertEvaluationContext? context = await BuildContextAsync(scope, run.RunId, comparedToRunId: null, ct).ConfigureAwait(false);
+            AlertEvaluationContext? context = await BuildContextAsync(scope, run.RunId, comparedToRunId: null, ct);
             if (context is not null)
                 results.Add(context);
         }
@@ -90,7 +90,7 @@ public sealed class AlertSimulationContextProvider(
         Guid? comparedToRunId,
         CancellationToken ct)
     {
-        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct).ConfigureAwait(false);
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         if (detail?.GoldenManifest is null)
             return null;
 
@@ -102,7 +102,7 @@ public sealed class AlertSimulationContextProvider(
         {
             RunDetailDto? comparedDetail = await authorityQueryService
                 .GetRunDetailAsync(scope, comparedToRunId.Value, ct)
-                .ConfigureAwait(false);
+                ;
 
             if (comparedDetail?.GoldenManifest is not null)
                 comparison = comparisonService.Compare(comparedDetail.GoldenManifest, detail.GoldenManifest);
@@ -111,18 +111,18 @@ public sealed class AlertSimulationContextProvider(
         ImprovementPlan plan = comparison is null
             ? await improvementAdvisorService
                 .GeneratePlanAsync(detail.GoldenManifest, findings, ct)
-                .ConfigureAwait(false)
+                
             : await improvementAdvisorService
                 .GeneratePlanAsync(detail.GoldenManifest, findings, comparison, ct)
-                .ConfigureAwait(false);
+                ;
 
         IReadOnlyList<RecommendationRecord> recommendations = await recommendationRepository
             .ListByRunAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, ct)
-            .ConfigureAwait(false);
+            ;
 
         RecommendationLearningProfile? learning = await recommendationLearningService
             .GetLatestProfileAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
-            .ConfigureAwait(false);
+            ;
 
         return new AlertEvaluationContext
         {

@@ -36,7 +36,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
 
         string json = JsonSerializer.Serialize(evidenceBundle, ContractJson.Default);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -47,7 +47,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
                 EvidenceJson = json,
                 CreatedUtc = DateTime.UtcNow
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<EvidenceBundle?> GetByIdAsync(string evidenceBundleId, CancellationToken cancellationToken = default)
@@ -58,7 +58,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
             WHERE EvidenceBundleId = @EvidenceBundleId;
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
@@ -66,7 +66,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
             {
                 EvidenceBundleId = evidenceBundleId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         if (json is null)
             return null;

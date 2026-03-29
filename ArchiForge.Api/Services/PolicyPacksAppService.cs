@@ -34,7 +34,7 @@ public sealed class PolicyPacksAppService(
     {
         PolicyPack pack = await managementService
             .CreatePackAsync(tenantId, workspaceId, projectId, name, description, packType, initialContentJson, ct)
-            .ConfigureAwait(false);
+            ;
 
         await auditService.LogAsync(
             new AuditEvent
@@ -42,7 +42,7 @@ public sealed class PolicyPacksAppService(
                 EventType = AuditEventTypes.PolicyPackCreated,
                 DataJson = JsonSerializer.Serialize(new { pack.PolicyPackId, pack.Name, pack.PackType }),
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         return pack;
     }
@@ -57,7 +57,7 @@ public sealed class PolicyPacksAppService(
     {
         PolicyPackVersion packVersion = await managementService
             .PublishVersionAsync(policyPackId, version, contentJson, ct)
-            .ConfigureAwait(false);
+            ;
 
         await auditService.LogAsync(
             new AuditEvent
@@ -65,7 +65,7 @@ public sealed class PolicyPacksAppService(
                 EventType = AuditEventTypes.PolicyPackVersionPublished,
                 DataJson = JsonSerializer.Serialize(new { policyPackId, packVersion.Version }),
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         return packVersion;
     }
@@ -87,13 +87,13 @@ public sealed class PolicyPacksAppService(
     {
         PolicyPackVersion? packVersion = await versionRepository
             .GetByPackAndVersionAsync(policyPackId, version, ct)
-            .ConfigureAwait(false);
+            ;
         if (packVersion is null)
             return null;
 
         PolicyPackAssignment assignment = await managementService
             .AssignAsync(tenantId, workspaceId, projectId, policyPackId, version, scopeLevel, isPinned, ct)
-            .ConfigureAwait(false);
+            ;
 
         await auditService.LogAsync(
             new AuditEvent
@@ -109,7 +109,7 @@ public sealed class PolicyPacksAppService(
                         assignment.IsPinned,
                     }),
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         return assignment;
     }

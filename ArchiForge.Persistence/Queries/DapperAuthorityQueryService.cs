@@ -33,20 +33,20 @@ public sealed class DapperAuthorityQueryService(
         int take,
         CancellationToken ct)
     {
-        IReadOnlyList<RunRecord> runs = await runRepository.ListByProjectAsync(scope, projectId, take, ct).ConfigureAwait(false);
+        IReadOnlyList<RunRecord> runs = await runRepository.ListByProjectAsync(scope, projectId, take, ct);
         return runs.Select(MapSummary).ToList();
     }
 
     /// <inheritdoc />
     public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct).ConfigureAwait(false);
+        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
         return run is null ? null : MapSummary(run);
     }
 
     public async Task<RunDetailDto?> GetRunDetailAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct).ConfigureAwait(false);
+        RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
         if (run is null)
             return null;
 
@@ -69,24 +69,24 @@ public sealed class DapperAuthorityQueryService(
             ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct)
             : Task.FromResult<ArtifactBundle?>(null);
 
-        await Task.WhenAll(contextTask, graphTask, findingsTask, traceTask, manifestTask, bundleTask).ConfigureAwait(false);
+        await Task.WhenAll(contextTask, graphTask, findingsTask, traceTask, manifestTask, bundleTask);
 
         return new RunDetailDto
         {
             Run = run,
-            ContextSnapshot = await contextTask.ConfigureAwait(false),
-            GraphSnapshot = await graphTask.ConfigureAwait(false),
-            FindingsSnapshot = await findingsTask.ConfigureAwait(false),
-            DecisionTrace = await traceTask.ConfigureAwait(false),
-            GoldenManifest = await manifestTask.ConfigureAwait(false),
-            ArtifactBundle = await bundleTask.ConfigureAwait(false)
+            ContextSnapshot = await contextTask,
+            GraphSnapshot = await graphTask,
+            FindingsSnapshot = await findingsTask,
+            DecisionTrace = await traceTask,
+            GoldenManifest = await manifestTask,
+            ArtifactBundle = await bundleTask
         };
     }
 
     /// <inheritdoc />
     public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
-        GoldenManifest? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct).ConfigureAwait(false);
+        GoldenManifest? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
         return manifest is null ? null : AuthorityRunMapper.MapManifestSummary(manifest);
     }
 

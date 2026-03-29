@@ -24,7 +24,7 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient(
 
         try
         {
-            float[] result = await _inner.EmbedAsync(text, ct).ConfigureAwait(false);
+            float[] result = await _inner.EmbedAsync(text, ct);
             _gate.RecordSuccess();
             return result;
         }
@@ -48,7 +48,7 @@ public sealed class CircuitBreakingOpenAiEmbeddingClient(
 
         try
         {
-            IReadOnlyList<float[]> result = await _inner.EmbedManyAsync(texts, ct).ConfigureAwait(false);
+            IReadOnlyList<float[]> result = await _inner.EmbedManyAsync(texts, ct);
             _gate.RecordSuccess();
             return result;
         }

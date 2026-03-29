@@ -42,7 +42,7 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
 
         string json = JsonSerializer.Serialize(request, ContractJson.Default);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -55,7 +55,7 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
                 RequestJson = json,
                 CreatedUtc = DateTime.UtcNow
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<ArchitectureRequest?> GetByIdAsync(string requestId, CancellationToken cancellationToken = default)
@@ -66,7 +66,7 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
             WHERE RequestId = @RequestId;
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
@@ -74,7 +74,7 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
             {
                 RequestId = requestId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         if (json is null)
             return null;

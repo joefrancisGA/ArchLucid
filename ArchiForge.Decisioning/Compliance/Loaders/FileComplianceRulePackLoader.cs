@@ -22,7 +22,7 @@ public sealed class FileComplianceRulePackLoader(string filePath) : IComplianceR
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"Compliance rule pack not found: {filePath}");
 
-        string json = await File.ReadAllTextAsync(filePath, ct).ConfigureAwait(false);
+        string json = await File.ReadAllTextAsync(filePath, ct);
 
         ComplianceRulePackDocument? doc;
         try

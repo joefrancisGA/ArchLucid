@@ -32,7 +32,7 @@ public sealed class MermaidCliDiagramImageRenderer(
         string inputPath = Path.Combine(tempDir, "diagram.mmd");
         string outputPath = Path.Combine(tempDir, "diagram.png");
 
-        await File.WriteAllTextAsync(inputPath, mermaidDiagram, Encoding.UTF8, cancellationToken).ConfigureAwait(false);
+        await File.WriteAllTextAsync(inputPath, mermaidDiagram, Encoding.UTF8, cancellationToken);
 
         try
         {
@@ -53,10 +53,10 @@ public sealed class MermaidCliDiagramImageRenderer(
             process.StartInfo = psi;
             process.Start();
 
-            await process.StandardOutput.ReadToEndAsync(linkedCts.Token).ConfigureAwait(false);
-            string stdErr = await process.StandardError.ReadToEndAsync(linkedCts.Token).ConfigureAwait(false);
+            await process.StandardOutput.ReadToEndAsync(linkedCts.Token);
+            string stdErr = await process.StandardError.ReadToEndAsync(linkedCts.Token);
 
-            await process.WaitForExitAsync(linkedCts.Token).ConfigureAwait(false);
+            await process.WaitForExitAsync(linkedCts.Token);
 
             if (process.ExitCode != 0)
             {
@@ -69,7 +69,7 @@ public sealed class MermaidCliDiagramImageRenderer(
                 throw new InvalidOperationException("Mermaid CLI did not produce an output PNG.");
             }
 
-            return await File.ReadAllBytesAsync(outputPath, cancellationToken).ConfigureAwait(false);
+            return await File.ReadAllBytesAsync(outputPath, cancellationToken);
         }
         finally
         {

@@ -25,7 +25,7 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
             """;
 
         Guid outboxId = Guid.NewGuid();
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
@@ -37,7 +37,7 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
                     WorkspaceId = workspaceId,
                     ProjectId = projectId
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -52,9 +52,9 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
             ORDER BY CreatedUtc ASC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<RetrievalIndexingOutboxEntry> rows = await connection.QueryAsync<RetrievalIndexingOutboxEntry>(
-            new CommandDefinition(sql, new { Take = take }, cancellationToken: ct)).ConfigureAwait(false);
+            new CommandDefinition(sql, new { Take = take }, cancellationToken: ct));
         return rows.ToList();
     }
 
@@ -67,8 +67,8 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
             WHERE OutboxId = @OutboxId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { OutboxId = outboxId }, cancellationToken: ct)).ConfigureAwait(false);
+            new CommandDefinition(sql, new { OutboxId = outboxId }, cancellationToken: ct));
     }
 }

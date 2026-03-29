@@ -21,13 +21,13 @@ public sealed class AdvisoryDueScheduleProcessor(
     {
         IReadOnlyList<AdvisoryScanSchedule> due = await scheduleRepository
             .ListDueAsync(utcNow, maxSchedules, ct)
-            .ConfigureAwait(false);
+            ;
 
         foreach (AdvisoryScanSchedule schedule in due)
         {
             try
             {
-                await runner.RunScheduleAsync(schedule, ct).ConfigureAwait(false);
+                await runner.RunScheduleAsync(schedule, ct);
             }
             catch (OperationCanceledException)
             {

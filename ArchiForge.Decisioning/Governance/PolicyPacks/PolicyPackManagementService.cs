@@ -44,7 +44,7 @@ public sealed class PolicyPackManagementService(
         using TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled);
-        await packRepository.CreateAsync(pack, ct).ConfigureAwait(false);
+        await packRepository.CreateAsync(pack, ct);
 
         await versionRepository
             .CreateAsync(
@@ -58,7 +58,7 @@ public sealed class PolicyPackManagementService(
                     IsPublished = false,
                 },
                 ct)
-            .ConfigureAwait(false);
+            ;
 
         scope.Complete();
 
@@ -78,14 +78,14 @@ public sealed class PolicyPackManagementService(
 
         PolicyPackVersion? existing = await versionRepository
             .GetByPackAndVersionAsync(policyPackId, version, ct)
-            .ConfigureAwait(false);
+            ;
 
         PolicyPackVersion packVersion;
         if (existing is not null)
         {
             existing.ContentJson = normalizedJson;
             existing.IsPublished = true;
-            await versionRepository.UpdateAsync(existing, ct).ConfigureAwait(false);
+            await versionRepository.UpdateAsync(existing, ct);
             packVersion = existing;
         }
         else
@@ -100,16 +100,16 @@ public sealed class PolicyPackManagementService(
                 IsPublished = true,
             };
 
-            await versionRepository.CreateAsync(packVersion, ct).ConfigureAwait(false);
+            await versionRepository.CreateAsync(packVersion, ct);
         }
 
-        PolicyPack pack = await packRepository.GetByIdAsync(policyPackId, ct).ConfigureAwait(false) ?? throw new InvalidOperationException(
+        PolicyPack pack = await packRepository.GetByIdAsync(policyPackId, ct) ?? throw new InvalidOperationException(
                 $"Policy pack '{policyPackId}' was not found. Cannot promote version '{version}' on a non-existent pack.");
 
         pack.CurrentVersion = version;
         pack.Status = PolicyPackStatus.Active;
         pack.ActivatedUtc = DateTime.UtcNow;
-        await packRepository.UpdateAsync(pack, ct).ConfigureAwait(false);
+        await packRepository.UpdateAsync(pack, ct);
 
         return packVersion;
     }
@@ -157,7 +157,7 @@ public sealed class PolicyPackManagementService(
             AssignedUtc = DateTime.UtcNow,
         };
 
-        await assignmentRepository.CreateAsync(assignment, ct).ConfigureAwait(false);
+        await assignmentRepository.CreateAsync(assignment, ct);
         return assignment;
     }
 }

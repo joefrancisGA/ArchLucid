@@ -123,7 +123,7 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
 
                     // Exponential backoff before re-enqueue: 1s, 2s, 4s, ...
                     int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
-                    await Task.Delay(delayMs, stoppingToken).ConfigureAwait(false);
+                    await Task.Delay(delayMs, stoppingToken);
 
                     _queue.Writer.TryWrite(item);
                 }

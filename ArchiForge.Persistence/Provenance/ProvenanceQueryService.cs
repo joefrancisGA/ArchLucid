@@ -16,7 +16,7 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
         if (runId == Guid.Empty)
             throw new ArgumentException("runId must be a non-empty GUID.", nameof(runId));
 
-        DecisionProvenanceGraph? graph = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
+        DecisionProvenanceGraph? graph = await LoadGraphAsync(scope, runId, ct);
         return graph is null ? null : ProvenanceGraphViewMapper.ToViewModel(graph);
     }
 
@@ -30,7 +30,7 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(decisionKey);
 
-        DecisionProvenanceGraph? full = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
+        DecisionProvenanceGraph? full = await LoadGraphAsync(scope, runId, ct);
         if (full is null)
             return null;
 
@@ -54,7 +54,7 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
             throw new ArgumentException("runId must be a non-empty GUID.", nameof(runId));
         int safeDepth = Math.Clamp(depth, 1, 10);
 
-        DecisionProvenanceGraph? full = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
+        DecisionProvenanceGraph? full = await LoadGraphAsync(scope, runId, ct);
         if (full is null)
             return null;
 
@@ -67,7 +67,7 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
 
     private async Task<DecisionProvenanceGraph?> LoadGraphAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        DecisionProvenanceSnapshot? snapshot = await repo.GetByRunIdAsync(scope, runId, ct).ConfigureAwait(false);
+        DecisionProvenanceSnapshot? snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
         if (snapshot is null)
             return null;
 

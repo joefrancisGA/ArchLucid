@@ -29,11 +29,11 @@ public sealed class RecommendationLearningService(
     {
         IReadOnlyList<RecommendationRecord> items = await recommendationRepository
             .ListByScopeAsync(tenantId, workspaceId, projectId, null, ProfileRebuildBatchCap, ct)
-            .ConfigureAwait(false);
+            ;
 
         RecommendationLearningProfile profile = analyzer.BuildProfile(tenantId, workspaceId, projectId, items);
 
-        await profileRepository.SaveAsync(profile, ct).ConfigureAwait(false);
+        await profileRepository.SaveAsync(profile, ct);
         return profile;
     }
 

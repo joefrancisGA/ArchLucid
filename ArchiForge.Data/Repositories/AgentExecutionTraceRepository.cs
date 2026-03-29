@@ -54,7 +54,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
 
         string json = JsonSerializer.Serialize(trace, ContractJson.Default);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -69,14 +69,14 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 TraceJson = json,
                 trace.CreatedUtc
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT TraceJson
@@ -92,7 +92,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             {
                 RunId = runId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return DeserializeTraces(rows, $"run '{runId}'");
     }
@@ -115,12 +115,12 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         int clampedOffset = Math.Max(0, offset);
         int clampedLimit = Math.Clamp(limit, 1, 500);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         IEnumerable<TracePageRow> rows = await connection.QueryAsync<TracePageRow>(new CommandDefinition(
             sql,
             new { RunId = runId, Offset = clampedOffset, Limit = clampedLimit },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         List<TracePageRow> list = rows.ToList();
         int totalCount = list.Count > 0 ? list[0].TotalCount : 0;
@@ -134,7 +134,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         string taskId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT TraceJson
@@ -150,7 +150,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             {
                 TaskId = taskId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return DeserializeTraces(rows, $"task '{taskId}'");
     }

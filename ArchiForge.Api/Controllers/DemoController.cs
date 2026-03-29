@@ -41,7 +41,7 @@ public sealed class DemoController(
                 ProblemTypes.BadRequest);
         }
 
-        await demoSeedService.SeedAsync(cancellationToken).ConfigureAwait(false);
+        await demoSeedService.SeedAsync(cancellationToken);
         return NoContent();
     }
 }

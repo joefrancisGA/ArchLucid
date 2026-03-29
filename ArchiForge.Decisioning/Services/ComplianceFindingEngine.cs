@@ -28,7 +28,7 @@ public class ComplianceFindingEngine(
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        ComplianceRulePack rulePack = await rulePackProvider.GetRulePackAsync(ct).ConfigureAwait(false);
+        ComplianceRulePack rulePack = await rulePackProvider.GetRulePackAsync(ct);
         packValidator.Validate(rulePack);
 
         ComplianceEvaluationResult evaluation = evaluator.Evaluate(graphSnapshot, rulePack);

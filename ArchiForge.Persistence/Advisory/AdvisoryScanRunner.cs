@@ -99,13 +99,13 @@ public sealed class AdvisoryScanRunner(
             ResultJson = "{}"
         };
 
-        await executionRepository.CreateAsync(execution, ct).ConfigureAwait(false);
+        await executionRepository.CreateAsync(execution, ct);
 
         try
         {
             using (AmbientScopeContext.Push(scope))
             {
-                await RunScheduleCoreAsync(schedule, scope, execution, ct).ConfigureAwait(false);
+                await RunScheduleCoreAsync(schedule, scope, execution, ct);
             }
         }
         catch (OperationCanceledException)
@@ -117,7 +117,7 @@ public sealed class AdvisoryScanRunner(
             execution.Status = StatusFailed;
             execution.CompletedUtc = DateTime.UtcNow;
             execution.ErrorMessage = ex.Message;
-            await executionRepository.UpdateAsync(execution, ct).ConfigureAwait(false);
+            await executionRepository.UpdateAsync(execution, ct);
 
             await auditService.LogAsync(
                 new AuditEvent
@@ -133,9 +133,9 @@ public sealed class AdvisoryScanRunner(
                         },
                         AuditJsonSerializationOptions.Instance),
                 },
-                ct).ConfigureAwait(false);
+                ct);
 
-            await AdvanceScheduleAsync(schedule, ct).ConfigureAwait(false);
+            await AdvanceScheduleAsync(schedule, ct);
         }
     }
 
@@ -158,19 +158,19 @@ public sealed class AdvisoryScanRunner(
         string slug = string.IsNullOrWhiteSpace(schedule.RunProjectSlug) ? "default" : schedule.RunProjectSlug.Trim();
         IReadOnlyList<RunSummaryDto> runs = await authorityQueryService
             .ListRunsByProjectAsync(scope, slug, 2, ct)
-            .ConfigureAwait(false);
+            ;
 
         List<RunSummaryDto> ordered = runs.OrderByDescending(x => x.CreatedUtc).ToList();
         RunSummaryDto? latest = ordered.FirstOrDefault();
         if (latest is null)
         {
-            await CompleteNoRunsAsync(execution, schedule, ct).ConfigureAwait(false);
+            await CompleteNoRunsAsync(execution, schedule, ct);
             return;
         }
 
         RunDetailDto? latestDetail = await authorityQueryService
             .GetRunDetailAsync(scope, latest.RunId, ct)
-            .ConfigureAwait(false);
+            ;
 
         if (latestDetail?.GoldenManifest is null)
         {
@@ -178,7 +178,7 @@ public sealed class AdvisoryScanRunner(
                 execution,
                 schedule,
                 "Latest run did not contain a golden manifest.",
-                ct).ConfigureAwait(false);
+                ct);
             return;
         }
 
@@ -193,7 +193,7 @@ public sealed class AdvisoryScanRunner(
         {
             RunDetailDto? previousDetail = await authorityQueryService
                 .GetRunDetailAsync(scope, compareTo.RunId, ct)
-                .ConfigureAwait(false);
+                ;
 
             if (previousDetail?.GoldenManifest is not null)
             {
@@ -201,33 +201,33 @@ public sealed class AdvisoryScanRunner(
                 comparedToRunId = compareTo.RunId;
                 plan = await improvementAdvisorService
                     .GeneratePlanAsync(latestDetail.GoldenManifest, findings, comparisonResult, ct)
-                    .ConfigureAwait(false);
+                    ;
             }
             else
             {
                 plan = await improvementAdvisorService
                     .GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct)
-                    .ConfigureAwait(false);
+                    ;
             }
         }
         else
         {
             plan = await improvementAdvisorService
                 .GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct)
-                .ConfigureAwait(false);
+                ;
         }
 
         IReadOnlyList<RecommendationRecord> recommendationRecords = await recommendationRepository
             .ListByRunAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, ct)
-            .ConfigureAwait(false);
+            ;
 
         RecommendationLearningProfile? learningProfile = await recommendationLearningService
             .GetLatestProfileAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
-            .ConfigureAwait(false);
+            ;
 
         PolicyPackContentDocument effectiveGovernance = await effectiveGovernanceLoader
             .LoadEffectiveContentAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
-            .ConfigureAwait(false);
+            ;
 
         foreach (KeyValuePair<string, string> kvp in effectiveGovernance.AdvisoryDefaults)
             plan.PolicyPackAdvisoryDefaults[kvp.Key] = kvp.Value;
@@ -244,11 +244,11 @@ public sealed class AdvisoryScanRunner(
             learningProfile,
             effectiveGovernance);
 
-        AlertEvaluationOutcome alertOutcome = await alertService.EvaluateAndPersistAsync(alertContext, ct).ConfigureAwait(false);
+        AlertEvaluationOutcome alertOutcome = await alertService.EvaluateAndPersistAsync(alertContext, ct);
 
         CompositeAlertEvaluationResult compositeOutcome = await compositeAlertService
             .EvaluateAndPersistAsync(alertContext, ct)
-            .ConfigureAwait(false);
+            ;
 
         List<AlertRecord> digestAlerts = alertOutcome.Evaluated
             .Concat(compositeOutcome.Created)
@@ -263,9 +263,9 @@ public sealed class AdvisoryScanRunner(
             plan,
             digestAlerts);
 
-        await digestRepository.CreateAsync(digest, ct).ConfigureAwait(false);
+        await digestRepository.CreateAsync(digest, ct);
 
-        await deliveryDispatcher.DeliverAsync(digest, ct).ConfigureAwait(false);
+        await deliveryDispatcher.DeliverAsync(digest, ct);
 
         execution.Status = StatusCompleted;
         execution.CompletedUtc = DateTime.UtcNow;
@@ -283,7 +283,7 @@ public sealed class AdvisoryScanRunner(
             },
             AuditJsonSerializationOptions.Instance);
 
-        await executionRepository.UpdateAsync(execution, ct).ConfigureAwait(false);
+        await executionRepository.UpdateAsync(execution, ct);
 
         await auditService.LogAsync(
             new AuditEvent
@@ -294,7 +294,7 @@ public sealed class AdvisoryScanRunner(
                     new { scheduleId = schedule.ScheduleId, executionId = execution.ExecutionId },
                     AuditJsonSerializationOptions.Instance),
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         await auditService.LogAsync(
             new AuditEvent
@@ -303,9 +303,9 @@ public sealed class AdvisoryScanRunner(
                 RunId = latest.RunId,
                 DataJson = JsonSerializer.Serialize(new { digestId = digest.DigestId, scheduleId = schedule.ScheduleId }),
             },
-            ct).ConfigureAwait(false);
+            ct);
 
-        await AdvanceScheduleAsync(schedule, ct).ConfigureAwait(false);
+        await AdvanceScheduleAsync(schedule, ct);
     }
 
     private async Task CompleteNoRunsAsync(
@@ -316,7 +316,7 @@ public sealed class AdvisoryScanRunner(
         execution.Status = StatusCompleted;
         execution.CompletedUtc = DateTime.UtcNow;
         execution.ResultJson = """{"message":"No runs were available."}""";
-        await executionRepository.UpdateAsync(execution, ct).ConfigureAwait(false);
+        await executionRepository.UpdateAsync(execution, ct);
 
         await auditService.LogAsync(
             new AuditEvent
@@ -326,9 +326,9 @@ public sealed class AdvisoryScanRunner(
                     new { scheduleId = schedule.ScheduleId, message = "no_runs" },
                     AuditJsonSerializationOptions.Instance),
             },
-            ct).ConfigureAwait(false);
+            ct);
 
-        await AdvanceScheduleAsync(schedule, ct).ConfigureAwait(false);
+        await AdvanceScheduleAsync(schedule, ct);
     }
 
     private async Task FailAsync(
@@ -340,7 +340,7 @@ public sealed class AdvisoryScanRunner(
         execution.Status = StatusFailed;
         execution.CompletedUtc = DateTime.UtcNow;
         execution.ErrorMessage = message;
-        await executionRepository.UpdateAsync(execution, ct).ConfigureAwait(false);
+        await executionRepository.UpdateAsync(execution, ct);
 
         await auditService.LogAsync(
             new AuditEvent
@@ -350,9 +350,9 @@ public sealed class AdvisoryScanRunner(
                     new { scheduleId = schedule.ScheduleId, failed = true, message },
                     AuditJsonSerializationOptions.Instance),
             },
-            ct).ConfigureAwait(false);
+            ct);
 
-        await AdvanceScheduleAsync(schedule, ct).ConfigureAwait(false);
+        await AdvanceScheduleAsync(schedule, ct);
     }
 
     private async Task AdvanceScheduleAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
@@ -360,7 +360,7 @@ public sealed class AdvisoryScanRunner(
         DateTime now = DateTime.UtcNow;
         schedule.LastRunUtc = now;
         schedule.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(schedule.CronExpression, now);
-        await scheduleRepository.UpdateAsync(schedule, ct).ConfigureAwait(false);
+        await scheduleRepository.UpdateAsync(schedule, ct);
     }
 
     private static FindingsSnapshot CreateEmptyFindings(GoldenManifest manifest) =>

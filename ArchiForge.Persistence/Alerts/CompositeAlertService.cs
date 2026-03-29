@@ -54,11 +54,11 @@ public sealed class CompositeAlertService(
         {
             IReadOnlyList<CompositeAlertRule> rules = await ruleRepository
                 .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
-                .ConfigureAwait(false);
+                ;
 
             PolicyPackContentDocument effective = await AlertGovernanceResolver
                 .ResolveAsync(context, effectiveGovernanceLoader, ct)
-                .ConfigureAwait(false);
+                ;
 
             rules = PolicyPackGovernanceFilter.FilterCompositeRules(rules, effective);
 
@@ -75,7 +75,7 @@ public sealed class CompositeAlertService(
 
                 AlertSuppressionDecision suppression = await suppressionPolicy
                     .DecideAsync(rule, context, snapshot, ct)
-                    .ConfigureAwait(false);
+                    ;
 
                 if (!suppression.ShouldCreateAlert)
                 {
@@ -95,7 +95,7 @@ public sealed class CompositeAlertService(
                                 },
                                 AuditJsonSerializationOptions.Instance),
                         },
-                        ct).ConfigureAwait(false);
+                        ct);
                     continue;
                 }
 
@@ -124,8 +124,8 @@ public sealed class CompositeAlertService(
                     DeduplicationKey = suppression.DeduplicationKey,
                 };
 
-                await alertRepository.CreateAsync(alert, ct).ConfigureAwait(false);
-                await alertDeliveryDispatcher.DeliverAsync(alert, ct).ConfigureAwait(false);
+                await alertRepository.CreateAsync(alert, ct);
+                await alertDeliveryDispatcher.DeliverAsync(alert, ct);
                 created.Add(alert);
 
                 await auditService.LogAsync(
@@ -143,7 +143,7 @@ public sealed class CompositeAlertService(
                             },
                             AuditJsonSerializationOptions.Instance),
                     },
-                    ct).ConfigureAwait(false);
+                    ct);
             }
 
             return new CompositeAlertEvaluationResult(created, suppressedMatches);

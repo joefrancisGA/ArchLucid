@@ -22,7 +22,7 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
 
         foreach (ImprovementRecommendation recommendation in plan.Recommendations)
         {
-            RecommendationRecord? existing = await repository.GetByIdAsync(recommendation.RecommendationId, ct).ConfigureAwait(false);
+            RecommendationRecord? existing = await repository.GetByIdAsync(recommendation.RecommendationId, ct);
 
             RecommendationRecord record = new()
             {
@@ -58,7 +58,7 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
                 record.LastUpdatedUtc = DateTime.UtcNow;
             }
 
-            await repository.UpsertAsync(record, ct).ConfigureAwait(false);
+            await repository.UpsertAsync(record, ct);
         }
     }
 
@@ -74,7 +74,7 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
         ArgumentException.ThrowIfNullOrWhiteSpace(userName);
         ArgumentNullException.ThrowIfNull(request);
 
-        RecommendationRecord? recommendation = await repository.GetByIdAsync(recommendationId, ct).ConfigureAwait(false);
+        RecommendationRecord? recommendation = await repository.GetByIdAsync(recommendationId, ct);
         if (recommendation is null)
             return null;
 
@@ -93,7 +93,7 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
         recommendation.ResolutionRationale = request.Rationale;
         recommendation.LastUpdatedUtc = DateTime.UtcNow;
 
-        await repository.UpsertAsync(recommendation, ct).ConfigureAwait(false);
+        await repository.UpsertAsync(recommendation, ct);
         return recommendation;
     }
 }

@@ -41,7 +41,7 @@ public sealed class TopologyAgentHandler(
             rawJson = await completionClient.CompleteJsonAsync(
                 systemPrompt,
                 userPrompt,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
             AgentResult parsed = resultParser.ParseAndValidate(
                 rawJson,
@@ -61,7 +61,7 @@ public sealed class TopologyAgentHandler(
                 parsedJson,
                 parseSucceeded: true,
                 errorMessage: null,
-                cancellationToken: cancellationToken).ConfigureAwait(false);
+                cancellationToken: cancellationToken);
 
             return parsed;
         }
@@ -77,7 +77,7 @@ public sealed class TopologyAgentHandler(
                 parsedResultJson: null,
                 parseSucceeded: false,
                 errorMessage: ex.Message,
-                cancellationToken: cancellationToken).ConfigureAwait(false);
+                cancellationToken: cancellationToken);
 
             throw;
         }

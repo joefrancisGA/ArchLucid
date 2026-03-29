@@ -135,7 +135,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
             byte[]? diagramBytes = await diagramImageRenderer.RenderMermaidPngAsync(
                 report.Diagram,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
             if (diagramBytes is not null && diagramBytes.Length > 0)
             {

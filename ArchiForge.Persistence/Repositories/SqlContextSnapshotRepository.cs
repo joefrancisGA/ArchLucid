@@ -38,17 +38,17 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         ContextSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
             new CommandDefinition(sql, new
             {
                 ProjectId = projectId
-            }, cancellationToken: ct)).ConfigureAwait(false);
+            }, cancellationToken: ct));
 
         if (row is null)
             return null;
 
-        return await HydrateAsync(connection, transaction: null, row, ct).ConfigureAwait(false);
+        return await HydrateAsync(connection, transaction: null, row, ct);
     }
 
     public async Task<ContextSnapshot?> GetByIdAsync(Guid snapshotId, CancellationToken ct)
@@ -68,17 +68,17 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             WHERE SnapshotId = @SnapshotId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         ContextSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
             new CommandDefinition(sql, new
             {
                 SnapshotId = snapshotId
-            }, cancellationToken: ct)).ConfigureAwait(false);
+            }, cancellationToken: ct));
 
         if (row is null)
             return null;
 
-        return await HydrateAsync(connection, transaction: null, row, ct).ConfigureAwait(false);
+        return await HydrateAsync(connection, transaction: null, row, ct);
     }
 
     public async Task SaveAsync(
@@ -91,16 +91,16 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
 
         if (connection is not null)
         {
-            await SaveCoreAsync(snapshot, connection, transaction, ct).ConfigureAwait(false);
+            await SaveCoreAsync(snapshot, connection, transaction, ct);
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         using SqlTransaction tx = owned.BeginTransaction();
 
         try
         {
-            await SaveCoreAsync(snapshot, owned, tx, ct).ConfigureAwait(false);
+            await SaveCoreAsync(snapshot, owned, tx, ct);
             tx.Commit();
         }
         catch
@@ -143,9 +143,9 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
         };
 
         await connection.ExecuteAsync(new CommandDefinition(headerSql, headerArgs, transaction, cancellationToken: ct))
-            .ConfigureAwait(false);
+            ;
 
-        await InsertRelationalChildrenAsync(snapshot, connection, transaction, ct).ConfigureAwait(false);
+        await InsertRelationalChildrenAsync(snapshot, connection, transaction, ct);
     }
 
     private static async Task InsertRelationalChildrenAsync(
@@ -208,7 +208,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                         obj.SourceId
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
 
             List<KeyValuePair<string, string>> orderedProps = obj.Properties
                 .OrderBy(kv => kv.Key, StringComparer.Ordinal)
@@ -229,7 +229,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                             PropertyValue = kv.Value
                         },
                         transaction,
-                        cancellationToken: ct)).ConfigureAwait(false);
+                        cancellationToken: ct));
             }
         }
 
@@ -245,7 +245,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                         WarningText = snapshot.Warnings[w]
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
         }
 
         for (int e = 0; e < snapshot.Errors.Count; e++)
@@ -260,7 +260,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                         ErrorText = snapshot.Errors[e]
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
         }
 
         List<KeyValuePair<string, string>> orderedHashes = snapshot.SourceHashes
@@ -282,7 +282,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                         HashValue = kv.Value
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
         }
     }
 
@@ -302,7 +302,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             {
                 SnapshotId = snapshotId
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         int warningsCount = await ScalarCountAsync(
             connection,
@@ -312,7 +312,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             {
                 SnapshotId = snapshotId
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         int errorsCount = await ScalarCountAsync(
             connection,
@@ -322,7 +322,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             {
                 SnapshotId = snapshotId
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         int hashesCount = await ScalarCountAsync(
             connection,
@@ -332,13 +332,13 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             {
                 SnapshotId = snapshotId
             },
-            ct).ConfigureAwait(false);
+            ct);
 
         List<CanonicalObject> canonicalObjects;
         if (canonicalCount > 0)
         {
             canonicalObjects = await LoadCanonicalObjectsRelationalAsync(connection, transaction, snapshotId, ct)
-                .ConfigureAwait(false);
+                ;
         }
         else
         {
@@ -358,7 +358,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                 ORDER BY SortOrder;
                 """,
                 snapshotId,
-                ct).ConfigureAwait(false);
+                ct);
         }
         else
         {
@@ -378,7 +378,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                 ORDER BY SortOrder;
                 """,
                 snapshotId,
-                ct).ConfigureAwait(false);
+                ct);
         }
         else
         {
@@ -401,7 +401,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                         SnapshotId = snapshotId
                     },
                     transaction,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                    cancellationToken: ct));
 
             sourceHashes = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (SourceHashRow hr in hashRows)
@@ -434,7 +434,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
         CancellationToken ct)
     {
         int count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, param, transaction, cancellationToken: ct))
-            .ConfigureAwait(false);
+            ;
         return count;
     }
 
@@ -453,7 +453,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                     SnapshotId = snapshotId
                 },
                 transaction,
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         return rows.ToList();
     }
@@ -479,7 +479,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                     SnapshotId = snapshotId
                 },
                 transaction,
-                cancellationToken: ct)).ConfigureAwait(false)).ToList();
+                cancellationToken: ct))).ToList();
 
         if (objectRows.Count == 0)
             return [];
@@ -501,7 +501,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                     RowIds = rowIds
                 },
                 transaction,
-                cancellationToken: ct)).ConfigureAwait(false)).ToList();
+                cancellationToken: ct))).ToList();
 
         Dictionary<Guid, Dictionary<string, string>> propsByObject = new();
         foreach (PropertyRow pr in propertyRows)

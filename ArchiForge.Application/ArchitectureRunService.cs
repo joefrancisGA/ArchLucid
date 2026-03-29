@@ -61,12 +61,12 @@ public sealed class ArchitectureRunService(
 
         if (idempotency is not null)
         {
-            CreateRunResult? replay = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken).ConfigureAwait(false);
+            CreateRunResult? replay = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
             if (replay is not null)
                 return replay;
         }
 
-        CoordinationResult coordination = await coordinator.CreateRunAsync(request, cancellationToken).ConfigureAwait(false);
+        CoordinationResult coordination = await coordinator.CreateRunAsync(request, cancellationToken);
 
         if (!coordination.Success)
         {
@@ -79,7 +79,7 @@ public sealed class ArchitectureRunService(
                     request.RequestId,
                     $"Coordination failed: {detail}",
                     cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             throw new InvalidOperationException(
                 $"CreateRun failed: {detail}");
@@ -106,7 +106,7 @@ public sealed class ArchitectureRunService(
                 request,
                 coordination,
                 idempotency,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
             if (inserted || idempotency is null)
                 scope.Complete();
@@ -120,14 +120,14 @@ public sealed class ArchitectureRunService(
                     coordination.Run.RunId,
                     $"Persist failed: {ex.GetType().Name}",
                     cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             throw;
         }
 
         if (idempotency is not null && !inserted)
         {
-            CreateRunResult? winner = await ResolveIdempotencyRaceAsync(idempotency, cancellationToken).ConfigureAwait(false);
+            CreateRunResult? winner = await ResolveIdempotencyRaceAsync(idempotency, cancellationToken);
             if (winner is not null)
                 return winner;
 
@@ -142,7 +142,7 @@ public sealed class ArchitectureRunService(
                 coordination.Run.RunId,
                 $"RequestId={request.RequestId}; Environment={request.Environment}",
                 cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -166,10 +166,10 @@ public sealed class ArchitectureRunService(
         CreateRunIdempotencyState? idempotency,
         CancellationToken cancellationToken)
     {
-        await requestRepository.CreateAsync(request, cancellationToken).ConfigureAwait(false);
-        await runRepository.CreateAsync(coordination.Run, cancellationToken).ConfigureAwait(false);
-        await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken).ConfigureAwait(false);
-        await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken).ConfigureAwait(false);
+        await requestRepository.CreateAsync(request, cancellationToken);
+        await runRepository.CreateAsync(coordination.Run, cancellationToken);
+        await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
+        await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
 
         if (idempotency is null)
             return false;
@@ -183,7 +183,7 @@ public sealed class ArchitectureRunService(
                 idempotency.RequestFingerprint,
                 coordination.Run.RunId,
                 cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         if (!inserted)
         {
@@ -206,7 +206,7 @@ public sealed class ArchitectureRunService(
                 idempotency.ProjectId,
                 idempotency.IdempotencyKeyHash,
                 cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         if (existing is null)
             return null;
@@ -217,7 +217,7 @@ public sealed class ArchitectureRunService(
                 "The Idempotency-Key was already used with a different request body.");
         }
 
-        return await RehydrateCreateRunResultAsync(existing.RunId, cancellationToken).ConfigureAwait(false);
+        return await RehydrateCreateRunResultAsync(existing.RunId, cancellationToken);
     }
 
     private async Task<CreateRunResult?> ResolveIdempotencyRaceAsync(
@@ -231,7 +231,7 @@ public sealed class ArchitectureRunService(
                 idempotency.ProjectId,
                 idempotency.IdempotencyKeyHash,
                 cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         if (winner is null)
             return null;
@@ -242,17 +242,17 @@ public sealed class ArchitectureRunService(
                 "The Idempotency-Key was already used with a different request body.");
         }
 
-        return await RehydrateCreateRunResultAsync(winner.RunId, cancellationToken).ConfigureAwait(false);
+        return await RehydrateCreateRunResultAsync(winner.RunId, cancellationToken);
     }
 
     private async Task<CreateRunResult> RehydrateCreateRunResultAsync(
         string runId,
         CancellationToken cancellationToken)
     {
-        ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken).ConfigureAwait(false)
+        ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken)
                               ?? throw new InvalidOperationException($"Run '{runId}' from idempotency store was not found.");
 
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
         if (tasks.Count == 0)
         {
             throw new InvalidOperationException($"Idempotent run '{runId}' has no tasks.");
@@ -264,7 +264,7 @@ public sealed class ArchitectureRunService(
             throw new InvalidOperationException($"Idempotent run '{runId}' is missing EvidenceBundleRef on the first task.");
         }
 
-        EvidenceBundle bundle = await evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken).ConfigureAwait(false)
+        EvidenceBundle bundle = await evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken)
                                 ?? throw new InvalidOperationException($"Evidence bundle '{bundleRef}' for idempotent run was not found.");
 
         logger.LogInformation("CreateRun idempotent replay: RunId={RunId}, TaskCount={TaskCount}", runId, tasks.Count);
@@ -289,7 +289,7 @@ public sealed class ArchitectureRunService(
 
         try
         {
-            return await ExecuteRunCoreAsync(runId, actor, cancellationToken).ConfigureAwait(false);
+            return await ExecuteRunCoreAsync(runId, actor, cancellationToken);
         }
         catch (RunNotFoundException)
         {
@@ -300,7 +300,7 @@ public sealed class ArchitectureRunService(
                     runId,
                     "Run not found.",
                     cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             throw;
         }
@@ -316,10 +316,10 @@ public sealed class ArchitectureRunService(
                 "Executing architecture run: RunId={RunId}",
                 runId);
 
-        ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken).ConfigureAwait(false)
+        ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken)
                               ?? throw new RunNotFoundException(runId);
 
-        ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken).ConfigureAwait(false);
+        ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
         if (idempotent is not null)
             return idempotent;
 
@@ -330,27 +330,27 @@ public sealed class ArchitectureRunService(
                 runId,
                 null,
                 cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         try
         {
-            ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken).ConfigureAwait(false)
+            ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
                                           ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-            IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
             if (tasks.Count == 0)
             {
                 throw new InvalidOperationException($"No tasks found for run '{runId}'.");
             }
 
-            AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken).ConfigureAwait(false);
+            AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
             IReadOnlyList<AgentResult> results = await agentExecutor.ExecuteAsync(
                 runId,
                 request,
                 evidence,
                 tasks,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
             IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationService.EvaluateAsync(
                 runId,
@@ -358,7 +358,7 @@ public sealed class ArchitectureRunService(
                 evidence,
                 tasks,
                 results,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
             await PersistExecutePhaseAsync(
                 runId,
@@ -367,7 +367,7 @@ public sealed class ArchitectureRunService(
                 evidence,
                 results,
                 evaluations,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
             await baselineMutationAudit
                 .RecordAsync(
@@ -376,7 +376,7 @@ public sealed class ArchitectureRunService(
                     runId,
                     $"ResultCount={results.Count}",
                     cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             if (logger.IsEnabled(LogLevel.Information))
             {
@@ -401,7 +401,7 @@ public sealed class ArchitectureRunService(
                     runId,
                     ex.GetType().Name,
                     cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             throw;
         }
@@ -419,7 +419,7 @@ public sealed class ArchitectureRunService(
         if (run.Status is not ArchitectureRunStatus.ReadyForCommit and not ArchitectureRunStatus.Committed)
             return null;
 
-        IReadOnlyList<AgentResult> existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<AgentResult> existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
         if (existingResults.Count > 0)
         {
             logger.LogInformation(
@@ -462,7 +462,7 @@ public sealed class ArchitectureRunService(
             evidence,
             results,
             evaluations,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         scope.Complete();
     }
@@ -476,16 +476,16 @@ public sealed class ArchitectureRunService(
         IReadOnlyList<AgentEvaluation> evaluations,
         CancellationToken cancellationToken)
     {
-        await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken).ConfigureAwait(false);
-        await resultRepository.CreateManyAsync(results, cancellationToken).ConfigureAwait(false);
-        await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken).ConfigureAwait(false);
+        await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
+        await resultRepository.CreateManyAsync(results, cancellationToken);
+        await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
         await runRepository.UpdateStatusAsync(
             runId,
             ArchitectureRunStatus.ReadyForCommit,
             currentManifestVersion: currentManifestVersion,
             completedUtc: null,
             cancellationToken: cancellationToken,
-            expectedStatus: expectedStatus).ConfigureAwait(false);
+            expectedStatus: expectedStatus);
     }
 
     /// <inheritdoc />
@@ -499,7 +499,7 @@ public sealed class ArchitectureRunService(
 
         try
         {
-            return await CommitRunCoreAsync(runId, actor, cancellationToken).ConfigureAwait(false);
+            return await CommitRunCoreAsync(runId, actor, cancellationToken);
         }
         catch (RunNotFoundException)
         {
@@ -510,7 +510,7 @@ public sealed class ArchitectureRunService(
                     runId,
                     "Run not found.",
                     cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             throw;
         }
@@ -528,10 +528,10 @@ public sealed class ArchitectureRunService(
                 runId);
         }
 
-        ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken).ConfigureAwait(false)
+        ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken)
                               ?? throw new RunNotFoundException(runId);
 
-        CommitRunResult? idempotent = await TryReturnCommittedManifestAsync(run, runId, cancellationToken).ConfigureAwait(false);
+        CommitRunResult? idempotent = await TryReturnCommittedManifestAsync(run, runId, cancellationToken);
         if (idempotent is not null)
             return idempotent;
 
@@ -548,7 +548,7 @@ public sealed class ArchitectureRunService(
                     runId,
                     $"Commit blocked: {ex.Message}",
                     cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             throw;
         }
@@ -558,26 +558,26 @@ public sealed class ArchitectureRunService(
 
         try
         {
-            ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken).ConfigureAwait(false)
+            ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
                                           ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-            await EnsureCommitPrerequisitesAsync(runId, cancellationToken).ConfigureAwait(false);
+            await EnsureCommitPrerequisitesAsync(runId, cancellationToken);
 
-            IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
-            IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+            IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
             if (results.Count == 0)
             {
                 throw new InvalidOperationException($"No agent results found for run '{runId}'.");
             }
 
-            IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+            IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken);
             decisionNodes = await decisionEngineV2.ResolveAsync(
                 runId,
                 request,
                 tasks,
                 results,
                 evaluations,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
 
             string manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
                 ? "v1"
@@ -601,19 +601,19 @@ public sealed class ArchitectureRunService(
                     runId,
                     ex.GetType().Name,
                     cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             throw;
         }
 
         if (!merge.Success)
         {
-            await FailRunAfterMergeFailureAsync(runId, run.CurrentManifestVersion, merge.Errors, actor, cancellationToken).ConfigureAwait(false);
+            await FailRunAfterMergeFailureAsync(runId, run.CurrentManifestVersion, merge.Errors, actor, cancellationToken);
         }
 
         try
         {
-            await PersistCommittedRunAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
+            await PersistCommittedRunAsync(runId, decisionNodes, merge, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -624,7 +624,7 @@ public sealed class ArchitectureRunService(
                     runId,
                     $"Persist failed: {ex.GetType().Name}",
                     cancellationToken)
-                .ConfigureAwait(false);
+                ;
 
             throw;
         }
@@ -636,7 +636,7 @@ public sealed class ArchitectureRunService(
                 runId,
                 $"ManifestVersion={merge.Manifest.Metadata.ManifestVersion}; WarningCount={merge.Warnings.Count}",
                 cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -673,12 +673,12 @@ public sealed class ArchitectureRunService(
                 "The run record may be corrupt; check storage integrity.");
         }
 
-        GoldenManifest existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken).ConfigureAwait(false) ?? throw new ConflictException(
+        GoldenManifest existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken) ?? throw new ConflictException(
                 $"Run '{runId}' is already committed (manifest version '{run.CurrentManifestVersion}') " +
                 "but the manifest could not be found in storage. " +
                 "It may have been deleted or there is a replication lag.");
 
-        IReadOnlyList<DecisionTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<DecisionTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation(
@@ -711,7 +711,7 @@ public sealed class ArchitectureRunService(
 
     private async Task EnsureCommitPrerequisitesAsync(string runId, CancellationToken cancellationToken)
     {
-        _ = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false)
+        _ = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
             ?? throw new InvalidOperationException($"Evidence package for run '{runId}' was not found.");
     }
 
@@ -731,14 +731,14 @@ public sealed class ArchitectureRunService(
                 runId,
                 $"Merge failed: {detail}",
                 cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         await runRepository.UpdateStatusAsync(
             runId,
             ArchitectureRunStatus.Failed,
             currentManifestVersion,
             DateTime.UtcNow,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         throw new InvalidOperationException(
             $"CommitRun failed: {detail}");
@@ -753,7 +753,7 @@ public sealed class ArchitectureRunService(
         using TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled);
-        await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
+        await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, cancellationToken);
         scope.Complete();
     }
 
@@ -763,16 +763,16 @@ public sealed class ArchitectureRunService(
         DecisionMergeResult merge,
         CancellationToken cancellationToken)
     {
-        await decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken).ConfigureAwait(false);
-        await manifestRepository.CreateAsync(merge.Manifest, cancellationToken).ConfigureAwait(false);
-        await decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken).ConfigureAwait(false);
+        await decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
+        await manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
+        await decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
         await runRepository.UpdateStatusAsync(
             runId,
             ArchitectureRunStatus.Committed,
             merge.Manifest.Metadata.ManifestVersion,
             DateTime.UtcNow,
             cancellationToken,
-            expectedStatus: ArchitectureRunStatus.ReadyForCommit).ConfigureAwait(false);
+            expectedStatus: ArchitectureRunStatus.ReadyForCommit);
     }
 
     /// <summary>

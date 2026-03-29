@@ -37,12 +37,12 @@ public sealed class SqlProvenanceSnapshotRepository(ISqlConnectionFactory connec
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, snapshot, transaction, cancellationToken: ct)).ConfigureAwait(false);
+            await connection.ExecuteAsync(new CommandDefinition(sql, snapshot, transaction, cancellationToken: ct));
             return;
         }
 
-        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await owned.ExecuteAsync(new CommandDefinition(sql, snapshot, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await owned.ExecuteAsync(new CommandDefinition(sql, snapshot, cancellationToken: ct));
     }
 
     public async Task<DecisionProvenanceSnapshot?> GetByRunIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
@@ -60,7 +60,7 @@ public sealed class SqlProvenanceSnapshotRepository(ISqlConnectionFactory connec
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QuerySingleOrDefaultAsync<DecisionProvenanceSnapshot>(
             new CommandDefinition(
                 sql,
@@ -71,6 +71,6 @@ public sealed class SqlProvenanceSnapshotRepository(ISqlConnectionFactory connec
                     ScopeProjectId = scope.ProjectId,
                     RunId = runId
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
     }
 }

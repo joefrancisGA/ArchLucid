@@ -42,7 +42,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using IDbTransaction transaction = connection.BeginTransaction();
 
         IEnumerable<object> rows = tasks.Select(t => (object)new
@@ -61,14 +61,14 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             sql,
             rows,
             transaction: transaction,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         transaction.Commit();
     }
 
     public async Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT
@@ -89,7 +89,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
         IEnumerable<AgentTaskRow> rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
             sql,
             new { RunId = runId },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return [.. rows.Select(r => new AgentTask
         {

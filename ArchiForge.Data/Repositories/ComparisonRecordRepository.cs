@@ -62,12 +62,12 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             );
             """;
 
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
             record,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<ComparisonRecord?> GetByIdAsync(
@@ -84,7 +84,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             WHERE ComparisonRecordId = @ComparisonRecordId;
             """;
 
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         return await connection.QuerySingleOrDefaultAsync<ComparisonRecord>(new CommandDefinition(
             sql,
@@ -92,14 +92,14 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             {
                 ComparisonRecordId = comparisonRecordId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<IReadOnlyList<ComparisonRecord>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string sql = """
             SELECT TOP 200
@@ -115,7 +115,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
             new { RunId = runId },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
 #pragma warning disable IDE0305 // Simplify collection initialization
         return rows.ToList();
@@ -126,7 +126,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         string exportRecordId,
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         const string sql = """
             SELECT TOP 200
@@ -142,7 +142,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
             new { ExportRecordId = exportRecordId },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
 #pragma warning disable IDE0305 // Simplify collection initialization
         return rows.ToList();
@@ -185,7 +185,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         parameters.Add("@Limit", safeLimit);
         parameters.Add("@Skip", safeSkip);
 
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         ComparisonRecordSearchPredicateBuilder.AppendFilters(
             conditions,
             parameters,
@@ -216,7 +216,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
             parameters,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return rows.ToList();
     }
@@ -253,7 +253,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
         parameters.Add("@Limit", safeLimit);
 
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         ComparisonRecordSearchPredicateBuilder.AppendFilters(
             conditions,
             parameters,
@@ -302,7 +302,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
             parameters,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return rows.ToList();
     }
@@ -322,7 +322,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             WHERE ComparisonRecordId = @ComparisonRecordId;
             """;
 
-        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         string? tagsJson = tags == null || tags.Count == 0 ? null : System.Text.Json.JsonSerializer.Serialize(tags);
         int rows = await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -332,7 +332,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
                 Label = label ?? (object)DBNull.Value,
                 Tags = tagsJson ?? (object)DBNull.Value
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
         return rows > 0;
     }
 

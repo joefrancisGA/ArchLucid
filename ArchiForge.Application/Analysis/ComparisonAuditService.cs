@@ -36,7 +36,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(record, cancellationToken).ConfigureAwait(false);
+        await repository.CreateAsync(record, cancellationToken);
         return record.ComparisonRecordId;
     }
 
@@ -63,7 +63,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(record, cancellationToken).ConfigureAwait(false);
+        await repository.CreateAsync(record, cancellationToken);
         return record.ComparisonRecordId;
     }
 
@@ -92,7 +92,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(record, cancellationToken).ConfigureAwait(false);
+        await repository.CreateAsync(record, cancellationToken);
         return record.ComparisonRecordId;
     }
 }

@@ -29,8 +29,8 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
             (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished);
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, version, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, version, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -44,8 +44,8 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
             WHERE PolicyPackVersionId = @PolicyPackVersionId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, version, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, version, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -63,7 +63,7 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
             WHERE PolicyPackId = @PolicyPackId AND [Version] = @Ver;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<PolicyPackVersion>(
             new CommandDefinition(
                 sql,
@@ -72,7 +72,7 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
                     PolicyPackId = policyPackId,
                     Ver = version
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -85,12 +85,12 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<PolicyPackVersion> rows = await connection.QueryAsync<PolicyPackVersion>(
             new CommandDefinition(sql, new
             {
                 PolicyPackId = policyPackId
-            }, cancellationToken: ct)).ConfigureAwait(false);
+            }, cancellationToken: ct));
         return rows.ToList();
     }
 }

@@ -234,7 +234,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     WorkspaceId = workspaceId,
                     ScopeProjectId = scopeProjectId,
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         string emptyCanonical = JsonEntitySerializer.Serialize(new List<CanonicalObject>());
         string emptyStringList = JsonEntitySerializer.Serialize(new List<string>());
@@ -267,7 +267,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     ErrorsJson = emptyStringList,
                     SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         string emptyNodes = JsonEntitySerializer.Serialize(new List<GraphNode>());
         string emptyEdges = JsonEntitySerializer.Serialize(new List<GraphEdge>());
@@ -299,6 +299,6 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     EdgesJson = emptyEdges,
                     WarningsJson = emptyGraphWarnings,
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
     }
 }

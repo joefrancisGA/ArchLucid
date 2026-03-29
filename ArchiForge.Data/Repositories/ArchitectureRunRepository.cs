@@ -44,7 +44,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -60,7 +60,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
                 run.GraphSnapshotId,
                 run.ArtifactBundleId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
     }
 
     public async Task<ArchitectureRun?> GetByIdAsync(string runId, CancellationToken cancellationToken = default)
@@ -80,7 +80,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             WHERE RunId = @RunId;
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string taskSql = $"""
             SELECT TaskId
@@ -93,7 +93,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         ArchitectureRunRow? row = await connection.QuerySingleOrDefaultAsync<ArchitectureRunRow>(new CommandDefinition(
             runSql,
             new { RunId = runId },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         if (row is null)
             return null;
@@ -106,7 +106,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         IEnumerable<string> taskIds = await connection.QueryAsync<string>(new CommandDefinition(
             taskSql,
             new { RunId = runId },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         return new ArchitectureRun
         {
@@ -153,7 +153,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
               WHERE RunId = @RunId;
               """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         int rowsAffected = await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -165,7 +165,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
                 CompletedUtc = completedUtc,
                 ExpectedStatus = expectedStatus?.ToString()
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         if (expectedStatus.HasValue && rowsAffected == 0)
         {
@@ -205,7 +205,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
     public async Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(
         CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT
@@ -225,7 +225,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
 
         IEnumerable<ArchitectureRunListItemRow> rows = await connection.QueryAsync<ArchitectureRunListItemRow>(new CommandDefinition(
             sql,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         List<ArchitectureRunListItem> items = [];
         foreach (ArchitectureRunListItemRow row in rows)

@@ -25,8 +25,8 @@ public sealed class AuthorityCompareService(
         Guid rightManifestId,
         CancellationToken ct)
     {
-        GoldenManifest? left = await manifestRepository.GetByIdAsync(scope, leftManifestId, ct).ConfigureAwait(false);
-        GoldenManifest? right = await manifestRepository.GetByIdAsync(scope, rightManifestId, ct).ConfigureAwait(false);
+        GoldenManifest? left = await manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
+        GoldenManifest? right = await manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
 
         if (left is null || right is null)
             return null;
@@ -66,8 +66,8 @@ public sealed class AuthorityCompareService(
         Guid rightRunId,
         CancellationToken ct)
     {
-        RunSummaryDto? leftRun = await queryService.GetRunSummaryAsync(scope, leftRunId, ct).ConfigureAwait(false);
-        RunSummaryDto? rightRun = await queryService.GetRunSummaryAsync(scope, rightRunId, ct).ConfigureAwait(false);
+        RunSummaryDto? leftRun = await queryService.GetRunSummaryAsync(scope, leftRunId, ct);
+        RunSummaryDto? rightRun = await queryService.GetRunSummaryAsync(scope, rightRunId, ct);
 
         if (leftRun is null || rightRun is null)
             return null;
@@ -89,7 +89,7 @@ public sealed class AuthorityCompareService(
                 scope,
                 leftRun.GoldenManifestId.Value,
                 rightRun.GoldenManifestId.Value,
-                ct).ConfigureAwait(false);
+                ct);
         }
 
         return result;

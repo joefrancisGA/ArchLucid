@@ -31,8 +31,8 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, execution, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, execution, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -49,8 +49,8 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
             WHERE ExecutionId = @ExecutionId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, execution, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, execution, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -68,13 +68,13 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
             ORDER BY StartedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AdvisoryScanExecution> result = await connection.QueryAsync<AdvisoryScanExecution>(
             new CommandDefinition(sql, new
             {
                 ScheduleId = scheduleId,
                 Take = Math.Clamp(take, 1, 200)
-            }, cancellationToken: ct)).ConfigureAwait(false);
+            }, cancellationToken: ct));
 
         return result.ToList();
     }

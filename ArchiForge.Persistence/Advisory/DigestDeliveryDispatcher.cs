@@ -32,11 +32,11 @@ public sealed class DigestDeliveryDispatcher(
 
         IReadOnlyList<DigestSubscription> subscriptions = await subscriptionRepository
             .ListEnabledByScopeAsync(digest.TenantId, digest.WorkspaceId, digest.ProjectId, ct)
-            .ConfigureAwait(false);
+            ;
 
         foreach (DigestSubscription subscription in subscriptions)
         {
-            await DeliverToSubscriptionAsync(digest, subscription, ct).ConfigureAwait(false);
+            await DeliverToSubscriptionAsync(digest, subscription, ct);
         }
     }
 
@@ -66,7 +66,7 @@ public sealed class DigestDeliveryDispatcher(
             Destination = subscription.Destination
         };
 
-        await attemptRepository.CreateAsync(attempt, ct).ConfigureAwait(false);
+        await attemptRepository.CreateAsync(attempt, ct);
 
         try
         {
@@ -80,13 +80,13 @@ public sealed class DigestDeliveryDispatcher(
                         Subscription = subscription
                     },
                     ct)
-                .ConfigureAwait(false);
+                ;
 
             attempt.Status = DigestDeliveryStatus.Succeeded;
             subscription.LastDeliveredUtc = DateTime.UtcNow;
 
-            await attemptRepository.UpdateAsync(attempt, ct).ConfigureAwait(false);
-            await subscriptionRepository.UpdateAsync(subscription, ct).ConfigureAwait(false);
+            await attemptRepository.UpdateAsync(attempt, ct);
+            await subscriptionRepository.UpdateAsync(subscription, ct);
 
             await auditService.LogAsync(
                 new AuditEvent
@@ -102,7 +102,7 @@ public sealed class DigestDeliveryDispatcher(
                         },
                         AuditJsonSerializationOptions.Instance),
                 },
-                ct).ConfigureAwait(false);
+                ct);
 
             ArchiForgeInstrumentation.DigestDeliverySucceeded.Add(
                 1,
@@ -117,7 +117,7 @@ public sealed class DigestDeliveryDispatcher(
             attempt.Status = DigestDeliveryStatus.Failed;
             attempt.ErrorMessage = ex.Message;
 
-            await attemptRepository.UpdateAsync(attempt, ct).ConfigureAwait(false);
+            await attemptRepository.UpdateAsync(attempt, ct);
 
             await auditService.LogAsync(
                 new AuditEvent
@@ -134,7 +134,7 @@ public sealed class DigestDeliveryDispatcher(
                         },
                         AuditJsonSerializationOptions.Instance),
                 },
-                ct).ConfigureAwait(false);
+                ct);
 
             ArchiForgeInstrumentation.DigestDeliveryFailed.Add(
                 1,

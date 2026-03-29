@@ -36,7 +36,7 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
                 context.ProjectId,
                 dedupeKey,
                 ct)
-            .ConfigureAwait(false);
+            ;
 
         if (existing is null)
         {

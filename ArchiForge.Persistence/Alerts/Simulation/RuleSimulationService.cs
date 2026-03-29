@@ -52,7 +52,7 @@ public sealed class RuleSimulationService(
                 request.RecentRunCount,
                 request.RunProjectSlug,
                 ct)
-            .ConfigureAwait(false);
+            ;
 
         RuleSimulationResult result = new()
         {
@@ -147,7 +147,7 @@ public sealed class RuleSimulationService(
 
                 AlertSuppressionDecision suppression = await suppressionPolicy
                     .DecideAsync(compositeRule, context, snapshot, ct)
-                    .ConfigureAwait(false);
+                    ;
 
                 result.Outcomes.Add(
                     new SimulatedAlertOutcome
@@ -208,7 +208,7 @@ public sealed class RuleSimulationService(
                         RunProjectSlug = request.RunProjectSlug,
                     },
                     ct)
-                .ConfigureAwait(false);
+                ;
 
             candidateB = await SimulateAsync(
                     tenantId,
@@ -222,7 +222,7 @@ public sealed class RuleSimulationService(
                         RunProjectSlug = request.RunProjectSlug,
                     },
                     ct)
-                .ConfigureAwait(false);
+                ;
         }
         else
         {
@@ -238,7 +238,7 @@ public sealed class RuleSimulationService(
                         RunProjectSlug = request.RunProjectSlug,
                     },
                     ct)
-                .ConfigureAwait(false);
+                ;
 
             candidateB = await SimulateAsync(
                     tenantId,
@@ -252,7 +252,7 @@ public sealed class RuleSimulationService(
                         RunProjectSlug = request.RunProjectSlug,
                     },
                     ct)
-                .ConfigureAwait(false);
+                ;
         }
 
         RuleCandidateComparisonResult result = new()

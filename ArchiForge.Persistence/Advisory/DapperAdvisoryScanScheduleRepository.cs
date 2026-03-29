@@ -34,8 +34,8 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, schedule, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, schedule, cancellationToken: ct));
     }
 
     public async Task UpdateAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
@@ -54,8 +54,8 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             WHERE ScheduleId = @ScheduleId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, schedule, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, schedule, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -76,13 +76,13 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             ORDER BY NextRunUtc ASC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AdvisoryScanSchedule> result = await connection.QueryAsync<AdvisoryScanSchedule>(
             new CommandDefinition(sql, new
             {
                 UtcNow = utcNow,
                 Take = take
-            }, cancellationToken: ct)).ConfigureAwait(false);
+            }, cancellationToken: ct));
 
         return result.ToList();
     }
@@ -106,7 +106,7 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AdvisoryScanSchedule> result = await connection.QueryAsync<AdvisoryScanSchedule>(
             new CommandDefinition(
                 sql,
@@ -116,7 +116,7 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
                     WorkspaceId = workspaceId,
                     ProjectId = projectId
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
 
         return result.ToList();
     }
@@ -133,11 +133,11 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             WHERE ScheduleId = @ScheduleId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AdvisoryScanSchedule>(
             new CommandDefinition(sql, new
             {
                 ScheduleId = scheduleId
-            }, cancellationToken: ct)).ConfigureAwait(false);
+            }, cancellationToken: ct));
     }
 }

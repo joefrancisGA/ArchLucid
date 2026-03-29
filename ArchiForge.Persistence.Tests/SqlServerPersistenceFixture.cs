@@ -24,7 +24,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        await _container.StartAsync().ConfigureAwait(false);
+        await _container.StartAsync();
 
         SqlConnectionStringBuilder builder = new(_container.GetConnectionString())
         {
@@ -41,6 +41,6 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await _container.DisposeAsync().ConfigureAwait(false);
+        await _container.DisposeAsync();
     }
 }

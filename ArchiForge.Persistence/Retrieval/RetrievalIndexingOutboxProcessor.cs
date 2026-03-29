@@ -31,7 +31,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
         IRetrievalRunCompletionIndexer indexer = scope.ServiceProvider.GetRequiredService<IRetrievalRunCompletionIndexer>();
         IProvenanceBuilder provenanceBuilder = scope.ServiceProvider.GetRequiredService<IProvenanceBuilder>();
 
-        IReadOnlyList<RetrievalIndexingOutboxEntry> batch = await outbox.DequeuePendingAsync(25, ct).ConfigureAwait(false);
+        IReadOnlyList<RetrievalIndexingOutboxEntry> batch = await outbox.DequeuePendingAsync(25, ct);
 
         foreach (RetrievalIndexingOutboxEntry entry in batch)
         {
@@ -44,7 +44,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
                     ProjectId = entry.ProjectId
                 };
 
-                RunDetailDto? detail = await query.GetRunDetailAsync(scopeContext, entry.RunId, ct).ConfigureAwait(false);
+                RunDetailDto? detail = await query.GetRunDetailAsync(scopeContext, entry.RunId, ct);
 
                 if (detail?.GoldenManifest is null ||
                     detail.GraphSnapshot is null ||
@@ -54,7 +54,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
                     _logger.LogWarning(
                         "Skipping retrieval indexing for run {RunId}: incomplete run detail.",
                         entry.RunId);
-                    await outbox.MarkProcessedAsync(entry.OutboxId, ct).ConfigureAwait(false);
+                    await outbox.MarkProcessedAsync(entry.OutboxId, ct);
                     continue;
                 }
 
@@ -79,9 +79,9 @@ public sealed class RetrievalIndexingOutboxProcessor(
                     manifest,
                     artifacts,
                     graph,
-                    ct).ConfigureAwait(false);
+                    ct);
 
-                await outbox.MarkProcessedAsync(entry.OutboxId, ct).ConfigureAwait(false);
+                await outbox.MarkProcessedAsync(entry.OutboxId, ct);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {

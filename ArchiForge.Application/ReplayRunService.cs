@@ -48,13 +48,13 @@ public sealed class ReplayRunService(
         ArgumentException.ThrowIfNullOrWhiteSpace(originalRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
 
-        ArchitectureRunDetail sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken).ConfigureAwait(false)
+        ArchitectureRunDetail sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken)
                                              ?? throw new RunNotFoundException(originalRunId);
 
         ArchitectureRun originalRun = sourceDetail.Run;
         List<AgentTask> tasks = sourceDetail.Tasks;
 
-        ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken).ConfigureAwait(false)
+        ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
                                       ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -64,7 +64,7 @@ public sealed class ReplayRunService(
             throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
         }
 
-        AgentEvidencePackage evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken).ConfigureAwait(false)
+        AgentEvidencePackage evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken)
                                         ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
         string replayRunId = Guid.NewGuid().ToString("N");
@@ -77,7 +77,7 @@ public sealed class ReplayRunService(
             CreatedUtc = DateTime.UtcNow
         };
 
-        await runRepository.CreateAsync(replayRun, cancellationToken).ConfigureAwait(false);
+        await runRepository.CreateAsync(replayRun, cancellationToken);
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -105,7 +105,7 @@ public sealed class ReplayRunService(
             request,
             replayEvidence,
             replayTasks,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -152,14 +152,14 @@ public sealed class ReplayRunService(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled);
 
-        await manifestRepository.CreateAsync(manifest, cancellationToken).ConfigureAwait(false);
-        await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken).ConfigureAwait(false);
+        await manifestRepository.CreateAsync(manifest, cancellationToken);
+        await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
         await runRepository.UpdateStatusAsync(
             replayRunId,
             ArchitectureRunStatus.Committed,
             currentManifestVersion: manifest.Metadata.ManifestVersion,
             completedUtc: DateTime.UtcNow,
-            cancellationToken: cancellationToken).ConfigureAwait(false);
+            cancellationToken: cancellationToken);
 
         scope.Complete();
 
@@ -181,14 +181,14 @@ public sealed class ReplayRunService(
     //    List<DecisionTrace> decisionTraces,
     //    CancellationToken cancellationToken)
     //{
-    //    await manifestRepository.CreateAsync(manifest, cancellationToken).ConfigureAwait(false);
-    //    await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken).ConfigureAwait(false);
+    //    await manifestRepository.CreateAsync(manifest, cancellationToken);
+    //    await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
     //    await runRepository.UpdateStatusAsync(
     //        replayRunId,
     //        ArchitectureRunStatus.Committed,
     //        currentManifestVersion: manifest.Metadata.ManifestVersion,
     //        completedUtc: DateTime.UtcNow,
-    //        cancellationToken: cancellationToken).ConfigureAwait(false);
+    //        cancellationToken: cancellationToken);
     //}
 
     /// <summary>

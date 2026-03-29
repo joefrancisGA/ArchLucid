@@ -30,8 +30,8 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -50,8 +50,8 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -66,12 +66,12 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRoutingSubscription>(
             new CommandDefinition(sql, new
             {
                 RoutingSubscriptionId = routingSubscriptionId
-            }, cancellationToken: ct)).ConfigureAwait(false);
+            }, cancellationToken: ct));
     }
 
     public async Task<IReadOnlyList<AlertRoutingSubscription>> ListByScopeAsync(
@@ -92,7 +92,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AlertRoutingSubscription> rows = await connection.QueryAsync<AlertRoutingSubscription>(
             new CommandDefinition(
                 sql,
@@ -102,7 +102,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
                     WorkspaceId = workspaceId,
                     ProjectId = projectId
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
         return rows.ToList();
     }
 
@@ -126,7 +126,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<AlertRoutingSubscription> rows = await connection.QueryAsync<AlertRoutingSubscription>(
             new CommandDefinition(
                 sql,
@@ -136,7 +136,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
                     WorkspaceId = workspaceId,
                     ProjectId = projectId
                 },
-                cancellationToken: ct)).ConfigureAwait(false);
+                cancellationToken: ct));
         return rows.ToList();
     }
 }

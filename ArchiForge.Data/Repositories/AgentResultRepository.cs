@@ -54,7 +54,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.CreatedUtc
         };
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         using IDbTransaction tx = connection.BeginTransaction();
 
@@ -62,13 +62,13 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             deleteSql,
             new { result.RunId, result.TaskId },
             transaction: tx,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         await connection.ExecuteAsync(new CommandDefinition(
             insertSql,
             parameters,
             transaction: tx,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         tx.Commit();
     }
@@ -127,7 +127,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.CreatedUtc
         });
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         using IDbTransaction tx = connection.BeginTransaction();
 
@@ -135,16 +135,16 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             deleteSql,
             new { results[0].RunId },
             transaction: tx,
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
-        await connection.ExecuteAsync(new CommandDefinition(insertSql, args, transaction: tx, cancellationToken: cancellationToken)).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(insertSql, args, transaction: tx, cancellationToken: cancellationToken));
 
         tx.Commit();
     }
 
     public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
             SELECT ResultJson
@@ -160,7 +160,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             {
                 RunId = runId
             },
-            cancellationToken: cancellationToken)).ConfigureAwait(false);
+            cancellationToken: cancellationToken));
 
         List<AgentResult> results = [];
         foreach (string json in rows)

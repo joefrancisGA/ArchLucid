@@ -28,11 +28,11 @@ public sealed class PolicyFilteredComplianceRulePackProvider(
     /// <returns>A <see cref="ComplianceRulePack"/> whose rules are intersected with merged <see cref="PolicyPackContentDocument"/>; never <c>null</c>.</returns>
     public async Task<ComplianceRulePack> GetRulePackAsync(CancellationToken ct)
     {
-        ComplianceRulePack full = await loader.LoadAsync(ct).ConfigureAwait(false);
+        ComplianceRulePack full = await loader.LoadAsync(ct);
         ScopeContext scope = scopeProvider.GetCurrentScope();
         PolicyPackContentDocument effective = await governanceLoader
             .LoadEffectiveContentAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
-            .ConfigureAwait(false);
+            ;
         return ComplianceRulePackGovernanceFilter.Filter(full, effective);
     }
 }

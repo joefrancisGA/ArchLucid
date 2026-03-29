@@ -28,7 +28,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
         try
         {
             string result = await _inner.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken)
-                .ConfigureAwait(false);
+                ;
             _gate.RecordSuccess();
             return result;
         }

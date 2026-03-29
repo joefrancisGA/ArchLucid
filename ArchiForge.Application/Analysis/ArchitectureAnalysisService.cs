@@ -58,7 +58,7 @@ public sealed class ArchitectureAnalysisService(
         }
         else
         {
-            primaryDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken).ConfigureAwait(false)
+            primaryDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken)
                 ?? throw new RunNotFoundException(request.RunId);
             run = primaryDetail.Run;
         }
@@ -70,7 +70,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeEvidence)
         {
-            report.Evidence = await evidenceRepository.GetByRunIdAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+            report.Evidence = await evidenceRepository.GetByRunIdAsync(request.RunId, cancellationToken);
             if (report.Evidence is null)
             {
                 report.Warnings.Add("Evidence package was not found for this run.");
@@ -79,7 +79,7 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeExecutionTraces)
         {
-            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(request.RunId, cancellationToken).ConfigureAwait(false)).ToList();
+            report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(request.RunId, cancellationToken)).ToList();
             if (report.ExecutionTraces.Count == 0)
             {
                 report.Warnings.Add("No execution traces were found for this run.");
@@ -89,7 +89,7 @@ public sealed class ArchitectureAnalysisService(
         if (request.IncludeManifest && !string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
         {
             report.Manifest = primaryDetail?.Manifest
-                ?? await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion!, cancellationToken).ConfigureAwait(false);
+                ?? await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion!, cancellationToken);
             if (report.Manifest is null)
             {
                 report.Warnings.Add($"Manifest '{run.CurrentManifestVersion}' was not found.");
@@ -130,7 +130,7 @@ public sealed class ArchitectureAnalysisService(
                     ExecutionMode = ExecutionModeCurrent,
                     CommitReplays = false
                 },
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken);
         }
 
         if (request.IncludeManifestCompare)
@@ -147,7 +147,7 @@ public sealed class ArchitectureAnalysisService(
             {
                 GoldenManifest? compareManifest = await manifestRepository.GetByVersionAsync(
                     request.CompareManifestVersion,
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken);
 
                 if (compareManifest is null)
                 {
@@ -169,7 +169,7 @@ public sealed class ArchitectureAnalysisService(
         }
         else
         {
-            ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken).ConfigureAwait(false);
+            ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
 
             if (compareDetail is null)
             {
@@ -178,7 +178,7 @@ public sealed class ArchitectureAnalysisService(
             else
             {
                 IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results
-                                                         ?? await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken).ConfigureAwait(false);
+                                                         ?? await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken);
                 List<AgentResult> rightResults = compareDetail.Results;
 
                 report.AgentResultDiff = agentResultDiffService.Compare(

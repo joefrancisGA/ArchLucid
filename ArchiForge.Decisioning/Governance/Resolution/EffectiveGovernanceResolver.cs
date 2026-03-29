@@ -56,7 +56,7 @@ public sealed class EffectiveGovernanceResolver(
         {
             IReadOnlyList<PolicyPackAssignment> assignments = await assignmentRepository
                 .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
-                .ConfigureAwait(false);
+                ;
 
             List<PolicyPackAssignment> applicable = assignments
                 .Where(x => x.IsEnabled)
@@ -73,7 +73,7 @@ public sealed class EffectiveGovernanceResolver(
 
             foreach (PolicyPackAssignment assignment in applicable)
             {
-                PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct).ConfigureAwait(false);
+                PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct);
                 if (pack is null)
                 {
                     skippedNotes.Add(
@@ -83,7 +83,7 @@ public sealed class EffectiveGovernanceResolver(
 
                 PolicyPackVersion? version = await versionRepository
                     .GetByPackAndVersionAsync(assignment.PolicyPackId, assignment.PolicyPackVersion, ct)
-                    .ConfigureAwait(false);
+                    ;
 
                 if (version is null)
                 {

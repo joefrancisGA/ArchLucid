@@ -108,7 +108,7 @@ public sealed class ArchitectureApplicationService(
             runId,
             result,
             run,
-            cancellationToken).ConfigureAwait(false);
+            cancellationToken);
 
         tx.Complete();
 
@@ -196,7 +196,7 @@ public sealed class ArchitectureApplicationService(
         using TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled);
-        await SeedFakeResultsPersistAsync(runId, fakeResults, run, newStatus, cancellationToken).ConfigureAwait(false);
+        await SeedFakeResultsPersistAsync(runId, fakeResults, run, newStatus, cancellationToken);
         scope.Complete();
 
         if (logger.IsEnabled(LogLevel.Information))

@@ -62,7 +62,7 @@ public sealed class ThresholdRecommendationService(
                             RunProjectSlug = slug,
                         },
                         ct)
-                    .ConfigureAwait(false);
+                    ;
             }
             else if (request.RuleKind.Equals(RuleKindComposite, StringComparison.OrdinalIgnoreCase) &&
                      request.BaseCompositeRule is not null)
@@ -86,7 +86,7 @@ public sealed class ThresholdRecommendationService(
                             RunProjectSlug = slug,
                         },
                         ct)
-                    .ConfigureAwait(false);
+                    ;
             }
             else
             {

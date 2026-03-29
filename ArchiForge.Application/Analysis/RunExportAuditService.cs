@@ -66,7 +66,7 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository)
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(record, cancellationToken).ConfigureAwait(false);
+        await repository.CreateAsync(record, cancellationToken);
 
         return record;
     }

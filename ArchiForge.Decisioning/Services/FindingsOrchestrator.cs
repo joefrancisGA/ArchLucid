@@ -80,7 +80,7 @@ public partial class FindingsOrchestrator(
             IReadOnlyList<Finding> findings;
             try
             {
-                findings = await engine.AnalyzeAsync(graphSnapshot, ct).ConfigureAwait(false);
+                findings = await engine.AnalyzeAsync(graphSnapshot, ct);
             }
             catch (OperationCanceledException)
             {

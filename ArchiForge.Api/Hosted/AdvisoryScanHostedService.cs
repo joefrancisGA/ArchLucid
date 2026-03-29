@@ -29,7 +29,7 @@ public sealed class AdvisoryScanHostedService(IServiceProvider serviceProvider, 
 
                 await processor
                     .ProcessDueAsync(DateTime.UtcNow, 10, stoppingToken)
-                    .ConfigureAwait(false);
+                    ;
             }
             catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
             {
@@ -38,7 +38,7 @@ public sealed class AdvisoryScanHostedService(IServiceProvider serviceProvider, 
 
             try
             {
-                await Task.Delay(PollInterval, stoppingToken).ConfigureAwait(false);
+                await Task.Delay(PollInterval, stoppingToken);
             }
             catch (OperationCanceledException)
             {

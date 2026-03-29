@@ -50,11 +50,11 @@ public sealed class AlertService(
         {
             IReadOnlyList<AlertRule> rules = await ruleRepository
                 .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
-                .ConfigureAwait(false);
+                ;
 
             PolicyPackContentDocument effective = await AlertGovernanceResolver
                 .ResolveAsync(context, effectiveGovernanceLoader, ct)
-                .ConfigureAwait(false);
+                ;
 
             rules = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
 
@@ -63,7 +63,7 @@ public sealed class AlertService(
 
             foreach (AlertRecord alert in generated)
             {
-                bool wasCreated = await PersistAndDeliverAlertAsync(alert, context, ct).ConfigureAwait(false);
+                bool wasCreated = await PersistAndDeliverAlertAsync(alert, context, ct);
 
                 if (wasCreated)
                 {
@@ -98,12 +98,12 @@ public sealed class AlertService(
                 context.ProjectId,
                 alert.DeduplicationKey,
                 ct)
-            .ConfigureAwait(false);
+            ;
 
         if (existing is not null)
             return false;
 
-        await alertRepository.CreateAsync(alert, ct).ConfigureAwait(false);
+        await alertRepository.CreateAsync(alert, ct);
 
         await auditService.LogAsync(
             new AuditEvent
@@ -121,9 +121,9 @@ public sealed class AlertService(
                     },
                     AuditJsonSerializationOptions.Instance),
             },
-            ct).ConfigureAwait(false);
+            ct);
 
-        await alertDeliveryDispatcher.DeliverAsync(alert, ct).ConfigureAwait(false);
+        await alertDeliveryDispatcher.DeliverAsync(alert, ct);
 
         return true;
     }
@@ -147,7 +147,7 @@ public sealed class AlertService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        AlertRecord? alert = await alertRepository.GetByIdAsync(alertId, ct).ConfigureAwait(false);
+        AlertRecord? alert = await alertRepository.GetByIdAsync(alertId, ct);
         if (alert is null)
             return null;
 
@@ -169,7 +169,7 @@ public sealed class AlertService(
         alert.ResolutionComment = request.Comment;
         alert.LastUpdatedUtc = DateTime.UtcNow;
 
-        await alertRepository.UpdateAsync(alert, ct).ConfigureAwait(false);
+        await alertRepository.UpdateAsync(alert, ct);
 
         string? eventType = request.Action switch
         {
@@ -195,7 +195,7 @@ public sealed class AlertService(
                         },
                         AuditJsonSerializationOptions.Instance),
                 },
-                ct).ConfigureAwait(false);
+                ct);
         }
 
         return alert;

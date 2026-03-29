@@ -35,7 +35,7 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
 
         using IDbConnection connection = await connectionFactory
             .CreateOpenConnectionAsync(cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         ArchitectureRunIdempotencyRow? row = await connection
             .QueryFirstOrDefaultAsync<ArchitectureRunIdempotencyRow>(
@@ -49,7 +49,7 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
                         IdempotencyKeyHash = idempotencyKeyHash
                     },
                     cancellationToken: cancellationToken))
-            .ConfigureAwait(false);
+            ;
 
         if (row is null)
             return null;
@@ -100,7 +100,7 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
 
         using IDbConnection connection = await connectionFactory
             .CreateOpenConnectionAsync(cancellationToken)
-            .ConfigureAwait(false);
+            ;
 
         DateTime createdUtc = DateTime.UtcNow;
 
@@ -120,7 +120,7 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
                         CreatedUtc = createdUtc
                     },
                     cancellationToken: cancellationToken))
-                .ConfigureAwait(false);
+                ;
 
             return affected > 0;
         }

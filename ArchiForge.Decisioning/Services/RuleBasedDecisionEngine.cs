@@ -33,7 +33,7 @@ public class RuleBasedDecisionEngine(
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct)
     {
-        DecisionRuleSet ruleSet = await ruleProvider.GetRuleSetAsync(ct).ConfigureAwait(false);
+        DecisionRuleSet ruleSet = await ruleProvider.GetRuleSetAsync(ct);
         List<DecisionRule> rules = ruleSet.Rules
             .OrderByDescending(r => r.Priority)
             .ToList();

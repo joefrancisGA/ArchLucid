@@ -28,8 +28,8 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
-        await connection.ExecuteAsync(new CommandDefinition(sql, message, cancellationToken: ct)).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, message, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -51,13 +51,13 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
             ORDER BY CreatedUtc ASC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<ConversationMessage> rows = await connection.QueryAsync<ConversationMessage>(
             new CommandDefinition(sql, new
             {
                 ThreadId = threadId,
                 Take = take
-            }, cancellationToken: ct)).ConfigureAwait(false);
+            }, cancellationToken: ct));
         return rows.ToList();
     }
 }

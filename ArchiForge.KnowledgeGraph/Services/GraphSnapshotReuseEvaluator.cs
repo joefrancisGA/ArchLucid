@@ -27,13 +27,13 @@ public static class GraphSnapshotReuseEvaluator
         ArgumentNullException.ThrowIfNull(graphSnapshotRepository);
 
         if (!GraphSnapshotCanonicalFingerprint.AreEquivalent(priorCommittedContext, contextSnapshot))
-            return await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct).ConfigureAwait(false);
+            return await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
 
         GraphSnapshot? priorGraph = await graphSnapshotRepository
-            .GetLatestByContextSnapshotIdAsync(priorCommittedContext!.SnapshotId, ct).ConfigureAwait(false);
+            .GetLatestByContextSnapshotIdAsync(priorCommittedContext!.SnapshotId, ct);
 
         if (priorGraph is null)
-            return await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct).ConfigureAwait(false);
+            return await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
 
         return GraphSnapshotCloner.CloneForNewRun(priorGraph, contextSnapshot, runId);
     }

@@ -25,7 +25,7 @@ public sealed class EffectiveGovernanceLoader(IEffectiveGovernanceResolver resol
     {
         EffectiveGovernanceResolutionResult result = await resolver
             .ResolveAsync(tenantId, workspaceId, projectId, ct)
-            .ConfigureAwait(false);
+            ;
 
         return result.EffectiveContent;
     }
