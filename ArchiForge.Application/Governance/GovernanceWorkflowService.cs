@@ -59,6 +59,15 @@ public sealed class GovernanceWorkflowService(
 
         await approvalRepo.CreateAsync(request, cancellationToken);
 
+        await baselineMutationAudit
+            .RecordAsync(
+                AuditEventTypes.Governance.ApprovalRequestSubmitted,
+                requestedBy,
+                request.ApprovalRequestId,
+                $"RunId={runId}; ManifestVersion={manifestVersion}; Source={sourceEnvironment}; Target={targetEnvironment}",
+                cancellationToken)
+            ;
+
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation(
@@ -144,6 +153,15 @@ public sealed class GovernanceWorkflowService(
         request.ReviewedUtc = DateTime.UtcNow;
 
         await approvalRepo.UpdateAsync(request, cancellationToken);
+
+        await baselineMutationAudit
+            .RecordAsync(
+                AuditEventTypes.Governance.ApprovalRequestRejected,
+                reviewedBy,
+                approvalRequestId,
+                $"Status={GovernanceApprovalStatus.Rejected}",
+                cancellationToken)
+            ;
 
         if (logger.IsEnabled(LogLevel.Information))
         {
