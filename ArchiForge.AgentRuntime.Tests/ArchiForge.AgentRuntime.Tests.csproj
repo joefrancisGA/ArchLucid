@@ -29,4 +29,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\schemas\*.json" LinkBase="schemas" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

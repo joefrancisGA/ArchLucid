@@ -5,6 +5,8 @@ using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Connections;
+using ArchiForge.Persistence.GoldenManifests;
+using ArchiForge.Persistence.RelationalRead;
 using ArchiForge.Persistence.Serialization;
 
 using Dapper;
@@ -377,7 +379,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        GoldenManifestRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestRow>(
+        GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
             new CommandDefinition(
                 sql,
                 new
@@ -392,333 +394,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
         if (row is null)
             return null;
 
-        return await HydrateAsync(connection, row, ct);
-    }
-
-    private static async Task<GoldenManifest> HydrateAsync(
-        SqlConnection connection,
-        GoldenManifestRow row,
-        CancellationToken ct)
-    {
-        Guid manifestId = row.ManifestId;
-
-        int assumptionsCount = await ScalarCountAsync(
-            connection,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
-            ct);
-
-        int warningsCount = await ScalarCountAsync(
-            connection,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
-            ct);
-
-        int decisionsCount = await ScalarCountAsync(
-            connection,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
-            ct);
-
-        int provFindingCount = await ScalarCountAsync(
-            connection,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
-            ct);
-
-        int provNodeCount = await ScalarCountAsync(
-            connection,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
-            ct);
-
-        int provRuleCount = await ScalarCountAsync(
-            connection,
-            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId",
-            new
-            {
-                ManifestId = manifestId,
-            },
-            ct);
-
-        List<string> assumptions = assumptionsCount > 0
-            ? await LoadOrderedStringsAsync(
-                connection,
-                """
-                SELECT AssumptionText AS Item
-                FROM dbo.GoldenManifestAssumptions
-                WHERE ManifestId = @ManifestId
-                ORDER BY SortOrder;
-                """,
-                manifestId,
-                ct)
-            : JsonEntitySerializer.Deserialize<List<string>>(row.AssumptionsJson);
-
-        List<string> warnings = warningsCount > 0
-            ? await LoadOrderedStringsAsync(
-                connection,
-                """
-                SELECT WarningText AS Item
-                FROM dbo.GoldenManifestWarnings
-                WHERE ManifestId = @ManifestId
-                ORDER BY SortOrder;
-                """,
-                manifestId,
-                ct)
-            : JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson);
-
-        ManifestProvenance provenance;
-        if (provFindingCount + provNodeCount + provRuleCount > 0)
-        {
-            List<string> sourceFindings = provFindingCount > 0
-                ? await LoadOrderedStringsAsync(
-                    connection,
-                    """
-                    SELECT FindingId AS Item
-                    FROM dbo.GoldenManifestProvenanceSourceFindings
-                    WHERE ManifestId = @ManifestId
-                    ORDER BY SortOrder;
-                    """,
-                    manifestId,
-                    ct)
-                : [];
-
-            List<string> sourceNodes = provNodeCount > 0
-                ? await LoadOrderedStringsAsync(
-                    connection,
-                    """
-                    SELECT NodeId AS Item
-                    FROM dbo.GoldenManifestProvenanceSourceGraphNodes
-                    WHERE ManifestId = @ManifestId
-                    ORDER BY SortOrder;
-                    """,
-                    manifestId,
-                    ct)
-                : [];
-
-            List<string> appliedRules = provRuleCount > 0
-                ? await LoadOrderedStringsAsync(
-                    connection,
-                    """
-                    SELECT RuleId AS Item
-                    FROM dbo.GoldenManifestProvenanceAppliedRules
-                    WHERE ManifestId = @ManifestId
-                    ORDER BY SortOrder;
-                    """,
-                    manifestId,
-                    ct)
-                : [];
-
-            provenance = new ManifestProvenance
-            {
-                SourceFindingIds = sourceFindings,
-                SourceGraphNodeIds = sourceNodes,
-                AppliedRuleIds = appliedRules,
-            };
-        }
-        else
-        {
-            provenance = JsonEntitySerializer.Deserialize<ManifestProvenance>(row.ProvenanceJson);
-        }
-
-        List<ResolvedArchitectureDecision> decisions = decisionsCount > 0
-            ? await LoadDecisionsRelationalAsync(connection, manifestId, ct)
-            : JsonEntitySerializer.Deserialize<List<ResolvedArchitectureDecision>>(row.DecisionsJson);
-
-        return new GoldenManifest
-        {
-            TenantId = row.TenantId,
-            WorkspaceId = row.WorkspaceId,
-            ProjectId = row.ProjectId,
-            ManifestId = row.ManifestId,
-            RunId = row.RunId,
-            ContextSnapshotId = row.ContextSnapshotId,
-            GraphSnapshotId = row.GraphSnapshotId,
-            FindingsSnapshotId = row.FindingsSnapshotId,
-            DecisionTraceId = row.DecisionTraceId,
-            CreatedUtc = row.CreatedUtc,
-            ManifestHash = row.ManifestHash,
-            RuleSetId = row.RuleSetId,
-            RuleSetVersion = row.RuleSetVersion,
-            RuleSetHash = row.RuleSetHash,
-            Metadata = JsonEntitySerializer.Deserialize<ManifestMetadata>(row.MetadataJson),
-            Requirements = JsonEntitySerializer.Deserialize<RequirementsCoverageSection>(row.RequirementsJson),
-            Topology = JsonEntitySerializer.Deserialize<TopologySection>(row.TopologyJson),
-            Security = JsonEntitySerializer.Deserialize<SecuritySection>(row.SecurityJson),
-            Compliance = DeserializeCompliance(row.ComplianceJson),
-            Cost = JsonEntitySerializer.Deserialize<CostSection>(row.CostJson),
-            Constraints = JsonEntitySerializer.Deserialize<ConstraintSection>(row.ConstraintsJson),
-            UnresolvedIssues = JsonEntitySerializer.Deserialize<UnresolvedIssuesSection>(row.UnresolvedIssuesJson),
-            Decisions = decisions,
-            Assumptions = assumptions,
-            Warnings = warnings,
-            Provenance = provenance,
-        };
-    }
-
-    private static async Task<List<ResolvedArchitectureDecision>> LoadDecisionsRelationalAsync(
-        SqlConnection connection,
-        Guid manifestId,
-        CancellationToken ct)
-    {
-        const string decisionsSql = """
-            SELECT SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson
-            FROM dbo.GoldenManifestDecisions
-            WHERE ManifestId = @ManifestId
-            ORDER BY SortOrder;
-            """;
-
-        List<ManifestDecisionRow> decisionRows = (await connection.QueryAsync<ManifestDecisionRow>(
-            new CommandDefinition(
-                decisionsSql,
-                new
-                {
-                    ManifestId = manifestId,
-                },
-                cancellationToken: ct))).ToList();
-
-        if (decisionRows.Count == 0)
-            return [];
-
-        const string evidenceSql = """
-            SELECT DecisionId, SortOrder, FindingId
-            FROM dbo.GoldenManifestDecisionEvidenceLinks
-            WHERE ManifestId = @ManifestId
-            ORDER BY DecisionId, SortOrder;
-            """;
-
-        List<DecisionEvidenceRow> evidenceRows = (await connection.QueryAsync<DecisionEvidenceRow>(
-            new CommandDefinition(
-                evidenceSql,
-                new
-                {
-                    ManifestId = manifestId,
-                },
-                cancellationToken: ct))).ToList();
-
-        const string nodeSql = """
-            SELECT DecisionId, SortOrder, NodeId
-            FROM dbo.GoldenManifestDecisionNodeLinks
-            WHERE ManifestId = @ManifestId
-            ORDER BY DecisionId, SortOrder;
-            """;
-
-        List<DecisionNodeRow> nodeRows = (await connection.QueryAsync<DecisionNodeRow>(
-            new CommandDefinition(
-                nodeSql,
-                new
-                {
-                    ManifestId = manifestId,
-                },
-                cancellationToken: ct))).ToList();
-
-        Dictionary<string, List<string>> evidenceByDecision = new(StringComparer.Ordinal);
-        foreach (DecisionEvidenceRow er in evidenceRows)
-        {
-            if (!evidenceByDecision.TryGetValue(er.DecisionId, out List<string>? list))
-            {
-                list = [];
-                evidenceByDecision[er.DecisionId] = list;
-            }
-
-            list.Add(er.FindingId);
-        }
-
-        Dictionary<string, List<string>> nodesByDecision = new(StringComparer.Ordinal);
-        foreach (DecisionNodeRow nr in nodeRows)
-        {
-            if (!nodesByDecision.TryGetValue(nr.DecisionId, out List<string>? list))
-            {
-                list = [];
-                nodesByDecision[nr.DecisionId] = list;
-            }
-
-            list.Add(nr.NodeId);
-        }
-
-        List<ResolvedArchitectureDecision> result = [];
-        foreach (ManifestDecisionRow dr in decisionRows)
-        {
-            evidenceByDecision.TryGetValue(dr.DecisionId, out List<string>? ev);
-            ev ??= [];
-
-            nodesByDecision.TryGetValue(dr.DecisionId, out List<string>? nodes);
-            nodes ??= [];
-
-            result.Add(
-                new ResolvedArchitectureDecision
-                {
-                    DecisionId = dr.DecisionId,
-                    Category = dr.Category,
-                    Title = dr.Title,
-                    SelectedOption = dr.SelectedOption,
-                    Rationale = dr.Rationale,
-                    SupportingFindingIds = ev,
-                    RelatedNodeIds = nodes,
-                    RawDecisionJson = dr.RawDecisionJson,
-                });
-        }
-
-        return result;
-    }
-
-    private static async Task<List<string>> LoadOrderedStringsAsync(
-        SqlConnection connection,
-        string sql,
-        Guid manifestId,
-        CancellationToken ct)
-    {
-        IEnumerable<string> rows = await connection.QueryAsync<string>(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    ManifestId = manifestId,
-                },
-                cancellationToken: ct));
-
-        return rows.ToList();
-    }
-
-    private static async Task<int> ScalarCountAsync(
-        IDbConnection connection,
-        IDbTransaction? transaction,
-        string sql,
-        object param,
-        CancellationToken ct)
-    {
-        int count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, param, transaction, cancellationToken: ct));
-        return count;
-    }
-
-    private static async Task<int> ScalarCountAsync(
-        SqlConnection connection,
-        string sql,
-        object param,
-        CancellationToken ct)
-    {
-        int count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, param, cancellationToken: ct));
-        return count;
-    }
-
-    private static ComplianceSection DeserializeCompliance(string? json)
-    {
-        return string.IsNullOrWhiteSpace(json) ? new ComplianceSection() : JsonEntitySerializer.Deserialize<ComplianceSection>(json);
+        return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
     }
 
     /// <summary>
@@ -735,7 +411,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
 
         Guid manifestId = manifest.ManifestId;
 
-        int assumptionsCount = await ScalarCountAsync(
+        int assumptionsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId",
@@ -745,7 +421,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
             },
             ct);
 
-        int warningsCount = await ScalarCountAsync(
+        int warningsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId",
@@ -755,7 +431,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
             },
             ct);
 
-        int provFindingCount = await ScalarCountAsync(
+        int provFindingCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId",
@@ -765,7 +441,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
             },
             ct);
 
-        int provNodeCount = await ScalarCountAsync(
+        int provNodeCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId",
@@ -775,7 +451,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
             },
             ct);
 
-        int provRuleCount = await ScalarCountAsync(
+        int provRuleCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId",
@@ -785,7 +461,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
             },
             ct);
 
-        int decisionsCount = await ScalarCountAsync(
+        int decisionsCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
             transaction,
             "SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId",
@@ -812,140 +488,5 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
 
         if (decisionsCount == 0 && manifest.Decisions.Count > 0)
             await InsertGoldenManifestDecisionsRelationalAsync(manifest, connection, transaction, ct);
-    }
-
-    private sealed class GoldenManifestRow
-    {
-        public Guid TenantId
-        {
-            get; init;
-        }
-
-        public Guid WorkspaceId
-        {
-            get; init;
-        }
-
-        public Guid ProjectId
-        {
-            get; init;
-        }
-
-        public Guid ManifestId
-        {
-            get; init;
-        }
-
-        public Guid RunId
-        {
-            get; init;
-        }
-
-        public Guid ContextSnapshotId
-        {
-            get; init;
-        }
-
-        public Guid GraphSnapshotId
-        {
-            get; init;
-        }
-
-        public Guid FindingsSnapshotId
-        {
-            get; init;
-        }
-
-        public Guid DecisionTraceId
-        {
-            get; init;
-        }
-
-        public DateTime CreatedUtc
-        {
-            get; init;
-        }
-
-        public string ManifestHash { get; init; } = null!;
-
-        public string RuleSetId { get; init; } = null!;
-
-        public string RuleSetVersion { get; init; } = null!;
-
-        public string RuleSetHash { get; init; } = null!;
-
-        public string MetadataJson { get; init; } = null!;
-
-        public string RequirementsJson { get; init; } = null!;
-
-        public string TopologyJson { get; init; } = null!;
-
-        public string SecurityJson { get; init; } = null!;
-
-        public string? ComplianceJson
-        {
-            get; init;
-        }
-
-        public string CostJson { get; init; } = null!;
-
-        public string ConstraintsJson { get; init; } = null!;
-
-        public string UnresolvedIssuesJson { get; init; } = null!;
-
-        public string DecisionsJson { get; init; } = null!;
-
-        public string AssumptionsJson { get; init; } = null!;
-
-        public string WarningsJson { get; init; } = null!;
-
-        public string ProvenanceJson { get; init; } = null!;
-    }
-
-    private sealed class ManifestDecisionRow
-    {
-        public int SortOrder
-        {
-            get; init;
-        }
-
-        public string DecisionId { get; init; } = null!;
-
-        public string Category { get; init; } = null!;
-
-        public string Title { get; init; } = null!;
-
-        public string SelectedOption { get; init; } = null!;
-
-        public string Rationale { get; init; } = null!;
-
-        public string? RawDecisionJson
-        {
-            get; init;
-        }
-    }
-
-    private sealed class DecisionEvidenceRow
-    {
-        public string DecisionId { get; init; } = null!;
-
-        public int SortOrder
-        {
-            get; init;
-        }
-
-        public string FindingId { get; init; } = null!;
-    }
-
-    private sealed class DecisionNodeRow
-    {
-        public string DecisionId { get; init; } = null!;
-
-        public int SortOrder
-        {
-            get; init;
-        }
-
-        public string NodeId { get; init; } = null!;
     }
 }

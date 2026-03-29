@@ -30,6 +30,7 @@ public static class GraphSnapshotStorageMapper
 
         try
         {
+            // TODO: remove JSON fallback branches after relational migration complete (override-null path).
             List<GraphNode> nodes = nodesOverride is null
                 ? JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson)
                 : nodesOverride.ToList();

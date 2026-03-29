@@ -6,6 +6,7 @@ namespace ArchiForge.Persistence.ContextSnapshots;
 /// <summary>
 /// Legacy JSON column deserialization for <see cref="ContextSnapshot"/> when relational child rows are absent.
 /// </summary>
+/// <remarks>TODO: remove JSON fallback paths after relational migration complete.</remarks>
 internal static class ContextSnapshotJsonFallback
 {
     public static List<CanonicalObject> DeserializeCanonicalObjects(string? json)
