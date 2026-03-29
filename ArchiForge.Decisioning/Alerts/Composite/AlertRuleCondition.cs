@@ -18,8 +18,5 @@ public class AlertRuleCondition
     public string Operator { get; set; } = AlertConditionOperator.GreaterThanOrEqual;
 
     /// <summary>Right-hand side of the comparison.</summary>
-    public decimal ThresholdValue
-    {
-        get; set;
-    }
+    public decimal ThresholdValue { get; set; }
 }

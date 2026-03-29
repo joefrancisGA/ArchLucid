@@ -6,21 +6,12 @@ namespace ArchiForge.Api.Contracts;
 public class ManifestSummaryResponse
 {
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.ManifestId"/>
-    public Guid ManifestId
-    {
-        get; set;
-    }
+    public Guid ManifestId { get; set; }
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.RunId"/>
-    public Guid RunId
-    {
-        get; set;
-    }
+    public Guid RunId { get; set; }
 
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.CreatedUtc"/>
-    public DateTime CreatedUtc
-    {
-        get; set;
-    }
+    public DateTime CreatedUtc { get; set; }
 
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.ManifestHash"/>
     public string ManifestHash { get; set; } = null!;
@@ -32,22 +23,13 @@ public class ManifestSummaryResponse
     public string RuleSetVersion { get; set; } = null!;
 
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.DecisionCount"/>
-    public int DecisionCount
-    {
-        get; set;
-    }
+    public int DecisionCount { get; set; }
 
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.WarningCount"/>
-    public int WarningCount
-    {
-        get; set;
-    }
+    public int WarningCount { get; set; }
 
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.UnresolvedIssueCount"/>
-    public int UnresolvedIssueCount
-    {
-        get; set;
-    }
+    public int UnresolvedIssueCount { get; set; }
 
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.Status"/>
     public string Status { get; set; } = null!;

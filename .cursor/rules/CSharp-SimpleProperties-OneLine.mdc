@@ -1,0 +1,46 @@
+---
+description: Simple C# auto-properties must use a single-line accessor block
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# C# simple properties: one line per property
+
+When adding or editing **simple** auto-implemented properties (no custom accessor bodies, no `get =>` expression bodies), use a **single physical line** for the whole property declaration, including accessors.
+
+## Do
+
+```csharp
+public Guid TenantId { get; set; }
+public string? Name { get; init; }
+public int Count { get; private set; }
+AgentType AgentType { get; }
+```
+
+Keep optional attributes on the line(s) immediately above the property; the property line itself stays one line.
+
+## Do not
+
+Do not expand simple accessors across multiple lines:
+
+```csharp
+// Avoid
+public Guid TenantId
+{
+    get; set;
+}
+```
+
+## Scope
+
+- Applies to `get;` / `set;` / `init;` **auto-properties only**.
+- Does **not** apply when either accessor has a body (`get { return ... }`, `get =>`, `set { ... }`).
+- Indexers, explicit interface implementations, and unusual modifiers follow normal C# formatting; if a property is too long for readability, prefer extracting types or using `required` / split lines on the **type** only when the team agrees—default remains one line for simple DTOs and models.
+
+## Bulk fix
+
+To re-normalize files after a bad merge, run from the repo root:
+
+`python scripts/collapse_simple_properties.py`
+
+That script only collapses blocks whose body is purely `get;`/`set;`/`init;` (plus optional one-line `[...]` attributes above the declaration).

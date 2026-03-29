@@ -2,15 +2,9 @@ namespace ArchiForge.ContextIngestion.Models;
 
 public class ContextIngestionRequest
 {
-    public Guid RunId
-    {
-        get; set;
-    }
+    public Guid RunId { get; set; }
     public string ProjectId { get; set; } = null!;
-    public string? Description
-    {
-        get; set;
-    }
+    public string? Description { get; set; }
 
     public List<string> InlineRequirements { get; set; } = [];
     public List<ContextDocumentReference> Documents { get; set; } = [];

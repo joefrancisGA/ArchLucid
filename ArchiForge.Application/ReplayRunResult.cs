@@ -14,10 +14,7 @@ public sealed class ReplayRunResult
 
     public List<AgentResult> Results { get; set; } = [];
 
-    public GoldenManifest? Manifest
-    {
-        get; set;
-    }
+    public GoldenManifest? Manifest { get; set; }
 
     public List<DecisionTrace> DecisionTraces { get; set; } = [];
 

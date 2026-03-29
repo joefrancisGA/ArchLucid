@@ -6,10 +6,7 @@ namespace ArchiForge.Persistence.Replay;
 public class ReplayRequest
 {
     /// <summary>Run to load and replay.</summary>
-    public Guid RunId
-    {
-        get; set;
-    }
+    public Guid RunId { get; set; }
 
     /// <summary>
     /// One of <see cref="ReplayMode.ReconstructOnly"/>, <see cref="ReplayMode.RebuildManifest"/>, or <see cref="ReplayMode.RebuildArtifacts"/> (case-insensitive match in the implementation).

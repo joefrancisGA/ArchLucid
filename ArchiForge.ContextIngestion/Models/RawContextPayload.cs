@@ -2,10 +2,7 @@ namespace ArchiForge.ContextIngestion.Models;
 
 public class RawContextPayload
 {
-    public string? Description
-    {
-        get; set;
-    }
+    public string? Description { get; set; }
 
     public List<string> InlineRequirements { get; set; } = [];
     public List<ContextDocumentReference> Documents { get; set; } = [];

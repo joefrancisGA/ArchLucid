@@ -8,14 +8,8 @@ public sealed class BatchReplayComparisonRequest
 
     public string ReplayMode { get; set; } = "artifact";
 
-    public string? Profile
-    {
-        get; set;
-    }
+    public string? Profile { get; set; }
 
-    public bool PersistReplay
-    {
-        get; set;
-    }
+    public bool PersistReplay { get; set; }
 }
 

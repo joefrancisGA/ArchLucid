@@ -2,45 +2,21 @@ namespace ArchiForge.Api.Models;
 
 public sealed class ConsultingDocxExportRequest
 {
-    public string? TemplateProfile
-    {
-        get; set;
-    }
+    public string? TemplateProfile { get; set; }
 
-    public string? Audience
-    {
-        get; set;
-    }
+    public string? Audience { get; set; }
 
-    public bool ExternalDelivery
-    {
-        get; set;
-    }
+    public bool ExternalDelivery { get; set; }
 
-    public bool ExecutiveFriendly
-    {
-        get; set;
-    }
+    public bool ExecutiveFriendly { get; set; }
 
-    public bool RegulatedEnvironment
-    {
-        get; set;
-    }
+    public bool RegulatedEnvironment { get; set; }
 
-    public bool NeedDetailedEvidence
-    {
-        get; set;
-    }
+    public bool NeedDetailedEvidence { get; set; }
 
-    public bool NeedExecutionTraces
-    {
-        get; set;
-    }
+    public bool NeedExecutionTraces { get; set; }
 
-    public bool NeedDeterminismOrCompareAppendices
-    {
-        get; set;
-    }
+    public bool NeedDeterminismOrCompareAppendices { get; set; }
 
     public bool IncludeEvidence { get; set; } = true;
 
@@ -58,16 +34,10 @@ public sealed class ConsultingDocxExportRequest
 
     public bool IncludeManifestCompare { get; set; } = false;
 
-    public string? CompareManifestVersion
-    {
-        get; set;
-    }
+    public string? CompareManifestVersion { get; set; }
 
     public bool IncludeAgentResultCompare { get; set; } = false;
 
-    public string? CompareRunId
-    {
-        get; set;
-    }
+    public string? CompareRunId { get; set; }
 }
 

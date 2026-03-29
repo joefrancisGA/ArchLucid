@@ -12,10 +12,7 @@ public interface IAlertDeliveryChannel
     /// <summary>
     /// Discriminator matching <see cref="AlertRoutingChannelType"/> / subscription rows (case-insensitive match in dispatcher).
     /// </summary>
-    string ChannelType
-    {
-        get;
-    }
+    string ChannelType { get; }
 
     /// <summary>
     /// Formats <paramref name="payload"/> for the channel and performs the send (HTTP, SMTP abstraction, etc.).

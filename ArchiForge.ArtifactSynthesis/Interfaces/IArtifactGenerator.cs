@@ -5,10 +5,7 @@ namespace ArchiForge.ArtifactSynthesis.Interfaces;
 
 public interface IArtifactGenerator
 {
-    string ArtifactType
-    {
-        get;
-    }
+    string ArtifactType { get; }
 
     Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,

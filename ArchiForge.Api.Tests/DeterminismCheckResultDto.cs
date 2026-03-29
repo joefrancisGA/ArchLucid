@@ -4,17 +4,11 @@ public sealed class DeterminismCheckResultDto
 {
     public string SourceRunId { get; set; } = string.Empty;
 
-    public int Iterations
-    {
-        get; set;
-    }
+    public int Iterations { get; set; }
 
     public string ExecutionMode { get; set; } = string.Empty;
 
-    public bool IsDeterministic
-    {
-        get; set;
-    }
+    public bool IsDeterministic { get; set; }
 
     public string BaselineReplayRunId { get; set; } = string.Empty;
 
@@ -25,22 +19,13 @@ public sealed class DeterminismCheckResultDto
 
 public sealed class DeterminismIterationResultDto
 {
-    public int IterationNumber
-    {
-        get; set;
-    }
+    public int IterationNumber { get; set; }
 
     public string ReplayRunId { get; set; } = string.Empty;
 
-    public bool MatchesBaselineAgentResults
-    {
-        get; set;
-    }
+    public bool MatchesBaselineAgentResults { get; set; }
 
-    public bool MatchesBaselineManifest
-    {
-        get; set;
-    }
+    public bool MatchesBaselineManifest { get; set; }
 
     public List<string> AgentDriftWarnings { get; set; } = [];
 

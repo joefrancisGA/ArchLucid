@@ -180,22 +180,10 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         public string RunId { get; init; } = string.Empty;
         public string RequestId { get; init; } = string.Empty;
         public string Status { get; init; } = string.Empty;
-        public DateTime CreatedUtc
-        {
-            get; init;
-        }
-        public DateTime? CompletedUtc
-        {
-            get; init;
-        }
-        public string? CurrentManifestVersion
-        {
-            get; init;
-        }
-        public string? ContextSnapshotId
-        {
-            get; init;
-        }
+        public DateTime CreatedUtc { get; init; }
+        public DateTime? CompletedUtc { get; init; }
+        public string? CurrentManifestVersion { get; init; }
+        public string? ContextSnapshotId { get; init; }
 
         public Guid? GraphSnapshotId { get; init; }
 
@@ -254,18 +242,9 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         public string RunId { get; init; } = string.Empty;
         public string RequestId { get; init; } = string.Empty;
         public string Status { get; init; } = string.Empty;
-        public DateTime CreatedUtc
-        {
-            get; init;
-        }
-        public DateTime? CompletedUtc
-        {
-            get; init;
-        }
-        public string? CurrentManifestVersion
-        {
-            get; init;
-        }
+        public DateTime CreatedUtc { get; init; }
+        public DateTime? CompletedUtc { get; init; }
+        public string? CurrentManifestVersion { get; init; }
         public string SystemName { get; init; } = string.Empty;
     }
 }

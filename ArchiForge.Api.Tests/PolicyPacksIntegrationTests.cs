@@ -443,25 +443,16 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
     private sealed class PolicyPackResponse
     {
-        public Guid PolicyPackId
-        {
-            get; init;
-        }
+        public Guid PolicyPackId { get; init; }
         public string Name { get; init; } = "";
     }
 
     private sealed class PolicyPackVersionResponse
     {
-        public Guid PolicyPackVersionId
-        {
-            get; init;
-        }
+        public Guid PolicyPackVersionId { get; init; }
         public string Version { get; init; } = "";
         public string ContentJson { get; init; } = "";
-        public bool IsPublished
-        {
-            get; init;
-        }
+        public bool IsPublished { get; init; }
     }
 
     private sealed class PolicyPackContentResponse

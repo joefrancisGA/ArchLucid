@@ -7,22 +7,13 @@ namespace ArchiForge.Api.Contracts;
 public class ImprovementPlanResponse
 {
     /// <summary>Run the plan describes.</summary>
-    public Guid RunId
-    {
-        get; set;
-    }
+    public Guid RunId { get; set; }
 
     /// <summary>Prior run id when a comparison was used.</summary>
-    public Guid? ComparedToRunId
-    {
-        get; set;
-    }
+    public Guid? ComparedToRunId { get; set; }
 
     /// <summary>UTC generation timestamp.</summary>
-    public DateTime GeneratedUtc
-    {
-        get; set;
-    }
+    public DateTime GeneratedUtc { get; set; }
 
     /// <summary>High-level notes.</summary>
     public List<string> SummaryNotes { get; set; } = [];

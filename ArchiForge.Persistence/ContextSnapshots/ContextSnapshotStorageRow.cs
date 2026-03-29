@@ -3,29 +3,17 @@ namespace ArchiForge.Persistence.ContextSnapshots;
 /// <summary>Dapper projection for <c>dbo.ContextSnapshots</c> header + legacy JSON columns.</summary>
 internal sealed class ContextSnapshotStorageRow
 {
-    public Guid SnapshotId
-    {
-        get; init;
-    }
+    public Guid SnapshotId { get; init; }
 
-    public Guid RunId
-    {
-        get; init;
-    }
+    public Guid RunId { get; init; }
 
     public string ProjectId { get; init; } = null!;
 
-    public DateTime CreatedUtc
-    {
-        get; init;
-    }
+    public DateTime CreatedUtc { get; init; }
 
     public string CanonicalObjectsJson { get; init; } = null!;
 
-    public string? DeltaSummary
-    {
-        get; init;
-    }
+    public string? DeltaSummary { get; init; }
 
     public string WarningsJson { get; init; } = null!;
 

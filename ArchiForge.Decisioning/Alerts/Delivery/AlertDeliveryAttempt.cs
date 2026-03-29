@@ -9,34 +9,19 @@ public class AlertDeliveryAttempt
     public Guid AlertDeliveryAttemptId { get; set; } = Guid.NewGuid();
 
     /// <summary>Alert that was being delivered.</summary>
-    public Guid AlertId
-    {
-        get; set;
-    }
+    public Guid AlertId { get; set; }
 
     /// <summary>Routing subscription used for this attempt.</summary>
-    public Guid RoutingSubscriptionId
-    {
-        get; set;
-    }
+    public Guid RoutingSubscriptionId { get; set; }
 
     /// <summary>Scope copied from the alert for querying.</summary>
-    public Guid TenantId
-    {
-        get; set;
-    }
+    public Guid TenantId { get; set; }
 
     /// <summary>Scope copied from the alert.</summary>
-    public Guid WorkspaceId
-    {
-        get; set;
-    }
+    public Guid WorkspaceId { get; set; }
 
     /// <summary>Scope copied from the alert.</summary>
-    public Guid ProjectId
-    {
-        get; set;
-    }
+    public Guid ProjectId { get; set; }
 
     /// <summary>When the attempt started (UTC).</summary>
     public DateTime AttemptedUtc { get; set; } = DateTime.UtcNow;
@@ -45,10 +30,7 @@ public class AlertDeliveryAttempt
     public string Status { get; set; } = AlertDeliveryAttemptStatus.Started;
 
     /// <summary>Populated when <see cref="Status"/> is <see cref="AlertDeliveryAttemptStatus.Failed"/>.</summary>
-    public string? ErrorMessage
-    {
-        get; set;
-    }
+    public string? ErrorMessage { get; set; }
 
     /// <summary>Channel at attempt time (denormalized).</summary>
     public string ChannelType { get; set; } = null!;
@@ -57,8 +39,5 @@ public class AlertDeliveryAttempt
     public string Destination { get; set; } = null!;
 
     /// <summary>Reserved for retry policies; dispatcher currently writes <c>0</c>.</summary>
-    public int RetryCount
-    {
-        get; set;
-    }
+    public int RetryCount { get; set; }
 }

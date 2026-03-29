@@ -10,20 +10,11 @@ namespace ArchiForge.Core.Scoping;
 public sealed class ScopeContext
 {
     /// <summary>Tenant id (required for scoped data).</summary>
-    public Guid TenantId
-    {
-        get; set;
-    }
+    public Guid TenantId { get; set; }
 
     /// <summary>Workspace id within the tenant.</summary>
-    public Guid WorkspaceId
-    {
-        get; set;
-    }
+    public Guid WorkspaceId { get; set; }
 
     /// <summary>Project id within the workspace.</summary>
-    public Guid ProjectId
-    {
-        get; set;
-    }
+    public Guid ProjectId { get; set; }
 }

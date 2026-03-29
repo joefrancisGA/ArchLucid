@@ -4,10 +4,7 @@ using Models;
 
 public interface IContextConnector
 {
-    string ConnectorType
-    {
-        get;
-    }
+    string ConnectorType { get; }
 
     Task<RawContextPayload> FetchAsync(
         ContextIngestionRequest request,

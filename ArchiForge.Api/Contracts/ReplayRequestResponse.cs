@@ -6,14 +6,8 @@ namespace ArchiForge.Api.Contracts;
 public class ReplayRequestResponse
 {
     /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayRequest.RunId"/>
-    public Guid RunId
-    {
-        get; set;
-    }
+    public Guid RunId { get; set; }
 
     /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayRequest.Mode"/>
-    public string? Mode
-    {
-        get; set;
-    }
+    public string? Mode { get; set; }
 }

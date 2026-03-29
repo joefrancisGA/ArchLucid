@@ -14,10 +14,7 @@ public class GraphNodeVm
     public string Type { get; set; } = null!;
 
     /// <summary>Optional key/value pairs for UI detail panel (provenance metadata, graph properties).</summary>
-    public Dictionary<string, string>? Metadata
-    {
-        get; set;
-    }
+    public Dictionary<string, string>? Metadata { get; set; }
 }
 
 public class GraphEdgeVm

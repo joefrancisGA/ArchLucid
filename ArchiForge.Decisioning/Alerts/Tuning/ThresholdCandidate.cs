@@ -4,10 +4,7 @@ namespace ArchiForge.Decisioning.Alerts.Tuning;
 public class ThresholdCandidate
 {
     /// <summary>Threshold applied to the tuned metric.</summary>
-    public decimal ThresholdValue
-    {
-        get; set;
-    }
+    public decimal ThresholdValue { get; set; }
 
     /// <summary>Display label (optional; may mirror the numeric value).</summary>
     public string Label { get; set; } = null!;

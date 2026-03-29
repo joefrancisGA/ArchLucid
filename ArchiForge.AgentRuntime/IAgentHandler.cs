@@ -12,10 +12,7 @@ namespace ArchiForge.AgentRuntime;
 public interface IAgentHandler
 {
     /// <summary>Agent role this handler implements.</summary>
-    AgentType AgentType
-    {
-        get;
-    }
+    AgentType AgentType { get; }
 
     /// <summary>
     /// Runs the LLM (or simulator) pipeline for <paramref name="task"/> and returns a validated <see cref="AgentResult"/>.

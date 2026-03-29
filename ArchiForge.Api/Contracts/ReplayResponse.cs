@@ -6,37 +6,22 @@ namespace ArchiForge.Api.Contracts;
 public class ReplayResponse
 {
     /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayResult.RunId"/>
-    public Guid RunId
-    {
-        get; set;
-    }
+    public Guid RunId { get; set; }
 
     /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayResult.Mode"/>
     public string Mode { get; set; } = null!;
 
     /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayResult.ReplayedUtc"/>
-    public DateTime ReplayedUtc
-    {
-        get; set;
-    }
+    public DateTime ReplayedUtc { get; set; }
 
     /// <summary>Id of <see cref="ArchiForge.Persistence.Replay.ReplayResult.RebuiltManifest"/> when present.</summary>
-    public Guid? RebuiltManifestId
-    {
-        get; set;
-    }
+    public Guid? RebuiltManifestId { get; set; }
 
     /// <summary>Hash of rebuilt manifest when present.</summary>
-    public string? RebuiltManifestHash
-    {
-        get; set;
-    }
+    public string? RebuiltManifestHash { get; set; }
 
     /// <summary>Id of <see cref="ArchiForge.Persistence.Replay.ReplayResult.RebuiltArtifactBundle"/> when present.</summary>
-    public Guid? RebuiltArtifactBundleId
-    {
-        get; set;
-    }
+    public Guid? RebuiltArtifactBundleId { get; set; }
 
     /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayResult.Validation"/>
     public ReplayValidationResponse Validation { get; set; } = new();

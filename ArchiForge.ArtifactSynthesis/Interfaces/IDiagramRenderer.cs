@@ -4,10 +4,7 @@ namespace ArchiForge.ArtifactSynthesis.Interfaces;
 
 public interface IDiagramRenderer
 {
-    string Format
-    {
-        get;
-    }
+    string Format { get; }
 
     string Render(DiagramAst ast);
 }

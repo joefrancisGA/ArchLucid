@@ -302,15 +302,9 @@ internal static class GraphSnapshotRelationalRead
 
     private sealed class GraphNodeRow
     {
-        public Guid GraphNodeRowId
-        {
-            get; init;
-        }
+        public Guid GraphNodeRowId { get; init; }
 
-        public int SortOrder
-        {
-            get; init;
-        }
+        public int SortOrder { get; init; }
 
         public string NodeId { get; init; } = null!;
 
@@ -327,15 +321,9 @@ internal static class GraphSnapshotRelationalRead
 
     private sealed class NodePropertyRow
     {
-        public Guid GraphNodeRowId
-        {
-            get; init;
-        }
+        public Guid GraphNodeRowId { get; init; }
 
-        public int PropertySortOrder
-        {
-            get; init;
-        }
+        public int PropertySortOrder { get; init; }
 
         public string PropertyKey { get; init; } = null!;
 
@@ -359,10 +347,7 @@ internal static class GraphSnapshotRelationalRead
     {
         public string EdgeId { get; init; } = null!;
 
-        public int PropertySortOrder
-        {
-            get; init;
-        }
+        public int PropertySortOrder { get; init; }
 
         public string PropertyKey { get; init; } = null!;
 

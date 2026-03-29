@@ -4,34 +4,19 @@ namespace ArchiForge.Decisioning.Alerts.Simulation;
 public class SimulatedAlertOutcome
 {
     /// <summary>Run evaluated for this row.</summary>
-    public Guid? RunId
-    {
-        get; set;
-    }
+    public Guid? RunId { get; set; }
 
     /// <summary>Comparison baseline when applicable.</summary>
-    public Guid? ComparedToRunId
-    {
-        get; set;
-    }
+    public Guid? ComparedToRunId { get; set; }
 
     /// <summary>Whether the rule’s predicate matched.</summary>
-    public bool RuleMatched
-    {
-        get; set;
-    }
+    public bool RuleMatched { get; set; }
 
     /// <summary>For composite: mirrors suppression <c>ShouldCreateAlert</c>; for simple: true when an alert DTO was generated.</summary>
-    public bool WouldCreateAlert
-    {
-        get; set;
-    }
+    public bool WouldCreateAlert { get; set; }
 
     /// <summary>Typically inverse of <see cref="WouldCreateAlert"/> when matched.</summary>
-    public bool WouldBeSuppressed
-    {
-        get; set;
-    }
+    public bool WouldBeSuppressed { get; set; }
 
     /// <summary>Title template or rule name for display.</summary>
     public string Title { get; set; } = null!;

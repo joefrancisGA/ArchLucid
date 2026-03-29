@@ -311,19 +311,10 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
 
     private sealed class ConditionRow
     {
-        public Guid ConditionId
-        {
-            get; init;
-        }
-        public Guid CompositeRuleId
-        {
-            get; init;
-        }
+        public Guid ConditionId { get; init; }
+        public Guid CompositeRuleId { get; init; }
         public string MetricType { get; init; } = null!;
         public string Operator { get; init; } = null!;
-        public decimal ThresholdValue
-        {
-            get; init;
-        }
+        public decimal ThresholdValue { get; init; }
     }
 }

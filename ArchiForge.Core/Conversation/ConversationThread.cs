@@ -10,40 +10,22 @@ public class ConversationThread
     public Guid ThreadId { get; set; } = Guid.NewGuid();
 
     /// <summary>Tenant dimension (must match HTTP scope).</summary>
-    public Guid TenantId
-    {
-        get; set;
-    }
+    public Guid TenantId { get; set; }
 
     /// <summary>Workspace dimension.</summary>
-    public Guid WorkspaceId
-    {
-        get; set;
-    }
+    public Guid WorkspaceId { get; set; }
 
     /// <summary>Project dimension.</summary>
-    public Guid ProjectId
-    {
-        get; set;
-    }
+    public Guid ProjectId { get; set; }
 
     /// <summary>Primary manifest run when the thread is anchored to authority data.</summary>
-    public Guid? RunId
-    {
-        get; set;
-    }
+    public Guid? RunId { get; set; }
 
     /// <summary>Optional comparison base run (paired with <see cref="TargetRunId"/>).</summary>
-    public Guid? BaseRunId
-    {
-        get; set;
-    }
+    public Guid? BaseRunId { get; set; }
 
     /// <summary>Optional comparison target run.</summary>
-    public Guid? TargetRunId
-    {
-        get; set;
-    }
+    public Guid? TargetRunId { get; set; }
 
     /// <summary>Operator-visible label.</summary>
     public string Title { get; set; } = "New Conversation";

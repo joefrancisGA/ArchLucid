@@ -2,10 +2,7 @@ namespace ArchiForge.Decisioning.Findings.Payloads;
 
 public class TopologyCoverageFindingPayload
 {
-    public int TopologyNodeCount
-    {
-        get; set;
-    }
+    public int TopologyNodeCount { get; set; }
 
     public List<string> PresentCategories { get; set; } = [];
 

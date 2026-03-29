@@ -3,55 +3,25 @@ namespace ArchiForge.Persistence.GoldenManifests;
 /// <summary>Dapper projection for <c>dbo.GoldenManifests</c> including legacy JSON columns.</summary>
 internal sealed class GoldenManifestStorageRow
 {
-    public Guid TenantId
-    {
-        get; init;
-    }
+    public Guid TenantId { get; init; }
 
-    public Guid WorkspaceId
-    {
-        get; init;
-    }
+    public Guid WorkspaceId { get; init; }
 
-    public Guid ProjectId
-    {
-        get; init;
-    }
+    public Guid ProjectId { get; init; }
 
-    public Guid ManifestId
-    {
-        get; init;
-    }
+    public Guid ManifestId { get; init; }
 
-    public Guid RunId
-    {
-        get; init;
-    }
+    public Guid RunId { get; init; }
 
-    public Guid ContextSnapshotId
-    {
-        get; init;
-    }
+    public Guid ContextSnapshotId { get; init; }
 
-    public Guid GraphSnapshotId
-    {
-        get; init;
-    }
+    public Guid GraphSnapshotId { get; init; }
 
-    public Guid FindingsSnapshotId
-    {
-        get; init;
-    }
+    public Guid FindingsSnapshotId { get; init; }
 
-    public Guid DecisionTraceId
-    {
-        get; init;
-    }
+    public Guid DecisionTraceId { get; init; }
 
-    public DateTime CreatedUtc
-    {
-        get; init;
-    }
+    public DateTime CreatedUtc { get; init; }
 
     public string ManifestHash { get; init; } = null!;
 
@@ -69,10 +39,7 @@ internal sealed class GoldenManifestStorageRow
 
     public string SecurityJson { get; init; } = null!;
 
-    public string? ComplianceJson
-    {
-        get; init;
-    }
+    public string? ComplianceJson { get; init; }
 
     public string CostJson { get; init; } = null!;
 

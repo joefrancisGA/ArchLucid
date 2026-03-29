@@ -13,10 +13,7 @@ public class ConversationMessage
     public Guid MessageId { get; set; } = Guid.NewGuid();
 
     /// <summary>Owning thread.</summary>
-    public Guid ThreadId
-    {
-        get; set;
-    }
+    public Guid ThreadId { get; set; }
 
     /// <summary>Role label (see <see cref="ConversationMessageRole"/>).</summary>
     public string Role { get; set; } = null!;

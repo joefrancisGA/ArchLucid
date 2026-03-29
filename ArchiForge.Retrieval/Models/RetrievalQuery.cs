@@ -6,34 +6,19 @@ namespace ArchiForge.Retrieval.Models;
 public class RetrievalQuery
 {
     /// <summary>Tenant filter (required).</summary>
-    public Guid TenantId
-    {
-        get; set;
-    }
+    public Guid TenantId { get; set; }
 
     /// <summary>Workspace filter (required).</summary>
-    public Guid WorkspaceId
-    {
-        get; set;
-    }
+    public Guid WorkspaceId { get; set; }
 
     /// <summary>Project filter (required).</summary>
-    public Guid ProjectId
-    {
-        get; set;
-    }
+    public Guid ProjectId { get; set; }
 
     /// <summary>Optional run facet; behavior depends on <see cref="ArchiForge.Retrieval.Indexing.IVectorIndex"/> implementation.</summary>
-    public Guid? RunId
-    {
-        get; set;
-    }
+    public Guid? RunId { get; set; }
 
     /// <summary>Optional manifest facet.</summary>
-    public Guid? ManifestId
-    {
-        get; set;
-    }
+    public Guid? ManifestId { get; set; }
 
     /// <summary>Natural-language query to embed.</summary>
     public string QueryText { get; set; } = null!;

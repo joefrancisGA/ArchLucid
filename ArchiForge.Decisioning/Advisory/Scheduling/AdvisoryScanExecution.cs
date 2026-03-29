@@ -12,37 +12,22 @@ public class AdvisoryScanExecution
     public Guid ExecutionId { get; set; } = Guid.NewGuid();
 
     /// <summary>Parent schedule (<see cref="AdvisoryScanSchedule.ScheduleId"/>).</summary>
-    public Guid ScheduleId
-    {
-        get; set;
-    }
+    public Guid ScheduleId { get; set; }
 
     /// <summary>Tenant dimension (copied from the schedule for querying without a join).</summary>
-    public Guid TenantId
-    {
-        get; set;
-    }
+    public Guid TenantId { get; set; }
 
     /// <summary>Workspace dimension (copied from the schedule).</summary>
-    public Guid WorkspaceId
-    {
-        get; set;
-    }
+    public Guid WorkspaceId { get; set; }
 
     /// <summary>Project dimension (copied from the schedule).</summary>
-    public Guid ProjectId
-    {
-        get; set;
-    }
+    public Guid ProjectId { get; set; }
 
     /// <summary>When the runner created the row (UTC).</summary>
     public DateTime StartedUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>When the runner finished (success, no-runs, or failure), if applicable.</summary>
-    public DateTime? CompletedUtc
-    {
-        get; set;
-    }
+    public DateTime? CompletedUtc { get; set; }
 
     /// <summary>Lifecycle marker: e.g. <c>Started</c>, <c>Completed</c>, <c>Failed</c>.</summary>
     public string Status { get; set; } = "Started";
@@ -51,8 +36,5 @@ public class AdvisoryScanExecution
     public string ResultJson { get; set; } = "{}";
 
     /// <summary>Human-readable failure reason when <see cref="Status"/> is <c>Failed</c>.</summary>
-    public string? ErrorMessage
-    {
-        get; set;
-    }
+    public string? ErrorMessage { get; set; }
 }

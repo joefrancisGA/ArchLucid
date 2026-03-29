@@ -14,14 +14,8 @@ public class AdaptiveScoringInput
     public string Urgency { get; set; } = null!;
 
     /// <summary>Optional signal/type facet (matches <see cref="RecommendationLearningProfile.SignalTypeWeights"/> when learned).</summary>
-    public string? SignalType
-    {
-        get; set;
-    }
+    public string? SignalType { get; set; }
 
     /// <summary>Heuristic score from <see cref="RecommendationGenerator"/> before learning weights.</summary>
-    public int BasePriorityScore
-    {
-        get; set;
-    }
+    public int BasePriorityScore { get; set; }
 }

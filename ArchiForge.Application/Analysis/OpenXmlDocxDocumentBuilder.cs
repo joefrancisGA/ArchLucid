@@ -30,14 +30,8 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
     private readonly MemoryStream _stream;
     private readonly WordprocessingDocument _document;
 
-    public Body Body
-    {
-        get;
-    }
-    public MainDocumentPart MainPart
-    {
-        get;
-    }
+    public Body Body { get; }
+    public MainDocumentPart MainPart { get; }
 
     public OpenXmlDocxDocumentBuilder()
     {

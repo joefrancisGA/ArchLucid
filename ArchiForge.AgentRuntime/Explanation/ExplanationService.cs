@@ -340,34 +340,19 @@ public sealed class ExplanationService(
     private sealed class LlmComparisonJson
     {
         [UsedImplicitly]
-        public string? HighLevelSummary
-        {
-            get;
-        }
+        public string? HighLevelSummary { get; }
         [UsedImplicitly]
-        public List<string>? KeyTradeoffs
-        {
-            get;
-        }
+        public List<string>? KeyTradeoffs { get; }
         [UsedImplicitly]
-        public string? Narrative
-        {
-            get;
-        }
+        public string? Narrative { get; }
     }
 
     [UsedImplicitly]
     private sealed class LlmRunJson
     {
         [UsedImplicitly]
-        public string? Summary
-        {
-            get;
-        }
+        public string? Summary { get; }
         [UsedImplicitly]
-        public string? DetailedNarrative
-        {
-            get;
-        }
+        public string? DetailedNarrative { get; }
     }
 }

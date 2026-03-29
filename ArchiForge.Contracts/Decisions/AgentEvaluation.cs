@@ -19,10 +19,7 @@ public sealed class AgentEvaluation
     public string EvaluationType { get; set; } = string.Empty;
 
     /// <summary>Signed delta. Oppose/caution should be negative or will be treated as absolute opposition.</summary>
-    public double ConfidenceDelta
-    {
-        get; set;
-    }
+    public double ConfidenceDelta { get; set; }
 
     public string Rationale { get; set; } = string.Empty;
 

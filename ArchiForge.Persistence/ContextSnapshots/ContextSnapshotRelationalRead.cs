@@ -241,15 +241,9 @@ internal static class ContextSnapshotRelationalRead
 
     private sealed class CanonicalObjectRow
     {
-        public Guid CanonicalObjectRowId
-        {
-            get; init;
-        }
+        public Guid CanonicalObjectRowId { get; init; }
 
-        public int SortOrder
-        {
-            get; init;
-        }
+        public int SortOrder { get; init; }
 
         public string ObjectId { get; init; } = null!;
 
@@ -264,15 +258,9 @@ internal static class ContextSnapshotRelationalRead
 
     private sealed class PropertyRow
     {
-        public Guid CanonicalObjectRowId
-        {
-            get; init;
-        }
+        public Guid CanonicalObjectRowId { get; init; }
 
-        public int PropertySortOrder
-        {
-            get; init;
-        }
+        public int PropertySortOrder { get; init; }
 
         public string PropertyKey { get; init; } = null!;
 

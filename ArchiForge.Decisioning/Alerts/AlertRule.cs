@@ -12,22 +12,13 @@ public class AlertRule
     public Guid RuleId { get; set; } = Guid.NewGuid();
 
     /// <summary>Tenant scope.</summary>
-    public Guid TenantId
-    {
-        get; set;
-    }
+    public Guid TenantId { get; set; }
 
     /// <summary>Workspace scope.</summary>
-    public Guid WorkspaceId
-    {
-        get; set;
-    }
+    public Guid WorkspaceId { get; set; }
 
     /// <summary>Project scope.</summary>
-    public Guid ProjectId
-    {
-        get; set;
-    }
+    public Guid ProjectId { get; set; }
 
     /// <summary>Operator display name.</summary>
     public string Name { get; set; } = null!;
@@ -39,10 +30,7 @@ public class AlertRule
     public string Severity { get; set; } = AlertSeverity.Warning;
 
     /// <summary>Compared to live metrics per <see cref="RuleType"/> (count, percent, days, etc.).</summary>
-    public decimal ThresholdValue
-    {
-        get; set;
-    }
+    public decimal ThresholdValue { get; set; }
 
     /// <summary>Disabled rules are omitted from <see cref="IAlertRuleRepository.ListEnabledByScopeAsync"/>.</summary>
     public bool IsEnabled { get; set; } = true;

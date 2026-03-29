@@ -329,10 +329,7 @@ internal static class GoldenManifestPhase1RelationalRead
 
     private sealed class ManifestDecisionRow
     {
-        public int SortOrder
-        {
-            get; init;
-        }
+        public int SortOrder { get; init; }
 
         public string DecisionId { get; init; } = null!;
 
@@ -344,20 +341,14 @@ internal static class GoldenManifestPhase1RelationalRead
 
         public string Rationale { get; init; } = null!;
 
-        public string? RawDecisionJson
-        {
-            get; init;
-        }
+        public string? RawDecisionJson { get; init; }
     }
 
     private sealed class DecisionEvidenceRow
     {
         public string DecisionId { get; init; } = null!;
 
-        public int SortOrder
-        {
-            get; init;
-        }
+        public int SortOrder { get; init; }
 
         public string FindingId { get; init; } = null!;
     }
@@ -366,10 +357,7 @@ internal static class GoldenManifestPhase1RelationalRead
     {
         public string DecisionId { get; init; } = null!;
 
-        public int SortOrder
-        {
-            get; init;
-        }
+        public int SortOrder { get; init; }
 
         public string NodeId { get; init; } = null!;
     }

@@ -5,25 +5,13 @@ namespace ArchiForge.Persistence.Repositories;
 /// </summary>
 public sealed class GraphSnapshotStorageRow
 {
-    public Guid GraphSnapshotId
-    {
-        get; init;
-    }
+    public Guid GraphSnapshotId { get; init; }
 
-    public Guid ContextSnapshotId
-    {
-        get; init;
-    }
+    public Guid ContextSnapshotId { get; init; }
 
-    public Guid RunId
-    {
-        get; init;
-    }
+    public Guid RunId { get; init; }
 
-    public DateTime CreatedUtc
-    {
-        get; init;
-    }
+    public DateTime CreatedUtc { get; init; }
 
     public string NodesJson { get; init; } = null!;
 

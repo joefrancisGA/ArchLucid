@@ -9,25 +9,16 @@ namespace ArchiForge.Persistence.Queries;
 public class RunSummaryDto
 {
     /// <summary>Run primary key.</summary>
-    public Guid RunId
-    {
-        get; set;
-    }
+    public Guid RunId { get; set; }
 
     /// <summary>Authority project slug this run belongs to.</summary>
     public string ProjectId { get; set; } = null!;
 
     /// <summary>Optional operator description.</summary>
-    public string? Description
-    {
-        get; set;
-    }
+    public string? Description { get; set; }
 
     /// <summary>When the run was created (UTC).</summary>
-    public DateTime CreatedUtc
-    {
-        get; set;
-    }
+    public DateTime CreatedUtc { get; set; }
 
     /// <summary><see langword="true"/> when <see cref="ContextSnapshotId"/> is set.</summary>
     public bool HasContextSnapshot => ContextSnapshotId.HasValue;
@@ -47,28 +38,10 @@ public class RunSummaryDto
     /// <summary><see langword="true"/> when <see cref="ArtifactBundleId"/> is set.</summary>
     public bool HasArtifactBundle => ArtifactBundleId.HasValue;
 
-    public Guid? ContextSnapshotId
-    {
-        get; set;
-    }
-    public Guid? GraphSnapshotId
-    {
-        get; set;
-    }
-    public Guid? FindingsSnapshotId
-    {
-        get; set;
-    }
-    public Guid? GoldenManifestId
-    {
-        get; set;
-    }
-    public Guid? DecisionTraceId
-    {
-        get; set;
-    }
-    public Guid? ArtifactBundleId
-    {
-        get; set;
-    }
+    public Guid? ContextSnapshotId { get; set; }
+    public Guid? GraphSnapshotId { get; set; }
+    public Guid? FindingsSnapshotId { get; set; }
+    public Guid? GoldenManifestId { get; set; }
+    public Guid? DecisionTraceId { get; set; }
+    public Guid? ArtifactBundleId { get; set; }
 }

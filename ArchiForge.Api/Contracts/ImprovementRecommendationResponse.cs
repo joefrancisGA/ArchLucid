@@ -6,10 +6,7 @@ namespace ArchiForge.Api.Contracts;
 public class ImprovementRecommendationResponse
 {
     /// <summary>Recommendation id from the domain model.</summary>
-    public Guid RecommendationId
-    {
-        get; set;
-    }
+    public Guid RecommendationId { get; set; }
 
     /// <inheritdoc cref="ArchiForge.Decisioning.Advisory.Models.ImprovementRecommendation.Title"/>
     public string Title { get; set; } = null!;
@@ -30,8 +27,5 @@ public class ImprovementRecommendationResponse
     public string ExpectedImpact { get; set; } = null!;
 
     /// <inheritdoc cref="ArchiForge.Decisioning.Advisory.Models.ImprovementRecommendation.PriorityScore"/>
-    public int PriorityScore
-    {
-        get; set;
-    }
+    public int PriorityScore { get; set; }
 }

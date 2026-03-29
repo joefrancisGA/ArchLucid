@@ -12,24 +12,12 @@ public sealed class ReplayExportMetadataResponse
 
     public string FileName { get; set; } = string.Empty;
 
-    public string? TemplateProfile
-    {
-        get; set;
-    }
+    public string? TemplateProfile { get; set; }
 
-    public string? TemplateProfileDisplayName
-    {
-        get; set;
-    }
+    public string? TemplateProfileDisplayName { get; set; }
 
-    public bool WasAutoSelected
-    {
-        get; set;
-    }
+    public bool WasAutoSelected { get; set; }
 
-    public string? ResolutionReason
-    {
-        get; set;
-    }
+    public string? ResolutionReason { get; set; }
 }
 

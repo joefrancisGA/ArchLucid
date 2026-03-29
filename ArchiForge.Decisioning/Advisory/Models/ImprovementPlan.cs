@@ -14,16 +14,10 @@ namespace ArchiForge.Decisioning.Advisory.Models;
 public class ImprovementPlan
 {
     /// <summary>Run the plan describes.</summary>
-    public Guid RunId
-    {
-        get; set;
-    }
+    public Guid RunId { get; set; }
 
     /// <summary>Prior run used for comparison when present.</summary>
-    public Guid? ComparedToRunId
-    {
-        get; set;
-    }
+    public Guid? ComparedToRunId { get; set; }
 
     /// <summary>UTC timestamp when the plan was generated.</summary>
     public DateTime GeneratedUtc { get; set; } = DateTime.UtcNow;
@@ -35,9 +29,6 @@ public class ImprovementPlan
     public List<string> SummaryNotes { get; set; } = [];
 
     /// <summary>Merged <c>advisoryDefaults</c> from effective policy packs (optional keys for advisory/digest tooling).</summary>
-    public Dictionary<string, string> PolicyPackAdvisoryDefaults
-    {
-        get; set;
-    } =
+    public Dictionary<string, string> PolicyPackAdvisoryDefaults { get; set; } =
         new(StringComparer.OrdinalIgnoreCase);
 }

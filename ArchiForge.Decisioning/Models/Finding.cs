@@ -9,10 +9,7 @@ public class Finding
     public string FindingType { get; set; } = null!;
     public string Category { get; set; } = null!;
     public string EngineType { get; set; } = null!;
-    public FindingSeverity Severity
-    {
-        get; set;
-    }
+    public FindingSeverity Severity { get; set; }
 
     public string Title { get; set; } = null!;
     public string Rationale { get; set; } = null!;
@@ -22,14 +19,8 @@ public class Finding
 
     public Dictionary<string, string> Properties { get; set; } = new();
 
-    public object? Payload
-    {
-        get; set;
-    }
-    public string? PayloadType
-    {
-        get; set;
-    }
+    public object? Payload { get; set; }
+    public string? PayloadType { get; set; }
 
     public ExplainabilityTrace Trace { get; set; } = new();
 }

@@ -6,9 +6,6 @@ public sealed class EndToEndReplayComparisonExportResponse
 
     public string FileName { get; set; } = string.Empty;
 
-    public string? Content
-    {
-        get; set;
-    }
+    public string? Content { get; set; }
 }
 

@@ -12,22 +12,13 @@ public class AlertRoutingSubscription
     public Guid RoutingSubscriptionId { get; set; } = Guid.NewGuid();
 
     /// <summary>Tenant owning this route.</summary>
-    public Guid TenantId
-    {
-        get; set;
-    }
+    public Guid TenantId { get; set; }
 
     /// <summary>Workspace within the tenant.</summary>
-    public Guid WorkspaceId
-    {
-        get; set;
-    }
+    public Guid WorkspaceId { get; set; }
 
     /// <summary>Project within the workspace.</summary>
-    public Guid ProjectId
-    {
-        get; set;
-    }
+    public Guid ProjectId { get; set; }
 
     /// <summary>Operator-facing label.</summary>
     public string Name { get; set; } = "Alert Routing Subscription";
@@ -48,10 +39,7 @@ public class AlertRoutingSubscription
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 
     /// <summary>Last successful delivery timestamp; updated by the dispatcher.</summary>
-    public DateTime? LastDeliveredUtc
-    {
-        get; set;
-    }
+    public DateTime? LastDeliveredUtc { get; set; }
 
     /// <summary>Opaque JSON for future channel options.</summary>
     public string MetadataJson { get; set; } = "{}";

@@ -15,13 +15,7 @@ public sealed class AgentResultTemplate
 
     public List<string> EvidenceRefs { get; set; } = [];
 
-    public double Confidence
-    {
-        get; set;
-    }
+    public double Confidence { get; set; }
 
-    public object? ProposedChanges
-    {
-        get; set;
-    }
+    public object? ProposedChanges { get; set; }
 }

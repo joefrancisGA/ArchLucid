@@ -13,22 +13,13 @@ namespace ArchiForge.Persistence.Transactions;
 public interface IArchiForgeUnitOfWork : IAsyncDisposable
 {
     /// <summary>When <see langword="false"/>, callers must use repository defaults (in-memory mode); when <see langword="true"/>, repositories may use <see cref="Connection"/> and <see cref="Transaction"/>.</summary>
-    bool SupportsExternalTransaction
-    {
-        get;
-    }
+    bool SupportsExternalTransaction { get; }
 
     /// <summary>Active database connection for Dapper; not supported on <see cref="InMemoryArchiForgeUnitOfWork"/>.</summary>
-    IDbConnection Connection
-    {
-        get;
-    }
+    IDbConnection Connection { get; }
 
     /// <summary>Ambient transaction for Dapper (begun by the factory); not supported on <see cref="InMemoryArchiForgeUnitOfWork"/>.</summary>
-    IDbTransaction Transaction
-    {
-        get;
-    }
+    IDbTransaction Transaction { get; }
 
     /// <summary>Commits the transaction. Throws if the unit of work was already completed (Dapper).</summary>
     /// <param name="ct">Cancellation token (unused for sync ADO.NET commit; reserved for future use).</param>
