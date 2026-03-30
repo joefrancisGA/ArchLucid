@@ -431,6 +431,10 @@ export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocu
   return apiGet<PolicyPackContentDocument>(`/${ApiV1Routes.policyPacks}/effective-content`);
 }
 
+export async function getGovernanceResolution(): Promise<EffectiveGovernanceResolutionResult> {
+  return apiGet<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
+}
+
 export async function createPolicyPack(body: {
   name: string;
   description?: string;

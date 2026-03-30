@@ -11,7 +11,7 @@ namespace ArchiForge.ContextIngestion.Tests;
 /// <summary>
 /// Tests for Infrastructure Declaration Connector.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class InfrastructureDeclarationConnectorTests
 {
     [Fact]

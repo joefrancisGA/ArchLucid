@@ -8,7 +8,7 @@ namespace ArchiForge.ContextIngestion.Tests;
 /// <summary>
 /// Tests for Canonical Infrastructure Enricher.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class CanonicalInfrastructureEnricherTests
 {
     private readonly CanonicalInfrastructureEnricher _sut = new();

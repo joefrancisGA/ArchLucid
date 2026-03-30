@@ -14,7 +14,7 @@ namespace ArchiForge.DecisionEngine.Tests;
 /// <summary>
 /// Tests for Schema Validation.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class SchemaValidationTests
 {
     [Fact]

@@ -11,6 +11,7 @@ using FluentAssertions;
 namespace ArchiForge.DecisionEngine.Tests;
 
 /// <summary>Broader merge scenarios (formerly in Api.Tests). Uses passthrough schema validation.</summary>
+[Trait("Category", "Unit")]
 public sealed class DecisionEngineServiceScenarioTests
 {
     private readonly DecisionEngineService _service = new(new PassthroughSchemaValidationService());

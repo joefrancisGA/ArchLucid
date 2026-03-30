@@ -11,7 +11,7 @@ namespace ArchiForge.ContextIngestion.Tests;
 /// <summary>
 /// Tests for Document Connector.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class DocumentConnectorTests
 {
     [Fact]

@@ -7,7 +7,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Tests for Adaptive Recommendation Scorer.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class AdaptiveRecommendationScorerTests
 {
     private readonly AdaptiveRecommendationScorer _sut = new();

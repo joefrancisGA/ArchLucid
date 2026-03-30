@@ -11,7 +11,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Tests for Improvement Signal Analyzer.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class ImprovementSignalAnalyzerTests
 {
     private readonly ImprovementSignalAnalyzer _sut = new();

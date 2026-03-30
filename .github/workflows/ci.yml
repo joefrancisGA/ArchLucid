@@ -1,4 +1,5 @@
 # Build, test, and fail on known vulnerable NuGet packages (NEXT_REFACTORINGS §220).
+# Test suites: docs/TEST_EXECUTION_MODEL.md (54R). CI gate = full solution regression + SQL Server for Persistence tests.
 name: CI
 
 on:
@@ -45,7 +46,29 @@ jobs:
       - name: Context ingestion DI guards
         run: python scripts/assert_context_ingestion_di_guards.py
 
-      - name: Test
+      - name: Test (54R fast core — fail-fast gate, no SQL container dependency)
+        run: dotnet test ArchiForge.sln --no-build -c Release --filter "Suite=Core&Category!=Slow&Category!=Integration"
+
+      - name: Test (54R full regression — entire solution, SQL for Dapper persistence)
         env:
           ARCHIFORGE_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchiForgePersistenceTests'
-        run: dotnet test --no-build -c Release
+        run: dotnet test ArchiForge.sln --no-build -c Release
+
+  operator-ui-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies & run Playwright smoke (54R)
+        working-directory: archiforge-ui
+        env:
+          CI: true
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npx playwright test

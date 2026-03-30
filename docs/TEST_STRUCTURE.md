@@ -1,5 +1,7 @@
 # Test structure
 
+**54R suite model (Core / Fast core / Integration / SQL / Full):** see **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** — canonical filters, root scripts (`test-*.cmd` / `.ps1`), and CI mapping.
+
 ## Bounded context map (quick reference)
 
 | Test project | Primary bounded contexts / seams exercised |
@@ -35,7 +37,7 @@ Run the **core suite** (all tagged tests across the solution):
 dotnet test ArchiForge.sln --filter "Suite=Core"
 ```
 
-From the repo root, **`test-core.cmd`** / **`test-fast-core.cmd`** (and `.ps1` equivalents) wrap the same filters.
+From the repo root, **`test-core.cmd`** / **`test-fast-core.cmd`** (and `.ps1` equivalents) wrap the same filters. For **integration**, **SQL Server persistence**, **full regression**, and **operator UI smoke**, use **`test-integration`**, **`test-sqlserver-integration`**, **`test-full`**, and **`test-ui-smoke`** (see **TEST_EXECUTION_MODEL.md**). Prefer **`[Trait("Category", "…")]`** on every new `*Tests` class (`Unit`, `Integration`, `SqlServerContainer`, or `Slow`) so suite filters stay accurate.
 
 **Fast core** — Core tests that are neither **Slow** nor **Integration** (useful for quick feedback; skips API integration and other heavy cases):
 

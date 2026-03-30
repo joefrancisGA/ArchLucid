@@ -11,7 +11,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Tests for Architecture Digest Builder.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class ArchitectureDigestBuilderTests
 {
     private readonly ArchitectureDigestBuilder _sut = new();

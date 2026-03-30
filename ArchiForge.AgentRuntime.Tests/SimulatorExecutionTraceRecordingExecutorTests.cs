@@ -10,6 +10,7 @@ namespace ArchiForge.AgentRuntime.Tests;
 /// <summary>
 /// Tests for <see cref="SimulatorExecutionTraceRecordingExecutor"/>.
 /// </summary>
+[Trait("Category", "Unit")]
 public sealed class SimulatorExecutionTraceRecordingExecutorTests
 {
     [Fact]

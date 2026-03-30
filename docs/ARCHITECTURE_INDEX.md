@@ -57,6 +57,8 @@
 
 - **Test layout** – integration vs unit, traits  
   - `docs/TEST_STRUCTURE.md`
+- **Test execution model (54R)** – Core / Fast core / Integration / SQL / Full regression, scripts, CI  
+  - `docs/TEST_EXECUTION_MODEL.md`
 - **Formatting** – repo conventions  
   - `docs/FORMATTING.md`
 - **Method documentation** – XML doc expectations  

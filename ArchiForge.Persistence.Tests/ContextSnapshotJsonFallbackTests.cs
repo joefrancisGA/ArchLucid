@@ -9,6 +9,7 @@ namespace ArchiForge.Persistence.Tests;
 /// <summary>
 /// Unit tests for legacy JSON fallback parsing (no SQL Server required).
 /// </summary>
+[Trait("Category", "Unit")]
 public sealed class ContextSnapshotJsonFallbackTests
 {
     [Theory]

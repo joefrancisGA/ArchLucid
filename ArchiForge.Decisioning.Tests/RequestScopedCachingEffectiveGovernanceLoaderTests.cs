@@ -9,7 +9,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Tests for Request Scoped Caching Effective Governance Loader.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class RequestScopedCachingEffectiveGovernanceLoaderTests
 {
     [Fact]

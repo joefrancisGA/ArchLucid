@@ -8,7 +8,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Tests for Findings Snapshot Migrator.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class FindingsSnapshotMigratorTests
 {
     [Fact]

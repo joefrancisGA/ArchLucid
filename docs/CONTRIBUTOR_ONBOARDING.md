@@ -16,7 +16,7 @@ dotnet build
 - **Integration (full API + SQL Server — see [TEST_STRUCTURE.md](TEST_STRUCTURE.md)):**  
   `dotnet test --filter "Category=Integration"`
 
-See **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)** for project layout and traits.
+See **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)** for project layout and traits, and **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** (54R) for Core / Fast core / SQL / Full scripts at repo root.
 
 ## Configuration
 

@@ -15,6 +15,8 @@ namespace ArchiForge.Api.Tests;
 /// Verifies <see cref="AdvisoryScanHostedService"/> exits cleanly on cancellation
 /// and does not leak exceptions when the stopping token fires mid-delay or mid-processing.
 /// </summary>
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class AdvisoryScanHostedServiceShutdownTests
 {
     [Fact]

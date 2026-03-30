@@ -9,7 +9,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Tests for Policy Applicability Finding Engine.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class PolicyApplicabilityFindingEngineTests
 {
     [Fact]

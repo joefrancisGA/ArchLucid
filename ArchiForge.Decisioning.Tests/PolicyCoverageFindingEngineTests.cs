@@ -13,7 +13,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Tests for Policy Coverage Finding Engine.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class PolicyCoverageFindingEngineTests
 {
     private readonly Mock<IGraphCoverageAnalyzer> _analyzer = new(MockBehavior.Strict);

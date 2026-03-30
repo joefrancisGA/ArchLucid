@@ -8,6 +8,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Ensures legacy / alternate JSON shapes for stored graph rows deserialize via <see cref="JsonEntitySerializer"/>.
 /// </summary>
+[Trait("Category", "Unit")]
 public sealed class JsonEntitySerializerGraphCompatibilityTests
 {
     [Fact]

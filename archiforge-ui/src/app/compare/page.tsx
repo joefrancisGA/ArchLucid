@@ -21,6 +21,9 @@ function CompareForm() {
   const [error, setError] = useState<string | null>(null);
   const [goldenError, setGoldenError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState<ComparisonExplanation | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     const left = searchParams.get("leftRunId");

@@ -10,7 +10,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Tests for Findings Serialization.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class FindingsSerializationTests
 {
     [Fact]

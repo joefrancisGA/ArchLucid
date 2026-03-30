@@ -8,7 +8,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Tests for Finding Factory.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class FindingFactoryTests
 {
     [Fact]

@@ -10,6 +10,7 @@ namespace ArchiForge.Cli.Tests;
 /// <summary>
 /// Unit tests for ArchiForgeApiClient using mocked HTTP (no real API).
 /// </summary>
+[Trait("Category", "Unit")]
 public sealed class ArchiForgeApiClientHttpTests
 {
     private static readonly JsonSerializerOptions SJsonCamelCase = new()

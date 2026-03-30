@@ -8,7 +8,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// <summary>
 /// Tests for Compliance Rule Pack Governance Filter.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class ComplianceRulePackGovernanceFilterTests
 {
     private static ComplianceRulePack Pack(params ComplianceRule[] rules) =>

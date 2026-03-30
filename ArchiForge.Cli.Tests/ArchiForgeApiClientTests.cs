@@ -5,7 +5,7 @@ namespace ArchiForge.Cli.Tests;
 /// <summary>
 /// Tests for Archi Forge Api Client.
 /// </summary>
-
+[Trait("Category", "Unit")]
 public sealed class ArchiForgeApiClientTests
 {
     [Fact]
