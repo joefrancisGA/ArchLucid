@@ -80,6 +80,8 @@ internal static class GoldenManifestPhase1RelationalRead
             },
             ct);
 
+        string entityId = manifestId.ToString();
+
         List<string> assumptions = await RelationalFirstRead.ReadSliceAsync(
             assumptionsCount,
             "GoldenManifest.Assumptions",
@@ -95,7 +97,8 @@ internal static class GoldenManifestPhase1RelationalRead
                 ct),
             () => GoldenManifestJsonFallback.DeserializeStringList(row.AssumptionsJson),
             () => [],
-            fallbackPolicy);
+            fallbackPolicy,
+            "GoldenManifest", entityId);
 
         List<string> warnings = await RelationalFirstRead.ReadSliceAsync(
             warningsCount,
@@ -112,7 +115,8 @@ internal static class GoldenManifestPhase1RelationalRead
                 ct),
             () => GoldenManifestJsonFallback.DeserializeStringList(row.WarningsJson),
             () => [],
-            fallbackPolicy);
+            fallbackPolicy,
+            "GoldenManifest", entityId);
 
         int totalProvCount = provFindingCount + provNodeCount + provRuleCount;
         ManifestProvenance provenance;
@@ -165,7 +169,7 @@ internal static class GoldenManifestPhase1RelationalRead
                 AppliedRuleIds = appliedRules,
             };
         }
-        else if (fallbackPolicy is null || fallbackPolicy.ShouldFallbackToJson(totalProvCount, "GoldenManifest.Provenance"))
+        else if (fallbackPolicy is null || fallbackPolicy.EvaluateFallback(totalProvCount, "GoldenManifest.Provenance", "GoldenManifest", entityId))
         {
             provenance = GoldenManifestJsonFallback.DeserializeProvenance(row.ProvenanceJson);
         }
@@ -180,7 +184,8 @@ internal static class GoldenManifestPhase1RelationalRead
             () => LoadDecisionsRelationalAsync(connection, manifestId, ct),
             () => GoldenManifestJsonFallback.DeserializeDecisions(row.DecisionsJson),
             () => [],
-            fallbackPolicy);
+            fallbackPolicy,
+            "GoldenManifest", entityId);
 
         return new GoldenManifest
         {

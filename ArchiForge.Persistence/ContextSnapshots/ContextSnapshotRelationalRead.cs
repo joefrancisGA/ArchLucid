@@ -59,13 +59,16 @@ internal static class ContextSnapshotRelationalRead
             },
             ct);
 
+        string entityId = snapshotId.ToString();
+
         List<CanonicalObject> canonicalObjects = await RelationalFirstRead.ReadSliceAsync(
             canonicalCount,
             "ContextSnapshot.CanonicalObjects",
             () => LoadCanonicalObjectsRelationalAsync(connection, transaction, snapshotId, ct),
             () => ContextSnapshotJsonFallback.DeserializeCanonicalObjects(row.CanonicalObjectsJson),
             () => [],
-            fallbackPolicy);
+            fallbackPolicy,
+            "ContextSnapshot", entityId);
 
         List<string> warnings = await RelationalFirstRead.ReadSliceAsync(
             warningsCount,
@@ -83,7 +86,8 @@ internal static class ContextSnapshotRelationalRead
                 ct),
             () => ContextSnapshotJsonFallback.DeserializeStringList(row.WarningsJson),
             () => [],
-            fallbackPolicy);
+            fallbackPolicy,
+            "ContextSnapshot", entityId);
 
         List<string> errors = await RelationalFirstRead.ReadSliceAsync(
             errorsCount,
@@ -101,7 +105,8 @@ internal static class ContextSnapshotRelationalRead
                 ct),
             () => ContextSnapshotJsonFallback.DeserializeStringList(row.ErrorsJson),
             () => [],
-            fallbackPolicy);
+            fallbackPolicy,
+            "ContextSnapshot", entityId);
 
         Dictionary<string, string> sourceHashes = await RelationalFirstRead.ReadSliceAsync(
             hashesCount,
@@ -109,7 +114,8 @@ internal static class ContextSnapshotRelationalRead
             () => LoadSourceHashesRelationalAsync(connection, transaction, snapshotId, ct),
             () => ContextSnapshotJsonFallback.DeserializeStringDictionary(row.SourceHashesJson),
             () => new Dictionary<string, string>(StringComparer.Ordinal),
-            fallbackPolicy);
+            fallbackPolicy,
+            "ContextSnapshot", entityId);
 
         return new ContextSnapshot
         {

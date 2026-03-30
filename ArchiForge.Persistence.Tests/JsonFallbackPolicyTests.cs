@@ -46,6 +46,31 @@ public sealed class JsonFallbackPolicyTests
         policy.EvaluateFallback(0, "ContextSnapshot.CanonicalObjects").Should().BeTrue();
     }
 
+    [Fact]
+    public void AllowMode_NoRelationalRows_LogsDebug()
+    {
+        FakeLogger logger = new();
+        JsonFallbackPolicy policy = new(PersistenceReadMode.AllowJsonFallback, logger);
+
+        policy.EvaluateFallback(0, "ContextSnapshot.CanonicalObjects", "ContextSnapshot", "snap-1");
+
+        logger.DebugCount.Should().Be(1);
+        logger.LastDebugMessage.Should().Contain("ContextSnapshot.CanonicalObjects");
+        logger.LastDebugMessage.Should().Contain("snap-1");
+        logger.LastDebugMessage.Should().Contain("AllowJsonFallback");
+    }
+
+    [Fact]
+    public void AllowMode_RelationalRowsExist_DoesNotLog()
+    {
+        FakeLogger logger = new();
+        JsonFallbackPolicy policy = new(PersistenceReadMode.AllowJsonFallback, logger);
+
+        policy.EvaluateFallback(5, "Test.Slice", "Test", "id-1");
+
+        logger.TotalLogCount.Should().Be(0);
+    }
+
     // ── WarnOnJsonFallback ─────────────────────────────────────────
 
     [Fact]
@@ -66,8 +91,9 @@ public sealed class JsonFallbackPolicyTests
 
         result.Should().BeTrue();
         logger.WarningCount.Should().Be(1);
-        logger.LastMessage.Should().Contain("ContextSnapshot.Warnings");
-        logger.LastMessage.Should().Contain("abc-123");
+        logger.LastWarningMessage.Should().Contain("ContextSnapshot.Warnings");
+        logger.LastWarningMessage.Should().Contain("abc-123");
+        logger.LastWarningMessage.Should().Contain("WarnOnJsonFallback");
     }
 
     // ── RequireRelational ──────────────────────────────────────────
@@ -128,7 +154,13 @@ public sealed class JsonFallbackPolicyTests
     {
         public int WarningCount { get; private set; }
 
-        public string LastMessage { get; private set; } = "";
+        public int DebugCount { get; private set; }
+
+        public int TotalLogCount { get; private set; }
+
+        public string LastWarningMessage { get; private set; } = "";
+
+        public string LastDebugMessage { get; private set; } = "";
 
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 
@@ -136,10 +168,20 @@ public sealed class JsonFallbackPolicyTests
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            if (logLevel != LogLevel.Warning) return;
-            
-            WarningCount++;
-            LastMessage = formatter(state, exception);
+            TotalLogCount++;
+            string message = formatter(state, exception);
+
+            if (logLevel == LogLevel.Warning)
+            {
+                WarningCount++;
+                LastWarningMessage = message;
+            }
+
+            if (logLevel == LogLevel.Debug)
+            {
+                DebugCount++;
+                LastDebugMessage = message;
+            }
         }
     }
 }

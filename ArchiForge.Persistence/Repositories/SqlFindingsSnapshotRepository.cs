@@ -349,7 +349,7 @@ public sealed class SqlFindingsSnapshotRepository(
 
         if (recordCount == 0)
         {
-            if (fallbackPolicy is null || fallbackPolicy.ShouldFallbackToJson(0, "FindingsSnapshot.Findings"))
+            if (fallbackPolicy is null || fallbackPolicy.EvaluateFallback(0, "FindingsSnapshot.Findings", "FindingsSnapshot", findingsSnapshotId.ToString()))
                 return FindingsSnapshotJsonFallback.FromHeaderRow(row);
 
             return new FindingsSnapshot

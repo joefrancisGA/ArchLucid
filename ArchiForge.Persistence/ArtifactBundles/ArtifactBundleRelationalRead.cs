@@ -58,13 +58,16 @@ internal static class ArtifactBundleRelationalRead
             },
             ct);
 
+        string entityId = bundleId.ToString();
+
         List<SynthesizedArtifact> artifacts = await RelationalFirstRead.ReadSliceAsync(
             artifactCount,
             "ArtifactBundle.Artifacts",
             () => LoadArtifactsRelationalAsync(connection, bundleId, ct),
             () => ArtifactBundleJsonFallback.DeserializeArtifacts(row.ArtifactsJson),
             () => [],
-            fallbackPolicy);
+            fallbackPolicy,
+            "ArtifactBundle", entityId);
 
         // Trace base is always deserialized from JSON (scalar header fields); list sub-properties
         // are overwritten from relational tables when available. The JSON-base read is intentional

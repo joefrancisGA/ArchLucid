@@ -36,7 +36,7 @@ internal static class FindingsSnapshotRelationalRead
 
         if (records.Count == 0)
         {
-            if (fallbackPolicy is null || fallbackPolicy.ShouldFallbackToJson(0, "FindingsSnapshot.Findings"))
+            if (fallbackPolicy is null || fallbackPolicy.EvaluateFallback(0, "FindingsSnapshot.Findings", "FindingsSnapshot", row.FindingsSnapshotId.ToString()))
                 return FindingsSnapshotJsonFallback.FromHeaderRow(row);
 
             return new FindingsSnapshot

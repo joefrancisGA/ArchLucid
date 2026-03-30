@@ -31,25 +31,30 @@ public static class GraphSnapshotStorageMapper
     {
         ArgumentNullException.ThrowIfNull(row);
 
+        string entityId = row.GraphSnapshotId.ToString();
+
         try
         {
             List<GraphNode> nodes = ResolveOverrideOrFallback(
                 nodesOverride,
                 () => JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson),
                 fallbackPolicy,
-                "GraphSnapshot.Nodes");
+                "GraphSnapshot.Nodes",
+                entityId);
 
             List<GraphEdge> edges = ResolveOverrideOrFallback(
                 edgesOverride,
                 () => JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson),
                 fallbackPolicy,
-                "GraphSnapshot.Edges");
+                "GraphSnapshot.Edges",
+                entityId);
 
             List<string> warnings = ResolveOverrideOrFallback(
                 warningsOverride,
                 () => JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson),
                 fallbackPolicy,
-                "GraphSnapshot.Warnings");
+                "GraphSnapshot.Warnings",
+                entityId);
 
             return new GraphSnapshot
             {
@@ -75,12 +80,13 @@ public static class GraphSnapshotStorageMapper
         IReadOnlyList<T>? relationalOverride,
         Func<List<T>> deserializeJson,
         JsonFallbackPolicy? policy,
-        string sliceName)
+        string sliceName,
+        string entityId)
     {
         if (relationalOverride is not null)
             return relationalOverride.ToList();
 
-        if (policy is null || policy.ShouldFallbackToJson(0, sliceName))
+        if (policy is null || policy.EvaluateFallback(0, sliceName, "GraphSnapshot", entityId))
             return deserializeJson();
 
         return [];

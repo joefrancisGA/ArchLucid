@@ -88,7 +88,7 @@ internal static class GraphSnapshotRelationalRead
             return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride, fallbackPolicy);
 
         bool mergeEdgeMetadataFromJson = edgePropsCount == 0
-            && (fallbackPolicy is null || fallbackPolicy.ShouldFallbackToJson(edgePropsCount, "GraphSnapshot.EdgeProperties"));
+            && (fallbackPolicy is null || fallbackPolicy.EvaluateFallback(edgePropsCount, "GraphSnapshot.EdgeProperties", "GraphSnapshot", row.GraphSnapshotId.ToString()));
         edgesOverride = await LoadEdgesRelationalAsync(connection, transaction, row, mergeEdgeMetadataFromJson, ct);
 
         return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride, fallbackPolicy);

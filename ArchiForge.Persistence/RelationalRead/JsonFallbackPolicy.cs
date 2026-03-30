@@ -1,3 +1,7 @@
+using System.Diagnostics;
+
+using ArchiForge.Core.Diagnostics;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -11,18 +15,27 @@ namespace ArchiForge.Persistence.RelationalRead;
 /// <para><b>Default:</b> <see cref="PersistenceReadMode.AllowJsonFallback"/> — preserves legacy
 /// behavior. All persistence code that branches on "relational rows vs JSON column" must route
 /// through <see cref="EvaluateFallback"/> so the mode decision is in one place.</para>
+/// <para>Diagnostics: every fallback event increments
+/// <see cref="ArchiForgeInstrumentation.JsonFallbackUsed"/> (OTel counter) and emits a
+/// structured log at <c>Debug</c> (allow) or <c>Warning</c> (warn) level.</para>
 /// <para>Wire as singleton in DI; the backfill tooling and repositories share one instance.</para>
 /// </remarks>
-public sealed class JsonFallbackPolicy(PersistenceReadMode mode, ILogger? logger)
+public sealed class JsonFallbackPolicy
 {
-    private readonly ILogger _logger = logger ?? NullLogger.Instance;
+    private readonly ILogger _logger;
 
     public JsonFallbackPolicy()
         : this(PersistenceReadMode.AllowJsonFallback, NullLogger.Instance)
     {
     }
 
-    public PersistenceReadMode Mode { get; } = mode;
+    public JsonFallbackPolicy(PersistenceReadMode mode, ILogger logger)
+    {
+        Mode = mode;
+        _logger = logger ?? NullLogger.Instance;
+    }
+
+    public PersistenceReadMode Mode { get; }
 
     /// <summary>
     /// Backward-compatible property; <c>true</c> when mode is not <see cref="PersistenceReadMode.RequireRelational"/>.
@@ -31,6 +44,7 @@ public sealed class JsonFallbackPolicy(PersistenceReadMode mode, ILogger? logger
 
     /// <summary>
     /// Evaluates whether the caller should fall back to the JSON column.
+    /// Emits structured diagnostics (log + OTel counter) on every fallback event.
     /// </summary>
     /// <param name="relationalRowCount">Rows found in the relational child table.</param>
     /// <param name="sliceName">Diagnostic label (e.g. "ContextSnapshot.CanonicalObjects").</param>
@@ -49,19 +63,18 @@ public sealed class JsonFallbackPolicy(PersistenceReadMode mode, ILogger? logger
         switch (Mode)
         {
             case PersistenceReadMode.AllowJsonFallback:
+                RecordFallbackEvent(LogLevel.Debug, sliceName, entityType, entityId);
                 return true;
 
             case PersistenceReadMode.WarnOnJsonFallback:
-                _logger.LogWarning(
-                    "JSON fallback used for {SliceName} (entity {EntityType} '{EntityId}'). " +
-                    "Run SqlRelationalBackfillService to populate relational child tables.",
-                    sliceName, entityType, entityId);
+                RecordFallbackEvent(LogLevel.Warning, sliceName, entityType, entityId);
                 return true;
 
             case PersistenceReadMode.RequireRelational:
                 throw new RelationalDataMissingException(entityType, entityId, sliceName);
 
             default:
+                RecordFallbackEvent(LogLevel.Debug, sliceName, entityType, entityId);
                 return true;
         }
     }
@@ -72,5 +85,22 @@ public sealed class JsonFallbackPolicy(PersistenceReadMode mode, ILogger? logger
     public bool ShouldFallbackToJson(int relationalRowCount, string sliceName)
     {
         return EvaluateFallback(relationalRowCount, sliceName);
+    }
+
+    private void RecordFallbackEvent(LogLevel level, string sliceName, string entityType, string entityId)
+    {
+        string modeLabel = Mode.ToString();
+
+        ArchiForgeInstrumentation.JsonFallbackUsed.Add(
+            1,
+            new KeyValuePair<string, object?>("entity_type", entityType),
+            new KeyValuePair<string, object?>("slice", sliceName),
+            new KeyValuePair<string, object?>("read_mode", modeLabel));
+
+        _logger.Log(
+            level,
+            "JSON fallback used — slice={SliceName}, entityType={EntityType}, entityId={EntityId}, " +
+            "readMode={ReadMode}. Run SqlRelationalBackfillService to eliminate fallback reads.",
+            sliceName, entityType, entityId, modeLabel);
     }
 }
