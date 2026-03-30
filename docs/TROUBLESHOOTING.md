@@ -1,0 +1,56 @@
+# Troubleshooting for pilots and operators (56R)
+
+**Goal:** Faster triage without reading the whole codebase. If this doc does not help, gather **correlation ID**, **HTTP status**, **first log error**, and **SQL/storage mode** before escalating.
+
+---
+
+## Quick matrix
+
+| Symptom | Likely cause | What to try |
+|--------|----------------|-------------|
+| API **does not start**; log mentions migration / DbUp | Bad **connection string**, DB unreachable, or migration failure | Fix `ConnectionStrings:ArchiForge`. Confirm SQL is up. See log lines mentioning **DbUp** or **migration**. [BUILD.md](BUILD.md), [SQL_SCRIPTS.md](SQL_SCRIPTS.md) |
+| **`/health/ready`** returns **503** | Database (when using Sql), schema files, rule pack, or temp directory check failed | Read JSON body for which check failed. Fix config/paths/permissions. |
+| **`401` / `403`** on API | Auth mode / role mismatch | **Development:** ensure `ArchiForgeAuth` is **DevelopmentBypass** for local pilots. **JWT:** confirm token roles map to Reader/Operator/Admin. [README.md](../README.md#api-authentication-archiforgeauth) |
+| **`429 Too Many Requests`** | Rate limiting | Wait for the window to reset or adjust `RateLimiting:*` in config (non-production). |
+| **`404`** on run or manifest | Wrong **run ID**, wrong **scope** (tenant/workspace/project), or data not in that scope | Re-use default scope headers or match the scope used at create time. |
+| **`409`** on commit | Run state / idempotency conflict | Follow message; may need to re-fetch run status or use a fresh run. [API_CONTRACTS.md](API_CONTRACTS.md) |
+| UI shows **503** JSON “Invalid upstream API configuration” | **`ARCHIFORGE_API_BASE_URL`** missing or invalid in **`.env.local`** | Set server-side base URL in `archiforge-ui/.env.local`. Restart `npm run dev`. |
+| UI loads but API calls fail | Proxy or CORS | Check **browser network** tab and **Next server logs** (look for **`archiforge-ui-proxy`** JSON warnings). Confirm API URL and that API allows your UI origin under **`Cors:AllowedOrigins`**. |
+| **`run --quick` / execute** fails with LLM or timeout errors | **Real agent** mode without valid Azure OpenAI config | For pilots, prefer **simulator** / default dev settings so no cloud keys are required. Check `AgentExecution` / related appsettings. |
+| .NET tests fail with SQL errors | No SQL Server for integration tests | Set **`ARCHIFORGE_SQL_TEST`** or **`ARCHIFORGE_API_TEST_SQL`** (Linux/macOS/CI), or run **fast core** only. [BUILD.md](BUILD.md) |
+
+---
+
+## API startup failures
+
+1. Read the **console output** from first line to first `InvalidOperationException` / stack stop.
+2. **Configuration validation** runs **right after** the host is built: errors are logged as **`Startup configuration error:`** — fix each listed setting.
+3. If **`ConnectionStrings:ArchiForge`** is unset while **`ArchiForge:StorageProvider`** is **`Sql`**, startup will fail once DB is required.
+
+---
+
+## Logs — what to search for
+
+- **`RunId=`** — ties log lines to a single architecture run.
+- **`X-Correlation-ID`** you sent on the request (or the ID the server returned) — ties client attempts to server handling.
+- **`Authority pipeline`** / **`Architecture run execution failed`** — authority vs application run paths.
+- **`archiforge-ui-proxy`** — UI server-side forwarder problems (upstream status, bad base URL).
+
+Logs go to **stdout** unless your host redirects them (Docker/Kubernetes, IIS, Windows Service).
+
+---
+
+## Artifact list empty or download 404
+
+- An **empty artifact list** (`[]`) can be valid: manifest exists but **no synthesized files** yet or **none stored** for that manifest.
+- **Bundle ZIP 404** can mean “no bundle” vs “manifest not found” depending on API **ProblemDetails** — compare `title` / `type` / `detail` in the response.
+
+See [operator-shell.md](operator-shell.md) and [API_CONTRACTS.md](API_CONTRACTS.md).
+
+---
+
+## Still stuck?
+
+1. Run **`dotnet run --project ArchiForge.Cli -- doctor`** with the API up.
+2. Run **`run-readiness-check.cmd`** (or `.ps1`) to confirm build + fast core + UI unit tests on your machine.
+3. Open **[PILOT_GUIDE.md](PILOT_GUIDE.md)** for the full first-run narrative.

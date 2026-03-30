@@ -31,6 +31,13 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **Scripts (repo root):** `build-release`, `package-release`, `run-readiness-check` (`.cmd` + `.ps1`) — Release build, `dotnet publish` to `artifacts/release/api/`, optional Next.js production build when Node is available, RC-style gate (Release + fast core + Vitest).
 - **Doc:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md) — handoff workflow, run published API, UI dev/build, CI notes, scope limits (no SBOM/container in-script).
 
+### Prompt 6 — pilot onboarding and operator docs
+
+- **New:** [PILOT_GUIDE.md](PILOT_GUIDE.md) — what the product does, minimum setup, first run (Swagger + CLI), artifact review, readiness/core tests, logs vs DB artifacts, support hints.
+- **New:** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) — copy-paste command blocks only.
+- **New:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — common failure modes, triage table, log search tokens, UI proxy notes.
+- **Updated:** [README.md](../README.md) — pilot onboarding section + doc table rows.
+
 ### Deferred to later prompts (56R backlog)
 
 - Structured log enrichers, version/commit in logs, OTLP defaults.
@@ -51,3 +58,4 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `docs/CONFIGURATION_KEY_VAULT.md`
 - `build-release.cmd`, `build-release.ps1`, `package-release.cmd`, `package-release.ps1`, `run-readiness-check.cmd`, `run-readiness-check.ps1`
 - `docs/RELEASE_LOCAL.md`
+- `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/TROUBLESHOOTING.md`

@@ -8,6 +8,9 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 |-----|---------|
 | [docs/BUILD.md](docs/BUILD.md) | Build, CPM, project references, DecisionEngine bundle |
 | [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md) | **56R:** Release build, package API to `artifacts/release/`, readiness script, pilot run instructions |
+| [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) | **56R:** Pilot onboarding — what ArchiForge does, first run, artifacts, logs, tests |
+| [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) | **56R:** Copy-paste command list for operators |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | **56R:** Common failures, health/auth/SQL/UI proxy, triage hints |
 | [docs/FORMATTING.md](docs/FORMATTING.md) | C# layout / blank lines (`dotnet format`, `.editorconfig`) |
 | [docs/METHOD_DOCUMENTATION.md](docs/METHOD_DOCUMENTATION.md) | XML doc conventions; piece-by-piece API commentary |
 | [docs/ALERTS.md](docs/ALERTS.md) | Alerts, routing, simulation/tuning, advisory schedules (links to API contracts & doc tracker) |
@@ -22,6 +25,12 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md) | **SQL reference:** DbUp migrations, consolidated scripts, bootstrap paths, troubleshooting, change checklist |
 | [docs/demo-quickstart.md](docs/demo-quickstart.md) | **Corrected 50R demo:** DbUp + Contoso trusted-baseline seed, `Demo:*` config, `POST /v1.0/demo/seed`, verification endpoints |
 | [docs/TRUSTED_BASELINE.md](docs/TRUSTED_BASELINE.md) | **49R pass 2 boundary + Corrected 51R:** baseline-trusted surface, optional features, centralized actor (`IActorContext`), log-only baseline mutation audit (`IBaselineMutationAuditService`) vs SQL audit |
+
+## Pilot onboarding (56R)
+
+**Unsupervised start path:** [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) (narrative) and [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) (commands only). **Problems:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **RC packaging:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
+
+**Before a handoff or demo:** from repo root run `run-readiness-check.cmd` (or `.\run-readiness-check.ps1`). **Support:** ask pilots to send the **`X-Correlation-ID`** response header (if present) and the first error line from API console logs.
 
 ## Operator quick start
 

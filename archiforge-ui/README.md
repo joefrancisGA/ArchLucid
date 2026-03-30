@@ -14,6 +14,9 @@ Thin Next.js App Router UI for runs, manifest summary, **artifact review**, **gr
 
 | Document | What it covers |
 |----------|---------------|
+| [Pilot guide (56R)](../docs/PILOT_GUIDE.md) | **Pilots / design partners:** first run, artifacts, logs, readiness checks. |
+| [Operator quickstart (56R)](../docs/OPERATOR_QUICKSTART.md) | Copy-paste commands (API, CLI, UI, tests). |
+| [Troubleshooting (56R)](../docs/TROUBLESHOOTING.md) | Common failures (health, auth, SQL, proxy). |
 | [Operator shell guide (55R)](../docs/operator-shell.md) | **Start here for operators.** Workflow, artifacts, graph vs compare/replay, UI test commands, API expectations. |
 | [Architecture](docs/ARCHITECTURE.md) | System context, components, data flow, security, operations. |
 | [Operator Shell Tutorial](docs/OPERATOR_SHELL_TUTORIAL.md) | React/Next.js tutorial for back-end developers. |
