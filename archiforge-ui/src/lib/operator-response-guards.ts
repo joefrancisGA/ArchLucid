@@ -233,6 +233,34 @@ export function coerceArtifactDescriptorList(
 }
 
 /**
+ * Ensures a single artifact descriptor response matches the UI contract.
+ */
+export function coerceArtifactDescriptor(
+  data: unknown,
+): { ok: true; value: ArtifactDescriptor } | { ok: false; message: string } {
+  if (!isRecord(data)) {
+    return { ok: false, message: "Artifact descriptor was not a JSON object." };
+  }
+
+  const stringKeys = [
+    "artifactId",
+    "artifactType",
+    "name",
+    "format",
+    "createdUtc",
+    "contentHash",
+  ] as const;
+
+  for (const key of stringKeys) {
+    if (typeof data[key] !== "string") {
+      return { ok: false, message: `Artifact descriptor is missing or invalid "${key}".` };
+    }
+  }
+
+  return { ok: true, value: data as ArtifactDescriptor };
+}
+
+/**
  * Ensures legacy compare payload is safe to render.
  */
 export function coerceRunComparison(

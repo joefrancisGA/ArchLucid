@@ -14,12 +14,10 @@ import {
   coerceGoldenManifestComparison,
   coerceRunComparison,
 } from "@/lib/operator-response-guards";
-import {
-  compareGoldenManifestRuns,
-  compareRuns,
-  explainComparisonRuns,
-  getArchitecturePackageDocxUrl,
-} from "@/lib/api";
+import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
+import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
+import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
+import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison } from "@/types/authority";
@@ -230,155 +228,11 @@ function CompareForm() {
         </OperatorMalformedCallout>
       )}
 
-      {golden && (
-        <section style={{ marginTop: 28 }}>
-          <h3>Structured manifest comparison</h3>
-          <p style={{ color: "#555", fontSize: 14 }}>
-            Base: {golden.baseRunId} → Target: {golden.targetRunId}
-          </p>
-          <p>
-            <a
-              href={getArchitecturePackageDocxUrl(leftRunId, rightRunId, {
-                includeComparisonExplanation: true,
-              })}
-              rel="noreferrer"
-            >
-              Download architecture package DOCX (comparison + AI narrative when LLM is configured)
-            </a>
-          </p>
+      {golden && <StructuredComparisonView golden={golden} />}
 
-          <h4>Summary</h4>
-          <ul>
-            {golden.summaryHighlights.map((h, i) => (
-              <li key={i}>{h}</li>
-            ))}
-          </ul>
+      {aiExplanation && <AiComparisonExplanationView explanation={aiExplanation} />}
 
-          <h4>Decision changes</h4>
-          {golden.decisionChanges.length === 0 ? (
-            <p>None.</p>
-          ) : (
-            <ul>
-              {golden.decisionChanges.map((d, i) => (
-                <li key={i}>
-                  {d.decisionKey}: {d.baseValue ?? "—"} → {d.targetValue ?? "—"} ({d.changeType})
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <h4>Requirement changes</h4>
-          {golden.requirementChanges.length === 0 ? (
-            <p>None.</p>
-          ) : (
-            <ul>
-              {golden.requirementChanges.map((r, i) => (
-                <li key={i}>
-                  {r.requirementName}: {r.changeType}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <h4>Security posture delta</h4>
-          {golden.securityChanges.length === 0 ? (
-            <p>None.</p>
-          ) : (
-            <ul>
-              {golden.securityChanges.map((s, i) => (
-                <li key={i}>
-                  {s.controlName}: {s.baseStatus ?? "—"} → {s.targetStatus ?? "—"}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <h4>Topology changes</h4>
-          {golden.topologyChanges.length === 0 ? (
-            <p>None.</p>
-          ) : (
-            <ul>
-              {golden.topologyChanges.map((t, i) => (
-                <li key={i}>
-                  {t.resource} ({t.changeType})
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <h4>Cost delta</h4>
-          {golden.costChanges.length === 0 ? (
-            <p>Max monthly cost unchanged.</p>
-          ) : (
-            <ul>
-              {golden.costChanges.map((c, i) => (
-                <li key={i}>
-                  {c.baseCost ?? "—"} → {c.targetCost ?? "—"}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
-
-      {aiExplanation && (
-        <section style={{ marginTop: 28 }}>
-          <h3>AI explanation</h3>
-          <p style={{ fontWeight: 600 }}>{aiExplanation.highLevelSummary}</p>
-          <h4>Major changes (from structured delta)</h4>
-          <ul>
-            {aiExplanation.majorChanges.map((line, i) => (
-              <li key={i}>{line}</li>
-            ))}
-          </ul>
-          <h4>Key tradeoffs</h4>
-          <ul>
-            {aiExplanation.keyTradeoffs.length === 0 ? (
-              <li>—</li>
-            ) : (
-              aiExplanation.keyTradeoffs.map((line, i) => <li key={i}>{line}</li>)
-            )}
-          </ul>
-          <h4>Narrative</h4>
-          <p style={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}>{aiExplanation.narrative}</p>
-        </section>
-      )}
-
-      {result && (
-        <section style={{ marginTop: 28 }}>
-          <h3>Authority run / manifest diff (legacy)</h3>
-          <ul>
-            {result.runLevelDiffs.map((diff, index) => (
-              <li key={`${diff.section}-${diff.key}-${index}`}>
-                [{diff.diffKind}] {diff.section} / {diff.key}: {diff.beforeValue ?? ""} →{" "}
-                {diff.afterValue ?? ""}
-              </li>
-            ))}
-          </ul>
-
-          <h4>Manifest differences (flat)</h4>
-          {result.manifestComparison ? (
-            <>
-              <p>
-                Added: {result.manifestComparison.addedCount} | Removed:{" "}
-                {result.manifestComparison.removedCount} | Changed:{" "}
-                {result.manifestComparison.changedCount}
-              </p>
-              <ul>
-                {result.manifestComparison.diffs.map((diff, index) => (
-                  <li key={`${diff.section}-${diff.key}-${index}`}>
-                    [{diff.diffKind}] {diff.section} / {diff.key}: {diff.beforeValue ?? ""} →{" "}
-                    {diff.afterValue ?? ""}
-                    {diff.notes ? ` (${diff.notes})` : ""}
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <p>No manifest comparison available.</p>
-          )}
-        </section>
-      )}
+      {result && <LegacyRunComparisonView result={result} />}
     </main>
   );
 }

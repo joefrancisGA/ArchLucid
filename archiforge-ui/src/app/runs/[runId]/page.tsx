@@ -7,8 +7,8 @@ import {
   OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
 import { coerceArtifactDescriptorList, coerceRunDetail } from "@/lib/operator-response-guards";
+import { ArtifactListTable } from "@/components/ArtifactListTable";
 import {
-  getArtifactDownloadUrl,
   getBundleDownloadUrl,
   getManifestSummary,
   getRunDetail,
@@ -219,14 +219,7 @@ export default async function RunDetailPage({
           )}
 
           {!artifactsError && !artifactsMalformed && artifacts.length > 0 && (
-            <ul>
-              {artifacts.map((artifact) => (
-                <li key={artifact.artifactId}>
-                  {artifact.name} ({artifact.artifactType}) —{" "}
-                  <a href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>Download</a>
-                </li>
-              ))}
-            </ul>
+            <ArtifactListTable manifestId={manifestId} artifacts={artifacts} />
           )}
 
           <div style={{ display: "flex", gap: 16, marginTop: 12, flexWrap: "wrap" }}>

@@ -62,6 +62,39 @@ function getBearerToken(): string | undefined {
   return undefined;
 }
 
+/**
+ * Same routing as JSON calls, but Accept allows binary artifact bodies (UTF-8 text from synthesis).
+ */
+function resolveBinaryGetRequest(path: string): { url: string; headers: HeadersInit } {
+  if (isBrowser()) {
+    const url = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
+    const headers: Record<string, string> = {
+      Accept: "*/*",
+    };
+    const bearer = getBearerToken();
+
+    if (bearer) {
+      headers.Authorization = `Bearer ${bearer}`;
+    }
+
+    return { url, headers };
+  }
+
+  const base = getServerApiBaseUrl().replace(/\/$/, "");
+  const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  const headers: Record<string, string> = {
+    Accept: "*/*",
+    ...getScopeHeaders(),
+  };
+  const key = process.env.ARCHIFORGE_API_KEY;
+
+  if (key) {
+    headers["X-Api-Key"] = key;
+  }
+
+  return { url, headers };
+}
+
 function resolveRequest(path: string): { url: string; headers: HeadersInit } {
   if (isBrowser()) {
     const url = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
@@ -153,6 +186,57 @@ export async function getArtifactDescriptor(
   return apiGet<ArtifactDescriptor>(
     `/api/artifacts/manifests/${manifestId}/artifact/${artifactId}/descriptor`,
   );
+}
+
+const DEFAULT_ARTIFACT_PREVIEW_MAX_BYTES = 2 * 1024 * 1024;
+
+export type ArtifactContentFetchResult = {
+  text: string;
+  contentType: string;
+  byteLength: number;
+  truncated: boolean;
+};
+
+/**
+ * Fetches artifact bytes from the download endpoint and decodes as UTF-8 for in-shell review.
+ * Large artifacts are truncated deterministically for the preview panel (download remains full file).
+ */
+export async function fetchArtifactContentUtf8(
+  manifestId: string,
+  artifactId: string,
+  maxBytes: number = DEFAULT_ARTIFACT_PREVIEW_MAX_BYTES,
+): Promise<ArtifactContentFetchResult> {
+  const path = `/api/artifacts/manifests/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
+  const { url, headers } = resolveBinaryGetRequest(path);
+  const response = await fetch(url, {
+    cache: "no-store",
+    headers,
+  });
+
+  if (!response.ok) {
+    const message = await readApiFailureMessage(response);
+    throw new Error(message);
+  }
+
+  const contentType = response.headers.get("content-type") ?? "application/octet-stream";
+  const buffer = await response.arrayBuffer();
+  const byteLength = buffer.byteLength;
+  let truncated = false;
+  let slice = buffer;
+
+  if (byteLength > maxBytes) {
+    truncated = true;
+    slice = buffer.slice(0, maxBytes);
+  }
+
+  const text = new TextDecoder("utf-8", { fatal: false }).decode(slice);
+
+  return {
+    text,
+    contentType,
+    byteLength,
+    truncated,
+  };
 }
 
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {

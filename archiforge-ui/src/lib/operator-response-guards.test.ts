@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  coerceArtifactDescriptor,
   coerceArtifactDescriptorList,
   coerceGoldenManifestComparison,
   coerceGraphViewModel,
@@ -153,6 +154,33 @@ describe("coerceManifestSummary", () => {
     });
 
     expect(result.ok).toBe(false);
+  });
+});
+
+describe("coerceArtifactDescriptor", () => {
+  it("accepts valid descriptor", () => {
+    const result = coerceArtifactDescriptor({
+      artifactId: "a",
+      artifactType: "Inventory",
+      name: "n",
+      format: "json",
+      createdUtc: "2020-01-01T00:00:00Z",
+      contentHash: "h",
+    });
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects missing format", () => {
+    expect(
+      coerceArtifactDescriptor({
+        artifactId: "a",
+        artifactType: "Inventory",
+        name: "n",
+        createdUtc: "2020-01-01T00:00:00Z",
+        contentHash: "h",
+      }).ok,
+    ).toBe(false);
   });
 });
 

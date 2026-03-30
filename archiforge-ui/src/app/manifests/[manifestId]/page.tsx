@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ArtifactListTable } from "@/components/ArtifactListTable";
 import {
   OperatorEmptyState,
   OperatorErrorCallout,
@@ -7,7 +8,7 @@ import {
   OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
 import { coerceArtifactDescriptorList, coerceManifestSummary } from "@/lib/operator-response-guards";
-import { getArtifactDownloadUrl, getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
+import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
 
 export default async function ManifestDetailPage({
@@ -162,14 +163,7 @@ export default async function ManifestDetailPage({
         )}
 
         {!artifactsError && !artifactsMalformed && artifacts.length > 0 && (
-          <ul>
-            {artifacts.map((artifact) => (
-              <li key={artifact.artifactId}>
-                {artifact.name} ({artifact.artifactType}) —{" "}
-                <a href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>Download</a>
-              </li>
-            ))}
-          </ul>
+          <ArtifactListTable manifestId={manifestId} artifacts={artifacts} />
         )}
       </section>
     </main>
