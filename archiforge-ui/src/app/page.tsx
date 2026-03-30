@@ -13,8 +13,12 @@ export default function HomePage() {
 
       <OperatorEmptyState title="No live data on this page">
         <p style={{ margin: 0 }}>
-          This landing view is static. Loading, empty, and error states appear on Runs, run detail,
-          manifest, graph, compare, and replay after you navigate there.
+          This landing view is static. Loading, empty, error, and malformed-response states appear after
+          you open Runs, run detail, manifest, artifact review, graph, compare, or replay.
+        </p>
+        <p style={{ margin: "12px 0 0", fontSize: 14, color: "#525252" }}>
+          Artifact review: open a run with a golden manifest → use <strong>Review</strong> on an artifact,
+          or go through the manifest page.
         </p>
       </OperatorEmptyState>
 
@@ -25,10 +29,13 @@ export default function HomePage() {
             <Link href="/runs?projectId=default">Runs</Link>
           </li>
           <li>
-            <Link href="/compare">Compare Runs</Link>
+            <Link href="/graph">Graph viewer</Link>
           </li>
           <li>
-            <Link href="/replay">Replay Run</Link>
+            <Link href="/compare">Compare runs</Link>
+          </li>
+          <li>
+            <Link href="/replay">Replay run</Link>
           </li>
         </ul>
       </div>

@@ -31,10 +31,13 @@ describe("HomePage", () => {
     const runs = screen.getByRole("link", { name: "Runs" });
     expect(runs).toHaveAttribute("href", "/runs?projectId=default");
 
-    const compare = screen.getByRole("link", { name: "Compare Runs" });
+    const graph = screen.getByRole("link", { name: "Graph viewer" });
+    expect(graph).toHaveAttribute("href", "/graph");
+
+    const compare = screen.getByRole("link", { name: "Compare runs" });
     expect(compare).toHaveAttribute("href", "/compare");
 
-    const replay = screen.getByRole("link", { name: "Replay Run" });
+    const replay = screen.getByRole("link", { name: "Replay run" });
     expect(replay).toHaveAttribute("href", "/replay");
   });
 });

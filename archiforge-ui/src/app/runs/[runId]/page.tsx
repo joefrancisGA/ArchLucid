@@ -6,7 +6,11 @@ import {
   OperatorMalformedCallout,
   OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
-import { coerceArtifactDescriptorList, coerceRunDetail } from "@/lib/operator-response-guards";
+import {
+  coerceArtifactDescriptorList,
+  coerceManifestSummary,
+  coerceRunDetail,
+} from "@/lib/operator-response-guards";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import {
   getBundleDownloadUrl,
@@ -80,12 +84,20 @@ export default async function RunDetailPage({
   let manifestSummary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];
   let manifestSummaryError: string | null = null;
+  let manifestSummaryMalformed: string | null = null;
   let artifactsError: string | null = null;
   let artifactsMalformed: string | null = null;
 
   if (manifestId) {
     try {
-      manifestSummary = await getManifestSummary(manifestId);
+      const rawSummary: unknown = await getManifestSummary(manifestId);
+      const coercedSummary = coerceManifestSummary(rawSummary);
+
+      if (!coercedSummary.ok) {
+        manifestSummaryMalformed = coercedSummary.message;
+      } else {
+        manifestSummary = coercedSummary.value;
+      }
     } catch (e) {
       manifestSummaryError =
         e instanceof Error ? e.message : "Could not load manifest summary.";
@@ -162,7 +174,17 @@ export default async function RunDetailPage({
         <OperatorWarningCallout>
           <strong>Manifest summary could not be loaded.</strong>
           <p style={{ margin: "8px 0 0" }}>{manifestSummaryError}</p>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            This is a failed request (HTTP / transport / 404), not a malformed JSON body.
+          </p>
         </OperatorWarningCallout>
+      )}
+
+      {manifestSummaryMalformed && (
+        <OperatorMalformedCallout>
+          <strong>Manifest summary response was not usable.</strong>
+          <p style={{ margin: "8px 0 0" }}>{manifestSummaryMalformed}</p>
+        </OperatorMalformedCallout>
       )}
 
       {manifestSummary && (
