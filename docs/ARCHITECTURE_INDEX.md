@@ -13,6 +13,8 @@
 
 ### Operator shell (front end)
 
+- **Operator shell guide (55R)** – workflow, artifact review, graph vs compare/replay, focused UI tests, API expectations  
+  - `docs/operator-shell.md`
 - **Architecture** – context, containers, components, data flow, security model, operational concerns  
   - `archiforge-ui/docs/ARCHITECTURE.md`
 - **Tutorial** – Next.js/React concepts for back-end developers  

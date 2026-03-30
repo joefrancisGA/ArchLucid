@@ -8,13 +8,14 @@
 
 1. [Test stack overview](#1-test-stack-overview)
 2. [Running tests](#2-running-tests)
-3. [How unit tests work](#3-how-unit-tests-work)
-4. [Writing your first component test](#4-writing-your-first-component-test)
-5. [Writing pure function tests](#5-writing-pure-function-tests)
-6. [Test file inventory](#6-test-file-inventory)
-7. [E2E tests (Playwright)](#7-e2e-tests-playwright)
-8. [Troubleshooting common issues](#8-troubleshooting-common-issues)
-9. [Debugging techniques](#9-debugging-techniques)
+3. [55R / review workflow smoke tests (Change Set 55R)](#3-55r--review-workflow-smoke-tests-change-set-55r)
+4. [How unit tests work](#4-how-unit-tests-work)
+5. [Writing your first component test](#5-writing-your-first-component-test)
+6. [Writing pure function tests](#6-writing-pure-function-tests)
+7. [Test file inventory](#7-test-file-inventory)
+8. [E2E tests (Playwright)](#8-e2e-tests-playwright)
+9. [Troubleshooting common issues](#9-troubleshooting-common-issues)
+10. [Debugging techniques](#10-debugging-techniques)
 
 ---
 
@@ -81,7 +82,35 @@ From the repo root: `test-ui-smoke.cmd` or `test-ui-smoke.ps1`.
 
 ---
 
-## 3. How unit tests work
+## 3. 55R / review workflow smoke tests (Change Set 55R)
+
+Focused **component** and **API client contract** coverage for the operator shell (no heavy E2E in this set). Run from `archiforge-ui/`:
+
+```powershell
+# Full suite (includes 55R tests):
+npm test
+
+# Navigation + landing:
+npx vitest run src/app/page.test.tsx src/components/ShellNav.test.tsx
+
+# Review workflow patterns + compare views:
+npx vitest run src/review-workflow
+
+# Artifact table, preview panel, graph viewer:
+npx vitest run src/components/ArtifactListTable.test.tsx src/components/ArtifactReviewContent.test.tsx src/components/GraphViewer.test.tsx
+
+# Compare UI + API paths used by compare/list/descriptor:
+npx vitest run src/review-workflow/compare-views.test.tsx src/lib/api.review-workflow.test.ts
+
+# Response guards (run/manifest/artifact/compare shapes):
+npx vitest run src/lib/operator-response-guards.test.ts
+```
+
+**Operator-facing doc** (workflow + contract expectations): [docs/operator-shell.md](../../../docs/operator-shell.md) (repo root).
+
+---
+
+## 4. How unit tests work
 
 ### Anatomy of a test file
 
@@ -154,7 +183,7 @@ Avoid querying by CSS class or element type — those are implementation details
 
 ---
 
-## 4. Writing your first component test
+## 5. Writing your first component test
 
 ### Example: testing the `ArtifactListTable`
 
@@ -223,7 +252,7 @@ No special mocking is needed for `next/link` in Vitest with jsdom.
 
 ---
 
-## 5. Writing pure function tests
+## 6. Writing pure function tests
 
 Pure functions (no React, no DOM) are the easiest to test.
 
@@ -303,15 +332,22 @@ describe("prepareArtifactBodyText", () => {
 
 ---
 
-## 6. Test file inventory
+## 7. Test file inventory
 
 | Test file | What it tests | Type |
 |-----------|--------------|------|
-| `src/app/page.test.tsx` | Home page renders heading and links | Component |
-| `src/components/GraphViewer.test.tsx` | Graph empty states and filter behavior | Component |
-| `src/components/ArtifactListTable.test.tsx` | Review link URL generation | Component |
+| `src/app/page.test.tsx` | Home / landing workflow links (55R) | Component |
+| `src/components/ShellNav.test.tsx` | Grouped nav links (Start & review, Q&A, Alerts) | Component |
+| `src/components/GraphViewer.test.tsx` | Graph empty states, filter behavior, non-empty panel | Component |
+| `src/components/ArtifactListTable.test.tsx` | Review/Download URLs, empty list, sorted rows | Component |
+| `src/components/ArtifactReviewContent.test.tsx` | Preview, truncation, preview-unavailable | Component |
+| `src/review-workflow/artifact-list-states.test.tsx` | Failed vs empty artifact list UI patterns | Component |
+| `src/review-workflow/compare-views.test.tsx` | Structured + legacy compare with/without data | Component |
+| `src/lib/api.review-workflow.test.ts` | `listArtifacts`, descriptor, compare URL contracts (mocked fetch) | Pure / contract |
+| `src/lib/compare-display-sort.test.ts` | Deterministic compare table ordering | Pure function |
+| `src/lib/replay-display.test.ts` | Replay mode labels, sorted notes | Pure function |
 | `src/components/SectionCard.test.tsx` | Generic card rendering | Component |
-| `src/lib/operator-response-guards.test.ts` | All 10 coerce functions (valid + invalid) | Pure function |
+| `src/lib/operator-response-guards.test.ts` | Coerce functions (run, manifest, artifact, compare, …) | Pure function |
 | `src/lib/artifact-review-helpers.test.ts` | View classification, labels, body prep | Pure function |
 | `src/lib/graph-mapper.test.ts` | Node/edge mapping to React Flow | Pure function |
 | `src/lib/api-error.test.ts` | ProblemDetails parsing | Pure function |
@@ -319,7 +355,7 @@ describe("prepareArtifactBodyText", () => {
 
 ---
 
-## 7. E2E tests (Playwright)
+## 8. E2E tests (Playwright)
 
 ### What they test
 
@@ -362,7 +398,7 @@ Playwright tests live in `e2e/` or have the `.spec.ts` extension (check `playwri
 
 ---
 
-## 8. Troubleshooting common issues
+## 9. Troubleshooting common issues
 
 ### "npm test fails with module resolution errors"
 
@@ -428,7 +464,7 @@ npm run build; npm test
 
 ---
 
-## 9. Debugging techniques
+## 10. Debugging techniques
 
 ### Console logging (server components)
 

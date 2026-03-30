@@ -579,6 +579,7 @@ This is intentional. The operator shell is thin — it does not have business lo
 
 ## Where to go next
 
+- **Operator workflow (55R, repo root):** `docs/operator-shell.md`
 - **Tutorial (for learning):** `archiforge-ui/docs/OPERATOR_SHELL_TUTORIAL.md`
 - **C# ↔ React translation:** `archiforge-ui/docs/CSHARP_TO_REACT_ROSETTA.md`
 - **Line-by-line code reading:** `archiforge-ui/docs/ANNOTATED_PAGE_WALKTHROUGH.md`

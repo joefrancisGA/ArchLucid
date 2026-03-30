@@ -15,6 +15,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/CLI_USAGE.md](docs/CLI_USAGE.md) | CLI reference |
 | [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md) | Comparison replay concepts |
 | [docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md) | Architecture overview and cross-links |
+| [docs/operator-shell.md](docs/operator-shell.md) | **55R:** Operator shell workflow, artifact review, graph vs compare/replay, UI smoke tests, API expectations |
 | [docs/KNOWLEDGE_GRAPH.md](docs/KNOWLEDGE_GRAPH.md) | Typed graph from `ContextSnapshot`, edge inference, validation, manifest hooks |
 | [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Persisted tables & domains (migrations + authority DDL overview) |
 | [docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md) | **SQL reference:** DbUp migrations, consolidated scripts, bootstrap paths, troubleshooting, change checklist |
@@ -37,7 +38,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 
 ## Operator UI (`archiforge-ui`)
 
-A thin Next.js shell for runs, manifest summary, artifacts, compare, replay, and ZIP downloads. See [archiforge-ui/README.md](archiforge-ui/README.md).
+A thin Next.js shell for runs, manifest summary, artifacts, compare, replay, graphs, and ZIP downloads. **Operator workflow and 55R contract notes:** [docs/operator-shell.md](docs/operator-shell.md). Setup and doc index: [archiforge-ui/README.md](archiforge-ui/README.md).
 
 ## API authentication (`ArchiForgeAuth`)
 

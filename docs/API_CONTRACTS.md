@@ -6,6 +6,14 @@
 - **Default:** Version **1.0** is assumed when not specified; clients should still use **`/v1`** in URLs.
 - **Discovery:** Responses can include **`api-supported-versions`** / **`api-deprecated-versions`** per [Asp.Versioning](https://github.com/dotnet/aspnet-api-versioning) options (`ReportApiVersions`).
 
+## Operator artifacts (`/v1/api/artifacts`)
+
+- **List** `GET …/manifests/{manifestId}`: **200** with a JSON **array** (possibly empty) when the manifest exists in scope. Items are ordered **by name (case-insensitive), then artifact id** (stable for UI tables and bundle ZIP entry order).
+- **Bundle** `GET …/manifests/{manifestId}/bundle`: **404** with **`#manifest-not-found`** when the manifest is unknown/out of scope; **404** with **`#resource-not-found`** when the manifest exists but there is no bundle or zero artifacts (list may still return `[]`). Use **problem `type` / `title`**, not status code alone.
+- **Descriptor / file download** under `…/artifact/{artifactId}`: manifest must be in scope; missing artifact → **404** **`#resource-not-found`**.
+
+UI alignment: **`docs/operator-shell.md`**.
+
 ## Correlation ID
 
 - Optional request header **`X-Correlation-ID`**: if present, the API echoes it on the response and uses it for logging/tracing context; if absent, a value is generated (e.g. from the ASP.NET Core trace identifier).

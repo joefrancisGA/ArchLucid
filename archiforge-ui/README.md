@@ -1,18 +1,27 @@
 # ArchiForge UI (operator shell)
 
-Thin Next.js App Router UI for runs, manifest summary, artifacts, compare, replay, and ZIP downloads.
+Thin Next.js App Router UI for runs, manifest summary, **artifact review**, **graphs**, compare, replay, and ZIP downloads.
+
+## Change Set 55R (operator workflow)
+
+**End-to-end path:** Home → **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** (or manifest page) → preview + download → optional **Compare runs** / **Replay** / **Graph** from breadcrumbs or run actions.
+
+- **Artifact review:** List (`[]` when empty), descriptor metadata, in-shell preview with raw disclosure, stable table order (name, then id — aligned with API).
+- **Graph:** One run ID, multiple graph modes — for **visual** provenance/architecture, not two-run diff.
+- **Compare / replay:** Two-run diff vs single-run authority replay — see [docs/operator-shell.md](../docs/operator-shell.md) in the repo root.
 
 ## Documentation
 
 | Document | What it covers |
 |----------|---------------|
-| [Architecture](docs/ARCHITECTURE.md) | **Architecture document.** System context, container view, component breakdown, data flow, security model, operational considerations, and architectural decisions with trade-offs. |
-| [Operator Shell Tutorial](docs/OPERATOR_SHELL_TUTORIAL.md) | **Start here for learning.** Full tutorial for back-end developers new to React/Next.js. Covers concepts, architecture, every route, and common tasks. |
-| [C# to React Rosetta Stone](docs/CSHARP_TO_REACT_ROSETTA.md) | **Read second.** Side-by-side C# and React/TypeScript code for every pattern used in the codebase. |
-| [Annotated Page Walkthrough](docs/ANNOTATED_PAGE_WALKTHROUGH.md) | **Read third.** Every line of `runs/page.tsx` explained, with C# equivalents and reasoning. |
-| [Component Reference](docs/COMPONENT_REFERENCE.md) | Detailed reference for every React component, prop, and helper library. |
-| [Data Flow and State](docs/DATA_FLOW_AND_STATE.md) | How data moves from the C# API to the screen. State management patterns. Diagrams for every page. Templates for adding new pages. |
-| [Testing and Troubleshooting](docs/TESTING_AND_TROUBLESHOOTING.md) | How to run and write tests. Common errors and fixes. Debugging techniques. |
+| [Operator shell guide (55R)](../docs/operator-shell.md) | **Start here for operators.** Workflow, artifacts, graph vs compare/replay, UI test commands, API expectations. |
+| [Architecture](docs/ARCHITECTURE.md) | System context, components, data flow, security, operations. |
+| [Operator Shell Tutorial](docs/OPERATOR_SHELL_TUTORIAL.md) | React/Next.js tutorial for back-end developers. |
+| [C# to React Rosetta Stone](docs/CSHARP_TO_REACT_ROSETTA.md) | Side-by-side patterns. |
+| [Annotated Page Walkthrough](docs/ANNOTATED_PAGE_WALKTHROUGH.md) | Line-by-line `runs/page.tsx`. |
+| [Component Reference](docs/COMPONENT_REFERENCE.md) | Components, props, helpers. |
+| [Data Flow and State](docs/DATA_FLOW_AND_STATE.md) | Data flow, state patterns, templates. |
+| [Testing and Troubleshooting](docs/TESTING_AND_TROUBLESHOOTING.md) | Tests, 55R smoke suites, debugging. |
 
 ## Setup
 
@@ -43,27 +52,30 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Tests
 
-- **Unit (Vitest, jsdom):** `npm ci` then `npm test` (or `npm run test:watch`). Specs: `src/**/*.test.{ts,tsx}`.
-- **E2E smoke (Playwright):** `npx playwright install --with-deps chromium` then `npm run test:e2e`.
-- **Repo root:** `test-ui-unit.cmd` / `test-ui-smoke.cmd` (or `.ps1`) from the ArchiForge solution directory.
+- **All unit/component tests:** `npm test` (or `npm run test:watch`). Pattern: `src/**/*.test.{ts,tsx}`.
+- **55R / review workflow smoke:** see commands in [docs/TESTING_AND_TROUBLESHOOTING.md](docs/TESTING_AND_TROUBLESHOOTING.md#3-55r--review-workflow-smoke-tests-change-set-55r).
+- **E2E (Playwright):** `npx playwright install --with-deps chromium` then `npm run test:e2e`.
+- **Repo root:** `test-ui-unit.cmd` / `test-ui-smoke.cmd` (or `.ps1`).
 
 ## Routes
 
 | Path | Purpose |
 |------|---------|
-| `/` | Home / quick links |
+| `/` | Home — start here, workflow links |
 | `/runs?projectId=...` | List runs |
-| `/runs/[runId]` | Run detail, manifest summary, artifacts, downloads |
-| `/manifests/[manifestId]` | Manifest + artifact list + bundle download |
-| `/compare` | Compare two runs (client) |
-| `/replay` | Replay run (client) |
+| `/runs/[runId]` | Run detail, manifest summary, artifacts, compare/replay shortcuts, downloads |
+| `/manifests/[manifestId]` | Manifest summary, artifact list, bundle download |
+| `/manifests/[manifestId]/artifacts/[artifactId]` | Artifact review (metadata + preview + siblings) |
+| `/graph` | Provenance / architecture graph for a run |
+| `/compare` | Compare two runs (structured + legacy + optional AI) |
+| `/replay` | Replay authority chain for a run |
 
 Downloads use **`/api/proxy/...`** so the browser receives files without attaching `X-Api-Key` manually.
 
 ## API alignment
 
 - Authority: `/api/authority/...`
-- Artifacts: `/api/artifacts/...`
+- Artifacts: `/api/artifacts/...` — list returns `200` + array (empty allowed); bundle ZIP may return `404` when there is no bundle (distinct problem type from unknown manifest when the API is configured that way).
 - Replay modes: `ReconstructOnly`, `RebuildManifest`, `RebuildArtifacts` (see `ArchiForge.Persistence.Replay.ReplayMode`).
 
 ## Auth
