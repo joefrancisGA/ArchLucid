@@ -1,6 +1,106 @@
-# Test structure
+# Test structure (Change Set 54R)
 
-**54R suite model (Core / Fast core / Integration / SQL / Full):** see **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** — canonical filters, root scripts (`test-*.cmd` / `.ps1`), and CI mapping.
+Operator cheat sheet for **what each tier means** and **how to run it**. CI job names and full narrative: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**. SQL variables and LocalDB: **[BUILD.md](BUILD.md)**.
+
+## 54R tiers
+
+| Tier | Meaning | Filter |
+|------|---------|--------|
+| **Core (corset)** | Curated high-value regression; opt-in per **class** with `[Trait("Suite", "Core")]` | `Suite=Core` |
+| **Fast core** | Core tests that are **not** `Category=Slow` and **not** `Category=Integration` (typical CI first gate) | `Suite=Core&Category!=Slow&Category!=Integration` |
+| **Integration** | Real API host (`WebApplicationFactory`), HTTP-level behavior | `Category=Integration` |
+| **Slow** | Long-running or heavy; excluded from fast core | `Category=Slow` |
+| **Full regression** | Whole solution, all traits (unless skipped in test code) | *(no filter)* |
+
+### Run each (.NET, repo root)
+
+```bash
+dotnet test ArchiForge.sln --filter "Suite=Core"
+```
+
+```bash
+dotnet test ArchiForge.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
+```
+
+```bash
+dotnet test ArchiForge.sln --filter "Category=Integration"
+```
+
+```bash
+dotnet test ArchiForge.sln --filter "Category=Slow"
+```
+
+```bash
+dotnet test ArchiForge.sln
+```
+
+**Windows (same filters):** `test-core.cmd`, `test-fast-core.cmd`, `test-integration.cmd`, `test-slow.cmd`, `test-full.cmd` (and `.ps1` where present).
+
+### SQL Server–first (Persistence Dapper)
+
+Persistence integration against a **real** SQL Server (Dapper + DbUp migrations; **no EF**):
+
+```bash
+dotnet test ArchiForge.Persistence.Tests --filter "Category=SqlServerContainer"
+```
+
+**Script:** `test-sqlserver-integration.cmd` / `.ps1`
+
+### Operator UI (`archiforge-ui/`)
+
+**Vitest** (jsdom, fast — minimal harness):
+
+```bash
+cd archiforge-ui
+npm ci
+npm test
+```
+
+```bash
+npm run test:watch
+```
+
+**Playwright** smoke (browser, slower):
+
+```bash
+npm run test:e2e
+```
+
+**Script (repo root):** `test-ui-smoke.cmd` / `.ps1`
+
+---
+
+## SQL Server for API + Persistence tests
+
+- **No SQLite.** Use **SQL Server** for anything that hits the DB; tests use **Dapper** and **DbUp** (`ArchiForge.Data/Migrations/`).
+- **API integration** (`ArchiForge.Api.Tests`): factories create ephemeral databases on the configured instance — set **`ARCHIFORGE_SQL_TEST`** or **`ARCHIFORGE_API_TEST_SQL`** on Linux/macOS/CI; Windows may use **localhost** / LocalDB if unset (see **BUILD.md**).
+- **CI** sets `ARCHIFORGE_SQL_TEST` against the SQL Server service container for the full regression job.
+
+**Example (bash):**
+
+```bash
+export ARCHIFORGE_SQL_TEST='Server=127.0.0.1,1433;User Id=sa;Password=YourPassword;TrustServerCertificate=True;Initial Catalog=ArchiForgePersistenceTests'
+dotnet test ArchiForge.sln
+```
+
+**PowerShell:**
+
+```powershell
+$env:ARCHIFORGE_SQL_TEST = 'Server=127.0.0.1,1433;User Id=sa;Password=YourPassword;TrustServerCertificate=True;Initial Catalog=ArchiForgePersistenceTests'
+dotnet test ArchiForge.sln
+```
+
+Skip SQL-container or integration slices when needed:
+
+```bash
+dotnet test ArchiForge.sln --filter "Category!=SqlServerContainer"
+```
+
+```bash
+dotnet test ArchiForge.sln --filter "Category!=Integration&Category!=SqlServerContainer"
+```
+
+---
 
 ## Bounded context map (quick reference)
 
@@ -15,89 +115,51 @@
 | **ArchiForge.Retrieval.Tests** | `RetrievalQueryService`, `InMemoryVectorIndex` (empty index, ranking, scope filters), **`CircuitBreakerGateTests`**, **`CircuitBreakingOpenAiEmbeddingClientTests`** (OpenAI embedding circuit breaker). |
 | **ArchiForge.Persistence.Tests** | Dapper repositories against **real SQL Server** via **`ARCHIFORGE_SQL_TEST`** or Windows **LocalDB**; schema from **`DatabaseMigrator`** (same DbUp migrations as production SQL Server). Includes **53R cutover** tests: `JsonFallbackPolicyTests`, `FallbackPolicyDiagnosticsTests`, `CutoverReadinessReportTests` (unit); `PolicyModeFallbackSqlIntegrationTests`, `CutoverReadinessSqlIntegrationTests` (SQL integration). |
 
-## Projects
+## Projects (detail)
 
-- **ArchiForge.Api.Tests** — API integration tests using `WebApplicationFactory` (full app, **SQL Server** per factory via **`ArchiForgeApiFactory`**). Heavier; use for HTTP contracts, comparison replay, exports, run-not-found, 422/409. Advisory + alerts: **`AlertLifecycleIntegrationTests`**, **`DigestDeliveryLifecycleIntegrationTests`**, **`RetrievalQuerySmokeIntegrationTests`** (index + query via `GET api/retrieval/search`), **`AskThreadIntegrationTests`** (POST `api/ask` with seeded run, follow-up thread, conversation listing) with **`AlertLifecycleWebAppFactory`** (`ArchiForge:StorageProvider=InMemory` + **`AdvisoryIntegrationSeed`**). Graceful shutdown: **`AdvisoryScanHostedServiceShutdownTests`** (cancellation, exception survival). Background jobs: **`InMemoryBackgroundJobQueueTests`** (retry/DLQ, eviction, channel full). Resilience: **`ApiProblemDetailsExceptionFilterTests`** (`TimeoutException` → 503, `DbException` → 503 `DatabaseUnavailable`, **`CircuitBreakerOpenException`** → 503 `CircuitBreakerOpen` + `retryAfterUtc`), **`SqlConnectionHealthCheckTests`** (Healthy/Degraded/Unhealthy), **`SqlTransientDetectorTests`**, **`ResilientSqlConnectionFactoryTests`**, **`CircuitBreakingAgentCompletionClientTests`** (completion client wraps gate; failure opens circuit). Unit-style: **`ConversationServiceTests`**, **`AdvisoryDueScheduleProcessorTests`** (`Category=Unit`).
-- **ArchiForge.DecisionEngine.Tests** — Unit and scenario tests for the decision engine; optional integration tests with real JSON schemas (see `SchemaValidationIntegrationTests`).
-- **ArchiForge.ContextIngestion.Tests** — Fast unit tests for ingestion parsers, deduplication, document connector warnings, delta summary builder, and **`ContextIngestionService`** (in-memory snapshot repo + fake connectors).
-- **ArchiForge.Coordinator.Tests**, **ArchiForge.AgentRuntime.Tests**, **ArchiForge.Decisioning.Tests**, **ArchiForge.Retrieval.Tests**, etc. — Domain/component tests; no web stack unless explicitly added.
-- **ArchiForge.Persistence.Tests** — SQL integration tests for `DapperArchitectureDigestRepository`, `DapperAlertRuleRepository`, and future Dapper round-trips. Requires **Docker** (Linux SQL Server image). After container start, tests run **`ArchiForge.Data.Infrastructure.DatabaseMigrator.Run`** so DDL matches embedded **`ArchiForge.Data/Migrations/*.sql`**, not the consolidated `ArchiForge.sql` reference script alone. **Contract tests** (`Contracts/` folder): abstract base classes (`AlertRuleRepositoryContractTests`, `ArchitectureDigestRepositoryContractTests`) define shared assertions; `InMemory*ContractTests` (`Category=Unit`) and `Dapper*ContractTests` (`Category=SqlServerContainer`) run the same suite against both implementations to guarantee InMemory ↔ Dapper parity.
+- **ArchiForge.Api.Tests** — API integration tests using `WebApplicationFactory` (full app, **SQL Server** per factory via **`ArchiForgeApiFactory`**). Heavier; use for HTTP contracts, comparison replay, exports, run-not-found, 422/409. Advisory + alerts: **`AlertLifecycleIntegrationTests`**, **`DigestDeliveryLifecycleIntegrationTests`**, **`RetrievalQuerySmokeIntegrationTests`**, **`AskThreadIntegrationTests`** with **`AlertLifecycleWebAppFactory`**. Resilience and unit-style classes: see source tree; many use **`[Trait("Category", "Unit")]`** or **`Integration`**.
+- **ArchiForge.DecisionEngine.Tests** — Unit and scenario tests; optional integration with real JSON schemas (`SchemaValidationIntegrationTests`).
+- **ArchiForge.ContextIngestion.Tests** — Fast unit tests for ingestion parsers, deduplication, connectors, **`ContextIngestionService`**.
+- **ArchiForge.Coordinator.Tests**, **ArchiForge.AgentRuntime.Tests**, **ArchiForge.Decisioning.Tests**, **ArchiForge.Retrieval.Tests**, etc. — Domain/component tests unless marked integration.
+- **ArchiForge.Persistence.Tests** — SQL integration and contract tests (`Contracts/`); **`Category=SqlServerContainer`** for Dapper against SQL Server.
 
-## Suite=Core (high-value regression subset)
+## Class-level traits (authors)
 
-A curated set of tests is tagged at **class** level with:
+Use **`[Trait("Suite", "Core")]`** only when a class is intentionally part of the corset. Also set **`[Trait("Category", "Unit")]`**, **`Integration`**, **`SqlServerContainer`**, or **`Slow`** so fast core / integration / SQL filters stay accurate.
 
-```csharp
-[Trait("Suite", "Core")]
-```
+**Core + slow or integration:** A class may be `Suite=Core` and also `Category=Slow` or `Category=Integration` — it runs in full Core and full regression, but **drops out of fast core**.
 
-Run the **core suite** (all tagged tests across the solution):
+## Categories (extra filters)
 
-```bash
-dotnet test ArchiForge.sln --filter "Suite=Core"
-```
-
-From the repo root, **`test-core.cmd`** / **`test-fast-core.cmd`** (and `.ps1` equivalents) wrap the same filters. For **integration**, **SQL Server persistence**, **full regression**, **operator UI unit** (`npm test` in **`archiforge-ui/`**), and **operator UI e2e smoke**, use **`test-integration`**, **`test-sqlserver-integration`**, **`test-full`**, and **`test-ui-smoke`** (see **TEST_EXECUTION_MODEL.md**). Prefer **`[Trait("Category", "…")]`** on every new `*Tests` class (`Unit`, `Integration`, `SqlServerContainer`, or `Slow`) so suite filters stay accurate.
-
-**Fast core** — Core tests that are neither **Slow** nor **Integration** (useful for quick feedback; skips API integration and other heavy cases):
-
-```bash
-dotnet test ArchiForge.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
-```
-
-Heavy or integration-style tests may add `[Trait("Category", "Slow")]` and/or `[Trait("Category", "Integration")]` in addition to `Suite=Core` so they remain in the full core run but drop out of the fast-core filter.
-
-## Categories (optional filtering)
-
-All tests in **ArchiForge.Api.Tests** that extend **IntegrationTestBase** (and thus use `WebApplicationFactory`) are integration tests. They are tagged at class level with:
+**Integration** (typical pattern in Api.Tests):
 
 ```csharp
 [Trait("Category", "Integration")]
 ```
 
-Use this to filter runs: exclude with `Category!=Integration` for faster feedback, or run only integration tests with `Category=Integration`. Other projects (e.g. **DecisionEngine.Tests**) use the same trait on individual tests that need real I/O (e.g. `SchemaValidationIntegrationTests`).
-
-**SQL Server container tests** in **ArchiForge.Persistence.Tests** are tagged:
+**SQL Server container** (Persistence):
 
 ```csharp
 [Trait("Category", "SqlServerContainer")]
 ```
 
-Exclude them when Docker is unavailable (CI agents without Docker, local quick runs):
+**Unit-only slice:**
 
 ```bash
-dotnet test --filter "Category!=SqlServerContainer"
+dotnet test ArchiForge.sln --filter "Category=Unit"
 ```
 
-To skip both full API integration tests and SQL container tests:
+**Exclude integration:**
 
 ```bash
-dotnet test --filter "Category!=Integration&Category!=SqlServerContainer"
-```
-
-To run only Persistence SQL integration tests:
-
-```bash
-dotnet test --filter "Category=SqlServerContainer"
-```
-
-To run only fast/unit tests (exclude integration):
-
-```bash
-dotnet test --filter "Category!=Integration"
-```
-
-To run only integration tests:
-
-```bash
-dotnet test --filter "Category=Integration"
+dotnet test ArchiForge.sln --filter "Category!=Integration"
 ```
 
 ## Fixtures and shared setup
 
-- **IntegrationTestBase** (Api.Tests) — provides `HttpClient`, `JsonOptions`, and `JsonContent(object)` from `ArchiForgeApiFactory`. Tests that extend it should use the base `JsonOptions` and `JsonContent` for request/response JSON so behavior is consistent and configurable in one place.
-- **ComparisonReplayTestFixture** (Api.Tests) — static helpers: `CreateRunExecuteCommitReplayAsync`, `PersistEndToEndComparisonAsync` for comparison-replay flows.
+- **IntegrationTestBase** (Api.Tests) — `HttpClient`, `JsonOptions`, `JsonContent` via **`ArchiForgeApiFactory`**.
+- **ComparisonReplayTestFixture** (Api.Tests) — comparison-replay flow helpers.
 
-**Unit-style tests in Api.Tests:** Some tests do *not* extend **IntegrationTestBase** (e.g. **AgentResultDiffServiceTests**, **ManifestDiffServiceTests**, **ApiProblemDetailsExceptionFilterTests**, **ArchitectureApplicationServiceTests**, **DatabaseMigrationScriptTests**). They do not spin up the full API; they test services, filters, or scripts in isolation. These are tagged with `[Trait("Category", "Unit")]` so you can run only unit tests with `dotnet test --filter "Category=Unit"`.
+**Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.
 
-No separate unit-only test project exists; use `[Trait("Category", "Integration")]` or `Category=Unit` and filter as above if you want to separate runs.
+No separate unit-only test project; filter by category as above.

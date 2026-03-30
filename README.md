@@ -10,7 +10,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/FORMATTING.md](docs/FORMATTING.md) | C# layout / blank lines (`dotnet format`, `.editorconfig`) |
 | [docs/METHOD_DOCUMENTATION.md](docs/METHOD_DOCUMENTATION.md) | XML doc conventions; piece-by-piece API commentary |
 | [docs/ALERTS.md](docs/ALERTS.md) | Alerts, routing, simulation/tuning, advisory schedules (links to API contracts & doc tracker) |
-| [docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md) | Test categories (`Integration` / `Unit`) and filter examples |
+| [docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md) | **54R:** Core / fast core / integration / slow / full regression, SQL-first notes, UI Vitest + Playwright |
 | [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | HTTP behaviors (422 verify, 404 run-not-found, 409 commit, validation, **policy packs** / effective governance) |
 | [docs/CLI_USAGE.md](docs/CLI_USAGE.md) | CLI reference |
 | [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md) | Comparison replay concepts |
@@ -128,13 +128,23 @@ Override in `appsettings.json` or via environment variables.
 
 ## Running Tests
 
+Full **54R** tier list, copy-paste commands, SQL variables, and **`archiforge-ui`** Vitest/Playwright: **[docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md)**. CI job mapping: **[docs/TEST_EXECUTION_MODEL.md](docs/TEST_EXECUTION_MODEL.md)**.
+
+**Common entry points (repo root):**
+
 ```bash
-dotnet test
+dotnet test ArchiForge.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
 ```
 
-See **[docs/BUILD.md](docs/BUILD.md)** for CPM, project-reference audits, and DecisionEngine’s Microsoft.Extensions bundle.
+```bash
+dotnet test ArchiForge.sln
+```
 
-See **[docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md)** for test categories (Integration vs Unit) and filter examples (`Category=Integration`, `Category=Unit`). **ArchiForge.Api.Tests** integration tests require a reachable **SQL Server** instance (e.g. `localhost`); **`ArchiForgeApiFactory`** creates a temporary database per factory and runs **DbUp** on startup.
+```bash
+cd archiforge-ui && npm ci && npm test
+```
+
+**ArchiForge.Api.Tests** integration tests need a reachable **SQL Server**; **`ArchiForgeApiFactory`** creates ephemeral databases and runs **DbUp**. See **[docs/BUILD.md](docs/BUILD.md)** for CPM, connection strings, and DecisionEngine’s Microsoft.Extensions bundle.
 
 **Notable API behavior:** comparison replay with `replayMode: verify` returns **422** (problem+json with drift fields) when regenerated output does not match the stored comparison—not HTTP 200 with a failure flag. End-to-end run compare uses **`#run-not-found`** when a run ID is missing. See [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md).
 
