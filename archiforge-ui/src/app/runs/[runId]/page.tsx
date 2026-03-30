@@ -248,9 +248,9 @@ export default async function RunDetailPage({
           {!artifactsError && !artifactsMalformed && artifacts.length === 0 && (
             <OperatorEmptyState title="No artifacts for this manifest">
               <p style={{ margin: 0 }}>
-                The manifest exists but the API returned zero artifact descriptors (valid empty
-                result). Bundle/export links may still be available below if the API recorded a
-                bundle.
+                The manifest exists but the artifact descriptor list is empty (valid empty result).
+                Bundle ZIP may return 404 when there is no bundle; run export may still include other
+                files.
               </p>
             </OperatorEmptyState>
           )}

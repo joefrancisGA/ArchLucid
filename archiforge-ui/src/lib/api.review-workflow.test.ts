@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   compareGoldenManifestRuns,
   compareRuns,
+  explainComparisonRuns,
   getArtifactDescriptor,
   listArtifacts,
 } from "./api";
@@ -100,5 +101,27 @@ describe("API client review/compare contracts (55R smoke)", () => {
     expect(url).toContain("targetRunId=");
     expect(url).toContain(encodeURIComponent("base=1"));
     expect(url).toContain(encodeURIComponent("target=2"));
+  });
+
+  it("explainComparisonRuns encodes base and target run ids for compare narrative", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        highLevelSummary: "s",
+        majorChanges: [],
+        keyTradeoffs: [],
+        narrative: "n",
+      }),
+    );
+
+    await explainComparisonRuns("base id", "target&x");
+
+    const url = String(fetchMock.mock.calls[0][0]);
+
+    expect(url).toContain("/api/explain/compare/explain?");
+    expect(url).toContain("baseRunId=");
+    expect(url).toContain("targetRunId=");
+    expect(url).toContain(encodeURIComponent("base id"));
+    expect(url).toContain(encodeURIComponent("target&x"));
   });
 });

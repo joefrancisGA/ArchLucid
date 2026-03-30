@@ -160,6 +160,10 @@ export default async function ManifestDetailPage({
           <OperatorWarningCallout>
             <strong>Artifact list could not be loaded.</strong>
             <p style={{ margin: "8px 0 0" }}>{artifactsError}</p>
+            <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+              The artifacts request failed (network, 404, or server error)—distinct from an empty
+              list or malformed JSON.
+            </p>
           </OperatorWarningCallout>
         )}
 
@@ -174,7 +178,7 @@ export default async function ManifestDetailPage({
           <OperatorEmptyState title="No artifacts listed for this manifest">
             <p style={{ margin: 0 }}>
               The summary loaded, but the artifact descriptor list is empty (valid empty result).
-              Bundle download may still work if a bundle exists server-side.
+              Bundle ZIP may return 404 when there is no bundle.
             </p>
           </OperatorEmptyState>
         )}

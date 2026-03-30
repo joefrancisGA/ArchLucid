@@ -46,8 +46,8 @@ function outcomeLabel(params: {
 }
 
 /**
- * Compare form: accepts two run IDs, fetches legacy + structured + AI comparisons in parallel,
- * validates responses via coerce functions, and renders results in three sub-views.
+ * Compare form: two run IDs; fetches legacy compare then structured compare sequentially on "Compare";
+ * optional AI explanation on a separate button. Renders structured section before legacy for review order.
  */
 function CompareForm() {
   const searchParams = useSearchParams();
@@ -89,7 +89,10 @@ function CompareForm() {
       error !== null ||
       goldenError !== null ||
       legacyMalformed !== null ||
-      goldenMalformed !== null);
+      goldenMalformed !== null ||
+      aiExplanation !== null ||
+      aiError !== null ||
+      aiMalformed !== null);
 
   async function onCompare() {
     const leftAtStart = leftTrim;
@@ -220,8 +223,9 @@ function CompareForm() {
       </p>
       <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
         <strong>Base (left)</strong> is the reference run; <strong>target (right)</strong> is what you are
-        evaluating. Results: structured manifest deltas first, then a legacy flat diff. Optional AI narrative
-        is separate—use it after you have reviewed the tables.
+        evaluating. The page <strong>loads</strong> legacy compare then structured compare; <strong>below</strong>,
+        read <strong>structured first</strong>, then the legacy flat diff. AI explanation is optional and separate—
+        use it after the tables.
       </p>
 
       <div style={{ display: "grid", gap: 12, maxWidth: 800 }}>
@@ -268,12 +272,12 @@ function CompareForm() {
 
       {showStaleInputsWarning && (
         <OperatorWarningCallout>
-          <strong>Run IDs changed since the last comparison.</strong>
+          <strong>Run IDs no longer match the results below.</strong>
           <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-            Tables below still reflect{" "}
+            Content below still reflects{" "}
             <code style={{ fontSize: 13 }}>{lastComparedPair?.left}</code> →{" "}
-            <code style={{ fontSize: 13 }}>{lastComparedPair?.right}</code>. Click <strong>Compare</strong> again
-            to refresh, or restore the previous IDs.
+            <code style={{ fontSize: 13 }}>{lastComparedPair?.right}</code>. Click <strong>Compare</strong> or{" "}
+            <strong>Explain changes (AI)</strong> again after fixing IDs, or restore the previous values.
           </p>
         </OperatorWarningCallout>
       )}
@@ -282,7 +286,8 @@ function CompareForm() {
         <OperatorLoadingNotice>
           <strong>Comparing runs.</strong>
           <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-            Legacy diff, then structured golden-manifest comparison (same pair, in order).
+            Legacy compare API first, then structured golden-manifest compare (same pair). Sections below
+            are ordered for review: structured first, then legacy.
           </p>
         </OperatorLoadingNotice>
       )}
@@ -383,6 +388,9 @@ function CompareForm() {
               })}
             </dd>
           </dl>
+          <p style={{ margin: "10px 0 0", fontSize: 13, color: "#64748b" }}>
+            AI explanation is not included here—use the AI button for that pair.
+          </p>
         </section>
       )}
 
