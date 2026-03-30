@@ -1,45 +1,46 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+export const metadata: Metadata = {
+  title: "Home",
+};
 
-/** Operator shell home page: static quick links to runs, graph, compare, and replay. */
+/** Landing page: short orientation and links into the main operator workflows. */
 export default function HomePage() {
   return (
     <main>
-      <h2>Operator Shell</h2>
-      <p>
-        List runs, open run detail (manifest summary + artifacts), compare runs, replay authority
-        chain, and download bundles or run exports.
+      <h2 style={{ marginBottom: 8 }}>Start here</h2>
+      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
+        Use <Link href="/runs?projectId=default">Runs</Link> to open a run, then review the manifest and
+        artifacts, download exports, or jump to <strong>Compare</strong> and <strong>Replay</strong> from run
+        detail. Use <Link href="/graph">Graph</Link> when you already have a run ID and need a visual view
+        of provenance or architecture.
       </p>
 
-      <OperatorEmptyState title="No live data on this page">
-        <p style={{ margin: 0 }}>
-          This landing view is static. Loading, empty, error, and malformed-response states appear after
-          you open Runs, run detail, manifest, artifact review, graph, compare, or replay.
-        </p>
-        <p style={{ margin: "12px 0 0", fontSize: 14, color: "#525252" }}>
-          Artifact review: open a run with a golden manifest → use <strong>Review</strong> on an artifact,
-          or go through the manifest page.
-        </p>
-      </OperatorEmptyState>
-
-      <div style={{ marginTop: 24 }}>
-        <p>Quick links:</p>
-        <ul>
+      <section style={{ marginTop: 28 }} aria-labelledby="workflows-heading">
+        <h3 id="workflows-heading" style={{ fontSize: 16, marginBottom: 12 }}>
+          Main workflows
+        </h3>
+        <ul style={{ lineHeight: 1.75, maxWidth: 720, margin: 0, paddingLeft: 20, color: "#334155" }}>
           <li>
-            <Link href="/runs?projectId=default">Runs</Link>
+            <Link href="/runs?projectId=default">Runs</Link> — list runs, open detail, artifacts, compare /
+            replay shortcuts, downloads
           </li>
           <li>
-            <Link href="/graph">Graph viewer</Link>
+            <Link href="/graph">Graph</Link> — load provenance or architecture graph for a run
           </li>
           <li>
-            <Link href="/compare">Compare runs</Link>
+            <Link href="/compare">Compare runs</Link> — two-run structured and legacy diff
           </li>
           <li>
-            <Link href="/replay">Replay run</Link>
+            <Link href="/replay">Replay run</Link> — replay authority chain and validation
           </li>
         </ul>
-      </div>
+      </section>
+
+      <p style={{ marginTop: 24, fontSize: 14, color: "#64748b", maxWidth: 720 }}>
+        Ask, search, advisory, alerts, and policy tools live in the header groups above.
+      </p>
     </main>
   );
 }

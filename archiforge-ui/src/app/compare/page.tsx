@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
@@ -210,10 +211,17 @@ function CompareForm() {
   return (
     <main>
       <h2>Compare runs</h2>
-      <p style={{ maxWidth: 720, color: "#444" }}>
+      <p style={{ marginTop: 4, fontSize: 14 }}>
+        <Link href="/">Home</Link>
+        {" · "}
+        <Link href="/runs?projectId=default">Runs</Link>
+        {" · "}
+        <Link href="/graph">Graph</Link>
+      </p>
+      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
         <strong>Base (left)</strong> is the reference run; <strong>target (right)</strong> is what you are
-        evaluating. Two API calls run in sequence: structured golden-manifest deltas (primary for review),
-        then the legacy flat diff (audit trail). Optional AI narrative is separate—load it after tables.
+        evaluating. Results: structured manifest deltas first, then a legacy flat diff. Optional AI narrative
+        is separate—use it after you have reviewed the tables.
       </p>
 
       <div style={{ display: "grid", gap: 12, maxWidth: 800 }}>

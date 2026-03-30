@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
@@ -58,9 +59,16 @@ function ReplayForm() {
   return (
     <main>
       <h2>Replay run</h2>
-      <p style={{ maxWidth: 720, color: "#444", fontSize: 14 }}>
-        Re-executes the stored authority chain for a run. Pick a mode, then review validation flags and notes
-        below—the same fields the API returns on every call so results stay comparable across retries.
+      <p style={{ marginTop: 4, fontSize: 14 }}>
+        <Link href="/">Home</Link>
+        {" · "}
+        <Link href="/runs?projectId=default">Runs</Link>
+        {" · "}
+        <Link href="/compare">Compare runs</Link>
+      </p>
+      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
+        Re-run the stored authority chain for a run. Choose a mode, then read validation flags and notes
+        below.
       </p>
 
       <div style={{ display: "grid", gap: 12, maxWidth: 800 }}>

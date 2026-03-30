@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
@@ -8,6 +9,10 @@ import {
 import { coerceRunSummaryList } from "@/lib/operator-response-guards";
 import { listRunsByProject } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
+
+export const metadata: Metadata = {
+  title: "Runs",
+};
 
 /** Server-rendered run list page. Fetches runs for a project and validates via coerceRunSummaryList. */
 export default async function RunsPage({
@@ -40,7 +45,17 @@ export default async function RunsPage({
   return (
     <main>
       <h2>Runs</h2>
-      <p>Project: {projectId}</p>
+      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.5 }}>
+        Project <strong>{projectId}</strong>. Open a run for manifest summary, artifact review, compare and
+        replay links, and exports.
+      </p>
+      <p style={{ marginTop: 8 }}>
+        <Link href="/">Home</Link>
+        {" · "}
+        <Link href="/graph">Graph</Link>
+        {" · "}
+        <Link href="/compare">Compare runs</Link>
+      </p>
 
       {loadError && (
         <OperatorErrorCallout>
@@ -93,7 +108,7 @@ export default async function RunsPage({
                 <td style={{ padding: 8 }}>{run.description ?? ""}</td>
                 <td style={{ padding: 8 }}>{new Date(run.createdUtc).toLocaleString()}</td>
                 <td style={{ padding: 8 }}>
-                  <Link href={`/runs/${run.runId}`}>Open</Link>
+                  <Link href={`/runs/${run.runId}`}>Open run</Link>
                 </td>
               </tr>
             ))}

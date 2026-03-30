@@ -14,25 +14,26 @@ vi.mock("next/link", () => ({
 import HomePage from "./page";
 
 describe("HomePage", () => {
-  it("renders Operator Shell heading and summary", () => {
+  it("renders start heading and workflow summary", () => {
     render(<HomePage />);
 
-    expect(screen.getByRole("heading", { level: 2, name: "Operator Shell" })).toBeInTheDocument();
-    expect(
-      screen.getByText(/List runs, open run detail \(manifest summary \+ artifacts\)/),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Start here" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Main workflows" })).toBeInTheDocument();
+    expect(screen.getByRole("main").textContent).toContain("review the manifest and artifacts");
   });
 
-  it("renders quick links with expected destinations", () => {
+  it("renders workflow links with expected destinations", () => {
     render(<HomePage />);
 
-    expect(screen.getByText("Quick links:")).toBeInTheDocument();
+    const runsLinks = screen
+      .getAllByRole("link", { name: "Runs" })
+      .filter((el) => el.getAttribute("href") === "/runs?projectId=default");
+    expect(runsLinks.length).toBeGreaterThan(0);
 
-    const runs = screen.getByRole("link", { name: "Runs" });
-    expect(runs).toHaveAttribute("href", "/runs?projectId=default");
-
-    const graph = screen.getByRole("link", { name: "Graph viewer" });
-    expect(graph).toHaveAttribute("href", "/graph");
+    const graphLinks = screen
+      .getAllByRole("link", { name: "Graph" })
+      .filter((el) => el.getAttribute("href") === "/graph");
+    expect(graphLinks.length).toBeGreaterThan(0);
 
     const compare = screen.getByRole("link", { name: "Compare runs" });
     expect(compare).toHaveAttribute("href", "/compare");

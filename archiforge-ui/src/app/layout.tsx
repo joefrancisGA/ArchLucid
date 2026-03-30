@@ -1,43 +1,34 @@
-import "./globals.css";
-import { AuthStatus } from "@/components/AuthStatus";
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-export const metadata = {
-  title: "ArchiForge",
-  description: "ArchiForge operator shell",
+import { AuthStatus } from "@/components/AuthStatus";
+import { ShellNav } from "@/components/ShellNav";
+
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: {
+    default: "ArchiForge operator shell",
+    template: "%s · ArchiForge",
+  },
+  description:
+    "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance.",
 };
 
-/** Root layout: renders the shell chrome (header, nav, auth status) and wraps all pages. */
+/** Root layout: shell chrome (header, grouped nav, auth) and page content. */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
         <div style={{ padding: 24, fontFamily: "system-ui, Arial, sans-serif" }}>
           <header style={{ marginBottom: 24 }}>
-            <h1 style={{ margin: "0 0 8px" }}>ArchiForge</h1>
-            <nav style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-              <Link href="/">Home</Link>
-              <Link href="/runs?projectId=default">Runs</Link>
-              <Link href="/compare">Compare</Link>
-              <Link href="/replay">Replay</Link>
-              <Link href="/graph">Graph</Link>
-              <Link href="/ask">Ask</Link>
-              <Link href="/search">Search</Link>
-              <Link href="/advisory">Advisory</Link>
-              <Link href="/recommendation-learning">Learning</Link>
-              <Link href="/advisory-scheduling">Schedules</Link>
-              <Link href="/digests">Digests</Link>
-              <Link href="/digest-subscriptions">Subscriptions</Link>
-              <Link href="/alerts">Alerts</Link>
-              <Link href="/alert-rules">Alert Rules</Link>
-              <Link href="/alert-routing">Alert Routing</Link>
-              <Link href="/composite-alert-rules">Composite Rules</Link>
-              <Link href="/alert-simulation">Alert simulation</Link>
-              <Link href="/alert-tuning">Alert tuning</Link>
-              <Link href="/policy-packs">Policy packs</Link>
-              <Link href="/governance-resolution">Governance resolution</Link>
-            </nav>
+            <h1 style={{ margin: "0 0 12px", fontSize: 26 }}>
+              <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
+                ArchiForge
+              </Link>
+            </h1>
+            <ShellNav />
           </header>
           <AuthStatus />
           {children}

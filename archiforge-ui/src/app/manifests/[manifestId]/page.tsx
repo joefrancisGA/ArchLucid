@@ -65,8 +65,10 @@ export default async function ManifestDetailPage({
             empty artifact list.
           </p>
         </OperatorErrorCallout>
-        <p>
-          <Link href="/runs?projectId=default">← Runs</Link>
+        <p style={{ fontSize: 14 }}>
+          <Link href="/">Home</Link>
+          {" · "}
+          <Link href="/runs?projectId=default">Runs</Link>
         </p>
       </main>
     );
@@ -80,8 +82,10 @@ export default async function ManifestDetailPage({
           <strong>Manifest summary response was not usable.</strong>
           <p style={{ margin: "8px 0 0" }}>{summaryMalformed}</p>
         </OperatorMalformedCallout>
-        <p>
-          <Link href="/runs?projectId=default">← Runs</Link>
+        <p style={{ fontSize: 14 }}>
+          <Link href="/">Home</Link>
+          {" · "}
+          <Link href="/runs?projectId=default">Runs</Link>
         </p>
       </main>
     );
@@ -97,8 +101,10 @@ export default async function ManifestDetailPage({
             No summary was returned without an explicit error. Retry or verify API behavior.
           </p>
         </OperatorErrorCallout>
-        <p>
-          <Link href="/runs?projectId=default">← Runs</Link>
+        <p style={{ fontSize: 14 }}>
+          <Link href="/">Home</Link>
+          {" · "}
+          <Link href="/runs?projectId=default">Runs</Link>
         </p>
       </main>
     );
@@ -107,8 +113,15 @@ export default async function ManifestDetailPage({
   return (
     <main>
       <h2>Manifest</h2>
-      <p>
-        <Link href={`/runs/${summary.runId}`}>← Run {summary.runId}</Link>
+      <p style={{ fontSize: 14 }}>
+        <Link href="/">Home</Link>
+        {" · "}
+        <Link href="/runs?projectId=default">Runs</Link>
+        {" · "}
+        <Link href={`/runs/${summary.runId}`}>Run detail</Link>
+      </p>
+      <p style={{ fontSize: 14, color: "#64748b", maxWidth: 720 }}>
+        Artifact rows link here for review. Use bundle download for the full ZIP.
       </p>
       <p>
         <strong>Manifest ID:</strong> {summary.manifestId}

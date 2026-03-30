@@ -122,12 +122,21 @@ export default async function RunDetailPage({
   return (
     <main>
       <h2>Run detail</h2>
-      <p>
-        <Link href="/runs?projectId=default">← Runs</Link>
+      <p style={{ fontSize: 14 }}>
+        <Link href="/">Home</Link>
+        {" · "}
+        <Link href="/runs?projectId=default">Runs</Link>
+        {" · "}
+        <Link href="/graph">Graph</Link>
+        {" · "}
+        <Link href="/compare">Compare runs</Link>
       </p>
 
       <section style={{ marginBottom: 24 }}>
         <h3>Run</h3>
+        <p style={{ fontSize: 14, color: "#64748b", marginTop: 0, maxWidth: 720 }}>
+          Manifest summary and artifacts appear below when this run has a golden manifest (after commit).
+        </p>
         <p>
           <strong>Run ID:</strong> {resolvedDetail.run.runId}
         </p>
@@ -265,9 +274,9 @@ export default async function RunDetailPage({
         <h3>Actions</h3>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
-            Compare
+            Compare runs (base = this run)
           </Link>
-          <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay</Link>
+          <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this run</Link>
         </div>
       </section>
     </main>

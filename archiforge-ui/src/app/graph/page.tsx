@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { GraphViewer } from "@/components/GraphViewer";
 import {
@@ -90,10 +91,17 @@ export default function GraphPage() {
 
   return (
     <main>
-      <h2>Graph viewer</h2>
-      <p style={{ maxWidth: 720, color: "#444" }}>
-        Explore provenance (decisions, findings, rules) or the architecture knowledge graph for a
-        run. Use the scope headers configured for this UI (same as Runs).
+      <h2>Graph</h2>
+      <p style={{ marginTop: 4, fontSize: 14 }}>
+        <Link href="/">Home</Link>
+        {" · "}
+        <Link href="/runs?projectId=default">Runs</Link>
+        {" · "}
+        <Link href="/compare">Compare runs</Link>
+      </p>
+      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
+        Load provenance (decisions, findings, rules) or the architecture graph for a run. Copy the run ID from
+        the Runs list or run detail, choose a view, then load.
       </p>
 
       <div style={{ display: "grid", gap: 12, maxWidth: 900, marginBottom: 24 }}>
