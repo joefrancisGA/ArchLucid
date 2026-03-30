@@ -10,7 +10,7 @@ This document is the **canonical reference** for how ArchiForge classifies and r
 
 - **Predictable gates:** Everyone uses the same names (`Core`, `Fast core`, `Integration`, `SQL Server integration`, `Full regression`, `Operator UI unit`, `Operator UI e2e smoke`).
 - **Fail-fast locally:** Run the smallest meaningful subset before pushing.
-- **Authoritative CI:** The pipeline enforces **full regression** against SQL Server (Dapper / real DB), not ORMs.
+- **Authoritative CI:** The pipeline enforces **full regression** against SQL Server (**Dapper** + **DbUp**; **no Entity Framework** in tests or product DB path).
 - **No product churn:** This change set only defines execution and documentation unless a test must be stabilized.
 
 ---
@@ -120,7 +120,7 @@ dotnet test ArchiForge.sln
 
 **Scripts:** `test-full.cmd` / `test-full.ps1`
 
-**CI:** GitHub Actions runs this (Release configuration, with `ARCHIFORGE_SQL_TEST` for Persistence tests). This is the **.NET release gate** alongside the operator UI job below.
+**CI:** GitHub Actions runs this (Release configuration, with `ARCHIFORGE_SQL_TEST` for Persistence tests). This is the **.NET release gate** alongside **Vitest** and **Playwright** UI jobs.
 
 ---
 
@@ -142,6 +142,8 @@ npm test                 # one-shot (CI)
 npm run test:watch       # local loop
 ```
 
+**Repo root:** `test-ui-unit.cmd` / `test-ui-unit.ps1`
+
 ### 7. Operator shell e2e smoke (Next.js + Playwright)
 
 **Meaning:** A **minimal** browser check that the **archiforge-ui** app builds and the home route renders expected headings. Slower than Vitest; not a replacement for manual UX review.
@@ -156,11 +158,11 @@ npm run test:watch       # local loop
 
 ```bash
 npm ci
-npx playwright install chromium   # local dev; CI uses --with-deps
+npx playwright install --with-deps chromium
 npm run test:e2e
 ```
 
-**Repo root scripts:** `test-ui-smoke.cmd` / `test-ui-smoke.ps1`
+**Repo root:** `test-ui-smoke.cmd` / `test-ui-smoke.ps1` (same Chromium install flags as CI).
 
 The config’s `webServer` runs `npm run build && npm run start` (production server on port 3000) unless `CI` is unset and a server is already running (`reuseExistingServer`).
 
@@ -198,7 +200,7 @@ Optional **local** sequence before a PR:
 1. `test-fast-core.cmd`
 2. `test-sqlserver-integration.cmd` (if you touched Persistence / SQL)
 3. `test-integration.cmd` (if you touched API / HTTP)
-4. `npm test` in `archiforge-ui/` (if you touched `archiforge-ui` logic/components)
+4. `test-ui-unit.cmd` or `npm test` in `archiforge-ui/` (if you touched `archiforge-ui` logic/components)
 5. `test-ui-smoke.cmd` (if you touched `archiforge-ui` routes/build/e2e-relevant behavior)
 6. `test-full.cmd` before merge (or rely on CI)
 

@@ -29,6 +29,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Tests
+
+- **Unit (Vitest, jsdom):** `npm ci` then `npm test` (or `npm run test:watch`). Specs: `src/**/*.test.{ts,tsx}`.
+- **E2E smoke (Playwright):** `npx playwright install --with-deps chromium` then `npm run test:e2e`.
+- **Repo root:** `test-ui-unit.cmd` / `test-ui-smoke.cmd` (or `.ps1`) from the ArchiForge solution directory.
+
 ## Routes
 
 | Path | Purpose |

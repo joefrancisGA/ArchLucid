@@ -1,10 +1,9 @@
-# 54R — Playwright smoke tests for archiforge-ui (operator shell).
+# 54R — Vitest unit tests for archiforge-ui (operator shell).
 # See docs/TEST_EXECUTION_MODEL.md
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location (Join-Path $root 'archiforge-ui')
 npm ci
-npx playwright install --with-deps chromium
-npm run test:e2e
+npm run test
 exit $LASTEXITCODE

@@ -34,6 +34,8 @@ dotnet test ArchiForge.sln --filter "Category=Slow"
 dotnet test ArchiForge.sln
 ```
 
+**Configuration:** GitHub Actions .NET jobs use **`-c Release`**. Repo-root `test-*.cmd` / `.ps1` call `dotnet test` **without** `-c` (typically **Debug**). To mirror CI: `dotnet test ArchiForge.sln -c Release`.
+
 **Windows (same filters):** `test-core.cmd`, `test-fast-core.cmd`, `test-integration.cmd`, `test-slow.cmd`, `test-full.cmd` (and `.ps1` where present).
 
 ### SQL Server–first (Persistence Dapper)
@@ -66,7 +68,7 @@ npm run test:watch
 npm run test:e2e
 ```
 
-**Script (repo root):** `test-ui-smoke.cmd` / `.ps1`
+**Scripts (repo root):** `test-ui-unit.cmd` / `.ps1` (Vitest), `test-ui-smoke.cmd` / `.ps1` (Playwright)
 
 ---
 
@@ -126,6 +128,8 @@ dotnet test ArchiForge.sln --filter "Category!=Integration&Category!=SqlServerCo
 ## Class-level traits (authors)
 
 Use **`[Trait("Suite", "Core")]`** only when a class is intentionally part of the corset. Also set **`[Trait("Category", "Unit")]`**, **`Integration`**, **`SqlServerContainer`**, or **`Slow`** so fast core / integration / SQL filters stay accurate.
+
+A class name may include *Integration* while **`Category=Unit`** when it does not use **`WebApplicationFactory`** / HTTP (e.g. in-process service wiring). Traits govern filters, not filenames.
 
 **Core + slow or integration:** A class may be `Suite=Core` and also `Category=Slow` or `Category=Integration` — it runs in full Core and full regression, but **drops out of fast core**.
 
