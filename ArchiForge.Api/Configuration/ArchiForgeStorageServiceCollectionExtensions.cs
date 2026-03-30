@@ -94,8 +94,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
 
         // Singleton: one policy governs all read-time JSON fallback decisions.
         // Change mode to WarnOnJsonFallback during migration roll-out or RequireRelational after backfill.
-        services.AddSingleton(sp => new ArchiForge.Persistence.RelationalRead.JsonFallbackPolicy(
-            ArchiForge.Persistence.RelationalRead.PersistenceReadMode.AllowJsonFallback,
+        services.AddSingleton(sp => new Persistence.RelationalRead.JsonFallbackPolicy(
+            Persistence.RelationalRead.PersistenceReadMode.AllowJsonFallback,
             sp.GetRequiredService<ILoggerFactory>().CreateLogger("ArchiForge.Persistence.JsonFallback")));
 
         string connectionString = configuration.GetConnectionString("ArchiForge")

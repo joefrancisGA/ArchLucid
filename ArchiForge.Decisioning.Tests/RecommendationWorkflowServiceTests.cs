@@ -6,8 +6,6 @@ using FluentAssertions;
 
 using Moq;
 
-using Xunit;
-
 namespace ArchiForge.Decisioning.Tests;
 
 /// <summary>

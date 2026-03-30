@@ -1,7 +1,6 @@
 using ArchiForge.ContextIngestion.Canonicalization;
 using ArchiForge.ContextIngestion.Connectors;
 using ArchiForge.ContextIngestion.Contracts;
-using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.ContextIngestion.Parsing;
 using ArchiForge.ContextIngestion.Repositories;

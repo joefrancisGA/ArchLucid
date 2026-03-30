@@ -17,19 +17,10 @@ namespace ArchiForge.ContextIngestion.Tests;
 [Trait("Suite", "Core")]
 public sealed class ContextIngestionServicePipelineOrderingTests
 {
-    private sealed class MarkerConnector : IContextConnector
+    private sealed class MarkerConnector(string connectorType, string markerSummary, string? warning = null)
+        : IContextConnector
     {
-        private readonly string _markerSummary;
-        private readonly string? _warning;
-
-        public MarkerConnector(string connectorType, string markerSummary, string? warning = null)
-        {
-            ConnectorType = connectorType;
-            _markerSummary = markerSummary;
-            _warning = warning;
-        }
-
-        public string ConnectorType { get; }
+        public string ConnectorType { get; } = connectorType;
 
         public Task<RawContextPayload> FetchAsync(ContextIngestionRequest request, CancellationToken ct)
         {
@@ -44,8 +35,8 @@ public sealed class ContextIngestionServicePipelineOrderingTests
             _ = ct;
             NormalizedContextBatch batch = new();
 
-            if (_warning is not null)
-                batch.Warnings.Add(_warning);
+            if (warning is not null)
+                batch.Warnings.Add(warning);
 
             return Task.FromResult(batch);
         }
@@ -58,7 +49,7 @@ public sealed class ContextIngestionServicePipelineOrderingTests
             _ = current;
             _ = previous;
             _ = ct;
-            return Task.FromResult(new ContextDelta { Summary = _markerSummary });
+            return Task.FromResult(new ContextDelta { Summary = markerSummary });
         }
     }
 

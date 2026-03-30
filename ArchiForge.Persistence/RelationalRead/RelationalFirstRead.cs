@@ -34,10 +34,7 @@ internal static class RelationalFirstRead
         if (policy is null)
             return loadJsonFallback();
 
-        if (policy.EvaluateFallback(relationalRowCount, sliceName, entityType, entityId))
-            return loadJsonFallback();
-
-        return emptyDefault();
+        return policy.EvaluateFallback(relationalRowCount, sliceName, entityType, entityId) ? loadJsonFallback() : emptyDefault();
     }
 
     /// <summary>

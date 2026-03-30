@@ -4,24 +4,17 @@ namespace ArchiForge.Persistence.RelationalRead;
 /// Thrown when <see cref="PersistenceReadMode.RequireRelational"/> is active and a
 /// relational child table has no rows for a slice that should have been backfilled.
 /// </summary>
-public sealed class RelationalDataMissingException : InvalidOperationException
+public sealed class RelationalDataMissingException(
+    string entityType,
+    string entityId,
+    string sliceName)
+    : InvalidOperationException(BuildMessage(entityType, entityId, sliceName))
 {
-    public RelationalDataMissingException(
-        string entityType,
-        string entityId,
-        string sliceName)
-        : base(BuildMessage(entityType, entityId, sliceName))
-    {
-        EntityType = entityType;
-        EntityId = entityId;
-        SliceName = sliceName;
-    }
+    public string EntityType { get; } = entityType;
 
-    public string EntityType { get; }
+    public string EntityId { get; } = entityId;
 
-    public string EntityId { get; }
-
-    public string SliceName { get; }
+    public string SliceName { get; } = sliceName;
 
     private static string BuildMessage(string entityType, string entityId, string sliceName) =>
         $"Relational data missing for {entityType} '{entityId}', slice '{sliceName}'. " +

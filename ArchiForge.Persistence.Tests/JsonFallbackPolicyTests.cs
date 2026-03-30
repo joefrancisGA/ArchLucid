@@ -136,11 +136,10 @@ public sealed class JsonFallbackPolicyTests
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            if (logLevel == LogLevel.Warning)
-            {
-                WarningCount++;
-                LastMessage = formatter(state, exception);
-            }
+            if (logLevel != LogLevel.Warning) return;
+            
+            WarningCount++;
+            LastMessage = formatter(state, exception);
         }
     }
 }

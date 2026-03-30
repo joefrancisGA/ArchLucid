@@ -48,12 +48,11 @@ public sealed class ArchitectureRequestDocumentValidationTests(ArchiForgeApiFact
 
         foreach (JsonProperty p in errors.EnumerateObject())
         {
-            if (p.Name.Contains("contentType", StringComparison.OrdinalIgnoreCase) &&
-                p.Name.Contains("document", StringComparison.OrdinalIgnoreCase))
-            {
-                hasDocumentContentTypeKey = true;
-                break;
-            }
+            if (!p.Name.Contains("contentType", StringComparison.OrdinalIgnoreCase) ||
+                !p.Name.Contains("document", StringComparison.OrdinalIgnoreCase)) continue;
+            
+            hasDocumentContentTypeKey = true;
+            break;
         }
 
         hasDocumentContentTypeKey.Should().BeTrue(

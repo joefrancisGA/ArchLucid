@@ -60,9 +60,9 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         effectiveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         EffectivePolicyPackSet? effective = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
         effective.Should().NotBeNull();
-        ResolvedPolicyPack? resolved = effective!.Packs.SingleOrDefault(p => p.PolicyPackId == packId);
+        ResolvedPolicyPack? resolved = effective.Packs.SingleOrDefault(p => p.PolicyPackId == packId);
         resolved.Should().NotBeNull("created pack should appear in effective set for current scope");
-        resolved!.Version.Should().Be("1.0.0");
+        resolved.Version.Should().Be("1.0.0");
 
         HttpResponseMessage mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
         mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -404,7 +404,7 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         EffectivePolicyPackSet? effectiveSet = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
         effectiveSet.Should().NotBeNull();
         Guid[] createdPackIds = [packA, packB];
-        effectiveSet!.Packs.Where(p => createdPackIds.Contains(p.PolicyPackId)).Should().HaveCount(2);
+        effectiveSet.Packs.Where(p => createdPackIds.Contains(p.PolicyPackId)).Should().HaveCount(2);
 
         HttpResponseMessage mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
         mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
