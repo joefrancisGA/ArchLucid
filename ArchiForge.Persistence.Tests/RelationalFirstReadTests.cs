@@ -2,14 +2,28 @@ using ArchiForge.Persistence.RelationalRead;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace ArchiForge.Persistence.Tests;
 
 /// <summary>
-/// Contract tests for <see cref="RelationalFirstRead"/> integration with <see cref="JsonFallbackPolicy"/>.
+/// Contract tests for <see cref="RelationalFirstRead"/> integration with <see cref="JsonFallbackPolicy"/>
+/// across all three <see cref="PersistenceReadMode"/> values.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class RelationalFirstReadTests
 {
+    private static JsonFallbackPolicy Allow() =>
+        new(PersistenceReadMode.AllowJsonFallback, NullLogger.Instance);
+
+    private static JsonFallbackPolicy Warn() =>
+        new(PersistenceReadMode.WarnOnJsonFallback, NullLogger.Instance);
+
+    private static JsonFallbackPolicy Require() =>
+        new(PersistenceReadMode.RequireRelational, NullLogger.Instance);
+
+    // ── Relational rows exist → always use relational ──────────────
+
     [Fact]
     public async Task ReadSliceAsync_RelationalRowsExist_CallsRelationalLoader()
     {
@@ -21,14 +35,16 @@ public sealed class RelationalFirstReadTests
             () => { relationalCalled = true; return Task.FromResult(new List<string> { "relational" }); },
             () => ["json-fallback"],
             () => [],
-            policy: new JsonFallbackPolicy { AllowFallback = true });
+            policy: Allow());
 
         relationalCalled.Should().BeTrue();
         result.Should().Equal("relational");
     }
 
+    // ── AllowJsonFallback ──────────────────────────────────────────
+
     [Fact]
-    public async Task ReadSliceAsync_NoRows_PolicyAllows_CallsJsonFallback()
+    public async Task ReadSliceAsync_NoRows_AllowMode_CallsJsonFallback()
     {
         bool jsonCalled = false;
 
@@ -38,14 +54,16 @@ public sealed class RelationalFirstReadTests
             () => Task.FromResult(new List<string> { "relational" }),
             () => { jsonCalled = true; return ["json-fallback"]; },
             () => [],
-            policy: new JsonFallbackPolicy { AllowFallback = true });
+            policy: Allow());
 
         jsonCalled.Should().BeTrue();
         result.Should().Equal("json-fallback");
     }
 
+    // ── WarnOnJsonFallback ─────────────────────────────────────────
+
     [Fact]
-    public async Task ReadSliceAsync_NoRows_PolicyDenies_ReturnsEmptyDefault()
+    public async Task ReadSliceAsync_NoRows_WarnMode_CallsJsonFallback()
     {
         bool jsonCalled = false;
 
@@ -55,11 +73,35 @@ public sealed class RelationalFirstReadTests
             () => Task.FromResult(new List<string> { "relational" }),
             () => { jsonCalled = true; return ["json-fallback"]; },
             () => [],
-            policy: new JsonFallbackPolicy { AllowFallback = false });
+            policy: Warn());
 
-        jsonCalled.Should().BeFalse();
-        result.Should().BeEmpty();
+        jsonCalled.Should().BeTrue();
+        result.Should().Equal("json-fallback");
     }
+
+    // ── RequireRelational ──────────────────────────────────────────
+
+    [Fact]
+    public async Task ReadSliceAsync_NoRows_RequireMode_ThrowsRelationalDataMissing()
+    {
+        Func<Task> act = () => RelationalFirstRead.ReadSliceAsync(
+            relationalRowCount: 0,
+            "Test.Slice",
+            () => Task.FromResult(new List<string> { "relational" }),
+            () => ["json-fallback"],
+            () => [],
+            policy: Require(),
+            entityType: "TestEntity",
+            entityId: "id-99");
+
+        RelationalDataMissingException ex = (await act.Should()
+            .ThrowAsync<RelationalDataMissingException>()).Which;
+        ex.EntityType.Should().Be("TestEntity");
+        ex.EntityId.Should().Be("id-99");
+        ex.SliceName.Should().Be("Test.Slice");
+    }
+
+    // ── Null policy → legacy fallback ──────────────────────────────
 
     [Fact]
     public async Task ReadSliceAsync_NoRows_NullPolicy_FallsBackToJson()
@@ -74,6 +116,8 @@ public sealed class RelationalFirstReadTests
 
         result.Should().Equal("json-fallback");
     }
+
+    // ── Backward-compatible overload ───────────────────────────────
 
     [Fact]
     public async Task ReadSliceAsync_BackwardCompatOverload_AlwaysFallsBack()
