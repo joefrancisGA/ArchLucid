@@ -2,6 +2,15 @@
 
 Thin Next.js App Router UI for runs, manifest summary, artifacts, compare, replay, and ZIP downloads.
 
+## Documentation
+
+| Document | What it covers |
+|----------|---------------|
+| [Operator Shell Tutorial](docs/OPERATOR_SHELL_TUTORIAL.md) | **Start here.** Full tutorial for back-end developers new to React/Next.js. Covers concepts, architecture, every route, and common tasks. |
+| [Component Reference](docs/COMPONENT_REFERENCE.md) | Detailed reference for every React component, prop, and helper library. |
+| [Data Flow and State](docs/DATA_FLOW_AND_STATE.md) | How data moves from the C# API to the screen. State management patterns. Diagrams for every page. Templates for adding new pages. |
+| [Testing and Troubleshooting](docs/TESTING_AND_TROUBLESHOOTING.md) | How to run and write tests. Common errors and fixes. Debugging techniques. |
+
 ## Setup
 
 ```bash
