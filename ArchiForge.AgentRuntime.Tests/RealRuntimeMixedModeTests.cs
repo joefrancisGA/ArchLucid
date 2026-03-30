@@ -18,7 +18,8 @@ namespace ArchiForge.AgentRuntime.Tests;
 /// <summary>
 /// Tests for Real Runtime Mixed Mode.
 /// </summary>
-[Trait("Category", "Unit")]
+[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 public sealed class RealRuntimeMixedModeTests
 {
     [Fact]

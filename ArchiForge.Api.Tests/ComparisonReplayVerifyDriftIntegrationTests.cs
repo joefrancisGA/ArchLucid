@@ -20,7 +20,6 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFac
     private readonly ArchiForgeApiFactory _factory = factory;
 
     [Fact]
-    [Trait("Category", "Integration")]
     public async Task ComparisonReplayVerify_WhenStoredPayloadDriftsFromRegenerated_Returns422()
     {
         (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
