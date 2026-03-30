@@ -1,9 +1,29 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { GraphViewer } from "./GraphViewer";
 
+beforeAll(() => {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  };
+});
+
 describe("GraphViewer", () => {
+  it("renders node detail panel when the graph has nodes (normal case)", () => {
+    const graph = {
+      nodes: [{ id: "n1", label: "Service A", type: "Service", metadata: { region: "east" } }],
+      edges: [] as { source: string; target: string; type: string }[],
+    };
+
+    render(<GraphViewer graph={graph} />);
+
+    expect(screen.getByText("Node detail")).toBeInTheDocument();
+    expect(screen.getByText(/Select a node to inspect/)).toBeInTheDocument();
+  });
+
   it("renders empty-state when the graph has no nodes", () => {
     render(<GraphViewer graph={{ nodes: [], edges: [] }} />);
 

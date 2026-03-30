@@ -7,6 +7,7 @@ import {
   coerceGraphViewModel,
   coerceManifestSummary,
   coerceReplayResponse,
+  coerceRunComparison,
   coerceRunDetail,
   coerceRunSummaryList,
 } from "./operator-response-guards";
@@ -45,6 +46,30 @@ describe("coerceGraphViewModel", () => {
     const result = coerceGraphViewModel({ edges: [] });
 
     expect(result.ok).toBe(false);
+  });
+});
+
+describe("coerceRunComparison", () => {
+  it("accepts minimal legacy compare payload with empty diffs", () => {
+    const result = coerceRunComparison({
+      leftRunId: "L",
+      rightRunId: "R",
+      runLevelDiffs: [],
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.runLevelDiffs).toEqual([]);
+    }
+  });
+
+  it("rejects missing runLevelDiffs array", () => {
+    expect(
+      coerceRunComparison({
+        leftRunId: "L",
+        rightRunId: "R",
+      }).ok,
+    ).toBe(false);
   });
 });
 

@@ -23,6 +23,28 @@ const sample = {
 };
 
 describe("ArtifactListTable", () => {
+  it("renders sorted artifact names and download links on successful load", () => {
+    const artifacts = [
+      { ...sample, artifactId: "b", name: "zebra.txt" },
+      { ...sample, artifactId: "a", name: "alpha.txt" },
+    ];
+    render(<ArtifactListTable manifestId="manifest-1" artifacts={artifacts} />);
+
+    const rows = screen.getAllByRole("row");
+    expect(rows.length).toBeGreaterThanOrEqual(3);
+
+    const links = screen.getAllByRole("link", { name: "Download" });
+    expect(links).toHaveLength(2);
+    expect(links[0].getAttribute("href")).toContain("/api/proxy/api/artifacts/manifests/manifest-1/artifact/");
+  });
+
+  it("renders headers with zero data rows when artifact list is empty", () => {
+    render(<ArtifactListTable manifestId="manifest-1" artifacts={[]} />);
+
+    expect(screen.getByRole("columnheader", { name: "Artifact" })).toBeInTheDocument();
+    expect(screen.queryAllByRole("link", { name: "Review" })).toHaveLength(0);
+  });
+
   it("uses manifest-scoped Review href when runId is omitted", () => {
     render(<ArtifactListTable manifestId="manifest-1" artifacts={[sample]} />);
 

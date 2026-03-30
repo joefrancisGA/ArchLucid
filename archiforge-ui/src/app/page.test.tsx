@@ -13,7 +13,7 @@ vi.mock("next/link", () => ({
 
 import HomePage from "./page";
 
-describe("HomePage", () => {
+describe("HomePage (55R smoke — landing)", () => {
   it("renders start heading and workflow summary", () => {
     render(<HomePage />);
 
@@ -22,7 +22,7 @@ describe("HomePage", () => {
     expect(screen.getByRole("main").textContent).toContain("review the manifest and artifacts");
   });
 
-  it("renders workflow links with expected destinations", () => {
+  it("exposes primary workflow destinations matching shell review paths", () => {
     render(<HomePage />);
 
     const runsLinks = screen
