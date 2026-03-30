@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 using ArchiForge.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;

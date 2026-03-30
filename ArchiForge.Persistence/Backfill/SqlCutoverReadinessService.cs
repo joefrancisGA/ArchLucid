@@ -9,7 +9,7 @@ namespace ArchiForge.Persistence.Backfill;
 
 /// <summary>
 /// Runs aggregate read-only SQL queries to determine per-slice relational coverage.
-/// Uses set-based <c>LEFT JOIN … GROUP BY</c> counting — no row-by-row iteration.
+/// Uses set-based <c>COUNT / WHERE EXISTS</c> correlated subqueries — no row-by-row iteration.
 /// </summary>
 public sealed class SqlCutoverReadinessService(
     ISqlConnectionFactory connectionFactory,

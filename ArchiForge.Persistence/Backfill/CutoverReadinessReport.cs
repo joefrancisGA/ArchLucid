@@ -6,7 +6,7 @@ namespace ArchiForge.Persistence.Backfill;
 /// </summary>
 public sealed class CutoverReadinessReport
 {
-    /// <summary>Per-slice readiness assessments, keyed by slice name.</summary>
+    /// <summary>Per-slice readiness assessments, one entry per assessed slice.</summary>
     public IReadOnlyList<CutoverSliceReadiness> Slices { get; init; } = [];
 
     /// <summary>

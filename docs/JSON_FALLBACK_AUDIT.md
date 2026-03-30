@@ -99,6 +99,9 @@ Policy-aware overload accepts `JsonFallbackPolicy?`, `sliceName`, `emptyDefault`
 | `ArchiForge.Persistence.Tests/JsonFallbackPolicyTests.cs` | 13 tests: default, allow/warn/require modes, `AllowFallback` property, `ShouldFallbackToJson` backward compat, warn logs, require throws with entity context, allow debug logging, no-log when relational exists |
 | `ArchiForge.Persistence.Tests/RelationalFirstReadTests.cs` | 6 tests: relational exists, allow/warn/require modes, null policy, backward-compat overload |
 | `ArchiForge.Persistence.Tests/CutoverReadinessReportTests.cs` | 11 tests: slice ready/not-ready/zero-header, report fully-ready/partial/empty, deduplication, full-pipeline scenario |
+| `ArchiForge.Persistence.Tests/FallbackPolicyDiagnosticsTests.cs` | 16 tests: multi-slice diagnostics, structured log content for all entity types, RequireRelational exception contracts, no-log-on-success, RelationalFirstRead multi-mode regression |
+| `ArchiForge.Persistence.Tests/PolicyModeFallbackSqlIntegrationTests.cs` | 11 SQL integration tests: ContextSnapshot/FindingsSnapshot/GraphSnapshot/GoldenManifest under all three modes, edge metadata merge, strict relational round-trips |
+| `ArchiForge.Persistence.Tests/CutoverReadinessSqlIntegrationTests.cs` | 3 SQL integration tests: mixed-state counts, all 14 slices present, report aggregate consistency |
 
 ### Docs
 
