@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 import { getArchitecturePackageDocxUrl } from "@/lib/api";
+import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
 import type { GoldenManifestComparison } from "@/types/comparison";
 
 const tableStyle: CSSProperties = {
@@ -39,7 +40,7 @@ function EmptySectionNote({ label }: { label: string }) {
  * Golden-manifest structured comparison: tables and stable column order for operator review.
  */
 export function StructuredComparisonView(props: { golden: GoldenManifestComparison }) {
-  const { golden } = props;
+  const golden = sortGoldenManifestComparison(props.golden);
   const total =
     golden.totalDeltaCount !== undefined
       ? golden.totalDeltaCount
@@ -50,7 +51,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
         golden.costChanges.length;
 
   return (
-    <section style={{ marginTop: 28 }}>
+    <section id="compare-structured" style={{ marginTop: 28 }}>
       <h3 style={{ marginBottom: 8 }}>Structured manifest comparison</h3>
       <div
         style={{
@@ -96,7 +97,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
         ) : (
           <ul style={{ margin: 0, paddingLeft: 20, lineHeight: 1.5 }}>
             {golden.summaryHighlights.map((h, i) => (
-              <li key={i}>{h}</li>
+              <li key={`highlight-${i}`}>{h}</li>
             ))}
           </ul>
         )}
@@ -143,8 +144,8 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
               </tr>
             </thead>
             <tbody>
-              {golden.requirementChanges.map((r, i) => (
-                <tr key={i}>
+              {golden.requirementChanges.map((r) => (
+                <tr key={`${r.requirementName}:${r.changeType}`}>
                   <td style={cellStyle}>{r.requirementName}</td>
                   <td style={cellStyle}>{r.changeType}</td>
                 </tr>
@@ -193,8 +194,8 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
               </tr>
             </thead>
             <tbody>
-              {golden.topologyChanges.map((t, i) => (
-                <tr key={i}>
+              {golden.topologyChanges.map((t) => (
+                <tr key={`${t.resource}:${t.changeType}`}>
                   <td style={cellStyle}>{t.resource}</td>
                   <td style={cellStyle}>{t.changeType}</td>
                 </tr>
@@ -220,7 +221,7 @@ export function StructuredComparisonView(props: { golden: GoldenManifestComparis
             </thead>
             <tbody>
               {golden.costChanges.map((c, i) => (
-                <tr key={i}>
+                <tr key={`${c.baseCost ?? "n"}-${c.targetCost ?? "n"}-${i}`}>
                   <td style={cellStyle}>{c.baseCost ?? "—"}</td>
                   <td style={cellStyle}>{c.targetCost ?? "—"}</td>
                 </tr>

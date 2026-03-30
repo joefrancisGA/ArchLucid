@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   OperatorEmptyState,
@@ -22,12 +22,36 @@ import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison } from "@/types/authority";
 
+type ComparedPair = { left: string; right: string };
+
+function outcomeLabel(params: {
+  hasValue: boolean;
+  error: string | null;
+  malformed: string | null;
+}): string {
+  if (params.error !== null) {
+    return "Request failed";
+  }
+
+  if (params.malformed !== null) {
+    return "Response not usable (shape)";
+  }
+
+  if (params.hasValue) {
+    return "OK";
+  }
+
+  return "—";
+}
+
 /**
  * Compare form: accepts two run IDs, fetches legacy + structured + AI comparisons in parallel,
  * validates responses via coerce functions, and renders results in three sub-views.
  */
 function CompareForm() {
   const searchParams = useSearchParams();
+  const compareGenerationRef = useRef(0);
+  const aiGenerationRef = useRef(0);
   const [leftRunId, setLeftRunId] = useState("");
   const [rightRunId, setRightRunId] = useState("");
   const [result, setResult] = useState<RunComparison | null>(null);
@@ -41,6 +65,7 @@ function CompareForm() {
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiMalformed, setAiMalformed] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [lastComparedPair, setLastComparedPair] = useState<ComparedPair | null>(null);
 
   useEffect(() => {
     const left = searchParams.get("leftRunId");
@@ -49,7 +74,27 @@ function CompareForm() {
     if (right) setRightRunId(right);
   }, [searchParams]);
 
+  const leftTrim = leftRunId.trim();
+  const rightTrim = rightRunId.trim();
+  const pairAligned =
+    lastComparedPair !== null &&
+    lastComparedPair.left === leftTrim &&
+    lastComparedPair.right === rightTrim;
+  const showStaleInputsWarning =
+    !pairAligned &&
+    lastComparedPair !== null &&
+    (result !== null ||
+      golden !== null ||
+      error !== null ||
+      goldenError !== null ||
+      legacyMalformed !== null ||
+      goldenMalformed !== null);
+
   async function onCompare() {
+    const leftAtStart = leftTrim;
+    const rightAtStart = rightTrim;
+    const gen = ++compareGenerationRef.current;
+
     setLoading(true);
     setError(null);
     setGoldenError(null);
@@ -60,9 +105,15 @@ function CompareForm() {
     setAiExplanation(null);
     setAiError(null);
     setAiMalformed(null);
+    setLastComparedPair(null);
 
     try {
-      const legacy: unknown = await compareRuns(leftRunId, rightRunId);
+      const legacy: unknown = await compareRuns(leftAtStart, rightAtStart);
+
+      if (gen !== compareGenerationRef.current) {
+        return;
+      }
+
       const coercedLegacy = coerceRunComparison(legacy);
 
       if (!coercedLegacy.ok) {
@@ -72,12 +123,21 @@ function CompareForm() {
         setResult(coercedLegacy.value);
       }
     } catch (err) {
+      if (gen !== compareGenerationRef.current) {
+        return;
+      }
+
       setError(err instanceof Error ? err.message : "Run comparison failed.");
       setResult(null);
     }
 
     try {
-      const structured: unknown = await compareGoldenManifestRuns(leftRunId, rightRunId);
+      const structured: unknown = await compareGoldenManifestRuns(leftAtStart, rightAtStart);
+
+      if (gen !== compareGenerationRef.current) {
+        return;
+      }
+
       const coercedGolden = coerceGoldenManifestComparison(structured);
 
       if (!coercedGolden.ok) {
@@ -87,23 +147,41 @@ function CompareForm() {
         setGolden(coercedGolden.value);
       }
     } catch (err) {
+      if (gen !== compareGenerationRef.current) {
+        return;
+      }
+
       setGoldenError(
         err instanceof Error ? err.message : "Structured manifest comparison failed.",
       );
       setGolden(null);
     } finally {
-      setLoading(false);
+      if (gen === compareGenerationRef.current) {
+        setLoading(false);
+        setLastComparedPair({ left: leftAtStart, right: rightAtStart });
+      }
     }
   }
 
   async function loadAiExplanation() {
-    if (!leftRunId || !rightRunId) return;
+    if (!leftTrim || !rightTrim) return;
+
+    const leftAtStart = leftTrim;
+    const rightAtStart = rightTrim;
+    const gen = ++aiGenerationRef.current;
+
     setAiLoading(true);
     setAiError(null);
     setAiExplanation(null);
     setAiMalformed(null);
+
     try {
-      const ex: unknown = await explainComparisonRuns(leftRunId, rightRunId);
+      const ex: unknown = await explainComparisonRuns(leftAtStart, rightAtStart);
+
+      if (gen !== aiGenerationRef.current) {
+        return;
+      }
+
       const coerced = coerceComparisonExplanation(ex);
 
       if (!coerced.ok) {
@@ -113,20 +191,29 @@ function CompareForm() {
         setAiExplanation(coerced.value);
       }
     } catch (err) {
+      if (gen !== aiGenerationRef.current) {
+        return;
+      }
+
       setAiError(err instanceof Error ? err.message : "AI explanation failed.");
       setAiExplanation(null);
     } finally {
-      setAiLoading(false);
+      if (gen === aiGenerationRef.current) {
+        setAiLoading(false);
+      }
     }
   }
+
+  const hasResultsToNavigate =
+    pairAligned && !loading && (golden !== null || result !== null || aiExplanation !== null);
 
   return (
     <main>
       <h2>Compare runs</h2>
       <p style={{ maxWidth: 720, color: "#444" }}>
-        <strong>Base (left)</strong> is the earlier / reference run; <strong>target (right)</strong> is
-        what you are evaluating. The structured comparison uses GoldenManifest sections (decisions,
-        requirements, security, topology, cost).
+        <strong>Base (left)</strong> is the reference run; <strong>target (right)</strong> is what you are
+        evaluating. Two API calls run in sequence: structured golden-manifest deltas (primary for review),
+        then the legacy flat diff (audit trail). Optional AI narrative is separate—load it after tables.
       </p>
 
       <div style={{ display: "grid", gap: 12, maxWidth: 800 }}>
@@ -146,7 +233,7 @@ function CompareForm() {
           <button
             type="button"
             onClick={() => void onCompare()}
-            disabled={loading || !leftRunId || !rightRunId}
+            disabled={loading || !leftTrim || !rightTrim}
             style={{ padding: "10px 16px" }}
           >
             {loading ? "Comparing…" : "Compare"}
@@ -154,7 +241,7 @@ function CompareForm() {
           <button
             type="button"
             onClick={() => void loadAiExplanation()}
-            disabled={aiLoading || !leftRunId || !rightRunId}
+            disabled={aiLoading || !leftTrim || !rightTrim}
             style={{ padding: "10px 16px" }}
           >
             {aiLoading ? "Explaining…" : "Explain changes (AI)"}
@@ -162,7 +249,7 @@ function CompareForm() {
         </div>
       </div>
 
-      {(!leftRunId || !rightRunId) && (
+      {(!leftTrim || !rightTrim) && (
         <OperatorEmptyState title="Waiting for both run IDs">
           <p style={{ margin: 0 }}>
             Enter a <strong>base</strong> and <strong>target</strong> run ID before comparing. Query
@@ -171,11 +258,23 @@ function CompareForm() {
         </OperatorEmptyState>
       )}
 
-      {loading && leftRunId && rightRunId && (
+      {showStaleInputsWarning && (
+        <OperatorWarningCallout>
+          <strong>Run IDs changed since the last comparison.</strong>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            Tables below still reflect{" "}
+            <code style={{ fontSize: 13 }}>{lastComparedPair?.left}</code> →{" "}
+            <code style={{ fontSize: 13 }}>{lastComparedPair?.right}</code>. Click <strong>Compare</strong> again
+            to refresh, or restore the previous IDs.
+          </p>
+        </OperatorWarningCallout>
+      )}
+
+      {loading && leftTrim && rightTrim && (
         <OperatorLoadingNotice>
           <strong>Comparing runs.</strong>
           <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-            Calling legacy diff and structured golden-manifest comparison endpoints…
+            Legacy diff, then structured golden-manifest comparison (same pair, in order).
           </p>
         </OperatorLoadingNotice>
       )}
@@ -232,11 +331,92 @@ function CompareForm() {
         </OperatorMalformedCallout>
       )}
 
-      {golden && <StructuredComparisonView golden={golden} />}
+      {pairAligned && !loading && lastComparedPair !== null && (
+        <section
+          style={{
+            marginTop: 20,
+            padding: 14,
+            border: "1px solid #e2e8f0",
+            borderRadius: 8,
+            background: "#f8fafc",
+            maxWidth: 800,
+          }}
+          aria-label="Comparison request outcome"
+        >
+          <h3 style={{ marginTop: 0, marginBottom: 10, fontSize: 16 }}>Last compare request</h3>
+          <p style={{ margin: "0 0 10px", fontSize: 14, color: "#475569" }}>
+            <code style={{ fontSize: 13 }}>{lastComparedPair.left}</code>
+            <span style={{ margin: "0 6px", color: "#94a3b8" }}>→</span>
+            <code style={{ fontSize: 13 }}>{lastComparedPair.right}</code>
+          </p>
+          <dl
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(160px, 220px) 1fr",
+              gap: "6px 12px",
+              fontSize: 14,
+              margin: 0,
+            }}
+          >
+            <dt style={{ color: "#64748b", margin: 0 }}>Structured manifest</dt>
+            <dd style={{ margin: 0 }}>
+              {outcomeLabel({
+                hasValue: golden !== null,
+                error: goldenError,
+                malformed: goldenMalformed,
+              })}
+            </dd>
+            <dt style={{ color: "#64748b", margin: 0 }}>Legacy run / manifest diff</dt>
+            <dd style={{ margin: 0 }}>
+              {outcomeLabel({
+                hasValue: result !== null,
+                error,
+                malformed: legacyMalformed,
+              })}
+            </dd>
+          </dl>
+        </section>
+      )}
 
-      {aiExplanation && <AiComparisonExplanationView explanation={aiExplanation} />}
+      {hasResultsToNavigate && (
+        <nav
+          aria-label="Comparison results outline"
+          style={{
+            marginTop: 16,
+            padding: 12,
+            border: "1px solid #e2e8f0",
+            borderRadius: 8,
+            background: "#fff",
+            maxWidth: 800,
+            fontSize: 14,
+          }}
+        >
+          <strong style={{ display: "block", marginBottom: 8 }}>Review order</strong>
+          <ol style={{ margin: 0, paddingLeft: 22, lineHeight: 1.6 }}>
+            {golden !== null && (
+              <li>
+                <a href="#compare-structured">Structured manifest comparison</a>
+              </li>
+            )}
+            {result !== null && (
+              <li>
+                <a href="#compare-legacy">Legacy authority diff</a>
+              </li>
+            )}
+            {aiExplanation !== null && (
+              <li>
+                <a href="#compare-ai">AI explanation</a>
+              </li>
+            )}
+          </ol>
+        </nav>
+      )}
 
-      {result && <LegacyRunComparisonView result={result} />}
+      {golden !== null && <StructuredComparisonView golden={golden} />}
+
+      {result !== null && <LegacyRunComparisonView result={result} />}
+
+      {aiExplanation !== null && <AiComparisonExplanationView explanation={aiExplanation} />}
     </main>
   );
 }

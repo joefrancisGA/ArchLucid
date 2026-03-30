@@ -10,6 +10,7 @@ import {
 } from "@/components/OperatorShellMessage";
 import { coerceReplayResponse } from "@/lib/operator-response-guards";
 import { replayRun } from "@/lib/api";
+import { replayModeLabel, sortReplayNotes } from "@/lib/replay-display";
 import type { ReplayResponse } from "@/types/authority";
 
 /** Matches ArchiForge.Persistence.Replay.ReplayMode */
@@ -34,6 +35,7 @@ function ReplayForm() {
     setLoading(true);
     setError(null);
     setMalformedMessage(null);
+    setResult(null);
 
     try {
       const response: unknown = await replayRun(runId, mode);
@@ -56,17 +58,22 @@ function ReplayForm() {
   return (
     <main>
       <h2>Replay run</h2>
+      <p style={{ maxWidth: 720, color: "#444", fontSize: 14 }}>
+        Re-executes the stored authority chain for a run. Pick a mode, then review validation flags and notes
+        below—the same fields the API returns on every call so results stay comparable across retries.
+      </p>
 
       <div style={{ display: "grid", gap: 12, maxWidth: 800 }}>
         <input value={runId} onChange={(e) => setRunId(e.target.value)} placeholder="Run ID" />
 
-        <select value={mode} onChange={(e) => setMode(e.target.value)}>
+        <select value={mode} onChange={(e) => setMode(e.target.value)} aria-label="Replay mode">
           {replayModes.map((item) => (
-            <option key={item} value={item}>
+            <option key={item} value={item} title={replayModeLabel(item)}>
               {item}
             </option>
           ))}
         </select>
+        <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>{replayModeLabel(mode)}</p>
 
         <button
           type="button"
@@ -134,13 +141,26 @@ function ReplayForm() {
             <dt style={{ color: "#64748b" }}>Run ID</dt>
             <dd style={{ margin: 0, fontFamily: "monospace", fontSize: 13 }}>{result.runId}</dd>
             <dt style={{ color: "#64748b" }}>Mode</dt>
-            <dd style={{ margin: 0 }}>{result.mode}</dd>
+            <dd style={{ margin: 0 }}>
+              <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 13 }}>{result.mode}</span>
+              <span style={{ display: "block", fontSize: 13, color: "#64748b", marginTop: 4 }}>
+                {replayModeLabel(result.mode)}
+              </span>
+            </dd>
             <dt style={{ color: "#64748b" }}>Replayed (local)</dt>
             <dd style={{ margin: 0 }}>{new Date(result.replayedUtc).toLocaleString()}</dd>
             {result.rebuiltManifestId && (
               <>
                 <dt style={{ color: "#64748b" }}>Rebuilt manifest</dt>
                 <dd style={{ margin: 0, fontFamily: "monospace", fontSize: 12 }}>{result.rebuiltManifestId}</dd>
+              </>
+            )}
+            {result.rebuiltManifestHash && (
+              <>
+                <dt style={{ color: "#64748b" }}>Rebuilt manifest hash</dt>
+                <dd style={{ margin: 0, fontFamily: "monospace", fontSize: 12, wordBreak: "break-all" }}>
+                  {result.rebuiltManifestHash}
+                </dd>
               </>
             )}
             {result.rebuiltArtifactBundleId && (
@@ -188,7 +208,7 @@ function ReplayForm() {
             </OperatorEmptyState>
           ) : (
             <ul style={{ lineHeight: 1.55, margin: 0, paddingLeft: 20 }}>
-              {result.validation.notes.map((note, index) => (
+              {sortReplayNotes(result.validation.notes).map((note, index) => (
                 <li key={index}>{note}</li>
               ))}
             </ul>

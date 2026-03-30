@@ -18,10 +18,11 @@ export function AiComparisonExplanationView(props: { explanation: ComparisonExpl
   const { explanation } = props;
 
   return (
-    <section style={{ marginTop: 28 }}>
+    <section id="compare-ai" style={{ marginTop: 28 }}>
       <h3 style={{ marginBottom: 8 }}>AI explanation</h3>
       <p style={{ fontSize: 13, color: "#64748b", marginTop: 0 }}>
-        Generated from structured deltas; verify against tables above before relying on it for sign-off.
+        Generated from structured deltas. Treat as narrative assistance only—confirm every claim against the
+        structured and legacy tables before sign-off.
       </p>
 
       <div style={sectionBox}>

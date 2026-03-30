@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { sortDiffItems } from "@/lib/compare-display-sort";
 import type { RunComparison } from "@/types/authority";
 
 const tableStyle: CSSProperties = {
@@ -24,13 +25,18 @@ const mono: CSSProperties = { fontFamily: "ui-monospace, monospace", fontSize: 1
  */
 export function LegacyRunComparisonView(props: { result: RunComparison }) {
   const { result } = props;
+  const runLevelDiffs = sortDiffItems(result.runLevelDiffs);
+  const manifestDiffs =
+    result.manifestComparison !== undefined && result.manifestComparison !== null
+      ? sortDiffItems(result.manifestComparison.diffs)
+      : [];
 
   return (
-    <section style={{ marginTop: 28 }}>
+    <section id="compare-legacy" style={{ marginTop: 28 }}>
       <h3 style={{ marginBottom: 8 }}>Authority run / manifest diff (legacy)</h3>
       <p style={{ fontSize: 14, color: "#64748b", marginTop: 0 }}>
-        <strong>Left run:</strong> <code style={mono}>{result.leftRunId}</code> ·{" "}
-        <strong>Right run:</strong> <code style={mono}>{result.rightRunId}</code>
+        <strong>Left (base):</strong> <code style={mono}>{result.leftRunId}</code> ·{" "}
+        <strong>Right (target):</strong> <code style={mono}>{result.rightRunId}</code>
         {result.runLevelDiffCount !== undefined && (
           <>
             {" "}
@@ -58,8 +64,8 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
             </tr>
           </thead>
           <tbody>
-            {result.runLevelDiffs.map((diff, index) => (
-              <tr key={`${diff.section}-${diff.key}-${index}`}>
+            {runLevelDiffs.map((diff, index) => (
+              <tr key={`${diff.section}-${diff.key}-${diff.diffKind}-${index}`}>
                 <td style={cellStyle}>{diff.diffKind}</td>
                 <td style={cellStyle}>{diff.section}</td>
                 <td style={cellStyle}>{diff.key}</td>
@@ -93,7 +99,7 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
             <strong>Counts:</strong> added {result.manifestComparison.addedCount}, removed{" "}
             {result.manifestComparison.removedCount}, changed {result.manifestComparison.changedCount}
           </p>
-          {result.manifestComparison.diffs.length === 0 ? (
+          {manifestDiffs.length === 0 ? (
             <OperatorEmptyState title="Manifest comparison has zero line items">
               <p style={{ margin: 0, fontSize: 14 }}>Comparison object present but diff list is empty.</p>
             </OperatorEmptyState>
@@ -110,8 +116,8 @@ export function LegacyRunComparisonView(props: { result: RunComparison }) {
                 </tr>
               </thead>
               <tbody>
-                {result.manifestComparison.diffs.map((diff, index) => (
-                  <tr key={`${diff.section}-${diff.key}-${index}`}>
+                {manifestDiffs.map((diff, index) => (
+                  <tr key={`${diff.section}-${diff.key}-${diff.diffKind}-${index}`}>
                     <td style={cellStyle}>{diff.diffKind}</td>
                     <td style={cellStyle}>{diff.section}</td>
                     <td style={cellStyle}>{diff.key}</td>
