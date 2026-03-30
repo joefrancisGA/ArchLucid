@@ -31,6 +31,34 @@ public Guid TenantId
 }
 ```
 
+## Adjacent properties: no blank line between
+
+When two **consecutive** member lines are both simple one-line `{ get; set; }` auto-properties, **do not** put an empty line between them. This keeps DTOs and models compact while preserving a blank line before the next **different** member kind (method, nested type, field group, or a property that is not a simple `get; set;` line).
+
+### Do
+
+```csharp
+public Guid TenantId { get; set; }
+public Guid WorkspaceId { get; set; }
+public string Name { get; set; } = null!;
+
+public void EnsureValid()
+{
+    ...
+}
+```
+
+### Do not
+
+```csharp
+// Avoid: blank line only between two adjacent simple get/set properties
+public Guid TenantId { get; set; }
+
+public Guid WorkspaceId { get; set; }
+```
+
+**Note:** `{ get; init; }` and `{ get; }` are **not** covered by the “collapse blanks” rule above—only `{ get; set; }` pairs are packed together. You may still use a blank line to separate those from each other or from `get; set;` lines if it helps readability.
+
 ## Scope
 
 - Applies to `get;` / `set;` / `init;` **auto-properties only**.
@@ -43,4 +71,7 @@ To re-normalize files after a bad merge, run from the repo root:
 
 `python scripts/collapse_simple_properties.py`
 
-That script only collapses blocks whose body is purely `get;`/`set;`/`init;` (plus optional one-line `[...]` attributes above the declaration).
+That script:
+
+- Collapses multiline blocks whose body is purely `get;`/`set;`/`init;` (plus optional one-line `[...]` attributes above the declaration).
+- Removes blank lines between **adjacent** one-line `{ get; set; }` declarations.

@@ -6,10 +6,8 @@ public class ArchiForgeAuthOptions
 
     /// <summary>DevelopmentBypass | JwtBearer | ApiKey</summary>
     public string Mode { get; set; } = "DevelopmentBypass";
-
     public string Authority { get; set; } = string.Empty;
     public string Audience { get; set; } = string.Empty;
-
     public string DevUserId { get; set; } = "dev-user";
     public string DevUserName { get; set; } = "Developer";
 

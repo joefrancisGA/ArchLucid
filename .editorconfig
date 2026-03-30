@@ -1,6 +1,10 @@
 # ArchiForge — formatting and style (Roslyn / dotnet format)
 # Run from repo root:  dotnet format ArchiForge.sln
 # See docs/FORMATTING.md
+#
+# Layout not expressible in EditorConfig: no blank line between adjacent one-line
+# `{ get; set; }` properties — see .cursor/rules/CSharp-SimpleProperties-OneLine.mdc
+# and scripts/collapse_simple_properties.py
 
 root = true
 

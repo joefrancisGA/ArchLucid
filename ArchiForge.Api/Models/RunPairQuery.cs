@@ -4,6 +4,5 @@ namespace ArchiForge.Api.Models;
 public sealed class RunPairQuery
 {
     public string LeftRunId { get; set; } = string.Empty;
-
     public string RightRunId { get; set; } = string.Empty;
 }

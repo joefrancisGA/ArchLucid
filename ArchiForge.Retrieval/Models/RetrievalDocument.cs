@@ -7,15 +7,10 @@ public class RetrievalDocument
 {
     /// <summary>Unique id for idempotent upserts (builder-generated).</summary>
     public string DocumentId { get; set; } = null!;
-
     public Guid TenantId { get; set; }
-
     public Guid WorkspaceId { get; set; }
-
     public Guid ProjectId { get; set; }
-
     public Guid? RunId { get; set; }
-
     public Guid? ManifestId { get; set; }
 
     /// <inheritdoc cref="RetrievalHit.SourceType"/>
@@ -23,7 +18,6 @@ public class RetrievalDocument
 
     /// <inheritdoc cref="RetrievalHit.SourceId"/>
     public string SourceId { get; set; } = null!;
-
     public string Title { get; set; } = null!;
 
     /// <summary>Full text to chunk (JSON or prose depending on builder).</summary>
@@ -31,6 +25,5 @@ public class RetrievalDocument
 
     /// <summary>Change-detection / dedupe hint (manifest hash, artifact hash, or synthetic).</summary>
     public string ContentHash { get; set; } = null!;
-
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }

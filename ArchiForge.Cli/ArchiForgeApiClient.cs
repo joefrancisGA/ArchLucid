@@ -707,7 +707,6 @@ namespace ArchiForge.Cli
         public sealed class ComparisonHistoryResult
         {
             public List<ComparisonRecordSummary> Records { get; set; } = [];
-
             public string? NextCursor { get; set; }
         }
 

@@ -5,7 +5,6 @@ public sealed class SchemaValidationResult
     public bool IsValid => Errors.Count == 0;
 
     public List<string> Errors { get; set; } = [];
-
     public List<SchemaValidationError> DetailedErrors { get; set; } = [];
 }
 

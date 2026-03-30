@@ -24,26 +24,15 @@ public sealed class ArchitectureAnalysisRequest
     /// <see cref="IRunDetailQueryService.GetRunDetailAsync"/> to load tasks/results/manifest.
     /// </summary>
     public ArchitectureRun? PreloadedRun { get; set; }
-
     public bool IncludeEvidence { get; set; } = true;
-
     public bool IncludeExecutionTraces { get; set; } = true;
-
     public bool IncludeManifest { get; set; } = true;
-
     public bool IncludeDiagram { get; set; } = true;
-
     public bool IncludeSummary { get; set; } = true;
-
     public bool IncludeDeterminismCheck { get; set; } = false;
-
     public int DeterminismIterations { get; set; } = 3;
-
     public bool IncludeManifestCompare { get; set; } = false;
-
     public string? CompareManifestVersion { get; set; }
-
     public bool IncludeAgentResultCompare { get; set; } = false;
-
     public string? CompareRunId { get; set; }
 }

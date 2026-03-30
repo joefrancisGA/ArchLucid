@@ -3,9 +3,7 @@ namespace ArchiForge.Persistence.Backfill;
 public sealed class SqlRelationalBackfillReport
 {
     public int ProcessedCount { get; set; }
-
     public int SuccessCount { get; set; }
-
     public int FailureCount { get; set; }
 
     public List<SqlRelationalBackfillFailure> Failures { get; } = [];

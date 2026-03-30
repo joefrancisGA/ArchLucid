@@ -6,7 +6,6 @@ namespace ArchiForge.Contracts.Decisions;
 public sealed class AgentEvaluation
 {
     public string EvaluationId { get; set; } = Guid.NewGuid().ToString("N");
-
     public string RunId { get; set; } = string.Empty;
 
     /// <summary>The agent task this evaluation targets.</summary>
@@ -20,11 +19,8 @@ public sealed class AgentEvaluation
 
     /// <summary>Signed delta. Oppose/caution should be negative or will be treated as absolute opposition.</summary>
     public double ConfidenceDelta { get; set; }
-
     public string Rationale { get; set; } = string.Empty;
-
     public List<string> EvidenceRefs { get; set; } = [];
-
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }
 

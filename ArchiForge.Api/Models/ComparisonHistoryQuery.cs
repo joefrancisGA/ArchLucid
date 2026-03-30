@@ -4,31 +4,18 @@ namespace ArchiForge.Api.Models;
 public sealed class ComparisonHistoryQuery
 {
     public string? ComparisonType { get; set; }
-
     public string? LeftRunId { get; set; }
-
     public string? RightRunId { get; set; }
-
     public string? LeftExportRecordId { get; set; }
-
     public string? RightExportRecordId { get; set; }
-
     public string? Label { get; set; }
-
     public DateTime? CreatedFromUtc { get; set; }
-
     public DateTime? CreatedToUtc { get; set; }
-
     public string? Tag { get; set; }
-
     public string[]? Tags { get; set; }
-
     public string? SortBy { get; set; } = "createdUtc";
-
     public string? SortDir { get; set; } = "desc";
-
     public string? Cursor { get; set; }
-
     public int Skip { get; set; }
 
     /// <summary>Page size; 0 or omitted means 50 (max 500).</summary>

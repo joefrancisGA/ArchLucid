@@ -6,7 +6,6 @@ public class DecisionRule
     public string Name { get; set; } = null!;
     public int Priority { get; set; }
     public bool IsMandatory { get; set; }
-
     public string AppliesToFindingType { get; set; } = null!;
     public string Action { get; set; } = null!;
     // allow | require | reject | prefer

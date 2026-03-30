@@ -10,7 +10,6 @@ public class RecommendationOutcomeStats
 
     /// <summary>Recommendations proposed in this bucket.</summary>
     public int ProposedCount { get; set; }
-
     public int AcceptedCount { get; set; }
     public int RejectedCount { get; set; }
     public int DeferredCount { get; set; }

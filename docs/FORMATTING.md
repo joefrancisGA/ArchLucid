@@ -30,3 +30,13 @@ dotnet format ArchiForge.sln --verbosity minimal --verify-no-changes
 - **PowerShell:** `scripts\format-solution.ps1`
 
 Run these on your machine if the IDE’s “Format Document” should match CI/team defaults.
+
+### Simple auto-properties
+
+`dotnet format` does not remove blank lines between adjacent `{ get; set; }` properties. To align with team layout (one line per simple property, **no** empty line between consecutive `get; set;` properties), run:
+
+```bash
+python scripts/collapse_simple_properties.py
+```
+
+See `.cursor/rules/CSharp-SimpleProperties-OneLine.mdc` for the full convention.

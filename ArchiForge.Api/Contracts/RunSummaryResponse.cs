@@ -13,7 +13,6 @@ public class RunSummaryResponse
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.RunSummaryDto.Description"/>
     public string? Description { get; set; }
     public DateTime CreatedUtc { get; set; }
-
     public Guid? ContextSnapshotId { get; set; }
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.RunSummaryDto.GraphSnapshotId"/>
     public Guid? GraphSnapshotId { get; set; }
