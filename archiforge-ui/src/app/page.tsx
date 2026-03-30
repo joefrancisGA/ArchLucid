@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+
 export default function HomePage() {
   return (
     <main>
@@ -8,6 +10,13 @@ export default function HomePage() {
         List runs, open run detail (manifest summary + artifacts), compare runs, replay authority
         chain, and download bundles or run exports.
       </p>
+
+      <OperatorEmptyState title="No live data on this page">
+        <p style={{ margin: 0 }}>
+          This landing view is static. Loading, empty, and error states appear on Runs, run detail,
+          manifest, graph, compare, and replay after you navigate there.
+        </p>
+      </OperatorEmptyState>
 
       <div style={{ marginTop: 24 }}>
         <p>Quick links:</p>

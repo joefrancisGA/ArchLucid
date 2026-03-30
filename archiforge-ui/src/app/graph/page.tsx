@@ -3,6 +3,13 @@
 import { useMemo, useState } from "react";
 import { GraphViewer } from "@/components/GraphViewer";
 import {
+  OperatorEmptyState,
+  OperatorErrorCallout,
+  OperatorLoadingNotice,
+  OperatorMalformedCallout,
+} from "@/components/OperatorShellMessage";
+import { coerceGraphViewModel } from "@/lib/operator-response-guards";
+import {
   getArchitectureGraph,
   getDecisionSubgraph,
   getNodeNeighborhood,
@@ -23,7 +30,8 @@ export default function GraphPage() {
   const [depth, setDepth] = useState(1);
   const [mode, setMode] = useState<GraphMode>("provenance-full");
   const [graph, setGraph] = useState<GraphViewModel | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [malformedMessage, setMalformedMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState("");
 
@@ -35,32 +43,42 @@ export default function GraphPage() {
 
   async function loadGraph() {
     setLoading(true);
-    setError(null);
+    setLoadError(null);
+    setMalformedMessage(null);
 
     try {
-      let result: GraphViewModel;
+      let raw: unknown;
 
       switch (mode) {
         case "provenance-full":
-          result = await getProvenanceGraph(runId);
+          raw = await getProvenanceGraph(runId);
           break;
         case "decision-subgraph":
-          result = await getDecisionSubgraph(runId, decisionId);
+          raw = await getDecisionSubgraph(runId, decisionId);
           break;
         case "node-neighborhood":
-          result = await getNodeNeighborhood(runId, nodeId, depth);
+          raw = await getNodeNeighborhood(runId, nodeId, depth);
           break;
         case "architecture":
-          result = await getArchitectureGraph(runId);
+          raw = await getArchitectureGraph(runId);
           break;
         default:
           throw new Error("Unsupported graph mode.");
       }
 
-      setGraph(result);
+      const coerced = coerceGraphViewModel(raw);
+
+      if (!coerced.ok) {
+        setGraph(null);
+        setMalformedMessage(coerced.message);
+
+        return;
+      }
+
+      setGraph(coerced.value);
       setTypeFilter("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load graph.");
+      setLoadError(err instanceof Error ? err.message : "Failed to load graph.");
       setGraph(null);
     } finally {
       setLoading(false);
@@ -140,7 +158,45 @@ export default function GraphPage() {
         </button>
       </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {loading && (
+        <OperatorLoadingNotice>
+          <strong>Loading graph.</strong>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            Requesting the selected view from the API; this may take a few seconds on large runs.
+          </p>
+        </OperatorLoadingNotice>
+      )}
+
+      {loadError && (
+        <OperatorErrorCallout>
+          <strong>Could not load graph.</strong>
+          <p style={{ margin: "8px 0 0" }}>{loadError}</p>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            This is usually a network, proxy, or HTTP error from the graph endpoint—not a malformed
+            JSON body.
+          </p>
+        </OperatorErrorCallout>
+      )}
+
+      {malformedMessage && (
+        <OperatorMalformedCallout>
+          <strong>Unexpected graph response shape.</strong>
+          <p style={{ margin: "8px 0 0" }}>{malformedMessage}</p>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            The call succeeded but the payload did not match the expected GraphViewModel (nodes and
+            edges arrays). Check API version alignment.
+          </p>
+        </OperatorMalformedCallout>
+      )}
+
+      {!graph && !loading && !loadError && !malformedMessage && (
+        <OperatorEmptyState title="No graph loaded yet">
+          <p style={{ margin: 0 }}>
+            Enter a run ID, choose a graph mode, then use <strong>Load graph</strong>. An empty node
+            list after a successful load is shown separately from this idle state.
+          </p>
+        </OperatorEmptyState>
+      )}
 
       {graph && (
         <>

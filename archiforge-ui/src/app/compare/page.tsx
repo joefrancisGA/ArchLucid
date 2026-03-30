@@ -3,6 +3,18 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
+  OperatorEmptyState,
+  OperatorErrorCallout,
+  OperatorLoadingNotice,
+  OperatorMalformedCallout,
+  OperatorWarningCallout,
+} from "@/components/OperatorShellMessage";
+import {
+  coerceComparisonExplanation,
+  coerceGoldenManifestComparison,
+  coerceRunComparison,
+} from "@/lib/operator-response-guards";
+import {
   compareGoldenManifestRuns,
   compareRuns,
   explainComparisonRuns,
@@ -20,9 +32,12 @@ function CompareForm() {
   const [golden, setGolden] = useState<GoldenManifestComparison | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [goldenError, setGoldenError] = useState<string | null>(null);
+  const [legacyMalformed, setLegacyMalformed] = useState<string | null>(null);
+  const [goldenMalformed, setGoldenMalformed] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [aiExplanation, setAiExplanation] = useState<ComparisonExplanation | null>(null);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [aiMalformed, setAiMalformed] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
@@ -36,25 +51,44 @@ function CompareForm() {
     setLoading(true);
     setError(null);
     setGoldenError(null);
+    setLegacyMalformed(null);
+    setGoldenMalformed(null);
     setResult(null);
     setGolden(null);
     setAiExplanation(null);
     setAiError(null);
+    setAiMalformed(null);
 
     try {
-      const legacy = await compareRuns(leftRunId, rightRunId);
-      setResult(legacy);
+      const legacy: unknown = await compareRuns(leftRunId, rightRunId);
+      const coercedLegacy = coerceRunComparison(legacy);
+
+      if (!coercedLegacy.ok) {
+        setResult(null);
+        setLegacyMalformed(coercedLegacy.message);
+      } else {
+        setResult(coercedLegacy.value);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Run comparison failed.");
+      setResult(null);
     }
 
     try {
-      const structured = await compareGoldenManifestRuns(leftRunId, rightRunId);
-      setGolden(structured);
+      const structured: unknown = await compareGoldenManifestRuns(leftRunId, rightRunId);
+      const coercedGolden = coerceGoldenManifestComparison(structured);
+
+      if (!coercedGolden.ok) {
+        setGolden(null);
+        setGoldenMalformed(coercedGolden.message);
+      } else {
+        setGolden(coercedGolden.value);
+      }
     } catch (err) {
       setGoldenError(
         err instanceof Error ? err.message : "Structured manifest comparison failed.",
       );
+      setGolden(null);
     } finally {
       setLoading(false);
     }
@@ -65,11 +99,20 @@ function CompareForm() {
     setAiLoading(true);
     setAiError(null);
     setAiExplanation(null);
+    setAiMalformed(null);
     try {
-      const ex = await explainComparisonRuns(leftRunId, rightRunId);
-      setAiExplanation(ex);
+      const ex: unknown = await explainComparisonRuns(leftRunId, rightRunId);
+      const coerced = coerceComparisonExplanation(ex);
+
+      if (!coerced.ok) {
+        setAiExplanation(null);
+        setAiMalformed(coerced.message);
+      } else {
+        setAiExplanation(coerced.value);
+      }
     } catch (err) {
       setAiError(err instanceof Error ? err.message : "AI explanation failed.");
+      setAiExplanation(null);
     } finally {
       setAiLoading(false);
     }
@@ -117,9 +160,75 @@ function CompareForm() {
         </div>
       </div>
 
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
-      {goldenError && <p style={{ color: "darkorange" }}>{goldenError}</p>}
-      {aiError && <p style={{ color: "darkorange" }}>{aiError}</p>}
+      {(!leftRunId || !rightRunId) && (
+        <OperatorEmptyState title="Waiting for both run IDs">
+          <p style={{ margin: 0 }}>
+            Enter a <strong>base</strong> and <strong>target</strong> run ID before comparing. Query
+            parameters <code>leftRunId</code> and <code>rightRunId</code> prefill these fields.
+          </p>
+        </OperatorEmptyState>
+      )}
+
+      {loading && leftRunId && rightRunId && (
+        <OperatorLoadingNotice>
+          <strong>Comparing runs.</strong>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            Calling legacy diff and structured golden-manifest comparison endpoints…
+          </p>
+        </OperatorLoadingNotice>
+      )}
+
+      {aiLoading && (
+        <OperatorLoadingNotice>
+          <strong>Requesting AI explanation.</strong>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>This depends on server LLM configuration.</p>
+        </OperatorLoadingNotice>
+      )}
+
+      {error && (
+        <OperatorErrorCallout>
+          <strong>Legacy run comparison failed.</strong>
+          <p style={{ margin: "8px 0 0" }}>{error}</p>
+        </OperatorErrorCallout>
+      )}
+
+      {legacyMalformed && (
+        <OperatorMalformedCallout>
+          <strong>Legacy comparison response was not usable.</strong>
+          <p style={{ margin: "8px 0 0" }}>{legacyMalformed}</p>
+        </OperatorMalformedCallout>
+      )}
+
+      {goldenError && (
+        <OperatorWarningCallout>
+          <strong>Structured manifest comparison request failed.</strong>
+          <p style={{ margin: "8px 0 0" }}>{goldenError}</p>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            The legacy comparison may still have succeeded; check the sections below.
+          </p>
+        </OperatorWarningCallout>
+      )}
+
+      {goldenMalformed && (
+        <OperatorMalformedCallout>
+          <strong>Structured comparison JSON did not match the UI contract.</strong>
+          <p style={{ margin: "8px 0 0" }}>{goldenMalformed}</p>
+        </OperatorMalformedCallout>
+      )}
+
+      {aiError && (
+        <OperatorWarningCallout>
+          <strong>AI explanation request failed.</strong>
+          <p style={{ margin: "8px 0 0" }}>{aiError}</p>
+        </OperatorWarningCallout>
+      )}
+
+      {aiMalformed && (
+        <OperatorMalformedCallout>
+          <strong>AI explanation response was not usable.</strong>
+          <p style={{ margin: "8px 0 0" }}>{aiMalformed}</p>
+        </OperatorMalformedCallout>
+      )}
 
       {golden && (
         <section style={{ marginTop: 28 }}>
@@ -274,9 +383,20 @@ function CompareForm() {
   );
 }
 
+function CompareSuspenseFallback() {
+  return (
+    <main>
+      <OperatorLoadingNotice>
+        <strong>Loading compare.</strong>
+        <p style={{ margin: "8px 0 0", fontSize: 14 }}>Reading URL parameters for this page…</p>
+      </OperatorLoadingNotice>
+    </main>
+  );
+}
+
 export default function ComparePage() {
   return (
-    <Suspense fallback={<p>Loading…</p>}>
+    <Suspense fallback={<CompareSuspenseFallback />}>
       <CompareForm />
     </Suspense>
   );

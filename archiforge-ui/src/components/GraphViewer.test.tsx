@@ -7,7 +7,9 @@ describe("GraphViewer", () => {
   it("renders empty-state when the graph has no nodes", () => {
     render(<GraphViewer graph={{ nodes: [], edges: [] }} />);
 
-    expect(screen.getByText("No nodes in this graph.")).toBeInTheDocument();
+    expect(
+      screen.getByText(/The API returned a graph with no nodes/),
+    ).toBeInTheDocument();
   });
 
   it("renders filtered empty-state when the type filter removes every node", () => {
@@ -18,8 +20,6 @@ describe("GraphViewer", () => {
 
     render(<GraphViewer graph={graph} typeFilter="Decision" />);
 
-    expect(
-      screen.getByText('No nodes match type "Decision". Clear the filter or reload.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/No nodes match type "Decision"/)).toBeInTheDocument();
   });
 });

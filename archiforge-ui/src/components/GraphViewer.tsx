@@ -12,6 +12,7 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import type { GraphNodeVm, GraphViewModel } from "@/types/graph";
 import { mapGraphToReactFlow } from "@/lib/graph-mapper";
+import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 
 function filterGraphByType(
   graph: GraphViewModel,
@@ -39,12 +40,23 @@ export function GraphViewer({
   const [selectedNode, setSelectedNode] = useState<GraphNodeVm | null>(null);
 
   if (filtered.nodes.length === 0) {
+    if (typeFilter) {
+      return (
+        <OperatorEmptyState title="No nodes match this filter">
+          <p style={{ margin: 0 }}>
+            No nodes match type &quot;{typeFilter}&quot;. Clear the type filter or reload the graph
+            with different scope.
+          </p>
+        </OperatorEmptyState>
+      );
+    }
+
     return (
-      <p style={{ color: "#666" }}>
-        {typeFilter
-          ? `No nodes match type "${typeFilter}". Clear the filter or reload.`
-          : "No nodes in this graph."}
-      </p>
+      <OperatorEmptyState title="No graph data to display">
+        <p style={{ margin: 0 }}>
+          The API returned a graph with no nodes (valid empty result, not a filter).
+        </p>
+      </OperatorEmptyState>
     );
   }
 

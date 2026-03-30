@@ -53,6 +53,45 @@ export function OperatorEmptyState({
 }
 
 /**
+ * In-progress work (explicit copy, no animation).
+ */
+export function OperatorLoadingNotice({ children }: { children: ReactNode }) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        ...calloutBase,
+        border: "1px solid #cbd5e1",
+        background: "#f8fafc",
+        color: "#334155",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Unexpected JSON shape or contract drift (distinct from HTTP error).
+ */
+export function OperatorMalformedCallout({ children }: { children: ReactNode }) {
+  return (
+    <div
+      role="alert"
+      style={{
+        ...calloutBase,
+        border: "1px solid #7c3aed",
+        background: "#f5f3ff",
+        color: "#4c1d95",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
  * Non-fatal secondary fetch issues (manifest summary, artifact list).
  */
 export function OperatorWarningCallout({ children }: { children: ReactNode }) {

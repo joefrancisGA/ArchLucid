@@ -3,8 +3,10 @@ import Link from "next/link";
 import {
   OperatorEmptyState,
   OperatorErrorCallout,
+  OperatorMalformedCallout,
   OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
+import { coerceArtifactDescriptorList, coerceRunDetail } from "@/lib/operator-response-guards";
 import {
   getArtifactDownloadUrl,
   getBundleDownloadUrl,
@@ -40,6 +42,9 @@ export default async function RunDetailPage({
           <p style={{ margin: "8px 0 0" }}>
             {loadError ?? "Run not found or could not be loaded."}
           </p>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            This indicates a failed request or missing run (HTTP / transport), not a JSON shape issue.
+          </p>
         </OperatorErrorCallout>
         <p>
           <Link href="/runs?projectId=default">← Back to runs</Link>
@@ -48,12 +53,35 @@ export default async function RunDetailPage({
     );
   }
 
-  const manifestId = detail.run.goldenManifestId;
+  const envelope = coerceRunDetail(detail);
+
+  if (!envelope.ok) {
+    return (
+      <main>
+        <h2>Run detail</h2>
+        <OperatorMalformedCallout>
+          <strong>Run detail response was not usable.</strong>
+          <p style={{ margin: "8px 0 0" }}>{envelope.message}</p>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            The API returned a body, but it did not match the expected run envelope. Compare UI and
+            API versions.
+          </p>
+        </OperatorMalformedCallout>
+        <p>
+          <Link href="/runs?projectId=default">← Back to runs</Link>
+        </p>
+      </main>
+    );
+  }
+
+  const resolvedDetail = envelope.value;
+  const manifestId = resolvedDetail.run.goldenManifestId;
 
   let manifestSummary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];
   let manifestSummaryError: string | null = null;
   let artifactsError: string | null = null;
+  let artifactsMalformed: string | null = null;
 
   if (manifestId) {
     try {
@@ -64,7 +92,15 @@ export default async function RunDetailPage({
     }
 
     try {
-      artifacts = await listArtifacts(manifestId);
+      const rawArtifacts: unknown = await listArtifacts(manifestId);
+      const coercedArtifacts = coerceArtifactDescriptorList(rawArtifacts);
+
+      if (!coercedArtifacts.ok) {
+        artifacts = [];
+        artifactsMalformed = coercedArtifacts.message;
+      } else {
+        artifacts = coercedArtifacts.items;
+      }
     } catch (e) {
       artifactsError = e instanceof Error ? e.message : "Could not load artifact list.";
     }
@@ -80,25 +116,25 @@ export default async function RunDetailPage({
       <section style={{ marginBottom: 24 }}>
         <h3>Run</h3>
         <p>
-          <strong>Run ID:</strong> {detail.run.runId}
+          <strong>Run ID:</strong> {resolvedDetail.run.runId}
         </p>
         <p>
-          <strong>Project:</strong> {detail.run.projectId}
+          <strong>Project:</strong> {resolvedDetail.run.projectId}
         </p>
         <p>
-          <strong>Description:</strong> {detail.run.description ?? ""}
+          <strong>Description:</strong> {resolvedDetail.run.description ?? ""}
         </p>
         <p>
-          <strong>Created:</strong> {new Date(detail.run.createdUtc).toLocaleString()}
+          <strong>Created:</strong> {new Date(resolvedDetail.run.createdUtc).toLocaleString()}
         </p>
       </section>
 
       <section style={{ marginBottom: 24 }}>
         <h3>Authority chain</h3>
         <ul>
-          <li>Context Snapshot: {detail.run.contextSnapshotId ?? "—"}</li>
-          <li>Graph Snapshot: {detail.run.graphSnapshotId ?? "—"}</li>
-          <li>Findings Snapshot: {detail.run.findingsSnapshotId ?? "—"}</li>
+          <li>Context Snapshot: {resolvedDetail.run.contextSnapshotId ?? "—"}</li>
+          <li>Graph Snapshot: {resolvedDetail.run.graphSnapshotId ?? "—"}</li>
+          <li>Findings Snapshot: {resolvedDetail.run.findingsSnapshotId ?? "—"}</li>
           <li>
             Golden Manifest:{" "}
             {manifestId ? (
@@ -107,8 +143,8 @@ export default async function RunDetailPage({
               "—"
             )}
           </li>
-          <li>Decision Trace: {detail.run.decisionTraceId ?? "—"}</li>
-          <li>Artifact Bundle: {detail.run.artifactBundleId ?? "—"}</li>
+          <li>Decision Trace: {resolvedDetail.run.decisionTraceId ?? "—"}</li>
+          <li>Artifact Bundle: {resolvedDetail.run.artifactBundleId ?? "—"}</li>
         </ul>
       </section>
 
@@ -158,19 +194,31 @@ export default async function RunDetailPage({
             <OperatorWarningCallout>
               <strong>Artifact list could not be loaded.</strong>
               <p style={{ margin: "8px 0 0" }}>{artifactsError}</p>
+              <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+                The artifacts request failed (network, 404, or server error)—distinct from an empty
+                list or malformed JSON.
+              </p>
             </OperatorWarningCallout>
           )}
 
-          {!artifactsError && artifacts.length === 0 && (
+          {!artifactsError && artifactsMalformed && (
+            <OperatorMalformedCallout>
+              <strong>Artifact list response was not usable.</strong>
+              <p style={{ margin: "8px 0 0" }}>{artifactsMalformed}</p>
+            </OperatorMalformedCallout>
+          )}
+
+          {!artifactsError && !artifactsMalformed && artifacts.length === 0 && (
             <OperatorEmptyState title="No artifacts for this manifest">
               <p style={{ margin: 0 }}>
-                The manifest exists but no artifact descriptors were returned. Bundle/export links may
-                still be available below if the API recorded a bundle.
+                The manifest exists but the API returned zero artifact descriptors (valid empty
+                result). Bundle/export links may still be available below if the API recorded a
+                bundle.
               </p>
             </OperatorEmptyState>
           )}
 
-          {artifacts.length > 0 && (
+          {!artifactsError && !artifactsMalformed && artifacts.length > 0 && (
             <ul>
               {artifacts.map((artifact) => (
                 <li key={artifact.artifactId}>
@@ -183,7 +231,7 @@ export default async function RunDetailPage({
 
           <div style={{ display: "flex", gap: 16, marginTop: 12, flexWrap: "wrap" }}>
             <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
-            <a href={getRunExportDownloadUrl(detail.run.runId)}>Download run export (ZIP)</a>
+            <a href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>Download run export (ZIP)</a>
           </div>
         </section>
       )}
@@ -191,8 +239,10 @@ export default async function RunDetailPage({
       <section style={{ marginBottom: 24 }}>
         <h3>Actions</h3>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-          <Link href={`/compare?leftRunId=${encodeURIComponent(detail.run.runId)}`}>Compare</Link>
-          <Link href={`/replay?runId=${encodeURIComponent(detail.run.runId)}`}>Replay</Link>
+          <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
+            Compare
+          </Link>
+          <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay</Link>
         </div>
       </section>
     </main>

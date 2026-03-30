@@ -2,6 +2,13 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import {
+  OperatorEmptyState,
+  OperatorErrorCallout,
+  OperatorLoadingNotice,
+  OperatorMalformedCallout,
+} from "@/components/OperatorShellMessage";
+import { coerceReplayResponse } from "@/lib/operator-response-guards";
 import { replayRun } from "@/lib/api";
 import type { ReplayResponse } from "@/types/authority";
 
@@ -14,6 +21,7 @@ function ReplayForm() {
   const [mode, setMode] = useState<string>(replayModes[0]);
   const [result, setResult] = useState<ReplayResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [malformedMessage, setMalformedMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -24,10 +32,18 @@ function ReplayForm() {
   async function onReplay() {
     setLoading(true);
     setError(null);
+    setMalformedMessage(null);
 
     try {
-      const response = await replayRun(runId, mode);
-      setResult(response);
+      const response: unknown = await replayRun(runId, mode);
+      const coerced = coerceReplayResponse(response);
+
+      if (!coerced.ok) {
+        setResult(null);
+        setMalformedMessage(coerced.message);
+      } else {
+        setResult(coerced.value);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Replay failed.");
       setResult(null);
@@ -51,12 +67,43 @@ function ReplayForm() {
           ))}
         </select>
 
-        <button type="button" onClick={onReplay} disabled={loading || !runId}>
+        <button
+          type="button"
+          onClick={() => void onReplay()}
+          disabled={loading || !runId}
+        >
           {loading ? "Replaying…" : "Replay"}
         </button>
       </div>
 
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {!runId && (
+        <OperatorEmptyState title="Waiting for a run ID">
+          <p style={{ margin: 0 }}>
+            Enter the run to replay, or open this page with <code>?runId=…</code> in the URL.
+          </p>
+        </OperatorEmptyState>
+      )}
+
+      {loading && runId && (
+        <OperatorLoadingNotice>
+          <strong>Replay in progress.</strong>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>Waiting for the API to finish the replay…</p>
+        </OperatorLoadingNotice>
+      )}
+
+      {error && (
+        <OperatorErrorCallout>
+          <strong>Replay request failed.</strong>
+          <p style={{ margin: "8px 0 0" }}>{error}</p>
+        </OperatorErrorCallout>
+      )}
+
+      {malformedMessage && (
+        <OperatorMalformedCallout>
+          <strong>Replay response was not usable.</strong>
+          <p style={{ margin: "8px 0 0" }}>{malformedMessage}</p>
+        </OperatorMalformedCallout>
+      )}
 
       {result && (
         <section style={{ marginTop: 24 }}>
@@ -79,20 +126,37 @@ function ReplayForm() {
           </p>
 
           <h4>Validation notes</h4>
-          <ul>
-            {result.validation.notes.map((note, index) => (
-              <li key={index}>{note}</li>
-            ))}
-          </ul>
+          {result.validation.notes.length === 0 ? (
+            <OperatorEmptyState title="No validation notes">
+              <p style={{ margin: 0 }}>The replay completed; the API returned zero note lines.</p>
+            </OperatorEmptyState>
+          ) : (
+            <ul>
+              {result.validation.notes.map((note, index) => (
+                <li key={index}>{note}</li>
+              ))}
+            </ul>
+          )}
         </section>
       )}
     </main>
   );
 }
 
+function ReplaySuspenseFallback() {
+  return (
+    <main>
+      <OperatorLoadingNotice>
+        <strong>Loading replay.</strong>
+        <p style={{ margin: "8px 0 0", fontSize: 14 }}>Reading URL parameters for this page…</p>
+      </OperatorLoadingNotice>
+    </main>
+  );
+}
+
 export default function ReplayPage() {
   return (
-    <Suspense fallback={<p>Loading…</p>}>
+    <Suspense fallback={<ReplaySuspenseFallback />}>
       <ReplayForm />
     </Suspense>
   );
