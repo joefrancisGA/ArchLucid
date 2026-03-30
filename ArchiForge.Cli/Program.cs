@@ -129,6 +129,13 @@ namespace ArchiForge.Cli
         /// </summary>
         private static async Task<bool> EnsureApiConnectedAsync(string baseUrl, CancellationToken ct = default)
         {
+            string? urlError = ArchiForgeApiClient.GetInvalidApiBaseUrlReason(baseUrl);
+            if (urlError is not null)
+            {
+                Console.Error.WriteLine("[ArchiForge CLI] " + urlError);
+                return false;
+            }
+
             ArchiForgeApiClient client = new(baseUrl);
             if (await client.CheckHealthAsync(ct))
                 return true;
@@ -141,6 +148,13 @@ namespace ArchiForge.Cli
         private static async Task<int> ArchiForge_HealthAsync()
         {
             string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            string? urlError = ArchiForgeApiClient.GetInvalidApiBaseUrlReason(baseUrl);
+            if (urlError is not null)
+            {
+                await Console.Error.WriteLineAsync("[ArchiForge CLI] " + urlError);
+                return 1;
+            }
+
             ArchiForgeApiClient client = new(baseUrl);
             if (await client.CheckHealthAsync())
             {

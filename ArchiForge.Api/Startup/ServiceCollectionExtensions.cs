@@ -13,7 +13,6 @@ using ArchiForge.Api.Jobs;
 using ArchiForge.Api.Services;
 using ArchiForge.Api.Services.Ask;
 using ArchiForge.Api.Services.Delivery;
-using ArchiForge.Api.Startup.Validation;
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
 using ArchiForge.Application.Analysis;
@@ -308,7 +307,6 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
         services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
-        services.AddHostedService<ConfigurationValidator>();
     }
 
     private static void RegisterArtifactSynthesis(IServiceCollection services)

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerApiBaseUrl } from "@/lib/config";
+import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
 import { getScopeHeaders } from "@/lib/scope";
 
 /**
@@ -26,7 +26,21 @@ async function forward(
   pathSegments: string[],
   method: "GET" | "POST",
 ): Promise<NextResponse> {
-  const base = getServerApiBaseUrl().replace(/\/$/, "");
+  const resolved = resolveUpstreamApiBaseUrlForProxy();
+
+  if (!resolved.ok) {
+    return NextResponse.json(
+      {
+        type: "about:blank",
+        title: "Invalid upstream API configuration",
+        status: 503,
+        detail: resolved.detail,
+      },
+      { status: 503 },
+    );
+  }
+
+  const base = resolved.baseUrl;
   const path = pathSegments.length > 0 ? pathSegments.join("/") : "";
   const search = request.nextUrl.search;
   const targetUrl = `${base}/${path}${search}`;

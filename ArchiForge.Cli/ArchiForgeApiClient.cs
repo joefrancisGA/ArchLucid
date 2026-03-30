@@ -27,10 +27,13 @@ namespace ArchiForge.Cli
 
         public ArchiForgeApiClient(string baseUrl)
         {
-            if (string.IsNullOrWhiteSpace(baseUrl))
-                throw new ArgumentException("Base URL is required.", nameof(baseUrl));
+            string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
+            if (invalidReason is not null)
+            {
+                throw new ArgumentException(invalidReason, nameof(baseUrl));
+            }
 
-            baseUrl = baseUrl.TrimEnd('/');
+            baseUrl = baseUrl!.Trim().TrimEnd('/');
             _http = new HttpClient
             {
                 BaseAddress = new Uri(baseUrl),
@@ -71,6 +74,30 @@ namespace ArchiForge.Cli
 
         public static string GetDefaultBaseUrl() =>
             Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL") ?? "http://localhost:5128";
+
+        /// <summary>
+        /// Returns a human-readable reason when the value cannot be used as an absolute HTTP API base URL, or null when valid.
+        /// </summary>
+        public static string? GetInvalidApiBaseUrlReason(string? baseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                return "API base URL is empty. Set apiUrl in archiforge.json in the project folder or the ARCHIFORGE_API_URL environment variable (example: http://localhost:5128).";
+            }
+
+            string trimmed = baseUrl.Trim();
+            if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
+            {
+                return $"API base URL is not a valid absolute URL: '{trimmed}'. Use http:// or https:// with a host (example: http://localhost:5128).";
+            }
+
+            if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+            {
+                return $"API base URL must use http or https (got '{uri.Scheme}').";
+            }
+
+            return null;
+        }
 
         /// <summary>Resolve API base URL: config.ApiUrl (when set) > ARCHIFORGE_API_URL env > default.</summary>
         public static string ResolveBaseUrl(ArchiForgeProjectScaffolder.ArchiForgeConfig? config)

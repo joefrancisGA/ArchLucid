@@ -2,6 +2,7 @@ using ArchiForge.Api.Auth.Services;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Startup;
 using ArchiForge.Api.Startup.Diagnostics;
+using ArchiForge.Api.Startup.Validation;
 using ArchiForge.Application.Bootstrap;
 using ArchiForge.Application.Governance.Preview;
 using ArchiForge.Core.Audit;
@@ -48,6 +49,21 @@ public partial class Program
             "ArchiForge API host built. Environment={Environment}, ContentRoot={ContentRoot}",
             app.Environment.EnvironmentName,
             app.Environment.ContentRootPath);
+
+        IReadOnlyList<string> configurationErrors = ArchiForgeConfigurationRules.CollectErrors(
+            app.Configuration,
+            app.Environment);
+
+        if (configurationErrors.Count > 0)
+        {
+            foreach (string error in configurationErrors)
+            {
+                app.Logger.LogError("Startup configuration error: {Error}", error);
+            }
+
+            throw new InvalidOperationException(
+                "ArchiForge configuration is invalid. Fix the settings listed in the logs above, then restart.");
+        }
 
         StartupConfigurationDiagnostics.LogIfEnabled(app.Logger, app.Configuration, app.Environment);
 
