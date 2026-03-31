@@ -44,3 +44,15 @@
 **Delivered:**
 
 - `e2e/compare-stale-input-warning.spec.ts` — self-contained flow: mock legacy + structured, compare, change base run ID, assert **`OperatorWarningCallout`** copy (**Run IDs no longer match the results below.**, **Content below still reflects**, prior pair in **`code`**, **restore the previous values**); then restore the original left ID and assert the warning copy is gone.
+
+---
+
+## Prompt 5 — manifest empty artifact list vs bundle affordance
+
+**Delivered:**
+
+- **`FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID`** + **`fixtureManifestSummaryEmptyArtifacts()`** — same coercion contract as other manifest summaries; artifact list stub returns **`[]`** for that id only.
+- **`e2e/mock-archiforge-api-server.ts`** — routes summary + artifact list for the new manifest id (empty array).
+- **`e2e/manifest-empty-artifacts.spec.ts`** — RSC load of `/manifests/...`; asserts **no** artifact-list **failure/malformed** callouts; **`OperatorEmptyState`** (**No artifacts listed for this manifest**) with **valid empty result** + **Bundle ZIP may return 404** copy; **Download bundle (ZIP)** link present with **`href`** containing manifest id and **`bundle`**; **no** artifact table headers. File-level comment documents distinction vs request failures and bundle semantics.
+
+**Out of scope (per prompt):** no simulated bundle download / `page.route` click-through — keeps the spec stable; operator copy already separates empty list from ZIP availability.

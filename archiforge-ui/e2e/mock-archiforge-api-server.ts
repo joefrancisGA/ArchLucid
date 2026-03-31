@@ -1,10 +1,12 @@
 import http from "node:http";
 
 import {
+  FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID,
   FIXTURE_MANIFEST_ID,
   FIXTURE_RUN_ID,
   fixtureArtifactDescriptorsNonEmpty,
   fixtureManifestSummary,
+  fixtureManifestSummaryEmptyArtifacts,
   fixtureRunDetail,
 } from "./fixtures/index";
 
@@ -63,6 +65,8 @@ export function startMockArchiforgeApiServer(port: number): Promise<{ stop: () =
 
       if (manifestId === FIXTURE_MANIFEST_ID) {
         sendJson(res, 200, fixtureManifestSummary());
+      } else if (manifestId === FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID) {
+        sendJson(res, 200, fixtureManifestSummaryEmptyArtifacts());
       } else {
         sendJson(res, 404, { detail: "Manifest not found." });
       }
@@ -77,6 +81,8 @@ export function startMockArchiforgeApiServer(port: number): Promise<{ stop: () =
 
       if (manifestId === FIXTURE_MANIFEST_ID) {
         sendJson(res, 200, fixtureArtifactDescriptorsNonEmpty());
+      } else if (manifestId === FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID) {
+        sendJson(res, 200, []);
       } else {
         sendJson(res, 200, []);
       }
