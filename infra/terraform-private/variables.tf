@@ -54,6 +54,12 @@ variable "storage_account_id" {
   default     = ""
 }
 
+variable "search_service_id" {
+  type        = string
+  description = "Full Azure resource ID of Azure AI Search (Microsoft.Search/searchServices/...). Leave empty to skip the search private endpoint and DNS zone."
+  default     = ""
+}
+
 variable "tags" {
   type    = map(string)
   default = {}

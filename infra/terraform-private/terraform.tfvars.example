@@ -7,6 +7,9 @@ location                  = "eastus2"
 sql_server_id       = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-data/providers/Microsoft.Sql/servers/archiforge-sql"
 storage_account_id  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/archiforgestg"
 
+# Optional: Azure AI Search private endpoint + privatelink.search.windows.net zone (omit or "" to skip)
+# search_service_id = "/subscriptions/.../providers/Microsoft.Search/searchServices/archiforge-search"
+
 tags = {
   workload = "archiforge"
   layer    = "private-data"

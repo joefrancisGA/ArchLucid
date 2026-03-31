@@ -5,17 +5,22 @@ using Microsoft.Extensions.Options;
 namespace ArchiForge.Persistence.Connections;
 
 /// <summary>
-/// Delegates to <see cref="ReadReplicaOptions.AuthorityRunListReadsConnectionString"/> when configured; otherwise uses the primary <see cref="ISqlConnectionFactory"/>.
+/// Opens either the read-replica connection string or the primary <see cref="ResilientSqlConnectionFactory"/> path,
+/// then applies the same RLS <see cref="IRlsSessionContextApplicator"/> as scoped repositories.
 /// </summary>
 public sealed class AuthorityRunListConnectionFactory(
-    ISqlConnectionFactory primaryFactory,
-    IOptionsMonitor<ReadReplicaOptions> optionsMonitor) : IAuthorityRunListConnectionFactory
+    ResilientSqlConnectionFactory resilientFactory,
+    IOptionsMonitor<ReadReplicaOptions> optionsMonitor,
+    IRlsSessionContextApplicator sessionContextApplicator) : IAuthorityRunListConnectionFactory
 {
-    private readonly ISqlConnectionFactory _primaryFactory =
-        primaryFactory ?? throw new ArgumentNullException(nameof(primaryFactory));
+    private readonly ResilientSqlConnectionFactory _resilientFactory =
+        resilientFactory ?? throw new ArgumentNullException(nameof(resilientFactory));
 
     private readonly IOptionsMonitor<ReadReplicaOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
+    private readonly IRlsSessionContextApplicator _sessionContextApplicator =
+        sessionContextApplicator ?? throw new ArgumentNullException(nameof(sessionContextApplicator));
 
     /// <inheritdoc />
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)
@@ -23,11 +28,16 @@ public sealed class AuthorityRunListConnectionFactory(
         ReadReplicaOptions snapshot = _optionsMonitor.CurrentValue;
         string? replica = snapshot.AuthorityRunListReadsConnectionString?.Trim();
 
+        SqlConnection connection;
         if (string.IsNullOrEmpty(replica))
-            return await _primaryFactory.CreateOpenConnectionAsync(ct);
+            connection = await _resilientFactory.CreateOpenConnectionAsync(ct);
+        else
+        {
+            connection = new SqlConnection(replica);
+            await connection.OpenAsync(ct);
+        }
 
-        SqlConnection connection = new(replica);
-        await connection.OpenAsync(ct);
+        await _sessionContextApplicator.ApplyAsync(connection, ct);
         return connection;
     }
 }

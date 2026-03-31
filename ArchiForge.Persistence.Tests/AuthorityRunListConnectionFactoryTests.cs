@@ -4,6 +4,7 @@ using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
@@ -11,26 +12,38 @@ using Moq;
 namespace ArchiForge.Persistence.Tests;
 
 /// <summary>
-/// <see cref="AuthorityRunListConnectionFactory"/> delegates to the primary factory when no replica string is configured.
+/// <see cref="AuthorityRunListConnectionFactory"/> opens via <see cref="ResilientSqlConnectionFactory"/> when no replica
+/// string is set, then applies <see cref="IRlsSessionContextApplicator"/> once.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class AuthorityRunListConnectionFactoryTests
 {
     [Fact]
-    public async Task CreateOpenConnectionAsync_WithoutReplica_Uses_primary_factory()
+    public async Task CreateOpenConnectionAsync_WithoutReplica_Uses_resilient_factory_and_applies_session_context()
     {
-        Mock<ISqlConnectionFactory> primary = new();
+        Mock<ISqlConnectionFactory> inner = new();
         SqlConnection expected = new();
-        primary.Setup(p => p.CreateOpenConnectionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(expected);
+        inner.Setup(p => p.CreateOpenConnectionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(expected);
+
+        ResilientSqlConnectionFactory resilient = new(
+            inner.Object,
+            NullLogger<ResilientSqlConnectionFactory>.Instance,
+            maxRetries: 0);
 
         Mock<IOptionsMonitor<ReadReplicaOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new ReadReplicaOptions { AuthorityRunListReadsConnectionString = null });
 
-        AuthorityRunListConnectionFactory sut = new(primary.Object, options.Object);
+        Mock<IRlsSessionContextApplicator> applicator = new();
+        applicator
+            .Setup(a => a.ApplyAsync(expected, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        AuthorityRunListConnectionFactory sut = new(resilient, options.Object, applicator.Object);
 
         SqlConnection actual = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 
         actual.Should().BeSameAs(expected);
-        primary.Verify(p => p.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        inner.Verify(p => p.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()), Times.Once);
+        applicator.Verify(a => a.ApplyAsync(expected, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

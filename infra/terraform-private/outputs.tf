@@ -22,3 +22,8 @@ output "blob_private_endpoint_id" {
   value       = var.enable_private_data_plane ? azurerm_private_endpoint.blob[0].id : null
   description = "Private endpoint resource ID for blob storage."
 }
+
+output "search_private_endpoint_id" {
+  value       = length(azurerm_private_endpoint.search) > 0 ? azurerm_private_endpoint.search[0].id : null
+  description = "Private endpoint resource ID for Azure AI Search when search_service_id is set and private data plane is enabled."
+}

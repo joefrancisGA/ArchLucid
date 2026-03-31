@@ -1,0 +1,12 @@
+{
+  "stryker-config": {
+    "project": "ArchiForge.Persistence/ArchiForge.Persistence.csproj",
+    "test-projects": ["ArchiForge.Persistence.Tests/ArchiForge.Persistence.Tests.csproj"],
+    "reporters": ["progress", "html"],
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
+    }
+  }
+}

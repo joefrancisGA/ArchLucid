@@ -43,9 +43,9 @@ public sealed class ComparisonReplayService(
             request.ComparisonRecordId,
             cancellationToken) ?? throw new InvalidOperationException(
                 $"Comparison record '{request.ComparisonRecordId}' was not found.");
-        string format = NormalizeFormat(request.Format);
+        string format = ComparisonReplayRequestParsing.NormalizeFormat(request.Format);
         string profile = EndToEndComparisonExportProfile.Normalize(request.Profile);
-        ComparisonReplayMode mode = ParseReplayMode(request.ReplayMode);
+        ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(request.ReplayMode);
 
         ReplayComparisonResult result = record.ComparisonType switch
         {
@@ -144,7 +144,7 @@ public sealed class ComparisonReplayService(
         }
 
         ReplayComparisonResult result = await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
-        result.ReplayMode = FormatReplayMode(mode);
+        result.ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode);
 
         if (mode != ComparisonReplayMode.Verify)
             return result;
@@ -292,7 +292,7 @@ public sealed class ComparisonReplayService(
                 Format = "docx",
                 FileName = $"comparison_{record.ComparisonRecordId}.docx",
                 BinaryContent = bytes,
-                ReplayMode = FormatReplayMode(mode)
+                ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode)
             };
             if (mode == ComparisonReplayMode.Verify)
             {
@@ -312,7 +312,7 @@ public sealed class ComparisonReplayService(
             Format = "markdown",
             FileName = $"comparison_{record.ComparisonRecordId}.md",
             Content = markdown,
-            ReplayMode = FormatReplayMode(mode)
+            ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode)
         };
         SetRecordMetadata(result, record, formatProfile: null);
         
@@ -351,36 +351,6 @@ public sealed class ComparisonReplayService(
                                     $"Export record '{record.RightExportRecordId}' was not found.");
 
         return exportRecordDiffService.Compare(left, right);
-    }
-
-    private static ComparisonReplayMode ParseReplayMode(string? replayMode)
-    {
-        string value = (replayMode ?? "artifact").Trim().ToLowerInvariant();
-        return value switch
-        {
-            "artifact" => ComparisonReplayMode.ArtifactReplay,
-            "regenerate" => ComparisonReplayMode.Regenerate,
-            "verify" => ComparisonReplayMode.Verify,
-            _ => throw new ArgumentException(
-                $"Unknown replay mode '{replayMode}'. Supported modes: artifact, regenerate, verify.",
-                nameof(replayMode))
-        };
-    }
-
-    private static string FormatReplayMode(ComparisonReplayMode mode)
-    {
-        return mode switch
-        {
-            ComparisonReplayMode.ArtifactReplay => "artifact",
-            ComparisonReplayMode.Regenerate => "regenerate",
-            ComparisonReplayMode.Verify => "verify",
-            _ => "artifact"
-        };
-    }
-
-    private static string NormalizeFormat(string? format)
-    {
-        return string.IsNullOrWhiteSpace(format) ? "markdown" : format.Trim().ToLowerInvariant();
     }
 }
 

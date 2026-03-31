@@ -1,6 +1,6 @@
-# Private endpoints (SQL + Blob)
+# Private endpoints (SQL + Blob + optional Azure AI Search)
 
-Optional Terraform root for **private data-plane** connectivity: VNet, **private DNS** zones, and **private endpoints** for **Azure SQL** and **Blob storage**. Defaults **`enable_private_data_plane = false`**.
+Optional Terraform root for **private data-plane** connectivity: VNet, **private DNS** zones, and **private endpoints** for **Azure SQL** and **Blob storage**, plus an **optional** endpoint for **Azure AI Search** when `search_service_id` is set. Defaults **`enable_private_data_plane = false`**.
 
 ## Why customers care
 

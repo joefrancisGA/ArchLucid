@@ -46,6 +46,7 @@ public sealed class ComparisonsController(
     IRunExportRecordRepository runExportRecordRepository,
     IComparisonRecordRepository comparisonRecordRepository,
     IComparisonReplayApiService comparisonReplayApiService,
+    IComparisonReplayCostEstimator comparisonReplayCostEstimator,
     IDriftReportFormatter driftReportFormatter,
     DriftReportDocxExport driftReportDocxExport,
     IValidator<ComparisonHistoryQuery> comparisonHistoryQueryValidator)
@@ -111,6 +112,42 @@ public sealed class ComparisonsController(
         {
             Record = record
         });
+    }
+
+    /// <summary>Heuristic cost / effort estimate for replaying a comparison (does not run a replay).</summary>
+    [HttpGet("comparisons/{comparisonRecordId}/replay/cost-estimate")]
+    [ProducesResponseType(typeof(ComparisonReplayCostEstimateResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetComparisonReplayCostEstimate(
+        [FromRoute] string comparisonRecordId,
+        [FromQuery] string? format,
+        [FromQuery] string? replayMode,
+        [FromQuery] bool persistReplay = false,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            ComparisonReplayCostEstimate? estimate = await comparisonReplayCostEstimator.TryEstimateAsync(
+                comparisonRecordId,
+                format,
+                replayMode,
+                persistReplay,
+                cancellationToken);
+
+            if (estimate is null)
+            {
+                return this.NotFoundProblem(
+                    $"Comparison record '{comparisonRecordId}' was not found.",
+                    ProblemTypes.ResourceNotFound);
+            }
+
+            return Ok(ComparisonReplayCostEstimateResponse.FromDomain(estimate));
+        }
+        catch (ArgumentException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
     }
 
     [HttpGet("comparisons/{comparisonRecordId}/summary")]

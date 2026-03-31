@@ -1,0 +1,50 @@
+# Mutation testing (Stryker.NET) — scaffolding
+
+## Why
+
+**Unit tests** prove code runs; **mutation tests** ask whether assertions would fail if the implementation changed slightly. Stryker.NET mutates compiled code and re-runs tests to highlight weak or missing assertions.
+
+## Prerequisites
+
+- [.NET SDK](https://dotnet.microsoft.com/download) matching the repo `global.json`.
+- Stryker as a local tool (recommended) or `dotnet tool install -g dotnet-stryker`.
+
+## Configuration
+
+The repo includes **`stryker-config.json`** at the solution root, initially scoped to:
+
+- **Project under test:** `ArchiForge.Persistence`
+- **Tests:** `ArchiForge.Persistence.Tests`
+
+This keeps first runs bounded. To expand coverage, duplicate the pattern for other project pairs (e.g. `ArchiForge.Application` once a dedicated test project exists).
+
+## Commands
+
+From the repository root:
+
+```bash
+dotnet tool run dotnet-stryker
+```
+
+If the tool is not yet installed as a manifest tool:
+
+```bash
+dotnet new tool-manifest --force
+dotnet tool install dotnet-stryker
+dotnet tool run dotnet-stryker
+```
+
+HTML reports are emitted under `StrykerOutput` (see Stryker CLI output for the exact path).
+
+## CI
+
+Mutation testing is **not** part of the default GitHub Actions workflow: it is slower than the Tier 1 “fast core” suite. Run it locally or in a scheduled pipeline when changing critical persistence or security code.
+
+## Security / cost
+
+- Runs are **CPU-heavy**; avoid parallel mutation on tiny dev VMs.
+- No secrets are required; Stryker does not call Azure.
+
+## Reliability
+
+Flaky tests will show as “survived” or inconsistent mutants. Fix test isolation before trusting mutation scores.

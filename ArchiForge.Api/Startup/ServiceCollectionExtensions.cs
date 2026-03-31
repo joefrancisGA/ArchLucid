@@ -244,6 +244,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IComparisonAuditService, ComparisonAuditService>();
         services.AddScoped<IComparisonDriftAnalyzer, ComparisonDriftAnalyzer>();
         services.AddScoped<IComparisonReplayService, ComparisonReplayService>();
+        services.AddScoped<IComparisonReplayCostEstimator, ComparisonReplayCostEstimator>();
         services.AddScoped<IComparisonReplayApiService, ComparisonReplayApiService>();
         services.AddScoped<IComparisonDriftReportExportService, ComparisonDriftReportExportService>();
         services.AddSingleton<IReplayDiagnosticsRecorder, ReplayDiagnosticsRecorder>();

@@ -34,6 +34,8 @@ using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
 
+using Microsoft.Extensions.Options;
+
 namespace ArchiForge.Api.Configuration;
 
 public static class ArchiForgeStorageServiceCollectionExtensions
@@ -103,22 +105,38 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         string connectionString = configuration.GetConnectionString("ArchiForge")
                                   ?? throw new InvalidOperationException("Missing connection string 'ArchiForge'.");
 
-        services.AddSingleton<ISqlConnectionFactory>(sp =>
+        services.Configure<SqlRowLevelSecurityOptions>(configuration.GetSection(SqlRowLevelSecurityOptions.SectionName));
+        services.Configure<ReadReplicaOptions>(configuration.GetSection(ReadReplicaOptions.SectionName));
+
+        services.AddSingleton<SqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
+        services.AddSingleton<ResilientSqlConnectionFactory>(sp =>
+            new ResilientSqlConnectionFactory(
+                sp.GetRequiredService<SqlConnectionFactory>(),
+                sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>()));
+
+        services.AddScoped<IRlsSessionContextApplicator, RlsSessionContextApplicator>();
+        services.AddScoped<ISqlConnectionFactory>(sp =>
         {
-            SqlConnectionFactory inner = new(connectionString);
-            ILogger<ResilientSqlConnectionFactory> logger =
-                sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>();
-            return new ResilientSqlConnectionFactory(inner, logger);
+            SqlRowLevelSecurityOptions rls =
+                sp.GetRequiredService<IOptionsMonitor<SqlRowLevelSecurityOptions>>().CurrentValue;
+            ResilientSqlConnectionFactory resilient = sp.GetRequiredService<ResilientSqlConnectionFactory>();
+
+            if (!rls.ApplySessionContext)
+                return resilient;
+
+            return new SessionContextSqlConnectionFactory(
+                resilient,
+                sp.GetRequiredService<IRlsSessionContextApplicator>(),
+                sp.GetRequiredService<ILogger<SessionContextSqlConnectionFactory>>());
         });
 
-        services.Configure<ReadReplicaOptions>(configuration.GetSection(ReadReplicaOptions.SectionName));
-        services.AddSingleton<IAuthorityRunListConnectionFactory, AuthorityRunListConnectionFactory>();
+        services.AddScoped<IAuthorityRunListConnectionFactory, AuthorityRunListConnectionFactory>();
 
         Assembly persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
         string dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;
         string scriptPath = Path.Combine(dir, "Scripts", "ArchiForge.sql");
 
-        services.AddSingleton<ISchemaBootstrapper>(sp =>
+        services.AddScoped<ISchemaBootstrapper>(sp =>
             new SqlSchemaBootstrapper(
                 sp.GetRequiredService<ISqlConnectionFactory>(),
                 scriptPath));

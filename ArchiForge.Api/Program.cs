@@ -89,7 +89,10 @@ public partial class Program
 
                 ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
                 using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
-                bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
+                using (SqlRowLevelSecurityBypassAmbient.Enter())
+                {
+                    bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
+                }
                 app.Logger.LogInformation("Startup: schema bootstrap completed.");
             }
         }

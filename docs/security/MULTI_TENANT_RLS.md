@@ -61,6 +61,7 @@ flowchart LR
 
 ## 8. Operational considerations
 
+- **App setting:** `SqlServer:RowLevelSecurity:ApplySessionContext` (default **false** in `appsettings.json`) gates whether the API calls `sp_set_session_context` for tenant/workspace/project (or bypass) on each opened connection. Enable only after DbUp **030** is applied and operators are ready to turn the security policy **ON**.
 - **Scalability:** Predicate simplicity keeps plans stable; index **leading columns** on scope keys used in policies.
 - **Reliability:** Connection resiliency (`ResilientSqlConnectionFactory`) must **re-apply** session context after reconnect.
 - **Cost:** Minimal SQL overhead; engineering cost for migration, testing, and runbooks.

@@ -279,6 +279,15 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
     }
 
     [Fact]
+    public async Task ArchiveAssignment_unknown_assignment_returns_404()
+    {
+        HttpResponseMessage res =
+            await Client.PostAsync($"/v1/policy-packs/assignments/{Guid.NewGuid()}/archive", null);
+
+        res.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task AssignUnknownVersion_Returns404()
     {
         HttpResponseMessage createResponse = await Client.PostAsync(
