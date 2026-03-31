@@ -59,10 +59,9 @@ Configure in `appsettings.*` under **`ArchiForgeAuth`**:
 |------|---------|
 | **`DevelopmentBypass`** (default) | Local/dev: every request is authenticated as a configurable dev user with role `DevRole` (`Admin` by default). |
 | **`JwtBearer`** | Production-style JWT validation using `Authority` and optional `Audience`. Map app roles to `Admin` / `Operator` / `Reader` in your IdP. |
+| **`ApiKey`** | Header-based API keys via **`Authentication:ApiKey`** (`Enabled`, `AdminKey` / `ReadOnlyKey`). Use when you need a simple service-to-service gate; production rules also require keys when this mode is selected (see startup validation). |
 
 Role claims are mapped to legacy **`permission`** claims via `ArchiForgeRoleClaimsTransformation` so existing policies (`CanCommitRuns`, etc.) keep working. Policies: **`ReadAuthority`** (Reader+), **`ExecuteAuthority`** (Operator+), **`AdminAuthority`** (Admin only). Debug principal: **`GET /api/auth/me`**.
-
-The older **`Authentication:ApiKey`** block is no longer wired in `Program.cs` (handler remains in the repo for reference). Use JWT or DevelopmentBypass instead.
 
 ## Development environment (`archiforge dev up`)
 

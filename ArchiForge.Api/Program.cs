@@ -59,11 +59,6 @@ public partial class Program
 
         WebApplication app = builder.Build();
 
-        app.Logger.LogInformation(
-            "ArchiForge API host built. Environment={Environment}, ContentRoot={ContentRoot}",
-            app.Environment.EnvironmentName,
-            app.Environment.ContentRootPath);
-
         IReadOnlyList<string> configurationErrors = ArchiForgeConfigurationRules.CollectErrors(
             app.Configuration,
             app.Environment);

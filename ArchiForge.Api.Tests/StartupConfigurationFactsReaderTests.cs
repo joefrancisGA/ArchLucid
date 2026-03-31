@@ -38,10 +38,12 @@ public sealed class StartupConfigurationFactsReaderTests
 
         Mock<IHostEnvironment> env = new();
         env.SetupGet(e => e.EnvironmentName).Returns("Staging");
+        env.SetupGet(e => e.ContentRootPath).Returns("/app/content");
 
         StartupConfigurationFacts facts = StartupConfigurationFactsReader.FromConfiguration(configuration, env.Object);
 
         facts.HostEnvironmentName.Should().Be("Staging");
+        facts.ContentRootPath.Should().Be("/app/content");
         facts.SqlConnectionStringConfigured.Should().BeTrue();
         facts.ArchiForgeStorageProvider.Should().Be("Sql");
         facts.RetrievalVectorIndex.Should().Be("InMemory");
@@ -64,9 +66,11 @@ public sealed class StartupConfigurationFactsReaderTests
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>()).Build();
         Mock<IHostEnvironment> env = new();
         env.SetupGet(e => e.EnvironmentName).Returns("Production");
+        env.SetupGet(e => e.ContentRootPath).Returns(string.Empty);
 
         StartupConfigurationFacts facts = StartupConfigurationFactsReader.FromConfiguration(configuration, env.Object);
 
+        facts.ContentRootPath.Should().BeEmpty();
         facts.SqlConnectionStringConfigured.Should().BeFalse();
         facts.ArchiForgeStorageProvider.Should().Be("(missing)");
         facts.AuthenticationApiKeyEnabled.Should().BeFalse();

@@ -2,6 +2,8 @@
 
 **Audience:** Design partners and early pilots who need to run ArchiForge locally or in a test environment **without** walking through internal design docs.
 
+**CLI naming:** Docs sometimes show the global tool form `archiforge …`. From a **clone without** `dotnet tool install`, use **`dotnet run --project ArchiForge.Cli -- <command>`** from the repo root (same as [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) and the **`release-smoke.ps1`** script).
+
 **Support:** When something fails, capture **approximate time**, **what you ran**, **`X-Correlation-ID`** from the API response (if any), and the **first error line** from logs. See [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ---
@@ -23,7 +25,7 @@ Default local setups often use a **simulator** for agents so you do not need clo
 | Need | Notes |
 |------|--------|
 | **.NET 10 SDK** | [Download](https://dotnet.microsoft.com/download). |
-| **SQL Server** | LocalDB, Express, Docker (`archiforge dev up`), or an existing instance. |
+| **SQL Server** | LocalDB, Express, Docker (`dotnet run --project ArchiForge.Cli -- dev up`), or an existing instance. |
 | **Connection string** | Set `ConnectionStrings:ArchiForge` (User Secrets in Development, or environment variables in production). See [README.md](../README.md#secrets-development). |
 | **Storage mode** | For a normal pilot, use **`ArchiForge:StorageProvider`** = **`Sql`** (typical default in appsettings). |
 | **Node.js 22+** | Optional; only for the **operator UI** in `archiforge-ui/`. |
@@ -102,7 +104,7 @@ This creates a project folder, submits from `inputs/brief.md`, seeds simulated r
 |-------|------------|
 | **Operator UI** | Start API, then in `archiforge-ui/`: `npm ci`, copy `.env.example` → `.env.local`, set **`ARCHIFORGE_API_BASE_URL`**, run **`npm run dev`**. Open **Runs** → your run → **Artifacts** → **Review** / **Download**. Details: [operator-shell.md](operator-shell.md), [archiforge-ui/README.md](../archiforge-ui/README.md). |
 | **API** | List/download via artifact endpoints (see Swagger under artifacts/manifests). Empty list `[]` means “no files for this manifest,” not always an error. |
-| **CLI** | `archiforge artifacts <runId>` (and `--save` to write manifest JSON under `outputs/`). |
+| **CLI** | `dotnet run --project ArchiForge.Cli -- artifacts <runId>` (add `--save` to write manifest JSON under `outputs/`). Same via global tool: `archiforge artifacts …`. |
 
 Authoritative artifact content lives in the **database** (and streams through the API); local `outputs/` from the CLI is a **cache**, not the source of truth.
 
@@ -153,7 +155,7 @@ Scripts: `test-fast-core.cmd`, `test-core.cmd` (and `.ps1`). Full tier list: [TE
 | **API logs** | **Console / host stdout** (Serilog). Search for **`RunId=`**, **`RequestId=`**, **`GraphResolutionMode=`** (authority path), and errors after failed requests. |
 | **Published API** | If you used **`package-release`**, the DLLs are under **`artifacts/release/api/`** (gitignored). |
 | **Synthesized architecture artifacts** | Stored **in the database**; exposed through the API and UI (not a shared folder on disk by default). |
-| **CLI `outputs/`** | Optional local copies when you use **`archiforge artifacts --save`**. |
+| **CLI `outputs/`** | Optional local copies when you use **`dotnet run --project ArchiForge.Cli -- artifacts <runId> --save`** (or `archiforge artifacts --save` if the tool is installed). |
 | **UI proxy diagnostics** | Next.js server logs may include JSON lines from **`archiforge-ui-proxy`** when the upstream API returns errors (see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)). |
 
 ---

@@ -45,10 +45,7 @@ $env:ARCHIFORGE_SMOKE_SQL = 'Server=localhost,1433;Database=ArchiForge;User Id=s
 .\release-smoke.ps1
 ```
 
-```bat
-set ARCHIFORGE_SMOKE_SQL=Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=...;TrustServerCertificate=True;
-release-smoke.cmd
-```
+**Windows CMD:** connection strings contain `;` — avoid inline `set` (it breaks at the first semicolon). Prefer PowerShell above, or run **`release-smoke.cmd`** after setting the variable in PowerShell / System Properties. The **`.cmd`** wrapper invokes **`release-smoke.ps1`** with `%*`; you can pass **`-SqlConnectionString '...'`** from CMD if quoted carefully.
 
 **CI-style: include full Core suite (after fast core):**
 

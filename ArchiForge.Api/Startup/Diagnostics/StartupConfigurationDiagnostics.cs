@@ -20,8 +20,9 @@ internal static class StartupConfigurationDiagnostics
             environment);
 
         logger.LogInformation(
-            "Pilot/support configuration snapshot: Environment={Environment}, SqlConnectionConfigured={SqlConnectionConfigured}, ArchiForgeStorageProvider={StorageProvider}, RetrievalVectorIndex={RetrievalVectorIndex}, AgentExecutionMode={AgentMode}, ArchiForgeAuthMode={AuthMode}, ApiKeyAuthEnabled={ApiKeyEnabled}, ApiKeyAdminConfigured={ApiKeyAdminConfigured}, ApiKeyReadOnlyConfigured={ApiKeyReadOnlyConfigured}, CorsOriginCount={CorsCount}, RateLimitPermitLimitWindow={RateLimit}, PrometheusEnabled={Prometheus}, DemoEnabled={DemoEnabled}, DemoSeedOnStartup={DemoSeed}, SchemaValidationDetailedErrors={SchemaDetailed}",
+            "Pilot/support configuration snapshot: Environment={Environment}, ContentRoot={ContentRoot}, SqlConnectionConfigured={SqlConnectionConfigured}, ArchiForgeStorageProvider={StorageProvider}, RetrievalVectorIndex={RetrievalVectorIndex}, AgentExecutionMode={AgentMode}, ArchiForgeAuthMode={AuthMode}, ApiKeyAuthEnabled={ApiKeyEnabled}, ApiKeyAdminConfigured={ApiKeyAdminConfigured}, ApiKeyReadOnlyConfigured={ApiKeyReadOnlyConfigured}, CorsOriginCount={CorsCount}, RateLimitPermitLimitWindow={RateLimit}, PrometheusEnabled={Prometheus}, DemoEnabled={DemoEnabled}, DemoSeedOnStartup={DemoSeed}, SchemaValidationDetailedErrors={SchemaDetailed}",
             facts.HostEnvironmentName,
+            facts.ContentRootPath,
             facts.SqlConnectionStringConfigured,
             facts.ArchiForgeStorageProvider,
             facts.RetrievalVectorIndex,

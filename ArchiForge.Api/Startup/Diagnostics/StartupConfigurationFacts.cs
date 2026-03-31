@@ -5,6 +5,7 @@ namespace ArchiForge.Api.Startup.Diagnostics;
 /// </summary>
 public sealed record StartupConfigurationFacts(
     string HostEnvironmentName,
+    string ContentRootPath,
     bool SqlConnectionStringConfigured,
     string ArchiForgeStorageProvider,
     string RetrievalVectorIndex,
@@ -33,6 +34,7 @@ internal static class StartupConfigurationFactsReader
 
         return new StartupConfigurationFacts(
             environment.EnvironmentName,
+            environment.ContentRootPath ?? string.Empty,
             !string.IsNullOrWhiteSpace(configuration.GetConnectionString("ArchiForge")),
             configuration["ArchiForge:StorageProvider"] ?? "(missing)",
             configuration["Retrieval:VectorIndex"] ?? "(missing)",

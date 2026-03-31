@@ -50,12 +50,29 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **UI:** Proxy returns **502** with **`supportHint`** when fetch to the C# API fails; **503** config errors include **`supportHint`** for `.env.local`.
 - **Docs:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — `supportHint` / CLI `Next:` / UI proxy errors.
 
+### Prompt 9 — focused tests for 56R hardening
+
+- **API:** `ProblemSupportHintsTests`, extended **`ArchiForgeConfigurationRulesTests`** (storage/mode/Azure/schema paths), **`ApiProblemDetailsExceptionFilterTests`** assert **`supportHint`** on mapped problems.
+- **CLI:** `InternalsVisibleTo` for **`ArchiForge.Cli.Tests`**; **`CliOperatorHintsTests`**; **`ArchiForgeApiClientHttpTests`** — commit failure preserves **HTTP status code**.
+
+### Prompt 10 — release-candidate coherence (final pass)
+
+- **Docs:** README **`ArchiForgeAuth`** table aligned with **`ApiKey`** mode; pilot guide uses **`dotnet run --project ArchiForge.Cli`** consistently with scripts; **RELEASE_SMOKE** CMD/`;` caveat.
+- **Logging:** Single startup **configuration snapshot** log now includes **`ContentRoot`**; removed redundant “host built” **Information** line before validation.
+
 ### Deferred to later prompts (56R backlog)
 
 - Structured log enrichers, version/commit in logs, OTLP defaults.
 - Structured logging enrichers (version, deployment slot) and log level profiles per environment.
 - Packaging: Dockerfile polish, version stamping, optional SBOM.
 - **Design-partner readiness workflow:** checklist doc, support bundle export, or operator runbook (pick one minimal slice per prompt).
+
+## Release candidate verdict (Prompt 10)
+
+- **Adds (56R overall):** Fail-fast config validation before DbUp; `/health/live` + `/health/ready` + tagged checks; startup **non-secret** configuration snapshot (toggle `Hosting:LogStartupConfigurationSummary`); local **build/package/readiness/smoke** scripts; pilot/operator/troubleshooting docs; API **`supportHint`**, CLI **`Next:`** hints, UI proxy **502/503** hints; focused unit tests for rules, hints, and CLI behavior.
+- **Deliberately not in 56R:** Self-contained RID publish in scripts, SBOM/signing/container polish, OTLP/log-enricher profiles, support-bundle export, Playwright in `release-smoke`, full multi-tenant/perf matrices.
+- **Pilot readiness:** **Yes** for a first design-partner run **if** they have .NET 10, a working SQL (or explicit **InMemory** dev path), and follow **PILOT_GUIDE** / **OPERATOR_QUICKSTART**. Recommend **`run-readiness-check`** before handoff and **`release-smoke`** (with **`ARCHIFORGE_SMOKE_SQL`**) when SQL and port **5128** are available.
+- **Small follow-ups before “commercial” hardening:** optional design-partner checklist doc; visible API window or log capture flag for failed **`release-smoke`** E2E; self-contained publish recipe if pilots lack SDK.
 
 ## Related files
 
