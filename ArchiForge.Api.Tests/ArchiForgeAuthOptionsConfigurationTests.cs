@@ -26,7 +26,7 @@ public sealed class ArchiForgeAuthOptionsConfigurationTests
             .Get<ArchiForgeAuthOptions>();
 
         options.Should().NotBeNull();
-        options!.NameClaimType.Should().Be("preferred_username");
+        options.NameClaimType.Should().Be("preferred_username");
     }
 
     [Fact]
@@ -44,6 +44,6 @@ public sealed class ArchiForgeAuthOptionsConfigurationTests
             .Get<ArchiForgeAuthOptions>();
 
         options.Should().NotBeNull();
-        options!.NameClaimType.Should().Be(ClaimTypes.Name);
+        options.NameClaimType.Should().Be(ClaimTypes.Name);
     }
 }

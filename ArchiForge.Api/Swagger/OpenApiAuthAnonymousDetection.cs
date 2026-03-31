@@ -13,9 +13,9 @@ internal static class OpenApiAuthAnonymousDetection
 {
     internal static bool AllowsAnonymous(ControllerActionDescriptor cad)
     {
-        IList<Microsoft.AspNetCore.Mvc.Filters.FilterDescriptor>? filters = cad.FilterDescriptors;
+        IList<Microsoft.AspNetCore.Mvc.Filters.FilterDescriptor> filters = cad.FilterDescriptors;
 
-        if (filters != null && filters.Any(static f => f.Filter is IAllowAnonymousFilter))
+        if (filters.Any(static f => f.Filter is IAllowAnonymousFilter))
         {
             return true;
         }

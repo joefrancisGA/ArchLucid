@@ -13,7 +13,7 @@ public sealed class ArchiForgeApiClientBaseUrlTests
         string? reason = ArchiForgeApiClient.GetInvalidApiBaseUrlReason(url);
 
         reason.Should().NotBeNull();
-        reason!.ToLowerInvariant().Should().Contain("empty");
+        reason.ToLowerInvariant().Should().Contain("empty");
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public sealed class ArchiForgeApiClientBaseUrlTests
         string? reason = ArchiForgeApiClient.GetInvalidApiBaseUrlReason("ftp://host");
 
         reason.Should().NotBeNull();
-        reason!.ToLowerInvariant().Should().Contain("http");
+        reason.ToLowerInvariant().Should().Contain("http");
     }
 
     [Theory]

@@ -136,7 +136,7 @@ namespace ArchiForge.Cli
             string? urlError = ArchiForgeApiClient.GetInvalidApiBaseUrlReason(baseUrl);
             if (urlError is not null)
             {
-                Console.Error.WriteLine("[ArchiForge CLI] " + urlError);
+                await Console.Error.WriteLineAsync("[ArchiForge CLI] " + urlError);
                 return false;
             }
 
@@ -777,7 +777,7 @@ namespace ArchiForge.Cli
             if (briefContent.Length < 10)
             {
                 Console.WriteLine("Error: Brief must be at least 10 characters (API requirement).");
-                Console.Error.WriteLine("Next: Edit inputs/brief.md (or the path in archiforge.json) with a longer description.");
+                await Console.Error.WriteLineAsync("Next: Edit inputs/brief.md (or the path in archiforge.json) with a longer description.");
                 return 1;
             }
 
@@ -1017,7 +1017,7 @@ namespace ArchiForge.Cli
             if (string.IsNullOrEmpty(version))
             {
                 Console.WriteLine($"Run {runId} has not been committed. Submit all agent results and call commit first.");
-                Console.Error.WriteLine("Next: archiforge status <runId>, then submit results or use seed (Development), then archiforge commit.");
+                await Console.Error.WriteLineAsync("Next: archiforge status <runId>, then submit results or use seed (Development), then archiforge commit.");
                 return 1;
             }
 

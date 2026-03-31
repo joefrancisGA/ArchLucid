@@ -159,7 +159,7 @@ public sealed class ArchiForgeApiClientHttpTests
         ArchiForgeApiClient.CommitRunResult? result = await client.CommitRunAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Success.Should().BeFalse();
+        result.Success.Should().BeFalse();
         result.HttpStatusCode.Should().Be(409);
         result.Error!.ToLowerInvariant().Should().Contain("conflict");
     }

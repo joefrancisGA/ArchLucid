@@ -77,7 +77,8 @@ public static class ArchiForgeConfigurationRules
         CollectBatchReplayErrors(configuration, errors);
         CollectApiDeprecationErrors(configuration, errors);
 
-        if (environment.IsProduction())
+        if (!environment.IsProduction()) return errors;
+        
         {
             string? authMode = configuration["ArchiForgeAuth:Mode"];
             if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
@@ -94,21 +95,20 @@ public static class ArchiForgeConfigurationRules
                 }
             }
 
-            if (string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase)) return errors;
+            
+            if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
             {
-                if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
-                {
-                    errors.Add(
-                        "Authentication:ApiKey:Enabled must be true when ArchiForgeAuth:Mode is ApiKey in Production.");
-                }
+                errors.Add(
+                    "Authentication:ApiKey:Enabled must be true when ArchiForgeAuth:Mode is ApiKey in Production.");
+            }
 
-                string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
-                string? readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
-                if (string.IsNullOrWhiteSpace(adminKey) && string.IsNullOrWhiteSpace(readerKey))
-                {
-                    errors.Add(
-                        "Production ApiKey auth requires at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey.");
-                }
+            string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
+            string? readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
+            if (string.IsNullOrWhiteSpace(adminKey) && string.IsNullOrWhiteSpace(readerKey))
+            {
+                errors.Add(
+                    "Production ApiKey auth requires at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey.");
             }
         }
 

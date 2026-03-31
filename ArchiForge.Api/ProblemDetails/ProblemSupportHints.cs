@@ -102,11 +102,6 @@ public static class ProblemSupportHints
             return "Retry once. If it persists, capture correlation ID and check API logs for the same RunId or export id.";
         }
 
-        if (typeUri == ProblemTypes.InternalError)
-        {
-            return "Retry once. If it persists, provide traceId (and X-Correlation-ID if available) to support; do not paste secrets.";
-        }
-
-        return null;
+        return typeUri == ProblemTypes.InternalError ? "Retry once. If it persists, provide traceId (and X-Correlation-ID if available) to support; do not paste secrets." : null;
     }
 }

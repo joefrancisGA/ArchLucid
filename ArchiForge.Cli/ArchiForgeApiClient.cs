@@ -33,7 +33,7 @@ namespace ArchiForge.Cli
                 throw new ArgumentException(invalidReason, nameof(baseUrl));
             }
 
-            baseUrl = baseUrl!.Trim().TrimEnd('/');
+            baseUrl = baseUrl.Trim().TrimEnd('/');
             _http = new HttpClient
             {
                 BaseAddress = new Uri(baseUrl),
@@ -201,11 +201,11 @@ namespace ArchiForge.Cli
             }
             catch (HttpRequestException ex)
             {
-                return new SubmitResultResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}", null);
+                return new SubmitResultResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
             }
             catch (TaskCanceledException)
             {
-                return new SubmitResultResult(false, null, "Request timed out.", null);
+                return new SubmitResultResult(false, null, "Request timed out.");
             }
         }
 
@@ -251,11 +251,11 @@ namespace ArchiForge.Cli
             }
             catch (HttpRequestException ex)
             {
-                return new CommitRunResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}", null);
+                return new CommitRunResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
             }
             catch (TaskCanceledException)
             {
-                return new CommitRunResult(false, null, "Request timed out.", null);
+                return new CommitRunResult(false, null, "Request timed out.");
             }
         }
 
@@ -281,11 +281,11 @@ namespace ArchiForge.Cli
             }
             catch (HttpRequestException ex)
             {
-                return new SeedFakeResultsResult(false, 0, $"Cannot connect to ArchiForge API: {ex.Message}", null);
+                return new SeedFakeResultsResult(false, 0, $"Cannot connect to ArchiForge API: {ex.Message}");
             }
             catch (TaskCanceledException)
             {
-                return new SeedFakeResultsResult(false, 0, "Request timed out.", null);
+                return new SeedFakeResultsResult(false, 0, "Request timed out.");
             }
         }
 

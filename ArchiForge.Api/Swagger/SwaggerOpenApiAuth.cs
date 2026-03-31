@@ -10,11 +10,6 @@ internal static class SwaggerOpenApiAuth
 
     internal static string? ResolveSecuritySchemeId(IConfiguration configuration)
     {
-        if (configuration == null)
-        {
-            return null;
-        }
-
         string? mode = configuration["ArchiForgeAuth:Mode"];
 
         if (string.IsNullOrWhiteSpace(mode))
@@ -27,11 +22,6 @@ internal static class SwaggerOpenApiAuth
             return BearerSchemeId;
         }
 
-        if (string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
-        {
-            return ApiKeySchemeId;
-        }
-
-        return null;
+        return string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase) ? ApiKeySchemeId : null;
     }
 }

@@ -11,19 +11,16 @@ namespace ArchiForge.Api.Tests;
 /// Regenerate: <c>ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo root.
 /// </summary>
 [Trait("Suite", "Core")]
-public sealed class OpenApiContractSnapshotTests : IClassFixture<OpenApiContractWebAppFactory>
+public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory factory)
+    : IClassFixture<OpenApiContractWebAppFactory>
 {
     private const string OpenApiDocumentPath = "/openapi/v1.json";
     private const string SnapshotFileName = "openapi-v1.contract.snapshot.json";
 
-    private readonly OpenApiContractWebAppFactory _factory;
-
-    public OpenApiContractSnapshotTests(OpenApiContractWebAppFactory factory) => _factory = factory;
-
     [Fact]
     public async Task OpenApi_v1_json_matches_committed_snapshot()
     {
-        using HttpClient client = _factory.CreateClient(
+        using HttpClient client = factory.CreateClient(
             new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
         using HttpResponseMessage response = await client.GetAsync(OpenApiDocumentPath);

@@ -14,19 +14,16 @@ namespace ArchiForge.Api.Tests;
 /// Asserts Swashbuckle output reflects auth mode: JWT (Entra) vs DevelopmentBypass.
 /// </summary>
 [Trait("Category", "Integration")]
-public sealed class SwaggerJsonSecuritySchemesIntegrationTests : IClassFixture<SwaggerJsonJwtBearerWebAppFactory>
+public sealed class SwaggerJsonSecuritySchemesIntegrationTests(SwaggerJsonJwtBearerWebAppFactory factory)
+    : IClassFixture<SwaggerJsonJwtBearerWebAppFactory>
 {
-    private readonly SwaggerJsonJwtBearerWebAppFactory _factory;
-
-    public SwaggerJsonSecuritySchemesIntegrationTests(SwaggerJsonJwtBearerWebAppFactory factory) => _factory = factory;
-
     [Fact]
     public void Swagger_document_with_JwtBearer_includes_Bearer_scheme_and_document_security()
     {
-        using IServiceScope scope = _factory.Services.CreateScope();
+        using IServiceScope scope = factory.Services.CreateScope();
         ISwaggerProvider swagger = scope.ServiceProvider.GetRequiredService<ISwaggerProvider>();
 
-        Microsoft.OpenApi.OpenApiDocument document = swagger.GetSwagger("v1");
+        OpenApiDocument document = swagger.GetSwagger("v1");
 
         document.Components.Should().NotBeNull();
         document.Components!.SecuritySchemes.Should().ContainKey("Bearer");
@@ -42,7 +39,7 @@ public sealed class SwaggerJsonSecuritySchemesIntegrationTests : IClassFixture<S
     [Fact]
     public async Task Swagger_json_with_JwtBearer_round_trips_over_http()
     {
-        using HttpClient client = _factory.CreateClient(
+        using HttpClient client = factory.CreateClient(
             new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
         using HttpResponseMessage response = await client.GetAsync("/swagger/v1/swagger.json");
@@ -59,7 +56,7 @@ public sealed class SwaggerJsonSecuritySchemesIntegrationTests : IClassFixture<S
     [Fact]
     public async Task Swagger_json_with_DevelopmentBypass_omits_Bearer_security_scheme()
     {
-        using WebApplicationFactory<Program> defaultFactory = new OpenApiContractWebAppFactory();
+        await using WebApplicationFactory<Program> defaultFactory = new OpenApiContractWebAppFactory();
         using HttpClient client = defaultFactory.CreateClient(
             new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 

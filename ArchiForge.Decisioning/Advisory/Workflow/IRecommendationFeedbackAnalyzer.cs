@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace ArchiForge.Decisioning.Advisory.Workflow;
 
 /// <summary>
@@ -16,6 +18,7 @@ public interface IRecommendationFeedbackAnalyzer
     /// <param name="projectId">Project scope.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Dictionary of composite key to count; empty when no rows.</returns>
+    [UsedImplicitly]
     Task<IReadOnlyDictionary<string, int>> GetStatusCountsByCategoryAsync(
         Guid tenantId,
         Guid workspaceId,

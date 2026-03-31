@@ -17,7 +17,7 @@ internal static class DoctorCommand
 
         if (urlError is not null)
         {
-            Console.Error.WriteLine("[ArchiForge CLI] " + urlError);
+            await Console.Error.WriteLineAsync("[ArchiForge CLI] " + urlError);
 
             return 1;
         }
@@ -77,14 +77,9 @@ internal static class DoctorCommand
         Console.WriteLine($"Project: {config.ProjectName} (schema {config.SchemaVersion})");
 
         string briefPath = Path.Combine(cwd, config.Inputs.Brief);
-        if (File.Exists(briefPath))
-        {
-            Console.WriteLine($"Brief: OK — {config.Inputs.Brief}");
-        }
-        else
-        {
-            Console.WriteLine($"Brief: MISSING — expected file at {config.Inputs.Brief} (needed for 'archiforge run').");
-        }
+        Console.WriteLine(File.Exists(briefPath)
+            ? $"Brief: OK — {config.Inputs.Brief}"
+            : $"Brief: MISSING — expected file at {config.Inputs.Brief} (needed for 'archiforge run').");
 
         string outputsDir = Path.Combine(cwd, config.Outputs.LocalCacheDir);
 
@@ -116,7 +111,7 @@ internal static class DoctorCommand
         Console.WriteLine($"{label} — HTTP {code}");
         Console.WriteLine(TruncateForDisplay(body, maxChars: 4000));
 
-        return code >= 200 && code < 300;
+        return code is >= 200 and < 300;
     }
 
     private static string TruncateForDisplay(string body, int maxChars)

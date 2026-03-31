@@ -58,10 +58,10 @@ public sealed class BatchReplayIntegrationTests(ArchiForgeApiFactory factory) : 
 
         byte[] zipBytes = await response.Content.ReadAsByteArrayAsync();
         using MemoryStream ms = new(zipBytes);
-        using ZipArchive zip = new(ms, ZipArchiveMode.Read);
+        await using ZipArchive zip = new(ms, ZipArchiveMode.Read);
         ZipArchiveEntry? manifest = zip.GetEntry(BatchReplayManifestSerializer.ManifestEntryName);
         manifest.Should().NotBeNull();
-        await using Stream manifestStream = manifest!.Open();
+        await using Stream manifestStream = await manifest.OpenAsync();
         JsonDocument doc = await JsonDocument.ParseAsync(manifestStream);
         doc.RootElement.GetProperty("failed").GetArrayLength().Should().BeGreaterThan(0);
         doc.RootElement.GetProperty("succeeded").GetArrayLength().Should().BeGreaterThan(0);
