@@ -41,6 +41,8 @@ async function forward(
         title: "Invalid upstream API configuration",
         status: 503,
         detail: resolved.detail,
+        supportHint:
+          "Set ARCHIFORGE_API_BASE_URL in archiforge-ui/.env.local to the API root (e.g. http://localhost:5128). Restart the dev server after editing.",
       },
       { status: 503 },
     );
@@ -67,12 +69,23 @@ async function forward(
         cache: "no-store",
       });
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       logProxyDiagnostic("upstream_fetch_failed", {
         method,
         path: pathForLog,
-        message: err instanceof Error ? err.message : String(err),
+        message,
       });
-      throw err;
+      return NextResponse.json(
+        {
+          type: "about:blank",
+          title: "Upstream API unreachable",
+          status: 502,
+          detail: message,
+          supportHint:
+            "Confirm the ArchiForge API is running and reachable from this machine. Check ARCHIFORGE_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
+        },
+        { status: 502 },
+      );
     }
 
     if (!res.ok) {
@@ -94,12 +107,23 @@ async function forward(
       cache: "no-store",
     });
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
     logProxyDiagnostic("upstream_fetch_failed", {
       method,
       path: pathForLog,
-      message: err instanceof Error ? err.message : String(err),
+      message,
     });
-    throw err;
+    return NextResponse.json(
+      {
+        type: "about:blank",
+        title: "Upstream API unreachable",
+        status: 502,
+        detail: message,
+        supportHint:
+          "Confirm the ArchiForge API is running and reachable from this machine. Check ARCHIFORGE_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
+      },
+      { status: 502 },
+    );
   }
 
   if (!res.ok) {

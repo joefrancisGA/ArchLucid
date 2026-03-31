@@ -193,7 +193,7 @@ namespace ArchiForge.Cli
                 if (!response.IsSuccessStatusCode)
                 {
                     string? error = TryParseError(content);
-                    return new SubmitResultResult(false, null, error ?? content);
+                    return new SubmitResultResult(false, null, error ?? content, (int)response.StatusCode);
                 }
 
                 SubmitResultResponse? parsed = JsonSerializer.Deserialize<SubmitResultResponse>(content, _jsonOptions);
@@ -201,11 +201,11 @@ namespace ArchiForge.Cli
             }
             catch (HttpRequestException ex)
             {
-                return new SubmitResultResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
+                return new SubmitResultResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}", null);
             }
             catch (TaskCanceledException)
             {
-                return new SubmitResultResult(false, null, "Request timed out.");
+                return new SubmitResultResult(false, null, "Request timed out.", null);
             }
         }
 
@@ -243,7 +243,7 @@ namespace ArchiForge.Cli
                 if (!response.IsSuccessStatusCode)
                 {
                     string? error = TryParseError(content);
-                    return new CommitRunResult(false, null, error ?? content);
+                    return new CommitRunResult(false, null, error ?? content, (int)response.StatusCode);
                 }
 
                 CommitRunResponse? result = JsonSerializer.Deserialize<CommitRunResponse>(content, _jsonOptions);
@@ -251,11 +251,11 @@ namespace ArchiForge.Cli
             }
             catch (HttpRequestException ex)
             {
-                return new CommitRunResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
+                return new CommitRunResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}", null);
             }
             catch (TaskCanceledException)
             {
-                return new CommitRunResult(false, null, "Request timed out.");
+                return new CommitRunResult(false, null, "Request timed out.", null);
             }
         }
 
@@ -273,7 +273,7 @@ namespace ArchiForge.Cli
                 if (!response.IsSuccessStatusCode)
                 {
                     string? error = TryParseError(content);
-                    return new SeedFakeResultsResult(false, 0, error ?? content);
+                    return new SeedFakeResultsResult(false, 0, error ?? content, (int)response.StatusCode);
                 }
 
                 SeedFakeResultsResponse? result = JsonSerializer.Deserialize<SeedFakeResultsResponse>(content, _jsonOptions);
@@ -281,11 +281,11 @@ namespace ArchiForge.Cli
             }
             catch (HttpRequestException ex)
             {
-                return new SeedFakeResultsResult(false, 0, $"Cannot connect to ArchiForge API: {ex.Message}");
+                return new SeedFakeResultsResult(false, 0, $"Cannot connect to ArchiForge API: {ex.Message}", null);
             }
             catch (TaskCanceledException)
             {
-                return new SeedFakeResultsResult(false, 0, "Request timed out.");
+                return new SeedFakeResultsResult(false, 0, "Request timed out.", null);
             }
         }
 
@@ -836,7 +836,7 @@ namespace ArchiForge.Cli
             public List<object> Results { get; set; } = [];
         }
 
-        public sealed record CommitRunResult(bool Success, CommitRunResponse? Response, string? Error);
+        public sealed record CommitRunResult(bool Success, CommitRunResponse? Response, string? Error, int? HttpStatusCode = null);
 
         public sealed class CommitRunResponse
         {
@@ -856,7 +856,7 @@ namespace ArchiForge.Cli
             public string ManifestVersion { get; set; } = "";
         }
 
-        public sealed record SeedFakeResultsResult(bool Success, int ResultCount, string? Error);
+        public sealed record SeedFakeResultsResult(bool Success, int ResultCount, string? Error, int? HttpStatusCode = null);
 
         public sealed class SeedFakeResultsResponse
         {
@@ -865,7 +865,7 @@ namespace ArchiForge.Cli
             public int ResultCount { get; set; }
         }
 
-        public sealed record SubmitResultResult(bool Success, string? ResultId, string? Error);
+        public sealed record SubmitResultResult(bool Success, string? ResultId, string? Error, int? HttpStatusCode = null);
 
         public sealed class SubmitResultResponse
         {

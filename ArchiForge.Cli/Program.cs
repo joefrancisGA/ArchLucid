@@ -146,6 +146,7 @@ namespace ArchiForge.Cli
             Console.WriteLine($"Cannot connect to ArchiForge API at {baseUrl}");
             Console.WriteLine("Ensure the API is running: dotnet run --project ArchiForge.Api");
             Console.WriteLine("Or set apiUrl in archiforge.json / ARCHIFORGE_API_URL environment variable.");
+            CliOperatorHints.WriteAfterHealthUnreachable(baseUrl);
             return false;
         }
 
@@ -768,6 +769,7 @@ namespace ArchiForge.Cli
             if (!File.Exists(briefPath))
             {
                 Console.WriteLine($"Error: Brief file not found at {config.Inputs.Brief}");
+                CliOperatorHints.WriteBriefMissingHint(config.Inputs.Brief);
                 return 1;
             }
 
@@ -775,6 +777,7 @@ namespace ArchiForge.Cli
             if (briefContent.Length < 10)
             {
                 Console.WriteLine("Error: Brief must be at least 10 characters (API requirement).");
+                Console.Error.WriteLine("Next: Edit inputs/brief.md (or the path in archiforge.json) with a longer description.");
                 return 1;
             }
 
@@ -793,6 +796,7 @@ namespace ArchiForge.Cli
             if (!result.Success)
             {
                 Console.WriteLine($"Error: {result.Error}");
+                CliOperatorHints.WriteAfterApiFailure(result.StatusCode, result.Error);
                 return 1;
             }
 
@@ -823,6 +827,7 @@ namespace ArchiForge.Cli
                 {
                     Console.WriteLine($"Warning: Seed failed. {seedResult?.Error ?? "Unknown"}");
                     Console.WriteLine("Note: Seed is only available when the API runs in Development.");
+                    CliOperatorHints.WriteAfterApiFailure(seedResult?.HttpStatusCode, seedResult?.Error);
                     Console.WriteLine($"Continue with: archiforge seed {resp.Run.RunId} then archiforge commit {resp.Run.RunId}");
                     return 0;
                 }
@@ -929,6 +934,7 @@ namespace ArchiForge.Cli
             if (submitResult is null || !submitResult.Success)
             {
                 Console.WriteLine($"Error: {submitResult?.Error ?? "Submit failed"}");
+                CliOperatorHints.WriteAfterApiFailure(submitResult?.HttpStatusCode, submitResult?.Error);
                 return 1;
             }
 
@@ -949,6 +955,7 @@ namespace ArchiForge.Cli
             if (result is null || !result.Success)
             {
                 Console.WriteLine($"Error: {result?.Error ?? "Commit failed"}");
+                CliOperatorHints.WriteAfterApiFailure(result?.HttpStatusCode, result?.Error);
                 return 1;
             }
 
@@ -980,6 +987,7 @@ namespace ArchiForge.Cli
             {
                 Console.WriteLine($"Error: {result?.Error ?? "Seed failed"}");
                 Console.WriteLine("Note: seed-fake-results is only available when the API runs in Development.");
+                CliOperatorHints.WriteAfterApiFailure(result?.HttpStatusCode, result?.Error);
                 return 1;
             }
 
@@ -1001,6 +1009,7 @@ namespace ArchiForge.Cli
             if (run is null)
             {
                 Console.WriteLine($"Run '{runId}' not found. Ensure the ArchiForge API is running at {baseUrl}.");
+                CliOperatorHints.WriteAfterApiFailure(404, null);
                 return 1;
             }
 
@@ -1008,6 +1017,7 @@ namespace ArchiForge.Cli
             if (string.IsNullOrEmpty(version))
             {
                 Console.WriteLine($"Run {runId} has not been committed. Submit all agent results and call commit first.");
+                Console.Error.WriteLine("Next: archiforge status <runId>, then submit results or use seed (Development), then archiforge commit.");
                 return 1;
             }
 
@@ -1015,6 +1025,7 @@ namespace ArchiForge.Cli
             if (manifest is null)
             {
                 Console.WriteLine($"Manifest '{version}' not found.");
+                CliOperatorHints.WriteAfterApiFailure(404, null);
                 return 1;
             }
 

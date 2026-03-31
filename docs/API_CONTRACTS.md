@@ -19,6 +19,11 @@ UI alignment: **`docs/operator-shell.md`**.
 - Optional request header **`X-Correlation-ID`**: if present, the API echoes it on the response and uses it for logging/tracing context; if absent, a value is generated (e.g. from the ASP.NET Core trace identifier).
 - **Audit rows:** **`IAuditService`** (API host) stamps **`AuditEvent.CorrelationId`** from the **`correlation.id`** tag on the current or ancestor **`Activity`** (same value the middleware sets on the request activity), then falls back to **`HttpContext.TraceIdentifier`**, then the innermost activity id. Background advisory scans use a synthetic id of the form **`advisory-schedule:{scheduleId}`** on the advisory activity so digest/alert audits remain joinable in logs.
 
+## Problem details (`application/problem+json`) — extensions
+
+- **`extensions.errorCode`**: stable uppercase code for clients and automation.
+- **`extensions.supportHint`** (56R): optional, concise **next step** for operators; complements **`detail`**. No stack traces or secrets — use logs with **`X-Correlation-ID`** / **`RunId`** for deep diagnosis. See **`docs/TROUBLESHOOTING.md`**.
+
 ## Comparison replay — verify mode
 
 `POST /v1/architecture/comparisons/{comparisonRecordId}/replay` with `replayMode: verify` regenerates the comparison and compares it to the stored payload.

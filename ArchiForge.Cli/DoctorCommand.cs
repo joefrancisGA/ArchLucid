@@ -39,6 +39,7 @@ internal static class DoctorCommand
         {
             Console.WriteLine();
             Console.WriteLine("Readiness failed: fix the checks above before relying on this environment.");
+            CliOperatorHints.WriteAfterReadinessFailed();
 
             return 1;
         }
@@ -47,6 +48,7 @@ internal static class DoctorCommand
         {
             Console.WriteLine();
             Console.WriteLine("Combined /health did not return 2xx; review JSON above.");
+            CliOperatorHints.WriteAfterReadinessFailed();
 
             return 1;
         }

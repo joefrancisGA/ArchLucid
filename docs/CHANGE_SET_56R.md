@@ -43,6 +43,13 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **New:** `release-smoke.ps1`, `release-smoke.cmd` — Release build, fast core (+ optional `-FullCore`), optional UI Vitest + `next build`, temporary **ArchiForge.Api** process, **`GET /health/ready`** + **`/health/live`**, CLI **`new` + `run --quick`**, assert **≥ 1** artifact via **`GET /api/artifacts/manifests/{goldenManifestId}`**.
 - **New:** [RELEASE_SMOKE.md](RELEASE_SMOKE.md) — prerequisites, env vars, switches, relation to `run-readiness-check` / `package-release`.
 
+### Prompt 8 — error presentation and supportability
+
+- **API:** `ProblemSupportHints` adds optional **`extensions.supportHint`** on problem+json for known `ProblemTypes` (controllers + `ApplicationProblemMapper` + global 500 handler).
+- **CLI:** `CliOperatorHints` — stderr **`Next:`** lines after API failures, health unreachable, readiness failure, brief/manifest/run issues; `ArchiForgeApiClient` records **HTTP status** on failed commit/submit/seed responses for hint selection.
+- **UI:** Proxy returns **502** with **`supportHint`** when fetch to the C# API fails; **503** config errors include **`supportHint`** for `.env.local`.
+- **Docs:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — `supportHint` / CLI `Next:` / UI proxy errors.
+
 ### Deferred to later prompts (56R backlog)
 
 - Structured log enrichers, version/commit in logs, OTLP defaults.
@@ -65,3 +72,6 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `docs/RELEASE_LOCAL.md`
 - `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/TROUBLESHOOTING.md`
 - `release-smoke.ps1`, `release-smoke.cmd`, `docs/RELEASE_SMOKE.md`
+- `ArchiForge.Api/ProblemDetails/ProblemSupportHints.cs`, `ArchiForge.Api/ProblemDetails/*` (extensions wiring), `ArchiForge.Api/Startup/PipelineExtensions.cs`
+- `ArchiForge.Cli/CliOperatorHints.cs`, `ArchiForge.Cli/ArchiForgeApiClient.cs`, `ArchiForge.Cli/Program.cs`, `ArchiForge.Cli/DoctorCommand.cs`
+- `archiforge-ui/src/app/api/proxy/[...path]/route.ts`, `docs/TROUBLESHOOTING.md`, `docs/API_CONTRACTS.md` (problem extensions)

@@ -38,6 +38,7 @@ internal static class PipelineExtensions
                     Extensions = { ["traceId"] = context.TraceIdentifier }
                 };
                 ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.InternalError);
+                ProblemSupportHints.AttachForProblemType(problem);
                 context.Response.StatusCode = problem.Status ?? 500;
                 context.Response.ContentType = "application/problem+json";
                 await context.Response.WriteAsJsonAsync(problem);

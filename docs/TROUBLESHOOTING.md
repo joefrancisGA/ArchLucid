@@ -4,6 +4,20 @@
 
 ---
 
+## Problem Details (`application/problem+json`) and `supportHint`
+
+API error responses may include:
+
+- **`detail`** — what went wrong (safe for operators; not stack traces).
+- **`extensions.errorCode`** — stable machine-readable code (e.g. `RUN_NOT_FOUND`).
+- **`extensions.supportHint`** — short **next step** for common situations (no secrets).
+
+The **ArchiForge CLI** prints **`Next:`** lines on **stderr** after many failures, aligned with the same guidance.
+
+**Operator UI:** JSON error bodies from **`/api/proxy/*`** may include **`supportHint`** when the proxy cannot reach the API (502) or when upstream URL configuration is invalid (503).
+
+---
+
 ## Quick matrix
 
 | Symptom | Likely cause | What to try |

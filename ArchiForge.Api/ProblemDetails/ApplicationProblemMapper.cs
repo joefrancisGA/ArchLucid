@@ -123,6 +123,7 @@ public static class ApplicationProblemMapper
         };
 
         ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.ComparisonVerificationFailed);
+        ProblemSupportHints.AttachForProblemType(problem);
 
         if (cvf.Drift is not { } drift)
             return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
@@ -204,6 +205,7 @@ public static class ApplicationProblemMapper
 
         ProblemErrorCodes.AttachErrorCode(problem, type);
         extend?.Invoke(problem);
+        ProblemSupportHints.AttachForProblemType(problem);
 
         return new ObjectResult(problem)
         {
