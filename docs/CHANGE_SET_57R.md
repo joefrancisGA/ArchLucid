@@ -36,3 +36,11 @@
 **Delivered:**
 
 - `e2e/compare-journey.spec.ts` — opens `/compare?leftRunId&rightRunId` with fixture IDs; asserts placeholder inputs prefilled; **`registerOperatorJourneyApiRoutes`** with legacy + structured fixtures only (no AI); clicks **Compare**; asserts **Compare runs** heading, 55R-style guidance (**structured first** / **legacy flat diff**), **`#compare-structured`** and **`#compare-legacy`**, **Review order** nav (structured link before legacy), **Last compare request** region with both outcomes **OK**; uses fixture-backed rows (**topology** / **serviceCount**) for legacy visibility. Waits on visible content only (no fixed sleeps).
+
+---
+
+## Prompt 4 — compare stale input warning
+
+**Delivered:**
+
+- `e2e/compare-stale-input-warning.spec.ts` — self-contained flow: mock legacy + structured, compare, change base run ID, assert **`OperatorWarningCallout`** copy (**Run IDs no longer match the results below.**, **Content below still reflects**, prior pair in **`code`**, **restore the previous values**); then restore the original left ID and assert the warning copy is gone.
