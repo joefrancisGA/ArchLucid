@@ -93,3 +93,18 @@
 - **`archiforge-ui/README.md`** — Tests + doc table updated for **57R** Playwright scope and links.
 - **`docs/RELEASE_SMOKE.md`** — subsection **What `-RunPlaywright` actually exercises (57R)**; independence from C# API smoke; restored **`-RunPlaywright`** row in the parameters table.
 - **`README.md`** — Key docs table, pilot handoff paragraph, Operator UI paragraph: concise **57R** / Playwright pointers without overstating coverage.
+
+---
+
+## Prompt 9 — focused validation pass
+
+**Scope:** Run Vitest, Playwright, and repo UI smoke scripts; fix failures only where needed for a coherent slice.
+
+**Validation run (green):**
+
+- **`archiforge-ui`:** `npm test` (71 tests), `npm run typecheck:e2e`, `CI=1` / `npm run test:e2e` (6 Playwright tests).
+- **Repo root:** `.\test-ui-smoke.ps1` after script fix.
+
+**Fix delivered:**
+
+- **`test-ui-smoke.ps1`**, **`test-ui-unit.ps1`**, **`release-smoke.ps1`** — on Windows, call **`npm.cmd`** (and **`npx.cmd`** in smoke) when available so **`Set-StrictMode -Version Latest`** does not execute Node’s **`npm.ps1`** shim (which can throw **`PropertyNotFoundStrict`** on **`$MyInvocation.Statement`**). Non-Windows unchanged (**`npm`** only).

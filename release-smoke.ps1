@@ -13,6 +13,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
+# Prefer npm.cmd on Windows under StrictMode (npm.ps1 can throw on $MyInvocation.Statement).
+$releaseSmokeNpm = if (Get-Command npm.cmd -ErrorAction SilentlyContinue) { 'npm.cmd' } else { 'npm' }
 $sln = Join-Path $root 'ArchiForge.sln'
 $apiProj = Join-Path $root 'ArchiForge.Api\ArchiForge.Api.csproj'
 $cliProj = Join-Path $root 'ArchiForge.Cli\ArchiForge.Cli.csproj'
@@ -59,7 +61,7 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
         if ($UiSkipped -or -not (Test-Path (Join-Path $uiRoot 'node_modules')))
         {
             Write-Host 'Installing UI dependencies (npm ci) for Playwright...'
-            npm ci
+            & $releaseSmokeNpm ci
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         }
 
@@ -67,7 +69,7 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
         $env:CI = '1'
         try
         {
-            npm run test:e2e
+            & $releaseSmokeNpm run test:e2e
             if ($LASTEXITCODE -ne 0)
             {
                 Write-Host "Playwright E2E failed (exit code $LASTEXITCODE)." -ForegroundColor Red
@@ -115,13 +117,13 @@ try
             Write-Host '=== 3/6 Operator UI — Vitest ==='
             $uiRoot = Join-Path $root 'archiforge-ui'
             Push-Location $uiRoot
-            npm ci
+            & $releaseSmokeNpm ci
             if ($LASTEXITCODE -ne 0) { Pop-Location; exit $LASTEXITCODE }
-            npm run test
+            & $releaseSmokeNpm run test
             if ($LASTEXITCODE -ne 0) { Pop-Location; exit $LASTEXITCODE }
 
             Write-Host '=== 4/6 Operator UI — production build ==='
-            npm run build
+            & $releaseSmokeNpm run build
             Pop-Location
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         }

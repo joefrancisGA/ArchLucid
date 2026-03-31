@@ -4,6 +4,11 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location (Join-Path $root 'archiforge-ui')
-npm ci
-npm run test
+
+# Use .cmd shims on Windows so StrictMode does not load npm.ps1 (breaks on $MyInvocation.Statement).
+$npm = if (Get-Command npm.cmd -ErrorAction SilentlyContinue) { 'npm.cmd' } else { 'npm' }
+
+& $npm ci
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& $npm run test
 exit $LASTEXITCODE
