@@ -68,3 +68,15 @@
 - **`registerDefaultPairLegacyStructuredCompare(page)`** in `e2e/helpers/register-operator-api-routes.ts` — single definition of legacy + structured mocks for the standard left/right fixture pair; **`registerCompareAndExplainRoutes`** reuses the same config and adds AI explain only.
 - **`e2e/helpers/operator-journey.ts`** — operator-oriented navigation (`gotoComparePageWithFixturePair`, `gotoRunDetailForMockFixtureRun`, `gotoManifestDetail`, `gotoManifestEmptyArtifactsOperatorCase`), **`comparePairSearchParams`** for deterministic query strings, and **`expectComparisonRequestOutcomeVisible`** where it removed duplication.
 - **`compare-journey.spec.ts`**, **`compare-stale-input-warning.spec.ts`**, **`run-manifest-journey.spec.ts`**, **`manifest-empty-artifacts.spec.ts`** — refactored to use the helpers above; **`compare-proxy-mock.spec.ts`** unchanged (still uses **`registerCompareAndExplainRoutes`**).
+
+---
+
+## Prompt 7 — optional Playwright from release-smoke
+
+**Scope:** Root **`release-smoke.ps1`** / **`release-smoke.cmd`** and **`docs/RELEASE_SMOKE.md`**. Default behavior unchanged.
+
+**Delivered:**
+
+- **`-RunPlaywright`** — after the normal smoke steps (UI and, unless **`-SkipE2E`**, API+CLI+artifact checks), runs **`archiforge-ui`** **`npm run test:e2e`** with **`CI=1`**. Section header **`=== Playwright E2E (opt-in: -RunPlaywright) ===`**. Exits non-zero if Playwright fails; errors if Node is missing when the flag is set.
+- **`-SkipE2E`** path still runs Playwright when **`-RunPlaywright`** is set (after UI); **`npm ci`** runs in **`archiforge-ui`** when **`-SkipUi`** or missing **`node_modules`** so E2E can run without the standard UI step.
+- **`release-smoke.cmd`** passes **`%*`** unchanged (flags work from CMD). **`docs/RELEASE_SMOKE.md`** documents the switch, examples, and Playwright troubleshooting.

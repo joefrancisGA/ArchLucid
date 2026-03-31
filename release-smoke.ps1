@@ -1,11 +1,12 @@
-# End-to-end release smoke: Release build, core-tier tests, optional UI build, API+CLI sample run + artifact check.
-# Requires SQL connection string for the E2E block (unless -SkipE2E). See docs/RELEASE_SMOKE.md
+# End-to-end release smoke: Release build, core tests, optional UI, API+CLI+artifacts; optional -RunPlaywright for UI E2E.
+# SQL required for the API E2E block unless -SkipE2E. See docs/RELEASE_SMOKE.md
 param(
     [string] $SqlConnectionString = '',
     [string] $ApiBaseUrl = 'http://localhost:5128',
     [switch] $SkipE2E,
     [switch] $SkipUi,
-    [switch] $FullCore
+    [switch] $FullCore,
+    [switch] $RunPlaywright
 )
 
 Set-StrictMode -Version Latest
@@ -28,6 +29,61 @@ function Restore-Env
 
     if ($null -eq $savedApiUrl) { Remove-Item Env:\ARCHIFORGE_API_URL -ErrorAction SilentlyContinue }
     else { $env:ARCHIFORGE_API_URL = $savedApiUrl }
+}
+
+function Invoke-ReleaseSmokePlaywrightWhenRequested
+{
+    param(
+        [string] $RepoRoot,
+        [switch] $Requested,
+        [switch] $UiSkipped
+    )
+
+    if (-not $Requested) { return }
+
+    $uiRoot = Join-Path $RepoRoot 'archiforge-ui'
+    $node = Get-Command node -ErrorAction SilentlyContinue
+
+    if ($null -eq $node)
+    {
+        Write-Host 'Playwright was requested (-RunPlaywright) but Node.js is not on PATH.' -ForegroundColor Red
+        exit 1
+    }
+
+    Write-Host ''
+    Write-Host '=== Playwright E2E (opt-in: -RunPlaywright) ===' -ForegroundColor Cyan
+
+    Push-Location $uiRoot
+    try
+    {
+        if ($UiSkipped -or -not (Test-Path (Join-Path $uiRoot 'node_modules')))
+        {
+            Write-Host 'Installing UI dependencies (npm ci) for Playwright...'
+            npm ci
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        }
+
+        $savedCi = $env:CI
+        $env:CI = '1'
+        try
+        {
+            npm run test:e2e
+            if ($LASTEXITCODE -ne 0)
+            {
+                Write-Host "Playwright E2E failed (exit code $LASTEXITCODE)." -ForegroundColor Red
+                exit $LASTEXITCODE
+            }
+        }
+        finally
+        {
+            if ($null -eq $savedCi) { Remove-Item Env:\CI -ErrorAction SilentlyContinue }
+            else { $env:CI = $savedCi }
+        }
+    }
+    finally
+    {
+        Pop-Location
+    }
 }
 
 try
@@ -221,6 +277,7 @@ try
     }
 
     Write-Host "Smoke OK: $artifactCount artifact(s) listed for manifest $manifestId."
+    Invoke-ReleaseSmokePlaywrightWhenRequested -RepoRoot $root -Requested:$RunPlaywright -UiSkipped:$SkipUi
     Write-Host 'Release smoke finished successfully.'
     exit 0
 }

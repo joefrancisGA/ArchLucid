@@ -11,8 +11,9 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** (no
 5. **API readiness** — starts **`ArchiForge.Api`** (Release, **http** profile, port **5128**), waits for **`GET /health/ready`** and **`GET /health/live`**.
 6. **Sample run** — CLI **`new ArchiForgeSmokeRc`** in a temp folder, then **`run --quick`** (Development seed + commit).
 7. **Artifacts** — **`GET /v1/architecture/run/{runId}`** must show **`goldenManifestId`**; **`GET /api/artifacts/manifests/{manifestId}`** must return **≥ 1** descriptor.
+8. **Optional: Playwright** — **`-RunPlaywright`** runs **`archiforge-ui`** **`npm run test:e2e`** (with **`CI=1`**) **after** the steps above. Not run by default.
 
-**Not included:** Playwright, SQL container contract tests, multi-tenant matrix, performance — by design.
+**Not included (unless opted in):** Playwright (use **`-RunPlaywright`**), SQL container contract tests, multi-tenant matrix, performance — by design.
 
 ---
 
@@ -71,6 +72,14 @@ $env:ARCHIFORGE_SMOKE_SQL = 'Server=localhost,1433;Database=ArchiForge;User Id=s
 .\release-smoke.ps1 -SkipE2E -SkipUi
 ```
 
+**Include Playwright E2E after UI (+ API smoke when not skipped):**
+
+```powershell
+.\release-smoke.ps1 -RunPlaywright
+```
+
+With **`-SkipE2E`**, Playwright still runs **after** the UI block (if any); use **`npm ci`** automatically when **`-SkipUi`** left dependencies uninstalled.
+
 ---
 
 ## Parameters
@@ -100,5 +109,6 @@ $env:ARCHIFORGE_SMOKE_SQL = 'Server=localhost,1433;Database=ArchiForge;User Id=s
 - **API exits before ready:** wrong SQL string, migrations failing, or port in use — watch for a separate console if you run API manually; the smoke script starts a **hidden** `dotnet run` (stdout not shown). Re-run with **`-SkipE2E`** and start the API yourself to read logs, or temporarily change the script to use a visible window for debugging.
 - **`run --quick` seed fails:** API must be **`Development`** (the script sets **`ASPNETCORE_ENVIRONMENT=Development`** for the child process).
 - **Zero artifacts:** synthesis or persistence regression — check API logs for the smoke **`RunId`**.
+- **Playwright fails:** ensure browsers are installed (**`npx playwright install`** in **`archiforge-ui`**) and port **3000** is free for the test **`webServer`**.
 
 More: [TROUBLESHOOTING.md](TROUBLESHOOTING.md), [PILOT_GUIDE.md](PILOT_GUIDE.md).
