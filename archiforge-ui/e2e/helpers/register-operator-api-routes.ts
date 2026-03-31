@@ -175,6 +175,30 @@ export async function registerOperatorJourneyApiRoutes(
   });
 }
 
+/** Legacy + structured compare for the default E2E left/right run IDs (no AI explain route). */
+function defaultFixturePairLegacyStructuredConfig(): Pick<
+  OperatorJourneyRouteConfig,
+  "legacyCompare" | "structuredCompare"
+> {
+  return {
+    legacyCompare: {
+      leftRunId: FIXTURE_LEFT_RUN_ID,
+      rightRunId: FIXTURE_RIGHT_RUN_ID,
+      body: fixtureLegacyRunComparison(),
+    },
+    structuredCompare: {
+      baseRunId: FIXTURE_LEFT_RUN_ID,
+      targetRunId: FIXTURE_RIGHT_RUN_ID,
+      body: fixtureGoldenManifestComparison(),
+    },
+  };
+}
+
+/** Client compare page: mock legacy + structured GETs for the standard fixture pair. */
+export async function registerDefaultPairLegacyStructuredCompare(page: Page): Promise<void> {
+  await registerOperatorJourneyApiRoutes(page, defaultFixturePairLegacyStructuredConfig());
+}
+
 /** Default fixture pair: run + manifest + artifacts + bundle (for future run/manifest journey tests from the browser). */
 export async function registerDefaultRunManifestArtifactRoutes(page: Page): Promise<void> {
   await registerOperatorJourneyApiRoutes(page, {
@@ -188,16 +212,7 @@ export async function registerDefaultRunManifestArtifactRoutes(page: Page): Prom
 /** Compare page (client): legacy + structured + optional AI explanation GETs. */
 export async function registerCompareAndExplainRoutes(page: Page): Promise<void> {
   await registerOperatorJourneyApiRoutes(page, {
-    legacyCompare: {
-      leftRunId: FIXTURE_LEFT_RUN_ID,
-      rightRunId: FIXTURE_RIGHT_RUN_ID,
-      body: fixtureLegacyRunComparison(),
-    },
-    structuredCompare: {
-      baseRunId: FIXTURE_LEFT_RUN_ID,
-      targetRunId: FIXTURE_RIGHT_RUN_ID,
-      body: fixtureGoldenManifestComparison(),
-    },
+    ...defaultFixturePairLegacyStructuredConfig(),
     compareExplanation: {
       baseRunId: FIXTURE_LEFT_RUN_ID,
       targetRunId: FIXTURE_RIGHT_RUN_ID,

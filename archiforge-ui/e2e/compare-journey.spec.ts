@@ -1,35 +1,18 @@
 import { expect, test } from "@playwright/test";
 
+import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID } from "./fixtures";
 import {
-  FIXTURE_LEFT_RUN_ID,
-  FIXTURE_RIGHT_RUN_ID,
-  fixtureGoldenManifestComparison,
-  fixtureLegacyRunComparison,
-} from "./fixtures";
-import { registerOperatorJourneyApiRoutes } from "./helpers/register-operator-api-routes";
+  expectComparisonRequestOutcomeVisible,
+  gotoComparePageWithFixturePair,
+} from "./helpers/operator-journey";
+import { registerDefaultPairLegacyStructuredCompare } from "./helpers/register-operator-api-routes";
 
 test.describe("operator journey — compare query prefill and review order", () => {
   test("prefills from URL, runs legacy then structured mocks, shows review order and last request summary", async ({
     page,
   }) => {
-    await registerOperatorJourneyApiRoutes(page, {
-      legacyCompare: {
-        leftRunId: FIXTURE_LEFT_RUN_ID,
-        rightRunId: FIXTURE_RIGHT_RUN_ID,
-        body: fixtureLegacyRunComparison(),
-      },
-      structuredCompare: {
-        baseRunId: FIXTURE_LEFT_RUN_ID,
-        targetRunId: FIXTURE_RIGHT_RUN_ID,
-        body: fixtureGoldenManifestComparison(),
-      },
-    });
-
-    const q = new URLSearchParams({
-      leftRunId: FIXTURE_LEFT_RUN_ID,
-      rightRunId: FIXTURE_RIGHT_RUN_ID,
-    });
-    await page.goto(`/compare?${q.toString()}`);
+    await registerDefaultPairLegacyStructuredCompare(page);
+    await gotoComparePageWithFixturePair(page);
 
     await expect(page.getByPlaceholder("Base run ID (left)")).toHaveValue(FIXTURE_LEFT_RUN_ID);
     await expect(page.getByPlaceholder("Target run ID (right)")).toHaveValue(FIXTURE_RIGHT_RUN_ID);
@@ -39,6 +22,7 @@ test.describe("operator journey — compare query prefill and review order", () 
     await expect(page.getByText(/legacy flat diff/i)).toBeVisible();
 
     await page.getByRole("button", { name: "Compare" }).click();
+    await expectComparisonRequestOutcomeVisible(page);
 
     await expect(page.getByRole("heading", { name: "Structured manifest comparison", level: 3 })).toBeVisible();
     await expect(page.locator("#compare-structured")).toBeVisible();

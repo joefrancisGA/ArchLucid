@@ -56,3 +56,15 @@
 - **`e2e/manifest-empty-artifacts.spec.ts`** — RSC load of `/manifests/...`; asserts **no** artifact-list **failure/malformed** callouts; **`OperatorEmptyState`** (**No artifacts listed for this manifest**) with **valid empty result** + **Bundle ZIP may return 404** copy; **Download bundle (ZIP)** link present with **`href`** containing manifest id and **`bundle`**; **no** artifact table headers. File-level comment documents distinction vs request failures and bundle semantics.
 
 **Out of scope (per prompt):** no simulated bundle download / `page.route` click-through — keeps the spec stable; operator copy already separates empty list from ZIP availability.
+
+---
+
+## Prompt 6 — Playwright harness cleanup and readability pass
+
+**Scope:** `archiforge-ui/e2e` only. Small helpers; specs stay explicit.
+
+**Delivered:**
+
+- **`registerDefaultPairLegacyStructuredCompare(page)`** in `e2e/helpers/register-operator-api-routes.ts` — single definition of legacy + structured mocks for the standard left/right fixture pair; **`registerCompareAndExplainRoutes`** reuses the same config and adds AI explain only.
+- **`e2e/helpers/operator-journey.ts`** — operator-oriented navigation (`gotoComparePageWithFixturePair`, `gotoRunDetailForMockFixtureRun`, `gotoManifestDetail`, `gotoManifestEmptyArtifactsOperatorCase`), **`comparePairSearchParams`** for deterministic query strings, and **`expectComparisonRequestOutcomeVisible`** where it removed duplication.
+- **`compare-journey.spec.ts`**, **`compare-stale-input-warning.spec.ts`**, **`run-manifest-journey.spec.ts`**, **`manifest-empty-artifacts.spec.ts`** — refactored to use the helpers above; **`compare-proxy-mock.spec.ts`** unchanged (still uses **`registerCompareAndExplainRoutes`**).

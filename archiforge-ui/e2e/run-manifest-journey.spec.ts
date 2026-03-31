@@ -5,10 +5,11 @@ import {
   FIXTURE_PROJECT_ID,
   FIXTURE_RUN_ID,
 } from "./fixtures";
+import { gotoRunDetailForMockFixtureRun } from "./helpers/operator-journey";
 
 test.describe("operator journey — run detail to manifest and back", () => {
   test("reviews fixture run, opens manifest, returns to run (mock API only)", async ({ page }) => {
-    await page.goto(`/runs/${encodeURIComponent(FIXTURE_RUN_ID)}`);
+    await gotoRunDetailForMockFixtureRun(page);
 
     await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible();
 

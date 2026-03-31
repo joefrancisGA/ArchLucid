@@ -7,10 +7,11 @@
 import { expect, test } from "@playwright/test";
 
 import { FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID } from "./fixtures";
+import { gotoManifestEmptyArtifactsOperatorCase } from "./helpers/operator-journey";
 
 test.describe("operator journey — manifest empty artifact list", () => {
   test("shows valid-empty state, operator copy, and bundle link (mock API only)", async ({ page }) => {
-    await page.goto(`/manifests/${encodeURIComponent(FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID)}`);
+    await gotoManifestEmptyArtifactsOperatorCase(page);
 
     await expect(page.getByRole("heading", { name: "Manifest", level: 2 })).toBeVisible();
     await expect(page.getByText(FIXTURE_MANIFEST_EMPTY_ARTIFACTS_ID)).toBeVisible();
