@@ -1,0 +1,60 @@
+variable "enable_private_data_plane" {
+  type        = bool
+  description = "When true, create VNet, private DNS zones, and private endpoints for SQL + blob storage. Keep false for local dev or until Azure resource IDs are known."
+  default     = false
+}
+
+variable "create_resource_group" {
+  type        = bool
+  default     = false
+}
+
+variable "resource_group_name" {
+  type        = string
+  description = "Resource group for VNet, DNS zones, and private endpoints."
+  default     = ""
+}
+
+variable "location" {
+  type        = string
+  default     = ""
+}
+
+variable "virtual_network_name" {
+  type        = string
+  description = "Name of the VNet that will host the private endpoint subnet."
+  default     = "vnet-archiforge-data"
+}
+
+variable "vnet_address_space" {
+  type        = list(string)
+  default     = ["10.40.0.0/16"]
+}
+
+variable "private_endpoints_subnet_name" {
+  type        = string
+  default     = "snet-private-endpoints"
+}
+
+variable "private_endpoints_subnet_prefix" {
+  type        = string
+  description = "CIDR for private endpoints (must fit in vnet_address_space)."
+  default     = "10.40.1.0/24"
+}
+
+variable "sql_server_id" {
+  type        = string
+  description = "Full Azure resource ID of the logical SQL server (Microsoft.Sql/servers/...)."
+  default     = ""
+}
+
+variable "storage_account_id" {
+  type        = string
+  description = "Full Azure resource ID of the storage account."
+  default     = ""
+}
+
+variable "tags" {
+  type    = map(string)
+  default = {}
+}

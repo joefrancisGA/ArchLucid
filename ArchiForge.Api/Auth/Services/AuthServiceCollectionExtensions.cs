@@ -38,11 +38,14 @@ public static class AuthServiceCollectionExtensions
                 {
                     options.Authority = authOptions.Authority;
                     options.Audience = authOptions.Audience;
+                    string nameClaimType = string.IsNullOrWhiteSpace(authOptions.NameClaimType)
+                        ? ClaimTypes.Name
+                        : authOptions.NameClaimType.Trim();
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateAudience = !string.IsNullOrWhiteSpace(authOptions.Audience),
                         RoleClaimType = "roles",
-                        NameClaimType = ClaimTypes.Name
+                        NameClaimType = nameClaimType
                     };
                 });
         }

@@ -1,0 +1,17 @@
+# Copy to terraform.tfvars (gitignored). Keep enable_front_door_waf = false until origins exist.
+
+enable_front_door_waf = true
+create_resource_group = true
+resource_group_name   = "rg-archiforge-edge"
+location              = "eastus2"
+
+# Globally unique name (alphanumeric + hyphen).
+front_door_profile_name = "archiforge-dev-fd"
+
+# Origin: APIM gateway hostname (no scheme), e.g. archiforge-dev-apim.azure-api.net
+backend_hostname = "archiforge-dev-apim.azure-api.net"
+
+tags = {
+  workload = "archiforge"
+  layer    = "edge-waf"
+}

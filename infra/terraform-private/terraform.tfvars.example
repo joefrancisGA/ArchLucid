@@ -1,0 +1,13 @@
+enable_private_data_plane = true
+create_resource_group     = true
+resource_group_name       = "rg-archiforge-private"
+location                  = "eastus2"
+
+# Full ARM resource IDs from Azure Portal or `az resource show`
+sql_server_id       = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-data/providers/Microsoft.Sql/servers/archiforge-sql"
+storage_account_id  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/archiforgestg"
+
+tags = {
+  workload = "archiforge"
+  layer    = "private-data"
+}

@@ -35,6 +35,33 @@ flowchart TB
 
 **Implementation:** `infra/terraform/README.md` (variables, `terraform.tfvars.example`, WAF / private-backend caveats).
 
+## Front Door + WAF (optional edge)
+
+| Variable / setting | Used for | Notes |
+|--------------------|----------|--------|
+| `enable_front_door_waf` | Turn Front Door + WAF on | **`false` by default** — see **`infra/terraform-edge/`**. |
+| `backend_hostname` | Origin | APIM (`*.azure-api.net`) or App Service API hostname. |
+
+**Implementation:** `infra/terraform-edge/README.md`.
+
+## Private endpoints — SQL + Blob (optional)
+
+| Variable / setting | Used for | Notes |
+|--------------------|----------|--------|
+| `enable_private_data_plane` | VNet + private endpoints | **`false` by default** — **`infra/terraform-private/`**. |
+| `sql_server_id`, `storage_account_id` | Target resources | Required when enabled; see **`checks.tf`**. |
+
+**Implementation:** `infra/terraform-private/README.md` (post-apply: disable public SQL/storage access).
+
+## Entra ID — API application (optional)
+
+| Variable / setting | Used for | Notes |
+|--------------------|----------|--------|
+| `enable_entra_api_app` | App registration + SP | **`false` by default** — **`infra/terraform-entra/`**. |
+| `api_identifier_uri` | JWT **audience** | Must match **`ArchiForgeAuth:Audience`** in the API. |
+
+**Implementation:** `infra/terraform-entra/README.md`; sample config **`ArchiForge.Api/appsettings.Entra.sample.json`**.
+
 ## Constraints
 
 - Align with org **landing zone** (subnets, DNS zones, private endpoints).
