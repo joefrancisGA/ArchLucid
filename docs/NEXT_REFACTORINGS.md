@@ -1919,6 +1919,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [ ] 252. Dev container (SQL + Azurite + fakes).
 - [ ] 253. `dotnet new` template for finding engine + tests.
 - [x] 254. Contributor onboarding checklist (build, test filters, integration opt-in).
+- [x] 255. **Dockerfiles for API + UI** (multi-stage, Alpine, non-root, `HEALTHCHECK`).
+  - **`ArchiForge.Api/Dockerfile`**: three-stage (`restore` → `publish` → `runtime`); `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`; `HEALTHCHECK` on `/health/live`; port 8080.
+  - **`archiforge-ui/Dockerfile`**: three-stage (`deps` → `build` → `runtime`); `node:22-alpine`; Next.js standalone output (`output: "standalone"` in `next.config.ts`); `HEALTHCHECK` on `/`; port 3000.
+  - **`.dockerignore`** (repo root) + **`archiforge-ui/.dockerignore`**: exclude build artifacts, secrets, test data.
+  - **`docker-compose.yml`**: `--profile full-stack` adds `api` + `ui` containers alongside SQL/Azurite/Redis; default profile unchanged (dependencies only, hot-reload dev).
+  - **`docs/CONTAINERIZATION.md`**: build/run commands, security posture, WAF alignment, layer caching, future Azure notes.
 
 ---
 
@@ -1934,4 +1940,4 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [ ] Performance & cost (227–234): partial (**227** Runs list index; **228** list paging + run detail parallel fetch; **230** governance request cache; 229 response compression; 231–234 open).
 - [ ] API & contracts (235–242): partial (236 pagination; **237** errorCode; **240** create-run idempotency; **242** camelCase JSON + doc; 235, 238–239, 241 open).
 - [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests, **248** DDL discipline doc; 243–244, 246, 249 open).
-- [ ] UI & DX (250–254): partial (254 onboarding doc; 250–253 open).
+- [ ] UI & DX (250–255): partial (254 onboarding doc; **255** Dockerfiles + compose full-stack profile; 250–253 open).

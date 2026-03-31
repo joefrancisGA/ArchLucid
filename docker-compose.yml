@@ -1,14 +1,25 @@
 # ArchiForge development dependencies
-# Run: archiforge dev up (or: docker compose up -d)
+# ────────────────────────────────────────────────────────────────────
+# Default (hot-reload dev):
+#   docker compose up -d
+#   → SQL Server, Azurite, Redis only. Run API + UI natively.
 #
-# SQL Server: localhost:1433 (see ConnectionStrings below)
+# Full-stack integration (containerised API + UI):
+#   docker compose --profile full-stack up -d
+#   → Everything, including the ArchiForge API and Operator UI images.
+#
+# SQL Server: localhost:1433
 # Azurite:    localhost:10000 (blob), 10001 (queue), 10002 (table)
 # Redis:      localhost:6379
+# API:        localhost:5000 (full-stack profile only)
+# UI:         localhost:3000 (full-stack profile only)
 #
-# Connection string for SQL (use with archiforge / API):
+# Connection string for SQL:
 #   Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;
+# ────────────────────────────────────────────────────────────────────
 
 services:
+  # ── Infrastructure (always started) ────────────────────────────
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: archiforge-sql
@@ -18,6 +29,13 @@ services:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "ArchiForge_Dev_Pass123!"
       MSSQL_PID: "Developer"
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'ArchiForge_Dev_Pass123!' -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite:latest
     container_name: archiforge-azurite
@@ -39,6 +57,37 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+
+  # ── Application (full-stack profile only) ──────────────────────
+  api:
+    profiles: ["full-stack"]
+    build:
+      context: .
+      dockerfile: ArchiForge.Api/Dockerfile
+    container_name: archiforge-api
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__ArchiForge: "Server=sqlserver,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;"
+      ArchiForge__StorageProvider: "Sql"
+      ArchiForge__Auth__Mode: "DevelopmentBypass"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  ui:
+    profiles: ["full-stack"]
+    build:
+      context: archiforge-ui
+      dockerfile: Dockerfile
+    container_name: archiforge-ui
+    ports:
+      - "3000:3000"
+    environment:
+      ARCHIFORGE_API_BASE_URL: "http://api:8080"
+    depends_on:
+      - api
 
 volumes:
   azurite-data: {}

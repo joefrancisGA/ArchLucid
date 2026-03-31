@@ -18,6 +18,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Standalone output copies only required node_modules into .next/standalone,
+  // producing a self-contained deployment unit suitable for Docker / App Service.
+  output: "standalone",
   transpilePackages: ["reactflow"],
   async headers() {
     return [

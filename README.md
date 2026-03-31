@@ -26,6 +26,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md) | **SQL reference:** DbUp migrations, consolidated scripts, bootstrap paths, troubleshooting, change checklist |
 | [docs/demo-quickstart.md](docs/demo-quickstart.md) | **Corrected 50R demo:** DbUp + Contoso trusted-baseline seed, `Demo:*` config, `POST /v1.0/demo/seed`, verification endpoints |
 | [docs/TRUSTED_BASELINE.md](docs/TRUSTED_BASELINE.md) | **49R pass 2 boundary + Corrected 51R:** baseline-trusted surface, optional features, centralized actor (`IActorContext`), log-only baseline mutation audit (`IBaselineMutationAuditService`) vs SQL audit |
+| [docs/CONTAINERIZATION.md](docs/CONTAINERIZATION.md) | Dockerfiles, `docker compose --profile full-stack`, image security, WAF alignment |
 
 ## Pilot onboarding (56R)
 
@@ -71,7 +72,9 @@ From the ArchiForge repo directory (or any directory containing `docker-compose.
 dotnet run --project ArchiForge.Cli -- dev up
 ```
 
-This starts SQL Server, Azurite, and Redis in Docker. Use this connection string with the API:
+This starts SQL Server, Azurite, and Redis in Docker (default profile — for hot-reload development). To run the full stack (API + UI in containers too): `docker compose --profile full-stack up -d --build`. See [docs/CONTAINERIZATION.md](docs/CONTAINERIZATION.md).
+
+Use this connection string with the API:
 
 ```
 Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;

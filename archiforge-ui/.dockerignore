@@ -1,0 +1,21 @@
+# ── Docker build context exclusions (archiforge-ui) ────────────────
+node_modules/
+.next/
+out/
+build/
+
+# Test artifacts
+playwright-report/
+test-results/
+coverage/
+e2e/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Editor / IDE
+.vscode/
+.cursor/
+*.tsbuildinfo

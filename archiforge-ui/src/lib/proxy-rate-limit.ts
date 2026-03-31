@@ -113,7 +113,7 @@ export function enforceProxyRateLimit(request: NextRequest): NextResponse | null
 
   pruneStaleEntries(nowMs, windowMs);
 
-  let entry = buckets.get(key);
+  const entry = buckets.get(key);
 
   if (!entry || nowMs - entry.windowStartMs >= windowMs) {
     buckets.set(key, { count: 1, windowStartMs: nowMs });
