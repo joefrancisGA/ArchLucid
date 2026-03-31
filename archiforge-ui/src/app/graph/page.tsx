@@ -1,14 +1,25 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { GraphViewer } from "@/components/GraphViewer";
+
 import {
   OperatorEmptyState,
   OperatorErrorCallout,
   OperatorLoadingNotice,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
+
+const GraphViewer = dynamic(
+  () => import("@/components/GraphViewer").then((m) => m.GraphViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <OperatorLoadingNotice>Loading graph viewer…</OperatorLoadingNotice>
+    ),
+  },
+);
 import { coerceGraphViewModel } from "@/lib/operator-response-guards";
 import {
   getArchitectureGraph,
