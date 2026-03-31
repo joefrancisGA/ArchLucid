@@ -115,4 +115,64 @@ public sealed class EffectiveGovernanceResolverTests
         result.Conflicts.Should().ContainSingle(c => c.ConflictType == "ValueConflict" && c.ItemKey == "tier");
         result.Decisions.Should().Contain(d => d.ItemType == "Metadata" && d.ItemKey == "tier" && d.WinningPolicyPackId == projectPackId);
     }
+
+    [Fact]
+    public async Task Archived_assignments_are_not_visible_to_resolver_lists()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid packId = Guid.NewGuid();
+
+        InMemoryPolicyPackRepository packRepo = new();
+        InMemoryPolicyPackVersionRepository versionRepo = new();
+        InMemoryPolicyPackAssignmentRepository assignmentRepo = new();
+
+        await packRepo.CreateAsync(
+            new PolicyPack
+            {
+                PolicyPackId = packId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                Name = "Only archived assign",
+                Description = "",
+                PackType = PolicyPackType.ProjectCustom,
+                Status = PolicyPackStatus.Active,
+                CurrentVersion = "1.0.0",
+            },
+            CancellationToken.None);
+
+        await versionRepo.CreateAsync(
+            new PolicyPackVersion
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = packId,
+                Version = "1.0.0",
+                ContentJson = """{"metadata":{"orphan":"x"},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
+                CreatedUtc = DateTime.UtcNow,
+                IsPublished = true,
+            },
+            CancellationToken.None);
+
+        await assignmentRepo.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                PolicyPackId = packId,
+                PolicyPackVersion = "1.0.0",
+                ScopeLevel = GovernanceScopeLevel.Project,
+                AssignedUtc = DateTime.UtcNow,
+                ArchivedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
+
+        EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
+
+        result.EffectiveContent.Metadata.Should().NotContainKey("orphan");
+    }
 }

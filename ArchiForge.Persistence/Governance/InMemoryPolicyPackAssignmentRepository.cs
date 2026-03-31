@@ -66,6 +66,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
         {
             List<PolicyPackAssignment> result = _items
                 .Where(x => x.TenantId == tenantId)
+                .Where(x => !x.ArchivedUtc.HasValue)
                 .Where(x =>
                     string.Equals(x.ScopeLevel, GovernanceScopeLevel.Tenant, StringComparison.Ordinal) ||
                     (string.Equals(x.ScopeLevel, GovernanceScopeLevel.Workspace, StringComparison.Ordinal) &&
@@ -75,6 +76,22 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
                 .OrderByDescending(x => x.AssignedUtc)
                 .ToList();
             return Task.FromResult<IReadOnlyList<PolicyPackAssignment>>(result);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<bool> ArchiveAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            PolicyPackAssignment? row = _items.FirstOrDefault(
+                x => x.AssignmentId == assignmentId && x.TenantId == tenantId && !x.ArchivedUtc.HasValue);
+            if (row is null)
+                return Task.FromResult(false);
+
+            row.ArchivedUtc = DateTime.UtcNow;
+            return Task.FromResult(true);
         }
     }
 }

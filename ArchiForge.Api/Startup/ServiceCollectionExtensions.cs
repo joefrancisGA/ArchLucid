@@ -468,6 +468,9 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterRetrieval(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<RetrievalEmbeddingCapOptions>(
+            configuration.GetSection(RetrievalEmbeddingCapOptions.SectionName));
+
         services.AddSingleton<ITextChunker, SimpleTextChunker>();
         services.AddScoped<IRetrievalDocumentBuilder, RetrievalDocumentBuilder>();
         services.AddScoped<IRetrievalIndexingService, RetrievalIndexingService>();

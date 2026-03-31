@@ -131,6 +131,28 @@ public sealed class PolicyPacksController(
         return Ok(assignment);
     }
 
+    /// <summary>Soft-deletes a policy pack assignment for the current tenant (row retained for audit).</summary>
+    /// <returns>404 when no active assignment matched.</returns>
+    /// <remarks>Audit: <c>PolicyPackAssignmentArchived</c>.</remarks>
+    [HttpPost("assignments/{assignmentId:guid}/archive")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ArchiveAssignment(Guid assignmentId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        bool ok = await policyPacksApp.TryArchiveAssignmentAsync(scope.TenantId, assignmentId, ct);
+
+        if (!ok)
+        {
+            return this.NotFoundProblem(
+                $"Assignment '{assignmentId}' was not found or is already archived for this tenant.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return NoContent();
+    }
+
     /// <summary>Lists packs whose <em>authoring</em> scope matches the current tenant/workspace/project.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPack>), StatusCodes.Status200OK)]

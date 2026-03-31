@@ -61,4 +61,7 @@ public interface IPolicyPacksAppService
         string scopeLevel,
         bool isPinned,
         CancellationToken ct);
+
+    /// <summary>Archives an assignment in the current tenant; logs <c>PolicyPackAssignmentArchived</c> when successful.</summary>
+    Task<bool> TryArchiveAssignmentAsync(Guid tenantId, Guid assignmentId, CancellationToken ct);
 }

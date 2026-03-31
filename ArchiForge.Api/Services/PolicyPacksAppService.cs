@@ -113,4 +113,23 @@ public sealed class PolicyPacksAppService(
 
         return assignment;
     }
+
+    /// <inheritdoc />
+    public async Task<bool> TryArchiveAssignmentAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
+    {
+        bool ok = await managementService.TryArchiveAssignmentAsync(tenantId, assignmentId, ct);
+
+        if (!ok)
+            return false;
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.PolicyPackAssignmentArchived,
+                DataJson = JsonSerializer.Serialize(new { assignmentId }),
+            },
+            ct);
+
+        return true;
+    }
 }

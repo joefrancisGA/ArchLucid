@@ -41,4 +41,7 @@ public class PolicyPackAssignment
 
     /// <summary>Creation / last-assign timestamp (tie-breaker after rank).</summary>
     public DateTime AssignedUtc { get; set; } = DateTime.UtcNow;
+
+    /// <summary>When set, the assignment is retained for audit but ignored by <see cref="IPolicyPackAssignmentRepository.ListByScopeAsync"/>.</summary>
+    public DateTime? ArchivedUtc { get; set; }
 }

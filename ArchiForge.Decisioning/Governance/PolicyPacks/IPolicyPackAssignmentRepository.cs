@@ -39,4 +39,8 @@ public interface IPolicyPackAssignmentRepository
         Guid workspaceId,
         Guid projectId,
         CancellationToken ct);
+
+    /// <summary>Sets <see cref="PolicyPackAssignment.ArchivedUtc"/> when the row belongs to <paramref name="tenantId"/> and is not already archived.</summary>
+    /// <returns>True when a row was updated.</returns>
+    Task<bool> ArchiveAsync(Guid tenantId, Guid assignmentId, CancellationToken ct);
 }

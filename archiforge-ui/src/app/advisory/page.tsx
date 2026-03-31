@@ -6,6 +6,7 @@ import { getImprovementPlan } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
+import { isExperimentalAdvisoryPanelsEnabled } from "@/lib/feature-flags";
 import type { ImprovementPlan, RecommendationRecord } from "@/types/advisory";
 
 export default function AdvisoryPage() {
@@ -107,6 +108,19 @@ export default function AdvisoryPage() {
             correlationId={failure.correlationId}
           />
         </div>
+      ) : null}
+
+      {isExperimentalAdvisoryPanelsEnabled() ? (
+        <section
+          aria-label="Experimental advisory panels"
+          style={{ border: "1px dashed #94a3b8", padding: 12, marginBottom: 16, borderRadius: 8 }}
+        >
+          <h3 style={{ marginTop: 0 }}>Experimental</h3>
+          <p style={{ fontSize: 13, color: "#475569", marginBottom: 0 }}>
+            Optional panels for in-development advisory UX. Enable with{" "}
+            <code style={{ fontSize: 12 }}>NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS=true</code> at build time.
+          </p>
+        </section>
       ) : null}
 
       {planSummary ? (

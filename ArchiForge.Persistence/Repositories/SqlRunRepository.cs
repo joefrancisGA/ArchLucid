@@ -16,7 +16,9 @@ namespace ArchiForge.Persistence.Repositories;
 /// Persists and retrieves <see cref="RunRecord"/> rows from the <c>dbo.Runs</c> table.
 /// All read operations are scoped to the caller's tenant, workspace, and project.
 /// </summary>
-public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : IRunRepository
+public sealed class SqlRunRepository(
+    ISqlConnectionFactory connectionFactory,
+    IAuthorityRunListConnectionFactory authorityRunListConnectionFactory) : IRunRepository
 {
     public async Task SaveAsync(
         RunRecord run,
@@ -104,7 +106,7 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
             new CommandDefinition(
                 sql,

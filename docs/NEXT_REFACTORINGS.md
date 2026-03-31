@@ -1801,10 +1801,13 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 199. Api.Tests: Ask thread + fake LLM — `AskThreadIntegrationTests` (POST `api/ask` with seeded authority run, verify thread, follow-up on same thread, messages list, validation).
 - [x] 200. Committed OpenAPI snapshot diff in CI.
   - **`ArchiForge.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** + **`OpenApiContractSnapshotTests`** (`Suite=Core`): compares **`GET /openapi/v1.json`** to the snapshot (regenerate: **`ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1`**). Runs in **fast core** (Tier 1). See **`docs/TEST_EXECUTION_MODEL.md`**.
-- [ ] 201. Load test: expensive rate-limit boundary.
+- [x] 201. Load test: expensive rate-limit boundary.
+  - **`docs/runbooks/LOAD_TEST_RATE_LIMITS.md`** + **`scripts/load/k6-expensive-rate-limit.js`** (configure **`ARCHIFORGE_EXPENSIVE_PATH`** + auth for real 429s).
 - [x] 202. Resilience: SQL timeout → health / problem details — `ApplicationProblemMapper.TryMapDatabaseException` maps `SqlException(-2)` / `TimeoutException` → 503 `DatabaseTimeout`, `DbException` → 503 `DatabaseUnavailable`; `SqlConnectionHealthCheck` reports `Degraded` for transient SQL errors (timeout, Azure throttling); `ProblemTypes.DatabaseTimeout` / `DatabaseUnavailable` constants; `ProblemDetailsExtensions.ServiceUnavailableProblem` helper; unit tests in `ApiProblemDetailsExceptionFilterTests` + `SqlConnectionHealthCheckTests`.
-- [ ] 203. CI: migrate from N−1 schema.
-- [ ] 204. UI e2e: policy assign + effective-content.
+- [x] 203. CI: migrate from N−1 schema.
+  - **`DatabaseMigrator.RunExcludingTrailingScripts`** (`ArchiForge.Data`) + **`DatabaseMigratorUpgradePathSqlIntegrationTests`** (`SqlServerContainer`): N−1 pass then full **`Run`**.
+- [x] 204. UI e2e: policy assign + effective-content.
+  - **`archiforge-ui/e2e/policy-packs-journey.spec.ts`** + extended **`mock-archiforge-api-server`** (`v1/policy-packs` POST/GET).
 
 ### Observability & reliability (205–214)
 
@@ -1876,9 +1879,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **Tests**: `RequestScopedCachingEffectiveGovernanceLoaderTests` (`ArchiForge.Decisioning.Tests`).
 - [x] 231. Graph snapshot pagination API design.
   - **`GET /api/graph/runs/{runId}/nodes`**: `page` / `pageSize` (see **`PaginationDefaults`**); response **`GraphNodesPageResponse`** (nodes + edges with both endpoints on the page). **`GraphSnapshotPagination`** + **`GraphSnapshotNodesPage`** in **`ArchiForge.KnowledgeGraph`**.
-- [ ] 232. Embedding batching cost caps.
-- [ ] 233. AI Search SKU guidance (dev vs prod).
-- [ ] 234. Cold-start profiling + trimming options.
+- [x] 232. Embedding batching cost caps.
+  - **`RetrievalEmbeddingCapOptions`** (`Retrieval:EmbeddingCaps`), **`RetrievalIndexingService`** batches **`EmbedManyAsync`** and optional **`MaxChunksPerIndexOperation`**; validation in **`ArchiForgeConfigurationRules`**; tests **`RetrievalIndexingServiceTests`**.
+- [x] 233. AI Search SKU guidance (dev vs prod).
+  - **`docs/AI_SEARCH_SKU_GUIDANCE.md`**.
+- [x] 234. Cold-start profiling + trimming options.
+  - **`docs/PERFORMANCE_COLD_START_AND_TRIMMING.md`**.
 
 ### API & contracts (235–242)
 
@@ -1894,7 +1900,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`OpenApiAuthSecurityDocumentFilter`** / **`OpenApiAuthSecurityOperationFilter`**: **`Bearer`** (JWT) when **`ArchiForgeAuth:Mode`** is **`JwtBearer`**; **`ApiKey`** (**`X-Api-Key`**) when **`ApiKey`**; document-level **`security`** + optional **`security: []`** for **`AllowAnonymous`** (explored actions only). Filters read **`IConfiguration` at document generation** so **`WebApplicationFactory`** overrides apply.
   - **`CustomSchemaIds`**: full type name fixes Swashbuckle clash (**`DecisionTrace`** in Decisioning vs Contracts).
   - **Tests**: **`SwaggerOpenApiAuthTests`**, **`SwaggerJsonSecuritySchemesIntegrationTests`**, **`SwaggerDocumentGenerationSmokeTests`**.
-- [ ] 239. Webhook HMAC for digest/alert channels.
+- [x] 239. Webhook HMAC for digest/alert channels.
+  - **`WebhookDelivery:HmacSha256SharedSecret`**, **`WebhookHmacEnvelopePoster`**, **`HttpWebhookPoster`** (see **`WebhookDeliveryOptions`**).
 - [x] 240. Optional `Idempotency-Key` on create run.
   - **`021_ArchitectureRunIdempotency.sql`** + **`ArchitectureRunIdempotency`** in **`ArchiForge.sql`**; **`IArchitectureRunIdempotencyRepository`** / **`ArchitectureRunIdempotencyRepository`**.
   - **`ArchitectureRunService`**: optional **`CreateRunIdempotencyState`**; replay → **`CreateRunResult.IdempotentReplay`**; key + different body → **`ConflictException`** (409).
@@ -1911,14 +1918,16 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 - [x] 243. Archival for old runs / digests / conversations.
   - **`ArchivedUtc`** on **`dbo.Runs`**, **`dbo.ArchitectureDigests`**, **`dbo.ConversationThreads`** (migration **`028_ArchivalSoftFlags.sql`**, **`ArchiForge.sql`** CREATE + parity). List/get SQL and in-memory repos exclude archived rows. **`DataArchivalOptions`** (`DataArchival:*`), **`IDataArchivalCoordinator`** / **`DataArchivalCoordinator`**, **`DataArchivalHostedService`** (scoped coordinator + retention days). Default **`DataArchival:Enabled`** false.
-- [ ] 244. Soft-delete policy for governance assignments.
+- [x] 244. Soft-delete policy for governance assignments.
+  - Migration **`029_PolicyPackAssignments_ArchivedUtc.sql`**, **`ArchivedUtc`** on **`PolicyPackAssignment`**, list filter + **`ArchiveAsync`**, **`POST v1/policy-packs/assignments/{id}/archive`**, audit **`PolicyPackAssignmentArchived`**.
 - [x] 245. Connection resilience (retry + backoff).
   - **`SqlTransientDetector`** (`ArchiForge.Persistence.Connections`): shared classifier for transient SQL Server error numbers (-2 timeout, 40613 Azure SQL unavailable, 40197 service error, 49918–49920 throttling) and `TimeoutException`. Used by both the health check and the resilient factory.
   - **`ResilientSqlConnectionFactory`** (`ArchiForge.Persistence.Connections`): decorator over `ISqlConnectionFactory` that retries `CreateOpenConnectionAsync` on transient failures with exponential backoff (default 3 retries, 200 ms base, ±25 % jitter). Non-transient exceptions propagate immediately.
   - **DI wiring**: `ArchiForgeStorageServiceCollectionExtensions` now wraps `SqlConnectionFactory` in `ResilientSqlConnectionFactory` for the SQL storage path.
   - **Health check**: `SqlConnectionHealthCheck` delegates to the shared `SqlTransientDetector`.
   - **Tests**: `SqlTransientDetectorTests` (9 cases — all error numbers, null, `TimeoutException`, inner exception), `ResilientSqlConnectionFactoryTests` (8 cases — success, transient retry + success, retry exhaustion, non-transient immediate throw, cancellation, exponential delay range, null guards, zero-retries).
-- [ ] 246. Read replica routing for heavy authority lists.
+- [x] 246. Read replica routing for heavy authority lists.
+  - **`SqlServer:ReadReplica:AuthorityRunListReadsConnectionString`**, **`IAuthorityRunListConnectionFactory`** / **`AuthorityRunListConnectionFactory`**, **`SqlRunRepository.ListByProjectAsync`** uses replica when set; Terraform example **`infra/terraform/examples/sql_read_replica_app_settings.tf.example`**.
 - [x] 247. Shared test cases InMemory vs Dapper parity.
   - **Contract test pattern**: Abstract base test classes define shared assertions per repository interface; concrete subclasses supply InMemory or Dapper implementations. Both run the exact same test suite.
   - **`AlertRuleRepositoryContractTests`** (7 tests): Create+GetById round-trip, GetById nonexistent → null, Update modifies mutable fields, ListByScope scope filtering, ListByScope ordering (CreatedUtc DESC), ListEnabledByScope excludes disabled, ListEnabledByScope empty when none enabled.
@@ -1934,14 +1943,17 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### UI & developer experience (250–256)
 
-- [ ] 250. UI feature flags for experimental advisory panels.
+- [x] 250. UI feature flags for experimental advisory panels.
+  - **`archiforge-ui/src/lib/feature-flags.ts`** (`NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS`), optional section on **`advisory`** page.
 - [x] 251. Operator UI: Problem Details + **X-Correlation-ID** + Vitest coverage.
   - **ProblemDetails in the shell:** `archiforge-ui/src/lib/api-problem.ts` (`tryParseApiProblemDetails`), `api-problem-copy.ts` (`operatorCopyForProblem` maps `extensions.errorCode` + prefers `supportHint`), `api-request-error.ts` / `api-error.ts` (`buildApiRequestErrorFromParts`, `readApiFailureMessage`), `api-load-failure.ts` (`toApiLoadFailure`, `uiFailureFromMessage`).
   - **Correlation:** `archiforge-ui/src/lib/correlation.ts` (`CORRELATION_ID_HEADER`, `generateCorrelationId`, `isSafeCorrelationId`); browser `api.ts` sends the header; `archiforge-ui/src/app/api/proxy/[...path]/route.ts` forwards safe inbound ids or generates, and `passThrough` echoes upstream **X-Correlation-ID** on responses.
   - **Rendering:** `OperatorApiProblem` on server pages (runs, run detail, manifests, compare) and client operator pages (alerts, advisory, ask, graph, replay, policy packs, etc.).
   - **Tests (Vitest):** `src/lib/api-problem.test.ts`, `api-problem-copy.test.ts`, `correlation.test.ts`, `api-request-error.test.ts`, `api-load-failure.test.ts`, extended `api-error.test.ts`, `src/components/OperatorApiProblem.test.tsx`, `src/app/api/proxy/proxy-route-correlation.test.ts` (plus existing `proxy-route-post-body.test.ts`).
-- [ ] 252. Dev container (SQL + Azurite + fakes).
-- [ ] 253. `dotnet new` template for finding engine + tests.
+- [x] 252. Dev container (SQL + Azurite + fakes).
+  - **`.devcontainer/devcontainer.json`** (.NET 10 + Node 22); **`docs/DEVCONTAINER.md`** + host **`docker compose up -d`**.
+- [x] 253. `dotnet new` template for finding engine + tests.
+  - **`templates/archiforge-finding-engine`** (`dotnet new install ./templates/archiforge-finding-engine`, shortName **`archiforge-finding-engine`**); see **`docs/BUILD.md`**.
 - [x] 254. Contributor onboarding checklist (build, test filters, integration opt-in).
 - [x] 255. **Dockerfiles for API + UI** (multi-stage, Alpine, non-root, `HEALTHCHECK`).
   - **`ArchiForge.Api/Dockerfile`**: three-stage (`restore` → `publish` → `runtime`); `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`; `HEALTHCHECK` on `/health/live`; port 8080.
@@ -1962,10 +1974,10 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 
 - [x] Documentation & ADRs (155–169): complete (155 XML doc pieces 12–21 done; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
 - [x] Unit tests (170–194): complete for 170–190, 191–194 (170–171 Persistence.Tests; 183–185, 190 as listed above; 189 UTC calculator documented).
-- [ ] Integration / E2E (195–204): partial (195–199 done; 200–204 open).
+- [x] Integration / E2E (195–204): complete for backlog scope (195–204; **201** k6 doc/script, **203** N−1 migrator test, **204** policy-packs Playwright).
 - [x] Observability & reliability (205–214): complete (205–214; **214** SLO runbook).
 - [x] Security (215–226): complete for backlog scope (**215–226** including **222–224** design docs; remaining continuous hardening is outside this checklist).
-- [ ] Performance & cost (227–234): partial (**227** Runs list index; **228** list paging + run detail parallel fetch; **230** governance request cache; 229 response compression; **231** graph node pagination; 232–234 open).
+- [x] Performance & cost (227–234): complete for backlog scope (**227–234** including **232–234** embedding caps, AI Search SKU doc, cold-start/trim doc).
 - [x] API & contracts (235–242): complete (235 deprecation headers; 236–242 as listed, including **239** webhook HMAC and **241** batch replay partial success).
-- [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests, **248** DDL discipline doc, **243** soft archival + **249** rollback runbook; 244, 246 open).
-- [ ] UI & DX (250–256): partial (254 onboarding doc; **255** Dockerfiles + compose full-stack profile; **256** not-found + route loading; **251** Problem Details + correlation + UI tests; 250, 252–253 open).
+- [x] Data & persistence (243–249): complete for backlog scope (**243–249** including **244** assignment archival, **246** read-replica list routing).
+- [x] UI & DX (250–256): complete for backlog scope (**250** feature flags; **252–253** devcontainer + template; **251**, **254–256** as listed).

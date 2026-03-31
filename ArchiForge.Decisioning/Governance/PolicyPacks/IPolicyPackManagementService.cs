@@ -79,4 +79,7 @@ public interface IPolicyPackManagementService
         string scopeLevel,
         bool isPinned,
         CancellationToken ct);
+
+    /// <summary>Soft-deletes an assignment row for the tenant (sets <see cref="PolicyPackAssignment.ArchivedUtc"/>).</summary>
+    Task<bool> TryArchiveAssignmentAsync(Guid tenantId, Guid assignmentId, CancellationToken ct);
 }

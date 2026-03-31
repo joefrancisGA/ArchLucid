@@ -14,6 +14,10 @@ dotnet build
 dotnet test
 ```
 
+**Dev Container:** Optional VS Code / Cursor setup lives in **`.devcontainer/`** — .NET 10 + Node 22; start **`docker compose up -d`** on the host for SQL, Azurite, and Redis (see **`docs/DEVCONTAINER.md`**).
+
+**Finding-engine template:** Install the local template with **`dotnet new install ./templates/archiforge-finding-engine`**, then **`dotnet new archiforge-finding-engine -n MyFindingEngine`** (class library + xUnit tests).
+
 **CI / supply chain:** GitHub Actions workflow **`.github/workflows/ci.yml`** runs **`dotnet list package --vulnerable --include-transitive`** so known-vulnerable NuGet packages fail the pipeline (see **`NEXT_REFACTORINGS.md`** item **220**). Run the same command locally after dependency changes. The workflow uses **tiered jobs** (fast .NET core, then full .NET regression with SQL, plus **Vitest** and **Playwright** for `archiforge-ui`); see **`TEST_EXECUTION_MODEL.md`**.
 
 **Secret scanning:** The **`gitleaks`** job scans the full Git history with **`gitleaks/gitleaks-action`** and **`.gitleaks.toml`** (extends default rules; allowlists only the two documented dev/CI SQL passwords that appear verbatim in-repo). To run locally: install [gitleaks](https://github.com/gitleaks/gitleaks) and run **`gitleaks detect --source . --verbose`** from the repo root.

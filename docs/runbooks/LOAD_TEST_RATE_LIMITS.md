@@ -1,0 +1,24 @@
+# Load test — expensive rate-limit boundary
+
+**Objective:** Validate that burst traffic against **expensive** endpoints receives **429** under configured `RateLimiting:Expensive:*` windows.
+
+**Prerequisites:** A running API with known base URL, test identity with **execute** authority, and optional k6 (`brew install k6` / CI image).
+
+## Script
+
+- **`scripts/load/k6-expensive-rate-limit.js`** — hammers a placeholder expensive route; **edit the URL** to match your environment (e.g. a safe replay or execute stub).
+
+## Run (example)
+
+```bash
+k6 run --vus 30 --duration 60s -e ARCHIFORGE_BASE_URL=https://localhost:7123 scripts/load/k6-expensive-rate-limit.js
+```
+
+## Interpretation
+
+- Expect a mix of **200/202** and **429** once the window is saturated.
+- Correlate with API logs and `RateLimiting` configuration in `appsettings.json`.
+
+**Reliability:** Run against non-production or a dedicated perf tenant; avoid shared production data.
+
+**Cost:** k6 egress + Azure OpenAI (if the chosen route invokes models) — keep routes deterministic or mocked for cost control.

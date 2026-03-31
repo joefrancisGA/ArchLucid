@@ -35,12 +35,12 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
             INSERT INTO dbo.PolicyPackAssignments
             (
                 AssignmentId, TenantId, WorkspaceId, ProjectId,
-                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc
+                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc
             )
             VALUES
             (
                 @AssignmentId, @TenantId, @WorkspaceId, @ProjectId,
-                @PolicyPackId, @PolicyPackVersion, @IsEnabled, @ScopeLevel, @IsPinned, @AssignedUtc
+                @PolicyPackId, @PolicyPackVersion, @IsEnabled, @ScopeLevel, @IsPinned, @AssignedUtc, @ArchivedUtc
             );
             """;
 
@@ -78,9 +78,10 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
         const string sql = """
             SELECT TOP 200
                 AssignmentId, TenantId, WorkspaceId, ProjectId,
-                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc
+                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc
             FROM dbo.PolicyPackAssignments
             WHERE TenantId = @TenantId
+              AND ArchivedUtc IS NULL
               AND (
                     (ScopeLevel = N'Tenant')
                  OR (ScopeLevel = N'Workspace' AND WorkspaceId = @WorkspaceId)
@@ -101,5 +102,22 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
                 },
                 cancellationToken: ct));
         return rows.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> ArchiveAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
+    {
+        const string sql = """
+            UPDATE dbo.PolicyPackAssignments
+            SET ArchivedUtc = SYSUTCDATETIME()
+            WHERE AssignmentId = @AssignmentId
+              AND TenantId = @TenantId
+              AND ArchivedUtc IS NULL;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        int affected = await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { AssignmentId = assignmentId, TenantId = tenantId }, cancellationToken: ct));
+        return affected > 0;
     }
 }

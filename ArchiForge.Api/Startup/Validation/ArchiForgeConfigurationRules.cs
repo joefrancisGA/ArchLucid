@@ -4,6 +4,7 @@ using ArchiForge.Api.Configuration;
 
 using ArchiForge.DecisionEngine.Validation;
 using ArchiForge.Persistence.Archival;
+using ArchiForge.Retrieval.Indexing;
 
 namespace ArchiForge.Api.Startup.Validation;
 
@@ -78,6 +79,7 @@ public static class ArchiForgeConfigurationRules
         CollectBatchReplayErrors(configuration, errors);
         CollectApiDeprecationErrors(configuration, errors);
         CollectDataArchivalErrors(configuration, errors);
+        CollectRetrievalEmbeddingCapErrors(configuration, errors);
 
         if (!environment.IsProduction()) return errors;
         
@@ -188,6 +190,23 @@ public static class ArchiForgeConfigurationRules
         if (opts.IntervalHours < 1 || opts.IntervalHours > 168)
         {
             errors.Add("DataArchival:IntervalHours must be between 1 and 168.");
+        }
+    }
+
+    private static void CollectRetrievalEmbeddingCapErrors(IConfiguration configuration, List<string> errors)
+    {
+        RetrievalEmbeddingCapOptions caps =
+            configuration.GetSection(RetrievalEmbeddingCapOptions.SectionName).Get<RetrievalEmbeddingCapOptions>() ??
+            new RetrievalEmbeddingCapOptions();
+
+        if (caps.MaxTextsPerEmbeddingRequest < 1 || caps.MaxTextsPerEmbeddingRequest > 2048)
+        {
+            errors.Add("Retrieval:EmbeddingCaps:MaxTextsPerEmbeddingRequest must be between 1 and 2048.");
+        }
+
+        if (caps.MaxChunksPerIndexOperation < 0 || caps.MaxChunksPerIndexOperation > 1_000_000)
+        {
+            errors.Add("Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation must be between 0 and 1000000 (0 = unlimited).");
         }
     }
 

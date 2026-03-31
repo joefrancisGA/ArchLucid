@@ -160,4 +160,8 @@ public sealed class PolicyPackManagementService(
         await assignmentRepository.CreateAsync(assignment, ct);
         return assignment;
     }
+
+    /// <inheritdoc />
+    public Task<bool> TryArchiveAssignmentAsync(Guid tenantId, Guid assignmentId, CancellationToken ct) =>
+        assignmentRepository.ArchiveAsync(tenantId, assignmentId, ct);
 }

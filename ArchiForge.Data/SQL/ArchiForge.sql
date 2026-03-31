@@ -1827,6 +1827,7 @@ BEGIN
         ScopeLevel NVARCHAR(50) NOT NULL CONSTRAINT DF_PolicyPackAssignments_ScopeLevel_Create DEFAULT (N'Project'),
         IsPinned BIT NOT NULL CONSTRAINT DF_PolicyPackAssignments_IsPinned_Create DEFAULT (0),
         AssignedUtc DATETIME2 NOT NULL,
+        ArchivedUtc DATETIME2 NULL,
         INDEX IX_PolicyPackAssignments_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, AssignedUtc DESC),
         INDEX IX_PolicyPackAssignments_ScopeLevel_AssignedUtc NONCLUSTERED (TenantId, WorkspaceId, ProjectId, ScopeLevel, AssignedUtc DESC)
     );
@@ -1931,5 +1932,11 @@ IF OBJECT_ID(N'dbo.ArchitectureDigests', N'U') IS NOT NULL
 IF OBJECT_ID(N'dbo.ConversationThreads', N'U') IS NOT NULL
    AND COL_LENGTH('dbo.ConversationThreads', 'ArchivedUtc') IS NULL
     ALTER TABLE dbo.ConversationThreads ADD ArchivedUtc DATETIME2 NULL;
+
+/* ---- DbUp 029 parity: policy pack assignment archival (excluded from effective governance lists) ---- */
+
+IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
+   AND COL_LENGTH('dbo.PolicyPackAssignments', 'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.PolicyPackAssignments ADD ArchivedUtc DATETIME2 NULL;
 
 GO

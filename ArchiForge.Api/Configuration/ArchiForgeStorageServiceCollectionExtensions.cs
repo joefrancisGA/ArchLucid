@@ -111,6 +111,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             return new ResilientSqlConnectionFactory(inner, logger);
         });
 
+        services.Configure<ReadReplicaOptions>(configuration.GetSection(ReadReplicaOptions.SectionName));
+        services.AddSingleton<IAuthorityRunListConnectionFactory, AuthorityRunListConnectionFactory>();
+
         Assembly persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
         string dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;
         string scriptPath = Path.Combine(dir, "Scripts", "ArchiForge.sql");

@@ -47,7 +47,7 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 
 | Script | Purpose |
 |--------|---------|
-| `001_InitialSchema.sql` – `028_...` | API + authority + decisioning deltas (see `Migrations/README.md` and **`docs/SQL_SCRIPTS.md`** §4.2). **`028_ArchivalSoftFlags.sql`**: nullable **`ArchivedUtc`** on **`Runs`**, **`ArchitectureDigests`**, **`ConversationThreads`** (skipped when table absent). |
+| `001_InitialSchema.sql` – `029_...` | API + authority + decisioning deltas (see `Migrations/README.md` and **`docs/SQL_SCRIPTS.md`** §4.2). **`028_ArchivalSoftFlags.sql`**: nullable **`ArchivedUtc`** on **`Runs`**, **`ArchitectureDigests`**, **`ConversationThreads`** (skipped when table absent). **`029_PolicyPackAssignments_ArchivedUtc.sql`**: **`ArchivedUtc`** on **`PolicyPackAssignments`**. |
 
 **Consolidated script parity:** **`ArchiForge.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
 

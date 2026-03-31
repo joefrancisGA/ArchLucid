@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "ArchiForge",
+  "classifications": [ "ArchiForge", "Library" ],
+  "identity": "ArchiForge.Templates.FindingEngine",
+  "name": "ArchiForge finding engine",
+  "description": "Minimal class library plus xUnit tests for custom finding logic.",
+  "shortName": "archiforge-finding-engine",
+  "sourceName": "ArchiForgeFindingEngine",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  }
+}

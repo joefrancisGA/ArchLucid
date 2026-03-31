@@ -74,6 +74,55 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
     }
 
     [Fact]
+    public async Task ArchiveAssignment_Removes_pack_from_effective_set()
+    {
+        string contentJson = """
+                             {
+                               "complianceRuleIds": [],
+                               "complianceRuleKeys": [],
+                               "alertRuleIds": [],
+                               "compositeAlertRuleIds": [],
+                               "advisoryDefaults": {},
+                               "metadata": { "archiveProbe": "yes" }
+                             }
+                             """;
+
+        HttpResponseMessage createResponse = await Client.PostAsync(
+            "/v1/policy-packs",
+            JsonContent(
+                new
+                {
+                    name = "Archive probe pack",
+                    description = "",
+                    packType = "ProjectCustom",
+                    initialContentJson = contentJson,
+                }));
+
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+        Guid packId = created!.PolicyPackId;
+
+        HttpResponseMessage assignResponse = await Client.PostAsync(
+            $"/v1/policy-packs/{packId}/assign",
+            JsonContent(new { version = "1.0.0" }));
+
+        assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        PolicyPackAssignment? assignment = await assignResponse.Content.ReadFromJsonAsync<PolicyPackAssignment>(JsonOptions);
+        assignment.Should().NotBeNull();
+
+        HttpResponseMessage archiveResponse =
+            await Client.PostAsync($"/v1/policy-packs/assignments/{assignment!.AssignmentId}/archive", null);
+
+        archiveResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        HttpResponseMessage effectiveResponse = await Client.GetAsync("/v1/policy-packs/effective");
+        effectiveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        EffectivePolicyPackSet? effective = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
+        effective.Should().NotBeNull();
+        effective!.Packs.Should().NotContain(p => p.PolicyPackId == packId);
+    }
+
+    [Fact]
     public async Task EffectiveContent_MergesComplianceRuleKeys_FromAssignedPack()
     {
         string contentJson = """

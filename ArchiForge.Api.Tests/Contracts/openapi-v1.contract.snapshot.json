@@ -10347,6 +10347,49 @@
         }
       }
     },
+    "/v1/policy-packs/assignments/{assignmentId}/archive": {
+      "post": {
+        "tags": [
+          "PolicyPacks"
+        ],
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/policy-packs/{policyPackId}/versions": {
       "get": {
         "tags": [
@@ -18768,6 +18811,13 @@
           },
           "assignedUtc": {
             "type": "string",
+            "format": "date-time"
+          },
+          "archivedUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
             "format": "date-time"
           }
         }
