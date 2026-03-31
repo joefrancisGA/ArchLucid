@@ -1799,7 +1799,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 197. Api.Tests: governance two-pack merge + effective-content (`EffectiveContent_MergesAdvisoryDefaults_FromTwoAssignedPacks`; compliance union already in `EffectiveContent_UnionsComplianceRuleKeys_FromTwoAssignments`).
 - [x] 198. Api.Tests: retrieval index + query smoke (fake vector) — `RetrievalQuerySmokeIntegrationTests` (index documents via DI, query via `GET api/retrieval/search`, empty index, topK clamp, validation).
 - [x] 199. Api.Tests: Ask thread + fake LLM — `AskThreadIntegrationTests` (POST `api/ask` with seeded authority run, verify thread, follow-up on same thread, messages list, validation).
-- [ ] 200. Committed OpenAPI snapshot diff in CI.
+- [x] 200. Committed OpenAPI snapshot diff in CI.
+  - **`ArchiForge.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** + **`OpenApiContractSnapshotTests`** (`Suite=Core`): compares **`GET /openapi/v1.json`** to the snapshot (regenerate: **`ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1`**). Runs in **fast core** (Tier 1). See **`docs/TEST_EXECUTION_MODEL.md`**.
 - [ ] 201. Load test: expensive rate-limit boundary.
 - [x] 202. Resilience: SQL timeout → health / problem details — `ApplicationProblemMapper.TryMapDatabaseException` maps `SqlException(-2)` / `TimeoutException` → 503 `DatabaseTimeout`, `DbException` → 503 `DatabaseUnavailable`; `SqlConnectionHealthCheck` reports `Degraded` for transient SQL errors (timeout, Azure throttling); `ProblemTypes.DatabaseTimeout` / `DatabaseUnavailable` constants; `ProblemDetailsExtensions.ServiceUnavailableProblem` helper; unit tests in `ApiProblemDetailsExceptionFilterTests` + `SqlConnectionHealthCheckTests`.
 - [ ] 203. CI: migrate from N−1 schema.

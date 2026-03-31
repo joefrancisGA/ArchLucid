@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
 import { declaredPostBodyExceedsLimit, readRequestBodyWithLimit } from "@/lib/proxy-body-read";
 import { PROXY_MAX_BODY_BYTES } from "@/lib/proxy-constants";
+import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
 import { getScopeHeaders } from "@/lib/scope";
 
 /**
@@ -198,6 +199,12 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
 ) {
+  const rateLimited = enforceProxyRateLimit(request);
+
+  if (rateLimited) {
+    return rateLimited;
+  }
+
   const { path } = await context.params;
   return forward(request, path ?? [], "GET");
 }
@@ -207,6 +214,12 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
 ) {
+  const rateLimited = enforceProxyRateLimit(request);
+
+  if (rateLimited) {
+    return rateLimited;
+  }
+
   const { path } = await context.params;
   return forward(request, path ?? [], "POST");
 }
