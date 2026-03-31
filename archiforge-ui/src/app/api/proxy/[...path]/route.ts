@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
+import { declaredPostBodyExceedsLimit, readRequestBodyWithLimit } from "@/lib/proxy-body-read";
 import { PROXY_MAX_BODY_BYTES } from "@/lib/proxy-constants";
 import { getScopeHeaders } from "@/lib/scope";
 
@@ -24,38 +25,6 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
 /** One-line JSON for operators scraping UI server logs (no response bodies). */
 function logProxyDiagnostic(event: string, fields: Record<string, string | number>): void {
   console.warn(JSON.stringify({ component: "archiforge-ui-proxy", event, ...fields }));
-}
-
-/**
- * Reads the request body as text, aborting if the accumulated size exceeds {@link maxBytes}.
- * Returns `null` when the limit is breached (caller should reply with 413).
- */
-async function readBodyWithLimit(request: NextRequest, maxBytes: number): Promise<string | null> {
-  const reader = request.body?.getReader();
-
-  if (!reader) return "";
-
-  const decoder = new TextDecoder();
-  const chunks: string[] = [];
-  let totalBytes = 0;
-
-  for (;;) {
-    const { done, value } = await reader.read();
-
-    if (done) break;
-
-    totalBytes += value.byteLength;
-
-    if (totalBytes > maxBytes) {
-      await reader.cancel();
-      return null;
-    }
-
-    chunks.push(decoder.decode(value, { stream: true }));
-  }
-
-  chunks.push(decoder.decode());
-  return chunks.join("");
 }
 
 /** Forwards a request to the upstream ArchiForge API, preserving query string and method. */
@@ -89,13 +58,16 @@ async function forward(
 
   const headers = buildUpstreamHeaders(request);
   if (method === "POST") {
-    const declaredLength = Number(request.headers.get("content-length") ?? NaN);
+    const tooLargeByHeader = declaredPostBodyExceedsLimit(
+      request.headers.get("content-length"),
+      PROXY_MAX_BODY_BYTES,
+    );
 
-    if (!Number.isNaN(declaredLength) && declaredLength > PROXY_MAX_BODY_BYTES) {
+    if (tooLargeByHeader !== false) {
       logProxyDiagnostic("body_too_large", {
         method,
         path: pathForLog,
-        declaredLength,
+        declaredLength: tooLargeByHeader.declaredLength,
         maxBytes: PROXY_MAX_BODY_BYTES,
       });
       return NextResponse.json(
@@ -103,7 +75,7 @@ async function forward(
           type: "about:blank",
           title: "Payload too large",
           status: 413,
-          detail: `Request body (${declaredLength} bytes) exceeds the proxy limit of ${PROXY_MAX_BODY_BYTES} bytes.`,
+          detail: `Request body (${tooLargeByHeader.declaredLength} bytes) exceeds the proxy limit of ${PROXY_MAX_BODY_BYTES} bytes.`,
         },
         { status: 413 },
       );
@@ -112,7 +84,7 @@ async function forward(
     const contentType = request.headers.get("content-type");
     if (contentType) headers.set("Content-Type", contentType);
 
-    const body = await readBodyWithLimit(request, PROXY_MAX_BODY_BYTES);
+    const body = await readRequestBodyWithLimit(request.body, PROXY_MAX_BODY_BYTES);
 
     if (body === null) {
       logProxyDiagnostic("body_too_large_streaming", {
