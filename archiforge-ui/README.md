@@ -24,7 +24,7 @@ Thin Next.js App Router UI for runs, manifest summary, **artifact review**, **gr
 | [Annotated Page Walkthrough](docs/ANNOTATED_PAGE_WALKTHROUGH.md) | Line-by-line `runs/page.tsx`. |
 | [Component Reference](docs/COMPONENT_REFERENCE.md) | Components, props, helpers. |
 | [Data Flow and State](docs/DATA_FLOW_AND_STATE.md) | Data flow, state patterns, templates. |
-| [Testing and Troubleshooting](docs/TESTING_AND_TROUBLESHOOTING.md) | Tests, 55R smoke suites, debugging. |
+| [Testing and Troubleshooting](docs/TESTING_AND_TROUBLESHOOTING.md) | Tests, 55R Vitest smoke, **57R Playwright** operator journeys (mocked E2E), debugging. |
 
 ## Setup
 
@@ -57,8 +57,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 - **All unit/component tests:** `npm test` (or `npm run test:watch`). Pattern: `src/**/*.test.{ts,tsx}`.
 - **55R / review workflow smoke:** see commands in [docs/TESTING_AND_TROUBLESHOOTING.md](docs/TESTING_AND_TROUBLESHOOTING.md#3-55r--review-workflow-smoke-tests-change-set-55r).
-- **E2E (Playwright):** `npx playwright install --with-deps chromium` then `npm run test:e2e`.
-- **Repo root:** `test-ui-unit.cmd` / `test-ui-smoke.cmd` (or `.ps1`).
+- **57R / operator-journey E2E (Playwright):** six specs in **`e2e/`** — home smoke, run→manifest→back, manifest empty artifact list, compare prefill + review order, compare stale-input warning, compare + AI explain (all **mock-backed**; no live C# API). Run: `npx playwright install --with-deps chromium` then **`npm run test:e2e`**. Full contract: [docs/TESTING_AND_TROUBLESHOOTING.md](docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright).
+- **Repo root:** `test-ui-unit.cmd` / `test-ui-smoke.cmd` (or `.ps1` for Playwright + `npm ci`). Optional after full product smoke: **`.\release-smoke.ps1 -RunPlaywright`** (see repo [docs/RELEASE_SMOKE.md](../docs/RELEASE_SMOKE.md)).
 
 ## Routes
 

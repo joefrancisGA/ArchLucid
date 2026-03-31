@@ -11,7 +11,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) | **56R:** Pilot onboarding — what ArchiForge does, first run, artifacts, logs, tests |
 | [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) | **56R:** Copy-paste command list for operators |
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | **56R:** Common failures, health/auth/SQL/UI proxy, triage hints |
-| [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md) | **56R:** `release-smoke` — E2E API+CLI+artifact gate (see doc for SQL / switches) |
+| [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md) | **56R + 57R:** `release-smoke` — API+CLI+artifact gate; optional **`-RunPlaywright`** for mock-backed UI operator journeys (see doc) |
 | [docs/FORMATTING.md](docs/FORMATTING.md) | C# layout / blank lines (`dotnet format`, `.editorconfig`) |
 | [docs/METHOD_DOCUMENTATION.md](docs/METHOD_DOCUMENTATION.md) | XML doc conventions; piece-by-piece API commentary |
 | [docs/ALERTS.md](docs/ALERTS.md) | Alerts, routing, simulation/tuning, advisory schedules (links to API contracts & doc tracker) |
@@ -31,7 +31,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 
 **Unsupervised start path:** [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) (narrative) and [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) (commands only). **Problems:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **RC packaging:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
 
-**Before a handoff or demo:** from repo root run `run-readiness-check.cmd` (or `.\run-readiness-check.ps1`). For a **single full product smoke** (API health + CLI quick run + synthesized artifacts), set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** (see [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)). **Support:** ask pilots to send the **`X-Correlation-ID`** response header (if present) and the first error line from API console logs.
+**Before a handoff or demo:** from repo root run `run-readiness-check.cmd` (or `.\run-readiness-check.ps1`). For a **single full product smoke** (API health + CLI quick run + synthesized artifacts), set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** (see [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)). To append **mock-backed** operator UI Playwright smoke after that path, use **`.\release-smoke.ps1 -RunPlaywright`** (see [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md) and [archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)). **Support:** ask pilots to send the **`X-Correlation-ID`** response header (if present) and the first error line from API console logs.
 
 ## Operator quick start
 
@@ -49,7 +49,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 
 ## Operator UI (`archiforge-ui`)
 
-A thin Next.js shell for runs, manifest summary, artifacts, compare, replay, graphs, and ZIP downloads. **Operator workflow and 55R contract notes:** [docs/operator-shell.md](docs/operator-shell.md). Setup and doc index: [archiforge-ui/README.md](archiforge-ui/README.md).
+A thin Next.js shell for runs, manifest summary, artifacts, compare, replay, graphs, and ZIP downloads. **Operator workflow and 55R contract notes:** [docs/operator-shell.md](docs/operator-shell.md). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright). Setup and doc index: [archiforge-ui/README.md](archiforge-ui/README.md).
 
 ## API authentication (`ArchiForgeAuth`)
 

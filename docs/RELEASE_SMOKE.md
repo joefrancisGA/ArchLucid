@@ -15,6 +15,12 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** (no
 
 **Not included (unless opted in):** Playwright (use **`-RunPlaywright`**), SQL container contract tests, multi-tenant matrix, performance — by design.
 
+### What `-RunPlaywright` actually exercises (57R)
+
+The Playwright suite is **operator-journey smoke** for the Next shell: **home**, **run → manifest → back**, **manifest with empty artifact list**, **compare** (prefill, structured/legacy outcomes, stale-input warning), and **compare + Explain (AI)** via mocked **`/api/proxy`** — all with **deterministic fixtures** and a **loopback TypeScript mock** (`archiforge-ui/e2e/`), **not** the live **`ArchiForge.Api`** started in steps 5–6. Passing it does **not** imply the UI was validated against the same SQL-backed API instance used for the CLI smoke.
+
+It is **not** a full browser regression suite. Authoritative detail: **[archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md)** — **section 8 (E2E tests / Playwright)**.
+
 ---
 
 ## Prerequisites (full smoke)
@@ -90,6 +96,7 @@ With **`-SkipE2E`**, Playwright still runs **after** the UI block (if any); use 
 | **`-ApiBaseUrl`** | Default `http://localhost:5128` |
 | **`-SkipE2E`** | Build + tests (+ UI) only; no API/CLI/artifact checks |
 | **`-SkipUi`** | No `npm ci` / Vitest / `next build` |
+| **`-RunPlaywright`** | After other steps: **`archiforge-ui`** Playwright E2E (**`CI=1`**); see [What `-RunPlaywright` actually exercises](#what--runplaywright-actually-exercises-57r) |
 | **`-FullCore`** | After fast core, run **`dotnet test` —filter `Suite=Core`** |
 
 ---

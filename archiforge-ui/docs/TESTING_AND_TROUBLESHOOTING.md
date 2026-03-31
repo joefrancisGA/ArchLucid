@@ -74,11 +74,11 @@ cd archiforge-ui
 # Install browser (one-time):
 npx playwright install --with-deps chromium
 
-# Run E2E:
+# Run E2E (Playwright starts Next + mock API — no separate dev server or C# API):
 npm run test:e2e
 ```
 
-From the repo root: `test-ui-smoke.cmd` or `test-ui-smoke.ps1`.
+From the repo root: **`test-ui-smoke.cmd`** or **`test-ui-smoke.ps1`**. **What is covered, mocks, and limits:** [section 8 — E2E tests (Playwright)](#8-e2e-tests-playwright).
 
 ---
 
@@ -357,25 +357,54 @@ describe("prepareArtifactBodyText", () => {
 
 ## 8. E2E tests (Playwright)
 
-### What they test
+### Change Set 57R — operator-journey E2E contract
 
-E2E tests launch a real browser, navigate to the running dev server, and interact with the pages like an operator would.
+The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey** coverage: a small set of linear flows with **deterministic mocked HTTP**, not exhaustive browser automation (single Chromium project, one worker in CI, no visual regression grid, no full route matrix).
 
-### How to run
+**Important:** These tests do **not** require or use a **live ArchiForge.Api** (C#). Do not read them as proof that the UI works against your real database or deployment.
+
+**How data is supplied**
+
+| Mechanism | Used for |
+|-----------|----------|
+| **`e2e/start-e2e-with-mock.ts`** + **`e2e/mock-archiforge-api-server.ts`** | Playwright **`webServer`**: production **`next start`** with **`ARCHIFORGE_API_BASE_URL`** pointing at a loopback mock (default **127.0.0.1:18765**). Server components (run detail, manifest pages) receive **typed JSON fixtures** from `e2e/fixtures/`. |
+| **`page.route` + `e2e/helpers/register-operator-api-routes.ts`** | **Client** compare flows: browser calls to **`/api/proxy/...`** are fulfilled in-process with the same fixture shapes (no backend). |
+
+**Specs and operator journeys** (one focused scenario each)
+
+| File | What it asserts |
+|------|-----------------|
+| **`e2e/smoke.spec.ts`** | Home renders **ArchiForge** (h1) and **Start here** (h2). |
+| **`e2e/run-manifest-journey.spec.ts`** | Run detail (mock API) → open manifest link → manifest summary, artifacts table, bundle affordance → **Run detail** back. |
+| **`e2e/manifest-empty-artifacts.spec.ts`** | Manifest whose artifact list is **`200` + `[]`**: valid-empty status region and copy; **no** “could not be loaded” failure callouts; bundle link present; no artifact table headers. |
+| **`e2e/compare-journey.spec.ts`** | **`/compare?leftRunId&rightRunId`** prefills inputs; **Compare** runs mocked legacy + structured responses; structured-before-legacy guidance and **Review order** nav; **Last compare request** outcome region. |
+| **`e2e/compare-stale-input-warning.spec.ts`** | After a successful compare, changing a run ID shows the stale-input warning; restoring the prior left ID clears it. |
+| **`e2e/compare-proxy-mock.spec.ts`** | Client compare + **Explain changes (AI)** with mocked proxy responses (legacy + structured + explanation). |
+
+**Out of scope for this suite:** auth flows, real CLI/API integration, multi-project runs lists, graph interactions, downloads/ZIP bytes, performance, accessibility audits, and cross-browser matrices unless explicitly added later.
+
+### How to run (checked-in E2E only)
+
+Playwright **`webServer`** runs **`npm run build`** and the mock launcher (see **`playwright.config.ts`**). You do **not** start **`npm run dev`** or **`dotnet run`** for the default suite.
 
 ```powershell
-# 1. Start the dev server (in one terminal):
 cd archiforge-ui
-npm run dev
 
-# 2. Start the C# API (in another terminal):
-cd ArchiForge.Api
-dotnet run
+# One-time per machine (Chromium for the configured project):
+npx playwright install --with-deps chromium
 
-# 3. Run Playwright (in a third terminal):
-cd archiforge-ui
 npm run test:e2e
 ```
+
+Optional: **`npm run typecheck:e2e`** — TypeScript check for **`e2e/`** only.
+
+**From the repo root:** **`test-ui-smoke.cmd`** / **`test-ui-smoke.ps1`** ( **`npm ci`**, browser install, **`npm run test:e2e`** ).
+
+**Release smoke (optional):** repo root **`.\release-smoke.ps1 -RunPlaywright`** runs this same **`npm run test:e2e`** after the usual release-smoke steps. That UI gate uses **archiforge-ui’s mocks**, not the C# API instance **`release-smoke`** may have started for steps 5–6 — see **[docs/RELEASE_SMOKE.md](../../../docs/RELEASE_SMOKE.md)**.
+
+### Manual testing against a live API
+
+To exercise the shell against a real **`ArchiForge.Api`**, run **`npm run dev`**, set **`ARCHIFORGE_API_BASE_URL`** in **`.env.local`**, start the API, and use the browser manually (or add **local-only** tests). The committed Playwright suite is intentionally **mock-backed** so CI does not depend on SQL or the .NET stack.
 
 ### How to write a Playwright test
 
@@ -383,18 +412,12 @@ npm run test:e2e
 import { test, expect } from "@playwright/test";
 
 test("home page has ArchiForge heading", async ({ page }) => {
-  await page.goto("http://localhost:3000");
-  await expect(page.getByRole("heading", { name: "ArchiForge" })).toBeVisible();
-});
-
-test("runs page shows error when API is down", async ({ page }) => {
-  // If the API is not running, the runs page should show an error callout
-  await page.goto("http://localhost:3000/runs?projectId=default");
-  await expect(page.getByRole("alert")).toBeVisible();
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "ArchiForge", level: 1 })).toBeVisible();
 });
 ```
 
-Playwright tests live in `e2e/` or have the `.spec.ts` extension (check `playwright.config.ts` for the exact pattern).
+Tests live in **`e2e/`** as **`*.spec.ts`** (see **`playwright.config.ts`** **`testDir`**).
 
 ---
 
@@ -428,6 +451,11 @@ resolve: {
 
 **Cause:** Tests use jsdom which does not support CSS, `window.matchMedia`, or real layout.  
 **Fix:** For visual/layout testing, use Playwright E2E tests. Unit tests verify structure and logic, not appearance.
+
+### "Playwright passes but the UI fails against my real API"
+
+**Cause:** E2E tests use **fixtures and loopback mocks**, not your C# API or data.  
+**Fix:** Validate integration manually or add separate tests; see [section 8 — E2E tests (Playwright)](#8-e2e-tests-playwright).
 
 ### "The dev server shows a blank page or 'Internal Server Error'"
 

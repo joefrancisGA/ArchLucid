@@ -80,3 +80,16 @@
 - **`-RunPlaywright`** — after the normal smoke steps (UI and, unless **`-SkipE2E`**, API+CLI+artifact checks), runs **`archiforge-ui`** **`npm run test:e2e`** with **`CI=1`**. Section header **`=== Playwright E2E (opt-in: -RunPlaywright) ===`**. Exits non-zero if Playwright fails; errors if Node is missing when the flag is set.
 - **`-SkipE2E`** path still runs Playwright when **`-RunPlaywright`** is set (after UI); **`npm ci`** runs in **`archiforge-ui`** when **`-SkipUi`** or missing **`node_modules`** so E2E can run without the standard UI step.
 - **`release-smoke.cmd`** passes **`%*`** unchanged (flags work from CMD). **`docs/RELEASE_SMOKE.md`** documents the switch, examples, and Playwright troubleshooting.
+
+---
+
+## Prompt 8 — documentation for 57R E2E contract
+
+**Scope:** Docs only; wording aligned with **`e2e/*.spec.ts`**, **`playwright.config.ts`**, and **`release-smoke`** behavior.
+
+**Delivered:**
+
+- **`archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md`** — section 8 rewritten: per-spec journey table, mock strategies (loopback server vs **`page.route`**), explicit **non-goals**, how to run **`npm run test:e2e`** / **`test-ui-smoke`** / **`-RunPlaywright`**, troubleshooting note when mocks pass but a real API fails.
+- **`archiforge-ui/README.md`** — Tests + doc table updated for **57R** Playwright scope and links.
+- **`docs/RELEASE_SMOKE.md`** — subsection **What `-RunPlaywright` actually exercises (57R)**; independence from C# API smoke; restored **`-RunPlaywright`** row in the parameters table.
+- **`README.md`** — Key docs table, pilot handoff paragraph, Operator UI paragraph: concise **57R** / Playwright pointers without overstating coverage.
