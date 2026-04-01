@@ -7,7 +7,7 @@
 ## Prerequisites
 
 - [.NET SDK](https://dotnet.microsoft.com/download) matching the repo `global.json`.
-- Stryker as a local tool (recommended) or `dotnet tool install -g dotnet-stryker`.
+- **Local tool (repo root):** `.config/dotnet-tools.json` pins **`dotnet-stryker`**. Run `dotnet tool restore` once per clone, then `dotnet dotnet-stryker`.
 
 ## Configuration
 
@@ -23,16 +23,13 @@ This keeps first runs bounded. To expand coverage, duplicate the pattern for oth
 From the repository root:
 
 ```bash
-dotnet tool run dotnet-stryker
+dotnet tool restore
+dotnet dotnet-stryker
 ```
 
-If the tool is not yet installed as a manifest tool:
+## Scheduled CI
 
-```bash
-dotnet new tool-manifest --force
-dotnet tool install dotnet-stryker
-dotnet tool run dotnet-stryker
-```
+GitHub Actions workflow **`.github/workflows/stryker-scheduled.yml`** runs weekly (and on **workflow_dispatch**), restores tools, executes Stryker, and uploads **`StrykerOutput`** as an artifact for review.
 
 HTML reports are emitted under `StrykerOutput` (see Stryker CLI output for the exact path).
 

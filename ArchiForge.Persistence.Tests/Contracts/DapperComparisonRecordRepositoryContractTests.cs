@@ -1,0 +1,22 @@
+using ArchiForge.Data.Repositories;
+
+namespace ArchiForge.Persistence.Tests.Contracts;
+
+/// <summary>
+/// Runs <see cref="ComparisonRecordRepositoryContractTests"/> against <see cref="ComparisonRecordRepository"/>.
+/// </summary>
+[Collection(nameof(SqlServerPersistenceCollection))]
+[Trait("Category", "SqlServerContainer")]
+public sealed class DapperComparisonRecordRepositoryContractTests(SqlServerPersistenceFixture fixture)
+    : ComparisonRecordRepositoryContractTests
+{
+    protected override void SkipIfSqlServerUnavailable()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+    }
+
+    protected override IComparisonRecordRepository CreateRepository()
+    {
+        return new ComparisonRecordRepository(new TestSqlDbConnectionFactory(fixture.ConnectionString));
+    }
+}

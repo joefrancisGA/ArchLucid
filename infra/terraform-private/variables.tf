@@ -60,6 +60,18 @@ variable "search_service_id" {
   default     = ""
 }
 
+variable "linux_web_app_id" {
+  type        = string
+  description = "Resource ID of the Linux Web App (azurerm_linux_web_app.this.id) for regional VNet integration. Leave empty to skip."
+  default     = ""
+}
+
+variable "web_app_vnet_integration_subnet_id" {
+  type        = string
+  description = "Dedicated subnet ID for App Service VNet integration (must be delegated to Microsoft.Web/serverFarms). Not the private-endpoints subnet unless your policy allows shared delegation."
+  default     = ""
+}
+
 variable "tags" {
   type    = map(string)
   default = {}

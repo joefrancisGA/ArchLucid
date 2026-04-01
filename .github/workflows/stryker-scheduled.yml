@@ -1,0 +1,36 @@
+# Weekly mutation testing against ArchiForge.Persistence (see stryker-config.json and docs/MUTATION_TESTING_STRYKER.md).
+name: Stryker (scheduled)
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  stryker:
+    name: "Stryker.NET — Persistence"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore ArchiForge.sln
+
+      - name: Restore local tools (dotnet-stryker)
+        run: dotnet tool restore
+
+      - name: Run Stryker
+        run: dotnet dotnet-stryker
+        # stryker-config.json at repo root targets Persistence + Persistence.Tests; break threshold 0 = report-only gate.
+
+      - name: Upload Stryker report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stryker-report
+          path: StrykerOutput

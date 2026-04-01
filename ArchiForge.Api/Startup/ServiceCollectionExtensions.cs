@@ -101,7 +101,7 @@ internal static partial class ServiceCollectionExtensions
         RegisterDataInfrastructure(services);
         RegisterBackgroundJobs(services);
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
-        RegisterComparisonReplayAndDrift(services);
+        RegisterComparisonReplayAndDrift(services, configuration);
         RegisterRunReplayManifestAndDiffs(services);
         RegisterContextIngestionAndKnowledgeGraph(services);
         RegisterDecisioningEngines(services);
@@ -118,6 +118,7 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterDataArchivalHostedService(IServiceCollection services)
     {
+        services.AddSingleton<DataArchivalHostHealthState>();
         services.AddHostedService<DataArchivalHostedService>();
     }
 
@@ -208,7 +209,11 @@ internal static partial class ServiceCollectionExtensions
                 tags: [ReadinessTags.Ready])
             .AddCheck<SchemaFilesHealthCheck>("schema_files", tags: [ReadinessTags.Ready])
             .AddCheck<ComplianceRulePackHealthCheck>("compliance_rule_pack", tags: [ReadinessTags.Ready])
-            .AddCheck<ProcessTempDirectoryHealthCheck>("temp_directory", tags: [ReadinessTags.Ready]);
+            .AddCheck<ProcessTempDirectoryHealthCheck>("temp_directory", tags: [ReadinessTags.Ready])
+            .AddCheck<DataArchivalHostHealthCheck>(
+                "data_archival",
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready]);
     }
 
     private static void RegisterBackgroundJobs(IServiceCollection services)
@@ -238,8 +243,9 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IEndToEndReplayComparisonExportService, EndToEndReplayComparisonExportService>();
     }
 
-    private static void RegisterComparisonReplayAndDrift(IServiceCollection services)
+    private static void RegisterComparisonReplayAndDrift(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<ReplayDiagnosticsOptions>(configuration.GetSection(ReplayDiagnosticsOptions.SectionName));
         services.AddScoped<IComparisonRecordRepository, ComparisonRecordRepository>();
         services.AddScoped<IComparisonAuditService, ComparisonAuditService>();
         services.AddScoped<IComparisonDriftAnalyzer, ComparisonDriftAnalyzer>();
