@@ -131,6 +131,17 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 
 ---
 
+### Product learning (58R) — `ProductLearningPilotSignals`
+
+- **Key**: `SignalId` (`UNIQUEIDENTIFIER`)
+- **Scope**: `TenantId`, `WorkspaceId`, `ProjectId` (same pattern as advisory recommendations and policy assignments).
+- **Purpose**: capture **pilot or product-team** judgments on outputs — **trusted**, **rejected**, **revised**, or **needs follow-up** — without changing agent behavior in this change set.
+- **Optional links**: `ArchitectureRunId` (FK to `ArchitectureRuns`), `AuthorityRunId` (correlation only; no FK), `ManifestVersion`, `ArtifactHint`, `PatternKey` (normalized bucket for rollups), `DetailJson` for structured notes.
+- **Triage**: `TriageStatus` supports a lightweight internal backlog (`Open`, `Triaged`, `Backlog`, `Done`, `WontFix`).
+- **Access**: `ArchiForge.Persistence.ProductLearning.IProductLearningPilotSignalRepository` (Dapper SQL / in-memory).
+
+---
+
 ### Common IDs and relationships (mental model)
 
 - `RequestId` → `RunId` → `ManifestVersion`

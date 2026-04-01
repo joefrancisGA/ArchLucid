@@ -12,6 +12,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) | **56R:** Copy-paste command list for operators |
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | **56R:** Common failures, health/auth/SQL/UI proxy, triage hints |
 | [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md) | **56R + 57R:** `release-smoke` — API+CLI+artifact gate; optional **`-RunPlaywright`** for mock-backed UI operator journeys (see doc) |
+| [docs/CHANGE_SET_58R.md](docs/CHANGE_SET_58R.md) | **58R:** Product learning / pilot feedback persistence and (planned) triage dashboard |
 | [docs/FORMATTING.md](docs/FORMATTING.md) | C# layout / blank lines (`dotnet format`, `.editorconfig`) |
 | [docs/METHOD_DOCUMENTATION.md](docs/METHOD_DOCUMENTATION.md) | XML doc conventions; piece-by-piece API commentary |
 | [docs/ALERTS.md](docs/ALERTS.md) | Alerts, routing, simulation/tuning, advisory schedules (links to API contracts & doc tracker) |
