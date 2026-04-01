@@ -113,6 +113,15 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 **Still for later regen prompts:** further pilot supportability (e.g. API-hosted bundle).
 
+### Prompt 5 (regen) — release packaging metadata and handoff artifacts
+
+- **`scripts/Write-ReleasePackageArtifacts.ps1`** — single writer invoked from **`package-release.ps1`** / **`package-release.cmd`** after publish (and optional UI build).
+- **`metadata.json`** (extended): `schemaVersion` **1.1**, `packageKind`, `assemblyVersion`, `fileVersion` (Win32 file info), `apiPublishPathRelative`, `uiProductionBuildIncluded`; retains informational version, commit, UTC timestamp, SDK, packager host.
+- **`release-manifest.json`**: `packageKind` **ArchiForge.ReleaseHandoff**, summary counts/bytes, full **`apiPublishFiles`** list with sizes, operator UI note, `companionFiles`, `checksumsSha256Generated`.
+- **`checksums-sha256.txt`**: SHA-256 per file under `api/` (deterministic path order aligned with manifest); optional **`-SkipChecksums`** on **`.ps1`** only.
+- **`PACKAGE-HANDOFF.txt`**: concise pilot-facing blurb and pointers to docs.
+- **`docs/RELEASE_LOCAL.md`** — handoff table and **`-SkipChecksums`** note.
+
 ---
 
 ## Related files
@@ -129,7 +138,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `ArchiForge.Api/Health/*` (readiness tags, schema/compliance/temp checks, SQL check behavior)
 - `archiforge-ui/src/lib/config.ts`, `archiforge-ui/src/app/api/proxy/[...path]/route.ts`
 - `docs/CONFIGURATION_KEY_VAULT.md`
-- `scripts/OperatorDiagnostics.ps1`, `build-release.cmd`, `build-release.ps1`, `package-release.cmd`, `package-release.ps1`, `run-readiness-check.cmd`, `run-readiness-check.ps1`
+- `scripts/OperatorDiagnostics.ps1`, `scripts/Write-ReleasePackageArtifacts.ps1`, `build-release.cmd`, `build-release.ps1`, `package-release.cmd`, `package-release.ps1`, `run-readiness-check.cmd`, `run-readiness-check.ps1`
 - `docs/RELEASE_LOCAL.md`
 - `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/TROUBLESHOOTING.md`, `docs/CLI_USAGE.md`
 - `release-smoke.ps1`, `release-smoke.cmd`, `docs/RELEASE_SMOKE.md`

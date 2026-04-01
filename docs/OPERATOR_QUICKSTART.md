@@ -147,6 +147,8 @@ test-ui-unit.cmd
 package-release.cmd
 ```
 
+Also creates **`artifacts/release/PACKAGE-HANDOFF.txt`**, **`metadata.json`**, **`release-manifest.json`**, and **`checksums-sha256.txt`** (see [RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
+
 ---
 
 ## Docs

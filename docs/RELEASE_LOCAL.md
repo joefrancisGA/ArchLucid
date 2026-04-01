@@ -11,7 +11,7 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 | Script | Purpose |
 |--------|---------|
 | `build-release.cmd` / `build-release.ps1` | `dotnet restore` + `dotnet build ArchiForge.sln -c Release` |
-| `package-release.cmd` / `package-release.ps1` | Runs release build, then **`dotnet publish`** API to `artifacts/release/api/`; if **Node** is on `PATH`, also runs `npm ci` + `npm run build` in `archiforge-ui/` |
+| `package-release.cmd` / `package-release.ps1` | Runs release build, then **`dotnet publish`** API to `artifacts/release/api/`; if **Node** is on `PATH`, also runs `npm ci` + `npm run build` in `archiforge-ui/`. Emits **handoff metadata** next to `api/` (see below). |
 | `run-readiness-check.cmd` / `run-readiness-check.ps1` | Release build → **fast core** tests (`-c Release --no-build`) → **Vitest** in `archiforge-ui/` when Node is available. Failures print a **triage** block (stage, category, **Next:** hints) via `scripts/OperatorDiagnostics.ps1`. |
 | `release-smoke.cmd` / `release-smoke.ps1` | **E2E smoke:** build + fast core (+ optional `-FullCore`) + optional UI build + temporary API + CLI **`run --quick`** + artifact API check — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
 | `test-core.cmd` / `test-core.ps1` | Full Core suite (default configuration, usually Debug). See [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) |
@@ -21,9 +21,19 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 **PowerShell extras**
 
 - `package-release.ps1 -SkipUiBuild` — publish API only; no Next.js production build.
+- `package-release.ps1 -SkipChecksums` — skip per-file **SHA-256** generation (faster on huge trees; leaves a placeholder `checksums-sha256.txt` and sets `checksumsSha256Generated: false` in `release-manifest.json`).
 - `run-readiness-check.ps1 -SkipUi` — skip UI unit tests even if Node is installed.
 
-**Output folder:** `artifacts/release/` is **gitignored**. Only the **API** publish output is copied there (`artifacts/release/api/`). The operator UI remains developed from `archiforge-ui/` in the repo (or deploy via your host’s Node/Next workflow).
+**Output folder:** `artifacts/release/` is **gitignored**. The **API** publish output is under `artifacts/release/api/`. The same folder’s parent contains **operator handoff files** produced by `scripts/Write-ReleasePackageArtifacts.ps1`:
+
+| File | Purpose |
+|------|---------|
+| **`metadata.json`** | Build identity: `schemaVersion`, `packageKind`, informational / assembly / file version, `commitSha`, UTC timestamp, SDK, host, whether UI production build ran |
+| **`release-manifest.json`** | Inventory: file count / total bytes, every **`api/...`** path with `sizeBytes`, layout notes, `companionFiles` list |
+| **`checksums-sha256.txt`** | One line per published file: `<lowercase-hex>  api/relative/path` (same order as `apiPublishFiles` in the manifest) |
+| **`PACKAGE-HANDOFF.txt`** | Short human-readable summary for design partners (what each file is, how to run `dotnet ArchiForge.Api.dll`) |
+
+The operator UI remains developed from `archiforge-ui/` in the repo (or deploy via your host’s Node/Next workflow); it is **not** copied into `artifacts/release/` except as noted in the manifest.
 
 ---
 
@@ -31,7 +41,7 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 
 1. **Verify:** `run-readiness-check.cmd` (or `.ps1`) from repo root.
 2. **Package:** `package-release.cmd` (or `.ps1`).
-3. **Hand off:** Share the **repository** (or archive) plus the published API folder if you only ship binaries.
+3. **Hand off:** Share the **repository** (or archive) plus **`artifacts/release/`** (include **`PACKAGE-HANDOFF.txt`** and **`metadata.json`** for support). Verify file integrity with **`checksums-sha256.txt`** after copy when present.
 
 ---
 

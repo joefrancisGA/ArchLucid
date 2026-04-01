@@ -7,18 +7,21 @@ if errorlevel 1 exit /b %ERRORLEVEL%
 if not exist "%~dp0artifacts\release\api" mkdir "%~dp0artifacts\release\api"
 dotnet publish "%~dp0ArchiForge.Api\ArchiForge.Api.csproj" -c Release -o "%~dp0artifacts\release\api" --no-build
 if errorlevel 1 exit /b %ERRORLEVEL%
+set "ARCHIFORGE_PKG_UI_INCLUDED=0"
 where node >nul 2>&1
 if errorlevel 1 goto :AfterUi
 call :BuildUi
 if errorlevel 1 exit /b %ERRORLEVEL%
 :AfterUi
-REM Emit release metadata.json via PowerShell (available on all supported platforms)
-powershell -NoProfile -Command ^
-  "$commitSha = 'unknown'; try { $commitSha = git rev-parse HEAD 2>$null; if ([string]::IsNullOrWhiteSpace($commitSha)) { $commitSha = 'unknown' } } catch { }; " ^
-  "$meta = [ordered]@{ application='ArchiForge.Api'; commitSha=$commitSha; buildTimestampUtc=(Get-Date).ToUniversalTime().ToString('o'); dotnetSdkVersion=(dotnet --version 2>$null) ?? 'unknown'; packagerHost=$env:COMPUTERNAME ?? $env:HOSTNAME ?? 'unknown' }; " ^
-  "$meta | ConvertTo-Json -Depth 4 | Set-Content -Path '%~dp0artifacts\release\metadata.json' -Encoding utf8"
-echo Release metadata: %~dp0artifacts\release\metadata.json
+if "%ARCHIFORGE_PKG_UI_INCLUDED%"=="1" (
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\Write-ReleasePackageArtifacts.ps1" -RepoRoot "%~dp0" -ApiPublishDirectory "%~dp0artifacts\release\api" -UiProductionBuildIncluded
+) else (
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\Write-ReleasePackageArtifacts.ps1" -RepoRoot "%~dp0" -ApiPublishDirectory "%~dp0artifacts\release\api"
+)
+if errorlevel 1 exit /b %ERRORLEVEL%
+echo.
 echo Release package: API published to %~dp0artifacts\release\api
+echo Handoff summary: %~dp0artifacts\release\PACKAGE-HANDOFF.txt
 echo See docs\RELEASE_LOCAL.md for run instructions.
 exit /b 0
 
@@ -29,6 +32,7 @@ if errorlevel 1 goto :UiFail
 call npm run build
 if errorlevel 1 goto :UiFail
 popd
+set "ARCHIFORGE_PKG_UI_INCLUDED=1"
 exit /b 0
 
 :UiFail

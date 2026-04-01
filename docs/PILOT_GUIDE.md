@@ -153,7 +153,7 @@ Scripts: `test-fast-core.cmd`, `test-core.cmd` (and `.ps1`). Full tier list: [TE
 | Item | Where |
 |------|--------|
 | **API logs** | **Console / host stdout** (Serilog). Search for **`RunId=`**, **`RequestId=`**, **`GraphResolutionMode=`** (authority path), and errors after failed requests. |
-| **Published API** | If you used **`package-release`**, the DLLs are under **`artifacts/release/api/`** (gitignored). |
+| **Published API** | If you used **`package-release`**, the DLLs are under **`artifacts/release/api/`** (gitignored). The parent folder also has **`PACKAGE-HANDOFF.txt`**, **`metadata.json`**, **`release-manifest.json`**, and **`checksums-sha256.txt`** for support and integrity checks — see [RELEASE_LOCAL.md](RELEASE_LOCAL.md). |
 | **Synthesized architecture artifacts** | Stored **in the database**; exposed through the API and UI (not a shared folder on disk by default). |
 | **CLI `outputs/`** | Optional local copies when you use **`dotnet run --project ArchiForge.Cli -- artifacts <runId> --save`** (or `archiforge artifacts --save` if the tool is installed). |
 | **UI proxy diagnostics** | Next.js server logs may include JSON lines from **`archiforge-ui-proxy`** when the upstream API returns errors (see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)). |

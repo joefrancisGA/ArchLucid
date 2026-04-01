@@ -1,6 +1,7 @@
 # Publish API (+ optional operator UI production build) into artifacts/release/. See docs/RELEASE_LOCAL.md
 param(
-    [switch] $SkipUiBuild
+    [switch] $SkipUiBuild,
+    [switch] $SkipChecksums
 )
 
 Set-StrictMode -Version Latest
@@ -16,11 +17,12 @@ New-Item -ItemType Directory -Force -Path $apiOut | Out-Null
 dotnet publish (Join-Path $root 'ArchiForge.Api/ArchiForge.Api.csproj') -c Release -o $apiOut --no-build
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-if (-not $SkipUiBuild)
-{
+$uiProductionBuildIncluded = $false
+
+if (-not $SkipUiBuild) {
     $node = Get-Command node -ErrorAction SilentlyContinue
-    if ($null -ne $node)
-    {
+
+    if ($null -ne $node) {
         $uiRoot = Join-Path $root 'archiforge-ui'
         Set-Location $uiRoot
         npm ci
@@ -28,42 +30,27 @@ if (-not $SkipUiBuild)
         npm run build
         Set-Location $root
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        $uiProductionBuildIncluded = $true
     }
-    else
-    {
+    else {
         Write-Warning 'Node.js not on PATH; skipped archiforge-ui production build. Use -SkipUiBuild to silence this warning.'
     }
 }
 
-# --- Emit release metadata.json alongside published output ---
-$commitSha = 'unknown'
+$writer = Join-Path (Join-Path $root 'scripts') 'Write-ReleasePackageArtifacts.ps1'
 try {
-    $commitSha = (git rev-parse HEAD 2>$null)
-    if ([string]::IsNullOrWhiteSpace($commitSha)) { $commitSha = 'unknown' }
-} catch { $commitSha = 'unknown' }
-
-$apiDll = Join-Path $apiOut 'ArchiForge.Api.dll'
-$informationalVersion = 'unknown'
-if (Test-Path $apiDll) {
-    try {
-        $asm = [System.Reflection.Assembly]::LoadFrom($apiDll)
-        $attr = $asm.GetCustomAttributes([System.Reflection.AssemblyInformationalVersionAttribute], $false)
-        if ($attr.Count -gt 0) { $informationalVersion = $attr[0].InformationalVersion }
-    } catch { }
+    & $writer `
+        -RepoRoot $root `
+        -ApiPublishDirectory $apiOut `
+        -UiProductionBuildIncluded:$uiProductionBuildIncluded `
+        -SkipChecksums:$SkipChecksums
+}
+catch {
+    Write-Error $_
+    exit 1
 }
 
-$metadata = [ordered]@{
-    application           = 'ArchiForge.Api'
-    informationalVersion  = $informationalVersion
-    commitSha             = $commitSha
-    buildTimestampUtc     = (Get-Date).ToUniversalTime().ToString('o')
-    dotnetSdkVersion      = (dotnet --version 2>$null) ?? 'unknown'
-    packagerHost          = $env:COMPUTERNAME ?? $env:HOSTNAME ?? 'unknown'
-}
-$metadataPath = Join-Path (Split-Path $apiOut) 'metadata.json'
-$metadata | ConvertTo-Json -Depth 4 | Set-Content -Path $metadataPath -Encoding utf8
-Write-Host "Release metadata: $metadataPath"
-
+Write-Host ''
 Write-Host "Release package: API published to $apiOut"
-Write-Host "Run the API: dotnet ArchiForge.Api.dll (from that folder; requires .NET 10 runtime). See docs/RELEASE_LOCAL.md"
+Write-Host 'Run the API: dotnet ArchiForge.Api.dll (from that folder; requires .NET 10 runtime). See artifacts/release/PACKAGE-HANDOFF.txt and docs/RELEASE_LOCAL.md'
 exit 0
