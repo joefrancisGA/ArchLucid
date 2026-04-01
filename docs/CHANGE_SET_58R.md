@@ -62,3 +62,8 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 - **Docs:** `CHANGE_SET_58R.md`, `DATA_MODEL.md`, `SQL_SCRIPTS.md` catalog.
 
 **Next prompt (suggested):** HTTP API (scoped POST/GET), authorization aligned with operator/admin roles, and optional aggregate DTO for pattern × disposition counts.
+
+### Prompt 2 — aggregation and triage domain models
+
+- **Added** explicit DTO classes (no logic): `FeedbackAggregate`, `ArtifactOutcomeTrend`, `ImprovementOpportunity`, `LearningDashboardSummary`, `TriageQueueItem` under `ArchiForge.Contracts/ProductLearning/`.
+- **Next:** repository/query methods and application service to populate these models from `ProductLearningPilotSignals` (and optional joins).
