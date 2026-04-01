@@ -74,6 +74,19 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **Pilot readiness:** **Yes** for a first design-partner run **if** they have .NET 10, a working SQL (or explicit **InMemory** dev path), and follow **PILOT_GUIDE** / **OPERATOR_QUICKSTART**. Recommend **`run-readiness-check`** before handoff and **`release-smoke`** (with **`ARCHIFORGE_SMOKE_SQL`**) when SQL and port **5128** are available.
 - **Small follow-ups before “commercial” hardening:** optional design-partner checklist doc; visible API window or log capture flag for failed **`release-smoke`** E2E; self-contained publish recipe if pilots lack SDK.
 
+## Regenerated 56R — incremental closing gaps
+
+### Prompt 1 (regen) — build / version provenance
+
+- **Core:** `ArchiForge.Core.Diagnostics.BuildProvenance` — single resolver for informational, assembly, and file version + runtime framework description.
+- **API:** Startup `Pilot/support configuration snapshot` log extended with build fields; Serilog enricher adds `AssemblyFileVersion` when present; OpenTelemetry `service.version` uses informational version (matches logs).
+- **Tests:** `BuildProvenanceTests`, extended `StartupConfigurationFactsReaderTests`.
+- **Docs:** `docs/OPERATOR_QUICKSTART.md` — where to find provenance in logs; optional `/p:InformationalVersion` for CI.
+
+**Still for later regen prompts:** support bundle export, stronger readiness/smoke diagnostics, release packaging metadata file, further pilot supportability.
+
+---
+
 ## Related files
 
 - `ArchiForge.Api/Startup/Diagnostics/*`

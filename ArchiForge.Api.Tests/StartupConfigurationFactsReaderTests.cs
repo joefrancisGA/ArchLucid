@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchiForge.Api.Startup.Diagnostics;
 
 using FluentAssertions;
@@ -11,6 +13,8 @@ namespace ArchiForge.Api.Tests;
 
 public sealed class StartupConfigurationFactsReaderTests
 {
+    private static Assembly ApiAssembly => typeof(ArchiForge.Api.Program).Assembly;
+
     [Fact]
     public void FromConfiguration_maps_expected_flags_and_counts()
     {
@@ -40,7 +44,14 @@ public sealed class StartupConfigurationFactsReaderTests
         env.SetupGet(e => e.EnvironmentName).Returns("Staging");
         env.SetupGet(e => e.ContentRootPath).Returns("/app/content");
 
-        StartupConfigurationFacts facts = StartupConfigurationFactsReader.FromConfiguration(configuration, env.Object);
+        StartupConfigurationFacts facts = StartupConfigurationFactsReader.FromConfiguration(
+            configuration,
+            env.Object,
+            ApiAssembly);
+
+        facts.BuildInformationalVersion.Should().NotBeNullOrWhiteSpace();
+        facts.BuildAssemblyVersion.Should().NotBeNullOrWhiteSpace();
+        facts.RuntimeFrameworkDescription.Should().Contain(".NET");
 
         facts.HostEnvironmentName.Should().Be("Staging");
         facts.ContentRootPath.Should().Be("/app/content");
@@ -68,7 +79,12 @@ public sealed class StartupConfigurationFactsReaderTests
         env.SetupGet(e => e.EnvironmentName).Returns("Production");
         env.SetupGet(e => e.ContentRootPath).Returns(string.Empty);
 
-        StartupConfigurationFacts facts = StartupConfigurationFactsReader.FromConfiguration(configuration, env.Object);
+        StartupConfigurationFacts facts = StartupConfigurationFactsReader.FromConfiguration(
+            configuration,
+            env.Object,
+            ApiAssembly);
+
+        facts.BuildInformationalVersion.Should().NotBeNullOrWhiteSpace();
 
         facts.ContentRootPath.Should().BeEmpty();
         facts.SqlConnectionStringConfigured.Should().BeFalse();

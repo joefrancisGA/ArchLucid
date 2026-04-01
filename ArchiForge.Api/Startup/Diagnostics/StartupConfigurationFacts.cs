@@ -1,3 +1,7 @@
+using System.Reflection;
+
+using ArchiForge.Core.Diagnostics;
+
 namespace ArchiForge.Api.Startup.Diagnostics;
 
 /// <summary>
@@ -19,18 +23,27 @@ public sealed record StartupConfigurationFacts(
     bool ObservabilityPrometheusEnabled,
     bool DemoEnabled,
     bool DemoSeedOnStartup,
-    bool SchemaValidationEnableDetailedErrors);
+    bool SchemaValidationEnableDetailedErrors,
+    string BuildInformationalVersion,
+    string BuildAssemblyVersion,
+    string? BuildFileVersion,
+    string RuntimeFrameworkDescription);
 
 internal static class StartupConfigurationFactsReader
 {
     public static StartupConfigurationFacts FromConfiguration(
         IConfiguration configuration,
-        IHostEnvironment environment)
+        IHostEnvironment environment,
+        Assembly hostAssembly)
     {
+        ArgumentNullException.ThrowIfNull(hostAssembly);
+
         IConfigurationSection corsOrigins = configuration.GetSection("Cors:AllowedOrigins");
         int corsCount = corsOrigins.GetChildren().Count();
 
         int rateLimit = configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 0);
+
+        BuildProvenance build = BuildProvenance.FromAssembly(hostAssembly);
 
         return new StartupConfigurationFacts(
             environment.EnvironmentName,
@@ -48,6 +61,10 @@ internal static class StartupConfigurationFactsReader
             configuration.GetValue("Observability:Prometheus:Enabled", false),
             configuration.GetValue("Demo:Enabled", false),
             configuration.GetValue("Demo:SeedOnStartup", false),
-            configuration.GetValue("SchemaValidation:EnableDetailedErrors", false));
+            configuration.GetValue("SchemaValidation:EnableDetailedErrors", false),
+            build.InformationalVersion,
+            build.AssemblyVersion,
+            build.FileVersion,
+            build.RuntimeFrameworkDescription);
     }
 }

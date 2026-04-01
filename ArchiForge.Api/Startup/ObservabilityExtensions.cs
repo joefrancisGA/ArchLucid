@@ -17,13 +17,13 @@ internal static class ObservabilityExtensions
         bool prometheusEnabled = configuration.GetValue("Observability:Prometheus:Enabled", false);
         bool consoleExporterEnabled = configuration.GetValue("Observability:ConsoleExporter:Enabled", environment.IsDevelopment());
 
-        string version = typeof(ObservabilityExtensions).Assembly.GetName().Version?.ToString() ?? "unknown";
+        BuildProvenance build = BuildProvenance.FromAssembly(typeof(ObservabilityExtensions).Assembly);
 
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource
                 .AddService(
                     serviceName: "ArchiForge.Api",
-                    serviceVersion: version,
+                    serviceVersion: build.InformationalVersion,
                     serviceInstanceId: Environment.MachineName))
             .WithTracing(tracing =>
             {

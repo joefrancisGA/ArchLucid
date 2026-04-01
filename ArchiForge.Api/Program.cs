@@ -6,6 +6,7 @@ using ArchiForge.Api.Startup.Validation;
 using ArchiForge.Application.Bootstrap;
 using ArchiForge.Application.Governance.Preview;
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Diagnostics;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Persistence.Sql;
@@ -25,18 +26,15 @@ public partial class Program
         builder.Host.UseSerilog((context, services, configuration) =>
         {
             Assembly entryAssembly = typeof(Program).Assembly;
-            string? informationalVersion = entryAssembly
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                ?.InformationalVersion;
+            BuildProvenance build = BuildProvenance.FromAssembly(entryAssembly);
 
             configuration
                 .ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(services)
                 .Enrich.FromLogContext()
                 .Enrich.WithProperty("Application", "ArchiForge.Api")
-                .Enrich.WithProperty(
-                    "AssemblyInformationalVersion",
-                    informationalVersion ?? entryAssembly.GetName().Version?.ToString() ?? "unknown");
+                .Enrich.WithProperty("AssemblyInformationalVersion", build.InformationalVersion)
+                .Enrich.WithProperty("AssemblyFileVersion", build.FileVersion ?? string.Empty);
         });
 
         // Add services to the container.
@@ -74,7 +72,11 @@ public partial class Program
                 "ArchiForge configuration is invalid. Fix the settings listed in the logs above, then restart.");
         }
 
-        StartupConfigurationDiagnostics.LogIfEnabled(app.Logger, app.Configuration, app.Environment);
+        StartupConfigurationDiagnostics.LogIfEnabled(
+            app.Logger,
+            app.Configuration,
+            app.Environment,
+            typeof(Program).Assembly);
 
         // 1) Optional: Persistence layer applies bundled ArchiForge.sql batches when StorageProvider=Sql (authority / extended tables).
         using (IServiceScope scope = app.Services.CreateScope())

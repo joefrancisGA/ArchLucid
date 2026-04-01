@@ -24,6 +24,8 @@ curl -s http://localhost:5128/health/live
 curl -s http://localhost:5128/health/ready
 ```
 
+**Build provenance (support handoff):** On API startup, look for the structured log line **`Pilot/support configuration snapshot`** — it includes **`BuildInformationalVersion`**, **`BuildAssemblyVersion`**, **`BuildFileVersion`**, and **`RuntimeFramework`**. Set CI or local publish with **`/p:InformationalVersion=…`** (e.g. git SHA) so that field identifies the exact binary.
+
 **CLI doctor (API must be running):**
 
 ```bash
