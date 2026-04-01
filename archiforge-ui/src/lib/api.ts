@@ -43,6 +43,7 @@ import type {
   PolicyPackVersion,
 } from "@/types/policy-packs";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
+import type { ProductLearningDashboardBundle } from "@/types/product-learning";
 
 /** Returns true when executing in the browser (client component), false on the Node.js server (RSC). */
 function isBrowser(): boolean {
@@ -346,6 +347,41 @@ export async function getLatestLearningProfile(): Promise<LearningProfile | null
   }
 
   return JSON.parse(text) as LearningProfile;
+}
+
+/** Optional `since` filter (ISO 8601) appended to product-learning GETs; omit for all-time scope. */
+function productLearningSinceQuery(since: string | null | undefined): string {
+  const trimmed = since?.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  return `?since=${encodeURIComponent(trimmed)}`;
+}
+
+/**
+ * Loads summary, improvement opportunities, artifact outcome trends, and triage queue for the current scope.
+ * Each upstream call recomputes its slice; use one refresh action to keep the four panels consistent.
+ */
+export async function fetchProductLearningDashboard(options?: {
+  since?: string | null;
+}): Promise<ProductLearningDashboardBundle> {
+  const q = productLearningSinceQuery(options?.since);
+  const base = `/${ApiV1Routes.productLearning}`;
+
+  const [summary, opportunities, trends, triage] = await Promise.all([
+    apiGet(`${base}/summary${q}`),
+    apiGet(`${base}/improvement-opportunities${q}`),
+    apiGet(`${base}/artifact-outcome-trends${q}`),
+    apiGet(`${base}/triage-queue${q}`),
+  ]);
+
+  return {
+    summary: summary as ProductLearningDashboardBundle["summary"],
+    opportunities: opportunities as ProductLearningDashboardBundle["opportunities"],
+    trends: trends as ProductLearningDashboardBundle["trends"],
+    triage: triage as ProductLearningDashboardBundle["triage"],
+  };
 }
 
 /** Lists all advisory scan schedules for the current scope. */

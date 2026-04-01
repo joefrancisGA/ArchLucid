@@ -24,6 +24,7 @@ import DigestSubscriptionsPage from "./digest-subscriptions/page";
 import DigestsPage from "./digests/page";
 import GovernanceResolutionPage from "./governance-resolution/page";
 import PolicyPacksPage from "./policy-packs/page";
+import ProductLearningPage from "./product-learning/page";
 import RecommendationLearningPage from "./recommendation-learning/page";
 import SearchPage from "./search/page";
 
@@ -75,6 +76,11 @@ describe("operator client pages — render gate", () => {
   it("RecommendationLearningPage renders primary heading", () => {
     render(<RecommendationLearningPage />);
     expect(screen.getByRole("heading", { level: 2, name: "Recommendation learning" })).toBeInTheDocument();
+  });
+
+  it("ProductLearningPage renders primary heading", () => {
+    render(<ProductLearningPage />);
+    expect(screen.getByRole("heading", { level: 2, name: "Pilot feedback" })).toBeInTheDocument();
   });
 
   it("DigestsPage renders primary heading", () => {
