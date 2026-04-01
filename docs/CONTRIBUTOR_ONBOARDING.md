@@ -11,6 +11,8 @@ dotnet build
 
 ## Tests
 
+- **Core corset (matches CI `dotnet-fast-core` test step):**  
+  `dotnet test --filter "Suite=Core&Category!=Slow&Category!=Integration"`
 - **Fast feedback (exclude HTTP integration):**  
   `dotnet test --filter "Category!=Integration"`
 - **Integration (full API + SQL Server — see [TEST_STRUCTURE.md](TEST_STRUCTURE.md)):**  

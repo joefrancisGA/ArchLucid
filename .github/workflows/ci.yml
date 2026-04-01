@@ -79,7 +79,10 @@ jobs:
 
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
-    needs: gitleaks
+    needs:
+      - gitleaks
+      - terraform-validate-private
+      - terraform-validate-public-stacks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

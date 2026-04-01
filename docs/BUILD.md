@@ -58,7 +58,11 @@ Shared resolution lives in **`ArchiForge.TestSupport`** (`SqlServerIntegrationTe
 1. Set **`ARCHIFORGE_SQL_TEST`** to a full ADO.NET connection string (including **`Initial Catalog`**), **or**
 2. On **Windows**, omit it and use **LocalDB** (`(localdb)\mssqllocaldb`, catalog **`ArchiForgePersistenceTests`**) when LocalDB is installed.
 
-**CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHIFORGE_SQL_TEST`** against the **SQL Server 2022** service container (the **`dotnet-fast-core`** job does not start SQL).
+**CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHIFORGE_SQL_TEST`** against the **SQL Server 2022** service container (the **`dotnet-fast-core`** job does not start SQL). The **`dotnet-fast-core`** job **depends on** the Terraform **`terraform-validate-private`** and **`terraform-validate-public-stacks`** jobs so invalid IaC fails before the .NET corset runs.
+
+### Application layer unit tests (`ArchiForge.Application.Tests`)
+
+- **`Suite=Core`** / **`Category=Unit`**: hashing/idempotency helpers and **`ArchitectureRunService`** idempotency paths (replay vs **`ConflictException`**) using mocked coordinators and repositories—no SQL required.
 
 ### API integration tests (`ArchiForge.Api.Tests`)
 

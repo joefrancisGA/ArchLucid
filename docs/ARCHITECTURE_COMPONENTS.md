@@ -140,7 +140,7 @@ This document zooms into the most important components inside each container/lib
 
 #### Contract test coverage (persistence)
 
-- Shared suites under **`ArchiForge.Persistence.Tests/Contracts/`** include runs, comparison records, policy assignments, digests, alert rules, conversation threads/messages, **audit events**, **provenance snapshots**, **authority golden manifests**, **decision traces**, and **policy packs** (each with InMemory + Dapper/SQL subclasses where applicable). SQL golden-manifest tests reuse **`AuthorityRunChainTestSeed`** for FK chain setup.
+- Shared suites under **`ArchiForge.Persistence.Tests/Contracts/`** include runs, comparison records, policy assignments, digests, alert rules, conversation threads/messages, **audit events**, **provenance snapshots**, **authority golden manifests**, **decision traces**, **policy packs**, **architecture run idempotency**, **agent tasks** / **agent results**, **advisory scan schedules**, and **alert delivery attempts** (each with InMemory + Dapper/SQL subclasses where applicable). SQL golden-manifest tests reuse **`AuthorityRunChainTestSeed`**; data-layer SQL tests for runs/tasks/results reuse **`ArchitectureCommitTestSeed`** for the request/run/task FK chain.
 
 #### `ComparisonRecordRepository`
 

@@ -2024,6 +2024,17 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 301. **Runbooks** — **`docs/runbooks/README.md`**, **`INFRASTRUCTURE_OPS.md`**, **`REDIS_HEALTH.md`**.
 - [x] 302. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §293–302 recorded; component doc: contract coverage + production safety note.
 
+### Persistence contracts, app idempotency, config, synthesis, CI gate (303–310)
+
+- [x] 303. **Persistence contract tests** — **`AgentResultRepositoryContractTests`** + InMemory + Dapper (FK seed via **`ArchitectureCommitTestSeed`**); **`AdvisoryScanScheduleRepositoryContractTests`** + InMemory + **`DapperAdvisoryScanScheduleRepository`**; **`AlertDeliveryAttemptRepositoryContractTests`** + InMemory + **`DapperAlertDeliveryAttemptRepository`**.
+- [x] 304. **`ArchiForge.Application.Tests`** — **`ArchitectureRunServiceCreateRunIdempotencyTests`**: idempotent replay skips **`ICoordinatorService`**; fingerprint mismatch → **`ConflictException`**.
+- [x] 305. **`ArchiForgeConfigurationRules`** — **`Retrieval:VectorIndex`** must be **`InMemory`**, **`AzureSearch`**, or omitted; Production webhook HMAC secret minimum length when HTTP delivery is enabled; **`RateLimiting:Replay:Light` / `Heavy`** honor configured **`QueueLimit`**; matching **`ArchiForgeConfigurationRulesTests`**.
+- [x] 306. **`ArchiForge.ArtifactSynthesis.Tests`** — **`InventoryArtifactGeneratorTests`**, **`ArtifactBundleValidatorTests`** (duplicate type + empty content).
+- [x] 307. **Docs** — **`docs/BUILD.md`** (Application.Tests, Terraform gate on fast-core); **`docs/CONTRIBUTOR_ONBOARDING.md`** (**`Suite=Core`** filter).
+- [x] 308. **CI** — **`dotnet-fast-core`** **`needs:`** **`terraform-validate-private`** and **`terraform-validate-public-stacks`** (after **`gitleaks`**).
+- [x] 309. **`docs/ARCHITECTURE_COMPONENTS.md`** — contract list extended (idempotency, agent results, advisory schedules, alert attempts, **`ArchitectureCommitTestSeed`**).
+- [x] 310. **This file** — §303–310 recorded.
+
 ---
 
 ## Checklist (items 155–256 progress)
@@ -2043,3 +2054,4 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Data access clarity & test depth (275–283): complete (**275–276** dual manifest/trace contracts + **`SqlScopedResolutionDbConnectionFactory`**; **277–278** middleware + outbox host tests; **279–280** CI coverage + **`terraform fmt`**, **281** conversation contracts, **282** secret/cert runbook, **283** docs).
 - [x] Audit, provenance, rate limits & ops polish (284–292): complete (**284–285** audit + provenance contract tests; **286** controller rate limits + debug/docs remarks; **287** archival host tests; **288** compose Azurite health; **289** rate-limit validation; **290** consulting DOCX doc; **291** template CI test; **292** docs).
 - [x] Synthesis tests, CI Terraform breadth, production safety & ops docs (293–302): complete (**293–295** ArtifactSynthesis + AgentRuntime + Application test projects; **296** authority manifest/trace/policy pack contracts + **`AuthorityRunChainTestSeed`**; **297–298** Terraform matrix job + compose API/UI health; **299** production CORS/webhook validation; **300–302** containers doc, runbooks index + infra/redis ops, backlog + components).
+- [x] Persistence contracts, app idempotency, config, synthesis, CI gate (303–310): complete (**303** agent result + advisory + alert delivery contracts; **304** **`ArchitectureRunService`** idempotency unit tests; **305** VectorIndex + webhook secret length + replay rate-limit **`QueueLimit`**; **306** inventory generator + bundle validator negatives; **307–308** BUILD/CONTRIBUTOR + CI **`needs`** Terraform; **309–310** components doc + backlog).

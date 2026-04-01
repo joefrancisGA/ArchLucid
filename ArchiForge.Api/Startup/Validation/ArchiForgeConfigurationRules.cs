@@ -80,6 +80,7 @@ public static class ArchiForgeConfigurationRules
         CollectApiDeprecationErrors(configuration, errors);
         CollectDataArchivalErrors(configuration, errors);
         CollectRetrievalEmbeddingCapErrors(configuration, errors);
+        CollectRetrievalVectorIndexErrors(configuration, errors);
         CollectRateLimitingErrors(configuration, errors);
 
         if (!environment.IsProduction())
@@ -157,10 +158,25 @@ public static class ArchiForgeConfigurationRules
             configuration.GetSection(WebhookDeliveryOptions.SectionName).Get<WebhookDeliveryOptions>() ??
             new WebhookDeliveryOptions();
 
-        if (webhook.UseHttpClient && string.IsNullOrWhiteSpace(webhook.HmacSha256SharedSecret))
+        const int minWebhookSecretChars = 32;
+
+        if (!webhook.UseHttpClient)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(webhook.HmacSha256SharedSecret))
         {
             errors.Add(
                 "WebhookDelivery:HmacSha256SharedSecret is required in Production when WebhookDelivery:UseHttpClient is true.");
+
+            return;
+        }
+
+        if (webhook.HmacSha256SharedSecret.Length < minWebhookSecretChars)
+        {
+            errors.Add(
+                $"WebhookDelivery:HmacSha256SharedSecret must be at least {minWebhookSecretChars} characters in Production when WebhookDelivery:UseHttpClient is true.");
         }
     }
 
@@ -281,7 +297,8 @@ public static class ArchiForgeConfigurationRules
         {
             int permit = configuration.GetValue("RateLimiting:Replay:Light:PermitLimit", 60);
             int window = configuration.GetValue("RateLimiting:Replay:Light:WindowMinutes", 1);
-            AddIfInvalid("RateLimiting:Replay:Light", permit, window, 0);
+            int queue = configuration.GetValue("RateLimiting:Replay:Light:QueueLimit", 0);
+            AddIfInvalid("RateLimiting:Replay:Light", permit, window, queue);
         }
 
         IConfigurationSection replayHeavy = configuration.GetSection("RateLimiting:Replay:Heavy");
@@ -289,7 +306,8 @@ public static class ArchiForgeConfigurationRules
         {
             int permit = configuration.GetValue("RateLimiting:Replay:Heavy:PermitLimit", 15);
             int window = configuration.GetValue("RateLimiting:Replay:Heavy:WindowMinutes", 1);
-            AddIfInvalid("RateLimiting:Replay:Heavy", permit, window, 0);
+            int queue = configuration.GetValue("RateLimiting:Replay:Heavy:QueueLimit", 0);
+            AddIfInvalid("RateLimiting:Replay:Heavy", permit, window, queue);
         }
     }
 
@@ -308,6 +326,28 @@ public static class ArchiForgeConfigurationRules
         {
             errors.Add("Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation must be between 0 and 1000000 (0 = unlimited).");
         }
+    }
+
+    /// <summary>
+    /// Aligns with <see cref="ArchiForge.Api.Startup.ServiceCollectionExtensions.RegisterRetrieval"/>: only <c>InMemory</c> and <c>AzureSearch</c> are supported; omitted defaults to in-memory.
+    /// </summary>
+    private static void CollectRetrievalVectorIndexErrors(IConfiguration configuration, List<string> errors)
+    {
+        string? mode = configuration["Retrieval:VectorIndex"];
+
+        if (string.IsNullOrWhiteSpace(mode))
+        {
+            return;
+        }
+
+        if (string.Equals(mode, "InMemory", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(mode, "AzureSearch", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        errors.Add(
+            "Retrieval:VectorIndex must be 'InMemory', 'AzureSearch', or omitted (defaults to InMemory).");
     }
 
     private static void CollectSchemaFileErrors(IConfiguration configuration, List<string> errors)
