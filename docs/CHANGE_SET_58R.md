@@ -74,3 +74,11 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 - **Dapper:** explicit CTE/grouped SQL + internal row DTOs (`ProductLearningPilotSignalSqlRows.cs`); in-memory path uses shared **`ProductLearningSignalAggregations`** rules so behavior matches SQL.
 - **Added** `RepeatedCommentTheme` contract for deterministic comment-prefix rollups.
 - **Tests:** in-memory repository coverage for aggregates, top reject/revise, comment themes, opportunity thresholds.
+
+### Prompt 4 — product learning / triage service layer
+
+- **Contracts:** `ProductLearningScope`, `ProductLearningTriageOptions`, `ProductLearningAggregationSnapshot`, and service interfaces (`IProductLearningFeedbackAggregationService`, `IProductLearningImprovementOpportunityService`, `IProductLearningDashboardService`).
+- **Persistence:** `ProductLearningFeedbackAggregationService`, `ProductLearningImprovementOpportunityService`, `ProductLearningDashboardService`, `ProductLearningOpportunityScoring` (deterministic scoring helpers).
+- **Repository:** `CountSignalsInScopeAsync`, `CountDistinctArchitectureRunsWithSignalsAsync` for accurate dashboard totals.
+- **DI:** registered scoped (SQL) / singleton (in-memory) alongside `IProductLearningPilotSignalRepository`.
+- **Tests:** dashboard + count smoke tests.

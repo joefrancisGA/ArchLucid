@@ -73,4 +73,20 @@ public interface IProductLearningPilotSignalRepository
         int minRevisedSignals,
         int take,
         CancellationToken cancellationToken);
+
+    /// <summary>Total signal rows in scope (for dashboard totals).</summary>
+    Task<int> CountSignalsInScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime? sinceUtc,
+        CancellationToken cancellationToken);
+
+    /// <summary>Distinct non-empty <c>ArchitectureRunId</c> values with at least one signal.</summary>
+    Task<int> CountDistinctArchitectureRunsWithSignalsAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime? sinceUtc,
+        CancellationToken cancellationToken);
 }

@@ -191,4 +191,44 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
             return _rows.Select(static r => r with { }).ToList();
         }
     }
+
+    public Task<int> CountSignalsInScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime? sinceUtc,
+        CancellationToken cancellationToken)
+    {
+        IEnumerable<ProductLearningPilotSignalRecord> scoped = ProductLearningSignalAggregations.FilterScope(
+            SnapshotRows(),
+            tenantId,
+            workspaceId,
+            projectId,
+            sinceUtc);
+
+        return Task.FromResult(scoped.Count());
+    }
+
+    public Task<int> CountDistinctArchitectureRunsWithSignalsAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime? sinceUtc,
+        CancellationToken cancellationToken)
+    {
+        IEnumerable<ProductLearningPilotSignalRecord> scoped = ProductLearningSignalAggregations.FilterScope(
+            SnapshotRows(),
+            tenantId,
+            workspaceId,
+            projectId,
+            sinceUtc);
+
+        int n = scoped
+            .Where(static r => !string.IsNullOrWhiteSpace(r.ArchitectureRunId))
+            .Select(static r => r.ArchitectureRunId!)
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+
+        return Task.FromResult(n);
+    }
 }

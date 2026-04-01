@@ -510,4 +510,58 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
 
         return value[..maxChars];
     }
+
+    public async Task<int> CountSignalsInScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime? sinceUtc,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT COUNT_BIG(*)
+            FROM dbo.ProductLearningPilotSignals
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND (@SinceUtc IS NULL OR RecordedUtc >= @SinceUtc);
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        long n = await connection.ExecuteScalarAsync<long>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, SinceUtc = sinceUtc },
+                cancellationToken: cancellationToken));
+
+        return n > int.MaxValue ? int.MaxValue : (int)n;
+    }
+
+    public async Task<int> CountDistinctArchitectureRunsWithSignalsAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime? sinceUtc,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT COUNT(DISTINCT ArchitectureRunId)
+            FROM dbo.ProductLearningPilotSignals
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND (@SinceUtc IS NULL OR RecordedUtc >= @SinceUtc)
+              AND ArchitectureRunId IS NOT NULL
+              AND LTRIM(RTRIM(ArchitectureRunId)) <> N'';
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int n = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, SinceUtc = sinceUtc },
+                cancellationToken: cancellationToken));
+
+        return n;
+    }
 }

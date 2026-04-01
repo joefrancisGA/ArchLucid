@@ -26,6 +26,7 @@ using ArchiForge.Persistence.Governance;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Archival;
+using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Persistence.ProductLearning;
 using ArchiForge.Persistence.Provenance;
 using ArchiForge.Persistence.Queries;
@@ -93,6 +94,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IArchiForgeUnitOfWorkFactory, InMemoryArchiForgeUnitOfWorkFactory>();
             services.AddSingleton<IRetrievalIndexingOutboxRepository, InMemoryRetrievalIndexingOutboxRepository>();
             services.AddSingleton<IProductLearningPilotSignalRepository, InMemoryProductLearningPilotSignalRepository>();
+            services.AddSingleton<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
+            services.AddSingleton<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
+            services.AddSingleton<IProductLearningDashboardService, ProductLearningDashboardService>();
             services.AddSingleton<IConversationThreadRepository, InMemoryConversationThreadRepository>();
             services.AddSingleton<IConversationMessageRepository, InMemoryConversationMessageRepository>();
             services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
@@ -160,6 +164,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IArchiForgeUnitOfWorkFactory, DapperArchiForgeUnitOfWorkFactory>();
         services.AddScoped<IRetrievalIndexingOutboxRepository, DapperRetrievalIndexingOutboxRepository>();
         services.AddScoped<IProductLearningPilotSignalRepository, DapperProductLearningPilotSignalRepository>();
+        services.AddScoped<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
+        services.AddScoped<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
+        services.AddScoped<IProductLearningDashboardService, ProductLearningDashboardService>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();
