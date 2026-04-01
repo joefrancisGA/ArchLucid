@@ -35,6 +35,35 @@ if (-not $SkipUiBuild)
     }
 }
 
+# --- Emit release metadata.json alongside published output ---
+$commitSha = 'unknown'
+try {
+    $commitSha = (git rev-parse HEAD 2>$null)
+    if ([string]::IsNullOrWhiteSpace($commitSha)) { $commitSha = 'unknown' }
+} catch { $commitSha = 'unknown' }
+
+$apiDll = Join-Path $apiOut 'ArchiForge.Api.dll'
+$informationalVersion = 'unknown'
+if (Test-Path $apiDll) {
+    try {
+        $asm = [System.Reflection.Assembly]::LoadFrom($apiDll)
+        $attr = $asm.GetCustomAttributes([System.Reflection.AssemblyInformationalVersionAttribute], $false)
+        if ($attr.Count -gt 0) { $informationalVersion = $attr[0].InformationalVersion }
+    } catch { }
+}
+
+$metadata = [ordered]@{
+    application           = 'ArchiForge.Api'
+    informationalVersion  = $informationalVersion
+    commitSha             = $commitSha
+    buildTimestampUtc     = (Get-Date).ToUniversalTime().ToString('o')
+    dotnetSdkVersion      = (dotnet --version 2>$null) ?? 'unknown'
+    packagerHost          = $env:COMPUTERNAME ?? $env:HOSTNAME ?? 'unknown'
+}
+$metadataPath = Join-Path (Split-Path $apiOut) 'metadata.json'
+$metadata | ConvertTo-Json -Depth 4 | Set-Content -Path $metadataPath -Encoding utf8
+Write-Host "Release metadata: $metadataPath"
+
 Write-Host "Release package: API published to $apiOut"
 Write-Host "Run the API: dotnet ArchiForge.Api.dll (from that folder; requires .NET 10 runtime). See docs/RELEASE_LOCAL.md"
 exit 0

@@ -24,13 +24,24 @@ curl -s http://localhost:5128/health/live
 curl -s http://localhost:5128/health/ready
 ```
 
-**Build provenance (support handoff):** On API startup, look for the structured log line **`Pilot/support configuration snapshot`** — it includes **`BuildInformationalVersion`**, **`BuildAssemblyVersion`**, **`BuildFileVersion`**, and **`RuntimeFramework`**. Set CI or local publish with **`/p:InformationalVersion=…`** (e.g. git SHA) so that field identifies the exact binary.
+**Build provenance (support handoff):**
+
+- **`GET /version`** — returns JSON with `informationalVersion`, `assemblyVersion`, `commitSha`, `runtimeFramework`, and `environment`. No authentication required.
+- **Startup log** — look for **`Pilot/support configuration snapshot`** (includes `BuildInformationalVersion`, `BuildAssemblyVersion`, `BuildFileVersion`, `RuntimeFramework`).
+- **`/health/ready`** and **`/health`** — detailed JSON now includes `version` and `commitSha` alongside per-check status and durations.
+- Set CI or local publish with **`/p:SourceRevisionId=$(git rev-parse HEAD)`** to embed the commit SHA automatically.
+
+```bash
+curl -s http://localhost:5128/version | python -m json.tool
+```
 
 **CLI doctor (API must be running):**
 
 ```bash
 dotnet run --project ArchiForge.Cli -- doctor
 ```
+
+`doctor` now prints CLI build info and calls `GET /version` to display the API's build identity before running health probes.
 
 ---
 

@@ -110,6 +110,31 @@ namespace ArchiForge.Cli
             Console.Error.WriteLine($"[ArchiForge CLI] {operation} failed: {ex.GetType().Name}: {ex.Message}");
 
         /// <summary>
+        /// Calls <c>GET /version</c> and returns the raw JSON body for operator diagnostics.
+        /// Returns <c>null</c> when the endpoint is unreachable or returns a non-success status.
+        /// </summary>
+        public async Task<string?> GetVersionJsonAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                HttpResponseMessage response = await _http.GetAsync("/version", ct);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return null;
+                }
+
+                return await response.Content.ReadAsStringAsync(ct);
+            }
+            catch (Exception ex)
+            {
+                LogCliFailure("GET /version", ex);
+
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Check connectivity to the ArchiForge API (GET /health). Returns true if the API is reachable and healthy.
         /// </summary>
         public async Task<bool> CheckHealthAsync(CancellationToken ct = default)

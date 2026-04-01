@@ -13881,6 +13881,35 @@
           }
         }
       }
+    },
+    "/version": {
+      "get": {
+        "tags": [
+          "Version"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildInfoResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildInfoResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -15523,6 +15552,38 @@
           },
           "persistReplay": {
             "type": "boolean"
+          }
+        }
+      },
+      "BuildInfoResponse": {
+        "type": "object",
+        "properties": {
+          "application": {
+            "type": "string"
+          },
+          "informationalVersion": {
+            "type": "string"
+          },
+          "assemblyVersion": {
+            "type": "string"
+          },
+          "fileVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "commitSha": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runtimeFramework": {
+            "type": "string"
+          },
+          "environment": {
+            "type": "string"
           }
         }
       },
@@ -21200,6 +21261,9 @@
     },
     {
       "name": "ScopeDebug"
+    },
+    {
+      "name": "Version"
     }
   ]
 }

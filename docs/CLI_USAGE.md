@@ -47,7 +47,7 @@ The API must be running for `run`, `status`, `submit`, `commit`, `seed`, `artifa
 | `artifacts <runId>` | Fetch and display the committed manifest. |
 | `artifacts <runId> --save` | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
 | `health` | Check API connectivity (`GET /health`). Exit 0 if OK, 1 if unreachable. |
-| `doctor` / `check` | Readiness diagnostics: local `archiforge.json` (brief, writable outputs dir), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness is not 2xx. |
+| `doctor` / `check` | Readiness diagnostics: CLI build info, local `archiforge.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness is not 2xx. |
 | `comparisons list` | List/search persisted comparison records (supports paging and filters). |
 | `comparisons replay <comparisonRecordId>` | Replay a saved comparison record and export it again to a file (Markdown/HTML/DOCX/PDF depending on type). |
 | `comparisons replay-batch <id1,id2,...>` | Replay multiple comparison records and download a ZIP of the exported artifacts. |

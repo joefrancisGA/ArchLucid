@@ -1,15 +1,22 @@
+using System.Reflection;
+using System.Text.Json;
+
 namespace ArchiForge.Cli;
 
 /// <summary>
-/// Operator-facing readiness diagnostics: local project layout and API <c>/health/live</c> + <c>/health/ready</c>.
+/// Operator-facing readiness diagnostics: CLI build identity, local project layout,
+/// API <c>GET /version</c>, and API <c>/health/live</c> + <c>/health/ready</c>.
 /// </summary>
 internal static class DoctorCommand
 {
+    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+
     public static async Task<int> RunAsync(ArchiForgeProjectScaffolder.ArchiForgeConfig? config, CancellationToken ct = default)
     {
         Console.WriteLine("ArchiForge doctor — local checks and API readiness");
         Console.WriteLine();
 
+        PrintCliBuildInfo();
         RunLocalProjectChecks(config);
 
         string baseUrl = ArchiForgeApiClient.ResolveBaseUrl(config);
@@ -26,6 +33,8 @@ internal static class DoctorCommand
         Console.WriteLine($"Base URL: {baseUrl}");
 
         ArchiForgeApiClient client = new(baseUrl);
+
+        await PrintApiVersionAsync(client, ct);
 
         await PrintProbeAsync(client, "/health/live", "Liveness (/health/live)", ct);
         bool readyOk = await PrintProbeAsync(client, "/health/ready", "Readiness (/health/ready)", ct);
@@ -57,6 +66,50 @@ internal static class DoctorCommand
         Console.WriteLine("Doctor finished: readiness OK.");
 
         return 0;
+    }
+
+    private static void PrintCliBuildInfo()
+    {
+        Console.WriteLine("--- CLI build info ---");
+
+        Assembly cliAssembly = typeof(DoctorCommand).Assembly;
+        AssemblyName name = cliAssembly.GetName();
+        string assemblyVersion = name.Version?.ToString() ?? "unknown";
+
+        string informational = cliAssembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+            ?? assemblyVersion;
+
+        Console.WriteLine($"CLI version:    {informational}");
+        Console.WriteLine($"Assembly:       {assemblyVersion}");
+        Console.WriteLine($"Runtime:        {System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription}");
+        Console.WriteLine();
+    }
+
+    private static async Task PrintApiVersionAsync(ArchiForgeApiClient client, CancellationToken ct)
+    {
+        string? versionJson = await client.GetVersionJsonAsync(ct);
+
+        if (versionJson is null)
+        {
+            Console.WriteLine();
+            Console.WriteLine("API version: (unavailable — GET /version failed or not supported)");
+
+            return;
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("API version (GET /version):");
+
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(versionJson);
+            Console.WriteLine(JsonSerializer.Serialize(doc, IndentedJson));
+        }
+        catch (JsonException)
+        {
+            Console.WriteLine(versionJson);
+        }
     }
 
     private static void RunLocalProjectChecks(ArchiForgeProjectScaffolder.ArchiForgeConfig? config)

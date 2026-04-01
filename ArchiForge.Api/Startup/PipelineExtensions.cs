@@ -4,6 +4,7 @@ using ArchiForge.Api.ProblemDetails;
 
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchiForge.Api.Startup;
 
@@ -72,8 +73,12 @@ internal static class PipelineExtensions
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
             Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
+            ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
         });
-        app.MapHealthChecks("/health");
+        app.MapHealthChecks("/health", new HealthCheckOptions
+        {
+            ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
+        });
 
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
         if (prometheusEnabled)

@@ -83,25 +83,42 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **Tests:** `BuildProvenanceTests`, extended `StartupConfigurationFactsReaderTests`.
 - **Docs:** `docs/OPERATOR_QUICKSTART.md` — where to find provenance in logs; optional `/p:InformationalVersion` for CI.
 
-**Still for later regen prompts:** support bundle export, stronger readiness/smoke diagnostics, release packaging metadata file, further pilot supportability.
+### Prompt 2 (regen) — build/version/commit provenance HTTP surface, CLI, health, and release metadata
+
+- **Core:** `BuildProvenance` extended with `CommitSha` — parsed from the `+{sha}` suffix of `AssemblyInformationalVersion` (populated automatically when `SourceRevisionId` is set at build time).
+- **Core:** `BuildInfoResponse` DTO — lightweight, non-secret build identity payload for HTTP and CLI consumption.
+- **API:** `GET /version` endpoint (`VersionController`, `[AllowAnonymous]`) — returns `application`, `informationalVersion`, `assemblyVersion`, `fileVersion`, `commitSha`, `runtimeFramework`, `environment`.
+- **API:** `/health/ready` and `/health` now use `DetailedHealthCheckResponseWriter` — enriched JSON with per-check `name`, `status`, `durationMs`, `description`, `error`, plus top-level `version`, `commitSha`, and `totalDurationMs`. `/health/live` stays minimal for orchestrator probes.
+- **CI:** Both `dotnet-fast-core` and `dotnet-full-regression` build steps now pass `/p:SourceRevisionId=$(git rev-parse HEAD)` so the commit SHA is embedded in the informational version automatically.
+- **CLI:** `doctor` now prints a **CLI build info** section (version, assembly, runtime) and calls **`GET /version`** to display the API's build identity before running health probes.
+- **CLI:** `ArchiForgeApiClient.GetVersionJsonAsync` — new method for retrieving `/version` JSON.
+- **Release:** `package-release.ps1` / `.cmd` now emit `artifacts/release/metadata.json` with `application`, `informationalVersion`, `commitSha`, `buildTimestampUtc`, `dotnetSdkVersion`, `packagerHost`.
+- **Tests:** `BuildProvenanceTests` — `ParseCommitSha` theory tests, `BuildInfoResponse.FromProvenance` mapping/null tests. `VersionControllerTests` — controller returns expected fields and JSON shape. `DetailedHealthCheckResponseWriterTests` — healthy/unhealthy reports produce correct JSON payload.
+- **Docs:** `OPERATOR_QUICKSTART.md` updated with `/version`, `/health/ready` enrichment, `SourceRevisionId` guidance. `CLI_USAGE.md` — `doctor` description updated.
+
+**Still for later regen prompts:** support bundle export, further pilot supportability.
 
 ---
 
 ## Related files
 
+- `ArchiForge.Core/Diagnostics/BuildProvenance.cs`, `ArchiForge.Core/Diagnostics/BuildInfoResponse.cs`
+- `ArchiForge.Api/Controllers/VersionController.cs`
+- `ArchiForge.Api/Health/DetailedHealthCheckResponseWriter.cs`
 - `ArchiForge.Api/Startup/Diagnostics/*`
 - `ArchiForge.Api/Startup/Validation/ArchiForgeConfigurationRules.cs`
+- `ArchiForge.Api/Startup/PipelineExtensions.cs` (`/health/live`, `/health/ready`, `/health`)
 - `ArchiForge.Api/Program.cs`
 - `ArchiForge.Api/appsettings.json`, `appsettings.KeyVault.sample.json`
 - `ArchiForge.Cli/ArchiForgeApiClient.cs`, `ArchiForge.Cli/Program.cs`, `ArchiForge.Cli/DoctorCommand.cs`
 - `ArchiForge.Api/Health/*` (readiness tags, schema/compliance/temp checks, SQL check behavior)
-- `ArchiForge.Api/Startup/PipelineExtensions.cs` (`/health/live`, `/health/ready`)
 - `archiforge-ui/src/lib/config.ts`, `archiforge-ui/src/app/api/proxy/[...path]/route.ts`
 - `docs/CONFIGURATION_KEY_VAULT.md`
 - `build-release.cmd`, `build-release.ps1`, `package-release.cmd`, `package-release.ps1`, `run-readiness-check.cmd`, `run-readiness-check.ps1`
 - `docs/RELEASE_LOCAL.md`
-- `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/TROUBLESHOOTING.md`
+- `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/TROUBLESHOOTING.md`, `docs/CLI_USAGE.md`
 - `release-smoke.ps1`, `release-smoke.cmd`, `docs/RELEASE_SMOKE.md`
-- `ArchiForge.Api/ProblemDetails/ProblemSupportHints.cs`, `ArchiForge.Api/ProblemDetails/*` (extensions wiring), `ArchiForge.Api/Startup/PipelineExtensions.cs`
-- `ArchiForge.Cli/CliOperatorHints.cs`, `ArchiForge.Cli/ArchiForgeApiClient.cs`, `ArchiForge.Cli/Program.cs`, `ArchiForge.Cli/DoctorCommand.cs`
-- `archiforge-ui/src/app/api/proxy/[...path]/route.ts`, `docs/TROUBLESHOOTING.md`, `docs/API_CONTRACTS.md` (problem extensions)
+- `ArchiForge.Api/ProblemDetails/ProblemSupportHints.cs`, `ArchiForge.Api/ProblemDetails/*` (extensions wiring)
+- `ArchiForge.Cli/CliOperatorHints.cs`
+- `archiforge-ui/src/app/api/proxy/[...path]/route.ts`, `docs/API_CONTRACTS.md` (problem extensions)
+- `.github/workflows/ci.yml` (SourceRevisionId stamping)

@@ -99,7 +99,7 @@ jobs:
         run: dotnet list ArchiForge.sln package --vulnerable --include-transitive --format json
 
       - name: Build (Release)
-        run: dotnet build --no-restore -c Release
+        run: dotnet build --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
       - name: Generate .NET SBOM (CycloneDX)
         run: |
@@ -159,7 +159,7 @@ jobs:
         run: dotnet restore
 
       - name: Build (Release)
-        run: dotnet build --no-restore -c Release
+        run: dotnet build --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
       - name: Test — full solution
         env:
