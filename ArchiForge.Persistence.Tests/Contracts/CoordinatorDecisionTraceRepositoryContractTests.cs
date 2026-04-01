@@ -1,0 +1,80 @@
+using ArchiForge.Contracts.Metadata;
+using ArchiForge.Data.Repositories;
+
+using FluentAssertions;
+
+namespace ArchiForge.Persistence.Tests.Contracts;
+
+/// <summary>
+/// Shared contract assertions for coordinator <see cref="IDecisionTraceRepository"/> (run-scoped decision log rows).
+/// </summary>
+public abstract class CoordinatorDecisionTraceRepositoryContractTests
+{
+    protected virtual void SkipIfSqlServerUnavailable()
+    {
+    }
+
+    protected abstract IDecisionTraceRepository CreateRepository();
+
+    /// <summary>SQL: ensures <c>dbo.ArchitectureRuns</c> exists for <paramref name="runId"/>.</summary>
+    protected virtual Task PrepareRunForCoordinatorDataAsync(string requestId, string runId, CancellationToken ct)
+    {
+        _ = requestId;
+        _ = runId;
+        _ = ct;
+
+        return Task.CompletedTask;
+    }
+
+    [SkippableFact]
+    public async Task CreateMany_then_GetByRunId_orders_by_CreatedUtc()
+    {
+        SkipIfSqlServerUnavailable();
+        IDecisionTraceRepository repo = CreateRepository();
+        string runId = "run-dt-" + Guid.NewGuid().ToString("N");
+        string requestId = "req-dt-" + Guid.NewGuid().ToString("N");
+        await PrepareRunForCoordinatorDataAsync(requestId, runId, CancellationToken.None);
+        DateTime t0 = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
+        DateTime t1 = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
+
+        List<DecisionTrace> batch =
+        [
+            new DecisionTrace
+            {
+                TraceId = "a-" + Guid.NewGuid().ToString("N"),
+                RunId = runId,
+                EventType = "second",
+                EventDescription = "d2",
+                CreatedUtc = t1,
+            },
+            new DecisionTrace
+            {
+                TraceId = "b-" + Guid.NewGuid().ToString("N"),
+                RunId = runId,
+                EventType = "first",
+                EventDescription = "d1",
+                CreatedUtc = t0,
+            },
+        ];
+
+        await repo.CreateManyAsync(batch, CancellationToken.None);
+
+        IReadOnlyList<DecisionTrace> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+
+        loaded.Should().HaveCount(2);
+        loaded[0].EventType.Should().Be("first");
+        loaded[1].EventType.Should().Be("second");
+    }
+
+    [SkippableFact]
+    public async Task GetByRunId_empty_run_returns_empty_list()
+    {
+        SkipIfSqlServerUnavailable();
+        IDecisionTraceRepository repo = CreateRepository();
+
+        IReadOnlyList<DecisionTrace> loaded =
+            await repo.GetByRunIdAsync("no-such-" + Guid.NewGuid().ToString("N"), CancellationToken.None);
+
+        loaded.Should().BeEmpty();
+    }
+}

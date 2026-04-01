@@ -118,10 +118,28 @@ dotnet test ArchiForge.sln --filter "Category!=Integration&Category!=SqlServerCo
 | **ArchiForge.Decisioning.Tests** | Findings, compliance, alerts (pure logic), advisory scheduling math, governance resolution, graph mappers, JSON persistence contracts. |
 | **ArchiForge.ContextIngestion.Tests** | Connectors, parsers, deduplication, `ContextIngestionService`, delta summaries. |
 | **ArchiForge.Coordinator.Tests** | Run coordination, agent fakes, **`ContextIngestionRequestMapperTests`**, **`DocxExportServiceGoldenTests`** (OpenXML anchors). |
+| **ArchiForge.Application.Tests** | **`ArchitectureRunService`** execute/commit and idempotency, **`ReplayRunService`**, **`DeterminismCheckService`**, hashing helpers — Application-layer orchestration with mocked Data/Coordinator ports (**`Suite=Core`** on classes). |
 | **ArchiForge.DecisionEngine.Tests** | Schema validation, manifest/decision JSON contracts. |
 | **ArchiForge.KnowledgeGraph.Tests** | Graph models, edge inference contracts. |
 | **ArchiForge.Retrieval.Tests** | `RetrievalQueryService`, `InMemoryVectorIndex` (empty index, ranking, scope filters), **`CircuitBreakerGateTests`**, **`CircuitBreakingOpenAiEmbeddingClientTests`** (OpenAI embedding circuit breaker). |
-| **ArchiForge.Persistence.Tests** | Dapper repositories against **real SQL Server** via **`ARCHIFORGE_SQL_TEST`** or Windows **LocalDB**; schema from **`DatabaseMigrator`** (same DbUp migrations as production SQL Server). Includes **53R cutover** tests: `JsonFallbackPolicyTests`, `FallbackPolicyDiagnosticsTests`, `CutoverReadinessReportTests` (unit); `PolicyModeFallbackSqlIntegrationTests`, `CutoverReadinessSqlIntegrationTests` (SQL integration). |
+| **ArchiForge.Persistence.Tests** | Dapper repositories against **real SQL Server** via **`ARCHIFORGE_SQL_TEST`** or Windows **LocalDB**; schema from **`DatabaseMigrator`** (same DbUp migrations as production SQL Server). **`Contracts/`** abstract bases with **InMemory** + **Dapper** implementations (agent evaluations, decision nodes, coordinator manifest/trace, run exports, architecture runs, etc.). **`AuthorityRunOrchestratorTests`** exercise **`ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator`** with mocks (commit vs rollback). Includes **53R cutover** tests: `JsonFallbackPolicyTests`, `FallbackPolicyDiagnosticsTests`, `CutoverReadinessReportTests` (unit); `PolicyModeFallbackSqlIntegrationTests`, `CutoverReadinessSqlIntegrationTests` (SQL integration). |
+
+## API routes ↔ primary automated tests (319R)
+
+Many flows are covered by **scenario-named** integration tests under **`ArchiForge.Api.Tests`**, not by a `*ControllerTests` class per MVC controller. Use this map when tracing a route to tests (representative examples; search the test project for the route segment or DTO name when unsure).
+
+| Area / route prefix (typical) | Primary test classes (Api.Tests) |
+|------------------------------|-----------------------------------|
+| **`/v1/architecture/*`** (runs, commit, replay, determinism, traces) | **`ArchitectureRunDetailsTests`**, **`ArchitectureReplayTests`**, **`ArchitectureDeterminismTests`**, **`ArchitectureTraceTests`**, **`ArchitectureCommitConflictTests`**, **`ArchitectureControllerTests`** |
+| **Comparisons & replay export** | **`ArchitectureComparisonReplayTests`**, **`ArchitectureEndToEndComparisonTests`**, **`ComparisonReplayVerifyDriftIntegrationTests`**, **`BatchReplayIntegrationTests`** |
+| **Governance** | **`GovernanceControllerTests`**, **`GovernancePreviewControllerTests`**, **`GovernanceWorkflowServiceTests`** |
+| **Policy packs** | **`PolicyPacksIntegrationTests`**, **`PolicyPacksAppServiceTests`** |
+| **Manifests / diagrams / summaries** | **`ManifestSummaryServiceTests`**, **`ManifestDiagramServiceTests`**, **`ArchitectureDiagramTests`**, **`ArchitectureSummaryTests`** |
+| **Exports & analysis reports** | **`ArchitectureAnalysisReportTests`**, **`ArchitectureAnalysisExportTests`**, **`ArchitectureExportAuditTests`** |
+| **Configuration & startup** | **`ArchiForgeConfigurationRulesTests`**, **`StartupConfigurationFactsReaderTests`**, **`OpenApiContractSnapshotTests`** |
+| **Alerts, advisory, retrieval** (when not using dedicated factories) | Search **`Alert*`**, **`Advisory*`**, **`RetrievalQuerySmokeIntegrationTests`**, **`AskThreadIntegrationTests`** |
+
+**Persistence / Application parity:** coordinator Data contracts and **`AuthorityRunOrchestrator`** behavior are also covered in **`ArchiForge.Persistence.Tests`** and **`ArchiForge.Application.Tests`** so logic is testable without **`WebApplicationFactory`**.
 
 ## Projects (detail)
 
@@ -129,7 +147,8 @@ dotnet test ArchiForge.sln --filter "Category!=Integration&Category!=SqlServerCo
 - **ArchiForge.DecisionEngine.Tests** — Unit and scenario tests; optional integration with real JSON schemas (`SchemaValidationIntegrationTests`).
 - **ArchiForge.ContextIngestion.Tests** — Fast unit tests for ingestion parsers, deduplication, connectors, **`ContextIngestionService`**.
 - **ArchiForge.Coordinator.Tests**, **ArchiForge.AgentRuntime.Tests**, **ArchiForge.Decisioning.Tests**, **ArchiForge.Retrieval.Tests**, etc. — Domain/component tests unless marked integration.
-- **ArchiForge.Persistence.Tests** — SQL integration and contract tests (`Contracts/`); **`Category=SqlServerContainer`** for Dapper against SQL Server.
+- **ArchiForge.Persistence.Tests** — SQL integration and contract tests (`Contracts/`); **`Category=SqlServerContainer`** for Dapper against SQL Server. Unit **`AuthorityRunOrchestratorTests`** and InMemory contract subclasses run under **`Category=Unit`** / **`Suite=Core`**.
+- **ArchiForge.Application.Tests** — **`ArchitectureRunService`**, **`ReplayRunService`**, **`DeterminismCheckService`**, idempotency hashing; **`Suite=Core`** on classes.
 
 ## Class-level traits (authors)
 

@@ -2046,6 +2046,19 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 317. **`docs/ARCHITECTURE_COMPONENTS.md`** — contract list + new in-memory Data repositories note.
 - [x] 318. **This file** — §311–318 recorded.
 
+### InMemory coordinator DI, Data contracts, orchestrator & application tests, API test map (319–328)
+
+- [x] 319. **`RegisterCoordinatorDecisionEngineAndRepositories`** — when **`StorageProvider=InMemory`**, register singleton in-memory Data repositories for the full coordinator chain (request/run/idempotency, agent task/result, evaluations, decision nodes, coordinator manifest + decision traces, evidence bundle, agent evidence package, execution traces) so **`ICoordinatorService`** does not depend on SQL for those types.
+- [x] 320. **`RegisterRunExportAndArchitectureAnalysis`** — **`IRunExportRecordRepository`** → **`InMemoryRunExportRecordRepository`** when **`StorageProvider=InMemory`**.
+- [x] 321. **New in-memory Data repos** — **`InMemoryAgentEvaluationRepository`**, **`InMemoryDecisionNodeRepository`**, **`InMemoryRunExportRecordRepository`**, **`InMemoryCoordinatorGoldenManifestRepository`**, **`InMemoryCoordinatorDecisionTraceRepository`** (names avoid confusion with Decisioning in-memory authority stores).
+- [x] 322. **Persistence contract tests** — abstract bases + InMemory + Dapper/SQL: **`CoordinatorGoldenManifestRepositoryContractTests`**, **`CoordinatorDecisionTraceRepositoryContractTests`**, **`AgentEvaluationRepositoryContractTests`**, **`DecisionNodeRepositoryContractTests`**, **`RunExportRecordRepositoryContractTests`** (FK seeds via **`ArchitectureCommitTestSeed`** where required).
+- [x] 323. **`AuthorityRunOrchestratorTests`** (**`ArchiForge.Persistence.Tests`**) — happy path (**`CommitAsync`**, retrieval outbox enqueue) and failure path (**`RollbackAsync`**, no commit) with mocked Decisioning/Persistence ports.
+- [x] 324. **`ReplayRunServiceTests`** + **`DeterminismCheckServiceTests`** (**`ArchiForge.Application.Tests`**) — not-found / dry-run vs commit / merge success; iteration validation and drift aggregation (Moq **`ReplayAsync`** sequencing).
+- [x] 325. **`docs/TEST_STRUCTURE.md`** — **`ArchiForge.Application.Tests`** row; Persistence.Tests row extended; **API controller ↔ tests** mapping subsection (where to find coverage when the test class name does not mirror the controller file).
+- [x] 326. **`docs/ARCHITECTURE_COMPONENTS.md`** — InMemory coordinator + run-export registration note.
+- [x] 327. **This file** — §319–328 recorded.
+- [x] 328. **Follow-up pointer** — per-controller **`*ControllerTests`** are optional where **`docs/TEST_STRUCTURE.md`** mapping shows integration coverage under a different class name; governance repos for pure in-memory hosts remain a separate backlog item if those endpoints must run without SQL.
+
 ---
 
 ## Checklist (items 155–256 progress)
@@ -2067,3 +2080,4 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Synthesis tests, CI Terraform breadth, production safety & ops docs (293–302): complete (**293–295** ArtifactSynthesis + AgentRuntime + Application test projects; **296** authority manifest/trace/policy pack contracts + **`AuthorityRunChainTestSeed`**; **297–298** Terraform matrix job + compose API/UI health; **299** production CORS/webhook validation; **300–302** containers doc, runbooks index + infra/redis ops, backlog + components).
 - [x] Persistence contracts, app idempotency, config, synthesis, CI gate (303–310): complete (**303** agent result + advisory + alert delivery contracts; **304** **`ArchitectureRunService`** idempotency unit tests; **305** VectorIndex + webhook secret length + replay rate-limit **`QueueLimit`**; **306** inventory generator + bundle validator negatives; **307–308** BUILD/CONTRIBUTOR + CI **`needs`** Terraform; **309–310** components doc + backlog).
 - [x] Application execute/commit, DecisionEngineV2 depth, Data contracts, config & runbooks (311–318): complete (**311–312** Application.Tests execute/commit + **`DecisionEngineV2`** edges; **313–314** five in-memory Data repos + matching persistence contracts + request-only SQL seed; **315** configuration rule tests; **316** agent/alert delivery runbooks; **317–318** components doc + backlog).
+- [x] InMemory coordinator DI, Data contracts, orchestrator & application tests, API test map (319–328): complete (**319–320** InMemory DI for coordinator + run export; **321–322** new repos + persistence contracts; **323** **`AuthorityRunOrchestratorTests`**; **324** **`ReplayRunService`** / **`DeterminismCheckService`** unit tests; **325–328** **`TEST_STRUCTURE`** mapping + components doc + backlog note).

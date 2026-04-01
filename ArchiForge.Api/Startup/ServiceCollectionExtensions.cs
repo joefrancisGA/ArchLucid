@@ -234,7 +234,19 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IRunExportRecordRepository, RunExportRecordRepository>();
+        ArchiForgeOptions exportStorage = configuration
+                                              .GetSection(ArchiForgeOptions.SectionName)
+                                              .Get<ArchiForgeOptions>()
+                                          ?? new ArchiForgeOptions();
+
+        if (string.Equals(exportStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddSingleton<IRunExportRecordRepository, InMemoryRunExportRecordRepository>();
+        }
+        else
+        {
+            services.AddScoped<IRunExportRecordRepository, RunExportRecordRepository>();
+        }
         services.AddScoped<IRunExportAuditService, RunExportAuditService>();
         services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
         services.AddScoped<IArchitectureAnalysisService, ArchitectureAnalysisService>();
@@ -362,22 +374,47 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<IAskService, AskService>();
         services.AddScoped<Application.Decisions.IAgentEvaluationService, Application.Decisions.DefaultAgentEvaluationService>();
-        services.AddScoped<IAgentEvaluationRepository, AgentEvaluationRepository>();
-        services.AddScoped<IDecisionNodeRepository, DecisionNodeRepository>();
         services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
-        services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
-        services.AddScoped<IArchitectureRunRepository, ArchitectureRunRepository>();
-        services.AddScoped<IArchitectureRunIdempotencyRepository, ArchitectureRunIdempotencyRepository>();
-        services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
-        services.AddScoped<IAgentResultRepository, AgentResultRepository>();
-        // Data-layer contracts (CreateAsync / GetByVersionAsync / batch traces) — distinct from
-        // Decisioning.Interfaces.IGoldenManifestRepository / IDecisionTraceRepository registered in AddArchiForgeStorage.
-        services.AddScoped<ArchiForge.Data.Repositories.IGoldenManifestRepository, GoldenManifestRepository>();
-        services.AddScoped<ArchiForge.Data.Repositories.IEvidenceBundleRepository, EvidenceBundleRepository>();
-        services.AddScoped<ArchiForge.Data.Repositories.IDecisionTraceRepository, DecisionTraceRepository>();
-        services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
-        services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
+
+        ArchiForgeOptions coordinatorStorage = configuration
+                                                   .GetSection(ArchiForgeOptions.SectionName)
+                                                   .Get<ArchiForgeOptions>()
+                                               ?? new ArchiForgeOptions();
+
+        if (string.Equals(coordinatorStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddSingleton<IArchitectureRequestRepository, InMemoryArchitectureRequestRepository>();
+            services.AddSingleton<IArchitectureRunRepository>(sp =>
+                new InMemoryArchitectureRunRepository(sp.GetRequiredService<IArchitectureRequestRepository>()));
+            services.AddSingleton<IArchitectureRunIdempotencyRepository, InMemoryArchitectureRunIdempotencyRepository>();
+            services.AddSingleton<IAgentTaskRepository, InMemoryAgentTaskRepository>();
+            services.AddSingleton<IAgentResultRepository, InMemoryAgentResultRepository>();
+            services.AddSingleton<IAgentEvaluationRepository, InMemoryAgentEvaluationRepository>();
+            services.AddSingleton<IDecisionNodeRepository, InMemoryDecisionNodeRepository>();
+            services.AddSingleton<ArchiForge.Data.Repositories.IGoldenManifestRepository, InMemoryCoordinatorGoldenManifestRepository>();
+            services.AddSingleton<ArchiForge.Data.Repositories.IEvidenceBundleRepository, InMemoryEvidenceBundleRepository>();
+            services.AddSingleton<ArchiForge.Data.Repositories.IDecisionTraceRepository, InMemoryCoordinatorDecisionTraceRepository>();
+            services.AddSingleton<IAgentEvidencePackageRepository, InMemoryAgentEvidencePackageRepository>();
+            services.AddSingleton<IAgentExecutionTraceRepository, InMemoryAgentExecutionTraceRepository>();
+        }
+        else
+        {
+            services.AddScoped<IAgentEvaluationRepository, AgentEvaluationRepository>();
+            services.AddScoped<IDecisionNodeRepository, DecisionNodeRepository>();
+            services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
+            services.AddScoped<IArchitectureRunRepository, ArchitectureRunRepository>();
+            services.AddScoped<IArchitectureRunIdempotencyRepository, ArchitectureRunIdempotencyRepository>();
+            services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
+            services.AddScoped<IAgentResultRepository, AgentResultRepository>();
+            // Data-layer contracts (CreateAsync / GetByVersionAsync / batch traces) — distinct from
+            // Decisioning.Interfaces.IGoldenManifestRepository / IDecisionTraceRepository registered in AddArchiForgeStorage.
+            services.AddScoped<ArchiForge.Data.Repositories.IGoldenManifestRepository, GoldenManifestRepository>();
+            services.AddScoped<ArchiForge.Data.Repositories.IEvidenceBundleRepository, EvidenceBundleRepository>();
+            services.AddScoped<ArchiForge.Data.Repositories.IDecisionTraceRepository, DecisionTraceRepository>();
+            services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
+            services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
+        }
     }
 
     private static void RegisterArtifactSynthesis(IServiceCollection services)
