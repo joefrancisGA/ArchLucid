@@ -10658,6 +10658,252 @@
         }
       }
     },
+    "/v1/product-learning/summary": {
+      "get": {
+        "tags": [
+          "ProductLearning"
+        ],
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningDashboardSummaryResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningDashboardSummaryResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningDashboardSummaryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/product-learning/improvement-opportunities": {
+      "get": {
+        "tags": [
+          "ProductLearning"
+        ],
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "maxOpportunities",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningImprovementOpportunitiesResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningImprovementOpportunitiesResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningImprovementOpportunitiesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/product-learning/artifact-outcome-trends": {
+      "get": {
+        "tags": [
+          "ProductLearning"
+        ],
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningArtifactOutcomeTrendsResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningArtifactOutcomeTrendsResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningArtifactOutcomeTrendsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/product-learning/triage-queue": {
+      "get": {
+        "tags": [
+          "ProductLearning"
+        ],
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "maxTriageItems",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningTriageQueueResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningTriageQueueResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductLearningTriageQueueResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/provenance/runs/{runId}/graph": {
       "get": {
         "tags": [
@@ -15299,6 +15545,95 @@
           }
         }
       },
+      "ArtifactOutcomeTrend": {
+        "type": "object",
+        "properties": {
+          "trendKey": {
+            "type": "string"
+          },
+          "artifactTypeOrHint": {
+            "type": "string"
+          },
+          "windowLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "acceptedOrTrustedCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "revisionCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "rejectionCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "needsFollowUpCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "distinctRunCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "averageTrustScore": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "averageUsefulnessScore": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "repeatedThemeIndicator": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "firstSeenUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastSeenUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "AskRequest": {
         "type": "object",
         "properties": {
@@ -18142,6 +18477,92 @@
           }
         }
       },
+      "ImprovementOpportunity": {
+        "type": "object",
+        "properties": {
+          "opportunityId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sourceAggregateKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "patternKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "affectedArtifactTypeOrWorkflowArea": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "priorityRank": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "suggestedOwnerRole": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "evidenceSignalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "distinctRunCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "averageTrustScore": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "repeatedThemeSnippet": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "firstSeenUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastSeenUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "ImprovementPlanResponse": {
         "type": "object",
         "properties": {
@@ -19203,6 +19624,126 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "ProductLearningArtifactOutcomeTrendsResponse": {
+        "type": "object",
+        "properties": {
+          "generatedUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trends": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArtifactOutcomeTrend"
+            }
+          }
+        }
+      },
+      "ProductLearningDashboardSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "generatedUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "workspaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "totalSignalsInScope": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "distinctRunsTouched": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "topAggregateCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "artifactTrendCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "improvementOpportunityCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "triageQueueItemCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "summaryNotes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ProductLearningImprovementOpportunitiesResponse": {
+        "type": "object",
+        "properties": {
+          "generatedUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "opportunities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImprovementOpportunity"
+            }
+          }
+        }
+      },
+      "ProductLearningTriageQueueResponse": {
+        "type": "object",
+        "properties": {
+          "generatedUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TriageQueueItem"
+            }
           }
         }
       },
@@ -21122,6 +21663,66 @@
           }
         }
       },
+      "TriageQueueItem": {
+        "type": "object",
+        "properties": {
+          "queueItemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "relatedSignalId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "relatedOpportunityId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "detailSummary": {
+            "type": "string"
+          },
+          "priorityRank": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "affectedArtifactTypeOrWorkflowArea": {
+            "type": "string"
+          },
+          "triageStatus": {
+            "type": "string"
+          },
+          "firstSeenUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastSeenUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "suggestedNextAction": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "UpdateComparisonRecordRequest": {
         "type": "object",
         "properties": {
@@ -21240,6 +21841,9 @@
     },
     {
       "name": "PolicyPacks"
+    },
+    {
+      "name": "ProductLearning"
     },
     {
       "name": "Provenance"

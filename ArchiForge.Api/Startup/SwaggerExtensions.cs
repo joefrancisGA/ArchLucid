@@ -32,6 +32,7 @@ internal static class SwaggerExtensions
                         or "AlertRoutingSubscriptions" => "Alerts & routing",
                     "DigestSubscriptions" => "Digest subscriptions",
                     "RecommendationLearning" => "Advisory learning",
+                    "ProductLearning" => "Product learning",
                     "Audit" => "Audit",
                     "Diagnostics" or "Docs" or "AuthDebug" or "ScopeDebug" or "Demo" => "Diagnostics & debug",
                     _ => cad.ControllerName,
