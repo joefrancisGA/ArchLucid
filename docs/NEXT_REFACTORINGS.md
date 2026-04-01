@@ -1,6 +1,6 @@
 # Next refactorings
 
-**Last updated:** 1 April 2026.
+**Last updated:** 1 April 2026 (§329–338 delivered).
 
 Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, comparison facade decision, health and replay validation docs, fixture reuse, Api.Tests JSON audit) are **done**. Their original write-ups are preserved under [Archive (completed items 1–7)](#archive-completed-items-17) near the bottom of this file (immediately before batch §88).
 
@@ -2057,7 +2057,20 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 325. **`docs/TEST_STRUCTURE.md`** — **`ArchiForge.Application.Tests`** row; Persistence.Tests row extended; **API controller ↔ tests** mapping subsection (where to find coverage when the test class name does not mirror the controller file).
 - [x] 326. **`docs/ARCHITECTURE_COMPONENTS.md`** — InMemory coordinator + run-export registration note.
 - [x] 327. **This file** — §319–328 recorded.
-- [x] 328. **Follow-up pointer** — per-controller **`*ControllerTests`** are optional where **`docs/TEST_STRUCTURE.md`** mapping shows integration coverage under a different class name; governance repos for pure in-memory hosts remain a separate backlog item if those endpoints must run without SQL.
+- [x] 328. **Follow-up pointer** — per-controller **`*ControllerTests`** are optional where **`docs/TEST_STRUCTURE.md`** mapping shows integration coverage under a different class name. (Governance InMemory + contracts: see **§329–330**.)
+
+### Governance InMemory, contracts, Application tests, ADRs & ops docs (329–338)
+
+- [x] 329. **`RegisterGovernance`** — when **`ArchiForge:StorageProvider=InMemory`**, register singleton **`InMemoryGovernanceApprovalRequestRepository`**, **`InMemoryGovernancePromotionRecordRepository`**, **`InMemoryGovernanceEnvironmentActivationRepository`**; otherwise scoped Dapper implementations.
+- [x] 330. **Persistence contract tests** — abstract bases + InMemory + Dapper for the three governance repository interfaces (ordering and activation **`UpdateAsync`** semantics aligned with SQL).
+- [x] 331. **`ArchiForge.Application.Tests`** — **`RunDetailQueryServiceApplicationTests`** (`HasBrokenManifestReference`, trace load when manifest present).
+- [x] 332. **`ArchiForge.Application.Tests`** — **`AgentResultDiffServiceApplicationTests`** and **`ManifestDiffServiceApplicationTests`** (extra scenarios vs Api.Tests).
+- [x] 333. **`ArchiForge.Application.Tests`** — **`DefaultAgentEvaluationServiceTests`** (empty evaluations, validation, cancellation).
+- [x] 334. **ADR 0004** — dual manifest/trace repository contracts (Data vs Decisioning).
+- [x] 335. **ADR 0005** — InMemory vs Sql storage provider (incl. governance wiring).
+- [x] 336. **`docs/DEPLOYMENT.md`** — umbrella deployment/rollback with links to migration and failover runbooks.
+- [x] 337. **`docs/runbooks/DATABASE_FAILOVER.md`** — Azure SQL HA/geo-failover, listeners, RPO/RTO framing.
+- [x] 338. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §329–338 recorded; governance InMemory registration note.
 
 ---
 
@@ -2081,3 +2094,4 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Persistence contracts, app idempotency, config, synthesis, CI gate (303–310): complete (**303** agent result + advisory + alert delivery contracts; **304** **`ArchitectureRunService`** idempotency unit tests; **305** VectorIndex + webhook secret length + replay rate-limit **`QueueLimit`**; **306** inventory generator + bundle validator negatives; **307–308** BUILD/CONTRIBUTOR + CI **`needs`** Terraform; **309–310** components doc + backlog).
 - [x] Application execute/commit, DecisionEngineV2 depth, Data contracts, config & runbooks (311–318): complete (**311–312** Application.Tests execute/commit + **`DecisionEngineV2`** edges; **313–314** five in-memory Data repos + matching persistence contracts + request-only SQL seed; **315** configuration rule tests; **316** agent/alert delivery runbooks; **317–318** components doc + backlog).
 - [x] InMemory coordinator DI, Data contracts, orchestrator & application tests, API test map (319–328): complete (**319–320** InMemory DI for coordinator + run export; **321–322** new repos + persistence contracts; **323** **`AuthorityRunOrchestratorTests`**; **324** **`ReplayRunService`** / **`DeterminismCheckService`** unit tests; **325–328** **`TEST_STRUCTURE`** mapping + components doc + backlog note).
+- [x] Governance InMemory, contracts, Application tests, ADRs & ops docs (329–338): complete (**329–330** governance InMemory repos + persistence contracts; **331–333** Application.Tests for run detail, diffs, default evaluation; **334–335** ADRs 0004–0005; **336–337** **`DEPLOYMENT.md`** + **`DATABASE_FAILOVER.md`**; **338** backlog + **`ARCHITECTURE_COMPONENTS`**).

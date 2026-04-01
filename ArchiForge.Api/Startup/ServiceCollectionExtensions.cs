@@ -109,7 +109,7 @@ internal static partial class ServiceCollectionExtensions
         RegisterArtifactSynthesis(services);
         RegisterAgentExecution(services, configuration);
         RegisterRetrieval(services, configuration);
-        RegisterGovernance(services);
+        RegisterGovernance(services, configuration);
         RegisterRetrievalIndexingOutbox(services);
         RegisterDataArchivalHostedService(services);
         RegisterArchiForgeHealthChecks(services);
@@ -527,11 +527,26 @@ internal static partial class ServiceCollectionExtensions
             }));
     }
 
-    private static void RegisterGovernance(IServiceCollection services)
+    private static void RegisterGovernance(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IGovernanceApprovalRequestRepository, GovernanceApprovalRequestRepository>();
-        services.AddScoped<IGovernancePromotionRecordRepository, GovernancePromotionRecordRepository>();
-        services.AddScoped<IGovernanceEnvironmentActivationRepository, GovernanceEnvironmentActivationRepository>();
+        ArchiForgeOptions governanceStorage = configuration
+                                                  .GetSection(ArchiForgeOptions.SectionName)
+                                                  .Get<ArchiForgeOptions>()
+                                              ?? new ArchiForgeOptions();
+
+        if (string.Equals(governanceStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddSingleton<IGovernanceApprovalRequestRepository, InMemoryGovernanceApprovalRequestRepository>();
+            services.AddSingleton<IGovernancePromotionRecordRepository, InMemoryGovernancePromotionRecordRepository>();
+            services.AddSingleton<IGovernanceEnvironmentActivationRepository, InMemoryGovernanceEnvironmentActivationRepository>();
+        }
+        else
+        {
+            services.AddScoped<IGovernanceApprovalRequestRepository, GovernanceApprovalRequestRepository>();
+            services.AddScoped<IGovernancePromotionRecordRepository, GovernancePromotionRecordRepository>();
+            services.AddScoped<IGovernanceEnvironmentActivationRepository, GovernanceEnvironmentActivationRepository>();
+        }
+
         services.AddScoped<IGovernanceWorkflowService, GovernanceWorkflowService>();
     }
 

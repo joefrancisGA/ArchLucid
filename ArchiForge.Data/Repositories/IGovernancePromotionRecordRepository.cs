@@ -15,7 +15,7 @@ public interface IGovernancePromotionRecordRepository
 
     /// <summary>
     /// Returns all promotion records associated with <paramref name="runId"/>,
-    /// ordered by <c>PromotedUtc</c> ascending.
+    /// ordered by <c>PromotedUtc</c> descending (newest first), capped at 200 rows (Dapper implementation).
     /// </summary>
     /// <param name="runId">The run whose promotion history is requested.</param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
