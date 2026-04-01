@@ -47,8 +47,10 @@ public sealed class SessionContextSqlConnectionFactoryTests(SqlServerPersistence
 
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("rls failed*");
 
-        Action touch = () => _ = shared.State;
+        Exception? afterDispose = await Record.ExceptionAsync(() => shared.OpenAsync());
 
-        touch.Should().Throw<ObjectDisposedException>();
+        afterDispose.Should().NotBeNull("the inner connection must be disposed when RLS application fails");
+        (afterDispose is ObjectDisposedException or InvalidOperationException).Should().BeTrue(
+            "SqlClient may throw either type when OpenAsync is used on a disposed connection (platform-dependent)");
     }
 }

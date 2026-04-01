@@ -8,8 +8,8 @@ namespace ArchiForge.Persistence.Tests;
 
 /// <summary>
 /// Resolves a SQL Server connection (environment variable or Windows LocalDB), ensures the test catalog exists,
-/// applies embedded <see cref="DatabaseMigrator"/> scripts (core Data-layer tables) and the <c>ArchiForge.sql</c>
-/// schema bootstrap (Persistence-layer tables such as AuditEvents, ConversationThreads, ProvenanceSnapshots).
+/// applies embedded <see cref="DatabaseMigrator"/> scripts (core Data-layer tables) and a minimal SQL supplement
+/// for persistence-only tables (AuditEvents, ConversationThreads, ProvenanceSnapshots) that DbUp omits.
 /// </summary>
 /// <remarks>
 /// No Docker/Testcontainers dependency in this fixture. When <see cref="EnvironmentConnectionStringVariable"/> is unset and LocalDB
@@ -68,7 +68,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
                     "DbUp failed against SQL Server; see test output for script errors.");
             }
 
-            await RunSchemaBootstrapAsync(connectionString);
+            await RunPersistenceContractSupplementAsync(connectionString);
 
             ConnectionString = connectionString;
             IsSqlServerAvailable = true;
@@ -101,7 +101,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
             if (!DatabaseMigrator.Run(connectionString))
                 return false;
 
-            await RunSchemaBootstrapAsync(connectionString);
+            await RunPersistenceContractSupplementAsync(connectionString);
 
             ConnectionString = connectionString;
             IsSqlServerAvailable = true;
@@ -115,19 +115,18 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     }
 
     /// <summary>
-    /// Applies the <c>ArchiForge.sql</c> schema bootstrap script which creates Persistence-layer
-    /// tables (AuditEvents, ConversationThreads, ProvenanceSnapshots, etc.) not covered by DbUp migrations.
-    /// All statements use <c>IF NOT EXISTS</c> so the script is idempotent.
+    /// Applies <c>PersistenceContractSupplement.sql</c>: tables DbUp does not create, without the
+    /// FK-hardening blocks from full <c>ArchiForge.sql</c> (those require seeded authority-chain rows).
     /// </summary>
-    private static async Task RunSchemaBootstrapAsync(string connectionString)
+    private static async Task RunPersistenceContractSupplementAsync(string connectionString)
     {
         string assemblyDir = Path.GetDirectoryName(typeof(SqlServerPersistenceFixture).Assembly.Location)!;
-        string scriptPath = Path.Combine(assemblyDir, "Scripts", "ArchiForge.sql");
+        string scriptPath = Path.Combine(assemblyDir, "Scripts", "PersistenceContractSupplement.sql");
 
         if (!File.Exists(scriptPath))
         {
             throw new FileNotFoundException(
-                "ArchiForge.sql schema bootstrap script not found. Ensure the test project copies it to the output directory.",
+                "PersistenceContractSupplement.sql not found. Ensure the test project copies Scripts to the output directory.",
                 scriptPath);
         }
 

@@ -27,11 +27,11 @@
     <ProjectReference Include="..\ArchiForge.Provenance\ArchiForge.Provenance.csproj" />
   </ItemGroup>
 
-  <!-- Persistence-layer tables (AuditEvents, ConversationThreads, etc.) are defined in ArchiForge.sql,
-       not in the DbUp migration scripts. The fixture must run this script after DatabaseMigrator.Run(). -->
+  <!-- DbUp does not create AuditEvents / ProvenanceSnapshots / Conversation* tables. We apply a minimal
+       supplement only — not full ArchiForge.sql — because the consolidated script adds FK hardening
+       (ContextSnapshots->Runs, ComparisonRecords->ArchitectureRuns, etc.) that breaks integration tests. -->
   <ItemGroup>
-    <None Include="..\ArchiForge.Data\SQL\ArchiForge.sql">
-      <Link>Scripts\ArchiForge.sql</Link>
+    <None Include="Scripts\PersistenceContractSupplement.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
