@@ -7,6 +7,7 @@ namespace ArchiForge.Api.Startup.Diagnostics;
 /// <summary>
 /// Non-secret effective configuration surfaced once at startup for pilot support and diagnostics.
 /// </summary>
+/// <param name="BuildCommitSha">Parsed commit from informational version when SourceRevisionId was set at build; otherwise null.</param>
 public sealed record StartupConfigurationFacts(
     string HostEnvironmentName,
     string ContentRootPath,
@@ -27,6 +28,7 @@ public sealed record StartupConfigurationFacts(
     string BuildInformationalVersion,
     string BuildAssemblyVersion,
     string? BuildFileVersion,
+    string? BuildCommitSha,
     string RuntimeFrameworkDescription);
 
 internal static class StartupConfigurationFactsReader
@@ -65,6 +67,7 @@ internal static class StartupConfigurationFactsReader
             build.InformationalVersion,
             build.AssemblyVersion,
             build.FileVersion,
+            build.CommitSha,
             build.RuntimeFrameworkDescription);
     }
 }

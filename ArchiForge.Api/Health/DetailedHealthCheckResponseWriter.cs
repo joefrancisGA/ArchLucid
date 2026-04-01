@@ -29,6 +29,7 @@ public static class DetailedHealthCheckResponseWriter
 
         context.Response.ContentType = "application/json; charset=utf-8";
 
+        // "version" matches GET /version "informationalVersion" (same BuildProvenance source).
         var payload = new
         {
             status = report.Status.ToString(),

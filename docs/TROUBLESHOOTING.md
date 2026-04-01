@@ -8,7 +8,7 @@
 2. **`GET /version`** — capture build identity for your report (same info appears in enriched **`/health/ready`** / **`/health`** JSON as **`version`** / **`commitSha`**).
 3. **`dotnet run --project ArchiForge.Cli -- doctor`** (repo root, API reachable) — CLI + API version + all health endpoints.
 4. **`support-bundle --zip`** — sanitized diagnostics folder (review before sending). See [Support bundle](#support-bundle-attach-to-tickets) below.
-5. **`run-readiness-check`** or **`release-smoke -SkipE2E`** — confirm your clone builds and fast core tests pass ([RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
+5. **`run-readiness-check`** or **`.\release-smoke.ps1 -SkipE2E`** (repo root; **`release-smoke.cmd`** also forwards switches) — confirm your clone builds and fast core tests pass without starting the temporary API ([RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
 
 If still stuck, use **[When you report an issue](PILOT_GUIDE.md#when-you-report-an-issue)** in [PILOT_GUIDE.md](PILOT_GUIDE.md).
 

@@ -62,15 +62,14 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 ### Deferred to later prompts (56R backlog)
 
-- Structured log enrichers, version/commit in logs, OTLP defaults.
-- Structured logging enrichers (version, deployment slot) and log level profiles per environment.
-- Packaging: Dockerfile polish, version stamping, optional SBOM.
-- **Design-partner readiness workflow:** checklist doc, support bundle export, or operator runbook (pick one minimal slice per prompt).
+- Structured log enrichers (deployment slot) and log level profiles per environment; OTLP defaults beyond current wiring.
+- Packaging: Dockerfile polish, optional SBOM/signing, self-contained RID publish recipes in scripts.
+- **Further design-partner workflow:** API-hosted support bundle, dedicated checklist doc beyond pilot guide — pick per later prompt.
 
-## Release candidate verdict (Prompt 10)
+## Release candidate verdict (Prompt 10 — original scope)
 
 - **Adds (56R overall):** Fail-fast config validation before DbUp; `/health/live` + `/health/ready` + tagged checks; startup **non-secret** configuration snapshot (toggle `Hosting:LogStartupConfigurationSummary`); local **build/package/readiness/smoke** scripts; pilot/operator/troubleshooting docs; API **`supportHint`**, CLI **`Next:`** hints, UI proxy **502/503** hints; focused unit tests for rules, hints, and CLI behavior.
-- **Deliberately not in 56R:** Self-contained RID publish in scripts, SBOM/signing/container polish, OTLP/log-enricher profiles, support-bundle export, Playwright in `release-smoke`, full multi-tenant/perf matrices.
+- **Deliberately not in original 56R:** Self-contained RID publish in scripts, SBOM/signing/container polish, rich OTLP/log-enricher profiles, Playwright in default `release-smoke`, full multi-tenant/perf matrices. (**Regenerated 56R** later added CLI **`support-bundle`**, **`GET /version`**, enriched health JSON, packaging **`metadata.json`**, and optional **`-RunPlaywright`** — see **Regenerated 56R** sections below.)
 - **Pilot readiness:** **Yes** for a first design-partner run **if** they have .NET 10, a working SQL (or explicit **InMemory** dev path), and follow **PILOT_GUIDE** / **OPERATOR_QUICKSTART**. Recommend **`run-readiness-check`** before handoff and **`release-smoke`** (with **`ARCHIFORGE_SMOKE_SQL`**) when SQL and port **5128** are available.
 - **Small follow-ups before “commercial” hardening:** optional design-partner checklist doc; visible API window or log capture flag for failed **`release-smoke`** E2E; self-contained publish recipe if pilots lack SDK.
 
@@ -129,6 +128,14 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **RELEASE_LOCAL.md** — **Support-friendly handoff** (`metadata.json` vs `/version`, bundle + doc pointers).
 - **RELEASE_SMOKE.md** — Pilot note: readiness vs smoke, what to paste from triage output.
 - **README.md** — Pilot onboarding tightened: version, doctor, support-bundle, reporting anchor.
+
+### Prompt 8 (regen) — final coherence pass (supportability only)
+
+- **Startup log:** `Pilot/support configuration snapshot` now includes **`BuildCommitSha`** (or **`(not stamped)`**), aligned with **`GET /version`** / enriched **`/health/ready`** `commitSha`.
+- **Health JSON:** Inline comment in `DetailedHealthCheckResponseWriter` documents that **`version`** matches **`GET /version`** `informationalVersion`.
+- **CLI:** `doctor` success line and class summary mention combined **`/health`**; **`Next:`** after readiness failure mentions **`GET /version`** for tickets.
+- **Docs:** `CHANGE_SET_56R.md` verdict no longer contradicts regen deliverables; `OPERATOR_QUICKSTART` / `TROUBLESHOOTING` clarify `version` vs `informationalVersion`, optional JSON pretty-print, and **`.\release-smoke.ps1 -SkipE2E`**; `CLI_USAGE` doctor exit criteria clarified.
+- **Tests:** `CliOperatorHintsTests` asserts readiness hint includes **`/version`**.
 
 ---
 

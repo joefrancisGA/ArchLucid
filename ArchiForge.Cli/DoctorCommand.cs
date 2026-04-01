@@ -5,7 +5,7 @@ namespace ArchiForge.Cli;
 
 /// <summary>
 /// Operator-facing readiness diagnostics: CLI build identity, local project layout,
-/// API <c>GET /version</c>, and API <c>/health/live</c> + <c>/health/ready</c>.
+/// API <c>GET /version</c>, and API <c>/health/live</c>, <c>/health/ready</c>, and combined <c>/health</c>.
 /// </summary>
 internal static class DoctorCommand
 {
@@ -63,7 +63,7 @@ internal static class DoctorCommand
         }
 
         Console.WriteLine();
-        Console.WriteLine("Doctor finished: readiness OK.");
+        Console.WriteLine("Doctor finished: readiness and combined /health OK.");
 
         return 0;
     }

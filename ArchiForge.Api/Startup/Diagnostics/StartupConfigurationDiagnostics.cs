@@ -24,10 +24,11 @@ internal static class StartupConfigurationDiagnostics
             hostAssembly);
 
         logger.LogInformation(
-            "Pilot/support configuration snapshot: BuildInformationalVersion={BuildInformationalVersion}, BuildAssemblyVersion={BuildAssemblyVersion}, BuildFileVersion={BuildFileVersion}, RuntimeFramework={RuntimeFramework}, Environment={Environment}, ContentRoot={ContentRoot}, SqlConnectionConfigured={SqlConnectionConfigured}, ArchiForgeStorageProvider={StorageProvider}, RetrievalVectorIndex={RetrievalVectorIndex}, AgentExecutionMode={AgentMode}, ArchiForgeAuthMode={AuthMode}, ApiKeyAuthEnabled={ApiKeyEnabled}, ApiKeyAdminConfigured={ApiKeyAdminConfigured}, ApiKeyReadOnlyConfigured={ApiKeyReadOnlyConfigured}, CorsOriginCount={CorsCount}, RateLimitPermitLimitWindow={RateLimit}, PrometheusEnabled={Prometheus}, DemoEnabled={DemoEnabled}, DemoSeedOnStartup={DemoSeed}, SchemaValidationDetailedErrors={SchemaDetailed}",
+            "Pilot/support configuration snapshot: BuildInformationalVersion={BuildInformationalVersion}, BuildAssemblyVersion={BuildAssemblyVersion}, BuildFileVersion={BuildFileVersion}, BuildCommitSha={BuildCommitSha}, RuntimeFramework={RuntimeFramework}, Environment={Environment}, ContentRoot={ContentRoot}, SqlConnectionConfigured={SqlConnectionConfigured}, ArchiForgeStorageProvider={StorageProvider}, RetrievalVectorIndex={RetrievalVectorIndex}, AgentExecutionMode={AgentMode}, ArchiForgeAuthMode={AuthMode}, ApiKeyAuthEnabled={ApiKeyEnabled}, ApiKeyAdminConfigured={ApiKeyAdminConfigured}, ApiKeyReadOnlyConfigured={ApiKeyReadOnlyConfigured}, CorsOriginCount={CorsCount}, RateLimitPermitLimitWindow={RateLimit}, PrometheusEnabled={Prometheus}, DemoEnabled={DemoEnabled}, DemoSeedOnStartup={DemoSeed}, SchemaValidationDetailedErrors={SchemaDetailed}",
             facts.BuildInformationalVersion,
             facts.BuildAssemblyVersion,
             facts.BuildFileVersion ?? "(none)",
+            facts.BuildCommitSha ?? "(not stamped)",
             facts.RuntimeFrameworkDescription,
             facts.HostEnvironmentName,
             facts.ContentRootPath,

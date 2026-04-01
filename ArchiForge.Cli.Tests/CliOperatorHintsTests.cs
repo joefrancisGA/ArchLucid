@@ -62,6 +62,7 @@ public sealed class CliOperatorHintsTests
 
         string text = stderr.ToString().ToLowerInvariant();
         text.Should().Contain("/health/ready");
+        text.Should().Contain("/version");
         text.Should().Contain("troubleshooting");
     }
 

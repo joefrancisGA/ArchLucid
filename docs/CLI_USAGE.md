@@ -47,7 +47,7 @@ The API must be running for `run`, `status`, `submit`, `commit`, `seed`, `artifa
 | `artifacts <runId>` | Fetch and display the committed manifest. |
 | `artifacts <runId> --save` | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
 | `health` | Check API connectivity (`GET /health`). Exit 0 if OK, 1 if unreachable. |
-| `doctor` / `check` | Readiness diagnostics: CLI build info, local `archiforge.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness is not 2xx. |
+| `doctor` / `check` | Readiness diagnostics: CLI build info, local `archiforge.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness or combined `/health` is not 2xx. |
 | `support-bundle` | Writes a **pilot/support** folder of JSON files (and optional `--zip`): build/version, health probes, non-secret `archiforge.json` summary, safe `ARCHIFORGE_*` / `DOTNET_*` env snapshot, outputs folder stats, doc references. No connection strings or API key **values**. Default folder name `support-bundle-<utc-timestamp>Z` in the current directory. Flags: `--output <dir>`, `--zip`. |
 | `comparisons list` | List/search persisted comparison records (supports paging and filters). |
 | `comparisons replay <comparisonRecordId>` | Replay a saved comparison record and export it again to a file (Markdown/HTML/DOCX/PDF depending on type). |

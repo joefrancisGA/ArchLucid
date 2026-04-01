@@ -59,7 +59,7 @@ curl -s http://localhost:5128/health/live
 curl -s http://localhost:5128/version
 ```
 
-Returns JSON: informational version, commit suffix (when the build was stamped), environment, runtime. Readiness responses (`/health/ready`, `/health`) also include **`version`** and **`commitSha`** in the JSON body.
+Returns JSON: informational version, commit suffix (when the build was stamped), environment, runtime. Readiness responses (`/health/ready`, `/health`) also include **`version`** (same value as **`GET /version`** `informationalVersion`) and **`commitSha`** in the JSON body.
 
 **CLI** (from repo root, API reachable):
 

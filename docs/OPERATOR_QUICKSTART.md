@@ -27,13 +27,15 @@ curl -s http://localhost:5128/health/ready
 **Build provenance (support handoff):**
 
 - **`GET /version`** — returns JSON with `informationalVersion`, `assemblyVersion`, `commitSha`, `runtimeFramework`, and `environment`. No authentication required.
-- **Startup log** — look for **`Pilot/support configuration snapshot`** (includes `BuildInformationalVersion`, `BuildAssemblyVersion`, `BuildFileVersion`, `RuntimeFramework`).
-- **`/health/ready`** and **`/health`** — detailed JSON now includes `version` and `commitSha` alongside per-check status and durations.
+- **Startup log** — look for **`Pilot/support configuration snapshot`** (includes `BuildInformationalVersion`, `BuildAssemblyVersion`, `BuildFileVersion`, `BuildCommitSha`, `RuntimeFramework`).
+- **`/health/ready`** and **`/health`** — detailed JSON includes `version` (same value as **`GET /version`** field `informationalVersion`) and `commitSha`, plus per-check status and durations.
 - Set CI or local publish with **`/p:SourceRevisionId=$(git rev-parse HEAD)`** to embed the commit SHA automatically.
 
 ```bash
-curl -s http://localhost:5128/version | python -m json.tool
+curl -s http://localhost:5128/version
 ```
+
+(Optional: pipe through `python -m json.tool` or `jq` if installed.)
 
 **CLI doctor (API must be running):**
 
