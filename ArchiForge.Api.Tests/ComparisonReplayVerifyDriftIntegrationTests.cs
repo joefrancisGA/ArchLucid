@@ -1,24 +1,29 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using ArchiForge.Data.Repositories;
+
 using FluentAssertions;
 
-using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.Api.Tests;
 
 /// <summary>
-/// End-to-end: persisted comparison payload is tampered in DB, then verify replay returns 422 (real pipeline, not a stub service).
+/// End-to-end: persisted comparison payload is tampered, then verify replay returns 422 (real pipeline, not a stub service).
 /// </summary>
+/// <remarks>
+/// Default integration hosts use <c>ArchiForge:StorageProvider=InMemory</c>, so <c>ComparisonRecords</c> are not written to SQL.
+/// Payload is read via GET, then mutated in the in-memory repository through <see cref="InMemoryComparisonRecordRepository.ReplacePayloadJsonForIntegrationTest"/>.
+/// </remarks>
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
 public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFactory factory)
     : IntegrationTestBase(factory)
 {
-    private readonly ArchiForgeApiFactory _factory = factory;
-
     [Fact]
     public async Task ComparisonReplayVerify_WhenStoredPayloadDriftsFromRegenerated_Returns422()
     {
@@ -27,31 +32,22 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFac
         string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
             Client, runId, replayRunId);
 
-        string payloadJson;
-        await using (SqlConnection conn = new(_factory.SqlConnectionString))
-        {
-            await conn.OpenAsync();
-            await using SqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT PayloadJson FROM ComparisonRecords WHERE ComparisonRecordId = @id";
-            cmd.Parameters.AddWithValue("@id", comparisonRecordId);
-            object? scalar = await cmd.ExecuteScalarAsync();
-            payloadJson = scalar?.ToString() ?? "";
-        }
-
+        HttpResponseMessage getResponse = await Client.GetAsync(
+            $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}");
+        getResponse.EnsureSuccessStatusCode();
+        ComparisonRecordResponseDto? dto = await getResponse.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
+        string payloadJson = dto!.Record.PayloadJson;
         payloadJson.Should().NotBeNullOrWhiteSpace();
+
         JsonNode node = JsonNode.Parse(payloadJson)!;
         node["leftRunId"] = "tampered-run-id-for-drift";
         string corrupted = node.ToJsonString();
 
-        await using (SqlConnection conn = new(_factory.SqlConnectionString))
-        {
-            await conn.OpenAsync();
-            await using SqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = "UPDATE ComparisonRecords SET PayloadJson = @p WHERE ComparisonRecordId = @id";
-            cmd.Parameters.AddWithValue("@p", corrupted);
-            cmd.Parameters.AddWithValue("@id", comparisonRecordId);
-            (await cmd.ExecuteNonQueryAsync()).Should().Be(1);
-        }
+        IComparisonRecordRepository repo = Factory.Services.GetRequiredService<IComparisonRecordRepository>();
+        InMemoryComparisonRecordRepository memoryRepo = repo as InMemoryComparisonRecordRepository
+            ?? throw new InvalidOperationException(
+                "Expected IComparisonRecordRepository to be InMemoryComparisonRecordRepository (integration host with InMemory storage).");
+        memoryRepo.ReplacePayloadJsonForIntegrationTest(comparisonRecordId, corrupted);
 
         string verifyBody = JsonSerializer.Serialize(new
         {

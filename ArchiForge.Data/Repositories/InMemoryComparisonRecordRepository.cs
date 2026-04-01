@@ -318,6 +318,26 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
         };
     }
 
+    /// <summary>
+    /// Integration test support: overwrites <see cref="ComparisonRecord.PayloadJson"/> for an existing record in this in-memory store.
+    /// </summary>
+    internal void ReplacePayloadJsonForIntegrationTest(string comparisonRecordId, string payloadJson)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
+        ArgumentNullException.ThrowIfNull(payloadJson);
+
+        lock (_gate)
+        {
+            ComparisonRecord? row = _items.FirstOrDefault(r =>
+                string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
+
+            if (row is null)
+                throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
+
+            row.PayloadJson = payloadJson;
+        }
+    }
+
     private static ComparisonRecord Clone(ComparisonRecord r)
     {
         return new ComparisonRecord

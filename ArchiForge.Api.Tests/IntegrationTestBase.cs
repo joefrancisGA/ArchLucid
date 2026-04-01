@@ -9,6 +9,9 @@ namespace ArchiForge.Api.Tests;
 /// </summary>
 public class IntegrationTestBase(ArchiForgeApiFactory factory) : IClassFixture<ArchiForgeApiFactory>
 {
+    /// <summary>Factory for the hosted API (singleton services, SQL connection string, etc.).</summary>
+    protected ArchiForgeApiFactory Factory { get; } = factory;
+
     protected readonly HttpClient Client = factory.CreateClient();
 
     /// <summary>
