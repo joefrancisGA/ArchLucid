@@ -37,7 +37,7 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
             factors.Add("PersistReplay adds a new comparison record write.");
         }
 
-        int payloadChars = record.PayloadJson?.Length ?? 0;
+        int payloadChars = record.PayloadJson != null ? record.PayloadJson.Length : 0;
 
         if (payloadChars > 500_000)
         {

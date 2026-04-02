@@ -4,16 +4,12 @@ using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Api.Services;
 
-public sealed class ReplayDiagnosticsRecorder : IReplayDiagnosticsRecorder
+public sealed class ReplayDiagnosticsRecorder(IOptionsMonitor<ReplayDiagnosticsOptions> optionsMonitor)
+    : IReplayDiagnosticsRecorder
 {
-    private readonly IOptionsMonitor<ReplayDiagnosticsOptions> _optionsMonitor;
+    private readonly IOptionsMonitor<ReplayDiagnosticsOptions> _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
     private readonly Queue<ReplayDiagnosticsEntry> _recent = new();
     private readonly Lock _lock = new();
-
-    public ReplayDiagnosticsRecorder(IOptionsMonitor<ReplayDiagnosticsOptions> optionsMonitor)
-    {
-        _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
-    }
 
     public void Record(ReplayDiagnosticsEntry entry)
     {

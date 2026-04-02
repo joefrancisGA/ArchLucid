@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 
 namespace ArchiForge.Cli.Support;
 
@@ -18,16 +18,20 @@ public static class SupportBundleRedactor
     public static string RedactHttpUrl(string? url)
     {
         if (string.IsNullOrWhiteSpace(url))
-        
+
             return string.Empty;
-        
+
 
         if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out Uri? uri))
-        
-            return "(invalid url)";
-        
 
-        UriBuilder builder = new(uri) { UserName = string.Empty, Password = string.Empty };
+            return "(invalid url)";
+
+
+        UriBuilder builder = new(uri)
+        {
+            UserName = string.Empty,
+            Password = string.Empty
+        };
 
         return builder.Uri.GetLeftPart(UriPartial.Path).TrimEnd('/');
     }
@@ -38,25 +42,25 @@ public static class SupportBundleRedactor
     public static bool IsSensitiveEnvironmentVariableName(string name)
     {
         if (string.IsNullOrEmpty(name))
-        
+
             return false;
-        
+
 
         if (name.StartsWith("ARCHIFORGE_", StringComparison.OrdinalIgnoreCase)
             && name.Contains("SQL", StringComparison.OrdinalIgnoreCase))
-        
+
             return true;
-        
+
 
         string upper = name.ToUpperInvariant();
 
         foreach (string fragment in SensitiveEnvironmentNameSubstrings)
-        
+
             if (upper.Contains(fragment, StringComparison.Ordinal))
-            
+
                 return true;
-            
-        
+
+
 
         return false;
     }
@@ -70,18 +74,18 @@ public static class SupportBundleRedactor
 
         foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
         {
-            string key = entry.Key?.ToString() ?? string.Empty;
+            string key = entry.Key.ToString() ?? string.Empty;
 
             if (string.IsNullOrEmpty(key))
-            
+
                 continue;
-            
+
 
             if (!key.StartsWith("ARCHIFORGE_", StringComparison.OrdinalIgnoreCase)
                 && !key.StartsWith("DOTNET_", StringComparison.OrdinalIgnoreCase))
-            
+
                 continue;
-            
+
 
             if (IsSensitiveEnvironmentVariableName(key))
             {
@@ -95,13 +99,13 @@ public static class SupportBundleRedactor
 
                 if (string.Equals(key, "ARCHIFORGE_API_URL", StringComparison.OrdinalIgnoreCase)
                     && raw.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-                
+
                     result[key] = RedactHttpUrl(raw);
-                
+
                 else
-                
+
                     result[key] = raw;
-                
+
             }
         }
 

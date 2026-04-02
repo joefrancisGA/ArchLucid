@@ -38,11 +38,9 @@ public sealed class SqlScopedResolutionDbConnectionFactory(
     {
         SqlConnection connection;
 
-        await using (AsyncServiceScope scope = _scopeFactory.CreateAsyncScope())
-        {
-            ISqlConnectionFactory sql = scope.ServiceProvider.GetRequiredService<ISqlConnectionFactory>();
-            connection = await sql.CreateOpenConnectionAsync(cancellationToken);
-        }
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        ISqlConnectionFactory sql = scope.ServiceProvider.GetRequiredService<ISqlConnectionFactory>();
+        connection = await sql.CreateOpenConnectionAsync(cancellationToken);
 
         return connection;
     }

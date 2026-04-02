@@ -202,9 +202,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
 
-        services.AddSingleton<Data.Infrastructure.IDbConnectionFactory>(_ =>
+        services.AddSingleton<Data.Infrastructure.IDbConnectionFactory>(p =>
             new SqlScopedResolutionDbConnectionFactory(
-                _.GetRequiredService<IServiceScopeFactory>(),
+                p.GetRequiredService<IServiceScopeFactory>(),
                 connectionString));
 
         return services;

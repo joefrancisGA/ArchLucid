@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
@@ -47,11 +47,14 @@ public static class SupportBundleCollector
             Combined = await ProbeAsync(client, "/health", cancellationToken),
         };
 
-        SupportBundleConfigSummary configSummary = BuildConfigSummary(config, workingDirectory);
+        SupportBundleConfigSummary configSummary = BuildConfigSummary(config);
         SupportBundleEnvironmentSection env = BuildEnvironmentSection();
         SupportBundleWorkspaceSection workspace = BuildWorkspaceSection(workingDirectory, config);
         SupportBundleReferencesSection references = BuildReferencesSection();
-        SupportBundleLogsSection logs = new() { LocalLogExcerpt = TryReadSmallLocalLogExcerpt(workingDirectory, config) };
+        SupportBundleLogsSection logs = new()
+        {
+            LocalLogExcerpt = TryReadSmallLocalLogExcerpt(workingDirectory, config)
+        };
 
         return new SupportBundlePayload(
             manifest,
@@ -90,9 +93,9 @@ public static class SupportBundleCollector
             string? json = await client.GetVersionJsonAsync(ct);
 
             if (json is null)
-            
+
                 return (null, "GET /version returned non-success or empty body.");
-            
+
 
             return (json, null);
         }
@@ -112,9 +115,9 @@ public static class SupportBundleCollector
         bool truncated = body.Length > MaxHealthBodyLength;
 
         if (truncated)
-        
+
             body = body[..MaxHealthBodyLength] + "\n... [truncated by ArchiForge support-bundle]";
-        
+
 
         return new SupportBundleHealthProbe
         {
@@ -126,8 +129,7 @@ public static class SupportBundleCollector
     }
 
     private static SupportBundleConfigSummary BuildConfigSummary(
-        ArchiForgeProjectScaffolder.ArchiForgeConfig? config,
-        string workingDirectory)
+        ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
     {
         if (config is null)
         {
@@ -176,26 +178,26 @@ public static class SupportBundleCollector
         ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
     {
         if (config is null)
-        
+
             return new SupportBundleWorkspaceSection();
-        
+
 
         string outputsDir = Path.Combine(workingDirectory, config.Outputs.LocalCacheDir);
 
         if (!Directory.Exists(outputsDir))
-        
+
             return new SupportBundleWorkspaceSection
             {
                 OutputsDirectory = outputsDir,
                 OutputsExists = false,
             };
-        
+
 
         string[] files = Directory.GetFiles(outputsDir, "*", SearchOption.AllDirectories);
         long total = 0;
 
         foreach (string file in files)
-        
+
             try
             {
                 FileInfo info = new(file);
@@ -209,7 +211,7 @@ public static class SupportBundleCollector
             {
                 // ignore
             }
-        
+
 
         string[] top = Directory.GetFileSystemEntries(outputsDir);
 
@@ -255,32 +257,32 @@ public static class SupportBundleCollector
     private static string? TryReadSmallLocalLogExcerpt(string workingDirectory, ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
     {
         if (config is null)
-        
+
             return null;
-        
+
 
         string candidate = Path.Combine(workingDirectory, config.Outputs.LocalCacheDir, "last-run.log");
 
         if (!File.Exists(candidate))
-        
+
             return null;
-        
+
 
         try
         {
             FileInfo fi = new(candidate);
 
             if (fi.Length > 65_536)
-            
+
                 return "(file too large; omitted)";
-            
+
 
             string text = File.ReadAllText(candidate, System.Text.Encoding.UTF8);
 
             if (text.Length > 4_096)
-            
+
                 return text[..4_096] + "\n... [truncated]";
-            
+
 
             return text;
         }

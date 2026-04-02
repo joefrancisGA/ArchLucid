@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 namespace ArchiForge.Api.ProductLearning;
 
@@ -42,9 +42,9 @@ internal static class ProductLearningQueryParser
         error = null;
 
         if (string.IsNullOrWhiteSpace(raw))
-        
+
             return true;
-        
+
 
         string f = raw.Trim();
 
@@ -101,9 +101,9 @@ internal static class ProductLearningQueryParser
         error = null;
 
         if (string.IsNullOrWhiteSpace(since))
-        
+
             return true;
-        
+
 
         if (!DateTimeOffset.TryParse(
                 since,
@@ -158,14 +158,14 @@ internal static class ProductLearningQueryParser
 
         if (!int.TryParse(raw, NumberStyles.None, CultureInfo.InvariantCulture, out int parsed))
         {
-            value = default;
+            value = 0;
             error = $"Query parameter '{paramName}' must be an integer.";
             return false;
         }
 
         if (parsed < min || parsed > max)
         {
-            value = default;
+            value = 0;
             error = $"Query parameter '{paramName}' must be between {min} and {max}.";
             return false;
         }

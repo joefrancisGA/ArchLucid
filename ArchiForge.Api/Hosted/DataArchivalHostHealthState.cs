@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchiForge.Api.Hosted;
 
@@ -7,7 +7,7 @@ namespace ArchiForge.Api.Hosted;
 /// </summary>
 public sealed class DataArchivalHostHealthState
 {
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     private bool _hasAttempted;
 
@@ -23,9 +23,9 @@ public sealed class DataArchivalHostHealthState
         get
         {
             lock (_gate)
-            
+
                 return _hasAttempted;
-            
+
         }
     }
 
@@ -67,9 +67,9 @@ public sealed class DataArchivalHostHealthState
                 return (HealthStatus.Healthy, "Data archival enabled; no iteration has run yet.");
 
             if (_lastSucceeded)
-            
+
                 return (HealthStatus.Healthy, $"Last archival iteration succeeded at {_lastAttemptUtc:O}.");
-            
+
 
             return (
                 HealthStatus.Degraded,
