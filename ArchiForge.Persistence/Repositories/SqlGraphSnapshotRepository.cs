@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.KnowledgeGraph.Interfaces;
@@ -174,7 +174,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             """;
 
         for (int w = 0; w < snapshot.Warnings.Count; w++)
-        {
+        
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertWarningSql,
@@ -186,7 +186,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                     },
                     transaction,
                     cancellationToken: ct));
-        }
+        
     }
 
     private static async Task InsertIndexedEdgesAsync(
@@ -239,7 +239,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             int sort = 0;
 
             if (!string.IsNullOrEmpty(edge.Label))
-            {
+            
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertEdgePropSql,
@@ -253,7 +253,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                         },
                         transaction,
                         cancellationToken: ct));
-            }
+            
 
             List<KeyValuePair<string, string>> orderedProps = edge.Properties
                 .Where(kv => !string.Equals(kv.Key, GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey, StringComparison.Ordinal))
@@ -261,7 +261,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 .ToList();
 
             foreach (KeyValuePair<string, string> kv in orderedProps)
-            {
+            
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertEdgePropSql,
@@ -275,7 +275,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                         },
                         transaction,
                         cancellationToken: ct));
-            }
+            
         }
     }
 

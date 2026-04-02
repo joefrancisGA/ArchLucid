@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Agents;
+﻿using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Findings;
@@ -112,9 +112,9 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
                 continue;
 
             foreach (string error in schemaValidation.Errors)
-            {
+            
                 output.Errors.Add($"AgentResult {result.ResultId}: {error}");
-            }
+            
         }
 
         return output.Errors.Count == 0;
@@ -130,10 +130,10 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         foreach (IGrouping<string, DecisionNode> dup in decisionNodes
                      .GroupBy(d => d.Topic, StringComparer.OrdinalIgnoreCase)
                      .Where(g => g.Count() > 1))
-        {
+        
             output.Warnings.Add(
                 $"Decision topic '{dup.Key}' has {dup.Count()} duplicate nodes; only the first will be applied.");
-        }
+        
 
         DecisionNode? topologyAcceptance = decisionNodes.FirstOrDefault(d =>
             string.Equals(d.Topic, TopicTopologyAcceptance, StringComparison.OrdinalIgnoreCase));
@@ -178,15 +178,15 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             {
                 if (selected.Description.Contains(ControlPrivateEndpoints, StringComparison.OrdinalIgnoreCase) &&
                     !manifest.Governance.RequiredControls.Contains(ControlPrivateEndpoints, StringComparer.OrdinalIgnoreCase))
-                {
+                
                     manifest.Governance.RequiredControls.Add(ControlPrivateEndpoints);
-                }
+                
 
                 if (selected.Description.Contains(ControlManagedIdentity, StringComparison.OrdinalIgnoreCase) &&
                     !manifest.Governance.RequiredControls.Contains(ControlManagedIdentity, StringComparer.OrdinalIgnoreCase))
-                {
+                
                     manifest.Governance.RequiredControls.Add(ControlManagedIdentity);
-                }
+                
 
                 AddTrace(
                     output,
@@ -211,9 +211,9 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             DecisionOption? selected = complexityDecision.Options.FirstOrDefault(o => o.OptionId == complexityDecision.SelectedOptionId);
             if (selected is not null &&
                 selected.Description.Contains("Reduce complexity", StringComparison.OrdinalIgnoreCase))
-            {
+            
                 manifest.Governance.PolicyConstraints.Add("Review architecture scope for MVP complexity reduction.");
-            }
+            
 
             AddTrace(
                 output,
@@ -325,9 +325,9 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
                 });
 
             if (result.ProposedChanges is not null)
-            {
+            
                 ApplyProposal(manifest, result.ProposedChanges, output, result.AgentType);
-            }
+            
 
             ApplyFindingsToGovernance(manifest, result, output);
         }
@@ -403,9 +403,9 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         AgentType agentType)
     {
         if (string.IsNullOrWhiteSpace(existing.Purpose) && !string.IsNullOrWhiteSpace(incoming.Purpose))
-        {
+        
             existing.Purpose = incoming.Purpose;
-        }
+        
 
         existing.Tags = existing.Tags
             .Union(incoming.Tags, StringComparer.OrdinalIgnoreCase)
@@ -464,9 +464,9 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             existing.PrivateEndpointRequired |= datastore.PrivateEndpointRequired;
 
             if (string.IsNullOrWhiteSpace(existing.Purpose) && !string.IsNullOrWhiteSpace(datastore.Purpose))
-            {
+            
                 existing.Purpose = datastore.Purpose;
-            }
+            
 
             AddTrace(
                 output,
@@ -501,9 +501,9 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
                 r.RelationshipType == relationship.RelationshipType);
 
             if (duplicate)
-            {
+            
                 continue;
-            }
+            
 
             manifest.Relationships.Add(CloneRelationship(relationship));
 
@@ -535,9 +535,9 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
             if (manifest.Governance.RequiredControls.Any(c =>
                 c.Equals(control, StringComparison.OrdinalIgnoreCase)))
-            {
+            
                 continue;
-            }
+            
 
             manifest.Governance.RequiredControls.Add(control);
 
@@ -577,12 +577,12 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         {
             if (string.Equals(finding.Category, "Compliance", StringComparison.OrdinalIgnoreCase) &&
                 !string.IsNullOrWhiteSpace(finding.Message))
-            {
+            
                 if (!manifest.Governance.ComplianceTags.Contains(finding.Message, StringComparer.OrdinalIgnoreCase))
-                {
+                
                     manifest.Governance.ComplianceTags.Add(finding.Message);
-                }
-            }
+                
+            
 
             AddTrace(
                 output,
@@ -607,23 +607,23 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
     {
         if (request.RequiredCapabilities.Any(c =>
             c.Contains("private", StringComparison.OrdinalIgnoreCase)))
-        {
+        
             AddRequiredControlIfMissing(manifest, ControlPrivateNetworking, output);
-        }
+        
 
         if (request.RequiredCapabilities.Any(c =>
             c.Contains("managed identity", StringComparison.OrdinalIgnoreCase)))
-        {
+        
             AddRequiredControlIfMissing(manifest, ControlManagedIdentity, output);
-        }
+        
 
         if (validResults.Any(r => r.AgentType == AgentType.Compliance))
-        {
+        
             manifest.Governance.ComplianceTags =
                 manifest.Governance.ComplianceTags
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
-        }
+        
     }
 
     private static void AddRequiredControlIfMissing(
@@ -654,18 +654,18 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         foreach (string control in manifest.Governance.RequiredControls)
         {
             foreach (ManifestService service in manifest.Services.Where(service => !service.RequiredControls.Contains(control, StringComparer.OrdinalIgnoreCase)))
-            {
+            
                 service.RequiredControls.Add(control);
-            }
+            
 
             if (!control.Equals(ControlPrivateEndpoints, StringComparison.OrdinalIgnoreCase) &&
                 !control.Equals(ControlPrivateNetworking, StringComparison.OrdinalIgnoreCase))
                 continue;
 
             foreach (ManifestDatastore datastore in manifest.Datastores)
-            {
+            
                 datastore.PrivateEndpointRequired = true;
-            }
+            
         }
 
         AddTrace(
@@ -725,11 +725,11 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
                 });
 
             if (netDelta < -0.30)
-            {
+            
                 output.Warnings.Add(
                     $"{result.AgentType} result '{result.ResultId}' received net opposition " +
                     $"signal ({netDelta:F3}); review decision traces for details.");
-            }
+            
         }
     }
 

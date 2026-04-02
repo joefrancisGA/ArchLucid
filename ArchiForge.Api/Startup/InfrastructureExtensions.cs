@@ -1,4 +1,4 @@
-using ArchiForge.Api.Auth.Models;
+﻿using ArchiForge.Api.Auth.Models;
 
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -118,15 +118,15 @@ internal static class InfrastructureExtensions
             {
                 string[] origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
                 if (origins.Length > 0)
-                {
+                
                     policy.WithOrigins(origins)
                         .AllowAnyMethod()
                         .AllowAnyHeader();
-                }
+                
                 else
-                {
+                
                     policy.SetIsOriginAllowed(_ => false);
-                }
+                
             });
         });
         return services;

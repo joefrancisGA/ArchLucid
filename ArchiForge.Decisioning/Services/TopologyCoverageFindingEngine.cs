@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Analysis;
+﻿using ArchiForge.Decisioning.Analysis;
 using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
@@ -49,7 +49,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
         }
 
         if (result.MissingCategories.Count > 0)
-        {
+        
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -78,7 +78,7 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     ]
                 }
             });
-        }
+        
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }

@@ -1,4 +1,4 @@
-namespace ArchiForge.Cli;
+﻿namespace ArchiForge.Cli;
 
 /// <summary>
 /// Concise stderr hints after CLI API failures (aligned with docs/TROUBLESHOOTING.md).
@@ -30,9 +30,9 @@ internal static class CliOperatorHints
 
         string? line = LineForHttpStatus(httpStatusCode);
         if (!string.IsNullOrEmpty(line))
-        {
+        
             stderr.WriteLine(line);
-        }
+        
     }
 
     public static void WriteAfterHealthUnreachable(string baseUrl, TextWriter? stderr = null)

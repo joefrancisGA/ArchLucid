@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using ArchiForge.Contracts.Agents;
 
@@ -37,9 +37,9 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine();
 
             foreach (string constraint in request.Constraints)
-            {
+            
                 sb.AppendLine($"- {constraint}");
-            }
+            
         }
 
         if (request.RequiredCapabilities.Count > 0)
@@ -49,9 +49,9 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine();
 
             foreach (string capability in request.RequiredCapabilities)
-            {
+            
                 sb.AppendLine($"- {capability}");
-            }
+            
         }
 
         if (request.Assumptions.Count > 0)
@@ -61,9 +61,9 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine();
 
             foreach (string assumption in request.Assumptions)
-            {
+            
                 sb.AppendLine($"- {assumption}");
-            }
+            
         }
 
         if (evidence.Policies.Count > 0)
@@ -79,14 +79,14 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
                 sb.AppendLine($"  - Summary: {policy.Summary}");
 
                 if (policy.RequiredControls.Count > 0)
-                {
+                
                     sb.AppendLine($"  - Required Controls: {string.Join(", ", policy.RequiredControls)}");
-                }
+                
 
                 if (policy.Tags.Count > 0)
-                {
+                
                     sb.AppendLine($"  - Tags: {string.Join(", ", policy.Tags)}");
-                }
+                
             }
         }
 
@@ -103,14 +103,14 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
                 sb.AppendLine($"  - Summary: {service.Summary}");
 
                 if (service.RecommendedUseCases.Count > 0)
-                {
+                
                     sb.AppendLine($"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
-                }
+                
 
                 if (service.Tags.Count > 0)
-                {
+                
                     sb.AppendLine($"  - Tags: {string.Join(", ", service.Tags)}");
-                }
+                
             }
         }
 
@@ -127,14 +127,14 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
                 sb.AppendLine($"  - Summary: {pattern.Summary}");
 
                 if (pattern.ApplicableCapabilities.Count > 0)
-                {
+                
                     sb.AppendLine($"  - Applicable Capabilities: {string.Join(", ", pattern.ApplicableCapabilities)}");
-                }
+                
 
                 if (pattern.SuggestedServices.Count > 0)
-                {
+                
                     sb.AppendLine($"  - Suggested Services: {string.Join(", ", pattern.SuggestedServices)}");
-                }
+                
             }
         }
 
@@ -147,19 +147,19 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine($"- Summary: {evidence.PriorManifest.Summary}");
 
             if (evidence.PriorManifest.ExistingServices.Count > 0)
-            {
+            
                 sb.AppendLine($"- Existing Services: {string.Join(", ", evidence.PriorManifest.ExistingServices)}");
-            }
+            
 
             if (evidence.PriorManifest.ExistingDatastores.Count > 0)
-            {
+            
                 sb.AppendLine($"- Existing Datastores: {string.Join(", ", evidence.PriorManifest.ExistingDatastores)}");
-            }
+            
 
             if (evidence.PriorManifest.ExistingRequiredControls.Count > 0)
-            {
+            
                 sb.AppendLine($"- Existing Required Controls: {string.Join(", ", evidence.PriorManifest.ExistingRequiredControls)}");
-            }
+            
         }
 
         if (evidence.Notes.Count <= 0) return sb.ToString();
@@ -169,9 +169,9 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
         sb.AppendLine();
 
         foreach (EvidenceNote note in evidence.Notes)
-        {
+        
             sb.AppendLine($"- **{note.NoteType}**: {note.Message}");
-        }
+        
 
         return sb.ToString();
     }

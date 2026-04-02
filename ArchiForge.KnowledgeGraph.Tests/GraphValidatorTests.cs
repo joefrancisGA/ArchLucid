@@ -1,4 +1,4 @@
-using ArchiForge.KnowledgeGraph.Models;
+﻿using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.KnowledgeGraph.Services;
 
 using FluentAssertions;
@@ -166,9 +166,9 @@ public sealed class GraphValidatorTests
         };
 
         foreach (GraphNode n in nodes)
-        {
+        
             snapshot.Nodes.Add(n);
-        }
+        
 
         return snapshot;
     }

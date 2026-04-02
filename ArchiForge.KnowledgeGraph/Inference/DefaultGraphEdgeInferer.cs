@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Models;
+﻿using ArchiForge.ContextIngestion.Models;
 using ArchiForge.KnowledgeGraph.Models;
 
 namespace ArchiForge.KnowledgeGraph.Inference;
@@ -76,17 +76,17 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             .ToList();
 
         foreach (GraphNode network in networks)
-        {
+        
             foreach (GraphNode subnet in subnets)
-            {
+            
                 edges.Add(CreateEdge(
                     network.NodeId,
                     subnet.NodeId,
                     GraphEdgeTypes.ContainsResource,
                     "contains resource",
                     WeightHeuristicTopologyContainment));
-            }
-        }
+            
+        
     }
 
     private static void InferSecurityProtection(
@@ -95,17 +95,17 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         List<GraphNode> topologyNodes)
     {
         foreach (GraphNode security in securityNodes)
-        {
+        
             foreach (GraphNode resource in topologyNodes)
-            {
+            
                 edges.Add(CreateEdge(
                     security.NodeId,
                     resource.NodeId,
                     GraphEdgeTypes.Protects,
                     "protects",
                     WeightSecurityBroad));
-            }
-        }
+            
+        
     }
 
     private static void InferPolicyApplicability(
@@ -135,14 +135,14 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             }
 
             foreach (GraphNode resource in topologyNodes)
-            {
+            
                 edges.Add(CreateEdge(
                     policy.NodeId,
                     resource.NodeId,
                     GraphEdgeTypes.AppliesTo,
                     "applies to",
                     WeightPolicyBroad));
-            }
+            
         }
     }
 
@@ -177,17 +177,17 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                 : requirement.Label;
 
             foreach (GraphNode resource in topologyNodes)
-            {
+            
                 if (LooksRelevant(requirementText, resource))
-                {
+                
                     edges.Add(CreateEdge(
                         requirement.NodeId,
                         resource.NodeId,
                         GraphEdgeTypes.RelatesTo,
                         "relates to",
                         WeightRequirementHeuristic));
-                }
-            }
+                
+            
         }
     }
 

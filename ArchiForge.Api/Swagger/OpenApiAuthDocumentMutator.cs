@@ -1,4 +1,4 @@
-using Microsoft.OpenApi;
+﻿using Microsoft.OpenApi;
 
 namespace ArchiForge.Api.Swagger;
 
@@ -12,9 +12,9 @@ internal static class OpenApiAuthDocumentMutator
         string? schemeId = SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration);
 
         if (string.IsNullOrEmpty(schemeId))
-        {
+        
             return;
-        }
+        
 
         swaggerDoc.Components ??= new OpenApiComponents();
 

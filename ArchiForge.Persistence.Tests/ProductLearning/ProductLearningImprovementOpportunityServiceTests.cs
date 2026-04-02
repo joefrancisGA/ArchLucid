@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.ProductLearning;
+﻿using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Persistence.ProductLearning;
 
 using FluentAssertions;
@@ -96,7 +96,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
         List<FeedbackAggregate> rollups = new();
 
         for (int i = 0; i < 5; i++)
-        {
+        
             rollups.Add(
                 new FeedbackAggregate
                 {
@@ -112,7 +112,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
                     FirstSignalRecordedUtc = TEarly,
                     LastSignalRecordedUtc = TEarly,
                 });
-        }
+        
 
         ProductLearningAggregationSnapshot snapshot = new()
         {

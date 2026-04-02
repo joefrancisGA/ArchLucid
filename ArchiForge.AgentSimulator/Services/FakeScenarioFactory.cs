@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Agents;
+﻿using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Findings;
@@ -190,9 +190,9 @@ public static class FakeScenarioFactory
 
         if (request.Constraints.Any(c =>
             c.Contains("encryption", StringComparison.OrdinalIgnoreCase)))
-        {
+        
             requiredControls.Add("Encryption At Rest");
-        }
+        
 
         return new AgentResult
         {

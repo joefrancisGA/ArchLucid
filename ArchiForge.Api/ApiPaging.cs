@@ -1,4 +1,4 @@
-namespace ArchiForge.Api;
+﻿namespace ArchiForge.Api;
 
 public static class ApiPaging
 {
@@ -13,9 +13,9 @@ public static class ApiPaging
         error = null;
 
         if (string.IsNullOrWhiteSpace(cursor))
-        {
+        
             return true;
-        }
+        
 
         string[] parts = cursor.Split(':', 2);
         if (parts.Length != 2 || !long.TryParse(parts[0], out long ticks) || string.IsNullOrWhiteSpace(parts[1]))

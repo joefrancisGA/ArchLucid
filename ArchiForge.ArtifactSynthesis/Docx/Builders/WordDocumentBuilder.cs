@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Manifest.Sections;
+﻿using ArchiForge.Decisioning.Manifest.Sections;
 
 using DocumentFormat.OpenXml.Wordprocessing;
 
@@ -79,12 +79,12 @@ public static class WordDocumentBuilder
         }
 
         foreach ((string, string) row in list)
-        {
+        
             table.AppendChild(
                 new TableRow(
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(row.Item1))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(row.Item2)))))));
-        }
+        
 
         body.AppendChild(table);
     }
@@ -102,13 +102,13 @@ public static class WordDocumentBuilder
                 CreateHeaderCell(header.C3)));
 
         foreach ((string c1, string c2, string c3) in rows)
-        {
+        
             table.AppendChild(
                 new TableRow(
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(c1))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(c2))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(c3)))))));
-        }
+        
 
         body.AppendChild(table);
     }
@@ -152,14 +152,14 @@ public static class WordDocumentBuilder
                 CreateHeaderCell(header.D)));
 
         foreach ((string a, string b, string c, string d) in rows)
-        {
+        
             table.AppendChild(
                 new TableRow(
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(a))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(b))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(c))))),
                     new TableCell(new Paragraph(new Run(new Text(Sanitize(d)))))));
-        }
+        
 
         body.AppendChild(table);
     }

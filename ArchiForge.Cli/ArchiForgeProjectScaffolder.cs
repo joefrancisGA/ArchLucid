@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -107,11 +107,11 @@ public static class ArchiForgeProjectScaffolder
         if (options.RegisterProject)
         {
             if (string.IsNullOrWhiteSpace(options.ConnectionString))
-            {
+            
                 throw new InvalidOperationException(
                     "ScaffoldOptions.ConnectionString must be set when RegisterProject is true. " +
                     "Set it explicitly; there is no hardcoded default connection string.");
-            }
+            
 
             const string sqlQuery =
                 "INSERT INTO PROJECTS (ProjectName, BaseDirectory, OverwriteExistingFiles, IncludeTerraformStubs) " +

@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.ProductLearning;
+﻿using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
 
 namespace ArchiForge.Persistence.ProductLearning.Planning;
@@ -32,9 +32,9 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
                 t.WorkspaceId == theme.WorkspaceId &&
                 t.ProjectId == theme.ProjectId &&
                 string.Equals(t.ThemeKey, theme.ThemeKey, StringComparison.Ordinal)))
-        {
+        
             throw new InvalidOperationException("ThemeKey already exists in scope: " + theme.ThemeKey);
-        }
+        
 
         ProductLearningImprovementThemeRecord stored = new()
         {
@@ -115,9 +115,9 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
             t.ProjectId == plan.ProjectId);
 
         if (theme is null)
-        {
+        
             throw new InvalidOperationException("Theme not found for ThemeId=" + plan.ThemeId + ".");
-        }
+        
 
         IReadOnlyList<ProductLearningImprovementPlanActionStep> stepsCopy = plan.ActionSteps
             .OrderBy(static s => s.Ordinal)
@@ -221,16 +221,16 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
         ProductLearningImprovementPlanRecord? plan = _plans.FirstOrDefault(p => p.PlanId == link.PlanId);
 
         if (plan is null)
-        {
+        
             throw new InvalidOperationException("Plan not found for PlanId=" + link.PlanId + ".");
-        }
+        
 
         if (_runLinks.Any(r =>
                 r.PlanId == link.PlanId &&
                 string.Equals(r.ArchitectureRunId, link.ArchitectureRunId, StringComparison.Ordinal)))
-        {
+        
             throw new InvalidOperationException("Run link already exists for this plan.");
-        }
+        
 
         _runLinks.Add(
             new ProductLearningImprovementPlanRunLinkRecord
@@ -251,14 +251,14 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
         ProductLearningImprovementPlanRecord? plan = _plans.FirstOrDefault(p => p.PlanId == link.PlanId);
 
         if (plan is null)
-        {
+        
             throw new InvalidOperationException("Plan not found for PlanId=" + link.PlanId + ".");
-        }
+        
 
         if (_signalLinks.Any(s => s.PlanId == link.PlanId && s.SignalId == link.SignalId))
-        {
+        
             throw new InvalidOperationException("Signal link already exists for this plan.");
-        }
+        
 
         _signalLinks.Add(
             new ProductLearningImprovementPlanSignalLinkRecord
@@ -280,9 +280,9 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
         ProductLearningImprovementPlanRecord? plan = _plans.FirstOrDefault(p => p.PlanId == link.PlanId);
 
         if (plan is null)
-        {
+        
             throw new InvalidOperationException("Plan not found for PlanId=" + link.PlanId + ".");
-        }
+        
 
         Guid linkId = link.LinkId == Guid.Empty ? Guid.NewGuid() : link.LinkId;
 
@@ -311,9 +311,9 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
                 p.TenantId == scope.TenantId &&
                 p.WorkspaceId == scope.WorkspaceId &&
                 p.ProjectId == scope.ProjectId))
-        {
+        
             return Task.FromResult<IReadOnlyList<string>>(Array.Empty<string>());
-        }
+        
 
         List<string> ids = _runLinks
             .Where(r => r.PlanId == planId)
@@ -336,10 +336,10 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
                 p.TenantId == scope.TenantId &&
                 p.WorkspaceId == scope.WorkspaceId &&
                 p.ProjectId == scope.ProjectId))
-        {
+        
             return Task.FromResult<IReadOnlyList<ProductLearningImprovementPlanSignalLinkRecord>>(
                 Array.Empty<ProductLearningImprovementPlanSignalLinkRecord>());
-        }
+        
 
         List<ProductLearningImprovementPlanSignalLinkRecord> list = _signalLinks
             .Where(s => s.PlanId == planId)
@@ -367,10 +367,10 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
                 p.TenantId == scope.TenantId &&
                 p.WorkspaceId == scope.WorkspaceId &&
                 p.ProjectId == scope.ProjectId))
-        {
+        
             return Task.FromResult<IReadOnlyList<ProductLearningImprovementPlanArtifactLinkRecord>>(
                 Array.Empty<ProductLearningImprovementPlanArtifactLinkRecord>());
-        }
+        
 
         List<ProductLearningImprovementPlanArtifactLinkRecord> list = _artifactLinks
             .Where(a => a.PlanId == planId)

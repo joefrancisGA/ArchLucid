@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Metadata;
+﻿using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
@@ -43,10 +43,10 @@ public sealed class ExportReplayService(
             cancellationToken);
 
         if (record is null)
-        {
+        
             throw new InvalidOperationException(
                 $"Export record '{request.ExportRecordId}' was not found.");
-        }
+        
 
         PersistedAnalysisExportRequest persistedRequest = AnalysisExportRequestRehydrator.Rehydrate(record)
                                                           ?? throw new InvalidOperationException(
@@ -108,7 +108,7 @@ public sealed class ExportReplayService(
         string replayFileName = BuildReplayFileName(record.FileName);
 
         if (recordReplayExport)
-        {
+        
             await runExportAuditService.RecordAsync(
                 runId: record.RunId,
                 exportType: record.ExportType,
@@ -122,7 +122,7 @@ public sealed class ExportReplayService(
                 analysisRequest: persistedRequest,
                 notes: $"Replay generated from export record {record.ExportRecordId}.",
                 cancellationToken: cancellationToken);
-        }
+        
 
         return new ReplayExportResult
         {
@@ -146,9 +146,9 @@ public sealed class ExportReplayService(
     private static string BuildReplayFileName(string originalFileName)
     {
         if (string.IsNullOrWhiteSpace(originalFileName))
-        {
+        
             return FallbackReplayFileName;
-        }
+        
 
         string extension = Path.GetExtension(originalFileName);
         string baseName = Path.GetFileNameWithoutExtension(originalFileName);

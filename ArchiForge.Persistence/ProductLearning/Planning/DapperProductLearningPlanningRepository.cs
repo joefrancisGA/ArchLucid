@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
@@ -473,14 +473,14 @@ public sealed class DapperProductLearningPlanningRepository(ISqlConnectionFactor
         Guid linkId = link.LinkId == Guid.Empty ? Guid.NewGuid() : link.LinkId;
 
         if (link.AuthorityBundleId is not null && link.AuthorityArtifactSortOrder is not null)
-        {
+        
             await RequireAuthorityArtifactInScopeAsync(
                 connection,
                 link.AuthorityBundleId.Value,
                 link.AuthorityArtifactSortOrder.Value,
                 scope,
                 cancellationToken);
-        }
+        
 
         const string sql = """
             INSERT INTO dbo.ProductLearningImprovementPlanArtifactLinks
@@ -697,14 +697,14 @@ public sealed class DapperProductLearningPlanningRepository(ISqlConnectionFactor
             new CommandDefinition(sql, new { ThemeId = themeId }, cancellationToken: cancellationToken));
 
         if (row is null)
-        {
+        
             throw new InvalidOperationException("Theme not found for ThemeId=" + themeId + ".");
-        }
+        
 
         if (row.TenantId != plan.TenantId || row.WorkspaceId != plan.WorkspaceId || row.ProjectId != plan.ProjectId)
-        {
+        
             throw new InvalidOperationException("Plan scope must match the parent theme scope.");
-        }
+        
     }
 
     private static async Task<ProductLearningScope> RequirePlanScopeAsync(
@@ -722,9 +722,9 @@ public sealed class DapperProductLearningPlanningRepository(ISqlConnectionFactor
             new CommandDefinition(sql, new { PlanId = planId }, cancellationToken: cancellationToken));
 
         if (row is null)
-        {
+        
             throw new InvalidOperationException("Plan not found for PlanId=" + planId + ".");
-        }
+        
 
         return new ProductLearningScope
         {
@@ -748,9 +748,9 @@ public sealed class DapperProductLearningPlanningRepository(ISqlConnectionFactor
             new CommandDefinition(sql, new { RunId = architectureRunId }, cancellationToken: cancellationToken));
 
         if (ok == 0)
-        {
+        
             throw new InvalidOperationException("ArchitectureRuns.RunId was not found: " + architectureRunId);
-        }
+        
     }
 
     private static async Task RequirePilotSignalInScopeAsync(
@@ -781,10 +781,10 @@ public sealed class DapperProductLearningPlanningRepository(ISqlConnectionFactor
                 cancellationToken: cancellationToken));
 
         if (ok == 0)
-        {
+        
             throw new InvalidOperationException(
                 "ProductLearningPilotSignals row was not found in the plan's scope for SignalId=" + signalId + ".");
-        }
+        
     }
 
     private static async Task RequireAuthorityArtifactInScopeAsync(
@@ -800,9 +800,9 @@ public sealed class DapperProductLearningPlanningRepository(ISqlConnectionFactor
                     SELECT CASE WHEN OBJECT_ID(N'dbo.ArtifactBundleArtifacts', N'U') IS NULL THEN 0 ELSE 1 END;
                     """,
                     cancellationToken: cancellationToken)) == 0)
-        {
+        
             return;
-        }
+        
 
         const string sql = """
             SELECT CASE WHEN EXISTS(
@@ -830,9 +830,9 @@ public sealed class DapperProductLearningPlanningRepository(ISqlConnectionFactor
                 cancellationToken: cancellationToken));
 
         if (ok == 0)
-        {
+        
             throw new InvalidOperationException(
                 "Authority artifact coordinates were not found in the plan's scope (BundleId/SortOrder).");
-        }
+        
     }
 }

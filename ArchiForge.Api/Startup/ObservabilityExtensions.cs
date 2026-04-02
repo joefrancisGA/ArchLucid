@@ -1,4 +1,4 @@
-using ArchiForge.Core.Diagnostics;
+﻿using ArchiForge.Core.Diagnostics;
 using ArchiForge.DecisionEngine.Validation;
 
 using OpenTelemetry.Metrics;
@@ -36,9 +36,9 @@ internal static class ObservabilityExtensions
                     ArchiForgeInstrumentation.RetrievalIndex.Name);
 
                 if (consoleExporterEnabled)
-                {
+                
                     tracing.AddConsoleExporter();
-                }
+                
             })
             .WithMetrics(metrics =>
             {
@@ -51,9 +51,9 @@ internal static class ObservabilityExtensions
                 metrics.AddMeter(ArchiForgeInstrumentation.MeterName);
 
                 if (prometheusEnabled)
-                {
+                
                     metrics.AddPrometheusExporter();
-                }
+                
             });
 
         return services;

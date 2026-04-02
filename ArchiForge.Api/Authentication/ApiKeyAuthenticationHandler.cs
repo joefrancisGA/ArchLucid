@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
@@ -39,9 +39,9 @@ public sealed class ApiKeyAuthenticationHandler(
         }
 
         if (!Request.Headers.TryGetValue("X-Api-Key", out StringValues providedKey))
-        {
+        
             return Task.FromResult(AuthenticateResult.Fail("API key header 'X-Api-Key' is missing."));
-        }
+        
 
         string key = providedKey.ToString();
 
@@ -75,9 +75,9 @@ public sealed class ApiKeyAuthenticationHandler(
             ];
         }
         else
-        {
+        
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
-        }
+        
 
         ClaimsIdentity successIdentity = new(claims, Scheme.Name);
         ClaimsPrincipal successPrincipal = new(successIdentity);

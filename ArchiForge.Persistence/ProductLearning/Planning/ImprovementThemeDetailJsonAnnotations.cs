@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace ArchiForge.Persistence.ProductLearning.Planning;
 
@@ -10,9 +10,9 @@ internal static class ImprovementThemeDetailJsonAnnotations
     internal static IReadOnlyList<string> ReadAnnotationTokens(string? detailJson)
     {
         if (string.IsNullOrWhiteSpace(detailJson))
-        {
+        
             return Array.Empty<string>();
-        }
+        
 
         try
         {
@@ -20,9 +20,9 @@ internal static class ImprovementThemeDetailJsonAnnotations
             JsonElement root = document.RootElement;
 
             if (root.ValueKind != JsonValueKind.Object)
-            {
+            
                 return Array.Empty<string>();
-            }
+            
 
             HashSet<string> seen = new(StringComparer.Ordinal);
             List<string> ordered = new();
@@ -52,9 +52,9 @@ internal static class ImprovementThemeDetailJsonAnnotations
         List<string> ordered)
     {
         if (!root.TryGetProperty(propertyName, out JsonElement element))
-        {
+        
             return;
-        }
+        
 
         if (element.ValueKind == JsonValueKind.String)
         {
@@ -64,16 +64,16 @@ internal static class ImprovementThemeDetailJsonAnnotations
         }
 
         if (element.ValueKind != JsonValueKind.Array)
-        {
+        
             return;
-        }
+        
 
         foreach (JsonElement item in element.EnumerateArray())
         {
             if (item.ValueKind != JsonValueKind.String)
-            {
+            
                 continue;
-            }
+            
 
             AddOneString(item, seen, ordered);
         }
@@ -84,16 +84,16 @@ internal static class ImprovementThemeDetailJsonAnnotations
         string? value = stringElement.GetString();
 
         if (string.IsNullOrWhiteSpace(value))
-        {
+        
             return;
-        }
+        
 
         string trimmed = value.Trim();
 
         if (!seen.Add(trimmed))
-        {
+        
             return;
-        }
+        
 
         ordered.Add(trimmed);
     }

@@ -1,4 +1,4 @@
-using ArchiForge.Persistence.Backfill;
+﻿using ArchiForge.Persistence.Backfill;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Repositories;
 
@@ -197,10 +197,10 @@ internal static class Program
         
         HashSet<string> stages = new(StringComparer.OrdinalIgnoreCase);
         foreach (string part in onlyList.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-        {
+        
             if (TryMapStage(part, out string key))
                 stages.Add(key);
-        }
+        
 
         return new SqlRelationalBackfillOptions
         {

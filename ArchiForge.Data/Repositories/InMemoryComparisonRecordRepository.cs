@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Metadata;
+﻿using ArchiForge.Contracts.Metadata;
 
 namespace ArchiForge.Data.Repositories;
 
@@ -150,9 +150,9 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
         string orderColumn = ResolveOrderColumn(sortBy);
 
         if (!string.Equals(orderColumn, "CreatedUtc", StringComparison.OrdinalIgnoreCase))
-        {
+        
             throw new InvalidOperationException("Cursor paging currently supports sortBy=createdUtc only.");
-        }
+        
 
         int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
         bool sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
@@ -173,7 +173,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                 tags);
 
             if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
-            {
+            
                 query = query.Where(r =>
                     sortDescending
                         ? r.CreatedUtc < cursorCreatedUtc.Value ||
@@ -182,7 +182,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                         : r.CreatedUtc > cursorCreatedUtc.Value ||
                           (r.CreatedUtc == cursorCreatedUtc.Value &&
                            string.Compare(r.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) > 0));
-            }
+            
 
             query = ApplyOrdering(query, sortBy, sortDir);
             List<ComparisonRecord> page = query.Take(safeLimit).ToList();
@@ -258,7 +258,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             q = q.Where(r => string.Equals(r.Label, label, StringComparison.Ordinal));
 
         if (tags is { Count: > 0 })
-        {
+        
             foreach (string t in tags)
             {
                 if (string.IsNullOrWhiteSpace(t))
@@ -268,7 +268,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
 
                 q = q.Where(r => r.Tags.Any(x => string.Equals(x, needle, StringComparison.Ordinal)));
             }
-        }
+        
 
         return q;
     }

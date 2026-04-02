@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Data;
 
 using ArchiForge.Core.Scoping;
@@ -46,9 +46,9 @@ public sealed class InMemoryRunRepository : IRunRepository
         ct.ThrowIfCancellationRequested();
 
         if (!_store.TryGetValue(runId, out RunRecord? r) || !MatchesScope(r, scope) || r.ArchivedUtc.HasValue)
-        {
+        
             return Task.FromResult<RunRecord?>(null);
-        }
+        
 
         return Task.FromResult<RunRecord?>(r);
     }
@@ -100,9 +100,9 @@ public sealed class InMemoryRunRepository : IRunRepository
             RunRecord r = kv.Value;
 
             if (r.ArchivedUtc.HasValue || r.CreatedUtc >= cutoff)
-            {
+            
                 continue;
-            }
+            
 
             r.ArchivedUtc = stamp;
             _store[kv.Key] = r;

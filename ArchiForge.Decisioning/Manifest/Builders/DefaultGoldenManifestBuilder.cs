@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 using ArchiForge.Decisioning.Findings;
 using ArchiForge.Decisioning.Findings.Factories;
@@ -270,10 +270,10 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             });
 
             if (payload.AffectedResources.Count > 0)
-            {
+            
                 manifest.Compliance.Gaps.Add(
                     $"{payload.ControlName}: {string.Join(", ", payload.AffectedResources)}");
-            }
+            
 
             manifest.UnresolvedIssues.Items.Add(new ManifestIssue
             {
@@ -331,10 +331,10 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 });
             }
             else if (finding.Severity == FindingSeverity.Info)
-            {
+            
                 manifest.Assumptions.Add(
                     $"Policy '{payload.PolicyName}' applies to {payload.ApplicableTopologyResourceCount} topology resource(s) (APPLIES_TO in knowledge graph).");
-            }
+            
         }
     }
 
@@ -350,7 +350,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             string controlId = string.IsNullOrWhiteSpace(payload.PolicyReference) ? payload.PolicyName : payload.PolicyReference!;
 
             if (finding.Severity == FindingSeverity.Info)
-            {
+            
                 manifest.Policy.SatisfiedControls.Add(new PolicyControlItem
                 {
                     ControlId = controlId,
@@ -359,9 +359,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     Description =
                         $"{payload.ApplicableTopologyResourceCount} topology resource(s) in APPLIES_TO scope."
                 });
-            }
+            
             else if (finding.Severity == FindingSeverity.Warning)
-            {
+            
                 manifest.Policy.Violations.Add(new PolicyControlItem
                 {
                     ControlId = controlId,
@@ -369,7 +369,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     PolicyPack = pack,
                     Description = string.IsNullOrWhiteSpace(finding.Rationale) ? finding.Title : finding.Rationale
                 });
-            }
+            
         }
 
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyCoverageFinding))
@@ -392,7 +392,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             }
 
             foreach (string resource in payload.UncoveredResources)
-            {
+            
                 manifest.Policy.Violations.Add(new PolicyControlItem
                 {
                     ControlId = "policy-coverage",
@@ -400,7 +400,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     PolicyPack = "Governance",
                     Description = finding.Title
                 });
-            }
+            
         }
     }
 
@@ -471,7 +471,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 continue;
 
             foreach (string req in payload.UncoveredRequirements)
-            {
+            
                 manifest.Requirements.Uncovered.Add(new RequirementCoverageItem
                 {
                     RequirementName = req,
@@ -480,7 +480,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     CoverageStatus = "Uncovered",
                     SupportingFindingIds = [finding.FindingId]
                 });
-            }
+            
         }
     }
 
@@ -490,16 +490,16 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         DecisionTrace trace)
     {
         foreach (Finding finding in trace.AcceptedFindingIds.Select(findingId => findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId)).OfType<Finding>())
-        {
+        
             if (finding.Severity == FindingSeverity.Critical || finding.Severity == FindingSeverity.Error)
-            {
+            
                 manifest.Constraints.MandatoryConstraints.Add(finding.Title);
-            }
+            
             else if (finding.Severity == FindingSeverity.Info || finding.Severity == FindingSeverity.Warning)
-            {
+            
                 manifest.Constraints.Preferences.Add(finding.Title);
-            }
-        }
+            
+        
     }
 
     private static void PopulateProvenance(

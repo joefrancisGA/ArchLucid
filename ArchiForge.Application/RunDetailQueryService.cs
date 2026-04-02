@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Agents;
+﻿using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
@@ -57,16 +57,16 @@ public sealed class RunDetailQueryService(
         manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
 
         if (manifest is null)
-        {
+        
             logger.LogWarning(
                 "RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
                 runId,
                 run.CurrentManifestVersion);
-        }
+        
         else
-        {
+        
             decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
-        }
+        
 
         return new ArchitectureRunDetail
         {

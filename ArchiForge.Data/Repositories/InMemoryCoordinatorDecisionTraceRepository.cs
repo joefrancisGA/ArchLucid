@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
@@ -23,7 +23,7 @@ public sealed class InMemoryCoordinatorDecisionTraceRepository : IDecisionTraceR
         List<DecisionTrace> materialized = traces.ToList();
 
         lock (_gate)
-        {
+        
             foreach (DecisionTrace trace in materialized)
             {
                 if (!_byRunId.TryGetValue(trace.RunId, out List<DecisionTrace>? list))
@@ -34,7 +34,7 @@ public sealed class InMemoryCoordinatorDecisionTraceRepository : IDecisionTraceR
 
                 list.Add(Clone(trace));
             }
-        }
+        
 
         return Task.CompletedTask;
     }
@@ -48,9 +48,9 @@ public sealed class InMemoryCoordinatorDecisionTraceRepository : IDecisionTraceR
         lock (_gate)
         {
             if (!_byRunId.TryGetValue(runId, out List<DecisionTrace>? list))
-            {
+            
                 return Task.FromResult<IReadOnlyList<DecisionTrace>>([]);
-            }
+            
 
             List<DecisionTrace> ordered = list
                 .OrderBy(t => t.CreatedUtc)

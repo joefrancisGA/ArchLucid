@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using ArchiForge.Contracts.Manifest;
 
@@ -34,16 +34,16 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
         // Optional grouping (subgraphs) for services only.
         if (services.Count > 0)
-        {
+        
             if (groupBy == ManifestDiagramConstants.GroupByNone)
-            {
+            
                 foreach (ManifestService service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
                 {
                     string nodeId = GetOrCreateNodeId("svc", service.ServiceId, service.ServiceName);
                     string label = BuildServiceLabel(service, options.IncludeRuntimePlatform);
                     sb.AppendLine($"    {nodeId}[\"{EscapeLabel(label)}\"]");
                 }
-            }
+            
             else
             {
                 IOrderedEnumerable<IGrouping<string, ManifestService>> groups = services
@@ -64,7 +64,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
                     sb.AppendLine("    end");
                 }
             }
-        }
+        
 
         foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
         {

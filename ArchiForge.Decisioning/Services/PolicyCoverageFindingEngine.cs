@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Analysis;
+﻿using ArchiForge.Decisioning.Analysis;
 using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
@@ -43,7 +43,7 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
         }
 
         if (result.UncoveredResources.Count > 0)
-        {
+        
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -61,7 +61,7 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                     UncoveredResources = result.UncoveredResources
                 }
             });
-        }
+        
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }

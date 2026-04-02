@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Metadata;
+﻿using ArchiForge.Contracts.Metadata;
 
 namespace ArchiForge.Application.Analysis;
 
@@ -35,19 +35,19 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         result.RequestDiff = CompareRequests(leftRequest, rightRequest);
 
         if (!string.Equals(left.RunId, right.RunId, StringComparison.OrdinalIgnoreCase))
-        {
+        
             result.Warnings.Add("The compared export records belong to different runs.");
-        }
+        
 
         if (!string.Equals(left.ExportType, right.ExportType, StringComparison.OrdinalIgnoreCase))
-        {
+        
             result.Warnings.Add("The compared export records use different export types.");
-        }
+        
 
         if (leftRequest is null || rightRequest is null)
-        {
+        
             result.Warnings.Add("One or both export records did not contain a persisted analysis request.");
-        }
+        
 
         return result;
     }
@@ -89,9 +89,9 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         };
 
         if (left is null || right is null)
-        {
+        
             return diff;
-        }
+        
 
         AddIfChanged(diff.ChangedValues, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
         AddIfChanged(diff.ChangedValues, "Audience", left.Audience, right.Audience);
@@ -126,17 +126,17 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         T right)
     {
         if (!AreEqual(left, right))
-        {
+        
             target.Add(fieldName);
-        }
+        
     }
 
     private static bool AreEqual<T>(T left, T right)
     {
         if (left is string ls && right is string rs)
-        {
+        
             return string.Equals(ls, rs, StringComparison.OrdinalIgnoreCase);
-        }
+        
 
         return EqualityComparer<T>.Default.Equals(left, right);
     }

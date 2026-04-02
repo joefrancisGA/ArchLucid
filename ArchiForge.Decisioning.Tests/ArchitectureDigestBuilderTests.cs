@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Decisioning.Advisory.Models;
 using ArchiForge.Decisioning.Advisory.Scheduling;
@@ -47,7 +47,7 @@ public sealed class ArchitectureDigestBuilderTests
     {
         ImprovementPlan plan = EmptyPlan();
         for (int i = 0; i < 7; i++)
-        {
+        
             plan.Recommendations.Add(new ImprovementRecommendation
             {
                 Title = $"Item {i}",
@@ -58,7 +58,7 @@ public sealed class ArchitectureDigestBuilderTests
                 ExpectedImpact = "e",
                 PriorityScore = i
             });
-        }
+        
 
         ArchitectureDigest digest = _sut.Build(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), null, null, plan);
 

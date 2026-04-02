@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace ArchiForge.Api.ProductLearning;
 
@@ -42,9 +42,9 @@ internal static class ProductLearningQueryParser
         error = null;
 
         if (string.IsNullOrWhiteSpace(raw))
-        {
+        
             return true;
-        }
+        
 
         string f = raw.Trim();
 
@@ -101,9 +101,9 @@ internal static class ProductLearningQueryParser
         error = null;
 
         if (string.IsNullOrWhiteSpace(since))
-        {
+        
             return true;
-        }
+        
 
         if (!DateTimeOffset.TryParse(
                 since,

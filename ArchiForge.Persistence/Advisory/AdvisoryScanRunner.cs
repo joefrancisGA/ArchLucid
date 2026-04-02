@@ -1,9 +1,9 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.Core.Audit;
-using ArchiForge.Core.Diagnostics;
 using ArchiForge.Core.Comparison;
+using ArchiForge.Core.Diagnostics;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
@@ -104,9 +104,9 @@ public sealed class AdvisoryScanRunner(
         try
         {
             using (AmbientScopeContext.Push(scope))
-            {
+            
                 await RunScheduleCoreAsync(schedule, scope, execution, ct);
-            }
+            
         }
         catch (OperationCanceledException)
         {
@@ -204,18 +204,18 @@ public sealed class AdvisoryScanRunner(
                     ;
             }
             else
-            {
+            
                 plan = await improvementAdvisorService
                     .GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct)
                     ;
-            }
+            
         }
         else
-        {
+        
             plan = await improvementAdvisorService
                 .GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct)
                 ;
-        }
+        
 
         IReadOnlyList<RecommendationRecord> recommendationRecords = await recommendationRepository
             .ListByRunAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, ct)

@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Persistence.Connections;
@@ -21,14 +21,14 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
         ArgumentNullException.ThrowIfNull(record);
 
         if (string.IsNullOrWhiteSpace(record.SubjectType))
-        {
+        
             throw new ArgumentException("SubjectType is required.", nameof(record));
-        }
+        
 
         if (string.IsNullOrWhiteSpace(record.Disposition))
-        {
+        
             throw new ArgumentException("Disposition is required.", nameof(record));
-        }
+        
 
         Guid signalId = record.SignalId == Guid.Empty ? Guid.NewGuid() : record.SignalId;
         DateTime recordedUtc = record.RecordedUtc == default ? DateTime.UtcNow : record.RecordedUtc;
@@ -507,9 +507,9 @@ public sealed class DapperProductLearningPilotSignalRepository(ISqlConnectionFac
     private static string TruncateForDisplay(string value, int maxChars)
     {
         if (value.Length <= maxChars)
-        {
+        
             return value;
-        }
+        
 
         return value[..maxChars];
     }

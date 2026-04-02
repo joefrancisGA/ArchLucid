@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Interfaces;
+﻿using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Connectors;
@@ -26,7 +26,7 @@ public class InlineRequirementsConnector : IContextConnector
         NormalizedContextBatch batch = new();
 
         foreach (string requirement in payload.InlineRequirements)
-        {
+        
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "Requirement",
@@ -38,7 +38,7 @@ public class InlineRequirementsConnector : IContextConnector
                     ["text"] = requirement
                 }
             });
-        }
+        
 
         return Task.FromResult(batch);
     }

@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Models;
+﻿using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Canonicalization;
 
@@ -11,15 +11,15 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
         foreach (CanonicalObject item in items)
         {
             if (string.Equals(item.ObjectType, "TopologyResource", StringComparison.OrdinalIgnoreCase))
-            {
+            
                 if (!item.Properties.ContainsKey("category"))
                     item.Properties["category"] = InferCategory(item);
-            }
+            
 
             if (string.Equals(item.ObjectType, "SecurityBaseline", StringComparison.OrdinalIgnoreCase))
-            {
+            
                 item.Properties.TryAdd("status", "declared");
-            }
+            
 
             results.Add(item);
         }

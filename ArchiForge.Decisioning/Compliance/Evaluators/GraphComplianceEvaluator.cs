@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Compliance.Models;
+﻿using ArchiForge.Decisioning.Compliance.Models;
 using ArchiForge.KnowledgeGraph;
 using ArchiForge.KnowledgeGraph.Models;
 
@@ -54,7 +54,7 @@ public class GraphComplianceEvaluator : IComplianceEvaluator
                 .ToList();
 
             if (requiredNodes.Count == 0 || uncoveredResources.Count > 0)
-            {
+            
                 result.Violations.Add(new ComplianceViolation
                 {
                     RuleId = rule.RuleId,
@@ -66,7 +66,7 @@ public class GraphComplianceEvaluator : IComplianceEvaluator
                     AffectedNodeIds = uncoveredResources.Select(x => x.NodeId).ToList(),
                     AffectedResources = uncoveredResources.Select(x => x.Label).ToList()
                 });
-            }
+            
         }
 
         return result;

@@ -1,4 +1,4 @@
-using ArchiForge.ArtifactSynthesis.Interfaces;
+﻿using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Decisioning.Models;
 
@@ -28,13 +28,13 @@ public class ArtifactSynthesisService(
         ArgumentNullException.ThrowIfNull(manifest);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Artifact synthesis starting: RunId={RunId}, ManifestId={ManifestId}, GeneratorCount={GeneratorCount}",
                 manifest.RunId,
                 manifest.ManifestId,
                 generators.Count());
-        }
+        
 
         ArtifactBundle bundle = new()
         {
@@ -71,19 +71,19 @@ public class ArtifactSynthesisService(
             bundle.Trace.Notes.Add(NoArtifactsNote);
 
             if (logger.IsEnabled(LogLevel.Warning))
-            {
+            
                 logger.LogWarning(
                     "Artifact synthesis produced zero artifacts: RunId={RunId}, ManifestId={ManifestId}, TraceId={TraceId}",
                     manifest.RunId,
                     manifest.ManifestId,
                     bundle.Trace.TraceId);
-            }
+            
         }
 
         validator.Validate(bundle);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Artifact synthesis completed: RunId={RunId}, ManifestId={ManifestId}, TraceId={TraceId}, ArtifactCount={ArtifactCount}, GeneratorsUsed={GeneratorsUsed}",
                 manifest.RunId,
@@ -91,7 +91,7 @@ public class ArtifactSynthesisService(
                 bundle.Trace.TraceId,
                 bundle.Artifacts.Count,
                 string.Join(',', bundle.Trace.GeneratorsUsed));
-        }
+        
 
         return bundle;
     }

@@ -1,4 +1,4 @@
-using ArchiForge.Data.Infrastructure;
+﻿using ArchiForge.Data.Infrastructure;
 using ArchiForge.Persistence.Sql;
 using ArchiForge.TestSupport;
 
@@ -63,10 +63,10 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
             await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(connectionString, CancellationToken.None);
 
             if (!DatabaseMigrator.Run(connectionString))
-            {
+            
                 throw new InvalidOperationException(
                     "DbUp failed against SQL Server; see test output for script errors.");
-            }
+            
 
             await RunPersistenceContractSupplementAsync(connectionString);
 
@@ -124,11 +124,11 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         string scriptPath = Path.Combine(assemblyDir, "Scripts", "PersistenceContractSupplement.sql");
 
         if (!File.Exists(scriptPath))
-        {
+        
             throw new FileNotFoundException(
                 "PersistenceContractSupplement.sql not found. Ensure the test project copies Scripts to the output directory.",
                 scriptPath);
-        }
+        
 
         SqlSchemaBootstrapper bootstrapper = new(
             new TestSqlConnectionFactory(connectionString),

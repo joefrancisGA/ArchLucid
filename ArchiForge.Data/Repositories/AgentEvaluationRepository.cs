@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -23,18 +23,18 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         ArgumentNullException.ThrowIfNull(evaluations);
 
         if (evaluations.Count == 0)
-        {
+        
             return;
-        }
+        
 
         List<string> distinctRunIds = evaluations.Select(e => e.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
-        {
+        
             throw new ArgumentException(
                 $"All evaluations in a batch must belong to the same run. " +
                 $"Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(evaluations));
-        }
+        
 
         string runId = evaluations.First().RunId;
 
@@ -134,11 +134,11 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             }
 
             if (evaluation is null)
-            {
+            
                 throw new InvalidOperationException(
                     $"An AgentEvaluation row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
-            }
+            
 
             evaluations.Add(evaluation);
         }

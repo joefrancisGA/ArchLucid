@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchiForge.AgentRuntime;
@@ -8,8 +8,8 @@ using ArchiForge.Api.Ask;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Health;
 using ArchiForge.Api.Hosted;
-using ArchiForge.Api.Resilience;
 using ArchiForge.Api.Jobs;
+using ArchiForge.Api.Resilience;
 using ArchiForge.Api.Services;
 using ArchiForge.Api.Services.Ask;
 using ArchiForge.Api.Services.Delivery;
@@ -18,12 +18,12 @@ using ArchiForge.Application.Agents;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Application.Bootstrap;
 using ArchiForge.Application.Common;
-using ArchiForge.Application.Governance;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Exports;
+using ArchiForge.Application.Governance;
 using ArchiForge.Application.Summaries;
 using ArchiForge.ArtifactSynthesis.Docx;
 using ArchiForge.ArtifactSynthesis.Generators;
@@ -65,9 +65,9 @@ using ArchiForge.KnowledgeGraph.Mapping;
 using ArchiForge.KnowledgeGraph.Services;
 using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Alerts;
+using ArchiForge.Persistence.Alerts.Simulation;
 using ArchiForge.Persistence.Archival;
 using ArchiForge.Persistence.Retrieval;
-using ArchiForge.Persistence.Alerts.Simulation;
 using ArchiForge.Retrieval.Chunking;
 using ArchiForge.Retrieval.Embedding;
 using ArchiForge.Retrieval.Indexing;
@@ -199,9 +199,9 @@ internal static partial class ServiceCollectionExtensions
                                  ?? new ArchiForgeOptions();
 
         if (!string.Equals(mode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
-        {
+        
             return;
-        }
+        
 
         services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
     }
@@ -240,13 +240,13 @@ internal static partial class ServiceCollectionExtensions
                                           ?? new ArchiForgeOptions();
 
         if (string.Equals(exportStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
-        {
+        
             services.AddSingleton<IRunExportRecordRepository, InMemoryRunExportRecordRepository>();
-        }
+        
         else
-        {
+        
             services.AddScoped<IRunExportRecordRepository, RunExportRecordRepository>();
-        }
+        
         services.AddScoped<IRunExportAuditService, RunExportAuditService>();
         services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
         services.AddScoped<IArchitectureAnalysisService, ArchitectureAnalysisService>();
@@ -275,13 +275,13 @@ internal static partial class ServiceCollectionExtensions
                                         ?? new ArchiForgeOptions();
 
         if (string.Equals(storageMode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
-        {
+        
             services.AddSingleton<IComparisonRecordRepository, InMemoryComparisonRecordRepository>();
-        }
+        
         else
-        {
+        
             services.AddScoped<IComparisonRecordRepository, ComparisonRecordRepository>();
-        }
+        
         services.AddScoped<IComparisonAuditService, ComparisonAuditService>();
         services.AddScoped<IComparisonDriftAnalyzer, ComparisonDriftAnalyzer>();
         services.AddScoped<IComparisonReplayService, ComparisonReplayService>();
@@ -484,9 +484,9 @@ internal static partial class ServiceCollectionExtensions
                 });
             }
             else
-            {
+            
                 RegisterFakeAgentCompletionClient(services);
-            }
+            
         }
     }
 
@@ -568,9 +568,9 @@ internal static partial class ServiceCollectionExtensions
             services.AddSingleton<IVectorIndex, AzureAiSearchVectorIndex>();
         }
         else
-        {
+        
             services.AddSingleton<IVectorIndex, InMemoryVectorIndex>();
-        }
+        
 
         string? embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
         string? endpoint = configuration["AzureOpenAI:Endpoint"];
@@ -596,9 +596,9 @@ internal static partial class ServiceCollectionExtensions
             services.AddSingleton<IEmbeddingService, AzureOpenAiEmbeddingService>();
         }
         else
-        {
+        
             services.AddSingleton<IEmbeddingService, FakeEmbeddingService>();
-        }
+        
     }
 
     private static CircuitBreakerOptions ResolveOpenAiCircuitBreakerOptions(IConfiguration configuration)

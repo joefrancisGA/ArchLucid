@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Governance;
@@ -21,16 +21,16 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         cancellationToken.ThrowIfCancellationRequested();
 
         if (string.IsNullOrWhiteSpace(item.ApprovalRequestId))
-        {
+        
             throw new ArgumentException("ApprovalRequestId is required.", nameof(item));
-        }
+        
 
         GovernanceApprovalRequest stored = Clone(item);
 
         lock (_gate)
-        {
+        
             _byId[stored.ApprovalRequestId] = stored;
-        }
+        
 
         return Task.CompletedTask;
     }
@@ -44,9 +44,9 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         lock (_gate)
         {
             if (!_byId.ContainsKey(item.ApprovalRequestId))
-            {
+            
                 return Task.CompletedTask;
-            }
+            
 
             _byId[item.ApprovalRequestId] = Clone(item);
         }
@@ -62,10 +62,10 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
-        {
+        
             return Task.FromResult(
                 _byId.TryGetValue(approvalRequestId, out GovernanceApprovalRequest? row) ? Clone(row) : null);
-        }
+        
     }
 
     /// <inheritdoc />

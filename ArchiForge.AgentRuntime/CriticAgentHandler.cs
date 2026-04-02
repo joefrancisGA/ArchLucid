@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
@@ -190,9 +190,9 @@ Important review themes:
         {
             sb.AppendLine("Constraints:");
             foreach (string constraint in request.Constraints)
-            {
+            
                 sb.AppendLine($"- {constraint}");
-            }
+            
 
             sb.AppendLine();
         }
@@ -201,9 +201,9 @@ Important review themes:
         {
             sb.AppendLine("Required Capabilities:");
             foreach (string capability in request.RequiredCapabilities)
-            {
+            
                 sb.AppendLine($"- {capability}");
-            }
+            
 
             sb.AppendLine();
         }
@@ -212,9 +212,9 @@ Important review themes:
         {
             sb.AppendLine("Assumptions:");
             foreach (string assumption in request.Assumptions)
-            {
+            
                 sb.AppendLine($"- {assumption}");
-            }
+            
 
             sb.AppendLine();
         }
@@ -230,9 +230,9 @@ Important review themes:
             {
                 sb.AppendLine($"- {policy.Title}: {policy.Summary}");
                 if (policy.RequiredControls.Count > 0)
-                {
+                
                     sb.AppendLine($"  RequiredControls: {string.Join(", ", policy.RequiredControls)}");
-                }
+                
             }
 
             sb.AppendLine();
@@ -245,9 +245,9 @@ Important review themes:
             {
                 sb.AppendLine($"- {service.ServiceName}: {service.Summary}");
                 if (service.RecommendedUseCases.Count > 0)
-                {
+                
                     sb.AppendLine($"  UseCases: {string.Join(", ", service.RecommendedUseCases)}");
-                }
+                
             }
 
             sb.AppendLine();
@@ -279,17 +279,17 @@ Important review themes:
 
         sb.AppendLine("Allowed Tools:");
         foreach (string tool in task.AllowedTools)
-        {
+        
             sb.AppendLine($"- {tool}");
-        }
+        
 
         sb.AppendLine();
 
         sb.AppendLine("Allowed Sources:");
         foreach (string source in task.AllowedSources)
-        {
+        
             sb.AppendLine($"- {source}");
-        }
+        
 
         sb.AppendLine();
         sb.AppendLine("Important guidance:");

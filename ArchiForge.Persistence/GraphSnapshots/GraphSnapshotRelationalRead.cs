@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.RelationalRead;
@@ -68,7 +68,7 @@ internal static class GraphSnapshotRelationalRead
         List<string>? warningsOverride = null;
 
         if (warningsCount > 0)
-        {
+        
             warningsOverride = await LoadStringColumnRelationalAsync(
                 connection,
                 transaction,
@@ -80,7 +80,7 @@ internal static class GraphSnapshotRelationalRead
                 """,
                 graphSnapshotId,
                 ct);
-        }
+        
 
         List<GraphEdge>? edgesOverride = null;
 
@@ -262,19 +262,19 @@ internal static class GraphSnapshotRelationalRead
             Dictionary<string, string> props = new(StringComparer.Ordinal);
 
             if (propsByEdge.TryGetValue(er.EdgeId, out List<EdgePropertyRow>? rowsForEdge))
-            {
+            
                 foreach (EdgePropertyRow pr in rowsForEdge.OrderBy(x => x.PropertySortOrder))
-                {
+                
                     if (string.Equals(pr.PropertyKey, GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey, StringComparison.Ordinal))
-                    {
+                    
                         label = pr.PropertyValue;
-                    }
+                    
                     else
-                    {
+                    
                         props[pr.PropertyKey] = pr.PropertyValue;
-                    }
-                }
-            }
+                    
+                
+            
 
             GraphEdge edge = new()
             {

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 
 using ArchiForge.Application.Diffs;
@@ -44,17 +44,17 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine();
 
         if (EndToEndComparisonExportProfile.IsShort(p))
-        {
+        
             return sb.ToString();
-        }
+        
 
         sb.AppendLine("---");
         sb.AppendLine();
 
         if (EndToEndComparisonExportProfile.IsExecutive(p))
-        {
+        
             AppendMarkdownExecutiveSummary(sb, report);
-        }
+        
         else
         {
             AppendMarkdownRunMetadataDiff(sb, report);
@@ -101,9 +101,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         {
             sb.AppendLine("<hr/>");
             if (EndToEndComparisonExportProfile.IsExecutive(p))
-            {
+            
                 AppendHtmlExecutiveSummary(sb, report);
-            }
+            
             else
             {
                 AppendHtmlRunMetadataDiff(sb, report);
@@ -569,9 +569,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         }
 
         foreach (string item in items)
-        {
+        
             sb.AppendLine($"- {item}");
-        }
+        
 
         sb.AppendLine();
     }
@@ -589,9 +589,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         Run run = new(new Text(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
-        {
+        
             run.RunProperties = new RunProperties(new Bold());
-        }
+        
 
         body.AppendChild(new Paragraph(run));
     }
@@ -618,9 +618,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         }
 
         foreach (string item in items)
-        {
+        
             AddBullet(body, item);
-        }
+        
     }
 }
 

@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Alerts;
+﻿using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 
 namespace ArchiForge.Persistence.Alerts;
@@ -39,7 +39,7 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
             ;
 
         if (existing is null)
-        {
+        
             return new AlertSuppressionDecision
             {
                 ShouldCreateAlert = true,
@@ -48,12 +48,12 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
                 Reason = "No existing open or acknowledged alert matched the deduplication key.",
                 DeduplicationKey = dedupeKey,
             };
-        }
+        
 
         double ageMinutes = (DateTime.UtcNow - existing.CreatedUtc).TotalMinutes;
 
         if (ageMinutes < rule.CooldownMinutes)
-        {
+        
             return new AlertSuppressionDecision
             {
                 ShouldCreateAlert = false,
@@ -62,10 +62,10 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
                 Reason = $"Within cooldown window of {rule.CooldownMinutes} minutes since the prior alert.",
                 DeduplicationKey = dedupeKey,
             };
-        }
+        
 
         if (ageMinutes < rule.SuppressionWindowMinutes)
-        {
+        
             return new AlertSuppressionDecision
             {
                 ShouldCreateAlert = false,
@@ -74,7 +74,7 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
                 Reason = $"Within suppression window of {rule.SuppressionWindowMinutes} minutes.",
                 DeduplicationKey = dedupeKey,
             };
-        }
+        
 
         // Past windows but an open/acknowledged alert still exists — avoid duplicate rows with the same dedupe key.
         return new AlertSuppressionDecision

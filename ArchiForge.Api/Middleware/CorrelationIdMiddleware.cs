@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 using ArchiForge.Core.Diagnostics;
@@ -37,9 +37,9 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
         }
 
         using (LogContext.PushProperty("CorrelationId", correlationId))
-        {
+        
             await next(context);
-        }
+        
     }
 
     private static bool IsValidCorrelationId(string? value) =>

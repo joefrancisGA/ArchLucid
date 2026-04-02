@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
@@ -65,7 +65,7 @@ public sealed class ComparisonReplayApiService(
             });
 
             if (logger.IsEnabled(LogLevel.Information))
-            {
+            
                 logger.LogInformation(
                     "Comparison replay: ComparisonRecordId={ComparisonRecordId}, Type={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, PersistReplay={PersistReplay}, MetadataOnly={MetadataOnly}, DurationMs={DurationMs}, VerificationPassed={VerificationPassed}",
                     request.ComparisonRecordId,
@@ -76,7 +76,7 @@ public sealed class ComparisonReplayApiService(
                     metadataOnly,
                     sw.ElapsedMilliseconds,
                     result.VerificationPassed);
-            }
+            
 
             return result;
         }

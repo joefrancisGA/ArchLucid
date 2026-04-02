@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Agents;
+﻿using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Contracts.Manifest;
@@ -56,20 +56,20 @@ public sealed class DemoSeedService(
         await EnsureExportRecordAsync(cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Demo seed completed (Contoso Retail Modernization). Runs: {Baseline}, {Hardened}.",
                 ContosoRetailDemoIdentifiers.RunBaseline,
                 ContosoRetailDemoIdentifiers.RunHardened);
-        }
+        
     }
 
     private async Task EnsureRequestAsync(CancellationToken cancellationToken)
     {
         if (await requestRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.RequestContoso, cancellationToken) is not null)
-        {
+        
             return;
-        }
+        
 
         ArchitectureRequest request = new()
         {
@@ -93,9 +93,9 @@ public sealed class DemoSeedService(
         CancellationToken cancellationToken)
     {
         if (await runRepository.GetByIdAsync(runId, cancellationToken) is not null)
-        {
+        
             return;
-        }
+        
 
         ArchitectureRun run = new()
         {
@@ -307,9 +307,9 @@ public sealed class DemoSeedService(
             await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
 
         if (rows.Any(r => r.ActivationId == activationId))
-        {
+        
             return;
-        }
+        
 
         GovernanceEnvironmentActivation activation = new()
         {
@@ -328,9 +328,9 @@ public sealed class DemoSeedService(
     private async Task EnsureExportRecordAsync(CancellationToken cancellationToken)
     {
         if (await runExportRecordRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.ExportRecord, cancellationToken) is not null)
-        {
+        
             return;
-        }
+        
 
         RunExportRecord record = new()
         {

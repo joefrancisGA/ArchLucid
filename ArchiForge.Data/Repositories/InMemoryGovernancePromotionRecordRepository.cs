@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Governance;
@@ -21,16 +21,16 @@ public sealed class InMemoryGovernancePromotionRecordRepository : IGovernancePro
         cancellationToken.ThrowIfCancellationRequested();
 
         if (string.IsNullOrWhiteSpace(item.PromotionRecordId))
-        {
+        
             throw new ArgumentException("PromotionRecordId is required.", nameof(item));
-        }
+        
 
         GovernancePromotionRecord stored = Clone(item);
 
         lock (_gate)
-        {
+        
             _byId[stored.PromotionRecordId] = stored;
-        }
+        
 
         return Task.CompletedTask;
     }

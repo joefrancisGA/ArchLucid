@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Models;
+﻿using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -251,9 +251,9 @@ public sealed class RealRuntimeMixedModeTests
         criticTask.RunId = "RUN-001";
 
         foreach (AgentTask task in coordination.Tasks)
-        {
+        
             task.RunId = "RUN-001";
-        }
+        
 
         AgentEvidencePackage evidence = new()
         {

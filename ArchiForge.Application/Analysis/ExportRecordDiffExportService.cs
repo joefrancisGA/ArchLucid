@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+﻿namespace ArchiForge.Application.Analysis;
 
 public sealed class ExportRecordDiffExportService : IExportRecordDiffExportService
 {
@@ -23,9 +23,9 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
         {
             builder.AddHeading("Changed Top-Level Fields", 2);
             foreach (string item in diff.ChangedTopLevelFields)
-            {
+            
                 builder.AddBullet(item);
-            }
+            
             builder.AddSpacer();
         }
 
@@ -37,18 +37,18 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
             {
                 builder.AddHeading("Changed Flags", 3);
                 foreach (string item in diff.RequestDiff.ChangedFlags)
-                {
+                
                     builder.AddBullet(item);
-                }
+                
             }
 
             if (diff.RequestDiff.ChangedValues.Count > 0)
             {
                 builder.AddHeading("Changed Values", 3);
                 foreach (string item in diff.RequestDiff.ChangedValues)
-                {
+                
                     builder.AddBullet(item);
-                }
+                
             }
 
             builder.AddSpacer();
@@ -59,9 +59,9 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
         {
             builder.AddHeading("Warnings", 2);
             foreach (string item in diff.Warnings)
-            {
+            
                 builder.AddBullet(item);
-            }
+            
             builder.AddSpacer();
         }
 

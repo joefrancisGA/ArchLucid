@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 namespace ArchiForge.Application.Analysis;
 
@@ -81,9 +81,9 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
         }
 
         foreach (string item in items)
-        {
+        
             sb.AppendLine($"- {item}");
-        }
+        
 
         sb.AppendLine();
     }

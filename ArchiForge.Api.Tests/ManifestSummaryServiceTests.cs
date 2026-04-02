@@ -1,4 +1,4 @@
-using ArchiForge.Application.Summaries;
+﻿using ArchiForge.Application.Summaries;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 
@@ -180,13 +180,13 @@ public sealed class ManifestSummaryServiceTests
         GoldenManifest manifest = CreateMinimalManifest("Limited");
 
         for (int i = 0; i < 5; i++)
-        {
+        
             manifest.Services.Add(new ManifestService
             {
                 ServiceId = $"svc{i}", ServiceName = $"Svc{i}",
                 ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService
             });
-        }
+        
 
         manifest.Datastores.Add(new ManifestDatastore
         {
@@ -195,12 +195,12 @@ public sealed class ManifestSummaryServiceTests
         });
 
         for (int i = 0; i < 5; i++)
-        {
+        
             manifest.Relationships.Add(new ManifestRelationship
             {
                 SourceId = $"svc{i}", TargetId = "ds0", RelationshipType = RelationshipType.Calls
             });
-        }
+        
 
         ManifestSummaryOptions options = new() { MaxRelationships = 2 };
 

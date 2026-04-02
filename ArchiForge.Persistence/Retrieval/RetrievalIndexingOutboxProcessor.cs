@@ -1,4 +1,4 @@
-using ArchiForge.ArtifactSynthesis.Models;
+﻿using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
@@ -34,7 +34,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
         IReadOnlyList<RetrievalIndexingOutboxEntry> batch = await outbox.DequeuePendingAsync(25, ct);
 
         foreach (RetrievalIndexingOutboxEntry entry in batch)
-        {
+        
             try
             {
                 ScopeContext scopeContext = new()
@@ -91,6 +91,6 @@ public sealed class RetrievalIndexingOutboxProcessor(
                     entry.OutboxId,
                     entry.RunId);
             }
-        }
+        
     }
 }

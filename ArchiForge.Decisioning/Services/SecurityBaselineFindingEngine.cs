@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Findings.Payloads;
+﻿using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
@@ -31,9 +31,9 @@ public class SecurityBaselineFindingEngine : IFindingEngine
             List<string> relatedNodeIds = [node.NodeId];
             
             foreach (string id in protectedIds.Where(id => !relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase)))
-            {
+            
                 relatedNodeIds.Add(id);
-            }
+            
 
             List<string> examined = [.. relatedNodeIds];
 

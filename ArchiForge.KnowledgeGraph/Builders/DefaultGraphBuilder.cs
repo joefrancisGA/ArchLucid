@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Models;
+﻿using ArchiForge.ContextIngestion.Models;
 using ArchiForge.KnowledgeGraph.Inference;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Mapping;
@@ -37,9 +37,9 @@ public class DefaultGraphBuilder(
         result.Nodes.Add(contextNode);
 
         foreach (CanonicalObject item in contextSnapshot.CanonicalObjects)
-        {
+        
             result.Nodes.Add(nodeFactory.CreateNode(item));
-        }
+        
 
         IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(
             contextSnapshot,

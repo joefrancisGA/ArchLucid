@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 using ArchiForge.Api.Configuration;
 
@@ -30,16 +30,16 @@ public static class ArchiForgeConfigurationRules
         if (!string.IsNullOrWhiteSpace(archiForge.StorageProvider) &&
             !string.Equals(archiForge.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase) &&
             !storageIsSql)
-        {
+        
             errors.Add("ArchiForge:StorageProvider must be 'InMemory' or 'Sql' when set.");
-        }
+        
 
         string? connectionString = configuration.GetConnectionString("ArchiForge");
         if (storageIsSql && string.IsNullOrWhiteSpace(connectionString))
-        {
+        
             errors.Add(
                 "ConnectionStrings:ArchiForge is required when ArchiForge:StorageProvider is Sql (or unset, defaulting to Sql).");
-        }
+        
 
         bool apiKeyEnabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
         if (apiKeyEnabled)
@@ -47,19 +47,19 @@ public static class ArchiForgeConfigurationRules
             string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
             string? readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
             if (string.IsNullOrWhiteSpace(adminKey) && string.IsNullOrWhiteSpace(readerKey))
-            {
+            
                 errors.Add(
                     "When Authentication:ApiKey:Enabled is true, at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey must be configured.");
-            }
+            
         }
 
         string? agentMode = configuration["AgentExecution:Mode"];
         if (!string.IsNullOrWhiteSpace(agentMode) &&
             !string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase) &&
             !string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
-        {
+        
             errors.Add("AgentExecution:Mode must be either 'Simulator' or 'Real'.");
-        }
+        
 
         if (string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
         {
@@ -69,10 +69,10 @@ public static class ArchiForgeConfigurationRules
             if (string.IsNullOrWhiteSpace(endpoint) ||
                 string.IsNullOrWhiteSpace(apiKey) ||
                 string.IsNullOrWhiteSpace(deployment))
-            {
+            
                 errors.Add(
                     "AgentExecution:Mode is 'Real' but one or more AzureOpenAI settings (Endpoint, ApiKey, DeploymentName) are missing.");
-            }
+            
         }
 
         CollectSchemaFileErrors(configuration, errors);
@@ -84,43 +84,43 @@ public static class ArchiForgeConfigurationRules
         CollectRateLimitingErrors(configuration, errors);
 
         if (!environment.IsProduction())
-        {
+        
             return errors;
-        }
+        
 
         CollectProductionSafetyErrors(configuration, errors);
 
         {
             string? authMode = configuration["ArchiForgeAuth:Mode"];
             if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
-            {
+            
                 errors.Add("ArchiForgeAuth:Mode cannot be DevelopmentBypass when the host environment is Production.");
-            }
+            
 
             if (string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
-            {
+            
                 if (string.IsNullOrWhiteSpace(configuration["ArchiForgeAuth:Authority"]))
-                {
+                
                     errors.Add(
                         "ArchiForgeAuth:Authority is required when ArchiForgeAuth:Mode is JwtBearer in Production.");
-                }
-            }
+                
+            
 
             if (!string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase)) return errors;
             
             if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
-            {
+            
                 errors.Add(
                     "Authentication:ApiKey:Enabled must be true when ArchiForgeAuth:Mode is ApiKey in Production.");
-            }
+            
 
             string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
             string? readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
             if (string.IsNullOrWhiteSpace(adminKey) && string.IsNullOrWhiteSpace(readerKey))
-            {
+            
                 errors.Add(
                     "Production ApiKey auth requires at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey.");
-            }
+            
         }
 
         return errors;
@@ -133,26 +133,26 @@ public static class ArchiForgeConfigurationRules
     {
         string[]? origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
         if (origins is null || origins.Length == 0)
-        {
+        
             errors.Add("Production requires at least one Cors:AllowedOrigins entry.");
-        }
+        
         else
-        {
+        
             foreach (string? origin in origins)
             {
                 if (string.IsNullOrWhiteSpace(origin))
-                {
+                
                     continue;
-                }
+                
 
                 string trimmed = origin.Trim();
 
                 if (string.Equals(trimmed, "*", StringComparison.Ordinal))
-                {
+                
                     errors.Add("Cors:AllowedOrigins must not use a wildcard '*' in Production.");
-                }
+                
             }
-        }
+        
 
         WebhookDeliveryOptions webhook =
             configuration.GetSection(WebhookDeliveryOptions.SectionName).Get<WebhookDeliveryOptions>() ??
@@ -161,9 +161,9 @@ public static class ArchiForgeConfigurationRules
         const int minWebhookSecretChars = 32;
 
         if (!webhook.UseHttpClient)
-        {
+        
             return;
-        }
+        
 
         if (string.IsNullOrWhiteSpace(webhook.HmacSha256SharedSecret))
         {
@@ -174,10 +174,10 @@ public static class ArchiForgeConfigurationRules
         }
 
         if (webhook.HmacSha256SharedSecret.Length < minWebhookSecretChars)
-        {
+        
             errors.Add(
                 $"WebhookDelivery:HmacSha256SharedSecret must be at least {minWebhookSecretChars} characters in Production when WebhookDelivery:UseHttpClient is true.");
-        }
+        
     }
 
     private static void CollectBatchReplayErrors(IConfiguration configuration, List<string> errors)
@@ -189,10 +189,10 @@ public static class ArchiForgeConfigurationRules
         const int max = 500;
 
         if (batch.MaxComparisonRecordIds < min || batch.MaxComparisonRecordIds > max)
-        {
+        
             errors.Add(
                 $"ComparisonReplay:Batch:MaxComparisonRecordIds must be between {min} and {max} (inclusive).");
-        }
+        
     }
 
     private static void CollectApiDeprecationErrors(IConfiguration configuration, List<string> errors)
@@ -202,26 +202,26 @@ public static class ArchiForgeConfigurationRules
             ?? new ApiDeprecationOptions();
 
         if (!deprecation.Enabled)
-        {
+        
             return;
-        }
+        
 
         string? sunset = deprecation.SunsetHttpDate?.Trim();
 
         if (string.IsNullOrEmpty(sunset))
-        {
+        
             return;
-        }
+        
 
         if (!DateTimeOffset.TryParse(
                 sunset,
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.AssumeUniversal,
                 out _))
-        {
+        
             errors.Add(
                 "ApiDeprecation:SunsetHttpDate must be empty or a parseable date when ApiDeprecation:Enabled is true.");
-        }
+        
     }
 
     private static void CollectDataArchivalErrors(IConfiguration configuration, List<string> errors)
@@ -233,25 +233,25 @@ public static class ArchiForgeConfigurationRules
         const int maxDays = 3650;
 
         if (opts.RunsRetentionDays < 0 || opts.RunsRetentionDays > maxDays)
-        {
+        
             errors.Add($"DataArchival:RunsRetentionDays must be between 0 and {maxDays} (0 disables run archival).");
-        }
+        
 
         if (opts.DigestsRetentionDays < 0 || opts.DigestsRetentionDays > maxDays)
-        {
+        
             errors.Add($"DataArchival:DigestsRetentionDays must be between 0 and {maxDays} (0 disables digest archival).");
-        }
+        
 
         if (opts.ConversationsRetentionDays < 0 || opts.ConversationsRetentionDays > maxDays)
-        {
+        
             errors.Add(
                 $"DataArchival:ConversationsRetentionDays must be between 0 and {maxDays} (0 disables thread archival).");
-        }
+        
 
         if (opts.IntervalHours < 1 || opts.IntervalHours > 168)
-        {
+        
             errors.Add("DataArchival:IntervalHours must be between 1 and 168.");
-        }
+        
     }
 
     private static void CollectRateLimitingErrors(IConfiguration configuration, List<string> errors)
@@ -259,19 +259,19 @@ public static class ArchiForgeConfigurationRules
         void AddIfInvalid(string path, int permitLimit, int windowMinutes, int queueLimit)
         {
             if (permitLimit < 1)
-            {
+            
                 errors.Add($"{path}:PermitLimit must be at least 1.");
-            }
+            
 
             if (windowMinutes < 1)
-            {
+            
                 errors.Add($"{path}:WindowMinutes must be at least 1.");
-            }
+            
 
             if (queueLimit < 0)
-            {
+            
                 errors.Add($"{path}:QueueLimit must be 0 or greater.");
-            }
+            
         }
 
         IConfigurationSection fixedSection = configuration.GetSection("RateLimiting:FixedWindow");
@@ -318,14 +318,14 @@ public static class ArchiForgeConfigurationRules
             new RetrievalEmbeddingCapOptions();
 
         if (caps.MaxTextsPerEmbeddingRequest < 1 || caps.MaxTextsPerEmbeddingRequest > 2048)
-        {
+        
             errors.Add("Retrieval:EmbeddingCaps:MaxTextsPerEmbeddingRequest must be between 1 and 2048.");
-        }
+        
 
         if (caps.MaxChunksPerIndexOperation < 0 || caps.MaxChunksPerIndexOperation > 1_000_000)
-        {
+        
             errors.Add("Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation must be between 0 and 1000000 (0 = unlimited).");
-        }
+        
     }
 
     /// <summary>
@@ -336,15 +336,15 @@ public static class ArchiForgeConfigurationRules
         string? mode = configuration["Retrieval:VectorIndex"];
 
         if (string.IsNullOrWhiteSpace(mode))
-        {
+        
             return;
-        }
+        
 
         if (string.Equals(mode, "InMemory", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(mode, "AzureSearch", StringComparison.OrdinalIgnoreCase))
-        {
+        
             return;
-        }
+        
 
         errors.Add(
             "Retrieval:VectorIndex must be 'InMemory', 'AzureSearch', or omitted (defaults to InMemory).");
@@ -397,9 +397,9 @@ public static class ArchiForgeConfigurationRules
         }
 
         if (!File.Exists(fullPath))
-        {
+        
             errors.Add(
                 $"Schema file for {logicalName} was not found at '{fullPath}' (SchemaValidation:*SchemaPath). Ensure content is copied to output (e.g. schemas in project output).");
-        }
+        
     }
 }

@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 namespace ArchiForge.Application.Diffs;
 
@@ -50,9 +50,9 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
         sb.AppendLine();
 
         foreach (string warning in diff.Warnings)
-        {
+        
             sb.AppendLine($"- {warning}");
-        }
+        
 
         sb.AppendLine();
 
@@ -75,9 +75,9 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
         }
 
         foreach (string item in items.OrderBy(x => x))
-        {
+        
             sb.AppendLine($"- {item}");
-        }
+        
 
         sb.AppendLine();
     }

@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
@@ -87,12 +87,12 @@ public sealed class AdvisoryController(
                 ct);
         }
         else
-        {
+        
             plan = await improvementAdvisorService.GeneratePlanAsync(
                 run.GoldenManifest,
                 findings,
                 ct);
-        }
+        
 
         await recommendationWorkflowService.PersistPlanAsync(
             plan,

@@ -1,4 +1,4 @@
-using ArchiForge.Api.Auth.Models;
+﻿using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
@@ -219,7 +219,7 @@ public sealed class ManifestsController(
             : null;
 
         if (string.Equals(format, FormatJson, StringComparison.OrdinalIgnoreCase))
-        {
+        
             return Ok(new ManifestSummaryJsonResponse
             {
                 ManifestVersion = manifestVersion,
@@ -268,14 +268,14 @@ public sealed class ManifestsController(
                     }).ToList()
                     : []
             });
-        }
+        
 
         if (!string.Equals(format, FormatMarkdown, StringComparison.OrdinalIgnoreCase))
-        {
+        
             return this.BadRequestProblem(
                 $"format must be '{FormatMarkdown}' or '{FormatJson}'.",
                 ProblemTypes.ValidationFailed);
-        }
+        
 
         ManifestSummaryOptions options = new()
         {

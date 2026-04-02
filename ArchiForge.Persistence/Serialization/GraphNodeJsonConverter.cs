@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchiForge.KnowledgeGraph.Models;
@@ -78,10 +78,10 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
     private static string? ReadFirstString(JsonElement root, params string[] names)
     {
         foreach (string name in names)
-        {
+        
             if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
                 return el.GetString();
-        }
+        
 
         return null;
     }

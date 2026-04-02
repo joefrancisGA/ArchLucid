@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Analysis;
+﻿using ArchiForge.Decisioning.Analysis;
 using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
@@ -20,7 +20,7 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
         List<Finding> findings = [];
 
         if (result.UnprotectedResourceCount > 0)
-        {
+        
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -50,7 +50,7 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     ]
                 }
             });
-        }
+        
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }

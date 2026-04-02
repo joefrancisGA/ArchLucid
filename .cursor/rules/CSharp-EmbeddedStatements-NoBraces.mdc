@@ -1,0 +1,52 @@
+---
+description: Omit braces for single embedded statements (if/for/foreach/while/else/lock/using) when legal
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# C# embedded statements: omit braces when one statement
+
+When a control-flow construct has **exactly one** embedded statement and C# does **not** require a block, **do not** wrap that statement in `{ }`.
+
+## Applies to
+
+`if`, `else`, `while`, `for`, `foreach`, `lock`, and `using` where the body is a single statement (including another single-line `if`/`else` when you intend that shape).
+
+## Do
+
+```csharp
+if (value is null)
+    return;
+
+if (!TryParse(input, out int n))
+    throw new InvalidOperationException("…");
+
+foreach (var item in items)
+    Register(item);
+```
+
+Keep **one blank line before** `if` / `foreach` (etc.) when not the first statement in the member, per project blank-line rules.
+
+## Do not
+
+Do not add braces solely for a single statement:
+
+```csharp
+// Avoid
+if (x)
+{
+    return;
+}
+```
+
+Use a **block** when the body is more than one statement, when you need scoped `locals`, or when omitting braces would confuse `else` binding or readability.
+
+## Tooling
+
+Repo **`.editorconfig`** sets `csharp_prefer_braces = false` (IDE0011). Apply **only** this rule (avoid unrelated style fixes such as collection expressions) with:
+
+`dotnet format ArchiForge.sln style --diagnostics IDE0011 --severity info`
+
+For whitespace-only layout, `dotnet format ArchiForge.sln whitespace` and the `scripts/format-solution.*` helpers do not run IDE0011; use the command above when you want brace fixes.
+
+Types, methods, properties, and multi-line bodies still use braces per `csharp_new_line_before_open_brace` and normal C# structure.

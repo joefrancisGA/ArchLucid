@@ -1,4 +1,4 @@
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
@@ -31,9 +31,9 @@ namespace ArchiForge.Cli
         {
             string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
             if (invalidReason is not null)
-            {
+            
                 throw new ArgumentException(invalidReason, nameof(baseUrl));
-            }
+            
 
             baseUrl = baseUrl.Trim().TrimEnd('/');
             _http = new HttpClient
@@ -83,20 +83,20 @@ namespace ArchiForge.Cli
         public static string? GetInvalidApiBaseUrlReason(string? baseUrl)
         {
             if (string.IsNullOrWhiteSpace(baseUrl))
-            {
+            
                 return "API base URL is empty. Set apiUrl in archiforge.json in the project folder or the ARCHIFORGE_API_URL environment variable (example: http://localhost:5128).";
-            }
+            
 
             string trimmed = baseUrl.Trim();
             if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
-            {
+            
                 return $"API base URL is not a valid absolute URL: '{trimmed}'. Use http:// or https:// with a host (example: http://localhost:5128).";
-            }
+            
 
             if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
-            {
+            
                 return $"API base URL must use http or https (got '{uri.Scheme}').";
-            }
+            
 
             return null;
         }
@@ -122,9 +122,9 @@ namespace ArchiForge.Cli
                 HttpResponseMessage response = await _http.GetAsync("/version", ct);
 
                 if (!response.IsSuccessStatusCode)
-                {
+                
                     return null;
-                }
+                
 
                 return await response.Content.ReadAsStringAsync(ct);
             }
@@ -402,11 +402,11 @@ namespace ArchiForge.Cli
                 {
                     List<string> tagsList = [];
                     if (item.TryGetProperty("tags", out JsonElement tagsEl) && tagsEl.ValueKind == JsonValueKind.Array)
-                    {
+                    
                         foreach (JsonElement t in tagsEl.EnumerateArray())
                             if (t.ValueKind == JsonValueKind.String)
                                 tagsList.Add(t.GetString() ?? "");
-                    }
+                    
                     list.Add(new ComparisonRecordSummary
                     {
                         ComparisonRecordId = item.GetProperty("comparisonRecordId").GetString() ?? string.Empty,
@@ -469,9 +469,9 @@ namespace ArchiForge.Cli
                 {
                     string? persistedId = persistedValues.FirstOrDefault();
                     if (!string.IsNullOrWhiteSpace(persistedId))
-                    {
+                    
                         Console.WriteLine($"PersistedReplayRecordId: {persistedId}");
-                    }
+                    
                 }
 
                 string fileName = response.Content.Headers.ContentDisposition?.FileNameStar
@@ -481,7 +481,7 @@ namespace ArchiForge.Cli
 
                 string targetPath = fileName;
                 if (!string.IsNullOrWhiteSpace(outPath))
-                {
+                
                     if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
                     {
                         Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
@@ -494,7 +494,7 @@ namespace ArchiForge.Cli
                             Directory.CreateDirectory(dir);
                         targetPath = outPath;
                     }
-                }
+                
 
                 if (File.Exists(targetPath) && !force)
                 {
@@ -606,7 +606,7 @@ namespace ArchiForge.Cli
 
                 string targetPath = fileName;
                 if (!string.IsNullOrWhiteSpace(outPath))
-                {
+                
                     if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
                     {
                         Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
@@ -619,7 +619,7 @@ namespace ArchiForge.Cli
                             Directory.CreateDirectory(dir);
                         targetPath = outPath;
                     }
-                }
+                
 
                 if (File.Exists(targetPath) && !force)
                 {
@@ -676,14 +676,14 @@ namespace ArchiForge.Cli
                     return result;
                 
                 foreach (JsonElement it in items.EnumerateArray())
-                {
+                
                     result.Items.Add(new DriftItem
                     {
                         Category = it.TryGetProperty("category", out JsonElement c) ? c.GetString() ?? "" : "",
                         Path = it.TryGetProperty("path", out JsonElement p) ? p.GetString() ?? "" : "",
                         Description = it.TryGetProperty("description", out JsonElement d) ? d.GetString() : null
                     });
-                }
+                
 
                 return result;
             }
@@ -730,7 +730,7 @@ namespace ArchiForge.Cli
                     return result;
                 
                 foreach (JsonElement it in arr.EnumerateArray())
-                {
+                
                     result.RecentReplays.Add(new ReplayDiagnosticsEntry
                     {
                         TimestampUtc = it.TryGetProperty("timestampUtc", out JsonElement t) && t.ValueKind == JsonValueKind.String ? DateTime.Parse(t.GetString()!) : default,
@@ -744,7 +744,7 @@ namespace ArchiForge.Cli
                         PersistedReplayRecordId = it.TryGetProperty("persistedReplayRecordId", out JsonElement pr) ? pr.GetString() : null,
                         ErrorMessage = it.TryGetProperty("errorMessage", out JsonElement em) ? em.GetString() : null
                     });
-                }
+                
                 return result;
             }
             catch (Exception ex)

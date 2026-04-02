@@ -1,4 +1,4 @@
-using ArchiForge.Core.Conversation;
+﻿using ArchiForge.Core.Conversation;
 using ArchiForge.Persistence.Conversation;
 
 using FluentAssertions;
@@ -125,9 +125,9 @@ public abstract class ConversationThreadRepositoryContractTests
         IConversationThreadRepository repo = CreateRepository();
 
         for (int i = 0; i < 3; i++)
-        {
+        
             await repo.CreateAsync(NewThread(DateTime.UtcNow.AddSeconds(-i)), CancellationToken.None);
-        }
+        
 
         (IReadOnlyList<ConversationThread> page, int total) = await repo.ListByScopePagedAsync(
             TenantId,

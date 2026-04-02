@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Decisioning.Interfaces;
@@ -52,9 +52,9 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         _ = ct;
         string? json;
         lock (_lock)
-        {
+        
             _store.TryGetValue(findingsSnapshotId, out json);
-        }
+        
 
         if (json is null)
             return Task.FromResult<FindingsSnapshot?>(null);

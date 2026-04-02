@@ -1,4 +1,4 @@
-using ArchiForge.Retrieval.Chunking;
+﻿using ArchiForge.Retrieval.Chunking;
 using ArchiForge.Retrieval.Embedding;
 using ArchiForge.Retrieval.Models;
 
@@ -44,10 +44,10 @@ public sealed class RetrievalIndexingService(
         int totalChunks = work.Sum(x => x.Split.Count);
 
         if (maxChunks > 0 && totalChunks > maxChunks)
-        {
+        
             throw new InvalidOperationException(
                 $"Embedding index operation would process {totalChunks} chunks, exceeding Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation ({maxChunks}).");
-        }
+        
 
         List<RetrievalChunk> chunks = [];
 

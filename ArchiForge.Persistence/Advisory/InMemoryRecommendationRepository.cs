@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Advisory.Workflow;
+﻿using ArchiForge.Decisioning.Advisory.Workflow;
 
 namespace ArchiForge.Persistence.Advisory;
 
@@ -32,9 +32,9 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-        {
+        
             return Task.FromResult(_items.FirstOrDefault(x => x.RecommendationId == recommendationId));
-        }
+        
     }
 
     /// <inheritdoc />

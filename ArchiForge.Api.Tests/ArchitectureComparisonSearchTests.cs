@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 
 using ArchiForge.Contracts.Metadata;
@@ -79,7 +79,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
         {
             IComparisonRecordRepository repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
             for (int i = 0; i < 5; i++)
-            {
+            
                 await repo.CreateAsync(new ComparisonRecord
                 {
                     ComparisonRecordId = $"cmp_cursor_{i}_{Guid.NewGuid():N}",
@@ -91,7 +91,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
                     PayloadJson = "{}",
                     CreatedUtc = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc).AddMinutes(i)
                 });
-            }
+            
         }
 
         ComparisonHistoryResponseDto page1 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(

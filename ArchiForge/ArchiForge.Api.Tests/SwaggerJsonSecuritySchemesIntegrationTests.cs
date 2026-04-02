@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using FluentAssertions;
 
@@ -71,14 +71,14 @@ public sealed class SwaggerJsonSecuritySchemesIntegrationTests : IClassFixture<S
         JsonElement root = doc.RootElement;
 
         if (!root.TryGetProperty("components", out JsonElement components))
-        {
+        
             return;
-        }
+        
 
         if (!components.TryGetProperty("securitySchemes", out JsonElement schemes))
-        {
+        
             return;
-        }
+        
 
         schemes.TryGetProperty("Bearer", out _).Should().BeFalse();
     }

@@ -1,4 +1,4 @@
-using ArchiForge.Application.Diagrams;
+﻿using ArchiForge.Application.Diagrams;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
@@ -93,39 +93,39 @@ internal static class ConsultingDocxOpenXmlComposer
             }
 
             if (options.IncludeExecutiveSummary)
-            {
+            
                 AddExecutiveSummary(body, report, options);
-            }
+            
 
             if (options.IncludeArchitectureOverview)
-            {
+            
                 await AddArchitectureOverviewAsync(body, mainPart, report, options, diagramImageRenderer, cancellationToken);
-            }
+            
 
             if (options.IncludeEvidenceAndConstraints)
-            {
+            
                 AddEvidenceAndConstraints(body, report);
-            }
+            
 
             if (options.IncludeArchitectureDetails)
-            {
+            
                 AddArchitectureDetails(body, report);
-            }
+            
 
             if (options.IncludeGovernanceAndControls)
-            {
+            
                 AddGovernanceAndControls(body, report);
-            }
+            
 
             if (options.IncludeExplainabilitySection)
-            {
+            
                 AddExplainabilitySection(body, report, options);
-            }
+            
 
             if (options.IncludeConclusions)
-            {
+            
                 AddConclusions(body, report, options);
-            }
+            
 
             AddAppendices(body, report, options);
 
@@ -173,9 +173,9 @@ internal static class ConsultingDocxOpenXmlComposer
         AddStyledParagraph(body, $"Generated UTC: {DateTime.UtcNow:O}", "BodyText");
 
         if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
-        {
+        
             AddStyledParagraph(body, $"Manifest Version: {report.Run.CurrentManifestVersion}", "BodyText");
-        }
+        
 
         AddSpacer(body, 6);
         AddStyledParagraph(body, options.GeneratedByLine, "Subtle");
@@ -218,9 +218,9 @@ internal static class ConsultingDocxOpenXmlComposer
                      "Appendix B. Execution Trace Index",
                      "Appendix C. Determinism and Comparison"
                  })
-        {
+        
             AddBullet(body, item);
-        }
+        
     }
 
     private static void AddExecutiveSummary(
@@ -248,9 +248,9 @@ internal static class ConsultingDocxOpenXmlComposer
         AddStyledParagraph(body, text, "BodyText");
 
         if (report.Warnings.Count > 0)
-        {
+        
             AddCallout(body, "Key warnings were identified during analysis and should be reviewed before approval.", options);
-        }
+        
     }
 
     private static async Task AddArchitectureOverviewAsync(
@@ -278,13 +278,13 @@ internal static class ConsultingDocxOpenXmlComposer
                 cancellationToken);
 
             if (imageBytes is not null && imageBytes.Length > 0)
-            {
+            
                 AddImageToBody(mainPart, body, imageBytes, "Architecture Overview Diagram", 6_200_000L, 3_600_000L);
-            }
+            
             else
-            {
+            
                 AddCallout(body, "Diagram image rendering was unavailable. Mermaid source is included in Appendix A.", options);
-            }
+            
         }
     }
 
@@ -305,18 +305,18 @@ internal static class ConsultingDocxOpenXmlComposer
         {
             AddHeading(body, "Constraints", 2);
             foreach (string item in report.Evidence.Request.Constraints)
-            {
+            
                 AddBullet(body, item);
-            }
+            
         }
 
         if (report.Evidence.Request.RequiredCapabilities.Count > 0)
         {
             AddHeading(body, "Required Capabilities", 2);
             foreach (string item in report.Evidence.Request.RequiredCapabilities)
-            {
+            
                 AddBullet(body, item);
-            }
+            
         }
 
         if (report.Evidence.Policies.Count <= 0)
@@ -331,9 +331,9 @@ internal static class ConsultingDocxOpenXmlComposer
             AddBullet(body, $"Summary: {policy.Summary}");
 
             if (policy.RequiredControls.Count > 0)
-            {
+            
                 AddBullet(body, $"Required Controls: {string.Join(", ", policy.RequiredControls)}");
-            }
+            
         }
     }
 
@@ -358,14 +358,14 @@ internal static class ConsultingDocxOpenXmlComposer
                 AddBullet(body, $"Platform: {service.RuntimePlatform}");
 
                 if (!string.IsNullOrWhiteSpace(service.Purpose))
-                {
+                
                     AddBullet(body, $"Purpose: {service.Purpose}");
-                }
+                
 
                 if (service.RequiredControls.Count > 0)
-                {
+                
                     AddBullet(body, $"Required Controls: {string.Join(", ", service.RequiredControls)}");
-                }
+                
 
                 AddSpacer(body);
             }
@@ -482,13 +482,13 @@ internal static class ConsultingDocxOpenXmlComposer
             AddHeading(body, "Appendix A. Mermaid Source", 1);
 
             if (!string.IsNullOrWhiteSpace(report.Diagram))
-            {
+            
                 AddCodeBlock(body, report.Diagram, MermaidLanguage);
-            }
+            
             else
-            {
+            
                 AddStyledParagraph(body, "No Mermaid diagram source was available.", "BodyText");
-            }
+            
 
             AddPageBreak(body);
         }
@@ -498,17 +498,17 @@ internal static class ConsultingDocxOpenXmlComposer
             AddHeading(body, "Appendix B. Execution Trace Index", 1);
 
             if (report.ExecutionTraces.Count > 0)
-            {
+            
                 foreach (AgentExecutionTrace trace in report.ExecutionTraces.OrderBy(x => x.AgentType).ThenBy(x => x.CreatedUtc))
-                {
+                
                     AddBullet(body,
                         $"{trace.AgentType} | Task {trace.TaskId} | Parse {(trace.ParseSucceeded ? "Succeeded" : "Failed")} | {trace.CreatedUtc:O}");
-                }
-            }
+                
+            
             else
-            {
+            
                 AddStyledParagraph(body, "No execution traces were available.", "BodyText");
-            }
+            
 
             AddPageBreak(body);
         }
@@ -582,9 +582,9 @@ internal static class ConsultingDocxOpenXmlComposer
             new FontSize { Val = fontSizeHalfPoints });
 
         if (bold)
-        {
+        
             runProps.Append(new Bold());
-        }
+        
 
         style.Append(new StyleParagraphProperties(
             new SpacingBetweenLines
@@ -627,9 +627,9 @@ internal static class ConsultingDocxOpenXmlComposer
     private static void AddSpacer(Body body, int count = 1)
     {
         for (int i = 0; i < count; i++)
-        {
+        
             body.AppendChild(new WpParagraph(new WpRun(new WpText(string.Empty))));
-        }
+        
     }
 
     private static void AddPageBreak(Body body)
@@ -721,9 +721,9 @@ internal static class ConsultingDocxOpenXmlComposer
         WpRun run = new(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
-        {
+        
             run.RunProperties = new WpRunProperties(new Bold());
-        }
+        
 
         return new WpTableCell(
             new WpTableCellProperties(
@@ -745,9 +745,9 @@ internal static class ConsultingDocxOpenXmlComposer
         ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
 
         using (MemoryStream stream = new(imageBytes))
-        {
+        
             imagePart.FeedData(stream);
-        }
+        
 
         string relationshipId = mainPart.GetIdOfPart(imagePart);
 

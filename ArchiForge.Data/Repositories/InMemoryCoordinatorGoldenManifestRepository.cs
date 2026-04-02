@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
@@ -21,14 +21,14 @@ public sealed class InMemoryCoordinatorGoldenManifestRepository : IGoldenManifes
         cancellationToken.ThrowIfCancellationRequested();
 
         if (string.IsNullOrWhiteSpace(manifest.Metadata.ManifestVersion))
-        {
+        
             throw new ArgumentException("Metadata.ManifestVersion is required.", nameof(manifest));
-        }
+        
 
         lock (_gate)
-        {
+        
             _byVersion[manifest.Metadata.ManifestVersion] = Clone(manifest);
-        }
+        
 
         return Task.CompletedTask;
     }
@@ -40,10 +40,10 @@ public sealed class InMemoryCoordinatorGoldenManifestRepository : IGoldenManifes
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
-        {
+        
             return Task.FromResult(
                 _byVersion.TryGetValue(manifestVersion, out GoldenManifest? m) ? Clone(m) : null);
-        }
+        
     }
 
     private static GoldenManifest Clone(GoldenManifest source)

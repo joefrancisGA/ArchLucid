@@ -1,4 +1,4 @@
-using ArchiForge.Core.Conversation;
+﻿using ArchiForge.Core.Conversation;
 using ArchiForge.Persistence.Conversation;
 
 using FluentAssertions;
@@ -82,7 +82,7 @@ public abstract class ConversationMessageRepositoryContractTests
         await EnsureThreadExistsAsync(thread);
 
         for (int i = 0; i < 5; i++)
-        {
+        
             await repo.AddAsync(
                 new ConversationMessage
                 {
@@ -93,7 +93,7 @@ public abstract class ConversationMessageRepositoryContractTests
                     CreatedUtc = DateTime.UtcNow.AddSeconds(-i)
                 },
                 CancellationToken.None);
-        }
+        
 
         IReadOnlyList<ConversationMessage> window =
             await repo.GetByThreadIdAsync(thread.ThreadId, take: 2, CancellationToken.None);

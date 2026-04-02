@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Interfaces;
+﻿using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Connectors;
@@ -24,7 +24,7 @@ public class StaticRequestContextConnector : IContextConnector
         NormalizedContextBatch batch = new();
 
         if (!string.IsNullOrWhiteSpace(payload.Description))
-        {
+        
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "Requirement",
@@ -36,7 +36,7 @@ public class StaticRequestContextConnector : IContextConnector
                     ["text"] = payload.Description!
                 }
             });
-        }
+        
 
         return Task.FromResult(batch);
     }

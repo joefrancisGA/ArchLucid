@@ -1,4 +1,4 @@
-using ArchiForge.Core.Conversation;
+﻿using ArchiForge.Core.Conversation;
 using ArchiForge.Persistence.Conversation;
 
 namespace ArchiForge.Api.Ask;
@@ -29,9 +29,9 @@ public sealed class ConversationService(
                 if (existing.TenantId != tenantId ||
                     existing.WorkspaceId != workspaceId ||
                     existing.ProjectId != projectId)
-                {
+                
                     throw new InvalidOperationException("Conversation thread not found for the current scope.");
-                }
+                
 
                 return existing;
             }

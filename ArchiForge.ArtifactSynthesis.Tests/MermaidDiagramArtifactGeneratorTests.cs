@@ -1,9 +1,9 @@
-using FluentAssertions;
-
 using ArchiForge.ArtifactSynthesis.Generators;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
+
+using FluentAssertions;
 
 using Moq;
 

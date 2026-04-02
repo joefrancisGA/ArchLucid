@@ -1,10 +1,10 @@
-using FluentAssertions;
-
 using System.IO.Compression;
 using System.Text;
 
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ArtifactSynthesis.Packaging;
+
+using FluentAssertions;
 
 namespace ArchiForge.ArtifactSynthesis.Tests;
 

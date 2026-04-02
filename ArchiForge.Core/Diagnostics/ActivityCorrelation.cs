@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace ArchiForge.Core.Diagnostics;
 
@@ -19,17 +19,17 @@ public static class ActivityCorrelation
     public static string? FindTagValueInChain(Activity? start, string tagName)
     {
         if (string.IsNullOrWhiteSpace(tagName))
-        {
+        
             throw new ArgumentException("Tag name is required.", nameof(tagName));
-        }
+        
 
         for (Activity? activity = start; activity is not null; activity = activity.Parent)
-        {
+        
             if (activity.GetTagItem(tagName) is string value && !string.IsNullOrWhiteSpace(value))
-            {
+            
                 return value;
-            }
-        }
+            
+        
 
         return null;
     }

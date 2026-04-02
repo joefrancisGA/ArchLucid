@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Agents;
+﻿using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Findings;
@@ -265,9 +265,9 @@ public static class FakeAgentResultFactory
             };
         
         if (!requiredControls.Contains("Private Networking", StringComparer.OrdinalIgnoreCase))
-        {
+        
             requiredControls.Add("Private Networking");
-        }
+        
 
         return new AgentResult
         {

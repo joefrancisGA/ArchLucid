@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -84,12 +84,12 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 
         List<string> distinctRunIds = results.Select(r => r.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
-        {
+        
             throw new ArgumentException(
                 $"All results in a batch must belong to the same run. " +
                 $"Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(results));
-        }
+        
 
         // Delete all existing results for this run before bulk-inserting so that a retry
         // of ExecuteRunAsync (inside a TransactionScope) does not produce duplicate rows.
@@ -180,11 +180,11 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             }
 
             if (result is null)
-            {
+            
                 throw new InvalidOperationException(
                     $"An AgentResult row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
-            }
+            
 
             results.Add(result);
         }

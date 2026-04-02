@@ -1,4 +1,4 @@
-namespace ArchiForge.Data.Repositories;
+﻿namespace ArchiForge.Data.Repositories;
 
 /// <summary>
 /// Thread-safe in-memory <see cref="IArchitectureRunIdempotencyRepository"/> for tests and local scenarios.
@@ -25,9 +25,9 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
         cancellationToken.ThrowIfCancellationRequested();
         string k = Key(tenantId, workspaceId, projectId, idempotencyKeyHash);
         lock (_gate)
-        {
+        
             return Task.FromResult(_rows.TryGetValue(k, out ArchitectureRunIdempotencyLookup? v) ? v : null);
-        }
+        
     }
 
     /// <inheritdoc />
@@ -48,9 +48,9 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
         lock (_gate)
         {
             if (_rows.ContainsKey(k))
-            {
+            
                 return Task.FromResult(false);
-            }
+            
 
             _rows[k] = new ArchitectureRunIdempotencyLookup
             {

@@ -1,10 +1,10 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -69,14 +69,14 @@ public sealed class SwaggerJsonSecuritySchemesIntegrationTests(SwaggerJsonJwtBea
         JsonElement root = doc.RootElement;
 
         if (!root.TryGetProperty("components", out JsonElement components))
-        {
+        
             return;
-        }
+        
 
         if (!components.TryGetProperty("securitySchemes", out JsonElement schemes))
-        {
+        
             return;
-        }
+        
 
         schemes.TryGetProperty("Bearer", out _).Should().BeFalse();
     }

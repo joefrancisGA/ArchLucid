@@ -1,4 +1,4 @@
-using ArchiForge.Core.Comparison;
+﻿using ArchiForge.Core.Comparison;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 
@@ -54,25 +54,25 @@ public sealed class ComparisonService : IComparisonService
             targetMap.TryGetValue(key, out ResolvedArchitectureDecision? t);
 
             if (b is null)
-            {
+            
                 result.DecisionChanges.Add(new DecisionDelta
                 {
                     DecisionKey = key,
                     TargetValue = t!.SelectedOption,
                     ChangeType = "Added"
                 });
-            }
+            
             else if (t is null)
-            {
+            
                 result.DecisionChanges.Add(new DecisionDelta
                 {
                     DecisionKey = key,
                     BaseValue = b.SelectedOption,
                     ChangeType = "Removed"
                 });
-            }
+            
             else if (!string.Equals(b.SelectedOption, t.SelectedOption, StringComparison.Ordinal))
-            {
+            
                 result.DecisionChanges.Add(new DecisionDelta
                 {
                     DecisionKey = key,
@@ -80,7 +80,7 @@ public sealed class ComparisonService : IComparisonService
                     TargetValue = t.SelectedOption,
                     ChangeType = "Modified"
                 });
-            }
+            
         }
     }
 
@@ -129,13 +129,13 @@ public sealed class ComparisonService : IComparisonService
 
             if (!string.Equals(b.CoverageStatus, t.CoverageStatus, StringComparison.Ordinal) ||
                 b.IsMandatory != t.IsMandatory)
-            {
+            
                 result.RequirementChanges.Add(new RequirementDelta
                 {
                     RequirementName = name,
                     ChangeType = "Changed"
                 });
-            }
+            
         }
     }
 
@@ -196,14 +196,14 @@ public sealed class ComparisonService : IComparisonService
                 continue;
 
             if (!string.Equals(b.Status, t.Status, StringComparison.Ordinal))
-            {
+            
                 result.SecurityChanges.Add(new SecurityDelta
                 {
                     ControlName = b.ControlName,
                     BaseStatus = b.Status,
                     TargetStatus = t.Status
                 });
-            }
+            
         }
 
         return;
@@ -218,14 +218,14 @@ public sealed class ComparisonService : IComparisonService
         HashSet<string> targetSet = new(targetM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
 
         foreach (string r in targetSet.Where(r => !baseSet.Contains(r)))
-        {
+        
             result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Added" });
-        }
+        
 
         foreach (string r in baseSet.Where(r => !targetSet.Contains(r)))
-        {
+        
             result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Removed" });
-        }
+        
     }
 
     private static void CompareCost(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
@@ -233,13 +233,13 @@ public sealed class ComparisonService : IComparisonService
         decimal? b = baseM.Cost.MaxMonthlyCost;
         decimal? t = targetM.Cost.MaxMonthlyCost;
         if (b != t)
-        {
+        
             result.CostChanges.Add(new CostDelta
             {
                 BaseCost = b,
                 TargetCost = t
             });
-        }
+        
     }
 
     private static void BuildSummary(ComparisonResult r)

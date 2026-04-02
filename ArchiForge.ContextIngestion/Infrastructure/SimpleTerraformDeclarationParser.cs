@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using ArchiForge.ContextIngestion.Models;
 
@@ -56,9 +56,9 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
         if (normalized.Contains("key_vault", StringComparison.Ordinal) ||
             normalized.Contains("firewall", StringComparison.Ordinal) ||
             normalized.Contains("network_security_group", StringComparison.Ordinal))
-        {
+        
             return "SecurityBaseline";
-        }
+        
 
         return normalized.Contains("policy", StringComparison.Ordinal) ? "PolicyControl" : "TopologyResource";
     }

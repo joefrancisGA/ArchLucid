@@ -1,4 +1,4 @@
-using ArchiForge.AgentSimulator.Services;
+﻿using ArchiForge.AgentSimulator.Services;
 
 namespace ArchiForge.Application.Agents;
 
@@ -22,11 +22,11 @@ public sealed class DefaultAgentExecutorResolver(IAgentExecutor currentExecutor)
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
 
         if (!KnownModes.Contains(executionMode))
-        {
+        
             throw new ArgumentException(
                 $"Unknown execution mode '{executionMode}'. Supported modes: {string.Join(", ", KnownModes)}.",
                 nameof(executionMode));
-        }
+        
 
         return currentExecutor;
     }

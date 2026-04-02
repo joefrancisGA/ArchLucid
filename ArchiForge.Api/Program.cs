@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using ArchiForge.Api.Auth.Services;
@@ -66,9 +66,9 @@ public partial class Program
         if (configurationErrors.Count > 0)
         {
             foreach (string error in configurationErrors)
-            {
+            
                 app.Logger.LogError("Startup configuration error: {Error}", error);
-            }
+            
 
             throw new InvalidOperationException(
                 "ArchiForge configuration is invalid. Fix the settings listed in the logs above, then restart.");
@@ -94,9 +94,9 @@ public partial class Program
                 ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
                 using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
                 using (SqlRowLevelSecurityBypassAmbient.Enter())
-                {
+                
                     bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
-                }
+                
                 app.Logger.LogInformation("Startup: schema bootstrap completed.");
             }
         }
@@ -104,19 +104,19 @@ public partial class Program
         // 2) DbUp: embedded ArchiForge.Data/Migrations/*.sql in deterministic lexicographic order.
         string? connectionString = app.Configuration.GetConnectionString("ArchiForge");
         if (string.IsNullOrWhiteSpace(connectionString))
-        {
+        
             app.Logger.LogWarning(
                 "Startup: ConnectionStrings:ArchiForge is not set; skipping DbUp migrations.");
-        }
+        
         else
         {
             app.Logger.LogInformation(
                 "Startup: running DbUp migrations (embedded scripts under ArchiForge.Data/Migrations).");
 
             if (!DatabaseMigrator.Run(connectionString))
-            {
+            
                 throw new InvalidOperationException("Database migration failed; see DbUp console output.");
-            }
+            
 
             app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
         }

@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Analysis;
+﻿using ArchiForge.Decisioning.Analysis;
 using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
@@ -20,7 +20,7 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
         List<Finding> findings = [];
 
         if (result.UnrelatedRequirementCount > 0)
-        {
+        
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -39,7 +39,7 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
                     UncoveredRequirements = result.UncoveredRequirements
                 }
             });
-        }
+        
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }

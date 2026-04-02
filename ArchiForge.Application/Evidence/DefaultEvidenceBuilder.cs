@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Agents;
+﻿using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 
 using static ArchiForge.Contracts.Requests.RequestConstraintClassifier;
@@ -68,7 +68,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         ];
 
         if (HasManagedIdentityConstraint(request))
-        {
+        
             policies.Add(new PolicyEvidence
             {
                 PolicyId = BuiltInPolicyIds.ManagedIdentity,
@@ -77,10 +77,10 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 RequiredControls = ["Managed Identity"],
                 Tags = ["identity", "security"]
             });
-        }
+        
 
         if (HasPrivateNetworkingConstraint(request))
-        {
+        
             policies.Add(new PolicyEvidence
             {
                 PolicyId = BuiltInPolicyIds.PrivateNetworking,
@@ -89,10 +89,10 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 RequiredControls = ["Private Endpoints", "Private Networking"],
                 Tags = ["network", "security"]
             });
-        }
+        
 
         if (HasEncryptionConstraint(request))
-        {
+        
             policies.Add(new PolicyEvidence
             {
                 PolicyId = BuiltInPolicyIds.EncryptionAtRest,
@@ -101,7 +101,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 RequiredControls = ["Encryption At Rest"],
                 Tags = ["data", "security"]
             });
-        }
+        
 
         return policies;
     }
@@ -132,7 +132,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         ];
 
         if (RequiresSearchCapability(request))
-        {
+        
             services.Add(new ServiceCatalogEvidence
             {
                 ServiceId = "svc-catalog-ai-search",
@@ -142,10 +142,10 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 Tags = ["search", "retrieval", "rag"],
                 RecommendedUseCases = ["EnterpriseSearch", "RagRetrieval"]
             });
-        }
+        
 
         if (RequiresAiCapability(request))
-        {
+        
             services.Add(new ServiceCatalogEvidence
             {
                 ServiceId = "svc-catalog-azure-openai",
@@ -155,7 +155,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 Tags = ["ai", "llm", "generation"],
                 RecommendedUseCases = ["Chat", "Summarization", "RagGeneration"]
             });
-        }
+        
 
         return services;
     }
@@ -165,7 +165,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         List<PatternEvidence> patterns = [];
 
         if (RequiresSearchCapability(request))
-        {
+        
             patterns.Add(new PatternEvidence
             {
                 PatternId = "pattern-enterprise-rag",
@@ -174,7 +174,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
                 ApplicableCapabilities = ["Azure AI Search", "SQL", "Managed Identity"],
                 SuggestedServices = ["Azure App Service", "Azure AI Search", "Azure OpenAI", "Azure SQL"]
             });
-        }
+        
 
         return patterns;
     }
@@ -199,23 +199,23 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         ];
 
         if (!string.IsNullOrWhiteSpace(request.PriorManifestVersion))
-        {
+        
             notes.Add(new EvidenceNote
             {
                 NoteType = EvidenceNoteTypes.PriorManifestUnavailable,
                 Message = $"A prior manifest version '{request.PriorManifestVersion}' was requested " +
                           "but prior manifest hydration is not yet implemented. Agents should treat this as a greenfield design."
             });
-        }
+        
 
         if (RequiresSearchCapability(request))
-        {
+        
             notes.Add(new EvidenceNote
             {
                 NoteType = EvidenceNoteTypes.PatternHint,
                 Message = "Search-oriented architecture requested; enterprise RAG pattern is applicable."
             });
-        }
+        
 
         return notes;
     }

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Diagnostics;
@@ -35,9 +35,9 @@ public sealed class DigestDeliveryDispatcher(
             ;
 
         foreach (DigestSubscription subscription in subscriptions)
-        {
+        
             await DeliverToSubscriptionAsync(digest, subscription, ct);
-        }
+        
     }
 
     /// <summary>

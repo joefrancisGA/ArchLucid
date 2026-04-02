@@ -1,4 +1,4 @@
-using ArchiForge.Api.Health;
+﻿using ArchiForge.Api.Health;
 using ArchiForge.Api.Middleware;
 using ArchiForge.Api.ProblemDetails;
 
@@ -82,9 +82,9 @@ internal static class PipelineExtensions
 
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
         if (prometheusEnabled)
-        {
+        
             app.UseOpenTelemetryPrometheusScrapingEndpoint();
-        }
+        
         app.MapControllers();
         return app;
     }

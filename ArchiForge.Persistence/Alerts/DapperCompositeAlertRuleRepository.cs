@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Decisioning.Alerts.Composite;
@@ -54,7 +54,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                 new CommandDefinition(insertRule, rule, transaction: tx, cancellationToken: ct));
 
             foreach (AlertRuleCondition c in rule.Conditions)
-            {
+            
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertCondition,
@@ -68,7 +68,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         },
                         transaction: tx,
                         cancellationToken: ct));
-            }
+            
 
             await tx.CommitAsync(ct);
         }
@@ -124,7 +124,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                     cancellationToken: ct));
 
             foreach (AlertRuleCondition c in rule.Conditions)
-            {
+            
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertCondition,
@@ -138,7 +138,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         },
                         transaction: tx,
                         cancellationToken: ct));
-            }
+            
 
             await tx.CommitAsync(ct);
         }
@@ -298,7 +298,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                 continue;
 
             foreach (ConditionRow row in list)
-            {
+            
                 rule.Conditions.Add(
                     new AlertRuleCondition
                     {
@@ -307,7 +307,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         Operator = row.Operator,
                         ThresholdValue = row.ThresholdValue,
                     });
-            }
+            
         }
     }
 

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchiForge.Decisioning.Findings.Serialization;
 using ArchiForge.Decisioning.Interfaces;
@@ -105,10 +105,10 @@ public partial class FindingsOrchestrator(
                 validator.Validate(finding);
 
                 if (!string.Equals(finding.Category, engine.Category, StringComparison.OrdinalIgnoreCase))
-                {
+                
                     throw new InvalidOperationException(
                         $"Finding category '{finding.Category}' did not match engine category '{engine.Category}' for engine '{engine.EngineType}'.");
-                }
+                
 
                 allFindings.Add(finding);
             }

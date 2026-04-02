@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchiForge.Api.Auth.Models;
 
@@ -47,19 +47,19 @@ public sealed class ArchiForgeRoleClaimsTransformation : IClaimsTransformation
             roles.Add(c.Value);
 
         if (roles.Contains(ArchiForgeRoles.Admin))
-        {
+        
             foreach (string p in AdminPermissions)
                 AddPermission(p);
-        }
+        
         else if (roles.Contains(ArchiForgeRoles.Operator))
-        {
+        
             foreach (string p in OperatorPermissions)
                 AddPermission(p);
-        }
+        
         else if (roles.Contains(ArchiForgeRoles.Reader))
-        {
+        
             AddPermission("metrics:read");
-        }
+        
 
         return Task.FromResult(clone);
 

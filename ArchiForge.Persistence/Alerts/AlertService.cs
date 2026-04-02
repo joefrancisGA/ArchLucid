@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.Core.Audit;
@@ -66,9 +66,9 @@ public sealed class AlertService(
                 bool wasCreated = await PersistAndDeliverAlertAsync(alert, context, ct);
 
                 if (wasCreated)
-                {
+                
                     persisted.Add(alert);
-                }
+                
             }
 
             return new AlertEvaluationOutcome(generated, persisted);
@@ -180,7 +180,7 @@ public sealed class AlertService(
         };
 
         if (eventType is not null)
-        {
+        
             await auditService.LogAsync(
                 new AuditEvent
                 {
@@ -196,7 +196,7 @@ public sealed class AlertService(
                         AuditJsonSerializationOptions.Instance),
                 },
                 ct);
-        }
+        
 
         return alert;
     }

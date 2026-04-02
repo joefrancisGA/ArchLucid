@@ -1,4 +1,4 @@
-using ArchiForge.ArtifactSynthesis.Models;
+﻿using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Persistence.RelationalRead;
 
 using Dapper;
@@ -75,7 +75,7 @@ internal static class ArtifactBundleRelationalRead
         SynthesisTrace trace = ArtifactBundleJsonFallback.DeserializeTraceBase(row.TraceJson);
 
         if (genCount > 0)
-        {
+        
             trace.GeneratorsUsed = await LoadOrderedStringsAsync(
                 connection,
                 """
@@ -86,10 +86,10 @@ internal static class ArtifactBundleRelationalRead
                 """,
                 bundleId,
                 ct);
-        }
+        
 
         if (traceDecCount > 0)
-        {
+        
             trace.SourceDecisionIds = await LoadOrderedStringsAsync(
                 connection,
                 """
@@ -100,10 +100,10 @@ internal static class ArtifactBundleRelationalRead
                 """,
                 bundleId,
                 ct);
-        }
+        
 
         if (notesCount > 0)
-        {
+        
             trace.Notes = await LoadOrderedStringsAsync(
                 connection,
                 """
@@ -114,7 +114,7 @@ internal static class ArtifactBundleRelationalRead
                 """,
                 bundleId,
                 ct);
-        }
+        
 
         return new ArtifactBundle
         {

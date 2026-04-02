@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Agents;
+﻿using ArchiForge.Contracts.Agents;
 
 namespace ArchiForge.Data.Repositories;
 
@@ -16,12 +16,12 @@ public sealed class InMemoryAgentTaskRepository : IAgentTaskRepository
         ArgumentNullException.ThrowIfNull(tasks);
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
-        {
+        
             foreach (AgentTask task in tasks)
-            {
+            
                 _tasks.Add(task);
-            }
-        }
+            
+        
 
         return Task.CompletedTask;
     }

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -22,9 +22,9 @@ public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequest
             throw new ArgumentException("RequestId is required.", nameof(request));
 
         lock (_gate)
-        {
+        
             _byId[request.RequestId] = Clone(request);
-        }
+        
 
         return Task.CompletedTask;
     }
@@ -34,9 +34,9 @@ public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequest
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
-        {
+        
             return Task.FromResult(_byId.TryGetValue(requestId, out ArchitectureRequest? r) ? Clone(r) : null);
-        }
+        
     }
 
     private static ArchitectureRequest Clone(ArchitectureRequest source)

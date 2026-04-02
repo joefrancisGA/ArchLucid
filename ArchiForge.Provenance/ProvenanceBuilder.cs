@@ -1,4 +1,4 @@
-using ArchiForge.ArtifactSynthesis.Models;
+﻿using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
 
@@ -25,7 +25,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         HashSet<string> graphNodeIds = new(graph.Nodes.Select(n => n.NodeId), StringComparer.Ordinal);
 
         foreach (GraphNode n in graph.Nodes)
-        {
+        
             AddNode(
                 $"graph:{n.NodeId}",
                 new ProvenanceNode
@@ -39,10 +39,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                         ["category"] = n.Category ?? ""
                     }
                 });
-        }
+        
 
         foreach (Finding f in findings.Findings)
-        {
+        
             AddNode(
                 $"finding:{f.FindingId}",
                 new ProvenanceNode
@@ -56,10 +56,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                         ["category"] = f.Category
                     }
                 });
-        }
+        
 
         foreach (string ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
-        {
+        
             AddNode(
                 $"rule:{ruleId}",
                 new ProvenanceNode
@@ -68,10 +68,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                     ReferenceId = ruleId,
                     Name = ruleId
                 });
-        }
+        
 
         foreach (ResolvedArchitectureDecision d in manifest.Decisions)
-        {
+        
             AddNode(
                 $"decision:{d.DecisionId}",
                 new ProvenanceNode
@@ -84,10 +84,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                         ["category"] = d.Category
                     }
                 });
-        }
+        
 
         foreach (SynthesizedArtifact a in artifacts)
-        {
+        
             AddNode(
                 $"artifact:{a.ArtifactId:N}",
                 new ProvenanceNode
@@ -101,7 +101,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                         ["format"] = a.Format
                     }
                 });
-        }
+        
 
         Guid manifestNodeId = AddNode(
             $"manifest:{manifest.ManifestId:N}",

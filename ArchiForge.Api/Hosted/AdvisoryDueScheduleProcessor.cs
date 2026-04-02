@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
+﻿using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Persistence.Advisory;
 
 namespace ArchiForge.Api.Hosted;
@@ -24,7 +24,7 @@ public sealed class AdvisoryDueScheduleProcessor(
             ;
 
         foreach (AdvisoryScanSchedule schedule in due)
-        {
+        
             try
             {
                 await runner.RunScheduleAsync(schedule, ct);
@@ -37,6 +37,6 @@ public sealed class AdvisoryDueScheduleProcessor(
             {
                 logger.LogError(ex, "Advisory scan failed for schedule {ScheduleId}.", schedule.ScheduleId);
             }
-        }
+        
     }
 }

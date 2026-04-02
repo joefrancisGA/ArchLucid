@@ -1,10 +1,10 @@
-using FluentAssertions;
-
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ArtifactSynthesis.Services;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
+
+using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 

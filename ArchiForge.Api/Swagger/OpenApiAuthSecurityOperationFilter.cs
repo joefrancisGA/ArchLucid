@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc.Controllers;
+﻿using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -14,19 +14,19 @@ public sealed class OpenApiAuthSecurityOperationFilter(IConfiguration configurat
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         if (string.IsNullOrEmpty(SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration)))
-        {
+        
             return;
-        }
+        
 
         if (context.ApiDescription.ActionDescriptor is not ControllerActionDescriptor cad)
-        {
+        
             return;
-        }
+        
 
         if (!OpenApiAuthAnonymousDetection.AllowsAnonymous(cad))
-        {
+        
             return;
-        }
+        
 
         operation.Security = [];
     }

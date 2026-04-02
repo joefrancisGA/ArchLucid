@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 
 using ArchiForge.Cli.Support;
@@ -67,9 +67,9 @@ public sealed class SupportBundleTests
         finally
         {
             if (Directory.Exists(cwd))
-            {
+            
                 Directory.Delete(cwd, recursive: true);
-            }
+            
         }
     }
 
@@ -99,9 +99,9 @@ public sealed class SupportBundleTests
         finally
         {
             if (Directory.Exists(dir))
-            {
+            
                 Directory.Delete(dir, recursive: true);
-            }
+            
         }
     }
 
@@ -131,14 +131,14 @@ public sealed class SupportBundleTests
         finally
         {
             if (File.Exists(zip))
-            {
+            
                 File.Delete(zip);
-            }
+            
 
             if (Directory.Exists(dir))
-            {
+            
                 Directory.Delete(dir, recursive: true);
-            }
+            
         }
     }
 
@@ -150,13 +150,13 @@ public sealed class SupportBundleTests
             string json;
 
             if (string.Equals(path, "/version", StringComparison.Ordinal))
-            {
+            
                 json = """{"application":"ArchiForge.Api","informationalVersion":"1.0-test"}""";
-            }
+            
             else
-            {
+            
                 json = """{"status":"Healthy"}""";
-            }
+            
 
             HttpResponseMessage response = new(HttpStatusCode.OK)
             {

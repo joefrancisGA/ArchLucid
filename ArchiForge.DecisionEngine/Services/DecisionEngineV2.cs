@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Agents;
+﻿using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Requests;
@@ -33,9 +33,9 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         AgentResult? topologyResult = results.FirstOrDefault(r => r.AgentType == AgentType.Topology);
 
         if (topologyTask is null || topologyResult is null)
-        {
+        
             return Task.FromResult<IReadOnlyList<DecisionNode>>(decisions);
-        }
+        
 
         decisions.Add(BuildTopologyAcceptanceDecision(runId, topologyTask, topologyResult, evaluations));
         decisions.Add(BuildSecurityControlsDecision(runId, tasks, evaluations));

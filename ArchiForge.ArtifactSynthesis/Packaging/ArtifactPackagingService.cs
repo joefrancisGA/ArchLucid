@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
@@ -112,9 +112,9 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             WriteTextEntry(archive, "manifest.json", manifestJson);
 
             if (!string.IsNullOrWhiteSpace(traceJson))
-            {
+            
                 WriteTextEntry(archive, "decision-trace.json", traceJson);
-            }
+            
 
             StringBuilder readme = new StringBuilder()
                 .AppendLine("ArchiForge Export Package")

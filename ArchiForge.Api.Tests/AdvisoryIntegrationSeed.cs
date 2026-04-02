@@ -1,11 +1,12 @@
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Scheduling;
-
-using Microsoft.Extensions.DependencyInjection;
 using ArchiForge.Decisioning.Models;
-using AuthorityGoldenManifestRepository = ArchiForge.Decisioning.Interfaces.IGoldenManifestRepository;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
+
+using Microsoft.Extensions.DependencyInjection;
+
+using AuthorityGoldenManifestRepository = ArchiForge.Decisioning.Interfaces.IGoldenManifestRepository;
 
 namespace ArchiForge.Api.Tests;
 

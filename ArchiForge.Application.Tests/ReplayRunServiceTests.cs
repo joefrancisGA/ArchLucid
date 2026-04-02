@@ -1,6 +1,6 @@
+using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
-using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;

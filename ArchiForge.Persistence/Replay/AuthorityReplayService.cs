@@ -1,4 +1,4 @@
-using ArchiForge.ArtifactSynthesis.Interfaces;
+﻿using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
@@ -65,14 +65,14 @@ public sealed class AuthorityReplayService(
                 string.Equals(computedHash, original.GoldenManifest.ManifestHash, StringComparison.OrdinalIgnoreCase);
 
             if (!result.Validation.ManifestHashMatches)
-            {
+            
                 result.Validation.Notes.Add("Stored manifest hash does not match recomputed manifest hash.");
-            }
+            
         }
         else
-        {
+        
             result.Validation.Notes.Add("No golden manifest on run; manifest hash validation skipped.");
-        }
+        
 
         if (string.Equals(mode, ReplayMode.ReconstructOnly, StringComparison.OrdinalIgnoreCase))
         {
@@ -106,18 +106,18 @@ public sealed class AuthorityReplayService(
         string rebuiltHash = manifestHashService.ComputeHash(manifest);
 
         if (original.GoldenManifest is not null)
-        {
+        
             if (string.Equals(rebuiltHash, original.GoldenManifest.ManifestHash, StringComparison.OrdinalIgnoreCase))
-            {
+            
                 result.Validation.Notes.Add("Rebuilt manifest hash matches original manifest hash.");
-            }
+            
             else
             {
                 result.Validation.Notes.Add("Rebuilt manifest hash differs from original manifest hash.");
                 result.Validation.Notes.Add(
                     "Note: Rebuilt manifests receive new ManifestId/DecisionTraceId; hashes often differ even when rule logic matches.");
             }
-        }
+        
 
         if (!string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase))
             return result;
@@ -144,14 +144,14 @@ public sealed class AuthorityReplayService(
     private static ScopeContext WriteScopeFromRun(RunRecord run)
     {
         if (run.TenantId == Guid.Empty && run.WorkspaceId == Guid.Empty && run.ScopeProjectId == Guid.Empty)
-        {
+        
             return new ScopeContext
             {
                 TenantId = ScopeIds.DefaultTenant,
                 WorkspaceId = ScopeIds.DefaultWorkspace,
                 ProjectId = ScopeIds.DefaultProject
             };
-        }
+        
 
         return new ScopeContext
         {

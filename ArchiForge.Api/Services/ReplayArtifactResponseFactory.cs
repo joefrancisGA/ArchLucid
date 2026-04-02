@@ -1,4 +1,4 @@
-using ArchiForge.Application.Analysis;
+﻿using ArchiForge.Application.Analysis;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,13 +17,13 @@ public static class ReplayArtifactResponseFactory
             return ApiFileResults.RangeBytes(request, result.Content, "text/markdown", result.FileName);
 
         if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
-        {
+        
             return ApiFileResults.RangeBytes(
                 request,
                 result.Content,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 result.FileName);
-        }
+        
 
         throw new InvalidOperationException($"Unsupported replay format '{result.Format}'.");
     }
@@ -40,13 +40,13 @@ public static class ReplayArtifactResponseFactory
             return ApiFileResults.RangeText(request, result.Content, "text/html", result.FileName);
 
         if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
-        {
+        
             return ApiFileResults.RangeBytes(
                 request,
                 result.BinaryContent,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 result.FileName);
-        }
+        
 
         return string.Equals(result.Format, "pdf", StringComparison.OrdinalIgnoreCase) ? ApiFileResults.RangeBytes(request, result.BinaryContent, "application/pdf", result.FileName) : null;
     }

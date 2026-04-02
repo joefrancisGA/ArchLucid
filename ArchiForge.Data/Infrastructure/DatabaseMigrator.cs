@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using DbUp;
 using DbUp.Engine;
@@ -30,11 +30,11 @@ public static class DatabaseMigrator
         IReadOnlyList<string> ordered = GetOrderedMigrationResourceNames();
 
         if (trailingScriptCountToSkip <= 0 || trailingScriptCountToSkip >= ordered.Count)
-        {
+        
             throw new ArgumentOutOfRangeException(
                 nameof(trailingScriptCountToSkip),
                 "Must be at least 1 and less than the total migration script count.");
-        }
+        
 
         HashSet<string> allowed = ordered.Take(ordered.Count - trailingScriptCountToSkip).ToHashSet(StringComparer.Ordinal);
         return RunWithScriptFilter(connectionString, allowed.Contains);

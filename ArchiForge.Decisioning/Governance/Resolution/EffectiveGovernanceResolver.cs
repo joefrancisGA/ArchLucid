@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.Core.Diagnostics;
@@ -122,9 +122,9 @@ public sealed class EffectiveGovernanceResolver(
                     ArchiForgeInstrumentation.GovernancePackContentDeserializeCacheMisses.Add(1);
                 }
                 else
-                {
+                
                     ArchiForgeInstrumentation.GovernancePackContentDeserializeCacheHits.Add(1);
-                }
+                
 
                 resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
             }
@@ -333,7 +333,7 @@ public sealed class EffectiveGovernanceResolver(
             });
 
             if (candidates.Count > 1)
-            {
+            
                 result.Conflicts.Add(new GovernanceConflictRecord
                 {
                     ItemType = itemType,
@@ -343,7 +343,7 @@ public sealed class EffectiveGovernanceResolver(
                         $"Multiple policy packs defined the same {itemType} item. The higher-precedence candidate was selected.",
                     Candidates = candidates,
                 });
-            }
+            
         }
 
         setter(result.EffectiveContent, effective);
@@ -402,7 +402,7 @@ public sealed class EffectiveGovernanceResolver(
             });
 
             if (candidates.Count > 1)
-            {
+            
                 result.Conflicts.Add(new GovernanceConflictRecord
                 {
                     ItemType = itemType,
@@ -412,7 +412,7 @@ public sealed class EffectiveGovernanceResolver(
                         $"Multiple policy packs defined the same {itemType} key. The higher-precedence candidate was selected.",
                     Candidates = candidates,
                 });
-            }
+            
         }
 
         setter(result.EffectiveContent, effective);
@@ -485,7 +485,7 @@ public sealed class EffectiveGovernanceResolver(
                     .Count();
 
                 if (distinctValues > 1)
-                {
+                
                     result.Conflicts.Add(new GovernanceConflictRecord
                     {
                         ItemType = itemType,
@@ -495,7 +495,7 @@ public sealed class EffectiveGovernanceResolver(
                             $"Multiple policy packs defined different values for {itemType} '{canonicalKey}'. The higher-precedence value was selected.",
                         Candidates = candidates,
                     });
-                }
+                
             }
         }
 

@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace ArchiForge.Core.Diagnostics;
@@ -50,9 +50,9 @@ public sealed record BuildProvenance(
         int plusIndex = informationalVersion.LastIndexOf('+');
 
         if (plusIndex < 0 || plusIndex == informationalVersion.Length - 1)
-        {
+        
             return null;
-        }
+        
 
         string candidate = informationalVersion[(plusIndex + 1)..];
 

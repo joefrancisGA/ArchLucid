@@ -1,4 +1,4 @@
-using ArchiForge.Api.Auth.Models;
+﻿using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Conversation;
 using ArchiForge.Core.Pagination;
@@ -89,11 +89,11 @@ public sealed class ConversationController(
             thread.TenantId != scope.TenantId ||
             thread.WorkspaceId != scope.WorkspaceId ||
             thread.ProjectId != scope.ProjectId)
-        {
+        
             return this.NotFoundProblem(
                 $"Conversation thread '{threadId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
-        }
+        
 
         IReadOnlyList<ConversationMessage> messages = await messageRepository.GetByThreadIdAsync(threadId, safeTake, ct);
         return Ok(messages);

@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.ProductLearning;
+﻿using ArchiForge.Contracts.ProductLearning;
 
 namespace ArchiForge.Persistence.ProductLearning;
 
@@ -103,9 +103,9 @@ public sealed class ProductLearningDashboardService(
         foreach (RepeatedCommentTheme theme in snapshot.RepeatedCommentThemes)
         {
             if (theme.OccurrenceCount < options.MinCommentOccurrencesForTriageQueue)
-            {
+            
                 continue;
-            }
+            
 
             int score = ComputeCommentThemeTriageScore(theme);
             string tie = "c:" + theme.ThemeKey;
@@ -144,9 +144,9 @@ public sealed class ProductLearningDashboardService(
         List<TriageQueueItem> ranked = new(ordered.Count);
 
         for (int i = 0; i < ordered.Count; i++)
-        {
+        
             ranked.Add(WithQueuePriority(ordered[i], i + 1));
-        }
+        
 
         return ranked;
     }

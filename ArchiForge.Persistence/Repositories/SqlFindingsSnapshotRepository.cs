@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Decisioning.Findings.Serialization;
@@ -175,7 +175,7 @@ public sealed class SqlFindingsSnapshotRepository(
             """;
 
         for (int r = 0; r < finding.RelatedNodeIds.Count; r++)
-        {
+        
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertRelatedSql,
@@ -187,7 +187,7 @@ public sealed class SqlFindingsSnapshotRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        }
+        
 
         const string insertActionSql = """
             INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
@@ -195,7 +195,7 @@ public sealed class SqlFindingsSnapshotRepository(
             """;
 
         for (int a = 0; a < finding.RecommendedActions.Count; a++)
-        {
+        
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertActionSql,
@@ -207,7 +207,7 @@ public sealed class SqlFindingsSnapshotRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        }
+        
 
         const string insertPropSql = """
             INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
@@ -301,7 +301,7 @@ public sealed class SqlFindingsSnapshotRepository(
         CancellationToken ct)
     {
         for (int i = 0; i < items.Count; i++)
-        {
+        
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
@@ -313,7 +313,7 @@ public sealed class SqlFindingsSnapshotRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        }
+        
     }
 
     public async Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct)

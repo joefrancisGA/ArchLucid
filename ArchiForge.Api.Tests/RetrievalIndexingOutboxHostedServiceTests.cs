@@ -1,4 +1,4 @@
-using ArchiForge.Api.Hosted;
+﻿using ArchiForge.Api.Hosted;
 using ArchiForge.Persistence.Retrieval;
 
 using FluentAssertions;
@@ -48,9 +48,9 @@ public sealed class RetrievalIndexingOutboxHostedServiceTests
                 callCount++;
 
                 if (callCount == 1)
-                {
+                
                     throw new InvalidOperationException("simulated failure");
-                }
+                
 
                 return Task.CompletedTask;
             });

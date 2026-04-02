@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Models;
+﻿using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Summaries;
 
@@ -23,11 +23,11 @@ public sealed class DefaultContextDeltaSummaryBuilder : IContextDeltaSummaryBuil
 
         string priorClause = "";
         if (isFirstConnector)
-        {
+        
             priorClause = previous is null
                 ? " [baseline: no prior project snapshot]"
                 : $" [baseline: prior snapshot had {previous.CanonicalObjects.Count} canonical object(s)]";
-        }
+        
 
         string head = string.IsNullOrWhiteSpace(baseSummary)
             ? connectorType

@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Manifest.Sections;
+﻿using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.RelationalRead;
 using ArchiForge.Persistence.Serialization;
@@ -170,13 +170,13 @@ internal static class GoldenManifestPhase1RelationalRead
             };
         }
         else if (fallbackPolicy is null || fallbackPolicy.EvaluateFallback(totalProvCount, "GoldenManifest.Provenance", "GoldenManifest", entityId))
-        {
+        
             provenance = GoldenManifestJsonFallback.DeserializeProvenance(row.ProvenanceJson);
-        }
+        
         else
-        {
+        
             provenance = new ManifestProvenance();
-        }
+        
 
         List<ResolvedArchitectureDecision> decisions = await RelationalFirstRead.ReadSliceAsync(
             decisionsCount,

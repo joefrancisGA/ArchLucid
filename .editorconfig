@@ -5,6 +5,8 @@
 # Layout not expressible in EditorConfig: no blank line between adjacent one-line
 # `{ get; set; }` properties — see .cursor/rules/CSharp-SimpleProperties-OneLine.mdc
 # and scripts/collapse_simple_properties.py
+#
+# Omit `{ }` for single embedded statements: .cursor/rules/CSharp-EmbeddedStatements-NoBraces.mdc
 
 root = true
 
@@ -31,6 +33,10 @@ csharp_new_line_before_finally = true
 csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
 csharp_new_line_between_query_expression_clauses = true
+
+# Omit `{ }` around a single embedded statement under if / else / for / foreach / while / lock / using
+# when syntax allows (IDE0011). Types, methods, accessors, and multi-statement blocks stay braced.
+csharp_prefer_braces = false
 
 csharp_preserve_single_line_statements = false
 csharp_preserve_single_line_blocks = false

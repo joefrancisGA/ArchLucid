@@ -1,5 +1,5 @@
-using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Persistence.Connections;

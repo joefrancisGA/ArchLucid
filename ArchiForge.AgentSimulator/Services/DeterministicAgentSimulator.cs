@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Agents;
+﻿using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.AgentSimulator.Services;
@@ -24,11 +24,11 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
             cancellationToken.ThrowIfCancellationRequested();
 
             if (!string.Equals(task.RunId, runId, StringComparison.Ordinal))
-            {
+            
                 throw new InvalidOperationException(
                     $"Task '{task.TaskId}' belongs to run '{task.RunId}', not '{runId}'. " +
                     "Tasks from a different run must not be executed together.");
-            }
+            
 
             AgentResult result = task.AgentType switch
             {

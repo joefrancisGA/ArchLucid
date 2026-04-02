@@ -1,4 +1,4 @@
-using ArchiForge.DecisionEngine.Validation;
+﻿using ArchiForge.DecisionEngine.Validation;
 
 using FluentAssertions;
 
@@ -160,9 +160,9 @@ public sealed class SchemaValidationServiceTests
         SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
 
         if (result.IsValid)
-        {
+        
             return;
-        }
+        
         
         result.DetailedErrors.Should().NotBeEmpty();
         result.DetailedErrors.Should().AllSatisfy(error =>
@@ -191,9 +191,9 @@ public sealed class SchemaValidationServiceTests
         SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
 
         if (!result.IsValid)
-        {
+        
             result.DetailedErrors.Should().BeEmpty();
-        }
+        
     }
 
     [Fact]

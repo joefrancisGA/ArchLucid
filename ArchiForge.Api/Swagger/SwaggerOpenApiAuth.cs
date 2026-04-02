@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Swagger;
+﻿namespace ArchiForge.Api.Swagger;
 
 /// <summary>
 /// Maps <c>ArchiForgeAuth:Mode</c> to an OpenAPI <c>securitySchemes</c> id for Swashbuckle.
@@ -13,14 +13,14 @@ internal static class SwaggerOpenApiAuth
         string? mode = configuration["ArchiForgeAuth:Mode"];
 
         if (string.IsNullOrWhiteSpace(mode))
-        {
+        
             return null;
-        }
+        
 
         if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
-        {
+        
             return BearerSchemeId;
-        }
+        
 
         return string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase) ? ApiKeySchemeId : null;
     }

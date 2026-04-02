@@ -1,4 +1,4 @@
-using ArchiForge.Api.Jobs;
+﻿using ArchiForge.Api.Jobs;
 
 using FluentAssertions;
 
@@ -36,13 +36,13 @@ public sealed class InMemoryBackgroundJobQueueTests
         await Task.Delay(100, CancellationToken.None);
 
         for (int i = 0; i < 500; i++)
-        {
+        
             _ = queue.Enqueue($"p{i}", "plain", async ct =>
             {
                 await barrier.Task.WaitAsync(ct);
                 return OkFile();
             });
-        }
+        
 
         Action overflow = () => _ = queue.Enqueue("overflow", "plain", async ct =>
         {

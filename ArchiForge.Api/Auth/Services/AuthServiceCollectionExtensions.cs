@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Authentication;
@@ -27,7 +27,7 @@ public static class AuthServiceCollectionExtensions
                                             ?? new ArchiForgeAuthOptions();
 
         if (string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
-        {
+        
             services
                 .AddAuthentication(options =>
                 {
@@ -48,9 +48,9 @@ public static class AuthServiceCollectionExtensions
                         NameClaimType = nameClaimType
                     };
                 });
-        }
+        
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
-        {
+        
             services
                 .AddAuthentication(options =>
                 {
@@ -60,9 +60,9 @@ public static class AuthServiceCollectionExtensions
                 .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
                     ApiKeySchemeName,
                     _ => { });
-        }
+        
         else
-        {
+        
             services
                 .AddAuthentication(options =>
                 {
@@ -72,7 +72,7 @@ public static class AuthServiceCollectionExtensions
                 .AddScheme<AuthenticationSchemeOptions, DevelopmentBypassAuthenticationHandler>(
                     DevelopmentBypassAuthenticationHandler.SchemeName,
                     _ => { });
-        }
+        
 
         services.AddScoped<IClaimsTransformation, ArchiForgeRoleClaimsTransformation>();
 

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -56,11 +56,11 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         Assert.NotNull(expectedNode);
 
         if (!JsonNode.DeepEquals(actualNode, expectedNode))
-        {
+        
             Assert.Fail(
                 $"OpenAPI document drifted from Contracts/{SnapshotFileName}. " +
                 "Review API changes, then regenerate with ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1.");
-        }
+        
     }
 
     private static string ResolveSourceSnapshotPath()
@@ -73,9 +73,9 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
             string csproj = Path.Combine(dir, "ArchiForge.Api.Tests.csproj");
 
             if (File.Exists(csproj))
-            {
+            
                 return Path.Combine(dir, "Contracts", SnapshotFileName);
-            }
+            
 
             dir = Directory.GetParent(dir)?.FullName;
         }

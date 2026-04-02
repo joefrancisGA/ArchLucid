@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diffs;
@@ -23,14 +23,14 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
         sb.AppendLine($"- Created UTC: {report.Run.CreatedUtc:O}");
 
         if (report.Run.CompletedUtc.HasValue)
-        {
+        
             sb.AppendLine($"- Completed UTC: {report.Run.CompletedUtc.Value:O}");
-        }
+        
 
         if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
-        {
+        
             sb.AppendLine($"- Current Manifest Version: {report.Run.CurrentManifestVersion}");
-        }
+        
 
         sb.AppendLine();
 
@@ -40,9 +40,9 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             sb.AppendLine();
 
             foreach (string warning in report.Warnings)
-            {
+            
                 sb.AppendLine($"- {warning}");
-            }
+            
 
             sb.AppendLine();
         }
@@ -66,27 +66,27 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             {
                 sb.AppendLine("- Constraints:");
                 foreach (string item in report.Evidence.Request.Constraints)
-                {
+                
                     sb.AppendLine($"  - {item}");
-                }
+                
             }
 
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
             {
                 sb.AppendLine("- Required Capabilities:");
                 foreach (string item in report.Evidence.Request.RequiredCapabilities)
-                {
+                
                     sb.AppendLine($"  - {item}");
-                }
+                
             }
 
             if (report.Evidence.Request.Assumptions.Count > 0)
             {
                 sb.AppendLine("- Assumptions:");
                 foreach (string item in report.Evidence.Request.Assumptions)
-                {
+                
                     sb.AppendLine($"  - {item}");
-                }
+                
             }
 
             sb.AppendLine();
@@ -103,9 +103,9 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                     sb.AppendLine($"  - Summary: {policy.Summary}");
 
                     if (policy.RequiredControls.Count > 0)
-                    {
+                    
                         sb.AppendLine($"  - Required Controls: {string.Join(", ", policy.RequiredControls)}");
-                    }
+                    
                 }
 
                 sb.AppendLine();
@@ -123,9 +123,9 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                     sb.AppendLine($"  - Summary: {service.Summary}");
 
                     if (service.RecommendedUseCases.Count > 0)
-                    {
+                    
                         sb.AppendLine($"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
-                    }
+                    
                 }
 
                 sb.AppendLine();
@@ -143,9 +143,9 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                     sb.AppendLine($"  - Summary: {pattern.Summary}");
 
                     if (pattern.SuggestedServices.Count > 0)
-                    {
+                    
                         sb.AppendLine($"  - Suggested Services: {string.Join(", ", pattern.SuggestedServices)}");
-                    }
+                    
                 }
 
                 sb.AppendLine();
@@ -161,7 +161,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             sb.AppendLine();
         }
         else
-        {
+        
             foreach (AgentExecutionTrace trace in report.ExecutionTraces
                          .OrderBy(x => x.AgentType)
                          .ThenBy(x => x.CreatedUtc))
@@ -173,9 +173,9 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine($"- Created UTC: {trace.CreatedUtc:O}");
 
                 if (!string.IsNullOrWhiteSpace(trace.ErrorMessage))
-                {
+                
                     sb.AppendLine($"- Error: {trace.ErrorMessage}");
-                }
+                
 
                 sb.AppendLine();
                 sb.AppendLine("#### System Prompt");
@@ -208,7 +208,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine("```");
                 sb.AppendLine();
             }
-        }
+        
 
         if (report.Manifest is not null)
         {
@@ -219,9 +219,9 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             sb.AppendLine($"- Manifest Version: {report.Manifest.Metadata.ManifestVersion}");
 
             if (!string.IsNullOrWhiteSpace(report.Manifest.Metadata.ParentManifestVersion))
-            {
+            
                 sb.AppendLine($"- Parent Manifest Version: {report.Manifest.Metadata.ParentManifestVersion}");
-            }
+            
 
             sb.AppendLine($"- Service Count: {report.Manifest.Services.Count}");
             sb.AppendLine($"- Datastore Count: {report.Manifest.Datastores.Count}");
@@ -240,14 +240,14 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                     sb.AppendLine($"  - Platform: {service.RuntimePlatform}");
 
                     if (!string.IsNullOrWhiteSpace(service.Purpose))
-                    {
+                    
                         sb.AppendLine($"  - Purpose: {service.Purpose}");
-                    }
+                    
 
                     if (service.RequiredControls.Count > 0)
-                    {
+                    
                         sb.AppendLine($"  - Required Controls: {string.Join(", ", service.RequiredControls)}");
-                    }
+                    
                 }
 
                 sb.AppendLine();
@@ -326,18 +326,18 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 {
                     sb.AppendLine("- Agent Drift Warnings:");
                     foreach (string warning in iteration.AgentDriftWarnings)
-                    {
+                    
                         sb.AppendLine($"  - {warning}");
-                    }
+                    
                 }
 
                 if (iteration.ManifestDriftWarnings.Count > 0)
                 {
                     sb.AppendLine("- Manifest Drift Warnings:");
                     foreach (string warning in iteration.ManifestDriftWarnings)
-                    {
+                    
                         sb.AppendLine($"  - {warning}");
-                    }
+                    
                 }
 
                 sb.AppendLine();
@@ -356,9 +356,9 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             AppendList(sb, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
 
             if (report.ManifestDiff.Warnings.Count > 0)
-            {
+            
                 AppendList(sb, "Warnings", report.ManifestDiff.Warnings);
-            }
+            
         }
 
         if (report.AgentResultDiff is null) return sb.ToString();
@@ -406,9 +406,9 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
         }
 
         foreach (string item in items)
-        {
+        
             sb.AppendLine($"- {item}");
-        }
+        
 
         sb.AppendLine();
     }

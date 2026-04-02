@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
@@ -19,9 +19,9 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         ArgumentNullException.ThrowIfNull(trace);
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
-        {
+        
             _items.Add(Clone(trace));
-        }
+        
 
         return Task.CompletedTask;
     }

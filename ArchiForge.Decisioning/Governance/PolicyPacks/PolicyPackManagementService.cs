@@ -1,4 +1,4 @@
-using System.Transactions;
+﻿using System.Transactions;
 
 using ArchiForge.Decisioning.Governance.Resolution;
 
@@ -139,9 +139,9 @@ public sealed class PolicyPackManagementService(
             proj = Guid.Empty;
         }
         else if (string.Equals(normalized, GovernanceScopeLevel.Workspace, StringComparison.Ordinal))
-        {
+        
             proj = Guid.Empty;
-        }
+        
 
         PolicyPackAssignment assignment = new()
         {

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Explanation;
@@ -184,21 +184,21 @@ public sealed class ExplanationService(
     {
         List<string> list = [];
         foreach (DecisionDelta d in c.DecisionChanges)
-        {
+        
             if (d.ChangeType == "Modified")
-            {
+            
                 list.Add(
                     $"Decision '{d.DecisionKey}' changed from '{d.BaseValue ?? "—"}' to '{d.TargetValue ?? "—"}'.");
-            }
+            
             else if (d.ChangeType == "Added")
-            {
+            
                 list.Add($"Decision '{d.DecisionKey}' added (selected: '{d.TargetValue ?? "—"}').");
-            }
+            
             else if (d.ChangeType == "Removed")
-            {
+            
                 list.Add($"Decision '{d.DecisionKey}' removed (was '{d.BaseValue ?? "—"}').");
-            }
-        }
+            
+        
 
         list.AddRange(c.RequirementChanges.Take(30).Select(r => $"Requirement '{r.RequirementName}': {r.ChangeType}."));
 

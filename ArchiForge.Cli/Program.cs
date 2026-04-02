@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -240,7 +240,7 @@ namespace ArchiForge.Cli
             bool asTable = false;
 
             for (int i = 0; i < args.Length; i++)
-            {
+            
                 switch (args[i])
                 {
                     case "--type" when i + 1 < args.Length:
@@ -291,7 +291,7 @@ namespace ArchiForge.Cli
                         asTable = true;
                         break;
                 }
-            }
+            
 
             ArchiForgeApiClient.ComparisonHistoryResult? result = await client.SearchComparisonsAsync(
                 type, leftRun, rightRun,
@@ -383,7 +383,7 @@ namespace ArchiForge.Cli
             List<string> tags = [];
 
             for (int i = 1; i < args.Length; i++)
-            {
+            
                 switch (args[i])
                 {
                     case "--label" when i + 1 < args.Length:
@@ -393,7 +393,7 @@ namespace ArchiForge.Cli
                         tags.Add(args[++i]);
                         break;
                 }
-            }
+            
 
             bool ok = await client.UpdateComparisonRecordAsync(comparisonRecordId, label, tags);
             if (!ok)
@@ -422,7 +422,7 @@ namespace ArchiForge.Cli
             bool force = false;
 
             for (int i = 1; i < args.Length; i++)
-            {
+            
                 switch (args[i])
                 {
                     case "--format" when i + 1 < args.Length:
@@ -444,7 +444,7 @@ namespace ArchiForge.Cli
                         force = true;
                         break;
                 }
-            }
+            
 
             bool ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist, outPath, force);
             return ok ? 0 : 1;
@@ -472,7 +472,7 @@ namespace ArchiForge.Cli
             bool force = false;
 
             for (int i = 1; i < args.Length; i++)
-            {
+            
                 switch (args[i])
                 {
                     case "--format" when i + 1 < args.Length:
@@ -494,7 +494,7 @@ namespace ArchiForge.Cli
                         force = true;
                         break;
                 }
-            }
+            
 
             bool ok = await client.ReplayComparisonsBatchToZipAsync(ids, format, mode, profile, persist, outPath, force);
             return ok ? 0 : 1;
@@ -555,13 +555,13 @@ namespace ArchiForge.Cli
             Console.WriteLine($"DriftDetected={drift.DriftDetected}");
             Console.WriteLine(drift.Summary);
             foreach (ArchiForgeApiClient.DriftItem item in drift.Items.Take(25))
-            {
+            
                 Console.WriteLine($"- [{item.Category}] {item.Path}: {item.Description}");
-            }
+            
             if (drift.Items.Count > 25)
-            {
+            
                 Console.WriteLine($"(showing 25 of {drift.Items.Count} items)");
-            }
+            
 
             return 0;
         }
@@ -605,9 +605,9 @@ namespace ArchiForge.Cli
             }
 
             foreach (ArchiForgeApiClient.ReplayDiagnosticsEntry e in diagnostics.RecentReplays)
-            {
+            
                 Console.WriteLine($"{e.TimestampUtc:O} | {e.ComparisonRecordId} | {e.ComparisonType} | {e.Format} | {e.ReplayMode} | Success={e.Success} | {e.DurationMs}ms | MetaOnly={e.MetadataOnly} | Persisted={e.PersistedReplayRecordId} | Err={e.ErrorMessage}");
-            }
+            
 
             return 0;
         }
@@ -661,9 +661,9 @@ namespace ArchiForge.Cli
             {
                 (int exitCode, string output, string error) = RunProcess("docker", $"compose -f \"{composePath}\" up -d", composeDir);
                 if (exitCode != 0)
-                {
+                
                     (exitCode, output, error) = RunProcess("docker-compose", $"-f \"{composePath}\" up -d", composeDir);
-                }
+                
 
                 if (exitCode != 0)
                 {
@@ -1040,7 +1040,7 @@ namespace ArchiForge.Cli
             Console.WriteLine();
 
             if (save && config is not null)
-            {
+            
                 try
                 {
                     string projectRoot = Directory.GetCurrentDirectory();
@@ -1057,11 +1057,11 @@ namespace ArchiForge.Cli
                     Console.WriteLine($"Warning: Could not save manifest to outputs: {ex.Message}");
                     Console.WriteLine(json);
                 }
-            }
+            
             else
-            {
+            
                 Console.WriteLine(json);
-            }
+            
             return 0;
         }
     }

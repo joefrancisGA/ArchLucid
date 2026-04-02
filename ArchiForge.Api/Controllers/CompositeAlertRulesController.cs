@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
@@ -53,9 +53,9 @@ public sealed class CompositeAlertRulesController(
         rule.CreatedUtc = DateTime.UtcNow;
 
         foreach (AlertRuleCondition c in rule.Conditions.Where(c => c.ConditionId == Guid.Empty))
-        {
+        
             c.ConditionId = Guid.NewGuid();
-        }
+        
 
         await repository.CreateAsync(rule, ct);
 

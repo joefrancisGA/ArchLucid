@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.ProductLearning;
+﻿using ArchiForge.Contracts.ProductLearning;
 
 namespace ArchiForge.Persistence.ProductLearning;
 
@@ -19,9 +19,9 @@ public static class ProductLearningOpportunityScoring
             aggregate.RevisedCount * 2;
 
         if (aggregate.TotalSignalCount >= 2 && aggregate.TrustedCount == 0)
-        {
+        
             score += 2;
-        }
+        
 
         return score;
     }
@@ -95,9 +95,9 @@ public static class ProductLearningOpportunityScoring
     private static string Truncate(string value, int maxChars)
     {
         if (value.Length <= maxChars)
-        {
+        
             return value;
-        }
+        
 
         return value[..maxChars];
     }

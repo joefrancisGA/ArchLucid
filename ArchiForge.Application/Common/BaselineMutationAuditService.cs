@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Application.Common;
 
@@ -23,14 +23,14 @@ public sealed class BaselineMutationAuditService(ILogger<BaselineMutationAuditSe
         string safeDetails = TruncateDetails(details);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "BaselineMutation {EventType} Actor={Actor} EntityId={EntityId} Details={Details}",
                 eventType,
                 actor,
                 entityId,
                 safeDetails);
-        }
+        
 
         return Task.CompletedTask;
     }

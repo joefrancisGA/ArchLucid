@@ -1,4 +1,4 @@
-using ArchiForge.DecisionEngine.Validation;
+﻿using ArchiForge.DecisionEngine.Validation;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
@@ -21,11 +21,11 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
         AddProblemsForPath(opts.GoldenManifestSchemaPath, "GoldenManifest", problems);
 
         if (problems.Count > 0)
-        {
+        
             return Task.FromResult(
                 HealthCheckResult.Unhealthy(
                     "One or more schema files are missing or misconfigured: " + string.Join("; ", problems)));
-        }
+        
 
         return Task.FromResult(
             HealthCheckResult.Healthy(
@@ -63,8 +63,8 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
         }
 
         if (!File.Exists(fullPath))
-        {
+        
             problems.Add($"{logicalName} schema not found at '{fullPath}'.");
-        }
+        
     }
 }

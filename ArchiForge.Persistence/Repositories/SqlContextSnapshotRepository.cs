@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.ContextIngestion.Interfaces;
@@ -258,7 +258,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             """;
 
         for (int w = 0; w < snapshot.Warnings.Count; w++)
-        {
+        
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertWarningSql,
@@ -270,7 +270,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                     },
                     transaction,
                     cancellationToken: ct));
-        }
+        
     }
 
     private static async Task InsertContextErrorsRelationalAsync(
@@ -285,7 +285,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             """;
 
         for (int e = 0; e < snapshot.Errors.Count; e++)
-        {
+        
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertErrorSql,
@@ -297,7 +297,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                     },
                     transaction,
                     cancellationToken: ct));
-        }
+        
     }
 
     private static async Task InsertContextSourceHashesRelationalAsync(

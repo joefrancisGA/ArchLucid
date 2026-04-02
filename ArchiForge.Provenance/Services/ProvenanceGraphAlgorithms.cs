@@ -1,4 +1,4 @@
-namespace ArchiForge.Provenance.Services;
+﻿namespace ArchiForge.Provenance.Services;
 
 /// <summary>Subgraph and neighborhood extraction over <see cref="DecisionProvenanceGraph"/>.</summary>
 public static class ProvenanceGraphAlgorithms
@@ -47,7 +47,7 @@ public static class ProvenanceGraphAlgorithms
     public static DecisionProvenanceGraph ExtractDecisionSubgraph(DecisionProvenanceGraph full, Guid decisionInternalNodeId)
     {
         if (full.Nodes.All(n => n.Id != decisionInternalNodeId))
-        {
+        
             return new DecisionProvenanceGraph
             {
                 Id = full.Id,
@@ -55,7 +55,7 @@ public static class ProvenanceGraphAlgorithms
                 Nodes = [],
                 Edges = []
             };
-        }
+        
 
         HashSet<Guid> includedNodes = [decisionInternalNodeId];
         List<ProvenanceEdge> includedEdges = [];
@@ -84,7 +84,7 @@ public static class ProvenanceGraphAlgorithms
         depth = Math.Clamp(depth, 0, 10);
 
         if (full.Nodes.All(n => n.Id != startNodeId))
-        {
+        
             return new DecisionProvenanceGraph
             {
                 Id = full.Id,
@@ -92,7 +92,7 @@ public static class ProvenanceGraphAlgorithms
                 Nodes = [],
                 Edges = []
             };
-        }
+        
 
         HashSet<Guid> visited = [startNodeId];
         HashSet<Guid> frontier = [startNodeId];

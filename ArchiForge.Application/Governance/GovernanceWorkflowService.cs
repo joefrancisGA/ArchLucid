@@ -1,4 +1,4 @@
-using System.Transactions;
+﻿using System.Transactions;
 
 using ArchiForge.Application.Common;
 using ArchiForge.Contracts.Architecture;
@@ -69,13 +69,13 @@ public sealed class GovernanceWorkflowService(
             ;
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Governance approval request submitted: ApprovalRequestId={ApprovalRequestId}, RunId={RunId}, ManifestVersion={ManifestVersion}",
                 request.ApprovalRequestId,
                 request.RunId,
                 request.ManifestVersion);
-        }
+        
 
         return request;
     }
@@ -94,11 +94,11 @@ public sealed class GovernanceWorkflowService(
                                             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
-        {
+        
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be approved from status '{request.Status}'. " +
                 "Approve is only valid from Draft or Submitted.");
-        }
+        
 
         request.Status = GovernanceApprovalStatus.Approved;
         request.ReviewedBy = reviewedBy;
@@ -117,12 +117,12 @@ public sealed class GovernanceWorkflowService(
             ;
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Governance approval request approved: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 request.ApprovalRequestId,
                 reviewedBy);
-        }
+        
 
         return request;
     }
@@ -141,11 +141,11 @@ public sealed class GovernanceWorkflowService(
                                             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
-        {
+        
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be rejected from status '{request.Status}'. " +
                 "Reject is only valid from Draft or Submitted.");
-        }
+        
 
         request.Status = GovernanceApprovalStatus.Rejected;
         request.ReviewedBy = reviewedBy;
@@ -164,12 +164,12 @@ public sealed class GovernanceWorkflowService(
             ;
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Governance approval request rejected: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 request.ApprovalRequestId,
                 reviewedBy);
-        }
+        
 
         return request;
     }
@@ -197,39 +197,39 @@ public sealed class GovernanceWorkflowService(
         if (string.Equals(targetEnvironment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase))
         {
             if (string.IsNullOrWhiteSpace(approvalRequestId))
-            {
+            
                 throw new InvalidOperationException(
                     "Promotion to prod requires an approved approval request. Provide an approvalRequestId.");
-            }
+            
 
             GovernanceApprovalRequest? approvalRequest = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
             if (approvalRequest?.Status != GovernanceApprovalStatus.Approved)
-            {
+            
                 throw new InvalidOperationException(
                     $"Promotion to prod requires an approved approval request. " +
                     $"Approval request '{approvalRequestId}' has status '{approvalRequest?.Status ?? "not found"}'.");
-            }
+            
 
             if (!string.Equals(approvalRequest.RunId, runId, StringComparison.Ordinal))
-            {
+            
                 throw new InvalidOperationException(
                     $"Approval request '{approvalRequestId}' was issued for run '{approvalRequest.RunId}', " +
                     $"not '{runId}'. Use an approval request that matches the promoted run.");
-            }
+            
 
             if (!string.Equals(approvalRequest.ManifestVersion, manifestVersion, StringComparison.Ordinal))
-            {
+            
                 throw new InvalidOperationException(
                     $"Approval request '{approvalRequestId}' was issued for manifest version '{approvalRequest.ManifestVersion}', " +
                     $"not '{manifestVersion}'. Use an approval request that matches the promoted manifest version.");
-            }
+            
 
             if (!string.Equals(approvalRequest.TargetEnvironment, targetEnvironment, StringComparison.OrdinalIgnoreCase))
-            {
+            
                 throw new InvalidOperationException(
                     $"Approval request '{approvalRequestId}' targets environment '{approvalRequest.TargetEnvironment}', " +
                     $"not '{targetEnvironment}'. Use an approval request that matches the target environment.");
-            }
+            
 
             approvalRequest.Status = GovernanceApprovalStatus.Promoted;
             await approvalRepo.UpdateAsync(approvalRequest, cancellationToken);
@@ -259,14 +259,14 @@ public sealed class GovernanceWorkflowService(
             ;
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Manifest promoted: PromotionRecordId={PromotionRecordId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Target={TargetEnvironment}",
                 record.PromotionRecordId,
                 record.RunId,
                 record.ManifestVersion,
                 record.TargetEnvironment);
-        }
+        
 
         return record;
     }
@@ -322,14 +322,14 @@ public sealed class GovernanceWorkflowService(
             ;
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Environment activated: ActivationId={ActivationId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Environment={Environment}",
                 activation.ActivationId,
                 activation.RunId,
                 activation.ManifestVersion,
                 activation.Environment);
-        }
+        
 
         return activation;
     }

@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
 
@@ -59,9 +59,9 @@ public sealed class SupportBundleHealthProbePathsTests
         finally
         {
             if (Directory.Exists(cwd))
-            {
+            
                 Directory.Delete(cwd, recursive: true);
-            }
+            
         }
     }
 
@@ -75,13 +75,13 @@ public sealed class SupportBundleHealthProbePathsTests
             string json;
 
             if (string.Equals(path, "/version", StringComparison.Ordinal))
-            {
+            
                 json = """{"application":"ArchiForge.Api","informationalVersion":"1.0-test"}""";
-            }
+            
             else
-            {
+            
                 json = """{"status":"Healthy"}""";
-            }
+            
 
             HttpResponseMessage response = new(HttpStatusCode.OK)
             {

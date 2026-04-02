@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 
 using ArchiForge.Api.Configuration;
 using ArchiForge.Data.Infrastructure;
@@ -23,10 +23,10 @@ public sealed class SqlConnectionHealthCheck(
         CancellationToken cancellationToken = default)
     {
         if (string.Equals(archiForgeOptions.Value.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
-        {
+        
             return HealthCheckResult.Healthy(
                 "Database readiness skipped: ArchiForge:StorageProvider is InMemory (no SQL persistence).");
-        }
+        
 
         try
         {

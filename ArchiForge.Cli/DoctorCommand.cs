@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
 
 namespace ArchiForge.Cli;
@@ -170,14 +170,14 @@ internal static class DoctorCommand
     private static string TruncateForDisplay(string body, int maxChars)
     {
         if (string.IsNullOrEmpty(body))
-        {
+        
             return "(empty body)";
-        }
+        
 
         if (body.Length <= maxChars)
-        {
+        
             return body;
-        }
+        
 
         return body[..maxChars] + "\n... (truncated)";
     }

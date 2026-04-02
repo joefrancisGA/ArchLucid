@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
@@ -24,9 +24,9 @@ public sealed class InMemoryArchitectureRunRepository(IArchitectureRequestReposi
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
-        {
+        
             _byRunId[run.RunId] = Clone(run);
-        }
+        
 
         return Task.CompletedTask;
     }
@@ -36,9 +36,9 @@ public sealed class InMemoryArchitectureRunRepository(IArchitectureRequestReposi
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
-        {
+        
             return Task.FromResult(_byRunId.TryGetValue(runId, out ArchitectureRun? r) ? Clone(r) : null);
-        }
+        
     }
 
     /// <inheritdoc />
@@ -56,27 +56,27 @@ public sealed class InMemoryArchitectureRunRepository(IArchitectureRequestReposi
             if (!_byRunId.TryGetValue(runId, out ArchitectureRun? run))
             {
                 if (expectedStatus.HasValue)
-                {
+                
                     throw new InvalidOperationException(
                         $"Run '{runId}' could not be transitioned to '{status}': " +
                         $"expected status '{expectedStatus}' but the run has already been moved by a concurrent operation.");
-                }
+                
 
                 return Task.CompletedTask;
             }
 
             if (expectedStatus.HasValue && run.Status != expectedStatus.Value)
-            {
+            
                 throw new InvalidOperationException(
                     $"Run '{runId}' could not be transitioned to '{status}': " +
                     $"expected status '{expectedStatus}' but the run has already been moved by a concurrent operation.");
-            }
+            
 
             run.Status = status;
             if (currentManifestVersion is not null)
-            {
+            
                 run.CurrentManifestVersion = currentManifestVersion;
-            }
+            
 
             run.CompletedUtc = completedUtc;
             _byRunId[runId] = Clone(run);
@@ -91,9 +91,9 @@ public sealed class InMemoryArchitectureRunRepository(IArchitectureRequestReposi
         cancellationToken.ThrowIfCancellationRequested();
         List<ArchitectureRun> snapshot;
         lock (_gate)
-        {
+        
             snapshot = _byRunId.Values.Select(Clone).ToList();
-        }
+        
 
         List<ArchitectureRunListItem> items = [];
         foreach (ArchitectureRun run in snapshot.OrderByDescending(r => r.CreatedUtc).ThenByDescending(r => r.RunId, StringComparer.Ordinal).Take(200))

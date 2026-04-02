@@ -1,4 +1,4 @@
-using ArchiForge.Application.Determinism;
+﻿using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Contracts.Manifest;
@@ -29,14 +29,14 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         builder.AddParagraph($"Created UTC: {report.Run.CreatedUtc:O}");
 
         if (report.Run.CompletedUtc.HasValue)
-        {
+        
             builder.AddParagraph($"Completed UTC: {report.Run.CompletedUtc.Value:O}");
-        }
+        
 
         if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
-        {
+        
             builder.AddParagraph($"Current Manifest Version: {report.Run.CurrentManifestVersion}");
-        }
+        
 
         builder.AddSpacer();
 
@@ -58,18 +58,18 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             {
                 builder.AddHeading("Constraints", 3);
                 foreach (string item in report.Evidence.Request.Constraints)
-                {
+                
                     builder.AddBullet(item);
-                }
+                
             }
 
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
             {
                 builder.AddHeading("Required Capabilities", 3);
                 foreach (string item in report.Evidence.Request.RequiredCapabilities)
-                {
+                
                     builder.AddBullet(item);
-                }
+                
             }
 
             builder.AddSpacer();
@@ -99,14 +99,14 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                     builder.AddBullet($"Platform: {service.RuntimePlatform}");
 
                     if (!string.IsNullOrWhiteSpace(service.Purpose))
-                    {
+                    
                         builder.AddBullet($"Purpose: {service.Purpose}");
-                    }
+                    
 
                     if (service.RequiredControls.Count > 0)
-                    {
+                    
                         builder.AddBullet($"Required Controls: {string.Join(", ", service.RequiredControls)}");
-                    }
+                    
                 }
 
                 builder.AddSpacer();
@@ -138,9 +138,9 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                 cancellationToken);
 
             if (diagramBytes is not null && diagramBytes.Length > 0)
-            {
+            
                 builder.AddImage(diagramBytes, "Architecture Diagram", 6_000_000L, 3_500_000L);
-            }
+            
             else
             {
                 builder.AddParagraph("Diagram image rendering was not available. Mermaid source is included below.");
@@ -177,14 +177,14 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                 builder.AddBullet($"Matches Baseline Manifest: {(iteration.MatchesBaselineManifest ? "Yes" : "No")}");
 
                 foreach (string warning in iteration.AgentDriftWarnings)
-                {
+                
                     builder.AddBullet($"Agent Drift Warning: {warning}");
-                }
+                
 
                 foreach (string warning in iteration.ManifestDriftWarnings)
-                {
+                
                     builder.AddBullet($"Manifest Drift Warning: {warning}");
-                }
+                
 
                 builder.AddSpacer();
             }

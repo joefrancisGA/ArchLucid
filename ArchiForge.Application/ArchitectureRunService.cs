@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Transactions;
 
 using ArchiForge.AgentSimulator.Services;
@@ -86,14 +86,14 @@ public sealed class ArchitectureRunService(
         }
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
                 coordination.Run.RunId,
                 request.RequestId,
                 request.SystemName,
                 request.Environment);
-        }
+        
 
         bool inserted;
 
@@ -145,12 +145,12 @@ public sealed class ArchitectureRunService(
             ;
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Architecture run created: RunId={RunId}, TaskCount={TaskCount}",
                 coordination.Run.RunId,
                 coordination.Tasks.Count);
-        }
+        
 
         return new CreateRunResult
         {
@@ -186,11 +186,11 @@ public sealed class ArchitectureRunService(
             ;
 
         if (!inserted)
-        {
+        
             logger.LogInformation(
                 "Idempotency insert did not win race for RunId={RunId}; SQL Server rolls back the ambient transaction when the scope is not completed.",
                 coordination.Run.RunId);
-        }
+        
 
         return inserted;
     }
@@ -212,10 +212,10 @@ public sealed class ArchitectureRunService(
             return null;
 
         if (!CryptographicOperations.FixedTimeEquals(existing.RequestFingerprint, idempotency.RequestFingerprint))
-        {
+        
             throw new ConflictException(
                 "The Idempotency-Key was already used with a different request body.");
-        }
+        
 
         return await RehydrateCreateRunResultAsync(existing.RunId, cancellationToken);
     }
@@ -237,10 +237,10 @@ public sealed class ArchitectureRunService(
             return null;
 
         if (!CryptographicOperations.FixedTimeEquals(winner.RequestFingerprint, idempotency.RequestFingerprint))
-        {
+        
             throw new ConflictException(
                 "The Idempotency-Key was already used with a different request body.");
-        }
+        
 
         return await RehydrateCreateRunResultAsync(winner.RunId, cancellationToken);
     }
@@ -254,15 +254,15 @@ public sealed class ArchitectureRunService(
 
         IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
         if (tasks.Count == 0)
-        {
+        
             throw new InvalidOperationException($"Idempotent run '{runId}' has no tasks.");
-        }
+        
 
         string? bundleRef = tasks[0].EvidenceBundleRef;
         if (string.IsNullOrWhiteSpace(bundleRef))
-        {
+        
             throw new InvalidOperationException($"Idempotent run '{runId}' is missing EvidenceBundleRef on the first task.");
-        }
+        
 
         EvidenceBundle bundle = await evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken)
                                 ?? throw new InvalidOperationException($"Evidence bundle '{bundleRef}' for idempotent run was not found.");
@@ -339,9 +339,9 @@ public sealed class ArchitectureRunService(
 
             IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
             if (tasks.Count == 0)
-            {
+            
                 throw new InvalidOperationException($"No tasks found for run '{runId}'.");
-            }
+            
 
             AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
@@ -379,12 +379,12 @@ public sealed class ArchitectureRunService(
                 ;
 
             if (logger.IsEnabled(LogLevel.Information))
-            {
+            
                 logger.LogInformation(
                     "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",
                     runId,
                     results.Count);
-            }
+            
 
             return new ExecuteRunResult
             {
@@ -528,11 +528,11 @@ public sealed class ArchitectureRunService(
         CancellationToken cancellationToken)
     {
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Committing architecture run: RunId={RunId}",
                 runId);
-        }
+        
 
         ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken)
                               ?? throw new RunNotFoundException(runId);
@@ -572,9 +572,9 @@ public sealed class ArchitectureRunService(
             IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
             IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
             if (results.Count == 0)
-            {
+            
                 throw new InvalidOperationException($"No agent results found for run '{runId}'.");
-            }
+            
 
             IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken);
             decisionNodes = await decisionEngineV2.ResolveAsync(
@@ -615,9 +615,9 @@ public sealed class ArchitectureRunService(
         }
 
         if (!merge.Success)
-        {
+        
             await FailRunAfterMergeFailureAsync(runId, run.CurrentManifestVersion, merge.Errors, actor, cancellationToken);
-        }
+        
 
         try
         {
@@ -647,13 +647,13 @@ public sealed class ArchitectureRunService(
             ;
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
                 runId,
                 merge.Manifest.Metadata.ManifestVersion,
                 merge.Warnings.Count);
-        }
+        
 
         return new CommitRunResult
         {
@@ -675,11 +675,11 @@ public sealed class ArchitectureRunService(
             return null;
 
         if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-        {
+        
             throw new ConflictException(
                 $"Run '{runId}' is already committed but no manifest version was recorded. " +
                 "The run record may be corrupt; check storage integrity.");
-        }
+        
 
         GoldenManifest existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken) ?? throw new ConflictException(
                 $"Run '{runId}' is already committed (manifest version '{run.CurrentManifestVersion}') " +
@@ -709,9 +709,9 @@ public sealed class ArchitectureRunService(
             return;
 
         if (run.Status == ArchitectureRunStatus.Failed)
-        {
+        
             throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
-        }
+        
 
         throw new ConflictException(
             $"Run '{runId}' cannot be committed in status '{run.Status}'. Execute the run until it reaches ReadyForCommit.");
@@ -795,9 +795,9 @@ public sealed class ArchitectureRunService(
 
         if (currentVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase) &&
             int.TryParse(currentVersion[1..], out int versionNumber))
-        {
+        
             return $"v{versionNumber + 1}";
-        }
+        
 
         throw new InvalidOperationException(
             $"Cannot increment manifest version '{currentVersion}': expected 'vN' format (e.g. 'v1', 'v2'). " +

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.ArtifactSynthesis.Interfaces;
@@ -14,13 +14,13 @@ using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.KnowledgeGraph.Services;
 using ArchiForge.Persistence.Interfaces;
-
-using Microsoft.Extensions.Logging;
 using ArchiForge.Persistence.Models;
+using ArchiForge.Persistence.Retrieval;
 using ArchiForge.Persistence.Serialization;
 using ArchiForge.Persistence.Transactions;
-using ArchiForge.Persistence.Retrieval;
 using ArchiForge.Retrieval.Indexing;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Persistence.Orchestration;
 
@@ -89,14 +89,14 @@ public sealed class AuthorityRunOrchestrator(
             pipelineRunIdForDiagnostics = run.RunId;
 
             if (logger.IsEnabled(LogLevel.Information))
-            {
+            
                 logger.LogInformation(
                     "Authority pipeline started: RunId={RunId}, ProjectId={ProjectId}, TenantId={TenantId}, WorkspaceId={WorkspaceId}",
                     run.RunId,
                     request.ProjectId,
                     scope.TenantId,
                     scope.WorkspaceId);
-            }
+            
 
             request.RunId = run.RunId;
 
@@ -120,13 +120,13 @@ public sealed class AuthorityRunOrchestrator(
             GraphSnapshot graphSnapshot = graphResolution.Snapshot;
 
             if (logger.IsEnabled(LogLevel.Information))
-            {
+            
                 logger.LogInformation(
                     "Authority pipeline graph resolved: RunId={RunId}, GraphResolutionMode={GraphResolutionMode}, GraphSnapshotId={GraphSnapshotId}",
                     run.RunId,
                     graphResolution.ResolutionMode,
                     graphSnapshot.GraphSnapshotId);
-            }
+            
 
             await SaveGraphAsync(graphSnapshot, uow, ct);
 
@@ -181,14 +181,14 @@ public sealed class AuthorityRunOrchestrator(
             ArtifactBundle artifactBundle = await artifactSynthesisService.SynthesizeAsync(manifest, ct);
 
             if (logger.IsEnabled(LogLevel.Information))
-            {
+            
                 logger.LogInformation(
                     "Authority pipeline artifacts synthesized: RunId={RunId}, BundleId={BundleId}, ArtifactCount={ArtifactCount}, SynthesisTraceId={SynthesisTraceId}",
                     run.RunId,
                     artifactBundle.BundleId,
                     artifactBundle.Artifacts.Count,
                     artifactBundle.Trace.TraceId);
-            }
+            
 
             await SaveArtifactBundleAsync(artifactBundle, uow, ct);
 
@@ -235,7 +235,7 @@ public sealed class AuthorityRunOrchestrator(
                 ;
 
             if (logger.IsEnabled(LogLevel.Information))
-            {
+            
                 logger.LogInformation(
                     "Authority pipeline completed: RunId={RunId}, ManifestId={ManifestId}, ContextSnapshotId={ContextSnapshotId}, FindingsSnapshotId={FindingsSnapshotId}, DecisionTraceId={DecisionTraceId}",
                     run.RunId,
@@ -243,7 +243,7 @@ public sealed class AuthorityRunOrchestrator(
                     contextSnapshot.SnapshotId,
                     findingsSnapshot.FindingsSnapshotId,
                     trace.DecisionTraceId);
-            }
+            
 
             return run;
         }

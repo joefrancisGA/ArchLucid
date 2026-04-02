@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Compliance.Evaluators;
+﻿using ArchiForge.Decisioning.Compliance.Evaluators;
 using ArchiForge.Decisioning.Compliance.Loaders;
 using ArchiForge.Decisioning.Compliance.Models;
 using ArchiForge.Decisioning.Findings.Payloads;
@@ -35,7 +35,7 @@ public class ComplianceFindingEngine(
         List<Finding> findings = [];
 
         foreach (ComplianceViolation violation in evaluation.Violations)
-        {
+        
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -71,7 +71,7 @@ public class ComplianceFindingEngine(
                     ]
                 }
             });
-        }
+        
 
         return findings;
     }

@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Manifest;
+﻿using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Diffs;
 
@@ -168,14 +168,14 @@ public sealed class ManifestDiffService : IManifestDiffService
         List<string> warnings = [];
 
         if (!string.Equals(left.SystemName, right.SystemName, StringComparison.OrdinalIgnoreCase))
-        {
+        
             warnings.Add("SystemName differs between compared manifests.");
-        }
+        
 
         if (!string.Equals(left.RunId, right.RunId, StringComparison.OrdinalIgnoreCase))
-        {
+        
             warnings.Add("RunId differs between compared manifests.");
-        }
+        
 
         return warnings;
     }

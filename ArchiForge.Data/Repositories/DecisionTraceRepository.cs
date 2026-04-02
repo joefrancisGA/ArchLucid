@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -94,11 +94,11 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             }
 
             if (trace is null)
-            {
+            
                 throw new InvalidOperationException(
                     $"A DecisionTrace row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
-            }
+            
 
             traces.Add(trace);
         }

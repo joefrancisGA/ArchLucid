@@ -1,4 +1,4 @@
-using ArchiForge.Cli.Support;
+﻿using ArchiForge.Cli.Support;
 
 using FluentAssertions;
 
@@ -59,13 +59,13 @@ public sealed class SupportBundleEnvironmentRedactionTests
             finally
             {
                 if (prior is null)
-                {
+                
                     Environment.SetEnvironmentVariable("ARCHIFORGE_API_URL", null);
-                }
+                
                 else
-                {
+                
                     Environment.SetEnvironmentVariable("ARCHIFORGE_API_URL", prior);
-                }
+                
             }
         }
     }

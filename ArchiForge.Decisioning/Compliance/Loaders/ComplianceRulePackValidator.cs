@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Compliance.Models;
+﻿using ArchiForge.Decisioning.Compliance.Models;
 
 namespace ArchiForge.Decisioning.Compliance.Loaders;
 
@@ -25,9 +25,9 @@ public class ComplianceRulePackValidator : IComplianceRulePackValidator
                 $"Duplicate compliance rule IDs found: {string.Join(", ", duplicateIds)}");
 
         foreach (ComplianceRule rule in rulePack.Rules)
-        {
+        
             if (string.IsNullOrWhiteSpace(rule.RuleId))
                 throw new InvalidOperationException("Each compliance rule must have a RuleId.");
-        }
+        
     }
 }

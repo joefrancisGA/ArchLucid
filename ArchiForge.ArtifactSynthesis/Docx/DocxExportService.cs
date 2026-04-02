@@ -1,4 +1,4 @@
-using ArchiForge.ArtifactSynthesis.Docx.Builders;
+﻿using ArchiForge.ArtifactSynthesis.Docx.Builders;
 using ArchiForge.ArtifactSynthesis.Docx.Helpers;
 using ArchiForge.ArtifactSynthesis.Docx.Models;
 using ArchiForge.ArtifactSynthesis.Models;
@@ -57,12 +57,12 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             if (sectPr is not null)
                 body.AppendChild(sectPr);
             else
-            {
+            
                 body.AppendChild(
                     new SectionProperties(
                         new PageSize { Width = 12240U, Height = 15840U },
                         new PageMargin { Top = 1440, Right = 1440, Bottom = 1440, Left = 1440 }));
-            }
+            
 
             doc.Save();
         }
@@ -149,10 +149,10 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         WordDocumentBuilder.AddHeading(body, "Topology Posture");
         if (manifest.Topology.Resources.Count > 0)
-        {
+        
             foreach (string resource in manifest.Topology.Resources)
                 WordDocumentBuilder.AddBodyText(body, $"Resource: {resource}");
-        }
+        
         else
             WordDocumentBuilder.AddBodyText(body, "No concrete topology resources were recorded.");
 
@@ -168,9 +168,9 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         WordDocumentBuilder.AddHeading(body, "Security Posture");
         if (manifest.Security.Controls.Count == 0)
-        {
+        
             WordDocumentBuilder.AddBodyText(body, "No security controls were recorded.");
-        }
+        
         else
         {
             List<(string ControlId, string ControlName, string Status, string Impact)> secRows = manifest.Security.Controls
@@ -190,9 +190,9 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         {
             WordDocumentBuilder.AddHeading(body, "Compliance Posture");
             if (manifest.Compliance.Controls.Count == 0)
-            {
+            
                 WordDocumentBuilder.AddBodyText(body, "No compliance posture items were recorded.");
-            }
+            
             else
             {
                 List<(string ControlId, string ControlName, string AppliesToCategory, string Status)> compRows = manifest.Compliance.Controls
@@ -233,11 +233,11 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         WordDocumentBuilder.AddHeading(body, "Recommended Improvements");
         if (improvementPlan.Recommendations.Count == 0)
-        {
+        
             WordDocumentBuilder.AddBodyText(body, "No significant improvements were identified.");
-        }
+        
         else
-        {
+        
             foreach (ImprovementRecommendation recommendation in improvementPlan.Recommendations.Take(10))
             {
                 WordDocumentBuilder.AddBodyText(body, $"{recommendation.Title} [{recommendation.Urgency}]");
@@ -246,15 +246,15 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
                 WordDocumentBuilder.AddBodyText(body, $"Expected Impact: {recommendation.ExpectedImpact}");
                 WordDocumentBuilder.AddSpacer(body);
             }
-        }
+        
 
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Decisions");
         if (manifest.Decisions.Count == 0)
-        {
+        
             WordDocumentBuilder.AddBodyText(body, "No decisions recorded.");
-        }
+        
         else
         {
             List<(string Category, string Title, string SelectedOption)> decRows = manifest.Decisions
@@ -278,9 +278,9 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         {
             WordDocumentBuilder.AddHeading(body, "Appendix A — Artifacts");
             if (artifacts.Count == 0)
-            {
+            
                 WordDocumentBuilder.AddBodyText(body, "No synthesized artifacts were available.");
-            }
+            
             else
             {
                 List<(string Name, string ArtifactType, string Format)> artRows = artifacts
@@ -328,58 +328,58 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         if (c.DecisionChanges.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "No decision changes.");
         else
-        {
+        
             foreach (DecisionDelta d in c.DecisionChanges)
-            {
+            
                 WordDocumentBuilder.AddBodyText(
                     body,
                     $"{d.DecisionKey}: {FormatOptional(d.BaseValue)} → {FormatOptional(d.TargetValue)} ({d.ChangeType})");
-            }
-        }
+            
+        
 
         WordDocumentBuilder.AddHeading(body, "Requirement Changes", DocxStyleIds.Heading2);
         if (c.RequirementChanges.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "No requirement changes.");
         else
-        {
+        
             foreach (RequirementDelta r in c.RequirementChanges)
                 WordDocumentBuilder.AddBodyText(body, $"{r.RequirementName}: {r.ChangeType}");
-        }
+        
 
         WordDocumentBuilder.AddHeading(body, "Security Posture Delta", DocxStyleIds.Heading2);
         if (c.SecurityChanges.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "No security control changes.");
         else
-        {
+        
             foreach (SecurityDelta s in c.SecurityChanges)
-            {
+            
                 WordDocumentBuilder.AddBodyText(
                     body,
                     $"{s.ControlName}: {FormatOptional(s.BaseStatus)} → {FormatOptional(s.TargetStatus)}");
-            }
-        }
+            
+        
 
         WordDocumentBuilder.AddHeading(body, "Topology Changes", DocxStyleIds.Heading2);
         if (c.TopologyChanges.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "No topology resource changes.");
         else
-        {
+        
             foreach (TopologyDelta t in c.TopologyChanges)
                 WordDocumentBuilder.AddBodyText(body, $"{t.Resource} ({t.ChangeType})");
-        }
+        
 
         WordDocumentBuilder.AddHeading(body, "Cost Delta", DocxStyleIds.Heading2);
         if (c.CostChanges.Count == 0)
             WordDocumentBuilder.AddBodyText(body, "Maximum monthly cost unchanged.");
         else
-        {
+        
             foreach (CostDelta x in c.CostChanges)
-            {
+            
                 WordDocumentBuilder.AddBodyText(
                     body,
                     $"{FormatCost(x.BaseCost)} → {FormatCost(x.TargetCost)}");
-            }
-        }
+            
+        
 
         WordDocumentBuilder.AddSpacer(body);
     }

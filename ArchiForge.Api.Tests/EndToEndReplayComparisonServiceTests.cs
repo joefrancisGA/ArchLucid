@@ -1,8 +1,8 @@
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;

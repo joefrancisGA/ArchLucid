@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Findings.Factories;
+﻿using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
@@ -30,9 +30,9 @@ public class RequirementFindingEngine : IFindingEngine
             List<string> relatedNodeIds = [node.NodeId];
             
             foreach (string id in relatedFromGraph.Where(id => !relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase)))
-            {
+            
                 relatedNodeIds.Add(id);
-            }
+            
 
             Finding finding = FindingFactory.CreateRequirementFinding(
                 engineType: EngineType,

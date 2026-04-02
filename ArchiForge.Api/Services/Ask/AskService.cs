@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.AgentRuntime;
 using ArchiForge.Api.Ask;
@@ -92,10 +92,10 @@ public sealed class AskService(
         Guid? effectiveTargetRunId = request.TargetRunId ?? thread.TargetRunId;
 
         if (!effectiveRunId.HasValue)
-        {
+        
             throw new InvalidOperationException(
                 "No run is anchored. Provide runId on the first message, or use a thread that already has a run.");
-        }
+        
 
         await conversationService.AppendUserMessageAsync(thread.ThreadId, request.Question.Trim(), ct);
 
@@ -105,10 +105,10 @@ public sealed class AskService(
 
         RunDetailDto? detail = await query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
         if (detail?.GoldenManifest is null)
-        {
+        
             throw new InvalidOperationException(
                 "Run not found or has no GoldenManifest for the current scope.");
-        }
+        
 
         GoldenManifest? manifest = detail.GoldenManifest;
         GraphViewModel? graph = await provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
@@ -186,7 +186,7 @@ public sealed class AskService(
 
         AskResponse response;
         if (parsed is null || string.IsNullOrWhiteSpace(parsed.Answer))
-        {
+        
             response = new AskResponse
             {
                 ThreadId = thread.ThreadId,
@@ -197,9 +197,9 @@ public sealed class AskService(
                 ReferencedFindings = [],
                 ReferencedArtifacts = []
             };
-        }
+        
         else
-        {
+        
             response = new AskResponse
             {
                 ThreadId = thread.ThreadId,
@@ -208,7 +208,7 @@ public sealed class AskService(
                 ReferencedFindings = NormalizeList(parsed.ReferencedFindings),
                 ReferencedArtifacts = NormalizeList(parsed.ReferencedArtifacts)
             };
-        }
+        
 
         string metadataJson = JsonSerializer.Serialize(
             new

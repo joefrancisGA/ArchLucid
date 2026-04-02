@@ -1,4 +1,4 @@
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Persistence.Connections;
@@ -28,7 +28,7 @@ public sealed class ResilientSqlConnectionFactory(
         int attempt = 0;
 
         while (true)
-        {
+        
             try
             {
                 return await _inner.CreateOpenConnectionAsync(ct);
@@ -47,7 +47,7 @@ public sealed class ResilientSqlConnectionFactory(
 
                 await Task.Delay(delay, ct);
             }
-        }
+        
     }
 
     /// <summary>

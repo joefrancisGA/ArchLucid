@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using ArchiForge.Application.Manifests;
 using ArchiForge.Contracts.Manifest;
@@ -22,14 +22,14 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
         sb.AppendLine("flowchart LR");
 
         foreach (ManifestService service in manifest.Services.OrderBy(s => s.ServiceName))
-        {
+        
             sb.AppendLine($"    {SanitizeId(service.ServiceId)}[{EscapeLabel(BuildServiceLabel(service))}]");
-        }
+        
 
         foreach (ManifestDatastore datastore in manifest.Datastores.OrderBy(d => d.DatastoreName))
-        {
+        
             sb.AppendLine($"    {SanitizeId(datastore.DatastoreId)}[(\"{EscapeLabel(BuildDatastoreLabel(datastore))}\")]");
-        }
+        
 
         foreach (ManifestRelationship relationship in manifest.Relationships.OrderBy(r => r.SourceId).ThenBy(r => r.TargetId))
         {

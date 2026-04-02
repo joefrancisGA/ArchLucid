@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Interfaces;
+﻿using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.ContextIngestion.Topology;
 
@@ -67,9 +67,9 @@ public class PolicyReferenceConnector : IContextConnector
         HashSet<string> ids = [];
 
         foreach (string? trimmed in from hint in topologyHints where !string.IsNullOrWhiteSpace(hint) select hint.Trim() into trimmed where PolicyReferenceOverlapsTopology(policyReference, trimmed) select trimmed)
-        {
+        
             ids.Add($"obj-{TopologyHintStableObjectIds.FromHintName(trimmed)}");
-        }
+        
 
         return ids.Count == 0 ? null : string.Join(',', ids);
     }

@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Mapping;
+﻿using ArchiForge.ContextIngestion.Mapping;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
@@ -59,13 +59,13 @@ public sealed class CoordinatorService(
             output.Errors.AddRange(validationErrors);
 
             if (logger.IsEnabled(LogLevel.Warning))
-            {
+            
                 logger.LogWarning(
                     "Coordination rejected (validation): RequestId={RequestId}, SystemName={SystemName}, Errors={Errors}",
                     request.RequestId,
                     request.SystemName,
                     string.Join("; ", validationErrors));
-            }
+            
 
             return output;
         }
@@ -86,14 +86,14 @@ public sealed class CoordinatorService(
         output.Tasks = tasks;
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+        
             logger.LogInformation(
                 "Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}",
                 run.RunId,
                 request.RequestId,
                 tasks.Count,
                 evidenceBundle.EvidenceBundleId);
-        }
+        
 
         return output;
     }
@@ -144,9 +144,9 @@ public sealed class CoordinatorService(
         };
 
         if (!string.IsNullOrWhiteSpace(request.PriorManifestVersion))
-        {
+        
             metadata["priorManifestVersion"] = request.PriorManifestVersion;
-        }
+        
 
         return new EvidenceBundle
         {

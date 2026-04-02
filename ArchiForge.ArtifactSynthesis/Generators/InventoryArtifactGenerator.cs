@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
@@ -20,7 +20,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
         InventoryArtifactModel inventory = new();
 
         foreach (RequirementCoverageItem requirement in manifest.Requirements.Covered)
-        {
+        
             inventory.Items.Add(new InventoryItem
             {
                 Category = "Requirement",
@@ -28,10 +28,10 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Status = requirement.CoverageStatus,
                 Notes = requirement.RequirementText
             });
-        }
+        
 
         foreach (RequirementCoverageItem requirement in manifest.Requirements.Uncovered)
-        {
+        
             inventory.Items.Add(new InventoryItem
             {
                 Category = "Requirement",
@@ -39,10 +39,10 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Status = requirement.CoverageStatus,
                 Notes = requirement.RequirementText
             });
-        }
+        
 
         foreach (SecurityPostureItem control in manifest.Security.Controls)
-        {
+        
             inventory.Items.Add(new InventoryItem
             {
                 Category = "SecurityControl",
@@ -50,10 +50,10 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Status = control.Status,
                 Notes = control.Impact
             });
-        }
+        
 
         foreach (CompliancePostureItem control in manifest.Compliance.Controls)
-        {
+        
             inventory.Items.Add(new InventoryItem
             {
                 Category = "ComplianceControl",
@@ -61,10 +61,10 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Status = control.Status,
                 Notes = control.AppliesToCategory
             });
-        }
+        
 
         foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
-        {
+        
             inventory.Items.Add(new InventoryItem
             {
                 Category = "Issue",
@@ -72,7 +72,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Status = issue.Severity,
                 Notes = issue.Description
             });
-        }
+        
 
         string content = JsonSerializer.Serialize(inventory, SynthesisJsonOptions.WriteIndented);
 

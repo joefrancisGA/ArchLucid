@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Contracts;
+﻿using ArchiForge.ContextIngestion.Contracts;
 using ArchiForge.ContextIngestion.Models;
 
 using static ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes;
@@ -22,7 +22,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         foreach (string line in lines)
-        {
+        
             if (line.StartsWith("REQ:", StringComparison.OrdinalIgnoreCase))
             {
                 string text = line[4..].Trim();
@@ -88,7 +88,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                     }
                 });
             }
-        }
+        
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
     }

@@ -1,4 +1,4 @@
-using System.Transactions;
+﻿using System.Transactions;
 
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Application.Agents;
@@ -57,9 +57,9 @@ public sealed class ReplayRunService(
         cancellationToken.ThrowIfCancellationRequested();
 
         if (tasks.Count == 0)
-        {
+        
             throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
-        }
+        
 
         ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
                                       ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
@@ -139,10 +139,10 @@ public sealed class ReplayRunService(
             parentManifestVersion: originalRun.CurrentManifestVersion);
 
         if (!merge.Success)
-        {
+        
             throw new InvalidOperationException(
                 $"Replay merge failed: {string.Join("; ", merge.Errors)}");
-        }
+        
 
         manifest = merge.Manifest;
         decisionTraces = merge.DecisionTraces;

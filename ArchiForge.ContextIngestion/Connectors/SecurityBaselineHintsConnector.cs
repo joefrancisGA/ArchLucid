@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Interfaces;
+﻿using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Connectors;
@@ -26,7 +26,7 @@ public class SecurityBaselineHintsConnector : IContextConnector
         NormalizedContextBatch batch = new();
 
         foreach (string hint in payload.SecurityBaselineHints)
-        {
+        
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "SecurityBaseline",
@@ -39,7 +39,7 @@ public class SecurityBaselineHintsConnector : IContextConnector
                     ["status"] = "declared"
                 }
             });
-        }
+        
 
         return Task.FromResult(batch);
     }

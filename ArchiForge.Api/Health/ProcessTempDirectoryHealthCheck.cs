@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchiForge.Api.Health;
 
@@ -13,10 +13,10 @@ public sealed class ProcessTempDirectoryHealthCheck : IHealthCheck
     {
         string tempRoot = Path.GetTempPath();
         if (string.IsNullOrWhiteSpace(tempRoot))
-        {
+        
             return Task.FromResult(
                 HealthCheckResult.Unhealthy("System temp path is empty; cannot verify writable temp storage."));
-        }
+        
 
         string probePath = Path.Combine(tempRoot, $"archiforge-ready-{Guid.NewGuid():N}.tmp");
 

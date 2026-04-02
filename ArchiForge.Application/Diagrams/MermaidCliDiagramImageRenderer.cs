@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
@@ -24,9 +24,9 @@ public sealed class MermaidCliDiagramImageRenderer(
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(mermaidDiagram))
-        {
+        
             return null;
-        }
+        
 
         string tempDir = Path.Combine(Path.GetTempPath(), "archiforge-mermaid", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
@@ -61,15 +61,15 @@ public sealed class MermaidCliDiagramImageRenderer(
             await process.WaitForExitAsync(linkedCts.Token);
 
             if (process.ExitCode != 0)
-            {
+            
                 throw new InvalidOperationException(
                     $"Mermaid CLI failed with exit code {process.ExitCode}. STDERR: {stdErr}");
-            }
+            
 
             if (!File.Exists(outputPath))
-            {
+            
                 throw new InvalidOperationException("Mermaid CLI did not produce an output PNG.");
-            }
+            
 
             return await File.ReadAllBytesAsync(outputPath, cancellationToken);
         }
@@ -78,9 +78,9 @@ public sealed class MermaidCliDiagramImageRenderer(
             try
             {
                 if (Directory.Exists(tempDir))
-                {
+                
                     Directory.Delete(tempDir, recursive: true);
-                }
+                
             }
             catch (Exception ex)
             {

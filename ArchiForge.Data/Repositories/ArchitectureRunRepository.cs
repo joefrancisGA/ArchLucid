@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Contracts.Common;
@@ -170,11 +170,11 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             cancellationToken: cancellationToken));
 
         if (expectedStatus.HasValue && rowsAffected == 0)
-        {
+        
             throw new InvalidOperationException(
                 $"Run '{runId}' could not be transitioned to '{status}': " +
                 $"expected status '{expectedStatus}' but the run has already been moved by a concurrent operation.");
-        }
+        
     }
 
     private sealed class ArchitectureRunRow

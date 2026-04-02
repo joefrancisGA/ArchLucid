@@ -1,4 +1,4 @@
-using ArchiForge.Core.Audit;
+﻿using ArchiForge.Core.Audit;
 
 namespace ArchiForge.Persistence.Audit;
 
@@ -42,7 +42,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         int n = Math.Clamp(take <= 0 ? 100 : take, 1, 500);
         List<AuditEvent> result;
         lock (_gate)
-        {
+        
             result = _events
                 .Where(x =>
                     x.TenantId == tenantId &&
@@ -51,7 +51,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 .OrderByDescending(x => x.OccurredUtc)
                 .Take(n)
                 .ToList();
-        }
+        
 
         return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
     }

@@ -1,4 +1,4 @@
-using ArchiForge.AgentRuntime.Explanation;
+﻿using ArchiForge.AgentRuntime.Explanation;
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Comparison;
@@ -54,7 +54,7 @@ public sealed class ExplanationController(
         DecisionProvenanceGraph? graph = null;
         DecisionProvenanceSnapshot? snapshot = await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
         if (snapshot is not null)
-        {
+        
             try
             {
                 graph = ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
@@ -63,7 +63,7 @@ public sealed class ExplanationController(
             {
                 logger.LogWarning(ex, "Provenance graph JSON for run {RunId} is corrupt; explanation will proceed without provenance.", runId);
             }
-        }
+        
 
         ExplanationResult result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
         return Ok(result);

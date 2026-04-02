@@ -1,6 +1,6 @@
-using ArchiForge.AgentSimulator.Services;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
+using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -55,10 +55,10 @@ public sealed class RealAgentExecutor : IAgentExecutor
         foreach (AgentTask task in tasks.OrderBy(t => t.AgentType))
         {
             if (!_handlers.TryGetValue(task.AgentType, out IAgentHandler? handler))
-            {
+            
                 throw new InvalidOperationException(
                     $"No handler is registered for agent type '{task.AgentType}'.");
-            }
+            
 
             Stopwatch sw = Stopwatch.StartNew();
 
@@ -72,25 +72,25 @@ public sealed class RealAgentExecutor : IAgentExecutor
             sw.Stop();
 
             if (_logger.IsEnabled(LogLevel.Debug))
-            {
+            
                 _logger.LogDebug(
                     "Agent task finished: RunId={RunId}, TaskId={TaskId}, AgentType={AgentType}, DurationMs={DurationMs}",
                     runId,
                     task.TaskId,
                     task.AgentType,
                     sw.ElapsedMilliseconds);
-            }
+            
 
             results.Add(result);
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+        
             _logger.LogInformation(
                 "Agent execution batch completed: RunId={RunId}, ResultCount={ResultCount}",
                 runId,
                 results.Count);
-        }
+        
 
         return results;
     }

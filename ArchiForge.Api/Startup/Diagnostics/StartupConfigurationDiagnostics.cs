@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace ArchiForge.Api.Startup.Diagnostics;
 
@@ -14,9 +14,9 @@ internal static class StartupConfigurationDiagnostics
         Assembly hostAssembly)
     {
         if (!configuration.GetValue("Hosting:LogStartupConfigurationSummary", true))
-        {
+        
             return;
-        }
+        
 
         StartupConfigurationFacts facts = StartupConfigurationFactsReader.FromConfiguration(
             configuration,
