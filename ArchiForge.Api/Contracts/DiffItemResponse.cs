@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Contracts;
 
 /// <summary>
 /// JSON contract for <see cref="ArchiForge.Persistence.Compare.DiffItem"/>.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class DiffItemResponse
 {
     /// <inheritdoc cref="ArchiForge.Persistence.Compare.DiffItem.Section"/>

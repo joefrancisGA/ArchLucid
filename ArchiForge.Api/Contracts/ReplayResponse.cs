@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Contracts;
 
 /// <summary>
 /// JSON subset of <see cref="ArchiForge.Persistence.Replay.ReplayResult"/> (omits full <see cref="ArchiForge.Persistence.Queries.RunDetailDto"/> and entity bodies).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class ReplayResponse
 {
     /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayResult.RunId"/>

@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Models;
 
 /// <summary>Compact run entry returned by the run list endpoint.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class RunListItemResponse
 {
     public string RunId { get; set; } = string.Empty;

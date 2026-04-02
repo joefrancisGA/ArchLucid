@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Contracts;
 
 /// <summary>
 /// JSON contract for run-to-run comparison (excludes embedded <see cref="ArchiForge.Persistence.Queries.RunSummaryDto"/> payloads).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class RunComparisonResponse
 {
     /// <inheritdoc cref="ArchiForge.Persistence.Compare.RunComparisonResult.LeftRunId"/>

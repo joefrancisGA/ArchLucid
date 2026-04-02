@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Persistence.Queries;
 
 namespace ArchiForge.Persistence.Compare;
@@ -8,6 +10,7 @@ namespace ArchiForge.Persistence.Compare;
 /// <remarks>
 /// <see cref="LeftRun"/> and <see cref="RightRun"/> are populated for service consumers; the HTTP API maps to <c>RunComparisonResponse</c> without embedding full summaries.
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "Comparison result DTO; no logic.")]
 public class RunComparisonResult
 {
     /// <summary>Id of the baseline (left) authority run.</summary>

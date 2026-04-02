@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Contracts;
 
 /// <summary>
 /// JSON contract for <see cref="ArchiForge.Persistence.Replay.ReplayValidationResult"/>.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class ReplayValidationResponse
 {
     /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.ContextPresent"/>

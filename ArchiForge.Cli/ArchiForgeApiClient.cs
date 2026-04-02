@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -14,6 +15,7 @@ namespace ArchiForge.Cli
     /// <summary>
     /// HTTP client for the ArchiForge API with resilience (retry on transient failures).
     /// </summary>
+    [ExcludeFromCodeCoverage(Justification = "HTTP client against live API; covered by CLI integration tests.")]
     public sealed class ArchiForgeApiClient
     {
         private readonly HttpClient _http;

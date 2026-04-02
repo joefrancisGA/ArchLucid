@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.ArtifactSynthesis.Models;
 
+[ExcludeFromCodeCoverage(Justification = "Artifact synthesis row DTO; no logic.")]
 public class ComplianceMatrixRow
 {
     public string ControlId { get; set; } = null!;

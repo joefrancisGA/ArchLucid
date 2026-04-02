@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Contracts.Agents;
 
 /// <summary>
@@ -10,6 +12,7 @@ namespace ArchiForge.Contracts.Agents;
 /// not include a <see cref="PriorManifestEvidence"/> entry; an <see cref="EvidenceNote"/>
 /// with type <c>PriorManifestUnavailable</c> will be added instead.
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "Contract DTO; no business logic.")]
 public sealed class PriorManifestEvidence
 {
     /// <summary>Version label of the prior manifest this evidence was extracted from.</summary>

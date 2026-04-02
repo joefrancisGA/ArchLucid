@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// Decomposed priority signals used to rank plans (deterministic scoring applied by a future service).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Contract DTO; no business logic.")]
 public sealed class ImprovementPlanPriority
 {
     /// <summary>Combined rank (higher = more urgent); formula owned by planning/prioritization logic.</summary>

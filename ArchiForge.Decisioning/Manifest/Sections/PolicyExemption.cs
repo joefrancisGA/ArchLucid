@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Decisioning.Manifest.Sections;
 
 /// <summary>A policy control that has been explicitly exempted for this manifest.</summary>
+[ExcludeFromCodeCoverage(Justification = "Manifest section DTO; no logic.")]
 public class PolicyExemption
 {
     /// <summary>Identifier of the exempted control (matches <see cref="PolicyControlItem.ControlId"/>).</summary>

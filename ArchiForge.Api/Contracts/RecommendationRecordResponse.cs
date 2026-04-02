@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Contracts;
 
 /// <summary>
@@ -6,6 +8,7 @@ namespace ArchiForge.Api.Contracts;
 /// <remarks>
 /// Mapped from <see cref="ArchiForge.Decisioning.Advisory.Workflow.RecommendationRecord"/> in <see cref="ArchiForge.Api.Controllers.AdvisoryController"/>.
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public sealed class RecommendationRecordResponse
 {
     public Guid RecommendationId { get; set; }

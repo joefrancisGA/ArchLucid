@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ArtifactSynthesis.Packaging;
 
@@ -6,6 +8,7 @@ namespace ArchiForge.Api.Contracts;
 /// <summary>
 /// JSON descriptor for a synthesized artifact (listing, metadata GET, and operator review UIs).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public sealed class ArtifactDescriptorResponse
 {
     public Guid ArtifactId { get; set; }

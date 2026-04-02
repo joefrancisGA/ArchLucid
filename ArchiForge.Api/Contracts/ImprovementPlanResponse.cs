@@ -1,9 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Contracts;
 
 /// <summary>
 /// JSON shape for an advisory <see cref="ArchiForge.Decisioning.Advisory.Models.ImprovementPlan"/> returned from HTTP APIs.
 /// </summary>
 /// <remarks>Excludes <c>PolicyPackAdvisoryDefaults</c> when not needed on the wire for a given endpoint.</remarks>
+[ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class ImprovementPlanResponse
 {
     /// <summary>Run the plan describes.</summary>

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Persistence.Compare;
 
 /// <summary>
@@ -6,6 +8,7 @@ namespace ArchiForge.Persistence.Compare;
 /// <remarks>
 /// <see cref="DiffKind"/> is typically one of <see cref="DiffKind.Added"/>, <see cref="DiffKind.Removed"/>, <see cref="DiffKind.Changed"/>, or <see cref="DiffKind.Unchanged"/> (unchanged is unused by current comparer).
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "Comparison row DTO; no logic.")]
 public class DiffItem
 {
     /// <summary>Logical grouping (e.g. <c>Requirements</c>, <c>Security.Controls</c>, <c>Run</c>).</summary>

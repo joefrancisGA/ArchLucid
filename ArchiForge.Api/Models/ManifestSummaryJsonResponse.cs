@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Models;
 
 /// <summary>Top-level manifest summary returned by the manifest summary JSON endpoint.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class ManifestSummaryJsonResponse
 {
     public string ManifestVersion { get; set; } = string.Empty;

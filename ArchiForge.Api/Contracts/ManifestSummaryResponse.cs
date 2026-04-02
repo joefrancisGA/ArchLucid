@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Contracts;
 
 /// <summary>
 /// JSON contract for <see cref="ArchiForge.Persistence.Queries.ManifestSummaryDto"/> (manifest summary endpoint).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class ManifestSummaryResponse
 {
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.ManifestId"/>

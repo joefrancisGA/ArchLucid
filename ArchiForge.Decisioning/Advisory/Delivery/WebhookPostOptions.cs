@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Decisioning.Advisory.Delivery;
 
 /// <summary>Optional parameters for <see cref="IWebhookPoster.PostJsonAsync"/>.</summary>
+[ExcludeFromCodeCoverage(Justification = "Options DTO for webhook calls; no logic.")]
 public sealed class WebhookPostOptions
 {
     /// <summary>

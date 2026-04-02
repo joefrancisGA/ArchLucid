@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Models;
 
 /// <summary>
 /// Payload for synchronous markdown export of a run’s analysis report (<c>POST .../analysis-report/export</c>).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class ArchitectureAnalysisExportResponse
 {
     /// <summary>Run whose report was generated.</summary>

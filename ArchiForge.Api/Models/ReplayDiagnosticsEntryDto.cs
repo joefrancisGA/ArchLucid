@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Models;
 
 /// <summary>A single replay execution entry within a <see cref="ReplayDiagnosticsResponse"/>.</summary>
+[ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class ReplayDiagnosticsEntryDto
 {
     public DateTime TimestampUtc { get; set; }

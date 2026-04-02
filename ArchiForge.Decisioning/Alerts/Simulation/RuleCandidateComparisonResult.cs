@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Decisioning.Alerts.Simulation;
 
 /// <summary>Side-by-side <see cref="RuleSimulationResult"/> from <see cref="IRuleSimulationService.CompareCandidatesAsync"/>.</summary>
+[ExcludeFromCodeCoverage(Justification = "Simulation result DTO; no logic.")]
 public class RuleCandidateComparisonResult
 {
     /// <summary>Simulation for candidate A.</summary>

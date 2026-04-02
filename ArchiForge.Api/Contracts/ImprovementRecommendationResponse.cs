@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Contracts;
 
 /// <summary>
 /// JSON DTO for <see cref="ArchiForge.Decisioning.Advisory.Models.ImprovementRecommendation"/> (subset of fields exposed per API contract).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class ImprovementRecommendationResponse
 {
     /// <summary>Recommendation id from the domain model.</summary>

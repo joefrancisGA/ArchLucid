@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Api.Contracts;
 
 /// <summary>
 /// JSON contract for <see cref="ArchiForge.Persistence.Queries.RunSummaryDto"/> (authority run list and summary endpoints).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class RunSummaryResponse
 {
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.RunSummaryDto.RunId"/>
