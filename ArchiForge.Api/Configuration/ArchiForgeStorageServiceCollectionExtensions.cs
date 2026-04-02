@@ -121,11 +121,11 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.Configure<SqlRowLevelSecurityOptions>(configuration.GetSection(SqlRowLevelSecurityOptions.SectionName));
         services.Configure<ReadReplicaOptions>(configuration.GetSection(ReadReplicaOptions.SectionName));
 
-        services.AddSingleton<ArchiForge.Persistence.Connections.SqlConnectionFactory>(
-            _ => new ArchiForge.Persistence.Connections.SqlConnectionFactory(connectionString));
+        services.AddSingleton<SqlConnectionFactory>(
+            _ => new SqlConnectionFactory(connectionString));
         services.AddSingleton<ResilientSqlConnectionFactory>(sp =>
             new ResilientSqlConnectionFactory(
-                sp.GetRequiredService<ArchiForge.Persistence.Connections.SqlConnectionFactory>(),
+                sp.GetRequiredService<SqlConnectionFactory>(),
                 sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>()));
 
         services.AddScoped<IRlsSessionContextApplicator, RlsSessionContextApplicator>();
@@ -202,7 +202,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
 
-        services.AddSingleton<ArchiForge.Data.Infrastructure.IDbConnectionFactory>(_ =>
+        services.AddSingleton<Data.Infrastructure.IDbConnectionFactory>(_ =>
             new SqlScopedResolutionDbConnectionFactory(
                 _.GetRequiredService<IServiceScopeFactory>(),
                 connectionString));

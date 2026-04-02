@@ -5,16 +5,40 @@ namespace ArchiForge.Api.Models;
 /// </summary>
 public sealed class ComparisonReplayCostEstimateResponse
 {
-    public required string ComparisonRecordId { get; init; }
-    public required string ComparisonType { get; init; }
-    public required string Format { get; init; }
-    public required string ReplayMode { get; init; }
-    public bool PersistReplay { get; init; }
-    public int ApproximateRelativeScore { get; init; }
-    public required string RelativeCostBand { get; init; }
-    public required IReadOnlyList<string> Factors { get; init; }
+    public required string ComparisonRecordId
+    {
+        get; init;
+    }
+    public required string ComparisonType
+    {
+        get; init;
+    }
+    public required string Format
+    {
+        get; init;
+    }
+    public required string ReplayMode
+    {
+        get; init;
+    }
+    public bool PersistReplay
+    {
+        get; init;
+    }
+    public int ApproximateRelativeScore
+    {
+        get; init;
+    }
+    public required string RelativeCostBand
+    {
+        get; init;
+    }
+    public required IReadOnlyList<string> Factors
+    {
+        get; init;
+    }
 
-    public static ComparisonReplayCostEstimateResponse FromDomain(ArchiForge.Application.Analysis.ComparisonReplayCostEstimate estimate)
+    public static ComparisonReplayCostEstimateResponse FromDomain(Application.Analysis.ComparisonReplayCostEstimate estimate)
     {
         ArgumentNullException.ThrowIfNull(estimate);
 

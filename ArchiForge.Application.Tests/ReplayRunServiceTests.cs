@@ -34,8 +34,8 @@ public sealed class ReplayRunServiceTests
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
         Mock<IArchitectureRunRepository> runRepo = new();
-        Mock<ArchiForge.Data.Repositories.IGoldenManifestRepository> manifestRepo = new();
-        Mock<ArchiForge.Data.Repositories.IDecisionTraceRepository> traceRepo = new();
+        Mock<IGoldenManifestRepository> manifestRepo = new();
+        Mock<IDecisionTraceRepository> traceRepo = new();
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
 
         ReplayRunService sut = new(
@@ -142,8 +142,8 @@ public sealed class ReplayRunServiceTests
         runRepo.Setup(x => x.CreateAsync(It.IsAny<ArchitectureRun>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<ArchiForge.Data.Repositories.IGoldenManifestRepository> manifestRepo = new();
-        Mock<ArchiForge.Data.Repositories.IDecisionTraceRepository> traceRepo = new();
+        Mock<IGoldenManifestRepository> manifestRepo = new();
+        Mock<IDecisionTraceRepository> traceRepo = new();
 
         ReplayRunService sut = new(
             resolver.Object,
@@ -317,11 +317,11 @@ public sealed class ReplayRunServiceTests
                 It.IsAny<ArchitectureRunStatus?>()))
             .Returns(Task.CompletedTask);
 
-        Mock<ArchiForge.Data.Repositories.IGoldenManifestRepository> manifestRepo = new();
+        Mock<IGoldenManifestRepository> manifestRepo = new();
         manifestRepo.Setup(x => x.CreateAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<ArchiForge.Data.Repositories.IDecisionTraceRepository> traceRepo = new();
+        Mock<IDecisionTraceRepository> traceRepo = new();
         traceRepo.Setup(x => x.CreateManyAsync(It.IsAny<IEnumerable<DecisionTrace>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

@@ -18,7 +18,7 @@ public sealed class MermaidDiagramArtifactGeneratorTests
     {
         Mock<IDiagramRenderer> renderer = new();
         renderer.Setup(x => x.Format).Returns("mermaid");
-        renderer.Setup(x => x.Render(It.IsAny<ArchiForge.ArtifactSynthesis.Models.DiagramAst>()))
+        renderer.Setup(x => x.Render(It.IsAny<Models.DiagramAst>()))
             .Returns("rendered-mermaid");
 
         GoldenManifest manifest = new()
@@ -47,7 +47,7 @@ public sealed class MermaidDiagramArtifactGeneratorTests
         artifact.Content.Should().Be("rendered-mermaid");
         artifact.Metadata.Should().ContainKey("title").WhoseValue.Should().Be("Sys");
         renderer.Verify(
-            x => x.Render(It.Is<ArchiForge.ArtifactSynthesis.Models.DiagramAst>(a => a.Nodes.Count >= 2)),
+            x => x.Render(It.Is<Models.DiagramAst>(a => a.Nodes.Count >= 2)),
             Times.Once);
     }
 }

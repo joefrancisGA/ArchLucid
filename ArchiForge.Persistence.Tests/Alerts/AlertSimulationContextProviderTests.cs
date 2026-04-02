@@ -70,7 +70,7 @@ public sealed class AlertSimulationContextProviderTests
             a => a.GeneratePlanAsync(
                 It.IsAny<GoldenManifest>(),
                 It.IsAny<FindingsSnapshot>(),
-                It.IsAny<ArchiForge.Core.Comparison.ComparisonResult>(),
+                It.IsAny<Core.Comparison.ComparisonResult>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }

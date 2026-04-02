@@ -13,7 +13,7 @@ namespace ArchiForge.Api.Tests;
 
 public sealed class StartupConfigurationFactsReaderTests
 {
-    private static Assembly ApiAssembly => typeof(ArchiForge.Api.Program).Assembly;
+    private static Assembly ApiAssembly => typeof(Program).Assembly;
 
     [Fact]
     public void FromConfiguration_maps_expected_flags_and_counts()

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchiForge.AgentRuntime;
@@ -199,9 +199,9 @@ internal static partial class ServiceCollectionExtensions
                                  ?? new ArchiForgeOptions();
 
         if (!string.Equals(mode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
-        
+
             return;
-        
+
 
         services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
     }
@@ -240,13 +240,13 @@ internal static partial class ServiceCollectionExtensions
                                           ?? new ArchiForgeOptions();
 
         if (string.Equals(exportStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
-        
+
             services.AddSingleton<IRunExportRecordRepository, InMemoryRunExportRecordRepository>();
-        
+
         else
-        
+
             services.AddScoped<IRunExportRecordRepository, RunExportRecordRepository>();
-        
+
         services.AddScoped<IRunExportAuditService, RunExportAuditService>();
         services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
         services.AddScoped<IArchitectureAnalysisService, ArchitectureAnalysisService>();
@@ -275,13 +275,13 @@ internal static partial class ServiceCollectionExtensions
                                         ?? new ArchiForgeOptions();
 
         if (string.Equals(storageMode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
-        
+
             services.AddSingleton<IComparisonRecordRepository, InMemoryComparisonRecordRepository>();
-        
+
         else
-        
+
             services.AddScoped<IComparisonRecordRepository, ComparisonRecordRepository>();
-        
+
         services.AddScoped<IComparisonAuditService, ComparisonAuditService>();
         services.AddScoped<IComparisonDriftAnalyzer, ComparisonDriftAnalyzer>();
         services.AddScoped<IComparisonReplayService, ComparisonReplayService>();
@@ -392,9 +392,9 @@ internal static partial class ServiceCollectionExtensions
             services.AddSingleton<IAgentResultRepository, InMemoryAgentResultRepository>();
             services.AddSingleton<IAgentEvaluationRepository, InMemoryAgentEvaluationRepository>();
             services.AddSingleton<IDecisionNodeRepository, InMemoryDecisionNodeRepository>();
-            services.AddSingleton<ArchiForge.Data.Repositories.IGoldenManifestRepository, InMemoryCoordinatorGoldenManifestRepository>();
-            services.AddSingleton<ArchiForge.Data.Repositories.IEvidenceBundleRepository, InMemoryEvidenceBundleRepository>();
-            services.AddSingleton<ArchiForge.Data.Repositories.IDecisionTraceRepository, InMemoryCoordinatorDecisionTraceRepository>();
+            services.AddSingleton<IGoldenManifestRepository, InMemoryCoordinatorGoldenManifestRepository>();
+            services.AddSingleton<IEvidenceBundleRepository, InMemoryEvidenceBundleRepository>();
+            services.AddSingleton<IDecisionTraceRepository, InMemoryCoordinatorDecisionTraceRepository>();
             services.AddSingleton<IAgentEvidencePackageRepository, InMemoryAgentEvidencePackageRepository>();
             services.AddSingleton<IAgentExecutionTraceRepository, InMemoryAgentExecutionTraceRepository>();
         }
@@ -409,9 +409,9 @@ internal static partial class ServiceCollectionExtensions
             services.AddScoped<IAgentResultRepository, AgentResultRepository>();
             // Data-layer contracts (CreateAsync / GetByVersionAsync / batch traces) — distinct from
             // Decisioning.Interfaces.IGoldenManifestRepository / IDecisionTraceRepository registered in AddArchiForgeStorage.
-            services.AddScoped<ArchiForge.Data.Repositories.IGoldenManifestRepository, GoldenManifestRepository>();
-            services.AddScoped<ArchiForge.Data.Repositories.IEvidenceBundleRepository, EvidenceBundleRepository>();
-            services.AddScoped<ArchiForge.Data.Repositories.IDecisionTraceRepository, DecisionTraceRepository>();
+            services.AddScoped<IGoldenManifestRepository, GoldenManifestRepository>();
+            services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();
+            services.AddScoped<IDecisionTraceRepository, DecisionTraceRepository>();
             services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
             services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
         }
@@ -484,9 +484,9 @@ internal static partial class ServiceCollectionExtensions
                 });
             }
             else
-            
+
                 RegisterFakeAgentCompletionClient(services);
-            
+
         }
     }
 
@@ -568,9 +568,9 @@ internal static partial class ServiceCollectionExtensions
             services.AddSingleton<IVectorIndex, AzureAiSearchVectorIndex>();
         }
         else
-        
+
             services.AddSingleton<IVectorIndex, InMemoryVectorIndex>();
-        
+
 
         string? embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
         string? endpoint = configuration["AzureOpenAI:Endpoint"];
@@ -596,9 +596,9 @@ internal static partial class ServiceCollectionExtensions
             services.AddSingleton<IEmbeddingService, AzureOpenAiEmbeddingService>();
         }
         else
-        
+
             services.AddSingleton<IEmbeddingService, FakeEmbeddingService>();
-        
+
     }
 
     private static CircuitBreakerOptions ResolveOpenAiCircuitBreakerOptions(IConfiguration configuration)

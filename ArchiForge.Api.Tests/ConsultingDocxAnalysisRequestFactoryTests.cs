@@ -24,7 +24,7 @@ public sealed class ConsultingDocxAnalysisRequestFactoryTests
             CompareRunId = "run-b",
         };
 
-        ArchiForge.Application.Analysis.ArchitectureAnalysisRequest mapped =
+        Application.Analysis.ArchitectureAnalysisRequest mapped =
             ConsultingDocxAnalysisRequestFactory.Create("run-a", req);
 
         mapped.RunId.Should().Be("run-a");
