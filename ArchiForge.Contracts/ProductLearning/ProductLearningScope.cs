@@ -4,8 +4,6 @@ namespace ArchiForge.Contracts.ProductLearning;
 public sealed class ProductLearningScope
 {
     public Guid TenantId { get; init; }
-
     public Guid WorkspaceId { get; init; }
-
     public Guid ProjectId { get; init; }
 }

@@ -135,7 +135,6 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
     private sealed class ArchitectureRunIdempotencyRow
     {
         public string RunId { get; init; } = string.Empty;
-
         public byte[]? RequestFingerprint { get; init; }
     }
 }

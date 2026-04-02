@@ -20,13 +20,9 @@ public sealed class FeedbackAggregate
 
     /// <summary>Total signals contributing to this aggregate.</summary>
     public int TotalSignalCount { get; init; }
-
     public int TrustedCount { get; init; }
-
     public int RejectedCount { get; init; }
-
     public int RevisedCount { get; init; }
-
     public int NeedsFollowUpCount { get; init; }
 
     /// <summary>Optional mean trust score when source data includes numeric ratings (else null).</summary>
@@ -37,8 +33,6 @@ public sealed class FeedbackAggregate
 
     /// <summary>Short hint for repeated wording or theme (e.g. trimmed common prefix), not a full NLP summary.</summary>
     public string? DominantThemeHint { get; init; }
-
     public DateTime FirstSignalRecordedUtc { get; init; }
-
     public DateTime LastSignalRecordedUtc { get; init; }
 }

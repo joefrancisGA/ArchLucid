@@ -6,11 +6,8 @@ namespace ArchiForge.Contracts.ProductLearning;
 public sealed class ProductLearningAggregationSnapshot
 {
     public required ProductLearningScope Scope { get; init; }
-
     public DateTime? SinceUtc { get; init; }
-
     public IReadOnlyList<FeedbackAggregate> FeedbackRollups { get; init; } = Array.Empty<FeedbackAggregate>();
-
     public IReadOnlyList<ArtifactOutcomeTrend> ArtifactTrends { get; init; } = Array.Empty<ArtifactOutcomeTrend>();
 
     /// <summary>
@@ -18,6 +15,5 @@ public sealed class ProductLearningAggregationSnapshot
     /// (always empty from <see cref="IProductLearningFeedbackAggregationService.GetSnapshotAsync"/> to avoid an extra query).
     /// </summary>
     public IReadOnlyList<FeedbackAggregate> TopRejectedRevisedRollups { get; init; } = Array.Empty<FeedbackAggregate>();
-
     public IReadOnlyList<RepeatedCommentTheme> RepeatedCommentThemes { get; init; } = Array.Empty<RepeatedCommentTheme>();
 }

@@ -186,9 +186,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         public DateTime? CompletedUtc { get; init; }
         public string? CurrentManifestVersion { get; init; }
         public string? ContextSnapshotId { get; init; }
-
         public Guid? GraphSnapshotId { get; init; }
-
         public Guid? ArtifactBundleId { get; init; }
     }
 

@@ -4,9 +4,7 @@ namespace ArchiForge.Contracts.ProductLearning;
 public sealed class ProductLearningTriageReportImprovementLine
 {
     public string Title { get; init; } = string.Empty;
-
     public string Severity { get; init; } = string.Empty;
-
     public string Area { get; init; } = string.Empty;
 
     /// <summary>Truncated for readability in reports.</summary>

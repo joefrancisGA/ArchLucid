@@ -17,23 +17,15 @@ public sealed class ArtifactOutcomeTrend
 
     /// <summary>Signals interpreted as positive acceptance/trust (maps to <see cref="ProductLearningDispositionValues.Trusted"/> in 58R pipelines).</summary>
     public int AcceptedOrTrustedCount { get; init; }
-
     public int RevisionCount { get; init; }
-
     public int RejectionCount { get; init; }
-
     public int NeedsFollowUpCount { get; init; }
-
     public int DistinctRunCount { get; init; }
-
     public double? AverageTrustScore { get; init; }
-
     public double? AverageUsefulnessScore { get; init; }
 
     /// <summary>Compact indicator of a recurring note/theme when the pipeline can derive one safely.</summary>
     public string? RepeatedThemeIndicator { get; init; }
-
     public DateTime FirstSeenUtc { get; init; }
-
     public DateTime LastSeenUtc { get; init; }
 }

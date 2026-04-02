@@ -439,13 +439,9 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
     private sealed class IndexedEdgeRow
     {
         public string EdgeId { get; init; } = null!;
-
         public string FromNodeId { get; init; } = null!;
-
         public string ToNodeId { get; init; } = null!;
-
         public string EdgeType { get; init; } = null!;
-
         public double Weight { get; init; }
     }
 }

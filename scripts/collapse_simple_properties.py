@@ -1,7 +1,8 @@
 """
 Collapse multiline simple auto-properties to a single line.
 
-Remove blank lines between adjacent one-line `{ get; set; }` properties.
+Remove blank lines between adjacent one-line simple auto-properties
+(`{ get; set; }`, `{ get; init; }`, `{ get; private set; }`, `{ get; }`, etc.).
 
 Run from repo root: python scripts/collapse_simple_properties.py
 """
@@ -102,9 +103,17 @@ def _replace_one(text: str, cre: re.Pattern[str]) -> tuple[str, bool]:
         return text, True
 
 
-def _is_simple_get_set_property_line(raw: str) -> bool:
-    """True for a single-line declaration that uses auto get/set (may include initializer)."""
-    s = raw.rstrip("\r\n")
+_AUTO_PROP_INNER = re.compile(
+    r"^get;\s*(?:"
+    r"(?:set|init);\s*"
+    r"|(?:private|protected|internal|protected\s+internal)\s+set;\s*"
+    r")?$",
+)
+
+
+def _is_simple_auto_property_line(raw: str) -> bool:
+    """True for a single-line simple auto-property (get/set/init; no accessor bodies)."""
+    s = raw.split("//", 1)[0].rstrip("\r\n")
     if not s.strip():
         return False
 
@@ -116,14 +125,65 @@ def _is_simple_get_set_property_line(raw: str) -> bool:
     if "=>" in s:
         return False
 
-    if re.search(r"\b(event|delegate)\b", s):
+    if re.search(r"\b(event|delegate|operator)\b", s):
         return False
 
-    return bool(re.search(r"\{\s*get;\s*set;\s*\}", s))
+    if re.search(r"\bthis\s*\[", s):
+        return False
+
+    brace_idx = s.find("{")
+    if brace_idx < 0:
+        return False
+
+    before_brace = s[:brace_idx].rstrip()
+    if re.search(r"\)\s*\{\s*$", before_brace):
+        return False
+
+    depth = 0
+    end = -1
+
+    for j in range(brace_idx, len(s)):
+        ch = s[j]
+
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+
+            if depth == 0:
+                end = j
+                break
+
+    if end < 0:
+        return False
+
+    brace_sub = s[brace_idx : end + 1]
+
+    if brace_sub.count("{") != 1:
+        return False
+
+    inner = brace_sub[1:-1].strip()
+
+    if not _AUTO_PROP_INNER.fullmatch(inner):
+        return False
+
+    rest = s[end + 1 :].lstrip()
+
+    # No trailing `;` after `}` when there is no initializer — the last `;` is inside `init;` / `set;`.
+    if not rest:
+        return True
+
+    if rest == ";":
+        return True
+
+    if rest.startswith("="):
+        return rest.endswith(";")
+
+    return False
 
 
-def remove_adjacent_simple_get_set_property_blanks(text: str) -> str:
-    """Drop blank lines between back-to-back simple `{ get; set; }` property lines."""
+def remove_adjacent_simple_auto_property_blanks(text: str) -> str:
+    """Drop blank lines between back-to-back simple one-line auto-property declarations."""
     lines = text.splitlines(keepends=True)
     if len(lines) < 3:
         return text
@@ -134,9 +194,9 @@ def remove_adjacent_simple_get_set_property_blanks(text: str) -> str:
     while i < len(lines):
         if (
             i + 2 < len(lines)
-            and _is_simple_get_set_property_line(lines[i])
+            and _is_simple_auto_property_line(lines[i])
             and lines[i + 1].strip() == ""
-            and _is_simple_get_set_property_line(lines[i + 2])
+            and _is_simple_auto_property_line(lines[i + 2])
         ):
             out.append(lines[i])
             i += 2
@@ -167,7 +227,7 @@ def collapse_multiline_simple_properties(text: str) -> str:
 
 def transform(text: str) -> str:
     text = collapse_multiline_simple_properties(text)
-    text = remove_adjacent_simple_get_set_property_blanks(text)
+    text = remove_adjacent_simple_auto_property_blanks(text)
 
     return text
 

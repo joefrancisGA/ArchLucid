@@ -261,35 +261,25 @@ internal static class ContextSnapshotRelationalRead
     private sealed class CanonicalObjectRow
     {
         public Guid CanonicalObjectRowId { get; init; }
-
         public int SortOrder { get; init; }
-
         public string ObjectId { get; init; } = null!;
-
         public string ObjectType { get; init; } = null!;
-
         public string Name { get; init; } = null!;
-
         public string SourceType { get; init; } = null!;
-
         public string SourceId { get; init; } = null!;
     }
 
     private sealed class PropertyRow
     {
         public Guid CanonicalObjectRowId { get; init; }
-
         public int PropertySortOrder { get; init; }
-
         public string PropertyKey { get; init; } = null!;
-
         public string PropertyValue { get; init; } = null!;
     }
 
     private sealed class SourceHashRow
     {
         public string SourceKey { get; init; } = null!;
-
         public string HashValue { get; init; } = null!;
     }
 }

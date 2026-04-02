@@ -7,16 +7,12 @@ namespace ArchiForge.Contracts.ProductLearning;
 public sealed class ProductLearningTriageReportDocument
 {
     public DateTime GeneratedUtc { get; init; }
-
     public Guid TenantId { get; init; }
-
     public Guid WorkspaceId { get; init; }
-
     public Guid ProjectId { get; init; }
 
     /// <summary>UTC lower bound used for this report, if any; otherwise null (all time).</summary>
     public DateTime? SinceUtc { get; init; }
-
     public int TotalSignalsInScope { get; init; }
 
     /// <summary>Same count as <see cref="LearningDashboardSummary.DistinctRunsTouched"/> (export naming).</summary>

@@ -264,43 +264,29 @@ internal static class ArtifactBundleRelationalRead
     private sealed class ArtifactSliceRow
     {
         public int SortOrder { get; init; }
-
         public Guid ArtifactId { get; init; }
-
         public Guid RunId { get; init; }
-
         public Guid ManifestId { get; init; }
-
         public DateTime CreatedUtc { get; init; }
-
         public string ArtifactType { get; init; } = null!;
-
         public string Name { get; init; } = null!;
-
         public string Format { get; init; } = null!;
-
         public string? Content { get; init; }
-
         public string ContentHash { get; init; } = null!;
     }
 
     private sealed class MetadataSliceRow
     {
         public int ArtifactSortOrder { get; init; }
-
         public int MetaSortOrder { get; init; }
-
         public string MetaKey { get; init; } = null!;
-
         public string MetaValue { get; init; } = null!;
     }
 
     private sealed class ArtifactDecisionSliceRow
     {
         public int ArtifactSortOrder { get; init; }
-
         public int LinkSortOrder { get; init; }
-
         public string DecisionId { get; init; } = null!;
     }
 }

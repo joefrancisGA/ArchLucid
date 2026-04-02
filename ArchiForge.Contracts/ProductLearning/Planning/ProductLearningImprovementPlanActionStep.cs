@@ -8,8 +8,6 @@ public sealed class ProductLearningImprovementPlanActionStep
 
     /// <summary>Stable category for reporting (e.g. Investigate, ClarifyPolicy, UX).</summary>
     public string ActionType { get; init; } = string.Empty;
-
     public string Description { get; init; } = string.Empty;
-
     public string? AcceptanceCriteria { get; init; }
 }

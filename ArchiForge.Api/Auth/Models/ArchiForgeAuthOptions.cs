@@ -16,7 +16,6 @@ public class ArchiForgeAuthOptions
     /// <c>preferred_username</c> or <c>name</c>; default matches classic <see cref="ClaimTypes.Name"/>.
     /// </summary>
     public string NameClaimType { get; set; } = ClaimTypes.Name;
-
     public string DevUserId { get; set; } = "dev-user";
     public string DevUserName { get; set; } = "Developer";
 

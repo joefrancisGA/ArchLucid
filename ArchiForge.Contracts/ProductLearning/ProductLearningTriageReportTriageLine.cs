@@ -4,12 +4,8 @@ namespace ArchiForge.Contracts.ProductLearning;
 public sealed class ProductLearningTriageReportTriageLine
 {
     public int Rank { get; init; }
-
     public string Title { get; init; } = string.Empty;
-
     public string Severity { get; init; } = string.Empty;
-
     public string DetailSummary { get; init; } = string.Empty;
-
     public string? SuggestedNextStep { get; init; }
 }

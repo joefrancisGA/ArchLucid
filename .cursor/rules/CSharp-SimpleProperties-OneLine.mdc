@@ -1,5 +1,5 @@
 ---
-description: Simple C# auto-properties must use a single-line accessor block
+description: Simple C# auto-properties one line; no blank lines between consecutive simple properties
 globs: "**/*.cs"
 alwaysApply: false
 ---
@@ -33,16 +33,18 @@ public Guid TenantId
 
 ## Adjacent properties: no blank line between
 
-When two **consecutive** member lines are both simple one-line `{ get; set; }` auto-properties, **do not** put an empty line between them. This keeps DTOs and models compact while preserving a blank line before the next **different** member kind (method, nested type, field group, or a property that is not a simple `get; set;` line).
+When two or more **consecutive** lines are each a **simple one-line** auto-property (`{ get; set; }`, `{ get; init; }`, `{ get; private set; }`, `{ get; }`, same line only), **do not** put empty lines between them. This keeps DTOs and models compact.
+
+Keep a **blank line** before the next **different** member: methods, constructors, nested types, fields, expression-bodied members, or any property that is not a single-line simple auto-property.
 
 ### Do
 
 ```csharp
-public Guid TenantId { get; set; }
-public Guid WorkspaceId { get; set; }
-public string Name { get; set; } = null!;
+public string Application { get; init; } = string.Empty;
+public string InformationalVersion { get; init; } = string.Empty;
+public string? CommitSha { get; init; }
 
-public void EnsureValid()
+public static BuildInfoResponse FromProvenance(...)
 {
     ...
 }
@@ -51,19 +53,17 @@ public void EnsureValid()
 ### Do not
 
 ```csharp
-// Avoid: blank line only between two adjacent simple get/set properties
-public Guid TenantId { get; set; }
+// Avoid: blank lines only between adjacent simple one-line properties
+public string Application { get; init; } = string.Empty;
 
-public Guid WorkspaceId { get; set; }
+public string InformationalVersion { get; init; } = string.Empty;
 ```
-
-**Note:** `{ get; init; }` and `{ get; }` are **not** covered by the “collapse blanks” rule above—only `{ get; set; }` pairs are packed together. You may still use a blank line to separate those from each other or from `get; set;` lines if it helps readability.
 
 ## Scope
 
-- Applies to `get;` / `set;` / `init;` **auto-properties only**.
+- Applies to `get;` / `set;` / `init;` **auto-properties only**, on **one line**.
 - Does **not** apply when either accessor has a body (`get { return ... }`, `get =>`, `set { ... }`).
-- Indexers, explicit interface implementations, and unusual modifiers follow normal C# formatting; if a property is too long for readability, prefer extracting types or using `required` / split lines on the **type** only when the team agrees—default remains one line for simple DTOs and models.
+- Indexers (`this[...]`), explicit interface implementations, and unusual modifiers follow normal C# formatting; if a property is too long for readability, prefer extracting types or using `required` / split lines on the **type** only when the team agrees—default remains one line for simple DTOs and models.
 
 ## Bulk fix
 
@@ -74,4 +74,4 @@ To re-normalize files after a bad merge, run from the repo root:
 That script:
 
 - Collapses multiline blocks whose body is purely `get;`/`set;`/`init;` (plus optional one-line `[...]` attributes above the declaration).
-- Removes blank lines between **adjacent** one-line `{ get; set; }` declarations.
+- Removes blank lines between **adjacent** one-line simple auto-properties (including `init` and get-only).

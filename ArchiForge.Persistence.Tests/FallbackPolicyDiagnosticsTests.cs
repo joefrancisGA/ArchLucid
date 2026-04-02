@@ -211,13 +211,9 @@ public sealed class FallbackPolicyDiagnosticsTests
     private sealed class FakeLogger : ILogger
     {
         public int WarningCount { get; private set; }
-
         public int DebugCount { get; private set; }
-
         public int TotalLogCount { get; private set; }
-
         public string LastWarningMessage { get; private set; } = "";
-
         public string LastDebugMessage { get; private set; } = "";
 
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;

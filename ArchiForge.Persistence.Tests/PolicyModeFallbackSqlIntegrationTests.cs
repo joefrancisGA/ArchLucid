@@ -747,7 +747,6 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
     private sealed class FakeLogger : ILogger
     {
         public int WarningCount { get; private set; }
-
         private int TotalLogCount { get; set; }
 
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;

@@ -305,54 +305,37 @@ internal static class GraphSnapshotRelationalRead
     private sealed class GraphNodeRow
     {
         public Guid GraphNodeRowId { get; init; }
-
         public int SortOrder { get; init; }
-
         public string NodeId { get; init; } = null!;
-
         public string NodeType { get; init; } = null!;
-
         public string Label { get; init; } = null!;
-
         public string? Category { get; init; }
-
         public string? SourceType { get; init; }
-
         public string? SourceId { get; init; }
     }
 
     private sealed class NodePropertyRow
     {
         public Guid GraphNodeRowId { get; init; }
-
         public int PropertySortOrder { get; init; }
-
         public string PropertyKey { get; init; } = null!;
-
         public string PropertyValue { get; init; } = null!;
     }
 
     private sealed class GraphEdgeTableRow
     {
         public string EdgeId { get; init; } = null!;
-
         public string FromNodeId { get; init; } = null!;
-
         public string ToNodeId { get; init; } = null!;
-
         public string EdgeType { get; init; } = null!;
-
         public double Weight { get; init; }
     }
 
     private sealed class EdgePropertyRow
     {
         public string EdgeId { get; init; } = null!;
-
         public int PropertySortOrder { get; init; }
-
         public string PropertyKey { get; init; } = null!;
-
         public string PropertyValue { get; init; } = null!;
     }
 }

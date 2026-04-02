@@ -39,14 +39,9 @@ public class GraphEdgeVm
 public sealed class GraphNodesPageResponse
 {
     public int Page { get; set; }
-
     public int PageSize { get; set; }
-
     public int TotalNodes { get; set; }
-
     public bool HasMore { get; set; }
-
     public List<GraphNodeVm> Nodes { get; set; } = [];
-
     public List<GraphEdgeVm> Edges { get; set; } = [];
 }

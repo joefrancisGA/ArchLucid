@@ -11,9 +11,7 @@ public sealed class RelationalDataMissingException(
     : InvalidOperationException(BuildMessage(entityType, entityId, sliceName))
 {
     public string EntityType { get; } = entityType;
-
     public string EntityId { get; } = entityId;
-
     public string SliceName { get; } = sliceName;
 
     private static string BuildMessage(string entityType, string entityId, string sliceName) =>

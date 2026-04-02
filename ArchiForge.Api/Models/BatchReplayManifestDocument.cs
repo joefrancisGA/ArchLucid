@@ -10,8 +10,6 @@ public sealed class BatchReplayManifestDocument
 
     /// <summary>Comparison record IDs processed, in request order (first occurrence wins for duplicates).</summary>
     public required IReadOnlyList<string> ProcessedComparisonRecordIds { get; init; }
-
     public required IReadOnlyList<BatchReplayManifestSuccessEntry> Succeeded { get; init; }
-
     public required IReadOnlyList<BatchReplayManifestFailureEntry> Failed { get; init; }
 }

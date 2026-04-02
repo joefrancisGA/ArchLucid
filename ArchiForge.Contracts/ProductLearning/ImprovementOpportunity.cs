@@ -10,11 +10,8 @@ public sealed class ImprovementOpportunity
 
     /// <summary>Optional link to the rollup key that produced this opportunity.</summary>
     public string? SourceAggregateKey { get; init; }
-
     public string? PatternKey { get; init; }
-
     public string Title { get; init; } = string.Empty;
-
     public string Summary { get; init; } = string.Empty;
 
     /// <summary>Where in the product/output lifecycle the pain shows up.</summary>
@@ -28,17 +25,12 @@ public sealed class ImprovementOpportunity
 
     /// <summary>Optional routing hint (e.g. Product, Architecture, Agent pipeline).</summary>
     public string? SuggestedOwnerRole { get; init; }
-
     public int EvidenceSignalCount { get; init; }
-
     public int DistinctRunCount { get; init; }
-
     public double? AverageTrustScore { get; init; }
 
     /// <summary>Short excerpt evidencing repetition (e.g. common comment fragment).</summary>
     public string? RepeatedThemeSnippet { get; init; }
-
     public DateTime FirstSeenUtc { get; init; }
-
     public DateTime LastSeenUtc { get; init; }
 }

@@ -7,8 +7,6 @@ namespace ArchiForge.Contracts.ProductLearning.Planning;
 public sealed class ProductLearningImprovementPlanSignalLinkRecord
 {
     public Guid PlanId { get; init; }
-
     public Guid SignalId { get; init; }
-
     public string? TriageStatusSnapshot { get; init; }
 }

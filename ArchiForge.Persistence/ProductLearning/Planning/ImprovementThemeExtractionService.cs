@@ -588,19 +588,12 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
     private sealed class ThemeAccumulator
     {
         public required string CanonicalKey { get; init; }
-
         public required string GroupingExplanation { get; init; }
-
         public required string Name { get; init; }
-
         public required string Description { get; init; }
-
         public required int EvidenceCount { get; init; }
-
         public required IReadOnlyList<string> AffectedArtifactTypes { get; init; }
-
         public required DateTime FirstSeenUtc { get; init; }
-
         public required DateTime LastSeenUtc { get; init; }
     }
 }

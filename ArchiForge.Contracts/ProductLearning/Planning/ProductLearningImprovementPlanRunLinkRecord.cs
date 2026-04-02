@@ -4,6 +4,5 @@ namespace ArchiForge.Contracts.ProductLearning.Planning;
 public sealed class ProductLearningImprovementPlanRunLinkRecord
 {
     public Guid PlanId { get; init; }
-
     public string ArchitectureRunId { get; init; } = string.Empty;
 }

@@ -6,13 +6,9 @@ namespace ArchiForge.Contracts.ProductLearning.Planning;
 public sealed class ImprovementPlanSummary
 {
     public Guid PlanId { get; init; }
-
     public Guid ThemeId { get; init; }
-
     public string Title { get; init; } = string.Empty;
-
     public int PriorityScore { get; init; }
-
     public DateTime CreatedUtc { get; init; }
 
     /// <summary>Number of steps in <see cref="ImprovementPlan.ProposedChanges"/> when known.</summary>
