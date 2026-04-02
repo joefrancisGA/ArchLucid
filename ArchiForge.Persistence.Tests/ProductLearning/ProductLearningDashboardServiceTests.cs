@@ -7,6 +7,7 @@ namespace ArchiForge.Persistence.Tests.ProductLearning;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
+[Trait("ChangeSet", "58R")]
 public sealed class ProductLearningDashboardServiceTests
 {
     private static readonly Guid TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");

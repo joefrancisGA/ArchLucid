@@ -7,6 +7,7 @@ namespace ArchiForge.Persistence.Tests.ProductLearning;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
+[Trait("ChangeSet", "58R")]
 public sealed class ProductLearningTriageReportBuilderTests
 {
     private static readonly Guid TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -133,5 +134,27 @@ public sealed class ProductLearningTriageReportBuilderTests
 
         doc.ArtifactOutcomes[0].ArtifactLabel.Should().Be("High pain");
         doc.ArtifactOutcomes[1].ArtifactLabel.Should().Be("Low pain");
+    }
+
+    [Fact]
+    public void Format_markdown_documents_empty_triage_without_throwing()
+    {
+        DateTime utc = new(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        LearningDashboardSummary summary = new()
+        {
+            GeneratedUtc = utc,
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        ProductLearningTriageReportDocument doc =
+            ProductLearningTriageReportBuilder.Build(summary, new ProductLearningTriageReportLimits(), sinceUtc: null);
+
+        string md = ProductLearningTriageReportMarkdownFormatter.Format(doc);
+
+        md.Should().Contain("Triage queue");
+        md.Should().Contain("Queue empty");
     }
 }

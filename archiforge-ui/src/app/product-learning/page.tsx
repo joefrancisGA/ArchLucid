@@ -6,6 +6,10 @@ import Link from "next/link";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { fetchProductLearningDashboard } from "@/lib/api";
+import {
+  buildProductLearningReportFileUrl,
+  buildProductLearningReportJsonUrl,
+} from "@/lib/product-learning-report-urls";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ProductLearningDashboardBundle } from "@/types/product-learning";
@@ -22,29 +26,6 @@ function sinceIsoForRange(key: TimeRangeKey): string | null {
   d.setUTCDate(d.getUTCDate() - days);
 
   return d.toISOString();
-}
-
-/** Same-origin proxy download / view; keeps `since` aligned with the dashboard time range. */
-function buildProductLearningReportFileUrl(format: "markdown" | "json", since: string | null): string {
-  const params = new URLSearchParams();
-  params.set("format", format);
-
-  if (since) {
-    params.set("since", since);
-  }
-
-  return `/api/proxy/v1/product-learning/report/file?${params.toString()}`;
-}
-
-function buildProductLearningReportJsonUrl(since: string | null): string {
-  const params = new URLSearchParams();
-  params.set("format", "json");
-
-  if (since) {
-    params.set("since", since);
-  }
-
-  return `/api/proxy/v1/product-learning/report?${params.toString()}`;
 }
 
 function formatUtc(iso: string): string {

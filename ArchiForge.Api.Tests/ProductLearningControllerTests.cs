@@ -12,6 +12,7 @@ namespace ArchiForge.Api.Tests;
 
 /// <summary>Integration tests for <c>/v1/product-learning/*</c> (scoped read model; empty data is valid).</summary>
 [Trait("Category", "Integration")]
+[Trait("ChangeSet", "58R")]
 public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
@@ -97,8 +98,10 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
             await response.Content.ReadFromJsonAsync<ProductLearningTriageReportDocument>(JsonOptions);
 
         doc.Should().NotBeNull();
-        doc!.TopProblemAreas.Should().NotBeNull();
-        doc.ArtifactOutcomes.Should().NotBeNull();
+        doc!.ArtifactOutcomes.Should().NotBeNull();
+        doc.TopProblemAreas.Should().NotBeNull();
+        doc.TopImprovements.Should().NotBeNull();
+        doc.TriageQueuePreview.Should().NotBeNull();
     }
 
     [Fact]
@@ -135,4 +138,29 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
         string text = await response.Content.ReadAsStringAsync();
         text.Should().Contain("# Pilot feedback");
     }
+
+    [Fact]
+    public async Task GetImprovementOpportunities_MaxOpportunities_respects_upper_bound_contract()
+    {
+        HttpResponseMessage response =
+            await Client.GetAsync("/v1/product-learning/improvement-opportunities?maxOpportunities=1");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        ProductLearningImprovementOpportunitiesResponse? body =
+            await response.Content.ReadFromJsonAsync<ProductLearningImprovementOpportunitiesResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.Opportunities.Count.Should().BeLessThanOrEqualTo(1);
+    }
+
+    [Fact]
+    public async Task GetReport_InvalidMaxReportArtifacts_Returns400()
+    {
+        HttpResponseMessage response =
+            await Client.GetAsync("/v1/product-learning/report?format=json&maxReportArtifacts=99");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
 }
