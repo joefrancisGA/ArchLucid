@@ -1,4 +1,4 @@
-﻿using ArchiForge.Application.Determinism;
+using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Contracts.Manifest;
@@ -203,28 +203,26 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         }
 
         if (report.AgentResultDiff is null) return builder.Build();
-        
+
+        builder.AddHeading("Agent Result Diff", 2);
+
+        foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
         {
-            builder.AddHeading("Agent Result Diff", 2);
+            builder.AddParagraph(delta.AgentType.ToString(), bold: true);
 
-            foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
-            {
-                builder.AddParagraph(delta.AgentType.ToString(), bold: true);
+            builder.AddBullet($"Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
+            builder.AddBullet($"Right Exists: {(delta.RightExists ? "Yes" : "No")}");
+            builder.AddBullet($"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
+            builder.AddBullet($"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
 
-                builder.AddBullet($"Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
-                builder.AddBullet($"Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-                builder.AddBullet($"Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-                builder.AddBullet($"Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
+            builder.AddDiffSection("Added Claims", delta.AddedClaims);
+            builder.AddDiffSection("Removed Claims", delta.RemovedClaims);
+            builder.AddDiffSection("Added Findings", delta.AddedFindings);
+            builder.AddDiffSection("Removed Findings", delta.RemovedFindings);
+            builder.AddDiffSection("Added Required Controls", delta.AddedRequiredControls);
+            builder.AddDiffSection("Removed Required Controls", delta.RemovedRequiredControls);
 
-                builder.AddDiffSection("Added Claims", delta.AddedClaims);
-                builder.AddDiffSection("Removed Claims", delta.RemovedClaims);
-                builder.AddDiffSection("Added Findings", delta.AddedFindings);
-                builder.AddDiffSection("Removed Findings", delta.RemovedFindings);
-                builder.AddDiffSection("Added Required Controls", delta.AddedRequiredControls);
-                builder.AddDiffSection("Removed Required Controls", delta.RemovedRequiredControls);
-
-                builder.AddSpacer();
-            }
+            builder.AddSpacer();
         }
 
         return builder.Build();

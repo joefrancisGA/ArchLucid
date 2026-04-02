@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Findings;
@@ -207,26 +207,24 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         if (complexityDecision is null)
             return;
 
-        {
-            DecisionOption? selected = complexityDecision.Options.FirstOrDefault(o => o.OptionId == complexityDecision.SelectedOptionId);
-            if (selected is not null &&
-                selected.Description.Contains("Reduce complexity", StringComparison.OrdinalIgnoreCase))
-            
-                manifest.Governance.PolicyConstraints.Add("Review architecture scope for MVP complexity reduction.");
-            
+        DecisionOption? complexitySelected = complexityDecision.Options.FirstOrDefault(o => o.OptionId == complexityDecision.SelectedOptionId);
+        if (complexitySelected is not null &&
+            complexitySelected.Description.Contains("Reduce complexity", StringComparison.OrdinalIgnoreCase))
 
-            AddTrace(
-                output,
-                runId,
-                EventTypeDecisionResolution,
-                $"{TopicComplexityDisposition}: {selected?.Description ?? "Unknown"} | {complexityDecision.Rationale}",
-                new Dictionary<string, string>
-                {
-                    ["decisionTopic"] = TopicComplexityDisposition,
-                    ["outcome"] = selected?.Description ?? "Unknown",
-                    ["confidence"] = complexityDecision.Confidence.ToString("F3")
-                });
-        }
+            manifest.Governance.PolicyConstraints.Add("Review architecture scope for MVP complexity reduction.");
+
+
+        AddTrace(
+            output,
+            runId,
+            EventTypeDecisionResolution,
+            $"{TopicComplexityDisposition}: {complexitySelected?.Description ?? "Unknown"} | {complexityDecision.Rationale}",
+            new Dictionary<string, string>
+            {
+                ["decisionTopic"] = TopicComplexityDisposition,
+                ["outcome"] = complexitySelected?.Description ?? "Unknown",
+                ["confidence"] = complexityDecision.Confidence.ToString("F3")
+            });
     }
 
     private static List<AgentResult> ValidateAndFilterResults(

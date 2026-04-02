@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 
 using ArchiForge.Application.Diffs;
@@ -393,14 +393,12 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         }
 
         if (report.ManifestDiff.RemovedRelationships.Count <= 0) return;
-        
-        {
-            sb.AppendLine("### Removed Relationships");
-            sb.AppendLine();
-            foreach (RelationshipDiffItem rel in report.ManifestDiff.RemovedRelationships)
-                sb.AppendLine($"- {rel.SourceId} -> {rel.TargetId} ({rel.RelationshipType})");
-            sb.AppendLine();
-        }
+
+        sb.AppendLine("### Removed Relationships");
+        sb.AppendLine();
+        foreach (RelationshipDiffItem rel in report.ManifestDiff.RemovedRelationships)
+            sb.AppendLine($"- {rel.SourceId} -> {rel.TargetId} ({rel.RelationshipType})");
+        sb.AppendLine();
     }
 
     private static void AppendMarkdownExportDiffs(StringBuilder sb, EndToEndReplayComparisonReport report)

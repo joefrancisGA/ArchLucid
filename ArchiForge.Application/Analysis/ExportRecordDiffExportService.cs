@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Application.Analysis;
+namespace ArchiForge.Application.Analysis;
 
 public sealed class ExportRecordDiffExportService : IExportRecordDiffExportService
 {
@@ -55,15 +55,13 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
         }
 
         if (diff.Warnings.Count <= 0) return Task.FromResult(builder.Build());
-        
-        {
-            builder.AddHeading("Warnings", 2);
-            foreach (string item in diff.Warnings)
-            
-                builder.AddBullet(item);
-            
-            builder.AddSpacer();
-        }
+
+        builder.AddHeading("Warnings", 2);
+        foreach (string item in diff.Warnings)
+
+            builder.AddBullet(item);
+
+        builder.AddSpacer();
 
         return Task.FromResult(builder.Build());
     }

@@ -1,4 +1,4 @@
-﻿using ArchiForge.Decisioning.Findings;
+using ArchiForge.Decisioning.Findings;
 using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Interfaces;
@@ -80,12 +80,10 @@ public class FindingPayloadValidator : IFindingPayloadValidator
 
         if (!finding.FindingType.Equals(FindingTypes.ComplianceFinding, StringComparison.OrdinalIgnoreCase)) return;
 
-        {
-            ComplianceFindingPayload? payload = FindingPayloadConverter.ToCompliancePayload(finding);
+        ComplianceFindingPayload? compliancePayload = FindingPayloadConverter.ToCompliancePayload(finding);
 
-            if (payload is null)
-                throw new InvalidOperationException("ComplianceFinding payload is invalid.");
-        }
+        if (compliancePayload is null)
+            throw new InvalidOperationException("ComplianceFinding payload is invalid.");
     }
 }
 

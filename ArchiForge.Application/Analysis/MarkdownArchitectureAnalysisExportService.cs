@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diffs;
@@ -362,32 +362,30 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
         }
 
         if (report.AgentResultDiff is null) return sb.ToString();
-        
+
+        sb.AppendLine("## Agent Result Diff");
+        sb.AppendLine();
+
+        foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
         {
-            sb.AppendLine("## Agent Result Diff");
+            sb.AppendLine($"### {delta.AgentType}");
+            sb.AppendLine();
+            sb.AppendLine($"- Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
+            sb.AppendLine($"- Right Exists: {(delta.RightExists ? "Yes" : "No")}");
+            sb.AppendLine($"- Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
+            sb.AppendLine($"- Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
             sb.AppendLine();
 
-            foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
-            {
-                sb.AppendLine($"### {delta.AgentType}");
-                sb.AppendLine();
-                sb.AppendLine($"- Left Exists: {(delta.LeftExists ? "Yes" : "No")}");
-                sb.AppendLine($"- Right Exists: {(delta.RightExists ? "Yes" : "No")}");
-                sb.AppendLine($"- Left Confidence: {(delta.LeftConfidence.HasValue ? delta.LeftConfidence.Value.ToString("0.00") : "n/a")}");
-                sb.AppendLine($"- Right Confidence: {(delta.RightConfidence.HasValue ? delta.RightConfidence.Value.ToString("0.00") : "n/a")}");
-                sb.AppendLine();
-
-                AppendList(sb, "Added Claims", delta.AddedClaims);
-                AppendList(sb, "Removed Claims", delta.RemovedClaims);
-                AppendList(sb, "Added Evidence References", delta.AddedEvidenceRefs);
-                AppendList(sb, "Removed Evidence References", delta.RemovedEvidenceRefs);
-                AppendList(sb, "Added Findings", delta.AddedFindings);
-                AppendList(sb, "Removed Findings", delta.RemovedFindings);
-                AppendList(sb, "Added Required Controls", delta.AddedRequiredControls);
-                AppendList(sb, "Removed Required Controls", delta.RemovedRequiredControls);
-                AppendList(sb, "Added Warnings", delta.AddedWarnings);
-                AppendList(sb, "Removed Warnings", delta.RemovedWarnings);
-            }
+            AppendList(sb, "Added Claims", delta.AddedClaims);
+            AppendList(sb, "Removed Claims", delta.RemovedClaims);
+            AppendList(sb, "Added Evidence References", delta.AddedEvidenceRefs);
+            AppendList(sb, "Removed Evidence References", delta.RemovedEvidenceRefs);
+            AppendList(sb, "Added Findings", delta.AddedFindings);
+            AppendList(sb, "Removed Findings", delta.RemovedFindings);
+            AppendList(sb, "Added Required Controls", delta.AddedRequiredControls);
+            AppendList(sb, "Removed Required Controls", delta.RemovedRequiredControls);
+            AppendList(sb, "Added Warnings", delta.AddedWarnings);
+            AppendList(sb, "Removed Warnings", delta.RemovedWarnings);
         }
 
         return sb.ToString();

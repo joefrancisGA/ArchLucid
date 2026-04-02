@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using ArchiForge.Api.Configuration;
 
@@ -90,38 +90,35 @@ public static class ArchiForgeConfigurationRules
 
         CollectProductionSafetyErrors(configuration, errors);
 
-        {
-            string? authMode = configuration["ArchiForgeAuth:Mode"];
-            if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
-            
-                errors.Add("ArchiForgeAuth:Mode cannot be DevelopmentBypass when the host environment is Production.");
-            
+        string? authMode = configuration["ArchiForgeAuth:Mode"];
+        if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
 
-            if (string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
-            
-                if (string.IsNullOrWhiteSpace(configuration["ArchiForgeAuth:Authority"]))
-                
-                    errors.Add(
-                        "ArchiForgeAuth:Authority is required when ArchiForgeAuth:Mode is JwtBearer in Production.");
-                
-            
+            errors.Add("ArchiForgeAuth:Mode cannot be DevelopmentBypass when the host environment is Production.");
 
-            if (!string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase)) return errors;
-            
-            if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
-            
+
+        if (string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
+
+            if (string.IsNullOrWhiteSpace(configuration["ArchiForgeAuth:Authority"]))
+
                 errors.Add(
-                    "Authentication:ApiKey:Enabled must be true when ArchiForgeAuth:Mode is ApiKey in Production.");
-            
+                    "ArchiForgeAuth:Authority is required when ArchiForgeAuth:Mode is JwtBearer in Production.");
 
-            string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
-            string? readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
-            if (string.IsNullOrWhiteSpace(adminKey) && string.IsNullOrWhiteSpace(readerKey))
-            
-                errors.Add(
-                    "Production ApiKey auth requires at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey.");
-            
-        }
+
+        if (!string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase)) return errors;
+
+        if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
+
+            errors.Add(
+                "Authentication:ApiKey:Enabled must be true when ArchiForgeAuth:Mode is ApiKey in Production.");
+
+
+        string? productionApiAdminKey = configuration["Authentication:ApiKey:AdminKey"];
+        string? productionApiReaderKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
+        if (string.IsNullOrWhiteSpace(productionApiAdminKey) && string.IsNullOrWhiteSpace(productionApiReaderKey))
+
+            errors.Add(
+                "Production ApiKey auth requires at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey.");
+
 
         return errors;
     }

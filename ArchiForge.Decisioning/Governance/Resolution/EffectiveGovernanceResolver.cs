@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.Core.Diagnostics;
@@ -477,26 +477,23 @@ public sealed class EffectiveGovernanceResolver(
             });
 
             if (candidates.Count <= 1) continue;
-            
-            {
-                int distinctValues = candidates
-                    .Select(x => x.ValueJson)
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .Count();
 
-                if (distinctValues > 1)
-                
-                    result.Conflicts.Add(new GovernanceConflictRecord
-                    {
-                        ItemType = itemType,
-                        ItemKey = canonicalKey,
-                        ConflictType = "ValueConflict",
-                        Description =
-                            $"Multiple policy packs defined different values for {itemType} '{canonicalKey}'. The higher-precedence value was selected.",
-                        Candidates = candidates,
-                    });
-                
-            }
+            int distinctValues = candidates
+                .Select(x => x.ValueJson)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Count();
+
+            if (distinctValues > 1)
+
+                result.Conflicts.Add(new GovernanceConflictRecord
+                {
+                    ItemType = itemType,
+                    ItemKey = canonicalKey,
+                    ConflictType = "ValueConflict",
+                    Description =
+                        $"Multiple policy packs defined different values for {itemType} '{canonicalKey}'. The higher-precedence value was selected.",
+                    Candidates = candidates,
+                });
         }
 
         setter(result.EffectiveContent, effective);

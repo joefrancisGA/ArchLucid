@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
@@ -198,11 +198,9 @@ public sealed class ComparisonReplayService(
 
         if (!string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException($"Unsupported replay format '{format}'.");
-        
-        {
-            byte[] bytes = await endToEndExportService.GeneratePdfAsync(report, cancellationToken, profile);
-            return BuildBinaryResult(record, "pdf", $"comparison_{record.ComparisonRecordId}.pdf", bytes, profile);
-        }
+
+        byte[] pdfBytes = await endToEndExportService.GeneratePdfAsync(report, cancellationToken, profile);
+        return BuildBinaryResult(record, "pdf", $"comparison_{record.ComparisonRecordId}.pdf", pdfBytes, profile);
 
     }
 

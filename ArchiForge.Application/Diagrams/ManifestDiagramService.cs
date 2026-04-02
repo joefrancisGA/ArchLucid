@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 using ArchiForge.Contracts.Manifest;
 
@@ -140,12 +140,10 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         if (ds is null)
             return null;
 
-        {
-            string key = $"ds:{ds.DatastoreId}";
-            if (!string.IsNullOrWhiteSpace(ds.DatastoreId) && nodeIds.TryGetValue(key, out string? id))
-                return id;
-            return SanitizeId(string.IsNullOrWhiteSpace(ds.DatastoreId) ? ds.DatastoreName : ds.DatastoreId);
-        }
+        string datastoreKey = $"ds:{ds.DatastoreId}";
+        if (!string.IsNullOrWhiteSpace(ds.DatastoreId) && nodeIds.TryGetValue(datastoreKey, out string? datastoreNodeId))
+            return datastoreNodeId;
+        return SanitizeId(string.IsNullOrWhiteSpace(ds.DatastoreId) ? ds.DatastoreName : ds.DatastoreId);
     }
 
     private static string BuildServiceLabel(ManifestService service, bool includeRuntimePlatform)

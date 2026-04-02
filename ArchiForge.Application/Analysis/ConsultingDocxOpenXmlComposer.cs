@@ -1,4 +1,4 @@
-﻿using ArchiForge.Application.Diagrams;
+using ArchiForge.Application.Diagrams;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
@@ -374,18 +374,16 @@ internal static class ConsultingDocxOpenXmlComposer
         if (report.Manifest.Datastores.Count <= 0)
             return;
 
-        {
-            AddHeading(body, "Datastores", 2);
+        AddHeading(body, "Datastores", 2);
 
-            foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
-            {
-                AddStyledParagraph(body, datastore.DatastoreName, "Strong");
-                AddBullet(body, $"Type: {datastore.DatastoreType}");
-                AddBullet(body, $"Platform: {datastore.RuntimePlatform}");
-                AddBullet(body, $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-                AddBullet(body, $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
-                AddSpacer(body);
-            }
+        foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
+        {
+            AddStyledParagraph(body, datastore.DatastoreName, "Strong");
+            AddBullet(body, $"Type: {datastore.DatastoreType}");
+            AddBullet(body, $"Platform: {datastore.RuntimePlatform}");
+            AddBullet(body, $"Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
+            AddBullet(body, $"Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+            AddSpacer(body);
         }
     }
 

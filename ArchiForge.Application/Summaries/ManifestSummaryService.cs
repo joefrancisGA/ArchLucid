@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 using ArchiForge.Application.Manifests;
 using ArchiForge.Contracts.Manifest;
@@ -139,19 +139,17 @@ public sealed class ManifestSummaryService : IManifestSummaryService
         }
 
         if (!options.IncludeComplianceTags || governance.ComplianceTags.Count <= 0) return sb.ToString().TrimEnd();
-        
-        {
-            sb.AppendLine("## Compliance Tags");
-            sb.AppendLine();
 
-            foreach (string tag in governance.ComplianceTags
-                         .OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
-            
-                sb.AppendLine($"- {tag}");
-            
+        sb.AppendLine("## Compliance Tags");
+        sb.AppendLine();
 
-            sb.AppendLine();
-        }
+        foreach (string tag in governance.ComplianceTags
+                     .OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
+
+            sb.AppendLine($"- {tag}");
+
+
+        sb.AppendLine();
 
         return sb.ToString().TrimEnd();
     }
