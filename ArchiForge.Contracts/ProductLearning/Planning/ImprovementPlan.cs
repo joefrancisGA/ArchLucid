@@ -25,4 +25,9 @@ public sealed class ImprovementPlan
     public double TrustImpactScore { get; init; }
 
     public DateTime CreatedUtc { get; init; }
+
+    /// <summary>
+    /// Filled by <see cref="IImprovementPlanPrioritizationService"/> with a short deterministic breakdown (weights + normalized axes).
+    /// </summary>
+    public string? PrioritizationExplanation { get; init; }
 }

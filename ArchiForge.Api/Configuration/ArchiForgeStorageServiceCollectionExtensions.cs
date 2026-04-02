@@ -99,6 +99,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IProductLearningPlanningRepository, InMemoryProductLearningPlanningRepository>();
             services.AddSingleton<IImprovementThemeExtractionService, ImprovementThemeExtractionService>();
             services.AddSingleton<IImprovementPlanningService, ImprovementPlanningService>();
+            services.AddSingleton<IImprovementPlanPrioritizationService, ImprovementPlanPrioritizationService>();
             services.AddSingleton<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
             services.AddSingleton<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
             services.AddSingleton<IProductLearningDashboardService, ProductLearningDashboardService>();
@@ -172,6 +173,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IProductLearningPlanningRepository, DapperProductLearningPlanningRepository>();
         services.AddScoped<IImprovementThemeExtractionService, ImprovementThemeExtractionService>();
         services.AddScoped<IImprovementPlanningService, ImprovementPlanningService>();
+        services.AddScoped<IImprovementPlanPrioritizationService, ImprovementPlanPrioritizationService>();
         services.AddScoped<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
         services.AddScoped<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
         services.AddScoped<IProductLearningDashboardService, ProductLearningDashboardService>();
