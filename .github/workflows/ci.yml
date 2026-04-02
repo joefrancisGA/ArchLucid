@@ -23,7 +23,7 @@ jobs:
     name: "Security: gitleaks (secret scan)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -36,7 +36,7 @@ jobs:
     needs: gitleaks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: hashicorp/setup-terraform@v3
         with:
@@ -62,7 +62,7 @@ jobs:
       matrix:
         directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: hashicorp/setup-terraform@v3
         with:
@@ -88,10 +88,10 @@ jobs:
       - terraform-validate-public-stacks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
@@ -111,7 +111,7 @@ jobs:
           test -x "$CDX" || CDX="${RUNNER_TEMP}/cdx/dotnet-CycloneDX"
           "$CDX" ArchiForge.Api/ArchiForge.Api.csproj -o sbom-dotnet.json
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: sbom-dotnet
           path: sbom-dotnet.json
@@ -137,13 +137,13 @@ jobs:
             -verbosity:Info
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: coverage-fast-core
           path: ${{ runner.temp }}/coverage-fast-core/**/coverage.cobertura.xml
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: success()
         with:
           name: coverage-report-fast-core-html
@@ -172,10 +172,10 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
@@ -203,13 +203,13 @@ jobs:
             -verbosity:Info
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: coverage-full-regression
           path: ${{ runner.temp }}/coverage-full/**/coverage.cobertura.xml
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: success()
         with:
           name: coverage-report-full-regression-html
@@ -221,10 +221,10 @@ jobs:
     needs: gitleaks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
@@ -240,7 +240,7 @@ jobs:
         working-directory: archiforge-ui
         run: npx --yes @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: sbom-npm
           path: archiforge-ui/sbom-npm.json
@@ -250,10 +250,10 @@ jobs:
     needs: gitleaks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
