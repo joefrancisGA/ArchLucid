@@ -11,7 +11,7 @@ public sealed class ImprovementPlan
     public string Description { get; init; } = string.Empty;
 
     /// <summary>Ordered human actions (bounded list; max enforced by services/persistence).</summary>
-    public IReadOnlyList<ImprovementPlanStep> ProposedChanges { get; init; } = Array.Empty<ImprovementPlanStep>();
+    public IReadOnlyList<ImprovementPlanStep> ProposedChanges { get; init; } = [];
     public int PriorityScore { get; init; }
     public int FrequencyScore { get; init; }
     public int SeverityScore { get; init; }

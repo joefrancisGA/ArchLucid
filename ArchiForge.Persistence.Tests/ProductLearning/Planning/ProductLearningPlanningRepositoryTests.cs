@@ -215,7 +215,7 @@ public sealed class ProductLearningPlanningRepositoryTests
 
         IReadOnlyList<string> runs = await repo.ListPlanArchitectureRunIdsAsync(planId, scope, CancellationToken.None);
 
-        Assert.Equal(new[] { "a-run", "z-run" }, runs);
+        Assert.Equal(["a-run", "z-run"], runs);
 
         Guid s1 = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         Guid s2 = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
@@ -263,13 +263,13 @@ public sealed class ProductLearningPlanningRepositoryTests
 
         List<ProductLearningImprovementPlanActionStep> dupOrd =
         [
-            new ProductLearningImprovementPlanActionStep
+            new()
             {
                 Ordinal = 1,
                 ActionType = "A",
                 Description = "d"
             },
-            new ProductLearningImprovementPlanActionStep
+            new()
             {
                 Ordinal = 1,
                 ActionType = "B",

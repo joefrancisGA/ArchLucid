@@ -26,7 +26,7 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
             await response.Content.ReadFromJsonAsync<ProductLearningDashboardSummaryResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.SummaryNotes.Should().NotBeEmpty();
+        body.SummaryNotes.Should().NotBeEmpty();
         body.TotalSignalsInScope.Should().Be(0);
         body.TopAggregateCount.Should().Be(0);
     }
@@ -40,7 +40,7 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
         problem.Detail.Should().Contain("since");
     }
 
@@ -54,7 +54,7 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
         problem.Detail.Should().Contain("maxOpportunities");
     }
 
@@ -70,7 +70,7 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
             await response.Content.ReadFromJsonAsync<ProductLearningArtifactOutcomeTrendsResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Trends.Should().NotBeNull();
+        body.Trends.Should().NotBeNull();
     }
 
     [Fact]
@@ -84,7 +84,7 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
             await response.Content.ReadFromJsonAsync<ProductLearningTriageQueueResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Items.Should().NotBeNull();
+        body.Items.Should().NotBeNull();
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
             await response.Content.ReadFromJsonAsync<ProductLearningTriageReportDocument>(JsonOptions);
 
         doc.Should().NotBeNull();
-        doc!.ArtifactOutcomes.Should().NotBeNull();
+        doc.ArtifactOutcomes.Should().NotBeNull();
         doc.TopProblemAreas.Should().NotBeNull();
         doc.TopImprovements.Should().NotBeNull();
         doc.TriageQueuePreview.Should().NotBeNull();
@@ -115,7 +115,7 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
             await response.Content.ReadFromJsonAsync<ProductLearningReportExportResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Format.Should().Be("markdown");
+        body.Format.Should().Be("markdown");
         body.Content.Should().Contain("Pilot feedback");
         body.FileName.Should().EndWith(".md");
     }
@@ -151,7 +151,7 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
             await response.Content.ReadFromJsonAsync<ProductLearningImprovementOpportunitiesResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Opportunities.Count.Should().BeLessThanOrEqualTo(1);
+        body.Opportunities.Count.Should().BeLessThanOrEqualTo(1);
     }
 
     [Fact]

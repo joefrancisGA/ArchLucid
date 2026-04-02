@@ -12,7 +12,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
             ThemeId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
             Title = "T",
             Description = "D",
-            ProposedChanges = Array.Empty<ImprovementPlanStep>(),
+            ProposedChanges = [],
             PriorityScore = seedPriority,
             FrequencyScore = 1,
             SeverityScore = 2,
@@ -48,7 +48,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
         };
 
         IReadOnlyList<ImprovementPlan> ranked = await svc.RankPlansAsync(
-            new[] { low, high },
+            [low, high],
             new ImprovementPlanPrioritizationWeights(),
             CancellationToken.None);
 
@@ -64,14 +64,13 @@ public sealed class ImprovementPlanPrioritizationServiceTests
         ImprovementPlanPrioritizationService svc = new();
 
         await Assert.ThrowsAsync<ArgumentException>(() => svc.RankPlansAsync(
-            new[]
-            {
+            [
                 new ImprovementPlanScoreInput
                 {
                     Plan = Plan(Guid.NewGuid(), 0),
                     EvidenceSignalCount = 1,
-                },
-            },
+                }
+            ],
             new ImprovementPlanPrioritizationWeights
             {
                 Frequency = 0.5,
@@ -110,7 +109,7 @@ public sealed class ImprovementPlanPrioritizationServiceTests
         };
 
         IReadOnlyList<ImprovementPlan> ranked = await svc.RankPlansAsync(
-            new[] { a, b },
+            [a, b],
             new ImprovementPlanPrioritizationWeights(),
             CancellationToken.None);
 

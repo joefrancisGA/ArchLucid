@@ -39,7 +39,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
 
         List<DecisionTrace> batch =
         [
-            new DecisionTrace
+            new()
             {
                 TraceId = "a-" + Guid.NewGuid().ToString("N"),
                 RunId = runId,
@@ -47,7 +47,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
                 EventDescription = "d2",
                 CreatedUtc = t1,
             },
-            new DecisionTrace
+            new()
             {
                 TraceId = "b-" + Guid.NewGuid().ToString("N"),
                 RunId = runId,

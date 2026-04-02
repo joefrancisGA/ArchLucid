@@ -1,9 +1,7 @@
 using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Application;
 using ArchiForge.Application.Common;
 using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
-using ArchiForge.Application.Runs;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
@@ -111,7 +109,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 It.IsAny<IReadOnlyCollection<AgentTask>>(),
                 It.IsAny<IReadOnlyCollection<AgentResult>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<AgentEvaluation>());
+            .ReturnsAsync([]);
 
         Mock<IAgentEvidencePackageRepository> evidencePackageRepo = new();
         Mock<IAgentResultRepository> resultRepo = new();
@@ -246,7 +244,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 });
 
         Mock<IAgentResultRepository> resultRepo = new();
-        resultRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<AgentResult>());
+        resultRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IActorContext> actor = new();
         actor.Setup(x => x.GetActor()).Returns("a");
@@ -325,7 +323,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         resultRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(new List<AgentResult> { topologyResult });
 
         Mock<IAgentEvaluationRepository> evaluationRepo = new();
-        evaluationRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<AgentEvaluation>());
+        evaluationRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         Mock<IAgentEvidencePackageRepository> evidencePackageRepo = new();
         evidencePackageRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(new AgentEvidencePackage { RunId = runId, RequestId = requestId });

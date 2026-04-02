@@ -29,7 +29,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
         DigestSubscription? loaded = await repo.GetByIdAsync(id, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.SubscriptionId.Should().Be(id);
+        loaded.SubscriptionId.Should().Be(id);
         loaded.Destination.Should().Be("digest@x.com");
     }
 
@@ -47,7 +47,7 @@ public sealed class InMemoryDigestSubscriptionRepositoryTests
 
         DigestSubscription? loaded = await repo.GetByIdAsync(id, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Destination.Should().Be("new");
+        loaded.Destination.Should().Be("new");
         loaded.IsEnabled.Should().BeFalse();
         loaded.LastDeliveredUtc.Should().Be(BaseUtc.AddHours(2));
     }

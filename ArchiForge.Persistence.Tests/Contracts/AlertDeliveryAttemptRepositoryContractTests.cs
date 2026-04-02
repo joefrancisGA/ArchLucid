@@ -1,7 +1,5 @@
 using ArchiForge.Decisioning.Alerts.Delivery;
 
-using ArchiForge.Persistence.Alerts;
-
 using FluentAssertions;
 
 namespace ArchiForge.Persistence.Tests.Contracts;

@@ -12,7 +12,7 @@ public sealed class ProductLearningImprovementPlanRecord
     public string Summary { get; init; } = string.Empty;
 
     public IReadOnlyList<ProductLearningImprovementPlanActionStep> ActionSteps { get; init; } =
-        Array.Empty<ProductLearningImprovementPlanActionStep>();
+        [];
 
     /// <summary>Snapshot priority rank (higher = more urgent); formula lives in 59R services, not the DB.</summary>
     public int PriorityScore { get; init; }

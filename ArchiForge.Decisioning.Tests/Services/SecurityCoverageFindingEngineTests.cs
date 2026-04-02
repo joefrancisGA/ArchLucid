@@ -60,7 +60,7 @@ public sealed class SecurityCoverageFindingEngineTests
 
         SecurityCoverageFindingPayload? payload = finding.Payload as SecurityCoverageFindingPayload;
         payload.Should().NotBeNull();
-        payload!.SecurityNodeCount.Should().Be(3);
+        payload.SecurityNodeCount.Should().Be(3);
         payload.ProtectedResourceCount.Should().Be(1);
         payload.UnprotectedResourceCount.Should().Be(2);
         payload.UnprotectedResources.Should().Equal("res-a", "res-b");

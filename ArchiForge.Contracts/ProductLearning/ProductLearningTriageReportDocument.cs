@@ -19,14 +19,14 @@ public sealed class ProductLearningTriageReportDocument
     public int DistinctRunsReviewed { get; init; }
 
     public IReadOnlyList<ProductLearningTriageReportArtifactRow> ArtifactOutcomes { get; init; } =
-        Array.Empty<ProductLearningTriageReportArtifactRow>();
+        [];
 
     /// <summary>Short bullets for recurring pain (aggregates + opportunities, deduplicated).</summary>
-    public IReadOnlyList<string> TopProblemAreas { get; init; } = Array.Empty<string>();
+    public IReadOnlyList<string> TopProblemAreas { get; init; } = [];
 
     public IReadOnlyList<ProductLearningTriageReportImprovementLine> TopImprovements { get; init; } =
-        Array.Empty<ProductLearningTriageReportImprovementLine>();
+        [];
 
     public IReadOnlyList<ProductLearningTriageReportTriageLine> TriageQueuePreview { get; init; } =
-        Array.Empty<ProductLearningTriageReportTriageLine>();
+        [];
 }

@@ -1,5 +1,3 @@
-using ArchiForge.Application;
-using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
@@ -56,7 +54,7 @@ public sealed class RunDetailQueryServiceApplicationTests
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync("run-x");
 
         detail.Should().NotBeNull();
-        detail!.Manifest.Should().BeNull();
+        detail.Manifest.Should().BeNull();
         detail.HasBrokenManifestReference.Should().BeTrue();
         traceRepo.Verify(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -107,7 +105,7 @@ public sealed class RunDetailQueryServiceApplicationTests
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync("run-y");
 
         detail.Should().NotBeNull();
-        detail!.HasBrokenManifestReference.Should().BeFalse();
+        detail.HasBrokenManifestReference.Should().BeFalse();
         traceRepo.Verify(t => t.GetByRunIdAsync("run-y", It.IsAny<CancellationToken>()), Times.Once);
     }
 }

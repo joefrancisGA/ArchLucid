@@ -52,14 +52,14 @@ public sealed class ImprovementThemeExtractionServiceTests
         ProductLearningAggregationSnapshot snapshot = new()
         {
             Scope = scope,
-            FeedbackRollups = Array.Empty<FeedbackAggregate>(),
-            ArtifactTrends = Array.Empty<ArtifactOutcomeTrend>(),
-            RepeatedCommentThemes = Array.Empty<RepeatedCommentTheme>(),
+            FeedbackRollups = [],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = [],
         };
 
         IReadOnlyList<ImprovementThemeWithEvidence> themes = await svc.ExtractThemesAsync(
             snapshot,
-            Array.Empty<ProductLearningPilotSignalRecord>(),
+            [],
             null,
             new ImprovementThemeExtractionOptions(),
             CancellationToken.None);
@@ -94,9 +94,9 @@ public sealed class ImprovementThemeExtractionServiceTests
         ProductLearningAggregationSnapshot snapshot = new()
         {
             Scope = scope,
-            FeedbackRollups = new[] { aggregate },
-            ArtifactTrends = Array.Empty<ArtifactOutcomeTrend>(),
-            RepeatedCommentThemes = Array.Empty<RepeatedCommentTheme>(),
+            FeedbackRollups = [aggregate],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = [],
         };
 
         List<ProductLearningPilotSignalRecord> signals =
@@ -157,9 +157,9 @@ public sealed class ImprovementThemeExtractionServiceTests
         ProductLearningAggregationSnapshot snapshot = new()
         {
             Scope = scope,
-            FeedbackRollups = Array.Empty<FeedbackAggregate>(),
-            ArtifactTrends = Array.Empty<ArtifactOutcomeTrend>(),
-            RepeatedCommentThemes = Array.Empty<RepeatedCommentTheme>(),
+            FeedbackRollups = [],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = [],
         };
 
         string detail = """{"tags":["alpha"]}""";
@@ -195,9 +195,9 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         Assert.DoesNotContain(below, t => t.CanonicalKey.StartsWith("tag:", StringComparison.Ordinal));
 
-        List<ProductLearningPilotSignalRecord> three = new(signals)
-        {
-            Signal(
+        List<ProductLearningPilotSignalRecord> three =
+        [
+            ..signals, Signal(
                 Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
                 ProductLearningDispositionValues.Trusted,
                 null,
@@ -205,8 +205,9 @@ public sealed class ImprovementThemeExtractionServiceTests
                 "diagram",
                 null,
                 detail,
-                utc.AddMinutes(2)),
-        };
+                utc.AddMinutes(2))
+
+        ];
 
         IReadOnlyList<ImprovementThemeWithEvidence> ok = await svc.ExtractThemesAsync(
             snapshot,
@@ -230,9 +231,9 @@ public sealed class ImprovementThemeExtractionServiceTests
         ProductLearningAggregationSnapshot snapshot = new()
         {
             Scope = scope,
-            FeedbackRollups = Array.Empty<FeedbackAggregate>(),
-            ArtifactTrends = Array.Empty<ArtifactOutcomeTrend>(),
-            RepeatedCommentThemes = Array.Empty<RepeatedCommentTheme>(),
+            FeedbackRollups = [],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = [],
         };
 
         ProductLearningPilotSignalRecord badScope = new()
@@ -248,7 +249,7 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         await Assert.ThrowsAsync<ArgumentException>(() => svc.ExtractThemesAsync(
             snapshot,
-            new[] { badScope },
+            [badScope],
             null,
             new ImprovementThemeExtractionOptions(),
             CancellationToken.None));
@@ -279,9 +280,9 @@ public sealed class ImprovementThemeExtractionServiceTests
         ProductLearningAggregationSnapshot snapshot = new()
         {
             Scope = scope,
-            FeedbackRollups = new[] { aggregate },
-            ArtifactTrends = Array.Empty<ArtifactOutcomeTrend>(),
-            RepeatedCommentThemes = Array.Empty<RepeatedCommentTheme>(),
+            FeedbackRollups = [aggregate],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = [],
         };
 
         List<ProductLearningPilotSignalRecord> signals =

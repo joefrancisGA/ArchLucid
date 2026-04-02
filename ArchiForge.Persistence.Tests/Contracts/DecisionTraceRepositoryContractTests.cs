@@ -59,7 +59,7 @@ public abstract class DecisionTraceRepositoryContractTests
 
         DecisionTrace? loaded = await repo.GetByIdAsync(scope, traceId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.DecisionTraceId.Should().Be(traceId);
+        loaded.DecisionTraceId.Should().Be(traceId);
         loaded.RunId.Should().Be(runId);
         loaded.AppliedRuleIds.Should().Equal("r1");
     }

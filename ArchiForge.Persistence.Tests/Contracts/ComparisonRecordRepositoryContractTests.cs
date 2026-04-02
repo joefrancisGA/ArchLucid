@@ -46,7 +46,7 @@ public abstract class ComparisonRecordRepositoryContractTests
         ComparisonRecord? loaded = await repo.GetByIdAsync(row.ComparisonRecordId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.ComparisonRecordId.Should().Be(row.ComparisonRecordId);
+        loaded.ComparisonRecordId.Should().Be(row.ComparisonRecordId);
         loaded.ComparisonType.Should().Be(row.ComparisonType);
         loaded.LeftRunId.Should().Be(row.LeftRunId);
         loaded.Tags.Should().BeEquivalentTo(row.Tags);

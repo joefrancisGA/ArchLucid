@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning;
 
 namespace ArchiForge.Persistence.ProductLearning;
 
@@ -14,7 +14,7 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
         ArgumentNullException.ThrowIfNull(options);
 
         HashSet<string> usedKeys = new(StringComparer.Ordinal);
-        List<(int BadScore, string SortKey, ImprovementOpportunity Model)> work = new();
+        List<(int BadScore, string SortKey, ImprovementOpportunity Model)> work = [];
 
         foreach (FeedbackAggregate aggregate in snapshot.FeedbackRollups)
         {

@@ -1,4 +1,3 @@
-using ArchiForge.Application;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Contracts.Agents;
@@ -38,7 +37,7 @@ public sealed class DeterminismCheckServiceTests
     {
         List<AgentResult> results =
         [
-            new AgentResult
+            new()
             {
                 RunId = "any",
                 TaskId = "t1",
@@ -137,7 +136,7 @@ public sealed class DeterminismCheckServiceTests
     {
         List<AgentResult> baselineResults =
         [
-            new AgentResult
+            new()
             {
                 RunId = "b",
                 TaskId = "t1",
@@ -150,7 +149,7 @@ public sealed class DeterminismCheckServiceTests
 
         List<AgentResult> driftResults =
         [
-            new AgentResult
+            new()
             {
                 RunId = "i",
                 TaskId = "t1",

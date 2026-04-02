@@ -1,7 +1,5 @@
 using System.Text.Json;
 
-using ArchiForge.Provenance;
-
 using FluentAssertions;
 
 namespace ArchiForge.Provenance.Tests;
@@ -45,7 +43,7 @@ public sealed class ProvenanceGraphSerializerTests
         DecisionProvenanceGraph? back = ProvenanceGraphSerializer.Deserialize(json);
 
         back.Should().NotBeNull();
-        back!.Id.Should().Be(graphId);
+        back.Id.Should().Be(graphId);
         back.RunId.Should().Be(runId);
         back.Nodes.Should().HaveCount(1);
         back.Nodes[0].Id.Should().Be(nodeId);

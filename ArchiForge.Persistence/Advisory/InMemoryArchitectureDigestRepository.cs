@@ -1,4 +1,4 @@
-﻿using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchiForge.Decisioning.Advisory.Scheduling;
 
 namespace ArchiForge.Persistence.Advisory;
 
@@ -70,19 +70,12 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
         DateTime stamp = DateTime.UtcNow;
         int count = 0;
         lock (_gate)
-        
-            foreach (ArchitectureDigest d in _items)
+            foreach (ArchitectureDigest d in _items.Where(d => !d.ArchivedUtc.HasValue && d.GeneratedUtc < cutoff))
             {
-                if (d.ArchivedUtc.HasValue || d.GeneratedUtc >= cutoff)
-                
-                    continue;
-                
-
                 d.ArchivedUtc = stamp;
                 count++;
             }
         
-
         return Task.FromResult(count);
     }
 }

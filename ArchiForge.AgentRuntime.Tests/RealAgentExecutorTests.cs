@@ -68,7 +68,7 @@ public sealed class RealAgentExecutorTests
     public async Task ExecuteAsync_when_handler_missing_throws()
     {
         RealAgentExecutor sut = new(
-            Array.Empty<IAgentHandler>(),
+            [],
             NullLogger<RealAgentExecutor>.Instance);
         ArchitectureRequest request = new()
         {

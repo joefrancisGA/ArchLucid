@@ -1,4 +1,3 @@
-using ArchiForge.Application;
 using ArchiForge.Application.Common;
 using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
@@ -53,7 +52,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
         EvidenceBundle bundle = new() { EvidenceBundleId = "eb-contract" };
         List<AgentTask> tasks =
         [
-            new AgentTask
+            new()
             {
                 TaskId = "t1",
                 RunId = runId,
@@ -171,7 +170,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
     {
         return new ArchitectureRunService(
             coordinator,
-            Mock.Of<ArchiForge.AgentSimulator.Services.IAgentExecutor>(),
+            Mock.Of<AgentSimulator.Services.IAgentExecutor>(),
             Mock.Of<IDecisionEngineService>(),
             Mock.Of<IAgentEvaluationService>(),
             Mock.Of<IAgentEvaluationRepository>(),

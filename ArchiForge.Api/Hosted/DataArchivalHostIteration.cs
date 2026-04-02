@@ -3,9 +3,6 @@ using System.Text.Json;
 using ArchiForge.Core.Audit;
 using ArchiForge.Persistence.Archival;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace ArchiForge.Api.Hosted;
 
 /// <summary>

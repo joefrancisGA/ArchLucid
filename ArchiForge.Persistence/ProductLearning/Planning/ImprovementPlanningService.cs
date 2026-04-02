@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 
 using ArchiForge.Contracts.ProductLearning.Planning;
@@ -241,7 +241,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
 
     private static ImprovementPlanStep[] RollupSteps(string facet) =>
     [
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 1,
             ActionType = "Investigate",
@@ -249,7 +249,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "Open the example signals and runs listed for this theme. Record which manifest versions, exports, or diagrams pilots rejected, revised, or flagged for follow-up.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 2,
             ActionType = "Analyze",
@@ -258,7 +258,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
                 "Translate pattern key or workflow area into specific templates, sections, or operator steps that must change for "
                 + facet + ".",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 3,
             ActionType = "UX",
@@ -266,7 +266,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "Adjust headings, section order, and density so pilots can scan results in under two minutes. Add whitespace or summaries where pilots stalled.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 4,
             ActionType = "Policy",
@@ -274,7 +274,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "Write a short checklist pilots use when approving outputs (required sections, naming, maximum length). Store it where reviewers can link from the run.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 5,
             ActionType = "Verify",
@@ -286,7 +286,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
 
     private static ImprovementPlanStep[] TrendSteps(string facet) =>
     [
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 1,
             ActionType = "Investigate",
@@ -294,7 +294,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "Use the trend counts for " + facet + " to confirm whether rejections, revisions, or follow-ups cluster on the same artifact type or export format.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 2,
             ActionType = "Content",
@@ -302,7 +302,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "Insert explicit sections (context, decisions, risks, next steps) where pilots repeatedly asked for more structure in this facet.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 3,
             ActionType = "UX",
@@ -310,7 +310,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "Shorten paragraphs, add bullet lists for requirements, and ensure diagrams or tables include captions tied to manifest metadata.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 4,
             ActionType = "Content",
@@ -318,7 +318,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "Rename files, headings, and labels that pilots confused with similar artifacts. Document the naming map in release notes for operators.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 5,
             ActionType = "Verify",
@@ -330,7 +330,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
 
     private static ImprovementPlanStep[] CommentSteps() =>
     [
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 1,
             ActionType = "Investigate",
@@ -338,7 +338,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "Compare the shared comment prefix with actual outputs. Identify whether the issue is missing data, confusing labels, or policy gaps.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 2,
             ActionType = "UX",
@@ -346,7 +346,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "Change UI strings, export headers, or inline help so the question behind the repeated comment is answered before pilots file feedback.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 3,
             ActionType = "Content",
@@ -354,7 +354,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "If pilots ask the same question, embed a short, authoritative section in the artifact that references the source manifest fields.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 4,
             ActionType = "Verify",
@@ -366,7 +366,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
 
     private static ImprovementPlanStep[] TagSteps(string facet) =>
     [
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 1,
             ActionType = "Investigate",
@@ -374,7 +374,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "List every signal with this tag, including artifact hints and runs. Summarize dispositions to see whether the tag marks quality, process, or tooling debt.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 2,
             ActionType = "Policy",
@@ -382,7 +382,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "Record the responsible team, target date, and measurable exit criteria (for example, disposition mix or pilot checklist completion).",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 3,
             ActionType = "UX",
@@ -390,7 +390,7 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             Description =
                 "For tagged work affecting " + facet + ", apply the same readability, structure, and naming rules as other artifact themes.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 4,
             ActionType = "Verify",
@@ -402,21 +402,21 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
 
     private static ImprovementPlanStep[] GenericSteps(string facet) =>
     [
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 1,
             ActionType = "Investigate",
             Title = "Validate theme",
             Description = "Re-read the grouping explanation and canonical key. Confirm pilots still agree this bucket is actionable.",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 2,
             ActionType = "Analyze",
             Title = "Define deliverables",
             Description = "List concrete files, templates, or policies that must change for " + facet + ".",
         },
-        new ImprovementPlanStep
+        new()
         {
             Ordinal = 3,
             ActionType = "Verify",

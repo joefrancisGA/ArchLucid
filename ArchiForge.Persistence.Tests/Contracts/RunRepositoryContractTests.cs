@@ -59,7 +59,7 @@ public abstract class RunRepositoryContractTests
         RunRecord? loaded = await repo.GetByIdAsync(scope, run.RunId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.RunId.Should().Be(run.RunId);
+        loaded.RunId.Should().Be(run.RunId);
         loaded.ProjectId.Should().Be(run.ProjectId);
         loaded.TenantId.Should().Be(scope.TenantId);
     }
@@ -125,7 +125,7 @@ public abstract class RunRepositoryContractTests
         RunRecord? loaded = await repo.GetByIdAsync(scope, run.RunId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Description.Should().Be("updated");
+        loaded.Description.Should().Be("updated");
     }
 
     [SkippableFact]

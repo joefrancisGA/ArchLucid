@@ -49,7 +49,7 @@ public sealed class ArtifactPackagingServiceTests
         Guid manifestId = Guid.NewGuid();
         List<SynthesizedArtifact> artifacts =
         [
-            new SynthesizedArtifact
+            new()
             {
                 Name = "a.txt",
                 Content = "a",
@@ -58,7 +58,7 @@ public sealed class ArtifactPackagingServiceTests
                 ArtifactType = "A",
                 ArtifactId = Guid.NewGuid(),
             },
-            new SynthesizedArtifact
+            new()
             {
                 Name = "b.txt",
                 Content = "b",

@@ -1,5 +1,3 @@
-using ArchiForge.Contracts.ProductLearning;
-
 namespace ArchiForge.Contracts.ProductLearning.Planning;
 
 /// <summary>

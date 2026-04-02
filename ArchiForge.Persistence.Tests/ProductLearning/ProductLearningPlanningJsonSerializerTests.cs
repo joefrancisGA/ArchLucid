@@ -12,8 +12,8 @@ public sealed class ProductLearningPlanningJsonSerializerTests
     {
         IReadOnlyList<ProductLearningImprovementPlanActionStep> steps =
         [
-            new ProductLearningImprovementPlanActionStep { Ordinal = 2, ActionType = "B", Description = "second" },
-            new ProductLearningImprovementPlanActionStep { Ordinal = 1, ActionType = "A", Description = "first" },
+            new() { Ordinal = 2, ActionType = "B", Description = "second" },
+            new() { Ordinal = 1, ActionType = "A", Description = "first" },
         ];
 
         string json = ProductLearningPlanningJsonSerializer.SerializeActionSteps(steps);

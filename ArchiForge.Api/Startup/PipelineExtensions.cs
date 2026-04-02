@@ -1,10 +1,9 @@
-﻿using ArchiForge.Api.Health;
+using ArchiForge.Api.Health;
 using ArchiForge.Api.Middleware;
 using ArchiForge.Api.ProblemDetails;
 
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchiForge.Api.Startup;
 

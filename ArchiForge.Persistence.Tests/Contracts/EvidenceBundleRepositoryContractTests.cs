@@ -32,7 +32,7 @@ public abstract class EvidenceBundleRepositoryContractTests
         EvidenceBundle? loaded = await repo.GetByIdAsync(bundle.EvidenceBundleId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.EvidenceBundleId.Should().Be(bundle.EvidenceBundleId);
+        loaded.EvidenceBundleId.Should().Be(bundle.EvidenceBundleId);
         loaded.RequestDescription.Should().Be("rd");
     }
 }

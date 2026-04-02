@@ -81,7 +81,7 @@ public sealed class DefaultAgentEvaluationServiceTests
 
         AgentEvidencePackage evidence = new() { RunId = "run-1", RequestId = "r1" };
         using CancellationTokenSource cts = new();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         Func<Task> act = () => sut.EvaluateAsync("run-1", request, evidence, [], [], cts.Token);
 

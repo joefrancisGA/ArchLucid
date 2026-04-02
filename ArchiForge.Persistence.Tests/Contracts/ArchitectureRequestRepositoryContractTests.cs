@@ -38,7 +38,7 @@ public abstract class ArchitectureRequestRepositoryContractTests
         ArchitectureRequest? loaded = await repo.GetByIdAsync(requestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.RequestId.Should().Be(requestId);
+        loaded.RequestId.Should().Be(requestId);
         loaded.SystemName.Should().Be("SysX");
     }
 }

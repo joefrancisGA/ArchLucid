@@ -172,7 +172,7 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
     {
         InMemoryProductLearningPilotSignalRepository repo = new();
 
-        string longComment = new string('x', 250);
+        string longComment = new('x', 250);
 
         await repo.InsertAsync(
             Signal(ProductLearningDispositionValues.Trusted, patternKey: "p1", runId: "r1", comment: longComment),

@@ -44,7 +44,7 @@ public abstract class ArchitectureRunRepositoryContractTests
         ArchitectureRun? loaded = await repo.GetByIdAsync(runId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.RunId.Should().Be(runId);
+        loaded.RunId.Should().Be(runId);
         loaded.Status.Should().Be(ArchitectureRunStatus.TasksGenerated);
     }
 
@@ -71,7 +71,7 @@ public abstract class ArchitectureRunRepositoryContractTests
         ArchitectureRun? loaded = await repo.GetByIdAsync(runId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Status.Should().Be(ArchitectureRunStatus.ReadyForCommit);
+        loaded.Status.Should().Be(ArchitectureRunStatus.ReadyForCommit);
     }
 
     [SkippableFact]
@@ -111,7 +111,7 @@ public abstract class ArchitectureRunRepositoryContractTests
 
         ArchitectureRunListItem? row = list.FirstOrDefault(x => x.RunId == runId);
         row.Should().NotBeNull();
-        row!.SystemName.Should().Be("ListedSystem");
+        row.SystemName.Should().Be("ListedSystem");
     }
 
     private static ArchitectureRun NewRun(string runId, string requestId, ArchitectureRunStatus status)

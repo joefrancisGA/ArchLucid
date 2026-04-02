@@ -1,7 +1,5 @@
 using ArchiForge.Data.Repositories;
 
-using ArchiForge.Persistence.Tests.Support;
-
 namespace ArchiForge.Persistence.Tests.Contracts;
 
 [Collection(nameof(SqlServerPersistenceCollection))]

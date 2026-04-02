@@ -62,7 +62,7 @@ public sealed class ArtifactSynthesisServiceTests
     {
         GoldenManifest manifest = NewManifest();
         ArtifactSynthesisService sut = new(
-            Array.Empty<IArtifactGenerator>(),
+            [],
             new ArtifactBundleValidator(),
             NullLogger<ArtifactSynthesisService>.Instance);
 

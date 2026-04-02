@@ -32,7 +32,7 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
         AdvisoryScanSchedule? loaded = await repo.GetByIdAsync(schedule.ScheduleId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.ScheduleId.Should().Be(schedule.ScheduleId);
+        loaded.ScheduleId.Should().Be(schedule.ScheduleId);
         loaded.Name.Should().Be(schedule.Name);
         loaded.CronExpression.Should().Be(schedule.CronExpression);
     }
@@ -54,7 +54,7 @@ public abstract class AdvisoryScanScheduleRepositoryContractTests
         AdvisoryScanSchedule? loaded = await repo.GetByIdAsync(schedule.ScheduleId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Name.Should().Be("Updated name");
+        loaded.Name.Should().Be("Updated name");
         loaded.NextRunUtc.Should().BeCloseTo(schedule.NextRunUtc!.Value, TimeSpan.FromSeconds(2));
     }
 

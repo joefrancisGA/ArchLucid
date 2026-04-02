@@ -53,7 +53,7 @@ public sealed class FindingPayloadConverterAdditionalTests
         RequirementFindingPayload? result = FindingPayloadConverter.ConvertPayload<RequirementFindingPayload>(finding);
 
         result.Should().NotBeNull();
-        result!.RequirementName.Should().Be("N");
+        result.RequirementName.Should().Be("N");
         result.RequirementText.Should().Be("T");
         result.IsMandatory.Should().BeTrue();
     }
@@ -77,7 +77,7 @@ public sealed class FindingPayloadConverterAdditionalTests
         RequirementFindingPayload? result = FindingPayloadConverter.ConvertPayload<RequirementFindingPayload>(finding);
 
         result.Should().NotBeNull();
-        result!.RequirementName.Should().Be("FromAnon");
+        result.RequirementName.Should().Be("FromAnon");
         result.RequirementText.Should().Be("Text");
         result.IsMandatory.Should().BeFalse();
     }

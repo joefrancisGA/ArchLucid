@@ -30,7 +30,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
         AlertRecord? loaded = await repo.GetByIdAsync(alertId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.AlertId.Should().Be(alertId);
+        loaded.AlertId.Should().Be(alertId);
         loaded.DeduplicationKey.Should().Be("k1");
     }
 
@@ -49,7 +49,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
 
         AlertRecord? loaded = await repo.GetByIdAsync(alertId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Status.Should().Be(AlertStatus.Resolved);
+        loaded.Status.Should().Be(AlertStatus.Resolved);
         loaded.Title.Should().Be("updated");
     }
 
@@ -101,7 +101,7 @@ public sealed class InMemoryAlertRecordRepositoryTests
 
         AlertRecord? match = await repo.GetOpenByDeduplicationKeyAsync(TenantId, WorkspaceId, ProjectId, key, CancellationToken.None);
         match.Should().NotBeNull();
-        match!.AlertId.Should().Be(Guid.Parse("20000000-0000-0000-0000-000000000003"));
+        match.AlertId.Should().Be(Guid.Parse("20000000-0000-0000-0000-000000000003"));
     }
 
     [Fact]

@@ -29,7 +29,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
 
         CompositeAlertRule? loaded = await repo.GetByIdAsync(ruleId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Name.Should().Be("v1");
+        loaded.Name.Should().Be("v1");
     }
 
     [Fact]
@@ -41,11 +41,11 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
 
         CompositeAlertRule? first = await repo.GetByIdAsync(ruleId, CancellationToken.None);
         first.Should().NotBeNull();
-        first!.Name = "broken";
+        first.Name = "broken";
 
         CompositeAlertRule? second = await repo.GetByIdAsync(ruleId, CancellationToken.None);
         second.Should().NotBeNull();
-        second!.Name.Should().Be("stable");
+        second.Name.Should().Be("stable");
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
 
         CompositeAlertRule? loaded = await repo.GetByIdAsync(ruleId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Conditions.Should().ContainSingle();
+        loaded.Conditions.Should().ContainSingle();
         loaded.Conditions[0].ThresholdValue.Should().Be(10m);
     }
 
@@ -85,7 +85,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
 
         CompositeAlertRule? loaded = await repo.GetByIdAsync(ruleId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Name.Should().Be("new");
+        loaded.Name.Should().Be("new");
         loaded.IsEnabled.Should().BeFalse();
     }
 
@@ -130,7 +130,7 @@ public sealed class InMemoryCompositeAlertRuleRepositoryTests
         list[0].Name = "mutate-list";
         CompositeAlertRule? again = await repo.GetByIdAsync(Guid.Parse("50000000-0000-0000-0000-000000000002"), CancellationToken.None);
         again.Should().NotBeNull();
-        again!.Name.Should().Be("b");
+        again.Name.Should().Be("b");
     }
 
     [Fact]

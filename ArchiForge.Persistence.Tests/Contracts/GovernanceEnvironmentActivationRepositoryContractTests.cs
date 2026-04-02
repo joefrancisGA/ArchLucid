@@ -64,7 +64,7 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
 
         GovernanceEnvironmentActivation? row = list.SingleOrDefault(x => x.ActivationId == activationId);
         row.Should().NotBeNull();
-        row!.IsActive.Should().BeFalse();
+        row.IsActive.Should().BeFalse();
         row.ManifestVersion.Should().Be("v-before");
         row.Environment.Should().Be(GovernanceEnvironment.Dev);
     }

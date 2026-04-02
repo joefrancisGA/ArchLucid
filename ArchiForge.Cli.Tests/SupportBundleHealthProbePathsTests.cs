@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
 
@@ -18,7 +18,7 @@ public sealed class SupportBundleHealthProbePathsTests
     [Fact]
     public async Task CollectAsync_requests_version_live_ready_and_combined_health_paths()
     {
-        ConcurrentBag<string> paths = new();
+        ConcurrentBag<string> paths = [];
         using PathRecordingHandler handler = new(paths);
         using HttpClient http = new(handler) { BaseAddress = new Uri("http://stub.local") };
         ArchiForgeApiClient client = new(http);

@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
 
 namespace ArchiForge.Persistence.ProductLearning.Planning;
@@ -144,7 +144,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                     + $"(rejected={trend.RejectionCount}, revised={trend.RevisionCount}, followUp={trend.NeedsFollowUpCount}); "
                     + $"trustedOrAccepted={trend.AcceptedOrTrustedCount}; distinctRuns={trend.DistinctRunCount}.",
                 EvidenceCount = total,
-                AffectedArtifactTypes = new[] { trend.ArtifactTypeOrHint },
+                AffectedArtifactTypes = [trend.ArtifactTypeOrHint],
                 FirstSeenUtc = trend.FirstSeenUtc,
                 LastSeenUtc = trend.LastSeenUtc,
             };
@@ -184,7 +184,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                     "ThemeKey=" + Truncate(theme.ThemeKey, 240) + "; sampleComment="
                     + Truncate(theme.SampleCommentShort, 400) + ".",
                 EvidenceCount = theme.OccurrenceCount,
-                AffectedArtifactTypes = new[] { "Feedback comments" },
+                AffectedArtifactTypes = ["Feedback comments"],
                 FirstSeenUtc = theme.FirstSeenUtc,
                 LastSeenUtc = theme.LastSeenUtc,
             };
@@ -215,7 +215,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
 
                 if (!groups.TryGetValue(normalized, out List<(string, ProductLearningPilotSignalRecord)>? list))
                 {
-                    list = new List<(string, ProductLearningPilotSignalRecord)>();
+                    list = [];
                     groups[normalized] = list;
                 }
 
@@ -273,7 +273,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                     "Normalized token key=" + pair.Key + "; matchingSignalRows=" + rows.Count + "; distinctSignals="
                     + distinctSignals + ".",
                 EvidenceCount = distinctSignals,
-                AffectedArtifactTypes = facets.Count == 0 ? Array.Empty<string>() : facets.OrderBy(static s => s, StringComparer.Ordinal).ToArray(),
+                AffectedArtifactTypes = facets.Count == 0 ? [] : facets.OrderBy(static s => s, StringComparer.Ordinal).ToArray(),
                 FirstSeenUtc = first,
                 LastSeenUtc = last,
             };
@@ -387,7 +387,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                     SignalId = row.SignalId,
                 };
 
-                List<ImprovementThemeEvidence> merged = theme.ExampleEvidence.Concat(new[] { extra }).ToList();
+                List<ImprovementThemeEvidence> merged = theme.ExampleEvidence.Concat([extra]).ToList();
 
                 results[i] = new ImprovementThemeWithEvidence
                 {

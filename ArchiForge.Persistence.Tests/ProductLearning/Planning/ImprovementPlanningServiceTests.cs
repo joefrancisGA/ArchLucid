@@ -19,7 +19,7 @@ public sealed class ImprovementPlanningServiceTests
                 Name = name,
                 Description = "reject=2 revised=1 followUp=0 trusted=1 total=4",
                 EvidenceCount = 4,
-                AffectedArtifactTypes = new[] { facet },
+                AffectedArtifactTypes = [facet],
                 FirstSeenUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
                 LastSeenUtc = new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc),
             },
@@ -52,7 +52,7 @@ public sealed class ImprovementPlanningServiceTests
         };
 
         IReadOnlyList<ImprovementPlan> plans = await svc.BuildPlansAsync(
-            new[] { theme },
+            [theme],
             options,
             CancellationToken.None);
 
@@ -65,7 +65,7 @@ public sealed class ImprovementPlanningServiceTests
         Assert.True(plan.PriorityScore > 0);
 
         IReadOnlyList<ImprovementPlan> again = await svc.BuildPlansAsync(
-            new[] { theme },
+            [theme],
             options,
             CancellationToken.None);
 
@@ -80,7 +80,7 @@ public sealed class ImprovementPlanningServiceTests
         ImprovementThemeWithEvidence theme = TrendTheme("T", "diagram");
 
         IReadOnlyList<ImprovementPlan> plans = await svc.BuildPlansAsync(
-            new[] { theme },
+            [theme],
             new ImprovementPlanningOptions { MaxStepsPerPlan = 3, RuleVersion = "v1" },
             CancellationToken.None);
 

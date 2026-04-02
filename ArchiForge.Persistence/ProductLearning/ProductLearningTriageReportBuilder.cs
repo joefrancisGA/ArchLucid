@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning;
 
 namespace ArchiForge.Persistence.ProductLearning;
 
@@ -74,7 +74,7 @@ public static class ProductLearningTriageReportBuilder
     {
         int maxLines = Math.Max(1, limits.MaxProblemAreaLines);
         HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
-        List<string> lines = new();
+        List<string> lines = [];
 
         IEnumerable<FeedbackAggregate> aggOrdered = summary.TopAggregates
             .OrderByDescending(static a => a.RejectedCount + a.RevisedCount + a.NeedsFollowUpCount)

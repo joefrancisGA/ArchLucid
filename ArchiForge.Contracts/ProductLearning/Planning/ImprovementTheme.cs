@@ -21,7 +21,7 @@ public sealed class ImprovementTheme
     /// <summary>
     /// Workflow or artifact facets touched (e.g. manifest, diagram, export); may be empty when unknown.
     /// </summary>
-    public IReadOnlyList<string> AffectedArtifactTypes { get; init; } = Array.Empty<string>();
+    public IReadOnlyList<string> AffectedArtifactTypes { get; init; } = [];
     public DateTime FirstSeenUtc { get; init; }
     public DateTime LastSeenUtc { get; init; }
 }

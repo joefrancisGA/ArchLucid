@@ -46,7 +46,7 @@ public abstract class PolicyPackRepositoryContractTests
 
         PolicyPack? loaded = await repo.GetByIdAsync(pack.PolicyPackId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Name.Should().Be("pack-a");
+        loaded.Name.Should().Be("pack-a");
         loaded.TenantId.Should().Be(tenantId);
     }
 
@@ -100,7 +100,7 @@ public abstract class PolicyPackRepositoryContractTests
 
         PolicyPack? loaded = await repo.GetByIdAsync(pack.PolicyPackId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Name.Should().Be("after");
+        loaded.Name.Should().Be("after");
         loaded.Status.Should().Be(PolicyPackStatus.Active);
     }
 }

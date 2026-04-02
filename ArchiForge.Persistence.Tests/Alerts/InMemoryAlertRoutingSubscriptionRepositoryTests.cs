@@ -29,7 +29,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
         AlertRoutingSubscription? loaded = await repo.GetByIdAsync(id, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.RoutingSubscriptionId.Should().Be(id);
+        loaded.RoutingSubscriptionId.Should().Be(id);
         loaded.Destination.Should().Be("a@b.com");
     }
 
@@ -56,7 +56,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepositoryTests
 
         AlertRoutingSubscription? loaded = await repo.GetByIdAsync(id, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Destination.Should().Be("new");
+        loaded.Destination.Should().Be("new");
         loaded.IsEnabled.Should().BeFalse();
     }
 

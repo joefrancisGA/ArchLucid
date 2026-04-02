@@ -1,7 +1,6 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Api;
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.ProductLearning;

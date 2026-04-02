@@ -4,7 +4,6 @@ using ArchiForge.Data.Infrastructure;
 using ArchiForge.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.Api.DataAccess;
 

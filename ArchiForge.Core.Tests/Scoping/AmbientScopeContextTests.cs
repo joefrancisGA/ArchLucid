@@ -32,7 +32,7 @@ public sealed class AmbientScopeContextTests
 
         ScopeContext? current = AmbientScopeContext.CurrentOverride;
         current.Should().NotBeNull();
-        current!.TenantId.Should().Be(tenantId);
+        current.TenantId.Should().Be(tenantId);
         current.WorkspaceId.Should().Be(workspaceId);
         current.ProjectId.Should().Be(projectId);
 
@@ -66,7 +66,7 @@ public sealed class AmbientScopeContextTests
 
         ScopeContext? afterInner = AmbientScopeContext.CurrentOverride;
         afterInner.Should().NotBeNull();
-        afterInner!.TenantId.Should().Be(outerScope.TenantId);
+        afterInner.TenantId.Should().Be(outerScope.TenantId);
 
         outer.Dispose();
 

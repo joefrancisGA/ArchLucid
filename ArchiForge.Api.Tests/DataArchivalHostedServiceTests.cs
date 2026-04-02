@@ -50,7 +50,7 @@ public sealed class DataArchivalHostedServiceTests
             .Setup(c => c.RunOnceAsync(It.IsAny<DataArchivalOptions>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("archival failed"));
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped(_ => coordinator.Object);
         ServiceProvider provider = services.BuildServiceProvider();
 

@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 
 using ArchiForge.Contracts.ProductLearning.Planning;
@@ -24,7 +24,7 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
 
         if (items.Count == 0)
         
-            return Task.FromResult<IReadOnlyList<ImprovementPlan>>(Array.Empty<ImprovementPlan>());
+            return Task.FromResult<IReadOnlyList<ImprovementPlan>>([]);
         
 
         List<int> frequencies = new(items.Count);
@@ -133,7 +133,7 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
     {
         if (values.Count == 0)
         
-            return new List<int>();
+            return [];
         
 
         int min = values.Min();
@@ -159,7 +159,7 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
     {
         if (values.Count == 0)
         
-            return new List<int>();
+            return [];
         
 
         double min = values.Min();

@@ -32,7 +32,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         GovernanceApprovalRequest? loaded = await repo.GetByIdAsync(approvalId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.ApprovalRequestId.Should().Be(approvalId);
+        loaded.ApprovalRequestId.Should().Be(approvalId);
         loaded.RunId.Should().Be(runId);
         loaded.Status.Should().Be(GovernanceApprovalStatus.Submitted);
     }
@@ -57,7 +57,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         GovernanceApprovalRequest? loaded = await repo.GetByIdAsync(approvalId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Status.Should().Be(GovernanceApprovalStatus.Approved);
+        loaded.Status.Should().Be(GovernanceApprovalStatus.Approved);
         loaded.ReviewedBy.Should().Be("reviewer");
         loaded.ReviewedUtc.Should().Be(new DateTime(2026, 4, 2, 0, 0, 0, DateTimeKind.Utc));
     }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace ArchiForge.Persistence.ProductLearning.Planning;
 
@@ -11,7 +11,7 @@ internal static class ImprovementThemeDetailJsonAnnotations
     {
         if (string.IsNullOrWhiteSpace(detailJson))
         
-            return Array.Empty<string>();
+            return [];
         
 
         try
@@ -21,11 +21,11 @@ internal static class ImprovementThemeDetailJsonAnnotations
 
             if (root.ValueKind != JsonValueKind.Object)
             
-                return Array.Empty<string>();
+                return [];
             
 
             HashSet<string> seen = new(StringComparer.Ordinal);
-            List<string> ordered = new();
+            List<string> ordered = [];
 
             AddPropertyTokens(root, "tags", seen, ordered);
             AddPropertyTokens(root, "annotations", seen, ordered);
@@ -36,7 +36,7 @@ internal static class ImprovementThemeDetailJsonAnnotations
         }
         catch (JsonException)
         {
-            return Array.Empty<string>();
+            return [];
         }
     }
 

@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning;
 
 namespace ArchiForge.Persistence.ProductLearning;
 
@@ -73,7 +73,7 @@ public sealed class ProductLearningDashboardService(
         ProductLearningAggregationSnapshot snapshot,
         ProductLearningTriageOptions options)
     {
-        List<(int Score, string TieBreaker, TriageQueueItem Item)> rows = new();
+        List<(int Score, string TieBreaker, TriageQueueItem Item)> rows = [];
 
         foreach (ImprovementOpportunity opportunity in opportunities)
         {
@@ -186,14 +186,17 @@ public sealed class ProductLearningDashboardService(
         IReadOnlyList<ImprovementOpportunity> opportunities,
         ProductLearningTriageOptions options)
     {
-        List<string> lines = new()
-        {
-            "Total signals in scope: " + totalSignals + "; distinct architecture runs with signals: " + distinctRuns + ".",
+        List<string> lines =
+        [
+            "Total signals in scope: " + totalSignals + "; distinct architecture runs with signals: " + distinctRuns +
+            ".",
             "Rollups shown require at least " + options.MinSignalsPerAggregate + " signal(s) (noise gate).",
-            "Artifact trends require at least " + options.MinNegativeOutcomesOnArtifactTrend + " negative outcomes (reject/revise/follow-up) and sufficient total signals.",
+            "Artifact trends require at least " + options.MinNegativeOutcomesOnArtifactTrend +
+            " negative outcomes (reject/revise/follow-up) and sufficient total signals.",
             "Improvement opportunities ranked by weighted bad-score (rejects > follow-ups > revisions) with a small bonus when no trusted signals exist on a multi-signal rollup.",
-            "Repeated comments use the first " + ProductLearningSignalAggregations.CommentThemePrefixLength + " characters after trim (deterministic, not semantic).",
-        };
+            "Repeated comments use the first " + ProductLearningSignalAggregations.CommentThemePrefixLength +
+            " characters after trim (deterministic, not semantic)."
+        ];
 
         return lines;
     }

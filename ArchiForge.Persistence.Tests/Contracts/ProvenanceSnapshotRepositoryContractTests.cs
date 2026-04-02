@@ -58,7 +58,7 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         DecisionProvenanceSnapshot? loaded = await repo.GetByRunIdAsync(scope, runId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.RunId.Should().Be(runId);
+        loaded.RunId.Should().Be(runId);
         loaded.GraphJson.Should().Be(snap.GraphJson);
         loaded.TenantId.Should().Be(TenantId);
     }
@@ -99,6 +99,6 @@ public abstract class ProvenanceSnapshotRepositoryContractTests
         DecisionProvenanceSnapshot? loaded = await repo.GetByRunIdAsync(scope, runId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.GraphJson.Should().Be("second");
+        loaded.GraphJson.Should().Be("second");
     }
 }

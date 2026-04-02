@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Persistence.ProductLearning;
 
 using FluentAssertions;
@@ -58,10 +58,10 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
         {
             Scope = scope,
             SinceUtc = null,
-            FeedbackRollups = new[] { weaker, stronger },
-            ArtifactTrends = Array.Empty<ArtifactOutcomeTrend>(),
-            TopRejectedRevisedRollups = Array.Empty<FeedbackAggregate>(),
-            RepeatedCommentThemes = Array.Empty<RepeatedCommentTheme>(),
+            FeedbackRollups = [weaker, stronger],
+            ArtifactTrends = [],
+            TopRejectedRevisedRollups = [],
+            RepeatedCommentThemes = [],
         };
 
         ProductLearningTriageOptions options = new()
@@ -93,7 +93,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
             ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
         };
 
-        List<FeedbackAggregate> rollups = new();
+        List<FeedbackAggregate> rollups = [];
 
         for (int i = 0; i < 5; i++)
         
@@ -119,9 +119,9 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
             Scope = scope,
             SinceUtc = null,
             FeedbackRollups = rollups,
-            ArtifactTrends = Array.Empty<ArtifactOutcomeTrend>(),
-            TopRejectedRevisedRollups = Array.Empty<FeedbackAggregate>(),
-            RepeatedCommentThemes = Array.Empty<RepeatedCommentTheme>(),
+            ArtifactTrends = [],
+            TopRejectedRevisedRollups = [],
+            RepeatedCommentThemes = [],
         };
 
         ProductLearningTriageOptions options = new()

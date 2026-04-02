@@ -28,7 +28,7 @@ public sealed class RetrievalIndexingServiceTests
         Mock<ITextChunker> chunker = new();
         chunker
             .Setup(c => c.Chunk(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .Returns(new[] { "a", "b", "c", "d", "e" });
+            .Returns(["a", "b", "c", "d", "e"]);
 
         List<int> batchSizes = [];
         Mock<IEmbeddingService> embeddings = new();
@@ -70,7 +70,7 @@ public sealed class RetrievalIndexingServiceTests
         Mock<ITextChunker> chunker = new();
         chunker
             .Setup(c => c.Chunk(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .Returns(new[] { "a", "b", "c", "d" });
+            .Returns(["a", "b", "c", "d"]);
 
         Mock<IEmbeddingService> embeddings = new();
 

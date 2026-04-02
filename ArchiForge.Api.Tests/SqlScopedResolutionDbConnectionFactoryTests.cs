@@ -24,7 +24,7 @@ public sealed class SqlScopedResolutionDbConnectionFactoryTests
         Mock<ISqlConnectionFactory> sql = new();
         sql.Setup(s => s.CreateOpenConnectionAsync(It.IsAny<CancellationToken>())).ReturnsAsync(expected);
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped(_ => sql.Object);
         ServiceProvider provider = services.BuildServiceProvider();
 
@@ -40,7 +40,7 @@ public sealed class SqlScopedResolutionDbConnectionFactoryTests
     [Fact]
     public void CreateConnection_returns_unopened_SqlConnection()
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped<ISqlConnectionFactory>(_ => Mock.Of<ISqlConnectionFactory>());
         ServiceProvider provider = services.BuildServiceProvider();
 

@@ -111,7 +111,7 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         assignment.Should().NotBeNull();
 
         HttpResponseMessage archiveResponse =
-            await Client.PostAsync($"/v1/policy-packs/assignments/{assignment!.AssignmentId}/archive", null);
+            await Client.PostAsync($"/v1/policy-packs/assignments/{assignment.AssignmentId}/archive", null);
 
         archiveResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
@@ -119,7 +119,7 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         effectiveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         EffectivePolicyPackSet? effective = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSet>(JsonOptions);
         effective.Should().NotBeNull();
-        effective!.Packs.Should().NotContain(p => p.PolicyPackId == packId);
+        effective.Packs.Should().NotContain(p => p.PolicyPackId == packId);
     }
 
     [Fact]

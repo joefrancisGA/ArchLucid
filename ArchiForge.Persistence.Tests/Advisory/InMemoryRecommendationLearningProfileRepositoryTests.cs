@@ -41,7 +41,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
             await repo.GetLatestAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
 
         latest.Should().NotBeNull();
-        latest!.GeneratedUtc.Should().Be(generated);
+        latest.GeneratedUtc.Should().Be(generated);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
             await repo.GetLatestAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
 
         latest.Should().NotBeNull();
-        latest!.GeneratedUtc.Should().Be(new DateTime(2026, 4, 4, 15, 0, 0, DateTimeKind.Utc));
+        latest.GeneratedUtc.Should().Be(new DateTime(2026, 4, 4, 15, 0, 0, DateTimeKind.Utc));
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
             await repo.GetLatestAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
 
         latest.Should().NotBeNull();
-        latest!.GeneratedUtc.Should().Be(new DateTime(2026, 4, 4, 20, 0, 0, DateTimeKind.Utc));
+        latest.GeneratedUtc.Should().Be(new DateTime(2026, 4, 4, 20, 0, 0, DateTimeKind.Utc));
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
             await repo.GetLatestAsync(TenantId, WorkspaceId, ProjectId, CancellationToken.None);
 
         latest.Should().NotBeNull();
-        latest!.GeneratedUtc.Should().Be(new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc).AddMinutes(500));
+        latest.GeneratedUtc.Should().Be(new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc).AddMinutes(500));
         latest.GeneratedUtc.Should().NotBe(sentinel);
     }
 
@@ -106,7 +106,7 @@ public sealed class InMemoryRecommendationLearningProfileRepositoryTests
     {
         InMemoryRecommendationLearningProfileRepository repo = new();
         using CancellationTokenSource cts = new();
-        cts.Cancel();
+        await cts.CancelAsync();
 
         Func<Task> act = async () => await repo.SaveAsync(BuildProfile(SampleUtc), cts.Token);
 

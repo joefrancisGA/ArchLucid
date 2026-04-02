@@ -52,8 +52,8 @@ public abstract class AgentEvidencePackageRepositoryContractTests
         AgentEvidencePackage? byId = await repo.GetByIdAsync(package.EvidencePackageId, CancellationToken.None);
 
         byRun.Should().NotBeNull();
-        byRun!.EvidencePackageId.Should().Be(package.EvidencePackageId);
+        byRun.EvidencePackageId.Should().Be(package.EvidencePackageId);
         byId.Should().NotBeNull();
-        byId!.RunId.Should().Be(runId);
+        byId.RunId.Should().Be(runId);
     }
 }

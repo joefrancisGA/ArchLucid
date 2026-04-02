@@ -48,7 +48,7 @@ public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchiForgeApiFa
         ComparisonReplayCostEstimateResponse? body =
             await response.Content.ReadFromJsonAsync<ComparisonReplayCostEstimateResponse>(JsonOptions);
         body.Should().NotBeNull();
-        body!.ComparisonRecordId.Should().Be(id);
+        body.ComparisonRecordId.Should().Be(id);
         body.RelativeCostBand.Should().BeOneOf("low", "medium", "high");
         body.ReplayMode.Should().Be("artifact");
     }

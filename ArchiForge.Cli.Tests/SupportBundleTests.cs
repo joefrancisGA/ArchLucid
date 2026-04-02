@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 
 using ArchiForge.Cli.Support;
@@ -54,7 +54,7 @@ public sealed class SupportBundleTests
         {
             Directory.CreateDirectory(cwd);
             Directory.CreateDirectory(Path.Combine(cwd, "outputs"));
-            File.WriteAllText(Path.Combine(cwd, "outputs", "x.txt"), "hello");
+            await File.WriteAllTextAsync(Path.Combine(cwd, "outputs", "x.txt"), "hello");
 
             SupportBundlePayload payload = await SupportBundleCollector.CollectAsync(client, cwd, config, CancellationToken.None);
 

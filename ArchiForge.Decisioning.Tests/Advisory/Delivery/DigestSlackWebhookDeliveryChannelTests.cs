@@ -119,10 +119,10 @@ public sealed class DigestSlackWebhookDeliveryChannelTests
         PropertyInfo? prop = target.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
 
         prop.Should().NotBeNull($"property {propertyName} should exist on payload body");
-        object? value = prop!.GetValue(target);
+        object? value = prop.GetValue(target);
 
         value.Should().NotBeNull();
 
-        return value!.ToString()!;
+        return value.ToString()!;
     }
 }

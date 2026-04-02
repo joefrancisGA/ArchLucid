@@ -30,7 +30,7 @@ public sealed class InMemoryRecommendationRepositoryTests
 
         RecommendationRecord? loaded = await repo.GetByIdAsync(id, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.RecommendationId.Should().Be(id);
+        loaded.RecommendationId.Should().Be(id);
         loaded.PriorityScore.Should().Be(5);
     }
 

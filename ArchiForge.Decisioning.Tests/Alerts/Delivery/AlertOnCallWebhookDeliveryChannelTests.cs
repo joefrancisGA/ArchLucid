@@ -125,11 +125,11 @@ public sealed class AlertOnCallWebhookDeliveryChannelTests
         PropertyInfo? prop = target.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance);
 
         prop.Should().NotBeNull($"property {propertyName} should exist on payload body");
-        object? value = prop!.GetValue(target);
+        object? value = prop.GetValue(target);
 
         value.Should().NotBeNull();
 
-        return value!.ToString()!;
+        return value.ToString()!;
     }
 
     private static object? GetPropertyValue(object target, string propertyName)
@@ -138,6 +138,6 @@ public sealed class AlertOnCallWebhookDeliveryChannelTests
 
         prop.Should().NotBeNull($"property {propertyName} should exist on payload body");
 
-        return prop!.GetValue(target);
+        return prop.GetValue(target);
     }
 }

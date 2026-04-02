@@ -44,7 +44,7 @@ public sealed class ComparisonReplayCostEstimatorTests
             await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.RelativeCostBand.Should().Be("low");
+        result.RelativeCostBand.Should().Be("low");
         result.ReplayMode.Should().Be("artifact");
     }
 
@@ -82,7 +82,7 @@ public sealed class ComparisonReplayCostEstimatorTests
 
         withPersist.Should().NotBeNull();
         withoutPersist.Should().NotBeNull();
-        withPersist!.ApproximateRelativeScore.Should().BeGreaterThan(withoutPersist!.ApproximateRelativeScore);
+        withPersist.ApproximateRelativeScore.Should().BeGreaterThan(withoutPersist.ApproximateRelativeScore);
         withPersist.Factors.Should().Contain(f => f.Contains("PersistReplay", StringComparison.Ordinal));
     }
 
@@ -104,6 +104,6 @@ public sealed class ComparisonReplayCostEstimatorTests
             await sut.TryEstimateAsync("c1", "markdown", "artifact", false, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Factors.Should().Contain(f => f.Contains("Large stored payload", StringComparison.Ordinal));
+        result.Factors.Should().Contain(f => f.Contains("Large stored payload", StringComparison.Ordinal));
     }
 }

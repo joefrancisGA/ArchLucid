@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning;
 
 namespace ArchiForge.Persistence.ProductLearning;
 
@@ -178,7 +178,7 @@ public static class ProductLearningSignalAggregations
         int minRev = minRevisedSignals < 1 ? 1 : minRevisedSignals;
         int cap = take < 1 ? 1 : Math.Min(take, 100);
 
-        List<ImprovementOpportunity> result = new();
+        List<ImprovementOpportunity> result = [];
 
         List<FeedbackAggregate> candidates = BuildRunFeedbackAggregates(scoped, maxAggregates: 500)
             .Where(a =>

@@ -39,7 +39,6 @@ using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Api.Configuration;

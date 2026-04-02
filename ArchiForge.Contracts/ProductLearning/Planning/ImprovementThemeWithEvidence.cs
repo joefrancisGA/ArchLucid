@@ -4,7 +4,7 @@ namespace ArchiForge.Contracts.ProductLearning.Planning;
 public sealed class ImprovementThemeWithEvidence
 {
     public ImprovementTheme Theme { get; init; } = null!;
-    public IReadOnlyList<ImprovementThemeEvidence> ExampleEvidence { get; init; } = Array.Empty<ImprovementThemeEvidence>();
+    public IReadOnlyList<ImprovementThemeEvidence> ExampleEvidence { get; init; } = [];
 
     /// <summary>Stable logical key used for deduplication and persistence <c>ThemeKey</c> mapping.</summary>
     public string CanonicalKey { get; init; } = string.Empty;

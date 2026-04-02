@@ -4,5 +4,5 @@ namespace ArchiForge.Contracts.ProductLearning;
 public sealed class ProductLearningArtifactOutcomeTrendsResponse
 {
     public DateTime GeneratedUtc { get; init; }
-    public IReadOnlyList<ArtifactOutcomeTrend> Trends { get; init; } = Array.Empty<ArtifactOutcomeTrend>();
+    public IReadOnlyList<ArtifactOutcomeTrend> Trends { get; init; } = [];
 }

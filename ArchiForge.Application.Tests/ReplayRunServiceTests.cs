@@ -1,5 +1,4 @@
 using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Application;
 using ArchiForge.Application.Agents;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
@@ -243,7 +242,7 @@ public sealed class ReplayRunServiceTests
 
         List<AgentResult> results =
         [
-            new AgentResult
+            new()
             {
                 RunId = "replay",
                 TaskId = task.TaskId,
@@ -279,7 +278,7 @@ public sealed class ReplayRunServiceTests
 
         List<DecisionTrace> traces =
         [
-            new DecisionTrace
+            new()
             {
                 TraceId = "tr1",
                 RunId = "replay-run",

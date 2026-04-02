@@ -91,7 +91,7 @@ public abstract class GoldenManifestRepositoryContractTests
 
         GoldenManifest? loaded = await repo.GetByIdAsync(scope, manifestId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.ManifestId.Should().Be(manifestId);
+        loaded.ManifestId.Should().Be(manifestId);
         loaded.RunId.Should().Be(runId);
         loaded.Metadata.Name.Should().Be("Contract Manifest");
         loaded.Assumptions.Should().Equal("a1");

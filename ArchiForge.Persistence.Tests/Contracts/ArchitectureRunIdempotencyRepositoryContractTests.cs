@@ -58,7 +58,7 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
             CancellationToken.None);
 
         lookup.Should().NotBeNull();
-        lookup!.RunId.Should().Be(runId);
+        lookup.RunId.Should().Be(runId);
         lookup.RequestFingerprint.Should().Equal(fingerprint);
     }
 
@@ -104,6 +104,6 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
             CancellationToken.None);
 
         winner.Should().NotBeNull();
-        winner!.RunId.Should().Be(runA);
+        winner.RunId.Should().Be(runA);
     }
 }

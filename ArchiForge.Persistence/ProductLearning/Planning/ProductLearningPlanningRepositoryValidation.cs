@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
 
 namespace ArchiForge.Persistence.ProductLearning.Planning;
@@ -168,7 +168,7 @@ internal static class ProductLearningPlanningRepositoryValidation
             throw new ArgumentException("Action steps exceed bounded maximum (" + MaxActionSteps + ").", nameof(steps));
         
 
-        HashSet<int> ordinals = new();
+        HashSet<int> ordinals = [];
 
         foreach (ProductLearningImprovementPlanActionStep step in steps)
         {

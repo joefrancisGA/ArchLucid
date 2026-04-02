@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning;
 
 namespace ArchiForge.Persistence.ProductLearning;
 
@@ -7,7 +7,7 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
 {
     private readonly object _sync = new();
 
-    private readonly List<ProductLearningPilotSignalRecord> _rows = new();
+    private readonly List<ProductLearningPilotSignalRecord> _rows = [];
 
     public Task InsertAsync(ProductLearningPilotSignalRecord record, CancellationToken cancellationToken)
     {

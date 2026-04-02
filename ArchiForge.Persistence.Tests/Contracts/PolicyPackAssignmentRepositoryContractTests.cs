@@ -111,7 +111,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
 
         PolicyPackAssignment? updated = list.SingleOrDefault(a => a.AssignmentId == row.AssignmentId);
         updated.Should().NotBeNull();
-        updated!.IsEnabled.Should().BeFalse();
+        updated.IsEnabled.Should().BeFalse();
     }
 
     [SkippableFact]

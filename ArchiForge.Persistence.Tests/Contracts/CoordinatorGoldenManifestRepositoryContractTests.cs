@@ -59,7 +59,7 @@ public abstract class CoordinatorGoldenManifestRepositoryContractTests
         GoldenManifest? loaded = await repo.GetByVersionAsync("v-coord-1", CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.RunId.Should().Be(manifest.RunId);
+        loaded.RunId.Should().Be(manifest.RunId);
         loaded.Metadata.ManifestVersion.Should().Be("v-coord-1");
         loaded.SystemName.Should().Be("coord-sys");
     }

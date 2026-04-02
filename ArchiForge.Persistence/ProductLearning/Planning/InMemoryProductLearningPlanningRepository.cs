@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
 
 namespace ArchiForge.Persistence.ProductLearning.Planning;
@@ -9,15 +9,15 @@ namespace ArchiForge.Persistence.ProductLearning.Planning;
 /// </summary>
 public sealed class InMemoryProductLearningPlanningRepository : IProductLearningPlanningRepository
 {
-    private readonly List<ProductLearningImprovementThemeRecord> _themes = new();
+    private readonly List<ProductLearningImprovementThemeRecord> _themes = [];
 
-    private readonly List<ProductLearningImprovementPlanRecord> _plans = new();
+    private readonly List<ProductLearningImprovementPlanRecord> _plans = [];
 
-    private readonly List<ProductLearningImprovementPlanRunLinkRecord> _runLinks = new();
+    private readonly List<ProductLearningImprovementPlanRunLinkRecord> _runLinks = [];
 
-    private readonly List<ProductLearningImprovementPlanSignalLinkRecord> _signalLinks = new();
+    private readonly List<ProductLearningImprovementPlanSignalLinkRecord> _signalLinks = [];
 
-    private readonly List<ProductLearningImprovementPlanArtifactLinkRecord> _artifactLinks = new();
+    private readonly List<ProductLearningImprovementPlanArtifactLinkRecord> _artifactLinks = [];
 
     public Task InsertThemeAsync(ProductLearningImprovementThemeRecord theme, CancellationToken cancellationToken)
     {
@@ -312,7 +312,7 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
                 p.WorkspaceId == scope.WorkspaceId &&
                 p.ProjectId == scope.ProjectId))
         
-            return Task.FromResult<IReadOnlyList<string>>(Array.Empty<string>());
+            return Task.FromResult<IReadOnlyList<string>>([]);
         
 
         List<string> ids = _runLinks
@@ -338,7 +338,7 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
                 p.ProjectId == scope.ProjectId))
         
             return Task.FromResult<IReadOnlyList<ProductLearningImprovementPlanSignalLinkRecord>>(
-                Array.Empty<ProductLearningImprovementPlanSignalLinkRecord>());
+                []);
         
 
         List<ProductLearningImprovementPlanSignalLinkRecord> list = _signalLinks
@@ -369,7 +369,7 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
                 p.ProjectId == scope.ProjectId))
         
             return Task.FromResult<IReadOnlyList<ProductLearningImprovementPlanArtifactLinkRecord>>(
-                Array.Empty<ProductLearningImprovementPlanArtifactLinkRecord>());
+                []);
         
 
         List<ProductLearningImprovementPlanArtifactLinkRecord> list = _artifactLinks

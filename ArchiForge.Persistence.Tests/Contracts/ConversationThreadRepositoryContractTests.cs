@@ -1,4 +1,4 @@
-﻿using ArchiForge.Core.Conversation;
+using ArchiForge.Core.Conversation;
 using ArchiForge.Persistence.Conversation;
 
 using FluentAssertions;
@@ -55,7 +55,7 @@ public abstract class ConversationThreadRepositoryContractTests
         ConversationThread? loaded = await repo.GetByIdAsync(thread.ThreadId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.ThreadId.Should().Be(thread.ThreadId);
+        loaded.ThreadId.Should().Be(thread.ThreadId);
         loaded.Title.Should().Be(thread.Title);
         loaded.TenantId.Should().Be(TenantId);
     }
@@ -155,7 +155,7 @@ public abstract class ConversationThreadRepositoryContractTests
         ConversationThread? loaded = await repo.GetByIdAsync(thread.ThreadId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.LastUpdatedUtc.Should().BeCloseTo(updated, TimeSpan.FromSeconds(2));
+        loaded.LastUpdatedUtc.Should().BeCloseTo(updated, TimeSpan.FromSeconds(2));
     }
 
     [SkippableFact]

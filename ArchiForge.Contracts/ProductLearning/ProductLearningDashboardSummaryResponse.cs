@@ -17,5 +17,5 @@ public sealed class ProductLearningDashboardSummaryResponse
     public int ArtifactTrendCount { get; init; }
     public int ImprovementOpportunityCount { get; init; }
     public int TriageQueueItemCount { get; init; }
-    public IReadOnlyList<string> SummaryNotes { get; init; } = Array.Empty<string>();
+    public IReadOnlyList<string> SummaryNotes { get; init; } = [];
 }

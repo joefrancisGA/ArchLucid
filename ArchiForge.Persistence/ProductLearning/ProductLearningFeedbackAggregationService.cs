@@ -62,7 +62,7 @@ public sealed class ProductLearningFeedbackAggregationService(IProductLearningPi
             SinceUtc = sinceUtc,
             FeedbackRollups = rollups,
             ArtifactTrends = trends,
-            TopRejectedRevisedRollups = Array.Empty<FeedbackAggregate>(),
+            TopRejectedRevisedRollups = [],
             RepeatedCommentThemes = themes,
         };
     }

@@ -42,7 +42,7 @@ public abstract class RunExportRecordRepositoryContractTests
         RunExportRecord? loaded = await repo.GetByIdAsync(exportId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.ExportRecordId.Should().Be(exportId);
+        loaded.ExportRecordId.Should().Be(exportId);
         loaded.RunId.Should().Be(runId);
     }
 
