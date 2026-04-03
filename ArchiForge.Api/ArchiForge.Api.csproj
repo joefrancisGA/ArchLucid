@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ArchiForge.Api.Tests" />
-    <InternalsVisibleTo Include="ArchiForge.Worker" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArchiForge.Host.Core\ArchiForge.Host.Core.csproj" />
     <ProjectReference Include="..\ArchiForge.Core\ArchiForge.Core.csproj" />
     <ProjectReference Include="..\ArchiForge.Provenance\ArchiForge.Provenance.csproj" />
     <ProjectReference Include="..\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj" />

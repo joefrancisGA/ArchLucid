@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForge.Api\ArchiForge.Api.csproj" />
+    <ProjectReference Include="..\ArchiForge.Host.Core\ArchiForge.Host.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

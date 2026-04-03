@@ -1,5 +1,5 @@
 using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Jobs;
+using ArchiForge.Host.Core.Jobs;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application.Jobs;
 

@@ -1,5 +1,5 @@
-using ArchiForge.Api.Configuration;
-using ArchiForge.Api.Middleware;
+using ArchiForge.Host.Core.Configuration;
+using ArchiForge.Host.Core.Middleware;
 
 using FluentAssertions;
 

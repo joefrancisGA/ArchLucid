@@ -1,5 +1,5 @@
-﻿using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Configuration;
+using ArchiForge.Api.Auth.Models;
+using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application.Bootstrap;
 

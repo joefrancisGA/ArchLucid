@@ -7,7 +7,7 @@ using ArchiForge.Application.Evolution;
 using ArchiForge.Contracts.Evolution;
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Host.Core.ProblemDetails;
 using ArchiForge.Persistence.Evolution;
 using ArchiForge.Persistence.ProductLearning.Planning;
 

@@ -4,7 +4,7 @@ namespace ArchiForge.Core.Scoping;
 /// Resolves the current tenant / workspace / project scope (e.g. from HTTP claims or dev headers).
 /// </summary>
 /// <remarks>
-/// Default API implementation: <c>ArchiForge.Api.Auth.Services.HttpScopeContextProvider</c>, which prefers
+/// Default host implementation: <c>ArchiForge.Host.Core.Auth.Services.HttpScopeContextProvider</c>, which prefers
 /// <see cref="AmbientScopeContext.CurrentOverride"/> when set (e.g. advisory scan) so scoped services see the job’s scope without an HTTP request.
 /// </remarks>
 public interface IScopeContextProvider

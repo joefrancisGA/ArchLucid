@@ -1,4 +1,5 @@
 using ArchiForge.Application;
+using ArchiForge.Host.Core.ProblemDetails;
 
 using Microsoft.AspNetCore.Mvc;
 

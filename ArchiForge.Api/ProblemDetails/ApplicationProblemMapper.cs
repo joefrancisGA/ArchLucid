@@ -3,6 +3,7 @@ using System.Data.Common;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Core.Resilience;
+using ArchiForge.Host.Core.ProblemDetails;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;

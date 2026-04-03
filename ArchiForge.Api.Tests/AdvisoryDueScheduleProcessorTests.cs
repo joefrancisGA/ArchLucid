@@ -1,4 +1,4 @@
-using ArchiForge.Api.Hosted;
+using ArchiForge.Host.Core.Hosted;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Persistence.Advisory;
 

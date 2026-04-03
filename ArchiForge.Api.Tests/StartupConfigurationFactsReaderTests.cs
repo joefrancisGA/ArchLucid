@@ -1,6 +1,6 @@
 using System.Reflection;
 
-using ArchiForge.Api.Startup.Diagnostics;
+using ArchiForge.Host.Core.Startup.Diagnostics;
 
 using FluentAssertions;
 

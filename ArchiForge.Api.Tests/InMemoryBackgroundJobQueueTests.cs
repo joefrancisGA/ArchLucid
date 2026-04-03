@@ -1,4 +1,4 @@
-using ArchiForge.Api.Jobs;
+using ArchiForge.Host.Core.Jobs;
 using ArchiForge.Application.Jobs;
 
 using FluentAssertions;

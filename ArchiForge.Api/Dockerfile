@@ -3,7 +3,7 @@
 # Build context MUST be the repository root so project references resolve.
 #
 #   docker build -f ArchiForge.Api/Dockerfile -t archiforge-api .
-# Publishes ArchiForge.Worker (pulls ArchiForge.Api); image contains ArchiForge.Api.dll + ArchiForge.Worker.dll.
+# Publishes API and Worker into /app (shared Host.Core); image contains ArchiForge.Api.dll + ArchiForge.Worker.dll.
 # Default ENTRYPOINT runs the API; Container Apps worker revision sets command ["dotnet","ArchiForge.Worker.dll"].
 # ────────────────────────────────────────────────────────────────────
 
@@ -16,6 +16,7 @@ COPY global.json Directory.Build.props Directory.Packages.props ArchiForge.sln .
 
 # Copy every .csproj so NuGet restore is cached until a project file changes.
 COPY ArchiForge.Api/*.csproj                ArchiForge.Api/
+COPY ArchiForge.Host.Core/*.csproj          ArchiForge.Host.Core/
 COPY ArchiForge.AgentRuntime/*.csproj       ArchiForge.AgentRuntime/
 COPY ArchiForge.AgentSimulator/*.csproj     ArchiForge.AgentSimulator/
 COPY ArchiForge.Application/*.csproj        ArchiForge.Application/
@@ -52,13 +53,18 @@ COPY ArchiForge.Retrieval.Tests/*.csproj    ArchiForge.Retrieval.Tests/
 COPY ArchiForge.TestSupport/*.csproj        ArchiForge.TestSupport/
 COPY ArchiForge.Worker/*.csproj             ArchiForge.Worker/
 
-RUN dotnet restore ArchiForge.Worker/ArchiForge.Worker.csproj
+RUN dotnet restore ArchiForge.Api/ArchiForge.Api.csproj \
+    && dotnet restore ArchiForge.Worker/ArchiForge.Worker.csproj
 
 # ── Stage 2: publish ────────────────────────────────────────────────
 FROM restore AS publish
 
 COPY . .
-RUN dotnet publish ArchiForge.Worker/ArchiForge.Worker.csproj \
+RUN dotnet publish ArchiForge.Api/ArchiForge.Api.csproj \
+        -c Release \
+        -o /app \
+        --no-restore \
+    && dotnet publish ArchiForge.Worker/ArchiForge.Worker.csproj \
         -c Release \
         -o /app \
         --no-restore

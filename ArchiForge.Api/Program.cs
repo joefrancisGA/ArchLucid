@@ -1,10 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Api.Auth.Services;
-using ArchiForge.Api.Hosting;
+using ArchiForge.Api.Configuration;
+using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Api.Startup;
-using ArchiForge.Api.Startup.Diagnostics;
-using ArchiForge.Api.Startup.Validation;
+using ArchiForge.Host.Core.Auth.Services;
+using ArchiForge.Host.Core.Hosting;
+using ArchiForge.Host.Core.Startup;
+using ArchiForge.Host.Core.Startup.Diagnostics;
+using ArchiForge.Host.Core.Startup.Validation;
 using ArchiForge.Application.Governance.Preview;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
@@ -33,11 +37,15 @@ public partial class Program
         builder.Services.AddArchiForgeAuth(builder.Configuration);
         builder.Services.AddArchiForgeAuthorization();
 
-        builder.Services.AddArchiForgeOpenTelemetry(builder.Configuration, builder.Environment);
+        builder.Services.AddArchiForgeOpenTelemetry(
+            builder.Configuration,
+            builder.Environment,
+            telemetryServiceName: "ArchiForge.Api");
         builder.Services.AddArchiForgeRateLimiting(builder.Configuration);
         builder.Services.AddArchiForgeCors(builder.Configuration);
         builder.Services.AddArchiForgeResponseCompression();
         builder.Services.AddArchiForgeApplicationServices(builder.Configuration, hostingRole);
+        builder.Services.AddArchiForgeApiWebLayerServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
 
         WebApplication app = builder.Build();

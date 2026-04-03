@@ -1,5 +1,5 @@
 using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Jobs;
+using ArchiForge.Host.Core.Jobs;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
@@ -362,7 +362,7 @@ public sealed class AnalysisReportsController(
         });
     }
 
-    // ── Private helpers ──────────────────────────────────────────────────────
+    // â”€â”€ Private helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <summary>
     /// Loads the canonical run detail for <paramref name="runId"/>.

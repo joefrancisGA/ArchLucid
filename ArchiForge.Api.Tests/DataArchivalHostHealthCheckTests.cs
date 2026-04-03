@@ -1,5 +1,5 @@
-using ArchiForge.Api.Health;
-using ArchiForge.Api.Hosted;
+using ArchiForge.Host.Core.Health;
+using ArchiForge.Host.Core.Hosted;
 using ArchiForge.Persistence.Archival;
 
 using FluentAssertions;

@@ -1,4 +1,4 @@
-using ArchiForge.Api.Hosting;
+using ArchiForge.Host.Core.Hosting;
 
 using FluentAssertions;
 

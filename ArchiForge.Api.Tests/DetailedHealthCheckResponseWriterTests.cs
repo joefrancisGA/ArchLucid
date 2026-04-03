@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Health;
+using ArchiForge.Host.Core.Health;
 
 using FluentAssertions;
 

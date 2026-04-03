@@ -1,4 +1,4 @@
-using ArchiForge.Api.Configuration;
+using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Api.Models;
 
 using FluentValidation;

@@ -1,8 +1,8 @@
-using ArchiForge.Api.Auth.Services;
-using ArchiForge.Api.Hosting;
-using ArchiForge.Api.Startup;
-using ArchiForge.Api.Startup.Diagnostics;
-using ArchiForge.Api.Startup.Validation;
+using ArchiForge.Host.Core.Auth.Services;
+using ArchiForge.Host.Core.Hosting;
+using ArchiForge.Host.Core.Startup;
+using ArchiForge.Host.Core.Startup.Diagnostics;
+using ArchiForge.Host.Core.Startup.Validation;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 
@@ -21,7 +21,10 @@ public static class Program
         builder.Services.AddScoped<IScopeContextProvider, HttpScopeContextProvider>();
         builder.Services.AddScoped<IAuditService, AuditService>();
 
-        builder.Services.AddArchiForgeOpenTelemetry(builder.Configuration, builder.Environment);
+        builder.Services.AddArchiForgeOpenTelemetry(
+            builder.Configuration,
+            builder.Environment,
+            telemetryServiceName: "ArchiForge.Worker");
         builder.Services.AddArchiForgeApplicationServices(builder.Configuration, ArchiForgeHostingRole.Worker);
 
         WebApplication app = builder.Build();
@@ -45,7 +48,7 @@ public static class Program
             app.Logger,
             app.Configuration,
             app.Environment,
-            typeof(ArchiForgeSerilogConfiguration).Assembly);
+            typeof(Program).Assembly);
 
         ArchiForgePersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
 

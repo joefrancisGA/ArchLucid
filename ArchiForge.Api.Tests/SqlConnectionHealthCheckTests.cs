@@ -1,7 +1,7 @@
 using System.Data.Common;
 
-using ArchiForge.Api.Configuration;
-using ArchiForge.Api.Health;
+using ArchiForge.Host.Core.Configuration;
+using ArchiForge.Host.Core.Health;
 using ArchiForge.Data.Infrastructure;
 
 using FluentAssertions;

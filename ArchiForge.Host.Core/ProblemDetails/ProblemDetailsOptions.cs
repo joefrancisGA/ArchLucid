@@ -1,0 +1,50 @@
+namespace ArchiForge.Host.Core.ProblemDetails;
+
+/// <summary>
+/// Well-known problem type URIs for RFC 7807 (relative to the base).
+/// </summary>
+public static class ProblemTypes
+{
+    public const string Base = "https://archiforge.example.org/errors";
+
+    public const string RequestBodyRequired = Base + "#request-body-required";
+    public const string ValidationFailed = Base + "#validation-failed";
+    public const string RunNotFound = Base + "#run-not-found";
+    public const string ManifestNotFound = Base + "#manifest-not-found";
+    public const string AgentResultRequired = Base + "#agent-result-required";
+    public const string CommitFailed = Base + "#commit-failed";
+    public const string UnavailableInProduction = Base + "#unavailable-in-production";
+    public const string InternalError = Base + "#internal-error";
+    public const string BadRequest = Base + "#bad-request";
+    public const string ResourceNotFound = Base + "#resource-not-found";
+
+    /// <summary>59R learning plan not found for the current scope.</summary>
+    public const string LearningImprovementPlanNotFound = Base + "#learning-improvement-plan-not-found";
+
+    /// <summary>60R evolution candidate change set not found for the current scope.</summary>
+    public const string EvolutionCandidateChangeSetNotFound = Base + "#evolution-candidate-change-set-not-found";
+
+    public const string InvalidRunState = Base + "#invalid-run-state";
+    public const string DeterminismFailed = Base + "#determinism-failed";
+    public const string ExportFailed = Base + "#export-failed";
+
+    /// <summary>Comparison replay verification did not pass (semantic mismatch).</summary>
+    public const string ComparisonVerificationFailed = Base + "#comparison-verification-failed";
+
+    /// <summary>Request cannot be applied due to a resource state conflict.</summary>
+    public const string Conflict = Base + "#conflict";
+
+    public const string PolicyPackVersionNotFound = Base + "#policy-pack-version-not-found";
+
+    /// <summary>A SQL or database timeout occurred; the request may succeed on retry.</summary>
+    public const string DatabaseTimeout = Base + "#database-timeout";
+
+    /// <summary>The database is unreachable or returned a transient error.</summary>
+    public const string DatabaseUnavailable = Base + "#database-unavailable";
+
+    /// <summary>Azure OpenAI (or embedding) calls are blocked by the circuit breaker after repeated failures.</summary>
+    public const string CircuitBreakerOpen = Base + "#circuit-breaker-open";
+
+    /// <summary>Batch comparison replay had no successful replays for any requested record ID.</summary>
+    public const string BatchReplayAllFailed = Base + "#batch-replay-all-failed";
+}
