@@ -225,7 +225,8 @@ internal static partial class ServiceCollectionExtensions
             .AddCheck<DataArchivalHostHealthCheck>(
                 "data_archival",
                 failureStatus: HealthStatus.Degraded,
-                tags: [ReadinessTags.Ready]);
+                tags: [ReadinessTags.Ready])
+            .AddCheck<BlobStorageHealthCheck>("blob_storage", tags: [ReadinessTags.Ready]);
     }
 
     private static void RegisterBackgroundJobs(IServiceCollection services)

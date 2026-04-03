@@ -107,7 +107,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
             ],
         };
 
-        SqlGoldenManifestRepository repository = new(factory);
+        SqlGoldenManifestRepository repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         await repository.SaveAsync(manifest, CancellationToken.None);
 
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
@@ -244,7 +244,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
             ProjectId = ProjectId,
         };
 
-        SqlGoldenManifestRepository repository = new(factory);
+        SqlGoldenManifestRepository repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();

@@ -25,6 +25,7 @@ using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Alerts;
 using ArchiForge.Persistence.Archival;
 using ArchiForge.Persistence.Audit;
+using ArchiForge.Persistence.BlobStore;
 using ArchiForge.Persistence.Compare;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Conversation;
@@ -42,6 +43,10 @@ using ArchiForge.Persistence.Retrieval;
 using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
+
+using Azure.Core;
+using Azure.Identity;
+using Azure.Storage.Blobs;
 
 using Microsoft.Extensions.Options;
 
@@ -129,6 +134,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
 
         services.Configure<SqlRowLevelSecurityOptions>(configuration.GetSection(SqlRowLevelSecurityOptions.SectionName));
         services.Configure<ReadReplicaOptions>(configuration.GetSection(ReadReplicaOptions.SectionName));
+
+        RegisterArtifactLargePayloadBlobStore(services, configuration);
 
         services.AddSingleton<SqlConnectionFactory>(
             _ => new SqlConnectionFactory(connectionString));
@@ -222,5 +229,49 @@ public static class ArchiForgeStorageServiceCollectionExtensions
                 connectionString));
 
         return services;
+    }
+
+    private static void RegisterArtifactLargePayloadBlobStore(IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<ArtifactLargePayloadOptions>(
+            configuration.GetSection(ArtifactLargePayloadOptions.SectionName));
+
+        ArtifactLargePayloadOptions snapshot = configuration
+                                                   .GetSection(ArtifactLargePayloadOptions.SectionName)
+                                                   .Get<ArtifactLargePayloadOptions>()
+                                               ?? new ArtifactLargePayloadOptions();
+
+        string provider = snapshot.BlobProvider ?? "None";
+
+        if (string.Equals(provider, "AzureBlob", StringComparison.OrdinalIgnoreCase))
+        {
+            string uriText = snapshot.AzureBlobServiceUri ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(uriText))
+            {
+                throw new InvalidOperationException(
+                    "ArtifactLargePayload:AzureBlobServiceUri is required when BlobProvider is AzureBlob.");
+            }
+
+            Uri serviceUri = new(uriText, UriKind.Absolute);
+            services.AddSingleton<TokenCredential>(_ => new DefaultAzureCredential());
+            services.AddSingleton(sp =>
+                new BlobServiceClient(serviceUri, sp.GetRequiredService<TokenCredential>()));
+            services.AddSingleton<IArtifactBlobStore>(sp =>
+                new AzureBlobArtifactBlobStore(
+                    sp.GetRequiredService<BlobServiceClient>(),
+                    sp.GetRequiredService<TokenCredential>()));
+        }
+        else if (string.Equals(provider, "Local", StringComparison.OrdinalIgnoreCase))
+        {
+            string root = string.IsNullOrWhiteSpace(snapshot.LocalRootPath)
+                ? Path.Combine(AppContext.BaseDirectory, "blob-store")
+                : snapshot.LocalRootPath;
+            services.AddSingleton<IArtifactBlobStore>(_ => new LocalFileArtifactBlobStore(root));
+        }
+        else
+        {
+            services.AddSingleton<IArtifactBlobStore, NullArtifactBlobStore>();
+        }
     }
 }

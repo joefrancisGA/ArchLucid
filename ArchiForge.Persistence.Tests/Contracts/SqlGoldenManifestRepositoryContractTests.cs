@@ -23,7 +23,8 @@ public sealed class SqlGoldenManifestRepositoryContractTests(SqlServerPersistenc
 
     protected override IGoldenManifestRepository CreateRepository()
     {
-        return new SqlGoldenManifestRepository(new TestSqlConnectionFactory(fixture.ConnectionString));
+        return SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(
+            new TestSqlConnectionFactory(fixture.ConnectionString));
     }
 
     protected override async Task PrepareAuthorityChainForManifestAsync(

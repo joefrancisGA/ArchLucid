@@ -279,7 +279,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
         Guid manifestId = await SeedJsonOnlyGoldenManifestAsync(factory);
 
         ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
-        SqlGoldenManifestRepository repository = new(factory);
+        SqlGoldenManifestRepository repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -295,7 +295,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
         (Guid manifestId, Guid _) = await SeedRelationalGoldenManifestAsync(factory);
 
         ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
-        SqlGoldenManifestRepository repository = new(factory);
+        SqlGoldenManifestRepository repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
@@ -543,7 +543,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
 
     private static async Task<(Guid ManifestId, Guid RunId)> SeedRelationalGoldenManifestAsync(SqlConnectionFactory factory)
     {
-        SqlGoldenManifestRepository repository = new(factory);
+        SqlGoldenManifestRepository repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

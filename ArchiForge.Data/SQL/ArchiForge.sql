@@ -939,6 +939,7 @@ BEGIN
         AssumptionsJson NVARCHAR(MAX) NOT NULL,
         WarningsJson NVARCHAR(MAX) NOT NULL,
         ProvenanceJson NVARCHAR(MAX) NOT NULL,
+        ManifestPayloadBlobUri NVARCHAR(2000) NULL,
         TenantId UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ProjectId UNIQUEIDENTIFIER NOT NULL,
@@ -1102,6 +1103,7 @@ BEGIN
         CreatedUtc DATETIME2 NOT NULL,
         ArtifactsJson NVARCHAR(MAX) NOT NULL,
         TraceJson NVARCHAR(MAX) NOT NULL,
+        BundlePayloadBlobUri NVARCHAR(2000) NULL,
         TenantId UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ProjectId UNIQUEIDENTIFIER NOT NULL,
@@ -1127,6 +1129,7 @@ BEGIN
         Format NVARCHAR(200) NOT NULL,
         Content NVARCHAR(MAX) NOT NULL,
         ContentHash NVARCHAR(128) NOT NULL,
+        ContentBlobUri NVARCHAR(2000) NULL,
         CONSTRAINT PK_ArtifactBundleArtifacts PRIMARY KEY (BundleId, SortOrder),
         CONSTRAINT UQ_ArtifactBundleArtifacts_ArtifactId UNIQUE (BundleId, ArtifactId),
         CONSTRAINT FK_ArtifactBundleArtifacts_Bundles FOREIGN KEY (BundleId)
@@ -2241,4 +2244,20 @@ IF OBJECT_ID(N'dbo.EvolutionSimulationRuns', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_EvolutionSimulationRuns_ArchitectureRun')
     ALTER TABLE dbo.EvolutionSimulationRuns ADD CONSTRAINT FK_EvolutionSimulationRuns_ArchitectureRun
         FOREIGN KEY (BaselineArchitectureRunId) REFERENCES dbo.ArchitectureRuns (RunId);
+GO
+
+/* ---- Large artifact blob pointers (see Migrations/034_LargeArtifactBlobPointers.sql) ---- */
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GoldenManifests', N'ManifestPayloadBlobUri') IS NULL
+    ALTER TABLE dbo.GoldenManifests ADD ManifestPayloadBlobUri NVARCHAR(2000) NULL;
+GO
+
+IF OBJECT_ID(N'dbo.ArtifactBundles', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ArtifactBundles', N'BundlePayloadBlobUri') IS NULL
+    ALTER TABLE dbo.ArtifactBundles ADD BundlePayloadBlobUri NVARCHAR(2000) NULL;
+GO
+
+IF OBJECT_ID(N'dbo.ArtifactBundleArtifacts', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ArtifactBundleArtifacts', N'ContentBlobUri') IS NULL
+    ALTER TABLE dbo.ArtifactBundleArtifacts ADD ContentBlobUri NVARCHAR(2000) NULL;
 GO

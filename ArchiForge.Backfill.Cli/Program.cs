@@ -1,9 +1,12 @@
-﻿using ArchiForge.Persistence.Backfill;
+using ArchiForge.Persistence.Backfill;
+using ArchiForge.Persistence.BlobStore;
 using ArchiForge.Persistence.Connections;
+using ArchiForge.Persistence.Options;
 using ArchiForge.Persistence.Repositories;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Backfill.Cli;
 
@@ -28,6 +31,9 @@ internal static class Program
 
         ServiceCollection services = new();
         services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
+        services.AddSingleton<IArtifactBlobStore, NullArtifactBlobStore>();
+        services.AddSingleton<IOptionsMonitor<ArtifactLargePayloadOptions>>(
+            new FixedOptionsMonitor<ArtifactLargePayloadOptions>(new ArtifactLargePayloadOptions()));
         services.AddSingleton<SqlContextSnapshotRepository>();
         services.AddSingleton<SqlGraphSnapshotRepository>();
         services.AddSingleton<SqlFindingsSnapshotRepository>();

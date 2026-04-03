@@ -80,7 +80,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             Decisions = [],
         };
 
-        SqlGoldenManifestRepository manifestRepository = new(factory);
+        SqlGoldenManifestRepository manifestRepository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         await manifestRepository.SaveAsync(manifest, CancellationToken.None);
 
         DateTime bundleCreated = new(2026, 8, 1, 12, 5, 0, DateTimeKind.Utc);
@@ -130,7 +130,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             },
         };
 
-        SqlArtifactBundleRepository repository = new(factory);
+        SqlArtifactBundleRepository repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
         await repository.SaveAsync(bundle, CancellationToken.None);
 
         ScopeContext scope = new()
@@ -208,7 +208,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             Decisions = [],
         };
 
-        SqlGoldenManifestRepository manifestRepository = new(factory);
+        SqlGoldenManifestRepository manifestRepository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
         await manifestRepository.SaveAsync(manifest, CancellationToken.None);
 
         Guid bundleId = Guid.NewGuid();
@@ -280,7 +280,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
             ProjectId = ProjectId,
         };
 
-        SqlArtifactBundleRepository repository = new(factory);
+        SqlArtifactBundleRepository repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();

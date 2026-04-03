@@ -1,4 +1,5 @@
-﻿using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.Persistence.BlobStore;
 using ArchiForge.Persistence.RelationalRead;
 
 using Dapper;
@@ -13,9 +14,12 @@ internal static class ArtifactBundleRelationalRead
     internal static async Task<ArtifactBundle> HydrateBundleAsync(
         SqlConnection connection,
         ArtifactBundleStorageRow row,
+        IArtifactBlobStore blobStore,
         CancellationToken ct,
         JsonFallbackPolicy? fallbackPolicy = null)
     {
+        ArgumentNullException.ThrowIfNull(blobStore);
+
         Guid bundleId = row.BundleId;
 
         int artifactCount = await SqlRelationalScalarCount.ExecuteAsync(
@@ -63,7 +67,7 @@ internal static class ArtifactBundleRelationalRead
         List<SynthesizedArtifact> artifacts = await RelationalFirstRead.ReadSliceAsync(
             artifactCount,
             "ArtifactBundle.Artifacts",
-            () => LoadArtifactsRelationalAsync(connection, bundleId, ct),
+            () => LoadArtifactsRelationalAsync(connection, bundleId, blobStore, ct),
             () => ArtifactBundleJsonFallback.DeserializeArtifacts(row.ArtifactsJson),
             () => [],
             fallbackPolicy,
@@ -133,11 +137,12 @@ internal static class ArtifactBundleRelationalRead
     private static async Task<List<SynthesizedArtifact>> LoadArtifactsRelationalAsync(
         SqlConnection connection,
         Guid bundleId,
+        IArtifactBlobStore blobStore,
         CancellationToken ct)
     {
         const string artifactsSql = """
             SELECT SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
-                   ArtifactType, Name, Format, Content, ContentHash
+                   ArtifactType, Name, Format, Content, ContentHash, ContentBlobUri
             FROM dbo.ArtifactBundleArtifacts
             WHERE BundleId = @BundleId
             ORDER BY SortOrder;
@@ -273,6 +278,7 @@ internal static class ArtifactBundleRelationalRead
         public string Format { get; init; } = null!;
         public string? Content { get; init; }
         public string ContentHash { get; init; } = null!;
+        public string? ContentBlobUri { get; init; }
     }
 
     private sealed class MetadataSliceRow

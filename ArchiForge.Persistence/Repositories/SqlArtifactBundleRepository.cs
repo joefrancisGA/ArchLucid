@@ -5,6 +5,7 @@ using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.ArtifactBundles;
+using ArchiForge.Persistence.BlobStore;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.RelationalRead;
 using ArchiForge.Persistence.Serialization;
@@ -12,6 +13,7 @@ using ArchiForge.Persistence.Serialization;
 using Dapper;
 
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Persistence.Repositories;
 
@@ -22,7 +24,10 @@ namespace ArchiForge.Persistence.Repositories;
 /// sourced from <c>TraceJson</c> when present.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connectionFactory) : IArtifactBundleRepository
+public sealed class SqlArtifactBundleRepository(
+    ISqlConnectionFactory connectionFactory,
+    IArtifactBlobStore blobStore,
+    IOptionsMonitor<ArtifactLargePayloadOptions> largePayloadOptions) : IArtifactBundleRepository
 {
     public async Task SaveAsync(
         ArtifactBundle bundle,
@@ -53,7 +58,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
         }
     }
 
-    private static async Task SaveCoreAsync(
+    private async Task SaveCoreAsync(
         ArtifactBundle bundle,
         IDbConnection connection,
         IDbTransaction? transaction,
@@ -63,17 +68,32 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
             INSERT INTO dbo.ArtifactBundles
             (
                 BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
-                TenantId, WorkspaceId, ProjectId
+                TenantId, WorkspaceId, ProjectId, BundlePayloadBlobUri
             )
             VALUES
             (
                 @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
-                @TenantId, @WorkspaceId, @ProjectId
+                @TenantId, @WorkspaceId, @ProjectId, @BundlePayloadBlobUri
             );
             """;
 
         string artifactsJson = JsonEntitySerializer.Serialize(bundle.Artifacts);
         string traceJson = JsonEntitySerializer.Serialize(bundle.Trace);
+
+        ArtifactLargePayloadOptions payloadOpts = largePayloadOptions.CurrentValue;
+        string? bundlePayloadBlobUri = null;
+
+        if (LargePayloadOffloadEvaluator.ShouldOffloadManifestOrBundle(
+                payloadOpts,
+                ArtifactBundlePayloadBlobEnvelope.SumUtf16Length(artifactsJson, traceJson)))
+        {
+            ArtifactBundlePayloadBlobEnvelope envelope = ArtifactBundlePayloadBlobEnvelope.FromJsonPair(artifactsJson, traceJson);
+            bundlePayloadBlobUri = await blobStore.WriteAsync(
+                "artifact-bundles",
+                $"{bundle.BundleId:D}.json",
+                envelope.ToJson(),
+                ct);
+        }
 
         object args = new
         {
@@ -86,11 +106,14 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
             bundle.TenantId,
             bundle.WorkspaceId,
             bundle.ProjectId,
+            BundlePayloadBlobUri = bundlePayloadBlobUri,
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
 
-        await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct);
+        ArtifactBundlePersistContext persistContext = new(blobStore, payloadOpts);
+
+        await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct, persistContext);
         await InsertArtifactBundleTraceRelationalAsync(bundle, connection, transaction, ct);
     }
 
@@ -98,7 +121,8 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
         ArtifactBundle bundle,
         IDbConnection connection,
         IDbTransaction? transaction,
-        CancellationToken ct)
+        CancellationToken ct,
+        ArtifactBundlePersistContext? persistContext = null)
     {
         Guid bundleId = bundle.BundleId;
 
@@ -106,18 +130,32 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
             INSERT INTO dbo.ArtifactBundleArtifacts
             (
                 BundleId, SortOrder, ArtifactId, RunId, ManifestId, CreatedUtc,
-                ArtifactType, Name, Format, Content, ContentHash
+                ArtifactType, Name, Format, Content, ContentHash, ContentBlobUri
             )
             VALUES
             (
                 @BundleId, @SortOrder, @ArtifactId, @RunId, @ManifestId, @CreatedUtc,
-                @ArtifactType, @Name, @Format, @Content, @ContentHash
+                @ArtifactType, @Name, @Format, @Content, @ContentHash, @ContentBlobUri
             );
             """;
 
         for (int i = 0; i < bundle.Artifacts.Count; i++)
         {
             SynthesizedArtifact a = bundle.Artifacts[i];
+
+            string content = a.Content ?? string.Empty;
+            string? contentBlobUri = null;
+
+            if (persistContext is { } ctx
+                && LargePayloadOffloadEvaluator.ShouldOffloadArtifactContent(ctx.Options, content.Length))
+            {
+                contentBlobUri = await ctx.BlobStore.WriteAsync(
+                    "artifact-contents",
+                    $"{bundleId:D}/{a.ArtifactId:D}.txt",
+                    content,
+                    ct);
+                content = string.Empty;
+            }
 
             await connection.ExecuteAsync(
                 new CommandDefinition(
@@ -133,8 +171,9 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
                         a.ArtifactType,
                         a.Name,
                         a.Format,
-                        a.Content,
+                        Content = content,
                         a.ContentHash,
+                        ContentBlobUri = contentBlobUri,
                     },
                     transaction,
                     cancellationToken: ct));
@@ -310,7 +349,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
         const string sql = """
             SELECT
                 TenantId, WorkspaceId, ProjectId,
-                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson
+                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson, BundlePayloadBlobUri
             FROM dbo.ArtifactBundles
             WHERE BundleId = @BundleId;
             """;
@@ -331,7 +370,9 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
         SqlConnection sqlConnection = connection as SqlConnection
             ?? throw new InvalidOperationException("SQL Server backfill requires SqlConnection.");
 
-        return await ArtifactBundleRelationalRead.HydrateBundleAsync(sqlConnection, row, ct);
+        row = await ApplyBundleBlobOverlayIfPresentAsync(row, ct);
+
+        return await ArtifactBundleRelationalRead.HydrateBundleAsync(sqlConnection, row, blobStore, ct);
     }
 
     public async Task<ArtifactBundle?> GetByManifestIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
@@ -341,7 +382,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
         const string sql = """
             SELECT TOP 1
                 TenantId, WorkspaceId, ProjectId,
-                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson
+                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson, BundlePayloadBlobUri
             FROM dbo.ArtifactBundles
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -366,9 +407,11 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
         if (row is null)
             return null;
 
+        row = await ApplyBundleBlobOverlayIfPresentAsync(row, ct);
+
         try
         {
-            return await ArtifactBundleRelationalRead.HydrateBundleAsync(connection, row, ct);
+            return await ArtifactBundleRelationalRead.HydrateBundleAsync(connection, row, blobStore, ct);
         }
         catch (InvalidOperationException ex)
         {
@@ -434,7 +477,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
 
         if (artifactRowCount == 0 && bundle.Artifacts.Count > 0)
         {
-            await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct);
+            await InsertArtifactBundleArtifactsRelationalAsync(bundle, connection, transaction, ct, persistContext: null);
             await InsertArtifactBundleTraceRelationalAsync(bundle, connection, transaction, ct);
             return;
         }
@@ -447,5 +490,25 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
 
         if (notesCount == 0 && bundle.Trace.Notes.Count > 0)
             await InsertArtifactBundleTraceNotesRelationalAsync(bundle, connection, transaction, ct);
+    }
+
+    private async Task<ArtifactBundleStorageRow> ApplyBundleBlobOverlayIfPresentAsync(
+        ArtifactBundleStorageRow row,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(row.BundlePayloadBlobUri))
+            return row;
+
+        string? json = await blobStore.ReadAsync(row.BundlePayloadBlobUri!, ct);
+
+        if (string.IsNullOrEmpty(json))
+            return row;
+
+        ArtifactBundlePayloadBlobEnvelope? envelope = ArtifactBundlePayloadBlobEnvelope.TryDeserialize(json);
+
+        if (envelope is null || envelope.SchemaVersion != ArtifactBundlePayloadBlobEnvelope.CurrentSchemaVersion)
+            return row;
+
+        return ArtifactBundlePayloadBlobEnvelope.MergeIntoRow(row, envelope);
     }
 }

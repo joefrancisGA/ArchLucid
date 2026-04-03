@@ -32,4 +32,7 @@ internal sealed class GoldenManifestStorageRow
     public string AssumptionsJson { get; init; } = null!;
     public string WarningsJson { get; init; } = null!;
     public string ProvenanceJson { get; init; } = null!;
+
+    /// <summary>Optional pointer to a JSON blob mirroring the manifest section columns (see <c>034_LargeArtifactBlobPointers</c>).</summary>
+    public string? ManifestPayloadBlobUri { get; init; }
 }

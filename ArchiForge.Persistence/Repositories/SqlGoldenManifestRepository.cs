@@ -1,9 +1,10 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
+using ArchiForge.Persistence.BlobStore;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.GoldenManifests;
 using ArchiForge.Persistence.RelationalRead;
@@ -12,6 +13,7 @@ using ArchiForge.Persistence.Serialization;
 using Dapper;
 
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Persistence.Repositories;
 
@@ -21,7 +23,10 @@ namespace ArchiForge.Persistence.Repositories;
 /// and provenance reference lists. Reads prefer relational slices per collection when rows exist.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connectionFactory) : IGoldenManifestRepository
+public sealed class SqlGoldenManifestRepository(
+    ISqlConnectionFactory connectionFactory,
+    IArtifactBlobStore blobStore,
+    IOptionsMonitor<ArtifactLargePayloadOptions> largePayloadOptions) : IGoldenManifestRepository
 {
     public async Task SaveAsync(
         GoldenManifest manifest,
@@ -52,7 +57,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
         }
     }
 
-    private static async Task SaveCoreAsync(
+    private async Task SaveCoreAsync(
         GoldenManifest manifest,
         IDbConnection connection,
         IDbTransaction? transaction,
@@ -66,7 +71,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
                 CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                 MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                 ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson
+                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
             )
             VALUES
             (
@@ -75,9 +80,61 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
                 @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
                 @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
                 @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
-                @WarningsJson, @ProvenanceJson
+                @WarningsJson, @ProvenanceJson, @ManifestPayloadBlobUri
             );
             """;
+
+        string metadataJson = JsonEntitySerializer.Serialize(manifest.Metadata);
+        string requirementsJson = JsonEntitySerializer.Serialize(manifest.Requirements);
+        string topologyJson = JsonEntitySerializer.Serialize(manifest.Topology);
+        string securityJson = JsonEntitySerializer.Serialize(manifest.Security);
+        string complianceJson = JsonEntitySerializer.Serialize(manifest.Compliance);
+        string costJson = JsonEntitySerializer.Serialize(manifest.Cost);
+        string constraintsJson = JsonEntitySerializer.Serialize(manifest.Constraints);
+        string unresolvedIssuesJson = JsonEntitySerializer.Serialize(manifest.UnresolvedIssues);
+        string decisionsJson = JsonEntitySerializer.Serialize(manifest.Decisions);
+        string assumptionsJson = JsonEntitySerializer.Serialize(manifest.Assumptions);
+        string warningsJson = JsonEntitySerializer.Serialize(manifest.Warnings);
+        string provenanceJson = JsonEntitySerializer.Serialize(manifest.Provenance);
+
+        int totalLen = GoldenManifestPayloadBlobEnvelope.SumUtf16Length(
+            metadataJson,
+            requirementsJson,
+            topologyJson,
+            securityJson,
+            complianceJson,
+            costJson,
+            constraintsJson,
+            unresolvedIssuesJson,
+            decisionsJson,
+            assumptionsJson,
+            warningsJson,
+            provenanceJson);
+
+        ArtifactLargePayloadOptions payloadOpts = largePayloadOptions.CurrentValue;
+        string? manifestBlobUri = null;
+
+        if (LargePayloadOffloadEvaluator.ShouldOffloadManifestOrBundle(payloadOpts, totalLen))
+        {
+            GoldenManifestPayloadBlobEnvelope envelope = GoldenManifestPayloadBlobEnvelope.FromSerializedSlices(
+                metadataJson,
+                requirementsJson,
+                topologyJson,
+                securityJson,
+                complianceJson,
+                costJson,
+                constraintsJson,
+                unresolvedIssuesJson,
+                decisionsJson,
+                assumptionsJson,
+                warningsJson,
+                provenanceJson);
+            manifestBlobUri = await blobStore.WriteAsync(
+                "golden-manifests",
+                $"{manifest.ManifestId:D}.json",
+                envelope.ToJson(),
+                ct);
+        }
 
         object args = new
         {
@@ -95,18 +152,19 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
             manifest.RuleSetId,
             manifest.RuleSetVersion,
             manifest.RuleSetHash,
-            MetadataJson = JsonEntitySerializer.Serialize(manifest.Metadata),
-            RequirementsJson = JsonEntitySerializer.Serialize(manifest.Requirements),
-            TopologyJson = JsonEntitySerializer.Serialize(manifest.Topology),
-            SecurityJson = JsonEntitySerializer.Serialize(manifest.Security),
-            ComplianceJson = JsonEntitySerializer.Serialize(manifest.Compliance),
-            CostJson = JsonEntitySerializer.Serialize(manifest.Cost),
-            ConstraintsJson = JsonEntitySerializer.Serialize(manifest.Constraints),
-            UnresolvedIssuesJson = JsonEntitySerializer.Serialize(manifest.UnresolvedIssues),
-            DecisionsJson = JsonEntitySerializer.Serialize(manifest.Decisions),
-            AssumptionsJson = JsonEntitySerializer.Serialize(manifest.Assumptions),
-            WarningsJson = JsonEntitySerializer.Serialize(manifest.Warnings),
-            ProvenanceJson = JsonEntitySerializer.Serialize(manifest.Provenance),
+            MetadataJson = metadataJson,
+            RequirementsJson = requirementsJson,
+            TopologyJson = topologyJson,
+            SecurityJson = securityJson,
+            ComplianceJson = complianceJson,
+            CostJson = costJson,
+            ConstraintsJson = constraintsJson,
+            UnresolvedIssuesJson = unresolvedIssuesJson,
+            DecisionsJson = decisionsJson,
+            AssumptionsJson = assumptionsJson,
+            WarningsJson = warningsJson,
+            ProvenanceJson = provenanceJson,
+            ManifestPayloadBlobUri = manifestBlobUri,
         };
 
         await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
@@ -371,7 +429,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
                 CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
                 MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                 ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
-                WarningsJson, ProvenanceJson
+                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
             FROM dbo.GoldenManifests
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -395,7 +453,29 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
         if (row is null)
             return null;
 
+        row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
+
         return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
+    }
+
+    private async Task<GoldenManifestStorageRow> ApplyManifestBlobOverlayIfPresentAsync(
+        GoldenManifestStorageRow row,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(row.ManifestPayloadBlobUri))
+            return row;
+
+        string? json = await blobStore.ReadAsync(row.ManifestPayloadBlobUri!, ct);
+
+        if (string.IsNullOrEmpty(json))
+            return row;
+
+        GoldenManifestPayloadBlobEnvelope? envelope = GoldenManifestPayloadBlobEnvelope.TryDeserialize(json);
+
+        if (envelope is null || envelope.SchemaVersion != GoldenManifestPayloadBlobEnvelope.CurrentSchemaVersion)
+            return row;
+
+        return GoldenManifestPayloadBlobEnvelope.MergeIntoRow(row, envelope);
     }
 
     /// <summary>

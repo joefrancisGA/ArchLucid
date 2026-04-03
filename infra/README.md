@@ -9,6 +9,7 @@ ArchiForge splits Azure infrastructure into **optional Terraform roots** so loca
 | [`terraform-private/`](terraform-private/) | VNet, private DNS, **private endpoints** for **SQL** and **Blob**. | **`enable_private_data_plane = false`** |
 | [`terraform-entra/`](terraform-entra/) | **Microsoft Entra ID** app registration with **Admin / Operator / Reader** app roles aligned with the API. | **`enable_entra_api_app = false`** |
 | [`terraform-container-apps/`](terraform-container-apps/) | **Azure Container Apps**: Log Analytics, environment, **API + Operator UI** with **min/max replicas** and HTTP concurrency scale rules. | **`enable_container_apps = false`** |
+| [`terraform-storage/`](terraform-storage/) | **Storage account** + **private blob containers** for **large manifest/bundle offload** (`ArtifactLargePayload`, SQL pointer columns). | **`enable_storage_account = false`** |
 
 ## Suggested order
 

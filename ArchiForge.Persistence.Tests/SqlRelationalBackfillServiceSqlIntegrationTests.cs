@@ -165,8 +165,8 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
             new SqlContextSnapshotRepository(factory),
             new SqlGraphSnapshotRepository(factory),
             new SqlFindingsSnapshotRepository(factory),
-            new SqlGoldenManifestRepository(factory),
-            new SqlArtifactBundleRepository(factory),
+            SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory),
+            SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory),
             NullLogger<SqlRelationalBackfillService>.Instance);
     }
 }
