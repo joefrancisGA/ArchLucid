@@ -44,8 +44,11 @@ jobs:
             global.json
             **/*.csproj
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v4
+      # Autobuild cannot detect this repo layout (central package management, SDK from global.json).
+      - name: Restore and build
+        run: |
+          dotnet restore ArchiForge.sln
+          dotnet build ArchiForge.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
