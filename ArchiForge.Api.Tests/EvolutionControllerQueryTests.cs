@@ -57,6 +57,19 @@ public sealed class EvolutionControllerQueryTests(ArchiForgeApiFactory factory) 
     }
 
     [Fact]
+    public async Task GetResults_UnknownCandidate_Returns404Problem()
+    {
+        HttpResponseMessage response =
+            await Client.GetAsync("/v1/evolution/results/00000000-0000-0000-0000-000000000099");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
+    }
+
+    [Fact]
     public async Task CreateFromPlan_UnknownPlan_Returns404Problem()
     {
         HttpResponseMessage response = await Client.PostAsync(

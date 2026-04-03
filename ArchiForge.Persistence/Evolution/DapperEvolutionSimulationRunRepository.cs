@@ -88,4 +88,19 @@ public sealed class DapperEvolutionSimulationRunRepository(ISqlConnectionFactory
 
         return rows.ToList();
     }
+
+    public async Task DeleteByCandidateAsync(Guid candidateChangeSetId, CancellationToken cancellationToken)
+    {
+        const string sql = """
+            DELETE FROM dbo.EvolutionSimulationRuns
+            WHERE CandidateChangeSetId = @CandidateChangeSetId;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new { CandidateChangeSetId = candidateChangeSetId },
+                cancellationToken: cancellationToken));
+    }
 }

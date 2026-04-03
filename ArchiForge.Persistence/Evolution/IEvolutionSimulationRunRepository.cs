@@ -10,4 +10,7 @@ public interface IEvolutionSimulationRunRepository
     Task<IReadOnlyList<EvolutionSimulationRunRecord>> ListByCandidateAsync(
         Guid candidateChangeSetId,
         CancellationToken cancellationToken);
+
+    /// <summary>Removes all simulation rows for a candidate (e.g. before a full re-simulation).</summary>
+    Task DeleteByCandidateAsync(Guid candidateChangeSetId, CancellationToken cancellationToken);
 }

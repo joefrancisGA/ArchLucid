@@ -35,4 +35,21 @@ public sealed class InMemoryEvolutionSimulationRunRepository : IEvolutionSimulat
 
         return Task.FromResult<IReadOnlyList<EvolutionSimulationRunRecord>>(list);
     }
+
+    public Task DeleteByCandidateAsync(Guid candidateChangeSetId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        List<Guid> removeIds = _byId
+            .Where(kvp => kvp.Value.CandidateChangeSetId == candidateChangeSetId)
+            .Select(static kvp => kvp.Key)
+            .ToList();
+
+        foreach (Guid id in removeIds)
+        {
+            _byId.TryRemove(id, out _);
+        }
+
+        return Task.CompletedTask;
+    }
 }

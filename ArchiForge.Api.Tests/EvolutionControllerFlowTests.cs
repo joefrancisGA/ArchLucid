@@ -83,6 +83,48 @@ public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) :
         JsonDocument.Parse(detail.PlanSnapshotJson);
     }
 
+    [Fact]
+    public async Task Simulate_ThenGetResults_NoLinkedRuns_ReturnsCandidateAndEmptyRuns()
+    {
+        Guid planId = await SeedMinimalPlanInDefaultScopeAsync();
+
+        HttpResponseMessage createResponse =
+            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", content: null);
+
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        EvolutionCandidateChangeSetResponse? created =
+            await createResponse.Content.ReadFromJsonAsync<EvolutionCandidateChangeSetResponse>(JsonOptions);
+
+        created.Should().NotBeNull();
+
+        HttpResponseMessage simulateResponse = await Client.PostAsync(
+            $"/v1/evolution/simulate/{created!.CandidateChangeSetId}",
+            content: null);
+
+        simulateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        EvolutionSimulateResponse? simBody =
+            await simulateResponse.Content.ReadFromJsonAsync<EvolutionSimulateResponse>(JsonOptions);
+
+        simBody.Should().NotBeNull();
+        simBody!.Candidate.CandidateChangeSetId.Should().Be(created.CandidateChangeSetId);
+        simBody.SimulationRuns.Should().BeEmpty();
+
+        HttpResponseMessage resultsResponse =
+            await Client.GetAsync($"/v1/evolution/results/{created.CandidateChangeSetId}");
+
+        resultsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        EvolutionResultsResponse? resultsBody =
+            await resultsResponse.Content.ReadFromJsonAsync<EvolutionResultsResponse>(JsonOptions);
+
+        resultsBody.Should().NotBeNull();
+        resultsBody!.Candidate.CandidateChangeSetId.Should().Be(created.CandidateChangeSetId);
+        resultsBody.PlanSnapshotJson.Should().NotBeNullOrWhiteSpace();
+        resultsBody.SimulationRuns.Should().BeEmpty();
+    }
+
     private async Task<Guid> SeedMinimalPlanInDefaultScopeAsync()
     {
         using IServiceScope scope = Factory.Services.CreateScope();

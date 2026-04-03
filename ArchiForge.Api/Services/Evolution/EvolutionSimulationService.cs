@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
+using ArchiForge.Application.Evolution;
 using ArchiForge.Contracts.Evolution;
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
@@ -20,7 +21,8 @@ public sealed class EvolutionSimulationService(
     IProductLearningPlanningRepository planningRepository,
     IEvolutionCandidateChangeSetRepository candidateRepository,
     IEvolutionSimulationRunRepository simulationRunRepository,
-    IArchitectureAnalysisService architectureAnalysisService)
+    IArchitectureAnalysisService architectureAnalysisService,
+    ISimulationEvaluationService simulationEvaluationService)
     : IEvolutionSimulationService
 {
     private const string DerivationRuleVersion = "60R-v1";
@@ -32,6 +34,7 @@ public sealed class EvolutionSimulationService(
         WriteIndented = false,
     };
 
+    /// <inheritdoc />
     public async Task<EvolutionCandidateChangeSetRecord> CreateCandidateFromImprovementPlanAsync(
         Guid planId,
         ProductLearningScope scope,
@@ -91,9 +94,39 @@ public sealed class EvolutionSimulationService(
         return record;
     }
 
-    public async Task<IReadOnlyList<EvolutionSimulationRunRecord>> RunShadowEvaluationAsync(
+    /// <inheritdoc />
+    public Task<IReadOnlyList<EvolutionSimulationRunRecord>> RunShadowEvaluationAsync(
         Guid candidateChangeSetId,
         ProductLearningScope scope,
+        CancellationToken cancellationToken)
+    {
+        return RunSimulationAsync(
+            candidateChangeSetId,
+            scope,
+            deleteExistingRunsForCandidate: false,
+            useEvaluationEnvelope: false,
+            cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<EvolutionSimulationRunRecord>> SimulateCandidateWithEvaluationAsync(
+        Guid candidateChangeSetId,
+        ProductLearningScope scope,
+        CancellationToken cancellationToken)
+    {
+        return RunSimulationAsync(
+            candidateChangeSetId,
+            scope,
+            deleteExistingRunsForCandidate: true,
+            useEvaluationEnvelope: true,
+            cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<EvolutionSimulationRunRecord>> RunSimulationAsync(
+        Guid candidateChangeSetId,
+        ProductLearningScope scope,
+        bool deleteExistingRunsForCandidate,
+        bool useEvaluationEnvelope,
         CancellationToken cancellationToken)
     {
         EvolutionCandidateChangeSetRecord? candidate =
@@ -112,6 +145,11 @@ public sealed class EvolutionSimulationService(
         if (snapshot is null)
         {
             throw new InvalidOperationException("Stored plan snapshot is invalid JSON.");
+        }
+
+        if (deleteExistingRunsForCandidate)
+        {
+            await simulationRunRepository.DeleteByCandidateAsync(candidateChangeSetId, cancellationToken);
         }
 
         List<EvolutionSimulationRunRecord> inserted = [];
@@ -137,17 +175,21 @@ public sealed class EvolutionSimulationService(
             DateTime completedUtc = completedUtcBase.AddTicks(ordinal);
             ordinal++;
 
-            (ShadowOutcomeDto outcome, IReadOnlyList<string> analysisWarnings) =
+            (ShadowOutcomeDto outcome, IReadOnlyList<string> analysisWarnings, ArchitectureAnalysisReport? report) =
                 await EvaluateRunReadOnlyAsync(runId, cancellationToken);
 
             string? warningsJson = analysisWarnings.Count > 0
                 ? JsonSerializer.Serialize(analysisWarnings, JsonOptions)
                 : null;
 
+            string outcomeJson = useEvaluationEnvelope
+                ? await BuildOutcomeEnvelopeJsonAsync(outcome, report, runId, cancellationToken)
+                : JsonSerializer.Serialize(outcome, JsonOptions);
+
             EvolutionSimulationRunRecord row = await InsertSimulationRowAsync(
                 candidateChangeSetId,
                 runId,
-                outcome,
+                outcomeJson,
                 warningsJson,
                 completedUtc,
                 cancellationToken);
@@ -164,9 +206,10 @@ public sealed class EvolutionSimulationService(
         return inserted;
     }
 
-    private async Task<(ShadowOutcomeDto Outcome, IReadOnlyList<string> Warnings)> EvaluateRunReadOnlyAsync(
-        string runId,
-        CancellationToken cancellationToken)
+    private async Task<(ShadowOutcomeDto Outcome, IReadOnlyList<string> Warnings, ArchitectureAnalysisReport? Report)>
+        EvaluateRunReadOnlyAsync(
+            string runId,
+            CancellationToken cancellationToken)
     {
         ArchitectureAnalysisRequest request = new()
         {
@@ -196,7 +239,7 @@ public sealed class EvolutionSimulationService(
                 SummaryLength: report.Summary?.Length ?? 0,
                 WarningCount: report.Warnings.Count);
 
-            return (outcome, report.Warnings);
+            return (outcome, report.Warnings, report);
         }
         catch (RunNotFoundException)
         {
@@ -210,20 +253,54 @@ public sealed class EvolutionSimulationService(
                 SummaryLength: 0,
                 WarningCount: 0);
 
-            return (outcome, []);
+            return (outcome, [], null);
         }
+    }
+
+    private async Task<string> BuildOutcomeEnvelopeJsonAsync(
+        ShadowOutcomeDto shadow,
+        ArchitectureAnalysisReport? report,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        EvaluationScore? evaluationScore = null;
+        string? explanationSummary = null;
+        string? explanationDetailJson = null;
+
+        if (report is not null)
+        {
+            SimulationEvaluationResult evaluationResult =
+                await simulationEvaluationService.EvaluateAsync(
+                    new SimulationEvaluationRequest
+                    {
+                        BaselineReport = report,
+                        BaselineArchitectureRunId = runId,
+                    },
+                    cancellationToken);
+
+            evaluationScore = evaluationResult.Score;
+            explanationSummary = evaluationResult.ExplanationSummary;
+            explanationDetailJson = evaluationResult.ExplanationDetailJson;
+        }
+
+        EvolutionOutcomeEnvelopeV2 envelope = new(
+            SchemaVersion: "60R-v2",
+            Shadow: shadow,
+            Evaluation: evaluationScore,
+            ExplanationSummary: explanationSummary,
+            ExplanationDetailJson: explanationDetailJson);
+
+        return JsonSerializer.Serialize(envelope, JsonOptions);
     }
 
     private async Task<EvolutionSimulationRunRecord> InsertSimulationRowAsync(
         Guid candidateChangeSetId,
         string baselineRunId,
-        ShadowOutcomeDto outcome,
+        string outcomeJson,
         string? warningsJson,
         DateTime completedUtc,
         CancellationToken cancellationToken)
     {
-        string outcomeJson = JsonSerializer.Serialize(outcome, JsonOptions);
-
         EvolutionSimulationRunRecord record = new()
         {
             SimulationRunId = Guid.NewGuid(),
@@ -250,4 +327,11 @@ public sealed class EvolutionSimulationService(
         bool HasManifest,
         int SummaryLength,
         int WarningCount);
+
+    private sealed record EvolutionOutcomeEnvelopeV2(
+        [property: JsonPropertyName("schemaVersion")] string SchemaVersion,
+        [property: JsonPropertyName("shadow")] ShadowOutcomeDto Shadow,
+        [property: JsonPropertyName("evaluation")] EvaluationScore? Evaluation,
+        [property: JsonPropertyName("explanationSummary")] string? ExplanationSummary,
+        [property: JsonPropertyName("explanationDetailJson")] string? ExplanationDetailJson);
 }

@@ -1,9 +1,9 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Learning;
 using ArchiForge.Api.Models.Evolution;
+using ArchiForge.Contracts.Evolution;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services.Evolution;
-using ArchiForge.Contracts.Evolution;
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Evolution;
@@ -88,6 +88,86 @@ public sealed class EvolutionController(
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+    }
+
+    /// <summary>
+    /// Re-runs simulation for the candidate (replaces prior simulation rows), persists 60R-v2 outcomes with evaluation scores.
+    /// </summary>
+    [HttpPost("simulate/{candidateId:guid}")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(EvolutionSimulateResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Simulate(Guid candidateId, CancellationToken cancellationToken)
+    {
+        ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
+
+        try
+        {
+            IReadOnlyList<EvolutionSimulationRunRecord> runs =
+                await evolutionSimulationService.SimulateCandidateWithEvaluationAsync(
+                    candidateId,
+                    scope,
+                    cancellationToken);
+
+            EvolutionCandidateChangeSetRecord? candidate =
+                await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
+
+            if (candidate is null)
+            {
+                return this.NotFoundProblem(
+                    $"Candidate change set '{candidateId}' was not found in the current scope.",
+                    ProblemTypes.EvolutionCandidateChangeSetNotFound);
+            }
+
+            EvolutionSimulateResponse body = new()
+            {
+                Candidate = candidate.ToResponse(),
+                SimulationRuns = runs.Select(EvolutionOutcomeParser.ToRunWithEvaluation).ToList(),
+            };
+
+            return Ok(body);
+        }
+        catch (EvolutionResourceNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ex.ProblemTypeUri);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+    }
+
+    /// <summary>Loads candidate, plan snapshot, and simulation runs with parsed evaluation scores.</summary>
+    [HttpGet("results/{candidateId:guid}")]
+    [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(EvolutionResultsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetResults(Guid candidateId, CancellationToken cancellationToken)
+    {
+        ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
+
+        EvolutionCandidateChangeSetRecord? row =
+            await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
+
+        if (row is null)
+        {
+            return this.NotFoundProblem(
+                $"Candidate change set '{candidateId}' was not found in the current scope.",
+                ProblemTypes.EvolutionCandidateChangeSetNotFound);
+        }
+
+        IReadOnlyList<EvolutionSimulationRunRecord> sims =
+            await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);
+
+        EvolutionResultsResponse body = new()
+        {
+            Candidate = row.ToResponse(),
+            PlanSnapshotJson = row.PlanSnapshotJson,
+            SimulationRuns = sims.Select(EvolutionOutcomeParser.ToRunWithEvaluation).ToList(),
+        };
+
+        return Ok(body);
     }
 
     /// <summary>Lists recent candidate change sets for the current scope.</summary>
