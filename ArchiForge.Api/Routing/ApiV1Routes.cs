@@ -12,4 +12,5 @@ public static class ApiV1Routes
     public const string AlertTuning = "v1/alert-tuning";
     public const string AlertRoutingSubscriptions = "v1/alert-routing-subscriptions";
     public const string DigestSubscriptions = "v1/digest-subscriptions";
+    public const string Evolution = "v1/evolution";
 }

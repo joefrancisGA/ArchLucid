@@ -24,6 +24,7 @@ import DigestSubscriptionsPage from "./digest-subscriptions/page";
 import DigestsPage from "./digests/page";
 import GovernanceResolutionPage from "./governance-resolution/page";
 import PolicyPacksPage from "./policy-packs/page";
+import EvolutionReviewPage from "./evolution-review/page";
 import PlanningPage from "./planning/page";
 import ProductLearningPage from "./product-learning/page";
 import RecommendationLearningPage from "./recommendation-learning/page";
@@ -87,6 +88,11 @@ describe("operator client pages — render gate", () => {
   it("PlanningPage renders primary heading", () => {
     render(<PlanningPage />);
     expect(screen.getByRole("heading", { level: 2, name: "Planning" })).toBeInTheDocument();
+  });
+
+  it("EvolutionReviewPage renders primary heading", () => {
+    render(<EvolutionReviewPage />);
+    expect(screen.getByRole("heading", { level: 2, name: "Simulation review" })).toBeInTheDocument();
   });
 
   it("DigestsPage renders primary heading", () => {

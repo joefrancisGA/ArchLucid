@@ -66,6 +66,9 @@ export function ShellNav() {
           <Link href="/planning" title="Improvement themes and prioritized plans (59R)">
             Planning
           </Link>
+          <Link href="/evolution-review" title="60R candidate simulations and before/after review">
+            Simulation review
+          </Link>
           <Link href="/advisory-scheduling">Schedules</Link>
           <Link href="/digests">Digests</Link>
           <Link href="/digest-subscriptions">Subscriptions</Link>

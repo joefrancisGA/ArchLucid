@@ -50,6 +50,11 @@ import type {
   LearningSummaryResponse,
   LearningThemesListResponse,
 } from "@/types/learning";
+import type {
+  EvolutionCandidateChangeSetListResponse,
+  EvolutionResultsResponse,
+  EvolutionSimulateResponse,
+} from "@/types/evolution";
 
 /** Returns true when executing in the browser (client component), false on the Node.js server (RSC). */
 function isBrowser(): boolean {
@@ -456,6 +461,29 @@ export async function fetchLearningPlanningListBundle(options?: {
   ]);
 
   return { summary, themes, plans };
+}
+
+/** Lists 60R evolution candidate change sets for the current scope (newest first server-side). */
+export async function fetchEvolutionCandidates(max?: number): Promise<EvolutionCandidateChangeSetListResponse> {
+  const q = max !== undefined ? `?max=${encodeURIComponent(String(max))}` : "";
+
+  return apiGet<EvolutionCandidateChangeSetListResponse>(`/${ApiV1Routes.evolution}/candidates${q}`);
+}
+
+/** Loads candidate, plan snapshot JSON, and simulation runs with parsed evaluation fields. */
+export async function fetchEvolutionResults(candidateId: string): Promise<EvolutionResultsResponse> {
+  const id = candidateId.trim();
+
+  return apiGet<EvolutionResultsResponse>(`/${ApiV1Routes.evolution}/results/${encodeURIComponent(id)}`);
+}
+
+/**
+ * Re-runs simulation for the candidate (replaces prior rows). Requires execute authority; may return 403.
+ */
+export async function postEvolutionSimulate(candidateId: string): Promise<EvolutionSimulateResponse> {
+  const id = candidateId.trim();
+
+  return apiPostJson<EvolutionSimulateResponse>(`/${ApiV1Routes.evolution}/simulate/${encodeURIComponent(id)}`, {});
 }
 
 /** Lists all advisory scan schedules for the current scope. */

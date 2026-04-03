@@ -16,4 +16,6 @@ export const ApiV1Routes = {
   productLearning: "v1/product-learning",
   /** 59R improvement themes and plans (read-only planning bridge). */
   learning: "v1/learning",
+  /** 60R evolution: candidate change sets and simulation results. */
+  evolution: "v1/evolution",
 } as const;
