@@ -4,6 +4,7 @@ using ArchiForge.Persistence.ProductLearning.Planning;
 
 namespace ArchiForge.Persistence.Tests.ProductLearning.Planning;
 
+[Trait("ChangeSet", "59R")]
 public sealed class LearningPlanningReportBuilderTests
 {
     private static ProductLearningScope Scope() =>

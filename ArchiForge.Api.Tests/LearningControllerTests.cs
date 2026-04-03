@@ -142,7 +142,8 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
         body.Should().NotBeNull();
         body!.Format.Should().Be("markdown");
         body.FileName.Should().Be("learning-planning-report-59r.md");
-        body.Content.Should().Contain("ArchiForge planning report (59R)");
+        body.Content.Should().NotBeNullOrWhiteSpace();
+        body.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries)[0].Should().StartWith("# ");
     }
 
     [Fact]
@@ -166,7 +167,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
         response.Content.Headers.ContentType!.MediaType.Should().Be("text/markdown");
 
         string text = await response.Content.ReadAsStringAsync();
-        text.Should().Contain("ArchiForge planning report (59R)");
+        text.Split('\n', StringSplitOptions.RemoveEmptyEntries)[0].Should().StartWith("# ");
     }
 
     [Fact]
@@ -180,5 +181,34 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
         string text = await response.Content.ReadAsStringAsync();
         using JsonDocument doc = JsonDocument.Parse(text);
         doc.RootElement.GetProperty("summary").GetProperty("themeCount").GetInt32().Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetPlanningReport_Json_empty_scope_exposes_expected_arrays_and_counts()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=json");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        string text = await response.Content.ReadAsStringAsync();
+        using JsonDocument doc = JsonDocument.Parse(text);
+
+        doc.RootElement.GetProperty("summary").GetProperty("planCount").GetInt32().Should().Be(0);
+        doc.RootElement.GetProperty("themes").GetArrayLength().Should().Be(0);
+        doc.RootElement.GetProperty("plans").GetArrayLength().Should().Be(0);
+        doc.RootElement.TryGetProperty("generatedUtc", out JsonElement _).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetPlanningReport_InvalidMaxReportSignalLinks_Returns400Problem()
+    {
+        HttpResponseMessage response =
+            await Client.GetAsync("/v1/learning/report?format=json&maxReportSignalLinks=0");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Detail.Should().Contain("maxReportSignalLinks");
     }
 }

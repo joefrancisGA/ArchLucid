@@ -1,9 +1,12 @@
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchiForge.Persistence.ProductLearning;
 using ArchiForge.Persistence.ProductLearning.Planning;
 
 namespace ArchiForge.Persistence.Tests.ProductLearning.Planning;
 
+/// <summary>59R theme extraction from 58R aggregates and scoped pilot signals.</summary>
+[Trait("ChangeSet", "59R")]
 public sealed class ImprovementThemeExtractionServiceTests
 {
     private static ProductLearningScope Scope() =>
@@ -324,5 +327,253 @@ public sealed class ImprovementThemeExtractionServiceTests
             CancellationToken.None);
 
         Assert.Equal(a[0].Theme.ThemeId, b[0].Theme.ThemeId);
+    }
+
+    [Fact]
+    public async Task Trend_theme_emits_when_totals_and_negative_outcomes_meet_thresholds()
+    {
+        ImprovementThemeExtractionService svc = new();
+        ProductLearningScope scope = Scope();
+        DateTime utc = new(2026, 4, 4, 0, 0, 0, DateTimeKind.Utc);
+
+        string trendKey = ProductLearningSignalAggregations.BuildTrendKey(
+            ProductLearningSubjectTypeValues.ManifestArtifact,
+            "export.pdf");
+
+        ArtifactOutcomeTrend trend = new()
+        {
+            TrendKey = trendKey,
+            ArtifactTypeOrHint = "export.pdf",
+            AcceptedOrTrustedCount = 1,
+            RejectionCount = 2,
+            RevisionCount = 0,
+            NeedsFollowUpCount = 1,
+            DistinctRunCount = 2,
+            FirstSeenUtc = utc,
+            LastSeenUtc = utc.AddHours(2),
+        };
+
+        ProductLearningAggregationSnapshot snapshot = new()
+        {
+            Scope = scope,
+            FeedbackRollups = [],
+            ArtifactTrends = [trend],
+            RepeatedCommentThemes = [],
+        };
+
+        List<ProductLearningPilotSignalRecord> signals =
+        [
+            Signal(
+                Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                ProductLearningDispositionValues.Rejected,
+                null,
+                ProductLearningSubjectTypeValues.ManifestArtifact,
+                "export.pdf",
+                null,
+                null,
+                utc),
+            Signal(
+                Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProductLearningDispositionValues.NeedsFollowUp,
+                null,
+                ProductLearningSubjectTypeValues.ManifestArtifact,
+                "export.pdf",
+                null,
+                null,
+                utc.AddMinutes(1)),
+            Signal(
+                Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                ProductLearningDispositionValues.Trusted,
+                null,
+                ProductLearningSubjectTypeValues.ManifestArtifact,
+                "export.pdf",
+                null,
+                null,
+                utc.AddMinutes(2)),
+        ];
+
+        IReadOnlyList<ImprovementThemeWithEvidence> themes = await svc.ExtractThemesAsync(
+            snapshot,
+            signals,
+            null,
+            new ImprovementThemeExtractionOptions
+            {
+                MinSignalsPerArtifactTrend = 3,
+                MinNegativeOutcomesOnArtifactTrend = 2,
+            },
+            CancellationToken.None);
+
+        ImprovementThemeWithEvidence t = Assert.Single(
+            themes,
+            x => x.CanonicalKey.StartsWith("trend:", StringComparison.Ordinal));
+
+        Assert.Equal("trend:" + trendKey, t.CanonicalKey);
+        Assert.Equal(4, t.Theme.EvidenceCount);
+        Assert.Equal(3, t.ExampleEvidence.Count);
+    }
+
+    [Fact]
+    public async Task Comment_theme_emits_when_occurrence_count_meets_minimum()
+    {
+        ImprovementThemeExtractionService svc = new();
+        ProductLearningScope scope = Scope();
+        DateTime utc = new(2026, 4, 5, 0, 0, 0, DateTimeKind.Utc);
+
+        string commentText = "Missing section on costs";
+
+        RepeatedCommentTheme repeated = new()
+        {
+            ThemeKey = commentText,
+            OccurrenceCount = 3,
+            FirstSeenUtc = utc,
+            LastSeenUtc = utc.AddHours(1),
+            SampleCommentShort = commentText,
+        };
+
+        ProductLearningAggregationSnapshot snapshot = new()
+        {
+            Scope = scope,
+            FeedbackRollups = [],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = [repeated],
+        };
+
+        List<ProductLearningPilotSignalRecord> signals =
+        [
+            Signal(
+                Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                ProductLearningDispositionValues.Rejected,
+                null,
+                ProductLearningSubjectTypeValues.RunOutput,
+                null,
+                commentText,
+                null,
+                utc),
+            Signal(
+                Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                ProductLearningDispositionValues.Rejected,
+                null,
+                ProductLearningSubjectTypeValues.RunOutput,
+                null,
+                commentText,
+                null,
+                utc.AddMinutes(1)),
+            Signal(
+                Guid.Parse("66666666-6666-6666-6666-666666666666"),
+                ProductLearningDispositionValues.Rejected,
+                null,
+                ProductLearningSubjectTypeValues.RunOutput,
+                null,
+                commentText,
+                null,
+                utc.AddMinutes(2)),
+        ];
+
+        IReadOnlyList<ImprovementThemeWithEvidence> themes = await svc.ExtractThemesAsync(
+            snapshot,
+            signals,
+            null,
+            new ImprovementThemeExtractionOptions { MinCommentOccurrences = 2 },
+            CancellationToken.None);
+
+        ImprovementThemeWithEvidence c = Assert.Single(
+            themes,
+            x => x.CanonicalKey.StartsWith("comment:", StringComparison.Ordinal));
+
+        Assert.Equal("comment:" + commentText, c.CanonicalKey);
+        Assert.Equal(3, c.Theme.EvidenceCount);
+        Assert.Equal(3, c.ExampleEvidence.Count);
+    }
+
+    [Fact]
+    public async Task Max_themes_drops_lower_evidence_after_ranking()
+    {
+        ImprovementThemeExtractionService svc = new();
+        ProductLearningScope scope = Scope();
+        DateTime utc = new(2026, 4, 6, 0, 0, 0, DateTimeKind.Utc);
+
+        FeedbackAggregate smallRollup = new()
+        {
+            AggregateKey = "small",
+            PatternKey = "small",
+            SubjectTypeOrWorkflowArea = ProductLearningSubjectTypeValues.RunOutput,
+            DistinctRunCount = 1,
+            TotalSignalCount = 2,
+            TrustedCount = 0,
+            RejectedCount = 2,
+            RevisedCount = 0,
+            NeedsFollowUpCount = 0,
+            FirstSignalRecordedUtc = utc,
+            LastSignalRecordedUtc = utc,
+        };
+
+        FeedbackAggregate bigRollup = new()
+        {
+            AggregateKey = "big",
+            PatternKey = "big",
+            SubjectTypeOrWorkflowArea = ProductLearningSubjectTypeValues.RunOutput,
+            DistinctRunCount = 3,
+            TotalSignalCount = 8,
+            TrustedCount = 0,
+            RejectedCount = 5,
+            RevisedCount = 0,
+            NeedsFollowUpCount = 3,
+            FirstSignalRecordedUtc = utc,
+            LastSignalRecordedUtc = utc,
+        };
+
+        ProductLearningAggregationSnapshot snapshot = new()
+        {
+            Scope = scope,
+            FeedbackRollups = [smallRollup, bigRollup],
+            ArtifactTrends = [],
+            RepeatedCommentThemes = [],
+        };
+
+        List<ProductLearningPilotSignalRecord> signals = [];
+
+        for (int i = 0; i < 2; i++)
+        {
+            signals.Add(
+                Signal(
+                    Guid.Parse($"66666666-6666-6666-6666-{i:D12}"),
+                    ProductLearningDispositionValues.Rejected,
+                    "small",
+                    ProductLearningSubjectTypeValues.RunOutput,
+                    null,
+                    null,
+                    null,
+                    utc.AddMinutes(i)));
+        }
+
+        for (int i = 0; i < 8; i++)
+        {
+            signals.Add(
+                Signal(
+                    Guid.Parse($"77777777-7777-7777-7777-{i:D12}"),
+                    ProductLearningDispositionValues.Rejected,
+                    "big",
+                    ProductLearningSubjectTypeValues.RunOutput,
+                    null,
+                    null,
+                    null,
+                    utc.AddMinutes(10 + i)));
+        }
+
+        IReadOnlyList<ImprovementThemeWithEvidence> themes = await svc.ExtractThemesAsync(
+            snapshot,
+            signals,
+            null,
+            new ImprovementThemeExtractionOptions
+            {
+                MinSignalsPerAggregateTheme = 2,
+                MaxThemes = 1,
+            },
+            CancellationToken.None);
+
+        ImprovementThemeWithEvidence only = Assert.Single(themes);
+
+        Assert.Equal("rollup:big", only.CanonicalKey);
+        Assert.Equal(8, only.Theme.EvidenceCount);
     }
 }

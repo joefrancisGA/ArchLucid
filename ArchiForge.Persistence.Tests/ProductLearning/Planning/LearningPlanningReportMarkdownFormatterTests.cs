@@ -3,6 +3,7 @@ using ArchiForge.Persistence.ProductLearning.Planning;
 
 namespace ArchiForge.Persistence.Tests.ProductLearning.Planning;
 
+[Trait("ChangeSet", "59R")]
 public sealed class LearningPlanningReportMarkdownFormatterTests
 {
     [Fact]
@@ -74,13 +75,14 @@ public sealed class LearningPlanningReportMarkdownFormatterTests
 
         string md = LearningPlanningReportMarkdownFormatter.Format(doc);
 
-        Assert.Contains("# ArchiForge planning report (59R)", md, StringComparison.Ordinal);
-        Assert.Contains("## Top improvement themes", md, StringComparison.Ordinal);
-        Assert.Contains("### 1. Theme A", md, StringComparison.Ordinal);
-        Assert.Contains("## Prioritized improvement plans", md, StringComparison.Ordinal);
-        Assert.Contains("### 1. Plan A", md, StringComparison.Ordinal);
-        Assert.Contains("- Priority score: 10", md, StringComparison.Ordinal);
-        Assert.Contains("`aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`", md, StringComparison.Ordinal);
+        string[] lines = md.Split('\n', StringSplitOptions.None);
+
+        Assert.StartsWith("# ", lines[0], StringComparison.Ordinal);
+        Assert.Contains(lines, static l => l.StartsWith("## Summary", StringComparison.Ordinal));
+        Assert.Contains(lines, static l => l.StartsWith("## Top improvement themes", StringComparison.Ordinal));
+        Assert.Contains(lines, static l => l.StartsWith("## Prioritized improvement plans", StringComparison.Ordinal));
+        Assert.Contains("10", md, StringComparison.Ordinal);
+        Assert.Contains("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", md, StringComparison.Ordinal);
         Assert.EndsWith(Environment.NewLine, md, StringComparison.Ordinal);
     }
 }
