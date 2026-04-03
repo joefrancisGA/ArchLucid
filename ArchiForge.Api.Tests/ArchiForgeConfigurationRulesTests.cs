@@ -635,4 +635,52 @@ public sealed class ArchiForgeConfigurationRulesTests
 
         errors.Should().Contain(e => e.Contains("HotPathCache:AbsoluteExpirationSeconds", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void CollectErrors_WhenHotPathCacheAutoMultiReplicaWithoutRedisInProduction_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "JwtBearer",
+            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["HotPathCache:Enabled"] = "true",
+            ["HotPathCache:Provider"] = "Auto",
+            ["HotPathCache:ExpectedApiReplicaCount"] = "2",
+            ["HotPathCache:RedisConnectionString"] = "",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("HotPathCache:RedisConnectionString", StringComparison.OrdinalIgnoreCase)
+            && e.Contains("ExpectedApiReplicaCount", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenHotPathCacheAutoMultiReplicaWithoutRedisInDevelopment_does_not_add_replica_redis_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["HotPathCache:Enabled"] = "true",
+            ["HotPathCache:Provider"] = "Auto",
+            ["HotPathCache:ExpectedApiReplicaCount"] = "5",
+            ["HotPathCache:RedisConnectionString"] = "",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("greater than 1 outside Development", StringComparison.OrdinalIgnoreCase));
+    }
 }

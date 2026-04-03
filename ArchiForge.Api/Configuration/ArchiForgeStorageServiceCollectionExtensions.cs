@@ -247,7 +247,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         if (!snapshot.Enabled)
             return;
 
-        string provider = snapshot.Provider ?? "Memory";
+        string provider = HotPathCacheProviderResolver.ResolveEffectiveProvider(snapshot);
 
         if (string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase))
         {

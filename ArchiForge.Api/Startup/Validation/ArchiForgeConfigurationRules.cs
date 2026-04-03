@@ -83,7 +83,7 @@ public static class ArchiForgeConfigurationRules
         CollectRetrievalEmbeddingCapErrors(configuration, errors);
         CollectRetrievalVectorIndexErrors(configuration, errors);
         CollectRateLimitingErrors(configuration, errors);
-        CollectHotPathCacheErrors(configuration, errors);
+        CollectHotPathCacheErrors(configuration, environment, errors);
 
         if (!environment.IsProduction())
         
@@ -310,7 +310,10 @@ public static class ArchiForgeConfigurationRules
         }
     }
 
-    private static void CollectHotPathCacheErrors(IConfiguration configuration, List<string> errors)
+    private static void CollectHotPathCacheErrors(
+        IConfiguration configuration,
+        IWebHostEnvironment environment,
+        List<string> errors)
     {
         HotPathCacheOptions opts =
             configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
@@ -322,15 +325,26 @@ public static class ArchiForgeConfigurationRules
         string provider = opts.Provider ?? "Memory";
 
         if (!string.Equals(provider, "Memory", StringComparison.OrdinalIgnoreCase) &&
-            !string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase))
+            !string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(provider, "Auto", StringComparison.OrdinalIgnoreCase))
         {
-            errors.Add("HotPathCache:Provider must be 'Memory' or 'Redis' when HotPathCache:Enabled is true.");
+            errors.Add(
+                "HotPathCache:Provider must be 'Memory', 'Redis', or 'Auto' when HotPathCache:Enabled is true.");
         }
 
         if (string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase) &&
             string.IsNullOrWhiteSpace(opts.RedisConnectionString))
         {
             errors.Add("HotPathCache:RedisConnectionString is required when HotPathCache:Provider is Redis.");
+        }
+
+        if (string.Equals(provider, "Auto", StringComparison.OrdinalIgnoreCase) &&
+            opts.ExpectedApiReplicaCount > 1 &&
+            string.IsNullOrWhiteSpace(opts.RedisConnectionString) &&
+            !environment.IsDevelopment())
+        {
+            errors.Add(
+                "HotPathCache:RedisConnectionString is required when HotPathCache:Provider is Auto and HotPathCache:ExpectedApiReplicaCount is greater than 1 outside Development (distributed cache across replicas).");
         }
 
         if (opts.AbsoluteExpirationSeconds > 3600)

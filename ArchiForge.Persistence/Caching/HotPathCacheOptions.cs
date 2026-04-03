@@ -8,8 +8,17 @@ public sealed class HotPathCacheOptions
     /// <summary>When false, repositories hit SQL directly (no <see cref="IHotPathReadCache"/> registration in the API host).</summary>
     public bool Enabled { get; set; }
 
-    /// <summary><c>Memory</c> (default) or <c>Redis</c> (requires <see cref="RedisConnectionString"/>).</summary>
+    /// <summary>
+    /// <c>Memory</c>, <c>Redis</c> (requires <see cref="RedisConnectionString"/>), or <c>Auto</c>:
+    /// when <see cref="ExpectedApiReplicaCount"/> is greater than 1 and <see cref="RedisConnectionString"/> is set, uses Redis; otherwise Memory.
+    /// </summary>
     public string Provider { get; set; } = "Memory";
+
+    /// <summary>
+    /// Declared maximum (or typical) API replica count for this deployment. When <see cref="Provider"/> is <c>Auto</c> and this is &gt; 1,
+    /// Redis is selected if <see cref="RedisConnectionString"/> is configured. Align with Container Apps <c>max_replicas</c> when scale-out is allowed.
+    /// </summary>
+    public int ExpectedApiReplicaCount { get; set; } = 1;
 
     /// <summary>Absolute TTL for cached entries; clamped between 1 and 3600 seconds at runtime.</summary>
     public int AbsoluteExpirationSeconds { get; set; } = 60;

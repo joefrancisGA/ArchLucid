@@ -30,6 +30,14 @@ The UI calls the backend via same-origin **`/api/proxy`** in dev. In Container A
 
 The API runs **hosted background jobs** (advisory scans, archival, retrieval outbox, etc.). With **multiple API replicas**, each instance runs those jobs unless you add **leader election** or a **dedicated worker** revision. For most pilots, keep **`api_min_replicas = 1`** until that design is in place.
 
+## Hot-path cache (SQL mode)
+
+When **`ArchiForge:StorageProvider`** is **Sql**, the API can cache hot reads (manifests, runs, policy packs) via **`HotPathCache`** in `appsettings` / environment variables.
+
+- Set **`HotPathCache__ExpectedApiReplicaCount`** to your API **`max_replicas`** (or any value &gt; 1 if you scale out).
+- When **`HotPathCache__Provider`** is **`Auto`** and **`ExpectedApiReplicaCount` &gt; 1**, configure **`HotPathCache__RedisConnectionString`** (e.g. Azure Cache for Redis) in **non-Development** environments so all replicas share the same cache. Otherwise the app uses **per-replica memory** only.
+- **Development** profile disables hot-path cache in `appsettings.Development.json` by default.
+
 ## Private images (ACR)
 
 If images are in **Azure Container Registry**, attach a **managed identity** to each `azurerm_container_app` and grant **AcrPull**, then add a **`registry`** block — not included in this minimal root; extend `main.tf` or use a registry module.
