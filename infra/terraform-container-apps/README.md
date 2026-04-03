@@ -21,6 +21,19 @@ Use this root when you want **per-app replica scaling** and a **container-native
 
 - **`enable_container_apps = false`** — no resources; safe for `terraform validate` in CI.
 - When **`true`**, you must set **`api_container_image`** and **`ui_container_image`** (full ACR or registry references).
+- When **`true`**, you must set **`artifact_blob_service_uri`** and **`artifact_storage_account_id`** (from **`infra/terraform-storage`** outputs) so the API enables **`ArtifactLargePayload`** with **Azure Blob** and receives **Storage Blob Data Contributor** on that account via the API’s **system-assigned managed identity**.
+
+## Large artifact blob offload (staging / production)
+
+The API **`ArchiForge.Api`** uses **`DefaultAzureCredential`** against the blob service URI. Container Apps wiring sets:
+
+- **`ArtifactLargePayload__Enabled`** = `true`
+- **`ArtifactLargePayload__BlobProvider`** = `AzureBlob`
+- **`ArtifactLargePayload__AzureBlobServiceUri`** = your storage account blob endpoint
+
+**`appsettings.Production.json`** / **`appsettings.Staging.json`** default the same shape with an empty URI so **environment variables** (or Key Vault references) must supply the real endpoint in Azure. **`terraform-container-apps`** injects those env vars from **`artifact_blob_service_uri`**.
+
+Ensure **`infra/terraform-storage`** has created containers **`golden-manifests`**, **`artifact-bundles`**, and **`artifact-contents`** (private). Do not expose **SMB (port 445)** publicly; use private endpoints per workspace policy when hardening networking.
 
 ## Operator UI → API
 

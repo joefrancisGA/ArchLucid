@@ -42,3 +42,13 @@ check "container_apps_internal_lb_requires_subnet" {
     error_message = "container_apps_internal_load_balancer = true requires container_apps_subnet_id to be set (VNet-integrated environment)."
   }
 }
+
+check "container_apps_artifact_blob_for_api" {
+  assert {
+    condition = !var.enable_container_apps || (
+      length(trimspace(var.artifact_blob_service_uri)) > 0 &&
+      length(trimspace(var.artifact_storage_account_id)) > 0
+    )
+    error_message = "With enable_container_apps = true, set artifact_blob_service_uri and artifact_storage_account_id (from terraform-storage outputs) so the API can offload large payloads to Azure Blob with managed identity."
+  }
+}

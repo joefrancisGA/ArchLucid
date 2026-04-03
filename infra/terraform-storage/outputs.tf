@@ -13,6 +13,6 @@ output "primary_blob_endpoint" {
 }
 
 output "artifact_blob_identity_principal_id" {
-  description = "System-assigned principal for Storage Blob Data Contributor RBAC to the API managed identity."
+  description = "System-assigned principal ID of the storage account (optional for keyless scenarios); the API uses its own container identity for blob data plane access."
   value       = try(azurerm_storage_account.artifacts[0].identity[0].principal_id, null)
 }

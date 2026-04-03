@@ -20,6 +20,11 @@ ui_max_replicas  = 3
 api_scale_concurrent_requests = 10
 ui_scale_concurrent_requests  = 20
 
+# Large artifact offload (golden manifests, bundles, artifact content) — required when enable_container_apps = true.
+# Apply infra/terraform-storage first; use its outputs (primary_blob_endpoint, storage_account_id).
+artifact_blob_service_uri     = "https://<storage-account>.blob.core.windows.net/"
+artifact_storage_account_id   = "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<name>"
+
 # Optional: VNet-integrated environment (subnet must be delegated to Microsoft.App/environments).
 # container_apps_subnet_id                 = "/subscriptions/.../subnets/snet-container-apps"
 # container_apps_internal_load_balancer    = true

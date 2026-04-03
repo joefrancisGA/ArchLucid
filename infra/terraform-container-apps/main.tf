@@ -61,6 +61,10 @@ resource "azurerm_container_app" "api" {
   resource_group_name          = local.resource_group_name
   revision_mode                = "Single"
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   template {
     min_replicas = var.api_min_replicas
     max_replicas = var.api_max_replicas
@@ -74,6 +78,21 @@ resource "azurerm_container_app" "api" {
       env {
         name  = "ASPNETCORE_URLS"
         value = "http://0.0.0.0:8080"
+      }
+
+      env {
+        name  = "ArtifactLargePayload__Enabled"
+        value = "true"
+      }
+
+      env {
+        name  = "ArtifactLargePayload__BlobProvider"
+        value = "AzureBlob"
+      }
+
+      env {
+        name  = "ArtifactLargePayload__AzureBlobServiceUri"
+        value = var.artifact_blob_service_uri
       }
 
       liveness_probe {
@@ -106,6 +125,14 @@ resource "azurerm_container_app" "api" {
       percentage      = 100
     }
   }
+}
+
+resource "azurerm_role_assignment" "api_blob_data_contributor" {
+  count = local.enabled ? 1 : 0
+
+  scope                = var.artifact_storage_account_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_container_app.api[0].identity[0].principal_id
 }
 
 resource "azurerm_container_app" "ui" {

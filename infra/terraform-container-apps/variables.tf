@@ -147,3 +147,15 @@ variable "ui_ingress_external" {
   description = "When true, UI ingress allows external access."
   default     = true
 }
+
+variable "artifact_blob_service_uri" {
+  type        = string
+  description = "Blob service URL for large artifact offload (maps to ArtifactLargePayload__AzureBlobServiceUri), e.g. output primary_blob_endpoint from infra/terraform-storage."
+  default     = ""
+}
+
+variable "artifact_storage_account_id" {
+  type        = string
+  description = "Resource ID of the storage account that holds golden-manifests / artifact-bundles / artifact-contents containers. Used to grant the API container app Storage Blob Data Contributor."
+  default     = ""
+}

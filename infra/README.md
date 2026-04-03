@@ -8,12 +8,12 @@ ArchiForge splits Azure infrastructure into **optional Terraform roots** so loca
 | [`terraform-edge/`](terraform-edge/) | **Azure Front Door Standard + WAF** in front of APIM or the API hostname. | **`enable_front_door_waf = false`** |
 | [`terraform-private/`](terraform-private/) | VNet, private DNS, **private endpoints** for **SQL** and **Blob**. | **`enable_private_data_plane = false`** |
 | [`terraform-entra/`](terraform-entra/) | **Microsoft Entra ID** app registration with **Admin / Operator / Reader** app roles aligned with the API. | **`enable_entra_api_app = false`** |
-| [`terraform-container-apps/`](terraform-container-apps/) | **Azure Container Apps**: Log Analytics, environment, **API + Operator UI** with **min/max replicas** and HTTP concurrency scale rules. | **`enable_container_apps = false`** |
+| [`terraform-container-apps/`](terraform-container-apps/) | **Azure Container Apps**: Log Analytics, environment, **API + Operator UI** with **min/max replicas**, HTTP scale rules, and **ArtifactLargePayload** env + **blob RBAC** when enabled. | **`enable_container_apps = false`** |
 | [`terraform-storage/`](terraform-storage/) | **Storage account** + **private blob containers** for **large manifest/bundle offload** (`ArtifactLargePayload`, SQL pointer columns). | **`enable_storage_account = false`** |
 
 ## Suggested order
 
-1. Deploy compute and data (your landing zone, **`terraform-container-apps/`**, or App Service — your choice).
+1. If using **Container Apps** with large-payload offload, apply **`terraform-storage/`** first (or have a storage account + containers), then **`terraform-container-apps/`** (it requires **`artifact_blob_service_uri`** / **`artifact_storage_account_id`** when **`enable_container_apps = true`**). Otherwise deploy compute and data (your landing zone, **`terraform-container-apps/`**, or App Service — your choice).
 2. Optionally apply **`terraform-private/`** before cutting over connection strings and disabling public SQL/storage access.
 3. Optionally apply **`terraform-entra/`**, then configure the API with **`ArchiForgeAuth:Mode = JwtBearer`** (see **`ArchiForge.Api/appsettings.Entra.sample.json`**).
 4. Optionally apply **`terraform-edge/`** and route customer traffic to the Front Door hostname.

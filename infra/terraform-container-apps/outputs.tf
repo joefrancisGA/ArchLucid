@@ -23,6 +23,11 @@ output "api_https_url" {
   value       = try("https://${azurerm_container_app.api[0].latest_revision_fqdn}", null)
 }
 
+output "api_system_assigned_principal_id" {
+  description = "Object ID of the API container app system-assigned managed identity (for extra RBAC beyond blob offload)."
+  value       = try(azurerm_container_app.api[0].identity[0].principal_id, null)
+}
+
 output "ui_container_app_fqdn" {
   description = "FQDN of the latest Operator UI revision."
   value       = try(azurerm_container_app.ui[0].latest_revision_fqdn, null)
