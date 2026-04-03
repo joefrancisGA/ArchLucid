@@ -1,9 +1,14 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+using ArchiForge.Api;
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Learning;
 using ArchiForge.Api.Models.Evolution;
-using ArchiForge.Contracts.Evolution;
+using ArchiForge.Api.ProductLearning;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services.Evolution;
+using ArchiForge.Contracts.Evolution;
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Evolution;
@@ -30,6 +35,13 @@ public sealed class EvolutionController(
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
+    private static readonly JsonSerializerOptions SimulationReportFileJsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = true,
+    };
+
     /// <summary>Creates a reviewable candidate from a persisted 59R improvement plan (copies a JSON snapshot).</summary>
     [HttpPost("candidates/from-plan/{planId:guid}")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
@@ -168,6 +180,54 @@ public sealed class EvolutionController(
         };
 
         return Ok(body);
+    }
+
+    /// <summary>Downloads a Markdown or JSON simulation report (change set, plan snapshot, runs, scores, diff summary).</summary>
+    [HttpGet("results/{candidateId:guid}/export")]
+    [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportResults(
+        Guid candidateId,
+        [FromQuery] string? format,
+        CancellationToken cancellationToken)
+    {
+        if (!ProductLearningQueryParser.TryParseReportFormat(format, out string formatNorm, out string? formatError))
+        {
+            return this.BadRequestProblem(formatError!, ProblemTypes.ValidationFailed);
+        }
+
+        ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
+
+        EvolutionCandidateChangeSetRecord? row =
+            await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
+
+        if (row is null)
+        {
+            return this.NotFoundProblem(
+                $"Candidate change set '{candidateId}' was not found in the current scope.",
+                ProblemTypes.EvolutionCandidateChangeSetNotFound);
+        }
+
+        IReadOnlyList<EvolutionSimulationRunRecord> sims =
+            await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);
+
+        EvolutionSimulationReportDocument document =
+            EvolutionSimulationReportBuilder.Build(row, sims, DateTime.UtcNow);
+
+        string fileStem = $"evolution-simulation-report-{candidateId:N}";
+
+        if (string.Equals(formatNorm, "json", StringComparison.Ordinal))
+        {
+            string json = JsonSerializer.Serialize(document, SimulationReportFileJsonOptions);
+
+            return ApiFileResults.RangeText(Request, json, "application/json", $"{fileStem}.json");
+        }
+
+        string markdown = EvolutionSimulationReportMarkdownFormatter.Format(document);
+
+        return ApiFileResults.RangeText(Request, markdown, "text/markdown", $"{fileStem}.md");
     }
 
     /// <summary>Lists recent candidate change sets for the current scope.</summary>

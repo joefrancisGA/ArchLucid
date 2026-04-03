@@ -13,6 +13,7 @@ import {
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { buildEvolutionSimulationReportFileUrl } from "@/lib/evolution-simulation-report-urls";
 import { parseEvolutionPlanSnapshot } from "@/lib/evolution-plan-snapshot";
 import type { EvolutionCandidateChangeSetResponse, EvolutionResultsResponse } from "@/types/evolution";
 
@@ -197,6 +198,35 @@ export default function EvolutionReviewPage() {
             correlationId={simulateFailure.correlationId}
           />
         </div>
+      ) : null}
+
+      {selectedId !== null && selectedId !== "" ? (
+        <section style={{ marginBottom: 22 }} aria-labelledby="evolution-export-heading">
+          <h3 id="evolution-export-heading" style={{ fontSize: 15, margin: "0 0 6px", color: "#334155" }}>
+            Export simulation report
+          </h3>
+          <p style={{ margin: 0, fontSize: 13, color: "#64748b", maxWidth: 760 }}>
+            Markdown or JSON bundle for the selected candidate: change set description, plan snapshot / expected impact,
+            each run&apos;s shadow outcome, evaluation scores, diff summary lines, and raw outcome JSON.
+          </p>
+          <p style={{ margin: "10px 0 0", fontSize: 14 }}>
+            <a href={buildEvolutionSimulationReportFileUrl(selectedId, "markdown")} download>
+              Download Markdown
+            </a>
+            {" · "}
+            <a href={buildEvolutionSimulationReportFileUrl(selectedId, "json")} download>
+              Download JSON
+            </a>
+            {" · "}
+            <a
+              href={buildEvolutionSimulationReportFileUrl(selectedId, "json")}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open JSON in new tab
+            </a>
+          </p>
+        </section>
       ) : null}
 
       {emptyList ? (

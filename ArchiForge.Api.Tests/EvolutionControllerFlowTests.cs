@@ -125,6 +125,54 @@ public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) :
         resultsBody.SimulationRuns.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task ExportResults_MarkdownAndJson_ContainDescriptionDiffAndSchema()
+    {
+        Guid planId = await SeedMinimalPlanInDefaultScopeAsync();
+
+        HttpResponseMessage createResponse =
+            await Client.PostAsync($"/v1/evolution/candidates/from-plan/{planId}", content: null);
+
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        EvolutionCandidateChangeSetResponse? created =
+            await createResponse.Content.ReadFromJsonAsync<EvolutionCandidateChangeSetResponse>(JsonOptions);
+
+        created.Should().NotBeNull();
+
+        HttpResponseMessage simulateResponse = await Client.PostAsync(
+            $"/v1/evolution/simulate/{created!.CandidateChangeSetId}",
+            content: null);
+
+        simulateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        Guid candidateId = created.CandidateChangeSetId;
+
+        HttpResponseMessage markdownResponse =
+            await Client.GetAsync($"/v1/evolution/results/{candidateId:D}/export?format=markdown");
+
+        markdownResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        string markdown = await markdownResponse.Content.ReadAsStringAsync();
+        markdown.Should().Contain("Evolution test plan");
+        markdown.Should().Contain("60R-simulation-export-v1");
+        markdown.Should().Contain("## Simulation results");
+        markdown.Should().Contain("No simulation rows persisted for this candidate.");
+
+        HttpResponseMessage jsonResponse =
+            await Client.GetAsync($"/v1/evolution/results/{candidateId:D}/export?format=json");
+
+        jsonResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        string json = await jsonResponse.Content.ReadAsStringAsync();
+        json.Should().Contain("Evolution test plan");
+        json.Should().Contain("60R-simulation-export-v1");
+        json.Should().Contain("\"simulationRuns\"");
+
+        using JsonDocument doc = JsonDocument.Parse(json);
+        doc.RootElement.GetProperty("simulationRuns").GetArrayLength().Should().Be(0);
+    }
+
     private async Task<Guid> SeedMinimalPlanInDefaultScopeAsync()
     {
         using IServiceScope scope = Factory.Services.CreateScope();
