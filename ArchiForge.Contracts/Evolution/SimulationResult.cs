@@ -9,6 +9,9 @@ public sealed class SimulationResult
 
     public SimulationDiff? Diff { get; init; }
 
+    /// <summary>Captured read-side outputs (bounded previews) from baseline and simulated analysis passes.</summary>
+    public SimulationArtifactsSnapshot? Artifacts { get; init; }
+
     public IReadOnlyList<string> Warnings { get; init; } = [];
 
     public DateTime CompletedUtc { get; init; }
