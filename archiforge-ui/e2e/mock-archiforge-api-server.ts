@@ -184,7 +184,10 @@ export function startMockArchiforgeApiServer(port: number): Promise<{ stop: () =
         return;
       }
 
-      const runMatch = /^\/api\/authority\/runs\/([^/]+)$/.exec(pathname);
+      // RSC server-side fetch uses `getServerApiBaseUrl()` → these paths (see `src/lib/api.ts`).
+      const runMatchV1 = /^\/v1\/authority\/runs\/([^/]+)$/.exec(pathname);
+      const runMatchLegacy = /^\/api\/authority\/runs\/([^/]+)$/.exec(pathname);
+      const runMatch = runMatchV1 ?? runMatchLegacy;
 
       if (runMatch) {
         const runId = runMatch[1];
@@ -198,7 +201,9 @@ export function startMockArchiforgeApiServer(port: number): Promise<{ stop: () =
         return;
       }
 
-      const summaryMatch = /^\/api\/authority\/manifests\/([^/]+)\/summary$/.exec(pathname);
+      const summaryMatchV1 = /^\/v1\/authority\/manifests\/([^/]+)\/summary$/.exec(pathname);
+      const summaryMatchLegacy = /^\/api\/authority\/manifests\/([^/]+)\/summary$/.exec(pathname);
+      const summaryMatch = summaryMatchV1 ?? summaryMatchLegacy;
 
       if (summaryMatch) {
         const manifestId = summaryMatch[1];
@@ -214,7 +219,9 @@ export function startMockArchiforgeApiServer(port: number): Promise<{ stop: () =
         return;
       }
 
-      const artifactsMatch = /^\/api\/artifacts\/manifests\/([^/]+)$/.exec(pathname);
+      const artifactsMatchV1 = /^\/v1\/artifacts\/manifests\/([^/]+)$/.exec(pathname);
+      const artifactsMatchLegacy = /^\/api\/artifacts\/manifests\/([^/]+)$/.exec(pathname);
+      const artifactsMatch = artifactsMatchV1 ?? artifactsMatchLegacy;
 
       if (artifactsMatch) {
         const manifestId = artifactsMatch[1];
