@@ -40,6 +40,14 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
+# Standalone server needs only `node`; the official Node base still ships npm/yarn trees that Trivy flags (e.g. picomatch
+# under npm) even though the app never invokes them. Upgrade Alpine packages for OS CVEs (e.g. zlib), then drop npm/yarn.
+RUN apk update \
+    && apk upgrade --no-cache \
+    && rm -rf /usr/local/lib/node_modules/npm \
+    && ( [ ! -d /opt ] || find /opt -maxdepth 1 -type d -name 'yarn-v*' -exec rm -rf {} + ) \
+    && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/yarn /usr/local/bin/yarnpkg
+
 RUN addgroup -S archiforge && adduser -S archiforge -G archiforge
 
 # Standalone output includes a minimal node_modules and server.js.
