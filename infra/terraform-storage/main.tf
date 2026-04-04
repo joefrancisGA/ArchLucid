@@ -36,7 +36,7 @@ resource "azurerm_storage_account" "artifacts" {
   allow_nested_items_to_be_public = false
 
   blob_properties {
-    versioning_enabled  = true
+    versioning_enabled = true
     delete_retention_policy {
       days = 30
     }
