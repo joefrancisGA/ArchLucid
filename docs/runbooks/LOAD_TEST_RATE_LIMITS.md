@@ -4,9 +4,10 @@
 
 **Prerequisites:** A running API with known base URL, test identity with **execute** authority, and optional k6 (`brew install k6` / CI image).
 
-## Script
+## Scripts
 
 - **`scripts/load/k6-expensive-rate-limit.js`** — hammers a placeholder expensive route; **edit the URL** to match your environment (e.g. a safe replay or execute stub).
+- **`scripts/load/k6-scenarios.js`** — multi-scenario read load (compare, run detail, advisory recommendations list). See **`scripts/load/README.md`** for env vars and examples.
 
 ## Run (example)
 

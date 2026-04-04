@@ -19,6 +19,7 @@ Pipeline order from the wire: **`CircuitBreaking( Caching( LlmCompletionAccounti
 
 - **Positive:** Scoped `IAgentCompletionClient` works with singleton `IScopeContextProvider`; quota is tenant-aware on HTTP and ambient scope jobs.
 - **Negative:** `IAgentCompletionClient` is no longer a singleton; registrations must use scopes correctly in custom hosts.
+- **Parallel agent batch:** `RealAgentExecutor` runs multiple `IAgentHandler` tasks concurrently; `AmbientScopeContext.Push` (from `IScopeContextProvider.GetCurrentScope()` at batch start) keeps accounting and quota tenant-aware on thread-pool continuations without relying on `HttpContext` on every continuation.
 
 ## Links
 

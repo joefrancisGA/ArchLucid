@@ -5,6 +5,7 @@ using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Core.Configuration;
 using ArchiForge.Core.Diagnostics;
+using ArchiForge.Core.Scoping;
 
 using FluentAssertions;
 
@@ -26,11 +27,23 @@ public sealed class RealAgentExecutorTests
         public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener) => null;
     }
 
+    private sealed class FixedScopeProvider(ScopeContext scope) : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope() => scope;
+    }
+
     private static RealAgentExecutor CreateSut(params IAgentHandler[] handlers) =>
         new(
             handlers,
             NullLogger<RealAgentExecutor>.Instance,
-            new StubPromptMonitor(new AgentPromptCatalogOptions()));
+            new StubPromptMonitor(new AgentPromptCatalogOptions()),
+            new FixedScopeProvider(
+                new ScopeContext
+                {
+                    TenantId = ScopeIds.DefaultTenant,
+                    WorkspaceId = ScopeIds.DefaultWorkspace,
+                    ProjectId = ScopeIds.DefaultProject,
+                }));
 
     [Fact]
     public void Constructor_when_duplicate_agent_types_throws()
@@ -47,7 +60,7 @@ public sealed class RealAgentExecutorTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_orders_tasks_by_agent_type_and_aggregates_results()
+    public async Task ExecuteAsync_orders_results_by_agent_type_regardless_of_completion_order()
     {
         List<AgentType> observed = [];
         IAgentHandler topology = new OrderingStubHandler(AgentType.Topology, observed);
@@ -78,8 +91,8 @@ public sealed class RealAgentExecutorTests
         IReadOnlyList<AgentResult> results =
             await sut.ExecuteAsync(runId, request, evidence, [taskZ, taskC], CancellationToken.None);
 
-        // <see cref="RealAgentExecutor"/> orders by <see cref="AgentTypeKeys"/> (lexicographic on dispatch keys).
-        observed.Should().Equal(AgentType.Compliance, AgentType.Topology);
+        // Result list stays ordered by dispatch key (Compliance before Topology); handlers may finish in any order.
+        observed.Should().BeEquivalentTo([AgentType.Compliance, AgentType.Topology]);
         results.Should().HaveCount(2);
         results[0].AgentType.Should().Be(AgentType.Compliance);
         results[1].AgentType.Should().Be(AgentType.Topology);
@@ -159,8 +172,53 @@ public sealed class RealAgentExecutorTests
 
         completed.Should().HaveCount(2);
         completed.Should().OnlyContain(a => a.OperationName == "archiforge.agent.handle");
-        completed[0].GetTagItem("archiforge.agent.type").Should().Be(AgentTypeKeys.Compliance);
-        completed[1].GetTagItem("archiforge.agent.type").Should().Be(AgentTypeKeys.Topology);
+
+        string[] types = completed
+            .Select(a => (string)a.GetTagItem("archiforge.agent.type")!)
+            .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        types.Should().Equal(AgentTypeKeys.Compliance, AgentTypeKeys.Topology);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_runs_multiple_handlers_concurrently_so_topology_can_unblock_compliance()
+    {
+        // Dispatch-key order is Compliance then Topology. Compliance blocks until Topology runs; sequential execution would deadlock.
+        using SemaphoreSlim complianceMayContinue = new(0, 1);
+
+        IAgentHandler compliance = new DeadlockAwareComplianceHandler(complianceMayContinue);
+        IAgentHandler topology = new SignalingTopologyHandler(complianceMayContinue);
+
+        RealAgentExecutor sut = CreateSut(topology, compliance);
+        ArchitectureRequest request = new()
+        {
+            RequestId = "r1",
+            Description = "1234567890ab",
+            SystemName = "S",
+            Environment = "prod",
+        };
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask taskTopology = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+        };
+        AgentTask taskCompliance = new()
+        {
+            TaskId = "tc",
+            RunId = runId,
+            AgentType = AgentType.Compliance,
+        };
+
+        using CancellationTokenSource timeout = new(TimeSpan.FromSeconds(5));
+
+        Func<Task> act = async () =>
+            await sut.ExecuteAsync(runId, request, evidence, [taskTopology, taskCompliance], timeout.Token);
+
+        await act.Should().NotThrowAsync();
     }
 
     private sealed class StubAgentHandler(AgentType agentType) : IAgentHandler
@@ -207,6 +265,59 @@ public sealed class RealAgentExecutorTests
                     RunId = runId,
                     TaskId = task.TaskId,
                     AgentType = agentType,
+                    Claims = [],
+                    EvidenceRefs = [],
+                });
+        }
+    }
+
+    private sealed class DeadlockAwareComplianceHandler(SemaphoreSlim complianceMayContinue) : IAgentHandler
+    {
+        public AgentType AgentType => AgentType.Compliance;
+
+        public string AgentTypeKey => AgentTypeKeys.Compliance;
+
+        public async Task<AgentResult> ExecuteAsync(
+            string runId,
+            ArchitectureRequest request,
+            AgentEvidencePackage evidence,
+            AgentTask task,
+            CancellationToken cancellationToken = default)
+        {
+            await complianceMayContinue.WaitAsync(cancellationToken);
+
+            return new AgentResult
+            {
+                RunId = runId,
+                TaskId = task.TaskId,
+                AgentType = AgentType.Compliance,
+                Claims = [],
+                EvidenceRefs = [],
+            };
+        }
+    }
+
+    private sealed class SignalingTopologyHandler(SemaphoreSlim complianceMayContinue) : IAgentHandler
+    {
+        public AgentType AgentType => AgentType.Topology;
+
+        public string AgentTypeKey => AgentTypeKeys.Topology;
+
+        public Task<AgentResult> ExecuteAsync(
+            string runId,
+            ArchitectureRequest request,
+            AgentEvidencePackage evidence,
+            AgentTask task,
+            CancellationToken cancellationToken = default)
+        {
+            complianceMayContinue.Release();
+
+            return Task.FromResult(
+                new AgentResult
+                {
+                    RunId = runId,
+                    TaskId = task.TaskId,
+                    AgentType = AgentType.Topology,
                     Claims = [],
                     EvidenceRefs = [],
                 });

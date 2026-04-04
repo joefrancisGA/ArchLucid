@@ -3,6 +3,7 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Core.Configuration;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
@@ -210,7 +211,8 @@ public sealed class RealRuntimeMixedModeTests
             criticHandler
         ],
         NullLogger<RealAgentExecutor>.Instance,
-        new MixedModePromptMonitor(new AgentPromptCatalogOptions()));
+        new MixedModePromptMonitor(new AgentPromptCatalogOptions()),
+        new FixedScopeProviderForMixedMode());
 
         ArchitectureRequest request = new()
         {
@@ -296,6 +298,17 @@ public sealed class RealRuntimeMixedModeTests
         merge.Manifest.Governance.RequiredControls.Should().Contain("Managed Identity");
         merge.Manifest.Governance.RequiredControls.Should().Contain("Private Endpoints");
         merge.Manifest.Governance.RequiredControls.Should().Contain("Diagnostic Logging");
+    }
+
+    private sealed class FixedScopeProviderForMixedMode : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope() =>
+            new()
+            {
+                TenantId = ScopeIds.DefaultTenant,
+                WorkspaceId = ScopeIds.DefaultWorkspace,
+                ProjectId = ScopeIds.DefaultProject,
+            };
     }
 
     private sealed class MixedModePromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>

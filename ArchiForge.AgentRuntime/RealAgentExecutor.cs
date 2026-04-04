@@ -6,6 +6,7 @@ using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Core.Configuration;
 using ArchiForge.Core.Diagnostics;
+using ArchiForge.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,23 +14,32 @@ using Microsoft.Extensions.Options;
 namespace ArchiForge.AgentRuntime;
 
 /// <summary>
-/// Production <see cref="IAgentExecutor"/>: resolves <see cref="IAgentHandler"/> by <see cref="AgentTypeKeys.ResolveDispatchKey"/> and runs tasks sequentially.
+/// Production <see cref="IAgentExecutor"/>: resolves <see cref="IAgentHandler"/> by <see cref="AgentTypeKeys.ResolveDispatchKey"/>,
+/// runs independent tasks concurrently, and returns <see cref="AgentResult"/> rows in stable dispatch-key order.
 /// </summary>
+/// <remarks>
+/// Handlers share the same <see cref="AgentEvidencePackage"/> and do not consume each other&apos;s outputs in prompts;
+/// <see cref="AmbientScopeContext"/> is pushed for the batch so scoped services (e.g. LLM accounting) resolve tenant scope on thread-pool continuations.
+/// On any failure, linked cancellation is signaled so in-flight completions can abort promptly.
+/// </remarks>
 public sealed class RealAgentExecutor : IAgentExecutor
 {
     private readonly IReadOnlyDictionary<string, IAgentHandler> _handlers;
     private readonly ILogger<RealAgentExecutor> _logger;
     private readonly IOptionsMonitor<AgentPromptCatalogOptions> _promptCatalog;
+    private readonly IScopeContextProvider _scopeContextProvider;
 
     /// <summary>Builds a lookup of handlers keyed by <see cref="IAgentHandler.AgentTypeKey"/> (duplicates throw).</summary>
     public RealAgentExecutor(
         IEnumerable<IAgentHandler> handlers,
         ILogger<RealAgentExecutor> logger,
-        IOptionsMonitor<AgentPromptCatalogOptions> promptCatalog)
+        IOptionsMonitor<AgentPromptCatalogOptions> promptCatalog,
+        IScopeContextProvider scopeContextProvider)
     {
         ArgumentNullException.ThrowIfNull(handlers);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _promptCatalog = promptCatalog ?? throw new ArgumentNullException(nameof(promptCatalog));
+        _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
@@ -61,108 +71,135 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
 
-        List<AgentResult> results = [];
+        AgentTask[] orderedTasks = tasks
+            .OrderBy(t => AgentTypeKeys.ResolveDispatchKey(t), StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (orderedTasks.Length == 0)
+        {
+            return [];
+        }
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
             string types = string.Join(
                 ',',
-                tasks
-                    .Select(t => AgentTypeKeys.ResolveDispatchKey(t))
-                    .OrderBy(k => k, StringComparer.OrdinalIgnoreCase));
+                orderedTasks.Select(t => AgentTypeKeys.ResolveDispatchKey(t)));
+
             _logger.LogInformation(
                 "Agent execution batch starting: RunId={RunId}, TaskCount={TaskCount}, AgentTypeKeys={AgentTypeKeys}",
                 runId,
-                tasks.Count,
+                orderedTasks.Length,
                 types);
         }
 
-        IOrderedEnumerable<AgentTask> ordered = tasks.OrderBy(
-            t => AgentTypeKeys.ResolveDispatchKey(t),
-            StringComparer.OrdinalIgnoreCase);
+        ScopeContext batchScope = _scopeContextProvider.GetCurrentScope();
 
-        foreach (AgentTask task in ordered)
+        using (AmbientScopeContext.Push(batchScope))
+        using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
         {
-            string dispatchKey = AgentTypeKeys.ResolveDispatchKey(task);
+            Task<AgentResult>[] work = orderedTasks
+                .Select(task => ExecuteSingleAsync(runId, request, evidence, task, linked.Token))
+                .ToArray();
 
-            if (!_handlers.TryGetValue(dispatchKey, out IAgentHandler? handler))
+            try
             {
-                throw new InvalidOperationException(
-                    $"No handler is registered for agent type key '{dispatchKey}'.");
-            }
+                AgentResult[] finished = await Task.WhenAll(work).ConfigureAwait(false);
 
-            Stopwatch sw = Stopwatch.StartNew();
-
-            AgentResult result;
-
-            using (Activity? activity = ArchiForgeInstrumentation.AgentHandler.StartActivity(
-                       "archiforge.agent.handle",
-                       ActivityKind.Internal))
-            {
-                activity?.SetTag("archiforge.run_id", runId);
-                activity?.SetTag("archiforge.task_id", task.TaskId);
-                activity?.SetTag("archiforge.agent.type", dispatchKey);
-                activity?.SetTag("archiforge.agent.type_enum", task.AgentType.ToString());
-
-                string promptVersion = ResolvePromptVersion(dispatchKey);
-                activity?.SetTag("archiforge.agent.prompt_version", promptVersion);
-
-                try
+                if (_logger.IsEnabled(LogLevel.Information))
                 {
-                    result = await handler.ExecuteAsync(
+                    _logger.LogInformation(
+                        "Agent execution batch completed: RunId={RunId}, ResultCount={ResultCount}",
                         runId,
-                        request,
-                        evidence,
-                        task,
-                        cancellationToken);
-
-                    ArchiForgeInstrumentation.AgentHandlerInvocationsTotal.Add(
-                        1,
-                        new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
-                        new KeyValuePair<string, object?>("outcome", "success"));
-                }
-                catch (Exception ex)
-                {
-                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-                    activity?.AddException(ex);
-
-                    ArchiForgeInstrumentation.AgentHandlerInvocationsTotal.Add(
-                        1,
-                        new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
-                        new KeyValuePair<string, object?>("outcome", "error"));
-
-                    throw;
+                        finished.Length);
                 }
 
-                activity?.SetTag("archiforge.agent.confidence", result.Confidence);
-                activity?.SetTag("archiforge.agent.findings_count", result.Findings.Count);
-                activity?.SetTag("archiforge.agent.claims_count", result.Claims.Count);
+                return finished;
             }
-
-            sw.Stop();
-
-            if (_logger.IsEnabled(LogLevel.Debug))
+            catch
             {
-                _logger.LogDebug(
-                    "Agent task finished: RunId={RunId}, TaskId={TaskId}, AgentTypeKey={AgentTypeKey}, DurationMs={DurationMs}",
+                linked.Cancel();
+                throw;
+            }
+        }
+    }
+
+    private async Task<AgentResult> ExecuteSingleAsync(
+        string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        AgentTask task,
+        CancellationToken cancellationToken)
+    {
+        string dispatchKey = AgentTypeKeys.ResolveDispatchKey(task);
+
+        if (!_handlers.TryGetValue(dispatchKey, out IAgentHandler? handler))
+        {
+            throw new InvalidOperationException(
+                $"No handler is registered for agent type key '{dispatchKey}'.");
+        }
+
+        Stopwatch sw = Stopwatch.StartNew();
+
+        AgentResult result;
+
+        using (Activity? activity = ArchiForgeInstrumentation.AgentHandler.StartActivity(
+                   "archiforge.agent.handle",
+                   ActivityKind.Internal))
+        {
+            activity?.SetTag("archiforge.run_id", runId);
+            activity?.SetTag("archiforge.task_id", task.TaskId);
+            activity?.SetTag("archiforge.agent.type", dispatchKey);
+            activity?.SetTag("archiforge.agent.type_enum", task.AgentType.ToString());
+
+            string promptVersion = ResolvePromptVersion(dispatchKey);
+            activity?.SetTag("archiforge.agent.prompt_version", promptVersion);
+
+            try
+            {
+                result = await handler.ExecuteAsync(
                     runId,
-                    task.TaskId,
-                    dispatchKey,
-                    sw.ElapsedMilliseconds);
+                    request,
+                    evidence,
+                    task,
+                    cancellationToken);
+
+                ArchiForgeInstrumentation.AgentHandlerInvocationsTotal.Add(
+                    1,
+                    new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
+                    new KeyValuePair<string, object?>("outcome", "success"));
+            }
+            catch (Exception ex)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                activity?.AddException(ex);
+
+                ArchiForgeInstrumentation.AgentHandlerInvocationsTotal.Add(
+                    1,
+                    new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
+                    new KeyValuePair<string, object?>("outcome", "error"));
+
+                throw;
             }
 
-            results.Add(result);
+            activity?.SetTag("archiforge.agent.confidence", result.Confidence);
+            activity?.SetTag("archiforge.agent.findings_count", result.Findings.Count);
+            activity?.SetTag("archiforge.agent.claims_count", result.Claims.Count);
         }
 
-        if (_logger.IsEnabled(LogLevel.Information))
+        sw.Stop();
+
+        if (_logger.IsEnabled(LogLevel.Debug))
         {
-            _logger.LogInformation(
-                "Agent execution batch completed: RunId={RunId}, ResultCount={ResultCount}",
+            _logger.LogDebug(
+                "Agent task finished: RunId={RunId}, TaskId={TaskId}, AgentTypeKey={AgentTypeKey}, DurationMs={DurationMs}",
                 runId,
-                results.Count);
+                task.TaskId,
+                dispatchKey,
+                sw.ElapsedMilliseconds);
         }
 
-        return results;
+        return result;
     }
 
     private string ResolvePromptVersion(string agentTypeKey)
