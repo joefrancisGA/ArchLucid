@@ -42,4 +42,14 @@ public interface IArchitectureRunRepository
     /// <param name="cancellationToken">Cancellation token.</param>
     Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// After a deferred authority pipeline completes, updates snapshot pointers on the architecture run and sets status to <see cref="Contracts.Common.ArchitectureRunStatus.TasksGenerated"/>.
+    /// </summary>
+    Task ApplyDeferredAuthoritySnapshotsAsync(
+        string runId,
+        string? contextSnapshotId,
+        Guid? graphSnapshotId,
+        Guid? artifactBundleId,
+        CancellationToken cancellationToken = default);
 }

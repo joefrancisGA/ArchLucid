@@ -34,6 +34,7 @@ using ArchiForge.Persistence.Evolution;
 using ArchiForge.Persistence.Governance;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Orchestration;
+using ArchiForge.Persistence.Orchestration.Pipeline;
 using ArchiForge.Persistence.ProductLearning;
 using ArchiForge.Persistence.ProductLearning.Planning;
 using ArchiForge.Persistence.Provenance;
@@ -45,6 +46,8 @@ using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
 using ArchiForge.AgentRuntime;
+using ArchiForge.Core.Authority;
+using ArchiForge.Host.Core.Authority;
 
 using Azure.Core;
 using Azure.Identity;
@@ -121,6 +124,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IEvolutionSimulationRunRepository, InMemoryEvolutionSimulationRunRepository>();
             services.AddSingleton<IConversationThreadRepository, InMemoryConversationThreadRepository>();
             services.AddSingleton<IConversationMessageRepository, InMemoryConversationMessageRepository>();
+            services.AddSingleton<IAuthorityPipelineWorkRepository, InMemoryAuthorityPipelineWorkRepository>();
+            services.AddSingleton<IAsyncAuthorityPipelineModeResolver, DisabledAsyncAuthorityPipelineModeResolver>();
+            services.AddScoped<IAuthorityPipelineStagesExecutor, AuthorityPipelineStagesExecutor>();
             services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
             services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
             RegisterHostLeaderLeaseInfrastructure(services);
@@ -141,8 +147,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         string connectionString = configuration.GetConnectionString("ArchiForge")
                                   ?? throw new InvalidOperationException("Missing connection string 'ArchiForge'.");
 
-        services.Configure<SqlRowLevelSecurityOptions>(configuration.GetSection(SqlRowLevelSecurityOptions.SectionName));
-        services.Configure<ReadReplicaOptions>(configuration.GetSection(ReadReplicaOptions.SectionName));
+        services.Configure<SqlServerOptions>(configuration.GetSection(SqlServerOptions.SectionName));
 
         RegisterArtifactLargePayloadBlobStore(services, configuration);
 
@@ -155,16 +160,17 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddSingleton<ResilientSqlConnectionFactory>(sp =>
             new ResilientSqlConnectionFactory(
                 sp.GetRequiredService<SqlConnectionFactory>(),
-                sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>()));
+                SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
+                    sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>())));
 
         services.AddScoped<IRlsSessionContextApplicator, RlsSessionContextApplicator>();
         services.AddScoped<ISqlConnectionFactory>(sp =>
         {
-            SqlRowLevelSecurityOptions rls =
-                sp.GetRequiredService<IOptionsMonitor<SqlRowLevelSecurityOptions>>().CurrentValue;
+            SqlServerOptions sqlOpts =
+                sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>().CurrentValue;
             ResilientSqlConnectionFactory resilient = sp.GetRequiredService<ResilientSqlConnectionFactory>();
 
-            if (!rls.ApplySessionContext)
+            if (!sqlOpts.RowLevelSecurity.ApplySessionContext)
                 return resilient;
 
             return new SessionContextSqlConnectionFactory(
@@ -208,6 +214,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IProductLearningDashboardService, ProductLearningDashboardService>();
         services.AddScoped<IEvolutionCandidateChangeSetRepository, DapperEvolutionCandidateChangeSetRepository>();
         services.AddScoped<IEvolutionSimulationRunRepository, DapperEvolutionSimulationRunRepository>();
+        services.AddScoped<IAuthorityPipelineWorkRepository, DapperAuthorityPipelineWorkRepository>();
+        services.AddScoped<IAsyncAuthorityPipelineModeResolver, FeatureManagementAuthorityPipelineModeResolver>();
+        services.AddScoped<IAuthorityPipelineStagesExecutor, AuthorityPipelineStagesExecutor>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();

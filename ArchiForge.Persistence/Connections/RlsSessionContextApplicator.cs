@@ -12,12 +12,12 @@ namespace ArchiForge.Persistence.Connections;
 [ExcludeFromCodeCoverage(Justification = "Executes sp_set_session_context via SqlCommand; requires live SQL Server connection.")]
 public sealed class RlsSessionContextApplicator(
     IScopeContextProvider scopeContextProvider,
-    IOptionsMonitor<SqlRowLevelSecurityOptions> optionsMonitor) : IRlsSessionContextApplicator
+    IOptionsMonitor<SqlServerOptions> optionsMonitor) : IRlsSessionContextApplicator
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
-    private readonly IOptionsMonitor<SqlRowLevelSecurityOptions> _optionsMonitor =
+    private readonly IOptionsMonitor<SqlServerOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
     /// <inheritdoc />
@@ -25,9 +25,9 @@ public sealed class RlsSessionContextApplicator(
     {
         ArgumentNullException.ThrowIfNull(connection);
 
-        SqlRowLevelSecurityOptions opts = _optionsMonitor.CurrentValue;
+        SqlServerOptions opts = _optionsMonitor.CurrentValue;
 
-        if (!opts.ApplySessionContext)
+        if (!opts.RowLevelSecurity.ApplySessionContext)
             return;
 
         if (SqlRowLevelSecurityBypassAmbient.IsActive)

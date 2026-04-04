@@ -23,13 +23,13 @@ public sealed class PrometheusScrapeAuthMiddleware
 
     public PrometheusScrapeAuthMiddleware(
         RequestDelegate next,
-        IOptions<PrometheusScrapeAuthOptions> options)
+        IOptions<ObservabilityHostOptions> options)
     {
         ArgumentNullException.ThrowIfNull(next);
         ArgumentNullException.ThrowIfNull(options);
 
         _next = next;
-        PrometheusScrapeAuthOptions o = options.Value ?? new PrometheusScrapeAuthOptions();
+        ObservabilityPrometheusOptions o = options.Value?.Prometheus ?? new ObservabilityPrometheusOptions();
         string path = string.IsNullOrWhiteSpace(o.ScrapePath) ? "/metrics" : o.ScrapePath.Trim();
         if (!path.StartsWith('/'))
             path = "/" + path;

@@ -18,6 +18,7 @@ using ArchiForge.Host.Core.Services.Delivery;
 using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Alerts;
 using ArchiForge.Persistence.Alerts.Simulation;
+using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Retrieval;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -41,10 +42,12 @@ public static partial class ServiceCollectionExtensions
     private static void RegisterRetrievalIndexingOutbox(IServiceCollection services, ArchiForgeHostingRole hostingRole)
     {
         services.AddSingleton<IRetrievalIndexingOutboxProcessor, RetrievalIndexingOutboxProcessor>();
+        services.AddSingleton<IAuthorityPipelineWorkProcessor, AuthorityPipelineWorkProcessor>();
 
         if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker)
         {
             services.AddHostedService<RetrievalIndexingOutboxHostedService>();
+            services.AddHostedService<AuthorityPipelineWorkHostedService>();
         }
     }
 

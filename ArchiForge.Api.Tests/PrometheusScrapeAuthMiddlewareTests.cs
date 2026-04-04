@@ -19,16 +19,25 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
         return Task.CompletedTask;
     };
 
+    private static IOptions<ObservabilityHostOptions> OptionsForPrometheus(ObservabilityPrometheusOptions prometheus)
+    {
+        return Options.Create(
+            new ObservabilityHostOptions
+            {
+                Prometheus = prometheus,
+            });
+    }
+
     [Fact]
     public async Task InvokeAsync_when_scrape_credentials_configured_and_path_is_metrics_without_header_returns_401()
     {
-        PrometheusScrapeAuthOptions opts = new()
+        ObservabilityPrometheusOptions prometheus = new()
         {
             ScrapeUsername = "scraper",
             ScrapePassword = "secret",
             ScrapePath = "/metrics",
         };
-        PrometheusScrapeAuthMiddleware middleware = new(NextOk, Options.Create(opts));
+        PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new();
         http.Request.Method = "GET";
         http.Request.Path = "/metrics";
@@ -42,13 +51,13 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
     [Fact]
     public async Task InvokeAsync_when_valid_basic_auth_calls_next()
     {
-        PrometheusScrapeAuthOptions opts = new()
+        ObservabilityPrometheusOptions prometheus = new()
         {
             ScrapeUsername = "scraper",
             ScrapePassword = "secret",
             ScrapePath = "/metrics",
         };
-        PrometheusScrapeAuthMiddleware middleware = new(NextOk, Options.Create(opts));
+        PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new();
         http.Request.Method = "GET";
         http.Request.Path = "/metrics";
@@ -64,13 +73,13 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
     [Fact]
     public async Task InvokeAsync_when_credentials_configured_non_metrics_path_bypasses_auth()
     {
-        PrometheusScrapeAuthOptions opts = new()
+        ObservabilityPrometheusOptions prometheus = new()
         {
             ScrapeUsername = "scraper",
             ScrapePassword = "secret",
             ScrapePath = "/metrics",
         };
-        PrometheusScrapeAuthMiddleware middleware = new(NextOk, Options.Create(opts));
+        PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new();
         http.Request.Method = "GET";
         http.Request.Path = "/health/live";
@@ -84,13 +93,13 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
     [Fact]
     public async Task InvokeAsync_when_no_scrape_credentials_configured_metrics_path_is_open()
     {
-        PrometheusScrapeAuthOptions opts = new()
+        ObservabilityPrometheusOptions prometheus = new()
         {
             ScrapeUsername = "",
             ScrapePassword = "",
             ScrapePath = "/metrics",
         };
-        PrometheusScrapeAuthMiddleware middleware = new(NextOk, Options.Create(opts));
+        PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
         DefaultHttpContext http = new();
         http.Request.Method = "GET";
         http.Request.Path = "/metrics";

@@ -11,7 +11,7 @@ using Moq;
 namespace ArchiForge.Api.Tests;
 
 /// <summary>
-/// Verifies <see cref="ResilientSqlConnectionFactory"/> retry and backoff behaviour.
+/// Verifies <see cref="ResilientSqlConnectionFactory"/> retry behaviour via <see cref="SqlOpenResilienceDefaults"/>.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ResilientSqlConnectionFactoryTests
@@ -27,7 +27,9 @@ public sealed class ResilientSqlConnectionFactoryTests
         inner.Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
-        ResilientSqlConnectionFactory sut = new(inner.Object, _logger);
+        ResilientSqlConnectionFactory sut = new(
+            inner.Object,
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 3));
 
         SqlConnection result = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -50,7 +52,9 @@ public sealed class ResilientSqlConnectionFactoryTests
                 return callCount == 1 ? throw new TimeoutException("transient") : Task.FromResult(expected);
             });
 
-        ResilientSqlConnectionFactory sut = new(inner.Object, _logger, maxRetries: 3, baseDelay: TimeSpan.FromMilliseconds(1));
+        ResilientSqlConnectionFactory sut = new(
+            inner.Object,
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 3, baseDelay: TimeSpan.FromMilliseconds(1)));
 
         SqlConnection result = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -65,7 +69,9 @@ public sealed class ResilientSqlConnectionFactoryTests
         inner.Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new TimeoutException("persistent timeout"));
 
-        ResilientSqlConnectionFactory sut = new(inner.Object, _logger, maxRetries: 2, baseDelay: TimeSpan.FromMilliseconds(1));
+        ResilientSqlConnectionFactory sut = new(
+            inner.Object,
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 2, baseDelay: TimeSpan.FromMilliseconds(1)));
 
         Func<Task> act = () => sut.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -82,7 +88,9 @@ public sealed class ResilientSqlConnectionFactoryTests
         inner.Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("config error"));
 
-        ResilientSqlConnectionFactory sut = new(inner.Object, _logger, maxRetries: 3, baseDelay: TimeSpan.FromMilliseconds(1));
+        ResilientSqlConnectionFactory sut = new(
+            inner.Object,
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 3, baseDelay: TimeSpan.FromMilliseconds(1)));
 
         Func<Task> act = () => sut.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -100,13 +108,13 @@ public sealed class ResilientSqlConnectionFactoryTests
 
         using CancellationTokenSource cts = new();
 
-        // Use a longer delay so cancellation triggers during wait.
-        ResilientSqlConnectionFactory sut = new(inner.Object, _logger, maxRetries: 5, baseDelay: TimeSpan.FromSeconds(30));
+        ResilientSqlConnectionFactory sut = new(
+            inner.Object,
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 5, baseDelay: TimeSpan.FromSeconds(30)));
 
         Task<SqlConnection> task = sut.CreateOpenConnectionAsync(cts.Token);
 
-        // Give the first attempt time to fail and enter the retry delay.
-        await Task.Delay(50, cts.Token);
+        await Task.Delay(50, CancellationToken.None);
         await cts.CancelAsync();
 
         Func<Task> act = () => task;
@@ -115,44 +123,27 @@ public sealed class ResilientSqlConnectionFactoryTests
     }
 
     [Fact]
-    public void ComputeDelay_ReturnsExponentiallyGrowingValues()
-    {
-        ResilientSqlConnectionFactory sut = new(
-            Mock.Of<ISqlConnectionFactory>(),
-            _logger,
-            maxRetries: 3,
-            baseDelay: TimeSpan.FromMilliseconds(100));
-
-        TimeSpan delay1 = sut.ComputeDelay(1);
-        TimeSpan delay2 = sut.ComputeDelay(2);
-        TimeSpan delay3 = sut.ComputeDelay(3);
-
-        // With ±25 % jitter: attempt 1 ≈ 75..125 ms, attempt 2 ≈ 150..250 ms, attempt 3 ≈ 300..500 ms.
-        delay1.TotalMilliseconds.Should().BeInRange(75, 125);
-        delay2.TotalMilliseconds.Should().BeInRange(150, 250);
-        delay3.TotalMilliseconds.Should().BeInRange(300, 500);
-    }
-
-    [Fact]
     public void Constructor_NullInner_ThrowsArgumentNullException()
     {
         Action act = () =>
         {
-            _ = new ResilientSqlConnectionFactory(null!, _logger);
+            _ = new ResilientSqlConnectionFactory(
+                null!,
+                SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger));
         };
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("inner");
     }
 
     [Fact]
-    public void Constructor_NullLogger_ThrowsArgumentNullException()
+    public void Constructor_NullPipeline_ThrowsArgumentNullException()
     {
         Action act = () =>
         {
             _ = new ResilientSqlConnectionFactory(Mock.Of<ISqlConnectionFactory>(), null!);
         };
 
-        act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
+        act.Should().Throw<ArgumentNullException>().WithParameterName("sqlOpenRetryPipeline");
     }
 
     [Fact]
@@ -162,7 +153,9 @@ public sealed class ResilientSqlConnectionFactoryTests
         inner.Setup(f => f.CreateOpenConnectionAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new TimeoutException("transient"));
 
-        ResilientSqlConnectionFactory sut = new(inner.Object, _logger, maxRetries: 0, baseDelay: TimeSpan.FromMilliseconds(1));
+        ResilientSqlConnectionFactory sut = new(
+            inner.Object,
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(_logger, maxRetryAttempts: 0, baseDelay: TimeSpan.FromMilliseconds(1)));
 
         Func<Task> act = () => sut.CreateOpenConnectionAsync(CancellationToken.None);
 

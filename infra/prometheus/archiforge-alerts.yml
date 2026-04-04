@@ -1,0 +1,26 @@
+# Recording / alert rules for ArchiForge when scraping OTLP → Prometheus or app metrics.
+# Adjust metric names to match your Prometheus scrape (e.g. OTel SDK exporter naming).
+groups:
+  - name: archiforge-authority
+    rules:
+      - alert: ArchiForgeAuthorityRunErrors
+        expr: |
+          sum(rate(traces_span_count{span_name="AuthorityRun",status_code="ERROR"}[5m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Authority pipeline spans reporting ERROR
+          description: Check API/worker logs and SQL outbox `AuthorityPipelineWorkOutbox` for stuck rows.
+
+      - alert: ArchiForgeAuthorityPipelineWorkBacklog
+        expr: |
+          archiforge_authority_pipeline_work_pending > 50
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Authority pipeline work outbox backlog high
+          description: >-
+            Expose a gauge `archiforge_authority_pipeline_work_pending` from the app or add a SQL
+            exporter rule; placeholder metric until wired.

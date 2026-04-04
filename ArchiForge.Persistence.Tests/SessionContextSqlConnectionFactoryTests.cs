@@ -30,8 +30,7 @@ public sealed class SessionContextSqlConnectionFactoryTests(SqlServerPersistence
 
         ResilientSqlConnectionFactory resilient = new(
             inner.Object,
-            NullLogger<ResilientSqlConnectionFactory>.Instance,
-            maxRetries: 0);
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(maxRetryAttempts: 0));
 
         Mock<IRlsSessionContextApplicator> applicator = new();
         applicator

@@ -4,6 +4,19 @@ This document zooms into the most important components inside each container/lib
 
 ---
 
+### `ArchiForge.Data` vs `ArchiForge.Persistence`
+
+| Library | Role | Typical types |
+|---------|------|----------------|
+| **`ArchiForge.Data`** | ADO.NET/Dapper access to SQL Server, row DTOs, and **application-facing** repositories used by `ArchiForge.Application` for runs, tasks, requests, evidence, governance entities, etc. | `ArchitectureRequestRepository`, `SqlConnectionFactory`, `IArchitectureRunRepository` (Data namespace) |
+| **`ArchiForge.Persistence`** | **Authority and decisioning** persistence ports: unit of work, orchestration (`AuthorityRunOrchestrator`), snapshot repos for context/graph/findings/manifests, caching decorators (`CachingRunRepository`), archival, retrieval outbox, RLS session context. | `IRunRepository` (Persistence `Models.RunRecord`), `IArchiForgeUnitOfWork`, `SqlContextSnapshotRepository` |
+
+**Configuration:** SQL security and read-scale-out are grouped under **`SqlServer`** in appsettings (`RowLevelSecurity`, `ReadReplica`). See `ArchiForge.Persistence/Connections/SqlServerOptions.cs`.
+
+**Why two layers:** Decisioning/ingestion domains evolved with explicit persistence abstractions; the application layer uses a parallel Data repository surface for the run/commit/agent workflow. When adding a feature, follow existing callers: authority chain → Persistence; HTTP application services → Data + Application.
+
+---
+
 ### `ArchiForge.Api` components
 
 #### Connection bridging (SQL)

@@ -37,8 +37,8 @@ public static class ObservabilityExtensions
 
         BuildProvenance build = BuildProvenance.FromAssembly(typeof(ObservabilityExtensions).Assembly);
 
-        services.Configure<PrometheusScrapeAuthOptions>(
-            configuration.GetSection(PrometheusScrapeAuthOptions.SectionPath));
+        services.Configure<ObservabilityHostOptions>(
+            configuration.GetSection(ObservabilityHostOptions.SectionName));
 
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource

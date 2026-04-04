@@ -1,65 +1,28 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging;
+using Microsoft.Data.SqlClient;
+
+using Polly;
 
 namespace ArchiForge.Persistence.Connections;
 
 /// <summary>
 /// Decorator over <see cref="ISqlConnectionFactory"/> that retries transient failures
-/// with exponential backoff before surfacing the exception.
+/// using <see cref="ResiliencePipeline"/> (Microsoft.Extensions.Resilience / Polly).
 /// </summary>
-/// <remarks>
-/// Default policy: 3 retries with base delay 200 ms, doubling each attempt (200 → 400 → 800 ms).
-/// Jitter (±25 %) prevents thundering-herd effects when many requests retry simultaneously.
-/// Only exceptions identified as transient by <see cref="SqlTransientDetector"/> trigger retries.
-/// </remarks>
 public sealed class ResilientSqlConnectionFactory(
     ISqlConnectionFactory inner,
-    ILogger<ResilientSqlConnectionFactory> logger,
-    int maxRetries = 3,
-    TimeSpan? baseDelay = null)
-    : ISqlConnectionFactory
+    ResiliencePipeline sqlOpenRetryPipeline) : ISqlConnectionFactory
 {
-    private readonly ISqlConnectionFactory _inner = inner ?? throw new ArgumentNullException(nameof(inner));
-    private readonly ILogger<ResilientSqlConnectionFactory> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly TimeSpan _baseDelay = baseDelay ?? TimeSpan.FromMilliseconds(200);
+    private readonly ISqlConnectionFactory _inner =
+        inner ?? throw new ArgumentNullException(nameof(inner));
 
-    public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)
+    private readonly ResiliencePipeline _sqlOpenRetryPipeline =
+        sqlOpenRetryPipeline ?? throw new ArgumentNullException(nameof(sqlOpenRetryPipeline));
+
+    /// <inheritdoc />
+    public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken)
     {
-        int attempt = 0;
-
-        while (true)
-        
-            try
-            {
-                return await _inner.CreateOpenConnectionAsync(ct);
-            }
-            catch (Exception ex) when (attempt < maxRetries && SqlTransientDetector.IsTransient(ex))
-            {
-                attempt++;
-                TimeSpan delay = ComputeDelay(attempt);
-
-                _logger.LogWarning(
-                    ex,
-                    "Transient SQL error on connection attempt {Attempt}/{MaxRetries}. Retrying in {DelayMs} ms.",
-                    attempt,
-                    maxRetries,
-                    (int)delay.TotalMilliseconds);
-
-                await Task.Delay(delay, ct);
-            }
-        
-    }
-
-    /// <summary>
-    /// Exponential backoff with ±25 % jitter: <c>baseDelay * 2^(attempt-1) * (0.75..1.25)</c>.
-    /// </summary>
-    internal TimeSpan ComputeDelay(int attempt)
-    {
-        double exponentialMs = _baseDelay.TotalMilliseconds * Math.Pow(2, attempt - 1);
-
-        // ThreadStatic Random avoids lock contention.
-        double jitterFactor = 0.75 + (Random.Shared.NextDouble() * 0.5);
-
-        return TimeSpan.FromMilliseconds(exponentialMs * jitterFactor);
+        return await _sqlOpenRetryPipeline.ExecuteAsync(
+            async ct => await _inner.CreateOpenConnectionAsync(ct),
+            cancellationToken);
     }
 }

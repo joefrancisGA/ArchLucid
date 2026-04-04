@@ -10,13 +10,13 @@ namespace ArchiForge.Persistence.Connections;
 /// </summary>
 public sealed class AuthorityRunListConnectionFactory(
     ResilientSqlConnectionFactory resilientFactory,
-    IOptionsMonitor<ReadReplicaOptions> optionsMonitor,
+    IOptionsMonitor<SqlServerOptions> optionsMonitor,
     IRlsSessionContextApplicator sessionContextApplicator) : IAuthorityRunListConnectionFactory
 {
     private readonly ResilientSqlConnectionFactory _resilientFactory =
         resilientFactory ?? throw new ArgumentNullException(nameof(resilientFactory));
 
-    private readonly IOptionsMonitor<ReadReplicaOptions> _optionsMonitor =
+    private readonly IOptionsMonitor<SqlServerOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
 
     private readonly IRlsSessionContextApplicator _sessionContextApplicator =
@@ -25,8 +25,8 @@ public sealed class AuthorityRunListConnectionFactory(
     /// <inheritdoc />
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)
     {
-        ReadReplicaOptions snapshot = _optionsMonitor.CurrentValue;
-        string? replica = snapshot.AuthorityRunListReadsConnectionString?.Trim();
+        SqlServerOptions snapshot = _optionsMonitor.CurrentValue;
+        string? replica = snapshot.ReadReplica.AuthorityRunListReadsConnectionString?.Trim();
 
         SqlConnection connection;
         if (string.IsNullOrEmpty(replica))

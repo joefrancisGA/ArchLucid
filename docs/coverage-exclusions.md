@@ -33,7 +33,7 @@ These classes delegate directly to Azure SDKs or HTTP clients with minimal or no
 | Class | Assembly | Justification |
 |-------|----------|---------------|
 | `AzureOpenAiOptions` | AgentRuntime | Config-binding DTO (`IOptions<T>`) with no logic |
-| `SqlRowLevelSecurityOptions` | Persistence | Config-binding DTO (`IOptions<T>`) with no logic |
+| `SqlServerOptions` / nested settings | Persistence | Config-binding DTO (`IOptions<T>`) with no logic |
 
 ## Category 3: SQL Connection / RLS Infrastructure
 

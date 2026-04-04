@@ -2,6 +2,8 @@
 
 ### Orientation
 
+- **System map (Mermaid flows + entry points)**  
+  - `docs/SYSTEM_MAP.md`
 - **Context** – high-level purpose and boundary  
   - `docs/ARCHITECTURE_CONTEXT.md`
 - **Containers** – projects and their responsibilities  

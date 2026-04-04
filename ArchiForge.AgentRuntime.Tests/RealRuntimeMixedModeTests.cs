@@ -1,4 +1,4 @@
-﻿using ArchiForge.ContextIngestion.Models;
+using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -298,9 +298,13 @@ public sealed class RealRuntimeMixedModeTests
 
     private sealed class FakeAuthorityRunOrchestratorForRuntimeTests : IAuthorityRunOrchestrator
     {
-        public Task<RunRecord> ExecuteAsync(ContextIngestionRequest request, CancellationToken ct)
+        public Task<RunRecord> ExecuteAsync(
+            ContextIngestionRequest request,
+            CancellationToken cancellationToken = default,
+            string? evidenceBundleIdForDeferredWork = null)
         {
-            _ = ct;
+            _ = cancellationToken;
+            _ = evidenceBundleIdForDeferredWork;
             Guid runId = Guid.NewGuid();
             return Task.FromResult(new RunRecord
             {
@@ -314,6 +318,27 @@ public sealed class RealRuntimeMixedModeTests
                 GoldenManifestId = Guid.NewGuid(),
                 DecisionTraceId = Guid.NewGuid(),
                 ArtifactBundleId = Guid.NewGuid()
+            });
+        }
+
+        /// <inheritdoc />
+        public Task<RunRecord> CompleteQueuedAuthorityPipelineAsync(
+            ContextIngestionRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            _ = cancellationToken;
+            return Task.FromResult(new RunRecord
+            {
+                RunId = request.RunId,
+                ProjectId = request.ProjectId,
+                Description = request.Description,
+                CreatedUtc = DateTime.UtcNow,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                FindingsSnapshotId = Guid.NewGuid(),
+                GoldenManifestId = Guid.NewGuid(),
+                DecisionTraceId = Guid.NewGuid(),
+                ArtifactBundleId = Guid.NewGuid(),
             });
         }
     }

@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Transactions;
 
 using ArchiForge.AgentSimulator.Services;
@@ -169,7 +169,9 @@ public sealed class ArchitectureRunService(
         await requestRepository.CreateAsync(request, cancellationToken);
         await runRepository.CreateAsync(coordination.Run, cancellationToken);
         await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
-        await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
+
+        if (coordination.Tasks.Count > 0)
+            await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
 
         if (idempotency is null)
             return false;

@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
@@ -79,6 +79,38 @@ public sealed class InMemoryArchitectureRunRepository(IArchitectureRequestReposi
             
 
             run.CompletedUtc = completedUtc;
+            _byRunId[runId] = Clone(run);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task ApplyDeferredAuthoritySnapshotsAsync(
+        string runId,
+        string? contextSnapshotId,
+        Guid? graphSnapshotId,
+        Guid? artifactBundleId,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            if (!_byRunId.TryGetValue(runId, out ArchitectureRun? run))
+            {
+                throw new InvalidOperationException($"Run '{runId}' was not found for deferred authority promotion.");
+            }
+
+            if (run.Status != ArchitectureRunStatus.Created)
+            {
+                throw new InvalidOperationException(
+                    $"Run '{runId}' could not apply deferred authority snapshots: expected status '{ArchitectureRunStatus.Created}'.");
+            }
+
+            run.ContextSnapshotId = contextSnapshotId;
+            run.GraphSnapshotId = graphSnapshotId;
+            run.ArtifactBundleId = artifactBundleId;
+            run.Status = ArchitectureRunStatus.TasksGenerated;
             _byRunId[runId] = Clone(run);
         }
 

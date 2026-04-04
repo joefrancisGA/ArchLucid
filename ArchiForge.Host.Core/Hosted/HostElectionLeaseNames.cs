@@ -10,4 +10,6 @@ public static class HostElectionLeaseNames
     public const string DataArchival = "hosted:data-archival";
 
     public const string RetrievalIndexingOutbox = "hosted:retrieval-indexing-outbox";
+
+    public const string AuthorityPipelineWorkOutbox = "hosted:authority-pipeline-work-outbox";
 }

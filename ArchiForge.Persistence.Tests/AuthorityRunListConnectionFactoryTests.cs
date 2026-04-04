@@ -27,11 +27,10 @@ public sealed class AuthorityRunListConnectionFactoryTests
 
         ResilientSqlConnectionFactory resilient = new(
             inner.Object,
-            NullLogger<ResilientSqlConnectionFactory>.Instance,
-            maxRetries: 0);
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(maxRetryAttempts: 0));
 
-        Mock<IOptionsMonitor<ReadReplicaOptions>> options = new();
-        options.Setup(o => o.CurrentValue).Returns(new ReadReplicaOptions { AuthorityRunListReadsConnectionString = null });
+        Mock<IOptionsMonitor<SqlServerOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new SqlServerOptions());
 
         Mock<IRlsSessionContextApplicator> applicator = new();
         applicator

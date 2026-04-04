@@ -28,6 +28,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));
         services.Configure<HostLeaderElectionOptions>(configuration.GetSection(HostLeaderElectionOptions.SectionName));
         services.AddScoped<IDemoSeedService, DemoSeedService>();
+        services.AddArchiForgeFeatureManagement(configuration);
         services.AddArchiForgeStorage(configuration);
         RegisterAdvisoryScheduling(services, hostingRole);
         RegisterDigestDelivery(services, configuration);

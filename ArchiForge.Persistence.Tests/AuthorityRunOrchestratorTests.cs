@@ -1,17 +1,13 @@
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Authority;
 using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Orchestration;
+using ArchiForge.Persistence.Orchestration.Pipeline;
 using ArchiForge.Persistence.Retrieval;
 using ArchiForge.Persistence.Transactions;
 
@@ -26,14 +22,14 @@ using DecisioningManifestMetadata = ArchiForge.Decisioning.Manifest.Sections.Man
 namespace ArchiForge.Persistence.Tests;
 
 /// <summary>
-/// <see cref="AuthorityRunOrchestrator"/> unit tests with mocked dependencies (commit vs rollback paths).
+/// <see cref="AuthorityRunOrchestrator"/> unit tests (commit vs rollback, sync vs queued modes).
 /// </summary>
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
 public sealed class AuthorityRunOrchestratorTests
 {
     [Fact]
-    public async Task ExecuteAsync_happy_path_commits_and_enqueues_retrieval()
+    public async Task ExecuteAsync_sync_mode_commits_and_enqueues_retrieval()
     {
         ScopeContext scope = new()
         {
@@ -61,138 +57,68 @@ public sealed class AuthorityRunOrchestratorTests
             .Returns(Task.CompletedTask);
 
         Guid contextSnapshotId = Guid.NewGuid();
-        Mock<IContextSnapshotRepository> contextRepo = new();
-        contextRepo.Setup(x => x.GetLatestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ContextSnapshot?)null);
-
-        Mock<IContextIngestionService> ingestion = new();
-        ingestion
-            .Setup(x => x.IngestAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (ContextIngestionRequest req, CancellationToken _) =>
-                    new ContextSnapshot
-                    {
-                        SnapshotId = contextSnapshotId,
-                        RunId = req.RunId,
-                        ProjectId = req.ProjectId,
-                        CreatedUtc = DateTime.UtcNow,
-                    });
-
-        contextRepo.Setup(x => x.SaveAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        Guid graphSnapshotId = Guid.NewGuid();
-        Mock<IKnowledgeGraphService> kg = new();
-        kg.Setup(x => x.BuildSnapshotAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (ContextSnapshot ctx, CancellationToken _) =>
-                    new GraphSnapshot
-                    {
-                        GraphSnapshotId = graphSnapshotId,
-                        ContextSnapshotId = ctx.SnapshotId,
-                        RunId = ctx.RunId,
-                        CreatedUtc = DateTime.UtcNow,
-                    });
-
-        Mock<IGraphSnapshotRepository> graphRepo = new();
-        graphRepo.Setup(x => x.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
         Guid findingsId = Guid.NewGuid();
-        Mock<IFindingsOrchestrator> findingsOrch = new();
-        findingsOrch
-            .Setup(x => x.GenerateFindingsSnapshotAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<GraphSnapshot>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (Guid runId, Guid ctxId, GraphSnapshot g, CancellationToken _) =>
-                    new FindingsSnapshot
-                    {
-                        FindingsSnapshotId = findingsId,
-                        RunId = runId,
-                        ContextSnapshotId = ctxId,
-                        GraphSnapshotId = g.GraphSnapshotId,
-                        CreatedUtc = DateTime.UtcNow,
-                    });
-
-        Mock<IFindingsSnapshotRepository> findingsRepo = new();
-        findingsRepo.Setup(x => x.SaveAsync(It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
         Guid traceId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
-        Mock<IDecisionEngine> decisionEngine = new();
-        decisionEngine
-            .Setup(x => x.DecideAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<GraphSnapshot>(),
-                It.IsAny<FindingsSnapshot>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (Guid runId, Guid ctxId, GraphSnapshot g, FindingsSnapshot f, CancellationToken _) =>
+
+        Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
+        pipeline
+            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()))
+            .Callback<AuthorityPipelineContext, CancellationToken>(
+                (ctx, _) =>
                 {
-                    DecisionTrace trace = new()
+                    ctx.ContextSnapshot = new ContextSnapshot
+                    {
+                        SnapshotId = contextSnapshotId,
+                        RunId = ctx.Run.RunId,
+                        ProjectId = ctx.Request.ProjectId,
+                        CreatedUtc = DateTime.UtcNow,
+                    };
+
+                    ctx.FindingsSnapshot = new FindingsSnapshot
+                    {
+                        FindingsSnapshotId = findingsId,
+                        RunId = ctx.Run.RunId,
+                        ContextSnapshotId = contextSnapshotId,
+                        GraphSnapshotId = Guid.NewGuid(),
+                        CreatedUtc = DateTime.UtcNow,
+                    };
+
+                    ctx.Trace = new DecisionTrace
                     {
                         DecisionTraceId = traceId,
-                        RunId = runId,
+                        RunId = ctx.Run.RunId,
                         CreatedUtc = DateTime.UtcNow,
                         RuleSetId = "rs",
                         RuleSetVersion = "1",
                         RuleSetHash = "h",
                     };
 
-                    GoldenManifest manifest = NewMinimalManifest(scope, runId, ctxId, g.GraphSnapshotId, f.FindingsSnapshotId, traceId, manifestId);
-
-                    return (manifest, trace);
-                });
-
-        Mock<IDecisionTraceRepository> decisionTraceRepo = new();
-        decisionTraceRepo.Setup(x => x.SaveAsync(It.IsAny<DecisionTrace>(), It.IsAny<CancellationToken>(), null, null))
+                    ctx.Manifest = NewMinimalManifest(
+                        ctx.Scope,
+                        ctx.Run.RunId,
+                        contextSnapshotId,
+                        Guid.NewGuid(),
+                        findingsId,
+                        traceId,
+                        manifestId);
+                })
             .Returns(Task.CompletedTask);
 
-        Mock<IGoldenManifestRepository> goldenRepo = new();
-        goldenRepo.Setup(x => x.SaveAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        Mock<IManifestHashService> hashService = new();
-        hashService.Setup(x => x.ComputeHash(It.IsAny<GoldenManifest>())).Returns("computed-hash");
-
-        Mock<IArtifactSynthesisService> synthesis = new();
-        synthesis
-            .Setup(x => x.SynthesizeAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (GoldenManifest m, CancellationToken _) =>
-                    new ArtifactBundle
-                    {
-                        BundleId = Guid.NewGuid(),
-                        RunId = m.RunId,
-                        ManifestId = m.ManifestId,
-                        CreatedUtc = DateTime.UtcNow,
-                        Artifacts = [],
-                        Trace = new SynthesisTrace
-                        {
-                            TraceId = Guid.NewGuid(),
-                            RunId = m.RunId,
-                            ManifestId = m.ManifestId,
-                            CreatedUtc = DateTime.UtcNow,
-                        },
-                    });
-
-        Mock<IArtifactBundleRepository> bundleRepo = new();
-        bundleRepo.Setup(x => x.SaveAsync(It.IsAny<ArtifactBundle>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        Mock<IRetrievalIndexingOutboxRepository> outbox = new();
-        outbox.Setup(x => x.EnqueueAsync(
+        Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
+        retrievalOutbox.Setup(x => x.EnqueueAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+
+        Mock<IAuthorityPipelineWorkRepository> workRepo = new();
+        Mock<IAsyncAuthorityPipelineModeResolver> modeResolver = new();
+        modeResolver
+            .Setup(x => x.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
 
         Mock<IAuditService> audit = new();
         audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
@@ -202,20 +128,11 @@ public sealed class AuthorityRunOrchestratorTests
             uowFactory.Object,
             scopeProvider.Object,
             audit.Object,
-            hashService.Object,
             runRepo.Object,
-            ingestion.Object,
-            contextRepo.Object,
-            kg.Object,
-            graphRepo.Object,
-            findingsOrch.Object,
-            findingsRepo.Object,
-            decisionEngine.Object,
-            decisionTraceRepo.Object,
-            goldenRepo.Object,
-            synthesis.Object,
-            bundleRepo.Object,
-            outbox.Object,
+            pipeline.Object,
+            retrievalOutbox.Object,
+            workRepo.Object,
+            modeResolver.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -229,13 +146,22 @@ public sealed class AuthorityRunOrchestratorTests
         result.ProjectId.Should().Be(request.ProjectId);
         uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
-        outbox.Verify(
+        workRepo.Verify(
+            x => x.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        retrievalOutbox.Verify(
             x => x.EnqueueAsync(result.RunId, scope.TenantId, scope.WorkspaceId, scope.ProjectId, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
     [Fact]
-    public async Task ExecuteAsync_when_decision_engine_fails_rolls_back_without_commit()
+    public async Task ExecuteAsync_queue_mode_enqueues_work_and_commits_without_running_stages()
     {
         ScopeContext scope = new()
         {
@@ -259,84 +185,98 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IRunRepository> runRepo = new();
         runRepo.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
-        runRepo.Setup(x => x.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
 
-        Guid contextSnapshotId = Guid.NewGuid();
-        Mock<IContextSnapshotRepository> contextRepo = new();
-        contextRepo.Setup(x => x.GetLatestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ContextSnapshot?)null);
-
-        Mock<IContextIngestionService> ingestion = new();
-        ingestion
-            .Setup(x => x.IngestAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (ContextIngestionRequest req, CancellationToken _) =>
-                    new ContextSnapshot
-                    {
-                        SnapshotId = contextSnapshotId,
-                        RunId = req.RunId,
-                        ProjectId = req.ProjectId,
-                        CreatedUtc = DateTime.UtcNow,
-                    });
-
-        contextRepo.Setup(x => x.SaveAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        Mock<IKnowledgeGraphService> kg = new();
-        kg.Setup(x => x.BuildSnapshotAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (ContextSnapshot ctx, CancellationToken _) =>
-                    new GraphSnapshot
-                    {
-                        GraphSnapshotId = Guid.NewGuid(),
-                        ContextSnapshotId = ctx.SnapshotId,
-                        RunId = ctx.RunId,
-                        CreatedUtc = DateTime.UtcNow,
-                    });
-
-        Mock<IGraphSnapshotRepository> graphRepo = new();
-        graphRepo.Setup(x => x.SaveAsync(It.IsAny<GraphSnapshot>(), It.IsAny<CancellationToken>(), null, null))
-            .Returns(Task.CompletedTask);
-
-        Mock<IFindingsOrchestrator> findingsOrch = new();
-        findingsOrch
-            .Setup(x => x.GenerateFindingsSnapshotAsync(
+        Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
+        Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
+        Mock<IAuthorityPipelineWorkRepository> workRepo = new();
+        workRepo.Setup(x => x.EnqueueAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<Guid>(),
-                It.IsAny<GraphSnapshot>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (Guid runId, Guid ctxId, GraphSnapshot g, CancellationToken _) =>
-                    new FindingsSnapshot
-                    {
-                        FindingsSnapshotId = Guid.NewGuid(),
-                        RunId = runId,
-                        ContextSnapshotId = ctxId,
-                        GraphSnapshotId = g.GraphSnapshotId,
-                        CreatedUtc = DateTime.UtcNow,
-                    });
-
-        Mock<IFindingsSnapshotRepository> findingsRepo = new();
-        findingsRepo.Setup(x => x.SaveAsync(It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
 
-        Mock<IDecisionEngine> decisionEngine = new();
-        decisionEngine
-            .Setup(x => x.DecideAsync(
-                It.IsAny<Guid>(),
-                It.IsAny<Guid>(),
-                It.IsAny<GraphSnapshot>(),
-                It.IsAny<FindingsSnapshot>(),
-                It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new InvalidOperationException("decision failed"));
+        Mock<IAsyncAuthorityPipelineModeResolver> modeResolver = new();
+        modeResolver
+            .Setup(x => x.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
-        Mock<IDecisionTraceRepository> decisionTraceRepo = new();
-        Mock<IGoldenManifestRepository> goldenRepo = new();
-        Mock<IManifestHashService> hashService = new();
-        Mock<IArtifactSynthesisService> synthesis = new();
-        Mock<IArtifactBundleRepository> bundleRepo = new();
-        Mock<IRetrievalIndexingOutboxRepository> outbox = new();
+        Mock<IAuditService> audit = new();
+
+        AuthorityRunOrchestrator sut = new(
+            uowFactory.Object,
+            scopeProvider.Object,
+            audit.Object,
+            runRepo.Object,
+            pipeline.Object,
+            retrievalOutbox.Object,
+            workRepo.Object,
+            modeResolver.Object,
+            NullLogger<AuthorityRunOrchestrator>.Instance);
+
+        ContextIngestionRequest request = new() { ProjectId = "q", Description = "d" };
+
+        RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None, evidenceBundleIdForDeferredWork: "evidence-bundle");
+
+        result.ContextSnapshotId.Should().BeNull();
+        uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
+        pipeline.Verify(
+            x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        retrievalOutbox.Verify(
+            x => x.EnqueueAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        workRepo.Verify(
+            x => x.EnqueueAsync(
+                result.RunId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_when_pipeline_throws_rolls_back_without_commit()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(x => x.GetCurrentScope()).Returns(scope);
+
+        Mock<IArchiForgeUnitOfWork> uow = new();
+        uow.SetupGet(x => x.SupportsExternalTransaction).Returns(false);
+        uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
+
+        Mock<IArchiForgeUnitOfWorkFactory> uowFactory = new();
+        uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
+        pipeline
+            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("pipeline failed"));
+
+        Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
+        Mock<IAuthorityPipelineWorkRepository> workRepo = new();
+        Mock<IAsyncAuthorityPipelineModeResolver> modeResolver = new();
+        modeResolver
+            .Setup(x => x.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
         Mock<IAuditService> audit = new();
         audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -345,27 +285,18 @@ public sealed class AuthorityRunOrchestratorTests
             uowFactory.Object,
             scopeProvider.Object,
             audit.Object,
-            hashService.Object,
             runRepo.Object,
-            ingestion.Object,
-            contextRepo.Object,
-            kg.Object,
-            graphRepo.Object,
-            findingsOrch.Object,
-            findingsRepo.Object,
-            decisionEngine.Object,
-            decisionTraceRepo.Object,
-            goldenRepo.Object,
-            synthesis.Object,
-            bundleRepo.Object,
-            outbox.Object,
+            pipeline.Object,
+            retrievalOutbox.Object,
+            workRepo.Object,
+            modeResolver.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new() { ProjectId = "proj-fail" };
 
         Func<Task> act = async () => await sut.ExecuteAsync(request, CancellationToken.None);
 
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("decision failed");
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("pipeline failed");
 
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);

@@ -1,0 +1,86 @@
+# ArchiForge system map
+
+High-level flows for navigation and onboarding. For component detail see [ARCHITECTURE_COMPONENTS.md](./ARCHITECTURE_COMPONENTS.md) and [ARCHITECTURE_FLOWS.md](./ARCHITECTURE_FLOWS.md).
+
+---
+
+## Primary HTTP flows
+
+### Create architecture run (`POST /v1/architecture/runs` and related)
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant API as ArchiForge.Api
+    participant App as ArchitectureRunService
+    participant Coord as CoordinatorService
+    participant Orch as AuthorityRunOrchestrator
+    participant SQL as SQL persistence
+
+    C->>API: ArchitectureRequest
+    API->>App: CreateRunAsync
+    App->>Coord: CreateRunAsync
+    Coord->>Orch: ExecuteAsync / BeginDeferredAsync
+    Note over Orch: Ingestion → graph → findings → decision → artifacts → commit
+    Orch-->>Coord: RunRecord
+    Coord-->>App: CoordinationResult (run, evidence, tasks)
+    App->>SQL: Transaction: request, run, evidence, tasks
+    App-->>API: CreateRunResult
+    API-->>C: 201 + run id
+```
+
+### Execute run (agent tasks → commit)
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant API as ArchiForge.Api
+    participant App as ArchitectureRunService
+    participant Agents as Agent execution
+    participant SQL as SQL persistence
+
+    C->>API: POST execute
+    API->>App: ExecuteRunAsync
+    App->>Agents: Dispatch / evaluate
+    Agents->>SQL: Results, manifest commit
+    App-->>C: ExecuteRunResult
+```
+
+### Advisory scan (worker / combined host)
+
+```mermaid
+sequenceDiagram
+    participant Host as Worker or Combined
+    participant Lease as HostLeaderElection
+    participant Adv as AdvisoryScanHostedService
+    participant Runner as AdvisoryScanRunner
+    participant SQL as SQL persistence
+
+    Host->>Lease: Acquire lease (optional)
+    Adv->>Runner: Due schedules
+    Runner->>SQL: Read runs, write digest / recommendations
+```
+
+---
+
+## Composition root entry points
+
+| Host | File | Responsibility |
+|------|------|----------------|
+| API | `ArchiForge.Api/Program.cs` | HTTP pipeline, config validation, `AddArchiForgeApplicationServices` |
+| Worker | `ArchiForge.Worker/Program.cs` | Background loops, health, shared DI |
+| DI assembly | `ArchiForge.Host.Core/Startup/ServiceCollectionExtensions*.cs` | Partial classes: storage, agents, scheduling, observability, auth |
+
+---
+
+## Feature flags (Microsoft.FeatureManagement)
+
+Section `FeatureManagement:FeatureFlags` in configuration. Used for gradual rollout of authority pipeline behavior. See `AuthorityPipeline:QueueContextAndGraph` and related options under `ArchiForge:AuthorityPipeline`.
+
+---
+
+## Observability artifacts
+
+- **Traces**: `ArchiForgeInstrumentation` activity sources (including `ArchiForge.AuthorityRun` and per-stage child activities).
+- **Metrics**: OpenTelemetry meter `ArchiForge`; Prometheus scrape path under `Observability:Prometheus`.
+- **Dashboards / alerts**: `infra/grafana/` and `infra/prometheus/` (reference JSON and rule files for operators).

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Contracts.Common;
@@ -123,6 +123,47 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             ArtifactBundleId = row.ArtifactBundleId,
             TaskIds = [.. taskIds]
         };
+    }
+
+    /// <inheritdoc />
+    public async Task ApplyDeferredAuthoritySnapshotsAsync(
+        string runId,
+        string? contextSnapshotId,
+        Guid? graphSnapshotId,
+        Guid? artifactBundleId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            UPDATE ArchitectureRuns
+            SET
+                ContextSnapshotId = @ContextSnapshotId,
+                GraphSnapshotId = @GraphSnapshotId,
+                ArtifactBundleId = @ArtifactBundleId,
+                Status = @Status
+            WHERE RunId = @RunId
+              AND Status = @ExpectedStatus;
+            """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int rowsAffected = await connection.ExecuteAsync(new CommandDefinition(
+            sql,
+            new
+            {
+                RunId = runId,
+                ContextSnapshotId = contextSnapshotId,
+                GraphSnapshotId = graphSnapshotId,
+                ArtifactBundleId = artifactBundleId,
+                Status = ArchitectureRunStatus.TasksGenerated.ToString(),
+                ExpectedStatus = ArchitectureRunStatus.Created.ToString(),
+            },
+            cancellationToken: cancellationToken));
+
+        if (rowsAffected == 0)
+        {
+            throw new InvalidOperationException(
+                $"Run '{runId}' could not apply deferred authority snapshots: expected status '{ArchitectureRunStatus.Created}'.");
+        }
     }
 
     public async Task UpdateStatusAsync(

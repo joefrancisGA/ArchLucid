@@ -1,0 +1,33 @@
+---
+description: Where to start when extending ArchiForge (runs, agents, authority, connectors, alerts).
+alwaysApply: false
+---
+
+# ArchiForge navigation (quick map)
+
+## Read first
+
+- **System flows (Mermaid)**: `docs/SYSTEM_MAP.md`
+- **Component detail**: `docs/ARCHITECTURE_COMPONENTS.md`
+- **API contracts**: `docs/API_CONTRACTS.md`
+
+## Entry points
+
+| Task | Start here |
+|------|------------|
+| Add a **finding engine** | `ArchiForge.Decisioning/Interfaces/IFindingEngine.cs` → register in `ServiceCollectionExtensions.Decisioning.cs` → template `templates/archiforge-finding-engine/` |
+| Add a **context connector** | `ArchiForge.ContextIngestion/Interfaces/IContextConnector.cs` → `ContextConnectorPipeline.CreateOrderedContextConnectorPipeline` → `RegisterContextIngestionAndKnowledgeGraph` (Api startup) |
+| Add an **agent handler** | `ArchiForge.AgentRuntime/IAgentHandler.cs` → `RegisterAgentExecution` in `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` |
+| Add an **alert delivery channel** | `ArchiForge.Decisioning/Alerts/Delivery/IAlertDeliveryChannel.cs` → register with alert dispatcher |
+| Change **authority pipeline** | `ArchiForge.Persistence/Orchestration/AuthorityRunOrchestrator.cs` and `Orchestration/Pipeline/*` stages |
+| **SQL + RLS + replica** | `ArchiForge.Persistence/Connections/SqlServerOptions.cs` (section `SqlServer`) |
+| **Configuration validation** | `ArchiForge.Host.Core/Startup/Validation/ArchiForgeConfigurationRules.cs` |
+
+## Data vs persistence
+
+- **`ArchiForge.Data`**: Dapper repositories against SQL, connection factories, migrations scripts consumption.
+- **`ArchiForge.Persistence`**: Domain-oriented persistence ports (`IRunRepository`, UoW, orchestration, caching decorators, archival).
+
+## Host roles
+
+- **`Hosting:Role`**: `Combined` (default dev), `Api` (HTTP only), `Worker` (background services). See `ArchiForge.Host.Core/Hosting/ArchiForgeHostingRole.cs`.
