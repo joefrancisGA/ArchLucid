@@ -45,6 +45,9 @@ public static class ProblemTypes
     /// <summary>Azure OpenAI (or embedding) calls are blocked by the circuit breaker after repeated failures.</summary>
     public const string CircuitBreakerOpen = Base + "#circuit-breaker-open";
 
+    /// <summary>Tenant exceeded configured LLM token quota for the current sliding window.</summary>
+    public const string LlmTokenQuotaExceeded = Base + "#llm-token-quota-exceeded";
+
     /// <summary>Batch comparison replay had no successful replays for any requested record ID.</summary>
     public const string BatchReplayAllFailed = Base + "#batch-replay-all-failed";
 }

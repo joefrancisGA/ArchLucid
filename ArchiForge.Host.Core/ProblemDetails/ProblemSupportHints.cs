@@ -82,6 +82,11 @@ public static class ProblemSupportHints
             return "Downstream AI calls are paused after repeated failures. Retry later; check Azure OpenAI configuration and quotas if applicable.";
         
 
+        if (typeUri == ProblemTypes.LlmTokenQuotaExceeded)
+        
+            return "Raise LlmTokenQuota limits, wait for the sliding window to elapse, or reduce LLM usage. See docs/OPERATIONS_LLM_QUOTA.md.";
+        
+
         if (typeUri == ProblemTypes.ComparisonVerificationFailed)
         
             return "Review drift fields in the response. Regenerate or verify replay inputs against stored artifacts if you need a passing comparison.";

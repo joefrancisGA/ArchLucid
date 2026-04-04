@@ -1,6 +1,8 @@
+using ArchiForge.AgentRuntime;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
+using ArchiForge.Host.Core.ProblemDetails;
 
 using FluentAssertions;
 
@@ -56,6 +58,19 @@ public sealed class ApplicationProblemMapperTests
         result!.StatusCode.Should().Be(404);
         MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.RunNotFound);
+    }
+
+    [Fact]
+    public void TryMapUnhandledException_LlmTokenQuotaExceeded_Returns429()
+    {
+        LlmTokenQuotaExceededException ex = new("quota");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.LlmTokenQuotaExceeded);
     }
 
     [Fact]

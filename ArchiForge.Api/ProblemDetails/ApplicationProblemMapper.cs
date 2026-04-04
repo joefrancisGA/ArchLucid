@@ -1,5 +1,6 @@
 using System.Data.Common;
 
+using ArchiForge.AgentRuntime;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Core.Resilience;
@@ -81,6 +82,17 @@ public static class ApplicationProblemMapper
                 "Concurrency conflict",
                 rcc.Message,
                 ProblemTypes.Conflict,
+                instance);
+            return true;
+        }
+
+        if (ex is LlmTokenQuotaExceededException quotaEx)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status429TooManyRequests,
+                "LLM token quota exceeded",
+                quotaEx.Message,
+                ProblemTypes.LlmTokenQuotaExceeded,
                 instance);
             return true;
         }

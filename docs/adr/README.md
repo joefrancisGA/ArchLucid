@@ -1,11 +1,16 @@
-# Architecture Decision Records (ArchiForge)
+# Architecture Decision Records (ADR)
 
-Short, durable decisions for cross-cutting behavior. New ADRs use the next free `00xx` number.
+**Last reviewed:** 2026-04-04
 
-| ADR | Topic |
+Short, durable decisions for ArchiForge. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history.
+
+| ADR | Title |
 |-----|--------|
-| [0001-effective-governance-merge.md](0001-effective-governance-merge.md) | How effective governance content is merged and consumed |
-| [0002-alert-dedupe-scopes.md](0002-alert-dedupe-scopes.md) | Alert deduplication scope semantics |
-| [0003-digest-delivery-failure-semantics.md](0003-digest-delivery-failure-semantics.md) | Digest delivery attempts, audits, and metrics on failure |
-| [0004-dual-manifest-trace-repository-contracts.md](0004-dual-manifest-trace-repository-contracts.md) | Data vs Decisioning manifest/trace repository contracts |
-| [0005-inmemory-vs-sql-storage-provider.md](0005-inmemory-vs-sql-storage-provider.md) | `ArchiForge:StorageProvider` — InMemory vs Sql (incl. governance) |
+| [0001](0001-hosting-roles-api-worker-combined.md) | Hosting roles: Api, Worker, Combined |
+| [0002](0002-dual-persistence-architecture-runs-and-runs.md) | Dual persistence: ArchitectureRuns vs dbo.Runs |
+| [0003](0003-sql-rls-session-context.md) | SQL RLS and SESSION_CONTEXT |
+| [0004](0004-transactional-outbox-retrieval-indexing.md) | Transactional outbox for retrieval indexing |
+| [0005](0005-llm-completion-pipeline.md) | LLM completion pipeline, cache, quota, metrics |
+| [0006](0006-url-path-api-versioning.md) | URL-path API versioning (`/v1`) |
+
+**When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.

@@ -16,6 +16,8 @@ namespace ArchiForge.AgentRuntime;
 [ExcludeFromCodeCoverage(Justification = "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
 public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 {
+    private static readonly AsyncLocal<(int Prompt, int Completion)?> LastCompletionTokenUsage = new();
+
     /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
     public const int DefaultMaxCompletionTokens = 4096;
 
@@ -52,6 +54,26 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         _maxOutputTokens = maxCompletionTokens;
     }
 
+    /// <summary>Consumes token usage from the last successful <see cref="CompleteJsonAsync"/> on this async flow, if any.</summary>
+    public static bool TryConsumeLastCompletionTokenUsage(out int promptTokens, out int completionTokens)
+    {
+        (int Prompt, int Completion)? raw = LastCompletionTokenUsage.Value;
+        LastCompletionTokenUsage.Value = null;
+
+        if (raw is { } v)
+        {
+            promptTokens = v.Prompt;
+            completionTokens = v.Completion;
+
+            return true;
+        }
+
+        promptTokens = 0;
+        completionTokens = 0;
+
+        return false;
+    }
+
     /// <inheritdoc />
     /// <remarks>Uses <c>Temperature = 0.1</c>, <c>MaxOutputTokenCount</c>, and <c>ChatResponseFormat.CreateJsonObjectFormat()</c>.</remarks>
     public async Task<string> CompleteJsonAsync(
@@ -61,6 +83,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
         ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
+        LastCompletionTokenUsage.Value = null;
+
         List<ChatMessage> messages =
         [
             new SystemChatMessage(systemPrompt),
@@ -101,14 +125,12 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
         if (completion.Usage is { } usage)
         {
-            if (usage.InputTokenCount is { } inTok && inTok > 0)
-            {
-                ArchiForgeInstrumentation.LlmPromptTokensTotal.Add(inTok);
-            }
+            int inTok = usage.InputTokenCount is { } ip ? ip : 0;
+            int outTok = usage.OutputTokenCount is { } op ? op : 0;
 
-            if (usage.OutputTokenCount is { } outTok && outTok > 0)
+            if (inTok > 0 || outTok > 0)
             {
-                ArchiForgeInstrumentation.LlmCompletionTokensTotal.Add(outTok);
+                LastCompletionTokenUsage.Value = (inTok, outTok);
             }
 
             if (llmActivity is not null)

@@ -52,3 +52,7 @@ tags = {
   workload = "archiforge"
   tier     = "dev"
 }
+
+# Optional FinOps keys (merged with tags and Application = ArchiForge on resources).
+# finops_environment  = "dev"
+# finops_cost_center  = "engineering"

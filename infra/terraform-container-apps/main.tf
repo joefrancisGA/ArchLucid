@@ -1,6 +1,14 @@
 locals {
   enabled = var.enable_container_apps
 
+  # FinOps: merge application tag + caller tags + optional standard keys (see variables finops_*).
+  merged_tags = merge(
+    { Application = "ArchiForge" },
+    var.tags,
+    length(trimspace(var.finops_environment)) > 0 ? { Environment = trimspace(var.finops_environment) } : {},
+    length(trimspace(var.finops_cost_center)) > 0 ? { CostCenter = trimspace(var.finops_cost_center) } : {}
+  )
+
   subnet_integrated = local.enabled && length(trimspace(var.container_apps_subnet_id)) > 0
 
   # Single image: publish ArchiForge.Worker (includes Api.dll). Override worker_container_image to use a different tag if needed.
@@ -30,7 +38,7 @@ resource "azurerm_resource_group" "this" {
 
   name     = var.resource_group_name
   location = var.location
-  tags     = var.tags
+  tags     = local.merged_tags
 }
 
 locals {
@@ -61,7 +69,7 @@ resource "azurerm_container_app_environment" "main" {
   location                   = local.azure_location
   resource_group_name        = local.resource_group_name
   log_analytics_workspace_id = azurerm_log_analytics_workspace.container_apps[0].id
-  tags                       = var.tags
+  tags                       = local.merged_tags
 
   infrastructure_subnet_id = local.subnet_integrated ? var.container_apps_subnet_id : null
 
@@ -75,6 +83,7 @@ resource "azurerm_container_app" "api" {
   container_app_environment_id = azurerm_container_app_environment.main[0].id
   resource_group_name          = local.resource_group_name
   revision_mode                = "Single"
+  tags                         = local.merged_tags
 
   identity {
     type = "SystemAssigned"
@@ -201,6 +210,7 @@ resource "azurerm_container_app" "worker" {
   container_app_environment_id = azurerm_container_app_environment.main[0].id
   resource_group_name          = local.resource_group_name
   revision_mode                = "Single"
+  tags                         = local.merged_tags
 
   dynamic "secret" {
     for_each = local.worker_queue_scale_enabled ? [1] : []
@@ -329,6 +339,7 @@ resource "azurerm_container_app" "ui" {
   container_app_environment_id = azurerm_container_app_environment.main[0].id
   resource_group_name          = local.resource_group_name
   revision_mode                = "Single"
+  tags                         = local.merged_tags
 
   template {
     min_replicas = var.ui_min_replicas

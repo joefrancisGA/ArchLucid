@@ -1,0 +1,51 @@
+# Happy path — from request to answer
+
+**Last reviewed:** 2026-04-04
+
+One narrative for **new engineers and integrators**. Deep dives are linked; this page is the **spine**.
+
+## Flow (nodes and edges)
+
+```mermaid
+flowchart LR
+  Client[Client / Operator UI]
+  API[ArchiForge.Api /v1]
+  SQL[(Azure SQL)]
+  Agents[Agent execution]
+  AOAI[Azure OpenAI]
+  Idx[Retrieval indexer]
+
+  Client -->|HTTPS + scope + auth| API
+  API -->|persist run| SQL
+  API --> Agents
+  Agents -->|Real mode| AOAI
+  API -->|commit| SQL
+  SQL -.->|outbox| Idx
+```
+
+## Steps
+
+1. **Authenticate** — API key (`X-Api-Key`) or JWT (Entra), per environment. Scope: `x-tenant-id`, `x-workspace-id`, `x-project-id` (or claims).
+2. **Create run** — `POST /v1/architecture/run/request` with `ArchitectureRequest`. Optional `Idempotency-Key` (see `docs/API_CONTRACTS.md`).
+3. **Execute authority** — Pipeline stages ingest context, graph, findings, decisioning, artifacts (see traces: `ArchiForge.AuthorityRun`).
+4. **Agents** — `AgentExecution:Mode` `Simulator` (deterministic) or `Real` (Azure OpenAI). Token usage and optional per-tenant metrics: `docs/OPERATIONS_LLM_QUOTA.md`.
+5. **Commit** — `POST /v1/architecture/run/{runId}/commit` when the run is ready; handle `409` for invalid state.
+6. **Retrieval** — After commit, indexing work is processed asynchronously; query `GET /v1/retrieval/search` when enabled.
+7. **Ask (optional)** — Threaded Q&A uses the same scope and LLM stack; see Ask controller routes under `/v1/ask`.
+
+## Health and operations
+
+- **Liveness:** `GET /health/live`
+- **Readiness:** `GET /health/ready` (SQL, schema, packs)
+- **Admin (privileged):** `GET /v1/admin/diagnostics/outboxes`, `.../leases`, feature flags — see `docs/OPERATIONS_ADMIN.md`
+- **Runbooks:** `docs/TROUBLESHOOTING.md`, `docs/OPERATIONS_LLM_QUOTA.md`
+
+## Local development
+
+- **SQL + dependencies:** `docker compose up -d` (see `docker-compose.yml`).
+- **Full .NET regression with SQL:** `scripts/run-full-regression-docker-sql.ps1` or `.sh` (sets `ARCHIFORGE_SQL_TEST`).
+- **Test tiers:** `docs/TEST_EXECUTION_MODEL.md`
+
+## Architecture decisions
+
+See `docs/adr/README.md` for ADRs that explain non-obvious choices (hosting roles, RLS, LLM pipeline, etc.).

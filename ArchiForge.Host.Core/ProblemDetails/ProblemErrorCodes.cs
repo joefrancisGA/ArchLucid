@@ -45,6 +45,8 @@ public static class ProblemErrorCodes
 
     public const string CircuitBreakerOpen = "CIRCUIT_BREAKER_OPEN";
 
+    public const string LlmTokenQuotaExceeded = "LLM_TOKEN_QUOTA_EXCEEDED";
+
     public const string BatchReplayAllFailed = "BATCH_REPLAY_ALL_FAILED";
 
     /// <summary>Maps a <see cref="ProblemTypes"/> URI to <see cref="ProblemErrorCodes"/>; returns <see cref="Unspecified"/> when unknown.</summary>
@@ -110,7 +112,13 @@ public static class ProblemErrorCodes
         if (problemTypeUri == ProblemTypes.BatchReplayAllFailed)
             return BatchReplayAllFailed;
 
-        return problemTypeUri == ProblemTypes.CircuitBreakerOpen ? CircuitBreakerOpen : Unspecified;
+        if (problemTypeUri == ProblemTypes.CircuitBreakerOpen)
+            return CircuitBreakerOpen;
+
+        if (problemTypeUri == ProblemTypes.LlmTokenQuotaExceeded)
+            return LlmTokenQuotaExceeded;
+
+        return Unspecified;
     }
 
     /// <summary>Attaches <c>extensions.errorCode</c> derived from <paramref name="problemTypeUri"/>.</summary>

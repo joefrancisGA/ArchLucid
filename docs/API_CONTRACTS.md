@@ -22,6 +22,8 @@
 | AsyncAPI (webhooks) | **`docs/contracts/archiforge-asyncapi-2.6.yaml`** | Documents **outbound** alert/digest webhook JSON and optional HMAC header. |
 | Bruno collection | **`contracts/bruno/`** | Manual smoke requests (health, OpenAPI, admin diagnostics); set **`local`** environment `baseUrl` and **`apiKey`** (or switch auth to JWT in Bruno for Entra). |
 
+**Operator narrative:** `docs/ONBOARDING_HAPPY_PATH.md` (request → commit → retrieval). **Consistency guarantees:** `docs/DATA_CONSISTENCY_MATRIX.md`. **Admin / runbooks:** `docs/OPERATIONS_ADMIN.md`, `docs/OPERATIONS_LLM_QUOTA.md`. **ADRs:** `docs/adr/README.md`.
+
 ## Operator artifacts (`/v1/api/artifacts`)
 
 - **List** `GET …/manifests/{manifestId}`: **200** with a JSON **array** (possibly empty) when the manifest exists in scope. Items are ordered **by name (case-insensitive), then artifact id** (stable for UI tables and bundle ZIP entry order).

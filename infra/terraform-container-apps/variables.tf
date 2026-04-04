@@ -28,6 +28,18 @@ variable "tags" {
   description = "Tags applied to created resources."
 }
 
+variable "finops_environment" {
+  type        = string
+  default     = ""
+  description = "Optional Environment tag value for cost allocation (merged into resource tags when non-empty)."
+}
+
+variable "finops_cost_center" {
+  type        = string
+  default     = ""
+  description = "Optional CostCenter tag value for chargeback (merged into resource tags when non-empty)."
+}
+
 variable "log_analytics_workspace_name" {
   type        = string
   description = "Log Analytics workspace name (unique within the resource group)."

@@ -1,0 +1,43 @@
+# Data consistency matrix
+
+**Last reviewed:** 2026-04-04
+
+This document states **what consistency guarantees callers should assume** for major aggregates. It complements `docs/SQL_DDL_DISCIPLINE.md` and `docs/API_CONTRACTS.md`.
+
+## Objective
+
+Make explicit which paths are **strongly consistent** (read-your-writes within a transaction), **transactionally outboxed** (eventually processed), or **eventually aligned** (legacy dual-write).
+
+## Assumptions
+
+- Primary authority state lives in **`dbo.Runs`** and related authority tables scoped by tenant/workspace/project.
+- **`dbo.ArchitectureRuns`** (legacy string `RunId`) may still participate in some flows; operators should treat it as **compatibility**, not the sole source of truth for new integrations.
+
+## Matrix
+
+| Aggregate / flow | Consistency | Mechanism | Notes |
+|------------------|------------|-----------|--------|
+| Create run + authority pipeline | Per-connection transactional | SQL transactions in orchestrator | Committed rows visible after successful commit. |
+| Run optimistic concurrency | Row-level | `ROWVERSION` on `dbo.Runs` (and selected tables) | Conflicting updates → `409` with conflict problem type. |
+| Retrieval indexing after commit | Eventual | Transactional enqueue + worker processing | Enqueue is tied to commit transaction where configured; indexer may lag. |
+| Idempotency key on create run | Scoped replay-safe | Hash of body + scope keys | Documented caveat: extreme races may not span **both** legacy and authority stores atomically — treat as **best-effort** across dual persistence. |
+| Multi-tenant isolation (SQL) | Defense in depth | RLS policies + `SESSION_CONTEXT` when `SqlServer:RowLevelSecurity:ApplySessionContext=true` | Not every table carries scope columns; see `docs/security/MULTI_TENANT_RLS.md`. |
+| Policy pack assignments | Per-row transactional | SQL writes | `ROWVERSION` on assignments supports future optimistic flows. |
+| LLM completion cache | Best-effort | Distributed/memory cache | Cache hits do not consume Azure usage; stale entries TTL-bound. |
+
+## Deprecation: dual persistence (`ArchitectureRuns` vs `Runs`)
+
+**Status:** Converge new features on **`dbo.Runs`** and Dapper repositories. **`ArchitectureRuns`** exists for historical and CLI/adjacent flows.
+
+**Target:** Reduce new writes to **`ArchitectureRuns`** and document a **removal milestone** once downstream consumers migrate (suggested horizon: **after** two major releases with deprecation warnings in release notes — adjust per your org).
+
+**Actions for teams:**
+
+1. Prefer APIs and jobs that resolve runs by **GUID** from **`/v1/...`** responses.
+2. When adding persistence, avoid new **`ArchitectureRuns`** dependencies without an ADR (`docs/adr/`).
+3. Track remaining readers with a periodic codebase search for `ArchitectureRuns` / legacy `RunId` string keys.
+
+## Related
+
+- `docs/adr/0002-dual-persistence-architecture-runs.md`
+- `docs/ONBOARDING_HAPPY_PATH.md`

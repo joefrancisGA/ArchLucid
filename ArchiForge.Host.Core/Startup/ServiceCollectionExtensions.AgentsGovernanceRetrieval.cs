@@ -30,6 +30,8 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<AgentPromptCatalogOptions>(
             configuration.GetSection(AgentPromptCatalogOptions.SectionName));
+        services.Configure<LlmTokenQuotaOptions>(configuration.GetSection(LlmTokenQuotaOptions.SectionName));
+        services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
 
         string? agentMode = configuration["AgentExecution:Mode"];
 
@@ -61,7 +63,7 @@ public static partial class ServiceCollectionExtensions
                     OpenAiCircuitBreakerKeys.Completion,
                     (sp, _) => new CircuitBreakerGate(ResolveOpenAiCircuitBreakerOptions(sp.GetRequiredService<IConfiguration>())));
 
-                services.AddSingleton<IAgentCompletionClient>(sp =>
+                services.AddSingleton<AzureOpenAiCompletionClient>(sp =>
                 {
                     IConfiguration config = sp.GetRequiredService<IConfiguration>();
                     string endpoint = config["AzureOpenAI:Endpoint"]
@@ -77,25 +79,47 @@ public static partial class ServiceCollectionExtensions
                         maxTokens = AzureOpenAiCompletionClient.DefaultMaxCompletionTokens;
                     }
 
+                    return new AzureOpenAiCompletionClient(endpoint, apiKey, deploymentName, maxTokens);
+                });
+
+                services.AddSingleton<LlmTokenQuotaWindowTracker>();
+
+                services.AddScoped<IAgentCompletionClient>(sp =>
+                {
+                    AzureOpenAiCompletionClient azureInner = sp.GetRequiredService<AzureOpenAiCompletionClient>();
+                    LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
+                    IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
+                    IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
+                    IOptionsMonitor<LlmTelemetryOptions> telemetryOpts =
+                        sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+                    ILogger<LlmCompletionAccountingClient> accountingLogger =
+                        sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+
+                    IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
+                        azureInner,
+                        quotaTracker,
+                        scopeProvider,
+                        quotaOpts,
+                        telemetryOpts,
+                        accountingLogger);
+
+                    IConfiguration config = sp.GetRequiredService<IConfiguration>();
                     LlmCompletionResponseCacheOptions cacheOptions = config
                                                                        .GetSection(LlmCompletionResponseCacheOptions.SectionName)
                                                                        .Get<LlmCompletionResponseCacheOptions>()
                                                                    ?? new LlmCompletionResponseCacheOptions();
 
-                    AzureOpenAiCompletionClient azureInner = new(endpoint, apiKey, deploymentName, maxTokens);
-                    IAgentCompletionClient completionPipeline = azureInner;
-
                     if (cacheOptions.Enabled)
                     {
                         TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
                         ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
-                        IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
                         ILogger<CachingAgentCompletionClient> cacheLogger =
                             sp.GetRequiredService<ILogger<CachingAgentCompletionClient>>();
                         completionPipeline = new CachingAgentCompletionClient(
-                            azureInner,
+                            completionPipeline,
                             store,
-                            deploymentName,
+                            config["AzureOpenAI:DeploymentName"]
+                            ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing."),
                             enabled: true,
                             partitionByScope: cacheOptions.PartitionByScope,
                             absoluteExpiration: ttl,

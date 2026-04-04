@@ -44,8 +44,9 @@ The API registers meter **`ArchiForge`** (`ArchiForgeInstrumentation.MeterName`)
 | `alert_evaluation_duration_ms` | Tag **`rule_kind`**: `simple` \| `composite`. |
 | `governance_resolve_duration_ms` | End-to-end **`EffectiveGovernanceResolver.ResolveAsync`** latency. |
 | `governance_pack_content_deserialize_cache_hits` / `_misses` | In-resolve dedupe when the same pack **version** appears on multiple assignments (not HTTP-scope cache — see **`NEXT_REFACTORINGS.md`** §230). |
+| `archiforge_llm_prompt_tokens_total` / `archiforge_llm_completion_tokens_total` | Aggregate by default; with **`LlmTelemetry:RecordPerTenantTokens=true`**, also emitted **with** `tenant_id` label (cardinality). |
 
-Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping.
+Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping. SLO-oriented Grafana: **`infra/grafana/dashboard-archiforge-slo.json`**.
 
 ## SQL Server for integration tests (Dapper + API)
 
@@ -65,6 +66,8 @@ Shared resolution lives in **`ArchiForge.TestSupport`** (`SqlServerIntegrationTe
 - **`Suite=Core`** / **`Category=Unit`**: hashing/idempotency helpers and **`ArchitectureRunService`** idempotency paths (replay vs **`ConflictException`**) using mocked coordinators and repositories—no SQL required.
 
 ### API integration tests (`ArchiForge.Api.Tests`)
+
+**One-command local SQL regression (Docker):** from repo root run **`scripts/run-full-regression-docker-sql.ps1`** (Windows) or **`scripts/run-full-regression-docker-sql.sh`** (Linux/macOS). These start **`docker compose`** `sqlserver`, set **`ARCHIFORGE_SQL_TEST`** to match **`docker-compose.yml`** credentials, then run **`dotnet test ArchiForge.sln`**.
 
 **`ArchiForgeApiFactory`** creates an ephemeral database per factory (`ArchiForgeTest_*` or `ArchiForgeAlertTest_*`) on the **same SQL Server instance** you configure:
 

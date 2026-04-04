@@ -64,6 +64,7 @@ flowchart LR
 
 ## Operational considerations
 
+- **FinOps tags:** In `infra/terraform-container-apps`, set optional **`finops_environment`** and **`finops_cost_center`**; they merge with **`tags`** and a fixed **`Application = ArchiForge`** label on created resources for Azure Cost Management filters.
 - **Plan/apply:** Run `terraform init` / `plan` / `apply` per root; compose order is usually **network → data → compute → edge → monitoring**.
 - **Drift:** Reconcile manual portal changes back into Terraform or expect the next apply to revert them.
 - **Contracts:** HTTP surface is versioned under `/v1/...`; OpenAPI snapshot tests live in `ArchiForge.Api.Tests`; optional AsyncAPI for outbound webhooks is under `docs/contracts/`.

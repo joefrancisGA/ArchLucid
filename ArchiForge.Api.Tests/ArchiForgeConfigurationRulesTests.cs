@@ -1069,4 +1069,69 @@ public sealed class ArchiForgeConfigurationRulesTests
 
         errors.Should().Contain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void CollectErrors_WhenLlmTokenQuotaEnabledWithoutPositiveMax_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["LlmTokenQuota:Enabled"] = "true",
+            ["LlmTokenQuota:MaxPromptTokensPerTenantPerWindow"] = "0",
+            ["LlmTokenQuota:MaxCompletionTokensPerTenantPerWindow"] = "0",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("LlmTokenQuota:MaxPromptTokensPerTenantPerWindow", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenLlmTokenQuotaEnabledWithInvalidWindow_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["LlmTokenQuota:Enabled"] = "true",
+            ["LlmTokenQuota:WindowMinutes"] = "0",
+            ["LlmTokenQuota:MaxPromptTokensPerTenantPerWindow"] = "100",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("LlmTokenQuota:WindowMinutes", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenLlmTokenQuotaDisabled_skips_quota_validation()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["LlmTokenQuota:Enabled"] = "false",
+            ["LlmTokenQuota:WindowMinutes"] = "0",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("LlmTokenQuota", StringComparison.OrdinalIgnoreCase));
+    }
 }

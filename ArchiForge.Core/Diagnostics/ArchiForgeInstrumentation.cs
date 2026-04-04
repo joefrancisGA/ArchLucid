@@ -91,4 +91,37 @@ public static class ArchiForgeInstrumentation
         AppMeter.CreateCounter<long>(
             "archiforge_llm_completion_tokens_total",
             description: "Cumulative completion tokens reported by Azure OpenAI completions.");
+
+    /// <summary>
+    /// Records LLM token counters. When <paramref name="recordPerTenant"/> is true, also emits tagged series with
+    /// <c>tenant_id</c> (increases Prometheus cardinality — use only for bounded tenant counts).
+    /// </summary>
+    public static void RecordLlmTokenUsage(long promptTokens, long completionTokens, bool recordPerTenant, string? tenantIdNormalized)
+    {
+        if (promptTokens > 0)
+        {
+            if (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
+            {
+                TagList tenantTags = new TagList { { "tenant_id", tenantIdNormalized } };
+                LlmPromptTokensTotal.Add(promptTokens, tenantTags);
+            }
+            else
+            {
+                LlmPromptTokensTotal.Add(promptTokens);
+            }
+        }
+
+        if (completionTokens > 0)
+        {
+            if (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
+            {
+                TagList tenantTags = new TagList { { "tenant_id", tenantIdNormalized } };
+                LlmCompletionTokensTotal.Add(completionTokens, tenantTags);
+            }
+            else
+            {
+                LlmCompletionTokensTotal.Add(completionTokens);
+            }
+        }
+    }
 }

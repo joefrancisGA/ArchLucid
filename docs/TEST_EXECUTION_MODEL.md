@@ -124,6 +124,8 @@ dotnet test ArchiForge.sln
 
 **CI:** GitHub Actions runs this (Release configuration, with `ARCHIFORGE_SQL_TEST` for Persistence tests). This is the **.NET release gate** alongside **Vitest** and **Playwright** UI jobs.
 
+**Local parity:** `scripts/run-full-regression-docker-sql.ps1` / `.sh` starts Compose SQL and sets `ARCHIFORGE_SQL_TEST` to the dev password from `docker-compose.yml` (see [BUILD.md](BUILD.md)).
+
 ---
 
 ### 6. Operator shell unit (Next.js + Vitest)
