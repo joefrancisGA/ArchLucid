@@ -17,7 +17,14 @@ public sealed class LlmCompletionResponseCacheOptions
     /// <summary>When false, completions always call the inner client.</summary>
     public bool Enabled { get; set; } = true;
 
-    /// <summary>Maximum cached responses (memory cache entry count with uniform entry size).</summary>
+    /// <summary><c>Memory</c> (default) or <c>Distributed</c> (uses distributed cache / Redis).</summary>
+    public string Provider { get; set; } = "Memory";
+
+    /// <summary>Optional Redis connection when <see cref="Provider"/> is <c>Distributed</c> and no shared <c>IDistributedCache</c> is registered yet.</summary>
+    /// <remarks>Falls back to <c>HotPathCache:RedisConnectionString</c> when unset.</remarks>
+    public string? RedisConnectionString { get; set; }
+
+    /// <summary>Maximum cached responses for <c>Memory</c> provider (entry count with uniform entry size).</summary>
     public int MaxEntries { get; set; } = 256;
 
     /// <summary>Time-to-live for a cached assistant message body.</summary>

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 
 using ArchiForge.Host.Core.DataAccess;
@@ -43,11 +44,14 @@ using ArchiForge.Persistence.Retrieval;
 using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
+using ArchiForge.AgentRuntime;
 
 using Azure.Core;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -122,6 +126,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             RegisterHostLeaderLeaseInfrastructure(services);
             services.AddSingleton<ArchiForge.Data.Repositories.IHostLeaderLeaseRepository, ArchiForge.Data.Repositories.NoOpHostLeaderLeaseRepository>();
 
+            RegisterDistributedCacheForLlmCompletionIfNeeded(services, configuration);
+            RegisterLlmCompletionResponseStore(services, configuration);
+
             return services;
         }
 
@@ -140,6 +147,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         RegisterArtifactLargePayloadBlobStore(services, configuration);
 
         RegisterHotPathReadCaching(services, configuration);
+        RegisterDistributedCacheForLlmCompletionIfNeeded(services, configuration);
+        RegisterLlmCompletionResponseStore(services, configuration);
 
         services.AddSingleton<SqlConnectionFactory>(
             _ => new SqlConnectionFactory(connectionString));
@@ -239,6 +248,58 @@ public static class ArchiForgeStorageServiceCollectionExtensions
     {
         services.AddSingleton<HostInstanceIdentifier>();
         services.AddSingleton<HostLeaderElectionCoordinator>();
+    }
+
+    private static void RegisterDistributedCacheForLlmCompletionIfNeeded(
+        IServiceCollection services,
+        IConfiguration configuration)
+    {
+        LlmCompletionResponseCacheOptions llm =
+            configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName).Get<LlmCompletionResponseCacheOptions>()
+            ?? new LlmCompletionResponseCacheOptions();
+
+        if (!llm.Enabled || !string.Equals(llm.Provider, "Distributed", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        if (services.Any(static d => d.ServiceType == typeof(IDistributedCache)))
+            return;
+
+        HotPathCacheOptions hotPath =
+            configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
+            new HotPathCacheOptions();
+
+        string? redis = string.IsNullOrWhiteSpace(llm.RedisConnectionString)
+            ? hotPath.RedisConnectionString?.Trim()
+            : llm.RedisConnectionString.Trim();
+
+        if (string.IsNullOrEmpty(redis))
+        {
+            throw new InvalidOperationException(
+                "LlmCompletionCache:Provider is Distributed but no IDistributedCache is registered and neither LlmCompletionCache:RedisConnectionString nor HotPathCache:RedisConnectionString is set.");
+        }
+
+        services.AddStackExchangeRedisCache(o => o.Configuration = redis);
+    }
+
+    private static void RegisterLlmCompletionResponseStore(IServiceCollection services, IConfiguration configuration)
+    {
+        LlmCompletionResponseCacheOptions llm =
+            configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName).Get<LlmCompletionResponseCacheOptions>()
+            ?? new LlmCompletionResponseCacheOptions();
+
+        if (!llm.Enabled)
+            return;
+
+        if (string.Equals(llm.Provider, "Distributed", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddSingleton<ILlmCompletionResponseStore>(sp =>
+                new DistributedLlmCompletionResponseStore(sp.GetRequiredService<IDistributedCache>()));
+
+            return;
+        }
+
+        int maxEntries = Math.Max(1, llm.MaxEntries);
+        services.AddSingleton<ILlmCompletionResponseStore>(_ => new MemoryLlmCompletionResponseStore(maxEntries));
     }
 
     private static void RegisterHotPathReadCaching(IServiceCollection services, IConfiguration configuration)

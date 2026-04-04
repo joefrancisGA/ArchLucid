@@ -21,13 +21,14 @@ public sealed class CachingAgentCompletionClientTests
                 ProjectId = Guid.NewGuid()
             });
 
-        using CachingAgentCompletionClient sut = new(
+        using MemoryLlmCompletionResponseStore store = new(8);
+        CachingAgentCompletionClient sut = new(
             inner,
+            store,
             "dep",
             enabled: false,
             partitionByScope: true,
             absoluteExpiration: TimeSpan.FromMinutes(5),
-            maxEntries: 8,
             scopeProvider: scope,
             NullLogger<CachingAgentCompletionClient>.Instance);
 
@@ -49,13 +50,14 @@ public sealed class CachingAgentCompletionClientTests
                 ProjectId = Guid.NewGuid()
             });
 
-        using CachingAgentCompletionClient sut = new(
+        using MemoryLlmCompletionResponseStore store = new(8);
+        CachingAgentCompletionClient sut = new(
             inner,
+            store,
             "dep",
             enabled: true,
             partitionByScope: true,
             absoluteExpiration: TimeSpan.FromMinutes(5),
-            maxEntries: 8,
             scopeProvider: scope,
             NullLogger<CachingAgentCompletionClient>.Instance);
 
@@ -78,13 +80,14 @@ public sealed class CachingAgentCompletionClientTests
                 ProjectId = Guid.NewGuid()
             });
 
-        using CachingAgentCompletionClient sut = new(
+        using MemoryLlmCompletionResponseStore store = new(8);
+        CachingAgentCompletionClient sut = new(
             inner,
+            store,
             "dep",
             enabled: true,
             partitionByScope: true,
             absoluteExpiration: TimeSpan.FromMinutes(5),
-            maxEntries: 8,
             scopeProvider: scope,
             NullLogger<CachingAgentCompletionClient>.Instance);
 

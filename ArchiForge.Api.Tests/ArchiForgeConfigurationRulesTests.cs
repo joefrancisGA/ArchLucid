@@ -235,6 +235,62 @@ public sealed class ArchiForgeConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenLlmCompletionCacheDistributedWithoutRedis_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["LlmCompletionCache:Enabled"] = "true",
+            ["LlmCompletionCache:Provider"] = "Distributed",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .Contain(
+                e => e.Contains(
+                    "LlmCompletionCache:Provider Distributed requires",
+                    StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenLlmCompletionCacheDistributedAndHotPathRedisConfigured_has_no_distributed_redis_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "Sql",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["LlmCompletionCache:Enabled"] = "true",
+            ["LlmCompletionCache:Provider"] = "Distributed",
+            ["HotPathCache:Enabled"] = "true",
+            ["HotPathCache:Provider"] = "Redis",
+            ["HotPathCache:RedisConnectionString"] = "localhost:6379",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .NotContain(
+                e => e.Contains(
+                    "LlmCompletionCache:Provider Distributed requires",
+                    StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CollectErrors_WhenDurableJobsAndProcessorReceiveBatchSizeInvalid_contains_error()
     {
         Dictionary<string, string?> data = new()

@@ -84,17 +84,17 @@ public static partial class ServiceCollectionExtensions
                     if (cacheOptions.Enabled)
                     {
                         TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
-                        int maxEntries = Math.Max(1, cacheOptions.MaxEntries);
+                        ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
                         IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
                         ILogger<CachingAgentCompletionClient> cacheLogger =
                             sp.GetRequiredService<ILogger<CachingAgentCompletionClient>>();
                         completionPipeline = new CachingAgentCompletionClient(
                             azureInner,
+                            store,
                             deploymentName,
                             enabled: true,
                             partitionByScope: cacheOptions.PartitionByScope,
                             absoluteExpiration: ttl,
-                            maxEntries: maxEntries,
                             scopeProvider: scopeProvider,
                             logger: cacheLogger);
                     }
