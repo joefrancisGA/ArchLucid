@@ -2072,6 +2072,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 337. **`docs/runbooks/DATABASE_FAILOVER.md`** — Azure SQL HA/geo-failover, listeners, RPO/RTO framing.
 - [x] 338. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §329–338 recorded; governance InMemory registration note.
 
+### Data vs Persistence consolidation (339–341) — future
+
+- [ ] 339. **Consolidate coordinator / legacy SQL repositories** — Move Dapper implementations and types that logically belong with **`ArchiForge.Persistence`** (authority-adjacent and run workflow storage) out of **`ArchiForge.Data`**, keeping **`ArchiForge.Data`** as a thin compatibility layer or deleting it once call sites are migrated. **Goal:** one obvious home for SQL + UoW-aligned access; reduce duplicate interface names and mental overhead (see ADR 0004 and [DI_REGISTRATION_MAP.md](DI_REGISTRATION_MAP.md)).
+- [ ] 340. **Optional compatibility shim in `ArchiForge.Data`** — If external or test code still references `ArchiForge.Data.Repositories`, provide forwarding types or adapter registrations that delegate to Persistence implementations until consumers are updated. **Trade-off:** temporary duplication vs break-the-world rename.
+- [ ] 341. **Connection factory alignment** — Prefer **`ISqlConnectionFactory`** / `CreateOpenConnectionAsync` for new and migrated code; phase out or wrap sync **`IDbConnectionFactory`** / `CreateConnection` where it forces blocking or diverges from RLS/resilience paths. **Risks:** mixed async/sync call chains, scoped resolution (`SqlScopedResolutionDbConnectionFactory`) assumptions, and test doubles that only implement one factory abstraction.
+
 ---
 
 ## Checklist (items 155–256 progress)
