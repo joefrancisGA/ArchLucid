@@ -2,6 +2,8 @@
 
 This document ties together how ArchiForge is released, how database changes roll forward, and where to find deeper procedures. It is aimed at operators and release managers, not at local `docker compose`-only workflows (see **`docs/BUILD.md`** and **`docs/CONTAINERIZATION.md`**).
 
+**New to the repo?** Phased checklist from laptop to Azure: **`docs/GOLDEN_PATH.md`**.
+
 ## Objectives
 
 - Apply application + infrastructure changes in a **predictable order** (schema before behavior that depends on new columns, or feature flags when order cannot be guaranteed).

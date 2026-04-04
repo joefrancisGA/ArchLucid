@@ -1,5 +1,7 @@
 # Contributor onboarding
 
+**Where does this fit?** For the full **clone → Azure** narrative (not just build/tests), see **[GOLDEN_PATH.md](GOLDEN_PATH.md)**.
+
 ## Build
 
 ```bash

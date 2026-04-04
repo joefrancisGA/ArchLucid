@@ -2,6 +2,8 @@
 
 ArchiForge splits Azure infrastructure into **optional Terraform roots** so local and laptop workflows stay default-off. Each root has its own `README.md`, `terraform.tfvars.example`, and `.terraform.lock.hcl`.
 
+**First-time path:** **`docs/GOLDEN_PATH.md`** (Phase 3 Azure + **advanced appendix** for optional roots like edge, failover group, APIM).
+
 | Root | Purpose | Default |
 |------|---------|---------|
 | [`terraform/`](terraform/) | Core Azure resources (optional **API Management Consumption**, managed identity, outputs for API URL). | Feature flags **`false`** |

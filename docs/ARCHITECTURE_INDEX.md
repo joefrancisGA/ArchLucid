@@ -2,6 +2,10 @@
 
 ### Orientation
 
+- **Golden path (environments: zero → local → prod-like → Azure)** — role lanes, one diagram, phased checklists, advanced appendix  
+  - `docs/GOLDEN_PATH.md`
+- **Request happy path (client → API → SQL → agents)**  
+  - `docs/ONBOARDING_HAPPY_PATH.md`
 - **System map (Mermaid flows + entry points)**  
   - `docs/SYSTEM_MAP.md`
 - **Context** – high-level purpose and boundary  

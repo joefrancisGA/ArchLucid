@@ -4,6 +4,8 @@
 
 One narrative for **new engineers and integrators**. Deep dives are linked; this page is the **spine**.
 
+> **Environments and delivery (clone → local → Azure)?** Use **[GOLDEN_PATH.md](GOLDEN_PATH.md)** — role-based entry (developer / SRE / security), one maturity diagram, ordered phases, and an **advanced appendix** for rarely used paths. *This* page focuses on **one HTTP request’s journey** through the API and data plane.
+
 ## Flow (nodes and edges)
 
 ```mermaid
