@@ -82,8 +82,10 @@ internal static class PipelineExtensions
 
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
         if (prometheusEnabled)
-        
+        {
+            app.UseMiddleware<PrometheusScrapeAuthMiddleware>();
             app.UseOpenTelemetryPrometheusScrapingEndpoint();
+        }
         
         app.MapControllers();
         return app;

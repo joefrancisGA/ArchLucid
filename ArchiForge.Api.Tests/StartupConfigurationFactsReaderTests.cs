@@ -29,6 +29,7 @@ public sealed class StartupConfigurationFactsReaderTests
             ["Authentication:ApiKey:AdminKey"] = "secret",
             ["RateLimiting:FixedWindow:PermitLimit"] = "50",
             ["Observability:Prometheus:Enabled"] = "true",
+            ["Observability:Prometheus:RequireScrapeAuthentication"] = "false",
             ["Demo:Enabled"] = "true",
             ["Demo:SeedOnStartup"] = "false",
             ["SchemaValidation:EnableDetailedErrors"] = "true",

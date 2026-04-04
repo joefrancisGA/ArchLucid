@@ -1,5 +1,8 @@
 using System.ClientModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+
+using ArchiForge.Core.Diagnostics;
 
 using Azure.AI.OpenAI;
 
@@ -71,12 +74,38 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
         };
 
-        ClientResult<ChatCompletion> response = await _chatClient.CompleteChatAsync(
-            messages,
-            options,
-            cancellationToken);
+        using Activity? llmActivity = ArchiForgeInstrumentation.AgentLlmCompletion.StartActivity(
+            "gen_ai.chat.completion",
+            ActivityKind.Client);
+
+        llmActivity?.SetTag("gen_ai.system", "azure_openai");
+
+        ClientResult<ChatCompletion> response;
+
+        try
+        {
+            response = await _chatClient.CompleteChatAsync(
+                messages,
+                options,
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            llmActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            llmActivity?.AddException(ex);
+
+            throw;
+        }
 
         ChatCompletion completion = response.Value;
+
+        if (llmActivity is not null && completion.Usage is { } usage)
+        {
+            llmActivity.SetTag("gen_ai.usage.input_tokens", usage.InputTokenCount);
+            llmActivity.SetTag("gen_ai.usage.output_tokens", usage.OutputTokenCount);
+            llmActivity.SetTag("gen_ai.usage.total_tokens", usage.TotalTokenCount);
+        }
+
         IReadOnlyList<ChatMessageContentPart> parts = completion.Content;
 
         if (parts == null || parts.Count < 1)

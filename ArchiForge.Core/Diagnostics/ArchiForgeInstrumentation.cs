@@ -22,6 +22,12 @@ public static class ArchiForgeInstrumentation
     /// <summary>Post-commit retrieval indexing of committed runs.</summary>
     public static readonly ActivitySource RetrievalIndex = new("ArchiForge.Retrieval.Index", "1.0.0");
 
+    /// <summary>One span per production agent handler invocation (<c>RealAgentExecutor</c>).</summary>
+    public static readonly ActivitySource AgentHandler = new("ArchiForge.Agent.Handler", "1.0.0");
+
+    /// <summary>Azure OpenAI chat completion calls (nested under agent handler when a trace is active).</summary>
+    public static readonly ActivitySource AgentLlmCompletion = new("ArchiForge.Agent.LlmCompletion", "1.0.0");
+
     /// <summary>Digest channel send succeeded (labels: <c>channel</c>).</summary>
     public static readonly Counter<long> DigestDeliverySucceeded = AppMeter.CreateCounter<long>("digest_delivery_succeeded");
 

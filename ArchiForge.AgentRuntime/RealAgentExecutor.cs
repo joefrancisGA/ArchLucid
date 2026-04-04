@@ -1,9 +1,10 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 
@@ -62,12 +63,37 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
             Stopwatch sw = Stopwatch.StartNew();
 
-            AgentResult result = await handler.ExecuteAsync(
-                runId,
-                request,
-                evidence,
-                task,
-                cancellationToken);
+            AgentResult result;
+
+            using (Activity? activity = ArchiForgeInstrumentation.AgentHandler.StartActivity(
+                       "archiforge.agent.handle",
+                       ActivityKind.Internal))
+            {
+                activity?.SetTag("archiforge.run_id", runId);
+                activity?.SetTag("archiforge.task_id", task.TaskId);
+                activity?.SetTag("archiforge.agent.type", task.AgentType.ToString());
+
+                try
+                {
+                    result = await handler.ExecuteAsync(
+                        runId,
+                        request,
+                        evidence,
+                        task,
+                        cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    activity?.AddException(ex);
+
+                    throw;
+                }
+
+                activity?.SetTag("archiforge.agent.confidence", result.Confidence);
+                activity?.SetTag("archiforge.agent.findings_count", result.Findings.Count);
+                activity?.SetTag("archiforge.agent.claims_count", result.Claims.Count);
+            }
 
             sw.Stop();
 

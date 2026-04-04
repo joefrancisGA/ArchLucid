@@ -56,8 +56,10 @@ public static class WorkerHostPipelineExtensions
 
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
         if (prometheusEnabled)
-
+        {
+            app.UseMiddleware<PrometheusScrapeAuthMiddleware>();
             app.UseOpenTelemetryPrometheusScrapingEndpoint();
+        }
 
 
         app.MapHealthChecks("/health/live", new HealthCheckOptions

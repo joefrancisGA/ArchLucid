@@ -1,6 +1,9 @@
+using System.Diagnostics;
+
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.Core.Diagnostics;
 
 using FluentAssertions;
 
@@ -88,6 +91,60 @@ public sealed class RealAgentExecutorTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*Cost*");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_records_one_activity_per_task_with_agent_tags()
+    {
+        List<Activity> completed = [];
+
+        using ActivityListener listener = new()
+        {
+            ShouldListenTo = s => s.Name == ArchiForgeInstrumentation.AgentHandler.Name,
+            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+            ActivityStopped = completed.Add,
+        };
+
+        ActivitySource.AddActivityListener(listener);
+
+        try
+        {
+            IAgentHandler topology = new StubAgentHandler(AgentType.Topology);
+            IAgentHandler compliance = new StubAgentHandler(AgentType.Compliance);
+            RealAgentExecutor sut = new([topology, compliance], NullLogger<RealAgentExecutor>.Instance);
+            ArchitectureRequest request = new()
+            {
+                RequestId = "r1",
+                Description = "1234567890ab",
+                SystemName = "S",
+                Environment = "prod",
+            };
+            AgentEvidencePackage evidence = new();
+            string runId = Guid.NewGuid().ToString("N");
+            AgentTask taskZ = new()
+            {
+                TaskId = "tz",
+                RunId = runId,
+                AgentType = AgentType.Topology,
+            };
+            AgentTask taskC = new()
+            {
+                TaskId = "tc",
+                RunId = runId,
+                AgentType = AgentType.Compliance,
+            };
+
+            await sut.ExecuteAsync(runId, request, evidence, [taskZ, taskC], CancellationToken.None);
+        }
+        finally
+        {
+            listener.Dispose();
+        }
+
+        completed.Should().HaveCount(2);
+        completed.Should().OnlyContain(a => a.OperationName == "archiforge.agent.handle");
+        completed[0].GetTagItem("archiforge.agent.type").Should().Be(AgentType.Topology.ToString());
+        completed[1].GetTagItem("archiforge.agent.type").Should().Be(AgentType.Compliance.ToString());
     }
 
     private sealed class StubAgentHandler(AgentType agentType) : IAgentHandler
