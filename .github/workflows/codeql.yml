@@ -33,8 +33,9 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: csharp
-          # Required for advanced setup: explicit mode avoids "build-mode is undefined" / overlay-base fallback warnings.
-          build-mode: manual
+          # `none` is required for PR overlay-base incremental DBs; `manual` forces a full DB and logs a warning.
+          # Trade-off: analysis is "good" vs "best" per GitHub docs; we restore packages to help resolution without a traced build.
+          build-mode: none
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -46,11 +47,9 @@ jobs:
             global.json
             **/*.csproj
 
-      # Autobuild cannot detect this repo layout (central package management, SDK from global.json).
-      - name: Restore and build
-        run: |
-          dotnet restore ArchiForge.sln
-          dotnet build ArchiForge.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+      # No traced build: standalone C# extraction. Restore keeps central package management + SDK (global.json) resolvable.
+      - name: Restore .NET dependencies
+        run: dotnet restore ArchiForge.sln
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
