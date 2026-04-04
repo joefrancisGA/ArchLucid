@@ -36,10 +36,10 @@
   </ItemGroup>
 
   <Target Name="GenerateArchiForgeOpenApiClient" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild">
-    <MakeDir Directories="$(MSBuildProjectDirectory)\Generated" />
-    <Exec Command="$(NSwagExe_Net90) run &quot;$(MSBuildProjectDirectory)\nswag.json&quot;" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <MakeDir Directories="$(MSBuildProjectDirectory)/Generated" />
+    <Exec Command="$(NSwagExe_Net90) run &quot;$(MSBuildProjectDirectory)/nswag.json&quot;" WorkingDirectory="$(MSBuildProjectDirectory)" />
     <ItemGroup>
-      <Compile Include="$(MSBuildProjectDirectory)\Generated\ArchiForgeApiClient.g.cs" />
+      <Compile Include="$(MSBuildProjectDirectory)/Generated/ArchiForgeApiClient.g.cs" />
     </ItemGroup>
   </Target>
 
