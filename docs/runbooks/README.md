@@ -2,6 +2,8 @@
 
 Operational guides for ArchiForge operators. Each runbook is self-contained; cross-links point to deeper design docs where useful.
 
+**Availability policy:** [RTO / RPO targets by tier](../RTO_RPO_TARGETS.md) — development vs staging vs production (SQL geo-replication, RPO/RTO examples).
+
 | Runbook | When to use |
 |--------|----------------|
 | [AGENT_EXECUTION_FAILURES.md](./AGENT_EXECUTION_FAILURES.md) | Architecture run execute fails (simulator vs real agents, traces, schema). |

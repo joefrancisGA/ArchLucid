@@ -39,6 +39,7 @@ flowchart LR
 - **Readiness:** `GET /health/ready` (SQL, schema, packs)
 - **Admin (privileged):** `GET /v1/admin/diagnostics/outboxes`, `.../leases`, feature flags — see `docs/OPERATIONS_ADMIN.md`
 - **Runbooks:** `docs/TROUBLESHOOTING.md`, `docs/OPERATIONS_LLM_QUOTA.md`
+- **RTO / RPO (tier defaults):** `docs/RTO_RPO_TARGETS.md` — production targets include relational RPO under five minutes via SQL geo-replication; `docs/runbooks/DATABASE_FAILOVER.md` for failover steps.
 
 ## Local development
 

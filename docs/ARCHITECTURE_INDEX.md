@@ -58,6 +58,8 @@
 
 ### Build, CLI, and operations
 
+- **RTO / RPO targets by environment tier** – SQL HA, geo-replication, production vs dev  
+  - `docs/RTO_RPO_TARGETS.md`
 - **Build and run** – configuration, ports, local setup  
   - `docs/BUILD.md`
 - **CLI usage** – commands and flags  

@@ -31,6 +31,7 @@ This document ties together how ArchiForge is released, how database changes rol
 | Topic | Document |
 |--------|-----------|
 | Migrations, DbUp, rollback posture | [runbooks/MIGRATION_ROLLBACK.md](runbooks/MIGRATION_ROLLBACK.md) |
+| RTO/RPO targets by tier (dev / staging / production) | [RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md) |
 | Azure SQL HA, failover, RPO/RTO | [runbooks/DATABASE_FAILOVER.md](runbooks/DATABASE_FAILOVER.md) |
 | Terraform roots and environments | [infra/README.md](../infra/README.md) |
 | Containers and compose profiles | [CONTAINERIZATION.md](CONTAINERIZATION.md) |

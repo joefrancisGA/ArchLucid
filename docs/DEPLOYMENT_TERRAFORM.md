@@ -64,6 +64,7 @@ flowchart LR
 
 ## Operational considerations
 
+- **RTO / RPO by tier:** Default recovery targets (development best-effort; production e.g. relational RPO under five minutes via SQL geo-replication) are documented in **`docs/RTO_RPO_TARGETS.md`**. Implement with auto-failover groups, listeners, and drills per **`docs/runbooks/DATABASE_FAILOVER.md`**.
 - **FinOps tags:** In `infra/terraform-container-apps`, set optional **`finops_environment`** and **`finops_cost_center`**; they merge with **`tags`** and a fixed **`Application = ArchiForge`** label on created resources for Azure Cost Management filters.
 - **Plan/apply:** Run `terraform init` / `plan` / `apply` per root; compose order is usually **network → data → compute → edge → monitoring**.
 - **Drift:** Reconcile manual portal changes back into Terraform or expect the next apply to revert them.
@@ -72,6 +73,7 @@ flowchart LR
 
 ## Related docs
 
+- `docs/RTO_RPO_TARGETS.md` — RTO/RPO targets by environment tier (SQL HA, drills).
 - `docs/CONTAINERIZATION.md` — Docker images and local compose.
 - `infra/terraform/README.md` — APIM-specific variables and OpenAPI import.
 - `docs/API_CONTRACTS.md` — versioning, deprecation, and contract artifacts.
