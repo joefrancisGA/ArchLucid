@@ -28,8 +28,7 @@ public static class ArchiForgeConfigurationRules
     {
         List<string> errors = [];
 
-        ArchiForgeOptions archiForge =
-            configuration.GetSection(ArchiForgeOptions.SectionName).Get<ArchiForgeOptions>() ?? new ArchiForgeOptions();
+        ArchiForgeOptions archiForge = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
 
         bool storageIsSql = string.Equals(archiForge.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase);
 
@@ -148,18 +147,18 @@ public static class ArchiForgeConfigurationRules
         CollectProductionWebhookSecretErrors(configuration, errors);
         CollectProductionSqlRowLevelSecurityErrors(configuration, archiForge, errors);
 
-        string? authMode = configuration["ArchiForgeAuth:Mode"];
+        string? authMode = ArchiForgeConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
         if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
 
-            errors.Add("ArchiForgeAuth:Mode cannot be DevelopmentBypass when the host environment is Production.");
+            errors.Add("ArchiForgeAuth:Mode (or ArchLucidAuth:Mode) cannot be DevelopmentBypass when the host environment is Production.");
 
 
         if (string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
 
-            if (string.IsNullOrWhiteSpace(configuration["ArchiForgeAuth:Authority"]))
+            if (string.IsNullOrWhiteSpace(ArchiForgeConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Authority")))
 
                 errors.Add(
-                    "ArchiForgeAuth:Authority is required when ArchiForgeAuth:Mode is JwtBearer in Production.");
+                    "ArchiForgeAuth:Authority (or ArchLucidAuth:Authority) is required when auth Mode is JwtBearer in Production.");
 
 
         if (!string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase)) return errors;
@@ -522,8 +521,7 @@ public static class ArchiForgeConfigurationRules
         if (!string.Equals(jobs.Mode, "Durable", StringComparison.OrdinalIgnoreCase))
             return;
 
-        ArchiForgeOptions archi =
-            configuration.GetSection(ArchiForgeOptions.SectionName).Get<ArchiForgeOptions>() ?? new ArchiForgeOptions();
+        ArchiForgeOptions archi = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
 
         if (!string.Equals(archi.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
             errors.Add("BackgroundJobs:Mode Durable requires ArchiForge:StorageProvider Sql (shared job state in SQL).");

@@ -19,10 +19,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        ArchiForgeOptions options = configuration
-                                        .GetSection(ArchiForgeOptions.SectionName)
-                                        .Get<ArchiForgeOptions>()
-                                    ?? new ArchiForgeOptions();
+        ArchiForgeOptions options = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
 
         if (string.Equals(options.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {

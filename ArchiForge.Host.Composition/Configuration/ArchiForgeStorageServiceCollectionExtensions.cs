@@ -60,6 +60,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using ArchiForge.Host.Core.Configuration;
+using ArchiForge.Persistence.Diagnostics;
 
 namespace ArchiForge.Host.Composition;
 
@@ -69,10 +70,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        ArchiForgeOptions options = configuration
-                                        .GetSection(ArchiForgeOptions.SectionName)
-                                        .Get<ArchiForgeOptions>()
-                                    ?? new ArchiForgeOptions();
+        ArchiForgeOptions options = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
 
         services.Configure<ArchiForgeOptions>(
             configuration.GetSection(ArchiForgeOptions.SectionName));
@@ -138,6 +136,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
 
             RegisterDistributedCacheForLlmCompletionIfNeeded(services, configuration);
             RegisterLlmCompletionResponseStore(services, configuration);
+
+            services.AddSingleton<IOutboxOperationalMetricsReader, InMemoryOutboxOperationalMetricsReader>();
+            services.AddHostedService<OutboxOperationalMetricsHostedService>();
 
             return services;
         }
@@ -270,6 +271,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
 
         RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<ArchiForge.Persistence.Data.Repositories.IHostLeaderLeaseRepository, ArchiForge.Persistence.Data.Repositories.SqlHostLeaderLeaseRepository>();
+
+        services.AddHostedService<OutboxOperationalMetricsHostedService>();
 
         return services;
     }

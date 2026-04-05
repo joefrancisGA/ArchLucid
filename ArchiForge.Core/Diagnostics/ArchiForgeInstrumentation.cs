@@ -13,6 +13,60 @@ public static class ArchiForgeInstrumentation
 
     private static readonly Meter AppMeter = new(MeterName, "1.0.0");
 
+    private static int _outboxObservableGaugesRegistered;
+
+    /// <summary>Latest outbox depths for <see cref="EnsureOutboxDepthObservableGaugesRegistered"/>.</summary>
+    public static OutboxDepthGaugeState OutboxDepthGauges { get; } = new();
+
+    /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
+    public static void EnsureOutboxDepthObservableGaugesRegistered()
+    {
+        if (Interlocked.Exchange(ref _outboxObservableGaugesRegistered, 1) != 0)
+        {
+            return;
+        }
+
+        OutboxDepthGaugeState s = OutboxDepthGauges;
+
+        AppMeter.CreateObservableGauge(
+            "archiforge_authority_pipeline_work_pending",
+            () => new Measurement<long>(s.Current.AuthorityPipelineWorkPending),
+            description: "Rows in dbo.AuthorityPipelineWorkOutbox awaiting processing.");
+
+        AppMeter.CreateObservableGauge(
+            "archiforge_authority_pipeline_work_oldest_pending_age_seconds",
+            () => new Measurement<double>(s.Current.AuthorityPipelineWorkOldestPendingAgeSeconds),
+            unit: "s",
+            description: "Age in seconds of the oldest pending authority pipeline work outbox row.");
+
+        AppMeter.CreateObservableGauge(
+            "archiforge_retrieval_indexing_outbox_pending",
+            () => new Measurement<long>(s.Current.RetrievalIndexingOutboxPending),
+            description: "Rows in dbo.RetrievalIndexingOutbox awaiting indexing.");
+
+        AppMeter.CreateObservableGauge(
+            "archiforge_retrieval_indexing_outbox_oldest_pending_age_seconds",
+            () => new Measurement<double>(s.Current.RetrievalIndexingOutboxOldestPendingAgeSeconds),
+            unit: "s",
+            description: "Age in seconds of the oldest pending retrieval indexing outbox row.");
+
+        AppMeter.CreateObservableGauge(
+            "archiforge_integration_event_outbox_publish_pending",
+            () => new Measurement<long>(s.Current.IntegrationEventOutboxPublishPending),
+            description: "Integration outbox rows eligible for Service Bus publish (excludes dead letters).");
+
+        AppMeter.CreateObservableGauge(
+            "archiforge_integration_event_outbox_dead_letter",
+            () => new Measurement<long>(s.Current.IntegrationEventOutboxDeadLetter),
+            description: "Integration outbox rows in dead-letter state.");
+
+        AppMeter.CreateObservableGauge(
+            "archiforge_integration_event_outbox_oldest_actionable_pending_age_seconds",
+            () => new Measurement<double>(s.Current.IntegrationEventOutboxOldestActionablePendingAgeSeconds),
+            unit: "s",
+            description: "Age in seconds of the oldest actionable integration outbox publish row.");
+    }
+
     /// <summary>Scheduled advisory scan pipeline (<c>AdvisoryScanRunner</c>).</summary>
     public static readonly ActivitySource AdvisoryScan = new("ArchiForge.AdvisoryScan", "1.0.0");
 

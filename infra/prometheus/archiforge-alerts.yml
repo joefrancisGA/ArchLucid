@@ -22,8 +22,68 @@ groups:
         annotations:
           summary: Authority pipeline work outbox backlog high
           description: >-
-            Expose a gauge `archiforge_authority_pipeline_work_pending` from the app or add a SQL
-            exporter rule; placeholder metric until wired.
+            Observable gauge `archiforge_authority_pipeline_work_pending` (meter ArchiForge) is fed by
+            `OutboxOperationalMetricsHostedService` from `dbo.AuthorityPipelineWorkOutbox`. Investigate
+            workers/API authority pipeline; use GET /v1/admin/diagnostics/outboxes for detail.
+
+      - alert: ArchiForgeAuthorityPipelineWorkStale
+        expr: |
+          archiforge_authority_pipeline_work_oldest_pending_age_seconds > 3600
+        for: 20m
+        labels:
+          severity: warning
+        annotations:
+          summary: Oldest authority outbox row is very old
+          description: >-
+            `archiforge_authority_pipeline_work_oldest_pending_age_seconds` exceeds 1h. Indicates stuck
+            processing or sustained overload.
+
+      - alert: ArchiForgeRetrievalIndexingOutboxBacklog
+        expr: |
+          archiforge_retrieval_indexing_outbox_pending > 100
+        for: 20m
+        labels:
+          severity: warning
+        annotations:
+          summary: Retrieval indexing outbox backlog high
+          description: >-
+            Gauge `archiforge_retrieval_indexing_outbox_pending` from SQL `dbo.RetrievalIndexingOutbox`.
+            Check retrieval indexer worker and SQL connectivity.
+
+      - alert: ArchiForgeRetrievalIndexingOutboxStale
+        expr: |
+          archiforge_retrieval_indexing_outbox_oldest_pending_age_seconds > 7200
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: Retrieval indexing backlog is aging
+          description: >-
+            Oldest pending retrieval outbox row over 2h (`archiforge_retrieval_indexing_outbox_oldest_pending_age_seconds`).
+
+      - alert: ArchiForgeIntegrationEventOutboxPublishBacklog
+        expr: |
+          archiforge_integration_event_outbox_publish_pending > 200
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Integration publish outbox backlog high
+          description: >-
+            Actionable rows in `dbo.IntegrationEventOutbox` (gauge `archiforge_integration_event_outbox_publish_pending`).
+            Check Service Bus publisher / integration worker.
+
+      - alert: ArchiForgeIntegrationEventOutboxPublishStale
+        expr: |
+          archiforge_integration_event_outbox_oldest_actionable_pending_age_seconds > 3600
+        for: 20m
+        labels:
+          severity: warning
+        annotations:
+          summary: Integration outbox publish queue is stale
+          description: >-
+            Oldest actionable integration outbox row over 1h
+            (`archiforge_integration_event_outbox_oldest_actionable_pending_age_seconds`).
 
       - alert: ArchiForgeIntegrationEventOutboxDeadLetter
         expr: |
@@ -34,6 +94,5 @@ groups:
         annotations:
           summary: Integration event outbox has dead-letter rows
           description: >-
-            Expose gauge `archiforge_integration_event_outbox_dead_letter` from the API (Prometheus scrape)
-            or a SQL exporter on `COUNT(*) FROM dbo.IntegrationEventOutbox WHERE DeadLetteredUtc IS NOT NULL`.
-            Use GET /v1/admin/diagnostics/outboxes for pending/dead counts until the metric exists.
+            Gauge `archiforge_integration_event_outbox_dead_letter` counts dead-lettered integration outbox rows.
+            Use admin diagnostics and dead-letter retry flows; fix root cause before clearing.

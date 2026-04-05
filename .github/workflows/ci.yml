@@ -473,5 +473,6 @@ jobs:
             fi
             sleep 2
           done
-          docker run --rm --network "$ZNET" ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py -t http://archiforge-zap-api:8080 -I
+          docker run --rm --network "$ZNET" -v "$GITHUB_WORKSPACE/infra/zap:/zap/wrk/config:ro" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t http://archiforge-zap-api:8080 -I -c config/baseline-pr.tsv

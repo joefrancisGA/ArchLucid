@@ -89,12 +89,19 @@ jobs:
         id: smoke_api
         env:
           SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+          SMOKE_SYNTHETIC_PATH: ${{ vars.SMOKE_SYNTHETIC_PATH }}
         run: |
           if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
             exit 0
           fi
           BASE="${SMOKE_TEST_BASE_URL%/}"
           curl -fsS "$BASE/health/live" -o /dev/null
+          SYN="${SMOKE_SYNTHETIC_PATH:-/version}"
+          case "$SYN" in
+            /*) ;;
+            *) SYN="/$SYN" ;;
+          esac
+          curl -fsS "$BASE$SYN" -o /dev/null
 
       - name: Roll back API on failed smoke
         if: ${{ failure() && steps.smoke_api.outcome == 'failure' }}

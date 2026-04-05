@@ -24,11 +24,11 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 
 ## Phase 2 — Configuration key bridges (medium risk, any session)
 
-- [ ] 2.1 Add fallback readers for `ArchiForgeAuth` → `ArchLucidAuth` in auth options binding
-- [ ] 2.2 Add fallback readers for `ArchiForge:StorageProvider` → `ArchLucid:StorageProvider`
+- [x] 2.1 Add fallback readers for `ArchiForgeAuth` → `ArchLucidAuth` in auth options binding (2026-04-05)
+- [x] 2.2 Add fallback readers for `ArchiForge:StorageProvider` → `ArchLucid:StorageProvider` (2026-04-05)
 - [ ] 2.3 Add fallback readers for any other `ArchiForge*` config sections (grep `appsettings*.json`)
 - [ ] 2.4 Update `appsettings*.json` files to use new key names (old keys kept as comments for reference)
-- [ ] 2.5 Update `.env.example` — rename `ARCHIFORGE_API_KEY` → `ARCHLUCID_API_KEY` (add fallback in proxy route)
+- [x] 2.5 Update `.env.example` — `ARCHLUCID_API_KEY` preferred + `ARCHIFORGE_API_KEY` fallback in proxy (2026-04-05)
 - [ ] 2.6 Add OIDC storage key bridge reads (`archiforge_oidc_*` → `archlucid_oidc_*`) in `session.ts` and `storage-keys.ts`
 
 ## Phase 3 — UI directory and package rename (medium risk, any session)
@@ -111,3 +111,4 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 | 2026-04-04 | 1.1 | layout.tsx title + heading → ArchLucid |
 | 2026-04-05 | 1.2 | archiforge-ui/README.md product-facing name → ArchLucid (env keys unchanged) |
 | 2026-04-05 | 1.4 | GLOSSARY.md title + ArchLucid note; outbox / integration dead-letter terms |
+| 2026-04-05 | 2.1–2.2, 2.5 | Config bridges + `ResolveArchiForgeOptions` at early DI sites; UI proxy API key fallback; ops docs (architecture on a page, code map, config sunset, capacity/cost) |

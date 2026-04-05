@@ -1,0 +1,50 @@
+# Weekly ZAP baseline without -I: surfaces WARN/FAIL while continue-on-error avoids blocking the repo.
+# See infra/zap/README.md.
+name: "Security: ZAP baseline (scheduled, strict visibility)"
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  zap-strict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build API image
+        run: docker build -f ArchiForge.Api/Dockerfile -t archiforge-api:zap-strict .
+
+      - name: Run API and ZAP (no -I)
+        continue-on-error: true
+        env:
+          ZNET: zapstrict-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -e
+          cleanup() {
+            docker rm -f archiforge-zap-api-strict 2>/dev/null || true
+            docker network rm "$ZNET" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          docker network create "$ZNET"
+          docker run -d --name archiforge-zap-api-strict --network "$ZNET" -p 8080:8080 \
+            -e ASPNETCORE_URLS=http://+:8080 \
+            -e ASPNETCORE_ENVIRONMENT=Development \
+            archiforge-api:zap-strict
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8080/health/live; then
+              break
+            fi
+            if [ "$i" -eq 60 ]; then
+              echo "API did not become healthy in time"
+              exit 1
+            fi
+            sleep 2
+          done
+          docker run --rm --network "$ZNET" -v "$GITHUB_WORKSPACE/infra/zap:/zap/wrk/config:ro" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t http://archiforge-zap-api-strict:8080 -c config/baseline-pr.tsv

@@ -1,0 +1,83 @@
+# Architecture on a page (ArchLucid / ArchiForge)
+
+## 1. Objective
+
+Give architects and operators a **single-page** view of **nodes, edges, and trust boundaries** so the system can be redrawn as a C4 or sequence diagram without re-reading the whole repo.
+
+## 2. Assumptions
+
+- Deployments use **Azure-first** patterns (Container Apps, SQL, private networking) unless a pilot explicitly diverges.
+- **Incomplete requirements** and **imperfect rollout** are normal; the design favors **observable backlogs** (outboxes, health, metrics) over silent failure.
+
+## 3. Constraints
+
+- **No public SMB (445)**; blob/queue access via private endpoints and managed identity where possible.
+- **Single DDL source per database** (`ArchiForge.sql` master script + forward-only migrations for new work).
+- **Configuration rename in flight**: `ArchiForge*` keys remain valid with **`ArchLucid*` overrides** until Phase 7 (see [CONFIG_BRIDGE_SUNSET.md](CONFIG_BRIDGE_SUNSET.md)).
+
+## 4. Architecture overview
+
+```mermaid
+flowchart LR
+  subgraph clients
+    UI[Operator UI Next.js]
+    CLI[CLI / automation]
+  end
+  subgraph edge
+    FD[Front Door / APIM optional]
+  end
+  subgraph compute
+    API[ArchiForge.Api]
+    W[ArchiForge.Worker]
+  end
+  subgraph data
+    SQL[(SQL Server)]
+    SB[Service Bus optional]
+    Blob[Blob optional]
+  end
+  UI --> FD
+  CLI --> FD
+  FD --> API
+  API --> SQL
+  W --> SQL
+  API --> SB
+  W --> SB
+  API --> Blob
+  W --> Blob
+```
+
+**Orchestration layer:** HTTP API coordinates **authority runs**, **governance**, and **retrieval**; **Worker** drains queues/outboxes and long-running jobs. **Interfaces** (repositories, connectors) sit in Contracts/Application; **services** implement use cases; **data models** map to SQL and DTOs.
+
+## 5. Component breakdown
+
+| Node | Responsibility |
+|------|------------------|
+| **ArchiForge.Api** | REST surface, auth, OpenAPI, OTel + Prometheus scrape, admin diagnostics. |
+| **ArchiForge.Worker** | Background processors (outbox publishers, advisory, indexing). |
+| **ArchiForge.Host.Composition** | DI graphs (`AddArchiForgeStorage`, agents, retrieval). |
+| **ArchiForge.Persistence** | Dapper data access, outbox tables, integration dead-letter paths. |
+| **archiforge-ui** | Operator shell; server **proxy** to API with scope + correlation headers. |
+
+## 6. Data flow
+
+1. **Run commit:** Client → API → SQL transactional write → post-commit **retrieval indexing outbox**.
+2. **Integration events:** SQL **integration outbox** → Worker → Service Bus → downstream (with **dead-letter** and admin retry).
+3. **Authority pipeline:** **AuthorityPipelineWorkOutbox** tracks async/staged work; metrics exported as **observable gauges** (see `ArchiForgeInstrumentation`).
+
+## 7. Security model
+
+- **Default deny** on API controllers; anonymous only where explicitly marked (e.g. `/health/*`, `/version`).
+- **Entra ID / JWT** or **API key** per environment; **development bypass** only in non-production with guardrails.
+- **Secrets** in Key Vault / CI secrets; UI proxy uses **`ARCHLUCID_API_KEY`** with **`ARCHIFORGE_API_KEY`** fallback.
+
+## 8. Operational considerations
+
+- **Smoke:** CD workflows hit **`/health/live`** plus optional second path (default **`/version`**) via repository variable **`SMOKE_SYNTHETIC_PATH`**.
+- **Rollback:** Container Apps revision deactivation when **`CD_ROLLBACK_ON_SMOKE_FAILURE`** is true (see workflow comments in `.github/workflows/cd.yml`).
+- **Metrics:** `infra/prometheus/archiforge-alerts.yml` targets **ArchiForge** meter outbox gauges fed by **`OutboxOperationalMetricsHostedService`**.
+- **Cost / capacity:** see [CAPACITY_AND_COST_PLAYBOOK.md](CAPACITY_AND_COST_PLAYBOOK.md).
+
+## 9. Deeper reading
+
+- [CODE_MAP.md](CODE_MAP.md) — where to open the code.
+- [ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md) — full doc map.

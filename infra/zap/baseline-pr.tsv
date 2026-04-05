@@ -1,0 +1,6 @@
+10038	IGNORE	(Content Security Policy Header Not Set) — JSON API; enforce CSP at edge / UI.
+10036	IGNORE	(Server Leaks Version Information via HTTP Headers) — baseline noise for containerized ASP.NET.
+10037	IGNORE	(Server Leaks Information via "X-Powered-By" HTTP Response Header Field(s))
+10020	IGNORE	(X-Frame-Options Header Not Set) — API not framed; UI sets framing policy.
+10021	IGNORE	(X-Content-Type-Options Header Missing)
+10035	IGNORE	(Strict-Transport-Security Header Not Set) — TLS termination often at Front Door / ingress.

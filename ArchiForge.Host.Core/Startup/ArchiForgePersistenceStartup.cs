@@ -14,7 +14,7 @@ public static class ArchiForgePersistenceStartup
         using (IServiceScope scope = app.Services.CreateScope())
         {
             IConfiguration config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-            ArchiForgeOptions? options = config.GetSection(ArchiForgeOptions.SectionName).Get<ArchiForgeOptions>();
+            ArchiForgeOptions? options = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(config);
 
             if (string.Equals(options?.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
             {

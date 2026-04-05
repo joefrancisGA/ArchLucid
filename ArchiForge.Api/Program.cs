@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Auth.Services;
 using ArchiForge.Api.Configuration;
+using ArchiForge.Api.Auth.Services;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Api.Startup;
 using ArchiForge.Host.Core.Auth.Services;
@@ -71,9 +71,7 @@ public partial class Program
         }
 
         // Belt-and-suspenders: refuse Production + DevelopmentBypass even if validation rules are bypassed later.
-        ArchiForgeAuthOptions authBound =
-            app.Configuration.GetSection(ArchiForgeAuthOptions.SectionName).Get<ArchiForgeAuthOptions>()
-            ?? new ArchiForgeAuthOptions();
+        ArchiForgeAuthOptions authBound = ArchiForgeAuthConfigurationBridge.Resolve(app.Configuration);
 
         if (app.Environment.IsProduction()
             && string.Equals(authBound.Mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))

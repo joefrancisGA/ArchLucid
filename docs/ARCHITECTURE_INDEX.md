@@ -12,6 +12,10 @@
   - `docs/ONBOARDING_HAPPY_PATH.md`
 - **System map (Mermaid flows + entry points)**  
   - `docs/SYSTEM_MAP.md`
+- **One-page system view (nodes/edges/ops)**  
+  - `docs/ARCHITECTURE_ON_A_PAGE.md`
+- **Code map (where to open first)**  
+  - `docs/CODE_MAP.md`
 - **Context** – high-level purpose and boundary  
   - `docs/ARCHITECTURE_CONTEXT.md`
 - **Containers** – projects and their responsibilities  

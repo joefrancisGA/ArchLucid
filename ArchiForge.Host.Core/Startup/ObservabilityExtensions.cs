@@ -37,6 +37,8 @@ public static class ObservabilityExtensions
 
         BuildProvenance build = BuildProvenance.FromAssembly(typeof(ObservabilityExtensions).Assembly);
 
+        ArchiForgeInstrumentation.EnsureOutboxDepthObservableGaugesRegistered();
+
         services.Configure<ObservabilityHostOptions>(
             configuration.GetSection(ObservabilityHostOptions.SectionName));
 

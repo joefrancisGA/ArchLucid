@@ -22,10 +22,7 @@ public static partial class ServiceCollectionExtensions
 {
     private static void RegisterDataInfrastructure(IServiceCollection services, IConfiguration configuration)
     {
-        ArchiForgeOptions mode = configuration
-                                     .GetSection(ArchiForgeOptions.SectionName)
-                                     .Get<ArchiForgeOptions>()
-                                 ?? new ArchiForgeOptions();
+        ArchiForgeOptions mode = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
 
         if (!string.Equals(mode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {

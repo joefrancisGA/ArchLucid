@@ -39,10 +39,7 @@ public static partial class ServiceCollectionExtensions
 {
     private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection services, IConfiguration configuration)
     {
-        ArchiForgeOptions exportStorage = configuration
-                                              .GetSection(ArchiForgeOptions.SectionName)
-                                              .Get<ArchiForgeOptions>()
-                                          ?? new ArchiForgeOptions();
+        ArchiForgeOptions exportStorage = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
 
         if (string.Equals(exportStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {
@@ -78,10 +75,7 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<ReplayDiagnosticsOptions>(configuration.GetSection(ReplayDiagnosticsOptions.SectionName));
 
-        ArchiForgeOptions storageMode = configuration
-                                            .GetSection(ArchiForgeOptions.SectionName)
-                                            .Get<ArchiForgeOptions>()
-                                        ?? new ArchiForgeOptions();
+        ArchiForgeOptions storageMode = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
 
         if (string.Equals(storageMode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {

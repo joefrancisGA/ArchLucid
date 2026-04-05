@@ -1,7 +1,11 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Authentication;
+using ArchiForge.Api.Configuration;
+using ArchiForge.Host.Core.Configuration;
+
+using Microsoft.Extensions.Configuration;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,13 +22,18 @@ public static class AuthServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.Configure<ArchiForgeAuthOptions>(
-            configuration.GetSection(ArchiForgeAuthOptions.SectionName));
+        services.Configure<ArchiForgeAuthOptions>(configuration.GetSection(ArchiForgeAuthOptions.SectionName));
+        services.PostConfigure<ArchiForgeAuthOptions>(opts =>
+        {
+            IConfigurationSection lucid = configuration.GetSection(ArchiForgeConfigurationBridge.ArchLucidAuthSectionName);
 
-        ArchiForgeAuthOptions authOptions = configuration
-                                                .GetSection(ArchiForgeAuthOptions.SectionName)
-                                                .Get<ArchiForgeAuthOptions>()
-                                            ?? new ArchiForgeAuthOptions();
+            if (lucid.Exists())
+            {
+                lucid.Bind(opts);
+            }
+        });
+
+        ArchiForgeAuthOptions authOptions = ArchiForgeAuthConfigurationBridge.Resolve(configuration);
 
         if (string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
         

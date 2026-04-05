@@ -49,10 +49,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
 
-        ArchiForgeOptions coordinatorStorage = configuration
-                                                   .GetSection(ArchiForgeOptions.SectionName)
-                                                   .Get<ArchiForgeOptions>()
-                                               ?? new ArchiForgeOptions();
+        ArchiForgeOptions coordinatorStorage = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
 
         if (string.Equals(coordinatorStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {

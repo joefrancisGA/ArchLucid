@@ -298,10 +298,7 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterGovernance(IServiceCollection services, IConfiguration configuration)
     {
-        ArchiForgeOptions governanceStorage = configuration
-                                                  .GetSection(ArchiForgeOptions.SectionName)
-                                                  .Get<ArchiForgeOptions>()
-                                              ?? new ArchiForgeOptions();
+        ArchiForgeOptions governanceStorage = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
 
         if (string.Equals(governanceStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {
