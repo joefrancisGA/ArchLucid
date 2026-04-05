@@ -2,8 +2,8 @@
 """
 CI guard: context-ingestion must stay on explicit connector and document-parser pipelines.
 
-Fails if ArchiForge.Api registers IContextConnector directly (bypasses ordered IEnumerable factory)
-or if ServiceCollectionExtensions drops the ordered factory calls.
+Fails if composition registers IContextConnector directly (bypasses ordered IEnumerable factory)
+or if ServiceCollectionExtensions partials drop the ordered factory calls.
 """
 from __future__ import annotations
 
@@ -12,15 +12,26 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EXTENSIONS = ROOT / "ArchiForge.Api" / "Startup" / "ServiceCollectionExtensions.cs"
+# Context ingestion DI lives in Host.Composition partials (moved out of ArchiForge.Api).
+_STARTUP_DIR = ROOT / "ArchiForge.Host.Composition" / "Startup"
+
+
+def _composition_extension_sources() -> list[Path]:
+    if not _STARTUP_DIR.is_dir():
+        return []
+    return sorted(_STARTUP_DIR.glob("ServiceCollectionExtensions*.cs"))
 
 
 def main() -> int:
-    if not EXTENSIONS.is_file():
-        print(f"Missing {EXTENSIONS}", file=sys.stderr)
+    paths = _composition_extension_sources()
+    if not paths:
+        print(
+            f"Missing ArchiForge.Host.Composition Startup partials under {_STARTUP_DIR}",
+            file=sys.stderr,
+        )
         return 2
 
-    text = EXTENSIONS.read_text(encoding="utf-8")
+    text = "\n".join(p.read_text(encoding="utf-8") for p in paths)
 
     if re.search(r"AddSingleton\s*<\s*IContextConnector\b", text):
         print(
