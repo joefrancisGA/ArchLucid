@@ -1,5 +1,10 @@
 # Recording rules for SLO-style dashboards. Metric names must match your OTel → Prometheus scrape.
 # Load alongside archiforge-alerts.yml in Prometheus operator or server config.
+#
+# HTTP availability burn-rate alerts assume a 99.5% availability SLO (0.5% error budget).
+# Multi-window pairs follow the Google SRE multi-burn pattern (fast: 5m+1h at 14.4×, slow: 30m+6h at 6×).
+# The 14.4 / 6 factors are the canonical pair from the workbook; with a 0.5% budget they page when the
+# short-window 5xx ratio exceeds ~7.2% and ~3% respectively (see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md).
 groups:
   - name: archiforge-slo-http
     interval: 30s
@@ -10,11 +15,38 @@ groups:
             0.95,
             sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le)
           )
+          or
+          histogram_quantile(
+            0.95,
+            sum(rate(http_server_duration_milliseconds_bucket[5m])) by (le)
+          ) / 1000
         labels:
           component: api
       - record: archiforge:slo:http_5xx_rate
         expr: |
           sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m]))
+          or
+          sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[5m]))
+        labels:
+          component: api
+      # Good / total for availability SLI (non-5xx / all), OTel HTTP semantic conventions.
+      - record: archiforge:slo:http_availability:ratio
+        expr: |
+          (
+            sum(rate(http_server_request_duration_seconds_count{http_response_status_code!~"5.."}[5m]))
+            or sum(rate(http_server_duration_milliseconds_count{http_response_status_code!~"5.."}[5m]))
+          )
+          /
+          clamp_min(
+            sum(rate(http_server_request_duration_seconds_count[5m]))
+            or sum(rate(http_server_duration_milliseconds_count[5m]))
+          , 1e-9)
+        labels:
+          component: api
+      # Instantaneous burn vs a 99.5% target: (error_ratio) / 0.005 — 1 means consuming budget at nominal rate.
+      - record: archiforge:slo:http_error_budget_burn_rate:ratio
+        expr: |
+          clamp_min((1 - archiforge:slo:http_availability:ratio) / 0.005, 0)
         labels:
           component: api
 
@@ -26,3 +58,74 @@ groups:
           sum(rate(archiforge_llm_prompt_tokens_total[5m]))
         labels:
           component: llm
+
+  - name: archiforge-slo-http-burn-alerts
+    interval: 30s
+    rules:
+      - alert: ArchiForgeSloHttpErrorBudgetBurnFast
+        expr: |
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[5m]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[5m]))
+              or sum(rate(http_server_duration_milliseconds_count[5m]))
+            , 1e-9)
+          ) / 0.005 > 14.4
+          and
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[1h]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[1h]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[1h]))
+              or sum(rate(http_server_duration_milliseconds_count[1h]))
+            , 1e-9)
+          ) / 0.005 > 14.4
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: HTTP SLO error budget burning fast (5m and 1h windows >14.4× vs 99.5% target)
+          description: >-
+            Multi-window burn-rate check: both short (5m) and long (1h) windows exceed 14.4× the nominal
+            0.5% error budget. See runbook docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
+
+      - alert: ArchiForgeSloHttpErrorBudgetBurnSlow
+        expr: |
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[30m]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[30m]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[30m]))
+              or sum(rate(http_server_duration_milliseconds_count[30m]))
+            , 1e-9)
+          ) / 0.005 > 6
+          and
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[6h]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[6h]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[6h]))
+              or sum(rate(http_server_duration_milliseconds_count[6h]))
+            , 1e-9)
+          ) / 0.005 > 6
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: HTTP SLO error budget burning slowly (30m and 6h windows >6× vs 99.5% target)
+          description: >-
+            Sustained elevation: 30m and 6h 5xx ratios exceed 6× the 0.5% budget. Tune windows/thresholds
+            to match your paging policy; see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.

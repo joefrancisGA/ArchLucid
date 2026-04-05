@@ -1,71 +1,92 @@
-# SLO dashboards — Prometheus and Grafana
+# SLO, Prometheus burn-rate alerts, and Grafana
 
-## Purpose
+## 1. Objective
 
-ArchiForge exposes **OpenTelemetry metrics** (including a Prometheus exporter when enabled) from the API host. This runbook explains how operators can turn those signals into **service level objectives (SLOs)** and **Grafana** dashboards without prescribing a single vendor topology.
+Give operators a **repeatable** way to:
 
-## Enable Prometheus scraping
+- Define **service level indicators (SLIs)** from OpenTelemetry → Prometheus metrics.
+- **Alert on error-budget burn rate** (not only static thresholds) so SLO erosion is visible before backlog gauges explode.
+- Optionally **provision** committed Grafana JSON into **Azure Managed Grafana** via Terraform.
 
-1. In configuration, set **`Observability:Prometheus:Enabled`** to **`true`** (see **`PipelineExtensions`** — OpenTelemetry Prometheus scraping endpoint).
-2. Ensure the scrape target is reachable only from your **monitoring network** (private endpoint, firewall, or in-cluster `NetworkPolicy`), not from the public internet.
-3. Confirm **`AddArchiForgeOpenTelemetry`** registers meters (**`ArchiForgeInstrumentation.MeterName`** = `ArchiForge`, plus schema validation meter where applicable).
+## 2. Assumptions
 
-## Metric families to anchor SLOs
+- HTTP traffic is instrumented with **`http.server.request.duration`** (Prometheus names often `http_server_request_duration_seconds_*`) or legacy **`http_server_duration_milliseconds_*`**.
+- Prometheus loads **`infra/prometheus/archiforge-slo-rules.yml`** next to **`archiforge-alerts.yml`**.
+- **99.5% monthly availability** is the documented HTTP target for burn math in-repo (0.5% error budget). Adjust `0.005` in the rules file if your leadership signs a different number.
 
-These counters and histograms are defined in **`ArchiForge.Core.Diagnostics.ArchiForgeInstrumentation`**:
+## 3. Constraints
 
-| Signal | Type | SLO angle |
-|--------|------|-----------|
-| `digest_delivery_succeeded` / `digest_delivery_failed` | Counter (`channel` label) | **Delivery reliability** for advisory digests. |
-| `alert_evaluation_duration_ms` | Histogram (`rule_kind` = `simple` \| `composite`) | **Latency** of evaluation path; tail latency for burn-rate alerts. |
-| `governance_resolve_duration_ms` | Histogram | **Governance** resolution time; correlate with cache metrics below. |
-| `governance_pack_content_deserialize_cache_hits` / `_misses` | Counter | **Efficiency**; rising misses under steady load may indicate pack churn. |
-| `persistence_json_fallback_used` | Counter (`entity_type`, `slice`, `read_mode`) | **Data path health**; spikes may indicate incomplete relational projections. |
+- Burn-rate math assumes **5xx** on the HTTP server span/request counter is an acceptable proxy for “bad” requests (no weighting for 4xx SLOs here).
+- **LLM** recording rules (`archiforge:slo:llm_prompt_tokens_per_second`) are **throughput** SLIs for capacity/cost dashboards, not an availability ratio; do **not** feed them directly into the HTTP burn-rate formula without defining a separate good/total SLI (e.g. span success vs total LLM spans).
 
-**Availability SLOs** should also use **`/health/live`** and **`/health/ready`** (Kubernetes probes or synthetic checks), not only business metrics.
+## 4. Architecture overview
 
-## Prometheus recording rules (examples)
+**Nodes:** OTel SDK (API/Worker) → OTLP or scrape → Prometheus → `recording_rules` → `alertmanager` / Azure Monitor alert rules → Grafana.
 
-Recording rules reduce dashboard cost and stabilize alert expressions. Adjust histogram bucket names to match your Prometheus OTel translation (`le` labels).
+**Edges:** Metric time series → recorded SLO helpers → multi-window comparisons → notifications.
 
-```yaml
-groups:
-  - name: archiforge_slos
-    interval: 30s
-    rules:
-      - record: archiforge:digest_delivery_success_ratio_1h
-        expr: |
-          sum(rate(digest_delivery_succeeded_total[1h]))
-          /
-          (sum(rate(digest_delivery_succeeded_total[1h])) + sum(rate(digest_delivery_failed_total[1h])) + 1e-9)
+## 5. Component breakdown
+
+| Piece | Location | Role |
+|-------|----------|------|
+| SLO recording + burn alerts | `infra/prometheus/archiforge-slo-rules.yml` | `archiforge:slo:http_availability:ratio`, burn-rate alerts |
+| Threshold / backlog alerts | `infra/prometheus/archiforge-alerts.yml` | Outbox depth, integration backlog, etc. |
+| Dashboard JSON | `infra/grafana/*.json`, `infra/grafana/dashboards/*.json` | Import or Terraform-provision |
+| Managed Grafana instance | `infra/terraform-monitoring/main.tf` | `azurerm_dashboard_grafana` |
+| Optional Terraform dashboards | `infra/terraform-monitoring/grafana_dashboards.tf` | `grafana_folder` + `grafana_dashboard` (Grafana provider) |
+| OTLP + metrics | `ArchiForge.Host.Core/Startup/ObservabilityExtensions.cs` | Traces/metrics exporters |
+
+## 6. Data flow
+
+1. **Counters** increment per HTTP request (status label).
+2. **`archiforge:slo:http_availability:ratio`** ≈ non-5xx rate / total rate over 5m.
+3. **Burn** (conceptually) = `(1 − availability) / 0.005` for a **0.5%** budget.
+4. **Fast burn alert** fires when **both** short (**5m**) and longer (**1h**) windows show burn **> 14.4×**.
+5. **Slow burn alert** fires when **30m** and **6h** windows both exceed **6×**.
+
+## 7. Security model
+
+- Grafana API tokens and Azure Monitor connection strings are **secrets**; use Key Vault / pipeline secrets, not git.
+- Managed Grafana with **public** endpoints is convenient for pilots; production should prefer **private endpoints** and restricted RBAC.
+
+## 8. Operational considerations
+
+### Why 14.4 and 6?
+
+Those multipliers come from the **Google SRE multi-window, multi-burn-rate** alerting pattern for **monthly** error budgets. They are **paired with specific window lengths** (fast: 5m+1h, slow: 30m+6h), not arbitrary 1h/6h alone.
+
+With a **99.5%** target, the **0.005** divisor scales “how many budgets worth of errors” you are spending. The **14.4 / 6** factors are still the usual **triage knobs**; if pages are too noisy, **lower** the multiplier or **widen** `for:` durations before changing the SLO objective.
+
+### Validate rule syntax before deploy
+
+```bash
+promtool check rules infra/prometheus/archiforge-slo-rules.yml
 ```
 
-Add similar ratios for **alert evaluation** error paths if you expose failure counters on those code paths in future iterations.
+Optional: add `promtool test rules` YAML under `infra/prometheus/tests/` when you want time-series regression coverage (see `infra/prometheus/tests/README.md`).
 
-## Grafana dashboard panels (suggested rows)
+### OTLP and Azure Monitor
 
-1. **Red:** API ready probe success rate; 5xx rate from reverse proxy or App Gateway.
-2. **Digest delivery:** `rate(digest_delivery_succeeded_total[5m])` by `channel` vs `digest_delivery_failed_total`.
-3. **Alert evaluation:** p50/p90 of `alert_evaluation_duration_ms` histogram; split by `rule_kind`.
-4. **Governance:** `governance_resolve_duration_ms` heatmap or percentiles; cache hit ratio = `hits / (hits + misses)`.
-5. **Persistence:** `rate(persistence_json_fallback_used_total[15m])` by `entity_type`.
+Production hosts should set **`Observability:Otlp:Endpoint`** (and optional **`Headers`**) when exporting to a collector or **Azure Monitor’s OTLP endpoint** derived from Application Insights. A **connection string** placeholder lives in **`ArchiForge.Api/appsettings.Production.json`** for operators mapping env vars; wiring the **Azure Monitor OpenTelemetry Distro** is optional and would be a separate package — until then, OTLP remains the supported path.
 
-## Multi-window, multi-burn-rate alerts (sketch)
+### Terraform dashboard provisioning
 
-For a **99.9% monthly SLO** on digest delivery success:
+`azurerm_dashboard_grafana` only creates the **workspace**. Pushing JSON uses the **Grafana Terraform provider** behind **`grafana_terraform_dashboards_enabled`** (see `infra/terraform-monitoring/README.md`): typically **apply Grafana first**, copy **`grafana_endpoint`**, create a **service account token**, then **apply** with dashboards enabled.
 
-- **Fast burn:** page if short-window error budget consumption exceeds threshold (e.g. 2% budget in 1 hour).
-- **Slow burn:** ticket if medium window (e.g. 10% budget in 3 days).
+## 9. Flow diagram (burn-rate)
 
-Implement with **`prometheusrules`** CRDs (Kubernetes), Azure Monitor managed Prometheus alert rules, or Grafana Alerting — all are equivalent patterns; pick what your platform already runs.
-
-## Cost and scale
-
-- **Cardinality:** keep label sets small (`channel`, `rule_kind`); avoid high-cardinality user IDs in metric labels.
-- **Scrape interval:** 15–30s is typical; sub-10s scales cost faster than it improves SLO fidelity for batch-style workloads (advisory scans).
-
-## References in repo
-
-- **`ArchiForge.Api/Startup/ObservabilityExtensions.cs`** — meter registration and exporters.
-- **`ArchiForge.Api/Startup/PipelineExtensions.cs`** — Prometheus endpoint toggle.
-- **`ArchiForge.Core/Diagnostics/ArchiForgeInstrumentation.cs`** — instrument names and descriptions.
+```mermaid
+flowchart LR
+  subgraph ingest
+    OTel[OTel SDK]
+    Prom[Prometheus]
+  end
+  subgraph slo
+    R[recording rules]
+    B[burn comparisons]
+  end
+  OTel --> Prom
+  Prom --> R
+  R --> B
+  B --> Alert[Alertmanager / Azure Monitor]
+```

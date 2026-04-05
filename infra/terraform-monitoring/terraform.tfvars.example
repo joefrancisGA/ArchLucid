@@ -21,6 +21,11 @@ enable_monitoring_stack = false
 # grafana_name           = "archiforge-grafana"
 # grafana_location       = "eastus2"
 
+# Optional: push ../grafana/*.json via Grafana Terraform provider (requires second apply + real token).
+# grafana_terraform_dashboards_enabled = true
+# grafana_url  = "https://your-workspace.grafana.azure.net"
+# grafana_auth = "glsa_..."  # prefer TF_VAR_grafana_auth
+
 tags = {
   workload = "archiforge"
   tier     = "monitoring"

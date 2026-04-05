@@ -11,6 +11,22 @@ namespace ArchiForge.Host.Core.Startup;
 
 public static class ObservabilityExtensions
 {
+    /// <summary>
+    /// Registers OpenTelemetry tracing and metrics for ArchiForge hosts.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <strong>OTLP:</strong> When <c>Observability:Otlp:Endpoint</c> is non-empty, trace and metric OTLP exporters
+    /// are registered by default. Set <c>Observability:Otlp:Enabled</c> to <c>false</c> to force OTLP off even if
+    /// an endpoint string is present (kill-switch). When the endpoint is empty, OTLP is always off.
+    /// </para>
+    /// <para>
+    /// <strong>Azure Monitor / Application Insights:</strong> Prefer OTLP to the ingestion endpoint documented for
+    /// your workspace (see Microsoft Learn: OpenTelemetry + Application Insights). The distro-specific
+    /// <c>APPLICATIONINSIGHTS_CONNECTION_STRING</c> flow is optional and not wired here until a dedicated exporter
+    /// package is added; production <c>appsettings.Production.json</c> carries placeholders for operators.
+    /// </para>
+    /// </remarks>
     public static IServiceCollection AddArchiForgeOpenTelemetry(
         this IServiceCollection services,
         IConfiguration configuration,
@@ -20,15 +36,19 @@ public static class ObservabilityExtensions
         bool prometheusEnabled = configuration.GetValue("Observability:Prometheus:Enabled", false);
         bool consoleExporterEnabled = configuration.GetValue("Observability:ConsoleExporter:Enabled", environment.IsDevelopment());
 
-        bool otlpEnabled = configuration.GetValue("Observability:Otlp:Enabled", false);
         string? otlpEndpointRaw = configuration["Observability:Otlp:Endpoint"]?.Trim();
+        bool endpointConfigured = !string.IsNullOrWhiteSpace(otlpEndpointRaw);
+        bool? otlpEnabledOverride = configuration.GetValue<bool?>("Observability:Otlp:Enabled");
+
+        bool useOtlp = endpointConfigured && (!otlpEnabledOverride.HasValue || otlpEnabledOverride.Value);
+
         Uri? otlpEndpointUri = null;
         OtlpExportProtocol otlpProtocol = OtlpExportProtocol.Grpc;
         string? otlpHeaders = configuration["Observability:Otlp:Headers"]?.Trim();
 
-        if (otlpEnabled && !string.IsNullOrWhiteSpace(otlpEndpointRaw))
+        if (useOtlp)
         {
-            otlpEndpointUri = new Uri(otlpEndpointRaw, UriKind.Absolute);
+            otlpEndpointUri = new Uri(otlpEndpointRaw!, UriKind.Absolute);
             string protocolStr = configuration["Observability:Otlp:Protocol"]?.Trim() ?? "Grpc";
             otlpProtocol = string.Equals(protocolStr, "HttpProtobuf", StringComparison.OrdinalIgnoreCase)
                 ? OtlpExportProtocol.HttpProtobuf

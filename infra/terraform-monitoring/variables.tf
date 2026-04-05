@@ -87,3 +87,22 @@ variable "grafana_major_version" {
     error_message = "grafana_major_version must be a major version supported by the azurerm provider (e.g. 11 or 12)."
   }
 }
+
+variable "grafana_terraform_dashboards_enabled" {
+  type        = bool
+  description = "When true with enable_managed_grafana, provision committed JSON from infra/grafana via the Grafana Terraform provider (set grafana_url + grafana_auth from the live instance)."
+  default     = false
+}
+
+variable "grafana_url" {
+  type        = string
+  description = "Managed Grafana base URL including scheme (copy from terraform output grafana_endpoint after the workspace exists)."
+  default     = "https://127.0.0.1:1"
+}
+
+variable "grafana_auth" {
+  type        = string
+  description = "Grafana service account token or basic auth for the Grafana provider. Required when grafana_terraform_dashboards_enabled is true."
+  default     = "terraform-validate-placeholder"
+  sensitive   = true
+}

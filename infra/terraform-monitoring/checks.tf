@@ -18,3 +18,20 @@ check "managed_grafana_requires_resource_group" {
     error_message = "enable_managed_grafana = true requires resource_group_name."
   }
 }
+
+check "grafana_dashboards_require_managed_instance" {
+  assert {
+    condition     = !var.grafana_terraform_dashboards_enabled || var.enable_managed_grafana
+    error_message = "grafana_terraform_dashboards_enabled requires enable_managed_grafana."
+  }
+}
+
+check "grafana_dashboards_require_real_auth" {
+  assert {
+    condition = !var.grafana_terraform_dashboards_enabled || (
+      length(trimspace(var.grafana_auth)) > 0 &&
+      var.grafana_auth != "terraform-validate-placeholder"
+    )
+    error_message = "grafana_terraform_dashboards_enabled requires a real grafana_auth token (not the CI placeholder)."
+  }
+}
