@@ -329,14 +329,35 @@ jobs:
     name: "Containers: Docker build smoke"
     needs: gitleaks
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # BuildKit GHA cache backend (docker/build-push-action cache-to type=gha)
+      actions: write
     steps:
       - uses: actions/checkout@v5
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build API image
-        run: docker build -f ArchiForge.Api/Dockerfile -t archiforge-api:ci .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ArchiForge.Api/Dockerfile
+          tags: archiforge-api:ci
+          load: true
+          cache-from: type=gha,scope=api-docker-smoke
+          cache-to: type=gha,scope=api-docker-smoke,mode=max
 
       - name: Build Operator UI image
-        run: docker build -f archiforge-ui/Dockerfile -t archiforge-ui:ci archiforge-ui
+        uses: docker/build-push-action@v6
+        with:
+          context: archiforge-ui
+          file: archiforge-ui/Dockerfile
+          tags: archiforge-ui:ci
+          load: true
+          cache-from: type=gha,scope=ui-docker-smoke
+          cache-to: type=gha,scope=ui-docker-smoke,mode=max
 
       - name: Trivy scan API image (CRITICAL/HIGH)
         uses: aquasecurity/trivy-action@v0.35.0
@@ -442,11 +463,23 @@ jobs:
     name: "Security: OWASP ZAP baseline (API container)"
     needs: docker-build-smoke
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - uses: actions/checkout@v5
 
-      - name: Build API image
-        run: docker build -f ArchiForge.Api/Dockerfile -t archiforge-api:zap .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build API image (reuse GHA cache from docker-build-smoke)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ArchiForge.Api/Dockerfile
+          tags: archiforge-api:zap
+          load: true
+          cache-from: type=gha,scope=api-docker-smoke
 
       - name: Run API on Docker network and ZAP baseline
         env:

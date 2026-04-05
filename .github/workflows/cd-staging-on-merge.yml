@@ -1,15 +1,24 @@
-# Optional: deploy to the GitHub **staging** environment when main/master advances.
+# Optional: deploy to the GitHub **staging** environment after a **green** CI run on main/master.
 # Enable by setting repository variable `AUTO_DEPLOY_STAGING_MERGE` to `true`.
 # Configure the **staging** environment with the same secrets as manual CD (ACR, Container Apps, etc.).
+#
+# Trigger: `workflow_run` on workflow named **CI** (see `.github/workflows/ci.yml` `name: CI`).
+# Only runs when CI `conclusion` is success, event was **push**, head branch is main or master,
+# and `head_repository` is this repo (not a fork PR whose source branch happens to be named main).
+# This avoids deploying when only a PR branch passed CI, or when merge bypassed checks.
+# Checkout uses `workflow_run.head_sha` so the images match the commit that CI validated.
 name: CD staging on merge
 
 on:
-  push:
-    branches: [main, master]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
 
 permissions:
   id-token: write
   contents: read
+  # BuildKit type=gha cache (read/write) for docker/build-push-action — same scopes as CI smoke job.
+  actions: write
 
 concurrency:
   group: archiforge-cd-staging-merge
@@ -17,7 +26,12 @@ concurrency:
 
 jobs:
   deploy-staging:
-    if: ${{ vars.AUTO_DEPLOY_STAGING_MERGE == 'true' }}
+    if: |
+      vars.AUTO_DEPLOY_STAGING_MERGE == 'true' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'master') &&
+      github.event.workflow_run.head_repository.full_name == github.repository
     name: Deploy staging (merge)
     runs-on: ubuntu-latest
     environment: staging
@@ -25,6 +39,8 @@ jobs:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - uses: azure/login@v2
         with:
@@ -35,24 +51,55 @@ jobs:
       - name: Set image tag
         run: |
           TAG="${{ vars.IMAGE_TAG }}"
-          if [ -z "$TAG" ]; then TAG="${{ github.sha }}"; fi
+          if [ -z "$TAG" ]; then TAG="${{ github.event.workflow_run.head_sha }}"; fi
           echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
 
-      - name: Build and push container images
+      - name: Detect ACR configuration
+        id: acr
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+        run: |
+          if [ -n "${ACR_LOGIN_SERVER:-}" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "ACR_LOGIN_SERVER not set — will skip image build/push."
+          fi
+
+      - name: Set up Docker Buildx
+        if: steps.acr.outputs.configured == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to ACR
+        if: steps.acr.outputs.configured == 'true'
         env:
           ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
           ACR_NAME: ${{ secrets.ACR_NAME }}
         run: |
-          if [ -z "$ACR_LOGIN_SERVER" ]; then
-            echo "ACR_LOGIN_SERVER not set — skipping."
-            exit 0
-          fi
           REG_NAME="${ACR_NAME:-${ACR_LOGIN_SERVER%%.*}}"
           az acr login --name "$REG_NAME"
-          docker build -f ArchiForge.Api/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}" .
-          docker push "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}"
-          docker build -f archiforge-ui/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}" ./archiforge-ui
-          docker push "${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}"
+
+      - name: Build and push API image (BuildKit + GHA cache from CI smoke)
+        if: steps.acr.outputs.configured == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ArchiForge.Api/Dockerfile
+          tags: ${{ secrets.ACR_LOGIN_SERVER }}/archiforge-api:${{ env.IMAGE_TAG }}
+          push: true
+          cache-from: type=gha,scope=api-docker-smoke
+          cache-to: type=gha,scope=api-docker-smoke,mode=max
+
+      - name: Build and push UI image (BuildKit + GHA cache from CI smoke)
+        if: steps.acr.outputs.configured == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: archiforge-ui
+          file: archiforge-ui/Dockerfile
+          tags: ${{ secrets.ACR_LOGIN_SERVER }}/archiforge-ui:${{ env.IMAGE_TAG }}
+          push: true
+          cache-from: type=gha,scope=ui-docker-smoke
+          cache-to: type=gha,scope=ui-docker-smoke,mode=max
 
       - name: Record API revision before update
         id: api_rev_before

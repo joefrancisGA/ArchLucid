@@ -40,6 +40,19 @@ Use **exact** names as they appear on a completed run (Settings shows autocomple
 
 Create a ruleset targeting your default branch, enable **Require status checks**, and add the same check names. Rulesets can target multiple branches in one place.
 
+## Automatic staging deploy (supplements branch protection)
+
+The workflow **CD staging on merge** (`.github/workflows/cd-staging-on-merge.yml`) runs only after the **CI** workflow completes successfully (`workflow_run` with `conclusion == success`). It further requires:
+
+- `AUTO_DEPLOY_STAGING_MERGE` repository variable set to `true`
+- The triggering CI run was a **push** to `main` or `master` (not a PR-only green build)
+- The CI run’s `head_repository` matches this repository (excludes fork PRs whose branch is named `main`)
+- Checkout uses the same commit as CI (`workflow_run.head_sha`)
+
+So even if branch protection were misconfigured, staging is not deployed from a failing main merge: **CI must finish green first**. There is a short delay (typically tens of seconds) after CI completes before staging starts.
+
+Keep required status checks enabled in branch protection so merges to main are blocked when CI fails; the staging workflow adds a second, workflow-level gate.
+
 ## Why this matters
 
 Without required checks, a green CI on the PR is informative only; merge can still proceed with failing jobs. Tying merge to `dotnet-full-regression` and `gitleaks` matches the tiered safety model described in `docs/TEST_EXECUTION_MODEL.md`.
