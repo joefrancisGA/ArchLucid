@@ -47,6 +47,7 @@ public static partial class ServiceCollectionExtensions
         RegisterRetrieval(services, configuration);
         RegisterGovernance(services, configuration);
         RegisterRetrievalIndexingOutbox(services, hostingRole);
+        RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterDataArchivalHostedService(services, hostingRole);
         RegisterArchiForgeHealthChecks(services, hostingRole);
 

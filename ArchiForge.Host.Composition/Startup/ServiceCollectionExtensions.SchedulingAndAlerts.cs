@@ -21,6 +21,7 @@ using ArchiForge.Host.Core.Services.Delivery;
 using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Alerts;
 using ArchiForge.Persistence.Alerts.Simulation;
+using ArchiForge.Persistence.Integration;
 using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Retrieval;
 
@@ -52,6 +53,16 @@ public static partial class ServiceCollectionExtensions
         {
             services.AddHostedService<RetrievalIndexingOutboxHostedService>();
             services.AddHostedService<AuthorityPipelineWorkHostedService>();
+        }
+    }
+
+    private static void RegisterIntegrationEventOutbox(IServiceCollection services, ArchiForgeHostingRole hostingRole)
+    {
+        services.AddSingleton<IIntegrationEventOutboxProcessor, IntegrationEventOutboxProcessor>();
+
+        if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker)
+        {
+            services.AddHostedService<IntegrationEventOutboxHostedService>();
         }
     }
 
@@ -130,15 +141,31 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IIntegrationEventPublisher>(static sp =>
         {
             IntegrationEventsOptions options = sp.GetRequiredService<IOptions<IntegrationEventsOptions>>().Value;
-            string? connectionString = options.ServiceBusConnectionString?.Trim();
             string? queueOrTopic = options.QueueOrTopicName?.Trim();
+            string? fullyQualifiedNamespace = options.ServiceBusFullyQualifiedNamespace?.Trim();
+            string? connectionString = options.ServiceBusConnectionString?.Trim();
+            string? managedIdentityClientId = options.ServiceBusManagedIdentityClientId?.Trim();
 
-            if (!string.IsNullOrEmpty(connectionString) && !string.IsNullOrEmpty(queueOrTopic))
+            if (string.IsNullOrEmpty(queueOrTopic))
+            {
+                return NullIntegrationEventPublisher.Instance;
+            }
+
+            ILogger<AzureServiceBusIntegrationEventPublisher> logger =
+                sp.GetRequiredService<ILogger<AzureServiceBusIntegrationEventPublisher>>();
+
+            if (!string.IsNullOrEmpty(fullyQualifiedNamespace))
             {
                 return new AzureServiceBusIntegrationEventPublisher(
-                    connectionString,
+                    fullyQualifiedNamespace,
                     queueOrTopic,
-                    sp.GetRequiredService<ILogger<AzureServiceBusIntegrationEventPublisher>>());
+                    string.IsNullOrEmpty(managedIdentityClientId) ? null : managedIdentityClientId,
+                    logger);
+            }
+
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                return new AzureServiceBusIntegrationEventPublisher(connectionString, queueOrTopic, logger);
             }
 
             return NullIntegrationEventPublisher.Instance;

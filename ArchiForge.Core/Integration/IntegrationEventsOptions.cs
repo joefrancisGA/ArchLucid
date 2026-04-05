@@ -1,0 +1,28 @@
+namespace ArchiForge.Core.Integration;
+
+/// <summary>Optional Azure Service Bus publishing and transactional outbox for integration events.</summary>
+public sealed class IntegrationEventsOptions
+{
+    public const string SectionName = "IntegrationEvents";
+
+    /// <summary>When non-empty and <see cref="QueueOrTopicName"/> is set, publishing uses this connection string (legacy).</summary>
+    public string? ServiceBusConnectionString { get; set; }
+
+    /// <summary>
+    /// Fully qualified Service Bus namespace (e.g. <c>mysb.servicebus.windows.net</c>).
+    /// When set with <see cref="QueueOrTopicName"/>, the client uses <c>DefaultAzureCredential</c> (managed identity in Azure).
+    /// </summary>
+    public string? ServiceBusFullyQualifiedNamespace { get; set; }
+
+    /// <summary>Optional user-assigned managed identity client id when using namespace + DefaultAzureCredential.</summary>
+    public string? ServiceBusManagedIdentityClientId { get; set; }
+
+    /// <summary>Queue or topic name for outbound integration JSON messages.</summary>
+    public string? QueueOrTopicName { get; set; }
+
+    /// <summary>
+    /// When true and the authority UOW supports an external SQL transaction, run-completed events are written to
+    /// <c>dbo.IntegrationEventOutbox</c> in the same transaction as the run commit; a worker publishes afterward.
+    /// </summary>
+    public bool TransactionalOutboxEnabled { get; set; }
+}

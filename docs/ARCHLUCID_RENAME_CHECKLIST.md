@@ -10,8 +10,8 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 ## Phase 1 — Display text and documentation (low risk, any session)
 
 - [x] 1.1 Update product name in `archiforge-ui/src/app/layout.tsx` (title, heading)
-- [ ] 1.2 Update `archiforge-ui/README.md` — product name references
-- [ ] 1.3 Update root `README.md` — product name, badges, description
+- [x] 1.2 Update `archiforge-ui/README.md` — product name references
+- [x] 1.3 Update root `README.md` — product name, badges, description (2026-04-04)
 - [ ] 1.4 Update `docs/GLOSSARY.md`
 - [ ] 1.5 Update `docs/ARCHITECTURE_CONTEXT.md`, `docs/ARCHITECTURE_COMPONENTS.md`, `docs/ARCHITECTURE_CONTAINERS.md`
 - [ ] 1.6 Update `docs/DEPLOYMENT.md`, `docs/DEPLOYMENT_TERRAFORM.md`, `docs/CONTAINERIZATION.md`
@@ -109,3 +109,4 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 | Date | Batch | Notes |
 |------|-------|-------|
 | 2026-04-04 | 1.1 | layout.tsx title + heading → ArchLucid |
+| 2026-04-05 | 1.2 | archiforge-ui/README.md product-facing name → ArchLucid (env keys unchanged) |

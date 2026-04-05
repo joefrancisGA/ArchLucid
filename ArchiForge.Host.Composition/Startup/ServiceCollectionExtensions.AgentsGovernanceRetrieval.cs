@@ -34,12 +34,22 @@ public static partial class ServiceCollectionExtensions
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
 
         string? agentMode = configuration["AgentExecution:Mode"];
-        bool useAzureOpenAi = !string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase)
-                              && !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:Endpoint"])
-                              && !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:ApiKey"])
-                              && !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:DeploymentName"]);
+        string? completionClientRaw = configuration["AgentExecution:CompletionClient"]?.Trim();
+        bool useEchoClient = string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase)
+                              && string.Equals(completionClientRaw, "Echo", StringComparison.OrdinalIgnoreCase);
 
-        ConfigureLlmTelemetryLabels(services, configuration, agentMode, useAzureOpenAi);
+        bool completionIsExplicitAzure = string.Equals(completionClientRaw, "AzureOpenAi", StringComparison.OrdinalIgnoreCase);
+        bool azureKeysPresent =
+            !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:Endpoint"])
+            && !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:ApiKey"])
+            && !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:DeploymentName"]);
+
+        bool useAzureOpenAi = !string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase)
+                              && !useEchoClient
+                              && (string.IsNullOrEmpty(completionClientRaw) || completionIsExplicitAzure)
+                              && azureKeysPresent;
+
+        ConfigureLlmTelemetryLabels(services, configuration, agentMode, useAzureOpenAi, useEchoClient);
 
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
         {
@@ -56,7 +66,12 @@ public static partial class ServiceCollectionExtensions
             services.AddScoped<IAgentHandler, CriticAgentHandler>();
             services.AddScoped<IAgentResultParser, AgentResultParser>();
 
-            if (useAzureOpenAi)
+            if (useEchoClient)
+            {
+                services.AddSingleton<LlmTokenQuotaWindowTracker>();
+                RegisterEchoAgentCompletionPipeline(services);
+            }
+            else if (useAzureOpenAi)
             {
                 services.AddKeyedSingleton<CircuitBreakerGate>(
                     OpenAiCircuitBreakerKeys.Completion,
@@ -156,11 +171,17 @@ public static partial class ServiceCollectionExtensions
         IServiceCollection services,
         IConfiguration configuration,
         string? agentMode,
-        bool useAzureOpenAi)
+        bool useAzureOpenAi,
+        bool useEchoClient)
     {
         services.Configure<LlmTelemetryLabelOptions>(options =>
         {
-            if (useAzureOpenAi)
+            if (useEchoClient)
+            {
+                options.ProviderId = "echo";
+                options.ModelDeploymentLabel = "echo";
+            }
+            else if (useAzureOpenAi)
             {
                 options.ProviderId = "azure-openai";
                 options.ModelDeploymentLabel = configuration["AzureOpenAI:DeploymentName"]?.Trim() ?? "unknown";
@@ -175,6 +196,59 @@ public static partial class ServiceCollectionExtensions
                 options.ProviderId = "fake";
                 options.ModelDeploymentLabel = "fake";
             }
+        });
+    }
+
+    private static void RegisterEchoAgentCompletionPipeline(IServiceCollection services)
+    {
+        services.AddScoped<IAgentCompletionClient>(sp =>
+        {
+            EchoAgentCompletionClient echoInner = new();
+            LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
+            IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
+            IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
+            IOptionsMonitor<LlmTelemetryOptions> telemetryOpts =
+                sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+            IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
+                sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
+            ILogger<LlmCompletionAccountingClient> accountingLogger =
+                sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+
+            IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
+                echoInner,
+                quotaTracker,
+                scopeProvider,
+                quotaOpts,
+                telemetryOpts,
+                labelTelemetryOpts,
+                accountingLogger);
+
+            IConfiguration config = sp.GetRequiredService<IConfiguration>();
+            LlmCompletionResponseCacheOptions cacheOptions = config
+                                                               .GetSection(LlmCompletionResponseCacheOptions.SectionName)
+                                                               .Get<LlmCompletionResponseCacheOptions>()
+                                                           ?? new LlmCompletionResponseCacheOptions();
+
+            string cacheDeploymentLabel = config["AzureOpenAI:DeploymentName"]?.Trim() ?? "echo";
+
+            if (cacheOptions.Enabled)
+            {
+                TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
+                ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
+                ILogger<CachingAgentCompletionClient> cacheLogger =
+                    sp.GetRequiredService<ILogger<CachingAgentCompletionClient>>();
+                completionPipeline = new CachingAgentCompletionClient(
+                    completionPipeline,
+                    store,
+                    cacheDeploymentLabel,
+                    enabled: true,
+                    partitionByScope: cacheOptions.PartitionByScope,
+                    absoluteExpiration: ttl,
+                    scopeProvider: scopeProvider,
+                    logger: cacheLogger);
+            }
+
+            return completionPipeline;
         });
     }
 

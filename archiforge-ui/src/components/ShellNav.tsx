@@ -34,6 +34,9 @@ export function ShellNav() {
           <Link href="/" title="Landing page and workflow overview">
             Home
           </Link>
+          <Link href="/onboarding" title="Guided operator onboarding checklist">
+            Onboarding
+          </Link>
           <Link href="/runs?projectId=default" title="Runs, manifests, artifacts, exports">
             Runs
           </Link>
@@ -54,9 +57,15 @@ export function ShellNav() {
       <div style={{ marginBottom: 4 }}>
         <div style={groupLabel}>Q&amp;A &amp; advisory</div>
         <nav aria-label="Question answering and advisory" style={navRow}>
-          <Link href="/ask">Ask</Link>
-          <Link href="/search">Search</Link>
-          <Link href="/advisory">Advisory</Link>
+          <Link href="/ask" title="Natural language ask against architecture context">
+            Ask
+          </Link>
+          <Link href="/search" title="Search indexed architecture content">
+            Search
+          </Link>
+          <Link href="/advisory" title="Advisory scans and architecture digests">
+            Advisory
+          </Link>
           <Link href="/recommendation-learning" title="Recommendation learning profiles">
             Learning
           </Link>
@@ -80,14 +89,30 @@ export function ShellNav() {
       <div>
         <div style={groupLabel}>Alerts &amp; governance</div>
         <nav aria-label="Alerts and governance" style={navRow}>
-          <Link href="/alerts">Alerts</Link>
-          <Link href="/alert-rules">Alert rules</Link>
-          <Link href="/alert-routing">Alert routing</Link>
-          <Link href="/composite-alert-rules">Composite rules</Link>
-          <Link href="/alert-simulation">Alert simulation</Link>
-          <Link href="/alert-tuning">Alert tuning</Link>
-          <Link href="/policy-packs">Policy packs</Link>
-          <Link href="/governance-resolution">Governance resolution</Link>
+          <Link href="/alerts" title="Open and acknowledged alerts">
+            Alerts
+          </Link>
+          <Link href="/alert-rules" title="Configure alert rules">
+            Alert rules
+          </Link>
+          <Link href="/alert-routing" title="Alert routing subscriptions">
+            Alert routing
+          </Link>
+          <Link href="/composite-alert-rules" title="Composite alert rules">
+            Composite rules
+          </Link>
+          <Link href="/alert-simulation" title="Simulate alert evaluation">
+            Alert simulation
+          </Link>
+          <Link href="/alert-tuning" title="Alert noise and threshold tuning">
+            Alert tuning
+          </Link>
+          <Link href="/policy-packs" title="Policy packs and versions">
+            Policy packs
+          </Link>
+          <Link href="/governance-resolution" title="Effective governance resolution">
+            Governance resolution
+          </Link>
         </nav>
       </div>
     </>

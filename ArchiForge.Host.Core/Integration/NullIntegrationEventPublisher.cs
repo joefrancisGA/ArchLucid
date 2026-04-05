@@ -14,6 +14,16 @@ public sealed class NullIntegrationEventPublisher : IIntegrationEventPublisher
     /// <inheritdoc />
     public Task PublishAsync(string eventType, ReadOnlyMemory<byte> utf8JsonPayload, CancellationToken cancellationToken = default)
     {
+        return PublishAsync(eventType, utf8JsonPayload, null, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task PublishAsync(
+        string eventType,
+        ReadOnlyMemory<byte> utf8JsonPayload,
+        string? messageId,
+        CancellationToken cancellationToken)
+    {
         return Task.CompletedTask;
     }
 }

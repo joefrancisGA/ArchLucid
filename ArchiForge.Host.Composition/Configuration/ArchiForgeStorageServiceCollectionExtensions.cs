@@ -33,6 +33,7 @@ using ArchiForge.Persistence.Conversation;
 using ArchiForge.Persistence.Evolution;
 using ArchiForge.Persistence.Governance;
 using ArchiForge.Persistence.Interfaces;
+using ArchiForge.Persistence.Integration;
 using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Orchestration.Pipeline;
 using ArchiForge.Persistence.ProductLearning;
@@ -113,6 +114,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             // Required by CoordinatorService → IAuthorityRunOrchestrator.
             services.AddSingleton<IArchiForgeUnitOfWorkFactory, InMemoryArchiForgeUnitOfWorkFactory>();
             services.AddSingleton<IRetrievalIndexingOutboxRepository, InMemoryRetrievalIndexingOutboxRepository>();
+            services.AddSingleton<IIntegrationEventOutboxRepository, InMemoryIntegrationEventOutboxRepository>();
             services.AddSingleton<IProductLearningPilotSignalRepository, InMemoryProductLearningPilotSignalRepository>();
             services.AddSingleton<IProductLearningPlanningRepository, InMemoryProductLearningPlanningRepository>();
             services.AddSingleton<IImprovementThemeExtractionService, ImprovementThemeExtractionService>();
@@ -221,6 +223,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
         services.AddScoped<IArchiForgeUnitOfWorkFactory, DapperArchiForgeUnitOfWorkFactory>();
         services.AddScoped<IRetrievalIndexingOutboxRepository, DapperRetrievalIndexingOutboxRepository>();
+        services.AddScoped<IIntegrationEventOutboxRepository, DapperIntegrationEventOutboxRepository>();
         services.AddScoped<IProductLearningPilotSignalRepository, DapperProductLearningPilotSignalRepository>();
         services.AddScoped<IProductLearningPlanningRepository, DapperProductLearningPlanningRepository>();
         services.AddScoped<IImprovementThemeExtractionService, ImprovementThemeExtractionService>();

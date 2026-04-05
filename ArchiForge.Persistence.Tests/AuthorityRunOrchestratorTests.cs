@@ -7,6 +7,7 @@ using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
+using ArchiForge.Persistence.Integration;
 using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Orchestration.Pipeline;
 using ArchiForge.Persistence.Retrieval;
@@ -15,8 +16,11 @@ using ArchiForge.Persistence.Transactions;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
+
+using System.Data;
 
 using DecisioningManifestMetadata = ArchiForge.Decisioning.Manifest.Sections.ManifestMetadata;
 
@@ -129,6 +133,17 @@ public sealed class AuthorityRunOrchestratorTests
         integrationEvents
             .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+        integrationEvents
+            .Setup(x => x.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
+        StubIntegrationOutbox(integrationOutbox);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(false);
 
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
@@ -140,6 +155,8 @@ public sealed class AuthorityRunOrchestratorTests
             workRepo.Object,
             modeResolver.Object,
             integrationEvents.Object,
+            integrationOutbox.Object,
+            integrationEventOpts.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -165,6 +182,183 @@ public sealed class AuthorityRunOrchestratorTests
         retrievalOutbox.Verify(
             x => x.EnqueueAsync(result.RunId, scope.TenantId, scope.WorkspaceId, scope.ProjectId, It.IsAny<CancellationToken>()),
             Times.Once);
+        integrationOutbox.Verify(
+            x => x.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_with_transactional_integration_outbox_enqueues_sql_and_skips_immediate_publish()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("b1b1b1b1-b1b1-b1b1-b1b1-b1b1b1b1b1b1"),
+            WorkspaceId = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2"),
+            ProjectId = Guid.Parse("b3b3b3b3-b3b3-b3b3-b3b3-b3b3b3b3b3b3"),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(x => x.GetCurrentScope()).Returns(scope);
+
+        Mock<IDbConnection> connection = new();
+        Mock<IDbTransaction> transaction = new();
+
+        Mock<IArchiForgeUnitOfWork> uow = new();
+        uow.SetupGet(x => x.SupportsExternalTransaction).Returns(true);
+        uow.SetupGet(x => x.Connection).Returns(connection.Object);
+        uow.SetupGet(x => x.Transaction).Returns(transaction.Object);
+        uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
+
+        Mock<IArchiForgeUnitOfWorkFactory> uowFactory = new();
+        uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+        runRepo.Setup(x => x.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
+        pipeline
+            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()))
+            .Callback<AuthorityPipelineContext, CancellationToken>(
+                (ctx, _) =>
+                {
+                    ctx.ContextSnapshot = new ContextSnapshot
+                    {
+                        SnapshotId = contextSnapshotId,
+                        RunId = ctx.Run.RunId,
+                        ProjectId = ctx.Request.ProjectId,
+                        CreatedUtc = DateTime.UtcNow,
+                    };
+
+                    ctx.FindingsSnapshot = new FindingsSnapshot
+                    {
+                        FindingsSnapshotId = findingsId,
+                        RunId = ctx.Run.RunId,
+                        ContextSnapshotId = contextSnapshotId,
+                        GraphSnapshotId = Guid.NewGuid(),
+                        CreatedUtc = DateTime.UtcNow,
+                    };
+
+                    ctx.Trace = new DecisionTrace
+                    {
+                        DecisionTraceId = traceId,
+                        RunId = ctx.Run.RunId,
+                        CreatedUtc = DateTime.UtcNow,
+                        RuleSetId = "rs",
+                        RuleSetVersion = "1",
+                        RuleSetHash = "h",
+                    };
+
+                    ctx.Manifest = NewMinimalManifest(
+                        ctx.Scope,
+                        ctx.Run.RunId,
+                        contextSnapshotId,
+                        Guid.NewGuid(),
+                        findingsId,
+                        traceId,
+                        manifestId);
+                })
+            .Returns(Task.CompletedTask);
+
+        Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
+        retrievalOutbox.Setup(x => x.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuthorityPipelineWorkRepository> workRepo = new();
+        Mock<IAsyncAuthorityPipelineModeResolver> modeResolver = new();
+        modeResolver
+            .Setup(x => x.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventPublisher> integrationEvents = new();
+        integrationEvents
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        integrationEvents
+            .Setup(x => x.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
+        StubIntegrationOutbox(integrationOutbox);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(true);
+
+        AuthorityRunOrchestrator sut = new(
+            uowFactory.Object,
+            scopeProvider.Object,
+            audit.Object,
+            runRepo.Object,
+            pipeline.Object,
+            retrievalOutbox.Object,
+            workRepo.Object,
+            modeResolver.Object,
+            integrationEvents.Object,
+            integrationOutbox.Object,
+            integrationEventOpts.Object,
+            NullLogger<AuthorityRunOrchestrator>.Instance);
+
+        ContextIngestionRequest request = new()
+        {
+            ProjectId = "proj-orchestrator-outbox",
+            Description = "d",
+        };
+
+        RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None);
+
+        result.ProjectId.Should().Be(request.ProjectId);
+        integrationOutbox.Verify(
+            x => x.EnqueueAsync(
+                result.RunId,
+                "com.archiforge.authority.run.completed",
+                $"{result.RunId:D}:com.archiforge.authority.run.completed",
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                connection.Object,
+                transaction.Object,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        integrationEvents.Verify(
+            x => x.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -216,6 +410,17 @@ public sealed class AuthorityRunOrchestratorTests
         integrationEvents
             .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+        integrationEvents
+            .Setup(x => x.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
+        StubIntegrationOutbox(integrationOutbox);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(false);
 
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
@@ -227,6 +432,8 @@ public sealed class AuthorityRunOrchestratorTests
             workRepo.Object,
             modeResolver.Object,
             integrationEvents.Object,
+            integrationOutbox.Object,
+            integrationEventOpts.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new() { ProjectId = "q", Description = "d" };
@@ -298,6 +505,17 @@ public sealed class AuthorityRunOrchestratorTests
         integrationEvents
             .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+        integrationEvents
+            .Setup(x => x.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
+        StubIntegrationOutbox(integrationOutbox);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(false);
 
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
@@ -309,6 +527,8 @@ public sealed class AuthorityRunOrchestratorTests
             workRepo.Object,
             modeResolver.Object,
             integrationEvents.Object,
+            integrationOutbox.Object,
+            integrationEventOpts.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new() { ProjectId = "proj-fail" };
@@ -319,6 +539,43 @@ public sealed class AuthorityRunOrchestratorTests
 
         uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static void StubIntegrationOutbox(Mock<IIntegrationEventOutboxRepository> mock)
+    {
+        mock.Setup(x => x.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        mock.Setup(x => x.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+    }
+
+    private static Mock<IOptionsMonitor<IntegrationEventsOptions>> CreateIntegrationEventsOptionsMonitor(
+        bool transactionalOutboxEnabled)
+    {
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> mock = new();
+        mock.Setup(m => m.CurrentValue)
+            .Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = transactionalOutboxEnabled });
+
+        return mock;
     }
 
     private static GoldenManifest NewMinimalManifest(

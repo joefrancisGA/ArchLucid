@@ -3,6 +3,8 @@ using System.Text;
 
 using ArchiForge.Core.Integration;
 
+using Azure.Core;
+using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 
 using Microsoft.Extensions.Logging;
@@ -17,6 +19,7 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
     private readonly ServiceBusSender _sender;
     private readonly ILogger<AzureServiceBusIntegrationEventPublisher> _logger;
 
+    /// <summary>Connection-string auth (legacy).</summary>
     public AzureServiceBusIntegrationEventPublisher(
         string connectionString,
         string queueOrTopicName,
@@ -30,8 +33,46 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
         _sender = _client.CreateSender(queueOrTopicName);
     }
 
+    /// <summary>Managed identity (or other <see cref="DefaultAzureCredential"/>) auth to the namespace.</summary>
+    public AzureServiceBusIntegrationEventPublisher(
+        string fullyQualifiedNamespace,
+        string queueOrTopicName,
+        string? managedIdentityClientId,
+        ILogger<AzureServiceBusIntegrationEventPublisher> logger)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fullyQualifiedNamespace);
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueOrTopicName);
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        TokenCredential credential = CreateCredential(managedIdentityClientId);
+        _client = new ServiceBusClient(fullyQualifiedNamespace, credential);
+        _sender = _client.CreateSender(queueOrTopicName);
+    }
+
+    private static TokenCredential CreateCredential(string? managedIdentityClientId)
+    {
+        DefaultAzureCredentialOptions options = new();
+
+        if (!string.IsNullOrWhiteSpace(managedIdentityClientId))
+        {
+            options.ManagedIdentityClientId = managedIdentityClientId.Trim();
+        }
+
+        return new DefaultAzureCredential(options);
+    }
+
     /// <inheritdoc />
-    public async Task PublishAsync(string eventType, ReadOnlyMemory<byte> utf8JsonPayload, CancellationToken cancellationToken = default)
+    public Task PublishAsync(string eventType, ReadOnlyMemory<byte> utf8JsonPayload, CancellationToken cancellationToken = default)
+    {
+        return PublishAsync(eventType, utf8JsonPayload, null, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task PublishAsync(
+        string eventType,
+        ReadOnlyMemory<byte> utf8JsonPayload,
+        string? messageId,
+        CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(eventType);
 
@@ -44,6 +85,11 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
                 ["event_type"] = eventType,
             },
         };
+
+        if (!string.IsNullOrEmpty(messageId))
+        {
+            message.MessageId = TrimMessageId(messageId);
+        }
 
         try
         {
@@ -58,6 +104,19 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
 
             throw;
         }
+    }
+
+    /// <summary>Service Bus message ids are limited to 128 characters.</summary>
+    private static string TrimMessageId(string messageId)
+    {
+        const int maxLen = 128;
+
+        if (messageId.Length <= maxLen)
+        {
+            return messageId;
+        }
+
+        return messageId[..maxLen];
     }
 
     /// <inheritdoc />

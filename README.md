@@ -1,6 +1,6 @@
-# ArchiForge
+# ArchLucid
 
-ArchiForge is an API for orchestrating AI-driven architecture design. It coordinates topology, cost, and compliance agents to produce architecture manifests from high-level requests.
+ArchLucid (repository and packages may still use the **ArchiForge** name) is an API for orchestrating AI-driven architecture design. It coordinates topology, cost, and compliance agents to produce architecture manifests from high-level requests.
 
 ## Key documentation
 

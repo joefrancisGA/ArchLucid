@@ -11,11 +11,13 @@ using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Orchestration.Pipeline;
+using ArchiForge.Persistence.Integration;
 using ArchiForge.Persistence.Retrieval;
 using ArchiForge.Persistence.Serialization;
 using ArchiForge.Persistence.Transactions;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Persistence.Orchestration;
 
@@ -32,8 +34,11 @@ public sealed class AuthorityRunOrchestrator(
     IAuthorityPipelineWorkRepository authorityPipelineWorkRepository,
     IAsyncAuthorityPipelineModeResolver asyncAuthorityPipelineModeResolver,
     IIntegrationEventPublisher integrationEventPublisher,
+    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
+    private const string AuthorityRunCompletedEventType = "com.archiforge.authority.run.completed";
     /// <inheritdoc />
     public async Task<RunRecord> ExecuteAsync(
         ContextIngestionRequest request,
@@ -225,6 +230,11 @@ public sealed class AuthorityRunOrchestrator(
         IArchiForgeUnitOfWork uow,
         CancellationToken ct)
     {
+        IntegrationEventsOptions integrationOpts = integrationEventsOptions.CurrentValue;
+
+        bool useTransactionalIntegrationOutbox =
+            integrationOpts.TransactionalOutboxEnabled && uow.SupportsExternalTransaction;
+
         if (uow.SupportsExternalTransaction)
         {
             await retrievalIndexingOutbox.EnqueueAsync(
@@ -243,6 +253,24 @@ public sealed class AuthorityRunOrchestrator(
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
+                ct);
+        }
+
+        if (useTransactionalIntegrationOutbox)
+        {
+            byte[] integrationPayload = SerializeAuthorityRunCompletedPayload(run, manifest.ManifestId, scope);
+            string integrationMessageId = BuildAuthorityRunCompletedMessageId(run.RunId);
+
+            await integrationEventOutbox.EnqueueAsync(
+                run.RunId,
+                AuthorityRunCompletedEventType,
+                integrationMessageId,
+                integrationPayload,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                uow.Connection,
+                uow.Transaction,
                 ct);
         }
 
@@ -278,7 +306,10 @@ public sealed class AuthorityRunOrchestrator(
 
         ArchiForgeInstrumentation.AuthorityRunsCompletedTotal.Add(1);
 
-        await TryPublishAuthorityRunCompletedAsync(run, manifest.ManifestId, scope, ct);
+        if (!useTransactionalIntegrationOutbox)
+        {
+            await TryPublishAuthorityRunCompletedAsync(run, manifest.ManifestId, scope, ct);
+        }
 
         return run;
     }
@@ -291,17 +322,10 @@ public sealed class AuthorityRunOrchestrator(
     {
         try
         {
-            byte[] json = JsonSerializer.SerializeToUtf8Bytes(
-                new
-                {
-                    runId = run.RunId,
-                    manifestId,
-                    tenantId = scope.TenantId,
-                    workspaceId = scope.WorkspaceId,
-                    projectId = scope.ProjectId,
-                });
+            byte[] json = SerializeAuthorityRunCompletedPayload(run, manifestId, scope);
+            string messageId = BuildAuthorityRunCompletedMessageId(run.RunId);
 
-            await integrationEventPublisher.PublishAsync("com.archiforge.authority.run.completed", json, ct);
+            await integrationEventPublisher.PublishAsync(AuthorityRunCompletedEventType, json, messageId, ct);
         }
         catch (Exception ex) when (!ct.IsCancellationRequested)
         {
@@ -313,6 +337,24 @@ public sealed class AuthorityRunOrchestrator(
                     run.RunId);
             }
         }
+    }
+
+    private static byte[] SerializeAuthorityRunCompletedPayload(RunRecord run, Guid manifestId, ScopeContext scope)
+    {
+        return JsonSerializer.SerializeToUtf8Bytes(
+            new
+            {
+                runId = run.RunId,
+                manifestId,
+                tenantId = scope.TenantId,
+                workspaceId = scope.WorkspaceId,
+                projectId = scope.ProjectId,
+            });
+    }
+
+    private static string BuildAuthorityRunCompletedMessageId(Guid runId)
+    {
+        return $"{runId:D}:{AuthorityRunCompletedEventType}";
     }
 
     private async Task SaveRunAsync(RunRecord run, IArchiForgeUnitOfWork uow, CancellationToken ct)

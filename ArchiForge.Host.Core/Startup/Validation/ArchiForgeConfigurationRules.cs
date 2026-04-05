@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using ArchiForge.Core.Configuration;
+using ArchiForge.Core.Integration;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Hosting;
 
@@ -39,6 +40,16 @@ public static class ArchiForgeConfigurationRules
             errors.Add("ArchiForge:StorageProvider must be 'InMemory' or 'Sql' when set.");
         
 
+        IntegrationEventsOptions integrationEvents =
+            configuration.GetSection(IntegrationEventsOptions.SectionName).Get<IntegrationEventsOptions>()
+            ?? new IntegrationEventsOptions();
+
+        if (integrationEvents.TransactionalOutboxEnabled && !storageIsSql)
+        {
+            errors.Add(
+                "IntegrationEvents:TransactionalOutboxEnabled requires ArchiForge:StorageProvider Sql (transactional enqueue needs a shared SQL transaction).");
+        }
+
         string? connectionString = configuration.GetConnectionString("ArchiForge");
         if (storageIsSql && string.IsNullOrWhiteSpace(connectionString))
         
@@ -68,23 +79,37 @@ public static class ArchiForgeConfigurationRules
 
         if (string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
         {
-            string? endpoint = configuration["AzureOpenAI:Endpoint"];
-            string? apiKey = configuration["AzureOpenAI:ApiKey"];
-            string? deployment = configuration["AzureOpenAI:DeploymentName"];
-            if (string.IsNullOrWhiteSpace(endpoint) ||
-                string.IsNullOrWhiteSpace(apiKey) ||
-                string.IsNullOrWhiteSpace(deployment))
-            
-                errors.Add(
-                    "AgentExecution:Mode is 'Real' but one or more AzureOpenAI settings (Endpoint, ApiKey, DeploymentName) are missing.");
-            
+            string? completionClient = configuration["AgentExecution:CompletionClient"]?.Trim();
+            bool useEchoClient = string.Equals(completionClient, "Echo", StringComparison.OrdinalIgnoreCase);
 
-            int maxCompletionTokens = configuration.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
-
-            if (maxCompletionTokens < 0 || maxCompletionTokens > 262_144)
+            if (!string.IsNullOrEmpty(completionClient) &&
+                !useEchoClient &&
+                !string.Equals(completionClient, "AzureOpenAi", StringComparison.OrdinalIgnoreCase))
             {
                 errors.Add(
-                    "AzureOpenAI:MaxCompletionTokens must be between 1 and 262144 inclusive, or 0 / omitted to use the built-in default (4096).");
+                    "AgentExecution:CompletionClient must be 'Echo', 'AzureOpenAi', or omitted (defaults to Azure OpenAI when keys are present).");
+            }
+
+            if (!useEchoClient)
+            {
+                string? endpoint = configuration["AzureOpenAI:Endpoint"];
+                string? apiKey = configuration["AzureOpenAI:ApiKey"];
+                string? deployment = configuration["AzureOpenAI:DeploymentName"];
+                if (string.IsNullOrWhiteSpace(endpoint) ||
+                    string.IsNullOrWhiteSpace(apiKey) ||
+                    string.IsNullOrWhiteSpace(deployment))
+                {
+                    errors.Add(
+                        "AgentExecution:Mode is 'Real' but one or more AzureOpenAI settings (Endpoint, ApiKey, DeploymentName) are missing.");
+                }
+
+                int maxCompletionTokens = configuration.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
+
+                if (maxCompletionTokens < 0 || maxCompletionTokens > 262_144)
+                {
+                    errors.Add(
+                        "AzureOpenAI:MaxCompletionTokens must be between 1 and 262144 inclusive, or 0 / omitted to use the built-in default (4096).");
+                }
             }
         }
 
