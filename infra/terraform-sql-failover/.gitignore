@@ -3,3 +3,4 @@
 *.tfstate.*
 *.tfvars
 !terraform.tfvars.example
+!production.tfvars.example

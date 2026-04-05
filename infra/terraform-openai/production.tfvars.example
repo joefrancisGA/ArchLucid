@@ -1,0 +1,22 @@
+# Production-oriented OpenAI / Cognitive Services consumption budget example.
+# Apply from infra/terraform-openai after replacing the resource group id and contacts.
+#
+#   terraform apply -var-file=production.tfvars.example
+#
+# Scope: all Microsoft.CognitiveServices/accounts in the target resource group unless you
+# set openai_consumption_budget_account_resource_ids to specific account ARM ids.
+
+enable_openai_consumption_budget = true
+
+openai_consumption_budget_resource_group_id = "/subscriptions/<sub-id>/resourceGroups/rg-openai-prod"
+
+# Generous default; tune from Cost Management actuals (tokens + PTU / commitment if used).
+openai_consumption_budget_amount = 5000
+
+openai_consumption_budget_contact_emails = ["finops@example.com"]
+openai_consumption_budget_time_period_start = "2026-04-01T00:00:00Z"
+
+# Optional: narrow the budget to specific account resource ids instead of the whole RG type filter.
+# openai_consumption_budget_account_resource_ids = [
+#   "/subscriptions/<sub-id>/resourceGroups/rg-openai-prod/providers/Microsoft.CognitiveServices/accounts/<account-name>",
+# ]

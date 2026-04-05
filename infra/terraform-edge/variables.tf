@@ -46,6 +46,17 @@ variable "route_patterns" {
   default     = ["/*"]
 }
 
+variable "front_door_waf_default_rule_set_version" {
+  type        = string
+  description = "Version string for the Microsoft_DefaultRuleSet managed rule on the WAF policy (Azure DRS). Example: 2.2 is baselined on OWASP CRS 3.3.x per Microsoft Learn. Run terraform plan to confirm the value is accepted for your Front Door SKU and region."
+  default     = "2.1"
+
+  validation {
+    condition     = length(trimspace(var.front_door_waf_default_rule_set_version)) > 0
+    error_message = "front_door_waf_default_rule_set_version must be non-empty."
+  }
+}
+
 variable "tags" {
   type    = map(string)
   default = {}

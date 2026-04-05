@@ -1,3 +1,8 @@
+# Log Analytics workspace and daily ingestion cap (daily_quota_gb) are provisioned with the
+# Container Apps stack: see azurerm_log_analytics_workspace in infra/terraform-container-apps/main.tf
+# and variable log_analytics_daily_quota_gb. This monitoring root only ships metric alerts and
+# optional Managed Grafana; use production.tfvars.example there to cap ingestion (e.g. 5 GB/day).
+
 locals {
   enabled = var.enable_monitoring_stack
 

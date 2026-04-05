@@ -1,4 +1,7 @@
 # Copy to terraform.tfvars (gitignored). Defaults keep everything off for safe validate in CI.
+#
+# Log Analytics workspace daily_quota_gb is not defined here — it lives in terraform-container-apps
+# (variable log_analytics_daily_quota_gb). See production.tfvars.example in that stack.
 
 enable_monitoring_stack = false
 # resource_group_name     = "rg-archiforge-prod"

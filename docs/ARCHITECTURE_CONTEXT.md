@@ -1,8 +1,10 @@
-## ArchiForge architecture (Context)
+## ArchLucid architecture (Context)
+
+**Product name:** **ArchLucid**. Legacy identifiers may still read **ArchiForge** in code and configuration (incremental rename; see `docs/ARCHLUCID_RENAME_CHECKLIST.md`). Project and namespace names below use **`ArchiForge.*`** until Phase 5–6 of that checklist.
 
 ### Purpose
 
-ArchiForge is a .NET API that orchestrates AI-assisted architecture design. It accepts an `ArchitectureRequest`, coordinates agent tasks/results, merges results into a versioned manifest, and produces exports, comparisons, and replayable artifacts.
+ArchLucid is a .NET API that orchestrates AI-assisted architecture design. It accepts an `ArchitectureRequest`, coordinates agent tasks/results, merges results into a versioned manifest, and produces exports, comparisons, and replayable artifacts.
 
 This document is written for **internal engineers** and is intentionally pragmatic: it prioritizes “how the system actually behaves” over strict diagram formalism.
 
@@ -31,7 +33,7 @@ This document is written for **internal engineers** and is intentionally pragmat
 
 ### System boundary and actors
 
-**ArchiForge (this system)** includes:
+**ArchLucid (this system)** includes:
 
 - `ArchiForge.Api` (HTTP surface)
 - `ArchiForge.Application` (orchestration + formatting/export/replay services)

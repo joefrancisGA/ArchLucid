@@ -13,7 +13,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 - [x] 1.2 Update `archiforge-ui/README.md` — product name references
 - [x] 1.3 Update root `README.md` — product name, badges, description (2026-04-04)
 - [x] 1.4 Update `docs/GLOSSARY.md` (2026-04-05)
-- [ ] 1.5 Update `docs/ARCHITECTURE_CONTEXT.md`, `docs/ARCHITECTURE_COMPONENTS.md`, `docs/ARCHITECTURE_CONTAINERS.md`
+- [x] 1.5 Update `docs/ARCHITECTURE_CONTEXT.md`, `docs/ARCHITECTURE_COMPONENTS.md`, `docs/ARCHITECTURE_CONTAINERS.md` (2026-04-05)
 - [ ] 1.6 Update `docs/DEPLOYMENT.md`, `docs/DEPLOYMENT_TERRAFORM.md`, `docs/CONTAINERIZATION.md`
 - [ ] 1.7 Update `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/RELEASE_SMOKE.md`, `docs/RELEASE_LOCAL.md`
 - [ ] 1.8 Update onboarding docs: `docs/onboarding/day-one-developer.md`, `day-one-sre.md`, `day-one-security.md`, `docs/CONTRIBUTOR_ONBOARDING.md`, `docs/ONBOARDING_HAPPY_PATH.md`
@@ -112,3 +112,4 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 | 2026-04-05 | 1.2 | archiforge-ui/README.md product-facing name → ArchLucid (env keys unchanged) |
 | 2026-04-05 | 1.4 | GLOSSARY.md title + ArchLucid note; outbox / integration dead-letter terms |
 | 2026-04-05 | 2.1–2.2, 2.5 | Config bridges + `ResolveArchiForgeOptions` at early DI sites; UI proxy API key fallback; ops docs (architecture on a page, code map, config sunset, capacity/cost) |
+| 2026-04-05 | 1.5 | Architecture context/components/containers titles + ArchLucid product framing; production cost guardrails (`production.tfvars.example`, LA quota note, WAF version var, FinOps playbook §9) |

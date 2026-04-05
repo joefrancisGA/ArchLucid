@@ -1,4 +1,6 @@
-## ArchiForge architecture (Components)
+## ArchLucid architecture (Components)
+
+**Product name:** **ArchLucid**. **`ArchiForge.*`** below refers to .NET projects and namespaces until the bulk rename phases in `docs/ARCHLUCID_RENAME_CHECKLIST.md`.
 
 This document zooms into the most important components inside each container/library. It is not exhaustive; it focuses on the pieces engineers tend to touch when extending “run → export → compare → replay”.
 

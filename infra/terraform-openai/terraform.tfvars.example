@@ -1,4 +1,5 @@
 # Copy to terraform.tfvars (untracked). This root only manages a Cost Management consumption budget for Azure OpenAI (Cognitive Services).
+# Production example with budget enabled: production.tfvars.example.
 
 enable_openai_consumption_budget = false
 

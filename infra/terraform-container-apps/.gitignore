@@ -11,3 +11,4 @@ override.tf.json
 terraform.rc
 *.tfvars
 !terraform.tfvars.example
+!production.tfvars.example

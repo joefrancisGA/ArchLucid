@@ -1,0 +1,43 @@
+# Production-oriented example: merge into terraform.tfvars or use:
+#   terraform apply -var-file=production.tfvars.example
+# Replace ACR image tags, storage IDs, subscription paths, and FinOps contacts before apply.
+
+enable_container_apps = true
+create_resource_group   = true
+resource_group_name     = "rg-archlucid-ca-prod"
+location                = "eastus2"
+
+api_container_image = "<your-acr>.azurecr.io/archiforge:<prod-tag>"
+ui_container_image  = "<your-acr>.azurecr.io/archiforge-ui:<prod-tag>"
+
+# Log Analytics ingestion cap (adjust upward if legitimate telemetry exceeds the cap).
+log_analytics_daily_quota_gb = 5
+
+api_min_replicas = 2
+api_max_replicas = 10
+ui_min_replicas  = 2
+ui_max_replicas  = 6
+
+worker_min_replicas = 2
+worker_max_replicas = 30
+
+api_scale_concurrent_requests = 20
+ui_scale_concurrent_requests  = 40
+
+artifact_blob_service_uri   = "https://<storage-account>.blob.core.windows.net/"
+artifact_storage_account_id = "/subscriptions/<sub-id>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<name>"
+
+tags = {
+  workload    = "archlucid"
+  tier        = "production"
+  environment = "production"
+}
+
+finops_environment = "production"
+finops_cost_center = "platform"
+
+# Monthly budget: Container Apps + managed environments in this stack's resource group.
+enable_container_apps_consumption_budget         = true
+container_apps_consumption_budget_amount         = 3500
+container_apps_consumption_budget_contact_emails = ["finops@example.com"]
+container_apps_consumption_budget_time_period_start = "2026-04-01T00:00:00Z"

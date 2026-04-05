@@ -18,7 +18,7 @@ resource "azurerm_cdn_frontdoor_firewall_policy" "main" {
 
   managed_rule {
     type    = "Microsoft_DefaultRuleSet"
-    version = "2.1"
+    version = var.front_door_waf_default_rule_set_version
     action  = "Block"
   }
 
