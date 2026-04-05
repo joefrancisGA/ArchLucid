@@ -211,22 +211,7 @@ public static class ArchiForgeConfigurationRules
             errors.Add("Production requires at least one Cors:AllowedOrigins entry.");
 
         else
-
-            foreach (string? origin in origins)
-            {
-                if (string.IsNullOrWhiteSpace(origin))
-
-                    continue;
-
-
-                string trimmed = origin.Trim();
-
-                if (string.Equals(trimmed, "*", StringComparison.Ordinal))
-
-                    errors.Add("Cors:AllowedOrigins must not use a wildcard '*' in Production.");
-
-            }
-
+            errors.AddRange(from origin in origins where !string.IsNullOrWhiteSpace(origin) select origin.Trim() into trimmed where string.Equals(trimmed, "*", StringComparison.Ordinal) select "Cors:AllowedOrigins must not use a wildcard '*' in Production.");
     }
 
     /// <summary>Outbound webhook HMAC when HTTP delivery is enabled (API and Worker).</summary>
@@ -374,6 +359,49 @@ public static class ArchiForgeConfigurationRules
 
     private static void CollectRateLimitingErrors(IConfiguration configuration, List<string> errors)
     {
+        IConfigurationSection fixedSection = configuration.GetSection("RateLimiting:FixedWindow");
+        if (fixedSection.Exists())
+        {
+            int permit = configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
+            int window = configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
+            int queue = configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
+            AddIfInvalid("RateLimiting:FixedWindow", permit, window, queue);
+        }
+
+        IConfigurationSection expensiveSection = configuration.GetSection("RateLimiting:Expensive");
+
+        if (expensiveSection.Exists())
+        {
+            int permit = configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
+            int window = configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
+            int queue = configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);
+            AddIfInvalid("RateLimiting:Expensive", permit, window, queue);
+        }
+
+        IConfigurationSection replayLight = configuration.GetSection("RateLimiting:Replay:Light");
+
+        if (replayLight.Exists())
+        {
+            int permit = configuration.GetValue("RateLimiting:Replay:Light:PermitLimit", 60);
+            int window = configuration.GetValue("RateLimiting:Replay:Light:WindowMinutes", 1);
+            int queue = configuration.GetValue("RateLimiting:Replay:Light:QueueLimit", 0);
+            AddIfInvalid("RateLimiting:Replay:Light", permit, window, queue);
+        }
+
+        IConfigurationSection replayHeavy = configuration.GetSection("RateLimiting:Replay:Heavy");
+
+        if (!replayHeavy.Exists())
+            return;
+
+        {
+            int permit = configuration.GetValue("RateLimiting:Replay:Heavy:PermitLimit", 15);
+            int window = configuration.GetValue("RateLimiting:Replay:Heavy:WindowMinutes", 1);
+            int queue = configuration.GetValue("RateLimiting:Replay:Heavy:QueueLimit", 0);
+            AddIfInvalid("RateLimiting:Replay:Heavy", permit, window, queue);
+        }
+
+        return;
+
         void AddIfInvalid(string path, int permitLimit, int windowMinutes, int queueLimit)
         {
             if (permitLimit < 1)
@@ -391,42 +419,6 @@ public static class ArchiForgeConfigurationRules
                 errors.Add($"{path}:QueueLimit must be 0 or greater.");
 
         }
-
-        IConfigurationSection fixedSection = configuration.GetSection("RateLimiting:FixedWindow");
-        if (fixedSection.Exists())
-        {
-            int permit = configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
-            int window = configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
-            int queue = configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
-            AddIfInvalid("RateLimiting:FixedWindow", permit, window, queue);
-        }
-
-        IConfigurationSection expensiveSection = configuration.GetSection("RateLimiting:Expensive");
-        if (expensiveSection.Exists())
-        {
-            int permit = configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
-            int window = configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
-            int queue = configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);
-            AddIfInvalid("RateLimiting:Expensive", permit, window, queue);
-        }
-
-        IConfigurationSection replayLight = configuration.GetSection("RateLimiting:Replay:Light");
-        if (replayLight.Exists())
-        {
-            int permit = configuration.GetValue("RateLimiting:Replay:Light:PermitLimit", 60);
-            int window = configuration.GetValue("RateLimiting:Replay:Light:WindowMinutes", 1);
-            int queue = configuration.GetValue("RateLimiting:Replay:Light:QueueLimit", 0);
-            AddIfInvalid("RateLimiting:Replay:Light", permit, window, queue);
-        }
-
-        IConfigurationSection replayHeavy = configuration.GetSection("RateLimiting:Replay:Heavy");
-        if (replayHeavy.Exists())
-        {
-            int permit = configuration.GetValue("RateLimiting:Replay:Heavy:PermitLimit", 15);
-            int window = configuration.GetValue("RateLimiting:Replay:Heavy:WindowMinutes", 1);
-            int queue = configuration.GetValue("RateLimiting:Replay:Heavy:QueueLimit", 0);
-            AddIfInvalid("RateLimiting:Replay:Heavy", permit, window, queue);
-        }
     }
 
     private static void CollectHotPathCacheErrors(
@@ -441,7 +433,7 @@ public static class ArchiForgeConfigurationRules
         if (!opts.Enabled)
             return;
 
-        string provider = opts.Provider ?? "Memory";
+        string provider = opts.Provider;
 
         if (!string.Equals(provider, "Memory", StringComparison.OrdinalIgnoreCase) &&
             !string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase) &&
@@ -489,6 +481,7 @@ public static class ArchiForgeConfigurationRules
 
     }
 
+    // ReSharper disable once InvalidXmlDocComment
     /// <summary>
     /// Aligns with <see cref="ArchiForge.Host.Composition.ServiceCollectionExtensions.RegisterRetrieval"/>: only <c>InMemory</c> and <c>AzureSearch</c> are supported; omitted defaults to in-memory.
     /// </summary>
@@ -686,24 +679,24 @@ public static class ArchiForgeConfigurationRules
             errors.Add("LlmCompletionCache:Provider must be 'Memory' or 'Distributed' when set.");
         }
 
-        if (string.Equals(provider, "Distributed", StringComparison.OrdinalIgnoreCase))
-        {
-            string? llmRedis = configuration["LlmCompletionCache:RedisConnectionString"]?.Trim();
-            string? hotRedis = configuration["HotPathCache:RedisConnectionString"]?.Trim();
-            HotPathCacheOptions hotOpts =
-                configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
-                new HotPathCacheOptions();
-            bool hotPathUsesRedis = hotOpts.Enabled &&
-                                    string.Equals(
-                                        HotPathCacheProviderResolver.ResolveEffectiveProvider(hotOpts),
-                                        "Redis",
-                                        StringComparison.OrdinalIgnoreCase);
+        if (!string.Equals(provider, "Distributed", StringComparison.OrdinalIgnoreCase))
+            return;
 
-            if (string.IsNullOrEmpty(llmRedis) && string.IsNullOrEmpty(hotRedis) && !hotPathUsesRedis)
-            {
-                errors.Add(
-                    "LlmCompletionCache:Provider Distributed requires LlmCompletionCache:RedisConnectionString, or HotPathCache:RedisConnectionString with HotPathCache configured for Redis, so the host can register IDistributedCache.");
-            }
+        string? llmRedis = configuration["LlmCompletionCache:RedisConnectionString"]?.Trim();
+        string? hotRedis = configuration["HotPathCache:RedisConnectionString"]?.Trim();
+        HotPathCacheOptions hotOpts =
+            configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
+            new HotPathCacheOptions();
+        bool hotPathUsesRedis = hotOpts.Enabled &&
+                                string.Equals(
+                                    HotPathCacheProviderResolver.ResolveEffectiveProvider(hotOpts),
+                                    "Redis",
+                                    StringComparison.OrdinalIgnoreCase);
+
+        if (string.IsNullOrEmpty(llmRedis) && string.IsNullOrEmpty(hotRedis) && !hotPathUsesRedis)
+        {
+            errors.Add(
+                "LlmCompletionCache:Provider Distributed requires LlmCompletionCache:RedisConnectionString, or HotPathCache:RedisConnectionString with HotPathCache configured for Redis, so the host can register IDistributedCache.");
         }
     }
 

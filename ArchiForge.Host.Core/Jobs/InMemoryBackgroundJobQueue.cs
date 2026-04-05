@@ -3,13 +3,15 @@ using System.Threading.Channels;
 
 using ArchiForge.Application.Jobs;
 
+using JetBrains.Annotations;
+
 namespace ArchiForge.Host.Core.Jobs;
 
 public sealed class InMemoryBackgroundJobQueue(
     ILogger<InMemoryBackgroundJobQueue> logger,
     IServiceScopeFactory scopeFactory) : BackgroundService, IBackgroundJobQueue
 {
-    private sealed record WorkItem(string JobId, BackgroundJobWorkUnit WorkUnit, int MaxRetries);
+    private sealed record WorkItem(string JobId, BackgroundJobWorkUnit WorkUnit, [UsedImplicitly] int MaxRetries);
 
     /// <summary>Maximum number of terminal jobs (Succeeded/Failed) retained in memory before evicting the oldest.</summary>
     private const int MaxRetainedTerminalJobs = 200;
@@ -72,18 +74,12 @@ public sealed class InMemoryBackgroundJobQueue(
 
     public Task<BackgroundJobInfo?> GetInfoAsync(string jobId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(jobId))
-            return Task.FromResult<BackgroundJobInfo?>(null);
-
-        return Task.FromResult(_info.TryGetValue(jobId, out BackgroundJobInfo? info) ? info : null);
+        return string.IsNullOrWhiteSpace(jobId) ? Task.FromResult<BackgroundJobInfo?>(null) : Task.FromResult(_info.TryGetValue(jobId, out BackgroundJobInfo? info) ? info : null);
     }
 
     public Task<BackgroundJobFile?> GetFileAsync(string jobId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(jobId))
-            return Task.FromResult<BackgroundJobFile?>(null);
-
-        return Task.FromResult(_files.TryGetValue(jobId, out BackgroundJobFile? file) ? file : null);
+        return string.IsNullOrWhiteSpace(jobId) ? Task.FromResult<BackgroundJobFile?>(null) : Task.FromResult(_files.TryGetValue(jobId, out BackgroundJobFile? file) ? file : null);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

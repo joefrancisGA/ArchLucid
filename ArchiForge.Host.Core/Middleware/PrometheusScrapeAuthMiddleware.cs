@@ -28,7 +28,7 @@ public sealed class PrometheusScrapeAuthMiddleware
         ArgumentNullException.ThrowIfNull(options);
 
         _next = next;
-        ObservabilityPrometheusOptions o = options.Value?.Prometheus ?? new ObservabilityPrometheusOptions();
+        ObservabilityPrometheusOptions o = options.Value.Prometheus;
         string path = string.IsNullOrWhiteSpace(o.ScrapePath) ? "/metrics" : o.ScrapePath.Trim();
 
         if (!path.StartsWith('/'))
@@ -55,17 +55,9 @@ public sealed class PrometheusScrapeAuthMiddleware
         string? expectedUser = string.IsNullOrWhiteSpace(p.ScrapeUsername) ? null : p.ScrapeUsername.Trim();
         string? expectedPassword = p.ScrapePassword;
 
-        if (p.Enabled && p.RequireScrapeAuthentication)
+        if (p is { Enabled: true, RequireScrapeAuthentication: true })
         {
-            if (expectedUser is null || expectedPassword is null)
-            {
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Response.Headers.WWWAuthenticate = "Basic realm=\"prometheus\", charset=\"UTF-8\"";
-
-                return;
-            }
-
-            if (!TryValidateBasicAuth(context.Request.Headers.Authorization, expectedUser, expectedPassword))
+            if (expectedUser is null || expectedPassword is null || !TryValidateBasicAuth(context.Request.Headers.Authorization, expectedUser, expectedPassword))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 context.Response.Headers.WWWAuthenticate = "Basic realm=\"prometheus\", charset=\"UTF-8\"";
@@ -98,7 +90,6 @@ public sealed class PrometheusScrapeAuthMiddleware
         string expectedPassword)
     {
         if (!AuthenticationHeaderValue.TryParse(authorizationHeader.ToString(), out AuthenticationHeaderValue? header) ||
-            header is null ||
             !string.Equals(header.Scheme, "Basic", StringComparison.OrdinalIgnoreCase) ||
             string.IsNullOrEmpty(header.Parameter))
         {

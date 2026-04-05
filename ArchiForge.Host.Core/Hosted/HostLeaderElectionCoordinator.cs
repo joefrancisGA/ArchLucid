@@ -156,17 +156,17 @@ public sealed class HostLeaderElectionCoordinator(
                     leaseDurationSeconds,
                     applicationStoppingToken);
 
-                if (!renewed)
-                {
-                    _logger.LogWarning(
-                        "Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.",
-                        leaseName,
-                        id);
+                if (renewed)
+                    continue;
 
-                    await leaderCts.CancelAsync();
+                _logger.LogWarning(
+                    "Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.",
+                    leaseName,
+                    id);
 
-                    return;
-                }
+                await leaderCts.CancelAsync();
+
+                return;
             }
         }
         catch (OperationCanceledException) when (applicationStoppingToken.IsCancellationRequested)

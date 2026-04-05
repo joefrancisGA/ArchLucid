@@ -75,13 +75,13 @@ internal static class EvolutionOutcomeParser
                 explanationSummary = es.GetString();
             }
 
-            if (doc.RootElement.TryGetProperty("evaluation", out JsonElement ev) &&
-                ev.ValueKind is JsonValueKind.Object or JsonValueKind.Null)
+            if (!doc.RootElement.TryGetProperty("evaluation", out JsonElement ev) ||
+                ev.ValueKind is not (JsonValueKind.Object or JsonValueKind.Null))
+                return;
+
+            if (ev.ValueKind == JsonValueKind.Object)
             {
-                if (ev.ValueKind == JsonValueKind.Object)
-                {
-                    evaluation = JsonSerializer.Deserialize<EvaluationScoreResponse>(ev.GetRawText(), ParseOptions);
-                }
+                evaluation = JsonSerializer.Deserialize<EvaluationScoreResponse>(ev.GetRawText(), ParseOptions);
             }
         }
         catch (JsonException)

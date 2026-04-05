@@ -20,7 +20,7 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
 
         List<AgentResult> results = [];
 
-        foreach (AgentTask task in tasks.OrderBy(t => AgentTypeKeys.ResolveDispatchKey(t), StringComparer.OrdinalIgnoreCase))
+        foreach (AgentTask task in tasks.OrderBy(AgentTypeKeys.ResolveDispatchKey, StringComparer.OrdinalIgnoreCase))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -60,11 +60,6 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
             return FakeScenarioFactory.CreateComplianceResult(runId, taskId, request);
         }
 
-        if (string.Equals(agentTypeKey, AgentTypeKeys.Critic, StringComparison.OrdinalIgnoreCase))
-        {
-            return FakeScenarioFactory.CreateCriticResult(runId, taskId, request);
-        }
-
-        throw new InvalidOperationException($"Unsupported agent type key: {agentTypeKey}");
+        return string.Equals(agentTypeKey, AgentTypeKeys.Critic, StringComparison.OrdinalIgnoreCase) ? FakeScenarioFactory.CreateCriticResult(runId, taskId, request) : throw new InvalidOperationException($"Unsupported agent type key: {agentTypeKey}");
     }
 }

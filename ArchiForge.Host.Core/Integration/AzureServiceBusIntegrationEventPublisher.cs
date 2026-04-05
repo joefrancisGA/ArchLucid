@@ -108,12 +108,7 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
     {
         const int maxLen = 128;
 
-        if (messageId.Length <= maxLen)
-        {
-            return messageId;
-        }
-
-        return messageId[..maxLen];
+        return messageId.Length <= maxLen ? messageId : messageId[..maxLen];
     }
 
     /// <inheritdoc />

@@ -72,7 +72,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArgumentNullException.ThrowIfNull(tasks);
 
         AgentTask[] orderedTasks = tasks
-            .OrderBy(t => AgentTypeKeys.ResolveDispatchKey(t), StringComparer.OrdinalIgnoreCase)
+            .OrderBy(AgentTypeKeys.ResolveDispatchKey, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
         if (orderedTasks.Length == 0)
@@ -84,7 +84,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         {
             string types = string.Join(
                 ',',
-                orderedTasks.Select(t => AgentTypeKeys.ResolveDispatchKey(t)));
+                orderedTasks.Select(AgentTypeKeys.ResolveDispatchKey));
 
             _logger.LogInformation(
                 "Agent execution batch starting: RunId={RunId}, TaskCount={TaskCount}, AgentTypeKeys={AgentTypeKeys}",
@@ -144,8 +144,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         AgentResult result;
 
         using (Activity? activity = ArchiForgeInstrumentation.AgentHandler.StartActivity(
-                   "archiforge.agent.handle",
-                   ActivityKind.Internal))
+                   "archiforge.agent.handle"))
         {
             activity?.SetTag("archiforge.run_id", runId);
             activity?.SetTag("archiforge.task_id", task.TaskId);

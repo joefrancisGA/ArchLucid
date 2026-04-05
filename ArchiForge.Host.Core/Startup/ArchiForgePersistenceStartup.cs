@@ -1,6 +1,6 @@
-using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Application.Bootstrap;
 using ArchiForge.Core.Scoping;
+using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Persistence.Data.Infrastructure;
 using ArchiForge.Persistence.Sql;
 
@@ -16,7 +16,7 @@ public static class ArchiForgePersistenceStartup
             IConfiguration config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
             ArchiForgeOptions? options = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(config);
 
-            if (string.Equals(options?.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(options.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
             {
                 app.Logger.LogInformation(
                     "Startup: running ISchemaBootstrapper (ArchiForge:StorageProvider=Sql).");
@@ -24,9 +24,9 @@ public static class ArchiForgePersistenceStartup
                 ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
                 using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
                 using (SqlRowLevelSecurityBypassAmbient.Enter())
-                
+
                     bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
-                
+
 
                 app.Logger.LogInformation("Startup: schema bootstrap completed.");
             }
@@ -34,19 +34,19 @@ public static class ArchiForgePersistenceStartup
 
         string? connectionString = app.Configuration.GetConnectionString("ArchiForge");
         if (string.IsNullOrWhiteSpace(connectionString))
-        
+
             app.Logger.LogWarning(
                 "Startup: ConnectionStrings:ArchiForge is not set; skipping DbUp migrations.");
-        
+
         else
         {
             app.Logger.LogInformation(
                 "Startup: running DbUp migrations (embedded scripts under ArchiForge.Persistence/Migrations).");
 
             if (!DatabaseMigrator.Run(connectionString))
-            
+
                 throw new InvalidOperationException("Database migration failed; see DbUp console output.");
-            
+
 
             app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
         }

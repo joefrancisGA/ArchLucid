@@ -20,12 +20,6 @@ public static class HostingRoleResolver
         if (string.Equals(raw, "Api", StringComparison.OrdinalIgnoreCase))
             return ArchiForgeHostingRole.Api;
 
-        if (string.Equals(raw, "Worker", StringComparison.OrdinalIgnoreCase))
-            return ArchiForgeHostingRole.Worker;
-
-        if (string.Equals(raw, "Combined", StringComparison.OrdinalIgnoreCase))
-            return ArchiForgeHostingRole.Combined;
-
-        return ArchiForgeHostingRole.Combined;
+        return string.Equals(raw, "Worker", StringComparison.OrdinalIgnoreCase) ? ArchiForgeHostingRole.Worker : ArchiForgeHostingRole.Combined;
     }
 }

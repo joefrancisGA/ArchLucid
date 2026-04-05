@@ -115,10 +115,7 @@ public static class ProblemErrorCodes
         if (problemTypeUri == ProblemTypes.CircuitBreakerOpen)
             return CircuitBreakerOpen;
 
-        if (problemTypeUri == ProblemTypes.LlmTokenQuotaExceeded)
-            return LlmTokenQuotaExceeded;
-
-        return Unspecified;
+        return problemTypeUri == ProblemTypes.LlmTokenQuotaExceeded ? LlmTokenQuotaExceeded : Unspecified;
     }
 
     /// <summary>Attaches <c>extensions.errorCode</c> derived from <paramref name="problemTypeUri"/>.</summary>

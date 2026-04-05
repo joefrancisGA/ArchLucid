@@ -16,7 +16,7 @@ public static class BackgroundJobQueueAddress
         if (!string.IsNullOrWhiteSpace(direct))
             return new Uri(direct, UriKind.Absolute);
 
-        string? blobUri = largePayload?.AzureBlobServiceUri?.Trim();
+        string? blobUri = largePayload?.AzureBlobServiceUri.Trim();
 
         if (string.IsNullOrWhiteSpace(blobUri))
             return null;
