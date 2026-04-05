@@ -31,6 +31,11 @@ Thin Next.js App Router UI for runs, manifest summary, **artifact review**, **gr
 | [Data Flow and State](docs/DATA_FLOW_AND_STATE.md) | Data flow, state patterns, templates. |
 | [Testing and Troubleshooting](docs/TESTING_AND_TROUBLESHOOTING.md) | Tests, 55R Vitest smoke, **57R Playwright** operator journeys (mocked E2E), debugging. |
 
+## UI stack (Tailwind + shadcn-style)
+
+- **Tailwind CSS** (`tailwind.config.ts`, `postcss.config.mjs`, `src/app/globals.css`) for layout and tokens.
+- **shadcn/ui-style primitives** — `components.json`, `src/lib/utils.ts` (`cn`), Radix **Slot**, **CVA**, and `src/components/ui/button.tsx`. Add more components with `npx shadcn@latest add …` when needed.
+
 ## Setup
 
 ```bash

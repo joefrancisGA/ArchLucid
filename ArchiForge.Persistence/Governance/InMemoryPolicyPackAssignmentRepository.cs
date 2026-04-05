@@ -12,7 +12,7 @@ namespace ArchiForge.Persistence.Governance;
 /// between SQL and in-memory hosts.
 /// </para>
 /// <para>
-/// Registered as singleton in in-memory storage bootstrap (see <c>ArchiForgeStorageServiceCollectionExtensions</c>).
+/// Registered as singleton in in-memory storage bootstrap via <c>ArchiForge.Host.Composition</c> (<c>ArchiForgeStorageServiceCollectionExtensions</c>).
 /// </para>
 /// </remarks>
 public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignmentRepository

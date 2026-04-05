@@ -50,3 +50,9 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "front_door_health_probe_path" {
+  type        = string
+  description = "Origin health probe path. Use /health/ready when the origin is the ArchiForge API (ASP.NET). Use / when the origin is the Next.js UI only (no readiness route)."
+  default     = "/health/ready"
+}

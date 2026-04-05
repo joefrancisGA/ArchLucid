@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { decodeJwtPayload, pickDisplayNameFromPayload } from "@/lib/oidc/jwt-payload";
+import {
+  decodeJwtPayload,
+  pickDisplayNameFromPayload,
+  readNonceFromPayload,
+} from "@/lib/oidc/jwt-payload";
 
 describe("decodeJwtPayload", () => {
   it("decodes a minimal JWT payload", () => {
@@ -15,6 +19,17 @@ describe("decodeJwtPayload", () => {
   it("returns null for invalid input", () => {
     expect(decodeJwtPayload("not-a-jwt")).toBeNull();
     expect(decodeJwtPayload("")).toBeNull();
+  });
+});
+
+describe("readNonceFromPayload", () => {
+  it("returns nonce when present", () => {
+    expect(readNonceFromPayload({ nonce: " n1 ", sub: "x" })).toBe("n1");
+  });
+
+  it("returns null when missing", () => {
+    expect(readNonceFromPayload({ sub: "x" })).toBeNull();
+    expect(readNonceFromPayload(null)).toBeNull();
   });
 });
 

@@ -1,0 +1,43 @@
+# Continuous deployment (manual + environment gates).
+# Wire repository secrets and replace the placeholder steps with your registry / Terraform / Container Apps targets.
+#
+# Required GitHub Environments (Settings → Environments): staging, production — add protection rules and secrets per env.
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Deployment target"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: archiforge-cd-${{ github.event.inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy (${{ github.event.inputs.target }})
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate CD wiring (placeholder)
+        run: |
+          echo "CD scaffold: set environment-scoped secrets (e.g. AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID,"
+          echo "ACR_LOGIN_SERVER, TF_STATE_* ) and replace this step with:"
+          echo "  - azure/login + docker build/push for ArchiForge.Api and archiforge-ui images"
+          echo "  - terraform apply (or az containerapp update) using infra/terraform-* stacks"
+          echo "See docs/DEPLOYMENT_TERRAFORM.md and infra/README.md."
+
+      - name: Build API image (smoke — does not publish)
+        run: docker build -f ArchiForge.Api/Dockerfile -t archiforge-api:cd-smoke .
+
+      - name: Build UI image (smoke — does not publish)
+        run: docker build -f archiforge-ui/Dockerfile -t archiforge-ui:cd-smoke ./archiforge-ui

@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
 
-namespace ArchiForge.Host.Core.Startup;
+namespace ArchiForge.Host.Composition;
 
 public static partial class ServiceCollectionExtensions
 {

@@ -109,4 +109,26 @@ public sealed class PrometheusScrapeAuthMiddlewareTests
 
         http.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
     }
+
+    [Fact]
+    public async Task InvokeAsync_when_prometheus_enabled_require_auth_and_no_credentials_metrics_returns_401()
+    {
+        ObservabilityPrometheusOptions prometheus = new()
+        {
+            Enabled = true,
+            RequireScrapeAuthentication = true,
+            ScrapeUsername = "",
+            ScrapePassword = "",
+            ScrapePath = "/metrics",
+        };
+        PrometheusScrapeAuthMiddleware middleware = new(NextOk, OptionsForPrometheus(prometheus));
+        DefaultHttpContext http = new();
+        http.Request.Method = "GET";
+        http.Request.Path = "/metrics";
+        http.Response.Body = new MemoryStream();
+
+        await middleware.InvokeAsync(http);
+
+        http.Response.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
+    }
 }

@@ -58,7 +58,9 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Configuration;
+using ArchiForge.Host.Core.Configuration;
+
+namespace ArchiForge.Host.Composition;
 
 public static class ArchiForgeStorageServiceCollectionExtensions
 {

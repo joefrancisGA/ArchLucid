@@ -24,7 +24,7 @@ using ArchiForge.Host.Core.Services.Ask;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.Host.Core.Startup;
+namespace ArchiForge.Host.Composition;
 
 public static partial class ServiceCollectionExtensions
 {

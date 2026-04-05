@@ -6,6 +6,7 @@ using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Api.Startup;
 using ArchiForge.Host.Core.Auth.Services;
 using ArchiForge.Host.Core.Hosting;
+using ArchiForge.Host.Composition;
 using ArchiForge.Host.Core.Startup;
 using ArchiForge.Host.Core.Startup.Diagnostics;
 using ArchiForge.Host.Core.Startup.Validation;
@@ -21,6 +22,8 @@ public partial class Program
     public static void Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+        builder.AddArchiForgeGracefulShutdown();
 
         ArchiForgeSerilogConfiguration.Configure(builder, "ArchiForge.Api");
 
@@ -58,9 +61,9 @@ public partial class Program
         if (configurationErrors.Count > 0)
         {
             foreach (string error in configurationErrors)
-            
+            {
                 app.Logger.LogError("Startup configuration error: {Error}", error);
-            
+            }
 
             throw new InvalidOperationException(
                 "ArchiForge configuration is invalid. Fix the settings listed in the logs above, then restart.");

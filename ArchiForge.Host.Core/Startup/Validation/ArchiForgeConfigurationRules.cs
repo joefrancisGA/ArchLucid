@@ -467,7 +467,7 @@ public static class ArchiForgeConfigurationRules
     }
 
     /// <summary>
-    /// Aligns with <see cref="ArchiForge.Host.Core.Startup.ServiceCollectionExtensions.RegisterRetrieval"/>: only <c>InMemory</c> and <c>AzureSearch</c> are supported; omitted defaults to in-memory.
+    /// Aligns with <see cref="ArchiForge.Host.Composition.ServiceCollectionExtensions.RegisterRetrieval"/>: only <c>InMemory</c> and <c>AzureSearch</c> are supported; omitted defaults to in-memory.
     /// </summary>
     private static void CollectRetrievalVectorIndexErrors(IConfiguration configuration, List<string> errors)
     {

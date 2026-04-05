@@ -10,6 +10,7 @@ import {
   OIDC_CODE_VERIFIER_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
   OIDC_ID_TOKEN_KEY,
+  OIDC_NONCE_KEY,
   OIDC_OAUTH_STATE_KEY,
   OIDC_REFRESH_TOKEN_KEY,
 } from "@/lib/oidc/storage-keys";
@@ -45,23 +46,25 @@ export function clearOidcSession(): void {
   sessionStorage.removeItem(OIDC_CODE_VERIFIER_KEY);
 }
 
-export function storePkceState(state: string, codeVerifier: string): void {
+export function storePkceState(state: string, codeVerifier: string, nonce: string): void {
   sessionStorage.setItem(OIDC_OAUTH_STATE_KEY, state);
   sessionStorage.setItem(OIDC_CODE_VERIFIER_KEY, codeVerifier);
+  sessionStorage.setItem(OIDC_NONCE_KEY, nonce);
 }
 
-export function readPkceState(): { state: string; codeVerifier: string } | null {
+export function readPkceState(): { state: string; codeVerifier: string; nonce: string } | null {
   const state = sessionStorage.getItem(OIDC_OAUTH_STATE_KEY);
   const codeVerifier = sessionStorage.getItem(OIDC_CODE_VERIFIER_KEY);
+  const nonce = sessionStorage.getItem(OIDC_NONCE_KEY);
 
-  if (!state || !codeVerifier) {
+  if (!state || !codeVerifier || !nonce) {
     return null;
   }
 
-  return { state, codeVerifier };
+  return { state, codeVerifier, nonce };
 }
 
-export function consumePkceState(): { state: string; codeVerifier: string } | null {
+export function consumePkceState(): { state: string; codeVerifier: string; nonce: string } | null {
   const pair = readPkceState();
 
   if (!pair) {
@@ -70,6 +73,7 @@ export function consumePkceState(): { state: string; codeVerifier: string } | nu
 
   sessionStorage.removeItem(OIDC_OAUTH_STATE_KEY);
   sessionStorage.removeItem(OIDC_CODE_VERIFIER_KEY);
+  sessionStorage.removeItem(OIDC_NONCE_KEY);
 
   return pair;
 }

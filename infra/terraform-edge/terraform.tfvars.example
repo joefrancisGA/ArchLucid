@@ -11,6 +11,9 @@ front_door_profile_name = "archiforge-dev-fd"
 # Origin: APIM gateway hostname (no scheme), e.g. archiforge-dev-apim.azure-api.net
 backend_hostname = "archiforge-dev-apim.azure-api.net"
 
+# ArchiForge API readiness (default). UI-only origin: use "/".
+# front_door_health_probe_path = "/health/ready"
+
 tags = {
   workload = "archiforge"
   layer    = "edge-waf"

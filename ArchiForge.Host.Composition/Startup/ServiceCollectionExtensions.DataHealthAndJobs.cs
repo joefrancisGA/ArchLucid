@@ -16,7 +16,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Startup;
+namespace ArchiForge.Host.Composition;
 
 public static partial class ServiceCollectionExtensions
 {

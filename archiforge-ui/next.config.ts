@@ -12,8 +12,17 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=()",
   },
-  /** Clickjacking defense without a full script CSP (Next.js needs script flexibility). */
-  { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+  /**
+   * Baseline CSP: Next.js App Router still needs inline script/eval in dev and for some hydration paths;
+   * tighten further with nonces when migrating to strict production-only CSP.
+   */
+  {
+    key: "Content-Security-Policy",
+    value:
+      "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; " +
+      "img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: http://localhost:* ws://localhost:* wss://localhost:*",
+  },
 ];
 
 const nextConfig: NextConfig = {

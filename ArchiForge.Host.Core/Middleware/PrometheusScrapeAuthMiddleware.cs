@@ -4,22 +4,21 @@ using System.Text;
 
 using ArchiForge.Host.Core.Configuration;
 
-using Microsoft.Extensions.Primitives;
-
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace ArchiForge.Host.Core.Middleware;
 
 /// <summary>
-/// Requires HTTP Basic authentication for the Prometheus scrape path when scrape credentials are configured.
+/// Requires HTTP Basic authentication for the Prometheus scrape path when scrape credentials are configured,
+/// or returns 401 when Prometheus is enabled with <see cref="ObservabilityPrometheusOptions.RequireScrapeAuthentication"/> but credentials are missing.
 /// Runs ahead of <c>UseOpenTelemetryPrometheusScrapingEndpoint</c>.
 /// </summary>
 public sealed class PrometheusScrapeAuthMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly PathString _scrapePath;
-    private readonly string? _expectedUser;
-    private readonly string? _expectedPassword;
+    private readonly ObservabilityPrometheusOptions _prometheus;
 
     public PrometheusScrapeAuthMiddleware(
         RequestDelegate next,
@@ -31,24 +30,19 @@ public sealed class PrometheusScrapeAuthMiddleware
         _next = next;
         ObservabilityPrometheusOptions o = options.Value?.Prometheus ?? new ObservabilityPrometheusOptions();
         string path = string.IsNullOrWhiteSpace(o.ScrapePath) ? "/metrics" : o.ScrapePath.Trim();
+
         if (!path.StartsWith('/'))
+        {
             path = "/" + path;
+        }
 
         _scrapePath = new PathString(path);
-        _expectedUser = string.IsNullOrWhiteSpace(o.ScrapeUsername) ? null : o.ScrapeUsername.Trim();
-        _expectedPassword = string.IsNullOrWhiteSpace(o.ScrapePassword) ? null : o.ScrapePassword;
+        _prometheus = o;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-
-        if (_expectedUser is null || _expectedPassword is null)
-        {
-            await _next(context);
-
-            return;
-        }
 
         if (!context.Request.Path.StartsWithSegments(_scrapePath))
         {
@@ -57,12 +51,42 @@ public sealed class PrometheusScrapeAuthMiddleware
             return;
         }
 
-        if (!TryValidateBasicAuth(context.Request.Headers.Authorization, _expectedUser, _expectedPassword))
+        ObservabilityPrometheusOptions p = _prometheus;
+        string? expectedUser = string.IsNullOrWhiteSpace(p.ScrapeUsername) ? null : p.ScrapeUsername.Trim();
+        string? expectedPassword = p.ScrapePassword;
+
+        if (p.Enabled && p.RequireScrapeAuthentication)
         {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            context.Response.Headers.WWWAuthenticate = "Basic realm=\"prometheus\", charset=\"UTF-8\"";
+            if (expectedUser is null || expectedPassword is null)
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.Headers.WWWAuthenticate = "Basic realm=\"prometheus\", charset=\"UTF-8\"";
+
+                return;
+            }
+
+            if (!TryValidateBasicAuth(context.Request.Headers.Authorization, expectedUser, expectedPassword))
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.Headers.WWWAuthenticate = "Basic realm=\"prometheus\", charset=\"UTF-8\"";
+
+                return;
+            }
+
+            await _next(context);
 
             return;
+        }
+
+        if (expectedUser is not null && expectedPassword is not null)
+        {
+            if (!TryValidateBasicAuth(context.Request.Headers.Authorization, expectedUser, expectedPassword))
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.Headers.WWWAuthenticate = "Basic realm=\"prometheus\", charset=\"UTF-8\"";
+
+                return;
+            }
         }
 
         await _next(context);
@@ -93,8 +117,11 @@ public sealed class PrometheusScrapeAuthMiddleware
         }
 
         int colon = decoded.IndexOf(':');
+
         if (colon < 0)
+        {
             return false;
+        }
 
         string user = decoded[..colon];
         string password = decoded[(colon + 1)..];

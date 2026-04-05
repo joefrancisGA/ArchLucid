@@ -52,7 +52,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "main" {
 
   health_probe {
     interval_in_seconds = 100
-    path                = "/"
+    path                = var.front_door_health_probe_path
     protocol            = "Https"
     request_type        = "HEAD"
   }

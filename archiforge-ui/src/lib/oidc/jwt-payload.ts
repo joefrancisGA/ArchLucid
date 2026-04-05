@@ -26,6 +26,16 @@ export function decodeJwtPayload(jwt: string): Record<string, unknown> | null {
   }
 }
 
+export function readNonceFromPayload(payload: Record<string, unknown> | null): string | null {
+  if (!payload) {
+    return null;
+  }
+
+  const nonce = payload.nonce;
+
+  return typeof nonce === "string" && nonce.trim().length > 0 ? nonce.trim() : null;
+}
+
 export function pickDisplayNameFromPayload(payload: Record<string, unknown> | null): string | null {
   if (!payload) {
     return null;

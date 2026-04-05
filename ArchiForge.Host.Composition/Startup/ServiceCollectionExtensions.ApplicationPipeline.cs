@@ -33,7 +33,7 @@ using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextI
 using GraphBuilder = ArchiForge.KnowledgeGraph.Interfaces.IGraphBuilder;
 using KnowledgeGraphService = ArchiForge.KnowledgeGraph.Interfaces.IKnowledgeGraphService;
 
-namespace ArchiForge.Host.Core.Startup;
+namespace ArchiForge.Host.Composition;
 
 public static partial class ServiceCollectionExtensions
 {

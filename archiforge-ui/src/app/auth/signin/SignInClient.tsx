@@ -53,8 +53,9 @@ export function SignInClient() {
         const scope = getOidcScopes();
         const { verifier, challenge } = await createPkcePair();
         const state = randomOpaqueState();
+        const nonce = randomOpaqueState();
 
-        storePkceState(state, verifier);
+        storePkceState(state, verifier, nonce);
         const doc = await loadDiscoveryDocument(authority);
         const url = buildAuthorizeUrl({
           doc,
@@ -63,6 +64,7 @@ export function SignInClient() {
           scope,
           state,
           codeChallenge: challenge,
+          nonce,
         });
 
         if (!cancelled) {

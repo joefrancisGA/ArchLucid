@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArchiForge.Host.Core\ArchiForge.Host.Core.csproj" />
+    <ProjectReference Include="..\ArchiForge.Host.Composition\ArchiForge.Host.Composition.csproj" />
   </ItemGroup>
 
   <ItemGroup>

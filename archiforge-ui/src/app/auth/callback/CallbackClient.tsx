@@ -13,6 +13,7 @@ import {
 } from "@/lib/oidc/config";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
+import { decodeJwtPayload, readNonceFromPayload } from "@/lib/oidc/jwt-payload";
 import { consumePkceState, persistTokenResponse } from "@/lib/oidc/session";
 
 /**
@@ -88,6 +89,17 @@ export function CallbackClient() {
 
         if (cancelled) {
           return;
+        }
+
+        if (tokens.id_token) {
+          const idNonce = readNonceFromPayload(decodeJwtPayload(tokens.id_token));
+
+          if (idNonce !== stored.nonce) {
+            setFailed(true);
+            setMessage("Sign-in failed: ID token nonce did not match (possible replay). Try again.");
+
+            return;
+          }
         }
 
         persistTokenResponse(tokens);
