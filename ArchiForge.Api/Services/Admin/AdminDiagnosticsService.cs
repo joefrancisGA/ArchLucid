@@ -1,4 +1,5 @@
 using ArchiForge.Persistence.Data.Repositories;
+using ArchiForge.Persistence.Integration;
 using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Retrieval;
 
@@ -8,6 +9,7 @@ namespace ArchiForge.Api.Services.Admin;
 public sealed class AdminDiagnosticsService(
     IAuthorityPipelineWorkRepository authorityPipelineWork,
     IRetrievalIndexingOutboxRepository retrievalIndexingOutbox,
+    IIntegrationEventOutboxRepository integrationEventOutbox,
     IHostLeaderLeaseRepository hostLeaderLeases) : IAdminDiagnosticsService
 {
     private readonly IAuthorityPipelineWorkRepository _authorityPipelineWork =
@@ -15,6 +17,9 @@ public sealed class AdminDiagnosticsService(
 
     private readonly IRetrievalIndexingOutboxRepository _retrievalIndexingOutbox =
         retrievalIndexingOutbox ?? throw new ArgumentNullException(nameof(retrievalIndexingOutbox));
+
+    private readonly IIntegrationEventOutboxRepository _integrationEventOutbox =
+        integrationEventOutbox ?? throw new ArgumentNullException(nameof(integrationEventOutbox));
 
     private readonly IHostLeaderLeaseRepository _hostLeaderLeases =
         hostLeaderLeases ?? throw new ArgumentNullException(nameof(hostLeaderLeases));
@@ -24,11 +29,23 @@ public sealed class AdminDiagnosticsService(
     {
         long authorityPending = await _authorityPipelineWork.CountPendingAsync(cancellationToken);
         long retrievalPending = await _retrievalIndexingOutbox.CountPendingAsync(cancellationToken);
+        long integrationPending = await _integrationEventOutbox.CountIntegrationOutboxPublishPendingAsync(cancellationToken);
+        long integrationDead = await _integrationEventOutbox.CountIntegrationOutboxDeadLetterAsync(cancellationToken);
 
-        return new AdminOutboxSnapshot(authorityPending, retrievalPending);
+        return new AdminOutboxSnapshot(authorityPending, retrievalPending, integrationPending, integrationDead);
     }
 
     /// <inheritdoc />
     public Task<IReadOnlyList<HostLeaderLeaseSnapshot>> GetLeasesAsync(CancellationToken cancellationToken = default) =>
         _hostLeaderLeases.ListAllAsync(cancellationToken);
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListIntegrationOutboxDeadLettersAsync(
+        int maxRows,
+        CancellationToken cancellationToken = default) =>
+        _integrationEventOutbox.ListDeadLettersAsync(maxRows, cancellationToken);
+
+    /// <inheritdoc />
+    public Task<bool> RetryIntegrationOutboxDeadLetterAsync(Guid outboxId, CancellationToken cancellationToken = default) =>
+        _integrationEventOutbox.ResetDeadLetterForRetryAsync(outboxId, cancellationToken);
 }

@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Auth.Services;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Host.Core.Configuration;
@@ -67,6 +68,18 @@ public partial class Program
 
             throw new InvalidOperationException(
                 "ArchiForge configuration is invalid. Fix the settings listed in the logs above, then restart.");
+        }
+
+        // Belt-and-suspenders: refuse Production + DevelopmentBypass even if validation rules are bypassed later.
+        ArchiForgeAuthOptions authBound =
+            app.Configuration.GetSection(ArchiForgeAuthOptions.SectionName).Get<ArchiForgeAuthOptions>()
+            ?? new ArchiForgeAuthOptions();
+
+        if (app.Environment.IsProduction()
+            && string.Equals(authBound.Mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "ArchiForgeAuth:Mode cannot be DevelopmentBypass when ASPNETCORE_ENVIRONMENT is Production.");
         }
 
         StartupConfigurationDiagnostics.LogIfEnabled(

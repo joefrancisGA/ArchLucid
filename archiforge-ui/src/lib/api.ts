@@ -194,6 +194,31 @@ export async function fetchArchiForgeJson<T>(path: string): Promise<T> {
   return apiGet<T>(path);
 }
 
+/** Body shape for POST /v1/architecture/request (minimal fields for operator wizard). */
+export type CreateArchitectureRunRequestPayload = {
+  requestId: string;
+  description: string;
+  systemName: string;
+  environment: string;
+  cloudProvider: "Azure" | "Aws" | "Gcp";
+  constraints: string[];
+  requiredCapabilities: string[];
+  assumptions: string[];
+};
+
+/** Response envelope for create run (subset used by the UI). */
+export type CreateArchitectureRunResponsePayload = {
+  run?: { runId?: string; status?: string; requestId?: string };
+  tasks?: { taskId?: string; agentType?: string }[];
+};
+
+/** Submits a new architecture run (POST /v1/architecture/request). */
+export async function createArchitectureRun(
+  body: CreateArchitectureRunRequestPayload,
+): Promise<CreateArchitectureRunResponsePayload> {
+  return apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body);
+}
+
 /** Lists recent runs for a project (GET /v1/authority/projects/{id}/runs). */
 export async function listRunsByProject(projectId: string, take = 20): Promise<RunSummary[]> {
   return apiGet<RunSummary[]>(

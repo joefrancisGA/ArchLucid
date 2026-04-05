@@ -20,4 +20,12 @@ public sealed class IntegrationEventOutboxEntry
     public Guid ProjectId { get; init; }
 
     public DateTime CreatedUtc { get; init; }
+
+    public int RetryCount { get; init; }
+
+    public DateTime? NextRetryUtc { get; init; }
+
+    public string? LastErrorMessage { get; init; }
+
+    public DateTime? DeadLetteredUtc { get; init; }
 }

@@ -30,4 +30,22 @@ public interface IIntegrationEventOutboxRepository
     Task<IReadOnlyList<IntegrationEventOutboxEntry>> DequeuePendingAsync(int maxBatch, CancellationToken ct);
 
     Task MarkProcessedAsync(Guid outboxId, CancellationToken ct);
+
+    /// <summary>Updates row after a failed publish (backoff or dead-letter).</summary>
+    Task RecordPublishFailureAsync(
+        Guid outboxId,
+        int newRetryCount,
+        DateTime? nextRetryUtc,
+        DateTime? deadLetteredUtc,
+        string? lastErrorMessage,
+        CancellationToken ct);
+
+    Task<long> CountIntegrationOutboxPublishPendingAsync(CancellationToken ct);
+
+    Task<long> CountIntegrationOutboxDeadLetterAsync(CancellationToken ct);
+
+    Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(int maxRows, CancellationToken ct);
+
+    /// <summary>Clears dead-letter state so the row is eligible for publish retries again.</summary>
+    Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, CancellationToken ct);
 }

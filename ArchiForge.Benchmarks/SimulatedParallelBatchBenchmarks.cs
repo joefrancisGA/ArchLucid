@@ -7,7 +7,7 @@ namespace ArchiForge.Benchmarks;
 /// Not a substitute for production load tests; see <c>scripts/load/</c>.
 /// </summary>
 [MemoryDiagnoser]
-public sealed class SimulatedParallelBatchBenchmarks
+public class SimulatedParallelBatchBenchmarks
 {
     [Benchmark(Baseline = true)]
     public async Task SequentialFourDelays()

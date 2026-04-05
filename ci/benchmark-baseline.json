@@ -1,0 +1,17 @@
+{
+  "_comment": "Regression baseline: max mean nanoseconds per invocation (loosen on slow CI or tighten when optimizing).",
+  "benchmarks": [
+    {
+      "fullName": "ArchiForge.Benchmarks.AgentDispatchMicroBenchmarks.OrderTasksByDispatchKey",
+      "maxMeanNs": 5000
+    },
+    {
+      "fullName": "ArchiForge.Benchmarks.SimulatedParallelBatchBenchmarks.SequentialFourDelays",
+      "maxMeanNs": 350000000
+    },
+    {
+      "fullName": "ArchiForge.Benchmarks.SimulatedParallelBatchBenchmarks.ParallelFourDelays",
+      "maxMeanNs": 90000000
+    }
+  ]
+}

@@ -1926,12 +1926,16 @@ BEGIN
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ProjectId UNIQUEIDENTIFIER NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        ProcessedUtc DATETIME2 NULL
+        ProcessedUtc DATETIME2 NULL,
+        RetryCount INT NOT NULL CONSTRAINT DF_IntegrationEventOutbox_RetryCount DEFAULT (0),
+        NextRetryUtc DATETIME2 NULL,
+        LastErrorMessage NVARCHAR(2048) NULL,
+        DeadLetteredUtc DATETIME2 NULL
     );
 
     CREATE NONCLUSTERED INDEX IX_IntegrationEventOutbox_Pending
-        ON dbo.IntegrationEventOutbox (ProcessedUtc, CreatedUtc)
-        WHERE ProcessedUtc IS NULL;
+        ON dbo.IntegrationEventOutbox (ProcessedUtc, NextRetryUtc, CreatedUtc)
+        WHERE ProcessedUtc IS NULL AND DeadLetteredUtc IS NULL;
 END;
 GO
 

@@ -54,6 +54,8 @@ export default async function RunsPage({
       <p style={{ marginTop: 8 }}>
         <Link href="/">Home</Link>
         {" · "}
+        <Link href="/runs/new">New run (wizard)</Link>
+        {" · "}
         <Link href="/graph">Graph</Link>
         {" · "}
         <Link href="/compare">Compare runs</Link>

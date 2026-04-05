@@ -25,4 +25,10 @@ public sealed class IntegrationEventsOptions
     /// <c>dbo.IntegrationEventOutbox</c> in the same transaction as the run commit; a worker publishes afterward.
     /// </summary>
     public bool TransactionalOutboxEnabled { get; set; }
+
+    /// <summary>Total publish attempts per outbox row before it is dead-lettered (initial try + retries).</summary>
+    public int OutboxMaxPublishAttempts { get; set; } = 6;
+
+    /// <summary>Upper bound for exponential backoff delay between publish retries (seconds).</summary>
+    public int OutboxMaxBackoffSeconds { get; set; } = 300;
 }

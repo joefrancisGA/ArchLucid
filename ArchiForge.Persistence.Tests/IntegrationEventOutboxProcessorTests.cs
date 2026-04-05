@@ -1,0 +1,171 @@
+using ArchiForge.Core.Integration;
+using ArchiForge.Persistence.Integration;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchiForge.Persistence.Tests;
+
+[Trait("Suite", "Core")]
+public sealed class IntegrationEventOutboxProcessorTests
+{
+    [Fact]
+    public async Task ProcessPendingBatchAsync_on_success_marks_processed()
+    {
+        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        Guid id = Guid.NewGuid();
+
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new IntegrationEventOutboxEntry
+                {
+                    OutboxId = id,
+                    RunId = Guid.NewGuid(),
+                    EventType = "t",
+                    MessageId = null,
+                    PayloadUtf8 = [1],
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow,
+                    RetryCount = 0
+                }
+            ]);
+
+        IntegrationEventOutboxProcessor sut = CreateProcessor(outbox.Object, publisher.Object);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(id, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(
+            o => o.RecordPublishFailureAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<int>(),
+                It.IsAny<DateTime?>(),
+                It.IsAny<DateTime?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_on_failure_schedules_retry_when_under_cap()
+    {
+        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("sb down"));
+
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        Guid id = Guid.NewGuid();
+
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new IntegrationEventOutboxEntry
+                {
+                    OutboxId = id,
+                    RunId = Guid.NewGuid(),
+                    EventType = "t",
+                    MessageId = null,
+                    PayloadUtf8 = [1],
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow,
+                    RetryCount = 0
+                }
+            ]);
+
+        IntegrationEventsOptions opts = new() { OutboxMaxPublishAttempts = 6, OutboxMaxBackoffSeconds = 300 };
+        IntegrationEventOutboxProcessor sut = CreateProcessor(outbox.Object, publisher.Object, opts);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+        outbox.Verify(
+            o => o.RecordPublishFailureAsync(
+                id,
+                1,
+                It.Is<DateTime?>(n => n.HasValue),
+                null,
+                It.Is<string?>(s => s != null && s.Contains("sb down", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_on_failure_dead_letters_when_at_cap()
+    {
+        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("fail"));
+
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        Guid id = Guid.NewGuid();
+
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new IntegrationEventOutboxEntry
+                {
+                    OutboxId = id,
+                    RunId = Guid.NewGuid(),
+                    EventType = "t",
+                    MessageId = null,
+                    PayloadUtf8 = [1],
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow,
+                    RetryCount = 5
+                }
+            ]);
+
+        IntegrationEventsOptions opts = new() { OutboxMaxPublishAttempts = 6, OutboxMaxBackoffSeconds = 300 };
+        IntegrationEventOutboxProcessor sut = CreateProcessor(outbox.Object, publisher.Object, opts);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(
+            o => o.RecordPublishFailureAsync(
+                id,
+                6,
+                null,
+                It.Is<DateTime?>(d => d.HasValue),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    private static IntegrationEventOutboxProcessor CreateProcessor(
+        IIntegrationEventOutboxRepository outbox,
+        IIntegrationEventPublisher publisher,
+        IntegrationEventsOptions? options = null)
+    {
+        ServiceCollection services = new();
+        services.AddScoped(_ => outbox);
+        services.AddScoped(_ => publisher);
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScopeFactory factory = provider.GetRequiredService<IServiceScopeFactory>();
+        IOptions<IntegrationEventsOptions> opt =
+            Microsoft.Extensions.Options.Options.Create(options ?? new IntegrationEventsOptions());
+
+        return new IntegrationEventOutboxProcessor(factory, opt, NullLogger<IntegrationEventOutboxProcessor>.Instance);
+    }
+}

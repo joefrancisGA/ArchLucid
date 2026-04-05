@@ -24,3 +24,16 @@ groups:
           description: >-
             Expose a gauge `archiforge_authority_pipeline_work_pending` from the app or add a SQL
             exporter rule; placeholder metric until wired.
+
+      - alert: ArchiForgeIntegrationEventOutboxDeadLetter
+        expr: |
+          archiforge_integration_event_outbox_dead_letter > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Integration event outbox has dead-letter rows
+          description: >-
+            Expose gauge `archiforge_integration_event_outbox_dead_letter` from the API (Prometheus scrape)
+            or a SQL exporter on `COUNT(*) FROM dbo.IntegrationEventOutbox WHERE DeadLetteredUtc IS NOT NULL`.
+            Use GET /v1/admin/diagnostics/outboxes for pending/dead counts until the metric exists.

@@ -63,10 +63,12 @@ RUN dotnet publish ArchiForge.Api/ArchiForge.Api.csproj \
         -c Release \
         -o /app \
         --no-restore \
+        /p:PublishReadyToRun=true \
     && dotnet publish ArchiForge.Worker/ArchiForge.Worker.csproj \
         -c Release \
         -o /app \
-        --no-restore
+        --no-restore \
+        /p:PublishReadyToRun=true
 
 # ── Stage 3: runtime ───────────────────────────────────────────────
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS runtime

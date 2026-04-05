@@ -1,0 +1,132 @@
+# Optional: deploy to the GitHub **staging** environment when main/master advances.
+# Enable by setting repository variable `AUTO_DEPLOY_STAGING_MERGE` to `true`.
+# Configure the **staging** environment with the same secrets as manual CD (ACR, Container Apps, etc.).
+name: CD staging on merge
+
+on:
+  push:
+    branches: [main, master]
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: archiforge-cd-staging-merge
+  cancel-in-progress: false
+
+jobs:
+  deploy-staging:
+    if: ${{ vars.AUTO_DEPLOY_STAGING_MERGE == 'true' }}
+    name: Deploy staging (merge)
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set image tag
+        run: |
+          TAG="${{ vars.IMAGE_TAG }}"
+          if [ -z "$TAG" ]; then TAG="${{ github.sha }}"; fi
+          echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
+
+      - name: Build and push container images
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+        run: |
+          if [ -z "$ACR_LOGIN_SERVER" ]; then
+            echo "ACR_LOGIN_SERVER not set — skipping."
+            exit 0
+          fi
+          REG_NAME="${ACR_NAME:-${ACR_LOGIN_SERVER%%.*}}"
+          az acr login --name "$REG_NAME"
+          docker build -f ArchiForge.Api/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}" .
+          docker push "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}"
+          docker build -f archiforge-ui/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}" ./archiforge-ui
+          docker push "${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}"
+
+      - name: Record API revision before update
+        id: api_rev_before
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+        run: |
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          REV=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
+          echo "revision=$REV" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Update Container Apps
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
+        run: |
+          if [ -z "${ACR_LOGIN_SERVER:-}" ] || [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
+            exit 0
+          fi
+          API_IMAGE="${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}"
+          az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE"
+          if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
+            UI_IMAGE="${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}"
+            az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE"
+          fi
+
+      - name: Smoke test API
+        id: smoke_api
+        env:
+          SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+        run: |
+          if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
+            exit 0
+          fi
+          BASE="${SMOKE_TEST_BASE_URL%/}"
+          curl -fsS "$BASE/health/live" -o /dev/null
+
+      - name: Roll back API on failed smoke
+        if: ${{ failure() && steps.smoke_api.outcome == 'failure' }}
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
+        run: |
+          if [ "${{ vars.CD_ROLLBACK_ON_SMOKE_FAILURE }}" != "true" ]; then
+            exit 0
+          fi
+          if [ "${{ steps.api_rev_before.outputs.skip }}" = "true" ]; then
+            exit 0
+          fi
+          if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
+            exit 0
+          fi
+          BEFORE="${{ steps.api_rev_before.outputs.revision }}"
+          AFTER=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
+          if [ -z "$AFTER" ] || [ "$AFTER" = "$BEFORE" ]; then
+            exit 0
+          fi
+          az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision "$AFTER"
+
+      - name: Notify webhook
+        if: always()
+        env:
+          CD_NOTIFY_WEBHOOK_URL: ${{ secrets.CD_NOTIFY_WEBHOOK_URL }}
+        run: |
+          if [ -z "${CD_NOTIFY_WEBHOOK_URL:-}" ]; then
+            exit 0
+          fi
+          curl -fsS -X POST -H "Content-Type: application/json" \
+            -d "{\"text\":\"CD staging merge ${{ job.status }} — image ${IMAGE_TAG:-unknown} — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+            "$CD_NOTIFY_WEBHOOK_URL" || true

@@ -7,7 +7,7 @@ namespace ArchiForge.Benchmarks;
 
 /// <summary>CPU-only micro-benchmarks for agent task ordering (no LLM / SQL).</summary>
 [MemoryDiagnoser]
-public sealed class AgentDispatchMicroBenchmarks
+public class AgentDispatchMicroBenchmarks
 {
     private AgentTask[] _tasks = [];
 

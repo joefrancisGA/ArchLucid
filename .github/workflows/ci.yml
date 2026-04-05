@@ -405,3 +405,73 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
           npx playwright test
+
+  dotnet-benchmark-regression:
+    name: ".NET: benchmark regression (short job)"
+    needs: dotnet-fast-core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore & build benchmarks
+        run: |
+          dotnet restore ArchiForge.Benchmarks/ArchiForge.Benchmarks.csproj
+          dotnet build --no-restore -c Release ArchiForge.Benchmarks/ArchiForge.Benchmarks.csproj
+
+      - name: Run BenchmarkDotNet (short) and compare baseline
+        env:
+          BENCH_ART: ${{ runner.temp }}/bench-artifacts
+        run: |
+          set -e
+          dotnet run -c Release --no-build --project ArchiForge.Benchmarks -- \
+            --filter "*" -j short --exporters json --artifacts "$BENCH_ART"
+          python3 scripts/ci/compare_benchmark_baseline.py \
+            --baseline ci/benchmark-baseline.json \
+            --results "$BENCH_ART/results"
+
+  security-zap-api-baseline:
+    name: "Security: OWASP ZAP baseline (API container)"
+    needs: docker-build-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build API image
+        run: docker build -f ArchiForge.Api/Dockerfile -t archiforge-api:zap .
+
+      - name: Run API on Docker network and ZAP baseline
+        env:
+          ZNET: zapci-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -e
+          cleanup() {
+            docker rm -f archiforge-zap-api 2>/dev/null || true
+            docker network rm "$ZNET" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          docker network create "$ZNET"
+          docker run -d --name archiforge-zap-api --network "$ZNET" -p 8080:8080 \
+            -e ASPNETCORE_URLS=http://+:8080 \
+            -e ASPNETCORE_ENVIRONMENT=Development \
+            archiforge-api:zap
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8080/health/live; then
+              break
+            fi
+            if [ "$i" -eq 60 ]; then
+              echo "API did not become healthy in time"
+              exit 1
+            fi
+            sleep 2
+          done
+          docker run --rm --network "$ZNET" ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py -t http://archiforge-zap-api:8080 -I

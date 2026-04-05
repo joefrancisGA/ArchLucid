@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>ArchiForge.Benchmarks.SimulatedParallelBatchBenchmarks-20260405-004048</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8037)
+11th Gen Intel Core i5-1135G7 2.40GHz, 1 CPU, 8 logical and 4 physical cores
+.NET SDK 10.0.201
+  [Host]   : .NET 10.0.5 (10.0.526.15411), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  ShortRun : .NET 10.0.5 (10.0.526.15411), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+</code></pre>
+<pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
+</code></pre>
+
+<table>
+<thead><tr><th>Method        </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>SequentialFourDelays</td><td>61.96 ms</td><td>4.460 ms</td><td>0.244 ms</td><td>1.00</td><td>-</td><td>NA</td>
+</tr><tr><td>ParallelFourDelays</td><td>15.45 ms</td><td>0.879 ms</td><td>0.048 ms</td><td>0.25</td><td>915 B</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>

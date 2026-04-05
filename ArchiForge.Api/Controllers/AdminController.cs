@@ -1,6 +1,7 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Services.Admin;
 using ArchiForge.Persistence.Data.Repositories;
+using ArchiForge.Persistence.Integration;
 using ArchiForge.Host.Core.Configuration;
 
 using Asp.Versioning;
@@ -56,6 +57,37 @@ public sealed class AdminController(
             await _featureManager.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline, cancellationToken);
 
         return Ok(new AsyncAuthorityPipelineFeatureState(enabled));
+    }
+
+    /// <summary>Integration event outbox rows that exceeded publish retries (inspect before manual retry).</summary>
+    [HttpGet("integration-outbox/dead-letters")]
+    [ProducesResponseType(typeof(IReadOnlyList<IntegrationEventOutboxDeadLetterRow>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListIntegrationOutboxDeadLetters(
+        [FromQuery] int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<IntegrationEventOutboxDeadLetterRow> rows =
+            await _diagnostics.ListIntegrationOutboxDeadLettersAsync(maxRows, cancellationToken);
+
+        return Ok(rows);
+    }
+
+    /// <summary>Clears dead-letter state for one outbox row so the worker will publish again.</summary>
+    [HttpPost("integration-outbox/dead-letters/{outboxId:guid}/retry")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RetryIntegrationOutboxDeadLetter(
+        Guid outboxId,
+        CancellationToken cancellationToken = default)
+    {
+        bool ok = await _diagnostics.RetryIntegrationOutboxDeadLetterAsync(outboxId, cancellationToken);
+
+        if (!ok)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
     }
 }
 

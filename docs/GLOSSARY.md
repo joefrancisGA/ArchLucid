@@ -1,8 +1,8 @@
-# ArchiForge glossary
+# ArchLucid glossary
 
-**Last reviewed:** 2026-04-04
+**Last reviewed:** 2026-04-05
 
-Short definitions for domain terms used across the codebase, docs, and runbooks. Deeper context is linked from each entry.
+Short definitions for domain terms used across the codebase, docs, and runbooks. **ArchLucid** is the product name; legacy identifiers may still read **ArchiForge** in code and configuration (rename is incremental; see `docs/ARCHLUCID_RENAME_CHECKLIST.md`). Deeper context is linked from each entry.
 
 ---
 
@@ -64,7 +64,7 @@ A SQL-backed lease mechanism (**`IHostLeaderLeaseRepository`**, `dbo.HostLeaderL
 
 ## Outbox (transactional outbox)
 
-A SQL table (`dbo.AuthorityPipelineWorkOutbox`, `dbo.RetrievalIndexingOutbox`) where deferred work is **enqueued atomically inside the same transaction** as the triggering operation. A background worker polls and processes rows. Prevents lost work on crash. See **ADR 0004** (`docs/adr/0004-transactional-outbox-retrieval-indexing.md`).
+SQL tables where deferred work is **enqueued atomically inside the same transaction** as the triggering operation. Includes **`dbo.AuthorityPipelineWorkOutbox`**, **`dbo.RetrievalIndexingOutbox`**, and **`dbo.IntegrationEventOutbox`** (integration events toward Service Bus). A background worker polls and processes rows. Failed integration publishes use **retry with exponential backoff** and then **dead-letter** (`DeadLetteredUtc`); operators can list and re-queue rows via admin API (`GET/POST .../admin/integration-outbox/...`). Prevents lost work on crash. See **ADR 0004** (`docs/adr/0004-transactional-outbox-retrieval-indexing.md`).
 
 ## Policy pack
 
