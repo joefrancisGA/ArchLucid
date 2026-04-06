@@ -99,9 +99,9 @@ docker build -t archiforge-ui archiforge-ui/
 
 | Stage | Base image | Purpose |
 |-------|-----------|---------|
-| `restore` | `mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23` (pinned; bump with `global.json`) | Copy `.csproj` files and run `dotnet restore` (layer-cached) |
+| `restore` | `mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23` (pinned SDK band + Alpine; bump with `global.json` / CI) | Copy `.csproj` files and run `dotnet restore` (layer-cached) |
 | `publish` | (extends `restore`) | Copy source, run `dotnet publish -c Release` |
-| `runtime` | `mcr.microsoft.com/dotnet/aspnet:10.0.201-alpine3.23` | Non-root user, health check, port 8080 |
+| `runtime` | `mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23` (ASP.NET **runtime** tag — not the SDK `10.0.201` patch) | Non-root user, health check, port 8080 |
 
 ### UI Dockerfile (`archiforge-ui/Dockerfile`)
 
