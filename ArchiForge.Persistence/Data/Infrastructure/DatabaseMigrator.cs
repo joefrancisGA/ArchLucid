@@ -66,14 +66,24 @@ public static class DatabaseMigrator
             .Select(name => new SqlScript(name, ReadEmbeddedScript(assembly, name)))
             .ToList();
 
+        // Per-script transactions: a single transaction across all embedded scripts breaks SQL Server when later
+        // migrations include security-policy / RLS DDL and other statements that do not compose in one long transaction.
         UpgradeEngine upgrader = DeployChanges.To
             .SqlDatabase(connectionString)
             .WithScripts(scripts)
-            .WithTransaction()
+            .WithTransactionPerScript()
             .LogToConsole()
             .Build();
 
         DatabaseUpgradeResult result = upgrader.PerformUpgrade();
+
+        if (!result.Successful)
+        {
+            string detail = result.Error?.Message ?? "(no exception on DatabaseUpgradeResult)";
+
+            Console.Error.WriteLine("DbUp migration failed: " + detail);
+        }
+
         return result.Successful;
     }
 

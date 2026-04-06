@@ -52,12 +52,7 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
             return AgentType.Compliance;
         }
 
-        if (systemPrompt.Contains("Critic Agent", StringComparison.Ordinal))
-        {
-            return AgentType.Critic;
-        }
-
-        return AgentType.Topology;
+        return systemPrompt.Contains("Critic Agent", StringComparison.Ordinal) ? AgentType.Critic : AgentType.Topology;
     }
 
     private static ArchitectureRequest BuildDefaultRequest()

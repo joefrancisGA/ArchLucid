@@ -125,8 +125,8 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
         if (completion.Usage is { } usage)
         {
-            int inTok = usage.InputTokenCount is { } ip ? ip : 0;
-            int outTok = usage.OutputTokenCount is { } op ? op : 0;
+            int inTok = usage.InputTokenCount is var ip ? ip : 0;
+            int outTok = usage.OutputTokenCount is var op ? op : 0;
 
             if (inTok > 0 || outTok > 0)
             {
@@ -150,11 +150,6 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
         string? text = parts[0].Text;
 
-        if (string.IsNullOrEmpty(text))
-        {
-            throw new InvalidOperationException("Azure OpenAI returned an empty assistant message.");
-        }
-
-        return text;
+        return string.IsNullOrEmpty(text) ? throw new InvalidOperationException("Azure OpenAI returned an empty assistant message.") : text;
     }
 }

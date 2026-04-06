@@ -21,7 +21,7 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
             return;
         }
 
-        if (opts.MaxPromptTokensPerTenantPerWindow < 1 && opts.MaxCompletionTokensPerTenantPerWindow < 1)
+        if (opts is { MaxPromptTokensPerTenantPerWindow: < 1, MaxCompletionTokensPerTenantPerWindow: < 1 })
         {
             return;
         }

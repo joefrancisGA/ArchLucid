@@ -1,6 +1,6 @@
 # Release smoke path (Change Set 56R)
 
-One **deterministic** end-to-end check for **pilot / commercial confidence** (not full coverage). Implemented as **`release-smoke.ps1`** / **`release-smoke.cmd`** at the repo root.
+One **deterministic** end-to-end check for **pilot / commercial confidence** on **ArchLucid** (not full coverage). Implemented as **`release-smoke.ps1`** / **`release-smoke.cmd`** at the repo root.
 
 **For pilots:** Use **`run-readiness-check`** first (faster — no temporary API). Use **`release-smoke`** when you have **SQL** and want one scripted path that also runs **CLI `run --quick`** and checks **artifacts**. If the script fails, copy the **`--- FAILURE (triage) ---`** block (**Stage**, **Category**, **Next:**) into your report — see [PILOT_GUIDE.md](PILOT_GUIDE.md#when-you-report-an-issue).
 
@@ -10,7 +10,7 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** (no
 2. **Core-tier tests** — **fast core** (`Suite=Core`, excluding Slow + Integration), in **Release**, matching the usual first gate.
 3. **Optional: full Core** — `-FullCore` adds `Suite=Core` (may require SQL for integration tests).
 4. **Operator UI** — when Node is on `PATH`: `npm ci`, **Vitest**, **`npm run build`** (production bundle). Skip with **`-SkipUi`**.
-5. **API readiness** — starts **`ArchiForge.Api`** (Release, **http** profile, port **5128**), waits for **`GET /health/ready`** and **`GET /health/live`**.
+5. **API readiness** — starts the **`ArchiForge.Api`** project (Release, **http** profile, port **5128**), waits for **`GET /health/ready`** and **`GET /health/live`**.
 6. **Sample run** — CLI **`new ArchiForgeSmokeRc`** in a temp folder, then **`run --quick`** (Development seed + commit).
 7. **Artifacts** — **`GET /v1/architecture/run/{runId}`** must show **`goldenManifestId`**; **`GET /api/artifacts/manifests/{manifestId}`** must return **≥ 1** descriptor.
 8. **Optional: Playwright** — **`-RunPlaywright`** runs **`archiforge-ui`** **`npm run test:e2e`** (with **`CI=1`**) **after** the steps above. Not run by default.

@@ -1,6 +1,6 @@
 # Pilot guide (Change Set 56R)
 
-**Audience:** Design partners and early pilots who need to run ArchiForge locally or in a test environment **without** walking through internal design docs.
+**Audience:** Design partners and early pilots who need to run **ArchLucid** locally or in a test environment **without** walking through internal design docs. *(Repository projects and packages still use the `ArchiForge.*` prefix until the directory rename completes.)*
 
 **CLI naming:** Docs sometimes show the global tool form `archiforge …`. From a **clone without** `dotnet tool install`, use **`dotnet run --project ArchiForge.Cli -- <command>`** from the repo root (same as [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) and the **`release-smoke.ps1`** script).
 
@@ -8,9 +8,9 @@
 
 ---
 
-## What ArchiForge does (short)
+## What ArchLucid does (short)
 
-ArchiForge is an **HTTP API** that turns a structured **architecture request** (system name, description, constraints, and similar fields) into:
+ArchLucid is an **HTTP API** that turns a structured **architecture request** (system name, description, constraints, and similar fields) into:
 
 1. A **run** with tasks for specialized agents (topology, cost, compliance, critique).
 2. **Agent results** (after **execute**).

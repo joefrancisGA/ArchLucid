@@ -114,8 +114,7 @@ public static partial class ServiceCollectionExtensions
                         scopeProvider,
                         quotaOpts,
                         telemetryOpts,
-                        labelTelemetryOpts,
-                        accountingLogger);
+                        labelTelemetryOpts);
 
                     IConfiguration config = sp.GetRequiredService<IConfiguration>();
                     LlmCompletionResponseCacheOptions cacheOptions = config
@@ -217,8 +216,7 @@ public static partial class ServiceCollectionExtensions
                 scopeProvider,
                 quotaOpts,
                 telemetryOpts,
-                labelTelemetryOpts,
-                accountingLogger);
+                labelTelemetryOpts);
 
             IConfiguration config = sp.GetRequiredService<IConfiguration>();
             LlmCompletionResponseCacheOptions cacheOptions = config

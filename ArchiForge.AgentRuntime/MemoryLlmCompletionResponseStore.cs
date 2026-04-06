@@ -6,14 +6,12 @@ namespace ArchiForge.AgentRuntime;
 public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseStore, IDisposable
 {
     private readonly MemoryCache _cache;
-    private readonly int _maxEntries;
 
     public MemoryLlmCompletionResponseStore(int maxEntries)
     {
         if (maxEntries < 1)
             throw new ArgumentOutOfRangeException(nameof(maxEntries), maxEntries, "Must be at least 1.");
 
-        _maxEntries = maxEntries;
         _cache = new MemoryCache(new MemoryCacheOptions { SizeLimit = maxEntries });
     }
 
@@ -22,7 +20,7 @@ public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseSto
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
-        if (_cache.TryGetValue(key, out object? cached) && cached is string hit && hit.Length > 0)
+        if (_cache.TryGetValue(key, out object? cached) && cached is string { Length: > 0 } hit)
             return Task.FromResult<string?>(hit);
 
         return Task.FromResult<string?>(null);

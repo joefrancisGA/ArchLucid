@@ -140,4 +140,4 @@ The improvement is due to removing untestable SQL infrastructure code from the d
 
 ## Repo-wide minimum (merged Cobertura)
 
-`coverage.runsettings` intentionally does **not** set Coverlet `<Threshold>`: VSTest runs collectors **per test assembly**, so a single global percentage would fail assemblies that only cover part of the tree. CI merges Cobertura files with ReportGenerator (see `.github/workflows/ci.yml`). To add a hard gate, parse the merged Cobertura or ReportGenerator summary in a small script and fail the job (target **70%** line coverage over time).
+`coverage.runsettings` intentionally does **not** set Coverlet `<Threshold>`: VSTest runs collectors **per test assembly**, so a single global percentage would fail assemblies that only cover part of the tree. CI merges Cobertura files with ReportGenerator (see `.github/workflows/ci.yml`), then **`scripts/ci/assert_merged_line_coverage_min.py`** enforces **70%** merged **line** coverage on `Cobertura.xml` from that merge step.

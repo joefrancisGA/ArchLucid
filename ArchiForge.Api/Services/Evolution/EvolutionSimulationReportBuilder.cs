@@ -187,11 +187,6 @@ public static class EvolutionSimulationReportBuilder
 
     private static string FormatNullableDouble(double? value)
     {
-        if (value is null)
-        {
-            return "—";
-        }
-
-        return value.Value.ToString("0.####", CultureInfo.InvariantCulture);
+        return value is null ? "—" : value.Value.ToString("0.####", CultureInfo.InvariantCulture);
     }
 }

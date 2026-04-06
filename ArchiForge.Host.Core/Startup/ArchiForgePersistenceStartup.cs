@@ -45,7 +45,8 @@ public static class ArchiForgePersistenceStartup
 
             if (!DatabaseMigrator.Run(connectionString))
 
-                throw new InvalidOperationException("Database migration failed; see DbUp console output.");
+                throw new InvalidOperationException(
+                    "Database migration failed; see DbUp console output and standard error for the SQL error.");
 
 
             app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");

@@ -6,6 +6,8 @@ using ArchiForge.Application.Analysis;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Contracts.Evolution;
 
+using JetBrains.Annotations;
+
 namespace ArchiForge.Application.Evolution;
 
 /// <summary>
@@ -125,12 +127,7 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
             return null;
         }
 
-        if (text.Length <= SummaryPreviewMaxChars)
-        {
-            return text;
-        }
-
-        return text.Substring(0, SummaryPreviewMaxChars);
+        return text.Length <= SummaryPreviewMaxChars ? text : text.Substring(0, SummaryPreviewMaxChars);
     }
 
     private static SimulationDiff BuildDiff(
@@ -282,7 +279,7 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
     }
 
     private sealed record SimulationDiffDetailDto(
-        string CandidateChangeSetId,
+        [UsedImplicitly] string CandidateChangeSetId,
         string BaselineRunId,
         bool SinglePass,
         int BaselineWarningCount,

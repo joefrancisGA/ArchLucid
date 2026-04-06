@@ -1,6 +1,6 @@
 # Local release candidate packaging (Change Set 56R)
 
-Practical steps to produce a **Release**-configuration build, run a **lightweight readiness gate**, and **publish** the API for handoff to a design partner or pilot (framework-dependent deployment; no Docker requirement in this doc). **Pilot narrative:** [PILOT_GUIDE.md](PILOT_GUIDE.md).
+Practical steps to produce a **Release**-configuration build, run a **lightweight readiness gate**, and **publish** the **ArchLucid** API for handoff to a design partner or pilot (framework-dependent deployment; no Docker requirement in this doc). **Pilot narrative:** [PILOT_GUIDE.md](PILOT_GUIDE.md).
 
 **Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download), SQL Server when using `ArchiForge:StorageProvider=Sql`, and optionally **Node.js 22+** for operator UI build/tests. See [BUILD.md](BUILD.md) and [TEST_STRUCTURE.md](TEST_STRUCTURE.md).
 

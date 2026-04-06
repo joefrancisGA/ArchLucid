@@ -2,7 +2,6 @@ using ArchiForge.Core.Configuration;
 using ArchiForge.Core.Diagnostics;
 using ArchiForge.Core.Scoping;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchiForge.AgentRuntime;
@@ -11,33 +10,22 @@ namespace ArchiForge.AgentRuntime;
 /// Scoped decorator: enforces per-tenant token quota, records OTel counters (and optional per-tenant series),
 /// and forwards to the inner client (typically <see cref="AzureOpenAiCompletionClient"/>).
 /// </summary>
-public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
+public sealed class LlmCompletionAccountingClient(
+    IAgentCompletionClient inner,
+    LlmTokenQuotaWindowTracker quotaTracker,
+    IScopeContextProvider scopeProvider,
+    IOptionsMonitor<LlmTokenQuotaOptions> quotaOptions,
+    IOptionsMonitor<LlmTelemetryOptions> telemetryOptions,
+    IOptionsMonitor<LlmTelemetryLabelOptions> labelOptions)
+    : IAgentCompletionClient
 {
-    private readonly IAgentCompletionClient _inner;
-    private readonly LlmTokenQuotaWindowTracker _quotaTracker;
-    private readonly IScopeContextProvider _scopeProvider;
-    private readonly IOptionsMonitor<LlmTokenQuotaOptions> _quotaOptions;
-    private readonly IOptionsMonitor<LlmTelemetryOptions> _telemetryOptions;
-    private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions;
-    private readonly ILogger<LlmCompletionAccountingClient> _logger;
+    private readonly IAgentCompletionClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+    private readonly LlmTokenQuotaWindowTracker _quotaTracker = quotaTracker ?? throw new ArgumentNullException(nameof(quotaTracker));
+    private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+    private readonly IOptionsMonitor<LlmTokenQuotaOptions> _quotaOptions = quotaOptions ?? throw new ArgumentNullException(nameof(quotaOptions));
+    private readonly IOptionsMonitor<LlmTelemetryOptions> _telemetryOptions = telemetryOptions ?? throw new ArgumentNullException(nameof(telemetryOptions));
+    private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions = labelOptions ?? throw new ArgumentNullException(nameof(labelOptions));
 
-    public LlmCompletionAccountingClient(
-        IAgentCompletionClient inner,
-        LlmTokenQuotaWindowTracker quotaTracker,
-        IScopeContextProvider scopeProvider,
-        IOptionsMonitor<LlmTokenQuotaOptions> quotaOptions,
-        IOptionsMonitor<LlmTelemetryOptions> telemetryOptions,
-        IOptionsMonitor<LlmTelemetryLabelOptions> labelOptions,
-        ILogger<LlmCompletionAccountingClient> logger)
-    {
-        _inner = inner ?? throw new ArgumentNullException(nameof(inner));
-        _quotaTracker = quotaTracker ?? throw new ArgumentNullException(nameof(quotaTracker));
-        _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-        _quotaOptions = quotaOptions ?? throw new ArgumentNullException(nameof(quotaOptions));
-        _telemetryOptions = telemetryOptions ?? throw new ArgumentNullException(nameof(telemetryOptions));
-        _labelOptions = labelOptions ?? throw new ArgumentNullException(nameof(labelOptions));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
 
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,

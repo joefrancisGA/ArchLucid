@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Services;
+namespace ArchiForge.Host.Core.Services;
 
 /// <summary>Produces a single path segment safe for <see cref="System.IO.Compression.ZipArchive"/> entry names.</summary>
 public static class BatchReplayZipPathSanitizer

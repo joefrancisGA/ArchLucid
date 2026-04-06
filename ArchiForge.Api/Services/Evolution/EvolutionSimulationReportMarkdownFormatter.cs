@@ -142,7 +142,7 @@ public static class EvolutionSimulationReportMarkdownFormatter
             else
             {
                 EvaluationScoreResponse e = run.EvaluationScore;
-                md.AppendLine($"| Metric | Value |");
+                md.AppendLine("| Metric | Value |");
                 md.AppendLine("| --- | --- |");
                 md.AppendLine($"| Simulation | {FormatScore(e.SimulationScore)} |");
                 md.AppendLine($"| Determinism | {FormatScore(e.DeterminismScore)} |");
@@ -218,21 +218,11 @@ public static class EvolutionSimulationReportMarkdownFormatter
 
     private static string FormatScore(double? value)
     {
-        if (value is null)
-        {
-            return "—";
-        }
-
-        return value.Value.ToString("0.####", CultureInfo.InvariantCulture);
+        return value is null ? "—" : value.Value.ToString("0.####", CultureInfo.InvariantCulture);
     }
 
     private static string EscapeInline(string? text)
     {
-        if (string.IsNullOrEmpty(text))
-        {
-            return "—";
-        }
-
-        return text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal);
+        return string.IsNullOrEmpty(text) ? "—" : text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal);
     }
 }

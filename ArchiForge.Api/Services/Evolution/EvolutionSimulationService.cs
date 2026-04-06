@@ -10,6 +10,8 @@ using ArchiForge.Contracts.ProductLearning.Planning;
 using ArchiForge.Persistence.Evolution;
 using ArchiForge.Persistence.ProductLearning.Planning;
 
+using JetBrains.Annotations;
+
 namespace ArchiForge.Api.Services.Evolution;
 
 /// <summary>
@@ -318,7 +320,7 @@ public sealed class EvolutionSimulationService(
     }
 
     private sealed record ShadowOutcomeDto(
-        string? Error,
+        [UsedImplicitly] string? Error,
         string ArchitectureRunId,
         string EvaluationMode,
         string? RunStatus,

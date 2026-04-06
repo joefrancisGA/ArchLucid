@@ -63,7 +63,7 @@ public sealed class ShadowExecutionService(
 
         if (detail.Manifest is not null)
         {
-            string prior = detail.Manifest.Metadata.ChangeDescription ?? string.Empty;
+            string prior = detail.Manifest.Metadata.ChangeDescription;
 
             detail.Manifest.Metadata.ChangeDescription = string.IsNullOrEmpty(prior)
                 ? annotation
@@ -90,10 +90,8 @@ public sealed class ShadowExecutionService(
                     step.ActionType,
                     step.Description),
                 CreatedUtc = stamp,
+                Metadata = { ["ChangeSetId"] = changeSet.ChangeSetId.ToString("D"), ["StepOrdinal"] = step.Ordinal.ToString(CultureInfo.InvariantCulture) }
             };
-
-            trace.Metadata["ChangeSetId"] = changeSet.ChangeSetId.ToString("D");
-            trace.Metadata["StepOrdinal"] = step.Ordinal.ToString(CultureInfo.InvariantCulture);
 
             if (!string.IsNullOrEmpty(step.AcceptanceCriteria))
             {
@@ -110,11 +108,11 @@ public sealed class ShadowExecutionService(
         builder.Append("[60R shadow] CandidateChangeSet ");
         builder.Append(changeSet.ChangeSetId.ToString("D"));
 
-        if (!string.IsNullOrWhiteSpace(changeSet.Description))
-        {
-            builder.Append(" — ");
-            builder.Append(changeSet.Description.Trim());
-        }
+        if (string.IsNullOrWhiteSpace(changeSet.Description))
+            return builder.ToString();
+
+        builder.Append(" — ");
+        builder.Append(changeSet.Description.Trim());
 
         return builder.ToString();
     }

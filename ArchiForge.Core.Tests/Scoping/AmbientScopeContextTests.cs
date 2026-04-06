@@ -64,7 +64,7 @@ public sealed class AmbientScopeContextTests
 
         inner.Dispose();
 
-        ScopeContext? afterInner = AmbientScopeContext.CurrentOverride;
+        ScopeContext afterInner = AmbientScopeContext.CurrentOverride;
         afterInner.Should().NotBeNull();
         afterInner.TenantId.Should().Be(outerScope.TenantId);
 
