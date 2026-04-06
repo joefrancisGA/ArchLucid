@@ -84,7 +84,7 @@ public static class ArchLucidConfigurationRules
                 !string.Equals(completionClient, "AzureOpenAi", StringComparison.OrdinalIgnoreCase))
             {
                 errors.Add(
-                    "AgentExecution:CompletionClient must be 'Echo', 'AzureOpenAi', or omitted (defaults to Azure OpenAI when keys are present).");
+                    "AgentExecution:CompletionClient must be 'Echo', 'AzureOpenAi', or omitted (defaults to Azure OpenAI when keys are present). Additional values may be introduced for other ILlmProvider adapters without changing agent code.");
             }
 
             if (!useEchoClient)

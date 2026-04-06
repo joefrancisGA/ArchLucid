@@ -26,6 +26,8 @@ public sealed class LlmCompletionAccountingClient(
     private readonly IOptionsMonitor<LlmTelemetryOptions> _telemetryOptions = telemetryOptions ?? throw new ArgumentNullException(nameof(telemetryOptions));
     private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions = labelOptions ?? throw new ArgumentNullException(nameof(labelOptions));
 
+    /// <inheritdoc />
+    public LlmProviderDescriptor Descriptor => _inner.Descriptor;
 
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,

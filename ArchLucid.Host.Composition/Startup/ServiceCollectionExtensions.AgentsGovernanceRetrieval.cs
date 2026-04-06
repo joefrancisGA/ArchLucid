@@ -164,6 +164,8 @@ public static partial class ServiceCollectionExtensions
 
             return new DelegatingLlmCompletionProvider(inner, labels.ProviderId, labels.ModelDeploymentLabel);
         });
+
+        services.AddScoped<ILlmProvider>(sp => sp.GetRequiredService<ILlmCompletionProvider>());
     }
 
     private static void ConfigureLlmTelemetryLabels(

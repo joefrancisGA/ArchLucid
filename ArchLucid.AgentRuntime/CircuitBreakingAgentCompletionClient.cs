@@ -18,6 +18,9 @@ public sealed class CircuitBreakingAgentCompletionClient(
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
+    public LlmProviderDescriptor Descriptor => _inner.Descriptor;
+
+    /// <inheritdoc />
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,
@@ -40,7 +43,7 @@ public sealed class CircuitBreakingAgentCompletionClient(
         catch (Exception ex)
         {
             _gate.RecordFailure();
-            _logger.LogWarning(ex, "Azure OpenAI completion call failed; circuit breaker recorded failure.");
+            _logger.LogWarning(ex, "LLM completion call failed; circuit breaker recorded failure.");
             throw;
         }
     }

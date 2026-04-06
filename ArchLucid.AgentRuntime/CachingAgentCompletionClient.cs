@@ -54,6 +54,9 @@ public sealed class CachingAgentCompletionClient : IAgentCompletionClient
     }
 
     /// <inheritdoc />
+    public LlmProviderDescriptor Descriptor => _inner.Descriptor;
+
+    /// <inheritdoc />
     public async Task<string> CompleteJsonAsync(
         string systemPrompt,
         string userPrompt,

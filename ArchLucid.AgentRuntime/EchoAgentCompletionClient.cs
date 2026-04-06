@@ -14,11 +14,17 @@ namespace ArchLucid.AgentRuntime;
 /// </summary>
 public sealed class EchoAgentCompletionClient : IAgentCompletionClient
 {
+    private static readonly LlmProviderDescriptor EchoDescriptor =
+        LlmProviderDescriptor.ForOffline("echo", "echo");
+
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true,
         Converters = { new JsonStringEnumConverter() },
     };
+
+    /// <inheritdoc />
+    public LlmProviderDescriptor Descriptor => EchoDescriptor;
 
     /// <inheritdoc />
     public Task<string> CompleteJsonAsync(

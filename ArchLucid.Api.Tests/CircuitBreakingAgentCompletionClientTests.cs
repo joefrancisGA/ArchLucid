@@ -20,6 +20,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
     public async Task Success_delegates_to_inner()
     {
         Mock<IAgentCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
         inner.Setup(c => c.CompleteJsonAsync("s", "u", It.IsAny<CancellationToken>()))
             .ReturnsAsync("{}");
 
@@ -40,6 +41,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
     public async Task Inner_failure_opens_circuit_after_threshold()
     {
         Mock<IAgentCompletionClient> inner = new();
+        inner.SetupGet(c => c.Descriptor).Returns(LlmProviderDescriptor.ForOffline("mock", "mock"));
         inner.Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("429"));
 
