@@ -20,4 +20,9 @@
     <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
   </ItemGroup>
 
+  <!-- SchemaValidationService loads JSON Schemas from ./schemas at runtime; BenchmarkDotNet spawns a child output dir that must include them. -->
+  <ItemGroup>
+    <None Include="..\schemas\*.json" Link="schemas\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
