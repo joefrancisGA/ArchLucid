@@ -29,6 +29,7 @@ Give operators a **repeatable** way to:
 
 | Piece | Location | Role |
 |-------|----------|------|
+| **API SLO definitions + synthetic slice** | `docs/API_SLOS.md`, `.github/workflows/api-synthetic-probe.yml` | Human-readable SLO table; **external** scheduled `GET /health/live` + `GET /version` (secrets `SYNTHETIC_API_BASE_URL`, optional `SYNTHETIC_API_PROBE_KEY`) |
 | SLO recording + burn alerts | `infra/prometheus/archiforge-slo-rules.yml` | `archiforge:slo:http_availability:ratio`, burn-rate alerts, **p99** recording (`archiforge:slo:http_p99_seconds`) + `ArchiForgeSloHttpP99High`, simple **5xx ratio** alert, combined **outbox depth** alert |
 | Threshold / backlog alerts | `infra/prometheus/archiforge-alerts.yml` | Outbox depth, integration backlog, etc. |
 | Resilience test philosophy | `docs/CHAOS_TESTING.md` | Deterministic fault injection in unit tests; staging drills pair with these alerts |
@@ -91,3 +92,19 @@ flowchart LR
   R --> B
   B --> Alert[Alertmanager / Azure Monitor]
 ```
+
+## 10. External synthetic probes (GitHub Actions)
+
+**Why:** Prometheus reflects **in-cluster / scrape-path** truth and **aggregate** traffic. A **synthetic** check from **GitHub-hosted runners** validates that anonymous probe URLs are reachable over the **internet** (or your chosen base URL) with acceptable latency.
+
+**Workflow:** `.github/workflows/api-synthetic-probe.yml` runs on a **schedule** (default every 15 minutes) and **`workflow_dispatch`**.
+
+**Configure:**
+
+| Secret / variable | Purpose |
+|-------------------|---------|
+| `SYNTHETIC_API_BASE_URL` | Base URL with **no** trailing slash (e.g. `https://api.example.com`). If unset, the job **skips** successfully (safe for forks). |
+| `SYNTHETIC_API_PROBE_KEY` | Optional; sent as `X-Api-Key` when your edge requires it for these paths. |
+| Repository variable `SYNTHETIC_MAX_LATENCY_MS` | Optional per-request ceiling in milliseconds (default **15000** in the workflow). |
+
+**SLO relationship:** Authoritative **monthly** availability and **5xx budget** remain the **Prometheus** rules in this runbook. The workflow is a **canary**; see `docs/API_SLOS.md` for the full SLO table and how to extend rollup (e.g. push metrics to Prometheus or Azure Monitor).

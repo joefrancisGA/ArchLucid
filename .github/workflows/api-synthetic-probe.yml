@@ -1,0 +1,88 @@
+# External synthetic probes for ArchLucid API SLOs (reachability + latency).
+# See docs/API_SLOS.md and docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
+name: "Reliability: ArchLucid API synthetic probe"
+
+on:
+  schedule:
+    # Every 15 minutes (UTC). Adjust if you need coarser sampling or to reduce noise.
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: api-synthetic-probe-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe health + version
+        env:
+          SYNTHETIC_API_BASE_URL: ${{ secrets.SYNTHETIC_API_BASE_URL }}
+          SYNTHETIC_API_PROBE_KEY: ${{ secrets.SYNTHETIC_API_PROBE_KEY }}
+          # Max round-trip per request (ms). External paths are noisier than in-cluster; tune per environment.
+          SYNTHETIC_MAX_LATENCY_MS: ${{ vars.SYNTHETIC_MAX_LATENCY_MS }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SYNTHETIC_API_BASE_URL:-}" ]; then
+            echo "::notice::SYNTHETIC_API_BASE_URL not set — skipping probes (set repo secret to enable)."
+            echo "## Synthetic probe skipped" >> "$GITHUB_STEP_SUMMARY"
+            echo "Configure secret **SYNTHETIC_API_BASE_URL** (no trailing slash) to run external probes." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          BASE="${SYNTHETIC_API_BASE_URL%/}"
+          MAX_MS="${SYNTHETIC_MAX_LATENCY_MS:-15000}"
+          CURL_COMMON=( -sS -m 30 --connect-timeout 10 )
+
+          if [ -n "${SYNTHETIC_API_PROBE_KEY:-}" ]; then
+            CURL_COMMON+=( -H "X-Api-Key: ${SYNTHETIC_API_PROBE_KEY}" )
+          fi
+
+          probe_one() {
+            local path="$1"
+            local name="$2"
+            local url="${BASE}${path}"
+            local tmp
+            tmp="$(mktemp)"
+            local out
+            if ! out="$(curl "${CURL_COMMON[@]}" -o "$tmp" -w "%{http_code}|%{time_total}" "$url")"; then
+              echo "::error::${name} curl failed for ${url}"
+              head -c 2048 "$tmp" >&2 || true
+              rm -f "$tmp"
+              exit 1
+            fi
+
+            local code="${out%%|*}"
+            local time_total="${out#*|}"
+            local elapsed_ms
+            elapsed_ms="$(awk -v t="$time_total" 'BEGIN { printf "%d", t * 1000 + 0.5 }')"
+
+            echo "${name} ${code} ${elapsed_ms}ms"
+            if [ "$code" != "200" ]; then
+              echo "::error::${name} expected HTTP 200, got ${code} for ${url}"
+              head -c 2048 "$tmp" >&2 || true
+              rm -f "$tmp"
+              exit 1
+            fi
+
+            if [ "$elapsed_ms" -gt "$MAX_MS" ]; then
+              echo "::error::${name} latency ${elapsed_ms}ms exceeds ceiling ${MAX_MS}ms (${url})"
+              rm -f "$tmp"
+              exit 1
+            fi
+
+            echo "- **${name}**: HTTP ${code}, ${elapsed_ms} ms (\`${url}\`)" >> "$GITHUB_STEP_SUMMARY"
+            rm -f "$tmp"
+          }
+
+          echo "## ArchLucid API synthetic probe" >> "$GITHUB_STEP_SUMMARY"
+          echo "Ceiling: **${MAX_MS}** ms per request (override with repo variable \`SYNTHETIC_MAX_LATENCY_MS\`)." >> "$GITHUB_STEP_SUMMARY"
+          probe_one "/health/live" "GET /health/live"
+          probe_one "/version" "GET /version"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Authoritative monthly availability remains **Prometheus** (\`archiforge:slo:http_availability:ratio\`); this job is an external canary." >> "$GITHUB_STEP_SUMMARY"
