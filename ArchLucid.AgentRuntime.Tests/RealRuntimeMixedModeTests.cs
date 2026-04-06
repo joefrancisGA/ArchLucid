@@ -203,6 +203,13 @@ public sealed class RealRuntimeMixedModeTests
             parser,
             traceRecorder);
 
+        IOptions<AgentExecutionResilienceOptions> resilience = Options.Create(
+            new AgentExecutionResilienceOptions
+            {
+                MaxConcurrentHandlers = 0,
+                PerHandlerTimeoutSeconds = 0,
+            });
+
         RealAgentExecutor executor = new(
         [
             topologyHandler,
@@ -212,7 +219,9 @@ public sealed class RealRuntimeMixedModeTests
         ],
         NullLogger<RealAgentExecutor>.Instance,
         new MixedModePromptMonitor(new AgentPromptCatalogOptions()),
-        new FixedScopeProviderForMixedMode());
+        new FixedScopeProviderForMixedMode(),
+        new AgentHandlerConcurrencyGate(resilience),
+        resilience);
 
         ArchitectureRequest request = new()
         {

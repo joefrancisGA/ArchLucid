@@ -16,6 +16,8 @@
     <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Moq" />
+    <PackageReference Include="Polly" />
+    <PackageReference Include="Polly.Extensions" />
     <PackageReference Include="xunit" />
     <PackageReference Include="Xunit.SkippableFact" />
     <PackageReference Include="xunit.runner.visualstudio" />

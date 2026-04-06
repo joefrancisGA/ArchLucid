@@ -4,6 +4,7 @@ Optional root for **monitoring-as-code**:
 
 - **`azurerm_monitor_action_group`** — email + optional HTTPS webhook (common alert schema).
 - **`azurerm_monitor_metric_alert`** — optional **CPU** alerts on **API** and/or **Worker** Container Apps (`CpuUsageNanoCores`, 5-minute window). Threshold is in **nano cores** (e.g. `500000000` ≈ **0.5 vCPU** average).
+- **`azurerm_monitor_alert_prometheus_rule_group`** (optional) — when **`enable_prometheus_slo_rule_group = true`** and **`azure_monitor_workspace_id`** is set, provisions PromQL mirrored from **`../prometheus/archiforge-slo-rules.yml`** (HTTP **p99**, **5xx ratio**, **outbox depth**) and routes fires to the same **`azurerm_monitor_action_group`** as CPU alerts. Requires metrics in the workspace matching self-hosted scrape names (OTel HTTP semconv).
 - **`azurerm_dashboard_grafana`** (optional) — **Azure Managed Grafana** 11.x; assign **Monitoring Reader** (or Log Analytics roles) to the instance **managed identity** so operators can build dashboards against subscription metrics.
 - **Grafana Terraform provider** (optional) — when **`grafana_terraform_dashboards_enabled = true`**, provisions **`../grafana/*.json`** into a folder on that Managed Grafana (requires **`grafana_url`** + **`grafana_auth`**; usually a **second apply** after the workspace exists — see below).
 

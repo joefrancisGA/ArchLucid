@@ -1,0 +1,221 @@
+using System.Diagnostics;
+
+using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.Requests;
+using ArchiForge.Core.Configuration;
+using ArchiForge.Core.Scoping;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+
+using Polly.Timeout;
+
+namespace ArchiForge.AgentRuntime.Tests;
+
+/// <summary>
+/// Validates bulkhead (concurrency gate) and per-handler Polly timeout wiring on <see cref="RealAgentExecutor"/>.
+/// </summary>
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class AgentExecutionResilienceTests
+{
+    private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
+    {
+        public AgentPromptCatalogOptions CurrentValue { get; } = value;
+
+        public AgentPromptCatalogOptions Get(string? name) => CurrentValue;
+
+        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener) => null;
+    }
+
+    private sealed class FixedScopeProvider : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope() =>
+            new()
+            {
+                TenantId = ScopeIds.DefaultTenant,
+                WorkspaceId = ScopeIds.DefaultWorkspace,
+                ProjectId = ScopeIds.DefaultProject,
+            };
+    }
+
+    private sealed class SlowStubHandler(AgentType agentType, int delayMs) : IAgentHandler
+    {
+        public AgentType AgentType => agentType;
+
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(agentType);
+
+        public async Task<AgentResult> ExecuteAsync(
+            string runId,
+            ArchitectureRequest request,
+            AgentEvidencePackage evidence,
+            AgentTask task,
+            CancellationToken cancellationToken = default)
+        {
+            await Task.Delay(delayMs, cancellationToken);
+
+            return new AgentResult
+            {
+                RunId = runId,
+                TaskId = task.TaskId,
+                AgentType = agentType,
+                Claims = [],
+                EvidenceRefs = [],
+            };
+        }
+    }
+
+    private sealed class HangingHandler(AgentType agentType) : IAgentHandler
+    {
+        public AgentType AgentType => agentType;
+
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(agentType);
+
+        public async Task<AgentResult> ExecuteAsync(
+            string runId,
+            ArchitectureRequest request,
+            AgentEvidencePackage evidence,
+            AgentTask task,
+            CancellationToken cancellationToken = default)
+        {
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+
+            return new AgentResult();
+        }
+    }
+
+    private static ArchitectureRequest MinimalRequest() =>
+        new()
+        {
+            RequestId = "r1",
+            Description = "1234567890ab",
+            SystemName = "S",
+            Environment = "prod",
+        };
+
+    [Fact]
+    public async Task Bulkhead_max_concurrency_one_serializes_slow_handlers()
+    {
+        IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
+            new AgentExecutionResilienceOptions
+            {
+                MaxConcurrentHandlers = 1,
+                PerHandlerTimeoutSeconds = 0,
+            });
+
+        RealAgentExecutor sut = new(
+        [
+            new SlowStubHandler(AgentType.Topology, 120),
+            new SlowStubHandler(AgentType.Compliance, 120),
+        ],
+        NullLogger<RealAgentExecutor>.Instance,
+        new StubPromptMonitor(new AgentPromptCatalogOptions()),
+        new FixedScopeProvider(),
+        new AgentHandlerConcurrencyGate(ro),
+        ro);
+
+        ArchitectureRequest request = MinimalRequest();
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask taskTopology = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+        };
+        AgentTask taskCompliance = new()
+        {
+            TaskId = "tc",
+            RunId = runId,
+            AgentType = AgentType.Compliance,
+        };
+
+        Stopwatch sw = Stopwatch.StartNew();
+
+        await sut.ExecuteAsync(runId, request, evidence, [taskTopology, taskCompliance], CancellationToken.None);
+
+        sw.Elapsed.Should().BeGreaterThan(TimeSpan.FromMilliseconds(200));
+    }
+
+    [Fact]
+    public async Task Bulkhead_unlimited_allows_parallel_slow_handlers()
+    {
+        IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
+            new AgentExecutionResilienceOptions
+            {
+                MaxConcurrentHandlers = 0,
+                PerHandlerTimeoutSeconds = 0,
+            });
+
+        RealAgentExecutor sut = new(
+        [
+            new SlowStubHandler(AgentType.Topology, 150),
+            new SlowStubHandler(AgentType.Compliance, 150),
+        ],
+        NullLogger<RealAgentExecutor>.Instance,
+        new StubPromptMonitor(new AgentPromptCatalogOptions()),
+        new FixedScopeProvider(),
+        new AgentHandlerConcurrencyGate(ro),
+        ro);
+
+        ArchitectureRequest request = MinimalRequest();
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask taskTopology = new()
+        {
+            TaskId = "tz",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+        };
+        AgentTask taskCompliance = new()
+        {
+            TaskId = "tc",
+            RunId = runId,
+            AgentType = AgentType.Compliance,
+        };
+
+        Stopwatch sw = Stopwatch.StartNew();
+
+        await sut.ExecuteAsync(runId, request, evidence, [taskTopology, taskCompliance], CancellationToken.None);
+
+        // Two ~150ms handlers in parallel: allow scheduler / thread-pool slack on shared agents.
+        sw.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(400));
+    }
+
+    [Fact]
+    public async Task Per_handler_timeout_aborts_hanging_handler()
+    {
+        IOptions<AgentExecutionResilienceOptions> ro = Options.Create(
+            new AgentExecutionResilienceOptions
+            {
+                MaxConcurrentHandlers = 0,
+                PerHandlerTimeoutSeconds = 1,
+            });
+
+        RealAgentExecutor sut = new(
+        [new HangingHandler(AgentType.Topology)],
+        NullLogger<RealAgentExecutor>.Instance,
+        new StubPromptMonitor(new AgentPromptCatalogOptions()),
+        new FixedScopeProvider(),
+        new AgentHandlerConcurrencyGate(ro),
+        ro);
+
+        ArchitectureRequest request = MinimalRequest();
+        AgentEvidencePackage evidence = new();
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = new()
+        {
+            TaskId = "t1",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+        };
+
+        Func<Task> act = async () =>
+            await sut.ExecuteAsync(runId, request, evidence, [task], CancellationToken.None);
+
+        await act.Should().ThrowAsync<TimeoutRejectedException>();
+    }
+}

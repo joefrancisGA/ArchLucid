@@ -35,3 +35,17 @@ check "grafana_dashboards_require_real_auth" {
     error_message = "grafana_terraform_dashboards_enabled requires a real grafana_auth token (not the CI placeholder)."
   }
 }
+
+check "prometheus_slo_requires_workspace" {
+  assert {
+    condition     = !var.enable_prometheus_slo_rule_group || length(trimspace(var.azure_monitor_workspace_id)) > 0
+    error_message = "enable_prometheus_slo_rule_group = true requires azure_monitor_workspace_id."
+  }
+}
+
+check "prometheus_slo_requires_monitoring_stack" {
+  assert {
+    condition     = !var.enable_prometheus_slo_rule_group || var.enable_monitoring_stack
+    error_message = "enable_prometheus_slo_rule_group = true requires enable_monitoring_stack (action group + shared ops wiring)."
+  }
+}

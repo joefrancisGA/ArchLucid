@@ -129,3 +129,72 @@ groups:
           description: >-
             Sustained elevation: 30m and 6h 5xx ratios exceed 6× the 0.5% budget. Tune windows/thresholds
             to match your paging policy; see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
+
+  - name: archiforge-slo-http-p99
+    interval: 30s
+    rules:
+      - record: archiforge:slo:http_p99_seconds
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le)
+          )
+          or
+          histogram_quantile(
+            0.99,
+            sum(rate(http_server_duration_milliseconds_bucket[5m])) by (le)
+          ) / 1000
+        labels:
+          component: api
+      - alert: ArchiForgeSloHttpP99High
+        expr: archiforge:slo:http_p99_seconds > 5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: HTTP p99 latency above 5s (5m histogram)
+          description: >-
+            Tail latency SLO breach: p99 from http.server.request.duration (or legacy http_server_duration_milliseconds)
+            exceeds 5 seconds for 10 minutes. Tune threshold per product expectations; see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
+
+  - name: archiforge-slo-http-error-ratio
+    interval: 30s
+    rules:
+      - alert: ArchiForgeSloHttp5xxRatioElevated
+        expr: |
+          (
+            (
+              sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[10m]))
+              or sum(rate(http_server_duration_milliseconds_count{http_response_status_code=~"5.."}[10m]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_server_request_duration_seconds_count[10m]))
+              or sum(rate(http_server_duration_milliseconds_count[10m]))
+            , 1e-9)
+          ) > 0.02
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: HTTP 5xx ratio above 2% (10m window)
+          description: >-
+            Simple error-rate guardrail complementing multi-window burn alerts. Adjust 0.02 and duration for your SLO;
+            see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
+
+  - name: archiforge-slo-outbox-depth
+    interval: 30s
+    rules:
+      - alert: ArchiForgeSloOutboxDepthCritical
+        expr: |
+          (archiforge_authority_pipeline_work_pending > 500)
+          or (archiforge_retrieval_indexing_outbox_pending > 500)
+          or (archiforge_integration_event_outbox_publish_pending > 500)
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: Worst-case SQL outbox depth across authority, retrieval, and integration queues is very high
+          description: >-
+            At least one outbox gauge exceeded 500 pending rows for 15 minutes. Cross-check
+            infra/prometheus/archiforge-alerts.yml per-queue rules and workers; scale or fix root cause.

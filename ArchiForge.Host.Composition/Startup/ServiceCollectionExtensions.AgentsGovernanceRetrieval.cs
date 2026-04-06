@@ -27,6 +27,9 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<AgentPromptCatalogOptions>(
             configuration.GetSection(AgentPromptCatalogOptions.SectionName));
+        services.Configure<AgentExecutionResilienceOptions>(
+            configuration.GetSection(AgentExecutionResilienceOptions.SectionName));
+        services.AddSingleton<IAgentHandlerConcurrencyGate, AgentHandlerConcurrencyGate>();
         services.Configure<LlmTokenQuotaOptions>(configuration.GetSection(LlmTokenQuotaOptions.SectionName));
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
 

@@ -5,12 +5,10 @@
 **Approach in this repo**
 
 1. **HTTP (CLI)**: `ArchiForge.Cli.Tests.CliRetryDelegatingHandlerTests` sends a **500** on the first attempt and **200** on the next, asserting Polly retries via `CliRetryDelegatingHandler`.
-2. **SQL / LLM**: Production code uses `ResilientSqlConnectionFactory` and `CircuitBreakerGate` for OpenAI calls; extend with similar **deterministic fault** handlers where you need coverage (fail-first `DelegatingHandler` or SQL connection wrapper in tests).
-
-**Optional tooling**
-
-- [Polly Simmy](https://www.thepollyproject.org/) (or ecosystem chaos packages) can inject latency and faults across call graphs; we keep the default suite dependency-light and use explicit handlers first.
+2. **SQL + blob (Polly Simmy)**: `ArchLucid.Persistence.Tests` — `SqlOpenResilienceSimmyTests` composes `SqlOpenResilienceDefaults` with Simmy `ChaosFault` (transient `SqlException`); `BlobStoreSimmyChaosTests` retries `IOException` on a synthetic `IArtifactBlobStore` write path. Test projects reference **`Polly.Extensions`** so Simmy builder extensions resolve (Simmy types live in `Polly.Core`; extensions are surfaced via that package).
+3. **LLM latency (Simmy)**: `ArchLucid.AgentRuntime.Tests.SimmyChaosPipelineTests` — `ChaosLatency` under a short Polly **timeout** (fails fast), plus SQL-style retry + fault composition (mirrors completion client protection patterns).
+4. **Agent execution bulkhead + timeout**: `ArchLucid.AgentRuntime.Tests.AgentExecutionResilienceTests` — process-wide `IAgentHandlerConcurrencyGate` (semaphore) and per-handler `ResiliencePipeline` timeout on `RealAgentExecutor` (configured under `AgentExecution:Resilience`).
 
 **Operational chaos** (staging)
 
-- Run controlled drills documented in `docs/runbooks/DATABASE_FAILOVER.md` and measure RTO/RPO; pair with Prometheus rules in `infra/prometheus/archiforge-alerts.yml` and `archiforge-slo-rules.yml`.
+- Run controlled drills documented in `docs/runbooks/DATABASE_FAILOVER.md` and measure RTO/RPO; pair with Prometheus rules in `infra/prometheus/archiforge-alerts.yml` and `archiforge-slo-rules.yml`, and optional **Azure Monitor Prometheus rule groups** from `infra/terraform-monitoring/prometheus_slo_rules.tf` when `enable_prometheus_slo_rule_group` is set.

@@ -16,6 +16,10 @@ enable_monitoring_stack = false
 # ~0.5 vCPU sustained → 500000000 nano cores (tune per allocation).
 # container_cpu_nanos_threshold = 500000000
 
+# Optional: Azure Monitor managed Prometheus rule group (PromQL mirrors ../prometheus/archiforge-slo-rules.yml).
+# enable_prometheus_slo_rule_group = true
+# azure_monitor_workspace_id       = "/subscriptions/.../resourceGroups/.../providers/Microsoft.Monitor/accounts/..."
+
 # Optional: Azure Managed Grafana (extra cost; assign Monitor Reader to the Grafana identity in Azure).
 # enable_managed_grafana = true
 # grafana_name           = "archiforge-grafana"

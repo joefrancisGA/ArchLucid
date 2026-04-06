@@ -1,0 +1,54 @@
+using ArchiForge.Persistence.Connections;
+using ArchiForge.TestSupport;
+
+using FluentAssertions;
+
+using Polly;
+using Polly.Simmy;
+using Polly.Simmy.Fault;
+
+namespace ArchiForge.Persistence.Tests;
+
+/// <summary>
+/// Ensures <see cref="SqlOpenResilienceDefaults"/> retry pipeline composes with Simmy SQL faults the same way as <see cref="ResilientSqlConnectionFactory"/> (retry outside chaos).
+/// </summary>
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class SqlOpenResilienceSimmyTests
+{
+    [Fact]
+    public async Task Sql_open_retry_pipeline_outer_with_inner_chaos_transient_sql()
+    {
+        ResiliencePipeline sqlRetry = SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
+            logger: null,
+            maxRetryAttempts: 4,
+            baseDelay: TimeSpan.FromMilliseconds(1));
+
+        int chaosWave = 0;
+        int innerCalls = 0;
+
+        ChaosFaultStrategyOptions chaosOptions = new()
+        {
+            InjectionRate = 1.0,
+        };
+
+        chaosOptions.EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2);
+        chaosOptions.FaultGenerator = static _ => new ValueTask<Exception?>(SqlExceptionTestFactory.Create(40613));
+
+        ResiliencePipeline combined = new ResiliencePipelineBuilder()
+            .AddPipeline(sqlRetry)
+            .AddChaosFault(chaosOptions)
+            .Build();
+
+        await combined.ExecuteAsync(
+            async _ =>
+            {
+                Interlocked.Increment(ref innerCalls);
+                await Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        innerCalls.Should().Be(1);
+        chaosWave.Should().Be(3);
+    }
+}

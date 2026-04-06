@@ -1,6 +1,5 @@
-using System.Reflection;
-
 using ArchiForge.Persistence.Connections;
+using ArchiForge.TestSupport;
 
 using FluentAssertions;
 
@@ -23,7 +22,7 @@ public sealed class SqlTransientDetectorTests
     [InlineData(49920)]
     public void IsTransient_SqlException_WithTransientErrorNumber_ReturnsTrue(int errorNumber)
     {
-        SqlException ex = CreateSqlException(errorNumber);
+        SqlException ex = SqlExceptionTestFactory.Create(errorNumber);
 
         SqlTransientDetector.IsTransient(ex).Should().BeTrue();
     }
@@ -34,7 +33,7 @@ public sealed class SqlTransientDetectorTests
     [InlineData(547)]
     public void IsTransient_SqlException_WithNonTransientErrorNumber_ReturnsFalse(int errorNumber)
     {
-        SqlException ex = CreateSqlException(errorNumber);
+        SqlException ex = SqlExceptionTestFactory.Create(errorNumber);
 
         SqlTransientDetector.IsTransient(ex).Should().BeFalse();
     }
@@ -70,7 +69,7 @@ public sealed class SqlTransientDetectorTests
     [Fact]
     public void IsTransient_InnerSqlException_TransientCode_ReturnsTrue()
     {
-        SqlException inner = CreateSqlException(-2);
+        SqlException inner = SqlExceptionTestFactory.Create(-2);
         Exception outer = new InvalidOperationException("wrapper", inner);
 
         SqlTransientDetector.IsTransient(outer).Should().BeTrue();
@@ -79,63 +78,10 @@ public sealed class SqlTransientDetectorTests
     [Fact]
     public void IsTransient_InnerSqlException_NonTransientCode_ReturnsFalse()
     {
-        SqlException inner = CreateSqlException(18456);
+        SqlException inner = SqlExceptionTestFactory.Create(18456);
         Exception outer = new InvalidOperationException("wrapper", inner);
 
         SqlTransientDetector.IsTransient(outer).Should().BeFalse();
     }
 
-    /// <summary>
-    /// Creates a <see cref="SqlException"/> with the given error number via reflection,
-    /// since <see cref="SqlException"/> has no public constructor.
-    /// </summary>
-    private static SqlException CreateSqlException(int number)
-    {
-        SqlErrorCollection errors = (SqlErrorCollection)Activator.CreateInstance(
-            typeof(SqlErrorCollection),
-            BindingFlags.NonPublic | BindingFlags.Instance,
-            binder: null,
-            args: null,
-            culture: null)!;
-
-        // Microsoft.Data.SqlClient 6.x: internal ctor is
-        // (int infoNumber, byte state, byte errorClass, string server, string message, string procedure,
-        //  int lineNumber, int nativeError, Exception exception) — older builds used uint for native/win32.
-        SqlError error = (SqlError)Activator.CreateInstance(
-            typeof(SqlError),
-            BindingFlags.NonPublic | BindingFlags.Instance,
-            binder: null,
-            args:
-            [
-                number,
-                (byte)0,
-                (byte)0,
-                "server",
-                "message",
-                "procedure",
-                0,
-                0,
-                null
-            ],
-            culture: null)!;
-
-        typeof(SqlErrorCollection)
-            .GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .Invoke(errors, [error]);
-
-        SqlException ex = (SqlException)Activator.CreateInstance(
-            typeof(SqlException),
-            BindingFlags.NonPublic | BindingFlags.Instance,
-            binder: null,
-            args:
-            [
-                "Test SQL exception",   // message
-                errors,                 // errorCollection
-                null,                   // innerException
-                Guid.Empty              // conId
-            ],
-            culture: null)!;
-
-        return ex;
-    }
 }

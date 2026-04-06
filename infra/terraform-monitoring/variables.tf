@@ -106,3 +106,15 @@ variable "grafana_auth" {
   default     = "terraform-validate-placeholder"
   sensitive   = true
 }
+
+variable "enable_prometheus_slo_rule_group" {
+  type        = bool
+  description = "When true with enable_monitoring_stack, deploy azurerm_monitor_alert_prometheus_rule_group for p99 / 5xx / outbox PromQL (requires azure_monitor_workspace_id)."
+  default     = false
+}
+
+variable "azure_monitor_workspace_id" {
+  type        = string
+  description = "Full resource ID of the Azure Monitor workspace used as Prometheus rule group scope (Microsoft.Monitor/accounts). Empty skips rule group."
+  default     = ""
+}

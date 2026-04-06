@@ -32,8 +32,19 @@ public sealed class RealAgentExecutorTests
         public ScopeContext GetCurrentScope() => scope;
     }
 
-    private static RealAgentExecutor CreateSut(params IAgentHandler[] handlers) =>
-        new(
+    private static IOptions<AgentExecutionResilienceOptions> UnlimitedResilienceOptions() =>
+        Options.Create(
+            new AgentExecutionResilienceOptions
+            {
+                MaxConcurrentHandlers = 0,
+                PerHandlerTimeoutSeconds = 0,
+            });
+
+    private static RealAgentExecutor CreateSut(params IAgentHandler[] handlers)
+    {
+        IOptions<AgentExecutionResilienceOptions> ro = UnlimitedResilienceOptions();
+
+        return new RealAgentExecutor(
             handlers,
             NullLogger<RealAgentExecutor>.Instance,
             new StubPromptMonitor(new AgentPromptCatalogOptions()),
@@ -43,7 +54,10 @@ public sealed class RealAgentExecutorTests
                     TenantId = ScopeIds.DefaultTenant,
                     WorkspaceId = ScopeIds.DefaultWorkspace,
                     ProjectId = ScopeIds.DefaultProject,
-                }));
+                }),
+            new AgentHandlerConcurrencyGate(ro),
+            ro);
+    }
 
     [Fact]
     public void Constructor_when_duplicate_agent_types_throws()

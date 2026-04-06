@@ -11,6 +11,9 @@ using ArchiForge.Core.Scoping;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Polly;
+using Polly.Timeout;
+
 namespace ArchiForge.AgentRuntime;
 
 /// <summary>
@@ -28,18 +31,33 @@ public sealed class RealAgentExecutor : IAgentExecutor
     private readonly ILogger<RealAgentExecutor> _logger;
     private readonly IOptionsMonitor<AgentPromptCatalogOptions> _promptCatalog;
     private readonly IScopeContextProvider _scopeContextProvider;
+    private readonly IAgentHandlerConcurrencyGate _concurrencyGate;
+    private readonly ResiliencePipeline<AgentResult> _handlerTimeoutPipeline;
 
     /// <summary>Builds a lookup of handlers keyed by <see cref="IAgentHandler.AgentTypeKey"/> (duplicates throw).</summary>
     public RealAgentExecutor(
         IEnumerable<IAgentHandler> handlers,
         ILogger<RealAgentExecutor> logger,
         IOptionsMonitor<AgentPromptCatalogOptions> promptCatalog,
-        IScopeContextProvider scopeContextProvider)
+        IScopeContextProvider scopeContextProvider,
+        IAgentHandlerConcurrencyGate concurrencyGate,
+        IOptions<AgentExecutionResilienceOptions> resilienceOptions)
     {
         ArgumentNullException.ThrowIfNull(handlers);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _promptCatalog = promptCatalog ?? throw new ArgumentNullException(nameof(promptCatalog));
         _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+        _concurrencyGate = concurrencyGate ?? throw new ArgumentNullException(nameof(concurrencyGate));
+        ArgumentNullException.ThrowIfNull(resilienceOptions);
+
+        AgentExecutionResilienceOptions ro = resilienceOptions.Value;
+        int timeoutSeconds = ro.PerHandlerTimeoutSeconds;
+
+        _handlerTimeoutPipeline = timeoutSeconds <= 0
+            ? ResiliencePipeline<AgentResult>.Empty
+            : new ResiliencePipelineBuilder<AgentResult>()
+                .AddTimeout(TimeSpan.FromSeconds(timeoutSeconds))
+                .Build();
 
         List<IAgentHandler> list = handlers.ToList();
         string[] duplicateKeys = list
@@ -156,11 +174,16 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
             try
             {
-                result = await handler.ExecuteAsync(
-                    runId,
-                    request,
-                    evidence,
-                    task,
+                result = await _concurrencyGate.ExecuteAsync(
+                    async ct =>
+                        await _handlerTimeoutPipeline.ExecuteAsync(
+                            async (_, innerCt) => await handler.ExecuteAsync(
+                                runId,
+                                request,
+                                evidence,
+                                task,
+                                innerCt),
+                            ct),
                     cancellationToken);
 
                 ArchiForgeInstrumentation.AgentHandlerInvocationsTotal.Add(

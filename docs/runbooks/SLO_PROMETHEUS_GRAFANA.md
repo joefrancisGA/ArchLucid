@@ -29,7 +29,7 @@ Give operators a **repeatable** way to:
 
 | Piece | Location | Role |
 |-------|----------|------|
-| SLO recording + burn alerts | `infra/prometheus/archiforge-slo-rules.yml` | `archiforge:slo:http_availability:ratio`, burn-rate alerts |
+| SLO recording + burn alerts | `infra/prometheus/archiforge-slo-rules.yml` | `archiforge:slo:http_availability:ratio`, burn-rate alerts, **p99** recording (`archiforge:slo:http_p99_seconds`) + `ArchiForgeSloHttpP99High`, simple **5xx ratio** alert, combined **outbox depth** alert |
 | Threshold / backlog alerts | `infra/prometheus/archiforge-alerts.yml` | Outbox depth, integration backlog, etc. |
 | Resilience test philosophy | `docs/CHAOS_TESTING.md` | Deterministic fault injection in unit tests; staging drills pair with these alerts |
 | Dashboard JSON | `infra/grafana/*.json`, `infra/grafana/dashboards/*.json` | Import or Terraform-provision |
