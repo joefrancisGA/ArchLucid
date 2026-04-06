@@ -1,8 +1,9 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Comparison;
+using ArchiForge.Core.Integration;
 using ArchiForge.Core.Diagnostics;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Delivery;
@@ -18,6 +19,8 @@ using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Queries;
 using ArchiForge.Persistence.Serialization;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Persistence.Advisory;
 
@@ -59,7 +62,9 @@ public sealed class AdvisoryScanRunner(
     IAdvisoryScanExecutionRepository executionRepository,
     IAdvisoryScanScheduleRepository scheduleRepository,
     IScanScheduleCalculator scheduleCalculator,
-    IAuditService auditService) : IAdvisoryScanRunner
+    IAuditService auditService,
+    IIntegrationEventPublisher integrationEventPublisher,
+    ILogger<AdvisoryScanRunner> logger) : IAdvisoryScanRunner
 {
     private const string StatusStarted = "Started";
     private const string StatusCompleted = "Completed";
@@ -305,6 +310,15 @@ public sealed class AdvisoryScanRunner(
             },
             ct);
 
+        await TryPublishAdvisoryScanCompletedAsync(
+            schedule,
+            execution,
+            latest.RunId,
+            comparedToRunId,
+            digest.DigestId,
+            hasRuns: true,
+            ct);
+
         await AdvanceScheduleAsync(schedule, ct);
     }
 
@@ -326,6 +340,15 @@ public sealed class AdvisoryScanRunner(
                     new { scheduleId = schedule.ScheduleId, message = "no_runs" },
                     AuditJsonSerializationOptions.Instance),
             },
+            ct);
+
+        await TryPublishAdvisoryScanCompletedAsync(
+            schedule,
+            execution,
+            runId: null,
+            comparedToRunId: null,
+            digestId: null,
+            hasRuns: false,
             ct);
 
         await AdvanceScheduleAsync(schedule, ct);
@@ -361,6 +384,41 @@ public sealed class AdvisoryScanRunner(
         schedule.LastRunUtc = now;
         schedule.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(schedule.CronExpression, now);
         await scheduleRepository.UpdateAsync(schedule, ct);
+    }
+
+    private Task TryPublishAdvisoryScanCompletedAsync(
+        AdvisoryScanSchedule schedule,
+        AdvisoryScanExecution execution,
+        Guid? runId,
+        Guid? comparedToRunId,
+        Guid? digestId,
+        bool hasRuns,
+        CancellationToken ct)
+    {
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = schedule.TenantId,
+            workspaceId = schedule.WorkspaceId,
+            projectId = schedule.ProjectId,
+            scheduleId = schedule.ScheduleId,
+            executionId = execution.ExecutionId,
+            hasRuns,
+            runId,
+            comparedToRunId,
+            digestId,
+            completedUtc = execution.CompletedUtc ?? DateTime.UtcNow,
+        };
+
+        string messageId = $"{execution.ExecutionId:D}:{IntegrationEventTypes.AdvisoryScanCompletedV1}";
+
+        return IntegrationEventPublishing.TryPublishAsync(
+            integrationEventPublisher,
+            logger,
+            IntegrationEventTypes.AdvisoryScanCompletedV1,
+            payload,
+            messageId,
+            ct);
     }
 
     private static FindingsSnapshot CreateEmptyFindings(GoldenManifest manifest) =>

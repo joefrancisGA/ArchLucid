@@ -25,7 +25,7 @@ namespace ArchiForge.Api.Tests;
 public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
 {
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
-    private readonly Mock<IGoldenManifestRepository> _manifestRepository = new();
+    private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepository = new();
     private readonly Mock<IAgentEvidencePackageRepository> _evidenceRepository = new();
     private readonly Mock<IAgentExecutionTraceRepository> _traceRepository = new();
     private readonly Mock<IAgentResultRepository> _resultRepository = new();

@@ -1,4 +1,4 @@
-using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.Decisioning.Validation;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;

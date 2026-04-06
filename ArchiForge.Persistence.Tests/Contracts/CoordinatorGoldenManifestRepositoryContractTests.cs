@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchiForge.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for coordinator <see cref="IGoldenManifestRepository"/> (architecture manifest versions).
+/// Shared contract assertions for coordinator <see cref="ICoordinatorGoldenManifestRepository"/> (architecture manifest versions).
 /// </summary>
 public abstract class CoordinatorGoldenManifestRepositoryContractTests
 {
@@ -14,7 +14,7 @@ public abstract class CoordinatorGoldenManifestRepositoryContractTests
     {
     }
 
-    protected abstract IGoldenManifestRepository CreateRepository();
+    protected abstract ICoordinatorGoldenManifestRepository CreateRepository();
 
     /// <summary>SQL: ensures <c>dbo.ArchitectureRuns</c> exists for <paramref name="runId"/> (FK on manifest insert).</summary>
     protected virtual Task PrepareRunForCoordinatorDataAsync(string requestId, string runId, CancellationToken ct)
@@ -48,7 +48,7 @@ public abstract class CoordinatorGoldenManifestRepositoryContractTests
     public async Task Create_then_GetByVersion_round_trips()
     {
         SkipIfSqlServerUnavailable();
-        IGoldenManifestRepository repo = CreateRepository();
+        ICoordinatorGoldenManifestRepository repo = CreateRepository();
         string runId = "run-" + Guid.NewGuid().ToString("N");
         string requestId = "req-" + Guid.NewGuid().ToString("N");
         await PrepareRunForCoordinatorDataAsync(requestId, runId, CancellationToken.None);
@@ -68,7 +68,7 @@ public abstract class CoordinatorGoldenManifestRepositoryContractTests
     public async Task GetByVersion_missing_returns_null()
     {
         SkipIfSqlServerUnavailable();
-        IGoldenManifestRepository repo = CreateRepository();
+        ICoordinatorGoldenManifestRepository repo = CreateRepository();
 
         GoldenManifest? loaded = await repo.GetByVersionAsync("missing-" + Guid.NewGuid().ToString("N"), CancellationToken.None);
 

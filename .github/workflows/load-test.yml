@@ -1,0 +1,79 @@
+# Manual load test against Docker Compose full-stack (Improvement 9).
+# Isolated runner + local Compose avoids flaky contention on shared environments.
+name: Load test (k6, Compose full-stack)
+
+on:
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: "k6 duration (e.g. 90s, 2m)"
+        required: true
+        default: "90s"
+      vus:
+        description: "Virtual users (constant-vus)"
+        required: true
+        default: "4"
+
+jobs:
+  k6-hotpaths:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Start Compose (full-stack)
+        run: docker compose --profile full-stack up -d --build
+
+      - name: Wait for API health
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 60); do
+            if curl -fsS "http://127.0.0.1:5000/health/live" >/dev/null; then
+              echo "API healthy"
+              exit 0
+            fi
+            echo "waiting for API ($i/60)..."
+            sleep 10
+          done
+          echo "API did not become healthy in time"
+          exit 1
+
+      - name: Install k6
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
+            --keyserver hkp://keyserver.ubuntu.com:80 \
+            --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+
+      - name: Run k6 hot paths
+        id: k6
+        shell: bash
+        env:
+          BASE_URL: http://127.0.0.1:5000
+          VUS: ${{ inputs.vus }}
+          DURATION: ${{ inputs.duration }}
+          SLEEP_SEC: "1"
+          K6_SUMMARY_TREND_STATS: med,p(95),p(99)
+        run: |
+          set -euo pipefail
+          k6 run scripts/load/hotpaths.js --summary-export k6-summary.json
+
+      - name: Job summary (latency + throughput)
+        if: success()
+        run: python3 scripts/ci/print_k6_summary_metrics.py k6-summary.json
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: k6-summary
+          path: k6-summary.json
+          if-no-files-found: warn
+
+      - name: Tear down Compose (full-stack)
+        if: always()
+        run: docker compose --profile full-stack down --remove-orphans

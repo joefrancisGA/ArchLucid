@@ -16,11 +16,12 @@
     <PackageReference Include="QuestPDF" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ArchiForge.Core\ArchiForge.Core.csproj" />
     <ProjectReference Include="..\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj" />
     <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
     <ProjectReference Include="..\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj" />
     <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
-    <ProjectReference Include="..\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj" />
+    <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
   </ItemGroup>
 
 </Project>

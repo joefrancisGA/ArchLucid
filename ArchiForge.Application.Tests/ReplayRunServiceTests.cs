@@ -8,7 +8,7 @@ using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.DecisionEngine.Services;
+using ArchiForge.Decisioning.Merge;
 
 using FluentAssertions;
 
@@ -34,8 +34,8 @@ public sealed class ReplayRunServiceTests
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
         Mock<IArchitectureRunRepository> runRepo = new();
-        Mock<IGoldenManifestRepository> manifestRepo = new();
-        Mock<IDecisionTraceRepository> traceRepo = new();
+        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
+        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
 
         ReplayRunService sut = new(
@@ -142,8 +142,8 @@ public sealed class ReplayRunServiceTests
         runRepo.Setup(x => x.CreateAsync(It.IsAny<ArchitectureRun>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<IGoldenManifestRepository> manifestRepo = new();
-        Mock<IDecisionTraceRepository> traceRepo = new();
+        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
+        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
 
         ReplayRunService sut = new(
             resolver.Object,
@@ -317,11 +317,11 @@ public sealed class ReplayRunServiceTests
                 It.IsAny<ArchitectureRunStatus?>()))
             .Returns(Task.CompletedTask);
 
-        Mock<IGoldenManifestRepository> manifestRepo = new();
+        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
         manifestRepo.Setup(x => x.CreateAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        Mock<IDecisionTraceRepository> traceRepo = new();
+        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
         traceRepo.Setup(x => x.CreateManyAsync(It.IsAny<IEnumerable<DecisionTrace>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

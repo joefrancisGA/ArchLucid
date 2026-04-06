@@ -10,8 +10,8 @@ using ArchiForge.ArtifactSynthesis.Renderers;
 using ArchiForge.ArtifactSynthesis.Services;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.Core.Ask;
-using ArchiForge.DecisionEngine.Services;
-using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.Decisioning.Merge;
+using ArchiForge.Decisioning.Validation;
 using ArchiForge.Decisioning.Advisory.Analysis;
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Services;
@@ -58,9 +58,9 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IAgentResultRepository, InMemoryAgentResultRepository>();
             services.AddSingleton<IAgentEvaluationRepository, InMemoryAgentEvaluationRepository>();
             services.AddSingleton<IDecisionNodeRepository, InMemoryDecisionNodeRepository>();
-            services.AddSingleton<IGoldenManifestRepository, InMemoryCoordinatorGoldenManifestRepository>();
+            services.AddSingleton<ICoordinatorGoldenManifestRepository, InMemoryCoordinatorGoldenManifestRepository>();
             services.AddSingleton<IEvidenceBundleRepository, InMemoryEvidenceBundleRepository>();
-            services.AddSingleton<IDecisionTraceRepository, InMemoryCoordinatorDecisionTraceRepository>();
+            services.AddSingleton<ICoordinatorDecisionTraceRepository, InMemoryCoordinatorDecisionTraceRepository>();
             services.AddSingleton<IAgentEvidencePackageRepository, InMemoryAgentEvidencePackageRepository>();
             services.AddSingleton<IAgentExecutionTraceRepository, InMemoryAgentExecutionTraceRepository>();
         }
@@ -75,9 +75,9 @@ public static partial class ServiceCollectionExtensions
             services.AddScoped<IAgentResultRepository, AgentResultRepository>();
             // Data-layer contracts (CreateAsync / GetByVersionAsync / batch traces) — distinct from
             // Decisioning.Interfaces.IGoldenManifestRepository / IDecisionTraceRepository registered in AddArchiForgeStorage.
-            services.AddScoped<IGoldenManifestRepository, GoldenManifestRepository>();
+            services.AddScoped<ICoordinatorGoldenManifestRepository, GoldenManifestRepository>();
             services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();
-            services.AddScoped<IDecisionTraceRepository, DecisionTraceRepository>();
+            services.AddScoped<ICoordinatorDecisionTraceRepository, DecisionTraceRepository>();
             services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
             services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
         }

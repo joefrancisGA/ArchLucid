@@ -28,7 +28,7 @@ namespace ArchiForge.Api.Controllers;
 [EnableRateLimiting("fixed")]
 public sealed class ManifestsController(
     IArchitectureApplicationService architectureApplicationService,
-    IGoldenManifestRepository manifestRepository,
+    ICoordinatorGoldenManifestRepository manifestRepository,
     IManifestDiffService manifestDiffService,
     IManifestDiffSummaryFormatter manifestDiffSummaryFormatter,
     IManifestDiffExportService manifestDiffExportService,

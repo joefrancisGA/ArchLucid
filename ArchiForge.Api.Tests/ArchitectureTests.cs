@@ -4,8 +4,8 @@ using System.Text.Json;
 using ArchiForge.Api.Tests.TestDtos;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
-using ArchiForge.DecisionEngine.Services;
-using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.Decisioning.Merge;
+using ArchiForge.Decisioning.Validation;
 
 using FluentAssertions;
 

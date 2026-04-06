@@ -53,7 +53,6 @@
     <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
     <ProjectReference Include="..\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj" />
     <ProjectReference Include="..\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj" />
-    <ProjectReference Include="..\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj" />
     <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
     <ProjectReference Include="..\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj" />
     <ProjectReference Include="..\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj" />

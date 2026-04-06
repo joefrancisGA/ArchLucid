@@ -12,6 +12,22 @@
     {
       "fullName": "ArchiForge.Benchmarks.SimulatedParallelBatchBenchmarks.ParallelFourDelays",
       "maxMeanNs": 90000000
+    },
+    {
+      "fullName": "ArchiForge.Benchmarks.DecisionEngineMergeBenchmarks.MergeTwoAgentResults",
+      "maxMeanNs": 10000000
+    },
+    {
+      "fullName": "ArchiForge.Benchmarks.SqlPagingSyntaxMicroBenchmarks.FirstRowsOnlyFragment(RowCount: 200)",
+      "maxMeanNs": 50000
+    },
+    {
+      "fullName": "ArchiForge.Benchmarks.SqlPagingSyntaxMicroBenchmarks.FirstRowsOnlyFragment(RowCount: 500)",
+      "maxMeanNs": 50000
+    },
+    {
+      "fullName": "ArchiForge.Benchmarks.SqlPagingSyntaxMicroBenchmarks.FirstRowsOnlyFragment(RowCount: 1000)",
+      "maxMeanNs": 50000
     }
   ]
 }

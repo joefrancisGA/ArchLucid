@@ -2,8 +2,8 @@ using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
-using ArchiForge.DecisionEngine.Services;
-using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.Decisioning.Merge;
+using ArchiForge.Decisioning.Validation;
 
 using FluentAssertions;
 

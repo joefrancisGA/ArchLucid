@@ -17,3 +17,7 @@
 ## Container layers
 
 - Multi-stage Dockerfiles (`ArchiForge.Api/Dockerfile`) already separate restore/publish/runtime — layer cache hits matter more than trimming for most teams.
+
+## See also
+
+- Sustained throughput and p50/p95/p99 baselines: `docs/LOAD_TEST_BASELINE.md` (k6 against Compose `full-stack`, plus scaling thresholds).

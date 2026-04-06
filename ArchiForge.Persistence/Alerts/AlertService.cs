@@ -1,13 +1,16 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Diagnostics;
+using ArchiForge.Core.Integration;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Alerts.Helpers;
 using ArchiForge.Persistence.Serialization;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Persistence.Alerts;
 
@@ -30,7 +33,9 @@ public sealed class AlertService(
     IAlertEvaluator alertEvaluator,
     IAlertDeliveryDispatcher alertDeliveryDispatcher,
     IAuditService auditService,
-    IEffectiveGovernanceLoader effectiveGovernanceLoader) : IAlertService
+    IEffectiveGovernanceLoader effectiveGovernanceLoader,
+    IIntegrationEventPublisher integrationEventPublisher,
+    ILogger<AlertService> logger) : IAlertService
 {
     /// <summary>
     /// Lists enabled rules, filters them with <see cref="PolicyPackGovernanceFilter.FilterAlertRules"/>, evaluates, and inserts only new dedup keys.
@@ -125,6 +130,8 @@ public sealed class AlertService(
 
         await alertDeliveryDispatcher.DeliverAsync(alert, ct);
 
+        await AlertIntegrationEventPublishing.TryPublishFiredAsync(integrationEventPublisher, logger, alert, ct);
+
         return true;
     }
 
@@ -180,7 +187,7 @@ public sealed class AlertService(
         };
 
         if (eventType is not null)
-        
+        {
             await auditService.LogAsync(
                 new AuditEvent
                 {
@@ -196,7 +203,18 @@ public sealed class AlertService(
                         AuditJsonSerializationOptions.Instance),
                 },
                 ct);
-        
+        }
+
+        if (request.Action == AlertActionType.Resolve)
+        {
+            await AlertIntegrationEventPublishing.TryPublishResolvedAsync(
+                integrationEventPublisher,
+                logger,
+                alert,
+                userId,
+                request.Comment,
+                ct);
+        }
 
         return alert;
     }

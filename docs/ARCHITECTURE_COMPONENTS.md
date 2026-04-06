@@ -129,7 +129,7 @@ This document zooms into the most important components inside each container/lib
 
 ---
 
-### `ArchiForge.DecisionEngine` components
+### `ArchiForge.Decisioning.Merge` — manifest merge
 
 #### `IDecisionEngineService` / `DecisionEngineService`
 

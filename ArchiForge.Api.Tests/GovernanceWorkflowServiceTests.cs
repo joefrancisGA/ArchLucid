@@ -1,6 +1,8 @@
 using ArchiForge.Application;
 using ArchiForge.Application.Common;
 using ArchiForge.Application.Governance;
+using ArchiForge.Core.Integration;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Governance;
@@ -27,6 +29,8 @@ public sealed class GovernanceWorkflowServiceTests
     private readonly Mock<IGovernanceEnvironmentActivationRepository> _activationRepo;
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
     private readonly Mock<IBaselineMutationAuditService> _baselineAudit;
+    private readonly Mock<IScopeContextProvider> _scopeContext;
+    private readonly Mock<IIntegrationEventPublisher> _integrationEvents;
     private readonly GovernanceWorkflowService _sut;
 
     public GovernanceWorkflowServiceTests()
@@ -36,6 +40,27 @@ public sealed class GovernanceWorkflowServiceTests
         _activationRepo = new Mock<IGovernanceEnvironmentActivationRepository>();
         _runDetailQueryService = new Mock<IRunDetailQueryService>();
         _baselineAudit = new Mock<IBaselineMutationAuditService>();
+        _scopeContext = new Mock<IScopeContextProvider>();
+        _integrationEvents = new Mock<IIntegrationEventPublisher>();
+
+        _scopeContext
+            .Setup(s => s.GetCurrentScope())
+            .Returns(
+                new ScopeContext
+                {
+                    TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                });
+
+        _integrationEvents
+            .Setup(
+                p => p.PublishAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<ReadOnlyMemory<byte>>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         Mock<ILogger<GovernanceWorkflowService>> logger = new();
 
@@ -45,6 +70,8 @@ public sealed class GovernanceWorkflowServiceTests
             _activationRepo.Object,
             _runDetailQueryService.Object,
             _baselineAudit.Object,
+            _scopeContext.Object,
+            _integrationEvents.Object,
             logger.Object);
     }
 

@@ -1,4 +1,5 @@
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Integration;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Delivery;
@@ -7,6 +8,9 @@ using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Alerts;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -245,7 +249,9 @@ public sealed class CompositeAlertServiceTests
         IAlertRecordRepository alertRepository,
         IAlertDeliveryDispatcher alertDeliveryDispatcher,
         IAuditService auditService,
-        IEffectiveGovernanceLoader effectiveGovernanceLoader) =>
+        IEffectiveGovernanceLoader effectiveGovernanceLoader,
+        IIntegrationEventPublisher? integrationEvents = null,
+        ILogger<CompositeAlertService>? logger = null) =>
         new(
             ruleRepository,
             snapshotBuilder,
@@ -254,7 +260,9 @@ public sealed class CompositeAlertServiceTests
             alertRepository,
             alertDeliveryDispatcher,
             auditService,
-            effectiveGovernanceLoader);
+            effectiveGovernanceLoader,
+            integrationEvents ?? Mock.Of<IIntegrationEventPublisher>(),
+            logger ?? NullLogger<CompositeAlertService>.Instance);
 
     private static AlertEvaluationContext CreateContext(
         PolicyPackContentDocument? preloadedGovernance,

@@ -6,7 +6,7 @@ using ArchiForge.Application.Evidence;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.DecisionEngine.Services;
+using ArchiForge.Decisioning.Merge;
 
 using FluentAssertions;
 
@@ -103,9 +103,9 @@ public sealed class ArchitectureRunServiceAuditTests
             runRepository,
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IAgentResultRepository>(),
-            Mock.Of<IGoldenManifestRepository>(),
+            Mock.Of<ICoordinatorGoldenManifestRepository>(),
             Mock.Of<IEvidenceBundleRepository>(),
-            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<ICoordinatorDecisionTraceRepository>(),
             Mock.Of<IAgentEvidencePackageRepository>(),
             Mock.Of<IArchitectureRunIdempotencyRepository>(),
             actorContext,

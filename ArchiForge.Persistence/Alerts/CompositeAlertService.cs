@@ -3,12 +3,15 @@ using System.Text.Json;
 
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Diagnostics;
+using ArchiForge.Core.Integration;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Alerts.Helpers;
 using ArchiForge.Persistence.Serialization;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Persistence.Alerts;
 
@@ -34,7 +37,9 @@ public sealed class CompositeAlertService(
     IAlertRecordRepository alertRepository,
     IAlertDeliveryDispatcher alertDeliveryDispatcher,
     IAuditService auditService,
-    IEffectiveGovernanceLoader effectiveGovernanceLoader) : ICompositeAlertService
+    IEffectiveGovernanceLoader effectiveGovernanceLoader,
+    IIntegrationEventPublisher integrationEventPublisher,
+    ILogger<CompositeAlertService> logger) : ICompositeAlertService
 {
     /// <summary>
     /// Loads composite rules, filters with <see cref="PolicyPackGovernanceFilter.FilterCompositeRules"/>, evaluates each rule, and persists non-suppressed matches.
@@ -127,6 +132,8 @@ public sealed class CompositeAlertService(
                 await alertRepository.CreateAsync(alert, ct);
                 await alertDeliveryDispatcher.DeliverAsync(alert, ct);
                 created.Add(alert);
+
+                await AlertIntegrationEventPublishing.TryPublishFiredAsync(integrationEventPublisher, logger, alert, ct);
 
                 await auditService.LogAsync(
                     new AuditEvent

@@ -17,6 +17,7 @@ COPY global.json Directory.Build.props Directory.Packages.props ArchiForge.sln .
 # Copy every .csproj so NuGet restore is cached until a project file changes.
 COPY ArchiForge.Api/*.csproj                ArchiForge.Api/
 COPY ArchiForge.Host.Core/*.csproj          ArchiForge.Host.Core/
+COPY ArchiForge.Host.Composition/*.csproj   ArchiForge.Host.Composition/
 COPY ArchiForge.AgentRuntime/*.csproj       ArchiForge.AgentRuntime/
 COPY ArchiForge.AgentSimulator/*.csproj     ArchiForge.AgentSimulator/
 COPY ArchiForge.Application/*.csproj        ArchiForge.Application/
@@ -31,6 +32,7 @@ COPY ArchiForge.DecisionEngine/*.csproj     ArchiForge.DecisionEngine/
 COPY ArchiForge.Decisioning/*.csproj        ArchiForge.Decisioning/
 COPY ArchiForge.KnowledgeGraph/*.csproj     ArchiForge.KnowledgeGraph/
 COPY ArchiForge.Persistence/*.csproj        ArchiForge.Persistence/
+COPY ArchiForge.Persistence.Runtime/*.csproj ArchiForge.Persistence.Runtime/
 COPY ArchiForge.Provenance/*.csproj         ArchiForge.Provenance/
 COPY ArchiForge.Retrieval/*.csproj          ArchiForge.Retrieval/
 
@@ -44,7 +46,6 @@ COPY ArchiForge.Cli.Tests/*.csproj          ArchiForge.Cli.Tests/
 COPY ArchiForge.ContextIngestion.Tests/*.csproj ArchiForge.ContextIngestion.Tests/
 COPY ArchiForge.Contracts.Tests/*.csproj    ArchiForge.Contracts.Tests/
 COPY ArchiForge.Coordinator.Tests/*.csproj  ArchiForge.Coordinator.Tests/
-COPY ArchiForge.DecisionEngine.Tests/*.csproj ArchiForge.DecisionEngine.Tests/
 COPY ArchiForge.Decisioning.Tests/*.csproj  ArchiForge.Decisioning.Tests/
 COPY ArchiForge.KnowledgeGraph.Tests/*.csproj ArchiForge.KnowledgeGraph.Tests/
 COPY ArchiForge.Persistence.Tests/*.csproj  ArchiForge.Persistence.Tests/

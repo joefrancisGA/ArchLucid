@@ -38,7 +38,7 @@ This document is written for **internal engineers** and is intentionally pragmat
 - `ArchiForge.Api` (HTTP surface)
 - `ArchiForge.Application` (orchestration + formatting/export/replay services)
 - `ArchiForge.Persistence.Data.*` (repositories + migrations)
-- `ArchiForge.DecisionEngine` (merge logic that produces manifests)
+- `ArchiForge.Decisioning` — manifest merge and schema validation live in `ArchiForge.Decisioning.Merge` and `ArchiForge.Decisioning.Validation` (same assembly as governance/findings)
 - `ArchiForge.Contracts` (shared DTOs and domain contracts)
 
 **Actors / clients**

@@ -16,7 +16,7 @@ namespace ArchiForge.Application.Analysis;
 /// </summary>
 public sealed class ArchitectureAnalysisService(
     IRunDetailQueryService runDetailQueryService,
-    IGoldenManifestRepository manifestRepository,
+    ICoordinatorGoldenManifestRepository manifestRepository,
     IAgentEvidencePackageRepository evidenceRepository,
     IAgentExecutionTraceRepository traceRepository,
     IAgentResultRepository resultRepository,

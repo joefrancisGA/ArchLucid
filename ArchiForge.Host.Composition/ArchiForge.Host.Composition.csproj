@@ -27,13 +27,13 @@
     <ProjectReference Include="..\ArchiForge.Provenance\ArchiForge.Provenance.csproj" />
     <ProjectReference Include="..\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj" />
     <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence.Runtime\ArchiForge.Persistence.Runtime.csproj" />
     <ProjectReference Include="..\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj" />
     <ProjectReference Include="..\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj" />
     <ProjectReference Include="..\ArchiForge.Application\ArchiForge.Application.csproj" />
     <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
     <ProjectReference Include="..\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj" />
     <ProjectReference Include="..\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj" />
-    <ProjectReference Include="..\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj" />
     <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
     <ProjectReference Include="..\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj" />
     <ProjectReference Include="..\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj" />

@@ -86,11 +86,13 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IWebhookPoster>(static sp =>
         {
             IOptionsMonitor<WebhookDeliveryOptions> monitor = sp.GetRequiredService<IOptionsMonitor<WebhookDeliveryOptions>>();
-            IWebhookPoster impl = monitor.CurrentValue.UseHttpClient
+            IWebhookPoster inner = monitor.CurrentValue.UseHttpClient
                 ? sp.GetRequiredService<HttpWebhookPoster>()
                 : sp.GetRequiredService<FakeWebhookPoster>();
 
-            return new WebhookHmacEnvelopePoster(monitor, impl);
+            IWebhookPoster withOptionalCloudEvents = new CloudEventsWrappingWebhookPoster(monitor, inner);
+
+            return new WebhookHmacEnvelopePoster(monitor, withOptionalCloudEvents);
         });
         services.AddScoped<IDigestDeliveryChannel, DigestEmailDeliveryChannel>();
         services.AddScoped<IDigestDeliveryChannel, DigestTeamsWebhookDeliveryChannel>();

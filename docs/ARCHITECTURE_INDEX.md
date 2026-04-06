@@ -124,7 +124,7 @@
 ### Typical questions and where to read
 
 - **“How does a run become a manifest?”**  
-  → `ARCHITECTURE_FLOWS.md` (Flow A) + `ARCHITECTURE_COMPONENTS.md` (DecisionEngineService) + `KNOWLEDGE_GRAPH.md` (graph → findings → manifest)
+  → `ARCHITECTURE_FLOWS.md` (Flow A) + `ARCHITECTURE_COMPONENTS.md` (`DecisionEngineService` in `ArchiForge.Decisioning.Merge`) + `KNOWLEDGE_GRAPH.md` (graph → findings → manifest)
 
 - **“How do I replay a comparison and re-export it?”**  
   → `COMPARISON_REPLAY.md` + `ARCHITECTURE_FLOWS.md` (Flow C)

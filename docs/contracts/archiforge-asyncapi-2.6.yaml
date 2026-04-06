@@ -1,7 +1,7 @@
 asyncapi: 2.6.0
 info:
-  title: ArchiForge outbound webhooks
-  version: 1.0.0
+  title: ArchiForge outbound webhooks & integration events
+  version: 1.1.0
   description: |
     ArchiForge **pushes** JSON to operator-configured HTTPS URLs for alert routing and digest delivery.
     This is **not** the primary REST API (see OpenAPI `/openapi/v1.json` and `/swagger/v1/swagger.json`).
@@ -9,6 +9,11 @@ info:
     When `WebhookDelivery:UseHttpClient` is true and a shared secret is configured, requests include
     header `X-ArchiForge-Webhook-Signature` with value `sha256=<hex>` (HMAC-SHA256 over the raw UTF-8 body).
     Verify using `ArchiForge.Host.Core.Services.Delivery.WebhookSignature` semantics.
+
+    **Azure Service Bus (optional):** UTF-8 JSON payloads are also published to a configured queue or topic
+    (`IntegrationEvents:QueueOrTopicName`). Message `subject` and application property `event_type` carry the
+    logical type (e.g. `com.archiforge.alert.fired`). Payloads include `schemaVersion: 1`; additive fields are
+    expected; breaking changes will ship as new event type strings or higher schema versions documented here.
 
 defaultContentType: application/json
 channels:
@@ -78,3 +83,139 @@ channels:
               type: string
             text:
               type: string
+
+  integrationAuthorityRunCompleted:
+    description: |
+      Service Bus message after an authority run commits successfully (`com.archiforge.authority.run.completed`).
+    publish:
+      operationId: publishAuthorityRunCompleted
+      message:
+        name: AuthorityRunCompletedV1
+        payload:
+          type: object
+          required: [schemaVersion, runId, manifestId, tenantId, workspaceId, projectId]
+          properties:
+            schemaVersion:
+              type: integer
+              const: 1
+            runId:
+              type: string
+              format: uuid
+            manifestId:
+              type: string
+              format: uuid
+            tenantId:
+              type: string
+              format: uuid
+            workspaceId:
+              type: string
+              format: uuid
+            projectId:
+              type: string
+              format: uuid
+
+  integrationGovernanceApprovalSubmitted:
+    description: Governance approval request persisted (`com.archiforge.governance.approval.submitted`).
+    publish:
+      operationId: publishGovernanceApprovalSubmitted
+      message:
+        name: GovernanceApprovalSubmittedV1
+        payload:
+          type: object
+          required: [schemaVersion, tenantId, workspaceId, projectId, approvalRequestId, runId, manifestVersion, sourceEnvironment, targetEnvironment, requestedBy]
+          properties:
+            schemaVersion: { type: integer, const: 1 }
+            tenantId: { type: string, format: uuid }
+            workspaceId: { type: string, format: uuid }
+            projectId: { type: string, format: uuid }
+            approvalRequestId: { type: string }
+            runId: { type: string }
+            manifestVersion: { type: string }
+            sourceEnvironment: { type: string }
+            targetEnvironment: { type: string }
+            requestedBy: { type: string }
+
+  integrationGovernancePromotionActivated:
+    description: Environment activation recorded (`com.archiforge.governance.promotion.activated`).
+    publish:
+      operationId: publishGovernancePromotionActivated
+      message:
+        name: GovernancePromotionActivatedV1
+        payload:
+          type: object
+          required: [schemaVersion, tenantId, workspaceId, projectId, activationId, runId, manifestVersion, environment, activatedBy, activatedUtc]
+          properties:
+            schemaVersion: { type: integer, const: 1 }
+            tenantId: { type: string, format: uuid }
+            workspaceId: { type: string, format: uuid }
+            projectId: { type: string, format: uuid }
+            activationId: { type: string }
+            runId: { type: string }
+            manifestVersion: { type: string }
+            environment: { type: string }
+            activatedBy: { type: string }
+            activatedUtc: { type: string, format: date-time }
+
+  integrationAlertFired:
+    description: New alert row persisted and delivered (`com.archiforge.alert.fired`).
+    publish:
+      operationId: publishAlertFired
+      message:
+        name: AlertFiredV1
+        payload:
+          type: object
+          required: [schemaVersion, tenantId, workspaceId, projectId, alertId, ruleId, category, severity, title, deduplicationKey]
+          properties:
+            schemaVersion: { type: integer, const: 1 }
+            tenantId: { type: string, format: uuid }
+            workspaceId: { type: string, format: uuid }
+            projectId: { type: string, format: uuid }
+            alertId: { type: string, format: uuid }
+            runId: { type: string, format: uuid }
+            comparedToRunId: { type: string, format: uuid }
+            ruleId: { type: string, format: uuid }
+            category: { type: string }
+            severity: { type: string }
+            title: { type: string }
+            deduplicationKey: { type: string }
+
+  integrationAlertResolved:
+    description: Alert resolved via API (`com.archiforge.alert.resolved`).
+    publish:
+      operationId: publishAlertResolved
+      message:
+        name: AlertResolvedV1
+        payload:
+          type: object
+          required: [schemaVersion, tenantId, workspaceId, projectId, alertId, resolvedByUserId]
+          properties:
+            schemaVersion: { type: integer, const: 1 }
+            tenantId: { type: string, format: uuid }
+            workspaceId: { type: string, format: uuid }
+            projectId: { type: string, format: uuid }
+            alertId: { type: string, format: uuid }
+            runId: { type: string, format: uuid }
+            resolvedByUserId: { type: string }
+            comment: { type: string }
+
+  integrationAdvisoryScanCompleted:
+    description: Advisory scan execution completed (`com.archiforge.advisory.scan.completed`).
+    publish:
+      operationId: publishAdvisoryScanCompleted
+      message:
+        name: AdvisoryScanCompletedV1
+        payload:
+          type: object
+          required: [schemaVersion, tenantId, workspaceId, projectId, scheduleId, executionId, hasRuns, completedUtc]
+          properties:
+            schemaVersion: { type: integer, const: 1 }
+            tenantId: { type: string, format: uuid }
+            workspaceId: { type: string, format: uuid }
+            projectId: { type: string, format: uuid }
+            scheduleId: { type: string, format: uuid }
+            executionId: { type: string, format: uuid }
+            hasRuns: { type: boolean }
+            runId: { type: string, format: uuid }
+            comparedToRunId: { type: string, format: uuid }
+            digestId: { type: string, format: uuid }
+            completedUtc: { type: string, format: date-time }

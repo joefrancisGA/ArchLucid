@@ -12,7 +12,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 - HTTP surface for all run/execution/export/compare/replay workflows.
 - API versioning (`/v1/...`), rate limiting, and API-key auth.
-- Wires up DI for Application, Persistence (workflow `Data.*` + authority SQL), DecisionEngine, Decisioning, Retrieval, ContextIngestion, and related services.
+- Wires up DI for Application, Persistence (workflow `Data.*` + authority SQL), Decisioning (merge + validation + governance), Retrieval, ContextIngestion, and related services.
 - Provides Swagger/OpenAPI docs (with small operation filters for replay examples).
 
 **Key concerns**
@@ -30,8 +30,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 - `ArchiForge.Application` (core orchestration + analysis/export/replay services)
 - `ArchiForge.Persistence.Data.*` (Dapper repositories for run/commit path, migrations, `IDbConnectionFactory`)
 - `ArchiForge.Persistence` (SQL authority repositories, RLS-aware connection factories, queries, advisory/alert persistence)
-- `ArchiForge.DecisionEngine` (merge agent results into manifests)
-- `ArchiForge.Decisioning` (governance, advisory, alerts, manifest/decision models used by persistence and application)
+- `ArchiForge.Decisioning` (governance, advisory, alerts, manifest/decision models, **manifest merge** in `ArchiForge.Decisioning.Merge`, **JSON schema validation** in `ArchiForge.Decisioning.Validation`)
 - `ArchiForge.Contracts` (DTOs / domain contracts)
 
 ---
@@ -48,6 +47,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 **Depends on**
 
+- `ArchiForge.Api.Client` (NSwag-generated HTTP client types under `ArchiForge.Api.Client.Generated`)
 - `ArchiForge.Contracts` (types used for requests/results)
 - HTTP calls to `ArchiForge.Api`
 
@@ -73,19 +73,20 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 **Depends on**
 
 - `ArchiForge.Persistence.Data.*` for repositories
-- `ArchiForge.DecisionEngine` (sometimes indirectly via other services)
-- `ArchiForge.Decisioning` (governance, previews, advisory surfaces)
+- `ArchiForge.Decisioning` (governance, previews, advisory surfaces, manifest merge via `ArchiForge.Decisioning.Merge`)
 - `ArchiForge.Contracts` for shared models
 
 ---
 
-### Library: `ArchiForge.Decisioning` (governance, advisory, domain models)
+### Library: `ArchiForge.Decisioning` (governance, advisory, merge, domain models)
 
 **Responsibility**
 
 - Policy packs, effective governance resolution, advisory scanning, digest/alert domain logic.
+- **`ArchiForge.Decisioning.Merge`**: `IDecisionEngineService` / `DecisionEngineService`, `DecisionEngineV2`, merge of agent results into `GoldenManifest`.
+- **`ArchiForge.Decisioning.Validation`**: JSON Schema validation for agent results and golden manifests (`SchemaValidationService`, `ISchemaValidationService`).
 - Authority-path interfaces such as `IGoldenManifestRepository` / `IDecisionTraceRepository` (SQL implementations live in `ArchiForge.Persistence`).
-- Manifest sections, findings, and decision-trace models shared with the decision engine and API.
+- Manifest sections, findings, and decision-trace models shared with the API and persistence.
 
 **Depends on**
 
@@ -146,20 +147,6 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 ---
 
-### Library: `ArchiForge.DecisionEngine` (merge + governance logic)
-
-**Responsibility**
-
-- Validates and merges `AgentResult` proposals into a single `GoldenManifest`.
-- Applies governance defaults and required controls to relevant components.
-- Applies decision nodes/evaluations (when present).
-
-**Depends on**
-
-- `ArchiForge.Contracts` (manifest model, decisions, agent results)
-
----
-
 ### Library: `ArchiForge.Persistence` — workflow data access (`ArchiForge.Persistence.Data.*`)
 
 **Responsibility**
@@ -204,8 +191,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 ### Container relationships (high-level)
 
 - `ArchiForge.Cli` → (HTTP) → `ArchiForge.Api`
-- `ArchiForge.Api` → `ArchiForge.Application` → `ArchiForge.Persistence.Data.*` / `ArchiForge.Persistence` / `ArchiForge.Decisioning`
-- `ArchiForge.Api` → `ArchiForge.DecisionEngine` (merge/commit)
+- `ArchiForge.Api` → `ArchiForge.Application` → `ArchiForge.Persistence.Data.*` / `ArchiForge.Persistence` / `ArchiForge.Decisioning` (including merge/commit via `ArchiForge.Decisioning.Merge`)
 - Optional paths: Context ingestion, knowledge graph, retrieval, artifact synthesis (all invoked from application/API layers as configured)
 - All projects share models from `ArchiForge.Contracts`
 

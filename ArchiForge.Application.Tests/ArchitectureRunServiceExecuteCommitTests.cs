@@ -10,7 +10,7 @@ using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.DecisionEngine.Services;
+using ArchiForge.Decisioning.Merge;
 
 using FluentAssertions;
 
@@ -365,8 +365,8 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             .Returns(merge);
 
         Mock<IDecisionNodeRepository> decisionNodeRepo = new();
-        Mock<IGoldenManifestRepository> manifestRepo = new();
-        Mock<IDecisionTraceRepository> traceRepo = new();
+        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
+        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
 
         Mock<IActorContext> actor = new();
         actor.Setup(x => x.GetActor()).Returns("a");
@@ -430,8 +430,8 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             Mock.Of<IAgentEvidencePackageRepository>(),
             Mock.Of<IDecisionEngineService>(),
             Mock.Of<IDecisionNodeRepository>(),
-            Mock.Of<IGoldenManifestRepository>(),
-            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<ICoordinatorGoldenManifestRepository>(),
+            Mock.Of<ICoordinatorDecisionTraceRepository>(),
             actor.Object);
 
         Func<Task> act = async () => await sut.CommitRunAsync(runId, CancellationToken.None);
@@ -457,8 +457,8 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             Mock.Of<IAgentEvidencePackageRepository>(),
             Mock.Of<IDecisionEngineService>(),
             Mock.Of<IDecisionNodeRepository>(),
-            Mock.Of<IGoldenManifestRepository>(),
-            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<ICoordinatorGoldenManifestRepository>(),
+            Mock.Of<ICoordinatorDecisionTraceRepository>(),
             actor.Object);
 
         Func<Task> act = async () => await sut.CommitRunAsync("nope", CancellationToken.None);
@@ -491,9 +491,9 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             runRepository,
             taskRepository,
             resultRepository,
-            Mock.Of<IGoldenManifestRepository>(),
+            Mock.Of<ICoordinatorGoldenManifestRepository>(),
             Mock.Of<IEvidenceBundleRepository>(),
-            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<ICoordinatorDecisionTraceRepository>(),
             agentEvidencePackageRepository,
             Mock.Of<IArchitectureRunIdempotencyRepository>(),
             actorContext,
@@ -510,8 +510,8 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         IAgentEvidencePackageRepository agentEvidencePackageRepository,
         IDecisionEngineService decisionEngine,
         IDecisionNodeRepository decisionNodeRepository,
-        IGoldenManifestRepository manifestRepository,
-        IDecisionTraceRepository decisionTraceRepository,
+        ICoordinatorGoldenManifestRepository manifestRepository,
+        ICoordinatorDecisionTraceRepository decisionTraceRepository,
         IActorContext actorContext)
     {
         return new ArchitectureRunService(

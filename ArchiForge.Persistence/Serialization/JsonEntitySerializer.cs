@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace ArchiForge.Persistence.Serialization;
 
@@ -15,6 +16,7 @@ public static class JsonEntitySerializer
         {
             PropertyNameCaseInsensitive = true,
             WriteIndented = false,
+            TypeInfoResolver = new DefaultJsonTypeInfoResolver(),
             Converters =
             {
                 new GraphNodeJsonConverter(),

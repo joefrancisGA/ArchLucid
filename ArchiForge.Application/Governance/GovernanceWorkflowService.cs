@@ -1,6 +1,8 @@
 using System.Transactions;
 
 using ArchiForge.Application.Common;
+using ArchiForge.Core.Integration;
+using ArchiForge.Core.Scoping;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Contracts.Metadata;
@@ -22,6 +24,8 @@ public sealed class GovernanceWorkflowService(
     IGovernanceEnvironmentActivationRepository activationRepo,
     IRunDetailQueryService runDetailQueryService,
     IBaselineMutationAuditService baselineMutationAudit,
+    IScopeContextProvider scopeContextProvider,
+    IIntegrationEventPublisher integrationEventPublisher,
     ILogger<GovernanceWorkflowService> logger)
     : IGovernanceWorkflowService
 {
@@ -69,13 +73,15 @@ public sealed class GovernanceWorkflowService(
             ;
 
         if (logger.IsEnabled(LogLevel.Information))
-        
+        {
             logger.LogInformation(
                 "Governance approval request submitted: ApprovalRequestId={ApprovalRequestId}, RunId={RunId}, ManifestVersion={ManifestVersion}",
                 request.ApprovalRequestId,
                 request.RunId,
                 request.ManifestVersion);
-        
+        }
+
+        await TryPublishGovernanceApprovalSubmittedAsync(request, cancellationToken);
 
         return request;
     }
@@ -322,15 +328,80 @@ public sealed class GovernanceWorkflowService(
             ;
 
         if (logger.IsEnabled(LogLevel.Information))
-        
+        {
             logger.LogInformation(
                 "Environment activated: ActivationId={ActivationId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Environment={Environment}",
                 activation.ActivationId,
                 activation.RunId,
                 activation.ManifestVersion,
                 activation.Environment);
-        
+        }
+
+        await TryPublishGovernancePromotionActivatedAsync(activation, activatedBy, cancellationToken);
 
         return activation;
+    }
+
+    private Task TryPublishGovernanceApprovalSubmittedAsync(
+        GovernanceApprovalRequest request,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = scope.TenantId,
+            workspaceId = scope.WorkspaceId,
+            projectId = scope.ProjectId,
+            approvalRequestId = request.ApprovalRequestId,
+            runId = request.RunId,
+            manifestVersion = request.ManifestVersion,
+            sourceEnvironment = request.SourceEnvironment,
+            targetEnvironment = request.TargetEnvironment,
+            requestedBy = request.RequestedBy,
+        };
+
+        string messageId = $"{request.ApprovalRequestId}:{IntegrationEventTypes.GovernanceApprovalSubmittedV1}";
+
+        return IntegrationEventPublishing.TryPublishAsync(
+            integrationEventPublisher,
+            logger,
+            IntegrationEventTypes.GovernanceApprovalSubmittedV1,
+            payload,
+            messageId,
+            cancellationToken);
+    }
+
+    private Task TryPublishGovernancePromotionActivatedAsync(
+        GovernanceEnvironmentActivation activation,
+        string activatedBy,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = scope.TenantId,
+            workspaceId = scope.WorkspaceId,
+            projectId = scope.ProjectId,
+            activationId = activation.ActivationId,
+            runId = activation.RunId,
+            manifestVersion = activation.ManifestVersion,
+            environment = activation.Environment,
+            activatedBy,
+            activatedUtc = activation.ActivatedUtc,
+        };
+
+        string messageId = $"{activation.ActivationId}:{IntegrationEventTypes.GovernancePromotionActivatedV1}";
+
+        return IntegrationEventPublishing.TryPublishAsync(
+            integrationEventPublisher,
+            logger,
+            IntegrationEventTypes.GovernancePromotionActivatedV1,
+            payload,
+            messageId,
+            cancellationToken);
     }
 }

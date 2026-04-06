@@ -16,7 +16,7 @@ public sealed class DapperCoordinatorDecisionTraceRepositoryContractTests(SqlSer
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
-    protected override IDecisionTraceRepository CreateRepository()
+    protected override ICoordinatorDecisionTraceRepository CreateRepository()
     {
         return new DecisionTraceRepository(new TestSqlDbConnectionFactory(fixture.ConnectionString));
     }

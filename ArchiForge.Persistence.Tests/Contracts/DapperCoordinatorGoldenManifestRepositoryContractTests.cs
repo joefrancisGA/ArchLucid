@@ -16,7 +16,7 @@ public sealed class DapperCoordinatorGoldenManifestRepositoryContractTests(SqlSe
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
     }
 
-    protected override IGoldenManifestRepository CreateRepository()
+    protected override ICoordinatorGoldenManifestRepository CreateRepository()
     {
         return new GoldenManifestRepository(new TestSqlDbConnectionFactory(fixture.ConnectionString));
     }

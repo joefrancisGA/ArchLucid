@@ -15,7 +15,7 @@ TEST_ROOTS = [
     ROOT / "ArchiForge.Coordinator.Tests",
     ROOT / "ArchiForge.ContextIngestion.Tests",
     ROOT / "ArchiForge.Contracts.Tests",
-    ROOT / "ArchiForge.DecisionEngine.Tests",
+    ROOT / "ArchiForge.Decisioning.Tests",
     ROOT / "ArchiForge.Decisioning.Tests",
     ROOT / "ArchiForge.KnowledgeGraph.Tests",
     ROOT / "ArchiForge.Retrieval.Tests",

@@ -25,8 +25,8 @@ public sealed class RunDetailQueryServiceApplicationTests
         Mock<IArchitectureRunRepository> runRepo = new();
         Mock<IAgentTaskRepository> taskRepo = new();
         Mock<IAgentResultRepository> resultRepo = new();
-        Mock<IGoldenManifestRepository> manifestRepo = new();
-        Mock<IDecisionTraceRepository> traceRepo = new();
+        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
+        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
 
         ArchitectureRun run = new()
         {
@@ -65,8 +65,8 @@ public sealed class RunDetailQueryServiceApplicationTests
         Mock<IArchitectureRunRepository> runRepo = new();
         Mock<IAgentTaskRepository> taskRepo = new();
         Mock<IAgentResultRepository> resultRepo = new();
-        Mock<IGoldenManifestRepository> manifestRepo = new();
-        Mock<IDecisionTraceRepository> traceRepo = new();
+        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
+        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
 
         ArchitectureRun run = new()
         {

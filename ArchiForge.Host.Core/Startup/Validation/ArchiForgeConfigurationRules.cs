@@ -1,7 +1,7 @@
 using System.Globalization;
 
 using ArchiForge.Core.Integration;
-using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.Decisioning.Validation;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Hosting;
 using ArchiForge.Persistence.Archival;

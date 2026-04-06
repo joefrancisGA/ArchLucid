@@ -18,7 +18,7 @@ ASSEMBLY_TO_CSPROJ: dict[str, str] = {
     "ArchiForge.Coordinator.Tests": "ArchiForge.Coordinator.Tests/ArchiForge.Coordinator.Tests.csproj",
     "ArchiForge.ContextIngestion.Tests": "ArchiForge.ContextIngestion.Tests/ArchiForge.ContextIngestion.Tests.csproj",
     "ArchiForge.Contracts.Tests": "ArchiForge.Contracts.Tests/ArchiForge.Contracts.Tests.csproj",
-    "ArchiForge.DecisionEngine.Tests": "ArchiForge.DecisionEngine.Tests/ArchiForge.DecisionEngine.Tests.csproj",
+    "ArchiForge.Decisioning.Tests": "ArchiForge.Decisioning.Tests/ArchiForge.Decisioning.Tests.csproj",
     "ArchiForge.Decisioning.Tests": "ArchiForge.Decisioning.Tests/ArchiForge.Decisioning.Tests.csproj",
     "ArchiForge.KnowledgeGraph.Tests": "ArchiForge.KnowledgeGraph.Tests/ArchiForge.KnowledgeGraph.Tests.csproj",
     "ArchiForge.Retrieval.Tests": "ArchiForge.Retrieval.Tests/ArchiForge.Retrieval.Tests.csproj",

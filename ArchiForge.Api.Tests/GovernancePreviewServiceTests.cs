@@ -23,7 +23,7 @@ public sealed class GovernancePreviewServiceTests
 {
     private readonly Mock<IGovernanceEnvironmentActivationRepository> _activationRepo = new();
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
-    private readonly Mock<IGoldenManifestRepository> _manifestRepo = new();
+    private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepo = new();
     private readonly GovernancePreviewService _sut;
 
     public GovernancePreviewServiceTests()
@@ -60,7 +60,7 @@ public sealed class GovernancePreviewServiceTests
 
     /// <summary>
     /// Returns a run detail whose manifest is null (pre-commit), so the service falls back to
-    /// <see cref="IGoldenManifestRepository.GetByVersionAsync"/> for the candidate manifest lookup.
+    /// <see cref="ICoordinatorGoldenManifestRepository.GetByVersionAsync"/> for the candidate manifest lookup.
     /// </summary>
     private static ArchitectureRunDetail RunDetail(string runId) => new()
     {

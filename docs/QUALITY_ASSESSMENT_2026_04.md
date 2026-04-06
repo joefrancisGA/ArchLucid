@@ -178,13 +178,13 @@
 - `ArchiForge.Persistence`: 297 `.cs` files with mixed concerns (repositories, orchestration, blob store, caching, archival, connections, migrations).
 - `ArchiForge.Decisioning`: 239 `.cs` files (findings, alerts, governance, compliance, advisory).
 - `.cursor/rules/Navigation.mdc` covers ~10 entry points.
-- Naming: `ArchiForge.DecisionEngine` vs `ArchiForge.Decisioning` distinction is non-obvious.
+- Naming: ~~`ArchiForge.DecisionEngine` vs `ArchiForge.Decisioning`~~ addressed — merge and validation live in **`ArchiForge.Decisioning.Merge`** / **`ArchiForge.Decisioning.Validation`** (single project).
 - DI composition root: 8 partial files — manageable but requires knowing the decomposition.
 
 **Tradeoffs**: Fine-grained project boundaries enable independent testing and clear ownership. But 42 projects is at the upper edge for a single-team product.
 
 **Recommendations**:
-1. Consider merging `DecisionEngine` into `Decisioning` — the distinction is unclear to newcomers.
+1. ~~Consider merging `DecisionEngine` into `Decisioning`~~ — done (namespaces `ArchiForge.Decisioning.Merge` / `Validation`).
 2. Split `Persistence` into `Persistence.Sql` (Dapper repos) and `Persistence.Domain` (orchestration, caching, archival).
 3. Add a `SYSTEM_MAP_QUICK.md` one-page visual for the top 10 types a new developer touches.
 4. Complete the ArchLucid rename to eliminate dual-name confusion.
@@ -394,7 +394,7 @@
 
 **Evidence**:
 - Worker references only Host.Core + Host.Composition (thin host).
-- Application references Contracts, Coordinator, Persistence, DecisionEngine, AgentSimulator (application above infrastructure).
+- Application references Contracts, Coordinator, Persistence, Decisioning, AgentSimulator (application above infrastructure).
 - Persistence references Contracts, Core, Provenance, ArtifactSynthesis, ContextIngestion, Decisioning, KnowledgeGraph, Retrieval — 8 projects.
 - Contracts: 130 files, mixes `ISimulationEngine` with DTOs.
 

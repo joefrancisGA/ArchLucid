@@ -9,7 +9,7 @@ using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.DecisionEngine.Services;
+using ArchiForge.Decisioning.Merge;
 
 namespace ArchiForge.Application;
 
@@ -25,8 +25,8 @@ public sealed class ReplayRunService(
     IArchitectureRequestRepository requestRepository,
     IRunDetailQueryService runDetailQueryService,
     IArchitectureRunRepository runRepository,
-    IGoldenManifestRepository manifestRepository,
-    IDecisionTraceRepository decisionTraceRepository,
+    ICoordinatorGoldenManifestRepository manifestRepository,
+    ICoordinatorDecisionTraceRepository decisionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository)
     : IReplayRunService
 {

@@ -149,6 +149,9 @@ jobs:
       - name: Context ingestion DI guards
         run: python scripts/assert_context_ingestion_di_guards.py
 
+      - name: List endpoint pagination audit
+        run: python scripts/ci/assert_list_endpoint_pagination.py
+
       # Includes OpenApiContractSnapshotTests (Suite=Core): drift vs Contracts/openapi-v1.contract.snapshot.json fails the job.
       # ArchiForge.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
@@ -266,6 +269,55 @@ jobs:
           name: coverage-report-full-regression-html
           path: ${{ runner.temp }}/coverage-report-full/**
           if-no-files-found: warn
+
+  publish-api-client-nuget:
+    name: "NuGet: pack & push API client (main/master)"
+    needs: dotnet-full-regression
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Pack ArchiForge.Api.Client
+        run: |
+          dotnet pack ArchiForge.Api.Client/ArchiForge.Api.Client.csproj \
+            --no-restore \
+            -c Release \
+            -o "${RUNNER_TEMP}/nuget" \
+            /p:SourceRevisionId=$(git rev-parse HEAD) \
+            /p:ArchiForgeApiClientPackageVersion=1.0.${{ github.run_number }}
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: archiforge-api-client-nupkg-ci
+          path: ${{ runner.temp }}/nuget/*.nupkg
+
+      - name: Push (NuGet.org)
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [ -z "${NUGET_API_KEY}" ]; then
+            echo "NUGET_API_KEY is not set; skipping NuGet push (artifact upload still contains the .nupkg)."
+            exit 0
+          fi
+          dotnet nuget push "${RUNNER_TEMP}/nuget/"*.nupkg \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
 
   coverage-pr-comment:
     # Runs on every green full regression so the check can be required on the default branch;

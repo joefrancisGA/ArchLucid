@@ -14,7 +14,7 @@ namespace ArchiForge.Application.Governance.Preview;
 public sealed class GovernancePreviewService(
     IGovernanceEnvironmentActivationRepository activationRepository,
     IRunDetailQueryService runDetailQueryService,
-    IGoldenManifestRepository manifestRepository)
+    ICoordinatorGoldenManifestRepository manifestRepository)
     : IGovernancePreviewService
 {
     private const string DiffOnlyNote =

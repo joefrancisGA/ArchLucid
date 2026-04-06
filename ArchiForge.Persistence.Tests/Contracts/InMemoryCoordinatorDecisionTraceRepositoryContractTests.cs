@@ -6,7 +6,7 @@ namespace ArchiForge.Persistence.Tests.Contracts;
 [Trait("Suite", "Core")]
 public sealed class InMemoryCoordinatorDecisionTraceRepositoryContractTests : CoordinatorDecisionTraceRepositoryContractTests
 {
-    protected override IDecisionTraceRepository CreateRepository()
+    protected override ICoordinatorDecisionTraceRepository CreateRepository()
     {
         return new InMemoryCoordinatorDecisionTraceRepository();
     }

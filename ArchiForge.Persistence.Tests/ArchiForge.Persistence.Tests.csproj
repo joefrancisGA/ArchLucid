@@ -24,6 +24,7 @@
     <ProjectReference Include="..\ArchiForge.TestSupport\ArchiForge.TestSupport.csproj" />
     <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
     <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence.Runtime\ArchiForge.Persistence.Runtime.csproj" />
     <ProjectReference Include="..\ArchiForge.Provenance\ArchiForge.Provenance.csproj" />
   </ItemGroup>
 

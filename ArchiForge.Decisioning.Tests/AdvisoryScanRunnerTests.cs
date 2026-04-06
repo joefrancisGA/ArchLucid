@@ -1,4 +1,5 @@
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Integration;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
@@ -14,6 +15,8 @@ using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Queries;
+
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -72,7 +75,9 @@ public sealed class AdvisoryScanRunnerTests
             executions.Object,
             schedules.Object,
             calculator.Object,
-            audit.Object);
+            audit.Object,
+            Mock.Of<IIntegrationEventPublisher>(),
+            NullLogger<AdvisoryScanRunner>.Instance);
 
         AdvisoryScanSchedule schedule = new()
         {
@@ -241,7 +246,9 @@ public sealed class AdvisoryScanRunnerTests
             executions.Object,
             schedules.Object,
             calculator.Object,
-            audit.Object);
+            audit.Object,
+            Mock.Of<IIntegrationEventPublisher>(),
+            NullLogger<AdvisoryScanRunner>.Instance);
 
         AdvisoryScanSchedule schedule = new()
         {

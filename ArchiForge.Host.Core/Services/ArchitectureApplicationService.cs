@@ -26,7 +26,7 @@ public sealed class ArchitectureApplicationService(
     IRunDetailQueryService runDetailQueryService,
     IArchitectureRunRepository runRepository,
     IAgentResultRepository resultRepository,
-    IGoldenManifestRepository manifestRepository,
+    ICoordinatorGoldenManifestRepository manifestRepository,
     IArchitectureRequestRepository requestRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IEvidenceBuilder evidenceBuilder,

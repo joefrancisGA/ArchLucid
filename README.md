@@ -305,7 +305,7 @@ To update: `dotnet tool update -g ArchiForge.Cli --add-source ./nupkg`
 | ArchiForge.Application | Analysis report building, DOCX/Markdown export, diagram image rendering (Mermaid → PNG) |
 | ArchiForge.Contracts | DTOs, request/response types, manifest models |
 | ArchiForge.Coordinator | Run creation, task generation |
-| ArchiForge.DecisionEngine | Merges agent results into manifests |
+| ArchiForge.Decisioning | Governance, findings, comparisons, alerts — plus manifest merge (`ArchiForge.Decisioning.Merge`) and JSON schema validation (`ArchiForge.Decisioning.Validation`) |
 | ArchiForge.Persistence (`Data.*` sub-namespaces) | Workflow Dapper repos, DbUp migrations, `IDbConnectionFactory`, consolidated `Scripts/ArchiForge.sql` |
 | ArchiForge.Cli | ArchiForge CLI: `new`, `run`, `status`, `commit`, `seed`, `artifacts`, `dev up` |
 

@@ -5,7 +5,7 @@ namespace ArchiForge.Persistence.Data.Repositories;
 /// <summary>
 /// Persistence contract for <see cref="DecisionTrace"/> records produced by the decision engine during a run.
 /// </summary>
-public interface IDecisionTraceRepository
+public interface ICoordinatorDecisionTraceRepository
 {
     /// <summary>
     /// Persists multiple decision traces in a single batch operation.

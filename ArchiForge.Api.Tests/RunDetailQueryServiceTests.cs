@@ -23,8 +23,8 @@ public sealed class RunDetailQueryServiceTests
     private readonly Mock<IArchitectureRunRepository> _runRepo;
     private readonly Mock<IAgentTaskRepository> _taskRepo;
     private readonly Mock<IAgentResultRepository> _resultRepo;
-    private readonly Mock<IGoldenManifestRepository> _manifestRepo;
-    private readonly Mock<IDecisionTraceRepository> _traceRepo;
+    private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepo;
+    private readonly Mock<ICoordinatorDecisionTraceRepository> _traceRepo;
     private readonly RunDetailQueryService _sut;
 
     public RunDetailQueryServiceTests()
@@ -32,8 +32,8 @@ public sealed class RunDetailQueryServiceTests
         _runRepo = new Mock<IArchitectureRunRepository>();
         _taskRepo = new Mock<IAgentTaskRepository>();
         _resultRepo = new Mock<IAgentResultRepository>();
-        _manifestRepo = new Mock<IGoldenManifestRepository>();
-        _traceRepo = new Mock<IDecisionTraceRepository>();
+        _manifestRepo = new Mock<ICoordinatorGoldenManifestRepository>();
+        _traceRepo = new Mock<ICoordinatorDecisionTraceRepository>();
 
         _sut = new RunDetailQueryService(
             _runRepo.Object,

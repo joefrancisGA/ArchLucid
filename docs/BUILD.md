@@ -100,16 +100,16 @@ Typical gaps we fixed:
 |----------|-----------------------------------|
 | **ArchiForge.Decisioning** | **KnowledgeGraph** |
 | **ArchiForge.AgentRuntime** | **AgentSimulator** |
-| **ArchiForge.AgentRuntime.Tests** | **Coordinator**, **ContextIngestion**, **Decisioning**, **DecisionEngine**, **KnowledgeGraph** |
-| **ArchiForge.Coordinator.Tests** | **AgentSimulator**, **ContextIngestion**, **DecisionEngine**, **Decisioning**, **KnowledgeGraph** |
+| **ArchiForge.AgentRuntime.Tests** | **Coordinator**, **ContextIngestion**, **Decisioning**, **KnowledgeGraph** |
+| **ArchiForge.Coordinator.Tests** | **AgentSimulator**, **ContextIngestion**, **Decisioning**, **KnowledgeGraph** |
 | **ArchiForge.ContextIngestion.Tests** | **ContextIngestion**, **Contracts** (mapper tests) |
-| **ArchiForge.DecisionEngine.Tests** | **Contracts** (for `ManifestDeltaProposal`, `AgentResult`, etc.) |
+| **ArchiForge.Decisioning.Tests** | **Contracts** (for `ManifestDeltaProposal`, `AgentResult`, etc.) |
 
 **Quick audit:** search new `using ArchiForge.*` in a project; if the namespace’s assembly is not referenced by that **.csproj**, add the project reference.
 
-## DecisionEngine dependency bundle (single place to align versions)
+## Decisioning — JSON Schema / options dependency bundle
 
-**ArchiForge.DecisionEngine** intentionally references this set (see **`ArchiForge.DecisionEngine.csproj`**); versions are pinned only in **`Directory.Packages.props`**:
+**ArchiForge.Decisioning** references this set for `SchemaValidationService` and options binding (see **`ArchiForge.Decisioning.csproj`**); versions are pinned only in **`Directory.Packages.props`**:
 
 - **JsonSchema.Net** — runtime JSON Schema validation  
 - **Microsoft.Extensions.Configuration** — `IConfiguration` overload for `AddSchemaValidation`  

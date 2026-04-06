@@ -975,7 +975,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **What was built:**
 - `SchemaValidationOptions.EnableResultCaching` (bool, default false) and `ResultCacheMaxSize` (int, default 256).
 - `SchemaValidationService`: when caching is enabled, results are keyed by SHA-256(`schemaName|json`) in a `ConcurrentDictionary`. Cache is cleared (not evicted) when it reaches `ResultCacheMaxSize`.
-- OTel `Meter` (`ArchiForge.DecisionEngine.SchemaValidation`): `schema_validation_total` counter tagged by schema name + outcome; `schema_validation_duration_ms` histogram tagged by schema name.
+- OTel `Meter` (`ArchiForge.Decisioning.SchemaValidation`): `schema_validation_total` counter tagged by schema name + outcome; `schema_validation_duration_ms` histogram tagged by schema name. (Legacy dashboards may still filter on `ArchiForge.DecisionEngine.SchemaValidation`.)
 - `ValidateCore` replaces the old `Validate` private method; caching is an outer wrapper.
 
 **Future:**
@@ -1127,7 +1127,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 **What was built:**
 - `ObservabilityExtensions.WithMetrics` — `metrics.AddMeter(SchemaValidationService.MeterName)` added so `schema_validation_total` and `schema_validation_duration_ms` are exported to Prometheus/OTLP without any additional configuration.
-- `using ArchiForge.DecisionEngine.Validation;` added (project reference already present).
+- `using ArchiForge.Decisioning.Validation;` added (project reference already present).
 
 ---
 
@@ -1297,7 +1297,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.DecisionEngine.Tests/DecisionEngineServiceMergeTests.cs` — blank runId / manifestVersion / empty results; schema failure; happy path with `PassthroughSchemaValidationService`.
+- `ArchiForge.Decisioning.Tests/Merge/DecisionEngineServiceMergeTests.cs` — blank runId / manifestVersion / empty results; schema failure; happy path with `PassthroughSchemaValidationService`.
 
 ---
 

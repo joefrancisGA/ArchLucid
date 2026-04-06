@@ -17,8 +17,8 @@ public sealed class RunDetailQueryService(
     IArchitectureRunRepository runRepository,
     IAgentTaskRepository taskRepository,
     IAgentResultRepository resultRepository,
-    IGoldenManifestRepository manifestRepository,
-    IDecisionTraceRepository decisionTraceRepository,
+    ICoordinatorGoldenManifestRepository manifestRepository,
+    ICoordinatorDecisionTraceRepository decisionTraceRepository,
     ILogger<RunDetailQueryService> logger)
     : IRunDetailQueryService
 {

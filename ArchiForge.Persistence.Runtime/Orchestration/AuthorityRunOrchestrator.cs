@@ -37,7 +37,6 @@ public sealed class AuthorityRunOrchestrator(
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
-    private const string AuthorityRunCompletedEventType = "com.archiforge.authority.run.completed";
     /// <inheritdoc />
     public async Task<RunRecord> ExecuteAsync(
         ContextIngestionRequest request,
@@ -262,7 +261,7 @@ public sealed class AuthorityRunOrchestrator(
 
             await integrationEventOutbox.EnqueueAsync(
                 run.RunId,
-                AuthorityRunCompletedEventType,
+                IntegrationEventTypes.AuthorityRunCompletedV1,
                 integrationMessageId,
                 integrationPayload,
                 scope.TenantId,
@@ -324,7 +323,7 @@ public sealed class AuthorityRunOrchestrator(
             byte[] json = SerializeAuthorityRunCompletedPayload(run, manifestId, scope);
             string messageId = BuildAuthorityRunCompletedMessageId(run.RunId);
 
-            await integrationEventPublisher.PublishAsync(AuthorityRunCompletedEventType, json, messageId, ct);
+            await integrationEventPublisher.PublishAsync(IntegrationEventTypes.AuthorityRunCompletedV1, json, messageId, ct);
         }
         catch (Exception ex) when (!ct.IsCancellationRequested)
         {
@@ -343,6 +342,7 @@ public sealed class AuthorityRunOrchestrator(
         return JsonSerializer.SerializeToUtf8Bytes(
             new
             {
+                schemaVersion = 1,
                 runId = run.RunId,
                 manifestId,
                 tenantId = scope.TenantId,
@@ -353,7 +353,7 @@ public sealed class AuthorityRunOrchestrator(
 
     private static string BuildAuthorityRunCompletedMessageId(Guid runId)
     {
-        return $"{runId:D}:{AuthorityRunCompletedEventType}";
+        return $"{runId:D}:{IntegrationEventTypes.AuthorityRunCompletedV1}";
     }
 
     private async Task SaveRunAsync(RunRecord run, IArchiForgeUnitOfWork uow, CancellationToken ct)

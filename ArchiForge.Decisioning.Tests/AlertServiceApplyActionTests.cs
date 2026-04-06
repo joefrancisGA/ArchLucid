@@ -1,10 +1,13 @@
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Integration;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Alerts;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -32,6 +35,16 @@ public sealed class AlertServiceApplyActionTests
         Mock<IAlertDeliveryDispatcher> dispatcher = new();
         Mock<IAuditService> audit = new();
         Mock<IEffectiveGovernanceLoader> governance = new();
+        Mock<IIntegrationEventPublisher> integration = new();
+
+        integration
+            .Setup(
+                p => p.PublishAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<ReadOnlyMemory<byte>>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         alertRepo
             .Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -51,7 +64,9 @@ public sealed class AlertServiceApplyActionTests
             evaluator.Object,
             dispatcher.Object,
             audit.Object,
-            governance.Object);
+            governance.Object,
+            integration.Object,
+            NullLogger<AlertService>.Instance);
 
         return (sut, alertRepo, audit);
     }

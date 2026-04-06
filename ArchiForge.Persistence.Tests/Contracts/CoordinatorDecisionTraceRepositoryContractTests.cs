@@ -6,7 +6,7 @@ using FluentAssertions;
 namespace ArchiForge.Persistence.Tests.Contracts;
 
 /// <summary>
-/// Shared contract assertions for coordinator <see cref="IDecisionTraceRepository"/> (run-scoped decision log rows).
+/// Shared contract assertions for coordinator <see cref="ICoordinatorDecisionTraceRepository"/> (run-scoped decision log rows).
 /// </summary>
 public abstract class CoordinatorDecisionTraceRepositoryContractTests
 {
@@ -14,7 +14,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
     {
     }
 
-    protected abstract IDecisionTraceRepository CreateRepository();
+    protected abstract ICoordinatorDecisionTraceRepository CreateRepository();
 
     /// <summary>SQL: ensures <c>dbo.ArchitectureRuns</c> exists for <paramref name="runId"/>.</summary>
     protected virtual Task PrepareRunForCoordinatorDataAsync(string requestId, string runId, CancellationToken ct)
@@ -30,7 +30,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
     public async Task CreateMany_then_GetByRunId_orders_by_CreatedUtc()
     {
         SkipIfSqlServerUnavailable();
-        IDecisionTraceRepository repo = CreateRepository();
+        ICoordinatorDecisionTraceRepository repo = CreateRepository();
         string runId = "run-dt-" + Guid.NewGuid().ToString("N");
         string requestId = "req-dt-" + Guid.NewGuid().ToString("N");
         await PrepareRunForCoordinatorDataAsync(requestId, runId, CancellationToken.None);
@@ -70,7 +70,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
     public async Task GetByRunId_empty_run_returns_empty_list()
     {
         SkipIfSqlServerUnavailable();
-        IDecisionTraceRepository repo = CreateRepository();
+        ICoordinatorDecisionTraceRepository repo = CreateRepository();
 
         IReadOnlyList<DecisionTrace> loaded =
             await repo.GetByRunIdAsync("no-such-" + Guid.NewGuid().ToString("N"), CancellationToken.None);

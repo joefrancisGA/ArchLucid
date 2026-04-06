@@ -67,7 +67,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 - [ ] 5.3 Rename `ArchiForge.Cli`, `ArchiForge.Cli.Tests`, `ArchiForge.Backfill.Cli`
 - [ ] 5.4 Rename `ArchiForge.Api.Client`, `ArchiForge.Api.Client.Tests`
 - [ ] 5.5 Rename domain projects: `Core`, `Contracts`, `Persistence`, `Application`, `AgentRuntime`, `AgentSimulator`
-- [ ] 5.6 Rename domain projects: `Coordinator`, `DecisionEngine`, `Decisioning`, `KnowledgeGraph`, `Retrieval`, `ContextIngestion`, `Provenance`, `ArtifactSynthesis`
+- [ ] 5.6 Rename domain projects: `Coordinator`, `Decisioning` (formerly separate `DecisionEngine`; now one assembly with `Merge`/`Validation` folders), `KnowledgeGraph`, `Retrieval`, `ContextIngestion`, `Provenance`, `ArtifactSynthesis`
 - [ ] 5.7 Rename host projects: `Host.Core`, `Host.Composition`
 - [ ] 5.8 Rename `ArchiForge.Api`, `ArchiForge.Worker`
 - [ ] 5.9 Regenerate or edit `ArchiForge.sln` → `ArchLucid.sln`
@@ -113,3 +113,5 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 | 2026-04-05 | 1.4 | GLOSSARY.md title + ArchLucid note; outbox / integration dead-letter terms |
 | 2026-04-05 | 2.1–2.2, 2.5 | Config bridges + `ResolveArchiForgeOptions` at early DI sites; UI proxy API key fallback; ops docs (architecture on a page, code map, config sunset, capacity/cost) |
 | 2026-04-05 | 1.5 | Architecture context/components/containers titles + ArchLucid product framing; production cost guardrails (`production.tfvars.example`, LA quota note, WAF version var, FinOps playbook §9) |
+| 2026-04-05 | (Improvement 5) | Merged `ArchiForge.DecisionEngine` into `ArchiForge.Decisioning` (later flattened to `ArchiForge.Decisioning.Merge` / `ArchiForge.Decisioning.Validation` — see 2026-04-06); added `ArchiForge.Persistence.Runtime` (orchestration, UoW, hot-path cache impls, blob store impls, archival); coordinator repos renamed to `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository` in `Persistence.Data.Repositories`. |
+| 2026-04-06 | Namespace flatten | Removed nested `Decisioning.DecisionEngine.*` namespaces: code under `ArchiForge.Decisioning/Merge/` and `ArchiForge.Decisioning/Validation/`; tests under `ArchiForge.Decisioning.Tests/Merge/` and `Validation/`; OTel meter `ArchiForge.Decisioning.SchemaValidation` (replaces `ArchiForge.DecisionEngine.SchemaValidation`). |

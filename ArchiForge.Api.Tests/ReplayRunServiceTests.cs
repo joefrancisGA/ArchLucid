@@ -4,7 +4,7 @@ using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.DecisionEngine.Services;
+using ArchiForge.Decisioning.Merge;
 
 using FluentAssertions;
 
@@ -25,8 +25,8 @@ public sealed class ReplayRunServiceTests
     private readonly Mock<IAgentEvidencePackageRepository> _evidenceRepository = new();
     private readonly Mock<IAgentExecutorResolver> _executorResolver = new();
     private readonly Mock<IDecisionEngineService> _decisionEngine = new();
-    private readonly Mock<IGoldenManifestRepository> _manifestRepository = new();
-    private readonly Mock<IDecisionTraceRepository> _decisionTraceRepository = new();
+    private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepository = new();
+    private readonly Mock<ICoordinatorDecisionTraceRepository> _decisionTraceRepository = new();
     private readonly ReplayRunService _sut;
 
     public ReplayRunServiceTests()

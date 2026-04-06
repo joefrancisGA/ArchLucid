@@ -5,8 +5,8 @@ using ArchiForge.Contracts.Requests;
 using ArchiForge.Core.Configuration;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Coordinator.Services;
-using ArchiForge.DecisionEngine.Services;
-using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.Decisioning.Merge;
+using ArchiForge.Decisioning.Validation;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Orchestration;
 

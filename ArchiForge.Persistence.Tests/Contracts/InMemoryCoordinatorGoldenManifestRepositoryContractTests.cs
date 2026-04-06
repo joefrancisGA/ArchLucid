@@ -6,7 +6,7 @@ namespace ArchiForge.Persistence.Tests.Contracts;
 [Trait("Suite", "Core")]
 public sealed class InMemoryCoordinatorGoldenManifestRepositoryContractTests : CoordinatorGoldenManifestRepositoryContractTests
 {
-    protected override IGoldenManifestRepository CreateRepository()
+    protected override ICoordinatorGoldenManifestRepository CreateRepository()
     {
         return new InMemoryCoordinatorGoldenManifestRepository();
     }

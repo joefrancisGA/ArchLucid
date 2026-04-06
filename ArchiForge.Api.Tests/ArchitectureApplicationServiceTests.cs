@@ -27,7 +27,7 @@ public sealed class ArchitectureApplicationServiceTests
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
     private readonly Mock<IArchitectureRunRepository> _runRepository;
     private readonly Mock<IAgentResultRepository> _resultRepository;
-    private readonly Mock<IGoldenManifestRepository> _manifestRepository;
+    private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepository;
     private readonly Mock<IArchitectureRequestRepository> _requestRepository;
     private readonly Mock<IAgentEvidencePackageRepository> _agentEvidencePackageRepository;
     private readonly Mock<IEvidenceBuilder> _evidenceBuilder;
@@ -38,7 +38,7 @@ public sealed class ArchitectureApplicationServiceTests
         _runDetailQueryService = new Mock<IRunDetailQueryService>();
         _runRepository = new Mock<IArchitectureRunRepository>();
         _resultRepository = new Mock<IAgentResultRepository>();
-        _manifestRepository = new Mock<IGoldenManifestRepository>();
+        _manifestRepository = new Mock<ICoordinatorGoldenManifestRepository>();
         _requestRepository = new Mock<IArchitectureRequestRepository>();
         _agentEvidencePackageRepository = new Mock<IAgentEvidencePackageRepository>();
         _evidenceBuilder = new Mock<IEvidenceBuilder>();

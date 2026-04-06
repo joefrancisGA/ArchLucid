@@ -14,6 +14,10 @@ public static class SqlOpenResilienceDefaults
         int maxRetryAttempts = 3,
         TimeSpan? baseDelay = null)
     {
+        // Polly.Retry.RetryStrategyOptions.MaxRetryAttempts must be >= 1; callers use 0 to mean "no retries".
+        if (maxRetryAttempts <= 0)
+            return new ResiliencePipelineBuilder().Build();
+
         TimeSpan delay = baseDelay ?? TimeSpan.FromMilliseconds(200);
 
         return new ResiliencePipelineBuilder()

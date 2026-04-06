@@ -1,909 +1,849 @@
-﻿using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 
-using Polly;
-using Polly.Retry;
+using Gen = ArchiForge.Api.Client.Generated;
 
-namespace ArchiForge.Cli
+namespace ArchiForge.Cli;
+
+/// <summary>
+/// CLI-facing HTTP surface backed by the NSwag-generated <see cref="ArchiForgeApiClient"/> (OpenAPI v1 contract).
+/// Binary comparison replay/zip exports still use raw <see cref="HttpClient"/> because the OpenAPI model uses
+/// <c>FileContentResult</c> JSON rather than octet-stream bodies.
+/// </summary>
+[ExcludeFromCodeCoverage(Justification = "HTTP client against live API; covered by CLI integration tests.")]
+public sealed class ArchiForgeApiClient
 {
-    /// <summary>
-    /// HTTP client for the ArchiForge API with resilience (retry on transient failures).
-    /// </summary>
-    [ExcludeFromCodeCoverage(Justification = "HTTP client against live API; covered by CLI integration tests.")]
-    public sealed class ArchiForgeApiClient
+    private readonly HttpClient _http;
+    private readonly Gen.ArchiForgeApiClient _api;
+    private readonly JsonSerializerOptions _jsonOptions = new()
     {
-        private readonly HttpClient _http;
-        private readonly ResiliencePipeline<HttpResponseMessage> _pipeline;
-        private readonly JsonSerializerOptions _jsonOptions = new()
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        WriteIndented = false,
+    };
+
+    public ArchiForgeApiClient(string baseUrl)
+    {
+        string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
+        if (invalidReason is not null)
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            PropertyNameCaseInsensitive = true,
-            WriteIndented = false
+            throw new ArgumentException(invalidReason, nameof(baseUrl));
+        }
+
+        string normalized = baseUrl.Trim().TrimEnd('/');
+        _http = CreateHttpClient(normalized, useRetry: true);
+        _api = new Gen.ArchiForgeApiClient(_http) { BaseUrl = normalized + "/" };
+    }
+
+    /// <summary>
+    /// Constructor for testing: use a provided HttpClient (e.g. with a mock handler).
+    /// No retry pipeline is used so tests get deterministic behavior.
+    /// </summary>
+    public ArchiForgeApiClient(HttpClient httpClient)
+    {
+        ArgumentNullException.ThrowIfNull(httpClient);
+        _http = httpClient;
+        string baseUrl = httpClient.BaseAddress?.ToString().Trim().TrimEnd('/') ?? "http://localhost";
+        _api = new Gen.ArchiForgeApiClient(_http) { BaseUrl = baseUrl + "/" };
+    }
+
+    private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry)
+    {
+        HttpMessageHandler inner = new HttpClientHandler();
+        if (useRetry)
+        {
+            inner = new CliRetryDelegatingHandler { InnerHandler = inner };
+        }
+
+        HttpClient http = new(inner, disposeHandler: true)
+        {
+            BaseAddress = new Uri(normalizedBaseUrl + "/"),
+            Timeout = TimeSpan.FromSeconds(30),
         };
+        http.DefaultRequestHeaders.Add("Accept", "application/json");
 
-        public ArchiForgeApiClient(string baseUrl)
+        string? apiKey = Environment.GetEnvironmentVariable("ARCHIFORGE_API_KEY");
+        if (!string.IsNullOrWhiteSpace(apiKey))
         {
-            string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
-            if (invalidReason is not null)
-            
-                throw new ArgumentException(invalidReason, nameof(baseUrl));
-            
+            http.DefaultRequestHeaders.Remove("X-Api-Key");
+            http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+        }
 
-            baseUrl = baseUrl.Trim().TrimEnd('/');
-            _http = new HttpClient
+        return http;
+    }
+
+    public static string GetDefaultBaseUrl() =>
+        Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL") ?? "http://localhost:5128";
+
+    /// <summary>
+    /// Returns a human-readable reason when the value cannot be used as an absolute HTTP API base URL, or null when valid.
+    /// </summary>
+    public static string? GetInvalidApiBaseUrlReason(string? baseUrl)
+    {
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            return "API base URL is empty. Set apiUrl in archiforge.json in the project folder or the ARCHIFORGE_API_URL environment variable (example: http://localhost:5128).";
+        }
+
+        string trimmed = baseUrl.Trim();
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
+        {
+            return $"API base URL is not a valid absolute URL: '{trimmed}'. Use http:// or https:// with a host (example: http://localhost:5128).";
+        }
+
+        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+        {
+            return $"API base URL must use http or https (got '{uri.Scheme}').";
+        }
+
+        return null;
+    }
+
+    /// <summary>Resolve API base URL: config.ApiUrl (when set) &gt; ARCHIFORGE_API_URL env &gt; default.</summary>
+    public static string ResolveBaseUrl(ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
+    {
+        return !string.IsNullOrWhiteSpace(config?.ApiUrl) ? config.ApiUrl.Trim().TrimEnd('/') : GetDefaultBaseUrl().TrimEnd('/');
+    }
+
+    private static void LogCliFailure(string operation, Exception ex) =>
+        Console.Error.WriteLine($"[ArchiForge CLI] {operation} failed: {ex.GetType().Name}: {ex.Message}");
+
+    /// <summary>
+    /// Calls <c>GET /version</c> and returns the raw JSON body for operator diagnostics.
+    /// </summary>
+    public async Task<string?> GetVersionJsonAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.BuildInfoResponse info = await _api.VersionAsync(ct);
+
+            return JsonSerializer.Serialize(info, _jsonOptions);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure("GET /version", ex);
+
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Check connectivity to the ArchiForge API (GET /health). Returns true if the API is reachable and healthy.
+    /// </summary>
+    public async Task<bool> CheckHealthAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            HttpResponseMessage response = await _http.GetAsync("/health", ct);
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure("Health check", ex);
+
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// GET a health path (e.g. <c>/health/ready</c>) and return HTTP status plus response body for operator diagnostics.
+    /// </summary>
+    public async Task<(int StatusCode, string Body)> GetHealthProbeAsync(string path, CancellationToken ct = default)
+    {
+        string normalized = path.StartsWith("/", StringComparison.Ordinal) ? path : "/" + path;
+
+        try
+        {
+            HttpResponseMessage response = await _http.GetAsync(normalized, ct);
+            string body = await response.Content.ReadAsStringAsync(ct);
+
+            return ((int)response.StatusCode, body);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure($"GET {normalized}", ex);
+
+            return (0, ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Create an architecture run by submitting an ArchitectureRequest.
+    /// </summary>
+    public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.ArchitectureRequest? body = MapToGenerated(request);
+            if (body is null)
             {
-                BaseAddress = new Uri(baseUrl),
-                Timeout = TimeSpan.FromSeconds(30)
+                return CreateRunResult.Fail(null, "Invalid architecture request payload.");
+            }
+
+            Gen.CreateArchitectureRunResponse created = await _api.RequestAsync(body, ct);
+            CreateRunResponse? mapped = DeserializeRoundTrip<CreateRunResponse>(created);
+
+            return CreateRunResult.Ok(mapped);
+        }
+        catch (Gen.ArchiForgeApiException ex)
+        {
+            return CreateRunResult.Fail(ex.StatusCode, TryParseError(ex.Response) ?? ex.Message);
+        }
+        catch (HttpRequestException ex)
+        {
+            return CreateRunResult.Fail(null, $"Cannot connect to ArchiForge API: {ex.Message}");
+        }
+        catch (TaskCanceledException)
+        {
+            return CreateRunResult.Fail(null, "Request timed out.");
+        }
+    }
+
+    /// <summary>
+    /// Submit an agent result for a run.
+    /// </summary>
+    public async Task<SubmitResultResult?> SubmitAgentResultAsync(string runId, AgentResult result, CancellationToken ct = default)
+    {
+        try
+        {
+            result.RunId = runId;
+            Gen.AgentResult? genResult = MapToGenerated(result);
+            if (genResult is null)
+            {
+                return new SubmitResultResult(false, null, "Invalid agent result payload.", null);
+            }
+
+            Gen.SubmitAgentResultRequest req = new() { Result = genResult };
+            Gen.SubmitAgentResultResponse parsed = await _api.ResultAsync(runId, req, ct);
+
+            return new SubmitResultResult(true, parsed.ResultId, null);
+        }
+        catch (Gen.ArchiForgeApiException ex)
+        {
+            string? error = TryParseError(ex.Response);
+
+            return new SubmitResultResult(false, null, error ?? ex.Message, ex.StatusCode);
+        }
+        catch (HttpRequestException ex)
+        {
+            return new SubmitResultResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
+        }
+        catch (TaskCanceledException)
+        {
+            return new SubmitResultResult(false, null, "Request timed out.");
+        }
+    }
+
+    /// <summary>
+    /// Get run status, tasks, and results.
+    /// </summary>
+    public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.RunDetailsResponse details = await _api.RunGETAsync(runId, ct);
+
+            return DeserializeRoundTrip<GetRunResult>(details);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure($"GetRun({runId})", ex);
+
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Commit a run: merge agent results and produce a versioned manifest.
+    /// </summary>
+    public async Task<CommitRunResult?> CommitRunAsync(string runId, CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.CommitRunResponse result = await _api.CommitAsync(runId, ct);
+            CommitRunResponse? mapped = DeserializeRoundTrip<CommitRunResponse>(result);
+
+            return new CommitRunResult(true, mapped, null);
+        }
+        catch (Gen.ArchiForgeApiException ex)
+        {
+            string? error = TryParseError(ex.Response);
+
+            return new CommitRunResult(false, null, error ?? ex.Message, ex.StatusCode);
+        }
+        catch (HttpRequestException ex)
+        {
+            return new CommitRunResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
+        }
+        catch (TaskCanceledException)
+        {
+            return new CommitRunResult(false, null, "Request timed out.");
+        }
+    }
+
+    /// <summary>
+    /// Seed fake results for a run (Development only).
+    /// </summary>
+    public async Task<SeedFakeResultsResult?> SeedFakeResultsAsync(string runId, CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.SeedFakeResultsResponse result = await _api.SeedFakeResultsAsync(runId, ct);
+            SeedFakeResultsResponse? mapped = DeserializeRoundTrip<SeedFakeResultsResponse>(result);
+
+            return new SeedFakeResultsResult(true, mapped?.ResultCount ?? 0, null);
+        }
+        catch (Gen.ArchiForgeApiException ex)
+        {
+            string? error = TryParseError(ex.Response);
+
+            return new SeedFakeResultsResult(false, 0, error ?? ex.Message, ex.StatusCode);
+        }
+        catch (HttpRequestException ex)
+        {
+            return new SeedFakeResultsResult(false, 0, $"Cannot connect to ArchiForge API: {ex.Message}");
+        }
+        catch (TaskCanceledException)
+        {
+            return new SeedFakeResultsResult(false, 0, "Request timed out.");
+        }
+    }
+
+    /// <summary>
+    /// Get manifest by version.
+    /// </summary>
+    public async Task<object?> GetManifestAsync(string version, CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.GoldenManifest manifest = await _api.ManifestAsync(version, ct);
+
+            return JsonSerializer.SerializeToElement(manifest, _jsonOptions);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure($"GetManifest({version})", ex);
+
+            return null;
+        }
+    }
+
+    public async Task<ComparisonHistoryResult?> SearchComparisonsAsync(
+        string? comparisonType,
+        string? leftRunId,
+        string? rightRunId,
+        string? leftExportRecordId,
+        string? rightExportRecordId,
+        string? label,
+        string? tag,
+        string? tags,
+        string? sortBy,
+        string? sortDir,
+        string? cursor,
+        int skip,
+        int limit,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            string[]? tagsArray = string.IsNullOrWhiteSpace(tags)
+                ? null
+                : tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            Gen.ComparisonHistoryResponse history = await _api.ComparisonsGET4Async(
+                comparisonType,
+                leftRunId,
+                rightRunId,
+                leftExportRecordId,
+                rightExportRecordId,
+                label,
+                createdFromUtc: null,
+                createdToUtc: null,
+                tag,
+                tagsArray,
+                sortBy,
+                sortDir,
+                cursor,
+                skip,
+                limit,
+                ct);
+
+            return DeserializeRoundTrip<ComparisonHistoryResult>(history);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure("GetComparisonHistory", ex);
+
+            return null;
+        }
+    }
+
+    public async Task<bool> ReplayComparisonToFileAsync(
+        string comparisonRecordId,
+        string format,
+        string replayMode,
+        string? profile,
+        bool persistReplay,
+        string? outPath,
+        bool force,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            string uri =
+                $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay?format={Uri.EscapeDataString(format)}";
+            var body = new
+            {
+                format,
+                replayMode,
+                profile,
+                persistReplay,
             };
-            _http.DefaultRequestHeaders.Add("Accept", "application/json");
 
-            string? apiKey = Environment.GetEnvironmentVariable("ARCHIFORGE_API_KEY");
-            if (!string.IsNullOrWhiteSpace(apiKey))
+            HttpResponseMessage response = await _http.PostAsJsonAsync(uri, body, _jsonOptions, ct);
+            if (!response.IsSuccessStatusCode)
             {
-                _http.DefaultRequestHeaders.Remove("X-Api-Key");
-                _http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+                string contentError = await response.Content.ReadAsStringAsync(ct);
+                Console.WriteLine($"Replay failed ({(int)response.StatusCode}): {contentError}");
+
+                return false;
             }
 
-            _pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
-                .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+            if (response.Headers.TryGetValues("X-ArchiForge-PersistedReplayRecordId", out IEnumerable<string>? persistedValues))
+            {
+                string? persistedId = persistedValues.FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(persistedId))
                 {
-                    MaxRetryAttempts = 3,
-                    Delay = TimeSpan.FromSeconds(1),
-                    BackoffType = DelayBackoffType.Exponential,
-                    UseJitter = true,
-                    ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                        .Handle<HttpRequestException>()
-                        .HandleResult(r => (int)r.StatusCode >= 500 || r.StatusCode == HttpStatusCode.RequestTimeout || r.StatusCode == (HttpStatusCode)429)
-                })
-                .Build();
+                    Console.WriteLine($"PersistedReplayRecordId: {persistedId}");
+                }
+            }
+
+            string fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+                              ?? response.Content.Headers.ContentDisposition?.FileName
+                              ?? $"comparison_{comparisonRecordId}.{format}";
+            fileName = fileName.Trim('"');
+
+            string targetPath = fileName;
+            if (!string.IsNullOrWhiteSpace(outPath))
+            {
+                if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
+                {
+                    Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                    targetPath = Path.Combine(outPath, fileName);
+                }
+                else
+                {
+                    string? dir = Path.GetDirectoryName(outPath);
+                    if (!string.IsNullOrWhiteSpace(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+
+                    targetPath = outPath;
+                }
+            }
+
+            if (File.Exists(targetPath) && !force)
+            {
+                Console.WriteLine($"Refusing to overwrite existing file: {targetPath}");
+                Console.WriteLine("Re-run with --force to overwrite, or choose a different --out path.");
+
+                return false;
+            }
+
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync(ct);
+            await File.WriteAllBytesAsync(targetPath, bytes, ct);
+            Console.WriteLine($"Replay exported to {targetPath}");
+
+            return true;
         }
-
-        /// <summary>
-        /// Constructor for testing: use a provided HttpClient (e.g. with a mock handler).
-        /// No retry pipeline is used so tests get deterministic behavior.
-        /// </summary>
-        public ArchiForgeApiClient(HttpClient httpClient)
+        catch (Exception ex)
         {
-            _http = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>().Build();
+            Console.WriteLine($"Replay failed: {ex.Message}");
+
+            return false;
         }
+    }
 
-        public static string GetDefaultBaseUrl() =>
-            Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL") ?? "http://localhost:5128";
-
-        /// <summary>
-        /// Returns a human-readable reason when the value cannot be used as an absolute HTTP API base URL, or null when valid.
-        /// </summary>
-        public static string? GetInvalidApiBaseUrlReason(string? baseUrl)
+    public async Task<string?> GetComparisonDriftJsonAsync(string comparisonRecordId, CancellationToken ct = default)
+    {
+        try
         {
-            if (string.IsNullOrWhiteSpace(baseUrl))
-            
-                return "API base URL is empty. Set apiUrl in archiforge.json in the project folder or the ARCHIFORGE_API_URL environment variable (example: http://localhost:5128).";
-            
+            Gen.DriftAnalysisResponse drift = await _api.DriftAsync(comparisonRecordId, ct);
 
-            string trimmed = baseUrl.Trim();
-            if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
-            
-                return $"API base URL is not a valid absolute URL: '{trimmed}'. Use http:// or https:// with a host (example: http://localhost:5128).";
-            
+            return JsonSerializer.Serialize(drift, _jsonOptions);
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
-            if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
-            
-                return $"API base URL must use http or https (got '{uri.Scheme}').";
-            
+    public async Task<string?> GetReplayDiagnosticsJsonAsync(int maxCount = 50, CancellationToken ct = default)
+    {
+        try
+        {
+            int safe = Math.Clamp(maxCount, 1, 100);
+            Gen.ReplayDiagnosticsResponse diag = await _api.ReplayGETAsync(safe, ct);
+
+            return JsonSerializer.Serialize(diag, _jsonOptions);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure("GetReplayDiagnosticsJson", ex);
 
             return null;
         }
+    }
 
-        /// <summary>Resolve API base URL: config.ApiUrl (when set) > ARCHIFORGE_API_URL env > default.</summary>
-        public static string ResolveBaseUrl(ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
+    public sealed class ComparisonSummary
+    {
+        public string ComparisonRecordId { get; set; } = string.Empty;
+        public string ComparisonType { get; set; } = string.Empty;
+        public string Format { get; set; } = string.Empty;
+        public string Summary { get; set; } = string.Empty;
+    }
+
+    public async Task<ComparisonSummary?> GetComparisonSummaryAsync(string comparisonRecordId, CancellationToken ct = default)
+    {
+        try
         {
-            return !string.IsNullOrWhiteSpace(config?.ApiUrl) ? config.ApiUrl.Trim().TrimEnd('/') : GetDefaultBaseUrl().TrimEnd('/');
+            Gen.ComparisonSummaryResponse summary = await _api.SummaryGET3Async(comparisonRecordId, ct);
+
+            return DeserializeRoundTrip<ComparisonSummary>(summary);
         }
-
-        /// <summary>Writes unexpected failures to stderr so CLI operators see a cause when methods return null/false.</summary>
-        private static void LogCliFailure(string operation, Exception ex) =>
-            Console.Error.WriteLine($"[ArchiForge CLI] {operation} failed: {ex.GetType().Name}: {ex.Message}");
-
-        /// <summary>
-        /// Calls <c>GET /version</c> and returns the raw JSON body for operator diagnostics.
-        /// Returns <c>null</c> when the endpoint is unreachable or returns a non-success status.
-        /// </summary>
-        public async Task<string?> GetVersionJsonAsync(CancellationToken ct = default)
+        catch (Exception ex)
         {
-            try
-            {
-                HttpResponseMessage response = await _http.GetAsync("/version", ct);
-
-                if (!response.IsSuccessStatusCode)
-                
-                    return null;
-                
-
-                return await response.Content.ReadAsStringAsync(ct);
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure("GET /version", ex);
-
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Check connectivity to the ArchiForge API (GET /health). Returns true if the API is reachable and healthy.
-        /// </summary>
-        public async Task<bool> CheckHealthAsync(CancellationToken ct = default)
-        {
-            try
-            {
-                HttpResponseMessage response = await _http.GetAsync("/health", ct);
-                return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure("Health check", ex);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// GET a health path (e.g. <c>/health/ready</c>) and return HTTP status plus response body for operator diagnostics.
-        /// </summary>
-        public async Task<(int StatusCode, string Body)> GetHealthProbeAsync(string path, CancellationToken ct = default)
-        {
-            string normalized = path.StartsWith("/", StringComparison.Ordinal) ? path : "/" + path;
-
-            try
-            {
-                HttpResponseMessage response = await _http.GetAsync(normalized, ct);
-                string body = await response.Content.ReadAsStringAsync(ct);
-
-                return ((int)response.StatusCode, body);
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure($"GET {normalized}", ex);
-
-                return (0, ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Create an architecture run by submitting an ArchitectureRequest.
-        /// </summary>
-        public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CancellationToken ct = default)
-        {
-            try
-            {
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync("/v1/architecture/request", request, _jsonOptions, cancellationToken)), ct);
-                string content = await response.Content.ReadAsStringAsync(ct);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    CreateRunResponse? created = JsonSerializer.Deserialize<CreateRunResponse>(content, _jsonOptions);
-                    return CreateRunResult.Ok(created);
-                }
-
-                string? error = TryParseError(content);
-                return CreateRunResult.Fail((int)response.StatusCode, error ?? content);
-            }
-            catch (HttpRequestException ex)
-            {
-                return CreateRunResult.Fail(null, $"Cannot connect to ArchiForge API: {ex.Message}");
-            }
-            catch (TaskCanceledException)
-            {
-                return CreateRunResult.Fail(null, "Request timed out.");
-            }
-        }
-
-        /// <summary>
-        /// Submit an agent result for a run.
-        /// </summary>
-        public async Task<SubmitResultResult?> SubmitAgentResultAsync(string runId, AgentResult result, CancellationToken ct = default)
-        {
-            try
-            {
-                result.RunId = runId;
-                SubmitAgentResultRequest request = new() { Result = result };
-                string uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/result";
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, request, _jsonOptions, cancellationToken)), ct);
-                string content = await response.Content.ReadAsStringAsync(ct);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    string? error = TryParseError(content);
-                    return new SubmitResultResult(false, null, error ?? content, (int)response.StatusCode);
-                }
-
-                SubmitResultResponse? parsed = JsonSerializer.Deserialize<SubmitResultResponse>(content, _jsonOptions);
-                return new SubmitResultResult(true, parsed?.ResultId, null);
-            }
-            catch (HttpRequestException ex)
-            {
-                return new SubmitResultResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
-            }
-            catch (TaskCanceledException)
-            {
-                return new SubmitResultResult(false, null, "Request timed out.");
-            }
-        }
-
-        /// <summary>
-        /// Get run status, tasks, and results.
-        /// </summary>
-        public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken ct = default)
-        {
-            try
-            {
-                string uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}";
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                string content = await response.Content.ReadAsStringAsync(ct);
-
-                return !response.IsSuccessStatusCode ? null : JsonSerializer.Deserialize<GetRunResult>(content, _jsonOptions);
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure($"GetRun({runId})", ex);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Commit a run: merge agent results and produce a versioned manifest.
-        /// </summary>
-        public async Task<CommitRunResult?> CommitRunAsync(string runId, CancellationToken ct = default)
-        {
-            try
-            {
-                string uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/commit";
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
-                string content = await response.Content.ReadAsStringAsync(ct);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    string? error = TryParseError(content);
-                    return new CommitRunResult(false, null, error ?? content, (int)response.StatusCode);
-                }
-
-                CommitRunResponse? result = JsonSerializer.Deserialize<CommitRunResponse>(content, _jsonOptions);
-                return new CommitRunResult(true, result, null);
-            }
-            catch (HttpRequestException ex)
-            {
-                return new CommitRunResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
-            }
-            catch (TaskCanceledException)
-            {
-                return new CommitRunResult(false, null, "Request timed out.");
-            }
-        }
-
-        /// <summary>
-        /// Seed fake results for a run (Development only).
-        /// </summary>
-        public async Task<SeedFakeResultsResult?> SeedFakeResultsAsync(string runId, CancellationToken ct = default)
-        {
-            try
-            {
-                string uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/seed-fake-results";
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
-                string content = await response.Content.ReadAsStringAsync(ct);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    string? error = TryParseError(content);
-                    return new SeedFakeResultsResult(false, 0, error ?? content, (int)response.StatusCode);
-                }
-
-                SeedFakeResultsResponse? result = JsonSerializer.Deserialize<SeedFakeResultsResponse>(content, _jsonOptions);
-                return new SeedFakeResultsResult(true, result?.ResultCount ?? 0, null);
-            }
-            catch (HttpRequestException ex)
-            {
-                return new SeedFakeResultsResult(false, 0, $"Cannot connect to ArchiForge API: {ex.Message}");
-            }
-            catch (TaskCanceledException)
-            {
-                return new SeedFakeResultsResult(false, 0, "Request timed out.");
-            }
-        }
-
-        /// <summary>
-        /// Get manifest by version.
-        /// </summary>
-        public async Task<object?> GetManifestAsync(string version, CancellationToken ct = default)
-        {
-            try
-            {
-                string uri = $"/v1/architecture/manifest/{Uri.EscapeDataString(version)}";
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                string content = await response.Content.ReadAsStringAsync(ct);
-
-                if (!response.IsSuccessStatusCode)
-                    return null;
-
-                return JsonSerializer.Deserialize<JsonElement>(content);
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure($"GetManifest({version})", ex);
-                return null;
-            }
-        }
-
-        public async Task<ComparisonHistoryResult?> SearchComparisonsAsync(
-            string? comparisonType,
-            string? leftRunId,
-            string? rightRunId,
-            string? leftExportRecordId,
-            string? rightExportRecordId,
-            string? label,
-            string? tag,
-            string? tags,
-            string? sortBy,
-            string? sortDir,
-            string? cursor,
-            int skip,
-            int limit,
-            CancellationToken ct = default)
-        {
-            try
-            {
-                NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (!string.IsNullOrWhiteSpace(comparisonType))
-                    query["comparisonType"] = comparisonType;
-                if (!string.IsNullOrWhiteSpace(leftRunId))
-                    query["leftRunId"] = leftRunId;
-                if (!string.IsNullOrWhiteSpace(rightRunId))
-                    query["rightRunId"] = rightRunId;
-                if (!string.IsNullOrWhiteSpace(leftExportRecordId))
-                    query["leftExportRecordId"] = leftExportRecordId;
-                if (!string.IsNullOrWhiteSpace(rightExportRecordId))
-                    query["rightExportRecordId"] = rightExportRecordId;
-                if (!string.IsNullOrWhiteSpace(label))
-                    query["label"] = label;
-                if (!string.IsNullOrWhiteSpace(tag))
-                    query["tag"] = tag;
-                if (!string.IsNullOrWhiteSpace(tags))
-                    query["tags"] = tags;
-                if (!string.IsNullOrWhiteSpace(sortBy))
-                    query["sortBy"] = sortBy;
-                if (!string.IsNullOrWhiteSpace(sortDir))
-                    query["sortDir"] = sortDir;
-                if (!string.IsNullOrWhiteSpace(cursor))
-                    query["cursor"] = cursor;
-                query["skip"] = skip.ToString();
-                query["limit"] = limit.ToString();
-
-                string uri = "/v1/architecture/comparisons";
-                string? qs = query.ToString();
-                if (!string.IsNullOrEmpty(qs))
-                    uri += "?" + qs;
-
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                string content = await response.Content.ReadAsStringAsync(ct);
-
-                if (!response.IsSuccessStatusCode)
-                    return null;
-
-                using JsonDocument doc = JsonDocument.Parse(content);
-                JsonElement root = doc.RootElement;
-                JsonElement recordsProp = root.GetProperty("records");
-                List<ComparisonRecordSummary> list = [];
-                foreach (JsonElement item in recordsProp.EnumerateArray())
-                {
-                    List<string> tagsList = [];
-                    if (item.TryGetProperty("tags", out JsonElement tagsEl) && tagsEl.ValueKind == JsonValueKind.Array)
-                    
-                        foreach (JsonElement t in tagsEl.EnumerateArray())
-                            if (t.ValueKind == JsonValueKind.String)
-                                tagsList.Add(t.GetString() ?? "");
-                    
-                    list.Add(new ComparisonRecordSummary
-                    {
-                        ComparisonRecordId = item.GetProperty("comparisonRecordId").GetString() ?? string.Empty,
-                        ComparisonType = item.GetProperty("comparisonType").GetString() ?? string.Empty,
-                        LeftRunId = item.TryGetProperty("leftRunId", out JsonElement lr) && lr.ValueKind != JsonValueKind.Null ? lr.GetString() : null,
-                        RightRunId = item.TryGetProperty("rightRunId", out JsonElement rr) && rr.ValueKind != JsonValueKind.Null ? rr.GetString() : null,
-                        LeftExportRecordId = item.TryGetProperty("leftExportRecordId", out JsonElement le) && le.ValueKind != JsonValueKind.Null ? le.GetString() : null,
-                        RightExportRecordId = item.TryGetProperty("rightExportRecordId", out JsonElement re) && re.ValueKind != JsonValueKind.Null ? re.GetString() : null,
-                        CreatedUtc = item.TryGetProperty("createdUtc", out JsonElement cu) && cu.ValueKind == JsonValueKind.String
-                            ? DateTime.Parse(cu.GetString()!)
-                            : default,
-                        Label = item.TryGetProperty("label", out JsonElement lbl) && lbl.ValueKind != JsonValueKind.Null ? lbl.GetString() : null,
-                        Tags = tagsList
-                    });
-                }
-
-                string? nextCursor = root.TryGetProperty("nextCursor", out JsonElement nc) && nc.ValueKind == JsonValueKind.String
-                    ? nc.GetString()
-                    : null;
-                return new ComparisonHistoryResult { Records = list, NextCursor = nextCursor };
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure("GetComparisonHistory", ex);
-                return null;
-            }
-        }
-
-        public async Task<bool> ReplayComparisonToFileAsync(
-            string comparisonRecordId,
-            string format,
-            string replayMode,
-            string? profile,
-            bool persistReplay,
-            string? outPath,
-            bool force,
-            CancellationToken ct = default)
-        {
-            try
-            {
-                // Include format in querystring so the API rate limiter can apply heavy vs light policies.
-                string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay?format={Uri.EscapeDataString(format)}";
-                var body = new
-                {
-                    format,
-                    replayMode,
-                    profile,
-                    persistReplay
-                };
-
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, body, _jsonOptions, cancellationToken)), ct);
-                if (!response.IsSuccessStatusCode)
-                {
-                    string contentError = await response.Content.ReadAsStringAsync(ct);
-                    Console.WriteLine($"Replay failed ({(int)response.StatusCode}): {contentError}");
-                    return false;
-                }
-
-                if (response.Headers.TryGetValues("X-ArchiForge-PersistedReplayRecordId", out IEnumerable<string>? persistedValues))
-                {
-                    string? persistedId = persistedValues.FirstOrDefault();
-                    if (!string.IsNullOrWhiteSpace(persistedId))
-                    
-                        Console.WriteLine($"PersistedReplayRecordId: {persistedId}");
-                    
-                }
-
-                string fileName = response.Content.Headers.ContentDisposition?.FileNameStar
-                                  ?? response.Content.Headers.ContentDisposition?.FileName
-                                  ?? $"comparison_{comparisonRecordId}.{format}";
-                fileName = fileName.Trim('"');
-
-                string targetPath = fileName;
-                if (!string.IsNullOrWhiteSpace(outPath))
-                
-                    if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
-                    {
-                        Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-                        targetPath = Path.Combine(outPath, fileName);
-                    }
-                    else
-                    {
-                        string? dir = Path.GetDirectoryName(outPath);
-                        if (!string.IsNullOrWhiteSpace(dir))
-                            Directory.CreateDirectory(dir);
-                        targetPath = outPath;
-                    }
-                
-
-                if (File.Exists(targetPath) && !force)
-                {
-                    Console.WriteLine($"Refusing to overwrite existing file: {targetPath}");
-                    Console.WriteLine("Re-run with --force to overwrite, or choose a different --out path.");
-                    return false;
-                }
-
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(ct);
-                await File.WriteAllBytesAsync(targetPath, bytes, ct);
-                Console.WriteLine($"Replay exported to {targetPath}");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Replay failed: {ex.Message}");
-                return false;
-            }
-        }
-
-        public async Task<string?> GetComparisonDriftJsonAsync(string comparisonRecordId, CancellationToken ct = default)
-        {
-            try
-            {
-                string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/drift";
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
-                return await response.Content.ReadAsStringAsync(ct);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public async Task<string?> GetReplayDiagnosticsJsonAsync(int maxCount = 50, CancellationToken ct = default)
-        {
-            try
-            {
-                int safe = Math.Clamp(maxCount, 1, 100);
-                string uri = $"/v1/architecture/comparisons/diagnostics/replay?maxCount={safe}";
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                return await response.Content.ReadAsStringAsync(ct);
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure("GetReplayDiagnosticsJson", ex);
-                return null;
-            }
-        }
-
-        public sealed class ComparisonSummary
-        {
-            public string ComparisonRecordId { get; set; } = string.Empty;
-            public string ComparisonType { get; set; } = string.Empty;
-            public string Format { get; set; } = string.Empty;
-            public string Summary { get; set; } = string.Empty;
-        }
-
-        public async Task<ComparisonSummary?> GetComparisonSummaryAsync(string comparisonRecordId, CancellationToken ct = default)
-        {
-            try
-            {
-                string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/summary";
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                string content = await response.Content.ReadAsStringAsync(ct);
-                return !response.IsSuccessStatusCode ? null : JsonSerializer.Deserialize<ComparisonSummary>(content, _jsonOptions);
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure($"GetComparisonSummary({comparisonRecordId})", ex);
-                return null;
-            }
-        }
-
-        public async Task<bool> ReplayComparisonsBatchToZipAsync(
-            IReadOnlyList<string> comparisonRecordIds,
-            string format,
-            string replayMode,
-            string? profile,
-            bool persistReplay,
-            string? outPath,
-            bool force,
-            CancellationToken ct = default)
-        {
-            try
-            {
-                string uri = "/v1/architecture/comparisons/replay/batch";
-                var body = new
-                {
-                    comparisonRecordIds,
-                    format,
-                    replayMode,
-                    profile,
-                    persistReplay
-                };
-
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, body, _jsonOptions, cancellationToken)), ct);
-                if (!response.IsSuccessStatusCode)
-                {
-                    string contentError = await response.Content.ReadAsStringAsync(ct);
-                    Console.WriteLine($"Batch replay failed ({(int)response.StatusCode}): {contentError}");
-                    return false;
-                }
-
-                string fileName = response.Content.Headers.ContentDisposition?.FileNameStar
-                                  ?? response.Content.Headers.ContentDisposition?.FileName
-                                  ?? "comparison_replays.zip";
-                fileName = fileName.Trim('"');
-
-                string targetPath = fileName;
-                if (!string.IsNullOrWhiteSpace(outPath))
-                
-                    if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
-                    {
-                        Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
-                        targetPath = Path.Combine(outPath, fileName);
-                    }
-                    else
-                    {
-                        string? dir = Path.GetDirectoryName(outPath);
-                        if (!string.IsNullOrWhiteSpace(dir))
-                            Directory.CreateDirectory(dir);
-                        targetPath = outPath;
-                    }
-                
-
-                if (File.Exists(targetPath) && !force)
-                {
-                    Console.WriteLine($"Refusing to overwrite existing file: {targetPath}");
-                    Console.WriteLine("Re-run with --force to overwrite, or choose a different --out path.");
-                    return false;
-                }
-
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync(ct);
-                await File.WriteAllBytesAsync(targetPath, bytes, ct);
-                Console.WriteLine($"Batch replay exported to {targetPath}");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Batch replay failed: {ex.Message}");
-                return false;
-            }
-        }
-
-        public sealed class DriftItem
-        {
-            public string Category { get; set; } = string.Empty;
-            public string Path { get; set; } = string.Empty;
-            public string? Description { get; set; }
-        }
-
-        public sealed class DriftAnalysis
-        {
-            public bool DriftDetected { get; set; }
-            public string Summary { get; set; } = string.Empty;
-            public List<DriftItem> Items { get; set; } = [];
-        }
-
-        public async Task<DriftAnalysis?> GetComparisonDriftAsync(string comparisonRecordId, CancellationToken ct = default)
-        {
-            try
-            {
-                string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/drift";
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
-                string content = await response.Content.ReadAsStringAsync(ct);
-                if (!response.IsSuccessStatusCode)
-                    return null;
-
-                using JsonDocument doc = JsonDocument.Parse(content);
-                JsonElement root = doc.RootElement;
-                DriftAnalysis result = new()
-                {
-                    DriftDetected = root.TryGetProperty("driftDetected", out JsonElement dd) && dd.ValueKind == JsonValueKind.True,
-                    Summary = root.TryGetProperty("summary", out JsonElement s) ? s.GetString() ?? "" : ""
-                };
-
-                if (!root.TryGetProperty("items", out JsonElement items) || items.ValueKind != JsonValueKind.Array)
-                    return result;
-                
-                foreach (JsonElement it in items.EnumerateArray())
-                
-                    result.Items.Add(new DriftItem
-                    {
-                        Category = it.TryGetProperty("category", out JsonElement c) ? c.GetString() ?? "" : "",
-                        Path = it.TryGetProperty("path", out JsonElement p) ? p.GetString() ?? "" : "",
-                        Description = it.TryGetProperty("description", out JsonElement d) ? d.GetString() : null
-                    });
-                
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure($"GetComparisonDrift({comparisonRecordId})", ex);
-                return null;
-            }
-        }
-
-        public sealed class ReplayDiagnostics
-        {
-            public List<ReplayDiagnosticsEntry> RecentReplays { get; set; } = [];
-        }
-
-        public sealed class ReplayDiagnosticsEntry
-        {
-            public DateTime TimestampUtc { get; set; }
-            public string ComparisonRecordId { get; set; } = string.Empty;
-            public string ComparisonType { get; set; } = string.Empty;
-            public string Format { get; set; } = string.Empty;
-            public string ReplayMode { get; set; } = string.Empty;
-            public long DurationMs { get; set; }
-            public bool Success { get; set; }
-            public bool MetadataOnly { get; set; }
-            public string? PersistedReplayRecordId { get; set; }
-            public string? ErrorMessage { get; set; }
-        }
-
-        public async Task<ReplayDiagnostics?> GetReplayDiagnosticsAsync(int maxCount, CancellationToken ct = default)
-        {
-            try
-            {
-                string uri = $"/v1/architecture/comparisons/diagnostics/replay?maxCount={maxCount}";
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                string content = await response.Content.ReadAsStringAsync(ct);
-                if (!response.IsSuccessStatusCode)
-                    return null;
-
-                using JsonDocument doc = JsonDocument.Parse(content);
-                JsonElement root = doc.RootElement;
-                ReplayDiagnostics result = new();
-                if (!root.TryGetProperty("recentReplays", out JsonElement arr) || arr.ValueKind != JsonValueKind.Array)
-                    return result;
-                
-                foreach (JsonElement it in arr.EnumerateArray())
-                
-                    result.RecentReplays.Add(new ReplayDiagnosticsEntry
-                    {
-                        TimestampUtc = it.TryGetProperty("timestampUtc", out JsonElement t) && t.ValueKind == JsonValueKind.String ? DateTime.Parse(t.GetString()!) : default,
-                        ComparisonRecordId = it.TryGetProperty("comparisonRecordId", out JsonElement id) ? id.GetString() ?? "" : "",
-                        ComparisonType = it.TryGetProperty("comparisonType", out JsonElement ctEl) ? ctEl.GetString() ?? "" : "",
-                        Format = it.TryGetProperty("format", out JsonElement f) ? f.GetString() ?? "" : "",
-                        ReplayMode = it.TryGetProperty("replayMode", out JsonElement rm) ? rm.GetString() ?? "" : "",
-                        DurationMs = it.TryGetProperty("durationMs", out JsonElement dm) && dm.TryGetInt64(out long l) ? l : 0,
-                        Success = it.TryGetProperty("success", out JsonElement ok) && ok.ValueKind == JsonValueKind.True,
-                        MetadataOnly = it.TryGetProperty("metadataOnly", out JsonElement mo) && mo.ValueKind == JsonValueKind.True,
-                        PersistedReplayRecordId = it.TryGetProperty("persistedReplayRecordId", out JsonElement pr) ? pr.GetString() : null,
-                        ErrorMessage = it.TryGetProperty("errorMessage", out JsonElement em) ? em.GetString() : null
-                    });
-                
-                return result;
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure("GetReplayDiagnostics", ex);
-                return null;
-            }
-        }
-
-        public async Task<bool> UpdateComparisonRecordAsync(
-            string comparisonRecordId,
-            string? label,
-            IReadOnlyList<string>? tags,
-            CancellationToken ct = default)
-        {
-            try
-            {
-                string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}";
-                var body = new
-                {
-                    label,
-                    tags = tags ?? (object?)null
-                };
-                using HttpRequestMessage request = new(HttpMethod.Patch, uri);
-                request.Content = JsonContent.Create(body, options: _jsonOptions);
-                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.SendAsync(request, cancellationToken)), ct);
-                return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                LogCliFailure($"UpdateComparisonRecord({comparisonRecordId})", ex);
-                return false;
-            }
-        }
-
-        public sealed class ComparisonHistoryResult
-        {
-            public List<ComparisonRecordSummary> Records { get; set; } = [];
-            public string? NextCursor { get; set; }
-        }
-
-        public sealed class ComparisonRecordSummary
-        {
-            public string ComparisonRecordId { get; set; } = string.Empty;
-            public string ComparisonType { get; set; } = string.Empty;
-            public string? LeftRunId { get; set; }
-            public string? RightRunId { get; set; }
-            public string? LeftExportRecordId { get; set; }
-            public string? RightExportRecordId { get; set; }
-            public DateTime CreatedUtc { get; set; }
-            public string? Label { get; set; }
-            public List<string> Tags { get; set; } = [];
-        }
-
-        /// <summary>
-        /// Parse error message from JSON. Supports RFC 7807 Problem Details (detail, title) and legacy (error, errors).
-        /// </summary>
-        private static string? TryParseError(string json)
-        {
-            try
-            {
-                JsonDocument doc = JsonDocument.Parse(json);
-                JsonElement root = doc.RootElement;
-                if (root.TryGetProperty("detail", out JsonElement detail))
-                    return detail.GetString();
-                if (root.TryGetProperty("error", out JsonElement err))
-                    return err.GetString();
-                if (root.TryGetProperty("errors", out JsonElement errs) && errs.ValueKind == JsonValueKind.Array)
-                    return string.Join("; ", errs.EnumerateArray().Select(e => e.GetString()).Where(s => !string.IsNullOrEmpty(s)));
-                if (root.TryGetProperty("title", out JsonElement title))
-                    return title.GetString();
-            }
-            catch (Exception)
-            {
-                // Best-effort parse of arbitrary API error JSON; avoid stderr noise.
-            }
+            LogCliFailure($"GetComparisonSummary({comparisonRecordId})", ex);
 
             return null;
         }
+    }
 
-        public sealed record CreateRunResult(bool Success, CreateRunResponse? Response, string? Error, int? StatusCode)
+    public async Task<bool> ReplayComparisonsBatchToZipAsync(
+        IReadOnlyList<string> comparisonRecordIds,
+        string format,
+        string replayMode,
+        string? profile,
+        bool persistReplay,
+        string? outPath,
+        bool force,
+        CancellationToken ct = default)
+    {
+        try
         {
-            public static CreateRunResult Ok(CreateRunResponse? r) => new(true, r, null, null);
-            public static CreateRunResult Fail(int? statusCode, string error) => new(false, null, error, statusCode);
+            string uri = "/v1/architecture/comparisons/replay/batch";
+            var body = new
+            {
+                comparisonRecordIds,
+                format,
+                replayMode,
+                profile,
+                persistReplay,
+            };
+
+            HttpResponseMessage response = await _http.PostAsJsonAsync(uri, body, _jsonOptions, ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                string contentError = await response.Content.ReadAsStringAsync(ct);
+                Console.WriteLine($"Batch replay failed ({(int)response.StatusCode}): {contentError}");
+
+                return false;
+            }
+
+            string fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+                              ?? response.Content.Headers.ContentDisposition?.FileName
+                              ?? "comparison_replays.zip";
+            fileName = fileName.Trim('"');
+
+            string targetPath = fileName;
+            if (!string.IsNullOrWhiteSpace(outPath))
+            {
+                if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
+                {
+                    Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                    targetPath = Path.Combine(outPath, fileName);
+                }
+                else
+                {
+                    string? dir = Path.GetDirectoryName(outPath);
+                    if (!string.IsNullOrWhiteSpace(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+
+                    targetPath = outPath;
+                }
+            }
+
+            if (File.Exists(targetPath) && !force)
+            {
+                Console.WriteLine($"Refusing to overwrite existing file: {targetPath}");
+                Console.WriteLine("Re-run with --force to overwrite, or choose a different --out path.");
+
+                return false;
+            }
+
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync(ct);
+            await File.WriteAllBytesAsync(targetPath, bytes, ct);
+            Console.WriteLine($"Batch replay exported to {targetPath}");
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Batch replay failed: {ex.Message}");
+
+            return false;
+        }
+    }
+
+    public sealed class DriftItem
+    {
+        public string Category { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
+
+    public sealed class DriftAnalysis
+    {
+        public bool DriftDetected { get; set; }
+        public string Summary { get; set; } = string.Empty;
+        public List<DriftItem> Items { get; set; } = [];
+    }
+
+    public async Task<DriftAnalysis?> GetComparisonDriftAsync(string comparisonRecordId, CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.DriftAnalysisResponse drift = await _api.DriftAsync(comparisonRecordId, ct);
+
+            return DeserializeRoundTrip<DriftAnalysis>(drift);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure($"GetComparisonDrift({comparisonRecordId})", ex);
+
+            return null;
+        }
+    }
+
+    public sealed class ReplayDiagnostics
+    {
+        public List<ReplayDiagnosticsEntry> RecentReplays { get; set; } = [];
+    }
+
+    public sealed class ReplayDiagnosticsEntry
+    {
+        public DateTime TimestampUtc { get; set; }
+        public string ComparisonRecordId { get; set; } = string.Empty;
+        public string ComparisonType { get; set; } = string.Empty;
+        public string Format { get; set; } = string.Empty;
+        public string ReplayMode { get; set; } = string.Empty;
+        public long DurationMs { get; set; }
+        public bool Success { get; set; }
+        public bool MetadataOnly { get; set; }
+        public string? PersistedReplayRecordId { get; set; }
+        public string? ErrorMessage { get; set; }
+    }
+
+    public async Task<ReplayDiagnostics?> GetReplayDiagnosticsAsync(int maxCount, CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.ReplayDiagnosticsResponse diag = await _api.ReplayGETAsync(maxCount, ct);
+
+            return DeserializeRoundTrip<ReplayDiagnostics>(diag);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure("GetReplayDiagnostics", ex);
+
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdateComparisonRecordAsync(
+        string comparisonRecordId,
+        string? label,
+        IReadOnlyList<string>? tags,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            Gen.UpdateComparisonRecordRequest body = new()
+            {
+                Label = label,
+                Tags = tags?.ToList(),
+            };
+
+            await _api.ComparisonsPATCHAsync(comparisonRecordId, body, ct);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure($"UpdateComparisonRecord({comparisonRecordId})", ex);
+
+            return false;
+        }
+    }
+
+    public sealed class ComparisonHistoryResult
+    {
+        public List<ComparisonRecordSummary> Records { get; set; } = [];
+        public string? NextCursor { get; set; }
+    }
+
+    public sealed class ComparisonRecordSummary
+    {
+        public string ComparisonRecordId { get; set; } = string.Empty;
+        public string ComparisonType { get; set; } = string.Empty;
+        public string? LeftRunId { get; set; }
+        public string? RightRunId { get; set; }
+        public string? LeftExportRecordId { get; set; }
+        public string? RightExportRecordId { get; set; }
+        public DateTime CreatedUtc { get; set; }
+        public string? Label { get; set; }
+        public List<string> Tags { get; set; } = [];
+    }
+
+    private TOut? DeserializeRoundTrip<TOut>(object value)
+    {
+        string json = JsonSerializer.Serialize(value, value.GetType(), _jsonOptions);
+
+        return JsonSerializer.Deserialize<TOut>(json, _jsonOptions);
+    }
+
+    private Gen.ArchitectureRequest? MapToGenerated(ArchitectureRequest request)
+    {
+        string json = JsonSerializer.Serialize(request, _jsonOptions);
+
+        return JsonSerializer.Deserialize<Gen.ArchitectureRequest>(json, _jsonOptions);
+    }
+
+    private Gen.AgentResult? MapToGenerated(AgentResult result)
+    {
+        string json = JsonSerializer.Serialize(result, _jsonOptions);
+
+        return JsonSerializer.Deserialize<Gen.AgentResult>(json, _jsonOptions);
+    }
+
+    /// <summary>
+    /// Parse error message from JSON. Supports RFC 7807 Problem Details (detail, title) and legacy (error, errors).
+    /// </summary>
+    private static string? TryParseError(string json)
+    {
+        try
+        {
+            JsonDocument doc = JsonDocument.Parse(json);
+            JsonElement root = doc.RootElement;
+            if (root.TryGetProperty("detail", out JsonElement detail))
+            {
+                return detail.GetString();
+            }
+
+            if (root.TryGetProperty("error", out JsonElement err))
+            {
+                return err.GetString();
+            }
+
+            if (root.TryGetProperty("errors", out JsonElement errs) && errs.ValueKind == JsonValueKind.Array)
+            {
+                return string.Join("; ", errs.EnumerateArray().Select(e => e.GetString()).Where(s => !string.IsNullOrEmpty(s)));
+            }
+
+            if (root.TryGetProperty("title", out JsonElement title))
+            {
+                return title.GetString();
+            }
+        }
+        catch (Exception)
+        {
+            // Best-effort parse of arbitrary API error JSON; avoid stderr noise.
         }
 
-        public sealed class CreateRunResponse
-        {
-            public RunInfo Run { get; set; } = new();
-            public List<AgentTaskInfo> Tasks { get; set; } = [];
-        }
+        return null;
+    }
 
-        public sealed class RunInfo
-        {
-            public string RunId { get; set; } = "";
-            public string RequestId { get; set; } = "";
-            public int Status { get; set; }
-            public DateTime CreatedUtc { get; set; }
-            public DateTime? CompletedUtc { get; set; }
-            public string? CurrentManifestVersion { get; set; }
-        }
+    public sealed record CreateRunResult(bool Success, CreateRunResponse? Response, string? Error, int? StatusCode)
+    {
+        public static CreateRunResult Ok(CreateRunResponse? r) => new(true, r, null, null);
+        public static CreateRunResult Fail(int? statusCode, string error) => new(false, null, error, statusCode);
+    }
 
-        public sealed class AgentTaskInfo
-        {
-            public string TaskId { get; set; } = "";
-            public string RunId { get; set; } = "";
-            public int AgentType { get; set; }
-            public string Objective { get; set; } = "";
-            public int Status { get; set; }
-        }
+    public sealed class CreateRunResponse
+    {
+        public RunInfo Run { get; set; } = new();
+        public List<AgentTaskInfo> Tasks { get; set; } = [];
+    }
 
-        public sealed class GetRunResult
-        {
-            public RunInfo Run { get; set; } = new();
-            public List<AgentTaskInfo> Tasks { get; set; } = [];
-            public List<object> Results { get; set; } = [];
-        }
+    public sealed class RunInfo
+    {
+        public string RunId { get; set; } = "";
+        public string RequestId { get; set; } = "";
+        public int Status { get; set; }
+        public DateTime CreatedUtc { get; set; }
+        public DateTime? CompletedUtc { get; set; }
+        public string? CurrentManifestVersion { get; set; }
+    }
 
-        public sealed record CommitRunResult(bool Success, CommitRunResponse? Response, string? Error, int? HttpStatusCode = null);
+    public sealed class AgentTaskInfo
+    {
+        public string TaskId { get; set; } = "";
+        public string RunId { get; set; } = "";
+        public int AgentType { get; set; }
+        public string Objective { get; set; } = "";
+        public int Status { get; set; }
+    }
 
-        public sealed class CommitRunResponse
-        {
-            public ManifestInfo Manifest { get; set; } = new();
-            public List<string> Warnings { get; set; } = [];
-        }
+    public sealed class GetRunResult
+    {
+        public RunInfo Run { get; set; } = new();
+        public List<AgentTaskInfo> Tasks { get; set; } = [];
+        public List<object> Results { get; set; } = [];
+    }
 
-        public sealed class ManifestInfo
-        {
-            public string RunId { get; set; } = "";
-            public string SystemName { get; set; } = "";
-            public ManifestMetadataInfo Metadata { get; set; } = new();
-        }
+    public sealed record CommitRunResult(bool Success, CommitRunResponse? Response, string? Error, int? HttpStatusCode = null);
 
-        public sealed class ManifestMetadataInfo
-        {
-            public string ManifestVersion { get; set; } = "";
-        }
+    public sealed class CommitRunResponse
+    {
+        public ManifestInfo Manifest { get; set; } = new();
+        public List<string> Warnings { get; set; } = [];
+    }
 
-        public sealed record SeedFakeResultsResult(bool Success, int ResultCount, string? Error, int? HttpStatusCode = null);
+    public sealed class ManifestInfo
+    {
+        public string RunId { get; set; } = "";
+        public string SystemName { get; set; } = "";
+        public ManifestMetadataInfo Metadata { get; set; } = new();
+    }
 
-        public sealed class SeedFakeResultsResponse
-        {
-            public string Message { get; set; } = "";
-            public string RunId { get; set; } = "";
-            public int ResultCount { get; set; }
-        }
+    public sealed class ManifestMetadataInfo
+    {
+        public string ManifestVersion { get; set; } = "";
+    }
 
-        public sealed record SubmitResultResult(bool Success, string? ResultId, string? Error, int? HttpStatusCode = null);
+    public sealed record SeedFakeResultsResult(bool Success, int ResultCount, string? Error, int? HttpStatusCode = null);
 
-        public sealed class SubmitResultResponse
-        {
-            public string Message { get; set; } = "";
-            public string RunId { get; set; } = "";
-            public string ResultId { get; set; } = "";
-        }
+    public sealed class SeedFakeResultsResponse
+    {
+        public string Message { get; set; } = "";
+        public string RunId { get; set; } = "";
+        public int ResultCount { get; set; }
+    }
 
-        internal sealed class SubmitAgentResultRequest
-        {
-            public AgentResult Result { get; set; } = new();
-        }
+    public sealed record SubmitResultResult(bool Success, string? ResultId, string? Error, int? HttpStatusCode = null);
+
+    public sealed class SubmitResultResponse
+    {
+        public string Message { get; set; } = "";
+        public string RunId { get; set; } = "";
+        public string ResultId { get; set; } = "";
     }
 }

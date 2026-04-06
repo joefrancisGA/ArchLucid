@@ -6,10 +6,10 @@ using ArchiForge.Contracts.Manifest;
 namespace ArchiForge.Persistence.Data.Repositories;
 
 /// <summary>
-/// Thread-safe in-memory <see cref="IGoldenManifestRepository"/> for coordinator/replay flows (JSON clone-on-read).
+/// Thread-safe in-memory <see cref="ICoordinatorGoldenManifestRepository"/> for coordinator/replay flows (JSON clone-on-read).
 /// Distinct from the authority-layer in-memory manifest store registered in API storage extensions.
 /// </summary>
-public sealed class InMemoryCoordinatorGoldenManifestRepository : IGoldenManifestRepository
+public sealed class InMemoryCoordinatorGoldenManifestRepository : ICoordinatorGoldenManifestRepository
 {
     private readonly Dictionary<string, GoldenManifest> _byVersion = new(StringComparer.Ordinal);
     private readonly Lock _gate = new();

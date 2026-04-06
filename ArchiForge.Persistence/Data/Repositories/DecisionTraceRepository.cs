@@ -11,7 +11,7 @@ using Dapper;
 namespace ArchiForge.Persistence.Data.Repositories;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFactory) : IDecisionTraceRepository
+public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFactory) : ICoordinatorDecisionTraceRepository
 {
     public async Task CreateManyAsync(IEnumerable<DecisionTrace> traces, CancellationToken cancellationToken = default)
     {
