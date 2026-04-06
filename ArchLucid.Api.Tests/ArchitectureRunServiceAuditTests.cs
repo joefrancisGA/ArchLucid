@@ -1,8 +1,10 @@
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Persistence.Data.Repositories;
@@ -10,7 +12,7 @@ using ArchLucid.Decisioning.Merge;
 
 using FluentAssertions;
 
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
@@ -91,25 +93,43 @@ public sealed class ArchitectureRunServiceAuditTests
         IBaselineMutationAuditService baselineMutationAudit)
     {
         return new ArchitectureRunService(
-            Mock.Of<ICoordinatorService>(),
-            Mock.Of<IAgentExecutor>(),
-            Mock.Of<IDecisionEngineService>(),
-            Mock.Of<IAgentEvaluationService>(),
-            Mock.Of<IAgentEvaluationRepository>(),
-            Mock.Of<IDecisionEngineV2>(),
-            Mock.Of<IDecisionNodeRepository>(),
-            Mock.Of<IEvidenceBuilder>(),
-            Mock.Of<IArchitectureRequestRepository>(),
-            runRepository,
-            Mock.Of<IAgentTaskRepository>(),
-            Mock.Of<IAgentResultRepository>(),
-            Mock.Of<ICoordinatorGoldenManifestRepository>(),
-            Mock.Of<IEvidenceBundleRepository>(),
-            Mock.Of<ICoordinatorDecisionTraceRepository>(),
-            Mock.Of<IAgentEvidencePackageRepository>(),
-            Mock.Of<IArchitectureRunIdempotencyRepository>(),
-            actorContext,
-            baselineMutationAudit,
-            Mock.Of<ILogger<ArchitectureRunService>>());
+            new ArchitectureRunCreateOrchestrator(
+                Mock.Of<ICoordinatorService>(),
+                Mock.Of<IArchitectureRequestRepository>(),
+                runRepository,
+                Mock.Of<IEvidenceBundleRepository>(),
+                Mock.Of<IAgentTaskRepository>(),
+                Mock.Of<IArchitectureRunIdempotencyRepository>(),
+                actorContext,
+                baselineMutationAudit,
+                NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
+            new ArchitectureRunExecuteOrchestrator(
+                runRepository,
+                Mock.Of<IArchitectureRequestRepository>(),
+                Mock.Of<IAgentTaskRepository>(),
+                Mock.Of<IAgentExecutor>(),
+                Mock.Of<IAgentEvaluationService>(),
+                Mock.Of<IAgentResultRepository>(),
+                Mock.Of<IAgentEvaluationRepository>(),
+                Mock.Of<IAgentEvidencePackageRepository>(),
+                Mock.Of<IEvidenceBuilder>(),
+                actorContext,
+                baselineMutationAudit,
+                NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
+            new ArchitectureRunCommitOrchestrator(
+                runRepository,
+                Mock.Of<IArchitectureRequestRepository>(),
+                Mock.Of<IAgentTaskRepository>(),
+                Mock.Of<IAgentResultRepository>(),
+                Mock.Of<IAgentEvaluationRepository>(),
+                Mock.Of<IAgentEvidencePackageRepository>(),
+                Mock.Of<IDecisionEngineService>(),
+                Mock.Of<IDecisionEngineV2>(),
+                Mock.Of<IDecisionNodeRepository>(),
+                Mock.Of<ICoordinatorGoldenManifestRepository>(),
+                Mock.Of<ICoordinatorDecisionTraceRepository>(),
+                actorContext,
+                baselineMutationAudit,
+                NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }

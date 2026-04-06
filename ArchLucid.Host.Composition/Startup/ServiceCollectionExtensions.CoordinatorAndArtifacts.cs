@@ -31,6 +31,10 @@ public static partial class ServiceCollectionExtensions
     {
         services.AddScoped<ICoordinatorService, CoordinatorService>();
         services.AddSchemaValidation(configuration);
+        services.AddScoped<DecisionMergeInputGate>();
+        services.AddScoped<AgentProposalManifestMerger>();
+        services.AddScoped<DecisionNodeManifestMerger>();
+        services.AddScoped<ManifestGovernanceMerger>();
         services.AddScoped<IDecisionEngineService, DecisionEngineService>();
         services.AddScoped<IDecisionEngineV2, DecisionEngineV2>();
         services.AddSingleton<IComparisonService, ComparisonService>();

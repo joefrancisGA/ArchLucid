@@ -12,21 +12,34 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# Context ingestion DI lives in Host.Composition partials (moved out of ArchiForge.Api).
-_STARTUP_DIR = ROOT / "ArchiForge.Host.Composition" / "Startup"
+# Context ingestion DI lives in Host.Composition partials (moved out of the API project).
+_COMPOSITION_STARTUP_CANDIDATES = (
+    ROOT / "ArchLucid.Host.Composition" / "Startup",
+    ROOT / "ArchiForge.Host.Composition" / "Startup",
+)
+
+
+def _composition_startup_dir() -> Path | None:
+    for candidate in _COMPOSITION_STARTUP_CANDIDATES:
+        if candidate.is_dir():
+            return candidate
+    return None
 
 
 def _composition_extension_sources() -> list[Path]:
-    if not _STARTUP_DIR.is_dir():
+    startup_dir = _composition_startup_dir()
+    if startup_dir is None:
         return []
-    return sorted(_STARTUP_DIR.glob("ServiceCollectionExtensions*.cs"))
+    return sorted(startup_dir.glob("ServiceCollectionExtensions*.cs"))
 
 
 def main() -> int:
     paths = _composition_extension_sources()
     if not paths:
+        tried = ", ".join(str(p) for p in _COMPOSITION_STARTUP_CANDIDATES)
         print(
-            f"Missing ArchiForge.Host.Composition Startup partials under {_STARTUP_DIR}",
+            "Missing Host.Composition Startup partials (ServiceCollectionExtensions*.cs). "
+            f"Tried: {tried}",
             file=sys.stderr,
         )
         return 2

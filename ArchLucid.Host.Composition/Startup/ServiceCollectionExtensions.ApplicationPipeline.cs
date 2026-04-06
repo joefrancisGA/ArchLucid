@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Architecture;
@@ -96,6 +97,9 @@ public static partial class ServiceCollectionExtensions
     {
         services.AddScoped<IActorContext, ActorContext>();
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
+        services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
+        services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
+        services.AddScoped<IArchitectureRunCommitOrchestrator, ArchitectureRunCommitOrchestrator>();
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
         services.AddScoped<IArchitectureRunProvenanceService, ArchitectureRunProvenanceService>();
