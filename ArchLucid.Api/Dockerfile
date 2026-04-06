@@ -61,16 +61,17 @@ COPY ArchLucid.Api.Client.Tests/*.csproj   ArchLucid.Api.Client.Tests/
 COPY ArchLucid.TestSupport/*.csproj        ArchLucid.TestSupport/
 COPY ArchLucid.Worker/*.csproj             ArchLucid.Worker/
 
-RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj \
-    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj
+# RID must match publish (-r linux-musl-x64) or --no-restore publish fails with NETSDK1047 (missing target in project.assets.json).
+RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
+    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj -r linux-musl-x64
 
 # ── Stage 2: publish ────────────────────────────────────────────────
 FROM restore AS publish
 
 COPY . .
 # Re-restore after full sources land: restore stage only had .csproj stubs; assets must match real tree before --no-restore publish.
-RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj \
-    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj \
+RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
+    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj -r linux-musl-x64 \
     && dotnet publish ArchLucid.Api/ArchLucid.Api.csproj \
         -c Release \
         -r linux-musl-x64 \

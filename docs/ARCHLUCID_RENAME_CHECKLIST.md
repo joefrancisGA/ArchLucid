@@ -22,6 +22,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
   - [x] API SLO doc + synthetic probe runbook link (`docs/API_SLOS.md`, `SLO_PROMETHEUS_GRAFANA.md` §10, `.github/workflows/api-synthetic-probe.yml`) (2026-04-06)
   - [x] AgentRuntime multi-vendor LLM seam: `ILlmProvider`, `LlmProviderDescriptor`, `LlmProviderAuthScheme`; `IAgentCompletionClient` : `ILlmProvider`; DI `ILlmProvider` → `ILlmCompletionProvider` (2026-04-06)
   - [x] Agent prompt versioning: catalog templates + SHA-256, `AgentExecutionTrace` repro fields, `AgentPrompts` release labels, OTel tags (2026-04-06)
+  - [x] `docs/CONTAINERIZATION.md` — Docker `restore` / `publish` stages must use `-r linux-musl-x64` with `--no-restore` publish (NETSDK1047) (2026-04-06)
 - [ ] 1.11 Update `archiforge-ui/docs/*.md` (ARCHITECTURE, COMPONENT_REFERENCE, TESTING_AND_TROUBLESHOOTING, OPERATOR_SHELL_TUTORIAL, etc.)
 - [ ] 1.12 Update `.cursor/rules/Navigation.mdc` and `CSharp-EmbeddedStatements-NoBraces.mdc`
 
@@ -127,3 +128,4 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 | 2026-04-06 | 1.10 (slice) | **`docs/API_SLOS.md`** — SLO table (99.5% / 5xx budget, p95 guardrail, synthetic canary); **`.github/workflows/api-synthetic-probe.yml`** — scheduled external `GET /health/live` + `GET /version`; **`docs/runbooks/SLO_PROMETHEUS_GRAFANA.md`** §10 + component table row. |
 | 2026-04-06 | 1.10 (slice) | **`ILlmProvider`** + **`LlmProviderDescriptor`** / **`LlmProviderAuthScheme`** in `ArchLucid.AgentRuntime`; **`IAgentCompletionClient`** inherits `ILlmProvider`; Azure/echo/fake/wrappers expose `Descriptor`; **`DelegatingLlmCompletionProvider`** overlays telemetry labels; **`ILlmProvider`** registered in host composition. |
 | 2026-04-06 | 1.10 (slice) | **Prompt reproducibility:** `Prompts/*SystemPromptTemplate`, **`IAgentSystemPromptCatalog`** / **`CachedAgentSystemPromptCatalog`**, **`AgentPromptReproMetadata`**, trace fields + **`IAgentExecutionTraceRecorder`**; **`AgentPromptActivityTags`**; Simulator traces; NSwag client regen. |
+| 2026-04-06 | 1.10 (slice) | **`docs/CONTAINERIZATION.md`** — table + notes: RID-scoped `dotnet restore` matches Alpine `publish -r linux-musl-x64 --no-restore`; aligns with `ArchLucid.Api/Dockerfile` (avoids NETSDK1047 in CI/buildx). |
