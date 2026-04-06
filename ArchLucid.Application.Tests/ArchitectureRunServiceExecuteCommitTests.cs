@@ -273,6 +273,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         string runId = Guid.NewGuid().ToString("N");
         string requestId = "req-cm-" + Guid.NewGuid().ToString("N");
         string manifestVersion = "v1-" + runId;
+        string decisionTraceId = "trace-commit-happy-" + runId;
 
         Mock<IArchitectureRunRepository> runRepo = new();
         runRepo.Setup(x => x.GetByIdAsync(runId, It.IsAny<CancellationToken>()))
@@ -337,7 +338,11 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             Datastores = [],
             Relationships = [],
             Governance = new ManifestGovernance(),
-            Metadata = new ManifestMetadata { ManifestVersion = manifestVersion },
+            Metadata = new ManifestMetadata
+            {
+                ManifestVersion = manifestVersion,
+                DecisionTraceIds = [decisionTraceId],
+            },
         };
 
         DecisionMergeResult merge = new()
@@ -347,6 +352,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             [
                 RunEventTrace.From(new RunEventTracePayload
                 {
+                    TraceId = decisionTraceId,
                     RunId = runId,
                     EventType = "Commit",
                     EventDescription = "merged",
