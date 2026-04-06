@@ -1,9 +1,9 @@
-using ArchiForge.Api.Mapping;
-using ArchiForge.Api.Models;
+using ArchLucid.Api.Mapping;
+using ArchLucid.Api.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class ConsultingDocxAnalysisRequestFactoryTests
 {

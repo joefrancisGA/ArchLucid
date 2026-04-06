@@ -1,13 +1,13 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Data.Repositories;
 
-using ArchiForge.Persistence.Tests.Support;
+using ArchLucid.Persistence.Tests.Support;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]

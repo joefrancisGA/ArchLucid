@@ -1,9 +1,9 @@
 using System.Text;
 
-using ArchiForge.Application.Manifests;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Manifests;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Summaries;
+namespace ArchLucid.Application.Summaries;
 
 /// <summary>
 /// Options-driven Markdown summary of a <see cref="GoldenManifest"/>.

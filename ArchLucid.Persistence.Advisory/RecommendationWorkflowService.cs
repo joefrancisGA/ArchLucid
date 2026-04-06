@@ -1,9 +1,9 @@
 using System.Text.Json;
 
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Workflow;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IRecommendationWorkflowService" />
 public sealed class RecommendationWorkflowService(IRecommendationRepository repository) : IRecommendationWorkflowService

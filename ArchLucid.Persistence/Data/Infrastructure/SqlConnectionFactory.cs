@@ -4,13 +4,15 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
-namespace ArchiForge.Persistence.Data.Infrastructure;
+namespace ArchLucid.Persistence.Data.Infrastructure;
 
 [ExcludeFromCodeCoverage(Justification = "Requires live SQL Server connection; tested via integration tests.")]
 public sealed class SqlConnectionFactory(IConfiguration configuration) : IDbConnectionFactory
 {
-    private readonly string _connectionString = configuration.GetConnectionString("ArchiForge")
-                                                ?? throw new InvalidOperationException("Connection string 'ArchiForge' was not found.");
+    private readonly string _connectionString = configuration.GetConnectionString("ArchLucid")
+                                                ?? configuration.GetConnectionString("ArchiForge")
+                                                ?? throw new InvalidOperationException(
+                                                    "Connection string 'ArchLucid' (or legacy 'ArchiForge') was not found.");
 
     public IDbConnection CreateConnection()
     {

@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace ArchiForge.Persistence.Data.Infrastructure;
+namespace ArchLucid.Persistence.Data.Infrastructure;
 
 public interface IDbConnectionFactory
 {

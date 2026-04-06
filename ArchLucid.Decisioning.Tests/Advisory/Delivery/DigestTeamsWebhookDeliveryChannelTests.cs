@@ -1,13 +1,13 @@
 using System.Reflection;
 
-using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Tests.Advisory.Delivery;
 
 [Trait("Category", "Unit")]
 public sealed class DigestTeamsWebhookDeliveryChannelTests

@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Provenance.Services;
+namespace ArchLucid.Provenance.Services;
 
 /// <summary>Subgraph and neighborhood extraction over <see cref="DecisionProvenanceGraph"/>.</summary>
 public static class ProvenanceGraphAlgorithms

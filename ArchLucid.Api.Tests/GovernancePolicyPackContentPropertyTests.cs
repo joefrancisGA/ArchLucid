@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Round-trip and merge-shape checks for governance JSON documents used by the API stack.

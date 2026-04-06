@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// Configures one outbound path for alerts: channel type, destination, minimum severity, and enablement for a scope.

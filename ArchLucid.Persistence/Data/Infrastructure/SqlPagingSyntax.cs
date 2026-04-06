@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Data.Infrastructure;
+namespace ArchLucid.Persistence.Data.Infrastructure;
 
 /// <summary>
 /// SQL Server paging fragment appended after <c>ORDER BY</c>.

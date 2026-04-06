@@ -1,6 +1,6 @@
 # Knowledge graph (typed architecture graph)
 
-`ArchiForge.KnowledgeGraph` turns each persisted **`ContextSnapshot`** into a **`GraphSnapshot`**: typed **nodes**, typed **edges**, and optional **warnings**. Downstream **`ArchiForge.Decisioning`** finding engines and **`DefaultGoldenManifestBuilder`** consume this graph.
+`ArchLucid.KnowledgeGraph` turns each persisted **`ContextSnapshot`** into a **`GraphSnapshot`**: typed **nodes**, typed **edges**, and optional **warnings**. Downstream **`ArchLucid.Decisioning`** finding engines and **`DefaultGoldenManifestBuilder`** consume this graph.
 
 **Related:** `docs/CONTEXT_INGESTION.md` (upstream canonical objects) · `docs/DECISIONING_TYPED_FINDINGS.md` (findings + manifest) · `docs/DATA_MODEL.md` (SQL `GraphSnapshots`).
 
@@ -13,7 +13,7 @@
    - Adds one **`ContextSnapshot`** root node (`nodeId` = `context-{SnapshotId:N}`).
    - Maps each **`CanonicalObject`** with **`IGraphNodeFactory`** → **`GraphNode`** (`NodeId` = `obj-{ObjectId}`, **`NodeType`** = `ObjectType`, **`Category`** from `properties["category"]` when present, **`SourceType`** / **`SourceId`**).
    - Calls **`IGraphEdgeInferer.InferEdges`**.
-3. **`GraphSnapshot`** is persisted (SQL) as JSON columns for nodes, edges, and warnings (`ArchiForge.Persistence`). **`SqlGraphSnapshotRepository`** also inserts denormalized rows into **`GraphSnapshotEdges`** (same transaction) for **`IGraphSnapshotRepository.ListIndexedEdgesAsync`** without loading **`EdgesJson`**. The read path uses relational child tables first and falls back to JSON, governed by `PersistenceReadMode` — see **[SqlRelationalBackfill.md](SqlRelationalBackfill.md#operating-modes-persistencereadmode)** for the three operating modes.
+3. **`GraphSnapshot`** is persisted (SQL) as JSON columns for nodes, edges, and warnings (`ArchLucid.Persistence`). **`SqlGraphSnapshotRepository`** also inserts denormalized rows into **`GraphSnapshotEdges`** (same transaction) for **`IGraphSnapshotRepository.ListIndexedEdgesAsync`** without loading **`EdgesJson`**. The read path uses relational child tables first and falls back to JSON, governed by `PersistenceReadMode` — see **[SqlRelationalBackfill.md](SqlRelationalBackfill.md#operating-modes-persistencereadmode)** for the three operating modes.
 4. When the latest committed **`ContextSnapshot`** for the project matches the new snapshot’s canonical fingerprint (**`GraphSnapshotCanonicalFingerprint`**), **`AuthorityRunOrchestrator`** may **`GraphSnapshotCloner.CloneForNewRun`** from **`GetLatestByContextSnapshotIdAsync`** instead of rebuilding the graph.
 
 ---
@@ -71,7 +71,7 @@ Finding engines use these for **`RELATES_TO`**, **`PROTECTS`**, **`APPLIES_TO`**
 
 ## Dependency injection (API)
 
-Registered in **`RegisterContextIngestionAndKnowledgeGraph`** (`ArchiForge.Api` startup):
+Registered in **`RegisterContextIngestionAndKnowledgeGraph`** (`ArchLucid.Api` startup):
 
 - **`IGraphNodeFactory`** → **`GraphNodeFactory`**
 - **`IGraphEdgeInferer`** → **`DefaultGraphEdgeInferer`**
@@ -83,12 +83,12 @@ Registered in **`RegisterContextIngestionAndKnowledgeGraph`** (`ArchiForge.Api` 
 
 ## Persistence JSON (legacy aliases)
 
-`ArchiForge.Persistence.Serialization.JsonEntitySerializer` registers converters so **older or alternate** property names still deserialize:
+`ArchLucid.Persistence.Serialization.JsonEntitySerializer` registers converters so **older or alternate** property names still deserialize:
 
 - Nodes: `id` / `nodeId`, `type` / `nodeType`, `name` / `label`, etc.
 - Edges: `from` / `fromNodeId`, `to` / `toNodeId`, `type` / `edgeType`, etc.
 
-Round-trip serialization uses the **canonical** names. See **`JsonEntitySerializerGraphCompatibilityTests`** in **`ArchiForge.Decisioning.Tests`**.
+Round-trip serialization uses the **canonical** names. See **`JsonEntitySerializerGraphCompatibilityTests`** in **`ArchLucid.Decisioning.Tests`**.
 
 ---
 
@@ -104,7 +104,7 @@ Round-trip serialization uses the **canonical** names. See **`JsonEntitySerializ
 
 ## Graph coverage analysis (Decisioning)
 
-**`ArchiForge.Decisioning.Analysis`** provides **`IGraphCoverageAnalyzer`** / **`GraphCoverageAnalyzer`**, used by coverage finding engines (**`TopologyCoverageFindingEngine`**, **`SecurityCoverageFindingEngine`**, **`PolicyCoverageFindingEngine`**, **`RequirementCoverageFindingEngine`**) to reason over categories and typed edges. **`DefaultGoldenManifestBuilder.PopulateCoverageWarnings`** maps those findings into manifest gaps, security gaps, unresolved issues, and **`Requirements.Uncovered`**.
+**`ArchLucid.Decisioning.Analysis`** provides **`IGraphCoverageAnalyzer`** / **`GraphCoverageAnalyzer`**, used by coverage finding engines (**`TopologyCoverageFindingEngine`**, **`SecurityCoverageFindingEngine`**, **`PolicyCoverageFindingEngine`**, **`RequirementCoverageFindingEngine`**) to reason over categories and typed edges. **`DefaultGoldenManifestBuilder.PopulateCoverageWarnings`** maps those findings into manifest gaps, security gaps, unresolved issues, and **`Requirements.Uncovered`**.
 
 ---
 
@@ -116,11 +116,11 @@ Round-trip serialization uses the **canonical** names. See **`JsonEntitySerializ
 
 | # | Item | Status |
 |---|------|--------|
-| 1 | Replace stringly-typed `GetByType("…")` with `FindingTypes` constants class | ✓ Done — `ArchiForge.Decisioning/Findings/FindingTypes.cs` |
+| 1 | Replace stringly-typed `GetByType("…")` with `FindingTypes` constants class | ✓ Done — `ArchLucid.Decisioning/Findings/FindingTypes.cs` |
 | 2 | Richer topology containment — `CONTAINS_RESOURCE` from explicit `parentNodeId` property | ✓ Done — `DefaultGraphEdgeInferer.InferExplicitParentChildContainment` |
 | 3 | Policy / requirement targeting — narrow `APPLIES_TO`/`RELATES_TO` using explicit references | ✓ Done — `CanonicalGraphPropertyKeys` + `DefaultGraphEdgeInferer` |
 | 4 | `PolicySection` first-class on `GoldenManifest`, included in `ManifestHashService` + validated by `GoldenManifestValidator` | ✓ Done |
-| 5 | `ArchiForge.KnowledgeGraph.Tests` — inferrer, validator, graph builder, and extensions unit tests | ✓ Done |
+| 5 | `ArchLucid.KnowledgeGraph.Tests` — inferrer, validator, graph builder, and extensions unit tests | ✓ Done |
 | 6 | `GraphEdge.Weight`, `GraphSnapshotEdges` index table, `ListIndexedEdgesAsync`, fingerprint + clone reuse in `AuthorityRunOrchestrator` | ✓ Done |
 
 ### Open items

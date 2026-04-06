@@ -1,35 +1,35 @@
-using ArchiForge.Core.Integration;
-using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Composite;
-using ArchiForge.Decisioning.Alerts.Delivery;
-using ArchiForge.Decisioning.Alerts.Simulation;
-using ArchiForge.Decisioning.Alerts.Tuning;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Governance.Resolution;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Hosted;
-using ArchiForge.Host.Core.Hosting;
-using ArchiForge.Host.Core.Integration;
-using ArchiForge.Host.Core.Services;
-using ArchiForge.Host.Core.Services.Delivery;
-using ArchiForge.Persistence.Advisory;
-using ArchiForge.Persistence.Alerts;
-using ArchiForge.Persistence.Alerts.Simulation;
-using ArchiForge.Persistence.Integration;
-using ArchiForge.Persistence.Orchestration;
-using ArchiForge.Persistence.Retrieval;
+using ArchLucid.Core.Integration;
+using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Decisioning.Alerts.Simulation;
+using ArchLucid.Decisioning.Alerts.Tuning;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.Resolution;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Integration;
+using ArchLucid.Host.Core.Services;
+using ArchLucid.Host.Core.Services.Delivery;
+using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Alerts;
+using ArchLucid.Persistence.Alerts.Simulation;
+using ArchLucid.Persistence.Integration;
+using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Persistence.Retrieval;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
-    private static void RegisterDataArchivalHostedService(IServiceCollection services, ArchiForgeHostingRole hostingRole)
+    private static void RegisterDataArchivalHostedService(IServiceCollection services, ArchLucidHostingRole hostingRole)
     {
-        if (hostingRole is not ArchiForgeHostingRole.Combined and not ArchiForgeHostingRole.Worker)
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
         {
             return;
         }
@@ -38,36 +38,36 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<DataArchivalHostedService>();
     }
 
-    private static void RegisterRetrievalIndexingOutbox(IServiceCollection services, ArchiForgeHostingRole hostingRole)
+    private static void RegisterRetrievalIndexingOutbox(IServiceCollection services, ArchLucidHostingRole hostingRole)
     {
         services.AddSingleton<IRetrievalIndexingOutboxProcessor, RetrievalIndexingOutboxProcessor>();
         services.AddSingleton<IAuthorityPipelineWorkProcessor, AuthorityPipelineWorkProcessor>();
 
-        if (hostingRole is not (ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker))
+        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))
             return;
 
         services.AddHostedService<RetrievalIndexingOutboxHostedService>();
         services.AddHostedService<AuthorityPipelineWorkHostedService>();
     }
 
-    private static void RegisterIntegrationEventOutbox(IServiceCollection services, ArchiForgeHostingRole hostingRole)
+    private static void RegisterIntegrationEventOutbox(IServiceCollection services, ArchLucidHostingRole hostingRole)
     {
         services.AddSingleton<IIntegrationEventOutboxProcessor, IntegrationEventOutboxProcessor>();
 
-        if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker)
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
         {
             services.AddHostedService<IntegrationEventOutboxHostedService>();
         }
     }
 
-    private static void RegisterAdvisoryScheduling(IServiceCollection services, ArchiForgeHostingRole hostingRole)
+    private static void RegisterAdvisoryScheduling(IServiceCollection services, ArchLucidHostingRole hostingRole)
     {
         services.AddScoped<IScanScheduleCalculator, SimpleScanScheduleCalculator>();
         services.AddScoped<IArchitectureDigestBuilder, ArchitectureDigestBuilder>();
         services.AddScoped<IAdvisoryScanRunner, AdvisoryScanRunner>();
         services.AddScoped<AdvisoryDueScheduleProcessor>();
 
-        if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker)
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
         {
             services.AddHostedService<AdvisoryScanHostedService>();
         }
@@ -79,7 +79,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IEmailSender, FakeEmailSender>();
         services
             .AddHttpClient(
-                "ArchiForgeWebhooks",
+                "ArchLucidWebhooks",
                 static client => client.Timeout = TimeSpan.FromSeconds(60));
         services.AddSingleton<HttpWebhookPoster>();
         services.AddSingleton<FakeWebhookPoster>();

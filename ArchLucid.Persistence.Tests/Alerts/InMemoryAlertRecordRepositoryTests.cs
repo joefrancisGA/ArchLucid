@@ -1,10 +1,10 @@
-using ArchiForge.Core.Pagination;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Persistence.Alerts;
+using ArchLucid.Core.Pagination;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Persistence.Alerts;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Alerts;
+namespace ArchLucid.Persistence.Tests.Alerts;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Persistence")]

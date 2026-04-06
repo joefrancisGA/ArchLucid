@@ -1,11 +1,11 @@
-using ArchiForge.Persistence.BlobStore;
+using ArchLucid.Persistence.BlobStore;
 
 using Azure.Storage.Blobs;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Health;
+namespace ArchLucid.Host.Core.Health;
 
 /// <summary>
 /// When <see cref="ArtifactLargePayloadOptions"/> uses Azure Blob, probes the storage account via

@@ -1,6 +1,6 @@
-using ArchiForge.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Packaging;
+namespace ArchLucid.ArtifactSynthesis.Packaging;
 
 public interface IArtifactPackagingService
 {

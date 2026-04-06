@@ -1,4 +1,4 @@
-namespace ArchiForge.KnowledgeGraph.Models;
+namespace ArchLucid.KnowledgeGraph.Models;
 
 public class GraphSnapshot
 {

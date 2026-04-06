@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Persists <c>Idempotency-Key</c> → architecture run id mappings for <c>POST /architecture/request</c>.

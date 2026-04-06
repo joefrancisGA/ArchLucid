@@ -1,16 +1,16 @@
-using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Coordinator.Services;
-using ArchiForge.Decisioning.Merge;
-using ArchiForge.Decisioning.Validation;
+using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Coordinator.Services;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Coordinator.Tests;
+namespace ArchLucid.Coordinator.Tests;
 
 /// <summary>
 /// Tests for Deterministic Agent Simulator.

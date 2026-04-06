@@ -1,15 +1,15 @@
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Persistence.Alerts.Helpers;
+namespace ArchLucid.Persistence.Alerts.Helpers;
 
 /// <summary>
 /// Resolves the effective governance document for an alert evaluation, reusing
 /// any already-loaded content on the context to avoid redundant I/O.
 /// </summary>
 /// <remarks>
-/// Both <see cref="ArchiForge.Persistence.Alerts.AlertService"/> and
-/// <see cref="ArchiForge.Persistence.Alerts.CompositeAlertService"/> share identical
+/// Both <see cref="ArchLucid.Persistence.Alerts.AlertService"/> and
+/// <see cref="ArchLucid.Persistence.Alerts.CompositeAlertService"/> share identical
 /// resolution logic; this helper centralises it so a future interface change only
 /// requires one update.
 /// </remarks>

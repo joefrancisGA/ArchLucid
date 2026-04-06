@@ -1,18 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Compare.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureCompareTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureCompareTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task CompareManifests_ReturnsDiff()

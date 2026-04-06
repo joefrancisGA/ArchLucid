@@ -1,8 +1,8 @@
-using ArchiForge.Core.Pagination;
+using ArchLucid.Core.Pagination;
 
 using FluentAssertions;
 
-namespace ArchiForge.Core.Tests.Pagination;
+namespace ArchLucid.Core.Tests.Pagination;
 
 [Trait("Category", "Unit")]
 public sealed class PaginationDefaultsTests

@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Services.Admin;
+namespace ArchLucid.Api.Services.Admin;
 
 /// <summary>Pending outbox depths for operator dashboards.</summary>
 public sealed record AdminOutboxSnapshot(

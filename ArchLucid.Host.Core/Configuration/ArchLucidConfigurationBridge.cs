@@ -1,10 +1,10 @@
-namespace ArchiForge.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
 /// Merges <c>ArchLucid*</c> configuration over legacy <c>ArchiForge*</c> keys during the product rename.
 /// Sunset: remove fallbacks in Phase 7 per <c>docs/ARCHLUCID_RENAME_CHECKLIST.md</c>.
 /// </summary>
-public static class ArchiForgeConfigurationBridge
+public static class ArchLucidConfigurationBridge
 {
     public const string ArchLucidSectionName = "ArchLucid";
 
@@ -12,13 +12,26 @@ public static class ArchiForgeConfigurationBridge
 
     public const string LegacyAuthSectionName = "ArchiForgeAuth";
 
-    /// <summary>Effective storage mode: <c>ArchLucid:StorageProvider</c> wins when set.</summary>
-    public static ArchiForgeOptions ResolveArchiForgeOptions(IConfiguration configuration)
+    public const string PrimarySqlConnectionName = "ArchLucid";
+
+    public const string LegacySqlConnectionName = "ArchiForge";
+
+    /// <summary>SQL connection string: <c>ConnectionStrings:ArchLucid</c> wins when set (legacy <c>ArchiForge</c> fallback).</summary>
+    public static string? ResolveSqlConnectionString(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        ArchiForgeOptions options =
-            configuration.GetSection(ArchiForgeOptions.SectionName).Get<ArchiForgeOptions>() ?? new ArchiForgeOptions();
+        return configuration.GetConnectionString(PrimarySqlConnectionName)
+               ?? configuration.GetConnectionString(LegacySqlConnectionName);
+    }
+
+    /// <summary>Effective storage mode: <c>ArchLucid:StorageProvider</c> wins when set.</summary>
+    public static ArchLucidOptions ResolveArchLucidOptions(IConfiguration configuration)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        ArchLucidOptions options =
+            configuration.GetSection(ArchLucidOptions.SectionName).Get<ArchLucidOptions>() ?? new ArchLucidOptions();
 
         string? lucidStorage = configuration[$"{ArchLucidSectionName}:StorageProvider"]?.Trim();
 

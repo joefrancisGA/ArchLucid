@@ -1,7 +1,7 @@
-﻿using ArchiForge.Core.Conversation;
-using ArchiForge.Core.Pagination;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Pagination;
 
-namespace ArchiForge.Persistence.Conversation;
+namespace ArchLucid.Persistence.Conversation;
 
 /// <summary>
 /// Thread-safe in-memory <see cref="IConversationThreadRepository"/> for tests and storage-off mode.

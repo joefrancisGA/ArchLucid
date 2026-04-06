@@ -1,12 +1,12 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Persistence.BlobStore;
-using ArchiForge.Persistence.RelationalRead;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.ArtifactBundles;
+namespace ArchLucid.Persistence.ArtifactBundles;
 
 /// <summary>Relational-first hydration for <see cref="ArtifactBundle"/> reads; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
 internal static class ArtifactBundleRelationalRead

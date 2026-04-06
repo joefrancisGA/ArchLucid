@@ -1,10 +1,10 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// After a composite rule matches, decides whether to create a new <see cref="AlertRecord"/> based on deduplication, cooldown, and suppression windows.
 /// </summary>
 /// <remarks>
-/// Default implementation: <c>ArchiForge.Persistence.Alerts.AlertSuppressionPolicy</c>.
+/// Default implementation: <c>ArchLucid.Persistence.Alerts.AlertSuppressionPolicy</c>.
 /// </remarks>
 public interface IAlertSuppressionPolicy
 {

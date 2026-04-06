@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Integration;
+namespace ArchLucid.Persistence.Integration;
 
 /// <summary>Admin-facing summary of a dead-lettered integration outbox row.</summary>
 public sealed class IntegrationEventOutboxDeadLetterRow

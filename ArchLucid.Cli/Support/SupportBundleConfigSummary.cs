@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Cli.Support;
+namespace ArchLucid.Cli.Support;
 
 public sealed class SupportBundleConfigSummary
 {
@@ -32,5 +32,5 @@ public sealed class SupportBundleConfigSummary
     public string? TerraformPath { get; init; }
 
     [JsonPropertyName("architecture")]
-    public ArchiForgeProjectScaffolder.ArchitectureSection? Architecture { get; init; }
+    public ArchLucidProjectScaffolder.ArchitectureSection? Architecture { get; init; }
 }

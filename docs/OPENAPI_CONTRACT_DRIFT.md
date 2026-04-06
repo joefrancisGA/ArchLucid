@@ -16,9 +16,9 @@ Prevent accidental HTTP surface changes: the committed OpenAPI document for **v1
 
 ## 4. Architecture overview
 
-**Nodes:** `ArchiForge.Api` host, `OpenApiContractSnapshotTests`, committed snapshot file.
+**Nodes:** `ArchLucid.Api` host, `OpenApiContractSnapshotTests`, committed snapshot file.
 
-**Edges:** Test issues `GET /openapi/v1.json` → compares normalized JSON to `ArchiForge.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
+**Edges:** Test issues `GET /openapi/v1.json` → compares normalized JSON to `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
 
 **Flow:** Drift → test fails → developer regenerates snapshot only after intentional API change → commit snapshot + code together.
 
@@ -49,10 +49,10 @@ Prevent accidental HTTP surface changes: the committed OpenAPI document for **v1
 ```bash
 # Repo root (PowerShell)
 $env:ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT = "1"
-dotnet test ArchiForge.Api.Tests --filter "OpenApiContractSnapshotTests"
+dotnet test ArchLucid.Api.Tests --filter "OpenApiContractSnapshotTests"
 ```
 
-Then commit the updated `ArchiForge.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
+Then commit the updated `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
 
 **CI:** The **“.NET: fast core (corset)”** job fails if the snapshot drifts. See `docs/TEST_EXECUTION_MODEL.md` for the full filter definition.
 

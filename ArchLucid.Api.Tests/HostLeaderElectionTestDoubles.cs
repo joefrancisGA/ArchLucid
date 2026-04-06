@@ -1,6 +1,6 @@
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Hosted;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Hosted;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Builds <see cref="HostLeaderElectionCoordinator"/> with leader election disabled for hosted-service unit tests.

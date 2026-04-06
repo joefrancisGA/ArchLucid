@@ -1,15 +1,15 @@
 using System.Text.Json;
 
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Services;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Generators;
+namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchiForge.ArtifactSynthesis.Models.ArtifactType.UnresolvedIssuesReport;
+    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.UnresolvedIssuesReport;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -35,7 +35,7 @@ public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchiForge.ArtifactSynthesis.Models.ArtifactType.UnresolvedIssuesReport,
+            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.UnresolvedIssuesReport,
             Name = "unresolved-issues.json",
             Format = "json",
             Content = content,

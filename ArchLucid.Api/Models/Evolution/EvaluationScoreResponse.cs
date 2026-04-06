@@ -1,6 +1,6 @@
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
-/// <summary>API projection of <see cref="ArchiForge.Contracts.Evolution.EvaluationScore"/>.</summary>
+/// <summary>API projection of <see cref="ArchLucid.Contracts.Evolution.EvaluationScore"/>.</summary>
 public sealed class EvaluationScoreResponse
 {
     public double? SimulationScore { get; init; }

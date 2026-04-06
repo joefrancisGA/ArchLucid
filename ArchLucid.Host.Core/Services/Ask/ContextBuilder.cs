@@ -1,8 +1,8 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Provenance;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Provenance;
 
-namespace ArchiForge.Host.Core.Services.Ask;
+namespace ArchLucid.Host.Core.Services.Ask;
 
 /// <summary>Builds a JSON-serializable view of manifest + provenance + optional comparison for RAG-style prompting.</summary>
 public static class ContextBuilder

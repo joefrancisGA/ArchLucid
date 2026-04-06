@@ -1,7 +1,7 @@
-using ArchiForge.Persistence.Advisory;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Connections;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="ArchitectureDigestRepositoryContractTests"/> against <see cref="DapperArchitectureDigestRepository"/>

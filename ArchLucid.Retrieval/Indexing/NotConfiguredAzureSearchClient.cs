@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Models;
 
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
 /// Default <see cref="IAzureSearchClient"/> registration when Azure AI Search is not configured; fails fast with an actionable message.

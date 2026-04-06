@@ -24,7 +24,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 - **HTTP:** `GET /health/live` — process liveness only. `GET /health/ready` — database (skipped when `StorageProvider=InMemory`), JSON schema files, bundled compliance rule pack, writable temp directory. `GET /health` — all registered checks (live + ready).
 - **CLI:** `archiforge doctor` or `archiforge check` — local project checks + calls the three endpoints and prints JSON (truncated) with clear section headers.
-- **Tags:** `ArchiForge.Api.Health.ReadinessTags` (`live` / `ready`); no extra framework beyond `IHealthCheck`.
+- **Tags:** `ArchLucid.Api.Health.ReadinessTags` (`live` / `ready`); no extra framework beyond `IHealthCheck`.
 
 ### Prompt 5 — packaging and local release scripts
 
@@ -40,7 +40,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 ### Prompt 7 — end-to-end release readiness smoke
 
-- **New:** `release-smoke.ps1`, `release-smoke.cmd` — Release build, fast core (+ optional `-FullCore`), optional UI Vitest + `next build`, temporary **ArchiForge.Api** process, **`GET /health/ready`** + **`/health/live`**, CLI **`new` + `run --quick`**, assert **≥ 1** artifact via **`GET /api/artifacts/manifests/{goldenManifestId}`**.
+- **New:** `release-smoke.ps1`, `release-smoke.cmd` — Release build, fast core (+ optional `-FullCore`), optional UI Vitest + `next build`, temporary **ArchLucid.Api** process, **`GET /health/ready`** + **`/health/live`**, CLI **`new` + `run --quick`**, assert **≥ 1** artifact via **`GET /api/artifacts/manifests/{goldenManifestId}`**.
 - **New:** [RELEASE_SMOKE.md](RELEASE_SMOKE.md) — prerequisites, env vars, switches, relation to `run-readiness-check` / `package-release`.
 
 ### Prompt 8 — error presentation and supportability
@@ -53,11 +53,11 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 ### Prompt 9 — focused tests for 56R hardening
 
 - **API:** `ProblemSupportHintsTests`, extended **`ArchiForgeConfigurationRulesTests`** (storage/mode/Azure/schema paths), **`ApiProblemDetailsExceptionFilterTests`** assert **`supportHint`** on mapped problems.
-- **CLI:** `InternalsVisibleTo` for **`ArchiForge.Cli.Tests`**; **`CliOperatorHintsTests`**; **`ArchiForgeApiClientHttpTests`** — commit failure preserves **HTTP status code**.
+- **CLI:** `InternalsVisibleTo` for **`ArchLucid.Cli.Tests`**; **`CliOperatorHintsTests`**; **`ArchiForgeApiClientHttpTests`** — commit failure preserves **HTTP status code**.
 
 ### Prompt 10 — release-candidate coherence (final pass)
 
-- **Docs:** README **`ArchiForgeAuth`** table aligned with **`ApiKey`** mode; pilot guide uses **`dotnet run --project ArchiForge.Cli`** consistently with scripts; **RELEASE_SMOKE** CMD/`;` caveat.
+- **Docs:** README **`ArchiForgeAuth`** table aligned with **`ApiKey`** mode; pilot guide uses **`dotnet run --project ArchLucid.Cli`** consistently with scripts; **RELEASE_SMOKE** CMD/`;` caveat.
 - **Logging:** Single startup **configuration snapshot** log now includes **`ContentRoot`**; removed redundant “host built” **Information** line before validation.
 
 ### Deferred to later prompts (56R backlog)
@@ -77,7 +77,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 ### Prompt 1 (regen) — build / version provenance
 
-- **Core:** `ArchiForge.Core.Diagnostics.BuildProvenance` — single resolver for informational, assembly, and file version + runtime framework description.
+- **Core:** `ArchLucid.Core.Diagnostics.BuildProvenance` — single resolver for informational, assembly, and file version + runtime framework description.
 - **API:** Startup `Pilot/support configuration snapshot` log extended with build fields; Serilog enricher adds `AssemblyFileVersion` when present; OpenTelemetry `service.version` uses informational version (matches logs).
 - **Tests:** `BuildProvenanceTests`, extended `StartupConfigurationFactsReaderTests`.
 - **Docs:** `docs/OPERATOR_QUICKSTART.md` — where to find provenance in logs; optional `/p:InformationalVersion` for CI.
@@ -98,9 +98,9 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 ### Prompt 3 (regen) — CLI support bundle export
 
 - **CLI:** `archiforge support-bundle` — writes a UTC-stamped folder (default `support-bundle-<yyyyMMdd-HHmmss>Z`) with explicit JSON sections; **`--output <dir>`** and **`--zip`** supported.
-- **Modules (reviewable):** `SupportBundleRedactor`, `SupportBundleCollector`, `SupportBundleArchiveWriter`, `SupportBundleCommand`, and one file per bundle DTO under `ArchiForge.Cli/Support/`.
+- **Modules (reviewable):** `SupportBundleRedactor`, `SupportBundleCollector`, `SupportBundleArchiveWriter`, `SupportBundleCommand`, and one file per bundle DTO under `ArchLucid.Cli/Support/`.
 - **Contents:** `manifest.json`, `build.json` (CLI build + raw `GET /version` JSON), `health.json` (`/health/live`, `/health/ready`, `/health` with truncated bodies), `config-summary.json` (non-secret `archiforge.json` fields + redacted API base URL), `environment.json` (machine/OS/runtime + filtered env: `ARCHIFORGE_*` / `DOTNET_*` only; secrets as `(set)`; SQL-related ArchiForge keys never show values; `ARCHIFORGE_API_URL` userinfo stripped), `workspace.json` (outputs dir file count/size + sample names), `references.json` (endpoint/doc hints), `logs.json` (guidance + optional small `outputs/last-run.log` excerpt).
-- **Tests:** `ArchiForge.Cli.Tests/SupportBundleTests.cs` — redactor, mock HTTP collect, directory and zip writers.
+- **Tests:** `ArchLucid.Cli.Tests/SupportBundleTests.cs` — redactor, mock HTTP collect, directory and zip writers.
 - **Docs:** `CLI_USAGE.md`, `TROUBLESHOOTING.md`.
 
 ### Prompt 4 (regen) — readiness and smoke diagnostics for failure triage
@@ -141,23 +141,23 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 ## Related files
 
-- `ArchiForge.Core/Diagnostics/BuildProvenance.cs`, `ArchiForge.Core/Diagnostics/BuildInfoResponse.cs`
-- `ArchiForge.Api/Controllers/VersionController.cs`
-- `ArchiForge.Api/Health/DetailedHealthCheckResponseWriter.cs`
-- `ArchiForge.Api/Startup/Diagnostics/*`
-- `ArchiForge.Api/Startup/Validation/ArchiForgeConfigurationRules.cs`
-- `ArchiForge.Api/Startup/PipelineExtensions.cs` (`/health/live`, `/health/ready`, `/health`)
-- `ArchiForge.Api/Program.cs`
-- `ArchiForge.Api/appsettings.json`, `appsettings.KeyVault.sample.json`
-- `ArchiForge.Cli/ArchiForgeApiClient.cs`, `ArchiForge.Cli/Program.cs`, `ArchiForge.Cli/DoctorCommand.cs`, `ArchiForge.Cli/Support/*` (support bundle)
-- `ArchiForge.Api/Health/*` (readiness tags, schema/compliance/temp checks, SQL check behavior)
+- `ArchLucid.Core/Diagnostics/BuildProvenance.cs`, `ArchLucid.Core/Diagnostics/BuildInfoResponse.cs`
+- `ArchLucid.Api/Controllers/VersionController.cs`
+- `ArchLucid.Api/Health/DetailedHealthCheckResponseWriter.cs`
+- `ArchLucid.Api/Startup/Diagnostics/*`
+- `ArchLucid.Api/Startup/Validation/ArchiForgeConfigurationRules.cs`
+- `ArchLucid.Api/Startup/PipelineExtensions.cs` (`/health/live`, `/health/ready`, `/health`)
+- `ArchLucid.Api/Program.cs`
+- `ArchLucid.Api/appsettings.json`, `appsettings.KeyVault.sample.json`
+- `ArchLucid.Cli/ArchiForgeApiClient.cs`, `ArchLucid.Cli/Program.cs`, `ArchLucid.Cli/DoctorCommand.cs`, `ArchLucid.Cli/Support/*` (support bundle)
+- `ArchLucid.Api/Health/*` (readiness tags, schema/compliance/temp checks, SQL check behavior)
 - `archiforge-ui/src/lib/config.ts`, `archiforge-ui/src/app/api/proxy/[...path]/route.ts`
 - `docs/CONFIGURATION_KEY_VAULT.md`
 - `scripts/OperatorDiagnostics.ps1`, `scripts/Write-ReleasePackageArtifacts.ps1`, `build-release.cmd`, `build-release.ps1`, `package-release.cmd`, `package-release.ps1`, `run-readiness-check.cmd`, `run-readiness-check.ps1`
 - `docs/RELEASE_LOCAL.md`
 - `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/TROUBLESHOOTING.md`, `docs/CLI_USAGE.md`
 - `release-smoke.ps1`, `release-smoke.cmd`, `docs/RELEASE_SMOKE.md`
-- `ArchiForge.Api/ProblemDetails/ProblemSupportHints.cs`, `ArchiForge.Api/ProblemDetails/*` (extensions wiring)
-- `ArchiForge.Cli/CliOperatorHints.cs`
+- `ArchLucid.Api/ProblemDetails/ProblemSupportHints.cs`, `ArchLucid.Api/ProblemDetails/*` (extensions wiring)
+- `ArchLucid.Cli/CliOperatorHints.cs`
 - `archiforge-ui/src/app/api/proxy/[...path]/route.ts`, `docs/API_CONTRACTS.md` (problem extensions)
 - `.github/workflows/ci.yml` (SourceRevisionId stamping)

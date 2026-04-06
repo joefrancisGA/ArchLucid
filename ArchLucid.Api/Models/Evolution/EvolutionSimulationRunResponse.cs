@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
 /// <summary>One persisted shadow evaluation row.</summary>
 public sealed class EvolutionSimulationRunResponse

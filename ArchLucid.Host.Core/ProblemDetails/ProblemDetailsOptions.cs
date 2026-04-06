@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.ProblemDetails;
+namespace ArchLucid.Host.Core.ProblemDetails;
 
 /// <summary>
 /// Well-known problem type URIs for RFC 7807 (relative to the base).

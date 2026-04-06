@@ -1,12 +1,12 @@
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Repositories;
-using ArchiForge.Persistence.Tests.Support;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Tests.Support;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="DecisionTraceRepositoryContractTests"/> against <see cref="SqlDecisionTraceRepository"/>.

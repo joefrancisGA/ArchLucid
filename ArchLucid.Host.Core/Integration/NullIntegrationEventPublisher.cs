@@ -1,6 +1,6 @@
-using ArchiForge.Core.Integration;
+using ArchLucid.Core.Integration;
 
-namespace ArchiForge.Host.Core.Integration;
+namespace ArchLucid.Host.Core.Integration;
 
 /// <summary>Default <see cref="IIntegrationEventPublisher"/> when Service Bus (or other bus) is not configured.</summary>
 public sealed class NullIntegrationEventPublisher : IIntegrationEventPublisher

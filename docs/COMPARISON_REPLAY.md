@@ -45,7 +45,7 @@ Supported comparison types:
 
 ### Replay request models
 
-**API request body** – `ArchiForge.Api.Models.ReplayComparisonRequest`:
+**API request body** – `ArchLucid.Api.Models.ReplayComparisonRequest`:
 
 ```jsonc
 {
@@ -56,7 +56,7 @@ Supported comparison types:
 }
 ```
 
-**Application request** – `ArchiForge.Application.Analysis.ReplayComparisonRequest`:
+**Application request** – `ArchLucid.Application.Analysis.ReplayComparisonRequest`:
 
 - `ComparisonRecordId` – taken from the route parameter  
 - `Format` – `"markdown"`, `"html"`, `"docx"`, or `"pdf"`  

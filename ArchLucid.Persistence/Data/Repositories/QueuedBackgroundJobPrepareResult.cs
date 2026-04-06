@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Result of aligning a queue notification with <c>dbo.BackgroundJobs</c> under a row lock (multi-worker safe).

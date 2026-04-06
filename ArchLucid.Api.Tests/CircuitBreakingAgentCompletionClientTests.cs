@@ -1,5 +1,5 @@
-using ArchiForge.AgentRuntime;
-using ArchiForge.Core.Resilience;
+using ArchLucid.AgentRuntime;
+using ArchLucid.Core.Resilience;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Circuit Breaking Agent Completion Client.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.ProductLearning;
+namespace ArchLucid.Persistence.ProductLearning;
 
 /// <summary>Caps for rows included in triage reports (noise control).</summary>
 public sealed class ProductLearningTriageReportLimits

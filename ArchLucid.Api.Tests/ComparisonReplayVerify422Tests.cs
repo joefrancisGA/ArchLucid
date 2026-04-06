@@ -2,7 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 
-using ArchiForge.Application.Analysis;
+using ArchLucid.Application.Analysis;
 
 using FluentAssertions;
 
@@ -11,10 +11,10 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Replaces comparison replay with a service that always fails verify, to assert HTTP 422 pipeline.</summary>
-public sealed class ComparisonVerify422ApiFactory : ArchiForgeApiFactory
+public sealed class ComparisonVerify422ApiFactory : ArchLucidApiFactory
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

@@ -1,18 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Models.Evolution;
+using ArchLucid.Api.Models.Evolution;
 
 using FluentAssertions;
 
 using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Read and validation paths for <c>/v1/evolution/*</c> on a dedicated factory instance (no seeding).</summary>
 [Trait("Category", "Integration")]
 [Trait("ChangeSet", "60R")]
-public sealed class EvolutionControllerQueryTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class EvolutionControllerQueryTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task ListCandidates_Default_ReturnsOk_Empty()

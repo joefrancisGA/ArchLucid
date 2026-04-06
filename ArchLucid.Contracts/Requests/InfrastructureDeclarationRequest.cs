@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Requests;
+namespace ArchLucid.Contracts.Requests;
 
 public class InfrastructureDeclarationRequest
 {

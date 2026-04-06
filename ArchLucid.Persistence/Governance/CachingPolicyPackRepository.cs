@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Persistence.Caching;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Persistence.Caching;
 
-namespace ArchiForge.Persistence.Governance;
+namespace ArchLucid.Persistence.Governance;
 
 /// <summary>Decorates <see cref="IPolicyPackRepository"/> with hot-path reads for <see cref="IPolicyPackRepository.GetByIdAsync"/>.</summary>
 public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHotPathReadCache hotPathReadCache)

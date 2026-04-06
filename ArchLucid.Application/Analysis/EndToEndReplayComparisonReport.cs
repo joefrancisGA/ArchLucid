@@ -1,6 +1,6 @@
-using ArchiForge.Application.Diffs;
+using ArchLucid.Application.Diffs;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// The aggregate output of an end-to-end replay comparison between two architecture runs,

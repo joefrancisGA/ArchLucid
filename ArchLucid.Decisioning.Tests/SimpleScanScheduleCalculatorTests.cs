@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Simple Scan Schedule Calculator.

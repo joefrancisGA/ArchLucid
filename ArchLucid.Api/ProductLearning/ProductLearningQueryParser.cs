@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace ArchiForge.Api.ProductLearning;
+namespace ArchLucid.Api.ProductLearning;
 
 /// <summary>Parses and validates shared query parameters for product-learning GET endpoints.</summary>
 internal static class ProductLearningQueryParser

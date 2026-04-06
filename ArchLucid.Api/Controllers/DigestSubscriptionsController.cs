@@ -1,12 +1,12 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Persistence.Advisory;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Persistence.Advisory;
 
 using Asp.Versioning;
 
@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Manages <see cref="DigestSubscription"/> routes for architecture digests (email/webhook delivery after advisory scans).
@@ -24,7 +24,7 @@ namespace ArchiForge.Api.Controllers;
 /// Invoked after <see cref="IArchitectureDigestRepository"/> persistence from <c>AdvisoryScanRunner</c> via <see cref="IDigestDeliveryDispatcher"/>.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/digest-subscriptions")]
 [EnableRateLimiting("fixed")]
@@ -38,7 +38,7 @@ public sealed class DigestSubscriptionsController(
 {
     /// <summary>Creates a subscription stamped with the current scope; mutating action requires execute authority.</summary>
     [HttpPost]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -96,7 +96,7 @@ public sealed class DigestSubscriptionsController(
 
     /// <summary>Toggles <see cref="DigestSubscription.IsEnabled"/> when the row is in scope.</summary>
     [HttpPost("{subscriptionId:guid}/toggle")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Toggle(

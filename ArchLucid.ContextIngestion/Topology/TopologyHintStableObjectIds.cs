@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ArchiForge.ContextIngestion.Topology;
+namespace ArchLucid.ContextIngestion.Topology;
 
 /// <summary>
 /// Deterministic <see cref="Models.CanonicalObject.ObjectId"/> for topology hints so

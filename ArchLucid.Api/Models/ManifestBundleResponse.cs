@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 /// <summary>
 /// Response returned by the manifest bundle endpoint, containing the manifest, its Mermaid diagram, and a Markdown summary.

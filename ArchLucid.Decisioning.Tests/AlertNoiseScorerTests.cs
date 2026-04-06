@@ -1,9 +1,9 @@
-using ArchiForge.Decisioning.Alerts.Simulation;
-using ArchiForge.Decisioning.Alerts.Tuning;
+using ArchLucid.Decisioning.Alerts.Simulation;
+using ArchLucid.Decisioning.Alerts.Tuning;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="AlertNoiseScorer"/>: verifies that each scoring component

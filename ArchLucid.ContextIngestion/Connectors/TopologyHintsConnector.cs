@@ -1,8 +1,8 @@
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.ContextIngestion.Topology;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Topology;
 
-namespace ArchiForge.ContextIngestion.Connectors;
+namespace ArchLucid.ContextIngestion.Connectors;
 
 public class TopologyHintsConnector : IContextConnector
 {

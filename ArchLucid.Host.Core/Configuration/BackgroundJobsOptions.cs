@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>Background export jobs: in-process channel vs durable SQL + Azure Storage Queue + worker.</summary>
 public sealed class BackgroundJobsOptions

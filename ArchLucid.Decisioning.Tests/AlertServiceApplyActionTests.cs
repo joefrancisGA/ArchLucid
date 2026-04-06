@@ -1,9 +1,9 @@
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Integration;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Delivery;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Persistence.Alerts;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Integration;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Persistence.Alerts;
 
 using FluentAssertions;
 
@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="AlertService.ApplyActionAsync"/>: unknown alert, unknown action,

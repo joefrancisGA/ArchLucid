@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Persistence.ArtifactBundles;
+using ArchLucid.Persistence.ArtifactBundles;
 
-namespace ArchiForge.Persistence.BlobStore;
+namespace ArchLucid.Persistence.BlobStore;
 
 /// <summary>Combined artifacts + trace JSON for a single bundle blob.</summary>
 public sealed class ArtifactBundlePayloadBlobEnvelope

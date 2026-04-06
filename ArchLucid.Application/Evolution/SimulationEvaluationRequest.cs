@@ -1,8 +1,8 @@
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Determinism;
-using ArchiForge.Contracts.Evolution;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Determinism;
+using ArchLucid.Contracts.Evolution;
 
-namespace ArchiForge.Application.Evolution;
+namespace ArchLucid.Application.Evolution;
 
 /// <summary>Inputs for scoring: baseline/simulated analysis reports and optional determinism payload.</summary>
 public sealed class SimulationEvaluationRequest

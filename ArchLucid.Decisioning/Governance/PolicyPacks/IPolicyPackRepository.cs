@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>Persistence port for <see cref="PolicyPack"/> aggregate metadata (not version rows).</summary>
 /// <remarks>

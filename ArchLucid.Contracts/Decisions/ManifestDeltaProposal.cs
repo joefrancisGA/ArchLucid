@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Contracts.Decisions;
+namespace ArchLucid.Contracts.Decisions;
 
 /// <summary>
 /// An agent's proposed additions to the <see cref="GoldenManifest"/> being synthesized.

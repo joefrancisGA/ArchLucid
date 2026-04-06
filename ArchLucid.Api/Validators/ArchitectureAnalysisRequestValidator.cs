@@ -1,8 +1,8 @@
-using ArchiForge.Application.Analysis;
+using ArchLucid.Application.Analysis;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 public sealed class ArchitectureAnalysisRequestValidator : AbstractValidator<ArchitectureAnalysisRequest>
 {

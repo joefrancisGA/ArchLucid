@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Persistence.Options;
+namespace ArchLucid.Persistence.Options;
 
 /// <summary>Constant <see cref="IOptionsMonitor{TOptions}"/> for hosts that do not use the options configuration pipeline (e.g. CLI tools).</summary>
 public sealed class FixedOptionsMonitor<TOptions> : IOptionsMonitor<TOptions>

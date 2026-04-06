@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace ArchiForge.Cli.Tests;
+namespace ArchLucid.Cli.Tests;
 
 /// <summary>
 /// Focused tests for operator-facing stderr hints after API failures (56R hardening).
@@ -20,7 +20,7 @@ public sealed class CliOperatorHintsTests
 
         string text = stderr.ToString();
         text.ToUpperInvariant().Should().Contain("ARCHIFORGE_API_URL");
-        text.Should().Contain("ArchiForge.Api");
+        text.Should().Contain("ArchLucid.Api");
     }
 
     [Fact]

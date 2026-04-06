@@ -2,18 +2,18 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Commit Conflict.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureCommitConflictTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureCommitConflictTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task CommitBeforeExecute_Returns409Conflict()

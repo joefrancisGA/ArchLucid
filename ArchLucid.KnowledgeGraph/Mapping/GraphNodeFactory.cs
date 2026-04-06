@@ -1,7 +1,7 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Mapping;
+namespace ArchLucid.KnowledgeGraph.Mapping;
 
 public class GraphNodeFactory : IGraphNodeFactory
 {

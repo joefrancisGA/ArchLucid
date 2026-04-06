@@ -2,7 +2,7 @@ using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
 /// <summary>
 /// Registers OpenAPI <c>components.securitySchemes</c> from live <see cref="IConfiguration"/> so test hosts and

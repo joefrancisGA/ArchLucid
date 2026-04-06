@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// Links a plan to pilot feedback (<c>ProductLearningPilotSignals</c>).

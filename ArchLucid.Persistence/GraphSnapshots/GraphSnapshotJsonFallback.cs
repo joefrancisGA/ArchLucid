@@ -1,7 +1,7 @@
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Serialization;
 
-namespace ArchiForge.Persistence.GraphSnapshots;
+namespace ArchLucid.Persistence.GraphSnapshots;
 
 /// <summary>Legacy JSON used when relational edge property rows are missing (merge path).</summary>
 internal static class GraphSnapshotJsonFallback

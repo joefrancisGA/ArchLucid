@@ -1,26 +1,26 @@
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Integration;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Composite;
-using ArchiForge.Decisioning.Comparison;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Advisory;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Integration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Advisory Scan Runner.

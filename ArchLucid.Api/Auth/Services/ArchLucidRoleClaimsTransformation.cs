@@ -1,16 +1,16 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 
-using ArchiForge.Api.Auth.Models;
+using ArchLucid.Api.Auth.Models;
 
 using Microsoft.AspNetCore.Authentication;
 
-namespace ArchiForge.Api.Auth.Services;
+namespace ArchLucid.Api.Auth.Services;
 
 /// <summary>
 /// Maps ArchiForge roles to legacy <c>permission</c> claims so existing policies
 /// (CanCommitRuns, CanReplayComparisons, etc.) keep working with JWT or dev bypass.
 /// </summary>
-public sealed class ArchiForgeRoleClaimsTransformation : IClaimsTransformation
+public sealed class ArchLucidRoleClaimsTransformation : IClaimsTransformation
 {
     private static readonly string[] AdminPermissions =
     [
@@ -46,17 +46,17 @@ public sealed class ArchiForgeRoleClaimsTransformation : IClaimsTransformation
         foreach (Claim c in clone.FindAll("roles"))
             roles.Add(c.Value);
 
-        if (roles.Contains(ArchiForgeRoles.Admin))
+        if (roles.Contains(ArchLucidRoles.Admin))
         
             foreach (string p in AdminPermissions)
                 AddPermission(p);
         
-        else if (roles.Contains(ArchiForgeRoles.Operator))
+        else if (roles.Contains(ArchLucidRoles.Operator))
         
             foreach (string p in OperatorPermissions)
                 AddPermission(p);
         
-        else if (roles.Contains(ArchiForgeRoles.Reader))
+        else if (roles.Contains(ArchLucidRoles.Reader))
         
             AddPermission("metrics:read");
         

@@ -1,7 +1,7 @@
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 /// <summary>
-/// API projection of <see cref="ArchiForge.Application.Analysis.ComparisonReplayCostEstimate"/>.
+/// API projection of <see cref="ArchLucid.Application.Analysis.ComparisonReplayCostEstimate"/>.
 /// </summary>
 public sealed class ComparisonReplayCostEstimateResponse
 {

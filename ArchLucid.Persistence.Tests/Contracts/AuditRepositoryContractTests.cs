@@ -1,9 +1,9 @@
-using ArchiForge.Core.Audit;
-using ArchiForge.Persistence.Audit;
+using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Audit;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Shared contract assertions for <see cref="IAuditRepository"/>.

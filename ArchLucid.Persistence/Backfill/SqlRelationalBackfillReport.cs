@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Persistence.Backfill;
+namespace ArchLucid.Persistence.Backfill;
 
 [ExcludeFromCodeCoverage(Justification = "Backfill report DTO; no logic.")]
 public sealed class SqlRelationalBackfillReport

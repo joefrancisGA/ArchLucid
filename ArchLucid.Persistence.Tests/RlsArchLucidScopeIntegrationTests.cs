@@ -2,7 +2,7 @@ using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Validates <c>rls.ArchiforgeTenantScope</c> on <c>dbo.Runs</c> and <c>dbo.AuditEvents</c> with <c>SESSION_CONTEXT</c> when the policy is temporarily enabled.

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Ensures Swashbuckle can materialize the v1 document (same generator as <c>/swagger/v1/swagger.json</c>).

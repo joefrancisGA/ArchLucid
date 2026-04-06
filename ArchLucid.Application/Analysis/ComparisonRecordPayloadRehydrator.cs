@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 public static class ComparisonRecordPayloadRehydrator
 {

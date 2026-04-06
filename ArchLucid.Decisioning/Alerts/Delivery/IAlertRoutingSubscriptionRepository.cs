@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// CRUD and scoped queries for <see cref="AlertRoutingSubscription"/> (where alerts are delivered per tenant/workspace/project).

@@ -1,7 +1,7 @@
-using ArchiForge.AgentRuntime;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Application;
-using ArchiForge.Application.Analysis;
+using ArchLucid.AgentRuntime;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 
 using FluentAssertions;
 
@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Application Problem Mapper.

@@ -1,4 +1,4 @@
-namespace ArchiForge.ArtifactSynthesis.Models;
+namespace ArchLucid.ArtifactSynthesis.Models;
 
 public class ArtifactBundle
 {

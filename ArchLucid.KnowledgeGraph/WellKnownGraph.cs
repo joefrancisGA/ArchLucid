@@ -1,4 +1,4 @@
-namespace ArchiForge.KnowledgeGraph;
+namespace ArchLucid.KnowledgeGraph;
 
 /// <summary>
 /// Canonical <see cref="Models.GraphNode.NodeType"/> values produced by the default builder and inferrer.

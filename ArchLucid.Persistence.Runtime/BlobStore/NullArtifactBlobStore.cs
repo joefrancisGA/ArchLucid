@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.BlobStore;
+namespace ArchLucid.Persistence.BlobStore;
 
 /// <summary>Used when large-payload offload is disabled; callers must not invoke <see cref="WriteAsync"/>.</summary>
 public sealed class NullArtifactBlobStore : IArtifactBlobStore

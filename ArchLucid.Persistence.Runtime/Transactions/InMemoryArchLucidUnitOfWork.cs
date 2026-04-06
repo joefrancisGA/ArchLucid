@@ -1,11 +1,11 @@
 using System.Data;
 
-namespace ArchiForge.Persistence.Transactions;
+namespace ArchLucid.Persistence.Transactions;
 
 /// <summary>
 /// No-op unit of work for in-memory repositories: <see cref="CommitAsync"/> and <see cref="RollbackAsync"/> complete immediately; <see cref="Connection"/> and <see cref="Transaction"/> throw <see cref="NotSupportedException"/>.
 /// </summary>
-public sealed class InMemoryArchiForgeUnitOfWork : IArchiForgeUnitOfWork
+public sealed class InMemoryArchLucidUnitOfWork : IArchLucidUnitOfWork
 {
     /// <inheritdoc />
     public bool SupportsExternalTransaction => false;

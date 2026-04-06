@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
 
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 /// <summary>Builds <see cref="ResiliencePipeline"/> instances for SQL connection open retries (transient errors only).</summary>
 public static class SqlOpenResilienceDefaults

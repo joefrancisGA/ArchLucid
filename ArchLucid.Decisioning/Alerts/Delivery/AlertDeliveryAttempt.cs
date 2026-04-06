@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// Audit row for a single delivery try: which alert, which subscription, channel snapshot, and outcome.

@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Decisioning.Governance.Resolution;
+namespace ArchLucid.Decisioning.Governance.Resolution;
 
 /// <summary>
 /// Default <see cref="IEffectiveGovernanceResolver"/>: merges applicable pack contents into one <see cref="PolicyPackContentDocument"/>
@@ -119,11 +119,11 @@ public sealed class EffectiveGovernanceResolver(
                     }
 
                     contentCache[cacheKey] = content;
-                    ArchiForgeInstrumentation.GovernancePackContentDeserializeCacheMisses.Add(1);
+                    ArchLucidInstrumentation.GovernancePackContentDeserializeCacheMisses.Add(1);
                 }
                 else
                 
-                    ArchiForgeInstrumentation.GovernancePackContentDeserializeCacheHits.Add(1);
+                    ArchLucidInstrumentation.GovernancePackContentDeserializeCacheHits.Add(1);
                 
 
                 resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
@@ -190,7 +190,7 @@ public sealed class EffectiveGovernanceResolver(
         finally
         {
             resolveWallClock.Stop();
-            ArchiForgeInstrumentation.GovernanceResolveDurationMilliseconds.Record(
+            ArchLucidInstrumentation.GovernanceResolveDurationMilliseconds.Record(
                 resolveWallClock.Elapsed.TotalMilliseconds);
         }
     }

@@ -1,12 +1,12 @@
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.Coordinator.Services;
+namespace ArchLucid.Coordinator.Services;
 
 /// <summary>
-/// Maps an <see cref="ArchitectureRequest"/> into an authority run via <see cref="ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator"/>, then materializes coordinator contracts (run, evidence bundle, starter agent tasks).
+/// Maps an <see cref="ArchitectureRequest"/> into an authority run via <see cref="ArchLucid.Persistence.Orchestration.IAuthorityRunOrchestrator"/>, then materializes coordinator contracts (run, evidence bundle, starter agent tasks).
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="CoordinatorService"/>. Primary consumer: <c>ArchiForge.Application.ArchitectureRunService</c> (registered scoped in API).
+/// Implementation: <see cref="CoordinatorService"/>. Primary consumer: <c>ArchLucid.Application.ArchitectureRunService</c> (registered scoped in API).
 /// </remarks>
 public interface ICoordinatorService
 {

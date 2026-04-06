@@ -1,9 +1,9 @@
-﻿using System.Text;
+using System.Text;
 
-using ArchiForge.Application.Manifests;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Manifests;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Diagrams;
+namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
 /// Fixed-layout Mermaid diagram generator that uses opinionated defaults (LR flowchart, runtime-platform

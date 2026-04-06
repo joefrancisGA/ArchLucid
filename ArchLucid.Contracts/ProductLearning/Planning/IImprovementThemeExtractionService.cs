@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// Derives recurring improvement themes from 58R aggregation snapshots and scoped pilot signals (deterministic; no NLP/LLM).

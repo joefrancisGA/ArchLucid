@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Governance;
+namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
 /// Represents a request to promote an architecture run's manifest from one deployment

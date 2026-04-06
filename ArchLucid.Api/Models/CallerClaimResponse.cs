@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 /// <summary>Represents a single claim on the authenticated caller's principal.</summary>
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]

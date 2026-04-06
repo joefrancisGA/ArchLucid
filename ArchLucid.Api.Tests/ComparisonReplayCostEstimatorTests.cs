@@ -1,12 +1,12 @@
-using ArchiForge.Application.Analysis;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="ComparisonReplayCostEstimator"/> heuristics (no replay execution).

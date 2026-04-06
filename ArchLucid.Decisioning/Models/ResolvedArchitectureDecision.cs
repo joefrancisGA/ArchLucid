@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Models;
+namespace ArchLucid.Decisioning.Models;
 
 public class ResolvedArchitectureDecision
 {

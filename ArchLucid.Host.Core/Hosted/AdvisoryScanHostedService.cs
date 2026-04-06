@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// Background worker that polls due advisory scan schedules on a fixed interval.

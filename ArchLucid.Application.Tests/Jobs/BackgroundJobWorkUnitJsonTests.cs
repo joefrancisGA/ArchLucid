@@ -1,8 +1,8 @@
-using ArchiForge.Application.Jobs;
+using ArchLucid.Application.Jobs;
 
 using FluentAssertions;
 
-namespace ArchiForge.Application.Tests.Jobs;
+namespace ArchLucid.Application.Tests.Jobs;
 
 [Trait("Category", "Unit")]
 public sealed class BackgroundJobWorkUnitJsonTests

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
-namespace ArchiForge.Persistence.Serialization;
+namespace ArchLucid.Persistence.Serialization;
 
 public static class JsonEntitySerializer
 {

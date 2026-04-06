@@ -1,6 +1,6 @@
-@ArchiForge.Api_HostAddress = http://localhost:5128
+@ArchLucid.Api_HostAddress = http://localhost:5128
 
-GET {{ArchiForge.Api_HostAddress}}/weatherforecast/
+GET {{ArchLucid.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

@@ -1,9 +1,9 @@
-using ArchiForge.Api.Models;
-using ArchiForge.Application.Analysis;
+using ArchLucid.Api.Models;
+using ArchLucid.Application.Analysis;
 
-using AppConsultingDocxProfileRecommendationRequest = ArchiForge.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
+using AppConsultingDocxProfileRecommendationRequest = ArchLucid.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
 
-namespace ArchiForge.Api.Mapping;
+namespace ArchLucid.Api.Mapping;
 
 /// <summary>Maps <see cref="ConsultingDocxExportRequest"/> into audit / profile-resolution models.</summary>
 internal static class ConsultingDocxExportAuditMapper

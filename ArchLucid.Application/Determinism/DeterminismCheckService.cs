@@ -1,6 +1,6 @@
-﻿using ArchiForge.Application.Diffs;
+using ArchLucid.Application.Diffs;
 
-namespace ArchiForge.Application.Determinism;
+namespace ArchLucid.Application.Determinism;
 
 /// <summary>
 /// Checks the determinism of an architecture run by replaying it multiple times and comparing

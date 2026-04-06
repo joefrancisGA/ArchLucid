@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Integration;
+namespace ArchLucid.Core.Integration;
 
 /// <summary>Logical integration event type strings published to Service Bus (<see cref="IIntegrationEventPublisher"/>).</summary>
 /// <remarks>

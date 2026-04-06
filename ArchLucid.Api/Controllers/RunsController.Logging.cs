@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>Source-generated structured log methods for <see cref="RunsController"/>.</summary>
 public sealed partial class RunsController

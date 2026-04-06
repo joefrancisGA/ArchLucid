@@ -1,12 +1,12 @@
-using ArchiForge.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Interfaces;
 
-namespace ArchiForge.Persistence.Replay;
+namespace ArchLucid.Persistence.Replay;
 
 /// <summary>
 /// Reconstructs and optionally re-executes decisioning for a persisted authority run (integrity checks, new manifest/trace, optional artifacts).
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="AuthorityReplayService"/>. HTTP: <c>ArchiForge.Api.Controllers.AuthorityReplayController</c> (maps request/response DTOs).
+/// Implementation: <see cref="AuthorityReplayService"/>. HTTP: <c>ArchLucid.Api.Controllers.AuthorityReplayController</c> (maps request/response DTOs).
 /// </remarks>
 public interface IAuthorityReplayService
 {

@@ -1,20 +1,20 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Auth.Services;
-using ArchiForge.Api.Configuration;
-using ArchiForge.Api.Startup;
-using ArchiForge.Application.Governance.Preview;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Host.Composition.Startup;
-using ArchiForge.Host.Core.Auth.Services;
-using ArchiForge.Host.Core.Hosting;
-using ArchiForge.Host.Core.Startup;
-using ArchiForge.Host.Core.Startup.Diagnostics;
-using ArchiForge.Host.Core.Startup.Validation;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Auth.Services;
+using ArchLucid.Api.Configuration;
+using ArchLucid.Api.Startup;
+using ArchLucid.Application.Governance.Preview;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Composition.Startup;
+using ArchLucid.Host.Core.Auth.Services;
+using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Startup;
+using ArchLucid.Host.Core.Startup.Diagnostics;
+using ArchLucid.Host.Core.Startup.Validation;
 
-namespace ArchiForge.Api;
+namespace ArchLucid.Api;
 
 [ExcludeFromCodeCoverage(Justification = "Application startup wiring; tested via integration tests against WebApplicationFactory.")]
 public partial class Program
@@ -23,38 +23,38 @@ public partial class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-        builder.AddArchiForgeGracefulShutdown();
+        builder.AddArchLucidGracefulShutdown();
 
-        ArchiForgeSerilogConfiguration.Configure(builder, "ArchiForge.Api");
+        ArchLucidSerilogConfiguration.Configure(builder, "ArchLucid.Api");
 
-        ArchiForgeHostingRole hostingRole = HostingRoleResolver.Resolve(builder.Configuration);
+        ArchLucidHostingRole hostingRole = HostingRoleResolver.Resolve(builder.Configuration);
 
         // Add services to the container.
 
-        builder.Services.AddArchiForgeMvc();
+        builder.Services.AddArchLucidMvc();
 
         builder.Services.AddHttpContextAccessor();
         // Singleton: resolves scope from IHttpContextAccessor (or ambient overrides). IAgentCompletionClient is scoped; handlers receive per-request instances while this provider stays stateless.
         builder.Services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
         builder.Services.AddScoped<IAuditService, AuditService>();
 
-        builder.Services.AddArchiForgeAuth(builder.Configuration);
-        builder.Services.AddArchiForgeAuthorization();
+        builder.Services.AddArchLucidAuth(builder.Configuration);
+        builder.Services.AddArchLucidAuthorization();
 
-        builder.Services.AddArchiForgeOpenTelemetry(
+        builder.Services.AddArchLucidOpenTelemetry(
             builder.Configuration,
             builder.Environment,
-            telemetryServiceName: "ArchiForge.Api");
-        builder.Services.AddArchiForgeRateLimiting(builder.Configuration);
-        builder.Services.AddArchiForgeCors(builder.Configuration);
-        builder.Services.AddArchiForgeResponseCompression();
-        builder.Services.AddArchiForgeApplicationServices(builder.Configuration, hostingRole);
-        builder.Services.AddArchiForgeApiWebLayerServices(builder.Configuration);
+            telemetryServiceName: "ArchLucid.Api");
+        builder.Services.AddArchLucidRateLimiting(builder.Configuration);
+        builder.Services.AddArchLucidCors(builder.Configuration);
+        builder.Services.AddArchLucidResponseCompression();
+        builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);
+        builder.Services.AddArchLucidApiWebLayerServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
 
         WebApplication app = builder.Build();
 
-        IReadOnlyList<string> configurationErrors = ArchiForgeConfigurationRules.CollectErrors(
+        IReadOnlyList<string> configurationErrors = ArchLucidConfigurationRules.CollectErrors(
             app.Configuration,
             app.Environment);
 
@@ -70,7 +70,7 @@ public partial class Program
         }
 
         // Belt-and-suspenders: refuse Production + DevelopmentBypass even if validation rules are bypassed later.
-        ArchiForgeAuthOptions authBound = ArchiForgeAuthConfigurationBridge.Resolve(app.Configuration);
+        ArchLucidAuthOptions authBound = ArchLucidAuthConfigurationBridge.Resolve(app.Configuration);
 
         if (app.Environment.IsProduction()
             && string.Equals(authBound.Mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
@@ -85,10 +85,10 @@ public partial class Program
             app.Environment,
             typeof(Program).Assembly);
 
-        ArchiForgePersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
+        ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
 
         app.Logger.LogInformation("ArchiForge API starting request pipeline.");
-        app.UseArchiForgePipeline();
+        app.UseArchLucidPipeline();
         app.Run();
     }
 }

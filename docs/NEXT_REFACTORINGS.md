@@ -1,6 +1,8 @@
 # Next refactorings
 
-**Last updated:** 1 April 2026 (§329–338 delivered).
+**Last updated:** 6 April 2026 (ArchLucid Phases 5–6 rename delivered).
+
+**ArchLucid rename (Phases 5–6):** Solution is **`ArchLucid.sln`**; product assemblies live under **`ArchLucid.*`** with aligned type names (`ArchLucidConfigurationBridge`, `IArchLucidUnitOfWork`, `AddArchLucid*` host extensions, NSwag **`ArchLucidApiClient`** / **`ArchLucidApiException`**). **`ConnectionStrings:ArchLucid`** is preferred with legacy **`ArchiForge`** fallback; CORS policy **`ArchLucid`**; comparison replay headers **`X-ArchLucid-*`**. Configuration sections **`ArchiForge:*`**, **`ArchiForgeAuth`**, and OIDC/storage bridges remain until Phase 7 cleanup (`docs/ARCHLUCID_RENAME_CHECKLIST.md`).
 
 Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, comparison facade decision, health and replay validation docs, fixture reuse, Api.Tests JSON audit) are **done**. Their original write-ups are preserved under [Archive (completed items 1–7)](#archive-completed-items-17) near the bottom of this file (immediately before batch §88).
 
@@ -24,7 +26,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** We added **ReplayComparisonRequestValidator** but have no test that asserts invalid request body returns 400 with validation problem details.
 
 **Change:**
-- In **ArchiForge.Api.Tests**, add a test (e.g. in **ComparisonReplayVerify422Tests** or a new **ComparisonReplayValidationTests**) that uses a valid comparison record ID, POSTs to `comparisons/{id}/replay` with body `{ "format": "invalid", "replayMode": "bad" }`, and asserts status 400 and response body contains validation error messages (or problem details type).
+- In **ArchLucid.Api.Tests**, add a test (e.g. in **ComparisonReplayVerify422Tests** or a new **ComparisonReplayValidationTests**) that uses a valid comparison record ID, POSTs to `comparisons/{id}/replay` with body `{ "format": "invalid", "replayMode": "bad" }`, and asserts status 400 and response body contains validation error messages (or problem details type).
 
 **Outcome:** Regression protection for replay request validation.
 
@@ -46,7 +48,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **Program.cs** has a long block of `AddScoped`/`AddSingleton`/`Configure` calls. Harder to scan and to test registration in isolation.
 
 **Change:**
-- Create **ArchiForge.Api/Startup/ServiceCollectionExtensions.cs** (or similar) with extension methods such as `AddArchiForgeApplicationServices(this IServiceCollection services, IConfiguration configuration)` and `AddArchiForgeApiServices(this IServiceCollection services)` that move the relevant registrations out of **Program.cs**. Call them from **Program.cs** so the host file stays short and grouped by feature (e.g. AddControllers, AddRateLimiter, AddArchiForgeApplicationServices, MapEndpoints).
+- Create **ArchLucid.Api/Startup/ServiceCollectionExtensions.cs** (or similar) with extension methods such as `AddArchiForgeApplicationServices(this IServiceCollection services, IConfiguration configuration)` and `AddArchiForgeApiServices(this IServiceCollection services)` that move the relevant registrations out of **Program.cs**. Call them from **Program.cs** so the host file stays short and grouped by feature (e.g. AddControllers, AddRateLimiter, AddArchiForgeApplicationServices, MapEndpoints).
 
 **Outcome:** Clearer **Program.cs** and a single place to see all application service wiring.
 
@@ -108,7 +110,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ## 16. Api.Tests unit-style tests in TEST_STRUCTURE
 
-**Problem:** Some tests in **ArchiForge.Api.Tests** don’t use **WebApplicationFactory** (e.g. **AgentResultDiffServiceTests**, **ManifestDiffServiceTests**, **ApiProblemDetailsExceptionFilterTests**, **ArchitectureApplicationServiceTests**, **DatabaseMigrationScriptTests**). They’re unit or in-process tests. TEST_STRUCTURE doesn’t mention them.
+**Problem:** Some tests in **ArchLucid.Api.Tests** don’t use **WebApplicationFactory** (e.g. **AgentResultDiffServiceTests**, **ManifestDiffServiceTests**, **ApiProblemDetailsExceptionFilterTests**, **ArchitectureApplicationServiceTests**, **DatabaseMigrationScriptTests**). They’re unit or in-process tests. TEST_STRUCTURE doesn’t mention them.
 
 **Change:**
 - In **docs/TEST_STRUCTURE.md**, add a short paragraph: Api.Tests also contains tests that don’t extend **IntegrationTestBase** (e.g. service/filter unit tests, migration script tests). These don’t spin up the full API. Optionally add `[Trait("Category", "Unit")]` to such classes so `dotnet test --filter "Category=Unit"` runs only them (and similar in other projects).
@@ -165,7 +167,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** We added **BatchReplayComparisonRequestValidator** but have no test that asserts invalid batch replay body (e.g. empty **comparisonRecordIds**) returns **400** with validation errors.
 
 **Change:**
-- In **ArchiForge.Api.Tests**, add a test (e.g. in **ComparisonReplayValidationTests** or a new **BatchReplayValidationTests**) that POSTs to the batch replay endpoint with body `{ "comparisonRecordIds": [], "format": "invalid" }` (or similar) and asserts status **400** and response contains validation error messages.
+- In **ArchLucid.Api.Tests**, add a test (e.g. in **ComparisonReplayValidationTests** or a new **BatchReplayValidationTests**) that POSTs to the batch replay endpoint with body `{ "comparisonRecordIds": [], "format": "invalid" }` (or similar) and asserts status **400** and response contains validation error messages.
 
 **Outcome:** Regression protection for batch replay request validation.
 
@@ -230,7 +232,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **ReplayComparisonRequestValidator** and **BatchReplayComparisonRequestValidator** both define **ValidFormats**, **ValidReplayModes**, and **ValidProfiles** with the same values. Duplication can drift.
 
 **Change:**
-- Create **ReplayValidationConstants** (or **ReplayValidationAllowedValues**) in **ArchiForge.Api/Validators/** with static readonly **ValidFormats**, **ValidReplayModes**, **ValidProfiles** (e.g. `HashSet<string>` with `StringComparer.OrdinalIgnoreCase`). Use them in both validators.
+- Create **ReplayValidationConstants** (or **ReplayValidationAllowedValues**) in **ArchLucid.Api/Validators/** with static readonly **ValidFormats**, **ValidReplayModes**, **ValidProfiles** (e.g. `HashSet<string>` with `StringComparer.OrdinalIgnoreCase`). Use them in both validators.
 
 **Outcome:** Single source of truth for allowed format/replayMode/profile values.
 
@@ -306,7 +308,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **ReplayValidationConstants** defines the allowed format, replayMode, and profile values. A change (e.g. adding a format or typo) could break validation or API contracts with no test coverage.
 
 **Change:**
-- Add a unit test (e.g. in **ArchiForge.Api.Tests** in a new **ReplayValidationConstantsTests.cs** or alongside validator tests) that asserts **ValidFormats** contains "markdown", "html", "docx", "json"; **ValidReplayModes** contains "artifact", "regenerate", "verify"; **ValidProfiles** contains "default", "short", "detailed", "executive". Tag with **Category=Unit**.
+- Add a unit test (e.g. in **ArchLucid.Api.Tests** in a new **ReplayValidationConstantsTests.cs** or alongside validator tests) that asserts **ValidFormats** contains "markdown", "html", "docx", "json"; **ValidReplayModes** contains "artifact", "regenerate", "verify"; **ValidProfiles** contains "default", "short", "detailed", "executive". Tag with **Category=Unit**.
 
 **Outcome:** Regression protection for allowed values.
 
@@ -495,7 +497,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ## 45. Consolidate duplicate `Controllers` folder paths (casing)
 
-**Problem:** The repo shows both **`ArchiForge.Api/Controllers/`** and **`ArchiForge.Api\Controllers\`** (same files mirrored by path casing). On Windows this is confusing and risks editing the wrong copy or merge noise.
+**Problem:** The repo shows both **`ArchLucid.Api/Controllers/`** and **`ArchLucid.Api\Controllers\`** (same files mirrored by path casing). On Windows this is confusing and risks editing the wrong copy or merge noise.
 
 **Change:**
 - Pick one canonical folder name (e.g. `Controllers`), **`git mv`** / normalize so only one path exists; ensure `.csproj` default includes remain valid.
@@ -568,7 +570,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **`CoordinatorService`** now owns a large **`new ContextIngestionRequest { ... }`** block. That couples the coordinator to ingestion shape and is awkward to unit test in isolation.
 
 **Change:**
-- Add **`IContextIngestionRequestFactory`** or static **`ContextIngestionRequestMapper.From(ArchitectureRequest)`** in **`ArchiForge.ContextIngestion`** (or **Application**) with tests for document mapping and list copies.
+- Add **`IContextIngestionRequestFactory`** or static **`ContextIngestionRequestMapper.From(ArchitectureRequest)`** in **`ArchLucid.ContextIngestion`** (or **Application**) with tests for document mapping and list copies.
 
 **Outcome:** Single place to evolve the API ↔ ingestion boundary; thinner coordinator.
 
@@ -609,19 +611,19 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **`ContextDocumentRequestValidator`** and **`PlainTextContextDocumentParser`** both encode which MIME types are supported (`text/plain`, `text/markdown`). Adding a parser for `application/json` requires editing two places and risks API validation rejecting what ingestion could parse (or the reverse).
 
 **Change:**
-- Add a small shared type in **`ArchiForge.ContextIngestion`** (e.g. **`SupportedContextDocumentContentTypes`** static class, or **`IContextDocumentParserRegistry`** that exposes `IsSupported(string contentType)`), used by the validator via a reference from **Api** to the same definitions **or** by generating the FluentValidation rule from the parser collection at startup.
+- Add a small shared type in **`ArchLucid.ContextIngestion`** (e.g. **`SupportedContextDocumentContentTypes`** static class, or **`IContextDocumentParserRegistry`** that exposes `IsSupported(string contentType)`), used by the validator via a reference from **Api** to the same definitions **or** by generating the FluentValidation rule from the parser collection at startup.
 - Update **`docs/CONTEXT_INGESTION.md`** to say “supported types are defined in X”.
 
 **Outcome:** One list to extend when adding **`IContextDocumentParser`** implementations.
 
 ---
 
-## 54. `ArchiForge.ContextIngestion.Tests` + move ingestion unit tests
+## 54. `ArchLucid.ContextIngestion.Tests` + move ingestion unit tests
 
-**Problem:** **`CanonicalDeduplicatorTests`** and **`ContextIngestionRequestMapperTests`** live in **`ArchiForge.Coordinator.Tests`**, which couples coordinator tests to ingestion internals. There is no dedicated test project for **`ArchiForge.ContextIngestion`**.
+**Problem:** **`CanonicalDeduplicatorTests`** and **`ContextIngestionRequestMapperTests`** live in **`ArchLucid.Coordinator.Tests`**, which couples coordinator tests to ingestion internals. There is no dedicated test project for **`ArchLucid.ContextIngestion`**.
 
 **Change:**
-- Add **`ArchiForge.ContextIngestion.Tests`** (xUnit, same pattern as **Coordinator.Tests**).
+- Add **`ArchLucid.ContextIngestion.Tests`** (xUnit, same pattern as **Coordinator.Tests**).
 - Move dedupe/mapper tests there; add tests for **`PlainTextContextDocumentParser`** (line prefixes), **`DocumentConnector`** warnings when no parser matches, and **`ContextIngestionService`** behavior with a fake **`IContextSnapshotRepository`** + fake connectors if useful.
 
 **Outcome:** Ingestion changes get fast, local tests without pulling the full coordinator graph.
@@ -633,7 +635,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** Multi-field **`ArchitectureRequest`** (documents, inline requirements, policy/topology/security hints) is validated by FluentValidation but not covered by an end-to-end test that proves the run completes and authority persistence sees expected context shape.
 
 **Change:**
-- In **`ArchiForge.Api.Tests`**, add a test (integration, **`IntegrationTestBase`**) that **`POST`**s create run with a minimal valid body including **`inlineRequirements`**, one **`documents`** entry (`text/plain` with a `REQ:` line), and one **`policyReferences`** entry.
+- In **`ArchLucid.Api.Tests`**, add a test (integration, **`IntegrationTestBase`**) that **`POST`**s create run with a minimal valid body including **`inlineRequirements`**, one **`documents`** entry (`text/plain` with a `REQ:` line), and one **`policyReferences`** entry.
 - Assert **200** and optionally query an internal/debug endpoint or DB (if the test stack exposes it) **or** assert response payload includes run id and no error — tighten over time to assert snapshot canonical object count via a test-only hook if needed.
 
 **Outcome:** Regression protection for the public create-run contract and ingestion wiring.
@@ -667,7 +669,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 ## Checklist (context ingestion — next five)
 
 - [x] 53. Refactor: single source of truth for supported document content types (validator + parsers)
-- [x] 54. Tests: add `ArchiForge.ContextIngestion.Tests`; move dedupe/mapper tests; add parser/connector/service tests
+- [x] 54. Tests: add `ArchLucid.ContextIngestion.Tests`; move dedupe/mapper tests; add parser/connector/service tests
 - [x] 55. Api.Tests: integration test create run with full ingestion payload
 - [x] 56. Refactor: richer per-connector delta summaries (counts or diff hints vs `previous`)
 - [x] 57. Api: OpenAPI examples (and optional description) for expanded `ArchitectureRequest`
@@ -690,7 +692,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 **Status:** Implemented under `/v1/policy-packs` in `PolicyPacksIntegrationTests` / `PolicyPackRequestValidationTests` (lifecycle, publish idempotency, list versions, assign unknown version → 404, invalid JSON → 400).
 
-**Original problem:** Policy pack endpoints were not covered by `ArchiForge.Api.Tests`.
+**Original problem:** Policy pack endpoints were not covered by `ArchLucid.Api.Tests`.
 
 **Outcome:** Regression protection for governance packaging and API wiring.
 
@@ -766,7 +768,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 **Problem:** Compliance rule filtering by policy keys/GUIDs is easy to regress without fast tests.
 
-**Change:** Add **`ComplianceRulePackGovernanceFilterTests`** in **`ArchiForge.Decisioning.Tests`** (empty filter, keys case-insensitive, GUID `RuleId`, combined keys+ids).
+**Change:** Add **`ComplianceRulePackGovernanceFilterTests`** in **`ArchLucid.Decisioning.Tests`** (empty filter, keys case-insensitive, GUID `RuleId`, combined keys+ids).
 
 **Outcome:** Local regression protection without API harness.
 
@@ -812,7 +814,7 @@ The following were implemented together for safer operator APIs, tests, and back
 | Swagger: alert POST examples | `AlertExamplesOperationFilter` |
 | Swagger: tag grouping (Governance / Alerts & routing / Digest) | `SwaggerExtensions.TagActionsBy` |
 | Route constants for tests | `ApiV1Routes` |
-| FluentValidation: simulation, compare-candidates, tuning, alert/composite rule bodies | `*Validator` types in `ArchiForge.Api/Validators` |
+| FluentValidation: simulation, compare-candidates, tuning, alert/composite rule bodies | `*Validator` types in `ArchLucid.Api/Validators` |
 | `AlertEvaluationContextFactory` | `ForAdvisoryScan` + `AdvisoryScanRunner` |
 | Structured logs on policy publish/assign | `ILogger<PolicyPacksController>` |
 | Tests: `PolicyPackGovernanceFilter`, `ImprovementPlan` JSON, alert list smoke, two-assignment merge, assign 404 `type` | `Decisioning.Tests`, `Api.Tests` |
@@ -870,7 +872,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Problem:** **RunComparisonController** injects three application services for end-to-end comparison: `IEndToEndReplayComparisonService`, `IEndToEndReplayComparisonSummaryFormatter`, `IEndToEndReplayComparisonExportService`. That’s a lot of constructor parameters and ties the API to three separate abstractions.
 
 **Change (optional):**
-- Introduce an application-level facade, e.g. **`IEndToEndComparisonFacade`** (or **`IRunComparisonAppService`**), in **ArchiForge.Application**, with methods that delegate to the existing three services. Register the facade in **Program.cs** and inject it into **RunComparisonController** for the end-to-end summary/export actions; keep agent compare and audit as-is (or also behind the facade if you want a single “run comparison” entry point).
+- Introduce an application-level facade, e.g. **`IEndToEndComparisonFacade`** (or **`IRunComparisonAppService`**), in **ArchLucid.Application**, with methods that delegate to the existing three services. Register the facade in **Program.cs** and inject it into **RunComparisonController** for the end-to-end summary/export actions; keep agent compare and audit as-is (or also behind the facade if you want a single “run comparison” entry point).
 - Alternatively, leave the controller as-is and document that we intentionally keep the three services explicit for clarity and testability.
 
 **Outcome:** Either a thinner controller and a single “comparison” dependency for those operations, or a documented decision to keep fine-grained dependencies.
@@ -919,7 +921,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Problem:** After refactorings 1–2, some test files may still use `new JsonOptions().JsonSerializerOptions` or construct request bodies without using the base `JsonContent(object)`. Inconsistencies make it harder to change JSON behavior in one place.
 
 **Change:**
-- Grep for `new JsonOptions()` or `JsonSerializerOptions` in **ArchiForge.Api.Tests** and replace with inherited `JsonOptions` where the test extends **IntegrationTestBase**.
+- Grep for `new JsonOptions()` or `JsonSerializerOptions` in **ArchLucid.Api.Tests** and replace with inherited `JsonOptions` where the test extends **IntegrationTestBase**.
 - Where request bodies are built with `new StringContent(JsonSerializer.Serialize(...))`, prefer the base `JsonContent(value)` if the test has access to it.
 - Optionally add a one-line note in **TEST_STRUCTURE.md** that integration tests should use the base `JsonOptions` and `JsonContent`.
 
@@ -944,7 +946,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.KnowledgeGraph.Tests` project (xUnit + FluentAssertions + Moq). Added to solution under the `tests` folder.
+- `ArchLucid.KnowledgeGraph.Tests` project (xUnit + FluentAssertions + Moq). Added to solution under the `tests` folder.
 - `GraphValidatorTests` — 7 cases covering null/blank NodeId, blank NodeType, missing edge node, case-insensitive node lookup, valid graph.
 - `GraphNodeFactoryTests` — 8 cases covering NodeId prefix, NodeType, Label, Category from property, SourceType/SourceId passthrough, and null guard.
 - `DefaultGraphEdgeInfererTests` — 8 cases covering null guards, topology CONTAINS, security PROTECTS, policy APPLIES_TO, requirement RELATES_TO (text match), network→subnet CONTAINS_RESOURCE, edge deduplication.
@@ -957,10 +959,10 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning/Manifest/Sections/PolicySection.cs` — `SatisfiedControls`, `Violations`, `Exemptions`, `Notes`.
-- `ArchiForge.Decisioning/Manifest/Sections/PolicyControlItem.cs` — `ControlId`, `ControlName`, `PolicyPack`, `Description`.
-- `ArchiForge.Decisioning/Manifest/Sections/PolicyExemption.cs` — `ControlId`, `Justification`, `ExpiresUtc`.
-- `ArchiForge.Decisioning/Models/GoldenManifest.cs` — added `PolicySection Policy { get; set; } = new();`.
+- `ArchLucid.Decisioning/Manifest/Sections/PolicySection.cs` — `SatisfiedControls`, `Violations`, `Exemptions`, `Notes`.
+- `ArchLucid.Decisioning/Manifest/Sections/PolicyControlItem.cs` — `ControlId`, `ControlName`, `PolicyPack`, `Description`.
+- `ArchLucid.Decisioning/Manifest/Sections/PolicyExemption.cs` — `ControlId`, `Justification`, `ExpiresUtc`.
+- `ArchLucid.Decisioning/Models/GoldenManifest.cs` — added `PolicySection Policy { get; set; } = new();`.
 
 **Follow-up:**
 - SQL column (e.g. `PolicyJson NVARCHAR(MAX)`) is a future migration if policy data must be queryable outside manifests. For now it serialises with the manifest blob.
@@ -975,7 +977,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **What was built:**
 - `SchemaValidationOptions.EnableResultCaching` (bool, default false) and `ResultCacheMaxSize` (int, default 256).
 - `SchemaValidationService`: when caching is enabled, results are keyed by SHA-256(`schemaName|json`) in a `ConcurrentDictionary`. Cache is cleared (not evicted) when it reaches `ResultCacheMaxSize`.
-- OTel `Meter` (`ArchiForge.Decisioning.SchemaValidation`): `schema_validation_total` counter tagged by schema name + outcome; `schema_validation_duration_ms` histogram tagged by schema name. (Legacy dashboards may still filter on `ArchiForge.DecisionEngine.SchemaValidation`.)
+- OTel `Meter` (`ArchLucid.Decisioning.SchemaValidation`): `schema_validation_total` counter tagged by schema name + outcome; `schema_validation_duration_ms` histogram tagged by schema name. (Legacy dashboards may still filter on `ArchiForge.DecisionEngine.SchemaValidation`.)
 - `ValidateCore` replaces the old `Validate` private method; caching is an outer wrapper.
 
 **Future:**
@@ -999,8 +1001,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Api.Tests/ExportReplayServiceTests.cs` — 6 unit tests for `BuildReplayFileName` (via reflection): blank/whitespace/null → fallback, simple `.docx` suffix, dotted name, no-extension case.
-- `ArchiForge.Api.Tests/ComparisonDriftAnalyzerTests.cs` — 9 unit tests: no drift, scalar value change, property added/removed, array length/element change, type change, nested path, summary count.
+- `ArchLucid.Api.Tests/ExportReplayServiceTests.cs` — 6 unit tests for `BuildReplayFileName` (via reflection): blank/whitespace/null → fallback, simple `.docx` suffix, dotted name, no-extension case.
+- `ArchLucid.Api.Tests/ComparisonDriftAnalyzerTests.cs` — 9 unit tests: no drift, scalar value change, property added/removed, array length/element change, type change, nested path, summary count.
 
 ---
 
@@ -1040,7 +1042,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning/Findings/FindingTypes.cs` — 10 `const string` fields replacing bare string literals in `DefaultGoldenManifestBuilder.GetByType(...)` calls.
+- `ArchLucid.Decisioning/Findings/FindingTypes.cs` — 10 `const string` fields replacing bare string literals in `DefaultGoldenManifestBuilder.GetByType(...)` calls.
 - All 10 call-sites updated. Compile-time safety; typo-silent-failures eliminated.
 
 ---
@@ -1051,7 +1053,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 **What was built:**
 - `GoldenManifestValidator.Validate` — added `Policy is null` guard mirroring existing section guards.
-- `ArchiForge.Decisioning.Tests/GoldenManifestValidatorTests.cs` — 10 unit tests (one per guarded field including the new Policy guard).
+- `ArchLucid.Decisioning.Tests/GoldenManifestValidatorTests.cs` — 10 unit tests (one per guarded field including the new Policy guard).
 
 ---
 
@@ -1061,7 +1063,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 **What was built:**
 - `ManifestHashService.ComputeHash` — `manifest.Policy` added to the anonymous projection before SHA-256 serialization.
-- `ArchiForge.Decisioning.Tests/ManifestHashServiceTests.cs` — 6 tests: stable hash for equal manifests, distinct hash when ManifestId/PolicyViolation/PolicySatisfiedControl differ, null throws, hex format validated.
+- `ArchLucid.Decisioning.Tests/ManifestHashServiceTests.cs` — 6 tests: stable hash for equal manifests, distinct hash when ManifestId/PolicyViolation/PolicySatisfiedControl differ, null throws, hex format validated.
 
 ---
 
@@ -1070,7 +1072,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/AdaptiveRecommendationScorerTests.cs` — 8 tests covering: null profile passthrough, individual weight application (category/urgency/signalType), all-weights product, missing-key defaults, null signalType skipping weight, and zero-base-score edge case.
+- `ArchLucid.Decisioning.Tests/AdaptiveRecommendationScorerTests.cs` — 8 tests covering: null profile passthrough, individual weight application (category/urgency/signalType), all-weights product, missing-key defaults, null signalType skipping weight, and zero-base-score edge case.
 
 ---
 
@@ -1089,7 +1091,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/ImprovementSignalAnalyzerTests.cs` — 12 tests: null guards, empty manifest, one signal per analyzer branch (requirement/security/compliance/topology/cost/unresolvedIssue), regression/identical security delta, cost increase/decrease, decision removed.
+- `ArchLucid.Decisioning.Tests/ImprovementSignalAnalyzerTests.cs` — 12 tests: null guards, empty manifest, one signal per analyzer branch (requirement/security/compliance/topology/cost/unresolvedIssue), regression/identical security delta, cost increase/decrease, decision removed.
 
 ---
 
@@ -1098,7 +1100,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.KnowledgeGraph.Tests/DefaultGraphBuilderTests.cs` — 6 tests: null snapshot throws, empty snapshot produces context-only node, context node id matches snapshotId, canonical objects call node factory, inferred edges appear in result, context node properties contain snapshotId/runId/projectId.
+- `ArchLucid.KnowledgeGraph.Tests/DefaultGraphBuilderTests.cs` — 6 tests: null snapshot throws, empty snapshot produces context-only node, context node id matches snapshotId, canonical objects call node factory, inferred edges appear in result, context node properties contain snapshotId/runId/projectId.
 
 ---
 
@@ -1107,8 +1109,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/RecommendationGeneratorTests.cs` — 8 tests using Moq for `IAdaptiveRecommendationScorer`: null guard, empty list, signal-type→title mapping, unknown type fallback, ordering by priority score, finding-id propagation, urgency mapping, and impact text per category.
-- Added `<PackageReference Include="Moq" />` to `ArchiForge.Decisioning.Tests.csproj`.
+- `ArchLucid.Decisioning.Tests/RecommendationGeneratorTests.cs` — 8 tests using Moq for `IAdaptiveRecommendationScorer`: null guard, empty list, signal-type→title mapping, unknown type fallback, ordering by priority score, finding-id propagation, urgency mapping, and impact text per category.
+- Added `<PackageReference Include="Moq" />` to `ArchLucid.Decisioning.Tests.csproj`.
 
 ---
 
@@ -1127,7 +1129,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 **What was built:**
 - `ObservabilityExtensions.WithMetrics` — `metrics.AddMeter(SchemaValidationService.MeterName)` added so `schema_validation_total` and `schema_validation_duration_ms` are exported to Prometheus/OTLP without any additional configuration.
-- `using ArchiForge.Decisioning.Validation;` added (project reference already present).
+- `using ArchLucid.Decisioning.Validation;` added (project reference already present).
 
 ---
 
@@ -1170,7 +1172,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/SimpleScanScheduleCalculatorTests.cs` — `@hourly` / `@daily` / `@weekly`, `0 7 * * *` before/after 07:00 UTC, unknown cron → +1 day, whitespace trim.
+- `ArchLucid.Decisioning.Tests/SimpleScanScheduleCalculatorTests.cs` — `@hourly` / `@daily` / `@weekly`, `0 7 * * *` before/after 07:00 UTC, unknown cron → +1 day, whitespace trim.
 
 ---
 
@@ -1179,7 +1181,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/ArchitectureDigestBuilderTests.cs` — empty recommendations/alerts text, top-5 slice from seven items, alert lines, `MetadataJson` counts, null plan throws, `ComparedToRunId` line.
+- `ArchLucid.Decisioning.Tests/ArchitectureDigestBuilderTests.cs` — empty recommendations/alerts text, top-5 slice from seven items, alert lines, `MetadataJson` counts, null plan throws, `ComparedToRunId` line.
 
 ---
 
@@ -1188,7 +1190,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/FindingsOrchestratorTests.cs` — null graph throws, two engines invoked, engine exception propagates, category mismatch throws, dedupe by type+title, empty category filled from engine.
+- `ArchLucid.Decisioning.Tests/FindingsOrchestratorTests.cs` — null graph throws, two engines invoked, engine exception propagates, category mismatch throws, dedupe by type+title, empty category filled from engine.
 
 ---
 
@@ -1225,7 +1227,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Api.Tests/InMemoryBackgroundJobQueueTests.cs` — channel full → `InvalidOperationException`; work throws → failed state + `Error` message; 201 sequential completions with small delay → oldest job evicted from `GetInfo`.
+- `ArchLucid.Api.Tests/InMemoryBackgroundJobQueueTests.cs` — channel full → `InvalidOperationException`; work throws → failed state + `Error` message; 201 sequential completions with small delay → oldest job evicted from `GetInfo`.
 
 ---
 
@@ -1259,8 +1261,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning/Advisory/Models/ImprovementSignalCategories.cs` — Requirement, Security, Compliance, Topology, Cost, Risk.
-- `ArchiForge.Decisioning/Advisory/Models/ImprovementSignalSeverities.cs` — Critical, High, Medium.
+- `ArchLucid.Decisioning/Advisory/Models/ImprovementSignalCategories.cs` — Requirement, Security, Compliance, Topology, Cost, Risk.
+- `ArchLucid.Decisioning/Advisory/Models/ImprovementSignalSeverities.cs` — Critical, High, Medium.
 - `ImprovementSignalAnalyzer` and `RecommendationGenerator` use these constants (`BuildImpact`, `ComputePriority` / `SeverityBonus`).
 
 ---
@@ -1270,7 +1272,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.KnowledgeGraph.Tests/InMemoryGraphSnapshotRepositoryTests.cs` — latest-by-context, empty indexed edges, ordered edge list.
+- `ArchLucid.KnowledgeGraph.Tests/InMemoryGraphSnapshotRepositoryTests.cs` — latest-by-context, empty indexed edges, ordered edge list.
 
 ---
 
@@ -1279,7 +1281,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/DefaultGoldenManifestBuilderPolicySectionTests.cs` — policy applicability (info/warning), policy coverage (per-resource + empty list).
+- `ArchLucid.Decisioning.Tests/DefaultGoldenManifestBuilderPolicySectionTests.cs` — policy applicability (info/warning), policy coverage (per-resource + empty list).
 
 ---
 
@@ -1297,7 +1299,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/Merge/DecisionEngineServiceMergeTests.cs` — blank runId / manifestVersion / empty results; schema failure; happy path with `PassthroughSchemaValidationService`.
+- `ArchLucid.Decisioning.Tests/Merge/DecisionEngineServiceMergeTests.cs` — blank runId / manifestVersion / empty results; schema failure; happy path with `PassthroughSchemaValidationService`.
 
 ---
 
@@ -1306,7 +1308,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.ContextIngestion/Topology/TopologyHintStableObjectIds.cs` — deterministic 32-hex `ObjectId` from hint name (SHA-256, first 16 bytes).
+- `ArchLucid.ContextIngestion/Topology/TopologyHintStableObjectIds.cs` — deterministic 32-hex `ObjectId` from hint name (SHA-256, first 16 bytes).
 - `PolicyReferenceConnector.FetchAsync` copies `TopologyHints`; `NormalizeAsync` sets `applicableTopologyNodeIds` to `obj-{stableId}` when policy reference and hint overlap (substring, case-insensitive).
 - `TopologyHintsConnector` sets `ObjectId` from the same helper so graph `APPLIES_TO` targets align.
 
@@ -1326,7 +1328,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.KnowledgeGraph/Services/GraphSnapshotReuseEvaluator.cs` — centralizes reuse vs rebuild; `AuthorityRunOrchestrator` calls it (private `ResolveGraphSnapshotAsync` removed).
+- `ArchLucid.KnowledgeGraph/Services/GraphSnapshotReuseEvaluator.cs` — centralizes reuse vs rebuild; `AuthorityRunOrchestrator` calls it (private `ResolveGraphSnapshotAsync` removed).
 - `GraphSnapshotReuseEvaluatorTests.cs` — prior null, fingerprint diff, equivalent without prior graph, equivalent with clone (no `BuildSnapshotAsync`).
 
 ---
@@ -1369,7 +1371,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **What was built:**
 - Deleted 10 private string constants from `FindingPayloadValidator`.
 - All finding-type comparisons now reference `FindingTypes.RequirementFinding`, `FindingTypes.TopologyGap`, etc.
-- Added `using ArchiForge.Decisioning.Findings;`. Compiler now catches any type-name drift.
+- Added `using ArchLucid.Decisioning.Findings;`. Compiler now catches any type-name drift.
 
 ---
 
@@ -1378,8 +1380,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning/Alerts/AlertCategories.cs` — Advisory, Compliance, Security, Cost, Recommendation, Learning, CompositeAlert.
-- `ArchiForge.Decisioning/Alerts/AlertUrgencies.cs` — Critical, High.
+- `ArchLucid.Decisioning/Alerts/AlertCategories.cs` — Advisory, Compliance, Security, Cost, Recommendation, Learning, CompositeAlert.
+- `ArchLucid.Decisioning/Alerts/AlertUrgencies.cs` — Critical, High.
 - `AlertEvaluator` replaced all six category literals and two urgency literals; `CompositeAlertService` replaced its private `CompositeAlertCategory` constant.
 
 ---
@@ -1389,7 +1391,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/AlertEvaluatorTests.cs` — 12 tests across all six rule types (disabled-rule guard; CriticalRecommendationCount: below/at-threshold/null-plan; NewComplianceGapCount: below/at; CostIncreasePercent: no-delta/below/at; DeferredHighPriorityAge: recent/old-enough/low-score; RejectedSecurityRecommendation: non-security/security; AcceptanceRateDrop: null-profile/above/below threshold).
+- `ArchLucid.Decisioning.Tests/AlertEvaluatorTests.cs` — 12 tests across all six rule types (disabled-rule guard; CriticalRecommendationCount: below/at-threshold/null-plan; NewComplianceGapCount: below/at; CostIncreasePercent: no-delta/below/at; DeferredHighPriorityAge: recent/old-enough/low-score; RejectedSecurityRecommendation: non-security/security; AcceptanceRateDrop: null-profile/above/below threshold).
 
 ---
 
@@ -1398,7 +1400,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/AlertNoiseScorerTests.cs` — 10 tests covering CoverageScore (zero/scales/cap-at-40), NoisePenalty (below-min/above-max/in-band), SuppressionPenalty (high-ratio/none), DensityPenalty (above-one/at-one), FinalScore arithmetic, and always-present summary notes.
+- `ArchLucid.Decisioning.Tests/AlertNoiseScorerTests.cs` — 10 tests covering CoverageScore (zero/scales/cap-at-40), NoisePenalty (below-min/above-max/in-band), SuppressionPenalty (high-ratio/none), DensityPenalty (above-one/at-one), FinalScore arithmetic, and always-present summary notes.
 
 ---
 
@@ -1430,7 +1432,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Persistence/Alerts/Helpers/AlertGovernanceResolver.cs` — internal static `ResolveAsync(context, loader, ct)` that short-circuits when `EffectiveGovernanceContent` is already set.
+- `ArchLucid.Persistence/Alerts/Helpers/AlertGovernanceResolver.cs` — internal static `ResolveAsync(context, loader, ct)` that short-circuits when `EffectiveGovernanceContent` is already set.
 - Both `AlertService` and `CompositeAlertService` replaced their inline governance-loading expressions with `AlertGovernanceResolver.ResolveAsync(...)`.
 
 ---
@@ -1440,7 +1442,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/AuthorityReplayServiceTests.cs` — 4 tests:
+- `ArchLucid.Decisioning.Tests/AuthorityReplayServiceTests.cs` — 4 tests:
   - Unknown RunId → returns null.
   - `ReconstructOnly` → decision engine and artifact synthesis never called.
   - `RebuildManifest` → decision engine called once; artifact synthesis not called; `RebuiltManifest` set.
@@ -1501,7 +1503,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/AlertMetricSnapshotBuilderTests.cs` — 12 tests:
+- `ArchLucid.Decisioning.Tests/AlertMetricSnapshotBuilderTests.cs` — 12 tests:
   - `CriticalRecommendationCount`: null plan → 0; mixed urgencies → counts only Critical + High.
   - `NewComplianceGapCount`: null comparison → 0; three `SecurityDelta` rows → 3.
   - `CostIncreasePercent`: no delta → 0; zero base cost → 0; valid delta → correct percent.
@@ -1516,7 +1518,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/CompositeAlertRuleEvaluatorTests.cs` — 12 tests:
+- `ArchLucid.Decisioning.Tests/CompositeAlertRuleEvaluatorTests.cs` — 12 tests:
   - Empty conditions → false; unknown operator → false.
   - AND: all pass → true; one fails → false.
   - OR: any passes → true; all fail → false.
@@ -1530,7 +1532,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning/Alerts/Simulation/RuleKindConstants.cs` — `public const string Simple = "Simple"; Composite = "Composite"`.
+- `ArchLucid.Decisioning/Alerts/Simulation/RuleKindConstants.cs` — `public const string Simple = "Simple"; Composite = "Composite"`.
 - `RuleSimulationService` and `ThresholdRecommendationService` both replaced their private `const string` duplicates with `using static RuleKindConstants`.
 
 ---
@@ -1540,7 +1542,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/RecommendationLearningAnalyzerTests.cs` — 8 tests:
+- `ArchLucid.Decisioning.Tests/RecommendationLearningAnalyzerTests.cs` — 8 tests:
   - Empty input → empty stats and weights; notes always present.
   - Two categories → one `RecommendationOutcomeStats` bucket each with correct counts.
   - Urgency stats grouped independently of category stats.
@@ -1555,7 +1557,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/ThresholdRecommendationServiceTests.cs` — 5 tests:
+- `ArchLucid.Decisioning.Tests/ThresholdRecommendationServiceTests.cs` — 5 tests:
   - Empty threshold list → `RecommendedCandidate` null, candidates empty, summary note.
   - Simple rule: `SimulateAsync` called once per threshold (3 × verified); `Candidates` count matches.
   - Simple rule: highest scorer is the `RecommendedCandidate`.
@@ -1569,7 +1571,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/AlertServiceApplyActionTests.cs` — 6 tests:
+- `ArchLucid.Decisioning.Tests/AlertServiceApplyActionTests.cs` — 6 tests:
   - Unknown alertId → returns null; repo `UpdateAsync` not called.
   - Unknown action → returns unchanged record; no update or audit.
   - Same-status no-op → no update or audit emitted.
@@ -1584,7 +1586,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/SecurityBaselineFindingEngineTests.cs` — 5 tests:
+- `ArchLucid.Decisioning.Tests/SecurityBaselineFindingEngineTests.cs` — 5 tests:
   - Empty graph → no findings.
   - Single `SecurityBaseline` node with no edges → one finding; `RelatedNodeIds` contains only that node.
   - `status = "missing"` → `FindingSeverity.Error`; payload `Impact` mentions "missing".
@@ -1610,7 +1612,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/RecommendationFeedbackAnalyzerTests.cs` — 5 tests:
+- `ArchLucid.Decisioning.Tests/RecommendationFeedbackAnalyzerTests.cs` — 5 tests:
   - Empty list → empty dictionary.
   - Single bucket (same category+status twice) → key `"Category:Status"` with count 2.
   - Multi-bucket (Security×Proposed, Security×Accepted ×2, Cost×Rejected) → 3 entries with correct counts.
@@ -1639,7 +1641,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/DigestDeliveryDispatcherTests.cs` — null digest, no subscriptions, success path (audit + subscription update), channel failure audited without throwing.
+- `ArchLucid.Decisioning.Tests/DigestDeliveryDispatcherTests.cs` — null digest, no subscriptions, success path (audit + subscription update), channel failure audited without throwing.
 
 ---
 
@@ -1648,7 +1650,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/RuleSimulationServiceTests.cs` — early exit when `UseHistoricalWindow` is false and no `RunId`; empty contexts note; simple-rule match outcome; composite path with suppression decision.
+- `ArchLucid.Decisioning.Tests/RuleSimulationServiceTests.cs` — early exit when `UseHistoricalWindow` is false and no `RunId`; empty contexts note; simple-rule match outcome; composite path with suppression decision.
 
 ---
 
@@ -1657,8 +1659,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `InternalsVisibleTo("ArchiForge.Decisioning.Tests")` on **ArchiForge.Persistence**.
-- `ArchiForge.Decisioning.Tests/AlertGovernanceResolverTests.cs` — preloaded governance skips loader; otherwise loads once by scope.
+- `InternalsVisibleTo("ArchLucid.Decisioning.Tests")` on **ArchLucid.Persistence**.
+- `ArchLucid.Decisioning.Tests/AlertGovernanceResolverTests.cs` — preloaded governance skips loader; otherwise loads once by scope.
 
 ---
 
@@ -1667,7 +1669,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/AlertSuppressionPolicyTests.cs` — no prior alert allows create; cooldown; suppression window; `RuleAndRun` dedupe key shape.
+- `ArchLucid.Decisioning.Tests/AlertSuppressionPolicyTests.cs` — no prior alert allows create; cooldown; suppression window; `RuleAndRun` dedupe key shape.
 
 ---
 
@@ -1676,7 +1678,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/CompositeAlertServiceTests.cs` — no rules + governance load; preloaded governance skips loader; match + allow → create, deliver, `CompositeAlertTriggered` audit; suppressed match → `AlertSuppressedByPolicy` audit.
+- `ArchLucid.Decisioning.Tests/CompositeAlertServiceTests.cs` — no rules + governance load; preloaded governance skips loader; match + allow → create, deliver, `CompositeAlertTriggered` audit; suppressed match → `AlertSuppressedByPolicy` audit.
 
 ---
 
@@ -1685,7 +1687,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Decisioning.Tests/TopologyCoverageFindingEngineTests.cs` — zero topology nodes; missing categories payload; full coverage → empty list (mock `IGraphCoverageAnalyzer`).
+- `ArchLucid.Decisioning.Tests/TopologyCoverageFindingEngineTests.cs` — zero topology nodes; missing categories payload; full coverage → empty list (mock `IGraphCoverageAnalyzer`).
 
 ---
 
@@ -1695,7 +1697,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 **What was built:**
 - `GraphSnapshotStorageRow.cs`, `GraphSnapshotStorageMapper.cs`; **SqlGraphSnapshotRepository** delegates deserialization to the mapper (single error message path).
-- `ArchiForge.Decisioning.Tests/GraphSnapshotStorageMapperTests.cs` — valid round-trip via `JsonEntitySerializer`, null row, corrupt nodes JSON (wrapped exception chain).
+- `ArchLucid.Decisioning.Tests/GraphSnapshotStorageMapperTests.cs` — valid round-trip via `JsonEntitySerializer`, null row, corrupt nodes JSON (wrapped exception chain).
 
 ---
 
@@ -1704,7 +1706,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.KnowledgeGraph.Tests/DefaultGraphEdgeInfererContractTests.cs` — `parentNodeId` → `CONTAINS_RESOURCE` (weight 1); `applicableTopologyNodeIds` → targeted `AppliesTo` only for listed topology ids.
+- `ArchLucid.KnowledgeGraph.Tests/DefaultGraphEdgeInfererContractTests.cs` — `parentNodeId` → `CONTAINS_RESOURCE` (weight 1); `applicableTopologyNodeIds` → targeted `AppliesTo` only for listed topology ids.
 
 ---
 
@@ -1713,7 +1715,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **Status:** Done (Mar 2026).
 
 **What was built:**
-- `ArchiForge.Persistence/Serialization/AuditJsonSerializationOptions.cs` — shared `JsonSerializerOptions` instance (`CamelCase`, not indented).
+- `ArchLucid.Persistence/Serialization/AuditJsonSerializationOptions.cs` — shared `JsonSerializerOptions` instance (`CamelCase`, not indented).
 - Wired into **DigestDeliveryDispatcher**, **AdvisoryScanRunner**, **CompositeAlertService**, **AlertService**, **AlertDeliveryDispatcher** (success + failure audit payloads); **AuthorityRunOrchestrator** now uses the same static instance instead of a duplicate field.
 
 ---
@@ -1766,7 +1768,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Tests — unit (170–194)
 
-- [x] 170. SQL-backed alert/digest repos: strategy (Testcontainers vs abstraction) + tests (`ArchiForge.Persistence.Tests`, DbUp via `DatabaseMigrator`, trait `SqlServerContainer`).
+- [x] 170. SQL-backed alert/digest repos: strategy (Testcontainers vs abstraction) + tests (`ArchLucid.Persistence.Tests`, DbUp via `DatabaseMigrator`, trait `SqlServerContainer`).
 - [x] 171. `DapperArchitectureDigestRepository` / similar round-trips (`DapperArchitectureDigestRepositorySqlIntegrationTests`, `DapperAlertRuleRepositorySqlIntegrationTests`).
 - [x] 172. **`AlertDeliveryDispatcherTests`** (null alert, no subs, success audit, failure audited).
 - [x] 173. `EffectiveGovernanceLoader` / resolver coverage (`EffectiveGovernanceLoaderTests`, `EffectiveGovernanceResolverTests`).
@@ -1778,9 +1780,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 179. `ExportReplayService` extra formats / errors (`analysis-report-docx` replay + `ExportReplayServiceReplayAsyncTests`).
 - [x] 180. **`FindingPayloadValidatorTests`** (envelope guards, compliance + multi-type happy paths).
 - [x] 181. `CostConstraintFindingEngine` / `ComplianceFindingEngine` branch coverage.
-- [x] 182. `RetrievalQueryService` empty index + ranking (`ArchiForge.Retrieval.Tests`: `RetrievalQueryServiceTests`, `InMemoryVectorIndexTests`).
-- [x] 183. `ConversationService` thread lifecycle (`ArchiForge.Api.Tests`: `ConversationServiceTests`).
-- [x] 184. `DocxExportService` golden / snapshot tests (`ArchiForge.Coordinator.Tests`: `DocxExportServiceGoldenTests`).
+- [x] 182. `RetrievalQueryService` empty index + ranking (`ArchLucid.Retrieval.Tests`: `RetrievalQueryServiceTests`, `InMemoryVectorIndexTests`).
+- [x] 183. `ConversationService` thread lifecycle (`ArchLucid.Api.Tests`: `ConversationServiceTests`).
+- [x] 184. `DocxExportService` golden / snapshot tests (`ArchLucid.Coordinator.Tests`: `DocxExportServiceGoldenTests`).
 - [x] 185. Coordinator ingestion mapper (`ContextIngestionRequestMapper.FromArchitectureRequest`) — `ContextIngestionRequestMapperTests` in Coordinator.Tests.
 - [x] 186. `ContextIngestionService` parser-miss warnings.
 - [x] 187. `JsonEntitySerializer` corrupt graph JSON tests.
@@ -1800,12 +1802,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 198. Api.Tests: retrieval index + query smoke (fake vector) — `RetrievalQuerySmokeIntegrationTests` (index documents via DI, query via `GET api/retrieval/search`, empty index, topK clamp, validation).
 - [x] 199. Api.Tests: Ask thread + fake LLM — `AskThreadIntegrationTests` (POST `api/ask` with seeded authority run, verify thread, follow-up on same thread, messages list, validation).
 - [x] 200. Committed OpenAPI snapshot diff in CI.
-  - **`ArchiForge.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** + **`OpenApiContractSnapshotTests`** (`Suite=Core`): compares **`GET /openapi/v1.json`** to the snapshot (regenerate: **`ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1`**). Runs in **fast core** (Tier 1). See **`docs/TEST_EXECUTION_MODEL.md`**.
+  - **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** + **`OpenApiContractSnapshotTests`** (`Suite=Core`): compares **`GET /openapi/v1.json`** to the snapshot (regenerate: **`ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1`**). Runs in **fast core** (Tier 1). See **`docs/TEST_EXECUTION_MODEL.md`**.
 - [x] 201. Load test: expensive rate-limit boundary.
   - **`docs/runbooks/LOAD_TEST_RATE_LIMITS.md`** + **`scripts/load/k6-expensive-rate-limit.js`** (configure **`ARCHIFORGE_EXPENSIVE_PATH`** + auth for real 429s).
 - [x] 202. Resilience: SQL timeout → health / problem details — `ApplicationProblemMapper.TryMapDatabaseException` maps `SqlException(-2)` / `TimeoutException` → 503 `DatabaseTimeout`, `DbException` → 503 `DatabaseUnavailable`; `SqlConnectionHealthCheck` reports `Degraded` for transient SQL errors (timeout, Azure throttling); `ProblemTypes.DatabaseTimeout` / `DatabaseUnavailable` constants; `ProblemDetailsExtensions.ServiceUnavailableProblem` helper; unit tests in `ApiProblemDetailsExceptionFilterTests` + `SqlConnectionHealthCheckTests`.
 - [x] 203. CI: migrate from N−1 schema.
-  - **`DatabaseMigrator.RunExcludingTrailingScripts`** (**`ArchiForge.Persistence`**, `Data/Infrastructure/DatabaseMigrator.cs`) + **`DatabaseMigratorUpgradePathSqlIntegrationTests`** (`SqlServerContainer`): N−1 pass then full **`Run`**.
+  - **`DatabaseMigrator.RunExcludingTrailingScripts`** (**`ArchLucid.Persistence`**, `Data/Infrastructure/DatabaseMigrator.cs`) + **`DatabaseMigratorUpgradePathSqlIntegrationTests`** (`SqlServerContainer`): N−1 pass then full **`Run`**.
 - [x] 204. UI e2e: policy assign + effective-content.
   - **`archiforge-ui/e2e/policy-packs-journey.spec.ts`** + extended **`mock-archiforge-api-server`** (`v1/policy-packs` POST/GET).
 
@@ -1824,12 +1826,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`RetrievalIndexingOutboxProcessor`**: loads `RunDetailDto` via `IAuthorityQueryService`, rebuilds provenance, calls `IRetrievalRunCompletionIndexer`, marks processed.
   - **`RetrievalIndexingOutboxHostedService`**: polls every 2s (API `Hosted/`).
 - [x] 212. Circuit breaker for OpenAI / embedding clients.
-  - **`CircuitBreakerGate`** (`ArchiForge.Core.Resilience`): closed → open after N consecutive failures → half-open single probe after `DurationOfBreakSeconds` → closed on success; concurrent callers rejected while probe in flight; optional injectable `Func<DateTimeOffset>` clock for tests.
+  - **`CircuitBreakerGate`** (`ArchLucid.Core.Resilience`): closed → open after N consecutive failures → half-open single probe after `DurationOfBreakSeconds` → closed on success; concurrent callers rejected while probe in flight; optional injectable `Func<DateTimeOffset>` clock for tests.
   - **`CircuitBreakerOptions`**: `FailureThreshold` (default 5), `DurationOfBreakSeconds` (default 30), bound from `AzureOpenAI:CircuitBreaker` (`FailureThreshold`, `DurationOfBreakSeconds`).
   - **`CircuitBreakerOpenException`**: thrown when open or probe busy; `RetryAfterUtc` when known.
   - **`CircuitBreakingAgentCompletionClient`** wraps `AzureOpenAiCompletionClient`; **`CircuitBreakingOpenAiEmbeddingClient`** wraps `AzureOpenAiEmbeddingClient`; independent **keyed** `CircuitBreakerGate` instances (`OpenAiCircuitBreakerKeys.Completion` / `Embedding`).
   - **ProblemDetails**: `ApplicationProblemMapper` maps to 503 `ProblemTypes.CircuitBreakerOpen` with `extensions.retryAfterUtc` when set; filter tests in `ApiProblemDetailsExceptionFilterTests`.
-  - **Tests**: `CircuitBreakerGateTests`, `CircuitBreakingOpenAiEmbeddingClientTests` (`ArchiForge.Retrieval.Tests`); `CircuitBreakingAgentCompletionClientTests` (`ArchiForge.Api.Tests` + `AgentRuntime` reference).
+  - **Tests**: `CircuitBreakerGateTests`, `CircuitBreakingOpenAiEmbeddingClientTests` (`ArchLucid.Retrieval.Tests`); `CircuitBreakingAgentCompletionClientTests` (`ArchLucid.Api.Tests` + `AgentRuntime` reference).
 - [x] 213. Graceful shutdown: advisory poller + host — `AdvisoryScanHostedServiceShutdownTests` (clean exit on cancellation during delay, continues after non-cancellation exception, handles OCE during processing).
 - [x] 214. SLO dashboards (Grafana + Prometheus).
   - **`docs/runbooks/SLO_PROMETHEUS_GRAFANA.md`**: enable **`Observability:Prometheus:Enabled`**, metric inventory from **`ArchiForgeInstrumentation`**, example recording rule, Grafana panel outline, burn-rate note.
@@ -1838,16 +1840,16 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 - [x] 215. Entra ID app roles migration from long-lived API keys.
   - **`infra/terraform-entra/`**: optional **`azuread_application`** with **Admin / Operator / Reader** roles; **`enable_entra_api_app`** default **false**.
-  - **`ArchiForge.Api`**: **`ArchiForgeAuth:NameClaimType`** (e.g. **`preferred_username`**); JWT **`RoleClaimType = "roles"`**; **`appsettings.Entra.sample.json`**.
+  - **`ArchLucid.Api`**: **`ArchiForgeAuth:NameClaimType`** (e.g. **`preferred_username`**); JWT **`RoleClaimType = "roles"`**; **`appsettings.Entra.sample.json`**.
   - **`docs/CUSTOMER_TRUST_AND_ACCESS.md`**: customer narrative and cutover notes (includes OpenAPI auth summary; **238**).
 - [x] 216. Key Vault references for all secrets in config samples.
-  - **`ArchiForge.Api/appsettings.KeyVault.sample.json`**: example `@Microsoft.KeyVault(...)` values for SQL, Azure OpenAI, API key auth.
+  - **`ArchLucid.Api/appsettings.KeyVault.sample.json`**: example `@Microsoft.KeyVault(...)` values for SQL, Azure OpenAI, API key auth.
   - **`docs/CONFIGURATION_KEY_VAULT.md`**: App Service / Terraform guidance and `__` nested key mapping.
 - [x] 217. Private Link for SQL + Blob (Terraform). **AI Search** private endpoint not in this root (future extension).
   - **`infra/terraform-private/`**: VNet, private DNS, private endpoints for **SQL** and **Blob**; **`enable_private_data_plane`** default **false**; operators disable public access after cutover.
 - [x] 218. **APIM (Consumption) in front of API** — Terraform `infra/terraform/` with **`enable_api_management`** (default **false** for laptop-only work); **`sku_name = Consumption_0`**; optional OpenAPI import from **`swagger/v1/swagger.json`**; outputs gateway URL + managed identity. **Edge WAF:** optional **`infra/terraform-edge/`** (Front Door Standard + WAF); see **`infra/README.md`**.
 - [x] 219. SBOM (CycloneDX) in CI.
-  - **`.github/workflows/ci.yml`**: after **`dotnet-fast-core`** build, **`dotnet tool install CycloneDX`** → BOM for **`ArchiForge.Api/ArchiForge.Api.csproj`** → artifact **`sbom-dotnet`**; after **`ui-unit`** **`npm ci`**, **`npx @cyclonedx/cyclonedx-npm@4.2.1`** → artifact **`sbom-npm`**.
+  - **`.github/workflows/ci.yml`**: after **`dotnet-fast-core`** build, **`dotnet tool install CycloneDX`** → BOM for **`ArchLucid.Api/ArchLucid.Api.csproj`** → artifact **`sbom-dotnet`**; after **`ui-unit`** **`npm ci`**, **`npx @cyclonedx/cyclonedx-npm@4.2.1`** → artifact **`sbom-npm`**.
   - Local commands: **`docs/BUILD.md`** (SBOM subsection).
 - [x] 220. `dotnet list package --vulnerable` gate.
   - **`.github/workflows/ci.yml`**: `dotnet list package --vulnerable --include-transitive` after restore (fails build when the SDK reports vulnerable packages).
@@ -1876,9 +1878,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 230. Cache effective governance per HTTP scope (beyond advisory path).
   - **`RequestScopedCachingEffectiveGovernanceLoader`**: scoped decorator over **`EffectiveGovernanceLoader`**; first **`LoadEffectiveContentAsync`** for a `(tenant, workspace, project)` triple wins, subsequent calls on the same request reuse the document.
   - **DI**: `ServiceCollectionExtensions` registers concrete **`EffectiveGovernanceLoader`** + **`IEffectiveGovernanceLoader`** → decorator.
-  - **Tests**: `RequestScopedCachingEffectiveGovernanceLoaderTests` (`ArchiForge.Decisioning.Tests`).
+  - **Tests**: `RequestScopedCachingEffectiveGovernanceLoaderTests` (`ArchLucid.Decisioning.Tests`).
 - [x] 231. Graph snapshot pagination API design.
-  - **`GET /api/graph/runs/{runId}/nodes`**: `page` / `pageSize` (see **`PaginationDefaults`**); response **`GraphNodesPageResponse`** (nodes + edges with both endpoints on the page). **`GraphSnapshotPagination`** + **`GraphSnapshotNodesPage`** in **`ArchiForge.KnowledgeGraph`**.
+  - **`GET /api/graph/runs/{runId}/nodes`**: `page` / `pageSize` (see **`PaginationDefaults`**); response **`GraphNodesPageResponse`** (nodes + edges with both endpoints on the page). **`GraphSnapshotPagination`** + **`GraphSnapshotNodesPage`** in **`ArchLucid.KnowledgeGraph`**.
 - [x] 232. Embedding batching cost caps.
   - **`RetrievalEmbeddingCapOptions`** (`Retrieval:EmbeddingCaps`), **`RetrievalIndexingService`** batches **`EmbedManyAsync`** and optional **`MaxChunksPerIndexOperation`**; validation in **`ArchiForgeConfigurationRules`**; tests **`RetrievalIndexingServiceTests`**.
 - [x] 233. AI Search SKU guidance (dev vs prod).
@@ -1890,7 +1892,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 - [x] 235. Deprecation: `Sunset` + versioned routes policy.
   - **`ApiDeprecationOptions`** + **`ApiDeprecationHeadersMiddleware`**: optional **`Deprecation`**, **`Sunset`**, **`Link`** headers; config **`ApiDeprecation:*`**; validated **`SunsetHttpDate`** when enabled; URL versioning remains **`v{version}`** (see **`Asp.Versioning`** on controllers).
-- [x] 236. Standard list pagination (`page`/`pageSize` or cursor) — `PagedResponse<T>`, `PaginationDefaults`, `PagedResponseBuilder` in `ArchiForge.Core.Pagination`; `AlertsController.List` and `ConversationController.ListThreads` accept optional `page`/`pageSize` (backward-compatible with `take`-only).
+- [x] 236. Standard list pagination (`page`/`pageSize` or cursor) — `PagedResponse<T>`, `PaginationDefaults`, `PagedResponseBuilder` in `ArchLucid.Core.Pagination`; `AlertsController.List` and `ConversationController.ListThreads` accept optional `page`/`pageSize` (backward-compatible with `take`-only).
 - [x] 237. ProblemDetails `extensions` machine codes on all 4xx/5xx.
   - **`ProblemErrorCodes`**: stable `UNSPECIFIED`, `CONFLICT`, `RUN_NOT_FOUND`, `DATABASE_TIMEOUT`, `CIRCUIT_BREAKER_OPEN`, etc.; `ResolveFromProblemType` maps `ProblemTypes` URIs.
   - **`ApplicationProblemMapper.CreateProblemResult`**: always sets `extensions.errorCode`; optional post-build `extend` action (e.g. circuit breaker `retryAfterUtc`).
@@ -1921,8 +1923,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 244. Soft-delete policy for governance assignments.
   - Migration **`029_PolicyPackAssignments_ArchivedUtc.sql`**, **`ArchivedUtc`** on **`PolicyPackAssignment`**, list filter + **`ArchiveAsync`**, **`POST v1/policy-packs/assignments/{id}/archive`**, audit **`PolicyPackAssignmentArchived`**.
 - [x] 245. Connection resilience (retry + backoff).
-  - **`SqlTransientDetector`** (`ArchiForge.Persistence.Connections`): shared classifier for transient SQL Server error numbers (-2 timeout, 40613 Azure SQL unavailable, 40197 service error, 49918–49920 throttling) and `TimeoutException`. Used by both the health check and the resilient factory.
-  - **`ResilientSqlConnectionFactory`** (`ArchiForge.Persistence.Connections`): decorator over `ISqlConnectionFactory` that retries `CreateOpenConnectionAsync` on transient failures with exponential backoff (default 3 retries, 200 ms base, ±25 % jitter). Non-transient exceptions propagate immediately.
+  - **`SqlTransientDetector`** (`ArchLucid.Persistence.Connections`): shared classifier for transient SQL Server error numbers (-2 timeout, 40613 Azure SQL unavailable, 40197 service error, 49918–49920 throttling) and `TimeoutException`. Used by both the health check and the resilient factory.
+  - **`ResilientSqlConnectionFactory`** (`ArchLucid.Persistence.Connections`): decorator over `ISqlConnectionFactory` that retries `CreateOpenConnectionAsync` on transient failures with exponential backoff (default 3 retries, 200 ms base, ±25 % jitter). Non-transient exceptions propagate immediately.
   - **DI wiring**: `ArchiForgeStorageServiceCollectionExtensions` now wraps `SqlConnectionFactory` in `ResilientSqlConnectionFactory` for the SQL storage path.
   - **Health check**: `SqlConnectionHealthCheck` delegates to the shared `SqlTransientDetector`.
   - **Tests**: `SqlTransientDetectorTests` (9 cases — all error numbers, null, `TimeoutException`, inner exception), `ResilientSqlConnectionFactoryTests` (8 cases — success, transient retry + success, retry exhaustion, non-transient immediate throw, cancellation, exponential delay range, null guards, zero-retries).
@@ -1934,7 +1936,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`ArchitectureDigestRepositoryContractTests`** (5 tests): Create+GetById round-trip, GetById nonexistent → null, ListByScope scope filtering, ListByScope ordering (GeneratedUtc DESC), ListByScope respects `take` limit, empty scope → empty list.
   - **InMemory subclasses** (`InMemoryAlertRuleRepositoryContractTests`, `InMemoryArchitectureDigestRepositoryContractTests`): `Category=Unit`, no Docker needed.
   - **Dapper subclasses** (`DapperAlertRuleRepositoryContractTests`, `DapperArchitectureDigestRepositoryContractTests`): `Category=SqlServerContainer`, reuse `SqlServerPersistenceFixture`.
-  - All files in `ArchiForge.Persistence.Tests/Contracts/`.
+  - All files in `ArchLucid.Persistence.Tests/Contracts/`.
 - [x] 248. Single DDL file discipline audit.
   - **`docs/SQL_DDL_DISCIPLINE.md`**: single-file rule for **`ArchiForge.sql`**, DbUp migration pairing, inventory **019–021**.
   - **`ArchiForge.sql`** trailing section aligned with **019** (**`RetrievalIndexingOutbox`**), **020** (Runs index), **021** (idempotency table).
@@ -1956,7 +1958,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`templates/archiforge-finding-engine`** (`dotnet new install ./templates/archiforge-finding-engine`, shortName **`archiforge-finding-engine`**); see **`docs/BUILD.md`**.
 - [x] 254. Contributor onboarding checklist (build, test filters, integration opt-in).
 - [x] 255. **Dockerfiles for API + UI** (multi-stage, Alpine, non-root, `HEALTHCHECK`).
-  - **`ArchiForge.Api/Dockerfile`**: three-stage (`restore` → `publish` → `runtime`); `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`; `HEALTHCHECK` on `/health/live`; port 8080.
+  - **`ArchLucid.Api/Dockerfile`**: three-stage (`restore` → `publish` → `runtime`); `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`; `HEALTHCHECK` on `/health/live`; port 8080.
   - **`archiforge-ui/Dockerfile`**: three-stage (`deps` → `build` → `runtime`); `node:22-alpine`; Next.js standalone output (`output: "standalone"` in `next.config.ts`); `HEALTHCHECK` on `/`; port 3000.
   - **`.dockerignore`** (repo root) + **`archiforge-ui/.dockerignore`**: exclude build artifacts, secrets, test data.
   - **`docker-compose.yml`**: `--profile full-stack` adds `api` + `ui` containers alongside SQL/Azurite/Redis; default profile unchanged (dependencies only, hot-reload dev).
@@ -1971,7 +1973,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 257. **Data archival hosted iteration + health state** — `DataArchivalHostIteration` outcome wiring in `DataArchivalHostedService`; `DataArchivalHostHealthState` records last success/failure.
 - [x] 258. **`DataArchivalHostHealthCheck`** — readiness tag **`data_archival`**; **Healthy** when disabled, enabled with no attempt yet, or last success; **Degraded** when enabled and last iteration failed (`failureStatus: Degraded` in `RegisterArchiForgeHealthChecks`).
 - [x] 259. **`ReplayDiagnosticsOptions`** — config section, recorder retention for replay diagnostics endpoint.
-- [x] 260. **`InMemoryComparisonRecordRepository`** — thread-safe in-memory implementation in **`ArchiForge.Persistence.Data.Repositories`**; parity with Dapper via contract tests.
+- [x] 260. **`InMemoryComparisonRecordRepository`** — thread-safe in-memory implementation in **`ArchLucid.Persistence.Data.Repositories`**; parity with Dapper via contract tests.
 - [x] 261. **Comparison record contract tests** — abstract base + InMemory + Dapper (`ComparisonRecordRepositoryContractTests`).
 - [x] 262. **`TestSqlDbConnectionFactory`** (and SQL integration helpers) for persistence tests against real SQL.
 - [x] 263. **RLS / session context** — integration coverage for tenant-scoped SQL access where applicable.
@@ -1989,7 +1991,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Data access clarity & test depth (275–283)
 
-- [x] 275. **Dual `IGoldenManifestRepository` / `IDecisionTraceRepository` contracts** — `ArchiForge.Persistence.Data.Repositories` (run/commit Dapper: `CreateAsync`, `GetByVersionAsync`, batch traces) vs `ArchiForge.Decisioning.Interfaces` (authority SQL: `SaveAsync`, scoped `GetByIdAsync`). Coordinator registrations use **fully qualified Data interface types** so DI is not mistaken for a duplicate override of the Decisioning contracts registered in **`AddArchiForgeStorage`**.
+- [x] 275. **Dual `IGoldenManifestRepository` / `IDecisionTraceRepository` contracts** — `ArchLucid.Persistence.Data.Repositories` (run/commit Dapper: `CreateAsync`, `GetByVersionAsync`, batch traces) vs `ArchLucid.Decisioning.Interfaces` (authority SQL: `SaveAsync`, scoped `GetByIdAsync`). Coordinator registrations use **fully qualified Data interface types** so DI is not mistaken for a duplicate override of the Decisioning contracts registered in **`AddArchiForgeStorage`**.
 - [x] 276. **`SqlScopedResolutionDbConnectionFactory`** — singleton **`IDbConnectionFactory`** for SQL storage that opens connections via a **short scope** resolving scoped **`ISqlConnectionFactory`** (resilience + optional RLS) for **`CreateOpenConnectionAsync`**, while **`CreateConnection`** stays an unopened **`SqlConnection`** for readiness probes. **`RegisterDataInfrastructure`** registers **`Data.SqlConnectionFactory`** only when **`StorageProvider=InMemory`**; SQL mode registers this bridge inside **`AddArchiForgeStorage`**.
 - [x] 277. **`CorrelationIdMiddlewareTests`** + **`ApiDeprecationHeadersMiddlewareTests`** (Core suite).
 - [x] 278. **`RetrievalIndexingOutboxHostedServiceTests`** — clean shutdown and continue-after-failure loop behavior.
@@ -2013,9 +2015,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Synthesis tests, CI Terraform breadth, production safety & ops docs (293–302)
 
-- [x] 293. **`ArchiForge.ArtifactSynthesis.Tests`** — `ArtifactSynthesisService` ordering + empty generators, `MermaidDiagramArtifactGenerator`, `ArtifactPackagingService` (single-file + ZIP); **`Suite=Core`** on test classes.
-- [x] 294. **`RealAgentExecutor` + `AgentResultParser` tests** in **`ArchiForge.AgentRuntime.Tests`** (duplicate handler type, dispatch order by enum, missing handler, JSON validation paths).
-- [x] 295. **`ArchiForge.Application.Tests`** — **`ArchitectureRunIdempotencyHashing`** (hash stability, null guard, fingerprint equality / inequality).
+- [x] 293. **`ArchLucid.ArtifactSynthesis.Tests`** — `ArtifactSynthesisService` ordering + empty generators, `MermaidDiagramArtifactGenerator`, `ArtifactPackagingService` (single-file + ZIP); **`Suite=Core`** on test classes.
+- [x] 294. **`RealAgentExecutor` + `AgentResultParser` tests** in **`ArchLucid.AgentRuntime.Tests`** (duplicate handler type, dispatch order by enum, missing handler, JSON validation paths).
+- [x] 295. **`ArchLucid.Application.Tests`** — **`ArchitectureRunIdempotencyHashing`** (hash stability, null guard, fingerprint equality / inequality).
 - [x] 296. **Persistence contract tests** — **`GoldenManifestRepositoryContractTests`** + InMemory + SQL; **`DecisionTraceRepositoryContractTests`** + InMemory + SQL (run FK seed); **`PolicyPackRepositoryContractTests`** + InMemory + Dapper; shared **`AuthorityRunChainTestSeed`** extracted from **`SqlGoldenManifestRepositorySqlIntegrationTests`**.
 - [x] 297. **CI** — **`.github/workflows/ci.yml`**: job **`terraform-validate-public-stacks`** matrix **`infra/terraform`**, **`infra/terraform-edge`**, **`infra/terraform-entra`** (`init -backend=false`, `validate`, `fmt -check`).
 - [x] 298. **`docker-compose.yml` (full-stack)** — explicit **`healthcheck`** for **`api`** and **`ui`**; **`ui`** **`depends_on`** **`api`** **`condition: service_healthy`**.
@@ -2027,9 +2029,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ### Persistence contracts, app idempotency, config, synthesis, CI gate (303–310)
 
 - [x] 303. **Persistence contract tests** — **`AgentResultRepositoryContractTests`** + InMemory + Dapper (FK seed via **`ArchitectureCommitTestSeed`**); **`AdvisoryScanScheduleRepositoryContractTests`** + InMemory + **`DapperAdvisoryScanScheduleRepository`**; **`AlertDeliveryAttemptRepositoryContractTests`** + InMemory + **`DapperAlertDeliveryAttemptRepository`**.
-- [x] 304. **`ArchiForge.Application.Tests`** — **`ArchitectureRunServiceCreateRunIdempotencyTests`**: idempotent replay skips **`ICoordinatorService`**; fingerprint mismatch → **`ConflictException`**.
+- [x] 304. **`ArchLucid.Application.Tests`** — **`ArchitectureRunServiceCreateRunIdempotencyTests`**: idempotent replay skips **`ICoordinatorService`**; fingerprint mismatch → **`ConflictException`**.
 - [x] 305. **`ArchiForgeConfigurationRules`** — **`Retrieval:VectorIndex`** must be **`InMemory`**, **`AzureSearch`**, or omitted; Production webhook HMAC secret minimum length when HTTP delivery is enabled; **`RateLimiting:Replay:Light` / `Heavy`** honor configured **`QueueLimit`**; matching **`ArchiForgeConfigurationRulesTests`**.
-- [x] 306. **`ArchiForge.ArtifactSynthesis.Tests`** — **`InventoryArtifactGeneratorTests`**, **`ArtifactBundleValidatorTests`** (duplicate type + empty content).
+- [x] 306. **`ArchLucid.ArtifactSynthesis.Tests`** — **`InventoryArtifactGeneratorTests`**, **`ArtifactBundleValidatorTests`** (duplicate type + empty content).
 - [x] 307. **Docs** — **`docs/BUILD.md`** (Application.Tests, Terraform gate on fast-core); **`docs/CONTRIBUTOR_ONBOARDING.md`** (**`Suite=Core`** filter).
 - [x] 308. **CI** — **`dotnet-fast-core`** **`needs:`** **`terraform-validate-private`** and **`terraform-validate-public-stacks`** (after **`gitleaks`**).
 - [x] 309. **`docs/ARCHITECTURE_COMPONENTS.md`** — contract list extended (idempotency, agent results, advisory schedules, alert attempts, **`ArchitectureCommitTestSeed`**).
@@ -2037,7 +2039,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Application execute/commit, DecisionEngineV2 depth, Data contracts, config & runbooks (311–318)
 
-- [x] 311. **`ArchiForge.Application.Tests`** — **`ArchitectureRunServiceExecuteCommitTests`**: execute happy path + idempotent replay + **`RunNotFoundException`** + terminal **`ConflictException`**; commit happy path + wrong-status **`ConflictException`** + run missing.
+- [x] 311. **`ArchLucid.Application.Tests`** — **`ArchitectureRunServiceExecuteCommitTests`**: execute happy path + idempotent replay + **`RunNotFoundException`** + terminal **`ConflictException`**; commit happy path + wrong-status **`ConflictException`** + run missing.
 - [x] 312. **`DecisionEngineV2Tests`** — empty topology pair; three topics when topology present; security promotion from **strengthen** + “private”; complexity prefers reduce under **caution**.
 - [x] 313. **In-memory Data repositories** — **`InMemoryArchitectureRequestRepository`**, **`InMemoryArchitectureRunRepository`** (optional request lookup for **`ListAsync`**), **`InMemoryEvidenceBundleRepository`**, **`InMemoryAgentEvidencePackageRepository`**, **`InMemoryAgentExecutionTraceRepository`**.
 - [x] 314. **Persistence contract tests** — request, evidence bundle, architecture run (incl. **`ListAsync`** system name), agent evidence package, agent execution trace (incl. paging); Dapper subclasses + **`ArchitectureCommitTestSeed.InsertArchitectureRequestOnlyAsync`**.
@@ -2052,9 +2054,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 320. **`RegisterRunExportAndArchitectureAnalysis`** — **`IRunExportRecordRepository`** → **`InMemoryRunExportRecordRepository`** when **`StorageProvider=InMemory`**.
 - [x] 321. **New in-memory Data repos** — **`InMemoryAgentEvaluationRepository`**, **`InMemoryDecisionNodeRepository`**, **`InMemoryRunExportRecordRepository`**, **`InMemoryCoordinatorGoldenManifestRepository`**, **`InMemoryCoordinatorDecisionTraceRepository`** (names avoid confusion with Decisioning in-memory authority stores).
 - [x] 322. **Persistence contract tests** — abstract bases + InMemory + Dapper/SQL: **`CoordinatorGoldenManifestRepositoryContractTests`**, **`CoordinatorDecisionTraceRepositoryContractTests`**, **`AgentEvaluationRepositoryContractTests`**, **`DecisionNodeRepositoryContractTests`**, **`RunExportRecordRepositoryContractTests`** (FK seeds via **`ArchitectureCommitTestSeed`** where required).
-- [x] 323. **`AuthorityRunOrchestratorTests`** (**`ArchiForge.Persistence.Tests`**) — happy path (**`CommitAsync`**, retrieval outbox enqueue) and failure path (**`RollbackAsync`**, no commit) with mocked Decisioning/Persistence ports.
-- [x] 324. **`ReplayRunServiceTests`** + **`DeterminismCheckServiceTests`** (**`ArchiForge.Application.Tests`**) — not-found / dry-run vs commit / merge success; iteration validation and drift aggregation (Moq **`ReplayAsync`** sequencing).
-- [x] 325. **`docs/TEST_STRUCTURE.md`** — **`ArchiForge.Application.Tests`** row; Persistence.Tests row extended; **API controller ↔ tests** mapping subsection (where to find coverage when the test class name does not mirror the controller file).
+- [x] 323. **`AuthorityRunOrchestratorTests`** (**`ArchLucid.Persistence.Tests`**) — happy path (**`CommitAsync`**, retrieval outbox enqueue) and failure path (**`RollbackAsync`**, no commit) with mocked Decisioning/Persistence ports.
+- [x] 324. **`ReplayRunServiceTests`** + **`DeterminismCheckServiceTests`** (**`ArchLucid.Application.Tests`**) — not-found / dry-run vs commit / merge success; iteration validation and drift aggregation (Moq **`ReplayAsync`** sequencing).
+- [x] 325. **`docs/TEST_STRUCTURE.md`** — **`ArchLucid.Application.Tests`** row; Persistence.Tests row extended; **API controller ↔ tests** mapping subsection (where to find coverage when the test class name does not mirror the controller file).
 - [x] 326. **`docs/ARCHITECTURE_COMPONENTS.md`** — InMemory coordinator + run-export registration note.
 - [x] 327. **This file** — §319–328 recorded.
 - [x] 328. **Follow-up pointer** — per-controller **`*ControllerTests`** are optional where **`docs/TEST_STRUCTURE.md`** mapping shows integration coverage under a different class name. (Governance InMemory + contracts: see **§329–330**.)
@@ -2063,9 +2065,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 - [x] 329. **`RegisterGovernance`** — when **`ArchiForge:StorageProvider=InMemory`**, register singleton **`InMemoryGovernanceApprovalRequestRepository`**, **`InMemoryGovernancePromotionRecordRepository`**, **`InMemoryGovernanceEnvironmentActivationRepository`**; otherwise scoped Dapper implementations.
 - [x] 330. **Persistence contract tests** — abstract bases + InMemory + Dapper for the three governance repository interfaces (ordering and activation **`UpdateAsync`** semantics aligned with SQL).
-- [x] 331. **`ArchiForge.Application.Tests`** — **`RunDetailQueryServiceApplicationTests`** (`HasBrokenManifestReference`, trace load when manifest present).
-- [x] 332. **`ArchiForge.Application.Tests`** — **`AgentResultDiffServiceApplicationTests`** and **`ManifestDiffServiceApplicationTests`** (extra scenarios vs Api.Tests).
-- [x] 333. **`ArchiForge.Application.Tests`** — **`DefaultAgentEvaluationServiceTests`** (empty evaluations, validation, cancellation).
+- [x] 331. **`ArchLucid.Application.Tests`** — **`RunDetailQueryServiceApplicationTests`** (`HasBrokenManifestReference`, trace load when manifest present).
+- [x] 332. **`ArchLucid.Application.Tests`** — **`AgentResultDiffServiceApplicationTests`** and **`ManifestDiffServiceApplicationTests`** (extra scenarios vs Api.Tests).
+- [x] 333. **`ArchLucid.Application.Tests`** — **`DefaultAgentEvaluationServiceTests`** (empty evaluations, validation, cancellation).
 - [x] 334. **ADR 0004** — dual manifest/trace repository contracts (Data vs Decisioning).
 - [x] 335. **ADR 0005** — InMemory vs Sql storage provider (incl. governance wiring).
 - [x] 336. **`docs/DEPLOYMENT.md`** — umbrella deployment/rollback with links to migration and failover runbooks.
@@ -2074,8 +2076,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Data vs Persistence consolidation (339–341)
 
-- [x] 339. **Consolidate coordinator / legacy SQL repositories** — Former **`ArchiForge.Data`** assembly merged into **`ArchiForge.Persistence`** as **`ArchiForge.Persistence.Data.Infrastructure`** and **`ArchiForge.Persistence.Data.Repositories`** (DbUp migrations, consolidated SQL, Dapper workflow repos). **`ArchiForge.Data`** / **`ArchiForge.Data.Tests`** removed from the solution.
-- [x] 340. **Optional compatibility shim** — Skipped; consumers use **`ArchiForge.Persistence.Data.*`** directly.
+- [x] 339. **Consolidate coordinator / legacy SQL repositories** — Former **`ArchiForge.Data`** assembly merged into **`ArchLucid.Persistence`** as **`ArchLucid.Persistence.Data.Infrastructure`** and **`ArchLucid.Persistence.Data.Repositories`** (DbUp migrations, consolidated SQL, Dapper workflow repos). **`ArchiForge.Data`** / **`ArchiForge.Data.Tests`** removed from the solution.
+- [x] 340. **Optional compatibility shim** — Skipped; consumers use **`ArchLucid.Persistence.Data.*`** directly.
 - [ ] 341. **Connection factory alignment** — Prefer **`ISqlConnectionFactory`** / `CreateOpenConnectionAsync` for new and migrated code; phase out or wrap sync **`IDbConnectionFactory`** / `CreateConnection` where it forces blocking or diverges from RLS/resilience paths. **Risks:** mixed async/sync call chains, scoped resolution (`SqlScopedResolutionDbConnectionFactory`) assumptions, and test doubles that only implement one factory abstraction.
 
 ### Post-merge follow-up (342)

@@ -1,9 +1,9 @@
-using ArchiForge.Api.Validators;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Api.Validators;
+using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="ContextDocumentRequestValidator"/> (inline architecture request documents).

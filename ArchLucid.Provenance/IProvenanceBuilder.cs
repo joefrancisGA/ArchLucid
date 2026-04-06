@@ -1,9 +1,9 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Provenance;
+namespace ArchLucid.Provenance;
 
 public interface IProvenanceBuilder
 {

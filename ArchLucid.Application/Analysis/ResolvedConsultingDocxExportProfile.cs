@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// The outcome of <see cref="IConsultingDocxExportProfileSelector.Resolve"/> describing

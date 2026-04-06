@@ -1,9 +1,9 @@
-using ArchiForge.Decisioning.Findings.Factories;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Findings.Factories;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Decisioning.Services;
+namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
 /// Surfaces <c>APPLIES_TO</c> edges from <c>PolicyControl</c> graph nodes to topology resources.

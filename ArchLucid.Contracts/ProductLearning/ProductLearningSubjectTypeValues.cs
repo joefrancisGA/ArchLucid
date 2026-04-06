@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
 /// Open vocabulary stored in <c>ProductLearningPilotSignals.SubjectType</c> (no CHECK — evolve without migrations).

@@ -1,15 +1,15 @@
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Alerts;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Alerts;
 
-namespace ArchiForge.Decisioning.Advisory.Models;
+namespace ArchLucid.Decisioning.Advisory.Models;
 
 /// <summary>
 /// Advisory output for a single run (and optional prior run): prioritized recommendations, narrative notes, and merged policy defaults for digest/alert context.
 /// </summary>
 /// <remarks>
-/// Produced by <see cref="IImprovementAdvisorService"/> from golden manifest, findings, and optional <see cref="ArchiForge.Core.Comparison.ComparisonResult"/>.
+/// Produced by <see cref="IImprovementAdvisorService"/> from golden manifest, findings, and optional <see cref="ArchLucid.Core.Comparison.ComparisonResult"/>.
 /// Enriched during scheduled scans with <see cref="PolicyPackAdvisoryDefaults"/> before <see cref="AlertEvaluationContextFactory.ForAdvisoryScan"/>.
-/// Serialized to clients as <c>ArchiForge.Api.Contracts.ImprovementPlanResponse</c>.
+/// Serialized to clients as <c>ArchLucid.Api.Contracts.ImprovementPlanResponse</c>.
 /// </remarks>
 public class ImprovementPlan
 {

@@ -1,10 +1,10 @@
-﻿using ArchiForge.Api.Swagger;
+using ArchLucid.Api.Swagger;
 
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
-namespace ArchiForge.Api.OpenApi;
+namespace ArchLucid.Api.OpenApi;
 
 /// <summary>
 /// Clears inherited document <c>security</c> on <see cref="AllowAnonymousAttribute"/> actions in the Microsoft OpenAPI document.

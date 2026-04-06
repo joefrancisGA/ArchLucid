@@ -1,9 +1,9 @@
 using System.Data;
 
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Scoping;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Scoping;
 
-namespace ArchiForge.ArtifactSynthesis.Interfaces;
+namespace ArchLucid.ArtifactSynthesis.Interfaces;
 
 /// <summary>
 /// Persistence contract for <see cref="ArtifactBundle"/> records that group the synthesized

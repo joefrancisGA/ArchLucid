@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>Body for <c>POST …/policy-packs</c> (create pack + initial draft version).</summary>
 /// <remarks>Validated by FluentValidation; <see cref="PackType"/> must be a known <c>PolicyPackType</c> string.</remarks>

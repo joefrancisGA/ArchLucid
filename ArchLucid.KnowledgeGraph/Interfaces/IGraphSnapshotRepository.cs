@@ -1,8 +1,8 @@
 using System.Data;
 
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Interfaces;
+namespace ArchLucid.KnowledgeGraph.Interfaces;
 
 /// <summary>
 /// Persistence contract for <see cref="GraphSnapshot"/> records that capture the

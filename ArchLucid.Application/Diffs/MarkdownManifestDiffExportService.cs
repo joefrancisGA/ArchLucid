@@ -1,8 +1,8 @@
 using System.Text;
 
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Diffs;
+namespace ArchLucid.Application.Diffs;
 
 /// <summary>
 /// Implements <see cref="IManifestDiffExportService"/> by rendering a full Markdown export document

@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Services;
+namespace ArchLucid.Decisioning.Services;
 
 public class GoldenManifestValidator : IGoldenManifestValidator
 {

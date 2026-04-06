@@ -1,12 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
 
 using FluentAssertions;
 
-namespace ArchiForge.Contracts.Tests;
+namespace ArchLucid.Contracts.Tests;
 
 /// <summary>
 /// <see cref="DecisionTrace"/> uses <see cref="DecisionTraceJsonConverter"/>; coordinator and authority payloads must round-trip.

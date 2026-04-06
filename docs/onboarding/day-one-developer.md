@@ -9,7 +9,7 @@
 ## Scope (3–5 outcomes — check off by end of week one)
 
 - [ ] **1. Toolchain** — .NET 10 SDK, `git clone`, `dotnet restore` + `dotnet build` at repo root succeed ([CONTRIBUTOR_ONBOARDING.md](../CONTRIBUTOR_ONBOARDING.md)).
-- [ ] **2. Local API + SQL** — SQL reachable (Docker `archiforge dev up` or compose), `ConnectionStrings:ArchiForge` set (user secrets), `dotnet run --project ArchiForge.Api`, **`GET /health/ready`** returns healthy ([GOLDEN_PATH.md](../GOLDEN_PATH.md) Phase 1).
+- [ ] **2. Local API + SQL** — SQL reachable (Docker `archiforge dev up` or compose), `ConnectionStrings:ArchiForge` set (user secrets), `dotnet run --project ArchLucid.Api`, **`GET /health/ready`** returns healthy ([GOLDEN_PATH.md](../GOLDEN_PATH.md) Phase 1).
 - [ ] **3. Fast tests** — Run the Core corset (matches CI fast job):  
   `dotnet test --filter "Suite=Core&Category!=Slow&Category!=Integration"` ([TEST_EXECUTION_MODEL.md](../TEST_EXECUTION_MODEL.md)).
 - [ ] **4. One contract** — Skim [API_CONTRACTS.md](../API_CONTRACTS.md) (versioning `/v1`, correlation ID, one status code you will handle).
@@ -89,4 +89,4 @@ flowchart TD
   ARS --> PERSIST_APP
 ```
 
-**Where to read code:** `ArchiForge.Api/Controllers/RunsController.cs`, `ArchiForge.Application/ArchitectureRunService.cs`, `ArchiForge.Coordinator/Services/CoordinatorService.cs`, `ArchiForge.Persistence/Orchestration/AuthorityRunOrchestrator.cs`.
+**Where to read code:** `ArchLucid.Api/Controllers/RunsController.cs`, `ArchLucid.Application/ArchitectureRunService.cs`, `ArchLucid.Coordinator/Services/CoordinatorService.cs`, `ArchLucid.Persistence/Orchestration/AuthorityRunOrchestrator.cs`.

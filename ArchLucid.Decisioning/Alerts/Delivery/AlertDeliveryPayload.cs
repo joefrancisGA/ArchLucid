@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// Input to <see cref="IAlertDeliveryChannel.SendAsync"/>: the persisted alert and the subscription that matched severity routing.

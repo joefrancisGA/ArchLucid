@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-using ArchiForge.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Compliance.Models;
 
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Declarative governance payload stored in <see cref="PolicyPackVersion.ContentJson"/> and produced as the merged output of

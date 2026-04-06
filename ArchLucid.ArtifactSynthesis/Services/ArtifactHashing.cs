@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ArchiForge.ArtifactSynthesis.Services;
+namespace ArchLucid.ArtifactSynthesis.Services;
 
 public static class ArtifactHashing
 {

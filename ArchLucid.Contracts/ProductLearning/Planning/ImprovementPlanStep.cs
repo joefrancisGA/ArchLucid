@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// A single bounded, human-reviewable action in an improvement plan (not executable code).

@@ -1,11 +1,11 @@
 using System.Data;
 using System.Text.Json;
 
-using ArchiForge.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Data.Infrastructure;
+namespace ArchLucid.Persistence.Tests.Data.Infrastructure;
 
 [Trait("Category", "Unit")]
 public sealed class ListStringTypeHandlerTests

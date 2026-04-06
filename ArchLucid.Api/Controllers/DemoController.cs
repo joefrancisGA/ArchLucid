@@ -1,7 +1,7 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Application.Bootstrap;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Bootstrap;
 
 using Asp.Versioning;
 
@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>Development-only endpoints for deterministic trusted-baseline demo data (Corrected 50R / 49R pass 2).</summary>
 [ApiController]
@@ -25,7 +25,7 @@ public sealed class DemoController(
     /// <summary>Runs the Contoso Retail Modernization demo seed. No-op for missing rows; safe to repeat.</summary>
     /// <remarks>Available only when <c>Demo:Enabled</c> is true and the host environment is Development.</remarks>
     [HttpPost("seed")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

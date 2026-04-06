@@ -1,13 +1,13 @@
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Models;
 
-namespace ArchiForge.Decisioning.Advisory.Services;
+namespace ArchLucid.Decisioning.Advisory.Services;
 
 /// <summary>
 /// Turns analyzed <see cref="ImprovementSignal"/> values into prioritized <see cref="ImprovementRecommendation"/> items, optionally adjusted by a learning profile.
 /// </summary>
 /// <remarks>
-/// Default implementation: <see cref="RecommendationGenerator"/> (singleton in API composition). Called from <see cref="ImprovementAdvisorService"/> after <see cref="ArchiForge.Decisioning.Advisory.Analysis.IImprovementSignalAnalyzer"/> runs.
+/// Default implementation: <see cref="RecommendationGenerator"/> (singleton in API composition). Called from <see cref="ImprovementAdvisorService"/> after <see cref="ArchLucid.Decisioning.Advisory.Analysis.IImprovementSignalAnalyzer"/> runs.
 /// </remarks>
 public interface IRecommendationGenerator
 {

@@ -1,4 +1,4 @@
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Exposes <see cref="IAgentCompletionClient"/> as <see cref="ILlmCompletionProvider"/> with configured telemetry labels.

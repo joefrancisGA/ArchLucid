@@ -1,17 +1,17 @@
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Run Details.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureRunDetailsTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task GetRun_ReturnsTypedRunDetailsResponse()

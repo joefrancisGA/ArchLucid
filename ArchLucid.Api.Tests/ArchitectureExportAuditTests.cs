@@ -1,18 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Export Audit.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureExportAuditTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task ConsultingDocxExport_PersistsExportHistory()

@@ -1,18 +1,18 @@
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Evolution;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Evolution;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Application.Tests.Evolution;
+namespace ArchLucid.Application.Tests.Evolution;
 
 [Trait("Category", "Unit")]
 public sealed class ShadowExecutionServiceTests

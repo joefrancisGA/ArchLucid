@@ -1,9 +1,9 @@
 using System.Data;
 
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Core.Scoping;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Core.Scoping;
 
-namespace ArchiForge.Decisioning.Interfaces;
+namespace ArchLucid.Decisioning.Interfaces;
 
 /// <summary>
 /// Persistence contract for <see cref="DecisionTrace"/> records (rule audit) that capture the

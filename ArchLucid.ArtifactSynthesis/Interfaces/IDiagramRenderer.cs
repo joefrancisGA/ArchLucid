@@ -1,6 +1,6 @@
-using ArchiForge.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Interfaces;
+namespace ArchLucid.ArtifactSynthesis.Interfaces;
 
 public interface IDiagramRenderer
 {

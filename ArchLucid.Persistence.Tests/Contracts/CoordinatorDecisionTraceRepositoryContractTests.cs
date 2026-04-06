@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Shared contract assertions for coordinator <see cref="ICoordinatorDecisionTraceRepository"/> (run-scoped decision log rows).

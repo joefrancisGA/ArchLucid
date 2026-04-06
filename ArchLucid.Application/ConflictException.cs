@@ -1,4 +1,4 @@
-namespace ArchiForge.Application;
+namespace ArchLucid.Application;
 
 /// <summary>
 /// Thrown when an operation conflicts with current state (e.g. duplicate, wrong phase).

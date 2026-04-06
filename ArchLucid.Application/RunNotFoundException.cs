@@ -1,4 +1,4 @@
-namespace ArchiForge.Application;
+namespace ArchLucid.Application;
 
 /// <summary>
 /// Thrown when an architecture run ID does not exist. Maps to HTTP 404 with problem type <c>run-not-found</c>.

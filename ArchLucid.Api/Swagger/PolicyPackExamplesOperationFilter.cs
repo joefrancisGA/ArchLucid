@@ -2,7 +2,7 @@ using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
 /// <summary>Adds markdown JSON examples for policy pack create/publish/assign bodies (policy content JSON matches <c>PolicyPackContentDocument</c>).</summary>
 public sealed class PolicyPackExamplesOperationFilter : IOperationFilter

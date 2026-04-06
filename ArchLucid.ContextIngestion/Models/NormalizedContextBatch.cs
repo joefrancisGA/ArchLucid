@@ -1,4 +1,4 @@
-namespace ArchiForge.ContextIngestion.Models;
+namespace ArchLucid.ContextIngestion.Models;
 
 public class NormalizedContextBatch
 {

@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.RelationalRead;
+namespace ArchLucid.Persistence.RelationalRead;
 
 /// <summary>
 /// Controls how the persistence layer behaves when relational child tables are empty

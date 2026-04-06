@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// Structured improvement theme derived from 58R aggregates/opportunities (snapshotted metrics for audit).

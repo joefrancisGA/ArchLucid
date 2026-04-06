@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Allowed values for <see cref="AlertActionRequest.Action"/>; mapped to new <see cref="AlertStatus"/> in persistence <c>AlertService.ApplyActionAsync</c>.

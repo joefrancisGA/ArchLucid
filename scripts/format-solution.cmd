@@ -1,5 +1,5 @@
 @echo off
 setlocal
 cd /d "%~dp0.."
-dotnet format ArchiForge.sln %*
+dotnet format ArchLucid.sln %*
 exit /b %ERRORLEVEL%

@@ -1,13 +1,13 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Integration;
+namespace ArchLucid.Persistence.Integration;
 
 /// <summary>Dapper implementation over <c>dbo.IntegrationEventOutbox</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]

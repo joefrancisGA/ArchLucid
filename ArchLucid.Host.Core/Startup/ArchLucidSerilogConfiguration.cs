@@ -1,19 +1,19 @@
 using System.Reflection;
 
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using Serilog;
 
-namespace ArchiForge.Host.Core.Startup;
+namespace ArchLucid.Host.Core.Startup;
 
 /// <summary>Shared Serilog bootstrap for API and Worker web hosts.</summary>
-public static class ArchiForgeSerilogConfiguration
+public static class ArchLucidSerilogConfiguration
 {
     public static void Configure(WebApplicationBuilder builder, string applicationDisplayName)
     {
         builder.Host.UseSerilog((context, services, configuration) =>
         {
-            Assembly hostAssembly = Assembly.GetEntryAssembly() ?? typeof(ArchiForgeSerilogConfiguration).Assembly;
+            Assembly hostAssembly = Assembly.GetEntryAssembly() ?? typeof(ArchLucidSerilogConfiguration).Assembly;
             BuildProvenance build = BuildProvenance.FromAssembly(hostAssembly);
 
             configuration

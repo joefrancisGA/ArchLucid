@@ -1,9 +1,9 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Application;
-using ArchiForge.Application.Governance.Preview;
-using ArchiForge.Contracts.Governance.Preview;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Governance.Preview;
+using ArchLucid.Contracts.Governance.Preview;
 
 using Asp.Versioning;
 
@@ -11,13 +11,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Read-only governance preview: compare manifest governance for hypothetical activation or between environments.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/governance-preview")]
 [EnableRateLimiting("fixed")]

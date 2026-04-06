@@ -1,1 +1,1 @@
-global using ArchiForge.Host.Core.ProblemDetails;
+global using ArchLucid.Host.Core.ProblemDetails;

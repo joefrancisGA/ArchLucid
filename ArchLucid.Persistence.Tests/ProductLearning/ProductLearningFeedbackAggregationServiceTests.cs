@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Persistence.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Persistence.ProductLearning;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.ProductLearning;
+namespace ArchLucid.Persistence.Tests.ProductLearning;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

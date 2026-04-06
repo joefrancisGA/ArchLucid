@@ -2,7 +2,7 @@
 
 **Audience:** Design partners and early pilots who need to run **ArchLucid** locally or in a test environment **without** walking through internal design docs. *(Repository projects and packages still use the `ArchiForge.*` prefix until the directory rename completes.)*
 
-**CLI naming:** Docs sometimes show the global tool form `archiforge …`. From a **clone without** `dotnet tool install`, use **`dotnet run --project ArchiForge.Cli -- <command>`** from the repo root (same as [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) and the **`release-smoke.ps1`** script).
+**CLI naming:** Docs sometimes show the global tool form `archiforge …`. From a **clone without** `dotnet tool install`, use **`dotnet run --project ArchLucid.Cli -- <command>`** from the repo root (same as [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) and the **`release-smoke.ps1`** script).
 
 **Support:** See **[When you report an issue](#when-you-report-an-issue)** below and [TROUBLESHOOTING.md](TROUBLESHOOTING.md). Prefer a **support bundle** (sanitized JSON) plus **build/version** identity so we can reproduce quickly.
 
@@ -25,15 +25,15 @@ Default local setups often use a **simulator** for agents so you do not need clo
 | Need | Notes |
 |------|--------|
 | **.NET 10 SDK** | [Download](https://dotnet.microsoft.com/download). |
-| **SQL Server** | LocalDB, Express, Docker (`dotnet run --project ArchiForge.Cli -- dev up`), or an existing instance. |
+| **SQL Server** | LocalDB, Express, Docker (`dotnet run --project ArchLucid.Cli -- dev up`), or an existing instance. |
 | **Connection string** | Set `ConnectionStrings:ArchiForge` (User Secrets in Development, or environment variables in production). See [README.md](../README.md#secrets-development). |
 | **Storage mode** | For a normal pilot, use **`ArchiForge:StorageProvider`** = **`Sql`** (typical default in appsettings). |
 | **Node.js 22+** | Optional; only for the **operator UI** in `archiforge-ui/`. |
 
-Clone or unpack the repo, then from `ArchiForge.Api`:
+Clone or unpack the repo, then from `ArchLucid.Api`:
 
 ```bash
-cd ArchiForge.Api
+cd ArchLucid.Api
 dotnet user-secrets set "ConnectionStrings:ArchiForge" "Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
 ```
 
@@ -42,10 +42,10 @@ dotnet user-secrets set "ConnectionStrings:ArchiForge" "Server=localhost,1433;Da
 Start the API from the **repository root**:
 
 ```bash
-dotnet run --project ArchiForge.Api
+dotnet run --project ArchLucid.Api
 ```
 
-Default base URL is often **`http://localhost:5128`** (see `ArchiForge.Api/Properties/launchSettings.json`).
+Default base URL is often **`http://localhost:5128`** (see `ArchLucid.Api/Properties/launchSettings.json`).
 
 **Sanity check:**
 
@@ -64,7 +64,7 @@ Returns JSON: informational version, commit suffix (when the build was stamped),
 **CLI** (from repo root, API reachable):
 
 ```bash
-dotnet run --project ArchiForge.Cli -- doctor
+dotnet run --project ArchLucid.Cli -- doctor
 ```
 
 Prints local CLI build info, **`GET /version`** from the API, then **`/health/live`**, **`/health/ready`**, and **`/health`**.
@@ -105,9 +105,9 @@ Example body for **request** (minimal):
 From the **repo root**:
 
 ```bash
-dotnet run --project ArchiForge.Cli -- new my-pilot-project
+dotnet run --project ArchLucid.Cli -- new my-pilot-project
 cd my-pilot-project
-dotnet run --project ../ArchiForge.Cli -- run --quick
+dotnet run --project ../ArchLucid.Cli -- run --quick
 ```
 
 This creates a project folder, submits from `inputs/brief.md`, seeds simulated results, and commits. Use **`status`** / **`artifacts`** as in [CLI_USAGE.md](CLI_USAGE.md).
@@ -120,7 +120,7 @@ This creates a project folder, submits from `inputs/brief.md`, seeds simulated r
 |-------|------------|
 | **Operator UI** | Start API, then in `archiforge-ui/`: `npm ci`, copy `.env.example` → `.env.local`, set **`ARCHIFORGE_API_BASE_URL`**, run **`npm run dev`**. Open **Runs** → your run → **Artifacts** → **Review** / **Download**. Details: [operator-shell.md](operator-shell.md), [archiforge-ui/README.md](../archiforge-ui/README.md). |
 | **API** | List/download via artifact endpoints (see Swagger under artifacts/manifests). Empty list `[]` means “no files for this manifest,” not always an error. |
-| **CLI** | `dotnet run --project ArchiForge.Cli -- artifacts <runId>` (add `--save` to write manifest JSON under `outputs/`). Same via global tool: `archiforge artifacts …`. |
+| **CLI** | `dotnet run --project ArchLucid.Cli -- artifacts <runId>` (add `--save` to write manifest JSON under `outputs/`). Same via global tool: `archiforge artifacts …`. |
 
 Authoritative artifact content lives in the **database** (and streams through the API); local `outputs/` from the CLI is a **cache**, not the source of truth.
 
@@ -150,7 +150,7 @@ If your program records **human judgments** on outputs (trusted / rejected / rev
 From a machine where the **API is reachable** (set `ARCHIFORGE_API_URL` if not `http://localhost:5128`):
 
 ```bash
-dotnet run --project ArchiForge.Cli -- support-bundle --zip
+dotnet run --project ArchLucid.Cli -- support-bundle --zip
 ```
 
 Creates a UTC-stamped folder and a **zip** of JSON sections (build/version, health, non-secret config summary, filtered environment, workspace summary). **No secrets** in normal use — still **review** before sending externally. Optional: `--output <dir>` for a fixed folder name.
@@ -179,13 +179,13 @@ First steps before escalating: [TROUBLESHOOTING.md](TROUBLESHOOTING.md) (**Quick
 **Fast core** (quick, no full HTTP integration suite):
 
 ```bash
-dotnet test ArchiForge.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
+dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
 ```
 
 **Full Core** trait:
 
 ```bash
-dotnet test ArchiForge.sln --filter "Suite=Core"
+dotnet test ArchLucid.sln --filter "Suite=Core"
 ```
 
 Scripts: `test-fast-core.cmd`, `test-core.cmd` (and `.ps1`). Full tier list: [TEST_STRUCTURE.md](TEST_STRUCTURE.md).
@@ -199,7 +199,7 @@ Scripts: `test-fast-core.cmd`, `test-core.cmd` (and `.ps1`). Full tier list: [TE
 | **API logs** | **Console / host stdout** (Serilog). Search for **`RunId=`**, **`RequestId=`**, **`GraphResolutionMode=`** (authority path), and errors after failed requests. |
 | **Published API** | If you used **`package-release`**, the DLLs are under **`artifacts/release/api/`** (gitignored). The parent folder also has **`PACKAGE-HANDOFF.txt`**, **`metadata.json`**, **`release-manifest.json`**, and **`checksums-sha256.txt`** for support and integrity checks — see [RELEASE_LOCAL.md](RELEASE_LOCAL.md). |
 | **Synthesized architecture artifacts** | Stored **in the database**; exposed through the API and UI (not a shared folder on disk by default). |
-| **CLI `outputs/`** | Optional local copies when you use **`dotnet run --project ArchiForge.Cli -- artifacts <runId> --save`** (or `archiforge artifacts --save` if the tool is installed). |
+| **CLI `outputs/`** | Optional local copies when you use **`dotnet run --project ArchLucid.Cli -- artifacts <runId> --save`** (or `archiforge artifacts --save` if the tool is installed). |
 | **UI proxy diagnostics** | Next.js server logs may include JSON lines from **`archiforge-ui-proxy`** when the upstream API returns errors (see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)). |
 
 ---

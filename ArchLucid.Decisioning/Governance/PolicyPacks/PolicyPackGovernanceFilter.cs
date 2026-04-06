@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Composite;
 
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Applies effective policy-pack allow-lists to in-memory alert rule collections before evaluation.
@@ -12,7 +12,7 @@ namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 /// means <em>no filter</em> (all rules in scope still run). Non-empty lists restrict to intersection by id.
 /// </para>
 /// <para>
-/// <strong>Callers:</strong> <c>ArchiForge.Persistence.Alerts.AlertService</c> and <c>CompositeAlertService</c> after loading
+/// <strong>Callers:</strong> <c>ArchLucid.Persistence.Alerts.AlertService</c> and <c>CompositeAlertService</c> after loading
 /// <see cref="IEffectiveGovernanceLoader"/> content.
 /// </para>
 /// </remarks>

@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Per-HTTP-request cache for <see cref="IEffectiveGovernanceLoader.LoadEffectiveContentAsync"/> so multiple consumers

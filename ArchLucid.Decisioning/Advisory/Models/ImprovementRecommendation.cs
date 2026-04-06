@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Models;
+namespace ArchLucid.Decisioning.Advisory.Models;
 
 /// <summary>
 /// One prioritized advisory item in an <see cref="ImprovementPlan"/>, suitable for UI lists and digest sections.

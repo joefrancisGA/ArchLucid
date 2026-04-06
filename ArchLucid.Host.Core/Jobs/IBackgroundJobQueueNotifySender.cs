@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Jobs;
+namespace ArchLucid.Host.Core.Jobs;
 
 public interface IBackgroundJobQueueNotifySender
 {

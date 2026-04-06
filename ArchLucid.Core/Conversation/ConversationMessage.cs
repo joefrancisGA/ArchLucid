@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Conversation;
+namespace ArchLucid.Core.Conversation;
 
 /// <summary>
 /// One turn in a <see cref="ConversationThread"/> (user, assistant, or system role string).

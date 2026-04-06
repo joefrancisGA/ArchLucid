@@ -1,8 +1,8 @@
-using ArchiForge.Core.Explanation;
+using ArchLucid.Core.Explanation;
 
 using FluentAssertions;
 
-namespace ArchiForge.Core.Tests.Explanation;
+namespace ArchLucid.Core.Tests.Explanation;
 
 [Trait("Category", "Unit")]
 public sealed class ExplanationResultTests

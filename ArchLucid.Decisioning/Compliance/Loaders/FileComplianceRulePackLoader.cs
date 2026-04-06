@@ -2,9 +2,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-using ArchiForge.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Compliance.Models;
 
-namespace ArchiForge.Decisioning.Compliance.Loaders;
+namespace ArchLucid.Decisioning.Compliance.Loaders;
 
 /// <summary>
 /// Loads a <see cref="ComplianceRulePack"/> from a JSON file at the path provided at construction.

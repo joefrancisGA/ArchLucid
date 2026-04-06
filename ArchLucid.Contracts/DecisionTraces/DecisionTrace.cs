@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Contracts.DecisionTraces;
+namespace ArchLucid.Contracts.DecisionTraces;
 
 /// <summary>
 /// Base type for coordinator vs authority traces. JSON uses <c>kind</c> plus either <c>runEvent</c> or <c>ruleAudit</c>

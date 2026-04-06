@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
 /// <summary>
 /// Clears inherited document-level <c>security</c> for endpoints that allow anonymous access

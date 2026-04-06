@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Scheduling;
+namespace ArchLucid.Decisioning.Advisory.Scheduling;
 
 /// <summary>
 /// One attempt of an advisory scan for a <see cref="AdvisoryScanSchedule"/>, including lifecycle status and a JSON summary payload.

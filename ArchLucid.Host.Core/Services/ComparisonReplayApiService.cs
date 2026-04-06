@@ -1,9 +1,9 @@
 using System.Diagnostics;
 
-using ArchiForge.Application;
-using ArchiForge.Application.Analysis;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 
-namespace ArchiForge.Host.Core.Services;
+namespace ArchLucid.Host.Core.Services;
 
 /// <summary>
 /// API-layer wrapper around <see cref="IComparisonReplayService"/> that adds timing,

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
 /// Audit row for one digest delivery try to a specific <see cref="DigestSubscription"/>.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
 /// <summary>GET results: candidate, plan snapshot, and simulation outcomes with evaluation scores.</summary>
 public sealed class EvolutionResultsResponse

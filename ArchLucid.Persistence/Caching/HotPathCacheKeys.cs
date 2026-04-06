@@ -1,6 +1,6 @@
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
-namespace ArchiForge.Persistence.Caching;
+namespace ArchLucid.Persistence.Caching;
 
 /// <summary>Stable cache key fragments for hot-path repository decorators (tenant-scoped where applicable).</summary>
 public static class HotPathCacheKeys

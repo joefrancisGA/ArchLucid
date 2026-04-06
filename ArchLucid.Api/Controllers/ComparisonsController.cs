@@ -1,18 +1,18 @@
 using System.Globalization;
 using System.IO.Compression;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Http;
-using ArchiForge.Api.Mapping;
-using ArchiForge.Api.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.Services;
-using ArchiForge.Host.Core.Services;
-using ArchiForge.Application;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Http;
+using ArchLucid.Api.Mapping;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Services;
+using ArchLucid.Host.Core.Services;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
 
@@ -23,23 +23,23 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-using ApiReplayComparisonRequest = ArchiForge.Api.Models.ReplayComparisonRequest;
+using ApiReplayComparisonRequest = ArchLucid.Api.Models.ReplayComparisonRequest;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// HTTP API for managing architectural run comparison records, drift analysis, and comparison replay.
 /// </summary>
 /// <remarks>
 /// Routes are prefixed <c>v{version}/architecture</c>. Read actions (comparison history, drift reports,
-/// export downloads) require <see cref="ArchiForgePolicies.ReadAuthority"/>. Replay and mutation actions
-/// additionally require <see cref="ArchiForgePolicies.CanReplayComparisons"/>.
+/// export downloads) require <see cref="ArchLucidPolicies.ReadAuthority"/>. Replay and mutation actions
+/// additionally require <see cref="ArchLucidPolicies.CanReplayComparisons"/>.
 /// Run existence is validated through <see cref="IRunDetailQueryService"/> before acting on comparison records.
 /// </remarks>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class ComparisonsController(
@@ -303,8 +303,8 @@ public sealed class ComparisonsController(
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [Authorize(Policy = ArchiForgePolicies.CanReplayComparisons)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.CanReplayComparisons)]
     [EnableRateLimiting("replay")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status206PartialContent)]
@@ -335,7 +335,7 @@ public sealed class ComparisonsController(
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/drift")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DriftAnalysisResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -348,7 +348,7 @@ public sealed class ComparisonsController(
     }
 
     [HttpGet("comparisons/{comparisonRecordId}/drift-report")]
-    [Authorize(Policy = ArchiForgePolicies.CanReplayComparisons)]
+    [Authorize(Policy = ArchLucidPolicies.CanReplayComparisons)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -389,8 +389,8 @@ public sealed class ComparisonsController(
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay/metadata")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [Authorize(Policy = ArchiForgePolicies.CanReplayComparisons)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.CanReplayComparisons)]
     [EnableRateLimiting("replay")]
     [ProducesResponseType(typeof(ReplayComparisonMetadataResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -429,8 +429,8 @@ public sealed class ComparisonsController(
     }
 
     [HttpPost("comparisons/replay/batch")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [Authorize(Policy = ArchiForgePolicies.CanReplayComparisons)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.CanReplayComparisons)]
     [EnableRateLimiting("replay")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -543,7 +543,7 @@ public sealed class ComparisonsController(
 
         if (failed.Count > 0 && successes.Count > 0)
         
-            Response.Headers[ArchiForgeHttpHeaders.BatchReplayPartial] = "true";
+            Response.Headers[ArchLucidHttpHeaders.BatchReplayPartial] = "true";
         
 
         ms.Position = 0;

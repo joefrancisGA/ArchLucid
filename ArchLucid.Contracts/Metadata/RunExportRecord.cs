@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Metadata;
+namespace ArchLucid.Contracts.Metadata;
 
 /// <summary>
 /// Audit row for an export produced from a run (analysis markdown, DOCX, consulting profile, etc.), including template resolution and analysis options used.

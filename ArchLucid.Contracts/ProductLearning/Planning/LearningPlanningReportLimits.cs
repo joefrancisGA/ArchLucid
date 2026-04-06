@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Bounds for 59R planning report materialization (themes, plans, and per-plan evidence lists).</summary>
 public sealed class LearningPlanningReportLimits

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Workflow;
+namespace ArchLucid.Decisioning.Advisory.Workflow;
 
 /// <summary>
 /// HTTP body for accept/reject/defer/implemented transitions on a <see cref="RecommendationRecord"/>.

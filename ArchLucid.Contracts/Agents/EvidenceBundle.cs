@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Agents;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 /// Captures the complete set of reference material assembled for an architecture run —

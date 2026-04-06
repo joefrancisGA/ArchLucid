@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Agents;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 /// Represents a pattern library entry included in an <see cref="AgentEvidencePackage"/>.

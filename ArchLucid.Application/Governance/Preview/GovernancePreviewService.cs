@@ -1,10 +1,10 @@
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Governance;
-using ArchiForge.Contracts.Governance.Preview;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.Preview;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Persistence.Data.Repositories;
 
-namespace ArchiForge.Application.Governance.Preview;
+namespace ArchLucid.Application.Governance.Preview;
 
 /// <summary>
 /// Read-only governance preview: compares manifest governance without persisting activations or workflow state.

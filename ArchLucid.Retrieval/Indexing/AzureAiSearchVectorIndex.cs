@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Models;
 
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
 /// <see cref="IVectorIndex"/> implementation that delegates to <see cref="IAzureSearchClient"/> (Azure AI Search vector index).

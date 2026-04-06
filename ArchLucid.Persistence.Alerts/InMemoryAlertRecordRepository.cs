@@ -1,7 +1,7 @@
-using ArchiForge.Core.Pagination;
-using ArchiForge.Decisioning.Alerts;
+using ArchLucid.Core.Pagination;
+using ArchLucid.Decisioning.Alerts;
 
-namespace ArchiForge.Persistence.Alerts;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
 /// Thread-safe in-memory store implementing <see cref="IAlertRecordRepository"/> for tests and local scenarios.

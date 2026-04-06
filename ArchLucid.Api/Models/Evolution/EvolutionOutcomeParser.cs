@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchiForge.Contracts.Evolution;
+using ArchLucid.Contracts.Evolution;
 
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
 internal static class EvolutionOutcomeParser
 {

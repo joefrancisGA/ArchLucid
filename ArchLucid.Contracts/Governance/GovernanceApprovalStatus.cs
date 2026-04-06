@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Governance;
+namespace ArchLucid.Contracts.Governance;
 
 public static class GovernanceApprovalStatus
 {

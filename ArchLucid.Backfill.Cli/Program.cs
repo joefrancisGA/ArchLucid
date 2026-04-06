@@ -1,14 +1,14 @@
-using ArchiForge.Persistence.Backfill;
-using ArchiForge.Persistence.BlobStore;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Options;
-using ArchiForge.Persistence.Repositories;
+using ArchLucid.Persistence.Backfill;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Options;
+using ArchLucid.Persistence.Repositories;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Backfill.Cli;
+namespace ArchLucid.Backfill.Cli;
 
 internal static class Program
 {
@@ -111,7 +111,7 @@ internal static class Program
     {
         Console.WriteLine(
             """
-            ArchiForge.Backfill.Cli — one-time JSON → relational backfill and cutover readiness.
+            ArchLucid.Backfill.Cli — one-time JSON → relational backfill and cutover readiness.
 
             Connection (first match wins):
               ARCHIFORGE_SQL environment variable

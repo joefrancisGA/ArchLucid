@@ -1,12 +1,12 @@
 using System.Data;
 using System.Text.Json;
 
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Interfaces;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 
-namespace ArchiForge.Decisioning.Repositories;
+namespace ArchLucid.Decisioning.Repositories;
 
 public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 {

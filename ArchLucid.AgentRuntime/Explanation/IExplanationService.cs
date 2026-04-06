@@ -1,15 +1,15 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Explanation;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Provenance;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Explanation;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Provenance;
 
-namespace ArchiForge.AgentRuntime.Explanation;
+namespace ArchLucid.AgentRuntime.Explanation;
 
 /// <summary>
 /// LLM-backed narratives grounded in manifest, optional provenance, or a precomputed <see cref="ComparisonResult"/>.
 /// </summary>
 /// <remarks>
-/// Default implementation: <see cref="ExplanationService"/> (uses <see cref="IAgentCompletionClient"/>). HTTP entry points: <c>ArchiForge.Api.Controllers.ExplanationController</c>, <c>DocxExportController</c> (optional sections).
+/// Default implementation: <see cref="ExplanationService"/> (uses <see cref="IAgentCompletionClient"/>). HTTP entry points: <c>ArchLucid.Api.Controllers.ExplanationController</c>, <c>DocxExportController</c> (optional sections).
 /// Falls back to heuristic text when the model is unavailable or returns invalid JSON.
 /// </remarks>
 public interface IExplanationService
@@ -29,7 +29,7 @@ public interface IExplanationService
     /// <summary>
     /// Explains base → target changes described by <paramref name="comparison"/> (decisions, requirements, security, topology, cost).
     /// </summary>
-    /// <param name="comparison">Output of <see cref="ArchiForge.Decisioning.Comparison.IComparisonService.Compare"/>.</param>
+    /// <param name="comparison">Output of <see cref="ArchLucid.Decisioning.Comparison.IComparisonService.Compare"/>.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Structured <see cref="ComparisonExplanationResult"/>; never <see langword="null"/>.</returns>
     Task<ComparisonExplanationResult> ExplainComparisonAsync(

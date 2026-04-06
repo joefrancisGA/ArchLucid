@@ -1,5 +1,5 @@
-using ArchiForge.Core.Integration;
-using ArchiForge.Persistence.Integration;
+using ArchLucid.Core.Integration;
+using ArchLucid.Persistence.Integration;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 [Trait("Suite", "Core")]
 public sealed class IntegrationEventOutboxProcessorTests

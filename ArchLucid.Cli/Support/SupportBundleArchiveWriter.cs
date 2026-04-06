@@ -1,7 +1,7 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Text;
 
-namespace ArchiForge.Cli.Support;
+namespace ArchLucid.Cli.Support;
 
 /// <summary>
 /// Writes <see cref="SupportBundlePayload"/> to a deterministic directory layout and optionally zips it.

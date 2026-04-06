@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>Body for <c>POST …/policy-packs/{id}/assign</c>.</summary>
 /// <remarks>

@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 [ExcludeFromCodeCoverage(Justification = "Requires live SQL Server connection; tested via integration tests.")]
 public sealed class SqlConnectionFactory : ISqlConnectionFactory

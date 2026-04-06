@@ -1,10 +1,10 @@
-using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 public sealed class ArchitectureAnalysisReport
 {

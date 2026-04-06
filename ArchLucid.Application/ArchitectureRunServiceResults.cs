@@ -1,16 +1,16 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Application;
+namespace ArchLucid.Application;
 
 /// <summary>
 /// Outcome of <see cref="IArchitectureRunService.CreateRunAsync"/> after successful coordination and persistence.
 /// </summary>
 public sealed class CreateRunResult
 {
-    /// <summary>Run record written to storage (status typically <see cref="ArchiForge.Contracts.Common.ArchitectureRunStatus.TasksGenerated"/>).</summary>
+    /// <summary>Run record written to storage (status typically <see cref="ArchLucid.Contracts.Common.ArchitectureRunStatus.TasksGenerated"/>).</summary>
     public ArchitectureRun Run { get; set; } = new();
     /// <summary>Evidence bundle referenced by starter agent tasks.</summary>
     public EvidenceBundle EvidenceBundle { get; set; } = new();

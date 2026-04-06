@@ -6,7 +6,7 @@
       "version": "22"
     }
   },
-  "postCreateCommand": "dotnet restore ArchiForge.sln",
+  "postCreateCommand": "dotnet restore ArchLucid.sln",
   "customizations": {
     "vscode": {
       "extensions": ["ms-dotnettools.csdevkit", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]

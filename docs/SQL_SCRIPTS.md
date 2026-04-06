@@ -12,8 +12,8 @@ ArchiForge uses **two** mechanisms for SQL Server schema (by design):
 
 | Pathway | When it runs | Engine | Script source | Purpose |
 |--------|----------------|--------|----------------|--------|
-| **DbUp migrations** | API startup when `ConnectionStrings:ArchiForge` is set | SQL Server | `ArchiForge.Persistence/Migrations/*.sql` embedded in **ArchiForge.Persistence** | **Authoritative upgrades** for deployed and test databases; ordered, transactional, logged. |
-| **Persistence schema bootstrap** | First use of Dapper SQL persistence (same DB as API typically) | SQL Server | `ArchiForge.Persistence/Scripts/ArchiForge.sql` copied to **ArchiForge.Persistence** output as `Scripts/ArchiForge.sql` | Ensures **authority + decisioning** objects exist; runs **full** consolidated DDL in `GO` batches (see §3). |
+| **DbUp migrations** | API startup when `ConnectionStrings:ArchiForge` is set | SQL Server | `ArchLucid.Persistence/Migrations/*.sql` embedded in **ArchLucid.Persistence** | **Authoritative upgrades** for deployed and test databases; ordered, transactional, logged. |
+| **Persistence schema bootstrap** | First use of Dapper SQL persistence (same DB as API typically) | SQL Server | `ArchLucid.Persistence/Scripts/ArchiForge.sql` copied to **ArchLucid.Persistence** output as `Scripts/ArchiForge.sql` | Ensures **authority + decisioning** objects exist; runs **full** consolidated DDL in `GO` batches (see §3). |
 
 **Important:**
 
@@ -26,11 +26,11 @@ ArchiForge uses **two** mechanisms for SQL Server schema (by design):
 
 | Path | Role |
 |------|------|
-| `ArchiForge.Persistence/Scripts/ArchiForge.sql` | SQL Server **consolidated** schema (API + authority + decisioning). Source of truth for **greenfield** / manual runs / Persistence bootstrap copy. |
-| `ArchiForge.Persistence/Scripts/README.md` | Short pointer to this doc for repo browsers. |
-| `ArchiForge.Persistence/Migrations/001_*.sql` … `022_*.sql` | Incremental **DbUp** scripts (SQL Server); see §4 catalog. |
-| `ArchiForge.Persistence/Migrations/README.md` | Short pointer + naming rule for DbUp ordering. |
-| `ArchiForge.Persistence` output | `Scripts/ArchiForge.sql` — MSBuild **linked copy** of `ArchiForge.Persistence/Scripts/ArchiForge.sql` (`CopyToOutputDirectory`). |
+| `ArchLucid.Persistence/Scripts/ArchiForge.sql` | SQL Server **consolidated** schema (API + authority + decisioning). Source of truth for **greenfield** / manual runs / Persistence bootstrap copy. |
+| `ArchLucid.Persistence/Scripts/README.md` | Short pointer to this doc for repo browsers. |
+| `ArchLucid.Persistence/Migrations/001_*.sql` … `022_*.sql` | Incremental **DbUp** scripts (SQL Server); see §4 catalog. |
+| `ArchLucid.Persistence/Migrations/README.md` | Short pointer + naming rule for DbUp ordering. |
+| `ArchLucid.Persistence` output | `Scripts/ArchiForge.sql` — MSBuild **linked copy** of `ArchLucid.Persistence/Scripts/ArchiForge.sql` (`CopyToOutputDirectory`). |
 
 There is **no** remaining `001_AuthorityStore.sql` under Persistence; authority DDL lives inside `ArchiForge.sql`.
 
@@ -45,8 +45,8 @@ There is **no** remaining `001_AuthorityStore.sql` under Persistence; authority 
 
 ### 3.2 How it is executed
 
-- **`SqlSchemaBootstrapper`** (`ArchiForge.Persistence`) reads the file as text, splits on **`GO`** (line-based, case-insensitive), and executes each batch with Dapper against the **ArchiForge** SQL connection.
-- Path resolution: `Path.Combine(assemblyDir, "Scripts", "ArchiForge.sql")` where the assembly is **ArchiForge.Persistence** (see `ArchiForgeStorageServiceCollectionExtensions`).
+- **`SqlSchemaBootstrapper`** (`ArchLucid.Persistence`) reads the file as text, splits on **`GO`** (line-based, case-insensitive), and executes each batch with Dapper against the **ArchiForge** SQL connection.
+- Path resolution: `Path.Combine(assemblyDir, "Scripts", "ArchiForge.sql")` where the assembly is **ArchLucid.Persistence** (see `ArchiForgeStorageServiceCollectionExtensions`).
 - **Requirement:** `ArchiForge.sql` must use **`GO`** batch separators compatible with that splitter (batch per logical unit).
 
 ### 3.3 Idempotency rules (what “safe to re-run” means)
@@ -92,12 +92,12 @@ They are **different domains**; names overlap conceptually but not at the databa
 
 ---
 
-## 4. DbUp migrations (`ArchiForge.Persistence/Migrations/`)
+## 4. DbUp migrations (`ArchLucid.Persistence/Migrations/`)
 
 ### 4.1 Mechanics
 
-- Scripts are **`EmbeddedResource`** in **ArchiForge.Persistence** (`Migrations\*.sql` only — consolidated `Scripts\ArchiForge.sql` is never picked up by DbUp).
-- **DbUp** (`DatabaseMigrator.Run`) selects only embedded names that contain **`.Migrations.`** and end with **`.sql`**, so only `ArchiForge.Persistence/Migrations/*.sql` run.
+- Scripts are **`EmbeddedResource`** in **ArchLucid.Persistence** (`Migrations\*.sql` only — consolidated `Scripts\ArchiForge.sql` is never picked up by DbUp).
+- **DbUp** (`DatabaseMigrator.Run`) selects only embedded names that contain **`.Migrations.`** and end with **`.sql`**, so only `ArchLucid.Persistence/Migrations/*.sql` run.
 - Ordering is **lexicographic by embedded resource name** — keep the filename prefix pattern **`001_`**, **`002_`**, … (see `DatabaseMigrationScriptTests`).
 
 ### 4.2 Catalog (one file = one version step)
@@ -126,7 +126,7 @@ They are **different domains**; names overlap conceptually but not at the databa
 
 ### 4.3 Adding a new migration `0NN_…`
 
-1. Create `ArchiForge.Persistence/Migrations/0NN_YourChange.sql` (idempotent `IF` / `IF NOT EXISTS` patterns preferred).
+1. Create `ArchLucid.Persistence/Migrations/0NN_YourChange.sql` (idempotent `IF` / `IF NOT EXISTS` patterns preferred).
 2. Update **`ArchiForge.sql`** with the same objects/columns/indexes for greenfield parity.
 3. Run tests; optionally extend **`DatabaseMigrationScriptTests`** if you add new ordering rules.
 4. Update §4.2 in this file.
@@ -139,13 +139,13 @@ Treat this checklist as a **definition of done** for every schema change. Do not
 
 ### Required for every SQL change
 
-- [ ] **DbUp migration:** new `ArchiForge.Persistence/Migrations/0NN_*.sql` for SQL Server incremental change. Use `IF NOT EXISTS` / `IF OBJECT_ID IS NULL` patterns; migrations must be idempotent.
-- [ ] **`ArchiForge.Persistence/Scripts/ArchiForge.sql`:** same objects, columns, and indexes as the migration — keeps greenfield provisioning in parity.
+- [ ] **DbUp migration:** new `ArchLucid.Persistence/Migrations/0NN_*.sql` for SQL Server incremental change. Use `IF NOT EXISTS` / `IF OBJECT_ID IS NULL` patterns; migrations must be idempotent.
+- [ ] **`ArchLucid.Persistence/Scripts/ArchiForge.sql`:** same objects, columns, and indexes as the migration — keeps greenfield provisioning in parity.
 - [ ] **Migration catalog:** update §4.2 of this file with the new migration number and description.
 
 ### Required when schema changes affect data access
 
-- [ ] **C# repositories / contracts:** update Dapper queries, `IRepository` methods, and any affected DTOs in `ArchiForge.Contracts` or `ArchiForge.Persistence.Data.*`.
+- [ ] **C# repositories / contracts:** update Dapper queries, `IRepository` methods, and any affected DTOs in `ArchLucid.Contracts` or `ArchLucid.Persistence.Data.*`.
 - [ ] **`docs/DATA_MODEL.md`:** update the conceptual data model to reflect new or modified tables/columns.
 
 ### Required when schema changes affect seeding or demos
@@ -164,7 +164,7 @@ Before opening a PR with SQL changes, run the full local pre-push loop from `doc
 
 | Symptom | Things to check |
 |---------|------------------|
-| **“Schema script not found”** (Persistence) | `ArchiForge.Persistence` build output contains **`Scripts/ArchiForge.sql`**; verify `ArchiForge.Persistence.csproj` includes **`Scripts\ArchiForge.sql`** with **`CopyToOutputDirectory`**. |
+| **“Schema script not found”** (Persistence) | `ArchLucid.Persistence` build output contains **`Scripts/ArchiForge.sql`**; verify `ArchLucid.Persistence.csproj` includes **`Scripts\ArchiForge.sql`** with **`CopyToOutputDirectory`**. |
 | **Missing tables on SQL Server** | DbUp errors on startup (API logs); run migrations manually in order if needed. Persistence bootstrap only runs when SQL storage is registered. |
 | **Duplicate or wrong migration order** | Embedded resource names must sort correctly (`010` before `011`). |
 
@@ -180,4 +180,4 @@ Before opening a PR with SQL changes, run the full local pre-push loop from `doc
 ## 8. Versioning
 
 - Update the **migration catalog** (§4.2) when adding `0NN_*.sql`.
-- This document’s last migration line should stay in sync with the highest `ArchiForge.Persistence/Migrations/0NN_*.sql` file.
+- This document’s last migration line should stay in sync with the highest `ArchLucid.Persistence/Migrations/0NN_*.sql` file.

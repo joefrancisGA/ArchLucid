@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>HTTP body for <c>POST …/alerts/{id}/action</c> (acknowledge, resolve, suppress).</summary>
 /// <remarks>

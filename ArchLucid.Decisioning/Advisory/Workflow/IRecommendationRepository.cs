@@ -1,11 +1,11 @@
-namespace ArchiForge.Decisioning.Advisory.Workflow;
+namespace ArchLucid.Decisioning.Advisory.Workflow;
 
 /// <summary>
 /// Persists <see cref="RecommendationRecord"/> rows scoped by tenant, workspace, project, and authority <see cref="RecommendationRecord.RunId"/>.
 /// </summary>
 /// <remarks>
-/// SQL table: <c>dbo.RecommendationRecords</c>. Implementations live in <c>ArchiForge.Persistence.Advisory</c> (Dapper / in-memory).
-/// HTTP: <c>ArchiForge.Api.Controllers.AdvisoryController</c> lists and drives actions; workflow persistence uses
+/// SQL table: <c>dbo.RecommendationRecords</c>. Implementations live in <c>ArchLucid.Persistence.Advisory</c> (Dapper / in-memory).
+/// HTTP: <c>ArchLucid.Api.Controllers.AdvisoryController</c> lists and drives actions; workflow persistence uses
 /// <c>RecommendationWorkflowService</c>; learning and alert simulation also read counts via this abstraction.
 /// </remarks>
 public interface IRecommendationRepository

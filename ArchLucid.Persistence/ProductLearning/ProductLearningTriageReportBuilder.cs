@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
-namespace ArchiForge.Persistence.ProductLearning;
+namespace ArchLucid.Persistence.ProductLearning;
 
 /// <summary>
 /// Builds a concise triage report document from a full <see cref="LearningDashboardSummary"/> (deterministic ordering).

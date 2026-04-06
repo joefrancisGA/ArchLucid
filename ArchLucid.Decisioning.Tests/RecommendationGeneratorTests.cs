@@ -1,12 +1,12 @@
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Services;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Recommendation Generator.

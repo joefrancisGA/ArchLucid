@@ -1,12 +1,12 @@
-using ArchiForge.ContextIngestion.Connectors;
-using ArchiForge.ContextIngestion.Infrastructure;
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.Models;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Tests for Infrastructure Declaration Connector.

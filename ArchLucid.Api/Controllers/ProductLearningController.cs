@@ -1,12 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.ProductLearning;
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.ProductLearning;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.ProductLearning;
 
 using Asp.Versioning;
 
@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Scoped read APIs for pilot feedback rollups: dashboard KPIs, improvement opportunities, artifact trends, and triage queue slices.
@@ -23,7 +23,7 @@ namespace ArchiForge.Api.Controllers;
 /// Base route <c>v1/product-learning</c>. Aligns with <see cref="ProductLearningScope"/> from <see cref="IScopeContextProvider"/>.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/product-learning")]
 [EnableRateLimiting("fixed")]

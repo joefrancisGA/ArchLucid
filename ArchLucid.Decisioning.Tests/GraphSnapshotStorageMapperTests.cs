@@ -1,10 +1,10 @@
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Repositories;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Serialization;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Graph Snapshot Storage Mapper.

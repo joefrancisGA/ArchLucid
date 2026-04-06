@@ -1,6 +1,6 @@
-﻿using System.Text;
+using System.Text;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Formats an <see cref="EndToEndReplayComparisonReport"/> as Markdown, listing run-metadata changes,

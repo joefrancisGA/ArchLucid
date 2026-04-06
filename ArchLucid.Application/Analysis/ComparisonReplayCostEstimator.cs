@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <inheritdoc cref="IComparisonReplayCostEstimator" />
 public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository comparisonRecords)

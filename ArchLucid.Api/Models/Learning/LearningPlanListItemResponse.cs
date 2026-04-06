@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Learning;
+namespace ArchLucid.Api.Models.Learning;
 
 /// <summary>Improvement plan summary for list views; includes theme-level evidence volume when the theme is resolved.</summary>
 public sealed class LearningPlanListItemResponse

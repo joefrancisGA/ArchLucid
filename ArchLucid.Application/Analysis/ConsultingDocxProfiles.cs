@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Well-known consulting Docx template profile names used across the recommendation

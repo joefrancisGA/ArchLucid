@@ -1,8 +1,8 @@
-namespace ArchiForge.Application.Common;
+namespace ArchLucid.Application.Common;
 
 /// <summary>
 /// Corrected 51R structured logging for baseline mutations. This is log discipline only—distinct from the host
-/// <c>IAuditService</c> that persists <c>AuditEvents</c> to SQL (<c>ArchiForge.Core.Audit</c>).
+/// <c>IAuditService</c> that persists <c>AuditEvents</c> to SQL (<c>ArchLucid.Core.Audit</c>).
 /// </summary>
 public interface IBaselineMutationAuditService
 {

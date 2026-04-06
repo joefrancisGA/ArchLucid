@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Delivery;
 
-namespace ArchiForge.Host.Core.Services.Delivery;
+namespace ArchLucid.Host.Core.Services.Delivery;
 
 public sealed class FakeEmailSender(ILogger<FakeEmailSender> logger) : IEmailSender
 {

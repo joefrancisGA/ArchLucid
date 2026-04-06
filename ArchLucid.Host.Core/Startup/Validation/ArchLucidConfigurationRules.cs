@@ -1,21 +1,21 @@
 using System.Globalization;
 
-using ArchiForge.Core.Integration;
-using ArchiForge.Decisioning.Validation;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Hosting;
-using ArchiForge.Persistence.Archival;
-using ArchiForge.Persistence.BlobStore;
-using ArchiForge.Persistence.Caching;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Retrieval.Indexing;
+using ArchLucid.Core.Integration;
+using ArchLucid.Decisioning.Validation;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Persistence.Archival;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Caching;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Retrieval.Indexing;
 
-namespace ArchiForge.Host.Core.Startup.Validation;
+namespace ArchLucid.Host.Core.Startup.Validation;
 
 /// <summary>
 /// Central rules for ArchiForge API configuration. Used for fail-fast startup validation before migrations.
 /// </summary>
-public static class ArchiForgeConfigurationRules
+public static class ArchLucidConfigurationRules
 {
     /// <summary>
     /// Collects human-readable configuration errors. Empty list means configuration is acceptable to start the host.
@@ -26,7 +26,7 @@ public static class ArchiForgeConfigurationRules
     {
         List<string> errors = [];
 
-        ArchiForgeOptions archiForge = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
+        ArchLucidOptions archiForge = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         bool storageIsSql = string.Equals(archiForge.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase);
 
@@ -47,11 +47,11 @@ public static class ArchiForgeConfigurationRules
                 "IntegrationEvents:TransactionalOutboxEnabled requires ArchiForge:StorageProvider Sql (transactional enqueue needs a shared SQL transaction).");
         }
 
-        string? connectionString = configuration.GetConnectionString("ArchiForge");
+        string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);
         if (storageIsSql && string.IsNullOrWhiteSpace(connectionString))
 
             errors.Add(
-                "ConnectionStrings:ArchiForge is required when ArchiForge:StorageProvider is Sql (or unset, defaulting to Sql).");
+                "ConnectionStrings:ArchLucid (or legacy ConnectionStrings:ArchiForge) is required when ArchLucid:StorageProvider (or ArchiForge:StorageProvider) is Sql (or unset, defaulting to Sql).");
 
 
         bool apiKeyEnabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
@@ -131,9 +131,9 @@ public static class ArchiForgeConfigurationRules
             return errors;
 
 
-        ArchiForgeHostingRole hostingRole = HostingRoleResolver.Resolve(configuration);
+        ArchLucidHostingRole hostingRole = HostingRoleResolver.Resolve(configuration);
 
-        if (hostingRole == ArchiForgeHostingRole.Worker)
+        if (hostingRole == ArchLucidHostingRole.Worker)
         {
             CollectProductionWebhookSecretErrors(configuration, errors);
             CollectProductionSqlRowLevelSecurityErrors(configuration, archiForge, errors);
@@ -145,7 +145,7 @@ public static class ArchiForgeConfigurationRules
         CollectProductionWebhookSecretErrors(configuration, errors);
         CollectProductionSqlRowLevelSecurityErrors(configuration, archiForge, errors);
 
-        string? authMode = ArchiForgeConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
+        string? authMode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
         if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
 
             errors.Add("ArchiForgeAuth:Mode (or ArchLucidAuth:Mode) cannot be DevelopmentBypass when the host environment is Production.");
@@ -153,7 +153,7 @@ public static class ArchiForgeConfigurationRules
 
         if (string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
 
-            if (string.IsNullOrWhiteSpace(ArchiForgeConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Authority")))
+            if (string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Authority")))
 
                 errors.Add(
                     "ArchiForgeAuth:Authority (or ArchLucidAuth:Authority) is required when auth Mode is JwtBearer in Production.");
@@ -182,7 +182,7 @@ public static class ArchiForgeConfigurationRules
     /// <summary>Require RLS session context when using SQL in Production (API and Worker).</summary>
     private static void CollectProductionSqlRowLevelSecurityErrors(
         IConfiguration configuration,
-        ArchiForgeOptions archiForge,
+        ArchLucidOptions archiForge,
         List<string> errors)
     {
         if (!string.Equals(archiForge.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
@@ -483,7 +483,7 @@ public static class ArchiForgeConfigurationRules
 
     // ReSharper disable once InvalidXmlDocComment
     /// <summary>
-    /// Aligns with <see cref="ArchiForge.Host.Composition.ServiceCollectionExtensions.RegisterRetrieval"/>: only <c>InMemory</c> and <c>AzureSearch</c> are supported; omitted defaults to in-memory.
+    /// Aligns with <see cref="ArchLucid.Host.Composition.ServiceCollectionExtensions.RegisterRetrieval"/>: only <c>InMemory</c> and <c>AzureSearch</c> are supported; omitted defaults to in-memory.
     /// </summary>
     private static void CollectRetrievalVectorIndexErrors(IConfiguration configuration, List<string> errors)
     {
@@ -513,7 +513,7 @@ public static class ArchiForgeConfigurationRules
         if (!string.Equals(jobs.Mode, "Durable", StringComparison.OrdinalIgnoreCase))
             return;
 
-        ArchiForgeOptions archi = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
+        ArchLucidOptions archi = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (!string.Equals(archi.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
             errors.Add("BackgroundJobs:Mode Durable requires ArchiForge:StorageProvider Sql (shared job state in SQL).");

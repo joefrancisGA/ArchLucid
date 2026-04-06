@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Determinism;
+namespace ArchLucid.Application.Determinism;
 
 /// <summary>
 /// Runs a determinism check by replaying an architecture run multiple times and comparing

@@ -1,9 +1,9 @@
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Persistence.Integration;
-using ArchiForge.Persistence.Orchestration;
-using ArchiForge.Persistence.Retrieval;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Integration;
+using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Persistence.Retrieval;
 
-namespace ArchiForge.Api.Services.Admin;
+namespace ArchLucid.Api.Services.Admin;
 
 /// <inheritdoc cref="IAdminDiagnosticsService" />
 public sealed class AdminDiagnosticsService(

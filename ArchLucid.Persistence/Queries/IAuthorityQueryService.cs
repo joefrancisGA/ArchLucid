@@ -1,14 +1,14 @@
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
 
-namespace ArchiForge.Persistence.Queries;
+namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
 /// Read-only façade over authority stores (runs, linked snapshots, golden manifests) for a <see cref="ScopeContext"/>.
 /// </summary>
 /// <remarks>
 /// SQL-backed: <see cref="DapperAuthorityQueryService"/>; in-memory/tests: <see cref="InMemoryAuthorityQueryService"/>.
-/// Primary callers: <c>ArchiForge.Api.Controllers.AuthorityQueryController</c>, <c>ArchiForge.Persistence.Advisory.AdvisoryScanRunner</c>,
+/// Primary callers: <c>ArchLucid.Api.Controllers.AuthorityQueryController</c>, <c>ArchLucid.Persistence.Advisory.AdvisoryScanRunner</c>,
 /// comparison/replay/export/ask controllers and services that need run + manifest data without duplicating repository orchestration.
 /// </remarks>
 public interface IAuthorityQueryService

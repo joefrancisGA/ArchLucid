@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Learning;
+namespace ArchLucid.Api.Models.Learning;
 
 public sealed class LearningPlansListResponse
 {

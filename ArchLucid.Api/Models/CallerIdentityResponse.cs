@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 /// <summary>Represents the authenticated caller's identity and their associated claims.</summary>
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]

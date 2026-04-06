@@ -1,16 +1,16 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Builds <see cref="AlertEvaluationContext"/> for orchestration paths that already have an improvement plan and merged governance (e.g. advisory scan).
 /// </summary>
 /// <remarks>
-/// Primary caller: <c>ArchiForge.Persistence.Advisory.AdvisoryScanRunner</c> after loading <see cref="IEffectiveGovernanceLoader"/> once per scan.
+/// Primary caller: <c>ArchLucid.Persistence.Advisory.AdvisoryScanRunner</c> after loading <see cref="IEffectiveGovernanceLoader"/> once per scan.
 /// </remarks>
 public static class AlertEvaluationContextFactory
 {

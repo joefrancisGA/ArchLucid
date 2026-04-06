@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Workflow;
+namespace ArchLucid.Decisioning.Advisory.Workflow;
 
 /// <summary>
 /// Allowed values for <see cref="RecommendationActionRequest.Action"/> when posting to the advisory recommendations action endpoint.

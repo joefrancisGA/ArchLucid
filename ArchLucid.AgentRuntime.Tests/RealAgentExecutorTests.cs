@@ -1,18 +1,18 @@
 using System.Diagnostics;
 
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Core.Configuration;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Core.Scoping;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -143,7 +143,7 @@ public sealed class RealAgentExecutorTests
 
         using ActivityListener listener = new()
         {
-            ShouldListenTo = s => s.Name == ArchiForgeInstrumentation.AgentHandler.Name,
+            ShouldListenTo = s => s.Name == ArchLucidInstrumentation.AgentHandler.Name,
             Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
             ActivityStopped = completed.Add,
         };

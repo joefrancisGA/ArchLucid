@@ -1,14 +1,14 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Application.Diagrams;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Application.Exports;
-using ArchiForge.Application.Summaries;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Host.Core.Services;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Diagrams;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Exports;
+using ArchLucid.Application.Summaries;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Host.Core.Services;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
 
@@ -16,13 +16,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Provides read access to golden manifests, manifest diffs, and manifest-level export operations.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]

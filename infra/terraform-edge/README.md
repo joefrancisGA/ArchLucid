@@ -18,7 +18,7 @@ Optional Terraform root for a **public edge** in front of your API or **API Mana
 
 ## Health probe
 
-The origin group uses **HTTPS HEAD** against **`front_door_health_probe_path`** (default **`/health/ready`**) so Front Door aligns with ArchiForge.Api readiness when the origin is the API. For **Next.js UI-only** origins with no readiness route, set **`front_door_health_probe_path = "/"`** in `terraform.tfvars`. For APIM, use a path your gateway returns **2xx** for (often **`/status-0123456789abcdef`** or your API health route).
+The origin group uses **HTTPS HEAD** against **`front_door_health_probe_path`** (default **`/health/ready`**) so Front Door aligns with ArchLucid.Api readiness when the origin is the API. For **Next.js UI-only** origins with no readiness route, set **`front_door_health_probe_path = "/"`** in `terraform.tfvars`. For APIM, use a path your gateway returns **2xx** for (often **`/status-0123456789abcdef`** or your API health route).
 
 ## Variables
 
@@ -26,4 +26,4 @@ See `variables.tf` and `terraform.tfvars.example`.
 
 ## Correlation IDs
 
-**X-Correlation-ID** is forwarded through Front Door by default. Keep sending it from clients so support can tie **WAF logs**, **Front Door metrics**, and **ArchiForge.Api** logs together.
+**X-Correlation-ID** is forwarded through Front Door by default. Keep sending it from clients so support can tie **WAF logs**, **Front Door metrics**, and **ArchLucid.Api** logs together.

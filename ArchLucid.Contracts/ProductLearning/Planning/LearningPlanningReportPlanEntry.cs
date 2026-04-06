@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>One prioritized improvement plan with evidence references for export.</summary>
 public sealed class LearningPlanningReportPlanEntry

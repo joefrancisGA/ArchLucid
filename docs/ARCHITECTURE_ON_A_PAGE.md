@@ -27,8 +27,8 @@ flowchart LR
     FD[Front Door / APIM optional]
   end
   subgraph compute
-    API[ArchiForge.Api]
-    W[ArchiForge.Worker]
+    API[ArchLucid.Api]
+    W[ArchLucid.Worker]
   end
   subgraph data
     SQL[(SQL Server)]
@@ -52,10 +52,10 @@ flowchart LR
 
 | Node | Responsibility |
 |------|------------------|
-| **ArchiForge.Api** | REST surface, auth, OpenAPI, OTel + Prometheus scrape, admin diagnostics. |
-| **ArchiForge.Worker** | Background processors (outbox publishers, advisory, indexing). |
-| **ArchiForge.Host.Composition** | DI graphs (`AddArchiForgeStorage`, agents, retrieval). |
-| **ArchiForge.Persistence** | Dapper data access, outbox tables, integration dead-letter paths. |
+| **ArchLucid.Api** | REST surface, auth, OpenAPI, OTel + Prometheus scrape, admin diagnostics. |
+| **ArchLucid.Worker** | Background processors (outbox publishers, advisory, indexing). |
+| **ArchLucid.Host.Composition** | DI graphs (`AddArchiForgeStorage`, agents, retrieval). |
+| **ArchLucid.Persistence** | Dapper data access, outbox tables, integration dead-letter paths. |
 | **archiforge-ui** | Operator shell; server **proxy** to API with scope + correlation headers. |
 
 ## 6. Data flow

@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Alerts.Delivery;
+using ArchLucid.Decisioning.Alerts.Delivery;
 
-using ArchiForge.Persistence.Alerts;
+using ArchLucid.Persistence.Alerts;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

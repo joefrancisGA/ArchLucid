@@ -2,7 +2,7 @@ using System.Reflection;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.TestSupport;
+namespace ArchLucid.TestSupport;
 
 /// <summary>Builds <see cref="SqlException"/> instances for tests (no public constructor on the exception type).</summary>
 public static class SqlExceptionTestFactory

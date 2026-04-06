@@ -2,12 +2,12 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
-namespace ArchiForge.Host.Core.Middleware;
+namespace ArchLucid.Host.Core.Middleware;
 
 /// <summary>
 /// Requires HTTP Basic authentication for the Prometheus scrape path when scrape credentials are configured,

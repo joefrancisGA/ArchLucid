@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Provides the active <see cref="ConsultingDocxTemplateOptions"/> for the current

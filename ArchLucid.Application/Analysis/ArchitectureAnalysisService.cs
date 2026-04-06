@@ -1,14 +1,14 @@
-using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Diagrams;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Application.Summaries;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Diagrams;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Summaries;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Builds an <see cref="ArchitectureAnalysisReport"/> by orchestrating manifest, evidence, trace,

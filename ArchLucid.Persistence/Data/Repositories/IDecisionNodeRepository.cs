@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Decisions;
+using ArchLucid.Contracts.Decisions;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Persistence contract for <see cref="DecisionNode"/> records produced by the decision

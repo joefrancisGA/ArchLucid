@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
 /// Rolled-up pilot/product feedback for a stable key (typically <see cref="PatternKey"/> or a composite scope key).

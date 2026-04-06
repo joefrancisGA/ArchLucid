@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Services;
+namespace ArchLucid.Host.Core.Services;
 
 /// <summary>Single replay operation recorded for diagnostics.</summary>
 public sealed class ReplayDiagnosticsEntry

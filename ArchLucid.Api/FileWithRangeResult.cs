@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArchiForge.Api;
+namespace ArchLucid.Api;
 
 /// <summary>
 /// Returns file content with support for HTTP Range requests (RFC 7233).

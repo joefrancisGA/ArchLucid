@@ -1,9 +1,9 @@
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Persistence.Findings;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Persistence.Findings;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Tests for Finding Payload Json Codec.

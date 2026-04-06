@@ -1,11 +1,11 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Persistence for fired <see cref="AlertRecord"/> rows: insert/update, deduplication lookup, and scoped listing for the alerts API.
 /// </summary>
 /// <remarks>
-/// SQL implementation: <c>ArchiForge.Persistence.Alerts.DapperAlertRecordRepository</c> (<c>dbo.AlertRecords</c>).
-/// Used by <c>ArchiForge.Persistence.Alerts.AlertService</c>, composite suppression, and <c>AlertsController</c>.
+/// SQL implementation: <c>ArchLucid.Persistence.Alerts.DapperAlertRecordRepository</c> (<c>dbo.AlertRecords</c>).
+/// Used by <c>ArchLucid.Persistence.Alerts.AlertService</c>, composite suppression, and <c>AlertsController</c>.
 /// </remarks>
 public interface IAlertRecordRepository
 {

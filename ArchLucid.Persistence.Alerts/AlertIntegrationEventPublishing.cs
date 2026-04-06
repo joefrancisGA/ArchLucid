@@ -1,9 +1,9 @@
-using ArchiForge.Core.Integration;
-using ArchiForge.Decisioning.Alerts;
+using ArchLucid.Core.Integration;
+using ArchLucid.Decisioning.Alerts;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Persistence.Alerts;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>Publishes alert lifecycle integration events (Service Bus) after persistence and delivery.</summary>
 internal static class AlertIntegrationEventPublishing

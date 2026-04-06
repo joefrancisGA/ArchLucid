@@ -1,11 +1,11 @@
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Returns non-secret build and version identity for the running API process.
@@ -30,7 +30,7 @@ public sealed class VersionController(IHostEnvironment environment) : Controller
     {
         BuildInfoResponse response = BuildInfoResponse.FromProvenance(
             Provenance,
-            "ArchiForge.Api",
+            "ArchLucid.Api",
             environment.EnvironmentName);
 
         return Ok(response);

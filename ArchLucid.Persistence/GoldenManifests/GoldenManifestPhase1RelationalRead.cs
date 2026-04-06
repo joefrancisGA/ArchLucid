@@ -1,13 +1,13 @@
-﻿using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.RelationalRead;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.RelationalRead;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.GoldenManifests;
+namespace ArchLucid.Persistence.GoldenManifests;
 
 /// <summary>Phase-1 relational-first hydration for <see cref="GoldenManifest"/>; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
 internal static class GoldenManifestPhase1RelationalRead

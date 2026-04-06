@@ -2,7 +2,7 @@ using System.Text;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArchiForge.Api;
+namespace ArchLucid.Api;
 
 public static class ApiFileResults
 {

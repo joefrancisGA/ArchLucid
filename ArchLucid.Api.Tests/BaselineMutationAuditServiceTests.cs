@@ -1,4 +1,4 @@
-using ArchiForge.Application.Common;
+using ArchLucid.Application.Common;
 
 using FluentAssertions;
 
@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Baseline Mutation Audit Service.

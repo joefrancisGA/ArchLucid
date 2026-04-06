@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Diagrams;
+namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
 /// Renders a Mermaid diagram string to a PNG image.

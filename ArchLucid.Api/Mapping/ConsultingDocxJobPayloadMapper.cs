@@ -1,7 +1,7 @@
-using ArchiForge.Api.Models;
-using ArchiForge.Application.Jobs;
+using ArchLucid.Api.Models;
+using ArchLucid.Application.Jobs;
 
-namespace ArchiForge.Api.Mapping;
+namespace ArchLucid.Api.Mapping;
 
 internal static class ConsultingDocxJobPayloadMapper
 {

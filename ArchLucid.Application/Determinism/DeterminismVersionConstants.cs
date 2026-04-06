@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Determinism;
+namespace ArchLucid.Application.Determinism;
 
 /// <summary>
 /// Manifest version string patterns used by <see cref="DeterminismCheckService"/> when

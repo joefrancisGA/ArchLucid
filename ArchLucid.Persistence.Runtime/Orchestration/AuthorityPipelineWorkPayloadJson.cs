@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace ArchiForge.Persistence.Orchestration;
+namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>Shared JSON options for <see cref="AuthorityPipelineWorkPayload"/> serialization.</summary>
 public static class AuthorityPipelineWorkPayloadJson

@@ -1,11 +1,11 @@
-using ArchiForge.ArtifactSynthesis.Generators;
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Renderers;
-using ArchiForge.ArtifactSynthesis.Services;
+using ArchLucid.ArtifactSynthesis.Generators;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.ArtifactSynthesis.Services;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.Coordinator.Tests;
+namespace ArchLucid.Coordinator.Tests;
 
 internal static class TestArtifactSynthesisFactory
 {

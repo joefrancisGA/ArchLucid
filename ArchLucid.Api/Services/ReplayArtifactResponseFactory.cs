@@ -1,8 +1,8 @@
-using ArchiForge.Application.Analysis;
+using ArchLucid.Application.Analysis;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArchiForge.Api.Services;
+namespace ArchLucid.Api.Services;
 
 /// <summary>
 /// Centralizes file responses for export replay and comparison replay artifacts (markdown/docx/html/pdf).

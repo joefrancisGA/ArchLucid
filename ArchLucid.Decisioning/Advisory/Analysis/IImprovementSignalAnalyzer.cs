@@ -1,9 +1,9 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Advisory.Analysis;
+namespace ArchLucid.Decisioning.Advisory.Analysis;
 
 /// <summary>
 /// Derives structured <see cref="ImprovementSignal"/> items from a golden manifest, optional findings snapshot, and optional run-to-run comparison.

@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.ProductLearning;
 
-namespace ArchiForge.Persistence.Evolution;
+namespace ArchLucid.Persistence.Evolution;
 
 /// <summary>Persistence for 60R candidate change sets (scoped).</summary>
 public interface IEvolutionCandidateChangeSetRepository

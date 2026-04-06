@@ -1,8 +1,8 @@
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
-using ArchiForge.Persistence.BlobStore;
+using ArchLucid.Persistence.BlobStore;
 
-namespace ArchiForge.Host.Core.Jobs;
+namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>Resolves the Azure Queue service endpoint for durable jobs.</summary>
 public static class BackgroundJobQueueAddress

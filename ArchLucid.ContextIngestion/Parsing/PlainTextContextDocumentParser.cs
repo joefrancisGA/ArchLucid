@@ -1,9 +1,9 @@
-﻿using ArchiForge.ContextIngestion.Contracts;
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.Models;
 
-using static ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes;
+using static ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes;
 
-namespace ArchiForge.ContextIngestion.Parsing;
+namespace ArchLucid.ContextIngestion.Parsing;
 
 public class PlainTextContextDocumentParser : IContextDocumentParser
 {

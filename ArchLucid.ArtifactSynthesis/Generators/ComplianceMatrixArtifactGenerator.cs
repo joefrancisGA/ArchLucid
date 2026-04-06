@@ -1,16 +1,16 @@
 using System.Text.Json;
 
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Services;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Generators;
+namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchiForge.ArtifactSynthesis.Models.ArtifactType.ComplianceMatrix;
+    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.ComplianceMatrix;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -43,7 +43,7 @@ public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchiForge.ArtifactSynthesis.Models.ArtifactType.ComplianceMatrix,
+            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.ComplianceMatrix,
             Name = "compliance-matrix.json",
             Format = "json",
             Content = content,

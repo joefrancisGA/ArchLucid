@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Evaluates whether a <see cref="CompositeAlertRule"/>’s conditions hold against a precomputed <see cref="AlertMetricSnapshot"/>.

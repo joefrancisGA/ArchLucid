@@ -1,16 +1,16 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Queries;
-using ArchiForge.Provenance;
-using ArchiForge.Retrieval.Indexing;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Provenance;
+using ArchLucid.Retrieval.Indexing;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Persistence.Retrieval;
+namespace ArchLucid.Persistence.Retrieval;
 
 /// <inheritdoc cref="IRetrievalIndexingOutboxProcessor" />
 public sealed class RetrievalIndexingOutboxProcessor(

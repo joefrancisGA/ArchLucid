@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.BlobStore;
+namespace ArchLucid.Persistence.BlobStore;
 
 internal static class LargePayloadOffloadEvaluator
 {

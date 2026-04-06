@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Bootstrap;
+namespace ArchLucid.Application.Bootstrap;
 
 /// <summary>Stable keys for the Contoso Retail Modernization trusted-baseline demo (49R pass 2 / Corrected 50R).</summary>
 public static class ContosoRetailDemoIdentifiers

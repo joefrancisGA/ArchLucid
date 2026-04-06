@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Retrieval;
+namespace ArchLucid.Persistence.Retrieval;
 
 /// <summary>
 /// One row in <c>dbo.RetrievalIndexingOutbox</c> (or in-memory equivalent) awaiting retrieval indexing.

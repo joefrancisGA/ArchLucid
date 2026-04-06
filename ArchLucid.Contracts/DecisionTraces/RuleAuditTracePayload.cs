@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.DecisionTraces;
+namespace ArchLucid.Contracts.DecisionTraces;
 
 /// <summary>
 /// Authority pipeline record of which rules were applied and which findings were accepted or rejected;

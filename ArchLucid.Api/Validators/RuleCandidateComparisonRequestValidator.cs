@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Alerts.Simulation;
+using ArchLucid.Decisioning.Alerts.Simulation;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 /// <summary>
 /// FluentValidation for <see cref="RuleCandidateComparisonRequest"/> (<c>POST …/alert-simulation/compare-candidates</c>).

@@ -1,8 +1,8 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Explanation;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Explanation;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Docx.Models;
+namespace ArchLucid.ArtifactSynthesis.Docx.Models;
 
 /// <summary>
 /// Parameters controlling DOCX section inclusion and optional AI comparison/run narratives for an architecture package export.

@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Alerts.Composite;
-using ArchiForge.Decisioning.Alerts.Simulation;
+using ArchLucid.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts.Simulation;
 
-namespace ArchiForge.Decisioning.Alerts.Tuning;
+namespace ArchLucid.Decisioning.Alerts.Tuning;
 
 /// <summary>Request to sweep candidate thresholds for one tunable metric on a base simple or composite rule.</summary>
 /// <remarks>Validated by <c>ThresholdRecommendationRequestValidator</c> in the API.</remarks>

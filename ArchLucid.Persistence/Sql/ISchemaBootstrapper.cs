@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace ArchiForge.Persistence.Sql;
+namespace ArchLucid.Persistence.Sql;
 
 public interface ISchemaBootstrapper
 {

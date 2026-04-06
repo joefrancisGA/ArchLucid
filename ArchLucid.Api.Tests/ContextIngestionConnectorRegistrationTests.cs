@@ -1,23 +1,23 @@
-using ArchiForge.ContextIngestion.Connectors;
-using ArchiForge.ContextIngestion.Contracts;
-using ArchiForge.ContextIngestion.Infrastructure;
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Parsing;
+using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Parsing;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Locks DI registration for the context-ingestion connector pipeline to the order defined in
-/// <see cref="ArchiForge.ContextIngestion.Infrastructure.ContextConnectorPipeline.CreateOrderedContextConnectorPipeline"/>
-/// and <see cref="ArchiForge.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers"/>.
+/// <see cref="ArchLucid.ContextIngestion.Infrastructure.ContextConnectorPipeline.CreateOrderedContextConnectorPipeline"/>
+/// and <see cref="ArchLucid.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers"/>.
 /// </summary>
 [Trait("Category", "Integration")]
-public sealed class ContextIngestionConnectorRegistrationTests(ArchiForgeApiFactory factory)
-    : IClassFixture<ArchiForgeApiFactory>
+public sealed class ContextIngestionConnectorRegistrationTests(ArchLucidApiFactory factory)
+    : IClassFixture<ArchLucidApiFactory>
 {
     [Fact]
     public void Services_Resolve_IEnumerable_IContextConnector_InPipelineOrder()

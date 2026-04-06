@@ -7,13 +7,13 @@ Copy-paste from the **repository root** unless noted. **Windows:** use `.cmd`; *
 ## Environment
 
 ```bash
-cd ArchiForge.Api
+cd ArchLucid.Api
 dotnet user-secrets set "ConnectionStrings:ArchiForge" "Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
 ```
 
 ```bash
 cd ..
-dotnet run --project ArchiForge.Api
+dotnet run --project ArchLucid.Api
 ```
 
 ```bash
@@ -40,7 +40,7 @@ curl -s http://localhost:5128/version
 **CLI doctor (API must be running):**
 
 ```bash
-dotnet run --project ArchiForge.Cli -- doctor
+dotnet run --project ArchLucid.Cli -- doctor
 ```
 
 `doctor` now prints CLI build info and calls `GET /version` to display the API's build identity before running health probes.
@@ -48,7 +48,7 @@ dotnet run --project ArchiForge.Cli -- doctor
 **Support bundle (attach to support tickets):**
 
 ```bash
-dotnet run --project ArchiForge.Cli -- support-bundle --zip
+dotnet run --project ArchLucid.Cli -- support-bundle --zip
 ```
 
 Creates a timestamped folder (and zip) of JSON diagnostics without secrets — see [TROUBLESHOOTING.md](TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
@@ -58,9 +58,9 @@ Creates a timestamped folder (and zip) of JSON diagnostics without secrets — s
 ## Pilot run (CLI, fastest)
 
 ```bash
-dotnet run --project ArchiForge.Cli -- new my-pilot-project
+dotnet run --project ArchLucid.Cli -- new my-pilot-project
 cd my-pilot-project
-dotnet run --project ../ArchiForge.Cli -- run --quick
+dotnet run --project ../ArchLucid.Cli -- run --quick
 ```
 
 ---
@@ -136,11 +136,11 @@ release-smoke.cmd
 ```
 
 ```bash
-dotnet test ArchiForge.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
+dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
 ```
 
 ```bash
-dotnet test ArchiForge.sln --filter "Suite=Core"
+dotnet test ArchLucid.sln --filter "Suite=Core"
 ```
 
 ```bash

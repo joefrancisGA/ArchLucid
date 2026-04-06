@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 public sealed class ReplayComparisonRequest
 {

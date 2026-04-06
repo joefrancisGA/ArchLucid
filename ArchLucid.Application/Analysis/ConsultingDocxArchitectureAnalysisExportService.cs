@@ -1,6 +1,6 @@
-using ArchiForge.Application.Diagrams;
+using ArchLucid.Application.Diagrams;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Generates consulting-grade DOCX reports from an <see cref="ArchitectureAnalysisReport"/>

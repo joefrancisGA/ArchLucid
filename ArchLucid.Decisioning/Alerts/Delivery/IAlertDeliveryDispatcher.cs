@@ -1,10 +1,10 @@
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// Delivers a single <see cref="AlertRecord"/> to all matching routing subscriptions (email, Slack, etc.).
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchiForge.Persistence.Alerts.AlertDeliveryDispatcher</c>. Invoked after persistence from alert services.
+/// Implemented by <c>ArchLucid.Persistence.Alerts.AlertDeliveryDispatcher</c>. Invoked after persistence from alert services.
 /// </remarks>
 public interface IAlertDeliveryDispatcher
 {

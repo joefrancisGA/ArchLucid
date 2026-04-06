@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>One triage queue preview row for discussion / export (no raw signal payloads).</summary>
 public sealed class ProductLearningTriageReportTriageLine

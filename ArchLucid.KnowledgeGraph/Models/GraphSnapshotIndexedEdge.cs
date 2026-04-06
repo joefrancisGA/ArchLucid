@@ -1,4 +1,4 @@
-namespace ArchiForge.KnowledgeGraph.Models;
+namespace ArchLucid.KnowledgeGraph.Models;
 
 /// <summary>
 /// Edge row materialized from <c>dbo.GraphSnapshotEdges</c> for filtered queries without full JSON deserialization.

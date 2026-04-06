@@ -1,9 +1,9 @@
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Repositories;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Graph Snapshot Edge Indexer.

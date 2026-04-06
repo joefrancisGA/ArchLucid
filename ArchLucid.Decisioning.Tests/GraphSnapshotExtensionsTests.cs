@@ -1,8 +1,8 @@
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Graph Snapshot Extensions.

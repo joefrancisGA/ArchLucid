@@ -1,8 +1,8 @@
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Decisioning.Interfaces;
+namespace ArchLucid.Decisioning.Interfaces;
 
 public interface IDecisionEngine
 {

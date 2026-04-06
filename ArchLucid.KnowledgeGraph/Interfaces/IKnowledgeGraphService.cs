@@ -1,7 +1,7 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Interfaces;
+namespace ArchLucid.KnowledgeGraph.Interfaces;
 
 public interface IKnowledgeGraphService
 {

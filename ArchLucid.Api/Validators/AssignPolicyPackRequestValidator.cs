@@ -1,9 +1,9 @@
-using ArchiForge.Api.Controllers;
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Api.Controllers;
+using ArchLucid.Decisioning.Governance.Resolution;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 /// <summary>
 /// FluentValidation rules for <see cref="AssignPolicyPackRequest"/> (<c>POST …/policy-packs/{id}/assign</c>).

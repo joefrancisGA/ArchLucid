@@ -1,6 +1,6 @@
-using ArchiForge.Persistence.Provenance;
+using ArchLucid.Persistence.Provenance;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="ProvenanceSnapshotRepositoryContractTests"/> against <see cref="InMemoryProvenanceSnapshotRepository"/>.

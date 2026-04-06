@@ -1,8 +1,8 @@
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
-namespace ArchiForge.Core.Tests.Diagnostics;
+namespace ArchLucid.Core.Tests.Diagnostics;
 
 [Trait("Category", "Unit")]
 public sealed class BuildInfoResponseTests
@@ -25,9 +25,9 @@ public sealed class BuildInfoResponseTests
             RuntimeFrameworkDescription: ".NET Test",
             CommitSha: "sha");
 
-        BuildInfoResponse r = BuildInfoResponse.FromProvenance(p, "ArchiForge.Api", "Staging");
+        BuildInfoResponse r = BuildInfoResponse.FromProvenance(p, "ArchLucid.Api", "Staging");
 
-        r.Application.Should().Be("ArchiForge.Api");
+        r.Application.Should().Be("ArchLucid.Api");
         r.Environment.Should().Be("Staging");
         r.InformationalVersion.Should().Be("1.2.3+sha");
         r.AssemblyVersion.Should().Be("1.2.0.0");

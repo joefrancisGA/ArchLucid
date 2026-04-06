@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Scoping;
+namespace ArchLucid.Core.Scoping;
 
 /// <summary>
 /// Optional ambient scope for non-HTTP pipelines (e.g. advisory background scans) so scoped services

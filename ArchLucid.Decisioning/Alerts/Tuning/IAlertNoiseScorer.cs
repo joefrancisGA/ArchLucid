@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Alerts.Simulation;
+using ArchLucid.Decisioning.Alerts.Simulation;
 
-namespace ArchiForge.Decisioning.Alerts.Tuning;
+namespace ArchLucid.Decisioning.Alerts.Tuning;
 
 /// <summary>
 /// Heuristic scorer for a single <see cref="RuleSimulationResult"/> against target alert volume bounds.

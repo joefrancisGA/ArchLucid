@@ -56,7 +56,7 @@ ComparisonsController           ── standard replay endpoint (no new route ne
 
 ### 5.1 Define the type constant
 
-Add the new type string to `ComparisonTypes.cs` in `ArchiForge.Application.Analysis`:
+Add the new type string to `ComparisonTypes.cs` in `ArchLucid.Application.Analysis`:
 
 ```csharp
 public static class ComparisonTypes
@@ -69,7 +69,7 @@ public static class ComparisonTypes
 
 ### 5.2 Create application-layer service and formatter
 
-Create two new files in `ArchiForge.Application/Analysis/`:
+Create two new files in `ArchLucid.Application/Analysis/`:
 
 | File | Interface | Responsibility |
 |---|---|---|
@@ -129,7 +129,7 @@ Add the corresponding private method that calls your formatter and returns a `Re
 
 ### 5.6 Register in DI
 
-In `ArchiForge.Api/Startup/ServiceCollectionExtensions.cs`, add:
+In `ArchLucid.Api/Startup/ServiceCollectionExtensions.cs`, add:
 
 ```csharp
 services.AddScoped<IMyNewTypeComparisonService, MyNewTypeComparisonService>();
@@ -152,7 +152,7 @@ for replay — no new route is needed there.
 No new migration is required unless you add type-specific columns to `ComparisonRecords`.
 If you do:
 
-1. Create `ArchiForge.Persistence/Migrations/0NN_MyNewTypeComparisonColumns.sql` (idempotent `IF NOT EXISTS`).
+1. Create `ArchLucid.Persistence/Migrations/0NN_MyNewTypeComparisonColumns.sql` (idempotent `IF NOT EXISTS`).
 2. Add the same columns to `ArchiForge.sql` (SQL Server consolidated).
 3. Update `docs/DATA_MODEL.md` and `docs/SQL_SCRIPTS.md`.
 
@@ -214,8 +214,8 @@ ReplayComparisonResult (content + headers)
 |---|---|---|
 | `CompareAsync_PersistsRecord_WithCorrectType` | `MyNewTypeComparisonServiceTests.cs` (unit) | `comparisonRecordRepository` called with `ComparisonType == "my-new-type"` |
 | `FormatMarkdown_GivenPayload_ContainsExpectedSections` | `MyNewTypeReplayFormatterTests.cs` (unit) | Returned string contains header and at least one diff entry |
-| `ReplayEndpoint_Returns200_WithCorrectHeaders` | `ArchiForge.Api.Tests` (integration) | Full round-trip: persist → replay → assert X-ArchiForge-* headers and body not empty |
-| `ReplayEndpoint_UnknownType_Returns422` | `ArchiForge.Api.Tests` (integration) | POST replay on a record with an unsupported type returns 422 |
+| `ReplayEndpoint_Returns200_WithCorrectHeaders` | `ArchLucid.Api.Tests` (integration) | Full round-trip: persist → replay → assert X-ArchiForge-* headers and body not empty |
+| `ReplayEndpoint_UnknownType_Returns422` | `ArchLucid.Api.Tests` (integration) | POST replay on a record with an unsupported type returns 422 |
 
 ---
 

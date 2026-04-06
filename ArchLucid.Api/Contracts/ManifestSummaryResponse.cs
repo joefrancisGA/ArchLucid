@@ -1,40 +1,40 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Api.Contracts;
+namespace ArchLucid.Api.Contracts;
 
 /// <summary>
-/// JSON contract for <see cref="ArchiForge.Persistence.Queries.ManifestSummaryDto"/> (manifest summary endpoint).
+/// JSON contract for <see cref="ArchLucid.Persistence.Queries.ManifestSummaryDto"/> (manifest summary endpoint).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class ManifestSummaryResponse
 {
-    /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.ManifestId"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.ManifestId"/>
     public Guid ManifestId { get; set; }
-    /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.RunId"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.RunId"/>
     public Guid RunId { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.CreatedUtc"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.CreatedUtc"/>
     public DateTime CreatedUtc { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.ManifestHash"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.ManifestHash"/>
     public string ManifestHash { get; set; } = null!;
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.RuleSetId"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.RuleSetId"/>
     public string RuleSetId { get; set; } = null!;
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.RuleSetVersion"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.RuleSetVersion"/>
     public string RuleSetVersion { get; set; } = null!;
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.DecisionCount"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.DecisionCount"/>
     public int DecisionCount { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.WarningCount"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.WarningCount"/>
     public int WarningCount { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.UnresolvedIssueCount"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.UnresolvedIssueCount"/>
     public int UnresolvedIssueCount { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.Status"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Queries.ManifestSummaryDto.Status"/>
     public string Status { get; set; } = null!;
 
     /// <summary>True when <see cref="WarningCount"/> is greater than zero.</summary>

@@ -1,16 +1,16 @@
-using ArchiForge.Decisioning.Compliance.Evaluators;
-using ArchiForge.Decisioning.Compliance.Loaders;
-using ArchiForge.Decisioning.Compliance.Models;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Decisioning.Services;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Compliance.Evaluators;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Services;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Compliance Finding Engine.

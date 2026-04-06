@@ -1,4 +1,4 @@
-namespace ArchiForge.Retrieval.Embedding;
+namespace ArchLucid.Retrieval.Embedding;
 
 /// <summary>
 /// Text → dense vector embeddings for semantic search and indexing.

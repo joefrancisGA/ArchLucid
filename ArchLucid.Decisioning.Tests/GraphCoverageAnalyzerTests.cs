@@ -1,9 +1,9 @@
-using ArchiForge.Decisioning.Analysis;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Analysis;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Graph Coverage Analyzer.

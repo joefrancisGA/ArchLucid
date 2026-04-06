@@ -1,15 +1,15 @@
 using System.Data.Common;
 
-using ArchiForge.AgentRuntime;
-using ArchiForge.Application;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Core.Resilience;
-using ArchiForge.Persistence.Repositories;
+using ArchLucid.AgentRuntime;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Core.Resilience;
+using ArchLucid.Persistence.Repositories;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Api.ProblemDetails;
+namespace ArchLucid.Api.ProblemDetails;
 
 /// <summary>
 /// Single mapping path from application exceptions to <see cref="ObjectResult"/> problem+json responses.

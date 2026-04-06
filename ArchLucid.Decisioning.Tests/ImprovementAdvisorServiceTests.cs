@@ -1,15 +1,15 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Advisory.Analysis;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Analysis;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// <see cref="ImprovementAdvisorService"/> wires learning profile load → signal analysis → recommendation generation → summary mapping.

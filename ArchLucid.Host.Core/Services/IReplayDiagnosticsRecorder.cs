@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Services;
+namespace ArchLucid.Host.Core.Services;
 
 public interface IReplayDiagnosticsRecorder
 {

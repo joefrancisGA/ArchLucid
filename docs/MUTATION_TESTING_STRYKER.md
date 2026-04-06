@@ -13,8 +13,8 @@
 
 The repo includes **`stryker-config.json`** at the solution root for **Persistence**, plus:
 
-- **`stryker-config.application.json`** — `ArchiForge.Application` + `ArchiForge.Application.Tests`
-- **`stryker-config.agentruntime.json`** — `ArchiForge.AgentRuntime` + `ArchiForge.AgentRuntime.Tests`
+- **`stryker-config.application.json`** — `ArchLucid.Application` + `ArchLucid.Application.Tests`
+- **`stryker-config.agentruntime.json`** — `ArchLucid.AgentRuntime` + `ArchLucid.AgentRuntime.Tests`
 
 Scheduled CI runs all three targets (matrix) and uploads separate artifacts (`stryker-report-Persistence`, `…-Application`, `…-AgentRuntime`).
 

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace ArchiForge.Persistence.ProductLearning.Planning;
+namespace ArchLucid.Persistence.ProductLearning.Planning;
 
 /// <summary>
 /// Reads simple string tags from <c>ProductLearningPilotSignals.DetailJson</c> (no schema registry; invalid JSON yields empty).

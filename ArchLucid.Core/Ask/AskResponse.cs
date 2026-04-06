@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Ask;
+namespace ArchLucid.Core.Ask;
 
 /// <summary>Grounded answer plus explicit references the model was instructed to cite.</summary>
 public sealed class AskResponse

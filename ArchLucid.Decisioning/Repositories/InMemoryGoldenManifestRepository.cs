@@ -1,10 +1,10 @@
 using System.Data;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Repositories;
+namespace ArchLucid.Decisioning.Repositories;
 
 /// <summary>
 /// In-memory implementation of <see cref="IGoldenManifestRepository"/> for testing and local development.

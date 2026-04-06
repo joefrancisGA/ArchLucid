@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Integration;
+namespace ArchLucid.Persistence.Integration;
 
 /// <summary>Computes exponential backoff after a failed Service Bus publish.</summary>
 public static class IntegrationEventOutboxRetryCalculator

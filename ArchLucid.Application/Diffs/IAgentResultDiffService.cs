@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 
-namespace ArchiForge.Application.Diffs;
+namespace ArchLucid.Application.Diffs;
 
 /// <summary>
 /// Computes a per-agent diff between the <see cref="AgentResult"/> collections of two runs,

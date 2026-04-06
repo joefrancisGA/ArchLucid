@@ -2,15 +2,15 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Retrieval.Indexing;
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.Models;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// End-to-end: index documents via DI → query via <c>GET v1/retrieval/search</c> → assert hits.

@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

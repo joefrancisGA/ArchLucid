@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
 /// <summary>One simulation row in an export: raw outcome, structured shadow, scores, and a human diff summary.</summary>
 public sealed class EvolutionSimulationReportRunEntry

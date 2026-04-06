@@ -1,4 +1,4 @@
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// LLM vendor abstraction for chat completions used by agents, explanations, and Ask flows.

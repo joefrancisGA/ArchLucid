@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Configuration;
+namespace ArchLucid.Core.Configuration;
 
 /// <summary>Per-tenant LLM token budgets over a sliding time window (prompt and completion tokens from Azure OpenAI usage).</summary>
 public sealed class LlmTokenQuotaOptions
@@ -6,7 +6,7 @@ public sealed class LlmTokenQuotaOptions
     /// <summary>Configuration section name.</summary>
     public const string SectionName = "LlmTokenQuota";
 
-    /// <summary>When true, <see cref="ArchiForge.AgentRuntime.LlmCompletionAccountingClient"/> enforces limits before each completion call.</summary>
+    /// <summary>When true, <see cref="ArchLucid.AgentRuntime.LlmCompletionAccountingClient"/> enforces limits before each completion call.</summary>
     public bool Enabled { get; set; }
 
     /// <summary>Sliding window length for quota accounting (1–1440 minutes).</summary>

@@ -1,10 +1,10 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Contracts;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Audit;
-using ArchiForge.Persistence.Replay;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Contracts;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Replay;
 
 using Asp.Versioning;
 
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Executes authority run replay (validate, optionally rebuild manifest/trace and artifacts) for the authenticated scope.
@@ -21,7 +21,7 @@ namespace ArchiForge.Api.Controllers;
 /// POST <c>api/authority/replay</c>; uses <see cref="ReplayMode"/> strings from the request body. Emits <see cref="AuditEventTypes.ReplayExecuted"/> on success.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/authority/replay")]
 [EnableRateLimiting("fixed")]

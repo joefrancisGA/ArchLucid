@@ -1,7 +1,7 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Packaging;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
 
-namespace ArchiForge.Persistence.Queries;
+namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
 /// Shared projection helper used by both <see cref="DapperArtifactQueryService"/> and

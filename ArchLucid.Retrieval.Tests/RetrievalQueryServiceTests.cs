@@ -1,13 +1,13 @@
-using ArchiForge.Retrieval.Embedding;
-using ArchiForge.Retrieval.Indexing;
-using ArchiForge.Retrieval.Models;
-using ArchiForge.Retrieval.Queries;
+using ArchLucid.Retrieval.Embedding;
+using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.Models;
+using ArchLucid.Retrieval.Queries;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Retrieval.Tests;
+namespace ArchLucid.Retrieval.Tests;
 
 /// <summary>
 /// <see cref="RetrievalQueryService"/> embeds query text then delegates to <see cref="IVectorIndex"/>; covers empty index, ranking order, TopK, and validation.

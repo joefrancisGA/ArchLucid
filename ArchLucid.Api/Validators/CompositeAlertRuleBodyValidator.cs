@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts.Composite;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 /// <summary>
 /// FluentValidation for <see cref="CompositeAlertRule"/> bodies on <c>POST …/composite-alert-rules</c> (scope ids stamped server-side).

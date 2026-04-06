@@ -1,18 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Export Record Diff.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureExportRecordDiffTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureExportRecordDiffTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task CompareExportRecords_ReturnsDifferencesBetweenTwoExports()

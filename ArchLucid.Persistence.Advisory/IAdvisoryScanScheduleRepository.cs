@@ -1,13 +1,13 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
 /// Persistence for <see cref="AdvisoryScanSchedule"/> rows (CRUD subset used by API and the advisory scan runner).
 /// </summary>
 /// <remarks>
 /// SQL: <see cref="DapperAdvisoryScanScheduleRepository"/>; in-memory: <see cref="InMemoryAdvisoryScanScheduleRepository"/>.
-/// Primary callers: <c>ArchiForge.Api.Controllers.AdvisorySchedulingController</c>, <c>ArchiForge.Api.Hosted.AdvisoryScanHostedService</c>, <c>ArchiForge.Persistence.Advisory.AdvisoryScanRunner</c>.
+/// Primary callers: <c>ArchLucid.Api.Controllers.AdvisorySchedulingController</c>, <c>ArchLucid.Api.Hosted.AdvisoryScanHostedService</c>, <c>ArchLucid.Persistence.Advisory.AdvisoryScanRunner</c>.
 /// </remarks>
 public interface IAdvisoryScanScheduleRepository
 {

@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Evolution;
+namespace ArchLucid.Persistence.Evolution;
 
 /// <summary>Dapper access to <c>EvolutionSimulationRuns</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]

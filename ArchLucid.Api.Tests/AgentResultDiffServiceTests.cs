@@ -1,11 +1,11 @@
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Decisions;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Decisions;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Agent Result Diff Service.

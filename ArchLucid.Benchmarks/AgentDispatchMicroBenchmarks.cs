@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 
 using BenchmarkDotNet.Attributes;
 
-namespace ArchiForge.Benchmarks;
+namespace ArchLucid.Benchmarks;
 
 /// <summary>CPU-only micro-benchmarks for agent task ordering (no LLM / SQL).</summary>
 [MemoryDiagnoser]

@@ -1,9 +1,9 @@
-namespace ArchiForge.Host.Core.Hosting;
+namespace ArchLucid.Host.Core.Hosting;
 
 /// <summary>
 /// Process role for ArchiForge compute: public HTTP API only, background worker only, or both (local dev default).
 /// </summary>
-public enum ArchiForgeHostingRole
+public enum ArchLucidHostingRole
 {
     /// <summary>HTTP API plus all hosted background services (default when <c>Hosting:Role</c> is unset).</summary>
     Combined = 0,

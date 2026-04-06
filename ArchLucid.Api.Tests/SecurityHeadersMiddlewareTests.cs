@@ -1,10 +1,10 @@
-using ArchiForge.Host.Core.Middleware;
+using ArchLucid.Host.Core.Middleware;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Security Headers Middleware.

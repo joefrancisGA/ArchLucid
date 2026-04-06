@@ -1,18 +1,18 @@
-using ArchiForge.Application;
-using ArchiForge.Application.Governance.Preview;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Governance;
-using ArchiForge.Contracts.Governance.Preview;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Application;
+using ArchLucid.Application.Governance.Preview;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Governance.Preview;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Governance Preview Service.

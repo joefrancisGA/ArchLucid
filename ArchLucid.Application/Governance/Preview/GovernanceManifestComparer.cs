@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Governance.Preview;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Governance.Preview;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Governance.Preview;
+namespace ArchLucid.Application.Governance.Preview;
 
 /// <summary>
 /// Compares governance-relevant fields from <see cref="ManifestGovernance"/> (or objects that expose it).

@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Shared contract assertions for <see cref="IPolicyPackRepository"/>.

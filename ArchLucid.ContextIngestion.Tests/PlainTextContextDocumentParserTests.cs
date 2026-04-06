@@ -1,9 +1,9 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.ContextIngestion.Parsing;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Parsing;
 
 using FluentAssertions;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Tests for Plain Text Context Document Parser.

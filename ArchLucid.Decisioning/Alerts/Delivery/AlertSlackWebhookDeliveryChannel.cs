@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Delivery;
 
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// Posts a simple <c>text</c> payload to a Slack incoming webhook (<see cref="AlertRoutingChannelType.SlackWebhook"/>).

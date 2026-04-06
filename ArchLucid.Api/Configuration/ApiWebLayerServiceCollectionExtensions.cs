@@ -1,9 +1,9 @@
-using ArchiForge.Api.Services;
-using ArchiForge.Api.Services.Admin;
-using ArchiForge.Api.Services.Evolution;
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Api.Services;
+using ArchLucid.Api.Services.Admin;
+using ArchLucid.Api.Services.Evolution;
+using ArchLucid.Host.Core.Configuration;
 
-namespace ArchiForge.Api.Configuration;
+namespace ArchLucid.Api.Configuration;
 
 /// <summary>
 /// HTTP/API-only DI registrations that depend on API-layer models (product learning read models, evolution simulation).
@@ -13,11 +13,11 @@ namespace ArchiForge.Api.Configuration;
 /// </remarks>
 public static class ApiWebLayerServiceCollectionExtensions
 {
-    public static IServiceCollection AddArchiForgeApiWebLayerServices(
+    public static IServiceCollection AddArchLucidApiWebLayerServices(
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        ArchiForgeOptions options = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
+        ArchLucidOptions options = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (string.Equals(options.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {

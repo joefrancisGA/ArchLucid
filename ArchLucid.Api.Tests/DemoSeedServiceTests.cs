@@ -1,15 +1,15 @@
-using ArchiForge.Application;
-using ArchiForge.Application.Bootstrap;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Application.Governance.Preview;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Governance.Preview;
+using ArchLucid.Application;
+using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Governance.Preview;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance.Preview;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Validates trusted-baseline Contoso demo seed against the integration test SQL Server database.</summary>
 [Trait("Category", "Integration")]
@@ -18,7 +18,7 @@ public sealed class DemoSeedServiceTests
     [Fact]
     public async Task SeedAsync_twice_does_not_throw_and_remains_idempotent()
     {
-        await using ArchiForgeApiFactory factory = new();
+        await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
         IDemoSeedService seed = scope.ServiceProvider.GetRequiredService<IDemoSeedService>();
         await seed.SeedAsync();
@@ -29,7 +29,7 @@ public sealed class DemoSeedServiceTests
     [Fact]
     public async Task SeedAsync_creates_baseline_and_hardened_runs_with_manifests()
     {
-        await using ArchiForgeApiFactory factory = new();
+        await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
         IDemoSeedService seed = scope.ServiceProvider.GetRequiredService<IDemoSeedService>();
         await seed.SeedAsync();
@@ -51,7 +51,7 @@ public sealed class DemoSeedServiceTests
     [Fact]
     public async Task SeedAsync_governance_activations_allow_environment_compare_preview()
     {
-        await using ArchiForgeApiFactory factory = new();
+        await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
         IDemoSeedService seed = scope.ServiceProvider.GetRequiredService<IDemoSeedService>();
         await seed.SeedAsync();
@@ -70,7 +70,7 @@ public sealed class DemoSeedServiceTests
     [Fact]
     public async Task SeedAsync_lists_both_demo_runs_in_run_summaries()
     {
-        await using ArchiForgeApiFactory factory = new();
+        await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
         await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
 
@@ -87,7 +87,7 @@ public sealed class DemoSeedServiceTests
     [Fact]
     public async Task SeedAsync_manifest_diff_detects_structural_differences_between_versions()
     {
-        await using ArchiForgeApiFactory factory = new();
+        await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
         await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
 
@@ -113,7 +113,7 @@ public sealed class DemoSeedServiceTests
     [Fact]
     public async Task SeedAsync_agent_result_compare_produces_deltas()
     {
-        await using ArchiForgeApiFactory factory = new();
+        await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
         await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
 

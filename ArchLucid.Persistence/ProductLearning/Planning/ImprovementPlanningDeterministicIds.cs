@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ArchiForge.Persistence.ProductLearning.Planning;
+namespace ArchLucid.Persistence.ProductLearning.Planning;
 
 internal static class ImprovementPlanningDeterministicIds
 {

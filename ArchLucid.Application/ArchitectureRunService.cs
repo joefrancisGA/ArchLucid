@@ -1,32 +1,32 @@
 using System.Security.Cryptography;
 using System.Transactions;
 
-using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Application.Architecture;
-using ArchiForge.Application.Common;
-using ArchiForge.Application.Decisions;
-using ArchiForge.Application.Evidence;
-using ArchiForge.Application.Runs;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Coordinator.Services;
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Decisioning.Merge;
+using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Coordinator.Services;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Merge;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Application;
+namespace ArchLucid.Application;
 
 /// <summary>
-/// Orchestrates the three-phase architecture run workflow: coordinate and persist a new run, execute simulated agents with evidence and evaluations, then resolve decisions and commit a <see cref="ArchiForge.Contracts.Manifest.GoldenManifest"/>.
+/// Orchestrates the three-phase architecture run workflow: coordinate and persist a new run, execute simulated agents with evidence and evaluations, then resolve decisions and commit a <see cref="ArchLucid.Contracts.Manifest.GoldenManifest"/>.
 /// </summary>
 /// <remarks>
-/// Dependencies include <see cref="ArchiForge.Coordinator.Services.ICoordinatorService"/>, repositories under <c>ArchiForge.Persistence.Data.Repositories</c>, <see cref="ArchiForge.AgentSimulator.Services.IAgentExecutor"/>, <see cref="ArchiForge.Application.Evidence.IEvidenceBuilder"/>, manifest merge services under <c>ArchiForge.Decisioning.Merge</c>, and JSON schema validation under <c>ArchiForge.Decisioning.Validation</c>.
+/// Dependencies include <see cref="ArchLucid.Coordinator.Services.ICoordinatorService"/>, repositories under <c>ArchLucid.Persistence.Data.Repositories</c>, <see cref="ArchLucid.AgentSimulator.Services.IAgentExecutor"/>, <see cref="ArchLucid.Application.Evidence.IEvidenceBuilder"/>, manifest merge services under <c>ArchLucid.Decisioning.Merge</c>, and JSON schema validation under <c>ArchLucid.Decisioning.Validation</c>.
 /// </remarks>
 public sealed class ArchitectureRunService(
     ICoordinatorService coordinator,

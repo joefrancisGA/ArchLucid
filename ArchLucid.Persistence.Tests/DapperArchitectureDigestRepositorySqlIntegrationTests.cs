@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Persistence.Advisory;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Connections;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="DapperArchitectureDigestRepository"/> against real SQL Server (Docker) + production-shaped DDL from DbUp.

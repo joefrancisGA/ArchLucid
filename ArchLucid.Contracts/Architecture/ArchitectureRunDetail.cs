@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Contracts.Architecture;
+namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
 /// Canonical aggregate for a single architecture run: the authoritative source for

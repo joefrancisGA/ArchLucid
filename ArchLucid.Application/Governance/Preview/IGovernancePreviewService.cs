@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Governance.Preview;
+using ArchLucid.Contracts.Governance.Preview;
 
-namespace ArchiForge.Application.Governance.Preview;
+namespace ArchLucid.Application.Governance.Preview;
 
 /// <summary>
 /// Read-only service that previews governance state changes without persisting anything.

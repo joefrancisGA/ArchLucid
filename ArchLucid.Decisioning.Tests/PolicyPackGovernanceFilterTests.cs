@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Composite;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Policy Pack Governance Filter.

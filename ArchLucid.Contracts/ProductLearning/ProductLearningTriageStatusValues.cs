@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>Stored in <c>ProductLearningPilotSignals.TriageStatus</c> (CHECK constraint).</summary>
 public static class ProductLearningTriageStatusValues

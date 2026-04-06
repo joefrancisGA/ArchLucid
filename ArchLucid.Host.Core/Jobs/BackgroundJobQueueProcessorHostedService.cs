@@ -1,13 +1,13 @@
-using ArchiForge.Application.Jobs;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Application.Jobs;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Jobs;
+namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>Worker-side loop: receives job ids from Azure Storage Queue, executes exports, stores results in blob.</summary>
 public sealed class BackgroundJobQueueProcessorHostedService(

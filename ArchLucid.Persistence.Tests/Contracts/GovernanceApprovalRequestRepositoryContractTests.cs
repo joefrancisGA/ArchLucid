@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.Governance;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Shared contract assertions for <see cref="IGovernanceApprovalRequestRepository"/>.

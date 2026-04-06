@@ -1,15 +1,15 @@
-using ArchiForge.Api.Middleware;
-using ArchiForge.Host.Core.Health;
-using ArchiForge.Host.Core.Middleware;
+using ArchLucid.Api.Middleware;
+using ArchLucid.Host.Core.Health;
+using ArchLucid.Host.Core.Middleware;
 
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
-namespace ArchiForge.Api.Startup;
+namespace ArchLucid.Api.Startup;
 
 internal static class PipelineExtensions
 {
-    public static WebApplication UseArchiForgePipeline(this WebApplication app)
+    public static WebApplication UseArchLucidPipeline(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseMiddleware<SecurityHeadersMiddleware>();
@@ -61,7 +61,7 @@ internal static class PipelineExtensions
 
         app.UseHttpsRedirection();
         app.UseResponseCompression();
-        app.UseCors("ArchiForge");
+        app.UseCors("ArchLucid");
         app.UseRateLimiter();
         app.UseAuthentication();
         app.UseAuthorization();

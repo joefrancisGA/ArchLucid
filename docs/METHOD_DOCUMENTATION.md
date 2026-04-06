@@ -26,9 +26,9 @@ For each **method** (including interface methods and explicit interface implemen
 
 Roslyn does not auto-generate caller lists in XML. In `<remarks>`, list **primary callers** when that helps operators:
 
-- **API:** `ArchiForge.Api.Controllers.*` (e.g. `PolicyPacksController`, `GovernanceResolutionController`).
-- **Application services:** `ArchiForge.Api.Services.*`.
-- **Persistence:** `ArchiForge.Persistence.*` (repositories, runners).
+- **API:** `ArchLucid.Api.Controllers.*` (e.g. `PolicyPacksController`, `GovernanceResolutionController`).
+- **Application services:** `ArchLucid.Api.Services.*`.
+- **Persistence:** `ArchLucid.Persistence.*` (repositories, runners).
 - **Tests:** `*.Tests` projects.
 
 Keep this **curated** (main orchestration paths only) so it does not go stale on every refactor. Prefer `<seealso cref="PolicyPacksController"/>` over long prose when the type name is self-explanatory.
@@ -43,7 +43,7 @@ Keep this **curated** (main orchestration paths only) so it does not go stale on
 
 | Piece | Area | Status |
 |-------|------|--------|
-| 1 | `ArchiForge.Decisioning/Governance/**` (`PolicyPacks/*`, `Resolution/*`, governance filters) | Documented: interfaces, services, DTOs, static filters, JSON options |
+| 1 | `ArchLucid.Decisioning/Governance/**` (`PolicyPacks/*`, `Resolution/*`, governance filters) | Documented: interfaces, services, DTOs, static filters, JSON options |
 | 2 | Policy pack HTTP + app service + SQL/in-memory assignment & pack repos | `PolicyPacksController`, `GovernanceResolutionController`, `PolicyPacksAppService`, `PolicyPackRequests`, `DapperPolicyPack*`, `InMemoryPolicyPackAssignmentRepository` |
 | 3 | Policy pack FluentValidation, compliance/alert consumers, advisory scan | `PolicyPackRequestValidationRules`, `*PolicyPack*Validator`, `PolicyFilteredComplianceRulePackProvider`, `AlertService`, `CompositeAlertService`, `IAlertService`, `ICompositeAlertService`, `AdvisoryScanRunner` |
 | 4 | Alert evaluation context + scope resolution (governance-related call chain) | `AlertEvaluationContext`, `AlertEvaluationContextFactory`, `ScopeContext`, `IScopeContextProvider`, `HttpScopeContextProvider`, `AlertsController`, `IAlertEvaluator`, `AlertEvaluator`, `IAlertSimulationContextProvider`, `AlertSimulationContextProvider` |

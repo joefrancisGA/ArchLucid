@@ -1,9 +1,9 @@
-using ArchiForge.ContextIngestion.Connectors;
-using ArchiForge.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.Interfaces;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.ContextIngestion.Infrastructure;
+namespace ArchLucid.ContextIngestion.Infrastructure;
 
 /// <summary>
 /// Canonical definition of the context-ingestion <see cref="IContextConnector"/> pipeline order.

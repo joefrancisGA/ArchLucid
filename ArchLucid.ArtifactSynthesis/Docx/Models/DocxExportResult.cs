@@ -1,4 +1,4 @@
-namespace ArchiForge.ArtifactSynthesis.Docx.Models;
+namespace ArchLucid.ArtifactSynthesis.Docx.Models;
 
 /// <summary>Binary DOCX payload returned from <see cref="IDocxExportService.ExportAsync"/>.</summary>
 public class DocxExportResult

@@ -1,17 +1,17 @@
 using System.Net;
 
-using ArchiForge.Api.Routing;
+using ArchLucid.Api.Routing;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Integration tests: Alert Rules (HTTP host, database, or cross-component).
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class AlertRulesIntegrationTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class AlertRulesIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task ListAlertRules_Returns200()

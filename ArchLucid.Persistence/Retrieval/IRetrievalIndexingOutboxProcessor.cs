@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Retrieval;
+namespace ArchLucid.Persistence.Retrieval;
 
 /// <summary>
 /// Drains <see cref="IRetrievalIndexingOutboxRepository"/> and invokes retrieval indexing for each pending run.

@@ -1,9 +1,9 @@
-using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Diagrams;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Diagrams;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Generates a structured DOCX analysis report from an <see cref="ArchitectureAnalysisReport"/>,

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Pure evaluation of simple (non-composite) alert rules against a populated <see cref="AlertEvaluationContext"/>.

@@ -1,11 +1,11 @@
-using ArchiForge.ContextIngestion.Mapping;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.ContextIngestion.Mapping;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Tests for Context Ingestion Request Mapper.

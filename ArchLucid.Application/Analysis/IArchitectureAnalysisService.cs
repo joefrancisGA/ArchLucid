@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Builds a comprehensive <see cref="ArchitectureAnalysisReport"/> for a given run.

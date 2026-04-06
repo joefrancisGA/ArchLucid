@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Application.Common;
+namespace ArchLucid.Application.Common;
 
 /// <inheritdoc cref="IBaselineMutationAuditService"/>
 public sealed class BaselineMutationAuditService(ILogger<BaselineMutationAuditService> logger)

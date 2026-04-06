@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Learning;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Adaptive Recommendation Scorer.

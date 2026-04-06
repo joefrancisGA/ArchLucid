@@ -1,29 +1,29 @@
 using System.Security.Claims;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Authentication;
-using ArchiForge.Api.Configuration;
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Authentication;
+using ArchLucid.Api.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ArchiForge.Api.Auth.Services;
+namespace ArchLucid.Api.Auth.Services;
 
 public static class AuthServiceCollectionExtensions
 {
     /// <summary>Well-known scheme name used when <c>ArchiForgeAuth:Mode</c> is <c>ApiKey</c>.</summary>
     public const string ApiKeySchemeName = "ApiKey";
 
-    public static IServiceCollection AddArchiForgeAuth(
+    public static IServiceCollection AddArchLucidAuth(
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.Configure<ArchiForgeAuthOptions>(configuration.GetSection(ArchiForgeAuthOptions.SectionName));
-        services.PostConfigure<ArchiForgeAuthOptions>(opts =>
+        services.Configure<ArchLucidAuthOptions>(configuration.GetSection(ArchLucidAuthOptions.SectionName));
+        services.PostConfigure<ArchLucidAuthOptions>(opts =>
         {
-            IConfigurationSection lucid = configuration.GetSection(ArchiForgeConfigurationBridge.ArchLucidAuthSectionName);
+            IConfigurationSection lucid = configuration.GetSection(ArchLucidConfigurationBridge.ArchLucidAuthSectionName);
 
             if (lucid.Exists())
             {
@@ -31,7 +31,7 @@ public static class AuthServiceCollectionExtensions
             }
         });
 
-        ArchiForgeAuthOptions authOptions = ArchiForgeAuthConfigurationBridge.Resolve(configuration);
+        ArchLucidAuthOptions authOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
 
         if (string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
 
@@ -81,7 +81,7 @@ public static class AuthServiceCollectionExtensions
                     _ => { });
 
 
-        services.AddScoped<IClaimsTransformation, ArchiForgeRoleClaimsTransformation>();
+        services.AddScoped<IClaimsTransformation, ArchLucidRoleClaimsTransformation>();
 
         return services;
     }

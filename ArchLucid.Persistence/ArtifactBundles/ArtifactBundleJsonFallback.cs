@@ -1,7 +1,7 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Persistence.Serialization;
 
-namespace ArchiForge.Persistence.ArtifactBundles;
+namespace ArchLucid.Persistence.ArtifactBundles;
 
 /// <summary>JSON column reads for artifact bundles when relational slices are absent or for trace base hydration.</summary>
 internal static class ArtifactBundleJsonFallback

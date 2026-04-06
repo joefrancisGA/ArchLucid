@@ -1,8 +1,8 @@
-using ArchiForge.Persistence.Archival;
+using ArchLucid.Persistence.Archival;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// Periodically applies <see cref="DataArchivalOptions"/> retention cutoffs via <see cref="IDataArchivalCoordinator"/>.

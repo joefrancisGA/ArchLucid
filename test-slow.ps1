@@ -3,5 +3,5 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $root
-dotnet test ArchiForge.sln --filter "Category=Slow"
+dotnet test ArchLucid.sln --filter "Category=Slow"
 exit $LASTEXITCODE

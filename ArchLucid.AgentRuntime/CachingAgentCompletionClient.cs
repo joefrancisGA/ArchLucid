@@ -1,8 +1,8 @@
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Decorator that caches assistant JSON bodies for identical prompt pairs (and optional scope partition).

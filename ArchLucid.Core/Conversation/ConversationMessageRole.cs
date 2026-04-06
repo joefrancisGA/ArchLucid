@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Conversation;
+namespace ArchLucid.Core.Conversation;
 
 /// <summary>
 /// String constants stored in <see cref="ConversationMessage.Role"/> for Ask threads.

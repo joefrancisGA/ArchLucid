@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
 /// One item the product owner or architect should review next (queue semantics supplied by services later).

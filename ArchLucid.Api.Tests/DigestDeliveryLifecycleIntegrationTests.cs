@@ -2,13 +2,13 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using ArchiForge.Api.Routing;
-using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchLucid.Api.Routing;
+using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// End-to-end: create digest subscription → advisory scan persists digest and dispatcher records a delivery attempt → GET attempts.

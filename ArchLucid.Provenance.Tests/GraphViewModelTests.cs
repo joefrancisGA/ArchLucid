@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace ArchiForge.Provenance.Tests;
+namespace ArchLucid.Provenance.Tests;
 
 [Trait("Category", "Unit")]
 public sealed class GraphViewModelTests

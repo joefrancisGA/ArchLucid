@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Governance.Resolution;
-using ArchiForge.Persistence.Governance;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.Resolution;
+using ArchLucid.Persistence.Governance;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="InMemoryPolicyPackAssignmentRepository"/> parity with SQL semantics for archival.

@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.AgentSimulator.Models;
+namespace ArchLucid.AgentSimulator.Models;
 
 [ExcludeFromCodeCoverage(Justification = "Simulator scenario DTO; no logic.")]
 public sealed class SimulationScenario

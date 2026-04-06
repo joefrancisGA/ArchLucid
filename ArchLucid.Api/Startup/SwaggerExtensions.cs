@@ -1,12 +1,12 @@
-using ArchiForge.Api.Swagger;
+using ArchLucid.Api.Swagger;
 
 using Microsoft.AspNetCore.Mvc.Controllers;
 
-namespace ArchiForge.Api.Startup;
+namespace ArchLucid.Api.Startup;
 
 internal static class SwaggerExtensions
 {
-    public static IServiceCollection AddArchiForgeSwagger(this IServiceCollection services)
+    public static IServiceCollection AddArchLucidSwagger(this IServiceCollection services)
     {
         services.AddSwaggerGen(c =>
         {

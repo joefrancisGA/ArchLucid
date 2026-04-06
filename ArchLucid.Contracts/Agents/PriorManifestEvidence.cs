@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Contracts.Agents;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 /// A summary of a previously approved <c>GoldenManifest</c> included as context in an

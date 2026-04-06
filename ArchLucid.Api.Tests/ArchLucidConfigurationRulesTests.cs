@@ -1,4 +1,4 @@
-using ArchiForge.Host.Core.Startup.Validation;
+using ArchLucid.Host.Core.Startup.Validation;
 
 using FluentAssertions;
 
@@ -8,9 +8,9 @@ using Microsoft.Extensions.Hosting;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
-public sealed class ArchiForgeConfigurationRulesTests
+public sealed class ArchLucidConfigurationRulesTests
 {
     [Fact]
     public void CollectErrors_WhenProductionAndDevelopmentBypass_contains_error()
@@ -27,7 +27,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("DevelopmentBypass", StringComparison.OrdinalIgnoreCase));
     }
@@ -48,7 +48,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("Authority", StringComparison.OrdinalIgnoreCase));
     }
@@ -70,7 +70,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("Authentication:ApiKey:Enabled", StringComparison.OrdinalIgnoreCase));
     }
@@ -88,7 +88,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().BeEmpty();
     }
@@ -106,9 +106,11 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().Contain(e => e.Contains("ConnectionStrings:ArchiForge", StringComparison.OrdinalIgnoreCase));
+        errors.Should().Contain(e =>
+            e.Contains("ConnectionStrings:ArchLucid", StringComparison.OrdinalIgnoreCase)
+            && e.Contains("ArchiForge", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -124,7 +126,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().BeEmpty();
     }
@@ -142,7 +144,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("StorageProvider", StringComparison.OrdinalIgnoreCase)
             && e.Contains("InMemory", StringComparison.OrdinalIgnoreCase));
@@ -162,7 +164,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("AgentExecution:Mode", StringComparison.OrdinalIgnoreCase));
     }
@@ -181,7 +183,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("AzureOpenAI", StringComparison.OrdinalIgnoreCase));
     }
@@ -204,7 +206,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().NotContain(e => e.Contains("AzureOpenAI", StringComparison.OrdinalIgnoreCase));
     }
@@ -226,7 +228,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("TransactionalOutboxEnabled", StringComparison.OrdinalIgnoreCase));
     }
@@ -252,7 +254,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("MaxCompletionTokens", StringComparison.OrdinalIgnoreCase));
     }
@@ -274,7 +276,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("LlmCompletionCache:MaxEntries", StringComparison.OrdinalIgnoreCase));
     }
@@ -296,7 +298,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should()
             .Contain(
@@ -326,7 +328,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should()
             .NotContain(
@@ -356,7 +358,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("ProcessorReceiveBatchSize", StringComparison.OrdinalIgnoreCase));
     }
@@ -375,7 +377,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("relative", StringComparison.OrdinalIgnoreCase)
             && e.Contains("AgentResult", StringComparison.OrdinalIgnoreCase));
@@ -395,7 +397,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("escapes", StringComparison.OrdinalIgnoreCase)
             && e.Contains("AgentResult", StringComparison.OrdinalIgnoreCase));
@@ -415,7 +417,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("ComparisonReplay:Batch:MaxComparisonRecordIds", StringComparison.OrdinalIgnoreCase));
     }
@@ -435,7 +437,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("ApiDeprecation:SunsetHttpDate", StringComparison.OrdinalIgnoreCase));
     }
@@ -454,7 +456,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("DataArchival:IntervalHours", StringComparison.OrdinalIgnoreCase));
     }
@@ -473,7 +475,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("RateLimiting:FixedWindow", StringComparison.OrdinalIgnoreCase)
             && e.Contains("PermitLimit", StringComparison.OrdinalIgnoreCase));
@@ -493,7 +495,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("RateLimiting:Expensive", StringComparison.OrdinalIgnoreCase)
             && e.Contains("WindowMinutes", StringComparison.OrdinalIgnoreCase));
@@ -514,7 +516,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("Cors:AllowedOrigins", StringComparison.OrdinalIgnoreCase));
     }
@@ -535,7 +537,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().NotContain(e => e.Contains("Cors:AllowedOrigins", StringComparison.OrdinalIgnoreCase));
     }
@@ -556,7 +558,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("wildcard", StringComparison.OrdinalIgnoreCase));
     }
@@ -578,7 +580,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("WebhookDelivery:HmacSha256SharedSecret", StringComparison.OrdinalIgnoreCase));
     }
@@ -597,7 +599,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("Retrieval:VectorIndex", StringComparison.OrdinalIgnoreCase));
     }
@@ -619,7 +621,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e =>
             e.Contains("WebhookDelivery:HmacSha256SharedSecret", StringComparison.OrdinalIgnoreCase) &&
@@ -642,7 +644,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("RateLimiting:Replay:Light", StringComparison.OrdinalIgnoreCase)
             && e.Contains("QueueLimit", StringComparison.OrdinalIgnoreCase));
@@ -664,7 +666,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("Authentication:ApiKey:Enabled is true", StringComparison.OrdinalIgnoreCase));
     }
@@ -684,7 +686,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("Retrieval:EmbeddingCaps:MaxTextsPerEmbeddingRequest", StringComparison.OrdinalIgnoreCase));
         errors.Should().Contain(e => e.Contains("Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation", StringComparison.OrdinalIgnoreCase));
@@ -704,7 +706,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("DataArchival:RunsRetentionDays", StringComparison.OrdinalIgnoreCase));
     }
@@ -723,7 +725,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("ComparisonReplay:Batch:MaxComparisonRecordIds", StringComparison.OrdinalIgnoreCase));
     }
@@ -742,7 +744,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("AgentResult", StringComparison.OrdinalIgnoreCase)
             && e.Contains("missing", StringComparison.OrdinalIgnoreCase));
@@ -766,7 +768,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("Production ApiKey auth requires", StringComparison.OrdinalIgnoreCase));
     }
@@ -786,7 +788,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("HotPathCache:Provider", StringComparison.OrdinalIgnoreCase));
     }
@@ -807,7 +809,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("HotPathCache:RedisConnectionString", StringComparison.OrdinalIgnoreCase));
     }
@@ -827,7 +829,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("HotPathCache:AbsoluteExpirationSeconds", StringComparison.OrdinalIgnoreCase));
     }
@@ -852,7 +854,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("HotPathCache:RedisConnectionString", StringComparison.OrdinalIgnoreCase)
             && e.Contains("ExpectedApiReplicaCount", StringComparison.OrdinalIgnoreCase));
@@ -875,7 +877,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().NotContain(e => e.Contains("greater than 1 outside Development", StringComparison.OrdinalIgnoreCase));
     }
@@ -896,7 +898,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("HostLeaderElection:RenewIntervalSeconds", StringComparison.OrdinalIgnoreCase));
     }
@@ -917,7 +919,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().NotContain(e => e.Contains("HostLeaderElection", StringComparison.OrdinalIgnoreCase));
     }
@@ -936,7 +938,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("Observability:Otlp:Endpoint", StringComparison.OrdinalIgnoreCase));
     }
@@ -957,7 +959,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("Observability:Otlp:Protocol", StringComparison.OrdinalIgnoreCase));
     }
@@ -976,7 +978,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("ScrapeUsername", StringComparison.OrdinalIgnoreCase));
     }
@@ -997,7 +999,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().NotContain(e => e.Contains("Observability:Prometheus", StringComparison.OrdinalIgnoreCase));
     }
@@ -1017,7 +1019,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().NotContain(e => e.Contains("ScrapeUsername", StringComparison.OrdinalIgnoreCase));
     }
@@ -1038,7 +1040,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should()
             .NotContain(e => e.Contains("ApplySessionContext", StringComparison.OrdinalIgnoreCase)
@@ -1063,7 +1065,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
     }
@@ -1086,7 +1088,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should()
             .NotContain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
@@ -1110,7 +1112,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
     }
@@ -1132,7 +1134,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("LlmTokenQuota:MaxPromptTokensPerTenantPerWindow", StringComparison.OrdinalIgnoreCase));
     }
@@ -1154,7 +1156,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e => e.Contains("LlmTokenQuota:WindowMinutes", StringComparison.OrdinalIgnoreCase));
     }
@@ -1175,7 +1177,7 @@ public sealed class ArchiForgeConfigurationRulesTests
         Mock<IWebHostEnvironment> env = new();
         env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
 
-        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().NotContain(e => e.Contains("LlmTokenQuota", StringComparison.OrdinalIgnoreCase));
     }

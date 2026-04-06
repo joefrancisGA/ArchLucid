@@ -1,9 +1,9 @@
-﻿using ArchiForge.Core.Conversation;
-using ArchiForge.Persistence.Conversation;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Persistence.Conversation;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Shared contract assertions for <see cref="IConversationMessageRepository"/>.

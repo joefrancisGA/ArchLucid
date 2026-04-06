@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// Ranks improvement plans with deterministic, batch-normalized weighted scores (no LLM).

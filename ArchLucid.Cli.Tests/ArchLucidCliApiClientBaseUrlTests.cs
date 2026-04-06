@@ -1,8 +1,8 @@
 using FluentAssertions;
 
-namespace ArchiForge.Cli.Tests;
+namespace ArchLucid.Cli.Tests;
 
-public sealed class ArchiForgeApiClientBaseUrlTests
+public sealed class ArchLucidApiClientBaseUrlTests
 {
     [Theory]
     [InlineData(null)]
@@ -10,7 +10,7 @@ public sealed class ArchiForgeApiClientBaseUrlTests
     [InlineData("   ")]
     public void GetInvalidApiBaseUrlReason_when_empty_returns_message(string? url)
     {
-        string? reason = ArchiForgeApiClient.GetInvalidApiBaseUrlReason(url);
+        string? reason = ArchLucidApiClient.GetInvalidApiBaseUrlReason(url);
 
         reason.Should().NotBeNull();
         reason.ToLowerInvariant().Should().Contain("empty");
@@ -19,7 +19,7 @@ public sealed class ArchiForgeApiClientBaseUrlTests
     [Fact]
     public void GetInvalidApiBaseUrlReason_when_relative_returns_message()
     {
-        string? reason = ArchiForgeApiClient.GetInvalidApiBaseUrlReason("/api/v1");
+        string? reason = ArchLucidApiClient.GetInvalidApiBaseUrlReason("/api/v1");
 
         reason.Should().NotBeNull();
     }
@@ -27,7 +27,7 @@ public sealed class ArchiForgeApiClientBaseUrlTests
     [Fact]
     public void GetInvalidApiBaseUrlReason_when_non_http_scheme_returns_message()
     {
-        string? reason = ArchiForgeApiClient.GetInvalidApiBaseUrlReason("ftp://host");
+        string? reason = ArchLucidApiClient.GetInvalidApiBaseUrlReason("ftp://host");
 
         reason.Should().NotBeNull();
         reason.ToLowerInvariant().Should().Contain("http");
@@ -39,13 +39,13 @@ public sealed class ArchiForgeApiClientBaseUrlTests
     [InlineData("http://127.0.0.1:5128/v1")]
     public void GetInvalidApiBaseUrlReason_when_valid_returns_null(string url)
     {
-        ArchiForgeApiClient.GetInvalidApiBaseUrlReason(url).Should().BeNull();
+        ArchLucidApiClient.GetInvalidApiBaseUrlReason(url).Should().BeNull();
     }
 
     [Fact]
     public void Constructor_throws_ArgumentException_with_clear_message_when_url_invalid()
     {
-        Action act = () => _ = new ArchiForgeApiClient(":::not-a-url");
+        Action act = () => _ = new ArchLucidApiClient(":::not-a-url");
 
         act.Should().Throw<ArgumentException>().WithParameterName("baseUrl");
     }

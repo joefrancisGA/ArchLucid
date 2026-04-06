@@ -1,14 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
 /// Dapper implementation of <see cref="IRecommendationLearningProfileRepository"/> backed by <c>dbo.RecommendationLearningProfiles</c>.

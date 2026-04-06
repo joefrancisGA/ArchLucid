@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Alerts.Composite;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Alerts.Composite;
 
 using Asp.Versioning;
 
@@ -12,17 +12,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// API to create and list <see cref="CompositeAlertRule"/> definitions (multi-metric AND/OR rules) for the caller’s scope.
 /// </summary>
 /// <remarks>
-/// Validated with <see cref="ArchiForge.Api.Validators.CompositeAlertRuleBodyValidator"/> on create. Child <see cref="AlertRuleCondition.ConditionId"/> values are generated when empty.
-/// Evaluated in production by <c>CompositeAlertService</c> after governance filtering. Mutations require <see cref="ArchiForgePolicies.ExecuteAuthority"/>.
+/// Validated with <see cref="ArchLucid.Api.Validators.CompositeAlertRuleBodyValidator"/> on create. Child <see cref="AlertRuleCondition.ConditionId"/> values are generated when empty.
+/// Evaluated in production by <c>CompositeAlertService</c> after governance filtering. Mutations require <see cref="ArchLucidPolicies.ExecuteAuthority"/>.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/composite-alert-rules")]
 [EnableRateLimiting("fixed")]
@@ -34,7 +34,7 @@ public sealed class CompositeAlertRulesController(
 {
     /// <summary>Persists the rule and conditions in one repository operation; stamps scope and rule id.</summary>
     [HttpPost]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CompositeAlertRule), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(

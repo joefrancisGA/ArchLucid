@@ -1,12 +1,12 @@
-using ArchiForge.Host.Core.Ask;
-using ArchiForge.Core.Conversation;
-using ArchiForge.Persistence.Conversation;
+using ArchLucid.Host.Core.Ask;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Persistence.Conversation;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// <see cref="ConversationService"/> thread lifecycle: get-or-create, append messages, history, last-updated bumps.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Compare;
+namespace ArchLucid.Persistence.Compare;
 
 /// <summary>
 /// String labels stored in <see cref="DiffItem.DiffKind"/> for comparison results and API responses.

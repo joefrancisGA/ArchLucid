@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.TestSupport;
+namespace ArchLucid.TestSupport;
 
 /// <summary>
 /// Builds SQL Server connection strings for test assemblies. Resolution order is explicit and environment-driven.

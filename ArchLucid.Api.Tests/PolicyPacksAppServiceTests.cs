@@ -1,11 +1,11 @@
-using ArchiForge.Core.Audit;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Core.Audit;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Policy Packs App Service.

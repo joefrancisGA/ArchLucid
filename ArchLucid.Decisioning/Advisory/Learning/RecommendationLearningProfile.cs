@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Learning;
+namespace ArchLucid.Decisioning.Advisory.Learning;
 
 /// <summary>
 /// Aggregated recommendation outcomes and derived weights for a scope (used in advisory UX and alert metric snapshots).

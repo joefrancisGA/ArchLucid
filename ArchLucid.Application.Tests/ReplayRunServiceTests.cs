@@ -1,21 +1,21 @@
-using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Application.Agents;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Decisioning.Merge;
+using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Application.Agents;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Merge;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Application.Tests;
+namespace ArchLucid.Application.Tests;
 
 /// <summary>
 /// <see cref="ReplayRunService"/> unit tests (commit vs dry-run, not-found).

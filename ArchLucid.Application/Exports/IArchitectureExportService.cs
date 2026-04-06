@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Exports;
+namespace ArchLucid.Application.Exports;
 
 /// <summary>
 /// Bundles a <see cref="GoldenManifest"/>, its Mermaid diagram, and a Markdown summary into

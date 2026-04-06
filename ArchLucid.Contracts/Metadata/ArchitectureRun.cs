@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.Contracts.Metadata;
+namespace ArchLucid.Contracts.Metadata;
 
 /// <summary>
 /// Represents a single architecture analysis run and tracks its lifecycle from creation
@@ -10,7 +10,7 @@ namespace ArchiForge.Contracts.Metadata;
 /// </summary>
 /// <remarks>
 /// A run is created by <c>ArchitectureRunService.CreateRunAsync</c>, executed by
-/// <c>ExecuteRunAsync</c>, and committed to a <see cref="ArchiForge.Contracts.Manifest.GoldenManifest"/>
+/// <c>ExecuteRunAsync</c>, and committed to a <see cref="ArchLucid.Contracts.Manifest.GoldenManifest"/>
 /// by <c>CommitRunAsync</c>. Status transitions follow:
 /// <c>Created → ReadyForCommit → Committed</c> (or <c>Failed</c> on error).
 /// </remarks>

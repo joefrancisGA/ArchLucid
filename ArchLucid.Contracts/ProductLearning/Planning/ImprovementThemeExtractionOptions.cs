@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Thresholds for deterministic theme extraction from 58R aggregates and raw signals.</summary>
 public sealed class ImprovementThemeExtractionOptions

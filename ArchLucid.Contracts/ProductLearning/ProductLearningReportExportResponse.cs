@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>JSON wrapper when <c>format=markdown</c> on the product-learning triage report endpoint.</summary>
 public sealed class ProductLearningReportExportResponse

@@ -1,14 +1,14 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Persistence.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Persistence.Models;
 
-namespace ArchiForge.Persistence.Orchestration;
+namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>
 /// End-to-end authority pipeline: context ingestion → graph → findings → decision engine → manifest → artifacts → (optional) retrieval indexing.
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="AuthorityRunOrchestrator"/>. Primary caller: <c>ArchiForge.Coordinator.Services.CoordinatorService</c>. Registered scoped in API storage extensions.
-/// Uses <see cref="ArchiForge.Persistence.Transactions.IArchiForgeUnitOfWork"/> when the factory supports transactional persistence; rolls back on failure.
+/// Implementation: <see cref="AuthorityRunOrchestrator"/>. Primary caller: <c>ArchLucid.Coordinator.Services.CoordinatorService</c>. Registered scoped in API storage extensions.
+/// Uses <see cref="ArchLucid.Persistence.Transactions.IArchLucidUnitOfWork"/> when the factory supports transactional persistence; rolls back on failure.
 /// </remarks>
 public interface IAuthorityRunOrchestrator
 {

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Contracts.DecisionTraces;
+namespace ArchLucid.Contracts.DecisionTraces;
 
 /// <summary>
 /// Authority pipeline trace: rule-application audit from the decision engine.

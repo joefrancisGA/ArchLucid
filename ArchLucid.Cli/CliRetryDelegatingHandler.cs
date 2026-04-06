@@ -4,9 +4,9 @@ using System.Net.Http;
 using Polly;
 using Polly.Retry;
 
-namespace ArchiForge.Cli;
+namespace ArchLucid.Cli;
 
-/// <summary>Retries transient HTTP failures for CLI outbound calls (matches legacy <c>ArchiForgeApiClient</c> resilience).</summary>
+/// <summary>Retries transient HTTP failures for CLI outbound calls (matches legacy <c>ArchLucidApiClient</c> resilience).</summary>
 internal sealed class CliRetryDelegatingHandler : DelegatingHandler
 {
     private readonly ResiliencePipeline<HttpResponseMessage> _pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()

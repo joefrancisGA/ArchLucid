@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Read-side pipeline sections for shadow execution (evidence, traces, compares, determinism are always off).</summary>
 public sealed class ShadowExecutionPipelineOptions

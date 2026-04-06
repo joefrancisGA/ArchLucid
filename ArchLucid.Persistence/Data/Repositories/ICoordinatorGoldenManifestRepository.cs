@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Persistence contract for <see cref="GoldenManifest"/> records.

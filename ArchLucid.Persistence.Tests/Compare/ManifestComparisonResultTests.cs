@@ -1,8 +1,8 @@
-using ArchiForge.Persistence.Compare;
+using ArchLucid.Persistence.Compare;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Compare;
+namespace ArchLucid.Persistence.Tests.Compare;
 
 public sealed class ManifestComparisonResultTests
 {

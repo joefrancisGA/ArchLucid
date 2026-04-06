@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -32,11 +32,11 @@ README.md
 
 
 
-namespace ArchiForge.Cli;
+namespace ArchLucid.Cli;
 
 
 
-public static class ArchiForgeProjectScaffolder
+public static class ArchLucidProjectScaffolder
 {
     /// <summary>Shared options for archiforge.json read/write (CA1869: single cached instance).</summary>
     private static readonly JsonSerializerOptions SJsonManifest = new()
@@ -158,7 +158,7 @@ public static class ArchiForgeProjectScaffolder
         File.WriteAllText(path, contents, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
     }
 
-    public sealed class ArchiForgeConfig
+    public sealed class ArchLucidCliConfig
     {
         [JsonPropertyName("schemaVersion")]
         public string SchemaVersion { get; set; } = "1.0";
@@ -241,7 +241,7 @@ public static class ArchiForgeProjectScaffolder
 
     private static string BuildArchiForgeJson(string projectName)
     {
-        ArchiForgeConfig config = new()
+        ArchLucidCliConfig config = new()
         {
             ProjectName = projectName,
             ApiUrl = "http://localhost:5128",
@@ -265,7 +265,7 @@ public static class ArchiForgeProjectScaffolder
         return JsonSerializer.Serialize(config, SJsonManifest) + Environment.NewLine;
     }
 
-    public static ArchiForgeConfig LoadConfig(string? projectRoot)
+    public static ArchLucidCliConfig LoadConfig(string? projectRoot)
     {
         string manifestPath = projectRoot != null ? Path.Combine(projectRoot, "archiforge.json") : "archiforge.json";
         if (!File.Exists(manifestPath))
@@ -273,23 +273,23 @@ public static class ArchiForgeProjectScaffolder
 
         string json = File.ReadAllText(manifestPath, Encoding.UTF8);
 
-        ArchiForgeConfig? config;
+        ArchLucidCliConfig? config;
         try
         {
-            config = JsonSerializer.Deserialize<ArchiForgeConfig>(json, SJsonManifest);
+            config = JsonSerializer.Deserialize<ArchLucidCliConfig>(json, SJsonManifest);
         }
         catch (JsonException ex)
         {
             throw new InvalidDataException($"Invalid JSON in {manifestPath}: {ex.Message}", ex);
         }
         if (config is null)
-            throw new InvalidDataException($"Unable to parse {manifestPath} into ArchiForgeConfig.");
+            throw new InvalidDataException($"Unable to parse {manifestPath} into ArchLucidCliConfig.");
         if (projectRoot != null)
             ValidateConfigOrThrow(config, projectRoot);
         return config;
     }
 
-    private static void ValidateConfigOrThrow(ArchiForgeConfig config, string projectRoot)
+    private static void ValidateConfigOrThrow(ArchLucidCliConfig config, string projectRoot)
     {
         if (string.IsNullOrWhiteSpace(config.SchemaVersion))
             throw new InvalidDataException("archiforge.json: schemaVersion is required.");

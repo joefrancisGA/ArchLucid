@@ -8,7 +8,7 @@
 
 ## Scope (3–5 outcomes — check off by end of week one)
 
-- [ ] **1. Health model** — Call **`GET /health/live`**, **`GET /health/ready`**, **`GET /health`** against a running instance; know which dependencies block readiness (SQL, schema, rule pack, blob, temp) ([BUILD.md](../BUILD.md), pipeline in `ArchiForge.Host.Core`).
+- [ ] **1. Health model** — Call **`GET /health/live`**, **`GET /health/ready`**, **`GET /health`** against a running instance; know which dependencies block readiness (SQL, schema, rule pack, blob, temp) ([BUILD.md](../BUILD.md), pipeline in `ArchLucid.Host.Core`).
 - [ ] **2. Deploy order** — Read [DEPLOYMENT.md](../DEPLOYMENT.md) + [infra/README.md](../../infra/README.md) **Suggested order** (storage → compute → private endpoints → Entra → edge; failover group when used).
 - [ ] **3. One Terraform root** — Pick **one** stack you own (e.g. `terraform-container-apps/`), run `terraform init -backend=false` + `terraform validate` locally; open that root’s `README.md` and `terraform.tfvars.example`.
 - [ ] **4. Migrations posture** — Confirm **DbUp** (`DatabaseMigrator`) ordering matches your release process; skim [runbooks/MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md) for “forward-only” expectations.

@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Findings;
-using ArchiForge.Decisioning.Findings.Factories;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Findings.Factories;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Services;
+namespace ArchLucid.Decisioning.Services;
 
 public class FindingPayloadValidator : IFindingPayloadValidator
 {

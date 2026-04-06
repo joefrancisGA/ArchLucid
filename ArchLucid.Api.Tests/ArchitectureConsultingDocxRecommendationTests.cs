@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Consulting Docx Recommendation.
@@ -11,7 +11,7 @@ namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
-public sealed class ArchitectureConsultingDocxRecommendationTests(ArchiForgeApiFactory factory)
+public sealed class ArchitectureConsultingDocxRecommendationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
     [Fact]

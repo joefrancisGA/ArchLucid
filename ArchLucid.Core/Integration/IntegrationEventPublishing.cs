@@ -2,7 +2,7 @@ using System.Text.Json;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Core.Integration;
+namespace ArchLucid.Core.Integration;
 
 /// <summary>Best-effort publishing helpers for <see cref="IIntegrationEventPublisher"/>.</summary>
 /// <remarks>Failures are logged and swallowed so domain commits are not rolled back.</remarks>

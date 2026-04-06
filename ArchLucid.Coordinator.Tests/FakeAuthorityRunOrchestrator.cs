@@ -1,8 +1,8 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Orchestration;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Orchestration;
 
-namespace ArchiForge.Coordinator.Tests;
+namespace ArchLucid.Coordinator.Tests;
 
 /// <summary>Test double: skips real authority pipeline; returns a run with synthetic snapshot IDs.</summary>
 internal sealed class FakeAuthorityRunOrchestrator : IAuthorityRunOrchestrator

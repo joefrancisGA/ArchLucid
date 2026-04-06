@@ -1,11 +1,11 @@
 using System.Data;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Caching;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Caching;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// Decorates <see cref="IGoldenManifestRepository"/> with scoped hot-path reads and evicts on <see cref="SaveAsync"/>.

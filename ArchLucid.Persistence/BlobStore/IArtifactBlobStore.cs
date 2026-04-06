@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.BlobStore;
+namespace ArchLucid.Persistence.BlobStore;
 
 /// <summary>
 /// Persists large UTF-8 text payloads outside SQL (local files or Azure Blob). URIs are stored in SQL as pointers.

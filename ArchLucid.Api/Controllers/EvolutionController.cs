@@ -1,16 +1,16 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Learning;
-using ArchiForge.Api.Models.Evolution;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.ProductLearning;
-using ArchiForge.Api.Services.Evolution;
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Evolution;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Learning;
+using ArchLucid.Api.Models.Evolution;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.ProductLearning;
+using ArchLucid.Api.Services.Evolution;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Evolution;
 
 using Asp.Versioning;
 
@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// 60R controlled evolution: candidate change sets from 59R plans and read-only shadow evaluation (simulation only).
@@ -43,7 +43,7 @@ public sealed class EvolutionController(
 
     /// <summary>Creates a reviewable candidate from a persisted 59R improvement plan (copies a JSON snapshot).</summary>
     [HttpPost("candidates/from-plan/{planId:guid}")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EvolutionCandidateChangeSetResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CreateCandidateFromPlan(
@@ -71,7 +71,7 @@ public sealed class EvolutionController(
 
     /// <summary>Runs read-only architecture analysis for each baseline run linked on the source plan (persists shadow rows; no commits/replays).</summary>
     [HttpPost("candidates/{candidateId:guid}/shadow-evaluate")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EvolutionShadowEvaluateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -105,7 +105,7 @@ public sealed class EvolutionController(
     /// Re-runs simulation for the candidate (replaces prior simulation rows), persists 60R-v2 outcomes with evaluation scores.
     /// </summary>
     [HttpPost("simulate/{candidateId:guid}")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EvolutionSimulateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -151,7 +151,7 @@ public sealed class EvolutionController(
 
     /// <summary>Loads candidate, plan snapshot, and simulation runs with parsed evaluation scores.</summary>
     [HttpGet("results/{candidateId:guid}")]
-    [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(EvolutionResultsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetResults(Guid candidateId, CancellationToken cancellationToken)
@@ -183,7 +183,7 @@ public sealed class EvolutionController(
 
     /// <summary>Downloads a Markdown or JSON simulation report (change set, plan snapshot, runs, scores, diff summary).</summary>
     [HttpGet("results/{candidateId:guid}/export")]
-    [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -231,7 +231,7 @@ public sealed class EvolutionController(
 
     /// <summary>Lists recent candidate change sets for the current scope.</summary>
     [HttpGet("candidates")]
-    [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(EvolutionCandidateChangeSetListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ListCandidates([FromQuery] string? max, CancellationToken cancellationToken)
@@ -256,7 +256,7 @@ public sealed class EvolutionController(
 
     /// <summary>Loads one candidate, its snapshot JSON, and persisted simulation rows.</summary>
     [HttpGet("candidates/{candidateId:guid}")]
-    [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
     [ProducesResponseType(typeof(EvolutionCandidateDetailResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCandidate(Guid candidateId, CancellationToken cancellationToken)

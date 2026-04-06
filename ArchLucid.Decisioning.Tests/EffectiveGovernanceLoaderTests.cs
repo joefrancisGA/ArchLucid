@@ -1,11 +1,11 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.Resolution;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Effective Governance Loader.

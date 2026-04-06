@@ -3,7 +3,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 using JetBrains.Annotations;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 public interface IDocxDocumentBuilder
 {

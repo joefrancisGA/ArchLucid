@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Shared parsing for replay query parameters (<see cref="ReplayComparisonRequest"/>) used by

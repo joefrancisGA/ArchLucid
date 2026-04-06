@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Asserts Swashbuckle output reflects auth mode: JWT (Entra) vs DevelopmentBypass.

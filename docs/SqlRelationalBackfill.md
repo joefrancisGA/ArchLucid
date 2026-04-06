@@ -19,7 +19,7 @@ To change the mode, update the DI registration in `ArchiForgeStorageServiceColle
 ```csharp
 services.AddSingleton(sp => new JsonFallbackPolicy(
     PersistenceReadMode.WarnOnJsonFallback, // ← change here
-    sp.GetRequiredService<ILoggerFactory>().CreateLogger("ArchiForge.Persistence.JsonFallback")));
+    sp.GetRequiredService<ILoggerFactory>().CreateLogger("ArchLucid.Persistence.JsonFallback")));
 ```
 
 ## When to run the backfill
@@ -46,7 +46,7 @@ services.AddSingleton(sp => new JsonFallbackPolicy(
 
 ## CLI usage
 
-**Project:** `ArchiForge.Backfill.Cli`
+**Project:** `ArchLucid.Backfill.Cli`
 
 **Connection string** (first match wins):
 
@@ -58,19 +58,19 @@ services.AddSingleton(sp => new JsonFallbackPolicy(
 
 ```powershell
 $env:ARCHIFORGE_SQL = "Server=localhost;Database=ArchiForge;User Id=...;Password=...;TrustServerCertificate=True"
-dotnet run --project ArchiForge.Backfill.Cli
+dotnet run --project ArchLucid.Backfill.Cli
 ```
 
 **Example (positional):**
 
 ```powershell
-dotnet run --project ArchiForge.Backfill.Cli -- "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True"
+dotnet run --project ArchLucid.Backfill.Cli -- "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True"
 ```
 
 **Example (explicit connection + scope):**
 
 ```powershell
-dotnet run --project ArchiForge.Backfill.Cli -- -c "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True" --only context,graph
+dotnet run --project ArchLucid.Backfill.Cli -- -c "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True" --only context,graph
 ```
 
 **Scope flags:**
@@ -83,7 +83,7 @@ dotnet run --project ArchiForge.Backfill.Cli -- -c "Server=.;Database=ArchiForge
 
 If `--only` is present, `--skip-*` is ignored.
 
-**Help:** `dotnet run --project ArchiForge.Backfill.Cli -- --help`
+**Help:** `dotnet run --project ArchLucid.Backfill.Cli -- --help`
 
 Programmatically, construct `SqlRelationalBackfillOptions` with `init` properties set to `false` to skip stages when not using the CLI.
 
@@ -99,12 +99,12 @@ Call `ISqlRelationalBackfillService.RunAsync(options, cancellationToken)` and in
 
 ## Tests
 
-Integration tests: `ArchiForge.Persistence.Tests` → `SqlRelationalBackfillServiceSqlIntegrationTests` (requires SQL Server: set **`ARCHIFORGE_SQL_TEST`** or use LocalDB on Windows; CI uses a SQL Server service container).
+Integration tests: `ArchLucid.Persistence.Tests` → `SqlRelationalBackfillServiceSqlIntegrationTests` (requires SQL Server: set **`ARCHIFORGE_SQL_TEST`** or use LocalDB on Windows; CI uses a SQL Server service container).
 
 Filter:
 
 ```powershell
-dotnet test ArchiForge.Persistence.Tests --filter "FullyQualifiedName~SqlRelationalBackfillServiceSqlIntegrationTests"
+dotnet test ArchLucid.Persistence.Tests --filter "FullyQualifiedName~SqlRelationalBackfillServiceSqlIntegrationTests"
 ```
 
 ## Security and operations
@@ -118,14 +118,14 @@ dotnet test ArchiForge.Persistence.Tests --filter "FullyQualifiedName~SqlRelatio
 Before enabling `RequireRelational`, run the **readiness report** to verify that every header row has relational children across all slices. This is a **read-only** operation — no data is modified.
 
 ```powershell
-dotnet run --project ArchiForge.Backfill.Cli -- --readiness -c "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True"
+dotnet run --project ArchLucid.Backfill.Cli -- --readiness -c "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True"
 ```
 
 Or with the environment variable:
 
 ```powershell
 $env:ARCHIFORGE_SQL = "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True"
-dotnet run --project ArchiForge.Backfill.Cli -- --readiness
+dotnet run --project ArchLucid.Backfill.Cli -- --readiness
 ```
 
 **Example output:**

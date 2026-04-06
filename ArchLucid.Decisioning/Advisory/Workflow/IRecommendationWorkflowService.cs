@@ -1,13 +1,13 @@
-using ArchiForge.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Models;
 
-namespace ArchiForge.Decisioning.Advisory.Workflow;
+namespace ArchLucid.Decisioning.Advisory.Workflow;
 
 /// <summary>
 /// Maps advisory <see cref="ImprovementPlan"/> output to durable <see cref="RecommendationRecord"/> rows and applies operator workflow actions.
 /// </summary>
 /// <remarks>
-/// Default implementation: <c>ArchiForge.Persistence.Advisory.RecommendationWorkflowService</c>. Invoked from HTTP after plan generation
-/// (<c>ArchiForge.Api.Controllers.AdvisoryController</c>) and when applying accept/reject/defer/implemented.
+/// Default implementation: <c>ArchLucid.Persistence.Advisory.RecommendationWorkflowService</c>. Invoked from HTTP after plan generation
+/// (<c>ArchLucid.Api.Controllers.AdvisoryController</c>) and when applying accept/reject/defer/implemented.
 /// </remarks>
 public interface IRecommendationWorkflowService
 {

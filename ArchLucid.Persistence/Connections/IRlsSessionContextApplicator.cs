@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
 /// Applies <c>sp_set_session_context</c> for row-level security on an open <see cref="SqlConnection"/>.

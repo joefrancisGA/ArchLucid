@@ -2,13 +2,13 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Persistence.Data.Infrastructure;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Dapper-backed persistence for <see cref="GoldenManifest"/> versions, serialising manifest state as JSON.

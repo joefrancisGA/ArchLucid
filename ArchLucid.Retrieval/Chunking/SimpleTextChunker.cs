@@ -1,4 +1,4 @@
-namespace ArchiForge.Retrieval.Chunking;
+namespace ArchLucid.Retrieval.Chunking;
 
 /// <summary>
 /// Character-window chunker with fixed stride <c>max(1, maxChars − overlap)</c>; no sentence awareness.

@@ -1,10 +1,10 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-using ArchiForge.Api.Controllers;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Api.Controllers;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 /// <summary>
 /// Shared predicates for policy pack HTTP request validation (SemVer labels, JSON shape, pack type whitelist).

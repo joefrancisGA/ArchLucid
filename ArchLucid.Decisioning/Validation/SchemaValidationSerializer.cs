@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Decisioning.Validation;
+namespace ArchLucid.Decisioning.Validation;
 
 public static class SchemaValidationSerializer
 {

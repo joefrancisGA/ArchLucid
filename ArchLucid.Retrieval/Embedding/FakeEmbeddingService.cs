@@ -1,4 +1,4 @@
-namespace ArchiForge.Retrieval.Embedding;
+namespace ArchLucid.Retrieval.Embedding;
 
 /// <summary>Deterministic pseudo-vectors for local dev/tests (not semantically meaningful).</summary>
 public sealed class FakeEmbeddingService : IEmbeddingService

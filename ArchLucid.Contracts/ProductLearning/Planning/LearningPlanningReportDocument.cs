@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>59R planning export document: top themes, prioritized plans, and evidence references (JSON or markdown source).</summary>
 public sealed class LearningPlanningReportDocument

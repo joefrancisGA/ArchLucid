@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Diagrams;
+namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
 /// Controls the rendering behaviour of <see cref="IManifestDiagramService.GenerateMermaid"/>.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
 /// Persistence for <see cref="DigestDeliveryAttempt"/> rows (one per subscription per digest send try).

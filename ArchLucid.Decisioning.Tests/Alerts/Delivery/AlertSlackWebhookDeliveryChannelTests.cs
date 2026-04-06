@@ -1,14 +1,14 @@
 using System.Reflection;
 
-using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Delivery;
+using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Delivery;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Tests.Alerts.Delivery;
 
 [Trait("Category", "Unit")]
 public sealed class AlertSlackWebhookDeliveryChannelTests

@@ -1,8 +1,8 @@
-﻿using ArchiForge.ContextIngestion.Infrastructure;
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models;
 
-namespace ArchiForge.ContextIngestion.Connectors;
+namespace ArchLucid.ContextIngestion.Connectors;
 
 public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDeclarationParser> parsers)
     : IContextConnector

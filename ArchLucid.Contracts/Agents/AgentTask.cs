@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.Contracts.Agents;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 /// A unit of work assigned to a specific agent type as part of an architecture run.

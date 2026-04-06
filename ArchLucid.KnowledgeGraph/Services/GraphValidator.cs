@@ -1,7 +1,7 @@
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Services;
+namespace ArchLucid.KnowledgeGraph.Services;
 
 public class GraphValidator : IGraphValidator
 {

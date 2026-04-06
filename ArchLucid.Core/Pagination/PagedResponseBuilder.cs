@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Pagination;
+namespace ArchLucid.Core.Pagination;
 
 /// <summary>
 /// Builds <see cref="PagedResponse{T}"/> from an in-memory collection or from database page + total count.

@@ -1,7 +1,7 @@
-using ArchiForge.Application.Diagrams;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Diagrams;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
@@ -42,7 +42,7 @@ using WpTableRow = DocumentFormat.OpenXml.Wordprocessing.TableRow;
 using WpText = DocumentFormat.OpenXml.Wordprocessing.Text;
 using WpTopBorder = DocumentFormat.OpenXml.Wordprocessing.TopBorder;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Consolidates all OpenXML usage for the consulting DOCX export into one place.

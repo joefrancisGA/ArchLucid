@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Formats a <see cref="DriftAnalysisResult"/> (from a comparison drift analysis) into human-readable

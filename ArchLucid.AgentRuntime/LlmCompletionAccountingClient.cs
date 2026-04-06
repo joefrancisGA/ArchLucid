@@ -1,10 +1,10 @@
-using ArchiForge.Core.Configuration;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Scoped decorator: enforces per-tenant token quota, records OTel counters (and optional per-tenant series),
@@ -54,7 +54,7 @@ public sealed class LlmCompletionAccountingClient(
 
                 LlmTelemetryLabelOptions labels = _labelOptions.CurrentValue;
 
-                ArchiForgeInstrumentation.RecordLlmTokenUsage(
+                ArchLucidInstrumentation.RecordLlmTokenUsage(
                     promptTok,
                     completionTok,
                     perTenant,

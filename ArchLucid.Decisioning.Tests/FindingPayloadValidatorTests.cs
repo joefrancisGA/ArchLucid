@@ -1,11 +1,11 @@
-using ArchiForge.Decisioning.Findings;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Decisioning.Services;
+using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Services;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Finding Payload Validator.

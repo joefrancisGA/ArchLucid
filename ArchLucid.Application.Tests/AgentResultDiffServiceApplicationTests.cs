@@ -1,10 +1,10 @@
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
 
-namespace ArchiForge.Application.Tests;
+namespace ArchLucid.Application.Tests;
 
 /// <summary>
 /// Additional <see cref="AgentResultDiffService"/> scenarios (latest result per agent type, empty inputs).

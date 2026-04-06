@@ -10,7 +10,7 @@ using WpNonVisualGraphicFrameDrawingProperties =
 using WpParagraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using WpRun = DocumentFormat.OpenXml.Wordprocessing.Run;
 
-namespace ArchiForge.ArtifactSynthesis.Docx.Helpers;
+namespace ArchLucid.ArtifactSynthesis.Docx.Helpers;
 
 /// <summary>Embeds PNG images into WordprocessingML (body or header).</summary>
 public static class ImageHelper

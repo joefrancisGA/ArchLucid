@@ -1,16 +1,16 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Simulation;
-using ArchiForge.Decisioning.Comparison;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Simulation;
+using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Queries;
 
-namespace ArchiForge.Persistence.Alerts.Simulation;
+namespace ArchLucid.Persistence.Alerts.Simulation;
 
 /// <summary>
 /// Replays advisory-style plan generation for historical runs to produce <see cref="AlertEvaluationContext"/> for simulation APIs or tooling.

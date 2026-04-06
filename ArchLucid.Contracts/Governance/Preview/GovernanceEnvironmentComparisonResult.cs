@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Governance.Preview;
+namespace ArchLucid.Contracts.Governance.Preview;
 
 /// <summary>
 /// Result of a side-by-side comparison between the manifests currently active in two environment slots.

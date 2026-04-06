@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Learning;
+namespace ArchLucid.Api.Models.Learning;
 
 /// <summary>Cross-cutting 59R learning/planning KPIs for dashboard shells.</summary>
 public sealed class LearningSummaryResponse

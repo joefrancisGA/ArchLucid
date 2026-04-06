@@ -1,8 +1,8 @@
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 [Trait("Category", "Unit")]
 public sealed class SqlReadReplicaConnectionStringResolverTests

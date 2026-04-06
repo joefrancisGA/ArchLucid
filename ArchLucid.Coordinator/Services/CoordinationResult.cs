@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Coordinator.Services;
+namespace ArchLucid.Coordinator.Services;
 
 /// <summary>
 /// Result of a <see cref="ICoordinatorService.CreateRunAsync"/> call.

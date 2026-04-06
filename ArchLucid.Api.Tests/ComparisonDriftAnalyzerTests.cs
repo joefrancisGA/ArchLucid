@@ -1,8 +1,8 @@
-using ArchiForge.Application.Analysis;
+using ArchLucid.Application.Analysis;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Unit tests for <see cref="ComparisonDriftAnalyzer"/>.</summary>
 [Trait("Category", "Unit")]

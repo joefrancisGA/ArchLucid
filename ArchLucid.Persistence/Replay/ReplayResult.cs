@@ -1,13 +1,13 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Queries;
 
-namespace ArchiForge.Persistence.Replay;
+namespace ArchLucid.Persistence.Replay;
 
 /// <summary>
 /// Outcome of a replay: original hydrated run, optional rebuilt manifest/bundle, and validation flags/notes.
 /// </summary>
-/// <remarks>Mapped to <c>ArchiForge.Api.Contracts.ReplayResponse</c> for HTTP (subset of fields).</remarks>
+/// <remarks>Mapped to <c>ArchLucid.Api.Contracts.ReplayResponse</c> for HTTP (subset of fields).</remarks>
 public class ReplayResult
 {
     /// <summary>The authority run that was replayed.</summary>

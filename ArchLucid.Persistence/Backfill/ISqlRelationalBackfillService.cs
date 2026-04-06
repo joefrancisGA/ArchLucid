@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Backfill;
+namespace ArchLucid.Persistence.Backfill;
 
 /// <summary>
 /// One-time SQL Server utility: deserialize legacy JSON columns and insert missing relational rows (dual-write alignment).

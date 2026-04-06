@@ -1,10 +1,10 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Comparison;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// HTTP API for structured golden-manifest comparison between two runs in the caller’s scope (base → target).
@@ -21,7 +21,7 @@ namespace ArchiForge.Api.Controllers;
 /// Uses <see cref="IAuthorityQueryService.GetRunDetailAsync"/> for both runs, then <see cref="IComparisonService.Compare"/>. For flat diff lists, see <c>api/authority/compare</c>.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/compare")]
 [EnableRateLimiting("fixed")]

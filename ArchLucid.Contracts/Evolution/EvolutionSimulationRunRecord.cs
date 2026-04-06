@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>One shadow evaluation pass for a baseline architecture run (simulation-only row).</summary>
 public sealed class EvolutionSimulationRunRecord

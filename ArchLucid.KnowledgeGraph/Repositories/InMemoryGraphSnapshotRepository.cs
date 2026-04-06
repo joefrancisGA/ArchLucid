@@ -1,9 +1,9 @@
 using System.Data;
 
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Repositories;
+namespace ArchLucid.KnowledgeGraph.Repositories;
 
 public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
 {

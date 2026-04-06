@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Resilience;
+namespace ArchLucid.Host.Core.Resilience;
 
 /// <summary>Keyed DI identifiers for independent Azure OpenAI circuit breakers (completion vs embeddings).</summary>
 public static class OpenAiCircuitBreakerKeys

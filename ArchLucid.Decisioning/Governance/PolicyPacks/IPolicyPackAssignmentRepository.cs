@@ -1,10 +1,10 @@
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Persistence port for <see cref="PolicyPackAssignment"/> rows: create, toggle/update, and list by hierarchical scope.
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchiForge.Persistence.Governance.DapperPolicyPackAssignmentRepository</c> (SQL Server) and
+/// Implemented by <c>ArchLucid.Persistence.Governance.DapperPolicyPackAssignmentRepository</c> (SQL Server) and
 /// <c>InMemoryPolicyPackAssignmentRepository</c> (tests / in-memory storage). List semantics must align with
 /// <see cref="Resolution.IEffectiveGovernanceResolver"/> and <see cref="PolicyPackResolver"/> expectations.
 /// </remarks>

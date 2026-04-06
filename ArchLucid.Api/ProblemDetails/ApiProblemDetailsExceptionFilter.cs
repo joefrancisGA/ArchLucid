@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace ArchiForge.Api.ProblemDetails;
+namespace ArchLucid.Api.ProblemDetails;
 
 /// <summary>
 /// Maps common application exceptions to RFC 7807 Problem Details responses.

@@ -1,10 +1,10 @@
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Application.Architecture;
+namespace ArchLucid.Application.Architecture;
 
 /// <summary>
 /// Integrity rules for committed coordinator runs: golden manifest metadata must list every persisted

@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Decisioning.Governance.Resolution;
 
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Thin façade that exposes only the merged <see cref="PolicyPackContentDocument"/> for a scope—hiding resolution

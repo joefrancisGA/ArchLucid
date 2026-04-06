@@ -1,13 +1,13 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Configuration;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Configuration;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 
-namespace ArchiForge.Api.Tests.Configuration;
+namespace ArchLucid.Api.Tests.Configuration;
 
-public sealed class ArchiForgeAuthConfigurationBridgeTests
+public sealed class ArchLucidAuthConfigurationBridgeTests
 {
     [Fact]
     public void Resolve_merges_ArchLucidAuth_over_legacy()
@@ -23,7 +23,7 @@ public sealed class ArchiForgeAuthConfigurationBridgeTests
                 })
             .Build();
 
-        ArchiForgeAuthOptions options = ArchiForgeAuthConfigurationBridge.Resolve(configuration);
+        ArchLucidAuthOptions options = ArchLucidAuthConfigurationBridge.Resolve(configuration);
 
         options.Mode.Should().Be("JwtBearer");
         options.Authority.Should().Be("https://login.example/");

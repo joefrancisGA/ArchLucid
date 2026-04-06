@@ -68,9 +68,9 @@ flowchart LR
 
 | Step | Action | Detail |
 |------|--------|--------|
-| 1 | Start SQL + sidecars | `dotnet run --project ArchiForge.Cli -- dev up` **or** `docker compose up -d` — **[CONTAINERIZATION.md](CONTAINERIZATION.md)** |
+| 1 | Start SQL + sidecars | `dotnet run --project ArchLucid.Cli -- dev up` **or** `docker compose up -d` — **[CONTAINERIZATION.md](CONTAINERIZATION.md)** |
 | 2 | Configure connection string | User secrets `ConnectionStrings:ArchiForge` — root **[README.md](../README.md#secrets-development)** |
-| 3 | Run API | `dotnet run --project ArchiForge.Api` |
+| 3 | Run API | `dotnet run --project ArchLucid.Api` |
 | 4 | Verify | `GET /health/live`, `GET /health/ready` — **[BUILD.md](BUILD.md)** (startup vs migration failure) |
 | 5 | Fix issues | **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** |
 
@@ -85,7 +85,7 @@ flowchart LR
 | Step | Action | Detail |
 |------|--------|--------|
 | 1 | Confirm SQL storage | `ArchiForge:StorageProvider=Sql` for production-aligned paths — **[adr/0011-inmemory-vs-sql-storage-provider.md](adr/0011-inmemory-vs-sql-storage-provider.md)** |
-| 2 | Exercise auth you will use in prod | **JwtBearer** or **ApiKey** — root **[README.md](../README.md#api-authentication-archiforgeauth)**, sample **[ArchiForge.Api/appsettings.Entra.sample.json](../ArchiForge.Api/appsettings.Entra.sample.json)** |
+| 2 | Exercise auth you will use in prod | **JwtBearer** or **ApiKey** — root **[README.md](../README.md#api-authentication-archiforgeauth)**, sample **[ArchLucid.Api/appsettings.Entra.sample.json](../ArchLucid.Api/appsettings.Entra.sample.json)** |
 | 3 | Run integration / regression | Set `ARCHIFORGE_SQL_TEST` (or API test var); scripts — **[BUILD.md](BUILD.md)**, **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** |
 | 4 | Optional release smoke | `release-smoke` with `ARCHIFORGE_SMOKE_SQL` — **[RELEASE_SMOKE.md](RELEASE_SMOKE.md)** |
 | 5 | Optional operator UI | `archiforge-ui/` — **[operator-shell.md](operator-shell.md)**, **[archiforge-ui/README.md](../archiforge-ui/README.md)** |

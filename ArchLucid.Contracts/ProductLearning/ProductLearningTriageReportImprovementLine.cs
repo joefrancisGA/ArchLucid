@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>One improvement opportunity line for exports (trimmed summary).</summary>
 public sealed class ProductLearningTriageReportImprovementLine

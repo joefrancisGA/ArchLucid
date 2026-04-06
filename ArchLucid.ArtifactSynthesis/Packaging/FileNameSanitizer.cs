@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.ArtifactSynthesis.Packaging;
+namespace ArchLucid.ArtifactSynthesis.Packaging;
 
 /// <summary>
 /// Produces file names safe for archives and for common client OSes.

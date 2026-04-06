@@ -1,13 +1,13 @@
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Host.Composition.Startup;
-using ArchiForge.Host.Core.Auth.Services;
-using ArchiForge.Host.Core.Hosting;
-using ArchiForge.Host.Core.Startup;
-using ArchiForge.Host.Core.Startup.Diagnostics;
-using ArchiForge.Host.Core.Startup.Validation;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Composition.Startup;
+using ArchLucid.Host.Core.Auth.Services;
+using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Startup;
+using ArchLucid.Host.Core.Startup.Diagnostics;
+using ArchLucid.Host.Core.Startup.Validation;
 
-namespace ArchiForge.Worker;
+namespace ArchLucid.Worker;
 
 /// <summary>Background worker host: advisory scans, data archival, retrieval indexing outbox (no public HTTP API).</summary>
 public static class Program
@@ -16,24 +16,24 @@ public static class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-        builder.AddArchiForgeGracefulShutdown();
+        builder.AddArchLucidGracefulShutdown();
 
-        ArchiForgeSerilogConfiguration.Configure(builder, "ArchiForge.Worker");
+        ArchLucidSerilogConfiguration.Configure(builder, "ArchLucid.Worker");
 
         builder.Services.AddHttpContextAccessor();
         // Singleton: matches Api registration; LLM completion cache (singleton) resolves partition scope per call.
         builder.Services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
         builder.Services.AddScoped<IAuditService, AuditService>();
 
-        builder.Services.AddArchiForgeOpenTelemetry(
+        builder.Services.AddArchLucidOpenTelemetry(
             builder.Configuration,
             builder.Environment,
-            telemetryServiceName: "ArchiForge.Worker");
-        builder.Services.AddArchiForgeApplicationServices(builder.Configuration, ArchiForgeHostingRole.Worker);
+            telemetryServiceName: "ArchLucid.Worker");
+        builder.Services.AddArchLucidApplicationServices(builder.Configuration, ArchLucidHostingRole.Worker);
 
         WebApplication app = builder.Build();
 
-        IReadOnlyList<string> configurationErrors = ArchiForgeConfigurationRules.CollectErrors(
+        IReadOnlyList<string> configurationErrors = ArchLucidConfigurationRules.CollectErrors(
             app.Configuration,
             app.Environment);
 
@@ -54,10 +54,10 @@ public static class Program
             app.Environment,
             typeof(Program).Assembly);
 
-        ArchiForgePersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
+        ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
 
         app.Logger.LogInformation("ArchiForge Worker starting (hosted background services only).");
-        app.UseArchiForgeWorkerPipeline();
+        app.UseArchLucidWorkerPipeline();
         app.Run();
     }
 }

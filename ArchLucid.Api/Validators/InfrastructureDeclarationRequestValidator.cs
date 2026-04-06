@@ -1,8 +1,8 @@
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Requests;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 public sealed class InfrastructureDeclarationRequestValidator : AbstractValidator<InfrastructureDeclarationRequest>
 {

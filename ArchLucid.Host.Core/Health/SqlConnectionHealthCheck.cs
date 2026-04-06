@@ -1,22 +1,22 @@
 using System.Data.Common;
 
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Persistence.Data.Infrastructure;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Health;
+namespace ArchLucid.Host.Core.Health;
 
 /// <summary>
-/// Probes the database via <see cref="IDbConnectionFactory"/> when <see cref="ArchiForgeOptions.StorageProvider"/> is Sql.
+/// Probes the database via <see cref="IDbConnectionFactory"/> when <see cref="ArchLucidOptions.StorageProvider"/> is Sql.
 /// Skips (Healthy) for InMemory storage so readiness reflects the configured persistence mode.
 /// </summary>
 public sealed class SqlConnectionHealthCheck(
     IDbConnectionFactory connectionFactory,
-    IOptions<ArchiForgeOptions> archiForgeOptions) : IHealthCheck
+    IOptions<ArchLucidOptions> archiForgeOptions) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,

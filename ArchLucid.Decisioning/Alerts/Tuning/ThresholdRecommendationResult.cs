@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Tuning;
+namespace ArchLucid.Decisioning.Alerts.Tuning;
 
 /// <summary>Output of <see cref="IThresholdRecommendationService.RecommendAsync"/> with ranked candidates.</summary>
 public class ThresholdRecommendationResult

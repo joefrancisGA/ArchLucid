@@ -1,12 +1,12 @@
 using System.Text.Json;
 
-using ArchiForge.Decisioning.Findings;
-using ArchiForge.Decisioning.Findings.Serialization;
+using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Findings.Serialization;
 
-namespace ArchiForge.Persistence.Findings;
+namespace ArchLucid.Persistence.Findings;
 
 /// <summary>
-/// Serializes <see cref="ArchiForge.Decisioning.Models.Finding.Payload"/> to/from <c>PayloadJson</c> using the same
+/// Serializes <see cref="ArchLucid.Decisioning.Models.Finding.Payload"/> to/from <c>PayloadJson</c> using the same
 /// options as <see cref="FindingJsonConverter"/> so typed payloads round-trip.
 /// </summary>
 public static class FindingPayloadJsonCodec

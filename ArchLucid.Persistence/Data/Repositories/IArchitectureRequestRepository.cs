@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Persistence contract for <see cref="ArchitectureRequest"/> records.

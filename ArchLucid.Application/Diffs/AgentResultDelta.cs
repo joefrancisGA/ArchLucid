@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.Application.Diffs;
+namespace ArchLucid.Application.Diffs;
 
 public sealed class AgentResultDelta
 {

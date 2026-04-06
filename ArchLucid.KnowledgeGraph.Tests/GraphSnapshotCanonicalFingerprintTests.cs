@@ -1,9 +1,9 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Services;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Services;
 
 using FluentAssertions;
 
-namespace ArchiForge.KnowledgeGraph.Tests;
+namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
 /// Tests for Graph Snapshot Canonical Fingerprint.

@@ -1,7 +1,7 @@
-namespace ArchiForge.Retrieval.Models;
+namespace ArchLucid.Retrieval.Models;
 
 /// <summary>
-/// Scoped semantic search request: embedding is computed from <see cref="QueryText"/> by <see cref="ArchiForge.Retrieval.Queries.RetrievalQueryService"/>.
+/// Scoped semantic search request: embedding is computed from <see cref="QueryText"/> by <see cref="ArchLucid.Retrieval.Queries.RetrievalQueryService"/>.
 /// </summary>
 public class RetrievalQuery
 {
@@ -14,7 +14,7 @@ public class RetrievalQuery
     /// <summary>Project filter (required).</summary>
     public Guid ProjectId { get; set; }
 
-    /// <summary>Optional run facet; behavior depends on <see cref="ArchiForge.Retrieval.Indexing.IVectorIndex"/> implementation.</summary>
+    /// <summary>Optional run facet; behavior depends on <see cref="ArchLucid.Retrieval.Indexing.IVectorIndex"/> implementation.</summary>
     public Guid? RunId { get; set; }
 
     /// <summary>Optional manifest facet.</summary>

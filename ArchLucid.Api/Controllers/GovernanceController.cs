@@ -1,11 +1,11 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Application;
-using ArchiForge.Application.Common;
-using ArchiForge.Application.Governance;
-using ArchiForge.Contracts.Governance;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
 
@@ -13,13 +13,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Governance workflow: approval requests, promotions, and environment activations for run manifests.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/governance")]
 [EnableRateLimiting("fixed")]
@@ -35,7 +35,7 @@ public sealed class GovernanceController(
     : ControllerBase
 {
     [HttpPost("approval-requests")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -69,7 +69,7 @@ public sealed class GovernanceController(
     }
 
     [HttpPost("approval-requests/{approvalRequestId}/approve")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Approve(
@@ -102,7 +102,7 @@ public sealed class GovernanceController(
     }
 
     [HttpPost("approval-requests/{approvalRequestId}/reject")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Reject(
@@ -135,7 +135,7 @@ public sealed class GovernanceController(
     }
 
     [HttpPost("promotions")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernancePromotionRecord), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Promote(
@@ -171,7 +171,7 @@ public sealed class GovernanceController(
     }
 
     [HttpPost("activations")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceEnvironmentActivation), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

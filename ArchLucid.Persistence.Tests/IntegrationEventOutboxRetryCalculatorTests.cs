@@ -1,8 +1,8 @@
-using ArchiForge.Persistence.Integration;
+using ArchLucid.Persistence.Integration;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 public sealed class IntegrationEventOutboxRetryCalculatorTests
 {

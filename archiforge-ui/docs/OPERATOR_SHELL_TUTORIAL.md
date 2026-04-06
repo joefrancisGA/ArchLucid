@@ -553,7 +553,7 @@ If the content fetch failed, a warning shows the error and suggests downloading.
 
 ### Supported artifact types
 
-All nine types from `ArchiForge.ArtifactSynthesis.Models.ArtifactType`:
+All nine types from `ArchLucid.ArtifactSynthesis.Models.ArtifactType`:
 
 | API type key | UI label | Format |
 |---|---|---|
@@ -601,7 +601,7 @@ This is a **client component** because the operator types two run IDs and clicks
 
 Another **client component**. Operator enters a run ID, picks a mode, clicks **Replay**.
 
-**Modes:** `ReconstructOnly`, `RebuildManifest`, `RebuildArtifacts` (matching `ArchiForge.Persistence.Replay.ReplayMode`).
+**Modes:** `ReconstructOnly`, `RebuildManifest`, `RebuildArtifacts` (matching `ArchLucid.Persistence.Replay.ReplayMode`).
 
 **Response:** Validation flags (context/graph/findings/manifest/trace/artifacts present, manifest hash matches, artifact bundle present after replay) + notes list.
 

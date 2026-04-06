@@ -1,10 +1,10 @@
-using ArchiForge.Host.Core.Hosting;
+using ArchLucid.Host.Core.Hosting;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class HostingRoleResolverTests
 {
@@ -13,17 +13,17 @@ public sealed class HostingRoleResolverTests
     {
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
 
-        HostingRoleResolver.Resolve(configuration).Should().Be(ArchiForgeHostingRole.Combined);
+        HostingRoleResolver.Resolve(configuration).Should().Be(ArchLucidHostingRole.Combined);
     }
 
     [Theory]
-    [InlineData("Api", ArchiForgeHostingRole.Api)]
-    [InlineData("api", ArchiForgeHostingRole.Api)]
-    [InlineData("Worker", ArchiForgeHostingRole.Worker)]
-    [InlineData("WORKER", ArchiForgeHostingRole.Worker)]
-    [InlineData("Combined", ArchiForgeHostingRole.Combined)]
-    [InlineData("bogus", ArchiForgeHostingRole.Combined)]
-    public void Resolve_WhenSet_returns_expected_role(string raw, ArchiForgeHostingRole expected)
+    [InlineData("Api", ArchLucidHostingRole.Api)]
+    [InlineData("api", ArchLucidHostingRole.Api)]
+    [InlineData("Worker", ArchLucidHostingRole.Worker)]
+    [InlineData("WORKER", ArchLucidHostingRole.Worker)]
+    [InlineData("Combined", ArchLucidHostingRole.Combined)]
+    [InlineData("bogus", ArchLucidHostingRole.Combined)]
+    public void Resolve_WhenSet_returns_expected_role(string raw, ArchLucidHostingRole expected)
     {
         Dictionary<string, string?> data = new()
         {

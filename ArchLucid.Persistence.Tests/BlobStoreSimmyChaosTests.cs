@@ -1,4 +1,4 @@
-using ArchiForge.Persistence.BlobStore;
+using ArchLucid.Persistence.BlobStore;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ using Polly.Retry;
 using Polly.Simmy;
 using Polly.Simmy.Fault;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Simmy fault injection on a synthetic <see cref="IArtifactBlobStore"/> write path with Polly retry (mirrors local/blob IO failures).

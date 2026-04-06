@@ -1,15 +1,15 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Explanation;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Provenance;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Explanation;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Provenance;
 
 using JetBrains.Annotations;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.AgentRuntime.Explanation;
+namespace ArchLucid.AgentRuntime.Explanation;
 
 /// <summary>
 /// Structured signals first, then LLM narrative (JSON). Falls back to signal-only text if the model fails.

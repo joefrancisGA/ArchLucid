@@ -1,17 +1,17 @@
-using ArchiForge.Core.Conversation;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Persistence.Advisory;
-using ArchiForge.Persistence.Archival;
-using ArchiForge.Persistence.Conversation;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Repositories;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Archival;
+using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Repositories;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 public sealed class DataArchivalCoordinatorTests
 {

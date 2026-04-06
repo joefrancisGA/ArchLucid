@@ -1,5 +1,5 @@
-using ArchiForge.Application.Jobs;
-using ArchiForge.Host.Core.Jobs;
+using ArchLucid.Application.Jobs;
+using ArchLucid.Host.Core.Jobs;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for in-memory background job queue (payload executor + channel semantics).

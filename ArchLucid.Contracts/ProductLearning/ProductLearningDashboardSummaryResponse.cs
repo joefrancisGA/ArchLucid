@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
 /// Lightweight KPI + notes for the product-learning dashboard header (no large aggregate payloads).

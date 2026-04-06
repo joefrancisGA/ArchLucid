@@ -1,8 +1,8 @@
-using ArchiForge.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Sql Paging Syntax.

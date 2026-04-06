@@ -1,10 +1,10 @@
 using System.Text.Json;
 
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace ArchiForge.Host.Core.Health;
+namespace ArchLucid.Host.Core.Health;
 
 /// <summary>
 /// Writes a richer JSON payload for <c>/health/ready</c> and <c>/health</c> that includes

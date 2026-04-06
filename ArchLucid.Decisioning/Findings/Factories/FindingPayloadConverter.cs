@@ -1,9 +1,9 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Findings.Factories;
+namespace ArchLucid.Decisioning.Findings.Factories;
 
 /// <summary>
 /// Converts a <see cref="Finding.Payload"/> object to a strongly-typed payload DTO.

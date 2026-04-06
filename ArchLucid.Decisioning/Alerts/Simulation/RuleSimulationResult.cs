@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Simulation;
+namespace ArchLucid.Decisioning.Alerts.Simulation;
 
 /// <summary>Aggregated output of <see cref="IRuleSimulationService.SimulateAsync"/>.</summary>
 public class RuleSimulationResult

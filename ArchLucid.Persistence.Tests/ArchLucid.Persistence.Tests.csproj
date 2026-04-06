@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <AssemblyName>ArchiForge.Persistence.Tests</AssemblyName>
+    <AssemblyName>ArchLucid.Persistence.Tests</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <RootNamespace>ArchiForge.Persistence.Tests</RootNamespace>
+    <RootNamespace>ArchLucid.Persistence.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,14 +24,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForge.TestSupport\ArchiForge.TestSupport.csproj" />
-    <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence.Advisory\ArchiForge.Persistence.Advisory.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence.Alerts\ArchiForge.Persistence.Alerts.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence.Integration\ArchiForge.Persistence.Integration.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence.Runtime\ArchiForge.Persistence.Runtime.csproj" />
-    <ProjectReference Include="..\ArchiForge.Provenance\ArchiForge.Provenance.csproj" />
+    <ProjectReference Include="..\ArchLucid.TestSupport\ArchLucid.TestSupport.csproj" />
+    <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Advisory\ArchLucid.Persistence.Advisory.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Alerts\ArchLucid.Persistence.Alerts.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Integration\ArchLucid.Persistence.Integration.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Runtime\ArchLucid.Persistence.Runtime.csproj" />
+    <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
   </ItemGroup>
 
   <!-- DbUp does not create AuditEvents / ProvenanceSnapshots / Conversation* tables. We apply a minimal

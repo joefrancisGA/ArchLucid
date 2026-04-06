@@ -1,10 +1,10 @@
-namespace ArchiForge.Contracts.Agents;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 /// A typed annotation attached to an <see cref="AgentEvidencePackage"/> that communicates
 /// pipeline-level signals to agents (e.g., execution mode, prior-manifest availability).
 /// Well-known <see cref="NoteType"/> values are defined in
-/// <c>ArchiForge.Application.Evidence.EvidenceNoteTypes</c>.
+/// <c>ArchLucid.Application.Evidence.EvidenceNoteTypes</c>.
 /// </summary>
 public sealed class EvidenceNote
 {

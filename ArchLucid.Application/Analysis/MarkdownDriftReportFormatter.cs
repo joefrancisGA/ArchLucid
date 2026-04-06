@@ -1,7 +1,7 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Formats a <see cref="DriftAnalysisResult"/> as either a GitHub-flavoured Markdown

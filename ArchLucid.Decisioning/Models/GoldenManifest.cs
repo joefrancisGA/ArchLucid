@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Manifest.Sections;
 
-namespace ArchiForge.Decisioning.Models;
+namespace ArchLucid.Decisioning.Models;
 
 public class GoldenManifest
 {

@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Persistence.Findings;
+namespace ArchLucid.Persistence.Findings;
 
 /// <summary>Dapper projection for <c>dbo.FindingsSnapshots</c> header + <c>FindingsJson</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]

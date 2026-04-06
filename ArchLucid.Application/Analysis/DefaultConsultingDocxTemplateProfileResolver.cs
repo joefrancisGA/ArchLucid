@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Built-in implementation of <see cref="IConsultingDocxTemplateProfileResolver"/> that

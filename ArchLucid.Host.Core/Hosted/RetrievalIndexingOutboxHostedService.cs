@@ -1,6 +1,6 @@
-using ArchiForge.Persistence.Retrieval;
+using ArchLucid.Persistence.Retrieval;
 
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// Periodically drains <see cref="IRetrievalIndexingOutboxRepository"/> so retrieval indexing runs after the authority UOW commits.

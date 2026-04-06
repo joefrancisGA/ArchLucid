@@ -1,6 +1,6 @@
-using ArchiForge.Persistence.Advisory;
+using ArchLucid.Persistence.Advisory;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="ArchitectureDigestRepositoryContractTests"/> against <see cref="InMemoryArchitectureDigestRepository"/>.

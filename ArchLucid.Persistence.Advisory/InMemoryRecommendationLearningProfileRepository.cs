@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Learning;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 public sealed class InMemoryRecommendationLearningProfileRepository : IRecommendationLearningProfileRepository
 {

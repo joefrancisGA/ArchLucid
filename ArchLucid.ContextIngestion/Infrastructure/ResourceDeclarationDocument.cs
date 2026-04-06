@@ -1,4 +1,4 @@
-namespace ArchiForge.ContextIngestion.Infrastructure;
+namespace ArchLucid.ContextIngestion.Infrastructure;
 
 public class ResourceDeclarationDocument
 {

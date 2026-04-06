@@ -1,6 +1,6 @@
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 
-namespace ArchiForge.ContextIngestion.Summaries;
+namespace ArchLucid.ContextIngestion.Summaries;
 
 /// <summary>
 /// Enriches per-connector delta text with normalized object counts and optional baseline vs prior snapshot hints.

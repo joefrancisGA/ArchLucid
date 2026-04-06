@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Architecture;
+namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
 /// Lightweight run summary for list endpoints and dashboard views.

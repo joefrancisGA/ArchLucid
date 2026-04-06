@@ -1,7 +1,7 @@
-using ArchiForge.Api.Models;
-using ArchiForge.Application.Analysis;
+using ArchLucid.Api.Models;
+using ArchLucid.Application.Analysis;
 
-namespace ArchiForge.Api.Mapping;
+namespace ArchLucid.Api.Mapping;
 
 /// <summary>Builds <see cref="ArchitectureAnalysisRequest"/> for consulting DOCX export from API models.</summary>
 internal static class ConsultingDocxAnalysisRequestFactory

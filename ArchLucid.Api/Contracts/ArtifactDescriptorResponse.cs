@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Packaging;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
 
-namespace ArchiForge.Api.Contracts;
+namespace ArchLucid.Api.Contracts;
 
 /// <summary>
 /// JSON descriptor for a synthesized artifact (listing, metadata GET, and operator review UIs).

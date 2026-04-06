@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// CRUD and scoped queries for simple (non-composite) <see cref="AlertRule"/> definitions stored per tenant/workspace/project.

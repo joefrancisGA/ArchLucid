@@ -1,9 +1,9 @@
 using System.Text;
 
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Exports;
+namespace ArchLucid.Application.Exports;
 
 /// <summary>
 /// Produces a Markdown export document containing the architecture diagram (as a Mermaid code fence),

@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Diagnostics;
+namespace ArchLucid.Persistence.Diagnostics;
 
 /// <summary>In-memory host: outbox metrics are zeros (no durable outbox backlog).</summary>
 public sealed class InMemoryOutboxOperationalMetricsReader : IOutboxOperationalMetricsReader

@@ -1,13 +1,13 @@
 using FluentAssertions;
 
-namespace ArchiForge.Cli.Tests;
+namespace ArchLucid.Cli.Tests;
 
 /// <summary>
 /// Tests for Archi Forge Config.
 /// </summary>
 
 [Trait("Suite", "Core")]
-public sealed class ArchiForgeConfigTests
+public sealed class ArchLucidConfigTests
 {
     [Fact]
     public void LoadConfig_ValidJsonAndFilesExist_ReturnsConfig()
@@ -29,7 +29,7 @@ public sealed class ArchiForgeConfigTests
         File.WriteAllText(Path.Combine(temp.Path, "inputs", "brief.md"), "# Brief");
         File.WriteAllText(Path.Combine(temp.Path, "plugins", "plugin-lock.json"), "{}");
 
-        ArchiForgeProjectScaffolder.ArchiForgeConfig config = ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
+        ArchLucidProjectScaffolder.ArchLucidCliConfig config = ArchLucidProjectScaffolder.LoadConfig(temp.Path);
 
         config.Should().NotBeNull();
         config.ProjectName.Should().Be("TestProject");
@@ -46,7 +46,7 @@ public sealed class ArchiForgeConfigTests
     {
         using TempDirectory temp = new();
 
-        Func<ArchiForgeProjectScaffolder.ArchiForgeConfig> act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
+        Func<ArchLucidProjectScaffolder.ArchLucidCliConfig> act = () => ArchLucidProjectScaffolder.LoadConfig(temp.Path);
 
         act.Should().Throw<FileNotFoundException>()
             .WithMessage("*archiforge.json*");
@@ -58,7 +58,7 @@ public sealed class ArchiForgeConfigTests
         using TempDirectory temp = new();
         File.WriteAllText(Path.Combine(temp.Path, "archiforge.json"), "{ invalid json }");
 
-        Func<ArchiForgeProjectScaffolder.ArchiForgeConfig> act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
+        Func<ArchLucidProjectScaffolder.ArchLucidCliConfig> act = () => ArchLucidProjectScaffolder.LoadConfig(temp.Path);
 
         act.Should().Throw<InvalidDataException>();
     }
@@ -82,7 +82,7 @@ public sealed class ArchiForgeConfigTests
         File.WriteAllText(Path.Combine(temp.Path, "plugins", "plugin-lock.json"), "{}");
         // Do not create inputs/brief.md
 
-        Func<ArchiForgeProjectScaffolder.ArchiForgeConfig> act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
+        Func<ArchLucidProjectScaffolder.ArchLucidCliConfig> act = () => ArchLucidProjectScaffolder.LoadConfig(temp.Path);
 
         act.Should().Throw<FileNotFoundException>()
             .WithMessage("*Brief*");
@@ -90,7 +90,7 @@ public sealed class ArchiForgeConfigTests
 
     private sealed class TempDirectory : IDisposable
     {
-        public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchiForge.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
+        public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
 
         public TempDirectory()
         {

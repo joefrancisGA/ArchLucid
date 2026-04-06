@@ -1,10 +1,10 @@
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Persistence.Evolution;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Persistence.Evolution;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Evolution;
+namespace ArchLucid.Persistence.Tests.Evolution;
 
 [Trait("Category", "Unit")]
 public sealed class CandidateChangeSetServiceTests

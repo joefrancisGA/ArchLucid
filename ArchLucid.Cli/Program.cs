@@ -1,13 +1,13 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-using ArchiForge.Cli.Support;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Cli.Support;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.Cli
+namespace ArchLucid.Cli
 {
     [ExcludeFromCodeCoverage(Justification = "CLI dispatch and console I/O; tested via CLI integration tests.")]
     public static class Program
@@ -43,36 +43,36 @@ namespace ArchiForge.Cli
                         Console.WriteLine("Usage: archiforge new <projectName>");
                         return 1;
                     }
-                    ArchiForge_New(args[1]);
+                    ArchLucid_New(args[1]);
                     return 0;
 
                 case "dev":
                     if (args.Length > 1 && args[1] == "up")
-                        return ArchiForge_Dev_Up();
+                        return ArchLucid_Dev_Up();
                     Console.WriteLine("Expected: archiforge dev up");
                     return 1;
 
                 case "run":
                     bool quick = args.Length > 1 && args[1] == "--quick";
-                    return await ArchiForge_RunAsync(quick);
+                    return await ArchLucid_RunAsync(quick);
 
                 case "status":
-                    if (args.Length > 1) return await ArchiForge_StatusAsync(args[1]);
+                    if (args.Length > 1) return await ArchLucid_StatusAsync(args[1]);
                     Console.WriteLine("Usage: archiforge status <runId>");
                     return 1;
 
                 case "submit":
-                    if (args.Length > 2) return await ArchiForge_SubmitAsync(args[1], args[2]);
+                    if (args.Length > 2) return await ArchLucid_SubmitAsync(args[1], args[2]);
                     Console.WriteLine("Usage: archiforge submit <runId> <result.json>");
                     return 1;
 
                 case "commit":
-                    if (args.Length > 1) return await ArchiForge_CommitAsync(args[1]);
+                    if (args.Length > 1) return await ArchLucid_CommitAsync(args[1]);
                     Console.WriteLine("Usage: archiforge commit <runId>");
                     return 1;
 
                 case "seed":
-                    if (args.Length > 1) return await ArchiForge_SeedAsync(args[1]);
+                    if (args.Length > 1) return await ArchLucid_SeedAsync(args[1]);
                     
                     Console.WriteLine("Usage: archiforge seed <runId>");
                     return 1;
@@ -84,13 +84,13 @@ namespace ArchiForge.Cli
                         return 1;
                     }
                     bool saveArtifacts = args.Length > 2 && args[2] == "--save";
-                    return await ArchiForge_ArtifactsAsync(args[1], saveArtifacts);
+                    return await ArchLucid_ArtifactsAsync(args[1], saveArtifacts);
 
                 case "comparisons":
-                    return await ArchiForge_ComparisonsAsync(args.Skip(1).ToArray());
+                    return await ArchLucid_ComparisonsAsync(args.Skip(1).ToArray());
 
                 case "health":
-                    return await ArchiForge_HealthAsync();
+                    return await ArchLucid_HealthAsync();
 
                 case "doctor":
                 case "check":
@@ -106,24 +106,24 @@ namespace ArchiForge.Cli
         }
 
 
-        private static void ArchiForge_New(string projectName)
+        private static void ArchLucid_New(string projectName)
         {
             Console.WriteLine("Creating ArchiForge project " + projectName);
-            ArchiForgeProjectScaffolder.ScaffoldOptions scaffoldOptions = new()
+            ArchLucidProjectScaffolder.ScaffoldOptions scaffoldOptions = new()
             {
                 ProjectName = projectName,
                 BaseDirectory = null,
                 OverwriteExistingFiles = true,
                 IncludeTerraformStubs = true
             };
-            ArchiForgeProjectScaffolder.CreateProject(scaffoldOptions);
+            ArchLucidProjectScaffolder.CreateProject(scaffoldOptions);
         }
 
-        private static ArchiForgeProjectScaffolder.ArchiForgeConfig? TryLoadConfigFromCwd()
+        private static ArchLucidProjectScaffolder.ArchLucidCliConfig? TryLoadConfigFromCwd()
         {
             try
             {
-                return ArchiForgeProjectScaffolder.LoadConfig(Directory.GetCurrentDirectory());
+                return ArchLucidProjectScaffolder.LoadConfig(Directory.GetCurrentDirectory());
             }
             catch
             {
@@ -131,53 +131,53 @@ namespace ArchiForge.Cli
             }
         }
 
-        private static string GetBaseUrl(ArchiForgeProjectScaffolder.ArchiForgeConfig? config) =>
-            ArchiForgeApiClient.ResolveBaseUrl(config);
+        private static string GetBaseUrl(ArchLucidProjectScaffolder.ArchLucidCliConfig? config) =>
+            ArchLucidApiClient.ResolveBaseUrl(config);
 
         /// <summary>
         /// Ensures the ArchiForge API is reachable. Returns true if connected, false otherwise (and prints an error).
         /// </summary>
         private static async Task<bool> EnsureApiConnectedAsync(string baseUrl, CancellationToken ct = default)
         {
-            string? urlError = ArchiForgeApiClient.GetInvalidApiBaseUrlReason(baseUrl);
+            string? urlError = ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl);
             if (urlError is not null)
             {
                 await Console.Error.WriteLineAsync("[ArchiForge CLI] " + urlError);
                 return false;
             }
 
-            ArchiForgeApiClient client = new(baseUrl);
+            ArchLucidApiClient client = new(baseUrl);
             if (await client.CheckHealthAsync(ct))
                 return true;
             Console.WriteLine($"Cannot connect to ArchiForge API at {baseUrl}");
-            Console.WriteLine("Ensure the API is running: dotnet run --project ArchiForge.Api");
+            Console.WriteLine("Ensure the API is running: dotnet run --project ArchLucid.Api");
             Console.WriteLine("Or set apiUrl in archiforge.json / ARCHIFORGE_API_URL environment variable.");
             CliOperatorHints.WriteAfterHealthUnreachable(baseUrl);
             return false;
         }
 
-        private static async Task<int> ArchiForge_HealthAsync()
+        private static async Task<int> ArchLucid_HealthAsync()
         {
             string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
-            string? urlError = ArchiForgeApiClient.GetInvalidApiBaseUrlReason(baseUrl);
+            string? urlError = ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl);
             if (urlError is not null)
             {
                 await Console.Error.WriteLineAsync("[ArchiForge CLI] " + urlError);
                 return 1;
             }
 
-            ArchiForgeApiClient client = new(baseUrl);
+            ArchLucidApiClient client = new(baseUrl);
             if (await client.CheckHealthAsync())
             {
                 Console.WriteLine($"OK - ArchiForge API at {baseUrl} is reachable.");
                 return 0;
             }
             Console.WriteLine($"FAIL - Cannot reach ArchiForge API at {baseUrl}");
-            Console.WriteLine("Ensure the API is running: dotnet run --project ArchiForge.Api");
+            Console.WriteLine("Ensure the API is running: dotnet run --project ArchLucid.Api");
             return 1;
         }
 
-        private static async Task<int> ArchiForge_ComparisonsAsync(string[] args)
+        private static async Task<int> ArchLucid_ComparisonsAsync(string[] args)
         {
             if (args.Length == 0)
             {
@@ -192,36 +192,36 @@ namespace ArchiForge.Cli
             }
 
             string sub = args[0];
-            ArchiForgeProjectScaffolder.ArchiForgeConfig? config = TryLoadConfigFromCwd();
+            ArchLucidProjectScaffolder.ArchLucidCliConfig? config = TryLoadConfigFromCwd();
             string baseUrl = GetBaseUrl(config);
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new(baseUrl);
+            ArchLucidApiClient client = new(baseUrl);
 
             switch (sub)
             {
                 case "list":
-                    return await ArchiForge_Comparisons_ListAsync(client, args.Skip(1).ToArray());
+                    return await ArchLucid_Comparisons_ListAsync(client, args.Skip(1).ToArray());
                 case "replay":
-                    return await ArchiForge_Comparisons_ReplayAsync(client, args.Skip(1).ToArray());
+                    return await ArchLucid_Comparisons_ReplayAsync(client, args.Skip(1).ToArray());
                 case "replay-batch":
-                    return await ArchiForge_Comparisons_ReplayBatchAsync(client, args.Skip(1).ToArray());
+                    return await ArchLucid_Comparisons_ReplayBatchAsync(client, args.Skip(1).ToArray());
                 case "summary":
-                    return await ArchiForge_Comparisons_SummaryAsync(client, args.Skip(1).ToArray());
+                    return await ArchLucid_Comparisons_SummaryAsync(client, args.Skip(1).ToArray());
                 case "drift":
-                    return await ArchiForge_Comparisons_DriftAsync(client, args.Skip(1).ToArray());
+                    return await ArchLucid_Comparisons_DriftAsync(client, args.Skip(1).ToArray());
                 case "diagnostics":
-                    return await ArchiForge_Comparisons_DiagnosticsAsync(client, args.Skip(1).ToArray());
+                    return await ArchLucid_Comparisons_DiagnosticsAsync(client, args.Skip(1).ToArray());
                 case "tag":
-                    return await ArchiForge_Comparisons_TagAsync(client, args.Skip(1).ToArray());
+                    return await ArchLucid_Comparisons_TagAsync(client, args.Skip(1).ToArray());
                 default:
                     Console.WriteLine($"Unknown subcommand for comparisons: {sub}");
                     return 1;
             }
         }
 
-        private static async Task<int> ArchiForge_Comparisons_ListAsync(ArchiForgeApiClient client, string[] args)
+        private static async Task<int> ArchLucid_Comparisons_ListAsync(ArchLucidApiClient client, string[] args)
         {
             string? type = null;
             string? leftRun = null;
@@ -293,7 +293,7 @@ namespace ArchiForge.Cli
                 }
             
 
-            ArchiForgeApiClient.ComparisonHistoryResult? result = await client.SearchComparisonsAsync(
+            ArchLucidApiClient.ComparisonHistoryResult? result = await client.SearchComparisonsAsync(
                 type, leftRun, rightRun,
                 leftExport, rightExport,
                 label,
@@ -331,7 +331,7 @@ namespace ArchiForge.Cli
                 return 0;
             }
 
-            foreach (ArchiForgeApiClient.ComparisonRecordSummary r in result.Records)
+            foreach (ArchLucidApiClient.ComparisonRecordSummary r in result.Records)
             {
                 string labelPart = string.IsNullOrEmpty(r.Label) ? "" : $" Label={r.Label}";
                 string tagsPart = r.Tags.Count == 0 ? "" : " Tags=[" + string.Join(",", r.Tags) + "]";
@@ -341,7 +341,7 @@ namespace ArchiForge.Cli
             return 0;
         }
 
-        private static void PrintComparisonTable(IReadOnlyList<ArchiForgeApiClient.ComparisonRecordSummary> records)
+        private static void PrintComparisonTable(IReadOnlyList<ArchLucidApiClient.ComparisonRecordSummary> records)
         {
             List<string[]> rows = records.Select(r => new[]
             {
@@ -370,7 +370,7 @@ namespace ArchiForge.Cli
             }
         }
 
-        private static async Task<int> ArchiForge_Comparisons_TagAsync(ArchiForgeApiClient client, string[] args)
+        private static async Task<int> ArchLucid_Comparisons_TagAsync(ArchLucidApiClient client, string[] args)
         {
             if (args.Length == 0)
             {
@@ -405,7 +405,7 @@ namespace ArchiForge.Cli
             return 0;
         }
 
-        private static async Task<int> ArchiForge_Comparisons_ReplayAsync(ArchiForgeApiClient client, string[] args)
+        private static async Task<int> ArchLucid_Comparisons_ReplayAsync(ArchLucidApiClient client, string[] args)
         {
             if (args.Length == 0)
             {
@@ -450,7 +450,7 @@ namespace ArchiForge.Cli
             return ok ? 0 : 1;
         }
 
-        private static async Task<int> ArchiForge_Comparisons_ReplayBatchAsync(ArchiForgeApiClient client, string[] args)
+        private static async Task<int> ArchLucid_Comparisons_ReplayBatchAsync(ArchLucidApiClient client, string[] args)
         {
             if (args.Length == 0)
             {
@@ -500,7 +500,7 @@ namespace ArchiForge.Cli
             return ok ? 0 : 1;
         }
 
-        private static async Task<int> ArchiForge_Comparisons_SummaryAsync(ArchiForgeApiClient client, string[] args)
+        private static async Task<int> ArchLucid_Comparisons_SummaryAsync(ArchLucidApiClient client, string[] args)
         {
             if (args.Length == 0)
             {
@@ -510,7 +510,7 @@ namespace ArchiForge.Cli
 
             string comparisonRecordId = args[0];
             bool asJson = args.Any(a => a == "--json");
-            ArchiForgeApiClient.ComparisonSummary? summary = await client.GetComparisonSummaryAsync(comparisonRecordId);
+            ArchLucidApiClient.ComparisonSummary? summary = await client.GetComparisonSummaryAsync(comparisonRecordId);
             if (summary is null)
             {
                 Console.WriteLine("Failed to get comparison summary (unauthorized, not found, or request failed).");
@@ -528,7 +528,7 @@ namespace ArchiForge.Cli
             return 0;
         }
 
-        private static async Task<int> ArchiForge_Comparisons_DriftAsync(ArchiForgeApiClient client, string[] args)
+        private static async Task<int> ArchLucid_Comparisons_DriftAsync(ArchLucidApiClient client, string[] args)
         {
             if (args.Length == 0)
             {
@@ -538,7 +538,7 @@ namespace ArchiForge.Cli
 
             string comparisonRecordId = args[0];
             bool asJson = args.Any(a => a == "--json");
-            ArchiForgeApiClient.DriftAnalysis? drift = await client.GetComparisonDriftAsync(comparisonRecordId);
+            ArchLucidApiClient.DriftAnalysis? drift = await client.GetComparisonDriftAsync(comparisonRecordId);
             if (drift is null)
             {
                 Console.WriteLine("Failed to get drift analysis (unauthorized, not found, or request failed).");
@@ -554,7 +554,7 @@ namespace ArchiForge.Cli
 
             Console.WriteLine($"DriftDetected={drift.DriftDetected}");
             Console.WriteLine(drift.Summary);
-            foreach (ArchiForgeApiClient.DriftItem item in drift.Items.Take(25))
+            foreach (ArchLucidApiClient.DriftItem item in drift.Items.Take(25))
             
                 Console.WriteLine($"- [{item.Category}] {item.Path}: {item.Description}");
             
@@ -566,7 +566,7 @@ namespace ArchiForge.Cli
             return 0;
         }
 
-        private static async Task<int> ArchiForge_Comparisons_DiagnosticsAsync(ArchiForgeApiClient client, string[] args)
+        private static async Task<int> ArchLucid_Comparisons_DiagnosticsAsync(ArchLucidApiClient client, string[] args)
         {
             int limit = 20;
             bool asJson = false;
@@ -584,7 +584,7 @@ namespace ArchiForge.Cli
                     asTable = true;
             }
 
-            ArchiForgeApiClient.ReplayDiagnostics? diagnostics = await client.GetReplayDiagnosticsAsync(limit);
+            ArchLucidApiClient.ReplayDiagnostics? diagnostics = await client.GetReplayDiagnosticsAsync(limit);
             if (diagnostics is null)
             {
                 Console.WriteLine("Failed to get replay diagnostics (unauthorized or request failed).");
@@ -604,7 +604,7 @@ namespace ArchiForge.Cli
                 return 0;
             }
 
-            foreach (ArchiForgeApiClient.ReplayDiagnosticsEntry e in diagnostics.RecentReplays)
+            foreach (ArchLucidApiClient.ReplayDiagnosticsEntry e in diagnostics.RecentReplays)
             
                 Console.WriteLine($"{e.TimestampUtc:O} | {e.ComparisonRecordId} | {e.ComparisonType} | {e.Format} | {e.ReplayMode} | Success={e.Success} | {e.DurationMs}ms | MetaOnly={e.MetadataOnly} | Persisted={e.PersistedReplayRecordId} | Err={e.ErrorMessage}");
             
@@ -612,7 +612,7 @@ namespace ArchiForge.Cli
             return 0;
         }
 
-        private static void PrintReplayDiagnosticsTable(IReadOnlyList<ArchiForgeApiClient.ReplayDiagnosticsEntry> entries)
+        private static void PrintReplayDiagnosticsTable(IReadOnlyList<ArchLucidApiClient.ReplayDiagnosticsEntry> entries)
         {
             List<string[]> rows = entries.Select(e => new[]
             {
@@ -645,7 +645,7 @@ namespace ArchiForge.Cli
             }
         }
 
-        private static int ArchiForge_Dev_Up()
+        private static int ArchLucid_Dev_Up()
         {
             string? composeDir = FindDockerComposeDirectory();
             if (composeDir is null)
@@ -728,10 +728,10 @@ namespace ArchiForge.Cli
         }
 
         private static ArchitectureRequest BuildArchitectureRequest(
-            ArchiForgeProjectScaffolder.ArchiForgeConfig config,
+            ArchLucidProjectScaffolder.ArchLucidCliConfig config,
             string briefContent)
         {
-            ArchiForgeProjectScaffolder.ArchitectureSection? arch = config.Architecture;
+            ArchLucidProjectScaffolder.ArchitectureSection? arch = config.Architecture;
             ArchitectureRequest request = new()
             {
                 RequestId = Guid.NewGuid().ToString("N"),
@@ -757,13 +757,13 @@ namespace ArchiForge.Cli
             };
         }
 
-        private static async Task<int> ArchiForge_RunAsync(bool quick = false)
+        private static async Task<int> ArchLucid_RunAsync(bool quick = false)
         {
             string projectRoot = Directory.GetCurrentDirectory();
-            ArchiForgeProjectScaffolder.ArchiForgeConfig config;
+            ArchLucidProjectScaffolder.ArchLucidCliConfig config;
             try
             {
-                config = ArchiForgeProjectScaffolder.LoadConfig(projectRoot);
+                config = ArchLucidProjectScaffolder.LoadConfig(projectRoot);
             }
             catch (Exception ex)
             {
@@ -793,11 +793,11 @@ namespace ArchiForge.Cli
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new(baseUrl);
+            ArchLucidApiClient client = new(baseUrl);
 
             Console.WriteLine($"Submitting request to {baseUrl}...");
 
-            ArchiForgeApiClient.CreateRunResult result = await client.CreateRunAsync(request);
+            ArchLucidApiClient.CreateRunResult result = await client.CreateRunAsync(request);
 
             if (!result.Success)
             {
@@ -806,7 +806,7 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            ArchiForgeApiClient.CreateRunResponse resp = result.Response!;
+            ArchLucidApiClient.CreateRunResponse resp = result.Response!;
 
             string outputsDir = Path.Combine(projectRoot, config.Outputs.LocalCacheDir);
             Directory.CreateDirectory(outputsDir);
@@ -819,7 +819,7 @@ namespace ArchiForge.Cli
             Console.WriteLine($"run-summary.json written to {summaryPath}");
             Console.WriteLine();
             Console.WriteLine("Tasks:");
-            foreach (ArchiForgeApiClient.AgentTaskInfo task in resp.Tasks)
+            foreach (ArchLucidApiClient.AgentTaskInfo task in resp.Tasks)
             {
                 AgentType agentType = (AgentType)task.AgentType;
                 Console.WriteLine($"  - {agentType}: {task.Objective}");
@@ -828,7 +828,7 @@ namespace ArchiForge.Cli
             if (quick)
             {
                 Console.WriteLine("Quick mode: seeding fake results and committing...");
-                ArchiForgeApiClient.SeedFakeResultsResult? seedResult = await client.SeedFakeResultsAsync(resp.Run.RunId);
+                ArchLucidApiClient.SeedFakeResultsResult? seedResult = await client.SeedFakeResultsAsync(resp.Run.RunId);
                 if (seedResult is null || !seedResult.Success)
                 {
                     Console.WriteLine($"Warning: Seed failed. {seedResult?.Error ?? "Unknown"}");
@@ -838,7 +838,7 @@ namespace ArchiForge.Cli
                     return 0;
                 }
                 Console.WriteLine($"Seeded {seedResult.ResultCount} fake results.");
-                ArchiForgeApiClient.CommitRunResult? commitResult = await client.CommitRunAsync(resp.Run.RunId);
+                ArchLucidApiClient.CommitRunResult? commitResult = await client.CommitRunAsync(resp.Run.RunId);
                 if (commitResult is null || !commitResult.Success)
                 {
                     Console.WriteLine($"Error: Commit failed. {commitResult?.Error ?? "Unknown"}");
@@ -854,7 +854,7 @@ namespace ArchiForge.Cli
             return 0;
         }
 
-        private static void WriteRunSummary(string path, string apiBaseUrl, string runId, string requestId, int status, DateTime createdUtc, IReadOnlyList<ArchiForgeApiClient.AgentTaskInfo> tasks, string? manifestVersion)
+        private static void WriteRunSummary(string path, string apiBaseUrl, string runId, string requestId, int status, DateTime createdUtc, IReadOnlyList<ArchLucidApiClient.AgentTaskInfo> tasks, string? manifestVersion)
         {
 #pragma warning disable IDE0300 // Simplify collection initialization
 #pragma warning disable IDE0301 // Simplify collection initialization
@@ -875,22 +875,22 @@ namespace ArchiForge.Cli
             File.WriteAllText(path, json);
         }
 
-        private static async Task<int> ArchiForge_StatusAsync(string runId)
+        private static async Task<int> ArchLucid_StatusAsync(string runId)
         {
             string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new(baseUrl);
+            ArchLucidApiClient client = new(baseUrl);
 
-            ArchiForgeApiClient.GetRunResult? run = await client.GetRunAsync(runId);
+            ArchLucidApiClient.GetRunResult? run = await client.GetRunAsync(runId);
             if (run is null)
             {
                 Console.WriteLine($"Run '{runId}' not found. Ensure the ArchiForge API is running at {baseUrl}.");
                 return 1;
             }
 
-            ArchiForgeApiClient.RunInfo r = run.Run;
+            ArchLucidApiClient.RunInfo r = run.Run;
             ArchitectureRunStatus status = (ArchitectureRunStatus)r.Status;
             Console.WriteLine($"Run: {r.RunId}");
             Console.WriteLine($"Status: {status}");
@@ -901,7 +901,7 @@ namespace ArchiForge.Cli
                 Console.WriteLine($"Manifest version: {r.CurrentManifestVersion}");
             Console.WriteLine();
             Console.WriteLine("Tasks:");
-            foreach (ArchiForgeApiClient.AgentTaskInfo task in run.Tasks)
+            foreach (ArchLucidApiClient.AgentTaskInfo task in run.Tasks)
             {
                 AgentType agentType = (AgentType)task.AgentType;
                 AgentTaskStatus taskStatus = (AgentTaskStatus)task.Status;
@@ -911,7 +911,7 @@ namespace ArchiForge.Cli
             return 0;
         }
 
-        private static async Task<int> ArchiForge_SubmitAsync(string runId, string resultFilePath)
+        private static async Task<int> ArchLucid_SubmitAsync(string runId, string resultFilePath)
         {
             string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             if (!await EnsureApiConnectedAsync(baseUrl))
@@ -935,8 +935,8 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            ArchiForgeApiClient client = new(baseUrl);
-            ArchiForgeApiClient.SubmitResultResult? submitResult = await client.SubmitAgentResultAsync(runId, result);
+            ArchLucidApiClient client = new(baseUrl);
+            ArchLucidApiClient.SubmitResultResult? submitResult = await client.SubmitAgentResultAsync(runId, result);
             if (submitResult is null || !submitResult.Success)
             {
                 Console.WriteLine($"Error: {submitResult?.Error ?? "Submit failed"}");
@@ -949,15 +949,15 @@ namespace ArchiForge.Cli
             return 0;
         }
 
-        private static async Task<int> ArchiForge_CommitAsync(string runId)
+        private static async Task<int> ArchLucid_CommitAsync(string runId)
         {
             string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new(baseUrl);
+            ArchLucidApiClient client = new(baseUrl);
 
-            ArchiForgeApiClient.CommitRunResult? result = await client.CommitRunAsync(runId);
+            ArchLucidApiClient.CommitRunResult? result = await client.CommitRunAsync(runId);
             if (result is null || !result.Success)
             {
                 Console.WriteLine($"Error: {result?.Error ?? "Commit failed"}");
@@ -965,7 +965,7 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            ArchiForgeApiClient.CommitRunResponse resp = result.Response!;
+            ArchLucidApiClient.CommitRunResponse resp = result.Response!;
             string version = resp.Manifest.Metadata.ManifestVersion;
             Console.WriteLine($"Committed: {resp.Manifest.SystemName}");
             Console.WriteLine($"Manifest version: {version}");
@@ -980,15 +980,15 @@ namespace ArchiForge.Cli
             return 0;
         }
 
-        private static async Task<int> ArchiForge_SeedAsync(string runId)
+        private static async Task<int> ArchLucid_SeedAsync(string runId)
         {
             string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new(baseUrl);
+            ArchLucidApiClient client = new(baseUrl);
 
-            ArchiForgeApiClient.SeedFakeResultsResult? result = await client.SeedFakeResultsAsync(runId);
+            ArchLucidApiClient.SeedFakeResultsResult? result = await client.SeedFakeResultsAsync(runId);
             if (result is null || !result.Success)
             {
                 Console.WriteLine($"Error: {result?.Error ?? "Seed failed"}");
@@ -1002,16 +1002,16 @@ namespace ArchiForge.Cli
             return 0;
         }
 
-        private static async Task<int> ArchiForge_ArtifactsAsync(string runId, bool save = false)
+        private static async Task<int> ArchLucid_ArtifactsAsync(string runId, bool save = false)
         {
-            ArchiForgeProjectScaffolder.ArchiForgeConfig? config = TryLoadConfigFromCwd();
+            ArchLucidProjectScaffolder.ArchLucidCliConfig? config = TryLoadConfigFromCwd();
             string baseUrl = GetBaseUrl(config);
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new(baseUrl);
+            ArchLucidApiClient client = new(baseUrl);
 
-            ArchiForgeApiClient.GetRunResult? run = await client.GetRunAsync(runId);
+            ArchLucidApiClient.GetRunResult? run = await client.GetRunAsync(runId);
             if (run is null)
             {
                 Console.WriteLine($"Run '{runId}' not found. Ensure the ArchiForge API is running at {baseUrl}.");

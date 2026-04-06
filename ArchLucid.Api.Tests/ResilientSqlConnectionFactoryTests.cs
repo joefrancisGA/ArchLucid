@@ -1,4 +1,4 @@
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Verifies <see cref="ResilientSqlConnectionFactory"/> retry behaviour via <see cref="SqlOpenResilienceDefaults"/>.

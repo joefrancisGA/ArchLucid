@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace ArchiForge.ArtifactSynthesis.Services;
+namespace ArchLucid.ArtifactSynthesis.Services;
 
 internal static class SynthesisJsonOptions
 {

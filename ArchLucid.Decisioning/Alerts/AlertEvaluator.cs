@@ -1,15 +1,15 @@
-﻿using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Stateless evaluator: maps each enabled <see cref="AlertRule"/> to zero or one <see cref="AlertRecord"/> using metrics from <see cref="AlertEvaluationContext"/>.
 /// </summary>
 /// <remarks>
-/// Invoked from <c>ArchiForge.Persistence.Alerts.AlertService</c> after rules are filtered by <see cref="PolicyPackGovernanceFilter"/>.
+/// Invoked from <c>ArchLucid.Persistence.Alerts.AlertService</c> after rules are filtered by <see cref="PolicyPackGovernanceFilter"/>.
 /// Does not persist or deduplicate; callers own repository and delivery.
 /// </remarks>
 public sealed class AlertEvaluator : IAlertEvaluator

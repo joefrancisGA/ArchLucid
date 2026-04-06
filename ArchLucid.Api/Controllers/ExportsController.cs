@@ -1,12 +1,12 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Http;
-using ArchiForge.Api.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.Services;
-using ArchiForge.Application;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Http;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Services;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
 
@@ -14,16 +14,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-using ApiReplayExportRequest = ArchiForge.Api.Models.ReplayExportRequest;
-using AppReplayExportRequest = ArchiForge.Application.Analysis.ReplayExportRequest;
+using ApiReplayExportRequest = ArchLucid.Api.Models.ReplayExportRequest;
+using AppReplayExportRequest = ArchLucid.Application.Analysis.ReplayExportRequest;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Query and trigger run exports (history, diff, replay export) and audit comparisons tied to export records.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
@@ -90,7 +90,7 @@ public sealed class ExportsController(
     }
 
     [HttpPost("run/exports/compare/summary")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExportRecordDiffSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompareExportRecordsSummary(
@@ -118,7 +118,7 @@ public sealed class ExportsController(
             diff,
             summary,
             cancellationToken);
-        Response.Headers[ArchiForgeHttpHeaders.ComparisonRecordId] = comparisonRecordId;
+        Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = comparisonRecordId;
 
         return Ok(new ExportRecordDiffSummaryResponse
         {
@@ -128,7 +128,7 @@ public sealed class ExportsController(
     }
 
     [HttpPost("run/exports/{exportRecordId}/replay")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -151,7 +151,7 @@ public sealed class ExportsController(
     }
 
     [HttpPost("run/exports/{exportRecordId}/replay/metadata")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayExportMetadataResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -1,7 +1,7 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Audit;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Audit;
 
 using Asp.Versioning;
 
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Returns a pageable audit event log for the caller's tenant/workspace/project scope.
@@ -19,7 +19,7 @@ namespace ArchiForge.Api.Controllers;
 /// Results are ordered newest-first and capped by the <c>take</c> parameter (max 500).
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/audit")]
 [EnableRateLimiting("fixed")]

@@ -1,20 +1,20 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Api.OpenApi;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.Validators;
+using ArchLucid.Api.OpenApi;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Validators;
 
 using Asp.Versioning;
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
 
-namespace ArchiForge.Api.Startup;
+namespace ArchLucid.Api.Startup;
 
 internal static class MvcExtensions
 {
-    public static IServiceCollection AddArchiForgeMvc(this IServiceCollection services)
+    public static IServiceCollection AddArchLucidMvc(this IServiceCollection services)
     {
         services.AddControllers(options =>
             {
@@ -47,7 +47,7 @@ internal static class MvcExtensions
             options.AddOperationTransformer<MicrosoftOpenApiAnonymousSecurityOperationTransformer>();
         });
         services.AddEndpointsApiExplorer();
-        services.AddArchiForgeSwagger();
+        services.AddArchLucidSwagger();
         return services;
     }
 }

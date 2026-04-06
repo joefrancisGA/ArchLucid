@@ -28,7 +28,7 @@ A serialized point-in-time capture of structured context (infrastructure declara
 
 ## Decision trace
 
-A structured log of every decisioning step during a run: which rules fired, which findings applied, what the outcome was. Persisted in two flavors: coordinator-layer (`IDecisionTraceRepository` in **`ArchiForge.Persistence.Data.*`**) and authority-layer (`IDecisionTraceRepository` in **`ArchiForge.Decisioning`**). See **ADR 0010** (`docs/adr/0010-dual-manifest-trace-repository-contracts.md`).
+A structured log of every decisioning step during a run: which rules fired, which findings applied, what the outcome was. Persisted in two flavors: coordinator-layer (`IDecisionTraceRepository` in **`ArchLucid.Persistence.Data.*`**) and authority-layer (`IDecisionTraceRepository` in **`ArchLucid.Decisioning`**). See **ADR 0010** (`docs/adr/0010-dual-manifest-trace-repository-contracts.md`).
 
 ## Effective governance
 
@@ -44,7 +44,7 @@ A structured observation produced by a **finding engine** about the architecture
 
 ## Finding engine
 
-A class implementing **`IFindingEngine`** (`ArchiForge.Decisioning`) that analyses a **context snapshot / knowledge graph** and returns a list of **findings**. Multiple engines run in parallel inside **`FindingsOrchestrator`**. Add new engines via DI registration or the `dotnet new archiforge-finding-engine` template.
+A class implementing **`IFindingEngine`** (`ArchLucid.Decisioning`) that analyses a **context snapshot / knowledge graph** and returns a list of **findings**. Multiple engines run in parallel inside **`FindingsOrchestrator`**. Add new engines via DI registration or the `dotnet new archiforge-finding-engine` template.
 
 ## Golden manifest
 

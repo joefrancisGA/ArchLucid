@@ -1,9 +1,9 @@
-using ArchiForge.Persistence.BlobStore;
-using ArchiForge.Persistence.GoldenManifests;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.GoldenManifests;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

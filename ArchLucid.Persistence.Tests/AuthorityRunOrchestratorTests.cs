@@ -1,18 +1,18 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Authority;
-using ArchiForge.Core.Integration;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Interfaces;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Integration;
-using ArchiForge.Persistence.Orchestration;
-using ArchiForge.Persistence.Orchestration.Pipeline;
-using ArchiForge.Persistence.Retrieval;
-using ArchiForge.Persistence.Transactions;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authority;
+using ArchLucid.Core.Integration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Integration;
+using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Persistence.Orchestration.Pipeline;
+using ArchLucid.Persistence.Retrieval;
+using ArchLucid.Persistence.Transactions;
 
 using FluentAssertions;
 
@@ -23,9 +23,9 @@ using Moq;
 
 using System.Data;
 
-using DecisioningManifestMetadata = ArchiForge.Decisioning.Manifest.Sections.ManifestMetadata;
+using DecisioningManifestMetadata = ArchLucid.Decisioning.Manifest.Sections.ManifestMetadata;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="AuthorityRunOrchestrator"/> unit tests (commit vs rollback, sync vs queued modes).
@@ -47,13 +47,13 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(x => x.GetCurrentScope()).Returns(scope);
 
-        Mock<IArchiForgeUnitOfWork> uow = new();
+        Mock<IArchLucidUnitOfWork> uow = new();
         uow.SetupGet(x => x.SupportsExternalTransaction).Returns(false);
         uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
 
-        Mock<IArchiForgeUnitOfWorkFactory> uowFactory = new();
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = new();
         uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
 
         Mock<IRunRepository> runRepo = new();
@@ -217,7 +217,7 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IDbConnection> connection = new();
         Mock<IDbTransaction> transaction = new();
 
-        Mock<IArchiForgeUnitOfWork> uow = new();
+        Mock<IArchLucidUnitOfWork> uow = new();
         uow.SetupGet(x => x.SupportsExternalTransaction).Returns(true);
         uow.SetupGet(x => x.Connection).Returns(connection.Object);
         uow.SetupGet(x => x.Transaction).Returns(transaction.Object);
@@ -225,7 +225,7 @@ public sealed class AuthorityRunOrchestratorTests
         uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
 
-        Mock<IArchiForgeUnitOfWorkFactory> uowFactory = new();
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = new();
         uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
 
         Mock<IRunRepository> runRepo = new();
@@ -381,13 +381,13 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(x => x.GetCurrentScope()).Returns(scope);
 
-        Mock<IArchiForgeUnitOfWork> uow = new();
+        Mock<IArchLucidUnitOfWork> uow = new();
         uow.SetupGet(x => x.SupportsExternalTransaction).Returns(false);
         uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
 
-        Mock<IArchiForgeUnitOfWorkFactory> uowFactory = new();
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = new();
         uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
 
         Mock<IRunRepository> runRepo = new();
@@ -479,13 +479,13 @@ public sealed class AuthorityRunOrchestratorTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(x => x.GetCurrentScope()).Returns(scope);
 
-        Mock<IArchiForgeUnitOfWork> uow = new();
+        Mock<IArchLucidUnitOfWork> uow = new();
         uow.SetupGet(x => x.SupportsExternalTransaction).Returns(false);
         uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
 
-        Mock<IArchiForgeUnitOfWorkFactory> uowFactory = new();
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = new();
         uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
 
         Mock<IRunRepository> runRepo = new();

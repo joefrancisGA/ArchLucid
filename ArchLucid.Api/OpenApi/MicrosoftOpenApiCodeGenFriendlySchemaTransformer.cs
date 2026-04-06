@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
-namespace ArchiForge.Api.OpenApi;
+namespace ArchLucid.Api.OpenApi;
 
 /// <summary>
 /// Post-processes the Microsoft OpenAPI document (<c>/openapi/v1.json</c>) for friendlier downstream

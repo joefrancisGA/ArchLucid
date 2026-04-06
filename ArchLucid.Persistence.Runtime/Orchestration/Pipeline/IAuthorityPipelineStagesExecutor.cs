@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Persistence.Orchestration.Pipeline;
 
 /// <summary>
 /// Runs authority pipeline steps after the <see cref="Models.RunRecord"/> row exists (context ingestion through artifact persistence).

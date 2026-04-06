@@ -1,14 +1,14 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Builders;
-using ArchiForge.KnowledgeGraph.Inference;
-using ArchiForge.KnowledgeGraph.Mapping;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Builders;
+using ArchLucid.KnowledgeGraph.Inference;
+using ArchLucid.KnowledgeGraph.Mapping;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.KnowledgeGraph.Tests;
+namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
 /// Tests for Default Graph Builder.

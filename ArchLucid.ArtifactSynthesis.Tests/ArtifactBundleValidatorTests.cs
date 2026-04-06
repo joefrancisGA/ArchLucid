@@ -1,9 +1,9 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Services;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Services;
 
 using FluentAssertions;
 
-namespace ArchiForge.ArtifactSynthesis.Tests;
+namespace ArchLucid.ArtifactSynthesis.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

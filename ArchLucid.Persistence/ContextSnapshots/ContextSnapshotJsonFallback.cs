@@ -1,7 +1,7 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Persistence.Serialization;
 
-namespace ArchiForge.Persistence.ContextSnapshots;
+namespace ArchLucid.Persistence.ContextSnapshots;
 
 /// <summary>
 /// Legacy JSON column deserialization for <see cref="ContextSnapshot"/> when relational child rows are absent.

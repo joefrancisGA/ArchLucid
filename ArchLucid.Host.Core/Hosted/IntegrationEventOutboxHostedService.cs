@@ -1,6 +1,6 @@
-using ArchiForge.Persistence.Integration;
+using ArchLucid.Persistence.Integration;
 
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>Periodically drains <see cref="IIntegrationEventOutboxRepository"/> after authority commits.</summary>
 public sealed class IntegrationEventOutboxHostedService(

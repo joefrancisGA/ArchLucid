@@ -1,9 +1,9 @@
 using System.Text;
 
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Renderers;
+namespace ArchLucid.ArtifactSynthesis.Renderers;
 
 public class MermaidDiagramRenderer : IDiagramRenderer
 {

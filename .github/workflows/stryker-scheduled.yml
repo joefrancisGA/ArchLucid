@@ -32,7 +32,7 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore ArchiForge.sln
+        run: dotnet restore ArchLucid.sln
 
       - name: Restore local tools (dotnet-stryker)
         run: dotnet tool restore

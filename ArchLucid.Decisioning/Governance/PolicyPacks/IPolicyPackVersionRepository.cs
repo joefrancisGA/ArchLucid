@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>Persistence port for immutable-ish <see cref="PolicyPackVersion"/> rows (versioned <c>ContentJson</c>).</summary>
 /// <remarks>

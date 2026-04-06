@@ -14,4 +14,4 @@ echo "Waiting for SQL healthcheck (~35s)..."
 sleep 35
 
 echo "Running dotnet test (full solution, Release)..."
-dotnet test ArchiForge.sln -c Release --collect:"XPlat Code Coverage"
+dotnet test ArchLucid.sln -c Release --collect:"XPlat Code Coverage"

@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Generates a binary Docx representation of a <see cref="DriftAnalysisResult"/>.

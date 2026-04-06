@@ -1,8 +1,8 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Urgency string values used by <see cref="AlertEvaluator"/> when reading
-/// <see cref="ArchiForge.Decisioning.Advisory.Models.ImprovementRecommendation.Urgency"/>.
+/// <see cref="ArchLucid.Decisioning.Advisory.Models.ImprovementRecommendation.Urgency"/>.
 /// Matches the values written by <c>RecommendationGenerator</c> so threshold comparisons
 /// are case-insensitive duplicates of the same canonical strings.
 /// </summary>

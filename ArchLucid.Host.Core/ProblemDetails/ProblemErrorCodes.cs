@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.ProblemDetails;
+namespace ArchLucid.Host.Core.ProblemDetails;
 
 /// <summary>
 /// Stable machine-readable codes in Problem Details <c>extensions.errorCode</c> for clients and automation.

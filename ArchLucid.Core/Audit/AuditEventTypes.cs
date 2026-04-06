@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Audit;
+namespace ArchLucid.Core.Audit;
 
 public static class AuditEventTypes
 {

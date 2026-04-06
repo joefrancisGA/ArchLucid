@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts.Composite;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="CompositeAlertRuleEvaluator"/>:

@@ -1,12 +1,12 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Advisory.Analysis;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Analysis;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Improvement Signal Analyzer.

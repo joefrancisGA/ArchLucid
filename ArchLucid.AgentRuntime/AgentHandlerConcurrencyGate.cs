@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Semaphore-based bulkhead for <see cref="RealAgentExecutor"/> — caps parallel OpenAI-backed handlers.

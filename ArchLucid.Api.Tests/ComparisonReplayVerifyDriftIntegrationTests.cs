@@ -4,13 +4,13 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// End-to-end: persisted comparison payload is tampered, then verify replay returns 422 (real pipeline, not a stub service).
@@ -21,7 +21,7 @@ namespace ArchiForge.Api.Tests;
 /// </remarks>
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
-public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFactory factory)
+public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
     [Fact]

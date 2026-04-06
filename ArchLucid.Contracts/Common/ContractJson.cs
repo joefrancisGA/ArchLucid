@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Contracts.Common;
+namespace ArchLucid.Contracts.Common;
 
 /// <summary>
 /// Shared <see cref="JsonSerializerOptions"/> presets used across the ArchiForge contract surface.

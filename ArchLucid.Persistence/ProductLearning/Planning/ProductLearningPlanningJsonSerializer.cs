@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
-using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning.Planning;
 
-namespace ArchiForge.Persistence.ProductLearning.Planning;
+namespace ArchLucid.Persistence.ProductLearning.Planning;
 
 internal static class ProductLearningPlanningJsonSerializer
 {

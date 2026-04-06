@@ -6,7 +6,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 ---
 
-### Container: `ArchiForge.Api` (ASP.NET Core Web API)
+### Container: `ArchLucid.Api` (ASP.NET Core Web API)
 
 **Responsibility**
 
@@ -27,15 +27,15 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 **Depends on**
 
-- `ArchiForge.Application` (core orchestration + analysis/export/replay services)
-- `ArchiForge.Persistence.Data.*` (Dapper repositories for run/commit path, migrations, `IDbConnectionFactory`)
-- `ArchiForge.Persistence` (SQL authority repositories, RLS-aware connection factories, queries, advisory/alert persistence)
-- `ArchiForge.Decisioning` (governance, advisory, alerts, manifest/decision models, **manifest merge** in `ArchiForge.Decisioning.Merge`, **JSON schema validation** in `ArchiForge.Decisioning.Validation`)
-- `ArchiForge.Contracts` (DTOs / domain contracts)
+- `ArchLucid.Application` (core orchestration + analysis/export/replay services)
+- `ArchLucid.Persistence.Data.*` (Dapper repositories for run/commit path, migrations, `IDbConnectionFactory`)
+- `ArchLucid.Persistence` (SQL authority repositories, RLS-aware connection factories, queries, advisory/alert persistence)
+- `ArchLucid.Decisioning` (governance, advisory, alerts, manifest/decision models, **manifest merge** in `ArchLucid.Decisioning.Merge`, **JSON schema validation** in `ArchLucid.Decisioning.Validation`)
+- `ArchLucid.Contracts` (DTOs / domain contracts)
 
 ---
 
-### Container: `ArchiForge.Cli` (dotnet tool / CLI)
+### Container: `ArchLucid.Cli` (dotnet tool / CLI)
 
 **Responsibility**
 
@@ -47,13 +47,13 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 **Depends on**
 
-- `ArchiForge.Api.Client` (NSwag-generated HTTP client types under `ArchiForge.Api.Client.Generated`)
-- `ArchiForge.Contracts` (types used for requests/results)
-- HTTP calls to `ArchiForge.Api`
+- `ArchLucid.Api.Client` (NSwag-generated HTTP client types under `ArchLucid.Api.Client.Generated`)
+- `ArchLucid.Contracts` (types used for requests/results)
+- HTTP calls to `ArchLucid.Api`
 
 ---
 
-### Library: `ArchiForge.Application` (application services)
+### Library: `ArchLucid.Application` (application services)
 
 **Responsibility**
 
@@ -72,29 +72,29 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 **Depends on**
 
-- `ArchiForge.Persistence.Data.*` for repositories
-- `ArchiForge.Decisioning` (governance, previews, advisory surfaces, manifest merge via `ArchiForge.Decisioning.Merge`)
-- `ArchiForge.Contracts` for shared models
+- `ArchLucid.Persistence.Data.*` for repositories
+- `ArchLucid.Decisioning` (governance, previews, advisory surfaces, manifest merge via `ArchLucid.Decisioning.Merge`)
+- `ArchLucid.Contracts` for shared models
 
 ---
 
-### Library: `ArchiForge.Decisioning` (governance, advisory, merge, domain models)
+### Library: `ArchLucid.Decisioning` (governance, advisory, merge, domain models)
 
 **Responsibility**
 
 - Policy packs, effective governance resolution, advisory scanning, digest/alert domain logic.
-- **`ArchiForge.Decisioning.Merge`**: `IDecisionEngineService` / `DecisionEngineService`, `DecisionEngineV2`, merge of agent results into `GoldenManifest`.
-- **`ArchiForge.Decisioning.Validation`**: JSON Schema validation for agent results and golden manifests (`SchemaValidationService`, `ISchemaValidationService`).
-- Authority-path interfaces such as `IGoldenManifestRepository` / `IDecisionTraceRepository` (SQL implementations live in `ArchiForge.Persistence`).
+- **`ArchLucid.Decisioning.Merge`**: `IDecisionEngineService` / `DecisionEngineService`, `DecisionEngineV2`, merge of agent results into `GoldenManifest`.
+- **`ArchLucid.Decisioning.Validation`**: JSON Schema validation for agent results and golden manifests (`SchemaValidationService`, `ISchemaValidationService`).
+- Authority-path interfaces such as `IGoldenManifestRepository` / `IDecisionTraceRepository` (SQL implementations live in `ArchLucid.Persistence`).
 - Manifest sections, findings, and decision-trace models shared with the API and persistence.
 
 **Depends on**
 
-- `ArchiForge.Contracts`, `ArchiForge.Core`, and (where applicable) persistence ports implemented in `ArchiForge.Persistence`.
+- `ArchLucid.Contracts`, `ArchLucid.Core`, and (where applicable) persistence ports implemented in `ArchLucid.Persistence`.
 
 ---
 
-### Library: `ArchiForge.Persistence` (SQL Server authority + operational data)
+### Library: `ArchLucid.Persistence` (SQL Server authority + operational data)
 
 **Responsibility**
 
@@ -103,11 +103,11 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 **Depends on**
 
-- `ArchiForge.Decisioning`, `ArchiForge.ContextIngestion`, `ArchiForge.KnowledgeGraph`, `ArchiForge.ArtifactSynthesis`, `ArchiForge.Retrieval` (as needed for types and orchestration hooks).
+- `ArchLucid.Decisioning`, `ArchLucid.ContextIngestion`, `ArchLucid.KnowledgeGraph`, `ArchLucid.ArtifactSynthesis`, `ArchLucid.Retrieval` (as needed for types and orchestration hooks).
 
 ---
 
-### Library: `ArchiForge.KnowledgeGraph` (graph snapshots)
+### Library: `ArchLucid.KnowledgeGraph` (graph snapshots)
 
 **Responsibility**
 
@@ -115,11 +115,11 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 **Depends on**
 
-- `ArchiForge.ContextIngestion` / contracts for snapshot shapes.
+- `ArchLucid.ContextIngestion` / contracts for snapshot shapes.
 
 ---
 
-### Library: `ArchiForge.ContextIngestion` (context pipeline)
+### Library: `ArchLucid.ContextIngestion` (context pipeline)
 
 **Responsibility**
 
@@ -127,7 +127,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 ---
 
-### Library: `ArchiForge.Retrieval` (RAG / indexing)
+### Library: `ArchLucid.Retrieval` (RAG / indexing)
 
 **Responsibility**
 
@@ -135,7 +135,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 ---
 
-### Library: `ArchiForge.ArtifactSynthesis` (bundle synthesis + packaging)
+### Library: `ArchLucid.ArtifactSynthesis` (bundle synthesis + packaging)
 
 **Responsibility**
 
@@ -143,25 +143,25 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 **Depends on**
 
-- `ArchiForge.Decisioning` (manifest model), `ArchiForge.Core`.
+- `ArchLucid.Decisioning` (manifest model), `ArchLucid.Core`.
 
 ---
 
-### Library: `ArchiForge.Persistence` — workflow data access (`ArchiForge.Persistence.Data.*`)
+### Library: `ArchLucid.Persistence` — workflow data access (`ArchLucid.Persistence.Data.*`)
 
 **Responsibility**
 
 - Database access (Dapper repositories) for runs, tasks, results, manifests, export records, comparison records, traces, evidence, etc.
-- Migration scripts under `ArchiForge.Persistence/Migrations/*` applied by DbUp at startup.
+- Migration scripts under `ArchLucid.Persistence/Migrations/*` applied by DbUp at startup.
 - DB connection factory (`IDbConnectionFactory`) for **SQL Server** (`SqlConnectionFactory`).
 
 **Depends on**
 
-- `ArchiForge.Contracts` (persisted record DTOs)
+- `ArchLucid.Contracts` (persisted record DTOs)
 
 ---
 
-### Library: `ArchiForge.Coordinator` (task generation / orchestration)
+### Library: `ArchLucid.Coordinator` (task generation / orchestration)
 
 **Responsibility**
 
@@ -170,7 +170,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 ---
 
-### Library: `ArchiForge.AgentRuntime` / `ArchiForge.AgentSimulator`
+### Library: `ArchLucid.AgentRuntime` / `ArchLucid.AgentSimulator`
 
 **Responsibility**
 
@@ -179,7 +179,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 ---
 
-### Library: `ArchiForge.Contracts`
+### Library: `ArchLucid.Contracts`
 
 **Responsibility**
 
@@ -190,10 +190,10 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 ### Container relationships (high-level)
 
-- `ArchiForge.Cli` → (HTTP) → `ArchiForge.Api`
-- `ArchiForge.Api` → `ArchiForge.Application` → `ArchiForge.Persistence.Data.*` / `ArchiForge.Persistence` / `ArchiForge.Decisioning` (including merge/commit via `ArchiForge.Decisioning.Merge`)
+- `ArchLucid.Cli` → (HTTP) → `ArchLucid.Api`
+- `ArchLucid.Api` → `ArchLucid.Application` → `ArchLucid.Persistence.Data.*` / `ArchLucid.Persistence` / `ArchLucid.Decisioning` (including merge/commit via `ArchLucid.Decisioning.Merge`)
 - Optional paths: Context ingestion, knowledge graph, retrieval, artifact synthesis (all invoked from application/API layers as configured)
-- All projects share models from `ArchiForge.Contracts`
+- All projects share models from `ArchLucid.Contracts`
 
 ---
 

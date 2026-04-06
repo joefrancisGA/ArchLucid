@@ -2,9 +2,9 @@ using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
-/// <summary>Adds description and a JSON example for POST create run (<see cref="ArchiForge.Contracts.Requests.ArchitectureRequest"/>) including context-ingestion fields.</summary>
+/// <summary>Adds description and a JSON example for POST create run (<see cref="ArchLucid.Contracts.Requests.ArchitectureRequest"/>) including context-ingestion fields.</summary>
 /// <remarks>
 /// Microsoft.OpenApi 2.x does not ship the old <c>OpenApiObject</c> / <c>Microsoft.OpenApi.Any</c> model for request-body examples;
 /// a markdown JSON block in the operation description stays compatible with Swashbuckle and OpenAPI.NET v2.

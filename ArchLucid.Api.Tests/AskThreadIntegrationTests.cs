@@ -2,12 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using ArchiForge.Core.Ask;
-using ArchiForge.Core.Conversation;
+using ArchLucid.Core.Ask;
+using ArchLucid.Core.Conversation;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// End-to-end: seed authority run → POST <c>v1/ask</c> with fake LLM → verify response includes thread and answer → list conversations via <c>GET v1/conversations</c>.

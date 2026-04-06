@@ -1,10 +1,10 @@
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
 public sealed class CachingAgentCompletionClientTests

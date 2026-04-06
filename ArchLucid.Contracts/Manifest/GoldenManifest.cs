@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ArchiForge.Contracts.Manifest;
+namespace ArchLucid.Contracts.Manifest;
 
 /// <summary>
 /// The authoritative resolved architecture manifest produced by a committed run.

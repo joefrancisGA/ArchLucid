@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Host.Core.Services;
+namespace ArchLucid.Host.Core.Services;
 
 /// <summary>
 /// Application-layer orchestration for policy pack mutations: delegates to <see cref="IPolicyPackManagementService"/> and emits audit events.

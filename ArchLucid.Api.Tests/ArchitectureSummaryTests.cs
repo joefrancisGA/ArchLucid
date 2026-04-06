@@ -1,19 +1,19 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Models;
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Summary.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureSummaryTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureSummaryTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task GetManifestSummary_ReturnsMarkdown()

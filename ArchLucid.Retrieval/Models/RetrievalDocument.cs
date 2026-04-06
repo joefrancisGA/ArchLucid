@@ -1,7 +1,7 @@
-namespace ArchiForge.Retrieval.Models;
+namespace ArchLucid.Retrieval.Models;
 
 /// <summary>
-/// Logical document fed into <see cref="ArchiForge.Retrieval.Indexing.IRetrievalIndexingService"/> before chunking and embedding.
+/// Logical document fed into <see cref="ArchLucid.Retrieval.Indexing.IRetrievalIndexingService"/> before chunking and embedding.
 /// </summary>
 public class RetrievalDocument
 {

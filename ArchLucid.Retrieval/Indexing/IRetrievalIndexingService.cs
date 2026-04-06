@@ -1,6 +1,6 @@
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Models;
 
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
 /// Chunks <see cref="RetrievalDocument"/> content, embeds chunks, and upserts them into <see cref="IVectorIndex"/>.

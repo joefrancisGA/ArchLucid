@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Evolution;
+using ArchLucid.Contracts.Evolution;
 
-namespace ArchiForge.Persistence.Evolution;
+namespace ArchLucid.Persistence.Evolution;
 
 /// <summary>Persistence for 60R shadow simulation outcomes.</summary>
 public interface IEvolutionSimulationRunRepository

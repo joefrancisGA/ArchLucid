@@ -2,7 +2,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
-namespace ArchiForge.ArtifactSynthesis.Docx;
+namespace ArchLucid.ArtifactSynthesis.Docx;
 
 /// <summary>
 /// Builds an in-memory branded .docx when <c>architecture-template.docx</c> is not on disk.

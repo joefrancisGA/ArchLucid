@@ -1,14 +1,14 @@
 using System.Text;
 
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Middleware;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Middleware;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class PrometheusScrapeAuthMiddlewareTests
 {

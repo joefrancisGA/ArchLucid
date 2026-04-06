@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Multi-condition alert definition: combines metric predicates with AND/OR and defines deduplication windows.

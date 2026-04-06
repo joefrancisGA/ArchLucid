@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>
 /// Read-only architecture analysis flags for a simulation pass. Does not enable determinism checks or replay (those mutate or spawn runs).

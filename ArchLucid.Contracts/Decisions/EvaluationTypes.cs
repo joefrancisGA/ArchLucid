@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Decisions;
+namespace ArchLucid.Contracts.Decisions;
 
 /// <summary>
 /// Well-known values for <see cref="AgentEvaluation.EvaluationType"/>.

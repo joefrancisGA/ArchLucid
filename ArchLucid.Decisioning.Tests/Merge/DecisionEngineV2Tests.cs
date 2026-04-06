@@ -1,12 +1,12 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Decisioning.Merge;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Decisioning.Merge;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Decision Engine V2.

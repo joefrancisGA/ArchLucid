@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Decisioning.Services;
+namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
 /// <see cref="IDecisionEngine"/> implementation that applies an ordered, priority-sorted

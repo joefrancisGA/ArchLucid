@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Advisory.Services;
 
-namespace ArchiForge.Decisioning.Advisory.Learning;
+namespace ArchLucid.Decisioning.Advisory.Learning;
 
 /// <summary>
 /// Inputs for <see cref="IAdaptiveRecommendationScorer.Score"/> aligned with recommendation facets before persistence.

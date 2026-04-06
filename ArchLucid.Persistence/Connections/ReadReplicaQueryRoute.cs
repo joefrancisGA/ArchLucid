@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
 /// Selects which <see cref="SqlReadReplicaSettings"/> key wins when multiple read-scale-out connection strings are configured.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
 /// <summary>Typed 59R plan snapshot carried on a candidate (same JSON shape as <c>EvolutionPlanSnapshotDocument</c>).</summary>
 public sealed class EvolutionSimulationPlanSnapshotPayload

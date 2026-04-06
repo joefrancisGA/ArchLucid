@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Row in <c>EvolutionCandidateChangeSets</c>: a reviewable candidate derived from a 59R improvement plan.</summary>
 public sealed class EvolutionCandidateChangeSetRecord

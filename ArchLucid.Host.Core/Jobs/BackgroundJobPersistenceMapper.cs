@@ -1,8 +1,8 @@
-using ArchiForge.Application.Jobs;
+using ArchLucid.Application.Jobs;
 
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Data.Repositories;
 
-namespace ArchiForge.Host.Core.Jobs;
+namespace ArchLucid.Host.Core.Jobs;
 
 internal static class BackgroundJobPersistenceMapper
 {

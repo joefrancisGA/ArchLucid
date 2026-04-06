@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Projects <see cref="AlertEvaluationContext"/> into a flat <see cref="AlertMetricSnapshot"/> for composite rule evaluation.

@@ -1,8 +1,8 @@
-﻿using ArchiForge.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Manifest.Sections;
 
 using DocumentFormat.OpenXml.Wordprocessing;
 
-namespace ArchiForge.ArtifactSynthesis.Docx.Builders;
+namespace ArchLucid.ArtifactSynthesis.Docx.Builders;
 
 public static class WordDocumentBuilder
 {

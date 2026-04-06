@@ -1,9 +1,9 @@
 using System.Data.Common;
 
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Application;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Core.Resilience;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Core.Resilience;
 
 using FluentAssertions;
 
@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Api Problem Details Exception Filter.

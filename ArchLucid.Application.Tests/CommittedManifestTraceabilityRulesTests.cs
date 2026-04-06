@@ -1,13 +1,13 @@
-using ArchiForge.Application.Architecture;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 
 using FluentAssertions;
 
-namespace ArchiForge.Application.Tests;
+namespace ArchLucid.Application.Tests;
 
 public sealed class CommittedManifestTraceabilityRulesTests
 {

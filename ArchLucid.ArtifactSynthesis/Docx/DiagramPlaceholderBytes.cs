@@ -1,4 +1,4 @@
-namespace ArchiForge.ArtifactSynthesis.Docx;
+namespace ArchLucid.ArtifactSynthesis.Docx;
 
 /// <summary>Minimal valid PNG (1×1 px) for v1 diagram placeholder until Mermaid/graph rendering exists.</summary>
 internal static class DiagramPlaceholderBytes

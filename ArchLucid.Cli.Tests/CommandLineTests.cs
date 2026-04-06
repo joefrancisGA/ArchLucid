@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace ArchiForge.Cli.Tests;
+namespace ArchLucid.Cli.Tests;
 
 /// <summary>
 /// Tests for Command Line.
@@ -117,7 +117,7 @@ public sealed class CommandLineTests
 
     private sealed class TempDirectory : IDisposable
     {
-        public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchiForge.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
+        public string Path { get; } = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
 
         public TempDirectory()
         {

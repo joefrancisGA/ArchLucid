@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace ArchiForge.Persistence.Retrieval;
+namespace ArchLucid.Persistence.Retrieval;
 
 /// <summary>
 /// Queue for deferred retrieval indexing after an authority run commits (transactional outbox–style durability on SQL).

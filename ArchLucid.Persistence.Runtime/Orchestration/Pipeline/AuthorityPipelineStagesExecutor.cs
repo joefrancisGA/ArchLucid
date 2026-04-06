@@ -1,27 +1,27 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.KnowledgeGraph.Services;
-using ArchiForge.Persistence.Interfaces;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Serialization;
-using ArchiForge.Persistence.Transactions;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Services;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Serialization;
+using ArchLucid.Persistence.Transactions;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Persistence.Orchestration.Pipeline;
 
 /// <summary>
 /// Default pipeline executor with one OpenTelemetry span per major stage (<c>authority.*</c> activity names).
@@ -92,11 +92,11 @@ public sealed class AuthorityPipelineStagesExecutor(
     public async Task ExecuteAfterRunPersistedAsync(AuthorityPipelineContext ctx, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(ctx);
-        IArchiForgeUnitOfWork uow = ctx.UnitOfWork;
+        IArchLucidUnitOfWork uow = ctx.UnitOfWork;
         RunRecord run = ctx.Run;
         ScopeContext scope = ctx.Scope;
 
-        using (Activity? a = ArchiForgeInstrumentation.AuthorityRun.StartActivity("authority.context_ingestion"))
+        using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.context_ingestion"))
         {
             a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
             ctx.PriorCommittedContext ??= await _contextSnapshotRepository.GetLatestAsync(ctx.Request.ProjectId, ct);
@@ -109,7 +109,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await UpdateRunAsync(run, uow, ct);
         }
 
-        using (Activity? a = ArchiForgeInstrumentation.AuthorityRun.StartActivity("authority.graph"))
+        using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.graph"))
         {
             a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
             GraphSnapshotResolutionResult graphResolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
@@ -139,7 +139,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await UpdateRunAsync(run, uow, ct);
         }
 
-        using (Activity? a = ArchiForgeInstrumentation.AuthorityRun.StartActivity("authority.findings"))
+        using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.findings"))
         {
             a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
             FindingsSnapshot findingsSnapshot = await _findingsOrchestrator.GenerateFindingsSnapshotAsync(
@@ -155,7 +155,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await UpdateRunAsync(run, uow, ct);
         }
 
-        using (Activity? a = ArchiForgeInstrumentation.AuthorityRun.StartActivity("authority.decisioning"))
+        using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.decisioning"))
         {
             a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
             (GoldenManifest manifest, DecisionTrace trace) = await _decisionEngine.DecideAsync(
@@ -196,7 +196,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await UpdateRunAsync(run, uow, ct);
         }
 
-        using (Activity? a = ArchiForgeInstrumentation.AuthorityRun.StartActivity("authority.artifacts"))
+        using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.artifacts"))
         {
             a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
             ArtifactBundle artifactBundle = await _artifactSynthesisService.SynthesizeAsync(ctx.Manifest!, ct);
@@ -236,7 +236,7 @@ public sealed class AuthorityPipelineStagesExecutor(
         }
     }
 
-    private async Task UpdateRunAsync(RunRecord run, IArchiForgeUnitOfWork uow, CancellationToken ct)
+    private async Task UpdateRunAsync(RunRecord run, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await _runRepository.UpdateAsync(run, ct, uow.Connection, uow.Transaction);
@@ -244,7 +244,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _runRepository.UpdateAsync(run, ct);
     }
 
-    private async Task SaveContextAsync(ContextSnapshot snapshot, IArchiForgeUnitOfWork uow, CancellationToken ct)
+    private async Task SaveContextAsync(ContextSnapshot snapshot, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await _contextSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
@@ -252,7 +252,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _contextSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
-    private async Task SaveGraphAsync(GraphSnapshot snapshot, IArchiForgeUnitOfWork uow, CancellationToken ct)
+    private async Task SaveGraphAsync(GraphSnapshot snapshot, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await _graphSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
@@ -260,7 +260,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _graphSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
-    private async Task SaveFindingsAsync(FindingsSnapshot snapshot, IArchiForgeUnitOfWork uow, CancellationToken ct)
+    private async Task SaveFindingsAsync(FindingsSnapshot snapshot, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await _findingsSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
@@ -268,7 +268,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _findingsSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
-    private async Task SaveTraceAsync(DecisionTrace trace, IArchiForgeUnitOfWork uow, CancellationToken ct)
+    private async Task SaveTraceAsync(DecisionTrace trace, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await _decisionTraceRepository.SaveAsync(trace, ct, uow.Connection, uow.Transaction);
@@ -276,7 +276,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _decisionTraceRepository.SaveAsync(trace, ct);
     }
 
-    private async Task SaveManifestAsync(GoldenManifest manifest, IArchiForgeUnitOfWork uow, CancellationToken ct)
+    private async Task SaveManifestAsync(GoldenManifest manifest, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await _goldenManifestRepository.SaveAsync(manifest, ct, uow.Connection, uow.Transaction);
@@ -284,7 +284,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _goldenManifestRepository.SaveAsync(manifest, ct);
     }
 
-    private async Task SaveArtifactBundleAsync(ArtifactBundle bundle, IArchiForgeUnitOfWork uow, CancellationToken ct)
+    private async Task SaveArtifactBundleAsync(ArtifactBundle bundle, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await _artifactBundleRepository.SaveAsync(bundle, ct, uow.Connection, uow.Transaction);

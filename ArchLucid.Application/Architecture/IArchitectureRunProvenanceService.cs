@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Architecture;
+using ArchLucid.Contracts.Architecture;
 
-namespace ArchiForge.Application.Architecture;
+namespace ArchLucid.Application.Architecture;
 
 /// <summary>
 /// Builds the coordinator <see cref="ArchitectureRunProvenanceGraph"/> for API and UI trace views.

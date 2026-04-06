@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
-/// Persists an <see cref="ArchiForge.Contracts.Agents.AgentExecutionTrace"/> after each model call (success or parse failure).
+/// Persists an <see cref="ArchLucid.Contracts.Agents.AgentExecutionTrace"/> after each model call (success or parse failure).
 /// </summary>
 public interface IAgentExecutionTraceRecorder
 {

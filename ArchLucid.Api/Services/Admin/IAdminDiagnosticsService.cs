@@ -1,7 +1,7 @@
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Persistence.Integration;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Integration;
 
-namespace ArchiForge.Api.Services.Admin;
+namespace ArchLucid.Api.Services.Admin;
 
 /// <summary>Aggregates SQL-backed operational counters for <see cref="Controllers.AdminController"/>.</summary>
 public interface IAdminDiagnosticsService

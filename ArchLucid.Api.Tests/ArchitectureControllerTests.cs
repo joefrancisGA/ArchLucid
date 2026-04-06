@@ -4,14 +4,14 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Each test uses a new <see cref="ArchiForgeApiFactory"/> so the per-test SQL Server database is isolated (see <c>docs/BUILD.md</c> for connection resolution).
+/// Each test uses a new <see cref="ArchLucidApiFactory"/> so the per-test SQL Server database is isolated (see <c>docs/BUILD.md</c> for connection resolution).
 /// Shared state would collide on <c>GoldenManifestVersions</c> (PK = ManifestVersion; production uses run-scoped first versions, e.g. <c>v1-</c> plus run id).
 /// </summary>
 [Trait("Suite", "Core")]
@@ -33,7 +33,7 @@ public sealed class ArchitectureControllerTests
 
     private static async Task RunWithIsolatedFactory(Func<HttpClient, Task> act)
     {
-        await using ArchiForgeApiFactory factory = new();
+        await using ArchLucidApiFactory factory = new();
         HttpClient client = factory.CreateClient();
         await act(client);
     }

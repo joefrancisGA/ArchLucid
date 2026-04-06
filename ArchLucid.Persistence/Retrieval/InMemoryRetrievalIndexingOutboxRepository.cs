@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace ArchiForge.Persistence.Retrieval;
+namespace ArchLucid.Persistence.Retrieval;
 
 /// <summary>In-memory <see cref="IRetrievalIndexingOutboxRepository"/> for tests and <c>StorageProvider=InMemory</c>.</summary>
 public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexingOutboxRepository

@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>archiforge</ToolCommandName>
-    <PackageId>ArchiForge.Cli</PackageId>
+    <PackageId>ArchLucid.Cli</PackageId>
     <Version>1.0.0</Version>
     <Authors>ArchiForge</Authors>
     <Description>CLI for ArchiForge: create projects, run architecture requests, and inspect results.</Description>
@@ -25,14 +25,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="ArchiForge.Cli.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Cli.Tests" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForge.Api.Client\ArchiForge.Api.Client.csproj" />
-    <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
-    <ProjectReference Include="..\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj" />
-    <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
+    <ProjectReference Include="..\ArchLucid.Api.Client\ArchLucid.Api.Client.csproj" />
+    <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
+    <ProjectReference Include="..\ArchLucid.Coordinator\ArchLucid.Coordinator.csproj" />
+    <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
   </ItemGroup>
 
 </Project>

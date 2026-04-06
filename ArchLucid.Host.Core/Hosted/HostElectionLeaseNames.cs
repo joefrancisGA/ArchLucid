@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// Keys in <c>dbo.HostLeaderLeases</c>; must stay stable across versions.

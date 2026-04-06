@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Decisioning.Services;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Services;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Policy Applicability Finding Engine.

@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Thread-safe in-memory implementation of <see cref="IComparisonRecordRepository"/> for tests and in-memory hosts.

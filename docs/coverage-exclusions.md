@@ -54,7 +54,7 @@ These classes open live SQL Server connections, execute `sp_set_session_context`
 
 All Dapper/SQL repository classes that execute queries against SQL Server. Each implements an interface that has a corresponding `InMemory*` implementation tested by unit tests.
 
-### ArchiForge.Persistence (29 classes)
+### ArchLucid.Persistence (29 classes)
 
 - `DapperProductLearningPlanningRepository`
 - `DapperProductLearningPilotSignalRepository`
@@ -67,7 +67,7 @@ All Dapper/SQL repository classes that execute queries against SQL Server. Each 
 - `SqlRunRepository`, `SqlFindingsSnapshotRepository`, `SqlDecisionTraceRepository`, `SqlGraphSnapshotRepository`, `SqlArtifactBundleRepository`, `SqlGoldenManifestRepository`, `SqlContextSnapshotRepository`
 - `SqlProvenanceSnapshotRepository`
 
-### ArchiForge.Persistence — workflow Dapper repositories (`ArchiForge.Persistence.Data.Repositories`, 17 classes)
+### ArchLucid.Persistence — workflow Dapper repositories (`ArchLucid.Persistence.Data.Repositories`, 17 classes)
 
 - `AgentEvaluationRepository`, `AgentEvidencePackageRepository`, `AgentExecutionTraceRepository`, `AgentResultRepository`, `AgentTaskRepository`
 - `ArchitectureRequestRepository`, `ArchitectureRunIdempotencyRepository`, `ArchitectureRunRepository`
@@ -122,7 +122,7 @@ Pure data-transfer objects used by Dapper for SQL result mapping. They contain o
 
 | Assembly | Justification |
 |----------|---------------|
-| `ArchiForge.TestSupport` | Test infrastructure (fakes, builders, helpers); not production code |
+| `ArchLucid.TestSupport` | Test infrastructure (fakes, builders, helpers); not production code |
 
 ---
 

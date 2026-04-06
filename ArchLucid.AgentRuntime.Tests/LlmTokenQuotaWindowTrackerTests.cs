@@ -1,10 +1,10 @@
-using ArchiForge.Core.Configuration;
+using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 public sealed class LlmTokenQuotaWindowTrackerTests
 {

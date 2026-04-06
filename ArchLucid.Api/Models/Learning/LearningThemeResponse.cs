@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Learning;
+namespace ArchLucid.Api.Models.Learning;
 
 /// <summary>59R improvement theme row for operator UI (maps from persisted theme record).</summary>
 public sealed class LearningThemeResponse

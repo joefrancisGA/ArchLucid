@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
-namespace ArchiForge.Cli.Support;
+namespace ArchLucid.Cli.Support;
 
 /// <summary>
 /// Gathers explicit, reviewable sections for <see cref="SupportBundleArchiveWriter"/>.
@@ -18,9 +18,9 @@ public static class SupportBundleCollector
     /// Collects all sections. Uses <paramref name="client"/> for API probes; never logs or stores API keys.
     /// </summary>
     public static async Task<SupportBundlePayload> CollectAsync(
-        ArchiForgeApiClient client,
+        ArchLucidApiClient client,
         string workingDirectory,
-        ArchiForgeProjectScaffolder.ArchiForgeConfig? config,
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(client);
@@ -85,7 +85,7 @@ public static class SupportBundleCollector
     }
 
     private static async Task<(string? Json, string? Error)> TryGetVersionAsync(
-        ArchiForgeApiClient client,
+        ArchLucidApiClient client,
         CancellationToken ct)
     {
         try
@@ -106,7 +106,7 @@ public static class SupportBundleCollector
     }
 
     private static async Task<SupportBundleHealthProbe> ProbeAsync(
-        ArchiForgeApiClient client,
+        ArchLucidApiClient client,
         string path,
         CancellationToken ct)
     {
@@ -129,11 +129,11 @@ public static class SupportBundleCollector
     }
 
     private static SupportBundleConfigSummary BuildConfigSummary(
-        ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
         if (config is null)
         {
-            string fallbackUrl = SupportBundleRedactor.RedactHttpUrl(ArchiForgeApiClient.ResolveBaseUrl(null));
+            string fallbackUrl = SupportBundleRedactor.RedactHttpUrl(ArchLucidApiClient.ResolveBaseUrl(null));
 
             return new SupportBundleConfigSummary
             {
@@ -142,7 +142,7 @@ public static class SupportBundleCollector
             };
         }
 
-        string resolved = ArchiForgeApiClient.ResolveBaseUrl(config);
+        string resolved = ArchLucidApiClient.ResolveBaseUrl(config);
 
         return new SupportBundleConfigSummary
         {
@@ -175,7 +175,7 @@ public static class SupportBundleCollector
 
     private static SupportBundleWorkspaceSection BuildWorkspaceSection(
         string workingDirectory,
-        ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
         if (config is null)
 
@@ -254,7 +254,7 @@ public static class SupportBundleCollector
     /// <summary>
     /// Optional: first ~4 KiB of a small text file under outputs if present (never connection strings from other files).
     /// </summary>
-    private static string? TryReadSmallLocalLogExcerpt(string workingDirectory, ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
+    private static string? TryReadSmallLocalLogExcerpt(string workingDirectory, ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
         if (config is null)
 

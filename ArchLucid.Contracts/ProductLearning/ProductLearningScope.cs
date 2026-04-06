@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>Tenant/workspace/project boundary for product-learning queries (matches signal rows).</summary>
 public sealed class ProductLearningScope

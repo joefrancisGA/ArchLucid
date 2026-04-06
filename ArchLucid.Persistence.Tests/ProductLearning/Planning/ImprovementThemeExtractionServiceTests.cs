@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Persistence.ProductLearning;
-using ArchiForge.Persistence.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Persistence.ProductLearning;
+using ArchLucid.Persistence.ProductLearning.Planning;
 
-namespace ArchiForge.Persistence.Tests.ProductLearning.Planning;
+namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
 /// <summary>59R theme extraction from 58R aggregates and scoped pilot signals.</summary>
 [Trait("ChangeSet", "59R")]

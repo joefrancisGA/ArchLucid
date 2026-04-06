@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Authority;
+namespace ArchLucid.Core.Authority;
 
 /// <summary>
 /// Decides whether the authority pipeline should queue context ingestion and graph stages for asynchronous processing.

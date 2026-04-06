@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Canonical severity strings for <see cref="AlertRecord.Severity"/>, <see cref="AlertRule.Severity"/>, and routing thresholds.

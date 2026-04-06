@@ -2,20 +2,20 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using ArchiForge.Api.Models.Learning;
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchLucid.Api.Models.Learning;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
 
 using FluentAssertions;
 
 using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Integration tests for <c>/v1/learning/*</c> (59R planning read model).</summary>
 [Trait("Category", "Integration")]
 [Trait("ChangeSet", "59R")]
-public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class LearningControllerTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task GetThemes_Default_ReturnsOk_WithEmptyThemes()

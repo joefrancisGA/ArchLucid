@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Comparison operators for <see cref="AlertRuleCondition.Operator"/> against <see cref="AlertMetricSnapshot"/> fields.

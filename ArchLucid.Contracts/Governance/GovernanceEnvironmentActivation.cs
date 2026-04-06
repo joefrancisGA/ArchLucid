@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Governance;
+namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
 /// Records that a specific run/manifest version is (or was) the active architecture

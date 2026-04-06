@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>One artifact facet row in a triage/export report (counts only — no raw comments).</summary>
 public sealed class ProductLearningTriageReportArtifactRow

@@ -47,7 +47,7 @@ Run only infrastructure in Docker; run API and UI natively for fast iteration.
 
 ```bash
 docker compose up -d              # SQL, Azurite, Redis
-dotnet run --project ArchiForge.Api
+dotnet run --project ArchLucid.Api
 cd archiforge-ui && npm run dev
 ```
 
@@ -81,7 +81,7 @@ Same images pushed to ACR, deployed via **Terraform** roots under `infra/terrafo
 
 ```bash
 # From the repository root (the API Dockerfile needs sibling project references)
-docker build -f ArchiForge.Api/Dockerfile -t archiforge-api .
+docker build -f ArchLucid.Api/Dockerfile -t archiforge-api .
 ```
 
 ### UI
@@ -95,13 +95,13 @@ docker build -t archiforge-ui archiforge-ui/
 
 ## Component Breakdown
 
-### API Dockerfile (`ArchiForge.Api/Dockerfile`)
+### API Dockerfile (`ArchLucid.Api/Dockerfile`)
 
 | Stage | Base image | Purpose |
 |-------|-----------|---------|
-| `restore` | `mcr.microsoft.com/dotnet/sdk:10.0-alpine` | Copy `.csproj` files and run `dotnet restore` (layer-cached) |
+| `restore` | `mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23` (pinned; bump with `global.json`) | Copy `.csproj` files and run `dotnet restore` (layer-cached) |
 | `publish` | (extends `restore`) | Copy source, run `dotnet publish -c Release` |
-| `runtime` | `mcr.microsoft.com/dotnet/aspnet:10.0-alpine` | Non-root user, health check, port 8080 |
+| `runtime` | `mcr.microsoft.com/dotnet/aspnet:10.0.201-alpine3.23` | Non-root user, health check, port 8080 |
 
 ### UI Dockerfile (`archiforge-ui/Dockerfile`)
 

@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Manifest;
+namespace ArchLucid.Contracts.Manifest;
 
 /// <summary>
 /// Governance metadata attached to a <see cref="GoldenManifest"/>, capturing compliance

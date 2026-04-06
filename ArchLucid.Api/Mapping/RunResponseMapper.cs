@@ -1,10 +1,10 @@
-using ArchiForge.Api.Models;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Api.Models;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Api.Mapping;
+namespace ArchLucid.Api.Mapping;
 
 internal static class RunResponseMapper
 {

@@ -1,12 +1,12 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ArchiForge.Host.Core.Services.Delivery;
+namespace ArchLucid.Host.Core.Services.Delivery;
 
 /// <summary>Computes HMAC-SHA256 signatures for webhook JSON bodies.</summary>
 public static class WebhookSignature
 {
-    public const string HeaderName = "X-ArchiForge-Webhook-Signature";
+    public const string HeaderName = "X-ArchLucid-Webhook-Signature";
     public const string Prefix = "sha256=";
 
     public static string ComputeSha256Hex(string sharedSecret, byte[] utf8Body)

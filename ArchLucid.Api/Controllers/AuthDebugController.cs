@@ -1,20 +1,20 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Models;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Diagnostic endpoint for inspecting the caller's authenticated identity and claims.
 /// </summary>
 /// <remarks>
-/// Requires <see cref="ArchiForgePolicies.ReadAuthority"/>. Useful for debugging token claims in development and staging.
+/// Requires <see cref="ArchLucidPolicies.ReadAuthority"/>. Useful for debugging token claims in development and staging.
 /// Intentionally does not use <c>[EnableRateLimiting]</c>: unversioned <c>api/auth</c> diagnostic with minimal payload;
 /// use API gateway or reverse-proxy throttling in shared environments if abuse is a concern.
 /// </remarks>
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiController]
 [Route("api/auth")]
 public sealed class AuthDebugController : ControllerBase

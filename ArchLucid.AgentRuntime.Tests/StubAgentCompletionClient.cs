@@ -1,4 +1,4 @@
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 public sealed class StubAgentCompletionClient(string json) : IAgentCompletionClient
 {

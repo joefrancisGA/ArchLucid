@@ -1,16 +1,16 @@
 using System.Diagnostics;
 
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.KnowledgeGraph.Services;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Transactions;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Services;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Transactions;
 
-namespace ArchiForge.Persistence.Orchestration.Pipeline;
+namespace ArchLucid.Persistence.Orchestration.Pipeline;
 
 /// <summary>
 /// Mutable state passed through ordered <see cref="IAuthorityPipelineStage"/> executions inside one unit of work.
@@ -21,7 +21,7 @@ public sealed class AuthorityPipelineContext
 
     public required ContextIngestionRequest Request { get; set; }
 
-    public required IArchiForgeUnitOfWork UnitOfWork { get; init; }
+    public required IArchLucidUnitOfWork UnitOfWork { get; init; }
 
     public required ScopeContext Scope { get; init; }
 

@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text;
 
-using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning.Planning;
 
-namespace ArchiForge.Persistence.ProductLearning.Planning;
+namespace ArchLucid.Persistence.ProductLearning.Planning;
 
 /// <inheritdoc />
 public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrioritizationService

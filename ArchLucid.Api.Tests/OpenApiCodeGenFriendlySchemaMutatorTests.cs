@@ -1,10 +1,10 @@
-using ArchiForge.Api.OpenApi;
+using ArchLucid.Api.OpenApi;
 
 using FluentAssertions;
 
 using Microsoft.OpenApi;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 [Trait("Suite", "Core")]
 public sealed class OpenApiCodeGenFriendlySchemaMutatorTests

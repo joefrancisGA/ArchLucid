@@ -1,13 +1,13 @@
-using ArchiForge.Application;
-using ArchiForge.Application.Common;
-using ArchiForge.Application.Governance;
-using ArchiForge.Core.Integration;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Governance;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Application;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Governance;
+using ArchLucid.Core.Integration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Governance Workflow Service.

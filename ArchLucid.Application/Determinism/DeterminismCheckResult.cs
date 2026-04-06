@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Determinism;
+namespace ArchLucid.Application.Determinism;
 
 /// <summary>
 /// Outcome of a determinism check run by <see cref="IDeterminismCheckService"/>.

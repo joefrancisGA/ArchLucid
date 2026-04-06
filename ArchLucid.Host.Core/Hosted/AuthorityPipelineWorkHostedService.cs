@@ -1,6 +1,6 @@
-using ArchiForge.Persistence.Orchestration;
+using ArchLucid.Persistence.Orchestration;
 
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// Periodically drains <see cref="IAuthorityPipelineWorkRepository"/> so deferred authority stages run after the run header commits.

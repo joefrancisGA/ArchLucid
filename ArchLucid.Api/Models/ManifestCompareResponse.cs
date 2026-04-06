@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 /// <summary>
 /// Response returned by the manifest comparison endpoint, containing both manifests and their structural diff.

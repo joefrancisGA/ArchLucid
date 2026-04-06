@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// <see cref="PolicyPackResolver"/> lists hierarchical assignments (repository applies scope), keeps enabled rows only,

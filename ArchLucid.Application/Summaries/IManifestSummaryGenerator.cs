@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Summaries;
+namespace ArchLucid.Application.Summaries;
 
 /// <summary>
 /// Generates a Markdown narrative summary for a <see cref="GoldenManifest"/>, optionally enriched

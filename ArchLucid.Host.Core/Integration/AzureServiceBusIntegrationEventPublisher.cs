@@ -1,12 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Core.Integration;
+using ArchLucid.Core.Integration;
 
 using Azure.Core;
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 
-namespace ArchiForge.Host.Core.Integration;
+namespace ArchLucid.Host.Core.Integration;
 
 /// <summary>Publishes UTF-8 JSON payloads to an Azure Service Bus queue or topic.</summary>
 [ExcludeFromCodeCoverage(Justification = "Requires live Service Bus; exercised via integration tests if configured.")]

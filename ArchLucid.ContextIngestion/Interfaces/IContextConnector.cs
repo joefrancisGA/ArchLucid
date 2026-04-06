@@ -1,4 +1,4 @@
-namespace ArchiForge.ContextIngestion.Interfaces;
+namespace ArchLucid.ContextIngestion.Interfaces;
 
 using Models;
 

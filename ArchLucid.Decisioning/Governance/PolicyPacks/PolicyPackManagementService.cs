@@ -1,8 +1,8 @@
-﻿using System.Transactions;
+using System.Transactions;
 
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Decisioning.Governance.Resolution;
 
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Default <see cref="IPolicyPackManagementService"/> implementation: orchestrates repositories for create / publish / assign flows.

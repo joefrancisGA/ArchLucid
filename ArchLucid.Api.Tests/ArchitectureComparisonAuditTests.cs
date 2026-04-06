@@ -1,18 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Comparison Audit.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureComparisonAuditTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     private sealed class ReplayRunResponseDto
     {
@@ -58,7 +58,7 @@ public sealed class ArchitectureComparisonAuditTests(ArchiForgeApiFactory factor
             }));
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        compareResponse.Headers.TryGetValues("X-ArchiForge-ComparisonRecordId", out IEnumerable<string>? ids).Should().BeTrue();
+        compareResponse.Headers.TryGetValues("X-ArchLucid-ComparisonRecordId", out IEnumerable<string>? ids).Should().BeTrue();
 
         string comparisonRecordId = ids!.Single();
         comparisonRecordId.Should().NotBeNullOrWhiteSpace();

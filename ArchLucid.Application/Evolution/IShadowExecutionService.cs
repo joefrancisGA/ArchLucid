@@ -1,7 +1,7 @@
-using ArchiForge.Application.Analysis;
-using ArchiForge.Contracts.Evolution;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Evolution;
 
-namespace ArchiForge.Application.Evolution;
+namespace ArchLucid.Application.Evolution;
 
 /// <summary>
 /// Isolated shadow execution: one read of run detail, in-memory clone + candidate overlay, analysis on the clone only (no writes).

@@ -35,11 +35,11 @@ This document is written for **internal engineers** and is intentionally pragmat
 
 **ArchLucid (this system)** includes:
 
-- `ArchiForge.Api` (HTTP surface)
-- `ArchiForge.Application` (orchestration + formatting/export/replay services)
-- `ArchiForge.Persistence.Data.*` (repositories + migrations)
-- `ArchiForge.Decisioning` — manifest merge and schema validation live in `ArchiForge.Decisioning.Merge` and `ArchiForge.Decisioning.Validation` (same assembly as governance/findings)
-- `ArchiForge.Contracts` (shared DTOs and domain contracts)
+- `ArchLucid.Api` (HTTP surface)
+- `ArchLucid.Application` (orchestration + formatting/export/replay services)
+- `ArchLucid.Persistence.Data.*` (repositories + migrations)
+- `ArchLucid.Decisioning` — manifest merge and schema validation live in `ArchLucid.Decisioning.Merge` and `ArchLucid.Decisioning.Validation` (same assembly as governance/findings)
+- `ArchLucid.Contracts` (shared DTOs and domain contracts)
 
 **Actors / clients**
 
@@ -51,7 +51,7 @@ This document is written for **internal engineers** and is intentionally pragmat
 ### External dependencies (runtime)
 
 - **Database**
-  - SQL Server in production, dev, and **ArchiForge.Api.Tests** integration tests (per-test databases; **DbUp** on host startup).
+  - SQL Server in production, dev, and **ArchLucid.Api.Tests** integration tests (per-test databases; **DbUp** on host startup).
   - Migrations are applied with DbUp when `ConnectionStrings:ArchiForge` is set.
 
 - **Azure OpenAI (optional)**
@@ -83,7 +83,7 @@ This document is written for **internal engineers** and is intentionally pragmat
 
 ### Context ingestion
 
-Multi-source inputs (description, inline requirements, pasted documents, policy/topology/security hints) are normalized through **`ArchiForge.ContextIngestion`** into **`CanonicalObject`** records, deduplicated, and persisted as **`ContextSnapshot`** for the knowledge graph. See **`docs/CONTEXT_INGESTION.md`** for connector order, parsers (`REQ:` / `POL:` / … line prefixes), dedupe rules, and the mapping from **`ArchitectureRequest`** to **`ContextIngestionRequest`**.
+Multi-source inputs (description, inline requirements, pasted documents, policy/topology/security hints) are normalized through **`ArchLucid.ContextIngestion`** into **`CanonicalObject`** records, deduplicated, and persisted as **`ContextSnapshot`** for the knowledge graph. See **`docs/CONTEXT_INGESTION.md`** for connector order, parsers (`REQ:` / `POL:` / … line prefixes), dedupe rules, and the mapping from **`ArchitectureRequest`** to **`ContextIngestionRequest`**.
 
 ---
 

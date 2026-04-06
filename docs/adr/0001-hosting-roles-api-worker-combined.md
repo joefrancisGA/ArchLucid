@@ -19,4 +19,4 @@ Use configuration **`Hosting:Role`**: **`Api`**, **`Worker`**, or **`Combined`**
 ## Links
 
 - `docs/DEPLOYMENT_TERRAFORM.md`
-- `ArchiForge.Host.Core.Hosting.HostingRoleResolver`
+- `ArchLucid.Host.Core.Hosting.HostingRoleResolver`

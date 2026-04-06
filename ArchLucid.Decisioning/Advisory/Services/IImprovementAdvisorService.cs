@@ -1,15 +1,15 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Advisory.Services;
+namespace ArchLucid.Decisioning.Advisory.Services;
 
 /// <summary>
 /// Builds an <see cref="ImprovementPlan"/> from a golden manifest and findings, optionally enriched by a manifest comparison to another run.
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="ImprovementAdvisorService"/>. HTTP entry: <c>ArchiForge.Api.Controllers.AdvisoryController.GetImprovements</c>.
-/// Uses <see cref="ArchiForge.Decisioning.Advisory.Analysis.IImprovementSignalAnalyzer"/> and <see cref="IRecommendationGenerator"/>; loads the latest <see cref="Learning.RecommendationLearningProfile"/> when available.
+/// Implementation: <see cref="ImprovementAdvisorService"/>. HTTP entry: <c>ArchLucid.Api.Controllers.AdvisoryController.GetImprovements</c>.
+/// Uses <see cref="ArchLucid.Decisioning.Advisory.Analysis.IImprovementSignalAnalyzer"/> and <see cref="IRecommendationGenerator"/>; loads the latest <see cref="Learning.RecommendationLearningProfile"/> when available.
 /// </remarks>
 public interface IImprovementAdvisorService
 {

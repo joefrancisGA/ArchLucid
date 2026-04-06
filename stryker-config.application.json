@@ -1,6 +1,6 @@
 {
   "stryker-config": {
-    "project": "ArchiForge.Application/ArchiForge.Application.csproj",
+    "project": "ArchLucid.Application/ArchLucid.Application.csproj",
     "test-projects": ["ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj"],
     "reporters": ["progress", "html"],
     "thresholds": {

@@ -1,13 +1,13 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Findings.Serialization;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.RelationalRead;
-using ArchiForge.Persistence.Repositories;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Findings.Serialization;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.RelationalRead;
+using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
@@ -17,7 +17,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// 53R-5 SQL integration tests: verify that each <see cref="PersistenceReadMode"/> produces the

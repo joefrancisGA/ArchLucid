@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
-/// <summary>Extracts structured shadow metrics from persisted <see cref="ArchiForge.Contracts.Evolution.EvolutionSimulationRunRecord.OutcomeJson"/>.</summary>
+/// <summary>Extracts structured shadow metrics from persisted <see cref="ArchLucid.Contracts.Evolution.EvolutionSimulationRunRecord.OutcomeJson"/>.</summary>
 internal static class EvolutionOutcomeShadowReader
 {
     private static readonly JsonSerializerOptions DeserializeOptions = new(JsonSerializerDefaults.Web);

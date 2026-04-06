@@ -1,10 +1,10 @@
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 
 using FluentAssertions;
 
-namespace ArchiForge.Application.Tests;
+namespace ArchLucid.Application.Tests;
 
 /// <summary>
 /// Additional <see cref="ManifestDiffService"/> scenarios (relationships, cross-manifest warnings).

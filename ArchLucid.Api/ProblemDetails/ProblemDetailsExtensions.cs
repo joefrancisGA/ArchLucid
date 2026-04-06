@@ -1,8 +1,8 @@
-using ArchiForge.Application;
+using ArchLucid.Application;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArchiForge.Api.ProblemDetails;
+namespace ArchLucid.Api.ProblemDetails;
 
 /// <summary>
 /// Extension methods for returning RFC 7807 Problem Details from controllers.

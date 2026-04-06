@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Delivery;
 
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// <see cref="IAlertDeliveryChannel"/> for <see cref="AlertRoutingChannelType.Email"/>; sends plain-text body via <see cref="IEmailSender"/>.

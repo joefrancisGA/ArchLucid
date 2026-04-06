@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Associates a plan with a legacy <c>ArchitectureRuns.RunId</c> (pilot / manifest context).</summary>
 public sealed class ProductLearningImprovementPlanRunLinkRecord

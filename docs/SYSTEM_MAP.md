@@ -11,7 +11,7 @@ High-level flows for navigation and onboarding. For component detail see [ARCHIT
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant API as ArchiForge.Api
+    participant API as ArchLucid.Api
     participant App as ArchitectureRunService
     participant Coord as CoordinatorService
     participant Orch as AuthorityRunOrchestrator
@@ -34,7 +34,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant API as ArchiForge.Api
+    participant API as ArchLucid.Api
     participant App as ArchitectureRunService
     participant Agents as Agent execution
     participant SQL as SQL persistence
@@ -67,9 +67,9 @@ sequenceDiagram
 
 | Host | File | Responsibility |
 |------|------|----------------|
-| API | `ArchiForge.Api/Program.cs` | HTTP pipeline, config validation, `AddArchiForgeApplicationServices` |
-| Worker | `ArchiForge.Worker/Program.cs` | Background loops, health, shared DI |
-| DI assembly | `ArchiForge.Host.Core/Startup/ServiceCollectionExtensions*.cs` | Partial classes: storage, agents, scheduling, observability, auth |
+| API | `ArchLucid.Api/Program.cs` | HTTP pipeline, config validation, `AddArchiForgeApplicationServices` |
+| Worker | `ArchLucid.Worker/Program.cs` | Background loops, health, shared DI |
+| DI assembly | `ArchLucid.Host.Core/Startup/ServiceCollectionExtensions*.cs` | Partial classes: storage, agents, scheduling, observability, auth |
 
 ---
 

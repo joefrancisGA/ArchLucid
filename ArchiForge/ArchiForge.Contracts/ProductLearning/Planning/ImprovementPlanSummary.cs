@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// Lightweight list/detail header for API and UI without full <see cref="ImprovementPlan"/> payloads.

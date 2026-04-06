@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
-namespace ArchiForge.Api.Authentication;
+namespace ArchLucid.Api.Authentication;
 
 [ExcludeFromCodeCoverage(Justification = "ASP.NET authentication handler; tested via integration/E2E tests against the HTTP pipeline.")]
 public sealed class ApiKeyAuthenticationHandler(

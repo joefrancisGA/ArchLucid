@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Audit;
+namespace ArchLucid.Core.Audit;
 
 /// <summary>
 /// Represents a single auditable action taken within the system.

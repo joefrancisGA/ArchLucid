@@ -1,7 +1,7 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Interfaces;
+namespace ArchLucid.ArtifactSynthesis.Interfaces;
 
 public interface IArtifactSynthesisService
 {

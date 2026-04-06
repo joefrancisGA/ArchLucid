@@ -1,6 +1,6 @@
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Services;
+namespace ArchLucid.KnowledgeGraph.Services;
 
 /// <summary>
 /// Result of <see cref="GraphSnapshotReuseEvaluator.ResolveAsync"/>: the snapshot plus how it was produced (for diagnostics).

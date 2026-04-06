@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.DecisionTraces;
+namespace ArchLucid.Contracts.DecisionTraces;
 
 /// <summary>
 /// Coordinator run event (options evaluated, merges applied, etc.); carried on <see cref="RunEventTrace.RunEvent"/>.

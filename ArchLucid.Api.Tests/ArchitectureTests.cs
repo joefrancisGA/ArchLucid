@@ -1,22 +1,22 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Decisioning.Merge;
-using ArchiForge.Decisioning.Validation;
+using ArchLucid.Api.Tests.TestDtos;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public class ArchitectureTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     private static readonly DecisionEngineService Engine = new(new PassthroughSchemaValidationService());
 

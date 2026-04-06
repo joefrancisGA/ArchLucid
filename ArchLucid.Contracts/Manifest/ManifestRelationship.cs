@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.Contracts.Manifest;
+namespace ArchLucid.Contracts.Manifest;
 
 /// <summary>
 /// A directed edge in the architecture graph, representing a runtime dependency

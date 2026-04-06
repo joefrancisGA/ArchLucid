@@ -1,12 +1,12 @@
-using ArchiForge.AgentRuntime.Explanation;
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Explanation;
+using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Explanation;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 public sealed class ExplanationServiceComparisonTests
 {

@@ -1,9 +1,9 @@
-using ArchiForge.Decisioning.Findings.Serialization;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Findings.Serialization;
+using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Findings Snapshot Migrator.

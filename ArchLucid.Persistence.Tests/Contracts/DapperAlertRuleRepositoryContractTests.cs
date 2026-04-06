@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Persistence.Alerts;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Persistence.Alerts;
+using ArchLucid.Persistence.Connections;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="AlertRuleRepositoryContractTests"/> against <see cref="DapperAlertRuleRepository"/>

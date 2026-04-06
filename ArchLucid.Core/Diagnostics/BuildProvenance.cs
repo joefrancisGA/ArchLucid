@@ -1,7 +1,7 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace ArchiForge.Core.Diagnostics;
+namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
 /// Immutable build and runtime facts for a host assembly (API, CLI, workers).

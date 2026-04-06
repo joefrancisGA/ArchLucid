@@ -1,6 +1,6 @@
 using System.Reflection;
 
-using ArchiForge.Host.Core.Startup.Diagnostics;
+using ArchLucid.Host.Core.Startup.Diagnostics;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Hosting;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class StartupConfigurationFactsReaderTests
 {
@@ -57,10 +57,10 @@ public sealed class StartupConfigurationFactsReaderTests
         facts.HostEnvironmentName.Should().Be("Staging");
         facts.ContentRootPath.Should().Be("/app/content");
         facts.SqlConnectionStringConfigured.Should().BeTrue();
-        facts.ArchiForgeStorageProvider.Should().Be("Sql");
+        facts.ArchLucidStorageProvider.Should().Be("Sql");
         facts.RetrievalVectorIndex.Should().Be("InMemory");
         facts.AgentExecutionMode.Should().Be("Simulator");
-        facts.ArchiForgeAuthMode.Should().Be("DevelopmentBypass");
+        facts.ArchLucidAuthMode.Should().Be("DevelopmentBypass");
         facts.AuthenticationApiKeyEnabled.Should().BeTrue();
         facts.AuthenticationApiKeyAdminConfigured.Should().BeTrue();
         facts.AuthenticationApiKeyReadOnlyConfigured.Should().BeFalse();
@@ -89,7 +89,7 @@ public sealed class StartupConfigurationFactsReaderTests
 
         facts.ContentRootPath.Should().BeEmpty();
         facts.SqlConnectionStringConfigured.Should().BeFalse();
-        facts.ArchiForgeStorageProvider.Should().Be("(missing)");
+        facts.ArchLucidStorageProvider.Should().Be("(missing)");
         facts.AuthenticationApiKeyEnabled.Should().BeFalse();
         facts.CorsAllowedOriginCount.Should().Be(0);
     }

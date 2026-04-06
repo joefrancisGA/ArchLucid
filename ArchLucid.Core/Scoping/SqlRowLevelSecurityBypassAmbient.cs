@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Scoping;
+namespace ArchLucid.Core.Scoping;
 
 /// <summary>
 /// Marks the current async flow as trusted SQL work that must bypass row-level security predicates

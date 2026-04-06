@@ -1,15 +1,15 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Packaging;
-using ArchiForge.Core.Scoping;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.Core.Scoping;
 
-namespace ArchiForge.Persistence.Queries;
+namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
 /// Read-only access to synthesized artifacts for a manifest via the artifact bundle repository.
 /// </summary>
 /// <remarks>
 /// SQL: <see cref="DapperArtifactQueryService"/>; in-memory: <see cref="InMemoryArtifactQueryService"/>.
-/// Callers: <c>ArchiForge.Api.Controllers.DocxExportController</c>, <c>ArtifactExportController</c>.
+/// Callers: <c>ArchLucid.Api.Controllers.DocxExportController</c>, <c>ArtifactExportController</c>.
 /// </remarks>
 public interface IArtifactQueryService
 {

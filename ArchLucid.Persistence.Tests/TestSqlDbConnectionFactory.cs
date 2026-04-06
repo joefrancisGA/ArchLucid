@@ -1,10 +1,10 @@
 using System.Data;
 
-using ArchiForge.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="IDbConnectionFactory"/> over a fixed connection string for SQL-backed contract tests.

@@ -1,6 +1,6 @@
-using ArchiForge.Core.Pagination;
+using ArchLucid.Core.Pagination;
 
-namespace ArchiForge.KnowledgeGraph.Models;
+namespace ArchLucid.KnowledgeGraph.Models;
 
 /// <summary>
 /// Slices <see cref="GraphSnapshot.Nodes"/> with stable list order; edges are restricted to the page’s node id set.

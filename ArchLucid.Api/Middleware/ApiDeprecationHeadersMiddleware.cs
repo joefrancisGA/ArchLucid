@@ -1,8 +1,8 @@
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Api.Middleware;
+namespace ArchLucid.Api.Middleware;
 
 /// <summary>Adds optional <c>Deprecation</c>, <c>Sunset</c>, and <c>Link</c> headers for version lifecycle communication.</summary>
 public sealed class ApiDeprecationHeadersMiddleware(RequestDelegate next, IOptionsMonitor<ApiDeprecationOptions> optionsMonitor)

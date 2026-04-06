@@ -1,4 +1,4 @@
-using ArchiForge.Core.Integration;
+using ArchLucid.Core.Integration;
 
 using FluentAssertions;
 
@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Core.Tests.Integration;
+namespace ArchLucid.Core.Tests.Integration;
 
 [Trait("Category", "Unit")]
 public sealed class IntegrationEventPublishingTests

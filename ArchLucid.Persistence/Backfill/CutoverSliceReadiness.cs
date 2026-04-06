@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Backfill;
+namespace ArchLucid.Persistence.Backfill;
 
 /// <summary>
 /// Readiness assessment for a single relational child-table slice (e.g. "ContextSnapshot.CanonicalObjects").
@@ -6,7 +6,7 @@ namespace ArchiForge.Persistence.Backfill;
 public sealed class CutoverSliceReadiness
 {
     /// <summary>
-    /// Logical name matching the slice labels used by <see cref="ArchiForge.Persistence.RelationalRead.JsonFallbackPolicy"/>
+    /// Logical name matching the slice labels used by <see cref="ArchLucid.Persistence.RelationalRead.JsonFallbackPolicy"/>
     /// (e.g. "ContextSnapshot.CanonicalObjects").
     /// </summary>
     public required string SliceName { get; init; }
@@ -22,7 +22,7 @@ public sealed class CutoverSliceReadiness
 
     /// <summary>
     /// <c>true</c> when every header row has at least one relational child row,
-    /// meaning this slice is safe for <see cref="ArchiForge.Persistence.RelationalRead.PersistenceReadMode.RequireRelational"/>.
+    /// meaning this slice is safe for <see cref="ArchLucid.Persistence.RelationalRead.PersistenceReadMode.RequireRelational"/>.
     /// </summary>
     public bool IsReady => HeadersMissingRelationalRows == 0;
 }

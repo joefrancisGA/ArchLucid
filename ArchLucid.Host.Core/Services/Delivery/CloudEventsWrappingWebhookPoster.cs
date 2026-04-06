@@ -1,13 +1,13 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Delivery;
 
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Services.Delivery;
+namespace ArchLucid.Host.Core.Services.Delivery;
 
 /// <summary>
 /// Wraps JSON webhook payloads in a <a href="https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/formats/json-format.md">CloudEvents 1.0 JSON</a> envelope

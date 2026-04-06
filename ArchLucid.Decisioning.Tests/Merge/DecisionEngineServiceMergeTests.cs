@@ -1,14 +1,14 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Decisioning.Merge;
-using ArchiForge.Decisioning.Validation;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Decision Engine Service Merge.

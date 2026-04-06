@@ -1,13 +1,13 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.ProductLearning;
+namespace ArchLucid.Persistence.ProductLearning;
 
 /// <summary>Dapper access to <c>dbo.ProductLearningPilotSignals</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]

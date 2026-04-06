@@ -2,11 +2,11 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Analysis Docx.
@@ -14,7 +14,7 @@ namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
-public sealed class ArchitectureAnalysisDocxTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()

@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Persistence contract for <see cref="ComparisonRecord"/> records that capture the outcome

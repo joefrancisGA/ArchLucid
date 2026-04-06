@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
 /// Routes read-replica-shaped calls to the primary <see cref="ISqlConnectionFactory"/> (CLI, tests, single-connection deployments).

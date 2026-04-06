@@ -1,8 +1,8 @@
-﻿using System.Text;
+using System.Text;
 
-using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
-namespace ArchiForge.Persistence.ProductLearning;
+namespace ArchLucid.Persistence.ProductLearning;
 
 /// <summary>Human-readable markdown for architecture/product triage discussions (58R).</summary>
 public static class ProductLearningTriageReportMarkdownFormatter

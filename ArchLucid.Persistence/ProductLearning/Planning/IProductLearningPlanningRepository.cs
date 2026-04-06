@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
 
-namespace ArchiForge.Persistence.ProductLearning.Planning;
+namespace ArchLucid.Persistence.ProductLearning.Planning;
 
 /// <summary>
 /// Persistence for 59R learning-to-planning bridge (themes, bounded plans, explicit links). No generation-side mutation.

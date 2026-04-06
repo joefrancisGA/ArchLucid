@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Application.Diffs;
+using ArchLucid.Application.Diffs;
 
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class AgentResultCompareSummaryResponse

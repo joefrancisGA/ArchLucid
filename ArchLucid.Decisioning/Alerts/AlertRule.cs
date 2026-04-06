@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Configuration for a single metric-based alert (non-composite), stored per scope in <c>dbo.AlertRules</c>.

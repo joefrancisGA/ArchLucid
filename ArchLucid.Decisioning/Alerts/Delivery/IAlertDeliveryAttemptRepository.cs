@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// Persistence for <see cref="AlertDeliveryAttempt"/> rows (one row per subscription per dispatch try).

@@ -3,7 +3,7 @@ using System.Text.Json;
 
 using Dapper;
 
-namespace ArchiForge.Persistence.Data.Infrastructure;
+namespace ArchLucid.Persistence.Data.Infrastructure;
 
 /// <summary>Dapper type handler for List&lt;string&gt; stored as JSON in NVARCHAR columns.</summary>
 public sealed class ListStringTypeHandler : SqlMapper.TypeHandler<List<string>>

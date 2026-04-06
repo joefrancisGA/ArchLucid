@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Persistence.Backfill;
+namespace ArchLucid.Persistence.Backfill;
 
 /// <summary>Which authority JSON payloads to scan during a one-time relational backfill.</summary>
 [ExcludeFromCodeCoverage(Justification = "Backfill options DTO; no logic.")]

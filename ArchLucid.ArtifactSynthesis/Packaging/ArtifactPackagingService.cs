@@ -1,10 +1,10 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
-using ArchiForge.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Packaging;
+namespace ArchLucid.ArtifactSynthesis.Packaging;
 
 /// <summary>
 /// Packages <see cref="SynthesizedArtifact"/> instances into single-file exports, manifest-scoped ZIP bundles,

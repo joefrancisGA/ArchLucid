@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Manifest;
+namespace ArchLucid.Contracts.Manifest;
 
 /// <summary>
 /// Versioning and provenance metadata for a <see cref="GoldenManifest"/>.

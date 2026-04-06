@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
 /// Deterministic rollup of identical leading text in <see cref="ProductLearningPilotSignalRecord.CommentShort"/>

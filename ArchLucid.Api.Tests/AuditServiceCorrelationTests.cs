@@ -1,9 +1,9 @@
 using System.Diagnostics;
 
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Audit;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Audit;
 
 using FluentAssertions;
 
@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Ensures <see cref="AuditService"/> stamps <see cref="AuditEvent.CorrelationId"/> from the logical <c>correlation.id</c> activity tag (parent chain), not only the innermost span id.
@@ -19,7 +19,7 @@ namespace ArchiForge.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class AuditServiceCorrelationTests
 {
-    private static readonly ActivitySource TestSource = new("ArchiForge.Tests.AuditServiceCorrelation");
+    private static readonly ActivitySource TestSource = new("ArchLucid.Tests.AuditServiceCorrelation");
 
     static AuditServiceCorrelationTests()
     {

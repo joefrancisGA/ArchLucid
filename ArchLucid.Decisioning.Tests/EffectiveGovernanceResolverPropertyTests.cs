@@ -1,9 +1,9 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.Resolution;
 
 using FsCheck.Xunit;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Property checks for precedence ordering used during effective governance merge.

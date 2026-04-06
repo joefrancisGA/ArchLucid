@@ -1,10 +1,10 @@
-namespace ArchiForge.Core.Comparison;
+namespace ArchLucid.Core.Comparison;
 
 /// <summary>
 /// Structured delta between two golden manifests: run ids, per-domain change lists, and short human-readable summary lines.
 /// </summary>
 /// <remarks>
-/// Produced by <c>ArchiForge.Decisioning.Comparison.IComparisonService.Compare</c>. Consumed by HTTP <c>GET api/compare</c>, advisory pipelines, and <c>IImprovementSignalAnalyzer</c> when a comparison is available.
+/// Produced by <c>ArchLucid.Decisioning.Comparison.IComparisonService.Compare</c>. Consumed by HTTP <c>GET api/compare</c>, advisory pipelines, and <c>IImprovementSignalAnalyzer</c> when a comparison is available.
 /// </remarks>
 public class ComparisonResult
 {
@@ -29,7 +29,7 @@ public class ComparisonResult
     /// <summary>Populated when <c>MaxMonthlyCost</c> differs between manifests (at most one entry today).</summary>
     public List<CostDelta> CostChanges { get; set; } = [];
 
-    /// <summary>High-level counts/messages built by <c>ArchiForge.Decisioning.Comparison.ComparisonService</c>.</summary>
+    /// <summary>High-level counts/messages built by <c>ArchLucid.Decisioning.Comparison.ComparisonService</c>.</summary>
     public List<string> SummaryHighlights { get; set; } = [];
 
     /// <summary>

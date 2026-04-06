@@ -15,18 +15,18 @@ alwaysApply: false
 
 | Task | Start here |
 |------|------------|
-| Add a **finding engine** | `ArchiForge.Decisioning/Interfaces/IFindingEngine.cs` → register in `ServiceCollectionExtensions.Decisioning.cs` → template `templates/archiforge-finding-engine/` |
-| Add a **context connector** | `ArchiForge.ContextIngestion/Interfaces/IContextConnector.cs` → `ContextConnectorPipeline.CreateOrderedContextConnectorPipeline` → `RegisterContextIngestionAndKnowledgeGraph` (Api startup) |
-| Add an **agent handler** | `ArchiForge.AgentRuntime/IAgentHandler.cs` → `RegisterAgentExecution` in `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` |
-| Add an **alert delivery channel** | `ArchiForge.Decisioning/Alerts/Delivery/IAlertDeliveryChannel.cs` → register with alert dispatcher |
-| Change **authority pipeline** | `ArchiForge.Persistence/Orchestration/AuthorityRunOrchestrator.cs` and `Orchestration/Pipeline/*` stages |
-| **SQL + RLS + replica** | `ArchiForge.Persistence/Connections/SqlServerOptions.cs` (section `SqlServer`) |
-| **Configuration validation** | `ArchiForge.Host.Core/Startup/Validation/ArchiForgeConfigurationRules.cs` |
+| Add a **finding engine** | `ArchLucid.Decisioning/Interfaces/IFindingEngine.cs` → register in `ServiceCollectionExtensions.Decisioning.cs` → template `templates/archiforge-finding-engine/` |
+| Add a **context connector** | `ArchLucid.ContextIngestion/Interfaces/IContextConnector.cs` → `ContextConnectorPipeline.CreateOrderedContextConnectorPipeline` → `RegisterContextIngestionAndKnowledgeGraph` (Api startup) |
+| Add an **agent handler** | `ArchLucid.AgentRuntime/IAgentHandler.cs` → `RegisterAgentExecution` in `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` |
+| Add an **alert delivery channel** | `ArchLucid.Decisioning/Alerts/Delivery/IAlertDeliveryChannel.cs` → register with alert dispatcher |
+| Change **authority pipeline** | `ArchLucid.Persistence/Orchestration/AuthorityRunOrchestrator.cs` and `Orchestration/Pipeline/*` stages |
+| **SQL + RLS + replica** | `ArchLucid.Persistence/Connections/SqlServerOptions.cs` (section `SqlServer`) |
+| **Configuration validation** | `ArchLucid.Host.Core/Startup/Validation/ArchiForgeConfigurationRules.cs` |
 
 ## Data vs persistence
 
-- **`ArchiForge.Persistence.Data.*`**: Dapper repositories against SQL, connection factories, migrations scripts consumption.
-- **`ArchiForge.Persistence`**: Domain-oriented persistence ports (`IRunRepository`, UoW, orchestration, caching decorators, archival).
+- **`ArchLucid.Persistence.Data.*`**: Dapper repositories against SQL, connection factories, migrations scripts consumption.
+- **`ArchLucid.Persistence`**: Domain-oriented persistence ports (`IRunRepository`, UoW, orchestration, caching decorators, archival).
 
 ## Product rename (in progress)
 
@@ -34,4 +34,4 @@ alwaysApply: false
 
 ## Host roles
 
-- **`Hosting:Role`**: `Combined` (default dev), `Api` (HTTP only), `Worker` (background services). See `ArchiForge.Host.Core/Hosting/ArchiForgeHostingRole.cs`.
+- **`Hosting:Role`**: `Combined` (default dev), `Api` (HTTP only), `Worker` (background services). See `ArchLucid.Host.Core/Hosting/ArchiForgeHostingRole.cs`.

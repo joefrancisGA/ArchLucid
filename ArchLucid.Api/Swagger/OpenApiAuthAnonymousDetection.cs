@@ -1,10 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
 /// <summary>
 /// Detects MVC actions that allow anonymous access for OpenAPI <c>security: []</c> overrides.

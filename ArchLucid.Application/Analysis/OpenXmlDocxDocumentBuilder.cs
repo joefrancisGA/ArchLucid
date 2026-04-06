@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using DocumentFormat.OpenXml.Packaging;
@@ -23,7 +23,7 @@ using WpRun = DocumentFormat.OpenXml.Wordprocessing.Run;
 using WpRunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
 using WpText = DocumentFormat.OpenXml.Wordprocessing.Text;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposable
 {

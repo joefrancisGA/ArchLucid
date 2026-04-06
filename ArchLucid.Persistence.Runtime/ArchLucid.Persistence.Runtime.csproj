@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>ArchiForge.Persistence</RootNamespace>
+    <RootNamespace>ArchLucid.Persistence</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,15 +19,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence.Advisory\ArchiForge.Persistence.Advisory.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence.Integration\ArchiForge.Persistence.Integration.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Advisory\ArchLucid.Persistence.Advisory.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Integration\ArchLucid.Persistence.Integration.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="ArchiForge.Persistence.Tests" />
-    <InternalsVisibleTo Include="ArchiForge.Api.Tests" />
-    <InternalsVisibleTo Include="ArchiForge.Decisioning.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Persistence.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Decisioning.Tests" />
   </ItemGroup>
 
 </Project>

@@ -1,10 +1,10 @@
-using ArchiForge.Host.Core.Hosted;
-using ArchiForge.Persistence.Archival;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Persistence.Archival;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Health;
+namespace ArchLucid.Host.Core.Health;
 
 /// <summary>
 /// Readiness signal when <see cref="DataArchivalOptions.Enabled"/> and the last archival iteration failed.

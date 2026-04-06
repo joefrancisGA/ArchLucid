@@ -1,19 +1,19 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Core.Integration;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Composite;
-using ArchiForge.Decisioning.Alerts.Delivery;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Persistence.Alerts.Helpers;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Integration;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Persistence.Alerts.Helpers;
+using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Persistence.Alerts;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
 /// Evaluates composite (multi-metric) alert rules after policy governance filtering, applies suppression policy, then persists and delivers.
@@ -158,7 +158,7 @@ public sealed class CompositeAlertService(
         finally
         {
             evaluationStopwatch.Stop();
-            ArchiForgeInstrumentation.AlertEvaluationDurationMilliseconds.Record(
+            ArchLucidInstrumentation.AlertEvaluationDurationMilliseconds.Record(
                 evaluationStopwatch.Elapsed.TotalMilliseconds,
                 new KeyValuePair<string, object?>("rule_kind", "composite"));
         }

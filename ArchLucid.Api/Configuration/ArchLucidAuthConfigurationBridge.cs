@@ -1,19 +1,19 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Host.Core.Configuration;
 
-namespace ArchiForge.Api.Configuration;
+namespace ArchLucid.Api.Configuration;
 
 /// <summary>Binds merged auth options (legacy + <c>ArchLucidAuth</c> override) for API startup.</summary>
-public static class ArchiForgeAuthConfigurationBridge
+public static class ArchLucidAuthConfigurationBridge
 {
-    /// <inheritdoc cref="ArchiForgeConfigurationBridge.ArchLucidAuthSectionName" />
-    public static ArchiForgeAuthOptions Resolve(IConfiguration configuration)
+    /// <inheritdoc cref="ArchLucidConfigurationBridge.ArchLucidAuthSectionName" />
+    public static ArchLucidAuthOptions Resolve(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        ArchiForgeAuthOptions options = new();
-        configuration.GetSection(ArchiForgeAuthOptions.SectionName).Bind(options);
-        IConfigurationSection lucid = configuration.GetSection(ArchiForgeConfigurationBridge.ArchLucidAuthSectionName);
+        ArchLucidAuthOptions options = new();
+        configuration.GetSection(ArchLucidAuthOptions.SectionName).Bind(options);
+        IConfigurationSection lucid = configuration.GetSection(ArchLucidConfigurationBridge.ArchLucidAuthSectionName);
 
         if (lucid.Exists())
         {

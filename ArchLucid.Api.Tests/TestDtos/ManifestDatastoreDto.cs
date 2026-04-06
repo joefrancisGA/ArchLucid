@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Tests.TestDtos;
+namespace ArchLucid.Api.Tests.TestDtos;
 
 public sealed class ManifestDatastoreDto
 {

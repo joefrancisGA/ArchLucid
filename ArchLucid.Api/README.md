@@ -1,4 +1,4 @@
-## ArchiForge.Api
+## ArchLucid.Api
 
 ASP.NET Core Web API surface for ArchiForge.
 
@@ -11,13 +11,13 @@ ASP.NET Core Web API surface for ArchiForge.
   - rate limiting
   - OpenAPI/Swagger
   - health checks and observability (Serilog + OpenTelemetry)
-- **Hosting role** (`Hosting:Role`, env `Hosting__Role`): **`Combined`** (default, local dev), **`Api`** (HTTP; background export jobs depend on **`BackgroundJobs:Mode`**), or **`Worker`** (advisory/archival/outbox + optional durable export queue processor; see **`ArchiForge.Worker`**). Shared DI, persistence bootstrap, health checks, and jobs live in **`ArchiForge.Host.Core`**; the Worker executable references **Host.Core** only (not this assembly).
+- **Hosting role** (`Hosting:Role`, env `Hosting__Role`): **`Combined`** (default, local dev), **`Api`** (HTTP; background export jobs depend on **`BackgroundJobs:Mode`**), or **`Worker`** (advisory/archival/outbox + optional durable export queue processor; see **`ArchLucid.Worker`**). Shared DI, persistence bootstrap, health checks, and jobs live in **`ArchLucid.Host.Core`**; the Worker executable references **Host.Core** only (not this assembly).
 - **Background jobs** (`BackgroundJobs:Mode`, env `BackgroundJobs__Mode`): **`InMemory`** (default) processes async export jobs inside the Api/Combined process. **`Durable`** stores work in **SQL** (`dbo.BackgroundJobs`), enqueues **job ids** to **Azure Storage Queue**, writes results to **blob** (`BackgroundJobs:ResultsContainerName`), and runs work on the **Worker** (`BackgroundJobQueueProcessorHostedService`). Requires **`ArchiForge:StorageProvider=Sql`**, **`ArtifactLargePayload:BlobProvider=AzureBlob`**, and either **`BackgroundJobs:QueueServiceUri`** or a derivable **`ArtifactLargePayload:AzureBlobServiceUri`** (`.blob.` → `.queue.`).
 
 When changing API behavior, prefer to:
 
-- Keep controllers thin and delegate to `ArchiForge.Application` services.
-- Keep persistence details in `ArchiForge.Persistence.Data.*` repositories.
+- Keep controllers thin and delegate to `ArchLucid.Application` services.
+- Keep persistence details in `ArchLucid.Persistence.Data.*` repositories.
 
 See:
 

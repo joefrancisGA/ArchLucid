@@ -2,7 +2,7 @@ using Microsoft.Data.SqlClient;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
 /// Opens either a read-scale-out connection string resolved for <paramref name="route"/> or the primary

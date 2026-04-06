@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
 /// SQL Server implementation of <see cref="IAdvisoryScanScheduleRepository"/> against <c>dbo.AdvisoryScanSchedules</c>.

@@ -1,9 +1,9 @@
 using System.Text.Json;
 
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Governance;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Thread-safe in-memory <see cref="IGovernancePromotionRecordRepository"/> (JSON clone-on-read).

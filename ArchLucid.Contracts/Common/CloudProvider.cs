@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Common;
+namespace ArchLucid.Contracts.Common;
 
 /// <summary>Identifies the target cloud platform for an architecture run.</summary>
 public enum CloudProvider

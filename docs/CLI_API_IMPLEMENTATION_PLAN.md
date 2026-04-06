@@ -8,14 +8,14 @@ Repository-specific plan for **ArchiForge**: CLI calling the ArchiForge API. Inc
 
 | Component | Status | Location |
 |-----------|--------|----------|
-| Config + URL resolution | Done | `ArchiForge.Cli/ArchiForgeProjectScaffolder.cs`, `ArchiForge.Cli/Program.cs` |
-| HTTP client (ArchiForgeApiClient) | Done | `ArchiForge.Cli/ArchiForgeApiClient.cs` |
-| CLI commands (run, status, submit, commit, seed, artifacts, health, dev up, new) | Done | `ArchiForge.Cli/Program.cs` |
-| CLI test project | Done | `ArchiForge.Cli.Tests/ArchiForge.Cli.Tests.csproj` |
-| Config / URL resolution tests | Done | `ArchiForge.Cli.Tests/ArchiForgeConfigTests.cs`, `ArchiForge.Cli.Tests/ArchiForgeApiClientTests.cs` |
-| API client unit tests (mocked HTTP) | Done | `ArchiForge.Cli.Tests/ArchiForgeApiClientHttpTests.cs` |
-| Command-line / exit-code tests | Done | `ArchiForge.Cli.Tests/CommandLineTests.cs` |
-| Smoke tests | Done | `ArchiForge.Cli.Tests/CliSmokeTests.cs` |
+| Config + URL resolution | Done | `ArchLucid.Cli/ArchiForgeProjectScaffolder.cs`, `ArchLucid.Cli/Program.cs` |
+| HTTP client (ArchiForgeApiClient) | Done | `ArchLucid.Cli/ArchiForgeApiClient.cs` |
+| CLI commands (run, status, submit, commit, seed, artifacts, health, dev up, new) | Done | `ArchLucid.Cli/Program.cs` |
+| CLI test project | Done | `ArchLucid.Cli.Tests/ArchLucid.Cli.Tests.csproj` |
+| Config / URL resolution tests | Done | `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs`, `ArchLucid.Cli.Tests/ArchiForgeApiClientTests.cs` |
+| API client unit tests (mocked HTTP) | Done | `ArchLucid.Cli.Tests/ArchiForgeApiClientHttpTests.cs` |
+| Command-line / exit-code tests | Done | `ArchLucid.Cli.Tests/CommandLineTests.cs` |
+| Smoke tests | Done | `ArchLucid.Cli.Tests/CliSmokeTests.cs` |
 | CLI USAGE docs | Done | `docs/CLI_USAGE.md` |
 | README CLI section | Done | `README.md` |
 | Scaffold SQL path hardened | Done | `RegisterProject = false` by default; connection string moved to `ScaffoldOptions.ConnectionString` |
@@ -44,7 +44,7 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 | File | Purpose |
 |------|---------|
-| `ArchiForge.Cli.Tests/ArchiForge.Cli.Tests.csproj` | Test project: `net10.0`, xUnit, FluentAssertions, reference `ArchiForge.Cli`. |
+| `ArchLucid.Cli.Tests/ArchLucid.Cli.Tests.csproj` | Test project: `net10.0`, xUnit, FluentAssertions, reference `ArchLucid.Cli`. |
 
 **csproj contents (minimal):**
 
@@ -63,7 +63,7 @@ Do the phases in this order. Later phases depend on earlier ones.
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForge.Cli\ArchiForge.Cli.csproj" />
+    <ProjectReference Include="..\ArchLucid.Cli\ArchLucid.Cli.csproj" />
   </ItemGroup>
 </Project>
 ```
@@ -72,7 +72,7 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 | File | Change |
 |------|--------|
-| `ArchiForge.sln` | Add project `ArchiForge.Cli.Tests` and place it under the `tests` solution folder (`{128DBBE7-315A-4005-BED1-BA51A521D8FB}`). |
+| `ArchLucid.sln` | Add project `ArchLucid.Cli.Tests` and place it under the `tests` solution folder (`{128DBBE7-315A-4005-BED1-BA51A521D8FB}`). |
 
 ### Tests to add
 
@@ -80,8 +80,8 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 ### Validation
 
-- `dotnet build ArchiForge.Cli.Tests` succeeds.
-- `dotnet test ArchiForge.Cli.Tests` runs (no tests yet).
+- `dotnet build ArchLucid.Cli.Tests` succeeds.
+- `dotnet test ArchLucid.Cli.Tests` runs (no tests yet).
 
 ---
 
@@ -93,10 +93,10 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 | File | Purpose |
 |------|---------|
-| `ArchiForge.Cli.Tests/ArchiForgeConfigTests.cs` | Tests for `ArchiForgeProjectScaffolder.LoadConfig` and validation. |
-| `ArchiForge.Cli.Tests/ArchiForgeApiClientTests.cs` | Tests for `ArchiForgeApiClient.ResolveBaseUrl` (and optionally `GetDefaultBaseUrl` with env). |
-| `ArchiForge.Cli.Tests/Fixtures/archiforge-valid.json` | Minimal valid config for tests (schemaVersion, projectName, inputs.brief, outputs.localCacheDir, plugins.lockFile, infra.terraform). |
-| `ArchiForge.Cli.Tests/Fixtures/archiforge-invalid.json` | Invalid JSON or missing required field (e.g. `{}` or missing `projectName`). |
+| `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs` | Tests for `ArchiForgeProjectScaffolder.LoadConfig` and validation. |
+| `ArchLucid.Cli.Tests/ArchiForgeApiClientTests.cs` | Tests for `ArchiForgeApiClient.ResolveBaseUrl` (and optionally `GetDefaultBaseUrl` with env). |
+| `ArchLucid.Cli.Tests/Fixtures/archiforge-valid.json` | Minimal valid config for tests (schemaVersion, projectName, inputs.brief, outputs.localCacheDir, plugins.lockFile, infra.terraform). |
+| `ArchLucid.Cli.Tests/Fixtures/archiforge-invalid.json` | Invalid JSON or missing required field (e.g. `{}` or missing `projectName`). |
 
 ### Files to modify
 
@@ -104,7 +104,7 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 ### Tests to add
 
-**In `ArchiForge.Cli.Tests/ArchiForgeConfigTests.cs`:**
+**In `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs`:**
 
 | Test name | Behavior |
 |-----------|----------|
@@ -113,7 +113,7 @@ Do the phases in this order. Later phases depend on earlier ones.
 | `LoadConfig_InvalidJson_ThrowsInvalidDataException` | Write invalid JSON to `archiforge.json` in temp dir; assert throws `InvalidDataException` (or `JsonException`). |
 | `LoadConfig_MissingBriefFile_Throws` | Valid JSON but `inputs/brief.md` missing under project root; assert throws (per `ValidateConfigOrThrow`). |
 
-**In `ArchiForge.Cli.Tests/ArchiForgeApiClientTests.cs`:**
+**In `ArchLucid.Cli.Tests/ArchiForgeApiClientTests.cs`:**
 
 | Test name | Behavior |
 |-----------|----------|
@@ -123,7 +123,7 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 ### Validation
 
-- `dotnet test ArchiForge.Cli.Tests --filter "FullyQualifiedName~ArchiForgeConfigTests|FullyQualifiedName~ArchiForgeApiClientTests"` passes.
+- `dotnet test ArchLucid.Cli.Tests --filter "FullyQualifiedName~ArchiForgeConfigTests|FullyQualifiedName~ArchiForgeApiClientTests"` passes.
 
 ---
 
@@ -137,13 +137,13 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 | File | Change |
 |------|--------|
-| `ArchiForge.Cli/ArchiForgeApiClient.cs` | Add a second constructor: `public ArchiForgeApiClient(HttpClient httpClient)` that uses the provided client and builds the pipeline the same way (or a no-retry pipeline for tests). Keep existing `ArchiForgeApiClient(string baseUrl)` creating an internal `HttpClient`. |
+| `ArchLucid.Cli/ArchiForgeApiClient.cs` | Add a second constructor: `public ArchiForgeApiClient(HttpClient httpClient)` that uses the provided client and builds the pipeline the same way (or a no-retry pipeline for tests). Keep existing `ArchiForgeApiClient(string baseUrl)` creating an internal `HttpClient`. |
 
 **Files to create**
 
 | File | Purpose |
 |------|---------|
-| `ArchiForge.Cli.Tests/ArchiForgeApiClientHttpTests.cs` | Instantiate client with a custom `HttpMessageHandler` that returns canned responses; assert success/failure and parsed DTOs. |
+| `ArchLucid.Cli.Tests/ArchiForgeApiClientHttpTests.cs` | Instantiate client with a custom `HttpMessageHandler` that returns canned responses; assert success/failure and parsed DTOs. |
 
 **Tests to add (in `ArchiForgeApiClientHttpTests.cs`)**
 
@@ -161,11 +161,11 @@ Use a helper that creates `HttpClient` with `new HttpClient(new MockHandler(...)
 
 ### Option B: No production code change
 
-Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchiForge.Api.Tests` or a simple `HttpListener`) in the test project that responds with fixed JSON. No change to `ArchiForgeApiClient.cs`; tests call `new ArchiForgeApiClient(serverBaseUrl)`.
+Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchLucid.Api.Tests` or a simple `HttpListener`) in the test project that responds with fixed JSON. No change to `ArchiForgeApiClient.cs`; tests call `new ArchiForgeApiClient(serverBaseUrl)`.
 
 ### Validation
 
-- `dotnet test ArchiForge.Cli.Tests --filter "FullyQualifiedName~ArchiForgeApiClientHttpTests"` passes.
+- `dotnet test ArchLucid.Cli.Tests --filter "FullyQualifiedName~ArchiForgeApiClientHttpTests"` passes.
 
 ---
 
@@ -177,13 +177,13 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchiFo
 
 | File | Purpose |
 |------|---------|
-| `ArchiForge.Cli.Tests/CommandLineTests.cs` | Run the CLI via `Program.Main(args)` (if accessible) or by invoking the entry point; assert exit code and that output contains expected strings. |
+| `ArchLucid.Cli.Tests/CommandLineTests.cs` | Run the CLI via `Program.Main(args)` (if accessible) or by invoking the entry point; assert exit code and that output contains expected strings. |
 
 ### Files to modify
 
 | File | Change |
 |------|--------|
-| `ArchiForge.Cli/Program.cs` | Optional: make the async entry logic callable from tests. If `Main` is `private static async Task<int> Main(string[] args)`, you can use `[InternalsVisibleTo("ArchiForge.Cli.Tests")]` and a public `static Task<int> RunAsync(string[] args)` that contains the current main logic, and have `Main` call `RunAsync(args)`. Then tests call `RunAsync` and assert return value. Alternatively, run the CLI as a separate process and parse stdout/stderr. |
+| `ArchLucid.Cli/Program.cs` | Optional: make the async entry logic callable from tests. If `Main` is `private static async Task<int> Main(string[] args)`, you can use `[InternalsVisibleTo("ArchLucid.Cli.Tests")]` and a public `static Task<int> RunAsync(string[] args)` that contains the current main logic, and have `Main` call `RunAsync(args)`. Then tests call `RunAsync` and assert return value. Alternatively, run the CLI as a separate process and parse stdout/stderr. |
 
 ### Tests to add
 
@@ -196,7 +196,7 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchiFo
 
 ### Validation
 
-- `dotnet test ArchiForge.Cli.Tests --filter "FullyQualifiedName~CommandLineTests"` passes.
+- `dotnet test ArchLucid.Cli.Tests --filter "FullyQualifiedName~CommandLineTests"` passes.
 
 ---
 
@@ -214,8 +214,8 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchiFo
 
 | File | Change |
 |------|--------|
-| `README.md` | Add a **CLI** section: how to run the CLI (`dotnet run --project ArchiForge.Cli` or `dotnet tool install` if published), commands `new`, `run`, `status`, `submit`, `commit`, `seed`, `artifacts`, `health`, `dev up`; note that the API must be running (or set `ARCHIFORGE_API_URL`). Mention default URL from `ArchiForge.Api` launchSettings (e.g. `http://localhost:5128`). |
-| `ArchiForge.Cli/ArchiForgeProjectScaffolder.cs` | Optional: remove or gate the direct `SqlConnection` / `INSERT INTO PROJECTS` block (around lines 84–107) so scaffolding does not require SQL Server. Replace with no-op or a config flag "registerProject" default false. |
+| `README.md` | Add a **CLI** section: how to run the CLI (`dotnet run --project ArchLucid.Cli` or `dotnet tool install` if published), commands `new`, `run`, `status`, `submit`, `commit`, `seed`, `artifacts`, `health`, `dev up`; note that the API must be running (or set `ARCHIFORGE_API_URL`). Mention default URL from `ArchLucid.Api` launchSettings (e.g. `http://localhost:5128`). |
+| `ArchLucid.Cli/ArchiForgeProjectScaffolder.cs` | Optional: remove or gate the direct `SqlConnection` / `INSERT INTO PROJECTS` block (around lines 84–107) so scaffolding does not require SQL Server. Replace with no-op or a config flag "registerProject" default false. |
 
 ### Tests to add
 
@@ -227,19 +227,19 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchiFo
 
 | Item | Action |
 |------|--------|
-| `ArchiForge.Cli.Tests/ArchiForge.Cli.Tests.csproj` | **Create** – test project. |
-| `ArchiForge.sln` | **Modify** – add ArchiForge.Cli.Tests under tests folder. |
-| `ArchiForge.Cli.Tests/ArchiForgeConfigTests.cs` | **Create** – 4 tests for LoadConfig. |
-| `ArchiForge.Cli.Tests/ArchiForgeApiClientTests.cs` | **Create** – 3 tests for ResolveBaseUrl. |
-| `ArchiForge.Cli.Tests/ArchiForgeApiClientHttpTests.cs` | **Create** – 7 tests for client with mocked HTTP. |
-| `ArchiForge.Cli.Tests/CommandLineTests.cs` | **Create** – 4 tests for exit codes/output. |
-| `ArchiForge.Cli.Tests/Fixtures/archiforge-valid.json` | **Create** – valid config fixture. |
-| `ArchiForge.Cli.Tests/Fixtures/archiforge-invalid.json` | **Create** – invalid config fixture. |
-| `ArchiForge.Cli/ArchiForgeApiClient.cs` | **Modify** (optional) – add constructor taking `HttpClient` for tests. |
-| `ArchiForge.Cli/Program.cs` | **Modify** (optional) – expose `RunAsync(args)` for tests. |
+| `ArchLucid.Cli.Tests/ArchLucid.Cli.Tests.csproj` | **Create** – test project. |
+| `ArchLucid.sln` | **Modify** – add ArchLucid.Cli.Tests under tests folder. |
+| `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs` | **Create** – 4 tests for LoadConfig. |
+| `ArchLucid.Cli.Tests/ArchiForgeApiClientTests.cs` | **Create** – 3 tests for ResolveBaseUrl. |
+| `ArchLucid.Cli.Tests/ArchiForgeApiClientHttpTests.cs` | **Create** – 7 tests for client with mocked HTTP. |
+| `ArchLucid.Cli.Tests/CommandLineTests.cs` | **Create** – 4 tests for exit codes/output. |
+| `ArchLucid.Cli.Tests/Fixtures/archiforge-valid.json` | **Create** – valid config fixture. |
+| `ArchLucid.Cli.Tests/Fixtures/archiforge-invalid.json` | **Create** – invalid config fixture. |
+| `ArchLucid.Cli/ArchiForgeApiClient.cs` | **Modify** (optional) – add constructor taking `HttpClient` for tests. |
+| `ArchLucid.Cli/Program.cs` | **Modify** (optional) – expose `RunAsync(args)` for tests. |
 | `README.md` | **Modify** – add CLI section. |
 | `docs/CLI_USAGE.md` | **Create** (optional) – full CLI reference. |
-| `ArchiForge.Cli/ArchiForgeProjectScaffolder.cs` | **Modify** (optional) – gate or remove direct SQL in scaffolder. |
+| `ArchLucid.Cli/ArchiForgeProjectScaffolder.cs` | **Modify** (optional) – gate or remove direct SQL in scaffolder. |
 
 ---
 

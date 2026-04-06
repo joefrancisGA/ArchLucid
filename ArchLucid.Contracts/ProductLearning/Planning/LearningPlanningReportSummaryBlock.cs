@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Roll-up KPIs included in the planning report (same semantics as <c>GET /v1/learning/summary</c>).</summary>
 public sealed class LearningPlanningReportSummaryBlock

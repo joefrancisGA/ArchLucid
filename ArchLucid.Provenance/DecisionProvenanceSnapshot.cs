@@ -1,4 +1,4 @@
-namespace ArchiForge.Provenance;
+namespace ArchLucid.Provenance;
 
 /// <summary>Persisted append-only snapshot of <see cref="DecisionProvenanceGraph"/> (JSON).</summary>
 public class DecisionProvenanceSnapshot

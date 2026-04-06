@@ -1,9 +1,9 @@
-namespace ArchiForge.Persistence.Compare;
+namespace ArchLucid.Persistence.Compare;
 
 /// <summary>
 /// Outcome of <see cref="IAuthorityCompareService.CompareManifestsAsync"/>: identity, hashes, and a unified diff list.
 /// </summary>
-/// <remarks>HTTP projection: <c>ArchiForge.Api.Contracts.ManifestComparisonResponse</c>.</remarks>
+/// <remarks>HTTP projection: <c>ArchLucid.Api.Contracts.ManifestComparisonResponse</c>.</remarks>
 public class ManifestComparisonResult
 {
     /// <summary>Id of the baseline (left) golden manifest.</summary>

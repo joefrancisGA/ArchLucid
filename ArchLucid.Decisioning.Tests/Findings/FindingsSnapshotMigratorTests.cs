@@ -1,10 +1,10 @@
-﻿using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Findings.Serialization;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Findings.Serialization;
+using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests.Findings;
+namespace ArchLucid.Decisioning.Tests.Findings;
 
 [Trait("Category", "Unit")]
 public sealed class FindingsSnapshotMigratorTests

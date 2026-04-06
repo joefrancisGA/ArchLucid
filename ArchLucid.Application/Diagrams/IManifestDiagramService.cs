@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Diagrams;
+namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
 /// Generates a Mermaid flowchart diagram from a <see cref="GoldenManifest"/>, with configurable

@@ -23,4 +23,4 @@
 
 ## Tests
 
-- **`ArchiForge.Decisioning.Tests`** — factory, converter, migrator, serialization round-trip, and end-to-end graph → findings → manifest.
+- **`ArchLucid.Decisioning.Tests`** — factory, converter, migrator, serialization round-trip, and end-to-end graph → findings → manifest.

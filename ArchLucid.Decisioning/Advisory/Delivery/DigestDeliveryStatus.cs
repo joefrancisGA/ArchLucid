@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>String status values on <see cref="DigestDeliveryAttempt.Status"/> and in SQL.</summary>
 public static class DigestDeliveryStatus

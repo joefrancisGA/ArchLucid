@@ -1,11 +1,11 @@
-namespace ArchiForge.Api.Auth.Models;
+namespace ArchLucid.Api.Auth.Models;
 
 /// <summary>
 /// Well-known ASP.NET Core authorization policy names registered by ArchiForge.
 /// Use these constants wherever <c>[Authorize(Policy = ...)]</c> is applied to
 /// prevent magic strings from drifting between policy registration and enforcement.
 /// </summary>
-public static class ArchiForgePolicies
+public static class ArchLucidPolicies
 {
     /// <summary>Required for all read-only authority, manifest, and governance query endpoints.</summary>
     public const string ReadAuthority = "ReadAuthority";

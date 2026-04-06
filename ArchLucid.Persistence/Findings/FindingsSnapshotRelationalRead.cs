@@ -1,11 +1,11 @@
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.RelationalRead;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Findings;
+namespace ArchLucid.Persistence.Findings;
 
 /// <summary>Builds <see cref="FindingsSnapshot"/> from relational tables; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
 internal static class FindingsSnapshotRelationalRead

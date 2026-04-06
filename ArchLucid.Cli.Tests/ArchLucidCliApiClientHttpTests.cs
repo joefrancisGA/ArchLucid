@@ -1,28 +1,28 @@
 using System.Net;
 using System.Text.Json;
 
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
-namespace ArchiForge.Cli.Tests;
+namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-/// Unit tests for ArchiForgeApiClient using mocked HTTP (no real API).
+/// Unit tests for ArchLucidApiClient using mocked HTTP (no real API).
 /// </summary>
 [Trait("Category", "Unit")]
-public sealed class ArchiForgeApiClientHttpTests
+public sealed class ArchLucidApiClientHttpTests
 {
     private static readonly JsonSerializerOptions SJsonCamelCase = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    private static ArchiForgeApiClient CreateClient(HttpResponseMessage response)
+    private static ArchLucidApiClient CreateClient(HttpResponseMessage response)
     {
         MockHttpMessageHandler handler = new(response);
         HttpClient http = new(handler) { BaseAddress = new Uri("http://localhost") };
-        return new ArchiForgeApiClient(http);
+        return new ArchLucidApiClient(http);
     }
 
     private static ArchitectureRequest CreateValidRequest() => new()
@@ -52,8 +52,8 @@ public sealed class ArchiForgeApiClientHttpTests
         HttpResponseMessage response = new(HttpStatusCode.Created) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        ArchiForgeApiClient client = CreateClient(response);
-        ArchiForgeApiClient.CreateRunResult result = await client.CreateRunAsync(CreateValidRequest());
+        ArchLucidApiClient client = CreateClient(response);
+        ArchLucidApiClient.CreateRunResult result = await client.CreateRunAsync(CreateValidRequest());
 
         result.Success.Should().BeTrue();
         result.Response.Should().NotBeNull();
@@ -71,8 +71,8 @@ public sealed class ArchiForgeApiClientHttpTests
         HttpResponseMessage response = new(HttpStatusCode.BadRequest) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        ArchiForgeApiClient client = CreateClient(response);
-        ArchiForgeApiClient.CreateRunResult result = await client.CreateRunAsync(CreateValidRequest());
+        ArchLucidApiClient client = CreateClient(response);
+        ArchLucidApiClient.CreateRunResult result = await client.CreateRunAsync(CreateValidRequest());
 
         result.Success.Should().BeFalse();
         result.Error.Should().Contain("Validation failed");
@@ -99,8 +99,8 @@ public sealed class ArchiForgeApiClientHttpTests
         HttpResponseMessage response = new(HttpStatusCode.OK) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        ArchiForgeApiClient client = CreateClient(response);
-        ArchiForgeApiClient.GetRunResult? result = await client.GetRunAsync(runId);
+        ArchLucidApiClient client = CreateClient(response);
+        ArchLucidApiClient.GetRunResult? result = await client.GetRunAsync(runId);
 
         result.Should().NotBeNull();
         result.Run.RunId.Should().Be(runId);
@@ -113,8 +113,8 @@ public sealed class ArchiForgeApiClientHttpTests
     {
         HttpResponseMessage response = new(HttpStatusCode.NotFound);
 
-        ArchiForgeApiClient client = CreateClient(response);
-        ArchiForgeApiClient.GetRunResult? result = await client.GetRunAsync("nonexistent");
+        ArchLucidApiClient client = CreateClient(response);
+        ArchLucidApiClient.GetRunResult? result = await client.GetRunAsync("nonexistent");
 
         result.Should().BeNull();
     }
@@ -139,8 +139,8 @@ public sealed class ArchiForgeApiClientHttpTests
         HttpResponseMessage response = new(HttpStatusCode.OK) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        ArchiForgeApiClient client = CreateClient(response);
-        ArchiForgeApiClient.CommitRunResult? result = await client.CommitRunAsync("run-1");
+        ArchLucidApiClient client = CreateClient(response);
+        ArchLucidApiClient.CommitRunResult? result = await client.CommitRunAsync("run-1");
 
         result.Should().NotBeNull();
         result.Success.Should().BeTrue();
@@ -155,8 +155,8 @@ public sealed class ArchiForgeApiClientHttpTests
         HttpResponseMessage response = new(HttpStatusCode.Conflict) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        ArchiForgeApiClient client = CreateClient(response);
-        ArchiForgeApiClient.CommitRunResult? result = await client.CommitRunAsync("run-1");
+        ArchLucidApiClient client = CreateClient(response);
+        ArchLucidApiClient.CommitRunResult? result = await client.CommitRunAsync("run-1");
 
         result.Should().NotBeNull();
         result.Success.Should().BeFalse();
@@ -169,7 +169,7 @@ public sealed class ArchiForgeApiClientHttpTests
     {
         HttpResponseMessage response = new(HttpStatusCode.OK);
 
-        ArchiForgeApiClient client = CreateClient(response);
+        ArchLucidApiClient client = CreateClient(response);
         bool result = await client.CheckHealthAsync();
 
         result.Should().BeTrue();
@@ -180,7 +180,7 @@ public sealed class ArchiForgeApiClientHttpTests
     {
         HttpResponseMessage response = new((HttpStatusCode)503);
 
-        ArchiForgeApiClient client = CreateClient(response);
+        ArchLucidApiClient client = CreateClient(response);
         bool result = await client.CheckHealthAsync();
 
         result.Should().BeFalse();

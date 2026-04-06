@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Runs;
+namespace ArchLucid.Application.Runs;
 
 /// <summary>
 /// Optional HTTP idempotency for <see cref="IArchitectureRunService.CreateRunAsync"/> (scope + hashed key + request fingerprint).

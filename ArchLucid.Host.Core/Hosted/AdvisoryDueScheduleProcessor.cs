@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Persistence.Advisory;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Persistence.Advisory;
 
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// One poll iteration: load due advisory schedules and invoke <see cref="IAdvisoryScanRunner"/> for each (sequential, no in-iteration parallelism).

@@ -1,16 +1,16 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Interfaces;
-using ArchiForge.Persistence.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// SQL Server-backed implementation of <see cref="IRunRepository"/>.

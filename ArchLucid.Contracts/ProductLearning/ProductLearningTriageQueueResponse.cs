@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>Deterministic triage queue slice for operator review.</summary>
 public sealed class ProductLearningTriageQueueResponse

@@ -1,7 +1,7 @@
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Repositories;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
@@ -9,7 +9,7 @@ using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="SqlGraphSnapshotRepository"/> against SQL Server + DbUp (relational children + JSON dual-write / read fallback).

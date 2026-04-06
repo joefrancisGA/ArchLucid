@@ -1,12 +1,12 @@
 using System.Security.Claims;
 
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]

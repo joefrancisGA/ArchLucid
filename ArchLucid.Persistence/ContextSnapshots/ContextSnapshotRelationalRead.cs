@@ -1,11 +1,11 @@
 using System.Data;
 
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Persistence.RelationalRead;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;
 
-namespace ArchiForge.Persistence.ContextSnapshots;
+namespace ArchLucid.Persistence.ContextSnapshots;
 
 /// <summary>Relational-first hydration for <see cref="ContextSnapshot"/>; JSON fallback is governed by <see cref="JsonFallbackPolicy"/>.</summary>
 internal static class ContextSnapshotRelationalRead

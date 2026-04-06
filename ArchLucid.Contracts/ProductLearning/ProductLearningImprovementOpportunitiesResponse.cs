@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>Ranked improvement opportunities for the current scope and query window.</summary>
 public sealed class ProductLearningImprovementOpportunitiesResponse

@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Evolution;
+using ArchLucid.Contracts.Evolution;
 
-namespace ArchiForge.Application.Evolution;
+namespace ArchLucid.Application.Evolution;
 
 /// <summary>Deterministic evaluation output with explainable JSON detail.</summary>
 public sealed class SimulationEvaluationResult

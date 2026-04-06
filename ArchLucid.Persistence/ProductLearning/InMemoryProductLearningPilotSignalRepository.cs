@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
-namespace ArchiForge.Persistence.ProductLearning;
+namespace ArchLucid.Persistence.ProductLearning;
 
 /// <summary>In-memory store for Development / tests (deterministic ordering by <see cref="ProductLearningPilotSignalRecord.RecordedUtc"/> desc).</summary>
 public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearningPilotSignalRepository

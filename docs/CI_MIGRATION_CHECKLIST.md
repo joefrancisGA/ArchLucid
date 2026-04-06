@@ -20,7 +20,7 @@ Run these commands from the repo root before every push that touches SQL or seed
 
 ```powershell
 # 1. Build everything — catches CS errors in seeding or repo changes
-dotnet build ArchiForge.sln --configuration Debug
+dotnet build ArchLucid.sln --configuration Debug
 
 # 2. Run the DemoSeedService idempotency test
 dotnet test ArchLucid.Api.Tests\ArchLucid.Api.Tests.csproj `
@@ -33,10 +33,10 @@ dotnet test ArchLucid.Api.Tests\ArchLucid.Api.Tests.csproj `
   --no-build
 
 # 4. Run all unit-category tests (fast, no API stack)
-dotnet test ArchiForge.sln --filter "Category=Unit" --no-build
+dotnet test ArchLucid.sln --filter "Category=Unit" --no-build
 
 # 5. (Optional, slower) Run full integration suite
-dotnet test ArchiForge.sln --filter "Category=Integration" --no-build
+dotnet test ArchLucid.sln --filter "Category=Integration" --no-build
 ```
 
 If any of steps 1–4 fail, do not push. Step 5 should pass on the PR branch before merging.
@@ -56,8 +56,8 @@ If any of steps 1–4 fail, do not push. Step 5 should pass on the PR branch bef
 
 Follow this checklist **before** opening a PR:
 
-- [ ] Created `ArchiForge.Persistence/Migrations/017_YourChange.sql` — idempotent DDL only.
-- [ ] Updated `ArchiForge.Persistence/Scripts/ArchiForge.sql` with the same objects/columns.
+- [ ] Created `ArchLucid.Persistence/Migrations/017_YourChange.sql` — idempotent DDL only.
+- [ ] Updated `ArchLucid.Persistence/Scripts/ArchiForge.sql` with the same objects/columns.
 - [ ] Extended `DatabaseMigrationScriptTests` if new ordering rules apply.
 - [ ] Updated `docs/SQL_SCRIPTS.md` migration catalog (§4.2) with the new entry.
 - [ ] Updated `docs/DATA_MODEL.md` if the conceptual data model changed.
@@ -80,13 +80,13 @@ Add the following to your CI YAML (Azure DevOps / GitHub Actions):
 
 ```yaml
 - name: Build
-  run: dotnet build ArchiForge.sln --configuration Release
+  run: dotnet build ArchLucid.sln --configuration Release
 
 - name: Unit tests
-  run: dotnet test ArchiForge.sln --filter "Category=Unit" --no-build --logger trx
+  run: dotnet test ArchLucid.sln --filter "Category=Unit" --no-build --logger trx
 
 - name: Integration tests (includes DemoSeedService + migration tests)
-  run: dotnet test ArchiForge.sln --filter "Category=Integration" --no-build --logger trx
+  run: dotnet test ArchLucid.sln --filter "Category=Integration" --no-build --logger trx
 ```
 
 **ArchLucid.Api.Tests** integration tests require a reachable **SQL Server** (default **`localhost`**); factories create temporary databases and run **DbUp**. `DemoSeedServiceTests` and `DatabaseMigrationScriptTests` run in this phase when included in the filter.

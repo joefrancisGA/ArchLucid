@@ -1,23 +1,23 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Api.Contracts;
+namespace ArchLucid.Api.Contracts;
 
 /// <summary>
-/// JSON contract for run-to-run comparison (excludes embedded <see cref="ArchiForge.Persistence.Queries.RunSummaryDto"/> payloads).
+/// JSON contract for run-to-run comparison (excludes embedded <see cref="ArchLucid.Persistence.Queries.RunSummaryDto"/> payloads).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class RunComparisonResponse
 {
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.RunComparisonResult.LeftRunId"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.LeftRunId"/>
     public Guid LeftRunId { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.RunComparisonResult.RightRunId"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.RightRunId"/>
     public Guid RightRunId { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.RunComparisonResult.RunLevelDiffs"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.RunLevelDiffs"/>
     public List<DiffItemResponse> RunLevelDiffs { get; set; } = [];
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.RunComparisonResult.ManifestComparison"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.RunComparisonResult.ManifestComparison"/>
     public ManifestComparisonResponse? ManifestComparison { get; set; }
 
     /// <summary>Count of <see cref="RunLevelDiffs"/> (operator-facing aggregate).</summary>

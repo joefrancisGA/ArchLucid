@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
-namespace ArchiForge.Persistence.ProductLearning;
+namespace ArchLucid.Persistence.ProductLearning;
 
 /// <summary>
 /// Deterministic grouping rules shared by the in-memory repository and documented to match SQL in

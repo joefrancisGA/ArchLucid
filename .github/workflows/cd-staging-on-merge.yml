@@ -84,7 +84,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ArchiForge.Api/Dockerfile
+          file: ArchLucid.Api/Dockerfile
           tags: ${{ secrets.ACR_LOGIN_SERVER }}/archiforge-api:${{ env.IMAGE_TAG }}
           push: true
           provenance: false

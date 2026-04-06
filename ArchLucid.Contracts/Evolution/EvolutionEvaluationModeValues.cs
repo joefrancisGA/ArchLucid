@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>How a shadow simulation evaluated baselines (additive modes over time).</summary>
 public static class EvolutionEvaluationModeValues

@@ -1,9 +1,9 @@
 using System.Text.Json;
 
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Thread-safe in-memory <see cref="IArchitectureRequestRepository"/> for tests (JSON clone-on-read).

@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Alerts.Simulation;
+using ArchLucid.Decisioning.Alerts.Simulation;
 
-namespace ArchiForge.Decisioning.Alerts.Tuning;
+namespace ArchLucid.Decisioning.Alerts.Tuning;
 
 /// <summary>One row in <see cref="ThresholdRecommendationResult.Candidates"/>: candidate + simulation + noise score.</summary>
 public class ThresholdCandidateEvaluation

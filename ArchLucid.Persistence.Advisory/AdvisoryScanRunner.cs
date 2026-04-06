@@ -1,28 +1,28 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Integration;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Composite;
-using ArchiForge.Decisioning.Comparison;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Queries;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Integration;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
 /// Executes a scheduled advisory scan: compares runs, builds an improvement plan, merges effective policy defaults, evaluates alerts, and delivers a digest.
@@ -79,7 +79,7 @@ public sealed class AdvisoryScanRunner(
     {
         ArgumentNullException.ThrowIfNull(schedule);
 
-        using Activity? scanActivity = ArchiForgeInstrumentation.AdvisoryScan.StartActivity();
+        using Activity? scanActivity = ArchLucidInstrumentation.AdvisoryScan.StartActivity();
         scanActivity?.SetTag("archiforge.schedule_id", schedule.ScheduleId.ToString("D"));
         scanActivity?.SetTag(
             ActivityCorrelation.LogicalCorrelationIdTag,

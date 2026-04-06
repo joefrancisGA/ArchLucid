@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Explainable diff payload between baseline and simulated evaluation views (structure only; no comparison logic here).</summary>
 public sealed class SimulationDiff

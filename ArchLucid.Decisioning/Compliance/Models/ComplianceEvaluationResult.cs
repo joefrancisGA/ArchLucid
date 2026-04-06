@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Compliance.Models;
+namespace ArchLucid.Decisioning.Compliance.Models;
 
 public class ComplianceEvaluationResult
 {

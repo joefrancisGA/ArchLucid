@@ -1,11 +1,11 @@
-using ArchiForge.Persistence.Data.Infrastructure;
-using ArchiForge.TestSupport;
+using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Verifies DbUp can migrate from N−1 (all scripts except the latest) and then apply the tail in a second run (CI upgrade path).

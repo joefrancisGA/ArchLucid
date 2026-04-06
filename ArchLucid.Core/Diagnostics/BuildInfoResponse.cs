@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Diagnostics;
+namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
 /// Lightweight, non-secret build identity payload returned by <c>GET /version</c>

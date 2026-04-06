@@ -1,10 +1,10 @@
-﻿using System.Data;
+using System.Data;
 using System.Text.Json;
 
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Repositories;
+namespace ArchLucid.Decisioning.Repositories;
 
 /// <summary>
 /// In-memory implementation of <see cref="IFindingsSnapshotRepository"/> for testing and local development.

@@ -1,4 +1,4 @@
-# `ArchiForge.Persistence/Scripts`
+# `ArchLucid.Persistence/Scripts`
 
 | File | Role |
 |------|------|

@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 public sealed class ArchitectureAnalysisRequest
 {

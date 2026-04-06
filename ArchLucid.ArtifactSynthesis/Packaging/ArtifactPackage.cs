@@ -1,4 +1,4 @@
-namespace ArchiForge.ArtifactSynthesis.Packaging;
+namespace ArchLucid.ArtifactSynthesis.Packaging;
 
 public class ArtifactPackage
 {

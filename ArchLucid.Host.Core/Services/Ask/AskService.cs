@@ -1,20 +1,20 @@
 using System.Text.Json;
 
-using ArchiForge.AgentRuntime;
-using ArchiForge.Host.Core.Ask;
-using ArchiForge.Core.Ask;
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Conversation;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Comparison;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Queries;
-using ArchiForge.Provenance;
-using ArchiForge.Retrieval.Indexing;
-using ArchiForge.Retrieval.Models;
-using ArchiForge.Retrieval.Queries;
+using ArchLucid.AgentRuntime;
+using ArchLucid.Host.Core.Ask;
+using ArchLucid.Core.Ask;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Provenance;
+using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.Models;
+using ArchLucid.Retrieval.Queries;
 
-namespace ArchiForge.Host.Core.Services.Ask;
+namespace ArchLucid.Host.Core.Services.Ask;
 
 /// <summary>
 /// <see cref="IAskService"/> implementation: conversation thread + structured JSON context + optional retrieval + LLM JSON answer shape.
@@ -63,7 +63,7 @@ public sealed class AskService(
         "Use prior conversation only when it helps interpret follow-up questions (e.g. \"that decision\", \"the storage choice\"). " +
         "Respond with a single JSON object only (no markdown fences), keys: " +
         "answer (string), referencedDecisions (array of strings), referencedFindings (array of strings), " +
-        "referencedArtifacts (array of strings — use provenance graph node labels where Type suggests an artifact, or empty array).";
+        "referencedArtifacts (array of strings ï¿½ use provenance graph node labels where Type suggests an artifact, or empty array).";
 
     /// <inheritdoc />
     /// <remarks>

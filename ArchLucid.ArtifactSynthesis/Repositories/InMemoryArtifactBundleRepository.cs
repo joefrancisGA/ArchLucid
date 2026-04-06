@@ -1,10 +1,10 @@
 using System.Data;
 
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Scoping;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Scoping;
 
-namespace ArchiForge.ArtifactSynthesis.Repositories;
+namespace ArchLucid.ArtifactSynthesis.Repositories;
 
 public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
 {

@@ -1,10 +1,10 @@
 using System.Text.Json;
 
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.ContextIngestion.Infrastructure;
+namespace ArchLucid.ContextIngestion.Infrastructure;
 
 public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDeclarationParser> logger) : IInfrastructureDeclarationParser
 {

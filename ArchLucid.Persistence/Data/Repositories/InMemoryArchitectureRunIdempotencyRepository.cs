@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Thread-safe in-memory <see cref="IArchitectureRunIdempotencyRepository"/> for tests and local scenarios.

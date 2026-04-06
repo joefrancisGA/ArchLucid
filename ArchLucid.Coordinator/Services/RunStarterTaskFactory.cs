@@ -1,8 +1,8 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.Coordinator.Services;
+namespace ArchLucid.Coordinator.Services;
 
 /// <summary>
 /// Shared evidence bundle and starter task construction for <see cref="CoordinatorService"/> and deferred authority completion.

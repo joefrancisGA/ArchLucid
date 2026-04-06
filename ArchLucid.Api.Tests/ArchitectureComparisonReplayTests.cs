@@ -2,7 +2,7 @@ using System.Net;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Comparison Replay.
@@ -10,7 +10,7 @@ namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
-public sealed class ArchitectureComparisonReplayTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureComparisonReplayTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task ReplayComparison_RecreatesPersistedEndToEndComparisonAsMarkdown()

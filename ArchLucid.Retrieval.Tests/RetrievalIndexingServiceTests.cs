@@ -1,7 +1,7 @@
-using ArchiForge.Retrieval.Chunking;
-using ArchiForge.Retrieval.Embedding;
-using ArchiForge.Retrieval.Indexing;
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Chunking;
+using ArchLucid.Retrieval.Embedding;
+using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.Models;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchiForge.Retrieval.Tests;
+namespace ArchLucid.Retrieval.Tests;
 
 /// <summary>
 /// <see cref="RetrievalIndexingService"/> embedding batching and chunk caps.

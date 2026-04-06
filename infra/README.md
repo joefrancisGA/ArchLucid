@@ -19,7 +19,7 @@ ArchiForge splits Azure infrastructure into **optional Terraform roots** so loca
 
 1. If using **Container Apps** with large-payload offload, apply **`terraform-storage/`** first (or have a storage account + containers), then **`terraform-container-apps/`** (it requires **`artifact_blob_service_uri`** / **`artifact_storage_account_id`** when **`enable_container_apps = true`**). Otherwise deploy compute and data (your landing zone, **`terraform-container-apps/`**, or App Service — your choice).
 2. Optionally apply **`terraform-private/`** before cutting over connection strings and disabling public SQL/storage access. If you use a **failover group listener**, optionally apply **`terraform-sql-failover/`** when servers and geo databases exist, then point **`ConnectionStrings:ArchiForge`** at **`read_write_listener_fqdn`** (see **`docs/runbooks/DATABASE_FAILOVER.md`**).
-3. Optionally apply **`terraform-entra/`**, then configure the API with **`ArchiForgeAuth:Mode = JwtBearer`** (see **`ArchiForge.Api/appsettings.Entra.sample.json`**).
+3. Optionally apply **`terraform-entra/`**, then configure the API with **`ArchiForgeAuth:Mode = JwtBearer`** (see **`ArchLucid.Api/appsettings.Entra.sample.json`**).
 4. Optionally apply **`terraform-edge/`** and route customer traffic to the Front Door hostname.
 
 Customer-facing narrative: **`docs/CUSTOMER_TRUST_AND_ACCESS.md`**.

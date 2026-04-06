@@ -1,8 +1,8 @@
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Services;
+namespace ArchLucid.Host.Core.Services;
 
 public sealed class ReplayDiagnosticsRecorder(IOptionsMonitor<ReplayDiagnosticsOptions> optionsMonitor)
     : IReplayDiagnosticsRecorder

@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Context signals used by <see cref="IConsultingDocxTemplateRecommendationService"/>

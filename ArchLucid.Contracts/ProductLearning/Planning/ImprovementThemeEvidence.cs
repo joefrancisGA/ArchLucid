@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// One piece of evidence tying a theme to a run, artifact coordinates, and/or a persisted feedback row.

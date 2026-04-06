@@ -1,25 +1,25 @@
-using ArchiForge.Application.Bootstrap;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Persistence.Data.Infrastructure;
-using ArchiForge.Persistence.Sql;
+using ArchLucid.Application.Bootstrap;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Sql;
 
-namespace ArchiForge.Host.Core.Startup;
+namespace ArchLucid.Host.Core.Startup;
 
 /// <summary>SQL schema bootstrap, DbUp migrations, and optional demo seed (shared by API and Worker).</summary>
-public static class ArchiForgePersistenceStartup
+public static class ArchLucidPersistenceStartup
 {
     public static void RunSchemaBootstrapMigrationsAndOptionalDemoSeed(WebApplication app)
     {
         using (IServiceScope scope = app.Services.CreateScope())
         {
             IConfiguration config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-            ArchiForgeOptions? options = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(config);
+            ArchLucidOptions? options = ArchLucidConfigurationBridge.ResolveArchLucidOptions(config);
 
             if (string.Equals(options.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
             {
                 app.Logger.LogInformation(
-                    "Startup: running ISchemaBootstrapper (ArchiForge:StorageProvider=Sql).");
+                    "Startup: running ISchemaBootstrapper (ArchLucid:StorageProvider or ArchiForge:StorageProvider=Sql).");
 
                 ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
                 using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
@@ -32,16 +32,16 @@ public static class ArchiForgePersistenceStartup
             }
         }
 
-        string? connectionString = app.Configuration.GetConnectionString("ArchiForge");
+        string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
         if (string.IsNullOrWhiteSpace(connectionString))
 
             app.Logger.LogWarning(
-                "Startup: ConnectionStrings:ArchiForge is not set; skipping DbUp migrations.");
+                "Startup: ConnectionStrings:ArchLucid (or legacy ArchiForge) is not set; skipping DbUp migrations.");
 
         else
         {
             app.Logger.LogInformation(
-                "Startup: running DbUp migrations (embedded scripts under ArchiForge.Persistence/Migrations).");
+                "Startup: running DbUp migrations (embedded scripts under ArchLucid.Persistence/Migrations).");
 
             DatabaseMigrator.Run(connectionString);
 

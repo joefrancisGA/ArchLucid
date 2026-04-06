@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Findings.Serialization;
+namespace ArchLucid.Decisioning.Findings.Serialization;
 
 /// <summary>
 /// Round-trip serialization for findings snapshots with typed payload rehydration.

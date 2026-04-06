@@ -1,23 +1,23 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Models;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Api.Models;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// HTTP integration tests for <c>GET .../comparisons/{id}/replay/cost-estimate</c>.
 /// </summary>
 [Trait("Category", "Integration")]
-public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ComparisonReplayCostEstimateIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    private readonly ArchiForgeApiFactory _factory = factory;
+    private readonly ArchLucidApiFactory _factory = factory;
 
     [Fact]
     public async Task CostEstimate_existing_record_returns_200_with_band()

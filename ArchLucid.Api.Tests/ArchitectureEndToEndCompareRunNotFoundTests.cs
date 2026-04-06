@@ -2,14 +2,14 @@ using System.Net;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture End To End Compare Run Not Found.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureEndToEndCompareRunNotFoundTests(ArchiForgeApiFactory factory)
+public sealed class ArchitectureEndToEndCompareRunNotFoundTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
     [Fact]

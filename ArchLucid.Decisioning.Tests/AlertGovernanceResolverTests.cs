@@ -1,13 +1,13 @@
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-using ArchiForge.Persistence.Alerts.Helpers;
+using ArchLucid.Persistence.Alerts.Helpers;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Alert Governance Resolver.

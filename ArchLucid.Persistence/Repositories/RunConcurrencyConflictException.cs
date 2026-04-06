@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>Thrown when a <c>dbo.Runs</c> update affects zero rows because <c>RowVersionStamp</c> did not match (concurrent writer won).</summary>
 public sealed class RunConcurrencyConflictException : InvalidOperationException

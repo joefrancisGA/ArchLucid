@@ -56,7 +56,7 @@ Terraform must reach that URL at apply time (CI agent with network access to the
 
 ## WAF alignment
 
-- **RE:05 / OE:07:** Clients should send **`X-Correlation-ID`**; ArchiForge.Api echoes it. APIM forwards headers by default for passthrough APIs; add policies later if you strip or inject headers at the edge.
+- **RE:05 / OE:07:** Clients should send **`X-Correlation-ID`**; ArchLucid.Api echoes it. APIM forwards headers by default for passthrough APIs; add policies later if you strip or inject headers at the edge.
 - **Edge WAF:** Add Front Door / App Gateway (WAF SKU) in a separate Terraform root or module in front of APIM when your landing zone requires it.
 
 ## Variables reference

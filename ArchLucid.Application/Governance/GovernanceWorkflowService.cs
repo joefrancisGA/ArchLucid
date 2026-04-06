@@ -1,16 +1,16 @@
 using System.Transactions;
 
-using ArchiForge.Application.Common;
-using ArchiForge.Core.Integration;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Governance;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Application.Common;
+using ArchLucid.Core.Integration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Application.Governance;
+namespace ArchLucid.Application.Governance;
 
 /// <summary>
 /// Default implementation of <see cref="IGovernanceWorkflowService"/> backed by

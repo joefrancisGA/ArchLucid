@@ -4,8 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>ArchiForge.Host.Composition</RootNamespace>
-    <AssemblyName>ArchiForge.Host.Composition</AssemblyName>
+    <RootNamespace>ArchLucid.Host.Composition</RootNamespace>
+    <AssemblyName>ArchLucid.Host.Composition</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,24 +22,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForge.Host.Core\ArchiForge.Host.Core.csproj" />
-    <ProjectReference Include="..\ArchiForge.Core\ArchiForge.Core.csproj" />
-    <ProjectReference Include="..\ArchiForge.Provenance\ArchiForge.Provenance.csproj" />
-    <ProjectReference Include="..\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence.Advisory\ArchiForge.Persistence.Advisory.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence.Alerts\ArchiForge.Persistence.Alerts.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence.Integration\ArchiForge.Persistence.Integration.csproj" />
-    <ProjectReference Include="..\ArchiForge.Persistence.Runtime\ArchiForge.Persistence.Runtime.csproj" />
-    <ProjectReference Include="..\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj" />
-    <ProjectReference Include="..\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj" />
-    <ProjectReference Include="..\ArchiForge.Application\ArchiForge.Application.csproj" />
-    <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
-    <ProjectReference Include="..\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj" />
-    <ProjectReference Include="..\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj" />
-    <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
-    <ProjectReference Include="..\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj" />
-    <ProjectReference Include="..\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj" />
+    <ProjectReference Include="..\ArchLucid.Host.Core\ArchLucid.Host.Core.csproj" />
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
+    <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
+    <ProjectReference Include="..\ArchLucid.ArtifactSynthesis\ArchLucid.ArtifactSynthesis.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Advisory\ArchLucid.Persistence.Advisory.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Alerts\ArchLucid.Persistence.Alerts.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Integration\ArchLucid.Persistence.Integration.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Runtime\ArchLucid.Persistence.Runtime.csproj" />
+    <ProjectReference Include="..\ArchLucid.AgentRuntime\ArchLucid.AgentRuntime.csproj" />
+    <ProjectReference Include="..\ArchLucid.AgentSimulator\ArchLucid.AgentSimulator.csproj" />
+    <ProjectReference Include="..\ArchLucid.Application\ArchLucid.Application.csproj" />
+    <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
+    <ProjectReference Include="..\ArchLucid.Coordinator\ArchLucid.Coordinator.csproj" />
+    <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />
+    <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+    <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
+    <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,21 +1,21 @@
-using ArchiForge.Application;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Diagrams;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Application.Summaries;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Diagrams;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Summaries;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Ensures analysis export uses the canonical <see cref="ArchitectureRunDetail"/> when the API

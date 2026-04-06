@@ -15,7 +15,7 @@ Use this runbook when the primary Azure SQL database is unavailable, when Micros
 ```mermaid
 flowchart LR
   subgraph app [ArchiForge API]
-    Api[ArchiForge.Api]
+    Api[ArchLucid.Api]
   end
   subgraph data [Data plane]
     SqlPrimary[(Azure SQL primary)]
@@ -29,7 +29,7 @@ flowchart LR
 
 ## Immediate triage
 
-1. **Confirm scope:** Is a single pod/instance unhealthy vs widespread SQL errors? Check **`ArchiForge.Api`** logs for connection timeouts, login failures, or firewall denials.
+1. **Confirm scope:** Is a single pod/instance unhealthy vs widespread SQL errors? Check **`ArchLucid.Api`** logs for connection timeouts, login failures, or firewall denials.
 2. **Check Azure resource health** for the SQL server and database (planned maintenance vs unplanned).
 3. **Verify secrets:** Connection strings in Key Vault / app configuration still match the intended server and database; password rotation did not leave stale credentials.
 

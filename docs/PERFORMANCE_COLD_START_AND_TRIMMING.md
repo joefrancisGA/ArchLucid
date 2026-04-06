@@ -16,7 +16,7 @@
 
 ## Container layers
 
-- Multi-stage Dockerfiles (`ArchiForge.Api/Dockerfile`) already separate restore/publish/runtime — layer cache hits matter more than trimming for most teams.
+- Multi-stage Dockerfiles (`ArchLucid.Api/Dockerfile`) already separate restore/publish/runtime — layer cache hits matter more than trimming for most teams.
 
 ## See also
 

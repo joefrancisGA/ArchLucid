@@ -1,4 +1,4 @@
-namespace ArchiForge.Cli.Support;
+namespace ArchLucid.Cli.Support;
 
 public sealed record SupportBundlePayload(
     SupportBundleManifest Manifest,

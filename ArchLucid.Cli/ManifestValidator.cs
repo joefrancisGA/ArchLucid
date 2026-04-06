@@ -3,7 +3,7 @@ using System.Text.Json;
 using Json.More;
 using Json.Schema;
 
-namespace ArchiForge.Cli;
+namespace ArchLucid.Cli;
 
 public static class ManifestValidator
 {

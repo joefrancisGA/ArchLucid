@@ -7,7 +7,7 @@ Reference for the ArchiForge CLI: commands, configuration, and API URL behavior.
 From the solution root:
 
 ```bash
-dotnet run --project ArchiForge.Cli -- <command> [options]
+dotnet run --project ArchLucid.Cli -- <command> [options]
 ```
 
 Or install as a global .NET tool (after `dotnet pack`):
@@ -24,7 +24,7 @@ The CLI talks to the ArchiForge API over HTTP. Resolution order:
 
 1. **`apiUrl`** in `archiforge.json` (if set)
 2. **`ARCHIFORGE_API_URL`** environment variable
-3. **Default:** `http://localhost:5128` (matches `ArchiForge.Api` launchSettings)
+3. **Default:** `http://localhost:5128` (matches `ArchLucid.Api` launchSettings)
 
 A trailing slash is trimmed (e.g. `http://localhost:5128/` → `http://localhost:5128`).
 

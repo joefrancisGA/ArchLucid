@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Decisioning.Governance.Resolution;
 
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Domain service for <strong>mutating</strong> policy packs: create pack, publish version, assign version to a scope tier.
-/// Does not perform HTTP validation or audit logging (see <c>ArchiForge.Api.Services.PolicyPacksAppService</c>).
+/// Does not perform HTTP validation or audit logging (see <c>ArchLucid.Api.Services.PolicyPacksAppService</c>).
 /// </summary>
 /// <remarks>
 /// Registered scoped in the API. Persistence is abstracted via <see cref="IPolicyPackRepository"/>,

@@ -1,11 +1,11 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Persistence.Advisory;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Persistence.Advisory;
 
 using Asp.Versioning;
 
@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// CRON-style advisory scan schedules, on-demand runs, execution history, and persisted architecture digests for the caller’s scope.
@@ -23,7 +23,7 @@ namespace ArchiForge.Api.Controllers;
 /// and drives alert evaluation (see <c>docs/API_CONTRACTS.md</c> and the governance piece tracker in <c>docs/METHOD_DOCUMENTATION.md</c>). Routes: <c>api/advisory-scheduling</c>.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/advisory-scheduling")]
 [EnableRateLimiting("fixed")]
@@ -42,7 +42,7 @@ public sealed class AdvisorySchedulingController(
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The persisted schedule including assigned id and computed <see cref="AdvisoryScanSchedule.NextRunUtc"/>.</returns>
     [HttpPost("schedules")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AdvisoryScanSchedule), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -126,7 +126,7 @@ public sealed class AdvisorySchedulingController(
     /// <returns>200 when the runner was invoked; 404 when the schedule is unknown or out of scope.</returns>
     /// <remarks>Advances <see cref="AdvisoryScanSchedule.LastRunUtc"/> / <see cref="AdvisoryScanSchedule.NextRunUtc"/> like a scheduled tick.</remarks>
     [HttpPost("schedules/{scheduleId:guid}/run")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

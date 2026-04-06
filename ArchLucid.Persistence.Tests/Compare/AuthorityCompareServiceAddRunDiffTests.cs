@@ -1,12 +1,12 @@
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Persistence.Compare;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Compare;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Persistence.Tests.Compare;
+namespace ArchLucid.Persistence.Tests.Compare;
 
 public sealed class AuthorityCompareServiceAddRunDiffTests
 {

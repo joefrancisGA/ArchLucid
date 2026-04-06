@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Models;
+namespace ArchLucid.Persistence.Models;
 
 public sealed class RunRecord
 {

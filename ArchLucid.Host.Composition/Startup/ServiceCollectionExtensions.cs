@@ -1,10 +1,10 @@
-using ArchiForge.Application.Bootstrap;
-using ArchiForge.Host.Composition.Configuration;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Hosting;
-using ArchiForge.Persistence.Archival;
+using ArchLucid.Application.Bootstrap;
+using ArchLucid.Host.Composition.Configuration;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Persistence.Archival;
 
-namespace ArchiForge.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup;
 
 /// <summary>
 /// Composition root for ArchiForge application services. Registration is split across partial files by subsystem
@@ -15,10 +15,10 @@ public static partial class ServiceCollectionExtensions
     /// <summary>
     /// Registers ArchiForge domain services, persistence choices, hosted workers, and health checks for the given host role.
     /// </summary>
-    public static IServiceCollection AddArchiForgeApplicationServices(
+    public static IServiceCollection AddArchLucidApplicationServices(
         this IServiceCollection services,
         IConfiguration configuration,
-        ArchiForgeHostingRole hostingRole)
+        ArchLucidHostingRole hostingRole)
     {
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
@@ -26,8 +26,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));
         services.Configure<HostLeaderElectionOptions>(configuration.GetSection(HostLeaderElectionOptions.SectionName));
         services.AddScoped<IDemoSeedService, DemoSeedService>();
-        services.AddArchiForgeFeatureManagement(configuration);
-        services.AddArchiForgeStorage(configuration);
+        services.AddArchLucidFeatureManagement(configuration);
+        services.AddArchLucidStorage(configuration);
         RegisterAdvisoryScheduling(services, hostingRole);
         RegisterDigestDelivery(services, configuration);
         RegisterIntegrationEventPublishing(services, configuration);
@@ -47,7 +47,7 @@ public static partial class ServiceCollectionExtensions
         RegisterRetrievalIndexingOutbox(services, hostingRole);
         RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterDataArchivalHostedService(services, hostingRole);
-        RegisterArchiForgeHealthChecks(services, hostingRole);
+        RegisterArchLucidHealthChecks(services, hostingRole);
 
         return services;
     }

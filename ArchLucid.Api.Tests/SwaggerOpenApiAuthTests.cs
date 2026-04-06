@@ -1,10 +1,10 @@
-using ArchiForge.Api.Swagger;
+using ArchLucid.Api.Swagger;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class SwaggerOpenApiAuthTests
 {

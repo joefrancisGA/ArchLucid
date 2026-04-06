@@ -2,13 +2,13 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Evolution;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Evolution;
 
 using JetBrains.Annotations;
 
-namespace ArchiForge.Application.Evolution;
+namespace ArchLucid.Application.Evolution;
 
 /// <summary>
 /// Read-only simulation: one or two <see cref="IArchitectureAnalysisService.BuildAsync"/> passes with configurable flags.

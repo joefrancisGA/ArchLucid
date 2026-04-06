@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Replay;
+namespace ArchLucid.Persistence.Replay;
 
 /// <summary>
 /// Service-layer input for <see cref="IAuthorityReplayService.ReplayAsync"/>.

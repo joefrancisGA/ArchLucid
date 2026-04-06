@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Caching;
+namespace ArchLucid.Persistence.Caching;
 
 /// <summary>Controls optional in-process or Redis-backed caching for high-churn read paths (manifests, runs, policy pack metadata).</summary>
 public sealed class HotPathCacheOptions

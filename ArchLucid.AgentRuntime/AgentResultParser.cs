@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// JSON deserializer for <see cref="AgentResult"/> using web defaults and string enums; validates ids and agent type after parse.

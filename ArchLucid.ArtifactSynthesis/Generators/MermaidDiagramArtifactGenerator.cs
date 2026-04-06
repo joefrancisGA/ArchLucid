@@ -1,13 +1,13 @@
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Services;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Generators;
+namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchiForge.ArtifactSynthesis.Models.ArtifactType.MermaidDiagram;
+    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.MermaidDiagram;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -52,7 +52,7 @@ public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtif
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchiForge.ArtifactSynthesis.Models.ArtifactType.MermaidDiagram,
+            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.MermaidDiagram,
             Name = "architecture.mmd",
             Format = renderer.Format,
             Content = content,

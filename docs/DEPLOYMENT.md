@@ -17,8 +17,8 @@ This document ties together how **ArchLucid** (product; repository and assemblie
 
 ## Application deployment
 
-1. **Build and publish** the API image (or package) from **`ArchiForge.Api`** using your pipeline; tag with an immutable version.
-2. **Run database migrations** with **DbUp** (`ArchiForge.Persistence.Data.Infrastructure.DatabaseMigrator`) against the target database **before** or **in lockstep** with rolling out the API version that requires new schema. See **`docs/runbooks/MIGRATION_ROLLBACK.md`** for failure handling.
+1. **Build and publish** the API image (or package) from **`ArchLucid.Api`** using your pipeline; tag with an immutable version.
+2. **Run database migrations** with **DbUp** (`ArchLucid.Persistence.Data.Infrastructure.DatabaseMigrator`) against the target database **before** or **in lockstep** with rolling out the API version that requires new schema. See **`docs/runbooks/MIGRATION_ROLLBACK.md`** for failure handling.
 3. **Roll out** the new API revision (App Service slot swap, AKS rolling update, etc.). Prefer **health-checked** deployments so readiness fails if SQL or required config is wrong.
 4. **Smoke** critical paths: architecture run create → execute → commit, comparison replay (if enabled), governance endpoints if used.
 

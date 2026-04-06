@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Cli;
+namespace ArchLucid.Cli;
 
 /// <summary>
 /// Concise stderr hints after CLI API failures (aligned with docs/TROUBLESHOOTING.md).
@@ -14,7 +14,7 @@ internal static class CliOperatorHints
             errorMessage.Contains("Cannot connect to ArchiForge API", StringComparison.OrdinalIgnoreCase))
         {
             stderr.WriteLine(
-                "Next: Start the API (dotnet run --project ArchiForge.Api), set ARCHIFORGE_API_URL or apiUrl in archiforge.json, and confirm the port is reachable.");
+                "Next: Start the API (dotnet run --project ArchLucid.Api), set ARCHIFORGE_API_URL or apiUrl in archiforge.json, and confirm the port is reachable.");
 
             return;
         }
@@ -39,7 +39,7 @@ internal static class CliOperatorHints
     {
         stderr ??= Console.Error;
         stderr.WriteLine(
-            $"Next: Verify the API is listening at {baseUrl}, SQL/migrations succeeded, and GET /health/ready returns 200. Run: dotnet run --project ArchiForge.Cli -- doctor");
+            $"Next: Verify the API is listening at {baseUrl}, SQL/migrations succeeded, and GET /health/ready returns 200. Run: dotnet run --project ArchLucid.Cli -- doctor");
     }
 
     public static void WriteAfterReadinessFailed(TextWriter? stderr = null)

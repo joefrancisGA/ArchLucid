@@ -1,15 +1,15 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Provenance;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Provenance;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Provenance;
+namespace ArchLucid.Persistence.Provenance;
 
 /// <summary>
 /// SQL Server-backed implementation of <see cref="IProvenanceSnapshotRepository"/>.

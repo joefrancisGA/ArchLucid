@@ -1,12 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Orchestration;
+namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>Dapper implementation over <c>dbo.AuthorityPipelineWorkOutbox</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository.")]

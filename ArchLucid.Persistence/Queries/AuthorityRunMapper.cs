@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Models;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Models;
 
-namespace ArchiForge.Persistence.Queries;
+namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
 /// Shared projection helpers used by both <see cref="DapperAuthorityQueryService"/> and

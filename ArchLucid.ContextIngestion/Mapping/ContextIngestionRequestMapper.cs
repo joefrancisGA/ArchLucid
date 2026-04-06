@@ -1,7 +1,7 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.ContextIngestion.Mapping;
+namespace ArchLucid.ContextIngestion.Mapping;
 
 /// <summary>
 /// Maps API / coordinator <see cref="ArchitectureRequest"/> into the ingestion pipeline model.

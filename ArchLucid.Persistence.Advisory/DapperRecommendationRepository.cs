@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IRecommendationRepository" />
 /// <remarks>Uses a single <c>MERGE</c> statement keyed on <see cref="RecommendationRecord.RecommendationId"/>.</remarks>

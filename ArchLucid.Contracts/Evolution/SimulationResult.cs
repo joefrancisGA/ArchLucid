@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Outcome of shadow evaluation for a single baseline architecture run (read-side simulation).</summary>
 public sealed class SimulationResult

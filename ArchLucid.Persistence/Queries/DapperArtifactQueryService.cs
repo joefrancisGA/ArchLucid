@@ -1,12 +1,12 @@
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Packaging;
-using ArchiForge.Core.Scoping;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.Core.Scoping;
 
-namespace ArchiForge.Persistence.Queries;
+namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
-/// <see cref="IArtifactQueryService"/> backed by <see cref="ArchiForge.ArtifactSynthesis.Interfaces.IArtifactBundleRepository"/> (SQL or in-memory depending on DI).
+/// <see cref="IArtifactQueryService"/> backed by <see cref="ArchLucid.ArtifactSynthesis.Interfaces.IArtifactBundleRepository"/> (SQL or in-memory depending on DI).
 /// </summary>
 public sealed class DapperArtifactQueryService(IArtifactBundleRepository artifactBundleRepository)
     : IArtifactQueryService

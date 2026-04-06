@@ -1,12 +1,12 @@
-﻿using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Http;
-using ArchiForge.Api.Mapping;
-using ArchiForge.Api.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Application;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Architecture;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Http;
+using ArchLucid.Api.Mapping;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Architecture;
 
 using Asp.Versioning;
 
@@ -17,13 +17,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>Run-to-run comparison endpoints (agents, end-to-end replay compare).</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [EnableRateLimiting("fixed")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -92,7 +92,7 @@ public sealed class RunComparisonController(
     }
 
     [HttpPost("run/compare/end-to-end/summary")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EndToEndReplayComparisonSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -111,7 +111,7 @@ public sealed class RunComparisonController(
             return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
 
         string comparisonRecordId = await comparisonAuditService.RecordEndToEndAsync(report!, summary, cancellationToken);
-        Response.Headers[ArchiForgeHttpHeaders.ComparisonRecordId] = comparisonRecordId;
+        Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = comparisonRecordId;
 
         return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
     }

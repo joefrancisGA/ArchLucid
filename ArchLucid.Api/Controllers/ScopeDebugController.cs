@@ -1,5 +1,5 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Core.Scoping;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Returns the resolved <see cref="ScopeContext"/> for the current request (claims, headers, or ambient override).
@@ -16,7 +16,7 @@ namespace ArchiForge.Api.Controllers;
 /// Intended for development and troubleshooting multi-tenant routing. Same resolution path as governance, compliance, and scoped repositories.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/scope")]
 [EnableRateLimiting("fixed")]

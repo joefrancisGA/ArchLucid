@@ -1,10 +1,10 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Pagination;
-using ArchiForge.Core.Scoping;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Queries;
-using ArchiForge.Provenance;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Scoping;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Provenance;
 
 using Asp.Versioning;
 
@@ -12,18 +12,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// HTTP API for retrieving the architecture knowledge graph snapshot associated with a run.
 /// </summary>
 /// <remarks>
-/// Routes are prefixed <c>api/graph</c> and require the <see cref="ArchiForgePolicies.ReadAuthority"/> policy.
-/// The graph is projected from the <see cref="ArchiForge.KnowledgeGraph.Models.GraphSnapshot"/> stored in the
+/// Routes are prefixed <c>api/graph</c> and require the <see cref="ArchLucidPolicies.ReadAuthority"/> policy.
+/// The graph is projected from the <see cref="ArchLucid.KnowledgeGraph.Models.GraphSnapshot"/> stored in the
 /// canonical run detail and returned as a <see cref="GraphViewModel"/> with typed node and edge view models.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/graph")]
 [EnableRateLimiting("fixed")]

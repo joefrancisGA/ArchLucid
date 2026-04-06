@@ -1,8 +1,8 @@
-using ArchiForge.Api.Models;
+using ArchLucid.Api.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class ComparisonHistoryQueryTests
 {

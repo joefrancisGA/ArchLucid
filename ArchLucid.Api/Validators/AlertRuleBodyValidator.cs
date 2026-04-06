@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 /// <summary>Validates alert rule JSON on create (tenant/workspace/project are stamped server-side by <c>AlertRulesController</c>).</summary>
 public sealed class AlertRuleBodyValidator : AbstractValidator<AlertRule>

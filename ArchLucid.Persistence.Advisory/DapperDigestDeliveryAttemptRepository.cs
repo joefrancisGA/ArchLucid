@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>Dapper implementation of <see cref="IDigestDeliveryAttemptRepository"/> over <c>dbo.DigestDeliveryAttempts</c>.</summary>
 /// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>

@@ -1,8 +1,8 @@
 using System.Globalization;
 
-using ArchiForge.Api.ProductLearning;
+using ArchLucid.Api.ProductLearning;
 
-namespace ArchiForge.Api.Learning;
+namespace ArchLucid.Api.Learning;
 
 /// <summary>Parses bounded list parameters for <c>/v1/learning/*</c> GET endpoints.</summary>
 internal static class LearningPlanningQueryParser

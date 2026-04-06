@@ -1,6 +1,6 @@
-using ArchiForge.Application.Bootstrap;
+using ArchLucid.Application.Bootstrap;
 
-namespace ArchiForge.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>Feature flags for deterministic Contoso trusted-baseline seeding (49R pass 2 / Corrected 50R). Never enable in production-like environments.</summary>
 public sealed class DemoOptions

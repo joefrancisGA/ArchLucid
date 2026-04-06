@@ -1,9 +1,9 @@
 using System.Text.Json;
 
-using ArchiForge.Core.Audit;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Core.Audit;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Host.Core.Services;
+namespace ArchLucid.Host.Core.Services;
 
 /// <summary>
 /// Default <see cref="IPolicyPacksAppService"/>: mutates packs through <see cref="IPolicyPackManagementService"/> and writes audit trails.

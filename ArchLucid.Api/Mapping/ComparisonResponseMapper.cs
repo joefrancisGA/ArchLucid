@@ -1,8 +1,8 @@
-using ArchiForge.Api.Models;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Diffs;
+using ArchLucid.Api.Models;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Diffs;
 
-namespace ArchiForge.Api.Mapping;
+namespace ArchLucid.Api.Mapping;
 
 internal static class ComparisonResponseMapper
 {

@@ -1,6 +1,6 @@
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
 /// <summary>
 /// Documents GET /architecture/comparisons search (query shape and paging semantics).

@@ -1,4 +1,4 @@
-# Pack and optionally push ArchiForge.Api.Client to a NuGet-compatible feed.
+# Pack and optionally push ArchLucid.Api.Client to a NuGet-compatible feed.
 # Configure repository secret NUGET_API_KEY (NuGet.org or Azure Artifacts PAT) to enable push.
 name: Publish API client (NuGet)
 
@@ -32,7 +32,7 @@ jobs:
 
       - name: Pack
         run: |
-          dotnet pack ArchiForge.Api.Client/ArchiForge.Api.Client.csproj \
+          dotnet pack ArchLucid.Api.Client/ArchLucid.Api.Client.csproj \
             --no-restore \
             -c Release \
             -o "${RUNNER_TEMP}/nuget" \

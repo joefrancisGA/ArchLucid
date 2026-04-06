@@ -1,7 +1,7 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Comparison;
+namespace ArchLucid.Decisioning.Comparison;
 
 /// <summary>
 /// Pure domain comparison of two <see cref="GoldenManifest"/> snapshots into a structured <see cref="ComparisonResult"/> (decisions, requirements, security, topology, cost).

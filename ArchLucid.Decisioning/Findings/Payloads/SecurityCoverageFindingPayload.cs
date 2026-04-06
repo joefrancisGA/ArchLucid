@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Findings.Payloads;
+namespace ArchLucid.Decisioning.Findings.Payloads;
 
 public class SecurityCoverageFindingPayload
 {

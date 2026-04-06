@@ -1,17 +1,17 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>Persists authority <see cref="DecisionTrace"/> (rule audit) from decisioning (not coordinator <c>DecisionTraces</c> table).</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]

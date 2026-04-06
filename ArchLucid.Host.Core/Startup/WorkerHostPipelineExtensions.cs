@@ -1,8 +1,8 @@
-using ArchiForge.Host.Core.Health;
-using ArchiForge.Host.Core.Middleware;
-using ArchiForge.Host.Core.ProblemDetails;
+using ArchLucid.Host.Core.Health;
+using ArchLucid.Host.Core.Middleware;
+using ArchLucid.Host.Core.ProblemDetails;
 
-namespace ArchiForge.Host.Core.Startup;
+namespace ArchLucid.Host.Core.Startup;
 
 /// <summary>HTTP pipeline for the background Worker web host (health + observability only).</summary>
 public static class WorkerHostPipelineExtensions
@@ -10,7 +10,7 @@ public static class WorkerHostPipelineExtensions
     /// <summary>
     /// Minimal pipeline for the background Worker host (<c>Hosting:Role=Worker</c>): health checks, security headers, optional Prometheus.
     /// </summary>
-    public static WebApplication UseArchiForgeWorkerPipeline(this WebApplication app)
+    public static WebApplication UseArchLucidWorkerPipeline(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseMiddleware<SecurityHeadersMiddleware>();

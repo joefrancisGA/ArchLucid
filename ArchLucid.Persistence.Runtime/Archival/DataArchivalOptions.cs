@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Archival;
+namespace ArchLucid.Persistence.Archival;
 
 /// <summary>
 /// Retention-driven soft archival for authority runs, advisory digests, and Ask conversation threads.

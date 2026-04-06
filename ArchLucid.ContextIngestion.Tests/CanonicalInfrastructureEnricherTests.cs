@@ -1,9 +1,9 @@
-using ArchiForge.ContextIngestion.Canonicalization;
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Tests for Canonical Infrastructure Enricher.

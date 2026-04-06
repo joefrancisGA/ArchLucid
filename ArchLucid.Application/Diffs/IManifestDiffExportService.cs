@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Diffs;
+namespace ArchLucid.Application.Diffs;
 
 /// <summary>
 /// Formats a pre-computed <see cref="ManifestDiffResult"/> together with the two source

@@ -1,11 +1,11 @@
 using System.Text;
 
-using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAnalysisExportService
 {

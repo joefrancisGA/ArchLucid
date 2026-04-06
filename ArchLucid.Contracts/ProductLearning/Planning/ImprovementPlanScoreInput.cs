@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// Metrics for one plan in a prioritization batch. Map from 58R rollups / pilot signals (caller supplies counts).

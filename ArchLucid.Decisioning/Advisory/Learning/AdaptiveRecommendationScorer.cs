@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Learning;
+namespace ArchLucid.Decisioning.Advisory.Learning;
 
 /// <summary>
 /// Default <see cref="IAdaptiveRecommendationScorer"/> using multiplicative weights from <see cref="RecommendationLearningProfile"/> dictionaries (case-sensitive keys as stored).

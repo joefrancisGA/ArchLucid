@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>Delivers an <see cref="ArchitectureDigest"/> to a subscriber via e-mail using <see cref="IEmailSender"/>.</summary>
 public sealed class DigestEmailDeliveryChannel(IEmailSender emailSender) : IDigestDeliveryChannel

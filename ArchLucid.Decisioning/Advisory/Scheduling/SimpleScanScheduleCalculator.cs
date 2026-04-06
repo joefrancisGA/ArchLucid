@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Scheduling;
+namespace ArchLucid.Decisioning.Advisory.Scheduling;
 
 /// <summary>
 /// Minimal schedule interpreter: a few named aliases, fixed <c>0 7 * * *</c> (07:00 UTC daily), and a default of +1 day for any other token.

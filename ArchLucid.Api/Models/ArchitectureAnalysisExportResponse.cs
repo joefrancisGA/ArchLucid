@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 /// <summary>
 /// Payload for synchronous markdown export of a run’s analysis report (<c>POST .../analysis-report/export</c>).

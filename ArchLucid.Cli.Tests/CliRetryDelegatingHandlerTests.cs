@@ -1,11 +1,11 @@
 using System.Net;
 using System.Net.Http;
 
-using ArchiForge.Cli;
+using ArchLucid.Cli;
 
 using FluentAssertions;
 
-namespace ArchiForge.Cli.Tests;
+namespace ArchLucid.Cli.Tests;
 
 /// <summary>
 /// Deterministic “chaos” for the CLI HTTP stack: first outbound attempt fails, retry succeeds.

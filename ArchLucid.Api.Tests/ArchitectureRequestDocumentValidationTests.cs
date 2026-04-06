@@ -4,14 +4,14 @@ using System.Text.Json.Nodes;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Ensures inline document <c>contentType</c> is rejected at the API boundary when not in
-/// <see cref="ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes"/>.
+/// <see cref="ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes"/>.
 /// </summary>
 [Trait("Category", "Integration")]
-public sealed class ArchitectureRequestDocumentValidationTests(ArchiForgeApiFactory factory)
+public sealed class ArchitectureRequestDocumentValidationTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
     [Fact]

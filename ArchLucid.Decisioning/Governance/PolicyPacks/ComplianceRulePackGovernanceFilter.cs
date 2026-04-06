@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Compliance.Models;
 
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 // ReSharper disable InvalidXmlDocComment
 /// <summary>
@@ -13,7 +13,7 @@ namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 /// Otherwise, keeps rules whose <see cref="ComplianceRule.RuleId"/> matches a key or parses as a listed GUID.
 /// </para>
 /// <para>
-/// <strong>Caller:</strong> <c>ArchiForge.Persistence.Compliance.PolicyFilteredComplianceRulePackProvider</c> when building packs for evaluation.
+/// <strong>Caller:</strong> <c>ArchLucid.Persistence.Compliance.PolicyFilteredComplianceRulePackProvider</c> when building packs for evaluation.
 /// </para>
 /// </remarks>
 /// // ReSharper enable InvalidXmlDocComment

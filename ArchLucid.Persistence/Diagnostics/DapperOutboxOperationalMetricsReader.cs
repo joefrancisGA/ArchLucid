@@ -1,12 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Diagnostics;
+namespace ArchLucid.Persistence.Diagnostics;
 
 /// <summary>Single round-trip depth/age read for authority, retrieval, and integration outboxes.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent; integration environments exercise via host.")]

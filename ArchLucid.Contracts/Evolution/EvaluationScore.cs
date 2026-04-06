@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Normalized or domain-specific scores for a simulation or aggregate evaluation (scale defined by producer).</summary>
 public sealed class EvaluationScore

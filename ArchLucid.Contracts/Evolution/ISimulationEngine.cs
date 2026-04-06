@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>
 /// Runs one or two read-only architecture analysis passes to simulate evaluating a <see cref="CandidateChangeSet"/> against a baseline run

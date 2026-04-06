@@ -1,9 +1,9 @@
-using ArchiForge.Decisioning.Validation;
+using ArchLucid.Decisioning.Validation;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Health;
+namespace ArchLucid.Host.Core.Health;
 
 /// <summary>
 /// Verifies JSON Schema files for agent results and golden manifests exist where <see cref="SchemaValidationService"/> loads them.

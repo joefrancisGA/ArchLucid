@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Findings.Serialization;
+namespace ArchLucid.Decisioning.Findings.Serialization;
 
 /// <summary>
 /// Serializes <see cref="Finding.Payload"/> as a typed JSON object; on read, rehydrates using <see cref="FindingPayloadRegistry"/>.

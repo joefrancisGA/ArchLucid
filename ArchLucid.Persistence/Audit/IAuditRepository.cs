@@ -1,6 +1,6 @@
-using ArchiForge.Core.Audit;
+using ArchLucid.Core.Audit;
 
-namespace ArchiForge.Persistence.Audit;
+namespace ArchLucid.Persistence.Audit;
 
 /// <summary>
 /// Append-only persistence contract for <see cref="AuditEvent"/> records produced by

@@ -1,8 +1,8 @@
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Opens real <see cref="SqlConnection"/> instances for contract tests that need <see cref="ISqlConnectionFactory"/>.

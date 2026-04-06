@@ -1,12 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Api.Contracts;
+namespace ArchLucid.Api.Contracts;
 
 /// <summary>
 /// API projection of a persisted <c>RecommendationRecord</c> for <c>GET</c> / <c>POST …/action</c> advisory endpoints (excludes supporting-id JSON blobs).
 /// </summary>
 /// <remarks>
-/// Mapped from <see cref="ArchiForge.Decisioning.Advisory.Workflow.RecommendationRecord"/> in <see cref="ArchiForge.Api.Controllers.AdvisoryController"/>.
+/// Mapped from <see cref="ArchLucid.Decisioning.Advisory.Workflow.RecommendationRecord"/> in <see cref="ArchLucid.Api.Controllers.AdvisoryController"/>.
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public sealed class RecommendationRecordResponse

@@ -1,11 +1,11 @@
-using ArchiForge.Persistence.RelationalRead;
+using ArchLucid.Persistence.RelationalRead;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// 53R-5 regression tests for structured diagnostics emitted by <see cref="JsonFallbackPolicy"/>

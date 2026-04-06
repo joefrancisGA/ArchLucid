@@ -1,11 +1,11 @@
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Application.Jobs;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Application.Jobs;
 
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Jobs;
+namespace ArchLucid.Host.Core.Jobs;
 
 public sealed class DurableBackgroundJobQueue(
     IBackgroundJobRepository repository,

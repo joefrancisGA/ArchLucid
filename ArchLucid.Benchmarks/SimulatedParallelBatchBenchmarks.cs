@@ -1,6 +1,6 @@
 using BenchmarkDotNet.Attributes;
 
-namespace ArchiForge.Benchmarks;
+namespace ArchLucid.Benchmarks;
 
 /// <summary>
 /// Illustrates wall-clock gain from parallelizing independent I/O-bound work (same shape as four LLM calls).

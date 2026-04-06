@@ -1,19 +1,19 @@
-using ArchiForge.Api.Http;
-using ArchiForge.Application.Analysis;
+using ArchLucid.Api.Http;
+using ArchLucid.Application.Analysis;
 
-namespace ArchiForge.Api.Mapping;
+namespace ArchLucid.Api.Mapping;
 
 internal static class ReplayComparisonResultHeaders
 {
     /// <summary>Headers returned with full replay artifact responses.</summary>
     public static void ApplyFull(HttpResponse response, ReplayComparisonResult result)
     {
-        response.Headers[ArchiForgeHttpHeaders.ComparisonRecordId] = result.ComparisonRecordId;
-        response.Headers[ArchiForgeHttpHeaders.ComparisonType] = result.ComparisonType;
-        response.Headers[ArchiForgeHttpHeaders.ReplayMode] = result.ReplayMode;
-        response.Headers[ArchiForgeHttpHeaders.VerificationPassed] = result.VerificationPassed.ToString();
+        response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = result.ComparisonRecordId;
+        response.Headers[ArchLucidHttpHeaders.ComparisonType] = result.ComparisonType;
+        response.Headers[ArchLucidHttpHeaders.ReplayMode] = result.ReplayMode;
+        response.Headers[ArchLucidHttpHeaders.VerificationPassed] = result.VerificationPassed.ToString();
         if (result.VerificationMessage is { } msg)
-            response.Headers[ArchiForgeHttpHeaders.VerificationMessage] = msg;
+            response.Headers[ArchLucidHttpHeaders.VerificationMessage] = msg;
         ApplyOptionalIdentifiers(response, result);
     }
 
@@ -24,18 +24,18 @@ internal static class ReplayComparisonResultHeaders
     private static void ApplyOptionalIdentifiers(HttpResponse response, ReplayComparisonResult result)
     {
         if (result.LeftRunId is { } leftRunId)
-            response.Headers[ArchiForgeHttpHeaders.LeftRunId] = leftRunId;
+            response.Headers[ArchLucidHttpHeaders.LeftRunId] = leftRunId;
         if (result.RightRunId is { } rightRunId)
-            response.Headers[ArchiForgeHttpHeaders.RightRunId] = rightRunId;
+            response.Headers[ArchLucidHttpHeaders.RightRunId] = rightRunId;
         if (result.LeftExportRecordId is { } leftExportId)
-            response.Headers[ArchiForgeHttpHeaders.LeftExportRecordId] = leftExportId;
+            response.Headers[ArchLucidHttpHeaders.LeftExportRecordId] = leftExportId;
         if (result.RightExportRecordId is { } rightExportId)
-            response.Headers[ArchiForgeHttpHeaders.RightExportRecordId] = rightExportId;
+            response.Headers[ArchLucidHttpHeaders.RightExportRecordId] = rightExportId;
         if (result.CreatedUtc is { } createdUtc)
-            response.Headers[ArchiForgeHttpHeaders.CreatedUtc] = createdUtc.ToString("O");
+            response.Headers[ArchLucidHttpHeaders.CreatedUtc] = createdUtc.ToString("O");
         if (result.FormatProfile is { } formatProfile)
-            response.Headers[ArchiForgeHttpHeaders.FormatProfile] = formatProfile;
+            response.Headers[ArchLucidHttpHeaders.FormatProfile] = formatProfile;
         if (result.PersistedReplayRecordId is { } persistedId)
-            response.Headers[ArchiForgeHttpHeaders.PersistedReplayRecordId] = persistedId;
+            response.Headers[ArchLucidHttpHeaders.PersistedReplayRecordId] = persistedId;
     }
 }

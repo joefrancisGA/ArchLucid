@@ -1,8 +1,8 @@
 using System.Security.Claims;
 
-namespace ArchiForge.Api.Auth.Models;
+namespace ArchLucid.Api.Auth.Models;
 
-public class ArchiForgeAuthOptions
+public class ArchLucidAuthOptions
 {
     public const string SectionName = "ArchiForgeAuth";
 

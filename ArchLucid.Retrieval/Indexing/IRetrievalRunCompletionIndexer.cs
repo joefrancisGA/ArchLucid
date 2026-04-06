@@ -1,11 +1,11 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Provenance;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Provenance;
 
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
-/// Builds <see cref="ArchiForge.Retrieval.Models.RetrievalDocument"/> sets from a completed authority run and indexes them for semantic search.
+/// Builds <see cref="ArchLucid.Retrieval.Models.RetrievalDocument"/> sets from a completed authority run and indexes them for semantic search.
 /// </summary>
 /// <remarks>
 /// Implementation: <see cref="RetrievalRunCompletionIndexer"/>. Production hosts enqueue work via the persistence retrieval indexing outbox; a background processor calls this interface after the authority unit of work commits.

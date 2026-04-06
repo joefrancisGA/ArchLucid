@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Validation;
+namespace ArchLucid.Decisioning.Validation;
 
 public sealed class SchemaValidationOptions
 {

@@ -1,8 +1,8 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Contracts;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Compare;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Contracts;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Compare;
 
 using Asp.Versioning;
 
@@ -10,14 +10,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// HTTP API for comparing golden manifests or two authority runs within the caller’s scope.
 /// </summary>
 /// <remarks>Routes under <c>api/authority/compare</c>; delegates to <see cref="IAuthorityCompareService"/>.</remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/authority/compare")]
 [EnableRateLimiting("fixed")]

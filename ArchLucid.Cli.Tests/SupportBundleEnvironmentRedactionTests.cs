@@ -1,8 +1,8 @@
-﻿using ArchiForge.Cli.Support;
+using ArchLucid.Cli.Support;
 
 using FluentAssertions;
 
-namespace ArchiForge.Cli.Tests;
+namespace ArchLucid.Cli.Tests;
 
 /// <summary>
 /// Support bundle environment snapshot: secret names and URL redaction (56R).

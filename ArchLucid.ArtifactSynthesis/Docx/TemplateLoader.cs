@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace ArchiForge.ArtifactSynthesis.Docx;
+namespace ArchLucid.ArtifactSynthesis.Docx;
 
 public static class TemplateLoader
 {

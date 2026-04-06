@@ -1,6 +1,6 @@
-﻿using ArchiForge.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Advisory.Workflow;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <inheritdoc cref="IRecommendationRepository" />
 public sealed class InMemoryRecommendationRepository : IRecommendationRepository

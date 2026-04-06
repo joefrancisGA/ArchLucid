@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text;
 
-using ArchiForge.Application.Diffs;
+using ArchLucid.Application.Diffs;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -14,7 +14,7 @@ using QuestPDF.Infrastructure;
 using QuestPdfDocument = QuestPDF.Fluent.Document;
 using WpDocument = DocumentFormat.OpenXml.Wordprocessing.Document;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Generates exportable artifacts (Markdown, HTML, DOCX, PDF) from an

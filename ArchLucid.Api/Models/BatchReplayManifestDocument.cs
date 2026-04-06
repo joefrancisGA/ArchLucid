@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 /// <summary>Serialized as <c>batch-replay-manifest.json</c> inside batch replay ZIP archives.</summary>
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]

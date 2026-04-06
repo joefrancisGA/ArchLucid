@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Persistence for <see cref="CompositeAlertRule"/> headers and their <see cref="AlertRuleCondition"/> rows.

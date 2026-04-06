@@ -1,10 +1,10 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Advisory.Learning;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Learning;
 
 using Asp.Versioning;
 
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Reads and rebuilds <see cref="RecommendationLearningProfile"/> aggregates for the caller’s scope (acceptance/rejection patterns by category, urgency, etc.).
@@ -22,7 +22,7 @@ namespace ArchiForge.Api.Controllers;
 /// <c>RecommendationLearningService</c>. Routes: <c>api/recommendation-learning</c>.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/recommendation-learning")]
 [EnableRateLimiting("fixed")]
@@ -54,12 +54,12 @@ public sealed class RecommendationLearningController(
     /// Scans recent recommendation acceptance/rejection rows for the current scope via
     /// <c>RebuildProfileAsync</c> and overwrites the stored profile. An audit event of type
     /// <c>RecommendationLearningProfileRebuilt</c> is written after a successful rebuild.
-    /// Requires <see cref="ArchiForgePolicies.ExecuteAuthority"/>.
+    /// Requires <see cref="ArchLucidPolicies.ExecuteAuthority"/>.
     /// </remarks>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>The newly rebuilt <see cref="RecommendationLearningProfile"/>.</returns>
     [HttpPost("rebuild")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]
     public async Task<ActionResult<RecommendationLearningProfile>> Rebuild(CancellationToken ct = default)
     {

@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Integration;
+namespace ArchLucid.Core.Integration;
 
 /// <summary>
 /// Publishes JSON integration events to external systems (e.g. Azure Service Bus). Default implementation is a no-op.

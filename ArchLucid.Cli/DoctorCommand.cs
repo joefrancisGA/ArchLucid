@@ -1,7 +1,7 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 
-namespace ArchiForge.Cli;
+namespace ArchLucid.Cli;
 
 /// <summary>
 /// Operator-facing readiness diagnostics: CLI build identity, local project layout,
@@ -11,7 +11,7 @@ internal static class DoctorCommand
 {
     private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
 
-    public static async Task<int> RunAsync(ArchiForgeProjectScaffolder.ArchiForgeConfig? config, CancellationToken ct = default)
+    public static async Task<int> RunAsync(ArchLucidProjectScaffolder.ArchLucidCliConfig? config, CancellationToken ct = default)
     {
         Console.WriteLine("ArchiForge doctor — local checks and API readiness");
         Console.WriteLine();
@@ -19,8 +19,8 @@ internal static class DoctorCommand
         PrintCliBuildInfo();
         RunLocalProjectChecks(config);
 
-        string baseUrl = ArchiForgeApiClient.ResolveBaseUrl(config);
-        string? urlError = ArchiForgeApiClient.GetInvalidApiBaseUrlReason(baseUrl);
+        string baseUrl = ArchLucidApiClient.ResolveBaseUrl(config);
+        string? urlError = ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl);
 
         if (urlError is not null)
         {
@@ -32,7 +32,7 @@ internal static class DoctorCommand
         Console.WriteLine("--- ArchiForge API ---");
         Console.WriteLine($"Base URL: {baseUrl}");
 
-        ArchiForgeApiClient client = new(baseUrl);
+        ArchLucidApiClient client = new(baseUrl);
 
         await PrintApiVersionAsync(client, ct);
 
@@ -86,7 +86,7 @@ internal static class DoctorCommand
         Console.WriteLine();
     }
 
-    private static async Task PrintApiVersionAsync(ArchiForgeApiClient client, CancellationToken ct)
+    private static async Task PrintApiVersionAsync(ArchLucidApiClient client, CancellationToken ct)
     {
         string? versionJson = await client.GetVersionJsonAsync(ct);
 
@@ -112,7 +112,7 @@ internal static class DoctorCommand
         }
     }
 
-    private static void RunLocalProjectChecks(ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
+    private static void RunLocalProjectChecks(ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
         Console.WriteLine("--- Local project ---");
         string cwd = Directory.GetCurrentDirectory();
@@ -153,7 +153,7 @@ internal static class DoctorCommand
     }
 
     private static async Task<bool> PrintProbeAsync(
-        ArchiForgeApiClient client,
+        ArchLucidApiClient client,
         string path,
         string label,
         CancellationToken ct)

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Scheduling;
+namespace ArchLucid.Decisioning.Advisory.Scheduling;
 
 /// <summary>
 /// Tenant-scoped CRON-style definition for recurring advisory scans: which authority project slug to read and when the next run is due.

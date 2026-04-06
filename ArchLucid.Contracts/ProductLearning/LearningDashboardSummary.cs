@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
 /// Main read model for the operator product-learning dashboard: rollups, trends, opportunities, and triage queue.

@@ -2,7 +2,7 @@ using System.Text;
 
 using FluentAssertions;
 
-namespace ArchiForge.Cli.Tests;
+namespace ArchLucid.Cli.Tests;
 
 /// <summary>
 /// Tests for Cli Smoke.

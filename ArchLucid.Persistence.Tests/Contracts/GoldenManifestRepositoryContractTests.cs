@@ -1,11 +1,11 @@
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Shared contract assertions for authority <see cref="IGoldenManifestRepository"/> (SQL + in-memory).

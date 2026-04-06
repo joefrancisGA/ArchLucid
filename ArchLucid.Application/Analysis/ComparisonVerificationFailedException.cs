@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Thrown when replay mode is <see cref="ComparisonReplayMode.Verify"/> and the

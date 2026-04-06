@@ -1,14 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Governance.Resolution;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.Resolution;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Governance;
+namespace ArchLucid.Persistence.Governance;
 
 /// <summary>
 /// SQL Server implementation of <see cref="IPolicyPackAssignmentRepository"/> using Dapper against <c>dbo.PolicyPackAssignments</c>.

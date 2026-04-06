@@ -1,9 +1,9 @@
 using System.Text.Json;
 
-using ArchiForge.Core.Audit;
-using ArchiForge.Persistence.Archival;
+using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Archival;
 
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// One archival pass with failure logging and audit emission — extracted for unit testing and health state.

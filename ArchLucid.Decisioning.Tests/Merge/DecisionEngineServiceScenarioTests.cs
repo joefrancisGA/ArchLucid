@@ -1,14 +1,14 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Decisioning.Merge;
-using ArchiForge.Decisioning.Validation;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>Broader merge scenarios (formerly in Api.Tests). Uses passthrough schema validation.</summary>
 [Trait("Category", "Unit")]

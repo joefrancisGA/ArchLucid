@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>Lifecycle states for <see cref="PolicyPack.Status"/>.</summary>
 /// <remarks>Transitions: Draft → Active on first publish; Retired reserved for future soft-delete flows.</remarks>

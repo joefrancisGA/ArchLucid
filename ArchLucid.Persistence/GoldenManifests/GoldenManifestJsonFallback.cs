@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Serialization;
 
-namespace ArchiForge.Persistence.GoldenManifests;
+namespace ArchLucid.Persistence.GoldenManifests;
 
 /// <summary>Phase-1 JSON column reads when relational slice rows are absent.</summary>
 /// <remarks>TODO: remove JSON fallback after relational migration complete.</remarks>

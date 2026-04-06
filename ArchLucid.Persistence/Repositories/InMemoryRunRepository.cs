@@ -2,11 +2,11 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Interfaces;
-using ArchiForge.Persistence.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// In-memory implementation of <see cref="IRunRepository"/> for testing and local development.

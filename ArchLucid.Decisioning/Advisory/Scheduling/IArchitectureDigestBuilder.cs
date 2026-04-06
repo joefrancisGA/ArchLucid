@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Alerts;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Alerts;
 
-namespace ArchiForge.Decisioning.Advisory.Scheduling;
+namespace ArchLucid.Decisioning.Advisory.Scheduling;
 
 /// <summary>
 /// Renders an <see cref="ArchitectureDigest"/> from an <see cref="ImprovementPlan"/> and optional evaluated <see cref="AlertRecord"/> list.

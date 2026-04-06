@@ -1,8 +1,8 @@
-using ArchiForge.Application.Decisions;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Application.Decisions;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace ArchiForge.Application.Tests;
+namespace ArchLucid.Application.Tests;
 
 /// <summary>
 /// <see cref="DefaultAgentEvaluationService"/> returns no evaluations and validates inputs.

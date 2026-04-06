@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Manifest.Sections;
+namespace ArchLucid.Decisioning.Manifest.Sections;
 
 /// <summary>A single policy control resolved from the active policy pack(s).</summary>
 public class PolicyControlItem

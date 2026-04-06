@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Optional read-profile overrides. Null <see cref="BaselineReadProfile"/> uses <see cref="SimulationReadProfile.StrictReadOnly"/>.</summary>
 public sealed class SimulationEngineOptions

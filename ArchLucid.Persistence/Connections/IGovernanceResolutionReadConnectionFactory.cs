@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
 /// Read connection for governance-resolution SQL (assignments, packs, published versions).

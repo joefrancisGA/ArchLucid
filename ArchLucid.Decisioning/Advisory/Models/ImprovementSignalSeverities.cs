@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Models;
+namespace ArchLucid.Decisioning.Advisory.Models;
 
 /// <summary>
 /// Canonical <see cref="ImprovementSignal.Severity"/> strings for advisory signals.

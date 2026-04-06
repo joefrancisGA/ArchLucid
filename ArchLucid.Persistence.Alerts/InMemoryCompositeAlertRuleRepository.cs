@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts.Composite;
 
-namespace ArchiForge.Persistence.Alerts;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>In-memory <see cref="ICompositeAlertRuleRepository"/> for tests; clones rules on write to mimic isolated rows.</summary>
 public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRepository

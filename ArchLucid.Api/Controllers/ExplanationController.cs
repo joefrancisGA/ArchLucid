@@ -1,13 +1,13 @@
-using ArchiForge.AgentRuntime.Explanation;
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Explanation;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Comparison;
-using ArchiForge.Persistence.Provenance;
-using ArchiForge.Persistence.Queries;
-using ArchiForge.Provenance;
+using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Persistence.Provenance;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Provenance;
 
 using Asp.Versioning;
 
@@ -15,14 +15,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// LLM explanations for a single run (with optional provenance) and for manifest deltas between two runs.
 /// </summary>
 /// <remarks>Routes under <c>api/explain</c>; uses <see cref="IExplanationService"/> and <see cref="IComparisonService"/> for compare narrative.</remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/explain")]
 [EnableRateLimiting("fixed")]
@@ -35,7 +35,7 @@ public sealed class ExplanationController(
     ILogger<ExplanationController> logger)
     : ControllerBase
 {
-    /// <summary>Stakeholder explanation for one run’s golden manifest, optionally enriched with stored provenance graph JSON.</summary>
+    /// <summary>Stakeholder explanation for one runï¿½s golden manifest, optionally enriched with stored provenance graph JSON.</summary>
     /// <param name="runId">Run to load.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns><see cref="ExplanationResult"/> JSON, or 404 when the run or manifest is missing in scope.</returns>

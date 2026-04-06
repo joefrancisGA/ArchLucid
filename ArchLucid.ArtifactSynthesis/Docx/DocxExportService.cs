@@ -1,19 +1,19 @@
-﻿using ArchiForge.ArtifactSynthesis.Docx.Builders;
-using ArchiForge.ArtifactSynthesis.Docx.Helpers;
-using ArchiForge.ArtifactSynthesis.Docx.Models;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Explanation;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Docx.Builders;
+using ArchLucid.ArtifactSynthesis.Docx.Helpers;
+using ArchLucid.ArtifactSynthesis.Docx.Models;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Explanation;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
-namespace ArchiForge.ArtifactSynthesis.Docx;
+namespace ArchLucid.ArtifactSynthesis.Docx;
 
 /// <summary>
 /// <see cref="IDocxExportService"/> implementation using embedded template, <see cref="IImprovementAdvisorService"/> for advisory sections, and OpenXML builders.

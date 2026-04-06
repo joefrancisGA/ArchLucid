@@ -1,8 +1,8 @@
-using ArchiForge.Core.Resilience;
+using ArchLucid.Core.Resilience;
 
 using FluentAssertions;
 
-namespace ArchiForge.Retrieval.Tests;
+namespace ArchLucid.Retrieval.Tests;
 
 /// <summary>
 /// Deterministic tests for <see cref="CircuitBreakerGate"/> using an injectable clock.

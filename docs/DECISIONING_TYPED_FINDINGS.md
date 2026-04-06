@@ -1,12 +1,12 @@
-## Typed findings in ArchiForge.Decisioning
+## Typed findings in ArchLucid.Decisioning
 
-ArchiForge.Decisioning uses a **Finding envelope** with **category-specific typed payloads**. This preserves a stable persisted shape while allowing engines and the decision engine to evolve with strongly typed data.
+ArchLucid.Decisioning uses a **Finding envelope** with **category-specific typed payloads**. This preserves a stable persisted shape while allowing engines and the decision engine to evolve with strongly typed data.
 
 ---
 
 ### Finding envelope
 
-`ArchiForge.Decisioning.Models.Finding` includes:
+`ArchLucid.Decisioning.Models.Finding` includes:
 
 - `FindingType` – rule matching key (e.g. `RequirementFinding`, `TopologyGap`)  
 - `Category` – high-level domain grouping (e.g. `Requirement`, `Topology`, `Security`, `Cost`)  
@@ -21,7 +21,7 @@ The rest of the envelope is durable metadata: severity, title/rationale, recomme
 
 Payload models live under:
 
-`ArchiForge.Decisioning/Findings/Payloads/`
+`ArchLucid.Decisioning/Findings/Payloads/`
 
 Currently included:
 
@@ -45,7 +45,7 @@ Engines should set:
 
 ### Creating findings (recommended)
 
-Use `ArchiForge.Decisioning.Findings.Factories.FindingFactory` for consistent creation:
+Use `ArchLucid.Decisioning.Findings.Factories.FindingFactory` for consistent creation:
 
 - `CreateRequirementFinding(...)`
 - `CreateTopologyGapFinding(...)`
@@ -61,7 +61,7 @@ Because `Finding.Payload` is stored as `object`, persisted/reloaded findings may
 
 Use:
 
-`ArchiForge.Decisioning.Findings.Factories.FindingPayloadConverter`
+`ArchLucid.Decisioning.Findings.Factories.FindingPayloadConverter`
 
 Examples:
 
@@ -75,7 +75,7 @@ Examples:
 
 ### Graph-aware finding engines
 
-Several engines use **`ArchiForge.KnowledgeGraph.Models.GraphSnapshotExtensions`** over typed edges:
+Several engines use **`ArchLucid.KnowledgeGraph.Models.GraphSnapshotExtensions`** over typed edges:
 
 | Engine | Graph usage (examples) |
 |--------|-------------------------|

@@ -10,12 +10,12 @@ using Json.Schema;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Decisioning.Validation;
+namespace ArchLucid.Decisioning.Validation;
 
 public sealed class SchemaValidationService : ISchemaValidationService
 {
     /// <summary>OpenTelemetry meter name for schema validation metrics.</summary>
-    public const string MeterName = "ArchiForge.Decisioning.SchemaValidation";
+    public const string MeterName = "ArchLucid.Decisioning.SchemaValidation";
 
     private static readonly Meter SMeter = new(MeterName, "1.0");
 

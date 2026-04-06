@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Advisory.Workflow;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 public sealed class RecommendationActionRequestValidator : AbstractValidator<RecommendationActionRequest>
 {

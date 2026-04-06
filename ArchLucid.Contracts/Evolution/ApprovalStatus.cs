@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Human-gate state for a 60R candidate change set (simulation does not imply approval).</summary>
 public enum ApprovalStatus

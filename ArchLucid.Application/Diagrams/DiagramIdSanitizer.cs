@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Diagrams;
+namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
 /// Shared helper that converts arbitrary strings into Mermaid-safe node identifiers.

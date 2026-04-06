@@ -1,6 +1,6 @@
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 
-namespace ArchiForge.ContextIngestion.Canonicalization;
+namespace ArchLucid.ContextIngestion.Canonicalization;
 
 public class CanonicalDeduplicator : ICanonicalDeduplicator
 {

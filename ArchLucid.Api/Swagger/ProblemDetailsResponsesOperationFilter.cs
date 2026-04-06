@@ -2,7 +2,7 @@ using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
 /// <summary>Enriches 404/409 responses with problem-details type hints for OpenAPI docs.</summary>
 public sealed class ProblemDetailsResponsesOperationFilter : IOperationFilter

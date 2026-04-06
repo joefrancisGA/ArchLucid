@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Bounded excerpts from read-only analysis outputs (before/after passes) for human review.</summary>
 public sealed class SimulationArtifactsSnapshot

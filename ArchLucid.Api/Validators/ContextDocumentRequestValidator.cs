@@ -1,13 +1,13 @@
-using ArchiForge.ContextIngestion;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.ContextIngestion;
+using ArchLucid.Contracts.Requests;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 /// <summary>
 /// FluentValidation rules for <see cref="ContextDocumentRequest"/> items embedded in an
-/// <see cref="ArchiForge.Contracts.Requests.ArchitectureRequest.Documents"/> collection.
+/// <see cref="ArchLucid.Contracts.Requests.ArchitectureRequest.Documents"/> collection.
 /// Validates the document name, supported content type, and content size.
 /// Name and ContentType reject whitespace-only values (FluentValidation <c>NotEmpty()</c> allows spaces).
 /// Content types must match <see cref="SupportedContextDocumentContentTypes.IsSupported"/> (same rule as parsers).

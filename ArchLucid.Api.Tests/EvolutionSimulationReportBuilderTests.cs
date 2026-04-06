@@ -1,12 +1,12 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Models.Evolution;
-using ArchiForge.Api.Services.Evolution;
-using ArchiForge.Contracts.Evolution;
+using ArchLucid.Api.Models.Evolution;
+using ArchLucid.Api.Services.Evolution;
+using ArchLucid.Contracts.Evolution;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class EvolutionSimulationReportBuilderTests
 {

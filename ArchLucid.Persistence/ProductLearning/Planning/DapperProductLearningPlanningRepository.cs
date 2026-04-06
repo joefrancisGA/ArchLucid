@@ -1,14 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.ProductLearning.Planning;
+namespace ArchLucid.Persistence.ProductLearning.Planning;
 
 /// <summary>Dapper access to 59R planning bridge tables.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]

@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// Builds bounded, human-reviewable <see cref="ImprovementPlan"/> rows from extracted themes (rule-based; no LLM).

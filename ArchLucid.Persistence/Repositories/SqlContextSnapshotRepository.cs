@@ -1,18 +1,18 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.ContextSnapshots;
-using ArchiForge.Persistence.RelationalRead;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.ContextSnapshots;
+using ArchLucid.Persistence.RelationalRead;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// SQL Server-backed <see cref="IContextSnapshotRepository"/> with dual-write to legacy JSON columns

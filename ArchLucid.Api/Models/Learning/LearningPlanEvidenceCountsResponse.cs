@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Learning;
+namespace ArchLucid.Api.Models.Learning;
 
 /// <summary>Explicit link counts for a plan (signals, artifacts, architecture runs).</summary>
 public sealed class LearningPlanEvidenceCountsResponse

@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace ArchiForge.Cli.Support;
+namespace ArchLucid.Cli.Support;
 
 /// <summary>
 /// Removes credentials and other sensitive material from strings included in support bundles.

@@ -1,9 +1,9 @@
 using System.Text.Json;
 
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Thread-safe in-memory <see cref="ICoordinatorGoldenManifestRepository"/> for coordinator/replay flows (JSON clone-on-read).

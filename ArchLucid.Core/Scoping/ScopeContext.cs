@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Scoping;
+namespace ArchLucid.Core.Scoping;
 
 /// <summary>
 /// Identifies the current tenant, workspace, and project for multi-tenant APIs and background jobs.

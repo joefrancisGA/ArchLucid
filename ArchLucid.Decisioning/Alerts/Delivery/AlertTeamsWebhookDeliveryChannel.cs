@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Delivery;
 
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// Posts JSON with <c>title</c> and <c>text</c> to a Microsoft Teams incoming webhook (<see cref="AlertRoutingChannelType.TeamsWebhook"/>).

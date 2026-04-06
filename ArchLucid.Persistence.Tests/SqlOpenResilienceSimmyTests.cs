@@ -1,5 +1,5 @@
-using ArchiForge.Persistence.Connections;
-using ArchiForge.TestSupport;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ using Polly;
 using Polly.Simmy;
 using Polly.Simmy.Fault;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Ensures <see cref="SqlOpenResilienceDefaults"/> retry pipeline composes with Simmy SQL faults the same way as <see cref="ResilientSqlConnectionFactory"/> (retry outside chaos).

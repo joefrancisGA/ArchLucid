@@ -1,8 +1,8 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Services;
+namespace ArchLucid.KnowledgeGraph.Services;
 
 /// <summary>
 /// Decides whether to rebuild a <see cref="GraphSnapshot"/> or clone the latest graph

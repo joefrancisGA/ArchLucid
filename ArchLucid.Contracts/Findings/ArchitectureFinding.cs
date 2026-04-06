@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.Contracts.Findings;
+namespace ArchLucid.Contracts.Findings;
 
 public sealed class ArchitectureFinding
 {

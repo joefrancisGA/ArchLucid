@@ -2,7 +2,7 @@ using Microsoft.Data.SqlClient;
 
 using Polly;
 
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
 /// Decorator over <see cref="ISqlConnectionFactory"/> that retries transient failures

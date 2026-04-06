@@ -1,9 +1,9 @@
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Packaging;
-using ArchiForge.Core.Scoping;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.Core.Scoping;
 
-namespace ArchiForge.Persistence.Queries;
+namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
 /// Same behavior as <see cref="DapperArtifactQueryService"/>; type name reflects typical registration in storage-off mode.

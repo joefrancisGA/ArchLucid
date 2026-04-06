@@ -5,7 +5,7 @@ using Azure.AI.OpenAI;
 
 using OpenAI.Embeddings;
 
-namespace ArchiForge.Retrieval.Embedding;
+namespace ArchLucid.Retrieval.Embedding;
 
 /// <summary>
 /// Azure OpenAI text embeddings for a named embedding deployment on the resource.

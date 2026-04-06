@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Diagrams;
+namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
 /// Well-known string values for <see cref="ManifestDiagramOptions"/> properties and the

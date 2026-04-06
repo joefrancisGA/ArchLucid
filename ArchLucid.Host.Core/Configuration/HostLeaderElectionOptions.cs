@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
 /// SQL row leases so only one replica runs advisory scan, data archival, and retrieval indexing outbox loops.

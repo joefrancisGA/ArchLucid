@@ -1,18 +1,18 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests.Support;
+namespace ArchLucid.Persistence.Tests.Support;
 
 /// <summary>
 /// Seeds the minimal Runs / ContextSnapshots / GraphSnapshots / FindingsSnapshots / DecisioningTraces chain
-/// required before persisting a <see cref="ArchiForge.Decisioning.Models.GoldenManifest"/> under FK constraints.
+/// required before persisting a <see cref="ArchLucid.Decisioning.Models.GoldenManifest"/> under FK constraints.
 /// </summary>
 public static class AuthorityRunChainTestSeed
 {

@@ -1,4 +1,4 @@
-using ArchiForge.Decisioning.Validation;
+using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ using Moq;
 
 #pragma warning disable CA1873 // Avoid conditional access in logger message for test verifications
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Schema Validation Service.

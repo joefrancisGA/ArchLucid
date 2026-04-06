@@ -27,7 +27,7 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 
 | Layer | Responsibility |
 |--------|----------------|
-| **Contracts** (`ArchiForge.Contracts.ProductLearning`) | Stable strings + `ProductLearningPilotSignalRecord` DTO. |
+| **Contracts** (`ArchLucid.Contracts.ProductLearning`) | Stable strings + `ProductLearningPilotSignalRecord` DTO. |
 | **Persistence** | `IProductLearningPilotSignalRepository`, Dapper + in-memory implementations. |
 | **SQL** | DbUp `031_*.sql` + `ArchiForge.sql` parity. |
 | **API** | `ProductLearningController`: summary, opportunities, trends, triage queue, triage report (`markdown` / `json`). |
@@ -67,7 +67,7 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 
 ### Prompt 2 — aggregation and triage domain models
 
-- **Added** explicit DTO classes (no logic): `FeedbackAggregate`, `ArtifactOutcomeTrend`, `ImprovementOpportunity`, `LearningDashboardSummary`, `TriageQueueItem` under `ArchiForge.Contracts/ProductLearning/`.
+- **Added** explicit DTO classes (no logic): `FeedbackAggregate`, `ArtifactOutcomeTrend`, `ImprovementOpportunity`, `LearningDashboardSummary`, `TriageQueueItem` under `ArchLucid.Contracts/ProductLearning/`.
 - **Next:** repository/query methods and application service to populate these models from `ProductLearningPilotSignals` (and optional joins).
 
 ### Prompt 3 — SQL/Dapper aggregation queries

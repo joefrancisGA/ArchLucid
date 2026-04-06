@@ -1,12 +1,12 @@
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
-namespace ArchiForge.Provenance;
+namespace ArchLucid.Provenance;
 
 /// <summary>
 /// Loads stored provenance JSON for a run and projects it into UI-oriented <see cref="GraphViewModel"/> graphs.
 /// </summary>
 /// <remarks>
-/// Implementation: <c>ArchiForge.Persistence.Provenance.ProvenanceQueryService</c>. Callers: <c>ArchiForge.Api.Services.Ask.AskService</c>, provenance HTTP controllers.
+/// Implementation: <c>ArchLucid.Persistence.Provenance.ProvenanceQueryService</c>. Callers: <c>ArchLucid.Api.Services.Ask.AskService</c>, provenance HTTP controllers.
 /// </remarks>
 public interface IProvenanceQueryService
 {

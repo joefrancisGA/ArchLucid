@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
 /// <summary>Enriches the generated OpenAPI schema for merged policy content (see also operation examples on policy pack POSTs).</summary>
 public sealed class PolicyPackContentDocumentSchemaFilter : ISchemaFilter

@@ -1,7 +1,7 @@
-﻿using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Composite;
 
-namespace ArchiForge.Persistence.Alerts;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
 /// Default <see cref="IAlertSuppressionPolicy"/>: deduplicates composite fires using <see cref="IAlertRecordRepository.GetOpenByDeduplicationKeyAsync"/> and rule time windows.

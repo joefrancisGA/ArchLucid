@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Resilience;
+namespace ArchLucid.Core.Resilience;
 
 /// <summary>
 /// Thrown when a call is rejected because the circuit is open or a recovery probe is already in flight.

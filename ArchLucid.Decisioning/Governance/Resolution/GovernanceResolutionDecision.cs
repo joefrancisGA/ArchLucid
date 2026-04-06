@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Decisioning.Governance.Resolution;
+namespace ArchLucid.Decisioning.Governance.Resolution;
 
 /// <summary>
 /// Explainability record: which policy pack version won for a single logical item (e.g. one alert rule id or metadata key).

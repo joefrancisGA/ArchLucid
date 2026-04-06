@@ -1,9 +1,9 @@
-using ArchiForge.Api.Validators;
-using ArchiForge.Decisioning.Alerts;
+using ArchLucid.Api.Validators;
+using ArchLucid.Decisioning.Alerts;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Alert Rule Body Validator.

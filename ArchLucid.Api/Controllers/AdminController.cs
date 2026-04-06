@@ -1,8 +1,8 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Services.Admin;
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Persistence.Integration;
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Services.Admin;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Integration;
+using ArchLucid.Host.Core.Configuration;
 
 using Asp.Versioning;
 
@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FeatureManagement;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>Operator diagnostics (outbox depth, leader leases, feature flags).</summary>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.AdminAuthority)]
+[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin")]
 public sealed class AdminController(

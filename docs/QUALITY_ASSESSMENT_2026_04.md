@@ -45,12 +45,12 @@
 
 ### 1. Interoperability — 42 / 100
 
-**Justification**: The system communicates externally almost exclusively via webhook HTTP POSTs (Slack, Teams, on-call) and a REST/OpenAPI surface. There is no event bus, no Service Bus/Event Grid integration, no GraphQL or gRPC endpoint, no standardized event schema (CloudEvents), and no published SDK beyond the NSwag-generated `ArchiForge.Api.Client`. The CLI calls the REST API directly. There are no documented integration patterns for third-party tools to consume architecture decisions, findings, or governance state changes.
+**Justification**: The system communicates externally almost exclusively via webhook HTTP POSTs (Slack, Teams, on-call) and a REST/OpenAPI surface. There is no event bus, no Service Bus/Event Grid integration, no GraphQL or gRPC endpoint, no standardized event schema (CloudEvents), and no published SDK beyond the NSwag-generated `ArchLucid.Api.Client`. The CLI calls the REST API directly. There are no documented integration patterns for third-party tools to consume architecture decisions, findings, or governance state changes.
 
 **Evidence**:
 - Webhook delivery: `IWebhookPoster`, `AlertSlackWebhookDeliveryChannel`, `AlertTeamsWebhookDeliveryChannel`, `DigestSlackWebhookDeliveryChannel` — outbound-only HTTP POSTs.
 - No `IEventPublisher`, no Service Bus or Event Grid references in code or Terraform.
-- NSwag client (`ArchiForge.Api.Client`) is generated but not published to NuGet in CI (the `publish-api-client.yml` workflow exists but is workflow_dispatch only).
+- NSwag client (`ArchLucid.Api.Client`) is generated but not published to NuGet in CI (the `publish-api-client.yml` workflow exists but is workflow_dispatch only).
 
 **Tradeoffs**: Keeping integration simple avoids operational complexity of a message broker. But it limits adoption in enterprises where event-driven architectures are the norm.
 
@@ -175,16 +175,16 @@
 
 **Evidence**:
 - 42 `.csproj` files across the solution.
-- `ArchiForge.Persistence`: 297 `.cs` files with mixed concerns (repositories, orchestration, blob store, caching, archival, connections, migrations).
-- `ArchiForge.Decisioning`: 239 `.cs` files (findings, alerts, governance, compliance, advisory).
+- `ArchLucid.Persistence`: 297 `.cs` files with mixed concerns (repositories, orchestration, blob store, caching, archival, connections, migrations).
+- `ArchLucid.Decisioning`: 239 `.cs` files (findings, alerts, governance, compliance, advisory).
 - `.cursor/rules/Navigation.mdc` covers ~10 entry points.
-- Naming: ~~`ArchiForge.DecisionEngine` vs `ArchiForge.Decisioning`~~ addressed — merge and validation live in **`ArchiForge.Decisioning.Merge`** / **`ArchiForge.Decisioning.Validation`** (single project).
+- Naming: ~~`ArchiForge.DecisionEngine` vs `ArchLucid.Decisioning`~~ addressed — merge and validation live in **`ArchLucid.Decisioning.Merge`** / **`ArchLucid.Decisioning.Validation`** (single project).
 - DI composition root: 8 partial files — manageable but requires knowing the decomposition.
 
 **Tradeoffs**: Fine-grained project boundaries enable independent testing and clear ownership. But 42 projects is at the upper edge for a single-team product.
 
 **Recommendations**:
-1. ~~Consider merging `DecisionEngine` into `Decisioning`~~ — done (namespaces `ArchiForge.Decisioning.Merge` / `Validation`).
+1. ~~Consider merging `DecisionEngine` into `Decisioning`~~ — done (namespaces `ArchLucid.Decisioning.Merge` / `Validation`).
 2. Split `Persistence` into `Persistence.Sql` (Dapper repos) and `Persistence.Domain` (orchestration, caching, archival).
 3. Add a `SYSTEM_MAP_QUICK.md` one-page visual for the top 10 types a new developer touches.
 4. Complete the ArchLucid rename to eliminate dual-name confusion.

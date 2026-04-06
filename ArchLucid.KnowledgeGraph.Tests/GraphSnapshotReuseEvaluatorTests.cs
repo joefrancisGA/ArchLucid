@@ -1,14 +1,14 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.KnowledgeGraph.Repositories;
-using ArchiForge.KnowledgeGraph.Services;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Repositories;
+using ArchLucid.KnowledgeGraph.Services;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.KnowledgeGraph.Tests;
+namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
 /// Tests for Graph Snapshot Reuse Evaluator.

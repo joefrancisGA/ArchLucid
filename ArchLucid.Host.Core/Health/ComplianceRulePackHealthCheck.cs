@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace ArchiForge.Host.Core.Health;
+namespace ArchLucid.Host.Core.Health;
 
 /// <summary>Verifies the default compliance rule pack file exists next to the running API (same path as FileComplianceRulePackLoader).</summary>
 public sealed class ComplianceRulePackHealthCheck : IHealthCheck
@@ -15,7 +15,7 @@ public sealed class ComplianceRulePackHealthCheck : IHealthCheck
         
             return Task.FromResult(
                 HealthCheckResult.Unhealthy(
-                    $"Compliance rule pack not found at '{fullPath}'. Expected bundled content from ArchiForge.Decisioning (CopyToOutputDirectory)."));
+                    $"Compliance rule pack not found at '{fullPath}'. Expected bundled content from ArchLucid.Decisioning (CopyToOutputDirectory)."));
         
 
         return Task.FromResult(

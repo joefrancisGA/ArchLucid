@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Replay;
+namespace ArchLucid.Persistence.Replay;
 
 /// <summary>
 /// String tokens for <see cref="ReplayRequest.Mode"/> / API replay requests (matched case-insensitively in <see cref="AuthorityReplayService"/>).

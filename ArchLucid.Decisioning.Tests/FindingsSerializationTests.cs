@@ -1,11 +1,11 @@
-using ArchiForge.Decisioning.Findings.Factories;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Findings.Serialization;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Findings.Factories;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Findings.Serialization;
+using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Findings Serialization.

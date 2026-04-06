@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 
-namespace ArchiForge.Contracts.Common;
+namespace ArchLucid.Contracts.Common;
 
 /// <summary>Stable string keys for <see cref="IAgentHandler"/> registration and optional <see cref="Agents.AgentTask.AgentTypeKey"/> dispatch.</summary>
 public static class AgentTypeKeys

@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning.Planning;
 
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>
 /// Maps persisted 59R improvement plans into deterministic 60R <see cref="CandidateChangeSet"/> projections (no execution or persistence).

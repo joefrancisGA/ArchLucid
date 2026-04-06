@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
 /// <see cref="IDigestDeliveryChannel.ChannelType"/> and <see cref="DigestSubscription.ChannelType"/> discriminator strings.

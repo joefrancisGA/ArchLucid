@@ -1,8 +1,8 @@
-using ArchiForge.Api.Validators;
+using ArchLucid.Api.Validators;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Replay Validation Constants.

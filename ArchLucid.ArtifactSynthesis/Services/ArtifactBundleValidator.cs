@@ -1,7 +1,7 @@
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Services;
+namespace ArchLucid.ArtifactSynthesis.Services;
 
 public class ArtifactBundleValidator : IArtifactBundleValidator
 {

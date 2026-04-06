@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>One bounded, reviewable action inside a plan (serialized to <c>BoundedActionsJson</c>).</summary>
 public sealed class ProductLearningImprovementPlanActionStep

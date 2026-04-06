@@ -1,10 +1,10 @@
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Persistence.Diagnostics;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Persistence.Diagnostics;
 
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
-/// Periodically reads SQL outbox depths and publishes them to <see cref="ArchiForgeInstrumentation.OutboxDepthGauges"/>
+/// Periodically reads SQL outbox depths and publishes them to <see cref="ArchLucidInstrumentation.OutboxDepthGauges"/>
 /// for Prometheus scrape (observable gauges read cached values).
 /// </summary>
 public sealed class OutboxOperationalMetricsHostedService(
@@ -70,6 +70,6 @@ public sealed class OutboxOperationalMetricsHostedService(
             snap.IntegrationEventOutboxDeadLetter,
             snap.IntegrationEventOutboxOldestActionablePendingAgeSeconds);
 
-        ArchiForgeInstrumentation.OutboxDepthGauges.Publish(in values);
+        ArchLucidInstrumentation.OutboxDepthGauges.Publish(in values);
     }
 }

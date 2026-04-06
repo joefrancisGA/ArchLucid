@@ -1,8 +1,8 @@
-﻿using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Comparison;
+namespace ArchLucid.Decisioning.Comparison;
 
 /// <summary>
 /// <see cref="IComparisonService"/> implementation: keyed merges over decisions, requirement coverage, security controls, topology resources, and optional max monthly cost.

@@ -14,7 +14,7 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 **Key deliverables:**
 
 - `032_ProductLearningPlanningBridge.sql` (DbUp) + `ArchiForge.sql` parity — SQL tables for improvement themes, plans, and junction links to runs/signals/artifacts.
-- Contracts under `ArchiForge.Contracts/ProductLearning/Planning/`.
+- Contracts under `ArchLucid.Contracts/ProductLearning/Planning/`.
 - `IProductLearningPlanningRepository`, Dapper + in-memory implementations, DI registration.
 - Unit tests: `ProductLearningPlanningRepositoryTests`.
 - Docs: `SQL_SCRIPTS.md`, `DATA_MODEL.md`, this file.

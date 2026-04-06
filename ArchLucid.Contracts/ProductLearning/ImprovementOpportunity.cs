@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
 /// A product issue or enhancement candidate inferred from feedback patterns (for triage — not an auto-commit backlog item).

@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// Stable per-process id used as <c>HolderInstanceId</c> in <c>dbo.HostLeaderLeases</c>.

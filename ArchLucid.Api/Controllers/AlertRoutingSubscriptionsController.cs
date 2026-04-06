@@ -1,10 +1,10 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Alerts.Delivery;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Alerts.Delivery;
 
 using Asp.Versioning;
 
@@ -12,17 +12,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Manages <see cref="AlertRoutingSubscription"/> rows for the caller’s scope and exposes recent <see cref="AlertDeliveryAttempt"/> history per subscription.
 /// </summary>
 /// <remarks>
-/// Create/toggle require <see cref="ArchiForgePolicies.ExecuteAuthority"/>; list/attempts require read authority.
+/// Create/toggle require <see cref="ArchLucidPolicies.ExecuteAuthority"/>; list/attempts require read authority.
 /// New subscriptions are stamped with ids and scope from <see cref="IScopeContextProvider"/>.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/alert-routing-subscriptions")]
 [EnableRateLimiting("fixed")]
@@ -35,7 +35,7 @@ public sealed class AlertRoutingSubscriptionsController(
 {
     /// <summary>Creates a routing subscription bound to the current tenant/workspace/project.</summary>
     [HttpPost]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRoutingSubscription), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -94,7 +94,7 @@ public sealed class AlertRoutingSubscriptionsController(
 
     /// <summary>Toggles <see cref="AlertRoutingSubscription.IsEnabled"/> when the subscription belongs to the current scope.</summary>
     [HttpPost("{routingSubscriptionId:guid}/toggle")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRoutingSubscription), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Toggle(

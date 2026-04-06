@@ -1,6 +1,6 @@
-﻿using System.Text;
+using System.Text;
 
-namespace ArchiForge.Application.Diffs;
+namespace ArchLucid.Application.Diffs;
 
 /// <summary>
 /// Implements <see cref="IAgentResultDiffSummaryFormatter"/> by rendering a per-agent-type Markdown report

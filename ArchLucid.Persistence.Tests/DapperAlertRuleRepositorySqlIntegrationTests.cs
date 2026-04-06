@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Persistence.Alerts;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Persistence.Alerts;
+using ArchLucid.Persistence.Connections;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="DapperAlertRuleRepository"/> against real SQL Server (Docker) + production-shaped DDL from DbUp.

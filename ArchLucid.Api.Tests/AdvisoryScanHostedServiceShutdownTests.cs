@@ -1,6 +1,6 @@
-using ArchiForge.Host.Core.Hosted;
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Persistence.Advisory;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Verifies <see cref="AdvisoryScanHostedService"/> exits cleanly on cancellation

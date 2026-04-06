@@ -1,9 +1,9 @@
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>
 /// Runs a leader-only body with SQL lease acquisition, background renewal, and loss detection.

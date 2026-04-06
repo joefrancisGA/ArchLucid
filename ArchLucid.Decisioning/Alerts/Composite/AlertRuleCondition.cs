@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// One predicate in a <see cref="CompositeAlertRule"/>: metric id, comparison operator, and threshold.

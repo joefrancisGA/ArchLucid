@@ -1,9 +1,9 @@
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Compliance.Loaders;
-using ArchiForge.Decisioning.Compliance.Models;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Persistence.Compliance;
+namespace ArchLucid.Persistence.Compliance;
 
 /// <summary>
 /// Loads the file-based compliance rule pack, then restricts rules to those listed in effective policy content.

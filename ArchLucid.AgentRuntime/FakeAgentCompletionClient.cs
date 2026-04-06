@@ -1,4 +1,4 @@
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Deterministic <see cref="IAgentCompletionClient"/> for tests and local dev; delegates to a supplied prompt resolver.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Analysis;
+namespace ArchLucid.Decisioning.Analysis;
 
 public class SecurityCoverageResult
 {

@@ -1,6 +1,6 @@
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Models;
 
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
 /// Vector store for <see cref="RetrievalChunk"/> upserts and scoped similarity search.

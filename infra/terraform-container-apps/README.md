@@ -4,8 +4,8 @@ Optional root that deploys:
 
 - **Log Analytics** workspace (required by Container Apps Environment)
 - **Container Apps Environment** (consumption; optional **VNet integration** + internal load balancer)
-- **`azurerm_container_app`** for **ArchiForge.Api** (port **8080**, **`Hosting__Role=Api`**, liveness `/health/live`, readiness `/health/ready`, `ASPNETCORE_URLS`)
-- **`azurerm_container_app`** for **ArchiForge.Worker** (same image by default, **`command` = `dotnet ArchiForge.Worker.dll`**, **`Hosting__Role=Worker`**, configurable **min/max replicas**, health probes on **8080**; optional **azure-queue** scale rule when **`worker_enable_queue_depth_scaling`** and a **queue connection string** secret are set)
+- **`azurerm_container_app`** for **ArchLucid.Api** (port **8080**, **`Hosting__Role=Api`**, liveness `/health/live`, readiness `/health/ready`, `ASPNETCORE_URLS`)
+- **`azurerm_container_app`** for **ArchLucid.Worker** (same image by default, **`command` = `dotnet ArchLucid.Worker.dll`**, **`Hosting__Role=Worker`**, configurable **min/max replicas**, health probes on **8080**; optional **azure-queue** scale rule when **`worker_enable_queue_depth_scaling`** and a **queue connection string** secret are set)
 - **`azurerm_container_app`** for **archiforge-ui** (port **3000**, probes on `/`)
 
 HTTP **KEDA-style** scale rules scale each app between **min/max replicas** using **concurrent request** targets.
@@ -26,7 +26,7 @@ Use this root when you want **per-app replica scaling** and a **container-native
 
 ## Large artifact blob offload (staging / production)
 
-The API **`ArchiForge.Api`** uses **`DefaultAzureCredential`** against the blob service URI. Container Apps wiring sets:
+The API **`ArchLucid.Api`** uses **`DefaultAzureCredential`** against the blob service URI. Container Apps wiring sets:
 
 - **`ArtifactLargePayload__Enabled`** = `true`
 - **`ArtifactLargePayload__BlobProvider`** = `AzureBlob`

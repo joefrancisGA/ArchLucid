@@ -1,6 +1,6 @@
-﻿using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Compares two <see cref="RunExportRecord"/> instances and produces an <see cref="ExportRecordDiffResult"/>

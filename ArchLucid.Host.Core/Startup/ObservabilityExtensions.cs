@@ -1,13 +1,13 @@
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Decisioning.Validation;
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Decisioning.Validation;
+using ArchLucid.Host.Core.Configuration;
 
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace ArchiForge.Host.Core.Startup;
+namespace ArchLucid.Host.Core.Startup;
 
 public static class ObservabilityExtensions
 {
@@ -27,7 +27,7 @@ public static class ObservabilityExtensions
     /// package is added; production <c>appsettings.Production.json</c> carries placeholders for operators.
     /// </para>
     /// </remarks>
-    public static IServiceCollection AddArchiForgeOpenTelemetry(
+    public static IServiceCollection AddArchLucidOpenTelemetry(
         this IServiceCollection services,
         IConfiguration configuration,
         IHostEnvironment environment,
@@ -57,7 +57,7 @@ public static class ObservabilityExtensions
 
         BuildProvenance build = BuildProvenance.FromAssembly(typeof(ObservabilityExtensions).Assembly);
 
-        ArchiForgeInstrumentation.EnsureOutboxDepthObservableGaugesRegistered();
+        ArchLucidInstrumentation.EnsureOutboxDepthObservableGaugesRegistered();
 
         services.Configure<ObservabilityHostOptions>(
             configuration.GetSection(ObservabilityHostOptions.SectionName));
@@ -74,11 +74,11 @@ public static class ObservabilityExtensions
                 tracing.AddHttpClientInstrumentation();
                 tracing.AddSqlClientInstrumentation();
                 tracing.AddSource(
-                    ArchiForgeInstrumentation.AdvisoryScan.Name,
-                    ArchiForgeInstrumentation.AuthorityRun.Name,
-                    ArchiForgeInstrumentation.RetrievalIndex.Name,
-                    ArchiForgeInstrumentation.AgentHandler.Name,
-                    ArchiForgeInstrumentation.AgentLlmCompletion.Name);
+                    ArchLucidInstrumentation.AdvisoryScan.Name,
+                    ArchLucidInstrumentation.AuthorityRun.Name,
+                    ArchLucidInstrumentation.RetrievalIndex.Name,
+                    ArchLucidInstrumentation.AgentHandler.Name,
+                    ArchLucidInstrumentation.AgentLlmCompletion.Name);
 
                 if (consoleExporterEnabled)
                     tracing.AddConsoleExporter();
@@ -103,7 +103,7 @@ public static class ObservabilityExtensions
                 // Wires the schema-validation meter so Prometheus / OTLP exporters receive
                 // schema_validation_total and schema_validation_duration_ms.
                 metrics.AddMeter(SchemaValidationService.MeterName);
-                metrics.AddMeter(ArchiForgeInstrumentation.MeterName);
+                metrics.AddMeter(ArchLucidInstrumentation.MeterName);
 
                 if (prometheusEnabled)
                     metrics.AddPrometheusExporter();

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Contracts.DecisionTraces;
+namespace ArchLucid.Contracts.DecisionTraces;
 
 /// <summary>
 /// Coordinator pipeline trace: append-only merge and agent steps for string <c>ArchitectureRuns</c>.

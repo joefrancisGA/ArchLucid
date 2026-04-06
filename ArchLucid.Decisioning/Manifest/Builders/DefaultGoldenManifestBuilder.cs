@@ -1,15 +1,15 @@
 using System.Globalization;
 
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Decisioning.Findings;
-using ArchiForge.Decisioning.Findings.Factories;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Findings.Factories;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Decisioning.Manifest.Builders;
+namespace ArchLucid.Decisioning.Manifest.Builders;
 
 public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 {

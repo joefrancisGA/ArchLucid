@@ -1,9 +1,9 @@
 using System.Data;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Models;
 
-namespace ArchiForge.Persistence.Interfaces;
+namespace ArchLucid.Persistence.Interfaces;
 
 // ReSharper disable InvalidXmlDocComment
 /// <summary>

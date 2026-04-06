@@ -1,12 +1,12 @@
 using System.Diagnostics;
 
-using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Core.Configuration;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Core.Scoping;
+using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Timeout;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Production <see cref="IAgentExecutor"/>: resolves <see cref="IAgentHandler"/> by <see cref="AgentTypeKeys.ResolveDispatchKey"/>,
@@ -161,7 +161,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
         AgentResult result;
 
-        using (Activity? activity = ArchiForgeInstrumentation.AgentHandler.StartActivity(
+        using (Activity? activity = ArchLucidInstrumentation.AgentHandler.StartActivity(
                    "archiforge.agent.handle"))
         {
             activity?.SetTag("archiforge.run_id", runId);
@@ -186,7 +186,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                             ct),
                     cancellationToken);
 
-                ArchiForgeInstrumentation.AgentHandlerInvocationsTotal.Add(
+                ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
                     1,
                     new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
                     new KeyValuePair<string, object?>("outcome", "success"));
@@ -196,7 +196,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                 activity?.AddException(ex);
 
-                ArchiForgeInstrumentation.AgentHandlerInvocationsTotal.Add(
+                ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
                     1,
                     new KeyValuePair<string, object?>("agent_type_key", dispatchKey),
                     new KeyValuePair<string, object?>("outcome", "error"));

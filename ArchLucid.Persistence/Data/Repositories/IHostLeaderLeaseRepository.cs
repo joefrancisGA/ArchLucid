@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// SQL-backed lease used so only one worker replica runs advisory polling, archival, and retrieval outbox loops.

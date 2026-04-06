@@ -1,6 +1,6 @@
 using Dapper;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Shared WHERE clauses and parameters for comparison record search (skip vs cursor paging).

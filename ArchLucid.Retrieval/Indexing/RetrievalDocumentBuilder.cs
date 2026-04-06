@@ -1,12 +1,12 @@
 using System.Text.Json;
 
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Conversation;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Provenance;
-using ArchiForge.Retrieval.Models;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Provenance;
+using ArchLucid.Retrieval.Models;
 
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
 /// <see cref="IRetrievalDocumentBuilder"/> with stable <see cref="RetrievalDocument.DocumentId"/> patterns per source type.

@@ -5,7 +5,7 @@
 #   ACR_LOGIN_SERVER (e.g. myregistry.azurecr.io) — optional; skips image push when unset
 #   ACR_NAME — optional explicit registry name for `az acr login --name`
 #   TF_WORKING_DIRECTORY — optional, e.g. infra/terraform-container-apps
-#   NUGET_API_KEY — optional; pushes ArchiForge.Api.Client when set
+#   NUGET_API_KEY — optional; pushes ArchLucid.Api.Client when set
 #   AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME — optional; `az containerapp update` after image push
 #   CONTAINER_APP_UI_NAME — optional second Container App for the UI image
 #   SMOKE_TEST_BASE_URL — optional; curl GET {base}/health/live and {base}{SMOKE_SYNTHETIC_PATH} after deploy
@@ -77,7 +77,7 @@ jobs:
           fi
           REG_NAME="${ACR_NAME:-${ACR_LOGIN_SERVER%%.*}}"
           az acr login --name "$REG_NAME"
-          docker build -f ArchiForge.Api/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}" .
+          docker build -f ArchLucid.Api/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}" .
           docker push "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}"
           docker build -f archiforge-ui/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}" ./archiforge-ui
           docker push "${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}"
@@ -195,7 +195,7 @@ jobs:
             exit 0
           fi
           dotnet restore
-          dotnet pack ArchiForge.Api.Client/ArchiForge.Api.Client.csproj \
+          dotnet pack ArchLucid.Api.Client/ArchLucid.Api.Client.csproj \
             --no-restore -c Release -o "${RUNNER_TEMP}/nuget" \
             /p:ArchiForgeApiClientPackageVersion=1.0.${{ github.run_number }}
           dotnet nuget push "${RUNNER_TEMP}/nuget/"*.nupkg \

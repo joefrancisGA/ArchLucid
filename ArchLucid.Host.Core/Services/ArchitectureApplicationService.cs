@@ -1,17 +1,17 @@
 using System.Transactions;
 
-using ArchiForge.Host.Core.Diagnostics;
-using ArchiForge.Application;
-using ArchiForge.Application.Evidence;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Host.Core.Diagnostics;
+using ArchLucid.Application;
+using ArchLucid.Application.Evidence;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Persistence.Data.Repositories;
 
-namespace ArchiForge.Host.Core.Services;
+namespace ArchLucid.Host.Core.Services;
 
 /// <summary>
 /// API-facing orchestration service that coordinates run retrieval, agent result submission,

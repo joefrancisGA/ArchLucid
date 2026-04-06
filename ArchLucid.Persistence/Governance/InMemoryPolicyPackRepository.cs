@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Persistence.Governance;
+namespace ArchLucid.Persistence.Governance;
 
 /// <summary>
 /// In-memory implementation of <see cref="IPolicyPackRepository"/> for testing and storage-off mode.

@@ -1,11 +1,11 @@
-using ArchiForge.Api.Mapping;
-using ArchiForge.Application.Analysis;
+using ArchLucid.Api.Mapping;
+using ArchLucid.Application.Analysis;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Replay Comparison Result Headers.
@@ -36,18 +36,18 @@ public sealed class ReplayComparisonResultHeadersTests
 
         ReplayComparisonResultHeaders.ApplyFull(context.Response, result);
 
-        context.Response.Headers["X-ArchiForge-ComparisonRecordId"].ToString().Should().Be("cmp-1");
-        context.Response.Headers["X-ArchiForge-ComparisonType"].ToString().Should().Be("end-to-end-replay");
-        context.Response.Headers["X-ArchiForge-ReplayMode"].ToString().Should().Be("verify");
-        context.Response.Headers["X-ArchiForge-VerificationPassed"].ToString().Should().Be("False");
-        context.Response.Headers["X-ArchiForge-VerificationMessage"].ToString().Should().Be("drift detected");
-        context.Response.Headers["X-ArchiForge-LeftRunId"].ToString().Should().Be("run-left");
-        context.Response.Headers["X-ArchiForge-RightRunId"].ToString().Should().Be("run-right");
-        context.Response.Headers["X-ArchiForge-LeftExportRecordId"].ToString().Should().Be("exp-left");
-        context.Response.Headers["X-ArchiForge-RightExportRecordId"].ToString().Should().Be("exp-right");
-        context.Response.Headers["X-ArchiForge-CreatedUtc"].ToString().Should().Be("2026-01-02T03:04:05.0000000Z");
-        context.Response.Headers["X-ArchiForge-Format-Profile"].ToString().Should().Be("detailed");
-        context.Response.Headers["X-ArchiForge-PersistedReplayRecordId"].ToString().Should().Be("cmp-new");
+        context.Response.Headers["X-ArchLucid-ComparisonRecordId"].ToString().Should().Be("cmp-1");
+        context.Response.Headers["X-ArchLucid-ComparisonType"].ToString().Should().Be("end-to-end-replay");
+        context.Response.Headers["X-ArchLucid-ReplayMode"].ToString().Should().Be("verify");
+        context.Response.Headers["X-ArchLucid-VerificationPassed"].ToString().Should().Be("False");
+        context.Response.Headers["X-ArchLucid-VerificationMessage"].ToString().Should().Be("drift detected");
+        context.Response.Headers["X-ArchLucid-LeftRunId"].ToString().Should().Be("run-left");
+        context.Response.Headers["X-ArchLucid-RightRunId"].ToString().Should().Be("run-right");
+        context.Response.Headers["X-ArchLucid-LeftExportRecordId"].ToString().Should().Be("exp-left");
+        context.Response.Headers["X-ArchLucid-RightExportRecordId"].ToString().Should().Be("exp-right");
+        context.Response.Headers["X-ArchLucid-CreatedUtc"].ToString().Should().Be("2026-01-02T03:04:05.0000000Z");
+        context.Response.Headers["X-ArchLucid-Format-Profile"].ToString().Should().Be("detailed");
+        context.Response.Headers["X-ArchLucid-PersistedReplayRecordId"].ToString().Should().Be("cmp-new");
     }
 
     [Fact]
@@ -65,9 +65,9 @@ public sealed class ReplayComparisonResultHeadersTests
 
         ReplayComparisonResultHeaders.ApplyMetadata(context.Response, result);
 
-        context.Response.Headers.ContainsKey("X-ArchiForge-LeftRunId").Should().BeTrue();
-        context.Response.Headers.ContainsKey("X-ArchiForge-ComparisonRecordId").Should().BeFalse();
-        context.Response.Headers.ContainsKey("X-ArchiForge-ReplayMode").Should().BeFalse();
-        context.Response.Headers.ContainsKey("X-ArchiForge-VerificationPassed").Should().BeFalse();
+        context.Response.Headers.ContainsKey("X-ArchLucid-LeftRunId").Should().BeTrue();
+        context.Response.Headers.ContainsKey("X-ArchLucid-ComparisonRecordId").Should().BeFalse();
+        context.Response.Headers.ContainsKey("X-ArchLucid-ReplayMode").Should().BeFalse();
+        context.Response.Headers.ContainsKey("X-ArchLucid-VerificationPassed").Should().BeFalse();
     }
 }

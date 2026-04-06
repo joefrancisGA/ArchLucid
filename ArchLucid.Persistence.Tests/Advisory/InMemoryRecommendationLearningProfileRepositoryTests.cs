@@ -1,9 +1,9 @@
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Persistence.Advisory;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Advisory;
+namespace ArchLucid.Persistence.Tests.Advisory;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Persistence")]

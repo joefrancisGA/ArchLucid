@@ -1,31 +1,31 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Authority;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Core.Integration;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Integration;
-using ArchiForge.Persistence.Interfaces;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Orchestration.Pipeline;
-using ArchiForge.Persistence.Retrieval;
-using ArchiForge.Persistence.Serialization;
-using ArchiForge.Persistence.Transactions;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authority;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Integration;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Integration;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Orchestration.Pipeline;
+using ArchLucid.Persistence.Retrieval;
+using ArchLucid.Persistence.Serialization;
+using ArchLucid.Persistence.Transactions;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Persistence.Orchestration;
+namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>
 /// <see cref="IAuthorityRunOrchestrator"/> implementation coordinating ingestion, knowledge graph, findings, decisioning, artifact synthesis, audit, and post-commit retrieval indexing.
 /// </summary>
 public sealed class AuthorityRunOrchestrator(
-    IArchiForgeUnitOfWorkFactory unitOfWorkFactory,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService,
     IRunRepository runRepository,
@@ -44,7 +44,7 @@ public sealed class AuthorityRunOrchestrator(
         CancellationToken cancellationToken = default,
         string? evidenceBundleIdForDeferredWork = null)
     {
-        await using IArchiForgeUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
         Guid? pipelineRunIdForDiagnostics = null;
 
@@ -60,7 +60,7 @@ public sealed class AuthorityRunOrchestrator(
             };
             ApplyScope(run, scope);
 
-            using Activity? runActivity = ArchiForgeInstrumentation.AuthorityRun.StartActivity();
+            using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();
             runActivity?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
 
             string logicalCorrelation =
@@ -157,7 +157,7 @@ public sealed class AuthorityRunOrchestrator(
         ContextIngestionRequest request,
         CancellationToken cancellationToken = default)
     {
-        await using IArchiForgeUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
         Guid? pipelineRunIdForDiagnostics = request.RunId;
 
@@ -182,7 +182,7 @@ public sealed class AuthorityRunOrchestrator(
 
             RunRecord run = existing;
 
-            using Activity? runActivity = ArchiForgeInstrumentation.AuthorityRun.StartActivity();
+            using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();
             runActivity?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
 
             AuthorityPipelineContext ctx = new()
@@ -226,7 +226,7 @@ public sealed class AuthorityRunOrchestrator(
         Decisioning.Models.GoldenManifest manifest,
         DecisionTrace trace,
         ScopeContext scope,
-        IArchiForgeUnitOfWork uow,
+        IArchLucidUnitOfWork uow,
         CancellationToken ct)
     {
         IntegrationEventsOptions integrationOpts = integrationEventsOptions.CurrentValue;
@@ -303,7 +303,7 @@ public sealed class AuthorityRunOrchestrator(
                 trace.RequireRuleAudit().DecisionTraceId);
         }
 
-        ArchiForgeInstrumentation.AuthorityRunsCompletedTotal.Add(1);
+        ArchLucidInstrumentation.AuthorityRunsCompletedTotal.Add(1);
 
         if (!useTransactionalIntegrationOutbox)
         {
@@ -357,7 +357,7 @@ public sealed class AuthorityRunOrchestrator(
         return $"{runId:D}:{IntegrationEventTypes.AuthorityRunCompletedV1}";
     }
 
-    private async Task SaveRunAsync(RunRecord run, IArchiForgeUnitOfWork uow, CancellationToken ct)
+    private async Task SaveRunAsync(RunRecord run, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await runRepository.SaveAsync(run, ct, uow.Connection, uow.Transaction);

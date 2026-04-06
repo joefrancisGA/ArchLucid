@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
-namespace ArchiForge.Persistence.ProductLearning;
+namespace ArchLucid.Persistence.ProductLearning;
 
 /// <inheritdoc />
 public sealed class ProductLearningImprovementOpportunityService : IProductLearningImprovementOpportunityService

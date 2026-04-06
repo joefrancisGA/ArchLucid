@@ -1,6 +1,6 @@
 using Azure.Storage.Queues;
 
-namespace ArchiForge.Host.Core.Jobs;
+namespace ArchLucid.Host.Core.Jobs;
 
 public sealed class AzureStorageQueueBackgroundJobNotifySender(QueueClient queueClient) : IBackgroundJobQueueNotifySender
 {

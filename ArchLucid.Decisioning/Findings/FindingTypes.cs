@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Findings;
+namespace ArchLucid.Decisioning.Findings;
 
 /// <summary>
 /// Canonical <see cref="Models.Finding.FindingType"/> string constants used throughout

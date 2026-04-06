@@ -1,6 +1,6 @@
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 
-namespace ArchiForge.ContextIngestion.Contracts;
+namespace ArchLucid.ContextIngestion.Contracts;
 
 public interface IContextDocumentParser
 {

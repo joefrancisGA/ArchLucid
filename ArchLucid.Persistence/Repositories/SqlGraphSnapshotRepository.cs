@@ -1,18 +1,18 @@
-﻿using System.Data;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.GraphSnapshots;
-using ArchiForge.Persistence.RelationalRead;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.GraphSnapshots;
+using ArchLucid.Persistence.RelationalRead;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// SQL Server-backed implementation of <see cref="IGraphSnapshotRepository"/>.

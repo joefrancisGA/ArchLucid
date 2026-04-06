@@ -1,6 +1,6 @@
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 
-namespace ArchiForge.KnowledgeGraph.Services;
+namespace ArchLucid.KnowledgeGraph.Services;
 
 /// <summary>
 /// Compares two <see cref="ContextSnapshot"/> canonical object sets for incremental graph reuse.

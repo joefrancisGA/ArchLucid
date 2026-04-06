@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Retrieval.Embedding;
+namespace ArchLucid.Retrieval.Embedding;
 
 /// <summary>
 /// <see cref="IEmbeddingService"/> adapter over <see cref="IOpenAiEmbeddingClient"/> for DI composition.

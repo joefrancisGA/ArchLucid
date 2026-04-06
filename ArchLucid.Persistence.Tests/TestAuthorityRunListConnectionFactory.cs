@@ -1,8 +1,8 @@
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Test double: routes list reads to the same primary factory as <see cref="Repositories.SqlRunRepository"/> writes,

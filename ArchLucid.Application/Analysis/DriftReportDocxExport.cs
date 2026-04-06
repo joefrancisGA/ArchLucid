@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Generates a Docx-format comparison drift report from a <see cref="DriftAnalysisResult"/>.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Provenance;
+namespace ArchLucid.Provenance;
 
 public class DecisionProvenanceGraph
 {

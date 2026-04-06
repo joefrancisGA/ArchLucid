@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Evidence backing a plan: totals plus capped, deterministically ordered reference lists.</summary>
 public sealed class LearningPlanningReportPlanEvidenceBlock

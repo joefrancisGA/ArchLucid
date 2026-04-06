@@ -1,11 +1,11 @@
-using ArchiForge.Persistence.Connections;
-using ArchiForge.TestSupport;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Verifies <see cref="SqlTransientDetector"/> correctly classifies transient vs permanent exceptions.

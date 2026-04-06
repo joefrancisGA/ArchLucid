@@ -1,11 +1,11 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Findings.Serialization;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Repositories;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Findings.Serialization;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
@@ -13,7 +13,7 @@ using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="SqlFindingsSnapshotRepository"/> against SQL Server + DbUp (relational findings + FindingsJson dual-write).

@@ -4,7 +4,7 @@ using Microsoft.Data.SqlClient;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
 /// Decorates <see cref="ResilientSqlConnectionFactory"/> by applying RLS <c>SESSION_CONTEXT</c> after the connection opens.

@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace ArchiForge.Decisioning.Models;
+namespace ArchLucid.Decisioning.Models;
 
 public sealed class DecisionRuleSet
 {

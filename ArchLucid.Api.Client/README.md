@@ -1,4 +1,4 @@
-# ArchiForge.Api.Client
+# ArchLucid.Api.Client
 
 Versioned .NET package containing an **NSwag-generated** `HttpClient`-based client for **ArchiForge API v1**.
 
@@ -14,7 +14,7 @@ That file is kept in sync with `GET /openapi/v1.json` by `OpenApiContractSnapsho
 
 ```csharp
 using System.Net.Http;
-using ArchiForge.Api.Client.Generated;
+using ArchLucid.Api.Client.Generated;
 
 HttpClient http = new HttpClient { BaseAddress = new Uri("https://your-archiforge-api/") };
 ArchiForgeApiClient client = new ArchiForgeApiClient(http);
@@ -29,4 +29,4 @@ The NuGet **package version** (`ArchiForgeApiClientPackageVersion` in `Directory
 
 ## Regenerating locally
 
-`dotnet build` on `ArchiForge.Api.Client` runs NSwag before compile. After API contract changes, update the snapshot (`ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1` per test comments), then rebuild this project.
+`dotnet build` on `ArchLucid.Api.Client` runs NSwag before compile. After API contract changes, update the snapshot (`ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1` per test comments), then rebuild this project.

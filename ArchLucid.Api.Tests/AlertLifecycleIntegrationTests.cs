@@ -2,13 +2,13 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using ArchiForge.Api.Routing;
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Decisioning.Alerts;
+using ArchLucid.Api.Routing;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Alerts;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// End-to-end: create simple alert rule → run advisory scan (evaluates rules) → list persisted <see cref="AlertRecord"/> rows via HTTP.

@@ -1,9 +1,9 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Governance.Resolution;
-using ArchiForge.Host.Core.Services;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.Resolution;
+using ArchLucid.Host.Core.Services;
 
 using Asp.Versioning;
 
@@ -11,22 +11,22 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Versioned policy pack CRUD, publish, assign, and effective-governance reads for the ambient tenant/workspace/project.
 /// </summary>
 /// <remarks>
 /// <para>
-/// <strong>Routes:</strong> under <c>v{version}/policy-packs</c>. Mutating actions require <see cref="ArchiForgePolicies.ExecuteAuthority"/>; reads require
-/// <see cref="ArchiForgePolicies.ReadAuthority"/>. Request bodies are validated with FluentValidation (see validators for <see cref="CreatePolicyPackRequest"/>, etc.).
+/// <strong>Routes:</strong> under <c>v{version}/policy-packs</c>. Mutating actions require <see cref="ArchLucidPolicies.ExecuteAuthority"/>; reads require
+/// <see cref="ArchLucidPolicies.ReadAuthority"/>. Request bodies are validated with FluentValidation (see validators for <see cref="CreatePolicyPackRequest"/>, etc.).
 /// </para>
 /// <para>
 /// <strong>Scope:</strong> All operations use <see cref="IScopeContextProvider.GetCurrentScope"/> for tenant/workspace/project ids (headers or JWT claims).
 /// </para>
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/policy-packs")]
 [EnableRateLimiting("fixed")]
@@ -42,7 +42,7 @@ public sealed class PolicyPacksController(
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService"/>.</remarks>
     [HttpPost]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(
@@ -70,7 +70,7 @@ public sealed class PolicyPacksController(
     /// <summary>Publishes or upserts a version for the pack and marks the pack active.</summary>
     /// <remarks>Audit: <c>PolicyPackVersionPublished</c>.</remarks>
     [HttpPost("{policyPackId:guid}/publish")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Publish(
@@ -96,7 +96,7 @@ public sealed class PolicyPacksController(
     /// <returns>404 with <c>policy-pack-version-not-found</c> when the version row does not exist.</returns>
     /// <remarks>Audit: <c>PolicyPackAssignmentCreated</c>. Default scope level is Project when omitted or blank in JSON.</remarks>
     [HttpPost("{policyPackId:guid}/assign")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPackAssignment), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Assign(
@@ -135,7 +135,7 @@ public sealed class PolicyPacksController(
     /// <returns>404 when no active assignment matched.</returns>
     /// <remarks>Audit: <c>PolicyPackAssignmentArchived</c>.</remarks>
     [HttpPost("assignments/{assignmentId:guid}/archive")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ArchiveAssignment(Guid assignmentId, CancellationToken ct = default)

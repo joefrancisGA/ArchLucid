@@ -1,6 +1,6 @@
-using ArchiForge.Application.Jobs;
+using ArchLucid.Application.Jobs;
 
-namespace ArchiForge.Host.Core.Jobs;
+namespace ArchLucid.Host.Core.Jobs;
 
 public interface IBackgroundJobQueue
 {

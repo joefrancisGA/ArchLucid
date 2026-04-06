@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Decisions;
+namespace ArchLucid.Contracts.Decisions;
 
 /// <summary>
 /// A lightweight, deterministic evaluation that supports or opposes a specific decision topic/option.

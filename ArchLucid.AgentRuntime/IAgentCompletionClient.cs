@@ -1,10 +1,10 @@
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Thin abstraction over a chat completion model used by agents, explanations, and <c>AskService</c>.
 /// </summary>
 /// <remarks>
-/// Implementations should return a single assistant message body suitable for JSON parsing by callers (e.g. <see cref="ArchiForge.AgentRuntime.Explanation.ExplanationService"/>, <c>ArchiForge.Api.Services.Ask.AskService</c>).
+/// Implementations should return a single assistant message body suitable for JSON parsing by callers (e.g. <see cref="ArchLucid.AgentRuntime.Explanation.ExplanationService"/>, <c>ArchLucid.Api.Services.Ask.AskService</c>).
 /// Production: <see cref="AzureOpenAiCompletionClient"/> (optionally wrapped by <see cref="CachingAgentCompletionClient"/> and <see cref="CircuitBreakingAgentCompletionClient"/>); tests/dev: <see cref="FakeAgentCompletionClient"/>.
 /// For vendor metadata and future multi-provider routing, resolve <see cref="ILlmCompletionProvider"/> (same completion pipeline with <c>ProviderId</c> / <c>ModelDeploymentLabel</c>).
 /// </remarks>

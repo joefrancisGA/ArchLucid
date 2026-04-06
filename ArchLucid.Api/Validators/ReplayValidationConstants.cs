@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 /// <summary>Shared allowed values for replay comparison request validation (format, replayMode, profile).</summary>
 internal static class ReplayValidationConstants

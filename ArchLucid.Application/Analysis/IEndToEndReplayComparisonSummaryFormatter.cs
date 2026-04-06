@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Formats an <see cref="EndToEndReplayComparisonReport"/> as a concise Markdown summary

@@ -1,4 +1,4 @@
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="SessionContextSqlConnectionFactory"/> must not leak open connections when session context application fails.

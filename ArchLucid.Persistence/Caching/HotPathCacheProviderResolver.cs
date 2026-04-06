@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Caching;
+namespace ArchLucid.Persistence.Caching;
 
 /// <summary>Resolves <see cref="HotPathCacheOptions.Provider"/> <c>Auto</c> to an effective backing store.</summary>
 public static class HotPathCacheProviderResolver

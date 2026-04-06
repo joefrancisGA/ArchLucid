@@ -4,15 +4,15 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Delivery;
 
-namespace ArchiForge.Host.Core.Services.Delivery;
+namespace ArchLucid.Host.Core.Services.Delivery;
 
 /// <summary>POSTs JSON to external webhook URLs (Teams, Slack, on-call receivers).</summary>
 [ExcludeFromCodeCoverage(Justification = "Requires live HTTP endpoint; tested via integration tests and delivery-channel unit tests that mock IWebhookPoster.")]
 public sealed class HttpWebhookPoster(IHttpClientFactory httpClientFactory) : IWebhookPoster
 {
-    private const string ClientName = "ArchiForgeWebhooks";
+    private const string ClientName = "ArchLucidWebhooks";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

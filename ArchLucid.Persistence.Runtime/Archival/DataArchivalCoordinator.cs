@@ -1,10 +1,10 @@
-using ArchiForge.Persistence.Advisory;
-using ArchiForge.Persistence.Conversation;
-using ArchiForge.Persistence.Interfaces;
+using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Persistence.Archival;
+namespace ArchLucid.Persistence.Archival;
 
 /// <inheritdoc cref="IDataArchivalCoordinator" />
 public sealed class DataArchivalCoordinator(

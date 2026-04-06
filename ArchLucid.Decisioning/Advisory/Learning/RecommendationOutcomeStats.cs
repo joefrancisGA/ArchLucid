@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Learning;
+namespace ArchLucid.Decisioning.Advisory.Learning;
 
 /// <summary>
 /// Per-dimension (category, urgency, signal type) counts and derived rates for learning profiles.

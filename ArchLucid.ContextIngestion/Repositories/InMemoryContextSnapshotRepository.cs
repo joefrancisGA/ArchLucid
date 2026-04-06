@@ -1,9 +1,9 @@
 using System.Data;
 
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models;
 
-namespace ArchiForge.ContextIngestion.Repositories;
+namespace ArchLucid.ContextIngestion.Repositories;
 
 public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
 {

@@ -1,18 +1,18 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Core.Integration;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Delivery;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Persistence.Alerts.Helpers;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Integration;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Persistence.Alerts.Helpers;
+using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Persistence.Alerts;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
 /// Loads alert rules for a scope, applies policy-pack governance filtering, evaluates, persists new open alerts, delivers, and audits.
@@ -24,7 +24,7 @@ namespace ArchiForge.Persistence.Alerts;
 /// <param name="auditService">Audit trail for trigger and lifecycle events.</param>
 /// <param name="effectiveGovernanceLoader">Used when <see cref="AlertEvaluationContext.EffectiveGovernanceContent"/> is not pre-filled.</param>
 /// <remarks>
-/// Implements <see cref="IAlertService"/>. Primary callers: authority run completion, advisory scan (<see cref="ArchiForge.Persistence.Advisory.AdvisoryScanRunner"/>), and tests.
+/// Implements <see cref="IAlertService"/>. Primary callers: authority run completion, advisory scan (<see cref="ArchLucid.Persistence.Advisory.AdvisoryScanRunner"/>), and tests.
 /// When the context already carries <c>EffectiveGovernanceContent</c> (e.g. advisory scan), the loader is skipped to avoid duplicate governance I/O.
 /// </remarks>
 public sealed class AlertService(
@@ -81,7 +81,7 @@ public sealed class AlertService(
         finally
         {
             evaluationStopwatch.Stop();
-            ArchiForgeInstrumentation.AlertEvaluationDurationMilliseconds.Record(
+            ArchLucidInstrumentation.AlertEvaluationDurationMilliseconds.Record(
                 evaluationStopwatch.Elapsed.TotalMilliseconds,
                 new KeyValuePair<string, object?>("rule_kind", "simple"));
         }

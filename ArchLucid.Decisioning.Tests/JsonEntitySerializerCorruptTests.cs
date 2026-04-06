@@ -1,11 +1,11 @@
 using System.Text.Json;
 
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Serialization;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// <see cref="JsonEntitySerializer"/> wraps <see cref="System.Text.Json.JsonException"/> so SQL mappers fail with a single, typed message.

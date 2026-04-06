@@ -1,10 +1,10 @@
-using ArchiForge.Core.Integration;
+using ArchLucid.Core.Integration;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Persistence.Integration;
+namespace ArchLucid.Persistence.Integration;
 
 /// <inheritdoc cref="IIntegrationEventOutboxProcessor" />
 public sealed class IntegrationEventOutboxProcessor(

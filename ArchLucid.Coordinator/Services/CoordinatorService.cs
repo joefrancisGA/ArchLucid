@@ -1,14 +1,14 @@
-using ArchiForge.ContextIngestion.Mapping;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Orchestration;
+using ArchLucid.ContextIngestion.Mapping;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Orchestration;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Coordinator.Services;
+namespace ArchLucid.Coordinator.Services;
 
 /// <summary>
 /// Validates <see cref="ArchitectureRequest"/> input, delegates persistence to <see cref="IAuthorityRunOrchestrator"/>, and assembles <see cref="CoordinationResult"/> (run, evidence bundle, starter tasks, graph shell).

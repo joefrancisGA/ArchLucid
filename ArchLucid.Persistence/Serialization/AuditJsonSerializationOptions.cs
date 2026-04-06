@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace ArchiForge.Persistence.Serialization;
+namespace ArchLucid.Persistence.Serialization;
 
 /// <summary>
 /// Cached <see cref="JsonSerializerOptions"/> for audit payloads and advisory/orchestration result JSON (CA1869).

@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Jobs;
+namespace ArchLucid.Application.Jobs;
 
 public sealed record BackgroundJobInfo(
     string JobId,

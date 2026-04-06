@@ -1,26 +1,26 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
-using ArchiForge.Api.Auth.Models;
+using ArchLucid.Api.Auth.Models;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Api.Auth.Services;
+namespace ArchLucid.Api.Auth.Services;
 
 public sealed class DevelopmentBypassAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    IOptions<ArchiForgeAuthOptions> authOptions)
+    IOptions<ArchLucidAuthOptions> authOptions)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     public const string SchemeName = "DevelopmentBypass";
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        ArchiForgeAuthOptions opts = authOptions.Value;
-        string role = string.IsNullOrWhiteSpace(opts.DevRole) ? ArchiForgeRoles.Admin : opts.DevRole.Trim();
+        ArchLucidAuthOptions opts = authOptions.Value;
+        string role = string.IsNullOrWhiteSpace(opts.DevRole) ? ArchLucidRoles.Admin : opts.DevRole.Trim();
 
         List<Claim> claims =
         [

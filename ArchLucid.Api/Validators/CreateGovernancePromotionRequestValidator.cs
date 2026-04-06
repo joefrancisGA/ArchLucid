@@ -1,9 +1,9 @@
-using ArchiForge.Api.Models;
-using ArchiForge.Contracts.Governance;
+using ArchLucid.Api.Models;
+using ArchLucid.Contracts.Governance;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 public sealed class CreateGovernancePromotionRequestValidator : AbstractValidator<CreateGovernancePromotionRequest>
 {

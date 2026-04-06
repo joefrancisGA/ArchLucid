@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Deserializes LLM JSON into <see cref="AgentResult"/> and enforces run, task, and agent-type consistency.

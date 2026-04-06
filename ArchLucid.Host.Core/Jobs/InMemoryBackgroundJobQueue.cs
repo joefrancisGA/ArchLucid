@@ -1,11 +1,11 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
 
-using ArchiForge.Application.Jobs;
+using ArchLucid.Application.Jobs;
 
 using JetBrains.Annotations;
 
-namespace ArchiForge.Host.Core.Jobs;
+namespace ArchLucid.Host.Core.Jobs;
 
 public sealed class InMemoryBackgroundJobQueue(
     ILogger<InMemoryBackgroundJobQueue> logger,

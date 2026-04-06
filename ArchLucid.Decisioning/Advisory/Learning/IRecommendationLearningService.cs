@@ -1,10 +1,10 @@
-namespace ArchiForge.Decisioning.Advisory.Learning;
+namespace ArchLucid.Decisioning.Advisory.Learning;
 
 /// <summary>
 /// Builds and retrieves <see cref="RecommendationLearningProfile"/> snapshots from historical recommendation rows in a scope.
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchiForge.Persistence.Advisory.RecommendationLearningService</c>. HTTP: <c>RecommendationLearningController</c>.
+/// Implemented by <c>ArchLucid.Persistence.Advisory.RecommendationLearningService</c>. HTTP: <c>RecommendationLearningController</c>.
 /// </remarks>
 public interface IRecommendationLearningService
 {

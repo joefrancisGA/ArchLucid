@@ -1,13 +1,13 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Findings;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Decisioning.Validation;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Decisioning.Validation;
 
-namespace ArchiForge.Decisioning.Merge;
+namespace ArchLucid.Decisioning.Merge;
 
 public sealed class DecisionEngineService(ISchemaValidationService schemaValidationService) : IDecisionEngineService
 {

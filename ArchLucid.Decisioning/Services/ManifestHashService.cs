@@ -2,10 +2,10 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Services;
+namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
 /// Computes a deterministic SHA-256 hash over a canonical JSON projection of a <see cref="GoldenManifest"/>.

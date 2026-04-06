@@ -1,9 +1,9 @@
-using ArchiForge.ContextIngestion.Contracts;
-using ArchiForge.ContextIngestion.Parsing;
+using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.Parsing;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.ContextIngestion.Infrastructure;
+namespace ArchLucid.ContextIngestion.Infrastructure;
 
 /// <summary>
 /// Canonical definition of <see cref="IContextDocumentParser"/> evaluation order inside

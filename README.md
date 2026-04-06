@@ -40,7 +40,7 @@ ArchLucid (repository and packages may still use the **ArchiForge** name) is an 
 
 **Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
 
-**Build / version:** **`GET /version`** on the API, or **`dotnet run --project ArchiForge.Cli -- doctor`**. **Diagnostics:** **`dotnet run --project ArchiForge.Cli -- support-bundle --zip`** (review before sharing). **Reporting issues:** [docs/PILOT_GUIDE.md#when-you-report-an-issue](docs/PILOT_GUIDE.md#when-you-report-an-issue) (version, correlation ID, logs, bundle).
+**Build / version:** **`GET /version`** on the API, or **`dotnet run --project ArchLucid.Cli -- doctor`**. **Diagnostics:** **`dotnet run --project ArchLucid.Cli -- support-bundle --zip`** (review before sharing). **Reporting issues:** [docs/PILOT_GUIDE.md#when-you-report-an-issue](docs/PILOT_GUIDE.md#when-you-report-an-issue) (version, correlation ID, logs, bundle).
 
 ## Operator quick start
 
@@ -77,7 +77,7 @@ Role claims are mapped to legacy **`permission`** claims via `ArchiForgeRoleClai
 From the ArchiForge repo directory (or any directory containing `docker-compose.yml`), run:
 
 ```bash
-dotnet run --project ArchiForge.Cli -- dev up
+dotnet run --project ArchLucid.Cli -- dev up
 ```
 
 This starts SQL Server, Azurite, and Redis in Docker (default profile — for hot-reload development). To run the full stack (API + UI in containers too): `docker compose --profile full-stack up -d --build`. See [docs/CONTAINERIZATION.md](docs/CONTAINERIZATION.md).
@@ -91,7 +91,7 @@ Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pas
 ## Database Setup
 
 1. Create a database (e.g. `ArchiForge2`), or use `archiforge dev up` to run SQL Server in Docker.
-2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Persistence/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchiForge.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
+2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchLucid.Persistence/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchiForge.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
 
 ### Optional: Contoso trusted-baseline demo (Corrected 50R)
 
@@ -104,7 +104,7 @@ For a deterministic **baseline vs hardened** story (runs, manifests, governance 
 From the repo root:
 
 ```bash
-cd ArchiForge.Api
+cd ArchLucid.Api
 
 # Required: database connection (use your own connection string or the dev Docker one below)
 dotnet user-secrets set "ConnectionStrings:ArchiForge" "Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;"
@@ -120,10 +120,10 @@ dotnet user-secrets set "AzureOpenAI:DeploymentName" "gpt-4o"
 ## Running the API
 
 ```bash
-dotnet run --project ArchiForge.Api
+dotnet run --project ArchLucid.Api
 ```
 
-The API listens on the URLs configured for the project (default `http://localhost:5128`; see `ArchiForge.Api/Properties/launchSettings.json`).
+The API listens on the URLs configured for the project (default `http://localhost:5128`; see `ArchLucid.Api/Properties/launchSettings.json`).
 
 **API versioning:** Routes use a URL path segment **`v1`** (e.g. `/v1/architecture/...`). The default API version is **1.0** when unspecified; **`api-supported-versions`** (and related) response headers report supported versions ([Asp.Versioning.Mvc](https://github.com/dotnet/aspnet-api-versioning)).
 
@@ -155,18 +155,18 @@ Full **54R** tier list, copy-paste commands, SQL variables, and **`archiforge-ui
 **Common entry points (repo root):**
 
 ```bash
-dotnet test ArchiForge.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
+dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
 ```
 
 ```bash
-dotnet test ArchiForge.sln
+dotnet test ArchLucid.sln
 ```
 
 ```bash
 cd archiforge-ui && npm ci && npm test
 ```
 
-**ArchiForge.Api.Tests** integration tests need a reachable **SQL Server**; **`ArchiForgeApiFactory`** creates ephemeral databases and runs **DbUp**. See **[docs/BUILD.md](docs/BUILD.md)** for CPM, connection strings, and DecisionEngine’s Microsoft.Extensions bundle.
+**ArchLucid.Api.Tests** integration tests need a reachable **SQL Server**; **`ArchiForgeApiFactory`** creates ephemeral databases and runs **DbUp**. See **[docs/BUILD.md](docs/BUILD.md)** for CPM, connection strings, and DecisionEngine’s Microsoft.Extensions bundle.
 
 **Notable API behavior:** comparison replay with `replayMode: verify` returns **422** (problem+json with drift fields) when regenerated output does not match the stored comparison—not HTTP 200 with a failure flag. End-to-end run compare uses **`#run-not-found`** when a run ID is missing. See [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md).
 
@@ -206,12 +206,12 @@ The DOCX export produces a stakeholder-grade Word report: run metadata, evidence
 
   Then DOCX exports will contain an embedded PNG of the diagram. If `mmdc` is not installed or fails, the export still succeeds and falls back to Mermaid source in the document.
 
-## CLI (ArchiForge.Cli)
+## CLI (ArchLucid.Cli)
 
 The ArchiForge CLI is wired to the ArchiForge API over HTTP: all of `run`, `status`, `commit`, `seed`, and `artifacts` call the API. It lets you create projects, run architecture requests, and inspect results. For a full command and config reference, see [docs/CLI_USAGE.md](docs/CLI_USAGE.md). Run commands with:
 
 ```bash
-dotnet run --project ArchiForge.Cli -- <command> [options]
+dotnet run --project ArchLucid.Cli -- <command> [options]
 ```
 
 ## Comparison replay
@@ -229,7 +229,7 @@ See [docs/DECISIONING_TYPED_FINDINGS.md](docs/DECISIONING_TYPED_FINDINGS.md).
 ### Prerequisites
 
 - .NET 10 SDK
-- ArchiForge API running (e.g. `dotnet run --project ArchiForge.Api`)
+- ArchiForge API running (e.g. `dotnet run --project ArchLucid.Api`)
 - For `run`, `status`, `commit`, `seed`, `artifacts`: a project directory with `archiforge.json` and `inputs/brief.md`
 
 ### Commands
@@ -253,25 +253,25 @@ See [docs/DECISIONING_TYPED_FINDINGS.md](docs/DECISIONING_TYPED_FINDINGS.md).
 
 ```bash
 # 1. Create a new project
-dotnet run --project ArchiForge.Cli -- new MyProject
+dotnet run --project ArchLucid.Cli -- new MyProject
 cd MyProject
 
 # 2. Edit inputs/brief.md with your architecture brief (min 10 chars)
 
 # 3. Start the API (in another terminal)
-cd .. && dotnet run --project ArchiForge.Api
+cd .. && dotnet run --project ArchLucid.Api
 
 # 4a. Full flow: create run, submit agent results, then commit
-dotnet run --project ArchiForge.Cli -- run
-dotnet run --project ArchiForge.Cli -- status <runId>
-dotnet run --project ArchiForge.Cli -- submit <runId> topology-result.json
+dotnet run --project ArchLucid.Cli -- run
+dotnet run --project ArchLucid.Cli -- status <runId>
+dotnet run --project ArchLucid.Cli -- submit <runId> topology-result.json
 # ... submit more results (cost, compliance) as needed ...
-dotnet run --project ArchiForge.Cli -- commit <runId>
-dotnet run --project ArchiForge.Cli -- artifacts <runId>
+dotnet run --project ArchLucid.Cli -- commit <runId>
+dotnet run --project ArchLucid.Cli -- artifacts <runId>
 
 # 4b. Quick dev flow: create run, seed fake results, and commit in one step
-dotnet run --project ArchiForge.Cli -- run --quick
-dotnet run --project ArchiForge.Cli -- artifacts <runId>
+dotnet run --project ArchLucid.Cli -- run --quick
+dotnet run --project ArchLucid.Cli -- artifacts <runId>
 ```
 
 ### Configuration
@@ -284,10 +284,10 @@ Package and install the CLI locally:
 
 ```bash
 # From the solution root
-dotnet pack ArchiForge.Cli/ArchiForge.Cli.csproj -c Release -o nupkg
+dotnet pack ArchLucid.Cli/ArchLucid.Cli.csproj -c Release -o nupkg
 
 # Install globally
-dotnet tool install -g ArchiForge.Cli --add-source ./nupkg
+dotnet tool install -g ArchLucid.Cli --add-source ./nupkg
 
 # Run (no need for dotnet run)
 archiforge new MyProject
@@ -295,19 +295,19 @@ archiforge run
 archiforge status <runId>
 ```
 
-To update: `dotnet tool update -g ArchiForge.Cli --add-source ./nupkg`
+To update: `dotnet tool update -g ArchLucid.Cli --add-source ./nupkg`
 
 ## Project Structure
 
 | Project | Description |
 |---------|-------------|
-| ArchiForge.Api | ASP.NET Core Web API, controllers, health checks |
-| ArchiForge.Application | Analysis report building, DOCX/Markdown export, diagram image rendering (Mermaid → PNG) |
-| ArchiForge.Contracts | DTOs, request/response types, manifest models |
-| ArchiForge.Coordinator | Run creation, task generation |
-| ArchiForge.Decisioning | Governance, findings, comparisons, alerts — plus manifest merge (`ArchiForge.Decisioning.Merge`) and JSON schema validation (`ArchiForge.Decisioning.Validation`) |
-| ArchiForge.Persistence (`Data.*` sub-namespaces) | Workflow Dapper repos, DbUp migrations, `IDbConnectionFactory`, consolidated `Scripts/ArchiForge.sql` |
-| ArchiForge.Cli | ArchiForge CLI: `new`, `run`, `status`, `commit`, `seed`, `artifacts`, `dev up` |
+| ArchLucid.Api | ASP.NET Core Web API, controllers, health checks |
+| ArchLucid.Application | Analysis report building, DOCX/Markdown export, diagram image rendering (Mermaid → PNG) |
+| ArchLucid.Contracts | DTOs, request/response types, manifest models |
+| ArchLucid.Coordinator | Run creation, task generation |
+| ArchLucid.Decisioning | Governance, findings, comparisons, alerts — plus manifest merge (`ArchLucid.Decisioning.Merge`) and JSON schema validation (`ArchLucid.Decisioning.Validation`) |
+| ArchLucid.Persistence (`Data.*` sub-namespaces) | Workflow Dapper repos, DbUp migrations, `IDbConnectionFactory`, consolidated `Scripts/ArchiForge.sql` |
+| ArchLucid.Cli | ArchiForge CLI: `new`, `run`, `status`, `commit`, `seed`, `artifacts`, `dev up` |
 
 ## Architecture docs (internal)
 

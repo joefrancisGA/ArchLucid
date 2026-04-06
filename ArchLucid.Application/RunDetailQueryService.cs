@@ -1,12 +1,12 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Application;
+namespace ArchLucid.Application;
 
 /// <summary>
 /// Assembles the canonical <see cref="ArchitectureRunDetail"/> from individual repositories.

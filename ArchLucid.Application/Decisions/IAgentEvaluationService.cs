@@ -1,8 +1,8 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.Application.Decisions;
+namespace ArchLucid.Application.Decisions;
 
 /// <summary>
 /// Produces lightweight cross-agent evaluations that support or oppose the proposals

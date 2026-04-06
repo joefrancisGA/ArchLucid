@@ -2,15 +2,15 @@ using System.IO.Compression;
 using System.Net;
 using System.Text.Json;
 
-using ArchiForge.Api.Http;
-using ArchiForge.Api.Services;
+using ArchLucid.Api.Http;
+using ArchLucid.Api.Services;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class BatchReplayIntegrationTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class BatchReplayIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task BatchReplay_AllUnknownIds_Returns422WithBatchReplayAllFailedMarkers()
@@ -53,7 +53,7 @@ public sealed class BatchReplayIntegrationTests(ArchiForgeApiFactory factory) : 
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.MediaType.Should().Be("application/zip");
-        response.Headers.TryGetValues(ArchiForgeHttpHeaders.BatchReplayPartial, out IEnumerable<string>? values).Should().BeTrue();
+        response.Headers.TryGetValues(ArchLucidHttpHeaders.BatchReplayPartial, out IEnumerable<string>? values).Should().BeTrue();
         values!.Single().Should().Be("true");
 
         byte[] zipBytes = await response.Content.ReadAsByteArrayAsync();

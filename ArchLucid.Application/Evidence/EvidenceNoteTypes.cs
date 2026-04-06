@@ -1,7 +1,7 @@
-namespace ArchiForge.Application.Evidence;
+namespace ArchLucid.Application.Evidence;
 
 /// <summary>
-/// Well-known <c>NoteType</c> values written to <see cref="ArchiForge.Contracts.Agents.EvidenceNote.NoteType"/>
+/// Well-known <c>NoteType</c> values written to <see cref="ArchLucid.Contracts.Agents.EvidenceNote.NoteType"/>
 /// by the evidence-building pipeline. Centralised here to prevent typos and keep
 /// note-type strings consistent across producers, consumers, and tests.
 /// </summary>

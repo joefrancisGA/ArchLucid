@@ -1,6 +1,6 @@
 # Microsoft Entra ID (API app registration)
 
-Optional Terraform root that registers an **application** in the customer tenant with **app roles** (**Admin**, **Operator**, **Reader**) matching **`ArchiForgeRoles`** in ArchiForge.Api. Defaults **`enable_entra_api_app = false`**.
+Optional Terraform root that registers an **application** in the customer tenant with **app roles** (**Admin**, **Operator**, **Reader**) matching **`ArchiForgeRoles`** in ArchLucid.Api. Defaults **`enable_entra_api_app = false`**.
 
 ## Why customers care
 
@@ -16,7 +16,7 @@ After apply, set:
 - **`ArchiForgeAuth:Audience`** → your **`api_identifier_uri`** (e.g. `api://archiforge-api-contoso`)
 - **`ArchiForgeAuth:NameClaimType`** → often **`preferred_username`** for human operators
 
-See **`ArchiForge.Api/appsettings.Entra.sample.json`** and outputs from this stack (`application_id`, `identifier_uri`, etc.).
+See **`ArchLucid.Api/appsettings.Entra.sample.json`** and outputs from this stack (`application_id`, `identifier_uri`, etc.).
 
 ## Variables
 

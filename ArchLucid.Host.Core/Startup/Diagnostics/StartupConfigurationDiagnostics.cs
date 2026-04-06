@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace ArchiForge.Host.Core.Startup.Diagnostics;
+namespace ArchLucid.Host.Core.Startup.Diagnostics;
 
 /// <summary>
 /// Emits a single structured log line with non-secret configuration facts when enabled.
@@ -24,7 +24,7 @@ public static class StartupConfigurationDiagnostics
             hostAssembly);
 
         logger.LogInformation(
-            "Pilot/support configuration snapshot: BuildInformationalVersion={BuildInformationalVersion}, BuildAssemblyVersion={BuildAssemblyVersion}, BuildFileVersion={BuildFileVersion}, BuildCommitSha={BuildCommitSha}, RuntimeFramework={RuntimeFramework}, Environment={Environment}, ContentRoot={ContentRoot}, SqlConnectionConfigured={SqlConnectionConfigured}, ArchiForgeStorageProvider={StorageProvider}, RetrievalVectorIndex={RetrievalVectorIndex}, AgentExecutionMode={AgentMode}, ArchiForgeAuthMode={AuthMode}, ApiKeyAuthEnabled={ApiKeyEnabled}, ApiKeyAdminConfigured={ApiKeyAdminConfigured}, ApiKeyReadOnlyConfigured={ApiKeyReadOnlyConfigured}, CorsOriginCount={CorsCount}, RateLimitPermitLimitWindow={RateLimit}, PrometheusEnabled={Prometheus}, DemoEnabled={DemoEnabled}, DemoSeedOnStartup={DemoSeed}, SchemaValidationDetailedErrors={SchemaDetailed}",
+            "Pilot/support configuration snapshot: BuildInformationalVersion={BuildInformationalVersion}, BuildAssemblyVersion={BuildAssemblyVersion}, BuildFileVersion={BuildFileVersion}, BuildCommitSha={BuildCommitSha}, RuntimeFramework={RuntimeFramework}, Environment={Environment}, ContentRoot={ContentRoot}, SqlConnectionConfigured={SqlConnectionConfigured}, ArchLucidStorageProvider={StorageProvider}, RetrievalVectorIndex={RetrievalVectorIndex}, AgentExecutionMode={AgentMode}, ArchLucidAuthMode={AuthMode}, ApiKeyAuthEnabled={ApiKeyEnabled}, ApiKeyAdminConfigured={ApiKeyAdminConfigured}, ApiKeyReadOnlyConfigured={ApiKeyReadOnlyConfigured}, CorsOriginCount={CorsCount}, RateLimitPermitLimitWindow={RateLimit}, PrometheusEnabled={Prometheus}, DemoEnabled={DemoEnabled}, DemoSeedOnStartup={DemoSeed}, SchemaValidationDetailedErrors={SchemaDetailed}",
             facts.BuildInformationalVersion,
             facts.BuildAssemblyVersion,
             facts.BuildFileVersion ?? "(none)",
@@ -33,10 +33,10 @@ public static class StartupConfigurationDiagnostics
             facts.HostEnvironmentName,
             facts.ContentRootPath,
             facts.SqlConnectionStringConfigured,
-            facts.ArchiForgeStorageProvider,
+            facts.ArchLucidStorageProvider,
             facts.RetrievalVectorIndex,
             facts.AgentExecutionMode,
-            facts.ArchiForgeAuthMode,
+            facts.ArchLucidAuthMode,
             facts.AuthenticationApiKeyEnabled,
             facts.AuthenticationApiKeyAdminConfigured,
             facts.AuthenticationApiKeyReadOnlyConfigured,

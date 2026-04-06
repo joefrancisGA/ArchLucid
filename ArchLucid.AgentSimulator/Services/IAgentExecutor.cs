@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.AgentSimulator.Services;
+namespace ArchLucid.AgentSimulator.Services;
 
 /// <summary>
 /// Runs a batch of <see cref="AgentTask"/> items for one architecture run (production handlers or test doubles).

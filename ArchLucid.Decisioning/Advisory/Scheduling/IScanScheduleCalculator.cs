@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Scheduling;
+namespace ArchLucid.Decisioning.Advisory.Scheduling;
 
 /// <summary>
 /// Computes the next UTC run time from a v1 “cron” string after a reference instant (typically “now” after a scan).

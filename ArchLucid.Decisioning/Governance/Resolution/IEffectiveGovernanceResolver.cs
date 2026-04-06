@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Decisioning.Governance.Resolution;
+namespace ArchLucid.Decisioning.Governance.Resolution;
 
 /// <summary>
 /// Computes <strong>effective governance</strong> for a tenant/workspace/project: layered policy pack assignments,
@@ -14,11 +14,11 @@ namespace ArchiForge.Decisioning.Governance.Resolution;
 /// </para>
 /// <para>
 /// <strong>Primary callers:</strong> <see cref="EffectiveGovernanceLoader"/> (effective content for API and runtime),
-/// HTTP <c>GET /v1/governance-resolution</c> (implemented in <c>ArchiForge.Api</c>),
-/// and <c>ArchiForge.Decisioning.Tests.EffectiveGovernanceResolverTests</c>.
+/// HTTP <c>GET /v1/governance-resolution</c> (implemented in <c>ArchLucid.Api</c>),
+/// and <c>ArchLucid.Decisioning.Tests.EffectiveGovernanceResolverTests</c>.
 /// </para>
 /// <para>
-/// Registered scoped in <c>ArchiForge.Api.Startup.ServiceCollectionExtensions</c>.
+/// Registered scoped in <c>ArchLucid.Api.Startup.ServiceCollectionExtensions</c>.
 /// </para>
 /// </remarks>
 public interface IEffectiveGovernanceResolver

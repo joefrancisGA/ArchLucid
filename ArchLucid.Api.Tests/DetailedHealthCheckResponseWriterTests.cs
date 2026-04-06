@@ -1,13 +1,13 @@
 using System.Text.Json;
 
-using ArchiForge.Host.Core.Health;
+using ArchLucid.Host.Core.Health;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>Persistence row for <c>dbo.BackgroundJobs</c>.</summary>
 public sealed class BackgroundJobRow

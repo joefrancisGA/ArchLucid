@@ -1,6 +1,6 @@
-using ArchiForge.Core.Conversation;
+using ArchLucid.Core.Conversation;
 
-namespace ArchiForge.Persistence.Conversation;
+namespace ArchLucid.Persistence.Conversation;
 
 /// <summary>
 /// Thread-safe in-memory <see cref="IConversationMessageRepository"/> for tests and storage-off mode.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.ProblemDetails;
+namespace ArchLucid.Host.Core.ProblemDetails;
 
 /// <summary>
 /// Optional <c>supportHint</c> on problem+json for operators (no secrets; complements <c>errorCode</c>).
@@ -29,7 +29,7 @@ public static class ProblemSupportHints
     {
         if (typeUri == ProblemTypes.RunNotFound)
         
-            return "Confirm the run ID. If you use scope headers (x-tenant-id, x-workspace-id, x-project-id), they must match the run’s scope.";
+            return "Confirm the run ID. If you use scope headers (x-tenant-id, x-workspace-id, x-project-id), they must match the runï¿½s scope.";
         
 
         if (typeUri == ProblemTypes.ManifestNotFound)

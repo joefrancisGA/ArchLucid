@@ -1,13 +1,13 @@
-using ArchiForge.ContextIngestion.Contracts;
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models;
 
-namespace ArchiForge.ContextIngestion.Connectors;
+namespace ArchLucid.ContextIngestion.Connectors;
 
 /// <summary>
 /// Normalizes inline <see cref="ContextDocumentReference"/> items using the first
 /// <see cref="IContextDocumentParser"/> in
-/// <see cref="ArchiForge.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers"/>
+/// <see cref="ArchLucid.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers"/>
 /// order where <see cref="IContextDocumentParser.CanParse"/> returns true.
 /// </summary>
 public class DocumentConnector(IReadOnlyList<IContextDocumentParser> parsers) : IContextConnector

@@ -1,8 +1,8 @@
-namespace ArchiForge.Persistence.Backfill;
+namespace ArchLucid.Persistence.Backfill;
 
 /// <summary>
 /// Aggregate readiness report across all authority types and slices.
-/// Answers: "Is the database ready to switch to <see cref="ArchiForge.Persistence.RelationalRead.PersistenceReadMode.RequireRelational"/>?"
+/// Answers: "Is the database ready to switch to <see cref="ArchLucid.Persistence.RelationalRead.PersistenceReadMode.RequireRelational"/>?"
 /// </summary>
 public sealed class CutoverReadinessReport
 {

@@ -2,15 +2,15 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Base for API integration tests: provides an <see cref="HttpClient"/> from <see cref="ArchiForgeApiFactory"/> and JSON helpers aligned with the API’s serializer settings.
+/// Base for API integration tests: provides an <see cref="HttpClient"/> from <see cref="ArchLucidApiFactory"/> and JSON helpers aligned with the API’s serializer settings.
 /// </summary>
-public class IntegrationTestBase(ArchiForgeApiFactory factory) : IClassFixture<ArchiForgeApiFactory>
+public class IntegrationTestBase(ArchLucidApiFactory factory) : IClassFixture<ArchLucidApiFactory>
 {
     /// <summary>Factory for the hosted API (singleton services, SQL connection string, etc.).</summary>
-    protected ArchiForgeApiFactory Factory { get; } = factory;
+    protected ArchLucidApiFactory Factory { get; } = factory;
 
     protected readonly HttpClient Client = factory.CreateClient();
 
@@ -23,7 +23,7 @@ public class IntegrationTestBase(ArchiForgeApiFactory factory) : IClassFixture<A
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
-    /// <summary>Aligned with <see cref="ArchiForge.Api.Startup.MvcExtensions"/> API JSON options (camelCase properties, string enums).</summary>
+    /// <summary>Aligned with <see cref="ArchLucid.Api.Startup.MvcExtensions"/> API JSON options (camelCase properties, string enums).</summary>
     protected readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true,

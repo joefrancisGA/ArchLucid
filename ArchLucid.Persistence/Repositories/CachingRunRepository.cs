@@ -1,11 +1,11 @@
 using System.Data;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Caching;
-using ArchiForge.Persistence.Interfaces;
-using ArchiForge.Persistence.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Caching;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>Decorates <see cref="IRunRepository"/> with hot-path read caching and evicts on writes.</summary>
 public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache hotPathReadCache) : IRunRepository

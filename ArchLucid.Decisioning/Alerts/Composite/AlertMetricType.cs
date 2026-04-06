@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// String ids for <see cref="AlertRuleCondition.MetricType"/>; must align with <see cref="CompositeAlertRuleEvaluator"/> / <see cref="AlertMetricSnapshotBuilder"/> resolution.

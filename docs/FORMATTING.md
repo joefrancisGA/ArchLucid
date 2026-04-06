@@ -14,19 +14,19 @@ Notable choices for **readability**:
 From the repository root:
 
 ```bash
-dotnet format ArchiForge.sln
+dotnet format ArchLucid.sln
 ```
 
 To apply **only** the “omit braces for single statements” rule (IDE0011) without other style fixes:
 
 ```bash
-dotnet format ArchiForge.sln style --diagnostics IDE0011 --severity info
+dotnet format ArchLucid.sln style --diagnostics IDE0011 --severity info
 ```
 
 Optional: whitespace-only (faster, fewer semantic changes):
 
 ```bash
-dotnet format ArchiForge.sln --verbosity minimal --verify-no-changes
+dotnet format ArchLucid.sln --verbosity minimal --verify-no-changes
 ```
 
 (`--verify-no-changes` is for CI; omit it when you want files updated.)

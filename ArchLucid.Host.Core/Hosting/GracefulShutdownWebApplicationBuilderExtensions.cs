@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Hosting;
+namespace ArchLucid.Host.Core.Hosting;
 
 /// <summary>
 /// Extends shutdown timeout and logs when the host begins stopping so Container Apps / K8s SIGTERM handling is observable.
@@ -8,7 +8,7 @@ public static class GracefulShutdownWebApplicationBuilderExtensions
     /// <summary>
     /// Sets <see cref="HostOptions.ShutdownTimeout"/> to 45 seconds and registers shutdown logging.
     /// </summary>
-    public static WebApplicationBuilder AddArchiForgeGracefulShutdown(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddArchLucidGracefulShutdown(this WebApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
 

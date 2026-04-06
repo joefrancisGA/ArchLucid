@@ -1,12 +1,12 @@
 using System.Text.Json;
 
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Persistence.Caching;
+namespace ArchLucid.Persistence.Caching;
 
 /// <summary><see cref="IDistributedCache"/> (e.g. Redis) implementation with JSON payloads aligned to <see cref="JsonEntitySerializer"/>.</summary>
 public sealed class DistributedHotPathReadCache(

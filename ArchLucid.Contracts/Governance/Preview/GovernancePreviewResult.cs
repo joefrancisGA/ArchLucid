@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Governance.Preview;
+namespace ArchLucid.Contracts.Governance.Preview;
 
 /// <summary>
 /// Result of a governance promotion preview: compares the candidate manifest against the manifest currently

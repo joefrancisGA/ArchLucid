@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Common;
+namespace ArchLucid.Contracts.Common;
 
 /// <summary>Describes the nature of a directed relationship between two topology entities.</summary>
 public enum RelationshipType

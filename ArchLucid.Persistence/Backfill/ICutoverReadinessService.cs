@@ -1,8 +1,8 @@
-namespace ArchiForge.Persistence.Backfill;
+namespace ArchLucid.Persistence.Backfill;
 
 /// <summary>
 /// Read-only assessment: can the database move from fallback-permitted mode to
-/// <see cref="ArchiForge.Persistence.RelationalRead.PersistenceReadMode.RequireRelational"/>?
+/// <see cref="ArchLucid.Persistence.RelationalRead.PersistenceReadMode.RequireRelational"/>?
 /// </summary>
 public interface ICutoverReadinessService
 {

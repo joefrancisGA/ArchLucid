@@ -29,7 +29,7 @@ This document explains how ArchiForge balances **ease of use** (simple URLs, sta
 
 ## 4. Architecture overview
 
-**Nodes:** Browser or integrator → optional **Front Door + WAF** → optional **APIM** → **ArchiForge.Api** → **Azure SQL** / **Blob** (optionally via **private endpoints**). **Entra ID** issues tokens validated by the API.
+**Nodes:** Browser or integrator → optional **Front Door + WAF** → optional **APIM** → **ArchLucid.Api** → **Azure SQL** / **Blob** (optionally via **private endpoints**). **Entra ID** issues tokens validated by the API.
 
 **Edges:** TLS at the edge; JWT validation at the API; SQL and blob over private connectivity when the private stack is enabled.
 
@@ -43,7 +43,7 @@ This document explains how ArchiForge balances **ease of use** (simple URLs, sta
 | API Management | `infra/terraform/` | Optional Consumption gateway in front of the API. |
 | Private endpoints | `infra/terraform-private/` | VNet, `privatelink.database.windows.net`, `privatelink.blob.core.windows.net`, endpoints for SQL and blob. |
 | Entra app + roles | `infra/terraform-entra/` | App registration, **Admin / Operator / Reader** roles, identifier URI for **audience**. |
-| JWT + API key auth | `ArchiForge.Api` | **`ArchiForgeAuth`** section; **`appsettings.Entra.sample.json`** for Entra mode. |
+| JWT + API key auth | `ArchLucid.Api` | **`ArchiForgeAuth`** section; **`appsettings.Entra.sample.json`** for Entra mode. |
 
 ---
 
@@ -57,7 +57,7 @@ This document explains how ArchiForge balances **ease of use** (simple URLs, sta
 flowchart LR
   Client[Client] --> FD[Optional Front Door WAF]
   FD --> APIM[Optional APIM]
-  APIM --> Api[ArchiForge.Api]
+  APIM --> Api[ArchLucid.Api]
   Client --> APIM
   Client --> Api
   Api --> SQL[(Azure SQL)]

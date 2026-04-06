@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.ProductLearning;
 
-namespace ArchiForge.Api.Services.Evolution;
+namespace ArchLucid.Api.Services.Evolution;
 
 /// <summary>60R orchestration: candidates from 59R plans and read-only shadow evaluation (no system mutation).</summary>
 public interface IEvolutionSimulationService

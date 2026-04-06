@@ -1,12 +1,12 @@
-using ArchiForge.Core.Conversation;
+using ArchLucid.Core.Conversation;
 
-namespace ArchiForge.Host.Core.Ask;
+namespace ArchLucid.Host.Core.Ask;
 
 /// <summary>
 /// Application orchestration for Ask conversation threads and message persistence.
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="ConversationService"/>. Used by <c>ArchiForge.Host.Core.Services.Ask.AskService</c>. Repositories: <c>ArchiForge.Persistence.Conversation.*</c>.
+/// Implementation: <see cref="ConversationService"/>. Used by <c>ArchLucid.Host.Core.Services.Ask.AskService</c>. Repositories: <c>ArchLucid.Persistence.Conversation.*</c>.
 /// </remarks>
 public interface IConversationService
 {

@@ -1,12 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Non-network <see cref="IAgentCompletionClient"/> that returns deterministic <see cref="AgentResult"/> JSON (via <see cref="FakeScenarioFactory"/>)

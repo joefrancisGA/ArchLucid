@@ -1,12 +1,12 @@
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Persistence.Advisory;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="RecommendationWorkflowService"/>.

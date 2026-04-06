@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// String values for <see cref="AlertRule.RuleType"/>; each maps to a branch in <see cref="AlertEvaluator"/>.

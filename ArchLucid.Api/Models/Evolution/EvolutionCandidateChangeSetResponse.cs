@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
 /// <summary>API projection of a 60R candidate change set.</summary>
 public sealed class EvolutionCandidateChangeSetResponse

@@ -48,7 +48,7 @@ updates:
       interval: weekly
 
   - package-ecosystem: docker
-    directory: "/ArchiForge.Api"
+    directory: "/ArchLucid.Api"
     schedule:
       interval: weekly
 

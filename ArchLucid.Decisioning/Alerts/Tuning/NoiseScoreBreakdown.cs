@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Tuning;
+namespace ArchLucid.Decisioning.Alerts.Tuning;
 
 /// <summary>Decomposed heuristic score from <see cref="AlertNoiseScorer"/> (higher <see cref="FinalScore"/> is better).</summary>
 public class NoiseScoreBreakdown

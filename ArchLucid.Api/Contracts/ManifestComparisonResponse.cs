@@ -1,34 +1,34 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Api.Contracts;
+namespace ArchLucid.Api.Contracts;
 
 /// <summary>
-/// JSON contract for <see cref="ArchiForge.Persistence.Compare.ManifestComparisonResult"/>.
+/// JSON contract for <see cref="ArchLucid.Persistence.Compare.ManifestComparisonResult"/>.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class ManifestComparisonResponse
 {
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.ManifestComparisonResult.LeftManifestId"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.LeftManifestId"/>
     public Guid LeftManifestId { get; set; }
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.ManifestComparisonResult.RightManifestId"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.RightManifestId"/>
     public Guid RightManifestId { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.ManifestComparisonResult.LeftManifestHash"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.LeftManifestHash"/>
     public string LeftManifestHash { get; set; } = null!;
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.ManifestComparisonResult.RightManifestHash"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.RightManifestHash"/>
     public string RightManifestHash { get; set; } = null!;
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.ManifestComparisonResult.AddedCount"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.AddedCount"/>
     public int AddedCount { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.ManifestComparisonResult.RemovedCount"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.RemovedCount"/>
     public int RemovedCount { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.ManifestComparisonResult.ChangedCount"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.ChangedCount"/>
     public int ChangedCount { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Compare.ManifestComparisonResult.Diffs"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Compare.ManifestComparisonResult.Diffs"/>
     public List<DiffItemResponse> Diffs { get; set; } = [];
 
     /// <summary>Count of <see cref="Diffs"/>.</summary>

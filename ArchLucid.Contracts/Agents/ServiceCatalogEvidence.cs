@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Agents;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 /// Represents a single service-catalog entry included in an <see cref="AgentEvidencePackage"/>.

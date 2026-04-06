@@ -1,11 +1,11 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Requests;
 
-using EvalTypes = ArchiForge.Contracts.Decisions.EvaluationTypes;
+using EvalTypes = ArchLucid.Contracts.Decisions.EvaluationTypes;
 
-namespace ArchiForge.Decisioning.Merge;
+namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
 /// Decision Engine v2: weighted argument resolution (deterministic, v1 scoring model).

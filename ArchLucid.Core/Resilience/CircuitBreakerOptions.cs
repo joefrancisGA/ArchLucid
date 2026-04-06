@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Resilience;
+namespace ArchLucid.Core.Resilience;
 
 /// <summary>
 /// Tuning for <see cref="CircuitBreakerGate"/> (Azure OpenAI completion / embedding protection).

@@ -1,4 +1,4 @@
-global using ArchiForge.Api.Middleware;
-global using ArchiForge.Host.Core.Auth.Services;
-global using ArchiForge.Host.Core.ProblemDetails;
-global using ArchiForge.Host.Core.Services;
+global using ArchLucid.Api.Middleware;
+global using ArchLucid.Host.Core.Auth.Services;
+global using ArchLucid.Host.Core.ProblemDetails;
+global using ArchLucid.Host.Core.Services;

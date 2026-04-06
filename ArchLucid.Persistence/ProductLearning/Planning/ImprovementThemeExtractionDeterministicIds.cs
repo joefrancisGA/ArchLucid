@@ -2,9 +2,9 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
-using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
-namespace ArchiForge.Persistence.ProductLearning.Planning;
+namespace ArchLucid.Persistence.ProductLearning.Planning;
 
 /// <summary>Stable <see cref="Guid"/> values derived from scope + canonical keys (no randomness).</summary>
 internal static class ImprovementThemeExtractionDeterministicIds

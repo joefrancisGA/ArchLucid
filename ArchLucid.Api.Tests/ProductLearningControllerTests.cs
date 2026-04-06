@@ -1,18 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
 using FluentAssertions;
 
 using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Integration tests for <c>/v1/product-learning/*</c> (scoped read model; empty data is valid).</summary>
 [Trait("Category", "Integration")]
 [Trait("ChangeSet", "58R")]
-public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task GetSummary_ReturnsOk_WithCountsAndNotes()

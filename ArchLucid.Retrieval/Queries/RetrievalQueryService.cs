@@ -1,8 +1,8 @@
-using ArchiForge.Retrieval.Embedding;
-using ArchiForge.Retrieval.Indexing;
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Embedding;
+using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.Models;
 
-namespace ArchiForge.Retrieval.Queries;
+namespace ArchLucid.Retrieval.Queries;
 
 /// <summary>
 /// <see cref="IRetrievalQueryService"/> implementation: embed query text, delegate to <see cref="IVectorIndex"/>.

@@ -1,6 +1,6 @@
-using ArchiForge.Application.Analysis;
+using ArchLucid.Application.Analysis;
 
-namespace ArchiForge.Host.Core.Services;
+namespace ArchLucid.Host.Core.Services;
 
 /// <summary>
 /// API-layer contract for comparison replay and drift analysis, wrapping the core

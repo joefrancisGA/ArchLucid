@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.ArtifactSynthesis.Models;
+namespace ArchLucid.ArtifactSynthesis.Models;
 
 [ExcludeFromCodeCoverage(Justification = "Artifact synthesis row DTO; no logic.")]
 public class ComplianceMatrixRow

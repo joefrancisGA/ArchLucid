@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Governance;
+namespace ArchLucid.Application.Governance;
 
 /// <summary>
 /// Well-known event type constants used when writing audit log entries for governance

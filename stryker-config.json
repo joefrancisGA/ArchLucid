@@ -1,6 +1,6 @@
 {
   "stryker-config": {
-    "project": "ArchiForge.Persistence/ArchiForge.Persistence.csproj",
+    "project": "ArchLucid.Persistence/ArchLucid.Persistence.csproj",
     "test-projects": ["ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj"],
     "reporters": ["progress", "html"],
     "thresholds": {

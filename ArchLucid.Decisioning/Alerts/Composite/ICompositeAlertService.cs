@@ -1,10 +1,10 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Evaluates composite alert rules (aggregated metrics) with governance filtering and suppression before persistence.
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchiForge.Persistence.Alerts.CompositeAlertService</c>. Typically invoked in parallel with <see cref="IAlertService"/> after building an <see cref="AlertEvaluationContext"/>.
+/// Implemented by <c>ArchLucid.Persistence.Alerts.CompositeAlertService</c>. Typically invoked in parallel with <see cref="IAlertService"/> after building an <see cref="AlertEvaluationContext"/>.
 /// </remarks>
 public interface ICompositeAlertService
 {

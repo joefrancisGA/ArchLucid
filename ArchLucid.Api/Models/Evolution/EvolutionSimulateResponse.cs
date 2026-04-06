@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
 /// <summary>POST simulate: candidate plus simulation runs with evaluation scores.</summary>
 public sealed class EvolutionSimulateResponse

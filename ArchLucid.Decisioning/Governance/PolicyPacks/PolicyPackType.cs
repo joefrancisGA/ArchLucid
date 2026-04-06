@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>Classification of <see cref="PolicyPack.PackType"/> for UI and policy (built-in vs tenant/workspace/project custom).</summary>
 public static class PolicyPackType

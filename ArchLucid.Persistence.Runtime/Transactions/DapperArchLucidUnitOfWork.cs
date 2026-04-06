@@ -1,14 +1,14 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Persistence.Transactions;
+namespace ArchLucid.Persistence.Transactions;
 
 /// <summary>
 /// Dapper-backed unit of work holding an open <see cref="IDbConnection"/> and <see cref="IDbTransaction"/>; <see cref="CommitAsync"/> commits once, <see cref="RollbackAsync"/> rolls back, and <see cref="DisposeAsync"/> rolls back if still pending then disposes both.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Wraps IDbConnection/IDbTransaction commit/rollback lifecycle; requires live database transaction.")]
-public sealed class DapperArchiForgeUnitOfWork(IDbConnection connection, IDbTransaction transaction)
-    : IArchiForgeUnitOfWork
+public sealed class DapperArchLucidUnitOfWork(IDbConnection connection, IDbTransaction transaction)
+    : IArchLucidUnitOfWork
 {
     private bool _completed;
 

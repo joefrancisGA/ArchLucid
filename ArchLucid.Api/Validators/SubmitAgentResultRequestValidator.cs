@@ -1,8 +1,8 @@
-using ArchiForge.Api.Models;
+using ArchLucid.Api.Models;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 public sealed class SubmitAgentResultRequestValidator : AbstractValidator<SubmitAgentResultRequest>
 {

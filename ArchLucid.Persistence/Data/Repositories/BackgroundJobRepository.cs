@@ -1,11 +1,11 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; integration-tested separately.")]
 public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFactory) : IBackgroundJobRepository

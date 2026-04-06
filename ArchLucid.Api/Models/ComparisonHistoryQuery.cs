@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 /// <summary>Query parameters for GET /v1/architecture/comparisons search.</summary>
 public sealed class ComparisonHistoryQuery

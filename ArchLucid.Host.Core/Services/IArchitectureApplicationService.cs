@@ -1,10 +1,10 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
 
 using JetBrains.Annotations;
 
-namespace ArchiForge.Host.Core.Services;
+namespace ArchLucid.Host.Core.Services;
 
 public interface IArchitectureApplicationService
 {

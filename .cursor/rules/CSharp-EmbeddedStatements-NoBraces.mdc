@@ -45,8 +45,8 @@ Use a **block** when the body is more than one statement, when you need scoped `
 
 Repo **`.editorconfig`** sets `csharp_prefer_braces = false` (IDE0011). Apply **only** this rule (avoid unrelated style fixes such as collection expressions) with:
 
-`dotnet format ArchiForge.sln style --diagnostics IDE0011 --severity info`
+`dotnet format ArchLucid.sln style --diagnostics IDE0011 --severity info`
 
-For whitespace-only layout, `dotnet format ArchiForge.sln whitespace` and the `scripts/format-solution.*` helpers do not run IDE0011; use the command above when you want brace fixes.
+For whitespace-only layout, `dotnet format ArchLucid.sln whitespace` and the `scripts/format-solution.*` helpers do not run IDE0011; use the command above when you want brace fixes.
 
 Types, methods, properties, and multi-line bodies still use braces per `csharp_new_line_before_open_brace` and normal C# structure.

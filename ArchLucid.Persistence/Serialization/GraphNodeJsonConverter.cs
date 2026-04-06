@@ -1,9 +1,9 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Persistence.Serialization;
+namespace ArchLucid.Persistence.Serialization;
 
 /// <summary>
 /// Tolerates older or alternate JSON property names when reading <see cref="GraphNode"/> rows from storage

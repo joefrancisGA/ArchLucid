@@ -1,21 +1,21 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.BlobStore;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.GoldenManifests;
-using ArchiForge.Persistence.RelationalRead;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.GoldenManifests;
+using ArchLucid.Persistence.RelationalRead;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// SQL Server-backed <see cref="IGoldenManifestRepository"/> with dual-write to legacy JSON columns and

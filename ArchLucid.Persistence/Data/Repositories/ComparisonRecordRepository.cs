@@ -1,12 +1,12 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Infrastructure;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class ComparisonRecordRepository : IComparisonRecordRepository

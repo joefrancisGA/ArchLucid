@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Diffs;
+namespace ArchLucid.Application.Diffs;
 
 public interface IManifestDiffSummaryFormatter
 {

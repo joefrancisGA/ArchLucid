@@ -1,4 +1,4 @@
-namespace ArchiForge.Cli.Plugins
+namespace ArchLucid.Cli.Plugins
 {
     internal class DocumentGenerator;
 }

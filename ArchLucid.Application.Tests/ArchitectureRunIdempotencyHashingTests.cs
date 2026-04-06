@@ -1,10 +1,10 @@
-using ArchiForge.Application.Runs;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
-namespace ArchiForge.Application.Tests;
+namespace ArchLucid.Application.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

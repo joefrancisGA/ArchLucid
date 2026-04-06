@@ -1,18 +1,18 @@
 using System.Security.Claims;
 using System.Text.Json;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Contracts;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Decisioning.Comparison;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Contracts;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Advisory workflow HTTP surface: improvement plans from authority runs, persisted recommendations, and operator actions (accept/defer/etc.).
@@ -30,7 +30,7 @@ namespace ArchiForge.Api.Controllers;
 /// Plans feed learning and composite alert metrics; scheduled scans extend this path via <see cref="AdvisorySchedulingController"/> and <c>AdvisoryScanRunner</c>.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/advisory")]
 [EnableRateLimiting("fixed")]
@@ -45,7 +45,7 @@ public sealed class AdvisoryController(
     : ControllerBase
 {
     /// <summary>
-    /// Builds an <see cref="ImprovementPlan"/> from the run’s golden manifest and findings, optionally compared to another run, then persists recommendations for the scope.
+    /// Builds an <see cref="ImprovementPlan"/> from the runï¿½s golden manifest and findings, optionally compared to another run, then persists recommendations for the scope.
     /// </summary>
     /// <param name="runId">Authority run whose golden manifest and findings drive the plan.</param>
     /// <param name="compareToRunId">When set, manifests are compared and diff-based signals are included.</param>
@@ -145,7 +145,7 @@ public sealed class AdvisoryController(
     /// <returns>Updated <see cref="RecommendationRecordResponse"/>.</returns>
     /// <remarks>400 when action is unknown; 404 when the id does not exist. Audit event type follows the action.</remarks>
     [HttpPost("recommendations/{recommendationId:guid}/action")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationRecordResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

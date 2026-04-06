@@ -1,10 +1,10 @@
-using ArchiForge.Api.Models;
+using ArchLucid.Api.Models;
 
-using AppReplayComparisonRequest = ArchiForge.Application.Analysis.ReplayComparisonRequest;
+using AppReplayComparisonRequest = ArchLucid.Application.Analysis.ReplayComparisonRequest;
 
-namespace ArchiForge.Api.Mapping;
+namespace ArchLucid.Api.Mapping;
 
-/// <summary>Maps API replay models to Application <see cref="ArchiForge.Application.Analysis.ReplayComparisonRequest"/>.</summary>
+/// <summary>Maps API replay models to Application <see cref="ArchLucid.Application.Analysis.ReplayComparisonRequest"/>.</summary>
 internal static class ReplayComparisonRequestMapper
 {
     public static AppReplayComparisonRequest ToApplication(string comparisonRecordId, ReplayComparisonRequest request) =>

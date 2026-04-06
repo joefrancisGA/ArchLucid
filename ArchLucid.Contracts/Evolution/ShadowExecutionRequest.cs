@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Shadow run: duplicate run detail in memory, apply candidate steps on the copy, run analysis, discard the copy.</summary>
 public sealed class ShadowExecutionRequest

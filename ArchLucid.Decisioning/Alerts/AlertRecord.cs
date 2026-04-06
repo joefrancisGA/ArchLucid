@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Persisted alert instance: outcome of simple or composite evaluation, scoped to tenant/workspace/project.

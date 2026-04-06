@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Decisioning.Governance.Resolution;
 
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Binds a published <see cref="PolicyPackVersion"/> to a governance tier (tenant, workspace, or project) for a tenant.

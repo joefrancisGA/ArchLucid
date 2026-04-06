@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Persistence.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Persistence.ProductLearning.Planning;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.ProductLearning;
+namespace ArchLucid.Persistence.Tests.ProductLearning;
 
 public sealed class ProductLearningPlanningJsonSerializerTests
 {

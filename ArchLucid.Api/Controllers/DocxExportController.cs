@@ -1,17 +1,17 @@
-using ArchiForge.AgentRuntime.Explanation;
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.ArtifactSynthesis.Docx;
-using ArchiForge.ArtifactSynthesis.Docx.Models;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Comparison;
-using ArchiForge.Core.Explanation;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Comparison;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Provenance;
-using ArchiForge.Persistence.Queries;
-using ArchiForge.Provenance;
+using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.ArtifactSynthesis.Docx.Models;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Explanation;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Provenance;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Provenance;
 
 using Asp.Versioning;
 
@@ -19,14 +19,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Downloads a Word architecture package for a run, with optional compare run, optional run explanation, and optional comparison narrative.
 /// </summary>
 /// <remarks>Route prefix <c>api/docx</c>; combines <see cref="IAuthorityQueryService"/>, artifacts, <see cref="IComparisonService"/>, and <see cref="IExplanationService"/>.</remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/docx")]
 [EnableRateLimiting("fixed")]

@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Bounded improvement plan under a theme; actions are capped and stored as JSON in SQL.</summary>
 public sealed class ProductLearningImprovementPlanRecord

@@ -1,10 +1,10 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Mapping;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Mapping;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.KnowledgeGraph.Tests;
+namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
 /// Tests for Graph Node Factory.

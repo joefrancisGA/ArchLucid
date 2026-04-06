@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 public sealed class NoOpTraceRecorder : IAgentExecutionTraceRecorder
 {

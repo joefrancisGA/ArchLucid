@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text;
 
-using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning.Planning;
 
-namespace ArchiForge.Persistence.ProductLearning.Planning;
+namespace ArchLucid.Persistence.ProductLearning.Planning;
 
 /// <summary>Deterministic markdown for <see cref="LearningPlanningReportDocument"/> (fixed section order, invariant numeric formatting).</summary>
 public static class LearningPlanningReportMarkdownFormatter

@@ -16,7 +16,7 @@ Double underscores (`__`) map to nested JSON sections in ASP.NET Core configurat
 
 ## Sample file
 
-See `ArchiForge.Api/appsettings.KeyVault.sample.json` for a non-functional template of the same shape (do not commit real vault names if they are sensitive; the file is documentation-only).
+See `ArchLucid.Api/appsettings.KeyVault.sample.json` for a non-functional template of the same shape (do not commit real vault names if they are sensitive; the file is documentation-only).
 
 ## Terraform
 

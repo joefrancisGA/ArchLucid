@@ -1,9 +1,9 @@
 using System.Text.Json;
 
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Thread-safe in-memory <see cref="ICoordinatorDecisionTraceRepository"/> for architecture runs (JSON clone-on-read).

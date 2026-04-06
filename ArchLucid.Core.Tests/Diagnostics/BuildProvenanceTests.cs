@@ -1,10 +1,10 @@
 using System.Reflection;
 
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
-namespace ArchiForge.Core.Tests.Diagnostics;
+namespace ArchLucid.Core.Tests.Diagnostics;
 
 [Trait("Category", "Unit")]
 public sealed class BuildProvenanceTests

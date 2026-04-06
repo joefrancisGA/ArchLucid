@@ -1,10 +1,10 @@
-using ArchiForge.Persistence.Data.Infrastructure;
-using ArchiForge.Persistence.Sql;
-using ArchiForge.TestSupport;
+using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Sql;
+using ArchLucid.TestSupport;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Resolves a SQL Server connection (environment variable or Windows LocalDB), ensures the test catalog exists,

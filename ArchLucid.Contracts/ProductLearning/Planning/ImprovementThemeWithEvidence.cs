@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Extracted theme plus capped example evidence and an operator-readable grouping rationale.</summary>
 public sealed class ImprovementThemeWithEvidence

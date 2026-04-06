@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Stateless evaluator: maps each <see cref="AlertRuleCondition"/> to a boolean via <see cref="AlertConditionOperator"/>, then reduces with <see cref="CompositeOperator"/>.

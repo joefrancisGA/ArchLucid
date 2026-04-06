@@ -2,7 +2,7 @@
 
 ## Objective
 
-Document the **five highest-churn read SQL shapes** used on hot API paths (authority lists, governance resolution, manifest materialization), with **how to capture real execution plans** in Azure SQL and **expected plan shapes** from the current schema in `ArchiForge.Persistence/Scripts/ArchiForge.sql`.
+Document the **five highest-churn read SQL shapes** used on hot API paths (authority lists, governance resolution, manifest materialization), with **how to capture real execution plans** in Azure SQL and **expected plan shapes** from the current schema in `ArchLucid.Persistence/Scripts/ArchiForge.sql`.
 
 ## Assumptions
 
@@ -65,7 +65,7 @@ Alternatively enable **Query Store** and use “Top Resource Consuming Queries�
 
 ## 1. `dbo.Runs` — list by project (scoped)
 
-**Source:** `ArchiForge.Persistence/Repositories/SqlRunRepository.cs` (`ListByProjectAsync`).
+**Source:** `ArchLucid.Persistence/Repositories/SqlRunRepository.cs` (`ListByProjectAsync`).
 
 ```sql
 SELECT TOP (@Take)
@@ -87,7 +87,7 @@ ORDER BY CreatedUtc DESC;
 
 ## 2. `dbo.PolicyPackAssignments` — hierarchical list for governance
 
-**Source:** `ArchiForge.Persistence/Governance/DapperPolicyPackAssignmentRepository.cs` (`ListByScopeAsync`).
+**Source:** `ArchLucid.Persistence/Governance/DapperPolicyPackAssignmentRepository.cs` (`ListByScopeAsync`).
 
 ```sql
 SELECT TOP 200
@@ -110,7 +110,7 @@ ORDER BY AssignedUtc DESC;
 
 ## 3. `dbo.GoldenManifests` — scoped lookup by manifest id
 
-**Source:** `ArchiForge.Persistence/Repositories/SqlGoldenManifestRepository.cs` (`GetByIdAsync`).
+**Source:** `ArchLucid.Persistence/Repositories/SqlGoldenManifestRepository.cs` (`GetByIdAsync`).
 
 ```sql
 SELECT
@@ -133,7 +133,7 @@ WHERE TenantId = @TenantId
 
 ## 4. `dbo.PolicyPackVersions` — content for resolved version
 
-**Source:** `ArchiForge.Persistence/Governance/DapperPolicyPackVersionRepository.cs` (`GetByPackAndVersionAsync`).
+**Source:** `ArchLucid.Persistence/Governance/DapperPolicyPackVersionRepository.cs` (`GetByPackAndVersionAsync`).
 
 ```sql
 SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
@@ -147,7 +147,7 @@ WHERE PolicyPackId = @PolicyPackId AND [Version] = @Ver;
 
 ## 5. `dbo.PolicyPacks` — metadata for assigned pack
 
-**Source:** `ArchiForge.Persistence/Governance/DapperPolicyPackRepository.cs` (`GetByIdAsync`).
+**Source:** `ArchLucid.Persistence/Governance/DapperPolicyPackRepository.cs` (`GetByIdAsync`).
 
 ```sql
 SELECT

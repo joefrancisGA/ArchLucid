@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Compliance.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Decisioning.Compliance.Evaluators;
+namespace ArchLucid.Decisioning.Compliance.Evaluators;
 
 public interface IComplianceEvaluator
 {

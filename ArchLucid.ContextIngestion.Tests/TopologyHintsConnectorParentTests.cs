@@ -1,10 +1,10 @@
-using ArchiForge.ContextIngestion.Connectors;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.ContextIngestion.Topology;
+using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Topology;
 
 using FluentAssertions;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Tests for Topology Hints Connector Parent.

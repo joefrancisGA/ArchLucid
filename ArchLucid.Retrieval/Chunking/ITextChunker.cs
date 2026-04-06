@@ -1,7 +1,7 @@
-namespace ArchiForge.Retrieval.Chunking;
+namespace ArchLucid.Retrieval.Chunking;
 
 /// <summary>
-/// Splits long document text into overlapping windows before embedding in <see cref="ArchiForge.Retrieval.Indexing.RetrievalIndexingService"/>.
+/// Splits long document text into overlapping windows before embedding in <see cref="ArchLucid.Retrieval.Indexing.RetrievalIndexingService"/>.
 /// </summary>
 public interface ITextChunker
 {

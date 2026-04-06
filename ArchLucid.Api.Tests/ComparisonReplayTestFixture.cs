@@ -2,9 +2,9 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Shared helpers for comparison-replay integration tests (run creation, replay, persist).</summary>
 public static class ComparisonReplayTestFixture
@@ -77,7 +77,7 @@ public static class ComparisonReplayTestFixture
     }
 
     /// <summary>
-    /// Calls the end-to-end compare summary endpoint with <c>persist: true</c> and returns <c>X-ArchiForge-ComparisonRecordId</c>.
+    /// Calls the end-to-end compare summary endpoint with <c>persist: true</c> and returns <c>X-ArchLucid-ComparisonRecordId</c>.
     /// </summary>
     /// <param name="client">API test client.</param>
     /// <param name="leftRunId">Baseline run id (query string).</param>
@@ -93,8 +93,8 @@ public static class ComparisonReplayTestFixture
             $"/v1/architecture/run/compare/end-to-end/summary?leftRunId={Uri.EscapeDataString(leftRunId)}&rightRunId={Uri.EscapeDataString(rightRunId)}",
             new StringContent("""{"persist":true}""", Encoding.UTF8, "application/json"));
         persist.EnsureSuccessStatusCode();
-        string? comparisonRecordId = persist.Headers.GetValues("X-ArchiForge-ComparisonRecordId").FirstOrDefault();
-        return string.IsNullOrEmpty(comparisonRecordId) ? throw new InvalidOperationException("X-ArchiForge-ComparisonRecordId header missing.") : comparisonRecordId;
+        string? comparisonRecordId = persist.Headers.GetValues("X-ArchLucid-ComparisonRecordId").FirstOrDefault();
+        return string.IsNullOrEmpty(comparisonRecordId) ? throw new InvalidOperationException("X-ArchLucid-ComparisonRecordId header missing.") : comparisonRecordId;
     }
 
     private static StringContent JsonContent(object value)

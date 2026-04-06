@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
 /// Observability configuration under section <c>Observability</c> (OTel exporters, Prometheus scrape).

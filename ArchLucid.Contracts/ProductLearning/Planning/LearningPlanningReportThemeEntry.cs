@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>One improvement theme row in a planning report (read-only export slice).</summary>
 public sealed class LearningPlanningReportThemeEntry

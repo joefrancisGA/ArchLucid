@@ -35,7 +35,7 @@ Give operators a **repeatable** way to:
 | Dashboard JSON | `infra/grafana/*.json`, `infra/grafana/dashboards/*.json` | Import or Terraform-provision |
 | Managed Grafana instance | `infra/terraform-monitoring/main.tf` | `azurerm_dashboard_grafana` |
 | Optional Terraform dashboards | `infra/terraform-monitoring/grafana_dashboards.tf` | `grafana_folder` + `grafana_dashboard` (Grafana provider) |
-| OTLP + metrics | `ArchiForge.Host.Core/Startup/ObservabilityExtensions.cs` | Traces/metrics exporters |
+| OTLP + metrics | `ArchLucid.Host.Core/Startup/ObservabilityExtensions.cs` | Traces/metrics exporters |
 
 ## 6. Data flow
 
@@ -68,7 +68,7 @@ Optional: add `promtool test rules` YAML under `infra/prometheus/tests/` when yo
 
 ### OTLP and Azure Monitor
 
-Production hosts should set **`Observability:Otlp:Endpoint`** (and optional **`Headers`**) when exporting to a collector or **Azure Monitor’s OTLP endpoint** derived from Application Insights. A **connection string** placeholder lives in **`ArchiForge.Api/appsettings.Production.json`** for operators mapping env vars; wiring the **Azure Monitor OpenTelemetry Distro** is optional and would be a separate package — until then, OTLP remains the supported path.
+Production hosts should set **`Observability:Otlp:Endpoint`** (and optional **`Headers`**) when exporting to a collector or **Azure Monitor’s OTLP endpoint** derived from Application Insights. A **connection string** placeholder lives in **`ArchLucid.Api/appsettings.Production.json`** for operators mapping env vars; wiring the **Azure Monitor OpenTelemetry Distro** is optional and would be a separate package — until then, OTLP remains the supported path.
 
 ### Terraform dashboard provisioning
 

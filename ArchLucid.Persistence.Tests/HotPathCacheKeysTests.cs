@@ -1,9 +1,9 @@
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Caching;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Caching;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 public sealed class HotPathCacheKeysTests
 {

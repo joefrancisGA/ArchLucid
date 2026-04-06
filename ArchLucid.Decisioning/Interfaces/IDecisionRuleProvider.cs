@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Interfaces;
+namespace ArchLucid.Decisioning.Interfaces;
 
 public interface IDecisionRuleProvider
 {

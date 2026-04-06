@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Persistence.Caching;
+namespace ArchLucid.Persistence.Caching;
 
 /// <summary>In-process <see cref="IMemoryCache"/> implementation of <see cref="IHotPathReadCache"/>.</summary>
 public sealed class MemoryHotPathReadCache(

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.Resolution;
+namespace ArchLucid.Decisioning.Governance.Resolution;
 
 /// <summary>
 /// DTO-style snapshot of how an assignment would participate in precedence ordering (for future APIs, UI, or exports).

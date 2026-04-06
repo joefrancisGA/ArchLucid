@@ -1,10 +1,10 @@
 using System.Reflection;
 
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

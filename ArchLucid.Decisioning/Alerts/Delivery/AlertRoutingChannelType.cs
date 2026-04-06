@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// <see cref="IAlertDeliveryChannel.ChannelType"/> and <see cref="AlertRoutingSubscription.ChannelType"/> discriminator strings.

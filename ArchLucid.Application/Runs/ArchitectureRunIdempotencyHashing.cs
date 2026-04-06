@@ -2,10 +2,10 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.Application.Runs;
+namespace ArchLucid.Application.Runs;
 
 /// <summary>
 /// Normalises <c>Idempotency-Key</c> and builds a stable SHA-256 fingerprint of <see cref="ArchitectureRequest"/>

@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Diagnostics;
+namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>Cached outbox depths for Prometheus observable gauges (updated by a background collector).</summary>
 public readonly record struct OutboxDepthGaugeValues(

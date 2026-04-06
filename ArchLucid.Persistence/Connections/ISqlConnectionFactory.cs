@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 public interface ISqlConnectionFactory
 {

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Validation;
+namespace ArchLucid.Decisioning.Validation;
 
 /// <summary>
 /// <see cref="ISchemaValidationService"/> that always succeeds. Use in tests that exercise merge logic without JSON schema files.

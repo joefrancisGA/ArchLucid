@@ -1,6 +1,6 @@
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Models;
 
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
 /// Thread-safe in-memory <see cref="IVectorIndex"/> using cosine similarity over stored embeddings (dev/tests or single-node deployments).

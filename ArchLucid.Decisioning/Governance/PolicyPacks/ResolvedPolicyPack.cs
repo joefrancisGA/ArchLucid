@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>One entry in <see cref="EffectivePolicyPackSet.Packs"/> after assignment + version resolution.</summary>
 /// <remarks>

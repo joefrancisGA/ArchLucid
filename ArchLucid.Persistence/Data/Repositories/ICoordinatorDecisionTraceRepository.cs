@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.DecisionTraces;
+using ArchLucid.Contracts.DecisionTraces;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Persistence contract for coordinator <see cref="RunEventTrace"/> rows (merge/engine event log for string runs).

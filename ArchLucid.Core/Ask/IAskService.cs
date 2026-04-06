@@ -1,11 +1,11 @@
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
-namespace ArchiForge.Core.Ask;
+namespace ArchLucid.Core.Ask;
 
 /// <summary>
 /// Grounded natural-language Q&amp;A over a scoped run’s golden manifest, provenance, optional comparison, and retrieval hits.
 /// </summary>
-/// <remarks>Implementation: <c>ArchiForge.Api.Services.Ask.AskService</c> (registered scoped in API).</remarks>
+/// <remarks>Implementation: <c>ArchLucid.Api.Services.Ask.AskService</c> (registered scoped in API).</remarks>
 public interface IAskService
 {
     /// <summary>

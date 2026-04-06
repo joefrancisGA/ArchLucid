@@ -1,11 +1,11 @@
 using System.Data;
 
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Host.Core.DataAccess;
+namespace ArchLucid.Host.Core.DataAccess;
 
 /// <summary>
 /// Bridges <see cref="IDbConnectionFactory"/> (Data-layer Dapper repos, health checks) to scoped

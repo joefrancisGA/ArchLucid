@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Persists comparison outputs as immutable audit records so they can be replayed or inspected later.

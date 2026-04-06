@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Tuning;
+namespace ArchLucid.Decisioning.Alerts.Tuning;
 
 /// <summary>
 /// Suggests a threshold (simple or composite) by simulating each candidate and scoring outcomes with <see cref="IAlertNoiseScorer"/>.

@@ -1,9 +1,9 @@
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.KnowledgeGraph.Repositories;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Repositories;
 
 using FluentAssertions;
 
-namespace ArchiForge.KnowledgeGraph.Tests;
+namespace ArchLucid.KnowledgeGraph.Tests;
 
 /// <summary>
 /// Tests for In Memory Graph Snapshot Repository.

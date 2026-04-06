@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Conversation;
+namespace ArchLucid.Core.Conversation;
 
 /// <summary>
 /// Scoped Ask conversation header: identity, optional run anchors for manifest/comparison context, and activity timestamps.

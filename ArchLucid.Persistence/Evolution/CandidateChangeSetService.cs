@@ -1,9 +1,9 @@
 using System.Globalization;
 
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.ProductLearning.Planning;
 
-namespace ArchiForge.Persistence.Evolution;
+namespace ArchLucid.Persistence.Evolution;
 
 /// <summary>
 /// Deterministic projection from 59R <see cref="ProductLearningImprovementPlanRecord"/> to 60R <see cref="CandidateChangeSet"/> instances (no side effects).

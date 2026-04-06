@@ -1,10 +1,10 @@
-namespace ArchiForge.Decisioning.Alerts.Simulation;
+namespace ArchLucid.Decisioning.Alerts.Simulation;
 
 /// <summary>
 /// What-if evaluation of simple or composite rules over historical run contexts (no alert persistence from simple rules; composite uses live suppression reads).
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchiForge.Persistence.Alerts.Simulation.RuleSimulationService</c>. Exposed via <c>AlertSimulationController</c>.
+/// Implemented by <c>ArchLucid.Persistence.Alerts.Simulation.RuleSimulationService</c>. Exposed via <c>AlertSimulationController</c>.
 /// </remarks>
 public interface IRuleSimulationService
 {

@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Findings.Serialization;
+namespace ArchLucid.Decisioning.Findings.Serialization;
 
 /// <summary>
 /// Normalizes legacy findings (pre-envelope) to the current schema so stored snapshots remain readable.

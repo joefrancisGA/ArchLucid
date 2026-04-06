@@ -1,6 +1,6 @@
-﻿using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
 
-namespace ArchiForge.Persistence.ProductLearning;
+namespace ArchLucid.Persistence.ProductLearning;
 
 /// <summary>
 /// Explicit, deterministic scoring for product-learning triage (documented for operators).

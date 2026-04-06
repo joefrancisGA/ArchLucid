@@ -1,11 +1,11 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Findings;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.Host.Core.Diagnostics;
+namespace ArchLucid.Host.Core.Diagnostics;
 
 
 /* This gives you a deterministic way to generate:

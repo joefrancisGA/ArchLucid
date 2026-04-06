@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Decisions;
+namespace ArchLucid.Contracts.Decisions;
 
 /// <summary>
 /// Represents a single candidate option within a <see cref="DecisionNode"/>.

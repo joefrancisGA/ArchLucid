@@ -1,12 +1,12 @@
-using ArchiForge.ContextIngestion.Connectors;
-using ArchiForge.ContextIngestion.Contracts;
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.Models;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Tests for Document Connector.

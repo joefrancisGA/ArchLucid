@@ -1,4 +1,4 @@
-namespace ArchiForge.Application;
+namespace ArchLucid.Application;
 
 /// <summary>
 /// Replays an existing architecture run by re-executing its agents against cloned evidence,

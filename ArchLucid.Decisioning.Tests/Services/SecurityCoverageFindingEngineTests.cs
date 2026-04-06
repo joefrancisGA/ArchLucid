@@ -1,14 +1,14 @@
-using ArchiForge.Decisioning.Analysis;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Decisioning.Services;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Services;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests.Services;
+namespace ArchLucid.Decisioning.Tests.Services;
 
 [Trait("Category", "Unit")]
 public sealed class SecurityCoverageFindingEngineTests

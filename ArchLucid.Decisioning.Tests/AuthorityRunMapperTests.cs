@@ -1,11 +1,11 @@
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// <see cref="AuthorityRunMapper"/> keeps <see cref="DapperAuthorityQueryService"/> and <see cref="InMemoryAuthorityQueryService"/> DTO projections aligned.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Determinism;
+namespace ArchLucid.Application.Determinism;
 
 /// <summary>
 /// Captures the comparison outcome for a single replay iteration against the determinism baseline.

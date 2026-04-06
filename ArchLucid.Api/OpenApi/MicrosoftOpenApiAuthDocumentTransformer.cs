@@ -1,9 +1,9 @@
-using ArchiForge.Api.Swagger;
+using ArchLucid.Api.Swagger;
 
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
-namespace ArchiForge.Api.OpenApi;
+namespace ArchLucid.Api.OpenApi;
 
 /// <summary>
 /// Aligns <c>MapOpenApi</c> output with Swashbuckle auth metadata for <c>/openapi/v1.json</c>.

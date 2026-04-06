@@ -1,9 +1,9 @@
-using ArchiForge.Api.Auth.Models;
+using ArchLucid.Api.Auth.Models;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Startup;
+namespace ArchLucid.Api.Startup;
 
 internal static class InfrastructureExtensions
 {
@@ -16,32 +16,32 @@ internal static class InfrastructureExtensions
     /// <see cref="AuthorizationOptions.FallbackPolicy"/> requires an authenticated principal so new controllers
     /// are closed by default; use <c>[AllowAnonymous]</c> only for intentional public surface (e.g. <c>/version</c>, health).
     /// </remarks>
-    public static IServiceCollection AddArchiForgeAuthorization(this IServiceCollection services)
+    public static IServiceCollection AddArchLucidAuthorization(this IServiceCollection services)
     {
         services.AddAuthorizationBuilder()
             .SetFallbackPolicy(
                 new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build())
-            .AddPolicy(ArchiForgePolicies.ReadAuthority, policy =>
+            .AddPolicy(ArchLucidPolicies.ReadAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole(
-                    ArchiForgeRoles.Reader,
-                    ArchiForgeRoles.Operator,
-                    ArchiForgeRoles.Admin);
+                    ArchLucidRoles.Reader,
+                    ArchLucidRoles.Operator,
+                    ArchLucidRoles.Admin);
             })
-            .AddPolicy(ArchiForgePolicies.ExecuteAuthority, policy =>
+            .AddPolicy(ArchLucidPolicies.ExecuteAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole(
-                    ArchiForgeRoles.Operator,
-                    ArchiForgeRoles.Admin);
+                    ArchLucidRoles.Operator,
+                    ArchLucidRoles.Admin);
             })
-            .AddPolicy(ArchiForgePolicies.AdminAuthority, policy =>
+            .AddPolicy(ArchLucidPolicies.AdminAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
-                policy.RequireRole(ArchiForgeRoles.Admin);
+                policy.RequireRole(ArchLucidRoles.Admin);
             })
             .AddPolicy("CanCommitRuns", policy =>
                 policy.RequireClaim("permission", "commit:run"))
@@ -56,7 +56,7 @@ internal static class InfrastructureExtensions
         return services;
     }
 
-    public static IServiceCollection AddArchiForgeRateLimiting(
+    public static IServiceCollection AddArchLucidRateLimiting(
         this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -117,13 +117,13 @@ internal static class InfrastructureExtensions
         return services;
     }
 
-    public static IServiceCollection AddArchiForgeCors(
+    public static IServiceCollection AddArchLucidCors(
         this IServiceCollection services,
         IConfiguration configuration)
     {
         services.AddCors(options =>
         {
-            options.AddPolicy("ArchiForge", policy =>
+            options.AddPolicy("ArchLucid", policy =>
             {
                 string[] origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
                 if (origins.Length > 0)
@@ -142,7 +142,7 @@ internal static class InfrastructureExtensions
     }
 
     /// <summary>Enables Brotli/Gzip for HTTPS responses (default MIME types include JSON).</summary>
-    public static IServiceCollection AddArchiForgeResponseCompression(this IServiceCollection services)
+    public static IServiceCollection AddArchLucidResponseCompression(this IServiceCollection services)
     {
         services.AddResponseCompression(options =>
         {

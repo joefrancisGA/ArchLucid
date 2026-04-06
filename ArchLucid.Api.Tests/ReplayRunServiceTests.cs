@@ -1,16 +1,16 @@
-using ArchiForge.Application;
-using ArchiForge.Application.Agents;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Decisioning.Merge;
+using ArchLucid.Application;
+using ArchLucid.Application.Agents;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Merge;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Ensures replay loads the source run through <see cref="IRunDetailQueryService"/> (canonical path)

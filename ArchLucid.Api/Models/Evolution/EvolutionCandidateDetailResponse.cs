@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
 /// <summary>Candidate with embedded plan snapshot and simulation history.</summary>
 public sealed class EvolutionCandidateDetailResponse

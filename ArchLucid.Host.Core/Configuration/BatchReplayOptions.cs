@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>Limits and behavior for <c>POST .../comparisons/replay/batch</c>.</summary>
 public sealed class BatchReplayOptions

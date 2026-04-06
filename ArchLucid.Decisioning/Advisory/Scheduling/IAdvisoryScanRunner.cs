@@ -1,11 +1,11 @@
-namespace ArchiForge.Decisioning.Advisory.Scheduling;
+namespace ArchLucid.Decisioning.Advisory.Scheduling;
 
 /// <summary>
 /// Executes a single advisory scan for a persisted <see cref="AdvisoryScanSchedule"/> (on-demand or from a background poller).
 /// </summary>
 /// <remarks>
-/// Registered scoped in DI. Implementation lives in <c>ArchiForge.Persistence.Advisory.AdvisoryScanRunner</c>.
-/// Primary callers: <c>ArchiForge.Api.Hosted.AdvisoryScanHostedService</c> (due schedules) and <c>ArchiForge.Api.Controllers.AdvisorySchedulingController.RunNow</c>.
+/// Registered scoped in DI. Implementation lives in <c>ArchLucid.Persistence.Advisory.AdvisoryScanRunner</c>.
+/// Primary callers: <c>ArchLucid.Api.Hosted.AdvisoryScanHostedService</c> (due schedules) and <c>ArchLucid.Api.Controllers.AdvisorySchedulingController.RunNow</c>.
 /// </remarks>
 public interface IAdvisoryScanRunner
 {

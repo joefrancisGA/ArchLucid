@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Validation;
+using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Integration tests: Schema Validation (HTTP host, database, or cross-component).

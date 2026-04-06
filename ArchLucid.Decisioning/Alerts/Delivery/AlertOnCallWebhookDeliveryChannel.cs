@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Delivery;
 
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// Posts a structured JSON payload suitable for generic on-call or paging endpoints (<see cref="AlertRoutingChannelType.OnCallWebhook"/>).

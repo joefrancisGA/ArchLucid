@@ -1,9 +1,9 @@
-using ArchiForge.ArtifactSynthesis.Docx;
-using ArchiForge.ArtifactSynthesis.Docx.Models;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.ArtifactSynthesis.Docx.Models;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
 using DocumentFormat.OpenXml.Packaging;
 
@@ -11,7 +11,7 @@ using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Coordinator.Tests;
+namespace ArchLucid.Coordinator.Tests;
 
 /// <summary>
 /// Golden-style checks on <see cref="DocxExportService"/> output: valid OpenXML package and stable anchor strings from a minimal manifest.

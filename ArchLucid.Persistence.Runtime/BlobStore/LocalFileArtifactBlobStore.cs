@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.BlobStore;
+namespace ArchLucid.Persistence.BlobStore;
 
 /// <summary>Writes under a root directory (local dev / tests). URIs use the file:// scheme.</summary>
 public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore

@@ -1,8 +1,8 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Retrieval.Models;
-using ArchiForge.Retrieval.Queries;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Retrieval.Models;
+using ArchLucid.Retrieval.Queries;
 
 using Asp.Versioning;
 
@@ -10,14 +10,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// HTTP semantic search over retrieval chunks scoped to the caller’s tenant/workspace/project.
 /// </summary>
 /// <remarks>GET <c>api/retrieval/search</c>; delegates to <see cref="IRetrievalQueryService"/> (same path used indirectly by <c>AskService</c>).</remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/retrieval")]
 [EnableRateLimiting("fixed")]

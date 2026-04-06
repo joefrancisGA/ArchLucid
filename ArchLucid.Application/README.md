@@ -1,6 +1,6 @@
-## ArchiForge.Application
+## ArchLucid.Application
 
-Application-layer services used by `ArchiForge.Api`.
+Application-layer services used by `ArchLucid.Api`.
 
 - Orchestrates:
   - architecture analysis reports
@@ -12,8 +12,8 @@ Application-layer services used by `ArchiForge.Api`.
 When adding new behavior:
 
 - Put orchestration and formatting logic here (not in controllers).
-- Keep repositories/data access in `ArchiForge.Persistence.Data.*`.
-- Keep manifest merge logic in `ArchiForge.Decisioning.Merge` (types such as `IDecisionEngineService` / `DecisionEngineService`).
+- Keep repositories/data access in `ArchLucid.Persistence.Data.*`.
+- Keep manifest merge logic in `ArchLucid.Decisioning.Merge` (types such as `IDecisionEngineService` / `DecisionEngineService`).
 
 See:
 

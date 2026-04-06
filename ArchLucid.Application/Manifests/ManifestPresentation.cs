@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Manifests;
+namespace ArchLucid.Application.Manifests;
 
 /// <summary>
 /// Presentation-layer helpers for resolving human-readable names and labels from manifest data.

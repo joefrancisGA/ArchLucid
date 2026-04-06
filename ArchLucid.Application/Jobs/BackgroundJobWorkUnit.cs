@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Application.Jobs;
+namespace ArchLucid.Application.Jobs;
 
 /// <summary>
 /// Polymorphic work description for durable background export jobs (serialized to SQL and executed on the worker).

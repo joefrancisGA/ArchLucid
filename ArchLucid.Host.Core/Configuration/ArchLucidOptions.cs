@@ -1,6 +1,6 @@
-namespace ArchiForge.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
-public sealed class ArchiForgeOptions
+public sealed class ArchLucidOptions
 {
     public const string SectionName = "ArchiForge";
 

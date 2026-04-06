@@ -1,9 +1,9 @@
-﻿using System.Data;
+using System.Data;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Provenance;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Provenance;
 
-namespace ArchiForge.Persistence.Provenance;
+namespace ArchLucid.Persistence.Provenance;
 
 /// <summary>
 /// In-memory implementation of <see cref="IProvenanceSnapshotRepository"/> for testing and local development.

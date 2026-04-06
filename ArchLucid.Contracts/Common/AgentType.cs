@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Common;
+namespace ArchLucid.Contracts.Common;
 
 /// <summary>Identifies the specialized role of an agent within the decision pipeline.</summary>
 public enum AgentType

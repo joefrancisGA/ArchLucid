@@ -2,7 +2,7 @@ using System.Text.Json;
 
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>Redis (or any <see cref="IDistributedCache"/>) store for cross-replica LLM response reuse.</summary>
 public sealed class DistributedLlmCompletionResponseStore(IDistributedCache distributedCache) : ILlmCompletionResponseStore

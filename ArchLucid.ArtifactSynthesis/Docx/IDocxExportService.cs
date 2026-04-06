@@ -1,13 +1,13 @@
-using ArchiForge.ArtifactSynthesis.Docx.Models;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Docx.Models;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Docx;
+namespace ArchLucid.ArtifactSynthesis.Docx;
 
 /// <summary>
 /// Builds a Word OpenXML package from a golden manifest, synthesized artifacts, and optional comparison/explanation payloads.
 /// </summary>
-/// <remarks>Default implementation: <see cref="DocxExportService"/>. Used by <c>ArchiForge.Api.Controllers.DocxExportController</c>.</remarks>
+/// <remarks>Default implementation: <see cref="DocxExportService"/>. Used by <c>ArchLucid.Api.Controllers.DocxExportController</c>.</remarks>
 public interface IDocxExportService
 {
     /// <summary>

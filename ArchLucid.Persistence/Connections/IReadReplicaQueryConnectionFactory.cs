@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
 /// Opens an optional read-scale-out SQL connection with the same RLS session context as primary repositories.

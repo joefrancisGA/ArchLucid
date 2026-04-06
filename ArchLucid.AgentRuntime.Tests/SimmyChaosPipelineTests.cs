@@ -1,5 +1,5 @@
-using ArchiForge.Persistence.Connections;
-using ArchiForge.TestSupport;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -10,7 +10,7 @@ using Polly.Simmy.Fault;
 using Polly.Simmy.Latency;
 using Polly.Timeout;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
 /// Polly Simmy chaos strategies layered with retries / timeouts — mirrors production resilience patterns without external services.

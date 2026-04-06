@@ -1,8 +1,8 @@
-using ArchiForge.Core.Resilience;
+using ArchLucid.Core.Resilience;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Retrieval.Embedding;
+namespace ArchLucid.Retrieval.Embedding;
 
 /// <summary>
 /// Decorator for <see cref="IOpenAiEmbeddingClient"/> that applies a <see cref="CircuitBreakerGate"/> around embedding calls.

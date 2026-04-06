@@ -1,14 +1,14 @@
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 using JetBrains.Annotations;
 
-namespace ArchiForge.Persistence.Compare;
+namespace ArchLucid.Persistence.Compare;
 
 /// <summary>
 /// Scope-safe structural comparison of golden manifests and authority runs (diff lists for UI and advisory).
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="AuthorityCompareService"/>. HTTP: <c>ArchiForge.Api.Controllers.AuthorityCompareController</c>.
+/// Implementation: <see cref="AuthorityCompareService"/>. HTTP: <c>ArchLucid.Api.Controllers.AuthorityCompareController</c>.
 /// </remarks>
 public interface IAuthorityCompareService
 {

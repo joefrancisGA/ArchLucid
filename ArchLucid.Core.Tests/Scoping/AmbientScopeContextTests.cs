@@ -1,8 +1,8 @@
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
-namespace ArchiForge.Core.Tests.Scoping;
+namespace ArchLucid.Core.Tests.Scoping;
 
 [Trait("Category", "Unit")]
 public sealed class AmbientScopeContextTests

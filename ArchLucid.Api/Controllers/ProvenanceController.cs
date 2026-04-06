@@ -1,7 +1,7 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Provenance;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Provenance;
 
 using Asp.Versioning;
 
@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Provenance graph queries for UI (alias of authority graph endpoints under <c>/api/provenance</c>).
@@ -21,7 +21,7 @@ namespace ArchiForge.Api.Controllers;
 /// Returns 404 with Problem Details when the run or graph snapshot is missing.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/provenance")]
 [EnableRateLimiting("fixed")]

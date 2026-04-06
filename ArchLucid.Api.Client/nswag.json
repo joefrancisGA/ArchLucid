@@ -8,9 +8,9 @@
   },
   "codeGenerators": {
     "openApiToCSharpClient": {
-      "className": "ArchiForgeApiClient",
-      "namespace": "ArchiForge.Api.Client.Generated",
-      "output": "Generated/ArchiForgeApiClient.g.cs",
+      "className": "ArchLucidApiClient",
+      "namespace": "ArchLucid.Api.Client.Generated",
+      "output": "Generated/ArchLucidApiClient.g.cs",
       "generateClientClasses": true,
       "generateClientInterfaces": true,
       "injectHttpClient": true,
@@ -19,7 +19,7 @@
       "useHttpClientCreationMethod": false,
       "useHttpRequestMessageCreationMethod": false,
       "generateExceptionClasses": true,
-      "exceptionClass": "ArchiForgeApiException",
+      "exceptionClass": "ArchLucidApiException",
       "wrapDtoExceptions": true,
       "useBaseUrl": true,
       "generateBaseUrlProperty": true,

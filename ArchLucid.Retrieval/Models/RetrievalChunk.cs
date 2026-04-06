@@ -1,9 +1,9 @@
-namespace ArchiForge.Retrieval.Models;
+namespace ArchLucid.Retrieval.Models;
 
 /// <summary>
-/// Indexed unit stored in <see cref="ArchiForge.Retrieval.Indexing.IVectorIndex"/> (text slice + embedding + scope metadata).
+/// Indexed unit stored in <see cref="ArchLucid.Retrieval.Indexing.IVectorIndex"/> (text slice + embedding + scope metadata).
 /// </summary>
-/// <remarks>Produced by <see cref="ArchiForge.Retrieval.Indexing.RetrievalIndexingService"/> from <see cref="RetrievalDocument"/>.</remarks>
+/// <remarks>Produced by <see cref="ArchLucid.Retrieval.Indexing.RetrievalIndexingService"/> from <see cref="RetrievalDocument"/>.</remarks>
 public class RetrievalChunk
 {
     public string ChunkId { get; set; } = null!;

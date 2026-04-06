@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Summaries;
+namespace ArchLucid.Application.Summaries;
 
 /// <summary>
 /// Generates a structured Markdown summary of a <see cref="GoldenManifest"/> using configurable

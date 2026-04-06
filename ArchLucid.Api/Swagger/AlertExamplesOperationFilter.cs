@@ -3,7 +3,7 @@ using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
 /// <summary>Markdown JSON examples for alert operator POST bodies (simulation, tuning, rule create).</summary>
 public sealed class AlertExamplesOperationFilter : IOperationFilter

@@ -1,6 +1,6 @@
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Decisioning.Analysis;
+namespace ArchLucid.Decisioning.Analysis;
 
 public interface IGraphCoverageAnalyzer
 {

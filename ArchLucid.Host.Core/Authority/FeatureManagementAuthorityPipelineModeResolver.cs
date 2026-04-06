@@ -1,9 +1,9 @@
-using ArchiForge.Core.Authority;
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Core.Authority;
+using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.FeatureManagement;
 
-namespace ArchiForge.Host.Core.Authority;
+namespace ArchLucid.Host.Core.Authority;
 
 /// <summary>
 /// Resolves async authority mode from <see cref="IConfiguration"/> storage provider and feature management.

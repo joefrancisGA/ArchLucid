@@ -3,7 +3,7 @@ using System.Reflection;
 using DbUp;
 using DbUp.Engine;
 
-namespace ArchiForge.Persistence.Data.Infrastructure;
+namespace ArchLucid.Persistence.Data.Infrastructure;
 
 /// <summary>
 /// Runs SQL Server database migrations using DbUp.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
 /// Outbound route for architecture digests: channel type, destination, and enablement for a scope.

@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Persistence.Queries;
+using ArchLucid.Persistence.Queries;
 
-namespace ArchiForge.Persistence.Compare;
+namespace ArchLucid.Persistence.Compare;
 
 /// <summary>
 /// Outcome of <see cref="IAuthorityCompareService.CompareRunsAsync"/> including optional nested manifest diff.

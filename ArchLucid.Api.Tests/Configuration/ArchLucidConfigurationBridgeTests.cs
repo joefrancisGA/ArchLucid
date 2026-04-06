@@ -1,15 +1,15 @@
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 
-namespace ArchiForge.Api.Tests.Configuration;
+namespace ArchLucid.Api.Tests.Configuration;
 
-public sealed class ArchiForgeConfigurationBridgeTests
+public sealed class ArchLucidConfigurationBridgeTests
 {
     [Fact]
-    public void ResolveArchiForgeOptions_ArchLucid_storage_overrides_legacy()
+    public void ResolveArchLucidOptions_ArchLucid_storage_overrides_legacy()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
@@ -20,7 +20,7 @@ public sealed class ArchiForgeConfigurationBridgeTests
                 })
             .Build();
 
-        ArchiForgeOptions resolved = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
+        ArchLucidOptions resolved = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         resolved.StorageProvider.Should().Be("Sql");
     }
@@ -37,7 +37,7 @@ public sealed class ArchiForgeConfigurationBridgeTests
                 })
             .Build();
 
-        string? mode = ArchiForgeConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
+        string? mode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
 
         mode.Should().Be("JwtBearer");
     }
@@ -53,7 +53,7 @@ public sealed class ArchiForgeConfigurationBridgeTests
                 })
             .Build();
 
-        string? mode = ArchiForgeConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
+        string? mode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
 
         mode.Should().Be("ApiKey");
     }

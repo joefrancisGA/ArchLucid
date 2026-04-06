@@ -1,9 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
 
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Builds a stable cache key for LLM JSON completion requests.

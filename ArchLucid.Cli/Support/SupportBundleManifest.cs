@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Cli.Support;
+namespace ArchLucid.Cli.Support;
 
 public sealed class SupportBundleManifest
 {

@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Advisory.Services;
 
-namespace ArchiForge.Decisioning.Advisory.Learning;
+namespace ArchLucid.Decisioning.Advisory.Learning;
 
 /// <summary>
 /// Adjusts a base recommendation priority using optional weights from a <see cref="RecommendationLearningProfile"/>.

@@ -1,25 +1,25 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.AgentRuntime;
-using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Application.Governance;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Core.Configuration;
-using ArchiForge.Core.Resilience;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Resilience;
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Retrieval.Chunking;
-using ArchiForge.Retrieval.Embedding;
-using ArchiForge.Retrieval.Indexing;
-using ArchiForge.Retrieval.Queries;
+using ArchLucid.AgentRuntime;
+using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Application.Governance;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Resilience;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Resilience;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Retrieval.Chunking;
+using ArchLucid.Retrieval.Embedding;
+using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.Queries;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
@@ -296,7 +296,7 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterGovernance(IServiceCollection services, IConfiguration configuration)
     {
-        ArchiForgeOptions governanceStorage = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
+        ArchLucidOptions governanceStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (string.Equals(governanceStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {

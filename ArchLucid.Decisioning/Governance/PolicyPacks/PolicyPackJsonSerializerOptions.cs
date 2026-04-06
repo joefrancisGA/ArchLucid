@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Decisioning.Governance.Resolution;
 
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Shared <see cref="JsonSerializerOptions"/> for serializing/deserializing <see cref="PolicyPackContentDocument"/> and pack <c>ContentJson</c>.

@@ -1,6 +1,6 @@
-using ArchiForge.Persistence.Audit;
+using ArchLucid.Persistence.Audit;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="AuditRepositoryContractTests"/> against <see cref="DapperAuditRepository"/>.

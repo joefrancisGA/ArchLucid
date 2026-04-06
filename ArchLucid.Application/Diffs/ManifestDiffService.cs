@@ -1,6 +1,6 @@
-﻿using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Diffs;
+namespace ArchLucid.Application.Diffs;
 
 /// <summary>
 /// Produces a structural diff between two <see cref="GoldenManifest"/> instances, reporting added/removed

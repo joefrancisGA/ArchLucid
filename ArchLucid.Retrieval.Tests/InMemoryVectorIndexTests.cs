@@ -1,9 +1,9 @@
-using ArchiForge.Retrieval.Indexing;
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Indexing;
+using ArchLucid.Retrieval.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Retrieval.Tests;
+namespace ArchLucid.Retrieval.Tests;
 
 /// <summary>
 /// <see cref="InMemoryVectorIndex"/> scope filters and cosine edge cases used by <see cref="Queries.RetrievalQueryService"/>.

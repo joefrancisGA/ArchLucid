@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Interfaces;
+namespace ArchLucid.Decisioning.Interfaces;
 
 /// <summary>
 /// Computes a deterministic hash over canonical manifest content (shared by decision engine and authority replay).

@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Coordinator.Services;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Coordinator.Services;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.Coordinator.Tests;
+namespace ArchLucid.Coordinator.Tests;
 
 /// <summary>
 /// Tests for Coordinator Service.

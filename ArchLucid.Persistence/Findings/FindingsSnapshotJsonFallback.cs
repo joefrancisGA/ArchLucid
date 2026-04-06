@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Findings.Serialization;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Decisioning.Findings.Serialization;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Serialization;
 
-namespace ArchiForge.Persistence.Findings;
+namespace ArchLucid.Persistence.Findings;
 
 /// <summary>Legacy <c>FindingsJson</c> hydration when <c>dbo.FindingRecords</c> is empty.</summary>
 /// <remarks>TODO: remove JSON fallback after relational migration complete.</remarks>

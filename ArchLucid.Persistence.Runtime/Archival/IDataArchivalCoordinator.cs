@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Archival;
+namespace ArchLucid.Persistence.Archival;
 
 /// <summary>
 /// Applies retention cutoffs to persistence stores (soft <c>ArchivedUtc</c> flags).

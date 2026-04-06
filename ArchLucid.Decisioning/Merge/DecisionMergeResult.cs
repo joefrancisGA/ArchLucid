@@ -1,8 +1,8 @@
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Decisioning.Merge;
+namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
 /// Result of a <see cref="IDecisionEngineService.MergeResults"/> call.

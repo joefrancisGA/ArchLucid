@@ -1,13 +1,13 @@
 using System.Text.Json.Serialization;
 
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Models;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Models;
 
-namespace ArchiForge.Persistence.Queries;
+namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
 /// Aggregated read model for a single run: core <see cref="RunRecord"/> plus optional hydrated snapshots and manifest.

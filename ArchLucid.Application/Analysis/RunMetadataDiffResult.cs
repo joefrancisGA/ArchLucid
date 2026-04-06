@@ -1,7 +1,7 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
-/// Describes the metadata-level differences between two <see cref="ArchiForge.Contracts.Metadata.ArchitectureRun"/> records
+/// Describes the metadata-level differences between two <see cref="ArchLucid.Contracts.Metadata.ArchitectureRun"/> records
 /// as part of an end-to-end replay comparison.
 /// </summary>
 public sealed class RunMetadataDiffResult

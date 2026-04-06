@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Persistence.GoldenManifests;
+using ArchLucid.Persistence.GoldenManifests;
 
-namespace ArchiForge.Persistence.BlobStore;
+namespace ArchLucid.Persistence.BlobStore;
 
 /// <summary>Single JSON blob mirroring <see cref="GoldenManifestStorageRow"/> JSON columns for offload.</summary>
 public sealed class GoldenManifestPayloadBlobEnvelope

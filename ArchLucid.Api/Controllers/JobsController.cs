@@ -1,7 +1,7 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Host.Core.Jobs;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Application.Jobs;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Jobs;
 
 using Asp.Versioning;
 
@@ -9,14 +9,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Provides status and result-file access for background export jobs.
 /// </summary>
 /// <remarks>Routes under <c>v{version}/jobs</c>.</remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [Route("v{version:apiVersion}/jobs")]
 [ApiVersion("1.0")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]

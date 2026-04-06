@@ -1,12 +1,12 @@
-using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Application;
-using ArchiForge.Application.Common;
-using ArchiForge.Application.Decisions;
-using ArchiForge.Application.Evidence;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Coordinator.Services;
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Decisioning.Merge;
+using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Application;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Evidence;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Coordinator.Services;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Merge;
 
 using FluentAssertions;
 
@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Run Service Audit.

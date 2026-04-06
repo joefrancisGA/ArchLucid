@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
 /// Sends one architecture digest to a subscription destination (parallel concept to <c>IAlertDeliveryChannel</c>).

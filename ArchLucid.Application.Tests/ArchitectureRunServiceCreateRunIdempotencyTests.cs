@@ -1,14 +1,14 @@
-using ArchiForge.Application.Common;
-using ArchiForge.Application.Decisions;
-using ArchiForge.Application.Evidence;
-using ArchiForge.Application.Runs;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Coordinator.Services;
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Decisioning.Merge;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Coordinator.Services;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Merge;
 
 using FluentAssertions;
 
@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Application.Tests;
+namespace ArchLucid.Application.Tests;
 
 /// <summary>
 /// <see cref="ArchitectureRunService.CreateRunAsync"/> idempotency: replay vs fingerprint conflict without coordinating a new run.

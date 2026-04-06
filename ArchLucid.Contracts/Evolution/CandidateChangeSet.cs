@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>60R candidate change set: a reviewable package derived from a 59R improvement plan (simulation-only until explicitly approved).</summary>
 public sealed class CandidateChangeSet

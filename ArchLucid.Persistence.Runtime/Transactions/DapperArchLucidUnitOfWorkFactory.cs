@@ -1,23 +1,23 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Transactions;
+namespace ArchLucid.Persistence.Transactions;
 
 /// <summary>
-/// Opens a connection via <see cref="ISqlConnectionFactory"/> and begins a transaction for <see cref="DapperArchiForgeUnitOfWork"/>.
+/// Opens a connection via <see cref="ISqlConnectionFactory"/> and begins a transaction for <see cref="DapperArchLucidUnitOfWork"/>.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Opens SQL connection and begins transaction; requires live SQL Server.")]
-public sealed class DapperArchiForgeUnitOfWorkFactory(ISqlConnectionFactory connectionFactory)
-    : IArchiForgeUnitOfWorkFactory
+public sealed class DapperArchLucidUnitOfWorkFactory(ISqlConnectionFactory connectionFactory)
+    : IArchLucidUnitOfWorkFactory
 {
     /// <inheritdoc />
-    public async Task<IArchiForgeUnitOfWork> CreateAsync(CancellationToken ct)
+    public async Task<IArchLucidUnitOfWork> CreateAsync(CancellationToken ct)
     {
         SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         SqlTransaction? transaction = connection.BeginTransaction();
-        return new DapperArchiForgeUnitOfWork(connection, transaction);
+        return new DapperArchLucidUnitOfWork(connection, transaction);
     }
 }

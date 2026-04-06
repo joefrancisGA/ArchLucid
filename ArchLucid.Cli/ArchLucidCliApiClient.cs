@@ -2,23 +2,23 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Requests;
 
-using Gen = ArchiForge.Api.Client.Generated;
+using Gen = ArchLucid.Api.Client.Generated;
 
-namespace ArchiForge.Cli;
+namespace ArchLucid.Cli;
 
 /// <summary>
-/// CLI-facing HTTP surface backed by the NSwag-generated <see cref="ArchiForgeApiClient"/> (OpenAPI v1 contract).
+/// CLI-facing HTTP surface backed by the NSwag-generated <see cref="ArchLucidApiClient"/> (OpenAPI v1 contract).
 /// Binary comparison replay/zip exports still use raw <see cref="HttpClient"/> because the OpenAPI model uses
 /// <c>FileContentResult</c> JSON rather than octet-stream bodies.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "HTTP client against live API; covered by CLI integration tests.")]
-public sealed class ArchiForgeApiClient
+public sealed class ArchLucidApiClient
 {
     private readonly HttpClient _http;
-    private readonly Gen.ArchiForgeApiClient _api;
+    private readonly Gen.ArchLucidApiClient _api;
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -26,7 +26,7 @@ public sealed class ArchiForgeApiClient
         WriteIndented = false,
     };
 
-    public ArchiForgeApiClient(string baseUrl)
+    public ArchLucidApiClient(string baseUrl)
     {
         string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
         if (invalidReason is not null)
@@ -36,19 +36,19 @@ public sealed class ArchiForgeApiClient
 
         string normalized = baseUrl.Trim().TrimEnd('/');
         _http = CreateHttpClient(normalized, useRetry: true);
-        _api = new Gen.ArchiForgeApiClient(_http) { BaseUrl = normalized + "/" };
+        _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = normalized + "/" };
     }
 
     /// <summary>
     /// Constructor for testing: use a provided HttpClient (e.g. with a mock handler).
     /// No retry pipeline is used so tests get deterministic behavior.
     /// </summary>
-    public ArchiForgeApiClient(HttpClient httpClient)
+    public ArchLucidApiClient(HttpClient httpClient)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
         _http = httpClient;
         string baseUrl = httpClient.BaseAddress?.ToString().Trim().TrimEnd('/') ?? "http://localhost";
-        _api = new Gen.ArchiForgeApiClient(_http) { BaseUrl = baseUrl + "/" };
+        _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = baseUrl + "/" };
     }
 
     private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry)
@@ -104,7 +104,7 @@ public sealed class ArchiForgeApiClient
     }
 
     /// <summary>Resolve API base URL: config.ApiUrl (when set) &gt; ARCHIFORGE_API_URL env &gt; default.</summary>
-    public static string ResolveBaseUrl(ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
+    public static string ResolveBaseUrl(ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
         return !string.IsNullOrWhiteSpace(config?.ApiUrl) ? config.ApiUrl.Trim().TrimEnd('/') : GetDefaultBaseUrl().TrimEnd('/');
     }
@@ -190,7 +190,7 @@ public sealed class ArchiForgeApiClient
 
             return CreateRunResult.Ok(mapped);
         }
-        catch (Gen.ArchiForgeApiException ex)
+        catch (Gen.ArchLucidApiException ex)
         {
             return CreateRunResult.Fail(ex.StatusCode, ResolveApiErrorMessage(ex));
         }
@@ -223,7 +223,7 @@ public sealed class ArchiForgeApiClient
 
             return new SubmitResultResult(true, parsed.ResultId, null);
         }
-        catch (Gen.ArchiForgeApiException ex)
+        catch (Gen.ArchLucidApiException ex)
         {
             return new SubmitResultResult(false, null, ResolveApiErrorMessage(ex), ex.StatusCode);
         }
@@ -268,7 +268,7 @@ public sealed class ArchiForgeApiClient
 
             return new CommitRunResult(true, mapped, null);
         }
-        catch (Gen.ArchiForgeApiException ex)
+        catch (Gen.ArchLucidApiException ex)
         {
             return new CommitRunResult(false, null, ResolveApiErrorMessage(ex), ex.StatusCode);
         }
@@ -294,7 +294,7 @@ public sealed class ArchiForgeApiClient
 
             return new SeedFakeResultsResult(true, mapped?.ResultCount ?? 0, null);
         }
-        catch (Gen.ArchiForgeApiException ex)
+        catch (Gen.ArchLucidApiException ex)
         {
             return new SeedFakeResultsResult(false, 0, ResolveApiErrorMessage(ex), ex.StatusCode);
         }
@@ -408,7 +408,7 @@ public sealed class ArchiForgeApiClient
                 return false;
             }
 
-            if (response.Headers.TryGetValues("X-ArchiForge-PersistedReplayRecordId", out IEnumerable<string>? persistedValues))
+            if (response.Headers.TryGetValues("X-ArchLucid-PersistedReplayRecordId", out IEnumerable<string>? persistedValues))
             {
                 string? persistedId = persistedValues.FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(persistedId))
@@ -729,10 +729,10 @@ public sealed class ArchiForgeApiClient
     }
 
     /// <summary>
-    /// NSwag reads ProblemDetails from the stream with <c>ReadResponseAsString=false</c>, so <see cref="Gen.ArchiForgeApiException.Response"/>
-    /// is often empty even when <see cref="Gen.ArchiForgeApiException{TResult}"/> carries a typed <see cref="Gen.ProblemDetails"/> body.
+    /// NSwag reads ProblemDetails from the stream with <c>ReadResponseAsString=false</c>, so <see cref="Gen.ArchLucidApiException.Response"/>
+    /// is often empty even when <see cref="Gen.ArchLucidApiException{TResult}"/> carries a typed <see cref="Gen.ProblemDetails"/> body.
     /// </summary>
-    private static string ResolveApiErrorMessage(Gen.ArchiForgeApiException ex)
+    private static string ResolveApiErrorMessage(Gen.ArchLucidApiException ex)
     {
         string? fromBody = TryParseError(ex.Response ?? string.Empty);
         if (!string.IsNullOrWhiteSpace(fromBody))
@@ -740,7 +740,7 @@ public sealed class ArchiForgeApiClient
             return fromBody;
         }
 
-        if (ex is Gen.ArchiForgeApiException<Gen.ProblemDetails> typed)
+        if (ex is Gen.ArchLucidApiException<Gen.ProblemDetails> typed)
         {
             if (!string.IsNullOrWhiteSpace(typed.Result?.Detail))
             {

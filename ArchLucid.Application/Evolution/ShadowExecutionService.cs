@@ -1,13 +1,13 @@
 using System.Globalization;
 using System.Text;
 
-using ArchiForge.Application.Analysis;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Application.Evolution;
+namespace ArchLucid.Application.Evolution;
 
 /// <summary>
 /// Shadow execution: single DB read (<see cref="IRunDetailQueryService.GetRunDetailAsync"/>), then an in-memory-only analysis pass.

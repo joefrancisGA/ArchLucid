@@ -1,14 +1,14 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Workflow;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Workflow;
 
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Default <see cref="IAlertMetricSnapshotBuilder"/>: derives six metrics from plan, comparison, recommendations, and learning profile.
 /// </summary>
 /// <remarks>
-/// Registered in DI for <c>ArchiForge.Persistence.Alerts.CompositeAlertService</c> (via interface). Threshold semantics for each metric are defined on stored <see cref="CompositeAlertRule"/> conditions.
+/// Registered in DI for <c>ArchLucid.Persistence.Alerts.CompositeAlertService</c> (via interface). Threshold semantics for each metric are defined on stored <see cref="CompositeAlertRule"/> conditions.
 /// </remarks>
 public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
 {

@@ -1,4 +1,4 @@
-namespace ArchiForge.Retrieval.Embedding;
+namespace ArchLucid.Retrieval.Embedding;
 
 /// <summary>
 /// Low-level embeddings seam (typically Azure OpenAI <see cref="AzureOpenAiEmbeddingClient"/>). Consumed by <see cref="AzureOpenAiEmbeddingService"/>.

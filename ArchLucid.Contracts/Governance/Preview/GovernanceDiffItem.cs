@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Governance.Preview;
+namespace ArchLucid.Contracts.Governance.Preview;
 
 /// <summary>
 /// A single manifest-level difference surfaced by a governance preview or environment comparison.

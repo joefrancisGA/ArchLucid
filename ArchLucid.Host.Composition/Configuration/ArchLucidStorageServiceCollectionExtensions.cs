@@ -1,55 +1,55 @@
 using System.Reflection;
 
-using ArchiForge.AgentRuntime;
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Repositories;
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Repositories;
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Core.Authority;
-using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Composite;
-using ArchiForge.Decisioning.Alerts.Delivery;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Repositories;
-using ArchiForge.Host.Core.Authority;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.DataAccess;
-using ArchiForge.Host.Core.Hosted;
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Repositories;
-using ArchiForge.Persistence.Advisory;
-using ArchiForge.Persistence.Alerts;
-using ArchiForge.Persistence.Archival;
-using ArchiForge.Persistence.Audit;
-using ArchiForge.Persistence.BlobStore;
-using ArchiForge.Persistence.Caching;
-using ArchiForge.Persistence.Compare;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Conversation;
-using ArchiForge.Persistence.Diagnostics;
-using ArchiForge.Persistence.Evolution;
-using ArchiForge.Persistence.Governance;
-using ArchiForge.Persistence.Integration;
-using ArchiForge.Persistence.Interfaces;
-using ArchiForge.Persistence.Orchestration;
-using ArchiForge.Persistence.Orchestration.Pipeline;
-using ArchiForge.Persistence.ProductLearning;
-using ArchiForge.Persistence.ProductLearning.Planning;
-using ArchiForge.Persistence.Provenance;
-using ArchiForge.Persistence.Queries;
-using ArchiForge.Persistence.Replay;
-using ArchiForge.Persistence.Repositories;
-using ArchiForge.Persistence.Retrieval;
-using ArchiForge.Persistence.Sql;
-using ArchiForge.Persistence.Transactions;
-using ArchiForge.Provenance;
+using ArchLucid.AgentRuntime;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Repositories;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Repositories;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Authority;
+using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Repositories;
+using ArchLucid.Host.Core.Authority;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.DataAccess;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Repositories;
+using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Alerts;
+using ArchLucid.Persistence.Archival;
+using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Caching;
+using ArchLucid.Persistence.Compare;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Diagnostics;
+using ArchLucid.Persistence.Evolution;
+using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.Integration;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Persistence.Orchestration.Pipeline;
+using ArchLucid.Persistence.ProductLearning;
+using ArchLucid.Persistence.ProductLearning.Planning;
+using ArchLucid.Persistence.Provenance;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Replay;
+using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Retrieval;
+using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Transactions;
+using ArchLucid.Provenance;
 
 using Azure.Core;
 using Azure.Identity;
@@ -58,18 +58,18 @@ using Azure.Storage.Blobs;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Composition.Configuration;
+namespace ArchLucid.Host.Composition.Configuration;
 
-public static class ArchiForgeStorageServiceCollectionExtensions
+public static class ArchLucidStorageServiceCollectionExtensions
 {
-    public static IServiceCollection AddArchiForgeStorage(
+    public static IServiceCollection AddArchLucidStorage(
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        ArchiForgeOptions options = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
+        ArchLucidOptions options = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        services.Configure<ArchiForgeOptions>(
-            configuration.GetSection(ArchiForgeOptions.SectionName));
+        services.Configure<ArchLucidOptions>(
+            configuration.GetSection(ArchLucidOptions.SectionName));
 
         if (string.Equals(options.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {
@@ -106,7 +106,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IPolicyPackVersionRepository, InMemoryPolicyPackVersionRepository>();
             services.AddSingleton<IPolicyPackAssignmentRepository, InMemoryPolicyPackAssignmentRepository>();
             // Required by CoordinatorService → IAuthorityRunOrchestrator.
-            services.AddSingleton<IArchiForgeUnitOfWorkFactory, InMemoryArchiForgeUnitOfWorkFactory>();
+            services.AddSingleton<IArchLucidUnitOfWorkFactory, InMemoryArchLucidUnitOfWorkFactory>();
             services.AddSingleton<IRetrievalIndexingOutboxRepository, InMemoryRetrievalIndexingOutboxRepository>();
             services.AddSingleton<IIntegrationEventOutboxRepository, InMemoryIntegrationEventOutboxRepository>();
             services.AddSingleton<IProductLearningPilotSignalRepository, InMemoryProductLearningPilotSignalRepository>();
@@ -143,10 +143,11 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         // Change mode to WarnOnJsonFallback during migration roll-out or RequireRelational after backfill.
         services.AddSingleton(sp => new Persistence.RelationalRead.JsonFallbackPolicy(
             Persistence.RelationalRead.PersistenceReadMode.AllowJsonFallback,
-            sp.GetRequiredService<ILoggerFactory>().CreateLogger("ArchiForge.Persistence.JsonFallback")));
+            sp.GetRequiredService<ILoggerFactory>().CreateLogger("ArchLucid.Persistence.JsonFallback")));
 
-        string connectionString = configuration.GetConnectionString("ArchiForge")
-                                  ?? throw new InvalidOperationException("Missing connection string 'ArchiForge'.");
+        string connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration)
+                                  ?? throw new InvalidOperationException(
+                                      "Missing connection string 'ArchLucid' (or legacy 'ArchiForge').");
 
         services.Configure<SqlServerOptions>(configuration.GetSection(SqlServerOptions.SectionName));
 
@@ -218,7 +219,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IArtifactQueryService, DapperArtifactQueryService>();
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
         services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
-        services.AddScoped<IArchiForgeUnitOfWorkFactory, DapperArchiForgeUnitOfWorkFactory>();
+        services.AddScoped<IArchLucidUnitOfWorkFactory, DapperArchLucidUnitOfWorkFactory>();
         services.AddScoped<IRetrievalIndexingOutboxRepository, DapperRetrievalIndexingOutboxRepository>();
         services.AddScoped<IIntegrationEventOutboxRepository, DapperIntegrationEventOutboxRepository>();
         services.AddScoped<IProductLearningPilotSignalRepository, DapperProductLearningPilotSignalRepository>();

@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Formats an <see cref="ExportRecordDiffResult"/> as a human-readable Markdown summary.

@@ -2,11 +2,11 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-using ArchiForge.Api.Models.Evolution;
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.ProductLearning.Planning;
+using ArchLucid.Api.Models.Evolution;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.ProductLearning.Planning;
 
 using FluentAssertions;
 
@@ -14,12 +14,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Execute paths for <c>/v1/evolution/*</c> (separate fixture from query tests so list endpoints stay isolated).</summary>
 [Trait("Category", "Integration")]
 [Trait("ChangeSet", "60R")]
-public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task ShadowEvaluate_UnknownCandidate_Returns404Problem()

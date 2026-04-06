@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Metadata;
+namespace ArchLucid.Contracts.Metadata;
 
 /// <summary>
 /// Stored output of a comparison between two runs, manifests, or exports (payload is format-specific JSON plus optional markdown summary).

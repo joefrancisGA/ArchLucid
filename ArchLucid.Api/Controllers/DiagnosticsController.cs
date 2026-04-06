@@ -1,6 +1,6 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Models;
-using ArchiForge.Host.Core.Services;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Models;
+using ArchLucid.Host.Core.Services;
 
 using Asp.Versioning;
 
@@ -8,13 +8,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Exposes internal diagnostics for replay and comparison operations; restricted to privileged principals.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
@@ -24,7 +24,7 @@ public sealed class DiagnosticsController(IReplayDiagnosticsRecorder replayDiagn
     /// <param name="maxCount">Maximum number of entries to return (1–100; defaults to 50).</param>
     /// <returns>200 with a <see cref="ReplayDiagnosticsResponse"/> containing up to <paramref name="maxCount"/> entries.</returns>
     [HttpGet("comparisons/diagnostics/replay")]
-    [Authorize(Policy = ArchiForgePolicies.CanViewReplayDiagnostics)]
+    [Authorize(Policy = ArchLucidPolicies.CanViewReplayDiagnostics)]
     [ProducesResponseType(typeof(ReplayDiagnosticsResponse), StatusCodes.Status200OK)]
     public IActionResult GetReplayDiagnostics([FromQuery] int maxCount = 50)
     {

@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Resilience;
+namespace ArchLucid.Core.Resilience;
 
 /// <summary>
 /// Thread-safe three-state circuit breaker (closed → open → half-open probe → closed).

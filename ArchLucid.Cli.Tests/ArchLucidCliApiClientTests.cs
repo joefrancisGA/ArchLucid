@@ -1,22 +1,22 @@
 using FluentAssertions;
 
-namespace ArchiForge.Cli.Tests;
+namespace ArchLucid.Cli.Tests;
 
 /// <summary>
 /// Tests for Archi Forge Api Client.
 /// </summary>
 [Trait("Category", "Unit")]
-public sealed class ArchiForgeApiClientTests
+public sealed class ArchLucidApiClientTests
 {
     [Fact]
     public void ResolveBaseUrl_WhenConfigHasApiUrl_ReturnsConfigUrl()
     {
-        ArchiForgeProjectScaffolder.ArchiForgeConfig config = new()
+        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
         {
             ApiUrl = "https://custom:9090"
         };
 
-        string result = ArchiForgeApiClient.ResolveBaseUrl(config);
+        string result = ArchLucidApiClient.ResolveBaseUrl(config);
 
         result.Should().Be("https://custom:9090");
     }
@@ -29,7 +29,7 @@ public sealed class ArchiForgeApiClientTests
         try
         {
             Environment.SetEnvironmentVariable(envKey, null);
-            string result = ArchiForgeApiClient.ResolveBaseUrl(null);
+            string result = ArchLucidApiClient.ResolveBaseUrl(null);
             result.Should().Be("http://localhost:5128");
         }
         finally
@@ -41,12 +41,12 @@ public sealed class ArchiForgeApiClientTests
     [Fact]
     public void ResolveBaseUrl_WhenConfigHasApiUrlWithTrailingSlash_TrimsSlash()
     {
-        ArchiForgeProjectScaffolder.ArchiForgeConfig config = new()
+        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
         {
             ApiUrl = "http://localhost:5128/"
         };
 
-        string result = ArchiForgeApiClient.ResolveBaseUrl(config);
+        string result = ArchLucidApiClient.ResolveBaseUrl(config);
 
         result.Should().Be("http://localhost:5128");
     }

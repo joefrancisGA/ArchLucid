@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Values for <see cref="CompositeAlertRule.DedupeScope"/>; control how <see cref="IAlertSuppressionPolicy"/> builds deduplication keys.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Scoping;
+namespace ArchLucid.Core.Scoping;
 
 /// <summary>
 /// Well-known scope GUIDs used as defaults during local development and integration testing.

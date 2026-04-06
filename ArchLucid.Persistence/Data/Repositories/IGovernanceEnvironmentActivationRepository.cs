@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Governance;
+using ArchLucid.Contracts.Governance;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Persistence contract for <see cref="GovernanceEnvironmentActivation"/> records that track

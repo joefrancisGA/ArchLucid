@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Api;
+namespace ArchLucid.Api;
 
 public static class ApiPaging
 {

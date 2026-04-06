@@ -1,5 +1,5 @@
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Application.Jobs;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Application.Jobs;
 
 using Azure;
 using Azure.Storage.Blobs;
@@ -7,7 +7,7 @@ using Azure.Storage.Blobs.Models;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Jobs;
+namespace ArchLucid.Host.Core.Jobs;
 
 public sealed class AzureBlobBackgroundJobResultBlobAccessor(
     BlobServiceClient blobServiceClient,

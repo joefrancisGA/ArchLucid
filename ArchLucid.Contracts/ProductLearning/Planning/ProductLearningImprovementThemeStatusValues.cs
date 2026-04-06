@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Lifecycle for a persisted improvement theme (human review; no auto-apply).</summary>
 public static class ProductLearningImprovementThemeStatusValues

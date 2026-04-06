@@ -1,13 +1,13 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Infrastructure;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using Dapper;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Dapper-backed persistence for <see cref="ArchitectureRun"/> entities.

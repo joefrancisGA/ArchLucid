@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.AgentSimulator.Scenarios;
+namespace ArchLucid.AgentSimulator.Scenarios;
 
 public sealed class EnterpriseRagScenarioProvider : IScenarioProvider
 {

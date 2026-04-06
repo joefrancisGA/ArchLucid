@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ArchiForge.Contracts.Architecture;
+namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
 /// Linkage graph and timeline for a coordinator architecture run: request, tasks, results, findings,

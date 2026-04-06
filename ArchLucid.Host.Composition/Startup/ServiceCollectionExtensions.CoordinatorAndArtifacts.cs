@@ -1,27 +1,27 @@
-using ArchiForge.AgentRuntime;
-using ArchiForge.AgentRuntime.Explanation;
-using ArchiForge.Application.Decisions;
-using ArchiForge.Application.Evidence;
-using ArchiForge.ArtifactSynthesis.Docx;
-using ArchiForge.ArtifactSynthesis.Generators;
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Packaging;
-using ArchiForge.ArtifactSynthesis.Renderers;
-using ArchiForge.ArtifactSynthesis.Services;
-using ArchiForge.Coordinator.Services;
-using ArchiForge.Core.Ask;
-using ArchiForge.Decisioning.Merge;
-using ArchiForge.Decisioning.Validation;
-using ArchiForge.Decisioning.Advisory.Analysis;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Comparison;
-using ArchiForge.Host.Core.Ask;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Services.Ask;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Evidence;
+using ArchLucid.ArtifactSynthesis.Docx;
+using ArchLucid.ArtifactSynthesis.Generators;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Coordinator.Services;
+using ArchLucid.Core.Ask;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Validation;
+using ArchLucid.Decisioning.Advisory.Analysis;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Host.Core.Ask;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Services.Ask;
+using ArchLucid.Persistence.Data.Repositories;
 
-namespace ArchiForge.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
@@ -46,7 +46,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
 
-        ArchiForgeOptions coordinatorStorage = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
+        ArchLucidOptions coordinatorStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (string.Equals(coordinatorStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {
@@ -74,7 +74,7 @@ public static partial class ServiceCollectionExtensions
             services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
             services.AddScoped<IAgentResultRepository, AgentResultRepository>();
             // Data-layer contracts (CreateAsync / GetByVersionAsync / batch traces) — distinct from
-            // Decisioning.Interfaces.IGoldenManifestRepository / IDecisionTraceRepository registered in AddArchiForgeStorage.
+            // Decisioning.Interfaces.IGoldenManifestRepository / IDecisionTraceRepository registered in AddArchLucidStorage.
             services.AddScoped<ICoordinatorGoldenManifestRepository, GoldenManifestRepository>();
             services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();
             services.AddScoped<ICoordinatorDecisionTraceRepository, DecisionTraceRepository>();

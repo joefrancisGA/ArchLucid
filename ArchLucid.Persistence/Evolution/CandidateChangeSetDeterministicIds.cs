@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ArchiForge.Persistence.Evolution;
+namespace ArchLucid.Persistence.Evolution;
 
 internal static class CandidateChangeSetDeterministicIds
 {

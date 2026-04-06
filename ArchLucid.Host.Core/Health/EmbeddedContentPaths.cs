@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Health;
+namespace ArchLucid.Host.Core.Health;
 
 /// <summary>Paths under <see cref="AppContext.BaseDirectory"/> for bundled policy/content files.</summary>
 public static class EmbeddedContentPaths

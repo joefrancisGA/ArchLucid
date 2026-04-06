@@ -1,10 +1,10 @@
-﻿using ArchiForge.Decisioning.Analysis;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Decisioning.Services;
+namespace ArchLucid.Decisioning.Services;
 
 public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFindingEngine
 {

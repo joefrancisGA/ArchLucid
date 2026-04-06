@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
 /// CRUD and scoped listing for <see cref="DigestSubscription"/> (where architecture digests are sent after scans).

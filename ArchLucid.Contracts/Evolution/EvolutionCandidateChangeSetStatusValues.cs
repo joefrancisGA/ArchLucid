@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Lifecycle for a 60R candidate change set (human-in-the-loop; no auto-promotion).</summary>
 public static class EvolutionCandidateChangeSetStatusValues

@@ -63,18 +63,18 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 > so no C# source changes are needed yet. Update `.sln` and `<ProjectReference>` paths.
 
 - [x] 5.1 Rename leaf test projects: `*.Tests` directories and `.csproj` files (2026-04-06 — folders + `ArchLucid.*.Tests.csproj`; `AssemblyName`/`RootNamespace` kept `ArchiForge.*.Tests` until Phase 6)
-- [ ] 5.2 Rename `ArchiForge.TestSupport`, `ArchiForge.Benchmarks`
-- [ ] 5.3 Rename `ArchiForge.Cli`, `ArchiForge.Cli.Tests`, `ArchiForge.Backfill.Cli`
-- [ ] 5.4 Rename `ArchiForge.Api.Client`, `ArchiForge.Api.Client.Tests`
-- [ ] 5.5 Rename domain projects: `Core`, `Contracts`, `Persistence`, `Application`, `AgentRuntime`, `AgentSimulator`
-- [ ] 5.6 Rename domain projects: `Coordinator`, `Decisioning` (formerly separate `DecisionEngine`; now one assembly with `Merge`/`Validation` folders), `KnowledgeGraph`, `Retrieval`, `ContextIngestion`, `Provenance`, `ArtifactSynthesis`
-- [ ] 5.7 Rename host projects: `Host.Core`, `Host.Composition`
-- [ ] 5.8 Rename `ArchiForge.Api`, `ArchiForge.Worker`
-- [ ] 5.9 Regenerate or edit `ArchiForge.sln` → `ArchLucid.sln`
-- [ ] 5.10 Update `Directory.Build.props`
+- [x] 5.2 Rename `ArchiForge.TestSupport` → `ArchLucid.TestSupport`, `ArchiForge.Benchmarks` → `ArchLucid.Benchmarks` (2026-04-06)
+- [x] 5.3 Rename `ArchiForge.Cli`, `ArchLucid.Cli.Tests`, `ArchiForge.Backfill.Cli` → `ArchLucid.*` (2026-04-06)
+- [x] 5.4 Rename `ArchiForge.Api.Client`, `ArchLucid.Api.Client.Tests` → `ArchLucid.Api.Client*` dirs (2026-04-06)
+- [x] 5.5 Rename domain projects: `Core`, `Contracts`, `Persistence`, `Application`, `AgentRuntime`, `AgentSimulator` (2026-04-06)
+- [x] 5.6 Rename domain projects: `Coordinator`, `Decisioning`, `KnowledgeGraph`, `Retrieval`, `ContextIngestion`, `Provenance`, `ArtifactSynthesis` (2026-04-06)
+- [x] 5.7 Rename host projects: `Host.Core`, `Host.Composition` (2026-04-06)
+- [x] 5.8 Rename `ArchiForge.Api`, `ArchiForge.Worker` → `ArchLucid.Api`, `ArchLucid.Worker` (2026-04-06)
+- [x] 5.9 `ArchiForge.sln` → `ArchLucid.sln` (paths + CI/scripts/docs) (2026-04-06)
+- [x] 5.10 Update `Directory.Build.props` — `ArchLucidApiClientPackageVersion` + `ArchiForgeApiClientPackageVersion` bridge (2026-04-06)
 - [ ] 5.11 Update `templates/archiforge-finding-engine/` directory and contents
-- [ ] 5.12 Rename C# files with `ArchiForge` prefix (23 files: `ArchiForgeConfigurationRules.cs`, `ArchiForgeInstrumentation.cs`, etc.)
-- [ ] 5.13 Update NSwag config (`nswag.json`) and regenerate client
+- [x] 5.12 Rename C# files with `ArchiForge` prefix (instrumentation, configuration bridge, policies, UoW, CLI client, etc.) (2026-04-06)
+- [x] 5.13 Update NSwag config (`nswag.json`) and regenerate client (`ArchLucidApiClient.g.cs`) (2026-04-06)
 
 ## Phase 6 — Bulk namespace rename (high risk — ASK USER FIRST)
 
@@ -82,13 +82,13 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 > This is a single large pass that updates all `namespace ArchiForge.*` and `using ArchiForge.*` directives.
 > Remove `<RootNamespace>` overrides added in Phase 5.
 
-- [ ] 6.1 Bulk rename all `namespace ArchiForge.*` → `namespace ArchLucid.*` across all `.cs` files
-- [ ] 6.2 Bulk rename all `using ArchiForge.*` → `using ArchLucid.*`
-- [ ] 6.3 Update XML doc `<see cref="ArchiForge.*">` references
-- [ ] 6.4 Update string literals containing `"ArchiForge"` (Serilog source context, instrumentation, ProblemDetails type URIs)
-- [ ] 6.5 Remove `<RootNamespace>` overrides from `.csproj` files (namespace now matches directory)
-- [ ] 6.6 Full build + full test suite verification
-- [ ] 6.7 Update `docs/NEXT_REFACTORINGS.md` to reflect completion
+- [x] 6.1 Bulk rename all `namespace ArchiForge.*` → `namespace ArchLucid.*` across product `.cs` files (2026-04-06)
+- [x] 6.2 Bulk rename all `using ArchiForge.*` → `using ArchLucid.*` (2026-04-06)
+- [x] 6.3 Update XML doc `<see cref="ArchiForge.*">` references where applicable (2026-04-06)
+- [x] 6.4 Update string literals: OTel meter/activity names, `X-ArchLucid-*` headers, Swagger titles; legacy **`ArchiForge:*` / `ArchiForgeAuth` / `ArchiForge.sql` / DB name** intentionally retained where operational (2026-04-06)
+- [x] 6.5 Remove `<RootNamespace>` overrides — product projects use `ArchLucid.*` aligned with dirs (2026-04-06)
+- [x] 6.6 Full `Release` build + fast-core test filter; relaxed flaky bulkhead timing assertion (2026-04-06)
+- [x] 6.7 Update `docs/NEXT_REFACTORINGS.md` to reflect completion (2026-04-06)
 
 ## Phase 7 — Cleanup and external (operational — ASK USER FIRST)
 
@@ -113,9 +113,10 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 | 2026-04-05 | 1.4 | GLOSSARY.md title + ArchLucid note; outbox / integration dead-letter terms |
 | 2026-04-05 | 2.1–2.2, 2.5 | Config bridges + `ResolveArchiForgeOptions` at early DI sites; UI proxy API key fallback; ops docs (architecture on a page, code map, config sunset, capacity/cost) |
 | 2026-04-05 | 1.5 | Architecture context/components/containers titles + ArchLucid product framing; production cost guardrails (`production.tfvars.example`, LA quota note, WAF version var, FinOps playbook §9) |
-| 2026-04-05 | (Improvement 5) | Merged `ArchiForge.DecisionEngine` into `ArchiForge.Decisioning` (later flattened to `ArchiForge.Decisioning.Merge` / `ArchiForge.Decisioning.Validation` — see 2026-04-06); added `ArchiForge.Persistence.Runtime` (orchestration, UoW, hot-path cache impls, blob store impls, archival); coordinator repos renamed to `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository` in `Persistence.Data.Repositories`. |
-| 2026-04-06 | Namespace flatten | Removed nested `Decisioning.DecisionEngine.*` namespaces: code under `ArchiForge.Decisioning/Merge/` and `ArchiForge.Decisioning/Validation/`; tests under `ArchiForge.Decisioning.Tests/Merge/` and `Validation/`; OTel meter `ArchiForge.Decisioning.SchemaValidation` (replaces `ArchiForge.DecisionEngine.SchemaValidation`). |
+| 2026-04-05 | (Improvement 5) | Merged `ArchiForge.DecisionEngine` into `ArchLucid.Decisioning` (later flattened to `ArchLucid.Decisioning.Merge` / `ArchLucid.Decisioning.Validation` — see 2026-04-06); added `ArchLucid.Persistence.Runtime` (orchestration, UoW, hot-path cache impls, blob store impls, archival); coordinator repos renamed to `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository` in `Persistence.Data.Repositories`. |
+| 2026-04-06 | Namespace flatten | Removed nested `Decisioning.DecisionEngine.*` namespaces: code under `ArchLucid.Decisioning/Merge/` and `ArchLucid.Decisioning/Validation/`; tests under `ArchLucid.Decisioning.Tests/Merge/` and `Validation/`; OTel meter `ArchLucid.Decisioning.SchemaValidation` (replaces `ArchiForge.DecisionEngine.SchemaValidation`). |
 | 2026-04-06 | Quality batch (six improvements) | Stryker `break:60` (all `stryker-config*.json`); merged line-coverage gate documented in `docs/coverage-exclusions.md` (not Coverlet `<Threshold>` per assembly — see comment in `coverage.runsettings`); CLI `ResolveApiErrorMessage` for typed ProblemDetails; rename `DecisionTrace` → `RunEventTrace` (coordinator) / `RuleAuditTrace` (authority); `GET /v1/authority/runs/{id}/provenance`; UI `/runs/[id]/provenance`; `docs/DUAL_PIPELINE_NAVIGATOR.md`, `docs/CHAOS_TESTING.md`, `CliRetryDelegatingHandlerTests`. Prometheus SLO/outbox alerts already in `infra/prometheus/`. Phase 5–6 bulk project/namespace rename **not** started (explicit scope). |
 | 2026-04-06 | 1.7 + CI coverage gate | Phase **1.7** pilot/release docs → ArchLucid product naming (`PILOT_GUIDE`, `OPERATOR_QUICKSTART`, `RELEASE_SMOKE`, `RELEASE_LOCAL`); CI **70%** merged line gate via `scripts/ci/assert_merged_line_coverage_min.py`; `RetrievalIndexingOutboxProcessor` uses `RunDetailDto.DecisionTrace` (fixes stale `RuleAuditTrace` property). |
-| 2026-04-06 | **5.1** | All main-solution leaf test projects renamed to **`ArchLucid.*.Tests`** (dirs + csproj); solution + Stryker + Dockerfile + `nswag.json` paths updated; `OpenApiContractSnapshotTests` resolves `ArchLucid.Api.Tests.csproj`; docs: `CI_MIGRATION_CHECKLIST`, `ArchiForge.Api.Client/README`, `Migrations/README`. |
+| 2026-04-06 | **5.1** | All main-solution leaf test projects renamed to **`ArchLucid.*.Tests`** (dirs + csproj); solution + Stryker + Dockerfile + `nswag.json` paths updated; `OpenApiContractSnapshotTests` resolves `ArchLucid.Api.Tests.csproj`; docs: `CI_MIGRATION_CHECKLIST`, `ArchLucid.Api.Client/README`, `Migrations/README`. |
 | 2026-04-06 | 1.10 (partial) + cognitive-load | Expanded `docs/DUAL_PIPELINE_NAVIGATOR.md` (side-by-side flow, shared-artifact matrix, coordinator HTTP→commit walkthrough); introduced sealed `RunEventTrace` / `RuleAuditTrace` with abstract `DecisionTrace` + `DecisionTraceJsonConverter` (stable OpenAPI shape); `docs/ONBOARDING_HAPPY_PATH.md` link + corrected `POST /v1/architecture/request`; `docs/ARCHITECTURE_INDEX.md` navigator blurb; `ArchLucid.Contracts.Tests/DecisionTraceJsonRoundTripTests.cs`. |
+| 2026-04-06 | **5.2–5.10, 5.12–5.13 + 6.x** | **Phases 5–6:** `git mv` all product projects `ArchiForge.*` → `ArchLucid.*`; **`ArchLucid.sln`**; identifier pass (`AddArchLucid*`, `IArchLucidUnitOfWork`, `ArchLucidConfigurationBridge`, `ResolveSqlConnectionString` ArchLucid→ArchiForge fallback); NSwag **`ArchLucidApiClient`**; **`Directory.Build.props`** `ArchLucidApiClientPackageVersion` + MSBuild bridge; renamed `ArchiForge*.cs` source files; **`X-ArchLucid-*`** headers; CORS policy **`ArchLucid`**; scripts `phase6-rename-identifiers.ps1` / `bulk-replace-archlucid-phase6.ps1`. **Deferred:** template `archiforge-finding-engine` (5.11). |

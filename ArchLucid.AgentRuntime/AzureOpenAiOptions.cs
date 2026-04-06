@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 [ExcludeFromCodeCoverage(Justification = "Configuration binding DTO with no logic.")]
 public sealed class AzureOpenAiOptions

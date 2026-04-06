@@ -1,6 +1,6 @@
-using ArchiForge.Persistence.Conversation;
+using ArchLucid.Persistence.Conversation;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="ConversationThreadRepositoryContractTests"/> against <see cref="InMemoryConversationThreadRepository"/>.

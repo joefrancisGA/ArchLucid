@@ -4,7 +4,7 @@
 
 See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) for test categories and filtering, **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** (54R) for Core / Fast core / Integration / SQL / Full regression scripts and CI alignment, and **[RELEASE_LOCAL.md](RELEASE_LOCAL.md)** (56R) for `build-release` / `package-release` / `run-readiness-check`.
 
-**API controllers:** Keep all MVC controllers under **`ArchiForge.Api/Controllers/`** (single folder). On Windows, tools may show the same path with `\` or `/`; on Linux, Git is case-sensitive—do not introduce a second `Controllers` directory that differs only by casing or path style, or you risk duplicate types and confusing diffs.
+**API controllers:** Keep all MVC controllers under **`ArchLucid.Api/Controllers/`** (single folder). On Windows, tools may show the same path with `\` or `/`; on Linux, Git is case-sensitive—do not introduce a second `Controllers` directory that differs only by casing or path style, or you risk duplicate types and confusing diffs.
 
 **RunComparisonController** intentionally depends on three application services (`IEndToEndReplayComparisonService`, `IEndToEndReplayComparisonSummaryFormatter`, `IEndToEndReplayComparisonExportService`) rather than a single facade, for clarity and testability.
 
@@ -24,11 +24,11 @@ dotnet test
 
 **Secret scanning:** The **`gitleaks`** job scans the full Git history with **`gitleaks/gitleaks-action`** and **`.gitleaks.toml`** (extends default rules; allowlists only the two documented dev/CI SQL passwords that appear verbatim in-repo). To run locally: install [gitleaks](https://github.com/gitleaks/gitleaks) and run **`gitleaks detect --source . --verbose`** from the repo root.
 
-**SBOM (CycloneDX):** CI uploads **`sbom-dotnet`** (JSON for **`ArchiForge.Api/ArchiForge.Api.csproj`**, matching the API container surface) and **`sbom-npm`** (JSON for **`archiforge-ui`**). Regenerate locally:
+**SBOM (CycloneDX):** CI uploads **`sbom-dotnet`** (JSON for **`ArchLucid.Api/ArchLucid.Api.csproj`**, matching the API container surface) and **`sbom-npm`** (JSON for **`archiforge-ui`**). Regenerate locally:
 
 ```bash
 dotnet tool install CycloneDX --tool-path ./.tools-cdx
-./.tools-cdx/dotnet-cyclonedx ArchiForge.Api/ArchiForge.Api.csproj -o sbom-dotnet.json
+./.tools-cdx/dotnet-cyclonedx ArchLucid.Api/ArchLucid.Api.csproj -o sbom-dotnet.json
 # On Windows the shim may be dotnet-CycloneDX.exe instead of dotnet-cyclonedx.
 
 cd archiforge-ui && npx @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
@@ -54,22 +54,22 @@ Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scra
 
 There is **no SQLite** test provider: DB-facing tests use **SQL Server** only (`Microsoft.Data.SqlClient`). Pure unit tests stay in-memory / mocked.
 
-Shared resolution lives in **`ArchiForge.TestSupport`** (`SqlServerIntegrationTestConnections`, `SqlServerTestCatalogCommands`, `TestDatabaseEnvironment`).
+Shared resolution lives in **`ArchLucid.TestSupport`** (`SqlServerIntegrationTestConnections`, `SqlServerTestCatalogCommands`, `TestDatabaseEnvironment`).
 
-### Persistence tests (`ArchiForge.Persistence.Tests`)
+### Persistence tests (`ArchLucid.Persistence.Tests`)
 
 1. Set **`ARCHIFORGE_SQL_TEST`** to a full ADO.NET connection string (including **`Initial Catalog`**), **or**
 2. On **Windows**, omit it and use **LocalDB** (`(localdb)\mssqllocaldb`, catalog **`ArchiForgePersistenceTests`**) when LocalDB is installed.
 
 **CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHIFORGE_SQL_TEST`** against the **SQL Server 2022** service container (the **`dotnet-fast-core`** job does not start SQL). The **`dotnet-fast-core`** job **depends on** the Terraform **`terraform-validate-private`** and **`terraform-validate-public-stacks`** jobs so invalid IaC fails before the .NET corset runs.
 
-### Application layer unit tests (`ArchiForge.Application.Tests`)
+### Application layer unit tests (`ArchLucid.Application.Tests`)
 
 - **`Suite=Core`** / **`Category=Unit`**: hashing/idempotency helpers and **`ArchitectureRunService`** idempotency paths (replay vs **`ConflictException`**) using mocked coordinators and repositories—no SQL required.
 
-### API integration tests (`ArchiForge.Api.Tests`)
+### API integration tests (`ArchLucid.Api.Tests`)
 
-**One-command local SQL regression (Docker):** from repo root run **`scripts/run-full-regression-docker-sql.ps1`** (Windows) or **`scripts/run-full-regression-docker-sql.sh`** (Linux/macOS). These start **`docker compose`** `sqlserver`, set **`ARCHIFORGE_SQL_TEST`** to match **`docker-compose.yml`** credentials, then run **`dotnet test ArchiForge.sln`**.
+**One-command local SQL regression (Docker):** from repo root run **`scripts/run-full-regression-docker-sql.ps1`** (Windows) or **`scripts/run-full-regression-docker-sql.sh`** (Linux/macOS). These start **`docker compose`** `sqlserver`, set **`ARCHIFORGE_SQL_TEST`** to match **`docker-compose.yml`** credentials, then run **`dotnet test ArchLucid.sln`**.
 
 **`ArchiForgeApiFactory`** creates an ephemeral database per factory (`ArchiForgeTest_*` or `ArchiForgeAlertTest_*`) on the **same SQL Server instance** you configure:
 
@@ -82,7 +82,7 @@ Shared resolution lives in **`ArchiForge.TestSupport`** (`SqlServerIntegrationTe
 
 **Docker (local):** run SQL Server 2022 (or Azure SQL edge) and point **`ARCHIFORGE_SQL_TEST`** at it; API tests will piggyback the same server for ephemeral DBs.
 
-Keep **one DDL source of truth** (`ArchiForge.Persistence/Scripts/ArchiForge.sql` + **`ArchiForge.Persistence/Migrations/*.sql`**) and let **`DatabaseMigrator`** apply embedded migrations to each test database.
+Keep **one DDL source of truth** (`ArchLucid.Persistence/Scripts/ArchiForge.sql` + **`ArchLucid.Persistence/Migrations/*.sql`**) and let **`DatabaseMigrator`** apply embedded migrations to each test database.
 
 ## Central Package Management (CPM)
 
@@ -100,18 +100,18 @@ Typical gaps we fixed:
 
 | Consumer | Often needs explicit reference to |
 |----------|-----------------------------------|
-| **ArchiForge.Decisioning** | **KnowledgeGraph** |
-| **ArchiForge.AgentRuntime** | **AgentSimulator** |
-| **ArchiForge.AgentRuntime.Tests** | **Coordinator**, **ContextIngestion**, **Decisioning**, **KnowledgeGraph** |
-| **ArchiForge.Coordinator.Tests** | **AgentSimulator**, **ContextIngestion**, **Decisioning**, **KnowledgeGraph** |
-| **ArchiForge.ContextIngestion.Tests** | **ContextIngestion**, **Contracts** (mapper tests) |
-| **ArchiForge.Decisioning.Tests** | **Contracts** (for `ManifestDeltaProposal`, `AgentResult`, etc.) |
+| **ArchLucid.Decisioning** | **KnowledgeGraph** |
+| **ArchLucid.AgentRuntime** | **AgentSimulator** |
+| **ArchLucid.AgentRuntime.Tests** | **Coordinator**, **ContextIngestion**, **Decisioning**, **KnowledgeGraph** |
+| **ArchLucid.Coordinator.Tests** | **AgentSimulator**, **ContextIngestion**, **Decisioning**, **KnowledgeGraph** |
+| **ArchLucid.ContextIngestion.Tests** | **ContextIngestion**, **Contracts** (mapper tests) |
+| **ArchLucid.Decisioning.Tests** | **Contracts** (for `ManifestDeltaProposal`, `AgentResult`, etc.) |
 
 **Quick audit:** search new `using ArchiForge.*` in a project; if the namespace’s assembly is not referenced by that **.csproj**, add the project reference.
 
 ## Decisioning — JSON Schema / options dependency bundle
 
-**ArchiForge.Decisioning** references this set for `SchemaValidationService` and options binding (see **`ArchiForge.Decisioning.csproj`**); versions are pinned only in **`Directory.Packages.props`**:
+**ArchLucid.Decisioning** references this set for `SchemaValidationService` and options binding (see **`ArchLucid.Decisioning.csproj`**); versions are pinned only in **`Directory.Packages.props`**:
 
 - **JsonSchema.Net** — runtime JSON Schema validation  
 - **Microsoft.Extensions.Configuration** — `IConfiguration` overload for `AddSchemaValidation`  

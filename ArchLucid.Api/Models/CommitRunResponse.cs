@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]
 public sealed class CommitRunResponse

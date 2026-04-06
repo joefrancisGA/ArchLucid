@@ -1,6 +1,6 @@
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Models;
 
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
 /// Azure AI Search seam for vector upsert and hybrid/vector query. Wired when <c>Retrieval:VectorIndex</c> uses search (not <see cref="InMemoryVectorIndex"/>).

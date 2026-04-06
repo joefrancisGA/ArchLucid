@@ -1,7 +1,7 @@
-using ArchiForge.Persistence.Interfaces;
-using ArchiForge.Persistence.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Repositories;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="RunRepositoryContractTests"/> against <see cref="InMemoryRunRepository"/>.

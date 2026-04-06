@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Analysis;
+using ArchLucid.Decisioning.Advisory.Analysis;
 
-namespace ArchiForge.Decisioning.Advisory.Models;
+namespace ArchLucid.Decisioning.Advisory.Models;
 
 /// <summary>
 /// Intermediate finding emitted by <see cref="IImprovementSignalAnalyzer"/> before scoring and folding into <see cref="ImprovementRecommendation"/> entries.

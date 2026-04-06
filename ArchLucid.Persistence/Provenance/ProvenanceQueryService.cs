@@ -1,8 +1,8 @@
-using ArchiForge.Core.Scoping;
-using ArchiForge.Provenance;
-using ArchiForge.Provenance.Services;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Provenance;
+using ArchLucid.Provenance.Services;
 
-namespace ArchiForge.Persistence.Provenance;
+namespace ArchLucid.Persistence.Provenance;
 
 /// <summary>
 /// <see cref="IProvenanceQueryService"/> implementation using <see cref="IProvenanceSnapshotRepository"/> and in-memory graph algorithms.

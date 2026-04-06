@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Core.Integration;
+namespace ArchLucid.Core.Integration;
 
 /// <summary>Shared JSON options for UTF-8 integration event payloads.</summary>
 public static class IntegrationEventJson

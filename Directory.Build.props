@@ -1,7 +1,9 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <!-- NuGet semver for ArchiForge.Api.Client; bump when releasing a new SDK drop. -->
-    <ArchiForgeApiClientPackageVersion>1.0.0</ArchiForgeApiClientPackageVersion>
+    <!-- NuGet semver for ArchLucid.Api.Client; bump when releasing a new SDK drop. -->
+    <ArchLucidApiClientPackageVersion>1.0.0</ArchLucidApiClientPackageVersion>
+    <!-- Bridge: downstream MSBuild may still reference the old property name. -->
+    <ArchiForgeApiClientPackageVersion>$(ArchLucidApiClientPackageVersion)</ArchiForgeApiClientPackageVersion>
   </PropertyGroup>
 </Project>

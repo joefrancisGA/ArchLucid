@@ -1,11 +1,11 @@
 using System.Text;
 
-using ArchiForge.Api.Models;
-using ArchiForge.Api.Services;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.Services;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class BatchReplayManifestSerializerTests
 {

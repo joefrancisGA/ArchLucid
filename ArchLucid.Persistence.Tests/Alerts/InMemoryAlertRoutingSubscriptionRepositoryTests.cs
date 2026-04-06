@@ -1,9 +1,9 @@
-using ArchiForge.Decisioning.Alerts.Delivery;
-using ArchiForge.Persistence.Alerts;
+using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Persistence.Alerts;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Alerts;
+namespace ArchLucid.Persistence.Tests.Alerts;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Persistence")]

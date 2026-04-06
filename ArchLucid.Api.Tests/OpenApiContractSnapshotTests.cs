@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 
 using Microsoft.AspNetCore.Mvc.Testing;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) drifts from the committed snapshot.
@@ -71,7 +71,7 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         for (int i = 0; i < 12 && dir != null; i++)
         {
             string lucidCsproj = Path.Combine(dir, "ArchLucid.Api.Tests.csproj");
-            string legacyCsproj = Path.Combine(dir, "ArchiForge.Api.Tests.csproj");
+            string legacyCsproj = Path.Combine(dir, "ArchLucid.Api.Tests.csproj");
 
             if (File.Exists(lucidCsproj) || File.Exists(legacyCsproj))
                 return Path.Combine(dir, "Contracts", SnapshotFileName);
@@ -80,6 +80,6 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         }
 
         throw new InvalidOperationException(
-            "Cannot find ArchLucid.Api.Tests.csproj (or legacy ArchiForge.Api.Tests.csproj) for OpenAPI snapshot path.");
+            "Cannot find ArchLucid.Api.Tests.csproj (or legacy ArchLucid.Api.Tests.csproj) for OpenAPI snapshot path.");
     }
 }

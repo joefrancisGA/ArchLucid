@@ -1,19 +1,19 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Mapping;
-using ArchiForge.Api.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Application;
-using ArchiForge.Application.Architecture;
-using ArchiForge.Application.Common;
-using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Runs;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Host.Core.Services;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Mapping;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Runs;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Services;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
 
@@ -21,16 +21,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// HTTP API for architecture runs: submit <see cref="ArchitectureRequest"/>, execute agents, replay, commit manifests, and query evidence, traces, and decisions.
 /// </summary>
 /// <remarks>
-/// Base route <c>v1/architecture</c>. Mutating endpoints require <see cref="ArchiForgePolicies.ExecuteAuthority"/>; reads use <see cref="ArchiForgePolicies.ReadAuthority"/>.
+/// Base route <c>v1/architecture</c>. Mutating endpoints require <see cref="ArchLucidPolicies.ExecuteAuthority"/>; reads use <see cref="ArchLucidPolicies.ReadAuthority"/>.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
@@ -59,7 +59,7 @@ public sealed partial class RunsController(
     /// </summary>
     /// <returns>201 with <see cref="CreateArchitectureRunResponse"/> for new runs, or 200 with <c>Idempotency-Replayed</c> header when the key matches a prior success.</returns>
     [HttpPost("request")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -149,7 +149,7 @@ public sealed partial class RunsController(
     /// </summary>
     /// <returns><see cref="ExecuteRunResponse"/> with agent results.</returns>
     [HttpPost("run/{runId}/execute")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -186,7 +186,7 @@ public sealed partial class RunsController(
     /// Re-executes agents for <paramref name="runId"/> under <paramref name="request"/>.<see cref="ReplayRunRequest.ExecutionMode"/> and optionally commits a replay manifest.
     /// </summary>
     [HttpPost("run/{runId}/replay")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -238,7 +238,7 @@ public sealed partial class RunsController(
     /// Runs bounded replay iterations for <paramref name="runId"/> to compare agent results and manifest hashes against the baseline run.
     /// </summary>
     [HttpPost("run/{runId}/determinism-check")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DeterminismCheckResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -273,7 +273,7 @@ public sealed partial class RunsController(
     /// Merges agent results through the decision engine and persists the golden manifest and decision traces for <paramref name="runId"/>.
     /// </summary>
     [HttpPost("run/{runId}/commit")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -370,10 +370,10 @@ public sealed partial class RunsController(
     }
 
     /// <summary>
-    /// Accepts one <see cref="ArchiForge.Contracts.Agents.AgentResult"/> for an in-progress run (custom agent integrations).
+    /// Accepts one <see cref="ArchLucid.Contracts.Agents.AgentResult"/> for an in-progress run (custom agent integrations).
     /// </summary>
     [HttpPost("run/{runId}/result")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(SubmitAgentResultResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -391,7 +391,7 @@ public sealed partial class RunsController(
     }
 
     [HttpPost("run/{runId}/seed-fake-results")]
-    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(SeedFakeResultsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Lifecycle strings stored on <see cref="AlertRecord.Status"/> and used in SQL deduplication filters.

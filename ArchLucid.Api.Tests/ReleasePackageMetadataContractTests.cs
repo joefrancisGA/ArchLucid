@@ -2,7 +2,7 @@ using System.Text.Json;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Stable JSON shape for <c>artifacts/release/metadata.json</c> (script: Write-ReleasePackageArtifacts.ps1) — 56R handoff.
@@ -14,8 +14,8 @@ public sealed class ReleasePackageMetadataContractTests
     private const string MinimalMetadataV11 = """
 {
   "schemaVersion": "1.1",
-  "packageKind": "ArchiForge.ReleaseCandidate",
-  "application": "ArchiForge.Api",
+  "packageKind": "ArchLucid.ReleaseCandidate",
+  "application": "ArchLucid.Api",
   "informationalVersion": "1.0.0+deadbeef",
   "assemblyVersion": "1.0.0.0",
   "fileVersion": "1.0.0.0",
@@ -35,8 +35,8 @@ public sealed class ReleasePackageMetadataContractTests
         JsonElement root = doc.RootElement;
 
         root.GetProperty("schemaVersion").GetString().Should().Be("1.1");
-        root.GetProperty("packageKind").GetString().Should().Be("ArchiForge.ReleaseCandidate");
-        root.GetProperty("application").GetString().Should().Be("ArchiForge.Api");
+        root.GetProperty("packageKind").GetString().Should().Be("ArchLucid.ReleaseCandidate");
+        root.GetProperty("application").GetString().Should().Be("ArchLucid.Api");
         root.GetProperty("informationalVersion").GetString().Should().NotBeNullOrWhiteSpace();
         root.GetProperty("assemblyVersion").GetString().Should().NotBeNullOrWhiteSpace();
         root.GetProperty("fileVersion").GetString().Should().NotBeNullOrWhiteSpace();

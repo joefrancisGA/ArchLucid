@@ -1,19 +1,19 @@
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Queries;
-using ArchiForge.Persistence.Replay;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Replay;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="AuthorityReplayService"/> covering the four top-level paths:

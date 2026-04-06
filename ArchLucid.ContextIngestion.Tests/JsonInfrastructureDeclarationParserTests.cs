@@ -1,11 +1,11 @@
-using ArchiForge.ContextIngestion.Infrastructure;
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.Models;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Tests for Json Infrastructure Declaration Parser.

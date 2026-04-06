@@ -1,8 +1,8 @@
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
-namespace ArchiForge.Core.Tests.Diagnostics;
+namespace ArchLucid.Core.Tests.Diagnostics;
 
 public sealed class OutboxDepthGaugeStateTests
 {

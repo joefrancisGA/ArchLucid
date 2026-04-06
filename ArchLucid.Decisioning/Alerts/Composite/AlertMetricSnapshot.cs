@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Numeric metrics derived from an <see cref="AlertEvaluationContext"/> for composite rule predicates (<see cref="AlertRuleCondition"/>).

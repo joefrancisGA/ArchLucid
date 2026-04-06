@@ -8,7 +8,7 @@ info:
 
     When `WebhookDelivery:UseHttpClient` is true and a shared secret is configured, requests include
     header `X-ArchiForge-Webhook-Signature` with value `sha256=<hex>` (HMAC-SHA256 over the raw UTF-8 body).
-    Verify using `ArchiForge.Host.Core.Services.Delivery.WebhookSignature` semantics.
+    Verify using `ArchLucid.Host.Core.Services.Delivery.WebhookSignature` semantics.
 
     **Azure Service Bus (optional):** UTF-8 JSON payloads are also published to a configured queue or topic
     (`IntegrationEvents:QueueOrTopicName`). Message `subject` and application property `event_type` carry the

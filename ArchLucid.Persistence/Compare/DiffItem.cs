@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Persistence.Compare;
+namespace ArchLucid.Persistence.Compare;
 
 /// <summary>
 /// One row in a manifest or run comparison (section + key + kind + optional before/after values).

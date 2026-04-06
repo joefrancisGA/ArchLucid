@@ -1,18 +1,18 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Application;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Evolution;
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Persistence.Evolution;
-using ArchiForge.Persistence.ProductLearning.Planning;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Evolution;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Persistence.Evolution;
+using ArchLucid.Persistence.ProductLearning.Planning;
 
 using JetBrains.Annotations;
 
-namespace ArchiForge.Api.Services.Evolution;
+namespace ArchLucid.Api.Services.Evolution;
 
 /// <summary>
 /// Builds 60R candidates from persisted 59R plans and runs shadow evaluation via read-only architecture analysis only

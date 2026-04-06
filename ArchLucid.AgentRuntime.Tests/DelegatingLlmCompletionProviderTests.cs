@@ -1,6 +1,6 @@
 using FluentAssertions;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 public sealed class DelegatingLlmCompletionProviderTests
 {

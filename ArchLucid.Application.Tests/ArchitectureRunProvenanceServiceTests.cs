@@ -1,18 +1,18 @@
-using ArchiForge.Application.Architecture;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Architecture;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Application.Architecture;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Application.Tests;
+namespace ArchLucid.Application.Tests;
 
 public sealed class ArchitectureRunProvenanceServiceTests
 {
@@ -103,7 +103,7 @@ public sealed class ArchitectureRunProvenanceServiceTests
         Mock<IArchitectureRequestRepository> requests = new();
         requests.Setup(r => r.GetByIdAsync(requestId, default))
             .ReturnsAsync(
-                new ArchiForge.Contracts.Requests.ArchitectureRequest
+                new ArchLucid.Contracts.Requests.ArchitectureRequest
                 {
                     RequestId = requestId,
                     SystemName = "Sys",

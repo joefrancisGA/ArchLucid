@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Governance;
+namespace ArchLucid.Persistence.Governance;
 
 /// <summary>
 /// SQL Server persistence for <see cref="PolicyPackVersion"/> rows (<c>dbo.PolicyPackVersions</c>).

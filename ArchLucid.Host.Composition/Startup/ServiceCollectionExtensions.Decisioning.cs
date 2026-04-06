@@ -1,15 +1,15 @@
-using ArchiForge.Decisioning.Analysis;
-using ArchiForge.Decisioning.Compliance.Evaluators;
-using ArchiForge.Decisioning.Compliance.Loaders;
-using ArchiForge.Persistence.Compliance;
-using ArchiForge.Provenance;
+using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Compliance.Evaluators;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Persistence.Compliance;
+using ArchLucid.Provenance;
 
-using Di = ArchiForge.Decisioning.Interfaces;
-using Dm = ArchiForge.Decisioning.Manifest.Builders;
-using Dr = ArchiForge.Decisioning.Rules;
-using Ds = ArchiForge.Decisioning.Services;
+using Di = ArchLucid.Decisioning.Interfaces;
+using Dm = ArchLucid.Decisioning.Manifest.Builders;
+using Dr = ArchLucid.Decisioning.Rules;
+using Ds = ArchLucid.Decisioning.Services;
 
-namespace ArchiForge.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {

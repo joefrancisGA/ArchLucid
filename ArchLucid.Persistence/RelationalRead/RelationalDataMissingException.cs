@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.RelationalRead;
+namespace ArchLucid.Persistence.RelationalRead;
 
 /// <summary>
 /// Thrown when <see cref="PersistenceReadMode.RequireRelational"/> is active and a

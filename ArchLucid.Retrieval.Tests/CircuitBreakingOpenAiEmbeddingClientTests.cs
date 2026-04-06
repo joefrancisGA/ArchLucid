@@ -1,5 +1,5 @@
-using ArchiForge.Core.Resilience;
-using ArchiForge.Retrieval.Embedding;
+using ArchLucid.Core.Resilience;
+using ArchLucid.Retrieval.Embedding;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Retrieval.Tests;
+namespace ArchLucid.Retrieval.Tests;
 
 /// <summary>
 /// Tests for Circuit Breaking Open Ai Embedding Client.

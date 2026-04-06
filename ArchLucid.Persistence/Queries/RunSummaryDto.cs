@@ -1,10 +1,10 @@
-namespace ArchiForge.Persistence.Queries;
+namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
-/// Lightweight projection of a <see cref="ArchiForge.Persistence.Models.RunRecord"/> for lists and cards (ids only for linked artifacts).
+/// Lightweight projection of a <see cref="ArchLucid.Persistence.Models.RunRecord"/> for lists and cards (ids only for linked artifacts).
 /// </summary>
 /// <remarks>
-/// Mapped by <see cref="IAuthorityQueryService"/> from runs; HTTP exposure as <see cref="ArchiForge.Api.Contracts.RunSummaryResponse"/> including derived <c>Has*</c> flags.
+/// Mapped by <see cref="IAuthorityQueryService"/> from runs; HTTP exposure as <see cref="ArchLucid.Api.Contracts.RunSummaryResponse"/> including derived <c>Has*</c> flags.
 /// </remarks>
 public class RunSummaryDto
 {

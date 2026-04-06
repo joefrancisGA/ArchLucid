@@ -1,9 +1,9 @@
-﻿using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Advisory.Analysis;
+namespace ArchLucid.Decisioning.Advisory.Analysis;
 
 /// <summary>
 /// Default <see cref="IImprovementSignalAnalyzer"/> implementation driven by manifest gaps and <see cref="ComparisonResult"/> deltas.

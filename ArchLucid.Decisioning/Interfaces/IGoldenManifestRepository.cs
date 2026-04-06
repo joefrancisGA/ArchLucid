@@ -1,9 +1,9 @@
 using System.Data;
 
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Interfaces;
+namespace ArchLucid.Decisioning.Interfaces;
 
 public interface IGoldenManifestRepository
 {

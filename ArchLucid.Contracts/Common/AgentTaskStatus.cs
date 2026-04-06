@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Common;
+namespace ArchLucid.Contracts.Common;
 
 /// <summary>Lifecycle state of an individual <c>AgentTask</c> within a run.</summary>
 public enum AgentTaskStatus

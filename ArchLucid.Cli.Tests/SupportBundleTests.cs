@@ -1,11 +1,11 @@
 using System.Net;
 using System.Text;
 
-using ArchiForge.Cli.Support;
+using ArchLucid.Cli.Support;
 
 using FluentAssertions;
 
-namespace ArchiForge.Cli.Tests;
+namespace ArchLucid.Cli.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -32,19 +32,19 @@ public sealed class SupportBundleTests
     {
         using HttpMessageHandler handler = new StubApiHandler();
         using HttpClient http = new(handler) { BaseAddress = new Uri("http://stub.local") };
-        ArchiForgeApiClient client = new(http);
+        ArchLucidApiClient client = new(http);
 
-        ArchiForgeProjectScaffolder.ArchiForgeConfig config = new()
+        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
         {
             ProjectName = "p",
             SchemaVersion = "1.0",
             ApiUrl = "http://stub.local",
-            Inputs = new ArchiForgeProjectScaffolder.InputsSection { Brief = "inputs/brief.md" },
-            Outputs = new ArchiForgeProjectScaffolder.OutputsSection { LocalCacheDir = "outputs" },
-            Plugins = new ArchiForgeProjectScaffolder.PluginsSection { LockFile = "plugins/x.json" },
-            Infra = new ArchiForgeProjectScaffolder.InfraSection
+            Inputs = new ArchLucidProjectScaffolder.InputsSection { Brief = "inputs/brief.md" },
+            Outputs = new ArchLucidProjectScaffolder.OutputsSection { LocalCacheDir = "outputs" },
+            Plugins = new ArchLucidProjectScaffolder.PluginsSection { LockFile = "plugins/x.json" },
+            Infra = new ArchLucidProjectScaffolder.InfraSection
             {
-                Terraform = new ArchiForgeProjectScaffolder.TerraformSection { Enabled = false, Path = "infra/terraform" },
+                Terraform = new ArchLucidProjectScaffolder.TerraformSection { Enabled = false, Path = "infra/terraform" },
             },
         };
 
@@ -151,7 +151,7 @@ public sealed class SupportBundleTests
 
             if (string.Equals(path, "/version", StringComparison.Ordinal))
             
-                json = """{"application":"ArchiForge.Api","informationalVersion":"1.0-test"}""";
+                json = """{"application":"ArchLucid.Api","informationalVersion":"1.0-test"}""";
             
             else
             

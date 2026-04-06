@@ -1,13 +1,13 @@
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
-namespace ArchiForge.Persistence.Replay;
+namespace ArchLucid.Persistence.Replay;
 
 /// <summary>
 /// <see cref="IAuthorityReplayService"/> implementation: validate stored run, optionally rebuild manifest/trace and artifacts under scope derived from the run row.

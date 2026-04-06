@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Default implementation of <see cref="IConsultingDocxTemplateOptionsProvider"/> that

@@ -1,19 +1,19 @@
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Services;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Comparison;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Alerts.Simulation;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Services;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Alerts.Simulation;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Persistence.Tests.Alerts;
+namespace ArchLucid.Persistence.Tests.Alerts;
 
 public sealed class AlertSimulationContextProviderTests
 {

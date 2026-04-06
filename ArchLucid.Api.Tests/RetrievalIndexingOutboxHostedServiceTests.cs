@@ -1,5 +1,5 @@
-using ArchiForge.Host.Core.Hosted;
-using ArchiForge.Persistence.Retrieval;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Persistence.Retrieval;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Shutdown and loop behavior tests for <see cref="RetrievalIndexingOutboxHostedService"/>.

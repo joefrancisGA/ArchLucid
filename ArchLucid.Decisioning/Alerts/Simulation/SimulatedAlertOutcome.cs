@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Simulation;
+namespace ArchLucid.Decisioning.Alerts.Simulation;
 
 /// <summary>One row in <see cref="RuleSimulationResult.Outcomes"/> for a single run context.</summary>
 public class SimulatedAlertOutcome

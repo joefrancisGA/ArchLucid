@@ -1,6 +1,6 @@
-﻿using ArchiForge.Core.Audit;
+using ArchLucid.Core.Audit;
 
-namespace ArchiForge.Persistence.Audit;
+namespace ArchLucid.Persistence.Audit;
 
 /// <summary>
 /// In-memory implementation of <see cref="IAuditRepository"/> for testing and storage-off mode.

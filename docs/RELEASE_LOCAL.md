@@ -10,7 +10,7 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 
 | Script | Purpose |
 |--------|---------|
-| `build-release.cmd` / `build-release.ps1` | `dotnet restore` + `dotnet build ArchiForge.sln -c Release` |
+| `build-release.cmd` / `build-release.ps1` | `dotnet restore` + `dotnet build ArchLucid.sln -c Release` |
 | `package-release.cmd` / `package-release.ps1` | Runs release build, then **`dotnet publish`** API to `artifacts/release/api/`; if **Node** is on `PATH`, also runs `npm ci` + `npm run build` in `archiforge-ui/`. Emits **handoff metadata** next to `api/` (see below). |
 | `run-readiness-check.cmd` / `run-readiness-check.ps1` | Release build → **fast core** tests (`-c Release --no-build`) → **Vitest** in `archiforge-ui/` when Node is available. Failures print a **triage** block (stage, category, **Next:** hints) via `scripts/OperatorDiagnostics.ps1`. |
 | `release-smoke.cmd` / `release-smoke.ps1` | **E2E smoke:** build + fast core (+ optional `-FullCore`) + optional UI build + temporary API + CLI **`run --quick`** + artifact API check — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
@@ -31,7 +31,7 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 | **`metadata.json`** | Build identity: `schemaVersion`, `packageKind`, informational / assembly / file version, `commitSha`, UTC timestamp, SDK, host, whether UI production build ran |
 | **`release-manifest.json`** | Inventory: file count / total bytes, every **`api/...`** path with `sizeBytes`, layout notes, `companionFiles` list |
 | **`checksums-sha256.txt`** | One line per published file: `<lowercase-hex>  api/relative/path` (same order as `apiPublishFiles` in the manifest) |
-| **`PACKAGE-HANDOFF.txt`** | Short human-readable summary for design partners (what each file is, how to run `dotnet ArchiForge.Api.dll`) |
+| **`PACKAGE-HANDOFF.txt`** | Short human-readable summary for design partners (what each file is, how to run `dotnet ArchLucid.Api.dll`) |
 
 The operator UI remains developed from `archiforge-ui/` in the repo (or deploy via your host’s Node/Next workflow); it is **not** copied into `artifacts/release/` except as noted in the manifest.
 
@@ -46,7 +46,7 @@ The operator UI remains developed from `archiforge-ui/` in the repo (or deploy v
 ### Support-friendly handoff
 
 - **`metadata.json`** — paste **`informationalVersion`** and **`commitSha`** into support tickets (matches **`GET /version`** when the same bits are running).
-- After deploy, pilots should confirm **`GET /version`** or run **`dotnet run --project ArchiForge.Cli -- doctor`** and attach **`support-bundle --zip`** if something fails — see [PILOT_GUIDE.md](PILOT_GUIDE.md) and [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+- After deploy, pilots should confirm **`GET /version`** or run **`dotnet run --project ArchLucid.Cli -- doctor`** and attach **`support-bundle --zip`** if something fails — see [PILOT_GUIDE.md](PILOT_GUIDE.md) and [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ---
 
@@ -59,10 +59,10 @@ From `artifacts/release/api/` (after `package-release`):
 $env:ASPNETCORE_ENVIRONMENT = 'Production'
 # Example: SQL (adjust for your server; use User Secrets or env vars — do not commit secrets)
 $env:ConnectionStrings__ArchiForge = 'Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=...;TrustServerCertificate=True;'
-dotnet .\ArchiForge.Api.dll
+dotnet .\ArchLucid.Api.dll
 ```
 
-Defaults for URLs are in `ArchiForge.Api/Properties/launchSettings.json` when developing; for published runs, set `ASPNETCORE_URLS` (e.g. `http://localhost:5128`) if you need a fixed binding.
+Defaults for URLs are in `ArchLucid.Api/Properties/launchSettings.json` when developing; for published runs, set `ASPNETCORE_URLS` (e.g. `http://localhost:5128`) if you need a fixed binding.
 
 **Health:** `GET /health/live`, `GET /health/ready`, `GET /health` (see root [README.md](../README.md)).
 

@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Services.Evolution;
+namespace ArchLucid.Api.Services.Evolution;
 
 /// <summary>Serializable snapshot of a 59R plan for audit/explainability on a 60R candidate.</summary>
 public sealed class EvolutionPlanSnapshotDocument

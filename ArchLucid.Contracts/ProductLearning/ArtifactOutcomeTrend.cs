@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
 /// Repeated artifact-level outcomes over a time window (trust / revise / reject / follow-up mix).

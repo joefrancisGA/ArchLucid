@@ -1,13 +1,13 @@
-using ArchiForge.ContextIngestion.Canonicalization;
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.ContextIngestion.Repositories;
-using ArchiForge.ContextIngestion.Services;
-using ArchiForge.ContextIngestion.Summaries;
+using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Repositories;
+using ArchLucid.ContextIngestion.Services;
+using ArchLucid.ContextIngestion.Summaries;
 
 using FluentAssertions;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Regression tests for connector iteration order in <see cref="ContextIngestionService"/>:

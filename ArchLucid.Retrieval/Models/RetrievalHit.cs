@@ -1,7 +1,7 @@
-namespace ArchiForge.Retrieval.Models;
+namespace ArchLucid.Retrieval.Models;
 
 /// <summary>
-/// One ranked chunk returned from <see cref="ArchiForge.Retrieval.Queries.IRetrievalQueryService.SearchAsync"/>.
+/// One ranked chunk returned from <see cref="ArchLucid.Retrieval.Queries.IRetrievalQueryService.SearchAsync"/>.
 /// </summary>
 public class RetrievalHit
 {

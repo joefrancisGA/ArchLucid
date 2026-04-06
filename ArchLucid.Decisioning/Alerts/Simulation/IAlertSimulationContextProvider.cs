@@ -1,10 +1,10 @@
-namespace ArchiForge.Decisioning.Alerts.Simulation;
+namespace ArchLucid.Decisioning.Alerts.Simulation;
 
 /// <summary>
 /// Builds one or more <see cref="AlertEvaluationContext"/> instances for “what-if” alert evaluation without persisting a scan.
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchiForge.Persistence.Alerts.Simulation.AlertSimulationContextProvider</c>. Contexts omit
+/// Implemented by <c>ArchLucid.Persistence.Alerts.Simulation.AlertSimulationContextProvider</c>. Contexts omit
 /// <see cref="AlertEvaluationContext.EffectiveGovernanceContent"/> unless extended later; evaluators then load governance via the alert services.
 /// </remarks>
 public interface IAlertSimulationContextProvider

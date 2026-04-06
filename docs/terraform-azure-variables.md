@@ -60,9 +60,9 @@ flowchart TB
 | `enable_entra_api_app` | App registration + SP | **`false` by default** — **`infra/terraform-entra/`**. |
 | `api_identifier_uri` | JWT **audience** | Must match **`ArchiForgeAuth:Audience`** in the API. |
 
-**Implementation:** `infra/terraform-entra/README.md`; sample config **`ArchiForge.Api/appsettings.Entra.sample.json`**.
+**Implementation:** `infra/terraform-entra/README.md`; sample config **`ArchLucid.Api/appsettings.Entra.sample.json`**.
 
 ## Constraints
 
 - Align with org **landing zone** (subnets, DNS zones, private endpoints).
-- Keep **DDL** in the single SQL file discipline (`ArchiForge.Persistence/Scripts/ArchiForge.sql`) and apply via pipeline.
+- Keep **DDL** in the single SQL file discipline (`ArchLucid.Persistence/Scripts/ArchiForge.sql`) and apply via pipeline.

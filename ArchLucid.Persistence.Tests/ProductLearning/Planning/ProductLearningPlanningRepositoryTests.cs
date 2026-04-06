@@ -1,8 +1,8 @@
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Persistence.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Persistence.ProductLearning.Planning;
 
-namespace ArchiForge.Persistence.Tests.ProductLearning.Planning;
+namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
 [Trait("ChangeSet", "59R")]
 public sealed class ProductLearningPlanningRepositoryTests

@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Decisioning.Governance.Resolution;
+namespace ArchLucid.Decisioning.Governance.Resolution;
 
 /// <summary>
 /// Canonical string constants for <see cref="PolicyPackAssignment.ScopeLevel"/> (tenant baseline → workspace → project override).

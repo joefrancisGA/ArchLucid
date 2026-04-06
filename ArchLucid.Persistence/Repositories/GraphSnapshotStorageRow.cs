@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
-/// Dapper row shape for <c>dbo.GraphSnapshots</c> JSON columns before mapping to <see cref="ArchiForge.KnowledgeGraph.Models.GraphSnapshot"/>.
+/// Dapper row shape for <c>dbo.GraphSnapshots</c> JSON columns before mapping to <see cref="ArchLucid.KnowledgeGraph.Models.GraphSnapshot"/>.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 public sealed class GraphSnapshotStorageRow

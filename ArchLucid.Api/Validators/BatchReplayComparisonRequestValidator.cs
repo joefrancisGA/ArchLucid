@@ -1,11 +1,11 @@
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Api.Models;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Api.Models;
 
 using FluentValidation;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 public sealed class BatchReplayComparisonRequestValidator : AbstractValidator<BatchReplayComparisonRequest>
 {

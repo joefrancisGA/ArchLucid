@@ -1,8 +1,8 @@
-using ArchiForge.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 using BenchmarkDotNet.Attributes;
 
-namespace ArchiForge.Benchmarks;
+namespace ArchLucid.Benchmarks;
 
 /// <summary>String fragments used after ORDER BY in list queries (see repositories using <see cref="SqlPagingSyntax"/>).</summary>
 [MemoryDiagnoser]

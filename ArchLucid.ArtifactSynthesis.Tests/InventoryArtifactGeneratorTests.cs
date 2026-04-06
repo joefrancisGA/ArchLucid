@@ -1,13 +1,13 @@
 using System.Text.Json;
 
-using ArchiForge.ArtifactSynthesis.Generators;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Generators;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.ArtifactSynthesis.Tests;
+namespace ArchLucid.ArtifactSynthesis.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

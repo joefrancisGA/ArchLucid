@@ -1,4 +1,4 @@
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
 /// Caps embedding cost and request size during <see cref="IRetrievalIndexingService"/> runs (batch size and total chunks per operation).

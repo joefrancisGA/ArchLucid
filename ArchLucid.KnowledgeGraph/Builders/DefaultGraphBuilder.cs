@@ -1,10 +1,10 @@
-﻿using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Inference;
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Mapping;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Inference;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Mapping;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Builders;
+namespace ArchLucid.KnowledgeGraph.Builders;
 
 public class DefaultGraphBuilder(
     IGraphNodeFactory nodeFactory,

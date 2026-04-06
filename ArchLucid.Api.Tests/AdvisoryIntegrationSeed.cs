@@ -1,14 +1,14 @@
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Interfaces;
-using ArchiForge.Persistence.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.DependencyInjection;
 
-using AuthorityGoldenManifestRepository = ArchiForge.Decisioning.Interfaces.IGoldenManifestRepository;
+using AuthorityGoldenManifestRepository = ArchLucid.Decisioning.Interfaces.IGoldenManifestRepository;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Shared in-memory authority graph for advisory HTTP integration tests (<see cref="AlertLifecycleIntegrationTests"/>, digest delivery lifecycle).

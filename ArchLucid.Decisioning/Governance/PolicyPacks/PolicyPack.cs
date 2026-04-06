@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>Versioned governance bundle metadata (name, type, lifecycle) scoped to tenant/workspace/project.</summary>
 /// <remarks>

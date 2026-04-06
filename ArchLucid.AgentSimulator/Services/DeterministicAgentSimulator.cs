@@ -1,8 +1,8 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.AgentSimulator.Services;
+namespace ArchLucid.AgentSimulator.Services;
 
 public sealed class DeterministicAgentSimulator : IAgentExecutor
 {

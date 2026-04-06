@@ -1,12 +1,12 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Repositories;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
@@ -14,7 +14,7 @@ using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="SqlArtifactBundleRepository"/> against SQL Server + DbUp (relational slices + JSON dual-write).

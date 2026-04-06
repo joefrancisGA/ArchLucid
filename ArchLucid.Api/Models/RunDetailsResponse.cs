@@ -1,11 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 /// <summary>Full run detail payload returned by the run detail endpoint.</summary>
 [ExcludeFromCodeCoverage(Justification = "API request/response DTO; no business logic.")]

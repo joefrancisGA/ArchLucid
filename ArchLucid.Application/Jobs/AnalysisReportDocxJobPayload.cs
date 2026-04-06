@@ -1,6 +1,6 @@
-using ArchiForge.Application.Analysis;
+using ArchLucid.Application.Analysis;
 
-namespace ArchiForge.Application.Jobs;
+namespace ArchLucid.Application.Jobs;
 
 /// <summary>
 /// Serializable export parameters for async analysis-report DOCX jobs (no preloaded run detail).

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.Resolution;
+namespace ArchLucid.Decisioning.Governance.Resolution;
 
 /// <summary>
 /// Describes a governance conflict detected during merge (multiple packs defining the same item, or disagreeing on a value).

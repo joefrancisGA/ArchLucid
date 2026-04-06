@@ -1,21 +1,21 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Contracts.Governance;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Application.Bootstrap;
+namespace ArchLucid.Application.Bootstrap;
 
 /// <summary>
 /// Idempotent seed for the Contoso Retail Modernization **trusted baseline** (two committed runs, governance workflow, activations).
 /// </summary>
 /// <remarks>
-/// Persists via <c>ArchiForge.Persistence.Data.Repositories</c> only. The export row is optional metadata for export history — not required for
+/// Persists via <c>ArchLucid.Persistence.Data.Repositories</c> only. The export row is optional metadata for export history — not required for
 /// consulting DOCX replay. See <c>docs/TRUSTED_BASELINE.md</c>.
 /// </remarks>
 public sealed class DemoSeedService(

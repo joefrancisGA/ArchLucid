@@ -1,8 +1,8 @@
-using ArchiForge.Core.Resilience;
+using ArchLucid.Core.Resilience;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Decorator for <see cref="IAgentCompletionClient"/> that applies a <see cref="CircuitBreakerGate"/> around Azure OpenAI calls.

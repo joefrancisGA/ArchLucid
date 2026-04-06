@@ -1,18 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Integration tests: Architecture Ingestion (HTTP host, database, or cross-component).
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureIngestionIntegrationTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureIngestionIntegrationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task CreateRun_WithIngestionFields_ReturnsCreated()

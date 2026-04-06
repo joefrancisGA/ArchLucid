@@ -1,8 +1,8 @@
-using ArchiForge.Persistence.Backfill;
+using ArchLucid.Persistence.Backfill;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="CutoverReadinessReport"/> and <see cref="CutoverSliceReadiness"/>

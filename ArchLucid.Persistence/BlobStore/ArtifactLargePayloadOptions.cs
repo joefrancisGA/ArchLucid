@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.BlobStore;
+namespace ArchLucid.Persistence.BlobStore;
 
 /// <summary>Controls when JSON/large text is written to external storage instead of relying on SQL alone.</summary>
 public sealed class ArtifactLargePayloadOptions

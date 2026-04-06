@@ -1,9 +1,9 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.Decisioning.Merge;
+namespace ArchLucid.Decisioning.Merge;
 
 /// <summary>
 /// Merges agent results, evaluations, and decision nodes into a validated <see cref="GoldenManifest"/>

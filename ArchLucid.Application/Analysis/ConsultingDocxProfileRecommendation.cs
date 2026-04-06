@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// The result produced by <see cref="IConsultingDocxTemplateRecommendationService.Recommend"/>

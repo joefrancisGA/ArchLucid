@@ -2,13 +2,13 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Evolution;
+namespace ArchLucid.Application.Evolution;
 
 /// <summary>
 /// Deterministic scoring over architecture analysis reports: reuses <see cref="IManifestDiffService"/> and optional

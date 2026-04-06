@@ -1,21 +1,21 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.ArtifactBundles;
-using ArchiForge.Persistence.BlobStore;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.RelationalRead;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.ArtifactBundles;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.RelationalRead;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// SQL Server-backed <see cref="IArtifactBundleRepository"/> with dual-write to legacy JSON columns and

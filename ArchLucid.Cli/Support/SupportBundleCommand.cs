@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Cli.Support;
+namespace ArchLucid.Cli.Support;
 
 /// <summary>
 /// CLI entry for <c>archiforge support-bundle</c>: writes a reviewable JSON bundle (and optional zip).
@@ -12,7 +12,7 @@ internal static class SupportBundleCommand
     public static async Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
         string cwd = Directory.GetCurrentDirectory();
-        ArchiForgeProjectScaffolder.ArchiForgeConfig? config = TryLoadConfig(cwd);
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config = TryLoadConfig(cwd);
 
         bool zip = false;
         string? outputOverride = null;
@@ -56,8 +56,8 @@ internal static class SupportBundleCommand
             return 1;
         }
 
-        string baseUrl = ArchiForgeApiClient.ResolveBaseUrl(config);
-        string? urlError = ArchiForgeApiClient.GetInvalidApiBaseUrlReason(baseUrl);
+        string baseUrl = ArchLucidApiClient.ResolveBaseUrl(config);
+        string? urlError = ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl);
 
         if (urlError is not null)
         {
@@ -73,7 +73,7 @@ internal static class SupportBundleCommand
 
         Directory.CreateDirectory(bundleDir);
 
-        ArchiForgeApiClient client = new(baseUrl);
+        ArchLucidApiClient client = new(baseUrl);
 
         SupportBundlePayload payload = await SupportBundleCollector.CollectAsync(client, cwd, config, cancellationToken);
 
@@ -104,7 +104,7 @@ internal static class SupportBundleCommand
         Console.WriteLine("  --zip  Also creates <folder>.zip next to the folder.");
     }
 
-    private static ArchiForgeProjectScaffolder.ArchiForgeConfig? TryLoadConfig(string cwd)
+    private static ArchLucidProjectScaffolder.ArchLucidCliConfig? TryLoadConfig(string cwd)
     {
         string jsonPath = Path.Combine(cwd, "archiforge.json");
 
@@ -115,7 +115,7 @@ internal static class SupportBundleCommand
 
         try
         {
-            return ArchiForgeProjectScaffolder.LoadConfig(cwd);
+            return ArchLucidProjectScaffolder.LoadConfig(cwd);
         }
         catch (Exception ex)
         {

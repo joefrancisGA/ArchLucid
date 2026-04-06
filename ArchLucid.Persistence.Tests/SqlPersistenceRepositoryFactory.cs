@@ -1,12 +1,12 @@
-using ArchiForge.Persistence.BlobStore;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Repositories;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Repositories;
 
 using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>Constructs SQL repositories with large-payload offload disabled (default for integration tests).</summary>
 internal static class SqlPersistenceRepositoryFactory

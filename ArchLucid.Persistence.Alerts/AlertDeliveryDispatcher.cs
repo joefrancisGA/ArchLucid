@@ -1,11 +1,11 @@
 using System.Text.Json;
 
-using ArchiForge.Core.Audit;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Delivery;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Core.Audit;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Delivery;
+using ArchLucid.Persistence.Serialization;
 
-namespace ArchiForge.Persistence.Alerts;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
 /// Default <see cref="IAlertDeliveryDispatcher"/>: loads routing subscriptions, matches severity, sends through registered <see cref="IAlertDeliveryChannel"/>s, and tracks <see cref="AlertDeliveryAttempt"/> rows.

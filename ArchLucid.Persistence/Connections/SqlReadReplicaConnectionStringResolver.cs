@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Connections;
+namespace ArchLucid.Persistence.Connections;
 
 /// <summary>
 /// Resolves the failover-group read-only listener (or legacy per-route override) for scoped read paths.

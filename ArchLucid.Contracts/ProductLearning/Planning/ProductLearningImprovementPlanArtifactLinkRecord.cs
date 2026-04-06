@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// Either an authority bundle artifact (<see cref="AuthorityBundleId"/> + <see cref="AuthorityArtifactSortOrder"/>)

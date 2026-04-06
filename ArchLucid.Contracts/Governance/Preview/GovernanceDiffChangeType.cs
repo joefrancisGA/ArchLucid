@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Governance.Preview;
+namespace ArchLucid.Contracts.Governance.Preview;
 
 /// <summary>Values for <see cref="GovernanceDiffItem.ChangeType"/>.</summary>
 public static class GovernanceDiffChangeType

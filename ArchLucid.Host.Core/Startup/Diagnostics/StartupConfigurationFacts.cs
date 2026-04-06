@@ -1,8 +1,9 @@
 using System.Reflection;
 
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Host.Core.Configuration;
 
-namespace ArchiForge.Host.Core.Startup.Diagnostics;
+namespace ArchLucid.Host.Core.Startup.Diagnostics;
 
 /// <summary>
 /// Non-secret effective configuration surfaced once at startup for pilot support and diagnostics.
@@ -12,10 +13,10 @@ public sealed record StartupConfigurationFacts(
     string HostEnvironmentName,
     string ContentRootPath,
     bool SqlConnectionStringConfigured,
-    string ArchiForgeStorageProvider,
+    string ArchLucidStorageProvider,
     string RetrievalVectorIndex,
     string AgentExecutionMode,
-    string ArchiForgeAuthMode,
+    string ArchLucidAuthMode,
     bool AuthenticationApiKeyEnabled,
     bool AuthenticationApiKeyAdminConfigured,
     bool AuthenticationApiKeyReadOnlyConfigured,
@@ -50,11 +51,11 @@ internal static class StartupConfigurationFactsReader
         return new StartupConfigurationFacts(
             environment.EnvironmentName,
             environment.ContentRootPath,
-            !string.IsNullOrWhiteSpace(configuration.GetConnectionString("ArchiForge")),
-            configuration["ArchiForge:StorageProvider"] ?? "(missing)",
+            !string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration)),
+            configuration["ArchLucid:StorageProvider"] ?? configuration["ArchiForge:StorageProvider"] ?? "(missing)",
             configuration["Retrieval:VectorIndex"] ?? "(missing)",
             configuration["AgentExecution:Mode"] ?? "(missing)",
-            configuration["ArchiForgeAuth:Mode"] ?? "(missing)",
+            ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode") ?? "(missing)",
             configuration.GetValue("Authentication:ApiKey:Enabled", false),
             !string.IsNullOrWhiteSpace(configuration["Authentication:ApiKey:AdminKey"]),
             !string.IsNullOrWhiteSpace(configuration["Authentication:ApiKey:ReadOnlyKey"]),

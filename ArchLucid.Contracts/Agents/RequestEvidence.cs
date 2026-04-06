@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Agents;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 /// Summarises the original architecture request, distilled into the key inputs agents

@@ -1,7 +1,7 @@
-using ArchiForge.Core.Conversation;
-using ArchiForge.Persistence.Conversation;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Persistence.Conversation;
 
-namespace ArchiForge.Host.Core.Ask;
+namespace ArchLucid.Host.Core.Ask;
 
 /// <summary>
 /// <see cref="IConversationService"/> implementation backed by thread and message repositories.

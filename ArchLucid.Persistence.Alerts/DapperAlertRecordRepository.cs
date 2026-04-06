@@ -1,14 +1,14 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Core.Pagination;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Core.Pagination;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Alerts;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>
 /// Dapper-backed <see cref="IAlertRecordRepository"/> against <c>dbo.AlertRecords</c>.

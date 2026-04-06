@@ -5,7 +5,7 @@ REM RC-style gate: Release build, fast-core in Release, UI Vitest if Node is ava
 call "%~dp0build-release.cmd"
 if errorlevel 1 exit /b %ERRORLEVEL%
 echo === Fast core tests (Release, no rebuild) ===
-dotnet test ArchiForge.sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"
+dotnet test ArchLucid.sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"
 if errorlevel 1 exit /b %ERRORLEVEL%
 where node >nul 2>&1
 if errorlevel 1 goto :SkipUi

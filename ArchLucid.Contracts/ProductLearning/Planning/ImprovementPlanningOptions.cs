@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Deterministic planning knobs (no runtime mutation of generation or evaluation).</summary>
 public sealed class ImprovementPlanningOptions

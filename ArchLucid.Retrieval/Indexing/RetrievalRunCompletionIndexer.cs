@@ -1,12 +1,12 @@
 using System.Diagnostics;
 
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Provenance;
-using ArchiForge.Retrieval.Models;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Provenance;
+using ArchLucid.Retrieval.Models;
 
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
 /// <see cref="IRetrievalRunCompletionIndexer"/> orchestration: <see cref="IRetrievalDocumentBuilder"/> (manifest, artifacts, provenance) then <see cref="IRetrievalIndexingService"/>.
@@ -25,7 +25,7 @@ public sealed class RetrievalRunCompletionIndexer(
         DecisionProvenanceGraph provenanceGraph,
         CancellationToken ct)
     {
-        using Activity? indexActivity = ArchiForgeInstrumentation.RetrievalIndex.StartActivity();
+        using Activity? indexActivity = ArchLucidInstrumentation.RetrievalIndex.StartActivity();
         indexActivity?.SetTag("archiforge.run_id", manifest.RunId.ToString("D"));
 
         string logicalCorrelation =

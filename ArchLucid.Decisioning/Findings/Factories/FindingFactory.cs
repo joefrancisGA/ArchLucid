@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Decisioning.Findings.Factories;
+namespace ArchLucid.Decisioning.Findings.Factories;
 
 public static class FindingFactory
 {

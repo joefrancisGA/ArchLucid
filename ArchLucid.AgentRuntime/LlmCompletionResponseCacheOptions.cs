@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// In-process cache for identical chat completion requests (same prompts and scope partition).
@@ -31,7 +31,7 @@ public sealed class LlmCompletionResponseCacheOptions
     public int AbsoluteExpirationSeconds { get; set; } = 600;
 
     /// <summary>
-    /// When true, the cache key includes tenant, workspace, and project from <see cref="ArchiForge.Core.Scoping.IScopeContextProvider"/>.
+    /// When true, the cache key includes tenant, workspace, and project from <see cref="ArchLucid.Core.Scoping.IScopeContextProvider"/>.
     /// Prevents cross-tenant reuse when prompts are identical.
     /// </summary>
     public bool PartitionByScope { get; set; } = true;

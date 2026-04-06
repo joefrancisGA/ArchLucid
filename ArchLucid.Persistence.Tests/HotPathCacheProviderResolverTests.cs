@@ -1,8 +1,8 @@
-using ArchiForge.Persistence.Caching;
+using ArchLucid.Persistence.Caching;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 public sealed class HotPathCacheProviderResolverTests
 {

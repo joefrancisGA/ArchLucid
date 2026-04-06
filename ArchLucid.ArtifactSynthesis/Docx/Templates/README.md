@@ -2,7 +2,7 @@
 
 ## `architecture-template.docx` (optional)
 
-If this file is present next to `ArchiForge.ArtifactSynthesis.dll` under `Docx/Templates/`, it is used as the **branded shell** (header, footer, fonts, styles, logo you add in Word).
+If this file is present next to `ArchLucid.ArtifactSynthesis.dll` under `Docx/Templates/`, it is used as the **branded shell** (header, footer, fonts, styles, logo you add in Word).
 
 If the file is **missing**, a built-in template is generated in memory (ArchiForge header/footer + custom paragraph styles).
 
@@ -19,4 +19,4 @@ If the file is **missing**, a built-in template is generated in memory (ArchiFor
 
 ### Build output
 
-The project copies `architecture-template.docx` to the output directory **only if the file exists** (see `ArchiForge.ArtifactSynthesis.csproj`).
+The project copies `architecture-template.docx` to the output directory **only if the file exists** (see `ArchLucid.ArtifactSynthesis.csproj`).

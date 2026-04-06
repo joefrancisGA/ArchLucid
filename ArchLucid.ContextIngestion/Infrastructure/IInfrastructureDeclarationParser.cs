@@ -1,6 +1,6 @@
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 
-namespace ArchiForge.ContextIngestion.Infrastructure;
+namespace ArchLucid.ContextIngestion.Infrastructure;
 
 public interface IInfrastructureDeclarationParser
 {

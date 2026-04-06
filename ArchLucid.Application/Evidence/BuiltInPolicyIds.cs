@@ -1,9 +1,9 @@
-namespace ArchiForge.Application.Evidence;
+namespace ArchLucid.Application.Evidence;
 
 /// <summary>
 /// Stable identifiers for the built-in policy evidence entries injected by
 /// <see cref="DefaultEvidenceBuilder"/>. These IDs are stored in
-/// <see cref="ArchiForge.Contracts.Agents.PolicyEvidence.PolicyId"/> and may
+/// <see cref="ArchLucid.Contracts.Agents.PolicyEvidence.PolicyId"/> and may
 /// appear in agent reasoning output, so they must not change between builds.
 /// </summary>
 public static class BuiltInPolicyIds

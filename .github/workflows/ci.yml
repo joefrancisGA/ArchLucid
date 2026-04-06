@@ -129,7 +129,7 @@ jobs:
         run: dotnet restore
 
       - name: Vulnerable package audit
-        run: dotnet list ArchiForge.sln package --vulnerable --include-transitive --format json
+        run: dotnet list ArchLucid.sln package --vulnerable --include-transitive --format json
 
       - name: Build (Release)
         run: dotnet build --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
@@ -139,7 +139,7 @@ jobs:
           dotnet tool install CycloneDX --tool-path "${RUNNER_TEMP}/cdx" --verbosity quiet
           CDX="${RUNNER_TEMP}/cdx/dotnet-cyclonedx"
           test -x "$CDX" || CDX="${RUNNER_TEMP}/cdx/dotnet-CycloneDX"
-          "$CDX" ArchiForge.Api/ArchiForge.Api.csproj -o sbom-dotnet.json
+          "$CDX" ArchLucid.Api/ArchLucid.Api.csproj -o sbom-dotnet.json
 
       - uses: actions/upload-artifact@v6
         with:
@@ -153,10 +153,10 @@ jobs:
         run: python scripts/ci/assert_list_endpoint_pagination.py
 
       # Includes OpenApiContractSnapshotTests (Suite=Core): drift vs Contracts/openapi-v1.contract.snapshot.json fails the job.
-      # ArchiForge.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
+      # ArchLucid.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
       - name: Test — fast core
-        run: dotnet test ArchiForge.sln --no-build -c Release --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
+        run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
 
       - name: Merge coverage (HTML + GitHub job summary)
         if: success()
@@ -227,7 +227,7 @@ jobs:
       - name: Test — full solution
         env:
           ARCHIFORGE_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchiForgePersistenceTests"
-        run: dotnet test ArchiForge.sln --no-build -c Release --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-full"
+        run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-full"
 
       - name: Merge coverage (HTML + GitHub job summary)
         if: success()
@@ -296,9 +296,9 @@ jobs:
       - name: Restore
         run: dotnet restore
 
-      - name: Pack ArchiForge.Api.Client
+      - name: Pack ArchLucid.Api.Client
         run: |
-          dotnet pack ArchiForge.Api.Client/ArchiForge.Api.Client.csproj \
+          dotnet pack ArchLucid.Api.Client/ArchLucid.Api.Client.csproj \
             --no-restore \
             -c Release \
             -o "${RUNNER_TEMP}/nuget" \
@@ -433,7 +433,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ArchiForge.Api/Dockerfile
+          file: ArchLucid.Api/Dockerfile
           tags: archiforge-api:ci
           load: true
           provenance: false
@@ -446,7 +446,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ArchiForge.Api/Dockerfile
+          file: ArchLucid.Api/Dockerfile
           tags: archiforge-api:ci
           load: true
           provenance: false
@@ -564,15 +564,15 @@ jobs:
 
       - name: Restore & build benchmarks
         run: |
-          dotnet restore ArchiForge.Benchmarks/ArchiForge.Benchmarks.csproj
-          dotnet build --no-restore -c Release ArchiForge.Benchmarks/ArchiForge.Benchmarks.csproj
+          dotnet restore ArchLucid.Benchmarks/ArchLucid.Benchmarks.csproj
+          dotnet build --no-restore -c Release ArchLucid.Benchmarks/ArchLucid.Benchmarks.csproj
 
       - name: Run BenchmarkDotNet (short) and compare baseline
         env:
           BENCH_ART: ${{ runner.temp }}/bench-artifacts
         run: |
           set -e
-          dotnet run -c Release --no-build --project ArchiForge.Benchmarks -- \
+          dotnet run -c Release --no-build --project ArchLucid.Benchmarks -- \
             --filter "*" -j short --exporters json --artifacts "$BENCH_ART"
           python3 scripts/ci/compare_benchmark_baseline.py \
             --baseline ci/benchmark-baseline.json \
@@ -595,7 +595,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ArchiForge.Api/Dockerfile
+          file: ArchLucid.Api/Dockerfile
           tags: archiforge-api:zap
           load: true
           provenance: false

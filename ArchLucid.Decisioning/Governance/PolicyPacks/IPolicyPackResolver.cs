@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Resolves <strong>enabled</strong> policy pack assignments into a flat list of packs with raw <c>ContentJson</c>
@@ -10,7 +10,7 @@ namespace ArchiForge.Decisioning.Governance.PolicyPacks;
 /// (for debugging and <c>GET …/policy-packs/effective</c>), distinct from <see cref="IEffectiveGovernanceLoader"/> which returns a single merged document.
 /// </para>
 /// <para>
-/// Primary caller: <c>ArchiForge.Api.Controllers.PolicyPacksController.GetEffective</c> and <see cref="PolicyPackResolver"/> itself via DI.
+/// Primary caller: <c>ArchLucid.Api.Controllers.PolicyPacksController.GetEffective</c> and <see cref="PolicyPackResolver"/> itself via DI.
 /// </para>
 /// </remarks>
 public interface IPolicyPackResolver

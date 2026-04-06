@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Persistence.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Persistence.ProductLearning.Planning;
 
-namespace ArchiForge.Persistence.Tests.ProductLearning.Planning;
+namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
 /// <summary>59R improvement plan generation: deterministic ids, templates, and priority scoring.</summary>
 [Trait("ChangeSet", "59R")]

@@ -26,4 +26,4 @@ Write-Host "Waiting for SQL healthcheck (~35s)..."
 Start-Sleep -Seconds 35
 
 Write-Host "Running dotnet test (full solution, Release)..."
-dotnet test ArchiForge.sln -c Release --collect:"XPlat Code Coverage"
+dotnet test ArchLucid.sln -c Release --collect:"XPlat Code Coverage"

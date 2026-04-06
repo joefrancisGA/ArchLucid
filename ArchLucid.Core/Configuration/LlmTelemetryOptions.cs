@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Configuration;
+namespace ArchLucid.Core.Configuration;
 
 /// <summary>Optional high-cardinality LLM metrics (tenant id label). Use only when tenant count is bounded.</summary>
 public sealed class LlmTelemetryOptions

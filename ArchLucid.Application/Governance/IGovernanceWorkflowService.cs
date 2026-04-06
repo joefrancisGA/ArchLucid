@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Governance;
+using ArchLucid.Contracts.Governance;
 
-namespace ArchiForge.Application.Governance;
+namespace ArchLucid.Application.Governance;
 
 /// <summary>
 /// Orchestrates the governance lifecycle for architecture manifests: approval request

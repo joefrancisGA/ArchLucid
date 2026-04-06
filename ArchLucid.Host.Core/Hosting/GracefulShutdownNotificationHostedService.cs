@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Hosting;
+namespace ArchLucid.Host.Core.Hosting;
 
 /// <summary>
 /// Subscribes to <see cref="IHostApplicationLifetime.ApplicationStopping"/> so operators see a clear log line

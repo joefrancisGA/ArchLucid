@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>Stored in <c>ProductLearningPilotSignals.Disposition</c> (CHECK constraint).</summary>
 public static class ProductLearningDispositionValues

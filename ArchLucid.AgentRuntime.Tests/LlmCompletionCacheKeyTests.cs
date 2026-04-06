@@ -1,8 +1,8 @@
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
 public sealed class LlmCompletionCacheKeyTests

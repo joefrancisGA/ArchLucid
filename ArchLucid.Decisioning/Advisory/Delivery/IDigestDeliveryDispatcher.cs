@@ -1,12 +1,12 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
 /// Fans out a completed <see cref="ArchitectureDigest"/> to all enabled <see cref="DigestSubscription"/> rows for its scope.
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchiForge.Persistence.Advisory.DigestDeliveryDispatcher</c>. Called from <c>AdvisoryScanRunner</c> after digest persistence.
+/// Implemented by <c>ArchLucid.Persistence.Advisory.DigestDeliveryDispatcher</c>. Called from <c>AdvisoryScanRunner</c> after digest persistence.
 /// </remarks>
 public interface IDigestDeliveryDispatcher
 {

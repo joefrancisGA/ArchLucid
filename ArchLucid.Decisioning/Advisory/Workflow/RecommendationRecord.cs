@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Advisory.Workflow;
+namespace ArchLucid.Decisioning.Advisory.Workflow;
 
 /// <summary>
 /// Durable advisory recommendation row: scope, run linkage, workflow status, reviewer fields, and JSON arrays of supporting entity ids.

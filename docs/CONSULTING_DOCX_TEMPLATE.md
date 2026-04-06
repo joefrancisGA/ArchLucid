@@ -2,7 +2,7 @@
 
 ## Objective
 
-Document the **`ConsultingDocxTemplate`** and **`ConsultingDocxTemplateProfiles`** sections in `ArchiForge.Api/appsettings.json` (and environment-specific overrides). These settings drive branding, section toggles, and narrative defaults for consulting-style Word exports produced from architecture analysis.
+Document the **`ConsultingDocxTemplate`** and **`ConsultingDocxTemplateProfiles`** sections in `ArchLucid.Api/appsettings.json` (and environment-specific overrides). These settings drive branding, section toggles, and narrative defaults for consulting-style Word exports produced from architecture analysis.
 
 ## Assumptions
 
@@ -21,7 +21,7 @@ Document the **`ConsultingDocxTemplate`** and **`ConsultingDocxTemplateProfiles`
 | **`IncludeLogo`**, **`LogoPath`** | Optional logo embedding; when **`IncludeLogo`** is false, **`LogoPath`** is ignored. |
 | **`ExecutiveSummaryTextTemplate`**, **`ArchitectureOverviewIntro`**, **`ConclusionsText`** | Narrative templates; placeholders such as `{SystemName}`, `{OrganizationName}`, and aggregate counts (`{ServiceCount}`, etc.) are substituted at export time. |
 
-Binding type: **`ConsultingDocxTemplateOptions`** (`ArchiForge.Api.Configuration`), registered in **`RegisterRunExportAndArchitectureAnalysis`**.
+Binding type: **`ConsultingDocxTemplateOptions`** (`ArchLucid.Api.Configuration`), registered in **`RegisterRunExportAndArchitectureAnalysis`**.
 
 ### `ConsultingDocxTemplateProfiles`
 
@@ -39,8 +39,8 @@ Resolution is handled by **`IConsultingDocxTemplateProfileResolver`** / **`Defau
 
 ## Related code
 
-- **`ArchiForge.Api/Configuration/ConsultingDocxTemplateOptions.cs`** (and profile types).
-- **`ArchiForge.Application`** consulting DOCX export services referenced from **`ArchitectureAnalysisConsultingDocxExportService`**.
+- **`ArchLucid.Api/Configuration/ConsultingDocxTemplateOptions.cs`** (and profile types).
+- **`ArchLucid.Application`** consulting DOCX export services referenced from **`ArchitectureAnalysisConsultingDocxExportService`**.
 - **`docs/ARCHITECTURE_COMPONENTS.md`** (application export surface).
 
 ## Evolution

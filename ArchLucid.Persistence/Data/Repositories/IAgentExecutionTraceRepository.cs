@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
 /// Persistence contract for <see cref="AgentExecutionTrace"/> records that capture

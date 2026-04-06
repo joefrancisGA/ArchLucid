@@ -1,10 +1,10 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Requests;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Application.Decisions;
+namespace ArchLucid.Application.Decisions;
 
 /// <summary>
 /// Minimal deterministic evaluator used in dev/test environments.

@@ -2,7 +2,7 @@
 
 ## Objective
 
-Record **repeatable** latency and throughput for the five highest-traffic API paths so horizontal scaling (Container Apps, read replicas, worker queue depth) is justified with numbers, not assumptions. Complement micro-benchmarks in `ArchiForge.Benchmarks` and cold-start guidance in `docs/PERFORMANCE_COLD_START_AND_TRIMMING.md`.
+Record **repeatable** latency and throughput for the five highest-traffic API paths so horizontal scaling (Container Apps, read replicas, worker queue depth) is justified with numbers, not assumptions. Complement micro-benchmarks in `ArchLucid.Benchmarks` and cold-start guidance in `docs/PERFORMANCE_COLD_START_AND_TRIMMING.md`.
 
 ## Assumptions
 
@@ -35,7 +35,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 | Manual CI workflow | `.github/workflows/load-test.yml` |
 | Summary → Markdown | `scripts/ci/print_k6_summary_metrics.py` |
 | List pagination guard | `scripts/ci/assert_list_endpoint_pagination.py` + `list_endpoint_pagination_allowlist.txt` |
-| CPU baselines | `ArchiForge.Benchmarks` (merge + SQL paging fragments), compared in CI via `ci/benchmark-baseline.json` |
+| CPU baselines | `ArchLucid.Benchmarks` (merge + SQL paging fragments), compared in CI via `ci/benchmark-baseline.json` |
 
 ## Data flow
 

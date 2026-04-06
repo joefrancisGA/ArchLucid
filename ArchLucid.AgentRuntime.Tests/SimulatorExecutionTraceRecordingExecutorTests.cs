@@ -1,11 +1,11 @@
-using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
 /// Tests for <see cref="SimulatorExecutionTraceRecordingExecutor"/>.

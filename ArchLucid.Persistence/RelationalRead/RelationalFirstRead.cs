@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.RelationalRead;
+namespace ArchLucid.Persistence.RelationalRead;
 
 /// <summary>
 /// Centralizes the relational-first / JSON fallback branch for a single slice.

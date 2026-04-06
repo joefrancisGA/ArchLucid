@@ -1,4 +1,4 @@
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>Pluggable backing store for <see cref="CachingAgentCompletionClient"/> (memory or distributed).</summary>
 public interface ILlmCompletionResponseStore

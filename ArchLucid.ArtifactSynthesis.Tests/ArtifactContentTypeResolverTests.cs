@@ -1,9 +1,9 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Packaging;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
 
 using FluentAssertions;
 
-namespace ArchiForge.ArtifactSynthesis.Tests;
+namespace ArchLucid.ArtifactSynthesis.Tests;
 
 public sealed class ArtifactContentTypeResolverTests
 {

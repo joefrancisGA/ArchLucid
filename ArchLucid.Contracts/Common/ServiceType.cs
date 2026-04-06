@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Common;
+namespace ArchLucid.Contracts.Common;
 
 /// <summary>Classifies the functional role of a service within the architecture topology.</summary>
 public enum ServiceType

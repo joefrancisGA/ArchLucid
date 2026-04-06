@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts;
 
-namespace ArchiForge.Persistence.Alerts;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>In-memory <see cref="IAlertRuleRepository"/> for tests; uses a lock for thread safety.</summary>
 public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository

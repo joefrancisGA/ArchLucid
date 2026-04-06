@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>ArchiForge.Persistence</RootNamespace>
+    <RootNamespace>ArchLucid.Persistence</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,14 +22,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
-    <ProjectReference Include="..\ArchiForge.Core\ArchiForge.Core.csproj" />
-    <ProjectReference Include="..\ArchiForge.Provenance\ArchiForge.Provenance.csproj" />
-    <ProjectReference Include="..\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj" />
-    <ProjectReference Include="..\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj" />
-    <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
-    <ProjectReference Include="..\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj" />
-    <ProjectReference Include="..\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj" />
+    <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
+    <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
+    <ProjectReference Include="..\ArchLucid.ArtifactSynthesis\ArchLucid.ArtifactSynthesis.csproj" />
+    <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />
+    <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+    <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
+    <ProjectReference Include="..\ArchLucid.Retrieval\ArchLucid.Retrieval.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,9 +44,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="ArchiForge.Decisioning.Tests" />
-    <InternalsVisibleTo Include="ArchiForge.Api.Tests" />
-    <InternalsVisibleTo Include="ArchiForge.Persistence.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Decisioning.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Persistence.Tests" />
   </ItemGroup>
 
 </Project>

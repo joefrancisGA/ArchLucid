@@ -1,10 +1,10 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Contracts;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Queries;
-using ArchiForge.Provenance;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Contracts;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Provenance;
 
 using Asp.Versioning;
 
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Read-only HTTP surface for authority runs and golden-manifest summaries scoped to the caller’s tenant/workspace/project.
@@ -21,7 +21,7 @@ namespace ArchiForge.Api.Controllers;
 /// Delegates to <see cref="IAuthorityQueryService"/>; routes under <c>api/authority</c>. Run detail returns <see cref="RunDetailDto"/> directly (embedded domain models).
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/authority")]
 [EnableRateLimiting("fixed")]

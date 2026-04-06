@@ -2,11 +2,11 @@ using System.Net;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Asserts that invalid comparison replay request body returns 400 with validation errors.</summary>
 [Trait("Category", "Integration")]
-public sealed class ComparisonReplayValidationTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ComparisonReplayValidationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task ReplayComparison_InvalidFormatAndReplayMode_Returns400WithValidationErrors()

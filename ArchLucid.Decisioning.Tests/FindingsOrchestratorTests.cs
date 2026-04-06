@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Decisioning.Services;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Services;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Findings Orchestrator.

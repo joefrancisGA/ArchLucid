@@ -1,12 +1,12 @@
 # Context ingestion pipeline
 
-`ArchiForge.ContextIngestion` turns heterogeneous inputs (description, inline requirements, pasted documents, policy references, topology/security hints, **structured infrastructure declarations**) into **`CanonicalObject`** instances, **enriches** topology/security metadata, **deduplicates** them, and stores a **`ContextSnapshot`** used by the knowledge graph and downstream authority chain.
+`ArchLucid.ContextIngestion` turns heterogeneous inputs (description, inline requirements, pasted documents, policy references, topology/security hints, **structured infrastructure declarations**) into **`CanonicalObject`** instances, **enriches** topology/security metadata, **deduplicates** them, and stores a **`ContextSnapshot`** used by the knowledge graph and downstream authority chain.
 
 ---
 
 ## Request model
 
-HTTP clients send **`ArchitectureRequest`** (see `ArchiForge.Contracts.Requests`). The coordinator maps it to **`ContextIngestionRequest`** via **`ContextIngestionRequestMapper.FromArchitectureRequest`**:
+HTTP clients send **`ArchitectureRequest`** (see `ArchLucid.Contracts.Requests`). The coordinator maps it to **`ContextIngestionRequest`** via **`ContextIngestionRequestMapper.FromArchitectureRequest`**:
 
 | ArchitectureRequest field | ContextIngestionRequest field | Notes |
 |---------------------------|-------------------------------|--------|
@@ -31,7 +31,7 @@ When documenting connector deployments, treat **on-prem file shares** as **data-
 
 ## Connector pipeline (fixed order)
 
-Connectors implement **`IContextConnector`**. **Code source of truth:** **`ContextConnectorPipeline.CreateOrderedContextConnectorPipeline`** in `ArchiForge.ContextIngestion.Infrastructure` — the API host registers **`IEnumerable<IContextConnector>`** only from that factory, so execution order is never dependent on implicit multi-registration ordering. **Order affects** how **`ContextSnapshot.DeltaSummary`** is built (segments are concatenated in connector order for operator-facing narrative). **`RegisterContextIngestionAndKnowledgeGraph`** (`ArchiForge.Api` startup) wires DI to that factory; concrete connector types are listed below in pipeline order:
+Connectors implement **`IContextConnector`**. **Code source of truth:** **`ContextConnectorPipeline.CreateOrderedContextConnectorPipeline`** in `ArchLucid.ContextIngestion.Infrastructure` — the API host registers **`IEnumerable<IContextConnector>`** only from that factory, so execution order is never dependent on implicit multi-registration ordering. **Order affects** how **`ContextSnapshot.DeltaSummary`** is built (segments are concatenated in connector order for operator-facing narrative). **`RegisterContextIngestionAndKnowledgeGraph`** (`ArchLucid.Api` startup) wires DI to that factory; concrete connector types are listed below in pipeline order:
 
 1. **`StaticRequestContextConnector`** — primary description → one `Requirement` (“Primary Request”) with `SourceType=StaticRequest`.
 2. **`InlineRequirementsConnector`** — each inline string → `Requirement` (`SourceType=InlineRequirement`).
@@ -45,13 +45,13 @@ Each connector’s **`DeltaAsync`** returns a short base summary; **`IContextDel
 
 ### Optional properties for knowledge-graph targeting
 
-Connectors or parsers may set comma-separated graph **`NodeId`** values on **`CanonicalObject.Properties`** using keys from **`ArchiForge.KnowledgeGraph.CanonicalGraphPropertyKeys`** (`applicableTopologyNodeIds` on **`PolicyControl`**, `relatedTopologyNodeIds` on **`Requirement`**) so **`DefaultGraphEdgeInferer`** emits narrow **`APPLIES_TO`** / **`RELATES_TO`** edges instead of broad heuristics. See **`docs/KNOWLEDGE_GRAPH.md`**.
+Connectors or parsers may set comma-separated graph **`NodeId`** values on **`CanonicalObject.Properties`** using keys from **`ArchLucid.KnowledgeGraph.CanonicalGraphPropertyKeys`** (`applicableTopologyNodeIds` on **`PolicyControl`**, `relatedTopologyNodeIds` on **`Requirement`**) so **`DefaultGraphEdgeInferer`** emits narrow **`APPLIES_TO`** / **`RELATES_TO`** edges instead of broad heuristics. See **`docs/KNOWLEDGE_GRAPH.md`**.
 
 ---
 
 ## Supported document content types (single source of truth)
 
-The canonical MIME list for inline documents is **`ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes.All`**. The API FluentValidation rule (**`ContextDocumentRequestValidator`**) and **`PlainTextContextDocumentParser.CanParse`** both use **`SupportedContextDocumentContentTypes.IsSupported`**. When adding a new parser for another type, extend **`All`**, implement **`IContextDocumentParser`**, register the concrete parser in DI, and append it to **`ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers`** in the desired order.
+The canonical MIME list for inline documents is **`ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes.All`**. The API FluentValidation rule (**`ContextDocumentRequestValidator`**) and **`PlainTextContextDocumentParser.CanParse`** both use **`SupportedContextDocumentContentTypes.IsSupported`**. When adding a new parser for another type, extend **`All`**, implement **`IContextDocumentParser`**, register the concrete parser in DI, and append it to **`ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers`** in the desired order.
 
 ---
 
@@ -115,7 +115,7 @@ So policy objects that only set **`reference`** still dedupe correctly when the 
 
 ## Downstream: knowledge graph
 
-After **`ContextSnapshot`** is saved, **`ArchiForge.KnowledgeGraph`** builds a typed **`GraphSnapshot`** (nodes, inferred edges, validation). Canonical **`ObjectType`** values (e.g. `Requirement`, `TopologyResource`, `PolicyControl`, `SecurityBaseline`) become **`GraphNode.NodeType`**; enrichment such as **`category`** on topology objects feeds node **`Category`** and edge inference.
+After **`ContextSnapshot`** is saved, **`ArchLucid.KnowledgeGraph`** builds a typed **`GraphSnapshot`** (nodes, inferred edges, validation). Canonical **`ObjectType`** values (e.g. `Requirement`, `TopologyResource`, `PolicyControl`, `SecurityBaseline`) become **`GraphNode.NodeType`**; enrichment such as **`category`** on topology objects feeds node **`Category`** and edge inference.
 
 See **`docs/KNOWLEDGE_GRAPH.md`** for pipeline, **`EdgeType`** semantics, DI registration, persistence JSON aliases, and manifest integration.
 

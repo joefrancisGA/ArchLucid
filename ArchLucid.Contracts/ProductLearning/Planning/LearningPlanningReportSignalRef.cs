@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Pilot signal link backing an improvement plan.</summary>
 public sealed class LearningPlanningReportSignalRef

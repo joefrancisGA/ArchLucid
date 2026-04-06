@@ -1,19 +1,19 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Repositories;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Repositories;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.Persistence.Backfill;
+namespace ArchLucid.Persistence.Backfill;
 
 /// <summary>
 /// Scans authority tables for JSON-only rows, hydrates domain models (same paths as repositories), and inserts

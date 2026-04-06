@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Requests;
+namespace ArchLucid.Contracts.Requests;
 
 /// <summary>
 /// Centralises free-text constraint and capability matching rules so that

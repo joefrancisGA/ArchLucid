@@ -1,10 +1,10 @@
 using System.Text.Json;
 
-using ArchiForge.AgentSimulator.Services;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.AgentSimulator.Services;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Wraps <see cref="DeterministicAgentSimulator"/> and persists one <see cref="AgentExecutionTrace"/> per

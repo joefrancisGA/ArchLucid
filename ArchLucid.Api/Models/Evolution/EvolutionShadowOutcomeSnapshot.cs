@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
 /// <summary>Shadow slice of a persisted simulation outcome (60R-v2 envelope or legacy flat JSON).</summary>
 public sealed class EvolutionShadowOutcomeSnapshot

@@ -1,16 +1,16 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Inputs for simple and composite alert evaluation: scope, optional run comparison, advisory plan, and optional preloaded merged policy content.
 /// </summary>
 /// <remarks>
-/// Built by <see cref="AlertEvaluationContextFactory"/> (advisory scan) or <c>ArchiForge.Persistence.Alerts.Simulation.AlertSimulationContextProvider</c> (what-if).
+/// Built by <see cref="AlertEvaluationContextFactory"/> (advisory scan) or <c>ArchLucid.Persistence.Alerts.Simulation.AlertSimulationContextProvider</c> (what-if).
 /// <see cref="IAlertEvaluator"/> and composite rule evaluators read metrics from the plan, comparison, and learning profile; they do not load governance themselves.
 /// </remarks>
 public class AlertEvaluationContext

@@ -1,10 +1,10 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Evaluates configured alert rules for a run or scan, persists new alerts, and supports lifecycle actions (ack/resolve/suppress).
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchiForge.Persistence.Alerts.AlertService</c>. Consumed from HTTP (alerts API), authority workflows, and advisory scan runners.
+/// Implemented by <c>ArchLucid.Persistence.Alerts.AlertService</c>. Consumed from HTTP (alerts API), authority workflows, and advisory scan runners.
 /// </remarks>
 public interface IAlertService
 {

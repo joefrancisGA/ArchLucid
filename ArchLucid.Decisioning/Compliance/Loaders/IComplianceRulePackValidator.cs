@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Compliance.Models;
 
-namespace ArchiForge.Decisioning.Compliance.Loaders;
+namespace ArchLucid.Decisioning.Compliance.Loaders;
 
 public interface IComplianceRulePackValidator
 {

@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Architecture;
+using ArchLucid.Contracts.Architecture;
 
-namespace ArchiForge.Application;
+namespace ArchLucid.Application;
 
 /// <summary>
 /// Single query path for assembling the canonical <see cref="ArchitectureRunDetail"/> aggregate.

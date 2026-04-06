@@ -1,7 +1,7 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Controllers;
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Api.Controllers;
+using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Hosting;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -29,7 +29,7 @@ public sealed class VersionControllerTests
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
         BuildInfoResponse response = ok.Value.Should().BeOfType<BuildInfoResponse>().Subject;
 
-        response.Application.Should().Be("ArchiForge.Api");
+        response.Application.Should().Be("ArchLucid.Api");
         response.Environment.Should().Be("Staging");
         response.InformationalVersion.Should().NotBeNullOrWhiteSpace();
         response.AssemblyVersion.Should().NotBeNullOrWhiteSpace();

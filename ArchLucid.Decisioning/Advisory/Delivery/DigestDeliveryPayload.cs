@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>
 /// Input to <see cref="IDigestDeliveryChannel.SendAsync"/>: digest body plus the subscription that matched the scope.

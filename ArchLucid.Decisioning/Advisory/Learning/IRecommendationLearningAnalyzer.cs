@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Advisory.Workflow;
 
-namespace ArchiForge.Decisioning.Advisory.Learning;
+namespace ArchLucid.Decisioning.Advisory.Learning;
 
 /// <summary>
 /// Pure function from recommendation rows to a <see cref="RecommendationLearningProfile"/> (counts, rates, weights, notes).

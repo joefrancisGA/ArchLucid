@@ -1,8 +1,8 @@
 using System.Text.Json;
 
-using ArchiForge.Contracts.Metadata;
+using ArchLucid.Contracts.Metadata;
 
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Rehydrates a <see cref="PersistedAnalysisExportRequest"/> from the JSON stored on a <see cref="RunExportRecord"/>.

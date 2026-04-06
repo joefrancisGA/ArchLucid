@@ -1,5 +1,5 @@
-using ArchiForge.Host.Core.Hosted;
-using ArchiForge.Persistence.Archival;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Persistence.Archival;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Shutdown and loop behavior for <see cref="DataArchivalHostedService"/>.

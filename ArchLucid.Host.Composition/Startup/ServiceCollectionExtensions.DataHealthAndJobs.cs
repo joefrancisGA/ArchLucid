@@ -1,11 +1,11 @@
-using ArchiForge.Application.Jobs;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Health;
-using ArchiForge.Host.Core.Hosting;
-using ArchiForge.Host.Core.Jobs;
-using ArchiForge.Persistence.BlobStore;
-using ArchiForge.Persistence.Data.Infrastructure;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Application.Jobs;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Health;
+using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Repositories;
 
 using Azure.Core;
 using Azure.Storage.Queues;
@@ -13,13 +13,13 @@ using Azure.Storage.Queues;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
     private static void RegisterDataInfrastructure(IServiceCollection services, IConfiguration configuration)
     {
-        ArchiForgeOptions mode = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
+        ArchLucidOptions mode = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (!string.Equals(mode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {
@@ -29,7 +29,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
     }
 
-    private static void RegisterArchiForgeHealthChecks(IServiceCollection services, ArchiForgeHostingRole hostingRole)
+    private static void RegisterArchLucidHealthChecks(IServiceCollection services, ArchLucidHostingRole hostingRole)
     {
         IHealthChecksBuilder builder = services.AddHealthChecks()
             .AddCheck(
@@ -45,7 +45,7 @@ public static partial class ServiceCollectionExtensions
             .AddCheck<ProcessTempDirectoryHealthCheck>("temp_directory", tags: [ReadinessTags.Ready])
             .AddCheck<BlobStorageHealthCheck>("blob_storage", tags: [ReadinessTags.Ready]);
 
-        if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker)
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
         {
             builder.AddCheck<DataArchivalHostHealthCheck>(
                 "data_archival",
@@ -57,7 +57,7 @@ public static partial class ServiceCollectionExtensions
     private static void RegisterBackgroundJobs(
         IServiceCollection services,
         IConfiguration configuration,
-        ArchiForgeHostingRole hostingRole)
+        ArchLucidHostingRole hostingRole)
     {
         services.Configure<BackgroundJobsOptions>(configuration.GetSection(BackgroundJobsOptions.SectionName));
 
@@ -69,7 +69,7 @@ public static partial class ServiceCollectionExtensions
 
         services.AddScoped<IBackgroundJobWorkUnitExecutor, BackgroundJobWorkUnitExecutor>();
 
-        if (hostingRole == ArchiForgeHostingRole.Worker)
+        if (hostingRole == ArchLucidHostingRole.Worker)
         {
             if (!durable)
                 return;
@@ -80,7 +80,7 @@ public static partial class ServiceCollectionExtensions
             return;
         }
 
-        if (hostingRole is not (ArchiForgeHostingRole.Api or ArchiForgeHostingRole.Combined))
+        if (hostingRole is not (ArchLucidHostingRole.Api or ArchLucidHostingRole.Combined))
         {
             return;
         }

@@ -1,16 +1,16 @@
-﻿using System.Text;
+using System.Text;
 
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Services;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.ArtifactSynthesis.Generators;
+namespace ArchLucid.ArtifactSynthesis.Generators;
 
 public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 {
-    public string ArtifactType => global::ArchiForge.ArtifactSynthesis.Models.ArtifactType.ReferenceArchitectureMarkdown;
+    public string ArtifactType => global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.ReferenceArchitectureMarkdown;
 
     public Task<SynthesizedArtifact> GenerateAsync(
         GoldenManifest manifest,
@@ -133,7 +133,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             CreatedUtc = DateTime.UtcNow,
-            ArtifactType = global::ArchiForge.ArtifactSynthesis.Models.ArtifactType.ReferenceArchitectureMarkdown,
+            ArtifactType = global::ArchLucid.ArtifactSynthesis.Models.ArtifactType.ReferenceArchitectureMarkdown,
             Name = "reference-architecture.md",
             Format = "markdown",
             Content = content,

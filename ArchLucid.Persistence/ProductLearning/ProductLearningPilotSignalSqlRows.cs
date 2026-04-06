@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Persistence.ProductLearning;
+namespace ArchLucid.Persistence.ProductLearning;
 
 /// <summary>Dapper row shapes for product-learning aggregation queries (explicit, auditable projections).</summary>
 [ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]

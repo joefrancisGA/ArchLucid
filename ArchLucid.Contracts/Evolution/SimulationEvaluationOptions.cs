@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Options for simulation evaluation (determinism has operational side effects when live).</summary>
 public sealed class SimulationEvaluationOptions

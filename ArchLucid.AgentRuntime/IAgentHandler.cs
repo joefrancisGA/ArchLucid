@@ -1,14 +1,14 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Executes one <see cref="AgentTask"/> for a run: builds prompts from <see cref="ArchitectureRequest"/> and
 /// <see cref="AgentEvidencePackage"/>, calls the completion client, parses <see cref="AgentResult"/>, and records traces.
 /// </summary>
-/// <remarks>Registered per <see cref="ArchiForge.Contracts.Common.AgentType"/>; <see cref="RealAgentExecutor"/> dispatches by task type.</remarks>
+/// <remarks>Registered per <see cref="ArchLucid.Contracts.Common.AgentType"/>; <see cref="RealAgentExecutor"/> dispatches by task type.</remarks>
 public interface IAgentHandler
 {
     /// <summary>Agent role this handler implements.</summary>

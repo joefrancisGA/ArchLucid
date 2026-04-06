@@ -1,6 +1,6 @@
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.TestSupport;
+namespace ArchLucid.TestSupport;
 
 /// <summary>
 /// Creates or drops SQL Server catalogs used by integration tests (sync; safe for <c>WebApplicationFactory</c> constructors).

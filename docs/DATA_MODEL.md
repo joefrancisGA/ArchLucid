@@ -1,6 +1,6 @@
 ## ArchiForge data model (pragmatic)
 
-This document summarizes the persisted data model used by ArchiForge. It is based on the migration scripts in `ArchiForge.Persistence/Migrations/*` and the `ArchiForge.Contracts.Metadata` records.
+This document summarizes the persisted data model used by ArchiForge. It is based on the migration scripts in `ArchLucid.Persistence/Migrations/*` and the `ArchLucid.Contracts.Metadata` records.
 
 **SQL mechanics (how scripts run, idempotency, change workflow):** see **[SQL_SCRIPTS.md](SQL_SCRIPTS.md)** — canonical reference for `ArchiForge.sql`, DbUp migrations, and Persistence bootstrap.
 
@@ -70,9 +70,9 @@ This document summarizes the persisted data model used by ArchiForge. It is base
 
 ---
 
-### Authority chain / context & graph (`ArchiForge.Persistence/Scripts/ArchiForge.sql`)
+### Authority chain / context & graph (`ArchLucid.Persistence/Scripts/ArchiForge.sql`)
 
-These tables support the persisted authority pipeline (context → graph → findings → decisions → artifacts). They complement the legacy `ArchiForge.Persistence.Data.*` API schema. The same DDL is applied at runtime via `Scripts/ArchiForge.sql` (linked from `ArchiForge.Persistence/Scripts/ArchiForge.sql` in the Persistence build output).
+These tables support the persisted authority pipeline (context → graph → findings → decisions → artifacts). They complement the legacy `ArchLucid.Persistence.Data.*` API schema. The same DDL is applied at runtime via `Scripts/ArchiForge.sql` (linked from `ArchLucid.Persistence/Scripts/ArchiForge.sql` in the Persistence build output).
 
 #### `ContextSnapshots`
 
@@ -84,7 +84,7 @@ These tables support the persisted authority pipeline (context → graph → fin
 
 #### `GraphSnapshots`, `FindingsSnapshots`, …
 
-Linked to runs and context snapshots; see the authority section in `ArchiForge.Persistence/Scripts/ArchiForge.sql` for full DDL. **Graph** node/edge JSON and semantics: **`docs/KNOWLEDGE_GRAPH.md`**.
+Linked to runs and context snapshots; see the authority section in `ArchLucid.Persistence/Scripts/ArchiForge.sql` for full DDL. **Graph** node/edge JSON and semantics: **`docs/KNOWLEDGE_GRAPH.md`**.
 
 ---
 
@@ -138,7 +138,7 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 - **Purpose**: capture **pilot or product-team** judgments on outputs — **trusted**, **rejected**, **revised**, or **needs follow-up** — without changing agent behavior in this change set.
 - **Optional links**: `ArchitectureRunId` (FK to `ArchitectureRuns`), `AuthorityRunId` (correlation only; no FK), `ManifestVersion`, `ArtifactHint`, `PatternKey` (normalized bucket for rollups), `DetailJson` for structured notes.
 - **Triage**: `TriageStatus` supports a lightweight internal backlog (`Open`, `Triaged`, `Backlog`, `Done`, `WontFix`).
-- **Access**: `ArchiForge.Persistence.ProductLearning.IProductLearningPilotSignalRepository` (Dapper SQL / in-memory).
+- **Access**: `ArchLucid.Persistence.ProductLearning.IProductLearningPilotSignalRepository` (Dapper SQL / in-memory).
 - **Rollups (58R Prompt 3):** same repository exposes scoped aggregations (run feedback rollups, artifact outcome trends, repeated comment prefixes, improvement-opportunity candidates) built with explicit SQL / deterministic in-memory equivalents — see `ProductLearningSignalAggregations`.
 - **Triage services (58R Prompt 4):** `IProductLearningDashboardService` composes `LearningDashboardSummary` (counts, rollups, trends, ranked opportunities, merged triage queue) using threshold options in `ProductLearningTriageOptions` — no LLM.
 - **Snapshot field `TopRejectedRevisedRollups`:** reserved; aggregation does **not** populate it in 58R (avoids an extra query unused by dashboard/report). Repository method `ListTopRejectedRevisedArtifactRollupsAsync` remains for direct callers or future UI.
@@ -148,7 +148,7 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 - **Tables**: `ProductLearningImprovementThemes`, `ProductLearningImprovementPlans`, `ProductLearningImprovementPlanArchitectureRuns`, `ProductLearningImprovementPlanSignalLinks`, `ProductLearningImprovementPlanArtifactLinks`.
 - **Scope**: same `TenantId` / `WorkspaceId` / `ProjectId` as pilot signals. **Theme** rows carry a scope-unique **`ThemeKey`** (deterministic idempotency token for future derivation from 58R aggregates). **Plan** rows reference **`ThemeId`** and store a bounded JSON action list (**`BoundedActionsJson`**, max length enforced in application code).
 - **Links**: plans attach to legacy **`ArchitectureRuns.RunId`**, to **`ProductLearningPilotSignals`** (optional **`TriageStatusSnapshot`** for explainability), and to authority **`ArtifactBundleArtifacts`** (when present) or free-text **`PilotArtifactHint`**.
-- **Access**: `ArchiForge.Persistence.ProductLearning.Planning.IProductLearningPlanningRepository` (Dapper + in-memory). No autonomous mutation of generation or evaluation pipelines in this change set.
+- **Access**: `ArchLucid.Persistence.ProductLearning.Planning.IProductLearningPlanningRepository` (Dapper + in-memory). No autonomous mutation of generation or evaluation pipelines in this change set.
 
 ---
 

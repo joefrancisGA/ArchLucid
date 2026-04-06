@@ -1,42 +1,42 @@
-using ArchiForge.Application;
-using ArchiForge.Application.Agents;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Architecture;
-using ArchiForge.Application.Common;
-using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Diagrams;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Application.Evidence;
-using ArchiForge.Application.Evolution;
-using ArchiForge.Application.Exports;
-using ArchiForge.Application.Summaries;
-using ArchiForge.ContextIngestion.Canonicalization;
-using ArchiForge.ContextIngestion.Connectors;
-using ArchiForge.ContextIngestion.Contracts;
-using ArchiForge.ContextIngestion.Infrastructure;
-using ArchiForge.ContextIngestion.Parsing;
-using ArchiForge.ContextIngestion.Summaries;
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Services;
-using ArchiForge.KnowledgeGraph.Inference;
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Mapping;
-using ArchiForge.KnowledgeGraph.Services;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Application;
+using ArchLucid.Application.Agents;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Diagrams;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Evolution;
+using ArchLucid.Application.Exports;
+using ArchLucid.Application.Summaries;
+using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.Parsing;
+using ArchLucid.ContextIngestion.Summaries;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Services;
+using ArchLucid.KnowledgeGraph.Inference;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Mapping;
+using ArchLucid.KnowledgeGraph.Services;
+using ArchLucid.Persistence.Data.Repositories;
 
-using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
-using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextIngestionService;
-using GraphBuilder = ArchiForge.KnowledgeGraph.Interfaces.IGraphBuilder;
-using KnowledgeGraphService = ArchiForge.KnowledgeGraph.Interfaces.IKnowledgeGraphService;
+using ContextConnector = ArchLucid.ContextIngestion.Interfaces.IContextConnector;
+using ContextIngestionService = ArchLucid.ContextIngestion.Interfaces.IContextIngestionService;
+using GraphBuilder = ArchLucid.KnowledgeGraph.Interfaces.IGraphBuilder;
+using KnowledgeGraphService = ArchLucid.KnowledgeGraph.Interfaces.IKnowledgeGraphService;
 
-namespace ArchiForge.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
     private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection services, IConfiguration configuration)
     {
-        ArchiForgeOptions exportStorage = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
+        ArchLucidOptions exportStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (string.Equals(exportStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {
@@ -72,7 +72,7 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<ReplayDiagnosticsOptions>(configuration.GetSection(ReplayDiagnosticsOptions.SectionName));
 
-        ArchiForgeOptions storageMode = ArchiForgeConfigurationBridge.ResolveArchiForgeOptions(configuration);
+        ArchLucidOptions storageMode = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (string.Equals(storageMode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {
@@ -150,11 +150,11 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();
         services.AddSingleton<IContextDeltaSummaryBuilder, DefaultContextDeltaSummaryBuilder>();
 
-        services.AddScoped<ContextIngestionService, ArchiForge.ContextIngestion.Services.ContextIngestionService>();
+        services.AddScoped<ContextIngestionService, ArchLucid.ContextIngestion.Services.ContextIngestionService>();
         services.AddScoped<IGraphNodeFactory, GraphNodeFactory>();
         services.AddScoped<IGraphEdgeInferer, DefaultGraphEdgeInferer>();
         services.AddSingleton<IGraphValidator, GraphValidator>();
         services.AddScoped<GraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();
-        services.AddScoped<KnowledgeGraphService, ArchiForge.KnowledgeGraph.Services.KnowledgeGraphService>();
+        services.AddScoped<KnowledgeGraphService, ArchLucid.KnowledgeGraph.Services.KnowledgeGraphService>();
     }
 }

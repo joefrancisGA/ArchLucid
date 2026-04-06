@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Decisions;
+namespace ArchLucid.Contracts.Decisions;
 
 /// <summary>
 /// Represents a single architectural decision point produced by the decision engine

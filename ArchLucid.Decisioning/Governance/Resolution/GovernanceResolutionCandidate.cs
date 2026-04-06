@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.Resolution;
+namespace ArchLucid.Decisioning.Governance.Resolution;
 
 /// <summary>
 /// One pack’s contribution to a single merge item (candidate in a precedence contest).

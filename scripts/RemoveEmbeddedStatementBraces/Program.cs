@@ -118,7 +118,7 @@ internal static class Program
 
         while (dir != null)
         {
-            if (File.Exists(Path.Combine(dir, "ArchiForge.sln")))
+            if (File.Exists(Path.Combine(dir, "ArchLucid.sln")))
             {
                 return dir;
             }

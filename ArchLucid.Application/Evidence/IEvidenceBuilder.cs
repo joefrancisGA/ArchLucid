@@ -1,7 +1,7 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.Application.Evidence;
+namespace ArchLucid.Application.Evidence;
 
 /// <summary>
 /// Assembles an <see cref="AgentEvidencePackage"/> from an <see cref="ArchitectureRequest"/>,

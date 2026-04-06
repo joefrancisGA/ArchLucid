@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 
-namespace ArchiForge.Decisioning.Advisory.Delivery;
+namespace ArchLucid.Decisioning.Advisory.Delivery;
 
 /// <summary>Delivers an <see cref="ArchitectureDigest"/> to a Slack channel via an incoming webhook.</summary>
 public sealed class DigestSlackWebhookDeliveryChannel(IWebhookPoster webhookPoster) : IDigestDeliveryChannel

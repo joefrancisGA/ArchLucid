@@ -1,12 +1,12 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Host.Core.Jobs;
-using ArchiForge.Api.Mapping;
-using ArchiForge.Api.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Application;
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Jobs;
-using ArchiForge.Contracts.Architecture;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Api.Mapping;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Jobs;
+using ArchLucid.Contracts.Architecture;
 
 using Asp.Versioning;
 
@@ -15,23 +15,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
 using ApiConsultingDocxProfileRecommendationRequest =
-    ArchiForge.Api.Models.ConsultingDocxProfileRecommendationRequest;
+    ArchLucid.Api.Models.ConsultingDocxProfileRecommendationRequest;
 using AppConsultingDocxExportProfileSelector =
-    ArchiForge.Application.Analysis.IConsultingDocxExportProfileSelector;
+    ArchLucid.Application.Analysis.IConsultingDocxExportProfileSelector;
 using AppConsultingDocxProfileRecommendationRequest =
-    ArchiForge.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
+    ArchLucid.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Builds and exports consolidated analysis reports for a committed run (markdown, DOCX, consulting templates, async jobs).
 /// </summary>
 /// <remarks>
 /// Uses <see cref="IArchitectureAnalysisService"/> for report assembly and <see cref="IRunDetailQueryService"/> for run context.
-/// Base route <c>v1/architecture</c> with <see cref="ArchiForgePolicies.ExecuteAuthority"/>.
+/// Base route <c>v1/architecture</c> with <see cref="ArchLucidPolicies.ExecuteAuthority"/>.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
@@ -51,7 +51,7 @@ public sealed class AnalysisReportsController(
     : ControllerBase
 {
     /// <summary>
-    /// Builds a structured <see cref="ArchiForge.Application.Analysis.ArchitectureAnalysisReport"/> for <paramref name="runId"/> using optional section flags in the body.
+    /// Builds a structured <see cref="ArchLucid.Application.Analysis.ArchitectureAnalysisReport"/> for <paramref name="runId"/> using optional section flags in the body.
     /// </summary>
     [HttpPost("run/{runId}/analysis-report")]
     [ProducesResponseType(typeof(ArchitectureAnalysisReportResponse), StatusCodes.Status200OK)]

@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Replay;
+namespace ArchLucid.Persistence.Replay;
 
 /// <summary>
 /// Flags and narrative notes produced during <see cref="AuthorityReplayService.ReplayAsync"/>.
@@ -24,7 +24,7 @@ public class ReplayValidationResult
     public bool ArtifactsPresent { get; set; }
 
     /// <summary>
-    /// When a manifest exists, <see langword="true"/> if recomputed hash matches <see cref="ArchiForge.Decisioning.Models.GoldenManifest.ManifestHash"/> on the stored manifest.
+    /// When a manifest exists, <see langword="true"/> if recomputed hash matches <see cref="ArchLucid.Decisioning.Models.GoldenManifest.ManifestHash"/> on the stored manifest.
     /// </summary>
     public bool ManifestHashMatches { get; set; }
 

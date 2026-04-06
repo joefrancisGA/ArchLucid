@@ -17,7 +17,7 @@ if ((-not $SkipUi) -and $nodeAvailable) {
     $totalPhases = 3
 }
 
-Write-OperatorPhaseHeader -Title 'Release build (ArchiForge.sln, -c Release)' -Step 1 -Total $totalPhases
+Write-OperatorPhaseHeader -Title 'Release build (ArchLucid.sln, -c Release)' -Step 1 -Total $totalPhases
 & (Join-Path $root 'build-release.ps1')
 
 if ($LASTEXITCODE -ne 0) {
@@ -25,13 +25,13 @@ if ($LASTEXITCODE -ne 0) {
         -Details @('dotnet build or restore exited non-zero (see compiler output above).') `
         -NextSteps @(
         'Fix compile errors, then re-run: .\build-release.ps1',
-        'Full log: dotnet build ArchiForge.sln -c Release --nologo'
+        'Full log: dotnet build ArchLucid.sln -c Release --nologo'
     )
     exit $LASTEXITCODE
 }
 
 Write-OperatorPhaseHeader -Title 'Fast core tests (Release, no rebuild)' -Step 2 -Total $totalPhases
-dotnet test ArchiForge.sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"
+dotnet test ArchLucid.sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"
 
 if ($LASTEXITCODE -ne 0) {
     Write-OperatorFailureTriage -Stage '2 Fast core tests' -Category 'TestFailure' `
@@ -40,7 +40,7 @@ if ($LASTEXITCODE -ne 0) {
         'Exit code is non-zero from dotnet test.'
     ) `
         -NextSteps @(
-        'Re-run the same filter locally: dotnet test ArchiForge.sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"',
+        'Re-run the same filter locally: dotnet test ArchLucid.sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"',
         'Narrow further: dotnet test <TestProject>.csproj -c Release --filter "FullyQualifiedName~PartialName"',
         'If failures mention SQL: some Core tests may need a server; compare with CI matrix in docs/TEST_STRUCTURE.md'
     )

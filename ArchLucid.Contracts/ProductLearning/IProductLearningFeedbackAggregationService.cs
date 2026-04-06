@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning;
+namespace ArchLucid.Contracts.ProductLearning;
 
 /// <summary>
 /// Loads scoped feedback rollups, artifact trends, and repeated comments from persistence with noise filters.

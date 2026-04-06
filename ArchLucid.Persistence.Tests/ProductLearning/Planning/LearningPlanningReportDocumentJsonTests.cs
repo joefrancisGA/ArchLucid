@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning.Planning;
 
-namespace ArchiForge.Persistence.Tests.ProductLearning.Planning;
+namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 
 /// <summary>59R export document JSON shape (stable property names for clients).</summary>
 [Trait("ChangeSet", "59R")]

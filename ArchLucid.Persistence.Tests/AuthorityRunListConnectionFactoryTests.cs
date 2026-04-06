@@ -1,4 +1,4 @@
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using FluentAssertions;
 
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="ReadReplicaRoutedConnectionFactory"/> for <see cref="ReadReplicaQueryRoute.AuthorityRunList"/> opens via

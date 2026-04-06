@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.1",
   "info": {
-    "title": "ArchiForge.Api | v1",
+    "title": "ArchLucid.Api | v1",
     "version": "1.0.0"
   },
   "servers": [

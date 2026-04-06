@@ -17,7 +17,7 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # Prefer npm.cmd on Windows under StrictMode (npm.ps1 can throw on $MyInvocation.Statement).
 $releaseSmokeNpm = if (Get-Command npm.cmd -ErrorAction SilentlyContinue) { 'npm.cmd' } else { 'npm' }
-$sln = Join-Path $root 'ArchiForge.sln'
+$sln = Join-Path $root 'ArchLucid.sln'
 $apiProj = Join-Path $root 'ArchiForge.Api\ArchiForge.Api.csproj'
 $cliProj = Join-Path $root 'ArchiForge.Cli\ArchiForge.Cli.csproj'
 
@@ -107,7 +107,7 @@ try
     if ($LASTEXITCODE -ne 0) {
         Write-OperatorFailureTriage -Stage '1/6 Release build' -Category 'BuildOrRestoreFailure' `
             -Details @('build-release.ps1 exited non-zero.') `
-            -NextSteps @('Run: .\build-release.ps1', 'Then: dotnet build ArchiForge.sln -c Release')
+            -NextSteps @('Run: .\build-release.ps1', 'Then: dotnet build ArchLucid.sln -c Release')
         exit $LASTEXITCODE
     }
 
@@ -117,7 +117,7 @@ try
         Write-OperatorFailureTriage -Stage '2/6 Fast core tests' -Category 'TestFailure' `
             -Details @('First failing test is listed above in the test log.') `
             -NextSteps @(
-            'dotnet test ArchiForge.sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"',
+            'dotnet test ArchLucid.sln -c Release --no-build --filter "Suite=Core&Category!=Slow&Category!=Integration"',
             'See docs/TEST_STRUCTURE.md for Suite/Core vs Integration'
         )
         exit $LASTEXITCODE
@@ -133,7 +133,7 @@ try
                 -Details @('-FullCore includes integration-style tests; failures often need SQL or local services.') `
                 -NextSteps @(
                 'Re-run without -FullCore to isolate E2E smoke, or fix SQL per docs/BUILD.md',
-                'dotnet test ArchiForge.sln -c Release --no-build --filter "Suite=Core"'
+                'dotnet test ArchLucid.sln -c Release --no-build --filter "Suite=Core"'
             )
             exit $LASTEXITCODE
         }

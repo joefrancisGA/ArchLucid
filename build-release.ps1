@@ -3,7 +3,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $root
-dotnet restore ArchiForge.sln
+dotnet restore ArchLucid.sln
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-dotnet build ArchiForge.sln -c Release --nologo
+dotnet build ArchLucid.sln -c Release --nologo
 exit $LASTEXITCODE

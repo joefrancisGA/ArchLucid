@@ -1,12 +1,12 @@
-﻿using ArchiForge.Decisioning.Compliance.Evaluators;
-using ArchiForge.Decisioning.Compliance.Loaders;
-using ArchiForge.Decisioning.Compliance.Models;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Compliance.Evaluators;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Decisioning.Services;
+namespace ArchLucid.Decisioning.Services;
 
 /// <summary>
 /// <see cref="IFindingEngine"/> that evaluates a <see cref="GraphSnapshot"/> against a

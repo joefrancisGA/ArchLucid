@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Models;
 
-namespace ArchiForge.Decisioning.Advisory.Services;
+namespace ArchLucid.Decisioning.Advisory.Services;
 
 /// <summary>
 /// Default <see cref="IRecommendationGenerator"/>: maps each <see cref="ImprovementSignal"/> to an <see cref="ImprovementRecommendation"/> using rule-based title/action text, category/scoring heuristics, and optional adaptive scoring.

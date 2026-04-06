@@ -1,10 +1,10 @@
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Repositories;
-using ArchiForge.Persistence.Serialization;
-using ArchiForge.Persistence.Tests.Support;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Serialization;
+using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
@@ -12,7 +12,7 @@ using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// <see cref="SqlGoldenManifestRepository"/> against SQL Server + DbUp (phase-1 relational + JSON dual-write).

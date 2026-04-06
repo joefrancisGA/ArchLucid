@@ -4,7 +4,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Tests.Support;
+namespace ArchLucid.Persistence.Tests.Support;
 
 /// <summary>
 /// Minimal <c>dbo.ArchitectureRequests</c> / <c>dbo.ArchitectureRuns</c> / <c>dbo.AgentTasks</c> rows for Data-layer SQL contract tests (FK chain).
@@ -88,7 +88,7 @@ public static class ArchitectureCommitTestSeed
     /// <summary>Requires <see cref="InsertRequestAndRunAsync"/> for <paramref name="runId"/> first.</summary>
     public static async Task InsertAgentTaskAsync(
         IDbConnection connection,
-        ArchiForge.Contracts.Agents.AgentTask task,
+        ArchLucid.Contracts.Agents.AgentTask task,
         CancellationToken ct)
     {
         const string sql = """

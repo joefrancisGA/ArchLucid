@@ -1,10 +1,10 @@
 using System.Security.Claims;
 
-using ArchiForge.Core.Scoping;
+using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Primitives;
 
-namespace ArchiForge.Host.Core.Auth.Services;
+namespace ArchLucid.Host.Core.Auth.Services;
 
 /// <summary>
 /// Resolves <see cref="ScopeContext"/> from optional ambient override, then JWT claims, then <c>x-*-id</c> headers (headers only when the claim is absent or not a valid GUID), with dev fallbacks.

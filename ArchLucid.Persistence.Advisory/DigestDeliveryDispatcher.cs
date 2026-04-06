@@ -1,12 +1,12 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Scheduling;
+using ArchLucid.Persistence.Serialization;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
 /// Default <see cref="IDigestDeliveryDispatcher"/>: loads enabled digest subscriptions, records attempts, invokes <see cref="IDigestDeliveryChannel"/>s, and audits per subscription.
@@ -104,7 +104,7 @@ public sealed class DigestDeliveryDispatcher(
                 },
                 ct);
 
-            ArchiForgeInstrumentation.DigestDeliverySucceeded.Add(
+            ArchLucidInstrumentation.DigestDeliverySucceeded.Add(
                 1,
                 new KeyValuePair<string, object?>("channel", subscription.ChannelType));
         }
@@ -136,7 +136,7 @@ public sealed class DigestDeliveryDispatcher(
                 },
                 ct);
 
-            ArchiForgeInstrumentation.DigestDeliveryFailed.Add(
+            ArchLucidInstrumentation.DigestDeliveryFailed.Add(
                 1,
                 new KeyValuePair<string, object?>("channel", subscription.ChannelType));
         }

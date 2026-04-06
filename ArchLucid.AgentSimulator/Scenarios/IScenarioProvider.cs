@@ -1,8 +1,8 @@
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Requests;
 
 using JetBrains.Annotations;
 
-namespace ArchiForge.AgentSimulator.Scenarios;
+namespace ArchLucid.AgentSimulator.Scenarios;
 
 public interface IScenarioProvider
 {

@@ -1,10 +1,10 @@
-using ArchiForge.Core.Comparison;
-using ArchiForge.Decisioning.Advisory.Analysis;
-using ArchiForge.Decisioning.Advisory.Learning;
-using ArchiForge.Decisioning.Advisory.Models;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Decisioning.Advisory.Analysis;
+using ArchLucid.Decisioning.Advisory.Learning;
+using ArchLucid.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Advisory.Services;
+namespace ArchLucid.Decisioning.Advisory.Services;
 
 /// <inheritdoc cref="IImprovementAdvisorService" />
 public sealed class ImprovementAdvisorService(

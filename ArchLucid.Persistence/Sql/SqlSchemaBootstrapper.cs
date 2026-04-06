@@ -1,12 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Sql;
+namespace ArchLucid.Persistence.Sql;
 
 /// <summary>
 /// Bootstraps the SQL schema by reading a T-SQL script file from <paramref name="scriptPath"/>,

@@ -1,10 +1,10 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Persistence.ContextSnapshots;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Persistence.ContextSnapshots;
+using ArchLucid.Persistence.Serialization;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Unit tests for legacy JSON fallback parsing (no SQL Server required).

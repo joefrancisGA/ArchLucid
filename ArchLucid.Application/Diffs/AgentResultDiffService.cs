@@ -1,7 +1,7 @@
-﻿using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.Application.Diffs;
+namespace ArchLucid.Application.Diffs;
 
 /// <summary>
 /// Compares two sets of <see cref="AgentResult"/> objects (one per run) and produces a per-agent-type diff

@@ -1,13 +1,13 @@
-using ArchiForge.Application.Determinism;
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
+using ArchLucid.Application.Determinism;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.Application.Tests;
+namespace ArchLucid.Application.Tests;
 
 /// <summary>
 /// <see cref="DeterminismCheckService"/> unit tests (validation, drift aggregation).

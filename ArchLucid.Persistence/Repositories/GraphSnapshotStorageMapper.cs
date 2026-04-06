@@ -1,8 +1,8 @@
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.RelationalRead;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.RelationalRead;
+using ArchLucid.Persistence.Serialization;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// Maps persisted graph snapshot rows to domain <see cref="GraphSnapshot"/> (shared by SQL repository and unit tests).

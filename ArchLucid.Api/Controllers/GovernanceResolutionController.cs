@@ -1,10 +1,10 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.Resolution;
 
 using Asp.Versioning;
 
@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// HTTP surface for <strong>full governance resolution</strong>: effective merged content, per-item decisions, and conflict records for the current scope.
@@ -25,14 +25,14 @@ namespace ArchiForge.Api.Controllers;
 /// (which drops decisions/conflicts). Complements <c>GET …/policy-packs/effective-content</c>.
 /// </para>
 /// <para>
-/// <strong>Auth:</strong> <see cref="ArchiForgePolicies.ReadAuthority"/>; uses fixed window rate limiting like other governance reads.
+/// <strong>Auth:</strong> <see cref="ArchLucidPolicies.ReadAuthority"/>; uses fixed window rate limiting like other governance reads.
 /// </para>
 /// </remarks>
 /// <param name="scopeProvider">Ambient tenant/workspace/project from JWT or dev bypass headers.</param>
 /// <param name="resolver">Decisioning implementation (<see cref="EffectiveGovernanceResolver"/>).</param>
 /// <param name="auditService">Emits <c>GovernanceResolutionExecuted</c> and optionally <c>GovernanceConflictDetected</c>.</param>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/governance-resolution")]
 [EnableRateLimiting("fixed")]

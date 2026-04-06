@@ -1,9 +1,9 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Persistence.Serialization;
+namespace ArchLucid.Persistence.Serialization;
 
 /// <summary>
 /// Tolerates alternate property names when reading <see cref="GraphEdge"/> rows (e.g. <c>id</c> for <c>edgeId</c>).

@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace ArchiForge.Persistence.BlobStore;
+namespace ArchLucid.Persistence.BlobStore;
 
 /// <summary>In-memory store for deterministic tests; keys are the returned URI string.</summary>
 public sealed class InMemoryArtifactBlobStore : IArtifactBlobStore

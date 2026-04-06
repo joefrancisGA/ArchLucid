@@ -1,11 +1,11 @@
-using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Exports;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Manifest;
 
 using FluentAssertions;
 
-namespace ArchiForge.Application.Tests;
+namespace ArchLucid.Application.Tests;
 
 public sealed class MarkdownExportFormattingTests
 {

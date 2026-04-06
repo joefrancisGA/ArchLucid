@@ -1,9 +1,9 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.ContextIngestion.Summaries;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Summaries;
 
 using FluentAssertions;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Contract tests for <see cref="DefaultContextDeltaSummaryBuilder"/>.

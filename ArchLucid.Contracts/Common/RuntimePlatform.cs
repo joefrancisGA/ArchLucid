@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Common;
+namespace ArchLucid.Contracts.Common;
 
 /// <summary>Azure runtime hosting platform assigned to a service or datastore in the manifest.</summary>
 public enum RuntimePlatform

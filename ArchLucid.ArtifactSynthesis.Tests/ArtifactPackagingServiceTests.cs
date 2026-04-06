@@ -1,12 +1,12 @@
 using System.IO.Compression;
 using System.Text;
 
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Packaging;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
 
 using FluentAssertions;
 
-namespace ArchiForge.ArtifactSynthesis.Tests;
+namespace ArchLucid.ArtifactSynthesis.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

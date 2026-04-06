@@ -1,4 +1,4 @@
-namespace ArchiForge.KnowledgeGraph.Models;
+namespace ArchLucid.KnowledgeGraph.Models;
 
 /// <summary>
 /// One page of nodes from a <see cref="GraphSnapshot"/> plus edges whose endpoints both lie in that page.

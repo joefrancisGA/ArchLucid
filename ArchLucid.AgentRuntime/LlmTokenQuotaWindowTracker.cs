@@ -1,10 +1,10 @@
 using System.Collections.Concurrent;
 
-using ArchiForge.Core.Configuration;
+using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>Thread-safe sliding-window token totals per tenant for <see cref="LlmTokenQuotaOptions"/>.</summary>
 public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOptions> optionsMonitor)

@@ -1,37 +1,37 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace ArchiForge.Api.Contracts;
+namespace ArchLucid.Api.Contracts;
 
 /// <summary>
-/// JSON contract for <see cref="ArchiForge.Persistence.Replay.ReplayValidationResult"/>.
+/// JSON contract for <see cref="ArchLucid.Persistence.Replay.ReplayValidationResult"/>.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "API contract DTO; no business logic.")]
 public class ReplayValidationResponse
 {
-    /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.ContextPresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ContextPresent"/>
     public bool ContextPresent { get; set; }
-    /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.GraphPresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.GraphPresent"/>
     public bool GraphPresent { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.FindingsPresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.FindingsPresent"/>
     public bool FindingsPresent { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.ManifestPresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ManifestPresent"/>
     public bool ManifestPresent { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.TracePresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.TracePresent"/>
     public bool TracePresent { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.ArtifactsPresent"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ArtifactsPresent"/>
     public bool ArtifactsPresent { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.ManifestHashMatches"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ManifestHashMatches"/>
     public bool ManifestHashMatches { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.ArtifactBundlePresentAfterReplay"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.ArtifactBundlePresentAfterReplay"/>
     public bool ArtifactBundlePresentAfterReplay { get; set; }
 
-    /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.Notes"/>
+    /// <inheritdoc cref="ArchLucid.Persistence.Replay.ReplayValidationResult.Notes"/>
     public List<string> Notes { get; set; } = [];
 
     /// <summary>True when <see cref="Notes"/> contains at least one entry.</summary>

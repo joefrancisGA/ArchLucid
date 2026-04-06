@@ -1,4 +1,4 @@
-namespace ArchiForge.ArtifactSynthesis.Docx;
+namespace ArchLucid.ArtifactSynthesis.Docx;
 
 /// <summary>Paragraph style ids aligned with the branded template (built-in + custom).</summary>
 public static class DocxStyleIds

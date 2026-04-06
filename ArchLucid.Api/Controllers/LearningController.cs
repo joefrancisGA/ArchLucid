@@ -1,15 +1,15 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Learning;
-using ArchiForge.Api.Models.Learning;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.Services;
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.ProductLearning.Planning;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Learning;
+using ArchLucid.Api.Models.Learning;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Services;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.ProductLearning.Planning;
 
 using Asp.Versioning;
 
@@ -17,13 +17,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// 59R learning-to-planning read APIs: themes, improvement plans, priority scores, and evidence-style counts.
 /// </summary>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/learning")]
 [EnableRateLimiting("fixed")]

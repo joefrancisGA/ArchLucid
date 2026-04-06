@@ -1,7 +1,7 @@
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Services.Delivery;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Services.Delivery;
 
-using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Delivery;
 
 using FluentAssertions;
 
@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class WebhookPosterTests
 {

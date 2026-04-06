@@ -1,18 +1,18 @@
-using ArchiForge.Decisioning.Analysis;
-using ArchiForge.Decisioning.Compliance.Evaluators;
-using ArchiForge.Decisioning.Compliance.Loaders;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Manifest.Builders;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Decisioning.Rules;
-using ArchiForge.Decisioning.Services;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Compliance.Evaluators;
+using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Manifest.Builders;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Rules;
+using ArchLucid.Decisioning.Services;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Typed Findings Golden Path.

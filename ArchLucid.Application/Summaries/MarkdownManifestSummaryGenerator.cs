@@ -1,11 +1,11 @@
 using System.Text;
 
-using ArchiForge.Application.Evidence;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Evidence;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 
-namespace ArchiForge.Application.Summaries;
+namespace ArchLucid.Application.Summaries;
 
 /// <summary>
 /// Generates a narrative Markdown summary of a <see cref="GoldenManifest"/>, optionally followed
@@ -185,7 +185,7 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     /// <summary>
     /// Returns a prose-style label for a relationship (e.g. "reads from", "writes to").
     /// Intentionally uses fuller prose labels rather than the terse diagram labels in
-    /// <see cref="ArchiForge.Application.Manifests.ManifestPresentation.RelationshipLabel"/>.
+    /// <see cref="ArchLucid.Application.Manifests.ManifestPresentation.RelationshipLabel"/>.
     /// </summary>
     private static string FormatRelationshipType(ManifestRelationship relationship) =>
         relationship.RelationshipType switch

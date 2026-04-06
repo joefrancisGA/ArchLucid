@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Relative weights for batch prioritization (must sum to 1.0 within tolerance).</summary>
 public sealed class ImprovementPlanPrioritizationWeights

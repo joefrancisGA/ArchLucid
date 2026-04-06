@@ -1,6 +1,6 @@
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Interfaces;
+namespace ArchLucid.KnowledgeGraph.Interfaces;
 
 /// <summary>
 /// Validates structural integrity of a <see cref="Models.GraphSnapshot"/> before persistence or downstream use.

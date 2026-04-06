@@ -1,5 +1,5 @@
-using ArchiForge.Host.Core.DataAccess;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Host.Core.DataAccess;
+using ArchLucid.Persistence.Connections;
 
 using FluentAssertions;
 
@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="SqlScopedResolutionDbConnectionFactory"/>.

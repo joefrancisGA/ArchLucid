@@ -1,10 +1,10 @@
 using System.Text.Json;
 
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.Persistence.Serialization;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Audit payloads use <see cref="AuditJsonSerializationOptions"/> so stored <c>DataJson</c> stays camelCase for operators and downstream tools.

@@ -1,7 +1,7 @@
-﻿using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Inference;
+namespace ArchLucid.KnowledgeGraph.Inference;
 
 public class DefaultGraphEdgeInferer : IGraphEdgeInferer
 {

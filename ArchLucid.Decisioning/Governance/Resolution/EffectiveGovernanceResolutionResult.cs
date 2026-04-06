@@ -1,12 +1,12 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
-namespace ArchiForge.Decisioning.Governance.Resolution;
+namespace ArchLucid.Decisioning.Governance.Resolution;
 
 /// <summary>
 /// Complete output of <see cref="IEffectiveGovernanceResolver.ResolveAsync"/>: merged content, per-item decisions, conflicts, and summary notes.
 /// </summary>
 /// <remarks>
-/// Serialized to JSON by <c>ArchiForge.Api.Controllers.GovernanceResolutionController</c> for operator inspection.
+/// Serialized to JSON by <c>ArchLucid.Api.Controllers.GovernanceResolutionController</c> for operator inspection.
 /// Only <see cref="EffectiveContent"/> is consumed by <see cref="EffectiveGovernanceLoader"/>.
 /// </remarks>
 public class EffectiveGovernanceResolutionResult

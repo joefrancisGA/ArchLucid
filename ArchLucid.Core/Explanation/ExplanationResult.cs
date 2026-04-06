@@ -1,9 +1,9 @@
-namespace ArchiForge.Core.Explanation;
+namespace ArchLucid.Core.Explanation;
 
 /// <summary>
 /// Stakeholder-facing explanation for a single run: short summary, bullet facets, and longer narrative.
 /// </summary>
-/// <remarks>Produced by <c>ArchiForge.AgentRuntime.Explanation.IExplanationService.ExplainRunAsync</c>.</remarks>
+/// <remarks>Produced by <c>ArchLucid.AgentRuntime.Explanation.IExplanationService.ExplainRunAsync</c>.</remarks>
 public class ExplanationResult
 {
     /// <summary>One-paragraph headline (LLM or manifest metadata fallback).</summary>
@@ -28,7 +28,7 @@ public class ExplanationResult
 /// <summary>
 /// Narrative bundle for a manifest-to-manifest comparison (base → target).
 /// </summary>
-/// <remarks>Produced by <c>ArchiForge.AgentRuntime.Explanation.IExplanationService.ExplainComparisonAsync</c>.</remarks>
+/// <remarks>Produced by <c>ArchLucid.AgentRuntime.Explanation.IExplanationService.ExplainComparisonAsync</c>.</remarks>
 public class ComparisonExplanationResult
 {
     /// <summary>Short executive summary of what changed.</summary>

@@ -1,10 +1,10 @@
-using ArchiForge.ContextIngestion.Canonicalization;
-using ArchiForge.ContextIngestion.Infrastructure;
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.ContextIngestion.Summaries;
+using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Summaries;
 
-namespace ArchiForge.ContextIngestion.Services;
+namespace ArchLucid.ContextIngestion.Services;
 
 /// <summary>
 /// Orchestrates the context ingestion pipeline: collects raw objects from

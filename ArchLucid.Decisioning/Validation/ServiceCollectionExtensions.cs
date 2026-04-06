@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.Decisioning.Validation;
+namespace ArchLucid.Decisioning.Validation;
 
 public static class ServiceCollectionExtensions
 {

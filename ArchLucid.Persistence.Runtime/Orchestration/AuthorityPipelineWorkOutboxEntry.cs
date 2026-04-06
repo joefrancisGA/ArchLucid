@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Orchestration;
+namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>One pending row in <c>dbo.AuthorityPipelineWorkOutbox</c>.</summary>
 public sealed class AuthorityPipelineWorkOutboxEntry

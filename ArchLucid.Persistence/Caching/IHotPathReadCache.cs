@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Caching;
+namespace ArchLucid.Persistence.Caching;
 
 /// <summary>Small abstraction over memory or distributed cache for read-through hot paths.</summary>
 public interface IHotPathReadCache

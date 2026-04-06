@@ -1,4 +1,4 @@
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Limits concurrent LLM-backed agent handlers and caps per-handler wall time (Polly timeout).

@@ -1,7 +1,7 @@
-namespace ArchiForge.KnowledgeGraph;
+namespace ArchLucid.KnowledgeGraph;
 
 /// <summary>
-/// Optional <see cref="ArchiForge.ContextIngestion.Models.CanonicalObject.Properties"/> keys
+/// Optional <see cref="ArchLucid.ContextIngestion.Models.CanonicalObject.Properties"/> keys
 /// that narrow graph inference when set. Values are comma-separated <see cref="Models.GraphNode.NodeId"/>
 /// strings (e.g. <c>obj-abc123</c>, <c>context-…</c> is not a topology target).
 /// </summary>

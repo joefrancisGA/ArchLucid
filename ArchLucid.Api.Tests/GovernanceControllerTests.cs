@@ -1,18 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Tests.TestDtos;
+using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Governance Controller.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     private async Task<string> CreateRunAsync(string requestId)
     {

@@ -1,12 +1,12 @@
 using System.Diagnostics;
 using System.Security.Claims;
 
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Diagnostics;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Audit;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Audit;
 
-namespace ArchiForge.Host.Core.Auth.Services;
+namespace ArchLucid.Host.Core.Auth.Services;
 
 /// <summary>
 /// Fills actor, scope, default DataJson, and correlation id before appending to the audit store.

@@ -1,7 +1,7 @@
-using ArchiForge.Core.Conversation;
-using ArchiForge.Persistence.Conversation;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Persistence.Conversation;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="ConversationMessageRepositoryContractTests"/> against <see cref="DapperConversationMessageRepository"/>.

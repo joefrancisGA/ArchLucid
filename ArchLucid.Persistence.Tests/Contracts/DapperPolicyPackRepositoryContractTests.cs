@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Persistence.Connections;
-using ArchiForge.Persistence.Governance;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Governance;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="PolicyPackRepositoryContractTests"/> against <see cref="DapperPolicyPackRepository"/>.

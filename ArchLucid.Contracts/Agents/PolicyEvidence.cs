@@ -1,10 +1,10 @@
-namespace ArchiForge.Contracts.Agents;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 /// Represents a single governance policy entry included in an <see cref="AgentEvidencePackage"/>.
 /// Agents use this information to evaluate compliance and apply required security controls.
 /// Well-known <see cref="PolicyId"/> values are defined in
-/// <c>ArchiForge.Application.Evidence.BuiltInPolicyIds</c>.
+/// <c>ArchLucid.Application.Evidence.BuiltInPolicyIds</c>.
 /// </summary>
 public sealed class PolicyEvidence
 {

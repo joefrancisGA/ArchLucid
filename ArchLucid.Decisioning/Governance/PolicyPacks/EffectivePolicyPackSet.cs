@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Result of <see cref="IPolicyPackResolver.ResolveAsync"/>: every enabled, applicable pack as its own <see cref="ResolvedPolicyPack"/> (no merge).

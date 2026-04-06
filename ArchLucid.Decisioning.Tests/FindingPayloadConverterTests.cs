@@ -1,10 +1,10 @@
-using ArchiForge.Decisioning.Findings.Factories;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Findings.Factories;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Tests for Finding Payload Converter.

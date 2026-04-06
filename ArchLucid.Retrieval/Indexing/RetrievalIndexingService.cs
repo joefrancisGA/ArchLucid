@@ -1,10 +1,10 @@
-﻿using ArchiForge.Retrieval.Chunking;
-using ArchiForge.Retrieval.Embedding;
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Chunking;
+using ArchLucid.Retrieval.Embedding;
+using ArchLucid.Retrieval.Models;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Retrieval.Indexing;
+namespace ArchLucid.Retrieval.Indexing;
 
 /// <summary>
 /// <see cref="IRetrievalIndexingService"/> pipeline: <see cref="ITextChunker"/> → <see cref="IEmbeddingService.EmbedManyAsync"/> (batched) → <see cref="RetrievalChunk"/> → <see cref="IVectorIndex.UpsertChunksAsync"/>.

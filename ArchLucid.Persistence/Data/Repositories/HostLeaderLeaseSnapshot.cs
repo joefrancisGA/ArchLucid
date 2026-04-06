@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Data.Repositories;
+namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>Read model for <c>dbo.HostLeaderLeases</c> (operator diagnostics).</summary>
 public sealed class HostLeaderLeaseSnapshot

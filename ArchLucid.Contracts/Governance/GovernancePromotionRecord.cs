@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Governance;
+namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
 /// Immutable audit record written when a run's manifest is successfully promoted from

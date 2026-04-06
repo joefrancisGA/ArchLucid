@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Ask;
+namespace ArchLucid.Core.Ask;
 
 /// <summary>Natural-language question against grounded run (and optional comparison) context.</summary>
 /// <remarks>API validation: supply both <see cref="BaseRunId"/> and <see cref="TargetRunId"/> or neither.</remarks>

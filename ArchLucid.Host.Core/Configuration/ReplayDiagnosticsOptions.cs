@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
 /// In-memory ring buffer for comparison replay diagnostics (<see cref="Services.IReplayDiagnosticsRecorder"/>).

@@ -1,15 +1,15 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
-namespace ArchiForge.Core.Diagnostics;
+namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
 /// Shared <see cref="ActivitySource"/> and <see cref="Meter"/> names for cross-cutting observability (OTel wiring in the API host).
 /// </summary>
-public static class ArchiForgeInstrumentation
+public static class ArchLucidInstrumentation
 {
-    /// <summary>Meter name registered with OpenTelemetry in <c>AddArchiForgeOpenTelemetry</c>.</summary>
-    public const string MeterName = "ArchiForge";
+    /// <summary>Meter name registered with OpenTelemetry in <c>AddArchLucidOpenTelemetry</c>.</summary>
+    public const string MeterName = "ArchLucid";
 
     private static readonly Meter AppMeter = new(MeterName, "1.0.0");
 
@@ -68,19 +68,19 @@ public static class ArchiForgeInstrumentation
     }
 
     /// <summary>Scheduled advisory scan pipeline (<c>AdvisoryScanRunner</c>).</summary>
-    public static readonly ActivitySource AdvisoryScan = new("ArchiForge.AdvisoryScan", "1.0.0");
+    public static readonly ActivitySource AdvisoryScan = new("ArchLucid.AdvisoryScan", "1.0.0");
 
     /// <summary>Authority run orchestration (ingestion → manifest).</summary>
-    public static readonly ActivitySource AuthorityRun = new("ArchiForge.AuthorityRun", "1.0.0");
+    public static readonly ActivitySource AuthorityRun = new("ArchLucid.AuthorityRun", "1.0.0");
 
     /// <summary>Post-commit retrieval indexing of committed runs.</summary>
-    public static readonly ActivitySource RetrievalIndex = new("ArchiForge.Retrieval.Index", "1.0.0");
+    public static readonly ActivitySource RetrievalIndex = new("ArchLucid.Retrieval.Index", "1.0.0");
 
     /// <summary>One span per production agent handler invocation (<c>RealAgentExecutor</c>).</summary>
-    public static readonly ActivitySource AgentHandler = new("ArchiForge.Agent.Handler", "1.0.0");
+    public static readonly ActivitySource AgentHandler = new("ArchLucid.Agent.Handler", "1.0.0");
 
     /// <summary>Azure OpenAI chat completion calls (nested under agent handler when a trace is active).</summary>
-    public static readonly ActivitySource AgentLlmCompletion = new("ArchiForge.Agent.LlmCompletion", "1.0.0");
+    public static readonly ActivitySource AgentLlmCompletion = new("ArchLucid.Agent.LlmCompletion", "1.0.0");
 
     /// <summary>Digest channel send succeeded (labels: <c>channel</c>).</summary>
     public static readonly Counter<long> DigestDeliverySucceeded = AppMeter.CreateCounter<long>("digest_delivery_succeeded");

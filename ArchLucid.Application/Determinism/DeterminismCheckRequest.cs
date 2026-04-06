@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Determinism;
+namespace ArchLucid.Application.Determinism;
 
 /// <summary>
 /// Parameters for a determinism check executed by <see cref="IDeterminismCheckService"/>.
@@ -15,7 +15,7 @@ public sealed class DeterminismCheckRequest
     public int Iterations { get; set; } = 5;
 
     /// <summary>
-    /// Agent execution mode passed to <see cref="ArchiForge.Application.Agents.IAgentExecutorResolver"/>
+    /// Agent execution mode passed to <see cref="ArchLucid.Application.Agents.IAgentExecutorResolver"/>
     /// (e.g. <c>"Current"</c>). Defaults to <c>"Current"</c>.
     /// </summary>
     public string ExecutionMode { get; set; } = "Current";

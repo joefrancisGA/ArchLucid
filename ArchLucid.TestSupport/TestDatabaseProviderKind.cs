@@ -1,4 +1,4 @@
-namespace ArchiForge.TestSupport;
+namespace ArchLucid.TestSupport;
 
 /// <summary>
 /// Test-time database backend selection. Dapper and API integration tests use SQL Server only;

@@ -1,11 +1,11 @@
 using System.Text;
 using System.Text.Json;
 
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// <see cref="AgentType.Topology"/> handler: prompts the model for service topology and manifest deltas, validates JSON, records traces.

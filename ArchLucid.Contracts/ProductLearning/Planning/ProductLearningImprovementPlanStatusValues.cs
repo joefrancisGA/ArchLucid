@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>Lifecycle for a bounded improvement plan (review gate; no autonomous execution).</summary>
 public static class ProductLearningImprovementPlanStatusValues

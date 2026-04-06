@@ -1,12 +1,12 @@
-using ArchiForge.Persistence.Caching;
-using ArchiForge.Persistence.Options;
+using ArchLucid.Persistence.Caching;
+using ArchLucid.Persistence.Options;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 public sealed class MemoryHotPathReadCacheTests
 {

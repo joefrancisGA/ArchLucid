@@ -1,15 +1,15 @@
-using ArchiForge.ContextIngestion.Canonicalization;
-using ArchiForge.ContextIngestion.Connectors;
-using ArchiForge.ContextIngestion.Contracts;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.ContextIngestion.Parsing;
-using ArchiForge.ContextIngestion.Repositories;
-using ArchiForge.ContextIngestion.Services;
-using ArchiForge.ContextIngestion.Summaries;
+using ArchLucid.ContextIngestion.Canonicalization;
+using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.Contracts;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Parsing;
+using ArchLucid.ContextIngestion.Repositories;
+using ArchLucid.ContextIngestion.Services;
+using ArchLucid.ContextIngestion.Summaries;
 
 using FluentAssertions;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Integration tests for <see cref="DocumentConnector"/> exercised through

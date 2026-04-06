@@ -1,4 +1,4 @@
-namespace ArchiForge.Provenance;
+namespace ArchLucid.Provenance;
 
 /// <summary>UI-ready graph (e.g. React Flow, Cytoscape): string ids and labels.</summary>
 public class GraphViewModel

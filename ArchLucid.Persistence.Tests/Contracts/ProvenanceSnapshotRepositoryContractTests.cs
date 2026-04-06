@@ -1,10 +1,10 @@
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Provenance;
-using ArchiForge.Provenance;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Provenance;
+using ArchLucid.Provenance;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Shared contract assertions for <see cref="IProvenanceSnapshotRepository"/>.

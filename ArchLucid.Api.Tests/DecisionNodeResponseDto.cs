@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Decisions;
+using ArchLucid.Contracts.Decisions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class DecisionNodeResponseDto
 {

@@ -1,10 +1,10 @@
-﻿using ArchiForge.Decisioning.Alerts.Simulation;
+using ArchLucid.Decisioning.Alerts.Simulation;
 
 // Type aliases avoid importing sibling namespace `...Alerts.Composite` (bare `Composite` → CS0118 here).
-using AlertRuleCondition = ArchiForge.Decisioning.Alerts.Composite.AlertRuleCondition;
-using CompositeAlertRule = ArchiForge.Decisioning.Alerts.Composite.CompositeAlertRule;
+using AlertRuleCondition = ArchLucid.Decisioning.Alerts.Composite.AlertRuleCondition;
+using CompositeAlertRule = ArchLucid.Decisioning.Alerts.Composite.CompositeAlertRule;
 
-namespace ArchiForge.Decisioning.Alerts.Tuning;
+namespace ArchLucid.Decisioning.Alerts.Tuning;
 
 /// <summary>
 /// Sweeps <see cref="ThresholdRecommendationRequest.CandidateThresholds"/> via <see cref="IRuleSimulationService"/> and ranks results with <see cref="IAlertNoiseScorer"/>.

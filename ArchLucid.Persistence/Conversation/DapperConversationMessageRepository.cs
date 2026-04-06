@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Core.Conversation;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Core.Conversation;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Conversation;
+namespace ArchLucid.Persistence.Conversation;
 
 /// <summary>
 /// SQL Server <see cref="IConversationMessageRepository"/> for <c>dbo.ConversationMessages</c>.

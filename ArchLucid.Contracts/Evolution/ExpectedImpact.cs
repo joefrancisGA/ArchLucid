@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Human-readable expected impact of applying the candidate (derived from plan/theme signals; not measured until simulation runs).</summary>
 public sealed class ExpectedImpact

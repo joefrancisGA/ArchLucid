@@ -1,15 +1,15 @@
-using ArchiForge.Api.Models;
-using ArchiForge.Api.Validators;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Decisioning.Advisory.Workflow;
-using ArchiForge.Decisioning.Alerts;
-using ArchiForge.Decisioning.Alerts.Composite;
-using ArchiForge.Decisioning.Alerts.Simulation;
-using ArchiForge.Decisioning.Alerts.Tuning;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.Validators;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Decisioning.Advisory.Workflow;
+using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts.Simulation;
+using ArchLucid.Decisioning.Alerts.Tuning;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class AdditionalFluentValidationTests
 {

@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Governance.Preview;
+namespace ArchLucid.Contracts.Governance.Preview;
 
 /// <summary>
 /// Request payload for the governance preview endpoint; identifies the candidate run, target manifest version,

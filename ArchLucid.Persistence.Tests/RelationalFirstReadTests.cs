@@ -1,10 +1,10 @@
-using ArchiForge.Persistence.RelationalRead;
+using ArchLucid.Persistence.RelationalRead;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Contract tests for <see cref="RelationalFirstRead"/> integration with <see cref="JsonFallbackPolicy"/>

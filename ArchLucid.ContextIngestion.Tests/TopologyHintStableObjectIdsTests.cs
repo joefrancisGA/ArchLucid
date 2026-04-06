@@ -1,8 +1,8 @@
-using ArchiForge.ContextIngestion.Topology;
+using ArchLucid.ContextIngestion.Topology;
 
 using FluentAssertions;
 
-namespace ArchiForge.ContextIngestion.Tests;
+namespace ArchLucid.ContextIngestion.Tests;
 
 /// <summary>
 /// Tests for Topology Hint Stable Object Ids.

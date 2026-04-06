@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Relative guidance derived from comparison type, replay mode, output format, and payload size — not wall-clock SLA.

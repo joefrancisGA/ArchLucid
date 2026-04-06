@@ -1,8 +1,8 @@
-namespace ArchiForge.Application;
+namespace ArchLucid.Application;
 
 /// <summary>
 /// Well-known agent execution mode identifiers passed to
-/// <see cref="ArchiForge.Application.Agents.IAgentExecutorResolver.Resolve"/>.
+/// <see cref="ArchLucid.Application.Agents.IAgentExecutorResolver.Resolve"/>.
 /// </summary>
 public static class ExecutionModes
 {

@@ -1,4 +1,4 @@
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
 using FluentAssertions;
 
@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="ReplayDiagnosticsRecorder"/> capacity and retention trimming.

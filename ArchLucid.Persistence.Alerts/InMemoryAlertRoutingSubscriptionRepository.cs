@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Alerts.Delivery;
+using ArchLucid.Decisioning.Alerts.Delivery;
 
-namespace ArchiForge.Persistence.Alerts;
+namespace ArchLucid.Persistence.Alerts;
 
 /// <summary>In-memory <see cref="IAlertRoutingSubscriptionRepository"/> for tests and storage-off hosts.</summary>
 public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSubscriptionRepository

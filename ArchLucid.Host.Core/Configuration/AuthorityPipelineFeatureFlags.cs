@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>Feature flag names for authority pipeline rollout (see <c>FeatureManagement</c> configuration).</summary>
 public static class AuthorityPipelineFeatureFlags

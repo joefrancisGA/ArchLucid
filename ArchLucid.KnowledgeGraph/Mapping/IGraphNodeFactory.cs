@@ -1,7 +1,7 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Mapping;
+namespace ArchLucid.KnowledgeGraph.Mapping;
 
 /// <summary>
 /// Maps a single <see cref="ContextIngestion.Models.CanonicalObject"/> to a typed <see cref="Models.GraphNode"/>.

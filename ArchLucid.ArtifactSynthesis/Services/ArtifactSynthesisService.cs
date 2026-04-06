@@ -1,10 +1,10 @@
-﻿using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Decisioning.Models;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchiForge.ArtifactSynthesis.Services;
+namespace ArchLucid.ArtifactSynthesis.Services;
 
 /// <summary>
 /// Synthesizes an <see cref="ArtifactBundle"/> from a committed <see cref="GoldenManifest"/> by invoking

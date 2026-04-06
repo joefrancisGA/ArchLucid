@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Pagination;
+namespace ArchLucid.Core.Pagination;
 
 /// <summary>
 /// Shared constants and helpers for pagination query parameters across all list endpoints.

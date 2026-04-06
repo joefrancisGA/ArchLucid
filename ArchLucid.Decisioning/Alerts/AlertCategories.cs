@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts;
+namespace ArchLucid.Decisioning.Alerts;
 
 /// <summary>
 /// Canonical category strings written to <see cref="AlertRecord.Category"/> by <see cref="AlertEvaluator"/>.

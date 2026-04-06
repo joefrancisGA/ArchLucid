@@ -1,10 +1,10 @@
-using ArchiForge.Application.Diagrams;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Diagrams;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="ManifestDiagramService"/>.

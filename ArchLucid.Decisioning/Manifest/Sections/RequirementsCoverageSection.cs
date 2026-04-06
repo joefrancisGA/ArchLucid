@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Manifest.Sections;
+namespace ArchLucid.Decisioning.Manifest.Sections;
 
 public class RequirementsCoverageSection
 {

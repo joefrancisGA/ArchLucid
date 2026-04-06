@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Findings;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Findings;
 
-namespace ArchiForge.Contracts.Agents;
+namespace ArchLucid.Contracts.Agents;
 
 /// <summary>
 /// The output produced by an agent after completing its assigned <see cref="AgentTask"/>.

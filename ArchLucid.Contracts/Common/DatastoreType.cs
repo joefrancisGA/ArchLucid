@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Common;
+namespace ArchLucid.Contracts.Common;
 
 /// <summary>Classifies the storage technology used by a datastore in the architecture manifest.</summary>
 public enum DatastoreType

@@ -1,6 +1,6 @@
-using ArchiForge.Host.Core.Hosted;
-using ArchiForge.Core.Audit;
-using ArchiForge.Persistence.Archival;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Archival;
 
 using FluentAssertions;
 
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="DataArchivalHostIteration"/> audit emission on coordinator failure.

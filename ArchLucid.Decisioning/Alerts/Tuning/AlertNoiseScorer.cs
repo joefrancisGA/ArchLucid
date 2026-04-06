@@ -1,6 +1,6 @@
-﻿using ArchiForge.Decisioning.Alerts.Simulation;
+using ArchLucid.Decisioning.Alerts.Simulation;
 
-namespace ArchiForge.Decisioning.Alerts.Tuning;
+namespace ArchLucid.Decisioning.Alerts.Tuning;
 
 /// <summary>Default <see cref="IAlertNoiseScorer"/> using coverage, target-band, suppression ratio, and alert density heuristics.</summary>
 public sealed class AlertNoiseScorer : IAlertNoiseScorer

@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Repositories;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Repositories;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Runs <see cref="DecisionTraceRepositoryContractTests"/> against <see cref="InMemoryDecisionTraceRepository"/>.

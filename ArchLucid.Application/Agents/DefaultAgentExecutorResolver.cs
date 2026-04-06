@@ -1,6 +1,6 @@
-﻿using ArchiForge.AgentSimulator.Services;
+using ArchLucid.AgentSimulator.Services;
 
-namespace ArchiForge.Application.Agents;
+namespace ArchLucid.Application.Agents;
 
 /// <summary>
 /// Default resolver that returns the same <see cref="IAgentExecutor"/> for all known execution modes.

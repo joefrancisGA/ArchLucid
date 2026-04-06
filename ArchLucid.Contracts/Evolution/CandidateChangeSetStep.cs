@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>One proposed action within a 60R candidate change set (reviewable; not executed automatically).</summary>
 public sealed class CandidateChangeSetStep

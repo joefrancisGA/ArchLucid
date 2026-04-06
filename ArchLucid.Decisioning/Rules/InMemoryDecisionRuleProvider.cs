@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 
-namespace ArchiForge.Decisioning.Rules;
+namespace ArchLucid.Decisioning.Rules;
 
 /// <summary>
 /// A hard-coded, in-memory <see cref="IDecisionRuleProvider"/> used for local development,

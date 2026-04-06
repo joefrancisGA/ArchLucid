@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.DecisionTraces;
+namespace ArchLucid.Contracts.DecisionTraces;
 
 /// <summary>JSON discriminator for polymorphic <see cref="DecisionTrace"/> (<see cref="RunEventTrace"/> vs <see cref="RuleAuditTrace"/>).</summary>
 public enum DecisionTraceKind

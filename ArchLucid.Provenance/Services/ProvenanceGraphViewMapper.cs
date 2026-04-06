@@ -1,4 +1,4 @@
-namespace ArchiForge.Provenance.Services;
+namespace ArchLucid.Provenance.Services;
 
 public static class ProvenanceGraphViewMapper
 {

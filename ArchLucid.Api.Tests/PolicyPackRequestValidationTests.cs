@@ -3,7 +3,7 @@ using System.Text.Json;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Policy Pack Request Validation.
@@ -12,7 +12,7 @@ namespace ArchiForge.Api.Tests;
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
-public sealed class PolicyPackRequestValidationTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class PolicyPackRequestValidationTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]
     public async Task CreatePolicyPack_InvalidInitialContentJson_Returns400WithValidationErrors()

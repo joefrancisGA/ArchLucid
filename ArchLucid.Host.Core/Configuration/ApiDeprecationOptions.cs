@@ -1,4 +1,4 @@
-namespace ArchiForge.Host.Core.Configuration;
+namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>Optional deprecation signals for all HTTP responses (RFC 9745 <c>Deprecation</c>, RFC 8594 <c>Sunset</c>).</summary>
 public sealed class ApiDeprecationOptions

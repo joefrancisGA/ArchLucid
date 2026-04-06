@@ -73,35 +73,35 @@ Policy-aware overload accepts `JsonFallbackPolicy?`, `sliceName`, `emptyDefault`
 
 | File | Change |
 |------|--------|
-| `ArchiForge.Persistence/RelationalRead/PersistenceReadMode.cs` | **New** — enum: `AllowJsonFallback`, `WarnOnJsonFallback`, `RequireRelational` |
-| `ArchiForge.Persistence/RelationalRead/RelationalDataMissingException.cs` | **New** — exception with `EntityType`, `EntityId`, `SliceName` |
-| `ArchiForge.Persistence/RelationalRead/JsonFallbackPolicy.cs` | Upgraded: constructor takes `PersistenceReadMode` + `ILogger`; `EvaluateFallback` emits structured log + OTel counter on fallback; `ShouldFallbackToJson` backward compat |
-| `ArchiForge.Core/Diagnostics/ArchiForgeInstrumentation.cs` | Added `JsonFallbackUsed` counter (`persistence_json_fallback_used`) with `entity_type`, `slice`, `read_mode` tags |
-| `ArchiForge.Persistence/RelationalRead/RelationalFirstRead.cs` | Policy-aware overload with `entityType`/`entityId` params; backward-compat overload preserved |
-| `ArchiForge.Persistence/ContextSnapshots/ContextSnapshotRelationalRead.cs` | `HydrateAsync` accepts optional `fallbackPolicy`; all 4 slices pass `entityType`+`entityId` |
-| `ArchiForge.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.cs` | `HydrateAsync` accepts optional `fallbackPolicy`; provenance uses `EvaluateFallback` with entity context |
-| `ArchiForge.Persistence/Findings/FindingsSnapshotRelationalRead.cs` | `LoadRelationalSnapshotAsync` accepts optional `fallbackPolicy`; uses `EvaluateFallback` with entity context |
-| `ArchiForge.Persistence/Repositories/SqlFindingsSnapshotRepository.cs` | Constructor accepts optional `JsonFallbackPolicy`; `GetByIdAsync` uses `EvaluateFallback` with entity context |
-| `ArchiForge.Persistence/GraphSnapshots/GraphSnapshotRelationalRead.cs` | `HydrateAsync` accepts optional `fallbackPolicy`; edge-merge uses `EvaluateFallback` with entity context |
-| `ArchiForge.Persistence/Repositories/GraphSnapshotStorageMapper.cs` | `ToSnapshot` accepts optional `fallbackPolicy`; `ResolveOverrideOrFallback` passes `entityId` through |
-| `ArchiForge.Persistence/ArtifactBundles/ArtifactBundleRelationalRead.cs` | `HydrateBundleAsync` accepts optional `fallbackPolicy`; passes `entityType`+`entityId` |
-| `ArchiForge.Api/Configuration/ArchiForgeStorageServiceCollectionExtensions.cs` | Registers `JsonFallbackPolicy` singleton with `ILoggerFactory` |
-| `ArchiForge.Persistence/Backfill/CutoverSliceReadiness.cs` | **New** — per-slice readiness model with computed `IsReady` and `HeadersMissingRelationalRows` |
-| `ArchiForge.Persistence/Backfill/CutoverReadinessReport.cs` | **New** — aggregate report with `IsFullyReady`, `SlicesNotReady`, deduplicated `TotalHeaderRows` |
-| `ArchiForge.Persistence/Backfill/ICutoverReadinessService.cs` | **New** — interface for readiness assessment |
-| `ArchiForge.Persistence/Backfill/SqlCutoverReadinessService.cs` | **New** — SQL implementation using `WHERE EXISTS` correlated subqueries for efficient counting |
-| `ArchiForge.Backfill.Cli/Program.cs` | Added `--readiness` mode with tabular console output and exit code 3 |
+| `ArchLucid.Persistence/RelationalRead/PersistenceReadMode.cs` | **New** — enum: `AllowJsonFallback`, `WarnOnJsonFallback`, `RequireRelational` |
+| `ArchLucid.Persistence/RelationalRead/RelationalDataMissingException.cs` | **New** — exception with `EntityType`, `EntityId`, `SliceName` |
+| `ArchLucid.Persistence/RelationalRead/JsonFallbackPolicy.cs` | Upgraded: constructor takes `PersistenceReadMode` + `ILogger`; `EvaluateFallback` emits structured log + OTel counter on fallback; `ShouldFallbackToJson` backward compat |
+| `ArchLucid.Core/Diagnostics/ArchiForgeInstrumentation.cs` | Added `JsonFallbackUsed` counter (`persistence_json_fallback_used`) with `entity_type`, `slice`, `read_mode` tags |
+| `ArchLucid.Persistence/RelationalRead/RelationalFirstRead.cs` | Policy-aware overload with `entityType`/`entityId` params; backward-compat overload preserved |
+| `ArchLucid.Persistence/ContextSnapshots/ContextSnapshotRelationalRead.cs` | `HydrateAsync` accepts optional `fallbackPolicy`; all 4 slices pass `entityType`+`entityId` |
+| `ArchLucid.Persistence/GoldenManifests/GoldenManifestPhase1RelationalRead.cs` | `HydrateAsync` accepts optional `fallbackPolicy`; provenance uses `EvaluateFallback` with entity context |
+| `ArchLucid.Persistence/Findings/FindingsSnapshotRelationalRead.cs` | `LoadRelationalSnapshotAsync` accepts optional `fallbackPolicy`; uses `EvaluateFallback` with entity context |
+| `ArchLucid.Persistence/Repositories/SqlFindingsSnapshotRepository.cs` | Constructor accepts optional `JsonFallbackPolicy`; `GetByIdAsync` uses `EvaluateFallback` with entity context |
+| `ArchLucid.Persistence/GraphSnapshots/GraphSnapshotRelationalRead.cs` | `HydrateAsync` accepts optional `fallbackPolicy`; edge-merge uses `EvaluateFallback` with entity context |
+| `ArchLucid.Persistence/Repositories/GraphSnapshotStorageMapper.cs` | `ToSnapshot` accepts optional `fallbackPolicy`; `ResolveOverrideOrFallback` passes `entityId` through |
+| `ArchLucid.Persistence/ArtifactBundles/ArtifactBundleRelationalRead.cs` | `HydrateBundleAsync` accepts optional `fallbackPolicy`; passes `entityType`+`entityId` |
+| `ArchLucid.Api/Configuration/ArchiForgeStorageServiceCollectionExtensions.cs` | Registers `JsonFallbackPolicy` singleton with `ILoggerFactory` |
+| `ArchLucid.Persistence/Backfill/CutoverSliceReadiness.cs` | **New** — per-slice readiness model with computed `IsReady` and `HeadersMissingRelationalRows` |
+| `ArchLucid.Persistence/Backfill/CutoverReadinessReport.cs` | **New** — aggregate report with `IsFullyReady`, `SlicesNotReady`, deduplicated `TotalHeaderRows` |
+| `ArchLucid.Persistence/Backfill/ICutoverReadinessService.cs` | **New** — interface for readiness assessment |
+| `ArchLucid.Persistence/Backfill/SqlCutoverReadinessService.cs` | **New** — SQL implementation using `WHERE EXISTS` correlated subqueries for efficient counting |
+| `ArchLucid.Backfill.Cli/Program.cs` | Added `--readiness` mode with tabular console output and exit code 3 |
 
 ### Tests
 
 | File | Tests |
 |------|-------|
-| `ArchiForge.Persistence.Tests/JsonFallbackPolicyTests.cs` | 13 tests: default, allow/warn/require modes, `AllowFallback` property, `ShouldFallbackToJson` backward compat, warn logs, require throws with entity context, allow debug logging, no-log when relational exists |
-| `ArchiForge.Persistence.Tests/RelationalFirstReadTests.cs` | 6 tests: relational exists, allow/warn/require modes, null policy, backward-compat overload |
-| `ArchiForge.Persistence.Tests/CutoverReadinessReportTests.cs` | 11 tests: slice ready/not-ready/zero-header, report fully-ready/partial/empty, deduplication, full-pipeline scenario |
-| `ArchiForge.Persistence.Tests/FallbackPolicyDiagnosticsTests.cs` | 16 tests: multi-slice diagnostics, structured log content for all entity types, RequireRelational exception contracts, no-log-on-success, RelationalFirstRead multi-mode regression |
-| `ArchiForge.Persistence.Tests/PolicyModeFallbackSqlIntegrationTests.cs` | 11 SQL integration tests: ContextSnapshot/FindingsSnapshot/GraphSnapshot/GoldenManifest under all three modes, edge metadata merge, strict relational round-trips |
-| `ArchiForge.Persistence.Tests/CutoverReadinessSqlIntegrationTests.cs` | 3 SQL integration tests: mixed-state counts, all 14 slices present, report aggregate consistency |
+| `ArchLucid.Persistence.Tests/JsonFallbackPolicyTests.cs` | 13 tests: default, allow/warn/require modes, `AllowFallback` property, `ShouldFallbackToJson` backward compat, warn logs, require throws with entity context, allow debug logging, no-log when relational exists |
+| `ArchLucid.Persistence.Tests/RelationalFirstReadTests.cs` | 6 tests: relational exists, allow/warn/require modes, null policy, backward-compat overload |
+| `ArchLucid.Persistence.Tests/CutoverReadinessReportTests.cs` | 11 tests: slice ready/not-ready/zero-header, report fully-ready/partial/empty, deduplication, full-pipeline scenario |
+| `ArchLucid.Persistence.Tests/FallbackPolicyDiagnosticsTests.cs` | 16 tests: multi-slice diagnostics, structured log content for all entity types, RequireRelational exception contracts, no-log-on-success, RelationalFirstRead multi-mode regression |
+| `ArchLucid.Persistence.Tests/PolicyModeFallbackSqlIntegrationTests.cs` | 11 SQL integration tests: ContextSnapshot/FindingsSnapshot/GraphSnapshot/GoldenManifest under all three modes, edge metadata merge, strict relational round-trips |
+| `ArchLucid.Persistence.Tests/CutoverReadinessSqlIntegrationTests.cs` | 3 SQL integration tests: mixed-state counts, all 14 slices present, report aggregate consistency |
 
 ### Docs
 
@@ -208,11 +208,11 @@ When `persistence_json_fallback_used` counter shows zero over a sustained period
 
 ```bash
 # Run the readiness assessment (read-only, no schema changes)
-ArchiForge.Backfill.Cli --readiness --connection "Server=...;Database=ArchiForge;..."
+ArchLucid.Backfill.Cli --readiness --connection "Server=...;Database=ArchiForge;..."
 
 # Or use the ARCHIFORGE_SQL environment variable
 export ARCHIFORGE_SQL="Server=...;Database=ArchiForge;..."
-ArchiForge.Backfill.Cli --readiness
+ArchLucid.Backfill.Cli --readiness
 ```
 
 Example output:
@@ -252,7 +252,7 @@ else
 ## How to cut over (future)
 
 1. Run `SqlRelationalBackfillService` across all environments.
-2. Run `ArchiForge.Backfill.Cli --readiness` to confirm all slices report READY.
+2. Run `ArchLucid.Backfill.Cli --readiness` to confirm all slices report READY.
 3. Change DI registration to `PersistenceReadMode.WarnOnJsonFallback`; deploy; monitor `persistence_json_fallback_used` counter and `Warning`-level logs for remaining fallback hits.
 4. When the counter is zero over a sustained period, run `--readiness` one more time to confirm, then change to `PersistenceReadMode.RequireRelational`; deploy; any un-backfilled rows throw `RelationalDataMissingException` with clear entity context and remediation advice.
 5. Delete `*JsonFallback.cs` helpers, remove the backward-compat `ReadSliceAsync` overload, remove the JSON column reads from `GraphSnapshotStorageMapper`, and retire the `persistence_json_fallback_used` counter.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Evolution;
+namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>Structured view of a component or workflow area touched by a candidate change set (from 59R theme/plan context).</summary>
 public sealed class ChangeSetAffectedComponent

@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Configuration;
+namespace ArchLucid.Core.Configuration;
 
 /// <summary>Configuration for prompt versioning labels surfaced in telemetry (<c>AgentPrompts</c> section).</summary>
 public sealed class AgentPromptCatalogOptions

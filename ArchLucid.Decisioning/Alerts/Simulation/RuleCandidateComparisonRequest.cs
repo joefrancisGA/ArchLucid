@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts.Composite;
 
-namespace ArchiForge.Decisioning.Alerts.Simulation;
+namespace ArchLucid.Decisioning.Alerts.Simulation;
 
 /// <summary>Input to <see cref="IRuleSimulationService.CompareCandidatesAsync"/> — two rule definitions of the same kind to compare over the same run window.</summary>
 [ExcludeFromCodeCoverage(Justification = "Simulation request DTO; no logic.")]

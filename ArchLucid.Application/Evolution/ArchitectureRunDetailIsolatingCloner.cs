@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchiForge.Contracts.Architecture;
+using ArchLucid.Contracts.Architecture;
 
-namespace ArchiForge.Application.Evolution;
+namespace ArchLucid.Application.Evolution;
 
 /// <summary>
 /// Produces a deep copy of <see cref="ArchitectureRunDetail"/> so shadow overlays do not share mutable graphs with the loaded aggregate.

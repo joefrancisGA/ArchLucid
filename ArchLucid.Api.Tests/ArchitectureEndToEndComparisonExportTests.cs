@@ -2,11 +2,11 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.Models;
+using ArchLucid.Api.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture End To End Comparison Export.
@@ -14,7 +14,7 @@ namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
-public sealed class ArchitectureEndToEndComparisonExportTests(ArchiForgeApiFactory factory)
+public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactory factory)
     : IntegrationTestBase(factory)
 {
     [Fact]

@@ -75,7 +75,7 @@ services:
     profiles: ["full-stack"]
     build:
       context: .
-      dockerfile: ArchiForge.Api/Dockerfile
+      dockerfile: ArchLucid.Api/Dockerfile
     container_name: archiforge-api
     ports:
       - "5000:8080"

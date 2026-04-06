@@ -2,31 +2,31 @@
   "_comment": "Regression baseline: max mean nanoseconds per invocation (loosen on slow CI or tighten when optimizing).",
   "benchmarks": [
     {
-      "fullName": "ArchiForge.Benchmarks.AgentDispatchMicroBenchmarks.OrderTasksByDispatchKey",
+      "fullName": "ArchLucid.Benchmarks.AgentDispatchMicroBenchmarks.OrderTasksByDispatchKey",
       "maxMeanNs": 5000
     },
     {
-      "fullName": "ArchiForge.Benchmarks.SimulatedParallelBatchBenchmarks.SequentialFourDelays",
+      "fullName": "ArchLucid.Benchmarks.SimulatedParallelBatchBenchmarks.SequentialFourDelays",
       "maxMeanNs": 350000000
     },
     {
-      "fullName": "ArchiForge.Benchmarks.SimulatedParallelBatchBenchmarks.ParallelFourDelays",
+      "fullName": "ArchLucid.Benchmarks.SimulatedParallelBatchBenchmarks.ParallelFourDelays",
       "maxMeanNs": 90000000
     },
     {
-      "fullName": "ArchiForge.Benchmarks.DecisionEngineMergeBenchmarks.MergeTwoAgentResults",
+      "fullName": "ArchLucid.Benchmarks.DecisionEngineMergeBenchmarks.MergeTwoAgentResults",
       "maxMeanNs": 10000000
     },
     {
-      "fullName": "ArchiForge.Benchmarks.SqlPagingSyntaxMicroBenchmarks.FirstRowsOnlyFragment(RowCount: 200)",
+      "fullName": "ArchLucid.Benchmarks.SqlPagingSyntaxMicroBenchmarks.FirstRowsOnlyFragment(RowCount: 200)",
       "maxMeanNs": 50000
     },
     {
-      "fullName": "ArchiForge.Benchmarks.SqlPagingSyntaxMicroBenchmarks.FirstRowsOnlyFragment(RowCount: 500)",
+      "fullName": "ArchLucid.Benchmarks.SqlPagingSyntaxMicroBenchmarks.FirstRowsOnlyFragment(RowCount: 500)",
       "maxMeanNs": 50000
     },
     {
-      "fullName": "ArchiForge.Benchmarks.SqlPagingSyntaxMicroBenchmarks.FirstRowsOnlyFragment(RowCount: 1000)",
+      "fullName": "ArchLucid.Benchmarks.SqlPagingSyntaxMicroBenchmarks.FirstRowsOnlyFragment(RowCount: 1000)",
       "maxMeanNs": 50000
     }
   ]

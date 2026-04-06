@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Core.Audit;
-using ArchiForge.Persistence.Connections;
+using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Connections;
 
 using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchiForge.Persistence.Audit;
+namespace ArchLucid.Persistence.Audit;
 
 /// <summary>
 /// SQL Server-backed implementation of <see cref="IAuditRepository"/>.

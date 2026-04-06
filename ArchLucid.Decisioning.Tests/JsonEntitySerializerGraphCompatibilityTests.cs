@@ -1,9 +1,9 @@
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.Serialization;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Serialization;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Ensures legacy / alternate JSON shapes for stored graph rows deserialize via <see cref="JsonEntitySerializer"/>.

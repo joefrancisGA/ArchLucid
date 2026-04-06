@@ -1,8 +1,8 @@
-using ArchiForge.Api.Controllers;
+using ArchLucid.Api.Controllers;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 /// <summary>
 /// FluentValidation rules for <see cref="CreatePolicyPackRequest"/> (<c>POST …/policy-packs</c>).

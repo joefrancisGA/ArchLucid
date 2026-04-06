@@ -1,13 +1,13 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.Contracts;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Packaging;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Contracts;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -15,18 +15,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// HTTP API for listing, downloading, and packaging synthesized artifacts produced for a golden manifest.
 /// </summary>
 /// <remarks>
-/// Routes are prefixed <c>api/artifacts</c> and require the <see cref="ArchiForgePolicies.ReadAuthority"/> policy.
+/// Routes are prefixed <c>api/artifacts</c> and require the <see cref="ArchLucidPolicies.ReadAuthority"/> policy.
 /// Artifact descriptors are resolved from the artifact query service; packaging (ZIP export) is performed
 /// by <see cref="IArtifactPackagingService"/>. All download operations emit an <c>ArtifactExported</c> audit event.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/artifacts")]
 [EnableRateLimiting("fixed")]
@@ -71,7 +71,7 @@ public sealed class ArtifactExportController(
     }
 
     /// <summary>
-    /// JSON metadata for one artifact (operator review). <c>404</c> if the manifest is out of scope or the artifact id is not in that manifest’s bundle.
+    /// JSON metadata for one artifact (operator review). <c>404</c> if the manifest is out of scope or the artifact id is not in that manifestï¿½s bundle.
     /// </summary>
     [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
     [ProducesResponseType(typeof(ArtifactDescriptorResponse), StatusCodes.Status200OK)]

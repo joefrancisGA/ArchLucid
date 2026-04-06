@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Decisioning.Governance.Resolution;
 
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Default <see cref="IPolicyPackResolver"/>: loads hierarchical assignments, filters <see cref="PolicyPackAssignment.IsEnabled"/>,

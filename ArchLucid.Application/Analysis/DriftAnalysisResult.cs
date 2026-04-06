@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Analysis;
+namespace ArchLucid.Application.Analysis;
 
 /// <summary>
 /// Outcome of a drift analysis comparing a stored comparison payload against a freshly regenerated one.

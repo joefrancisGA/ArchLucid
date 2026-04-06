@@ -1,12 +1,12 @@
-using ArchiForge.Retrieval.Models;
+using ArchLucid.Retrieval.Models;
 
-namespace ArchiForge.Retrieval.Queries;
+namespace ArchLucid.Retrieval.Queries;
 
 /// <summary>
 /// High-level semantic search over indexed retrieval chunks for a scoped query.
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="RetrievalQueryService"/>. Callers: <c>ArchiForge.Api.Services.Ask.AskService</c>, <c>ArchiForge.Api.Controllers.RetrievalController</c>.
+/// Implementation: <see cref="RetrievalQueryService"/>. Callers: <c>ArchLucid.Api.Services.Ask.AskService</c>, <c>ArchLucid.Api.Controllers.RetrievalController</c>.
 /// </remarks>
 public interface IRetrievalQueryService
 {

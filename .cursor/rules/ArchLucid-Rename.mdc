@@ -17,7 +17,7 @@ The product is being renamed from **ArchiForge** to **ArchLucid**. The rename is
 ## Guardrails
 
 - **One batch per session** unless the user explicitly asks for more.
-- **Never start Phase 5 or Phase 6** (bulk namespace rename, .sln regeneration) without asking the user first — these are large, focused changes that should not piggyback on unrelated work.
+- **Phases 5–6 are complete** (`ArchLucid.sln`, `ArchLucid.*` projects). Do **not** start **Phase 7** cleanup (removing config bridges, renaming `ArchiForge.sql`, repo/workspace moves) without explicit user confirmation — coordinate with deploy and consumers.
 - **Never modify historical SQL migration files** (001–028). Only update the master DDL script (`ArchiForge.sql`) and add new migrations if needed.
 - When renaming config keys (`ArchiForgeAuth`, `ArchiForge:StorageProvider`, etc.), always add a **fallback** that reads the old key so deployed environments are not broken.
 - When renaming OIDC storage keys or environment variables, add a **bridge read** (check new name, fall back to old name) and mark the old name for removal in a future batch.

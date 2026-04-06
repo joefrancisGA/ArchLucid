@@ -1,8 +1,8 @@
-using ArchiForge.Decisioning.Alerts.Tuning;
+using ArchLucid.Decisioning.Alerts.Tuning;
 
 using FluentValidation;
 
-namespace ArchiForge.Api.Validators;
+namespace ArchLucid.Api.Validators;
 
 /// <summary>FluentValidation for <see cref="ThresholdRecommendationRequest"/> (<c>POST …/alert-tuning/recommend-threshold</c>).</summary>
 public sealed class ThresholdRecommendationRequestValidator : AbstractValidator<ThresholdRecommendationRequest>

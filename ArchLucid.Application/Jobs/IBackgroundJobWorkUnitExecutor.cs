@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Jobs;
+namespace ArchLucid.Application.Jobs;
 
 /// <summary>Runs a <see cref="BackgroundJobWorkUnit"/> to produce a downloadable export file.</summary>
 public interface IBackgroundJobWorkUnitExecutor

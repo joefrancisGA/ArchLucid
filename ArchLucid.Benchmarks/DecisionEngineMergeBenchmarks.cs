@@ -1,17 +1,17 @@
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Decisioning.Merge;
-using ArchiForge.Decisioning.Validation;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Validation;
 
 using BenchmarkDotNet.Attributes;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Benchmarks;
+namespace ArchLucid.Benchmarks;
 
 /// <summary>CPU-only merge path (schema validation + manifest merge); no SQL or agents.</summary>
 [MemoryDiagnoser]

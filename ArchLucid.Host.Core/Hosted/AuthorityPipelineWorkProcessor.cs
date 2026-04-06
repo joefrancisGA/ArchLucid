@@ -1,15 +1,15 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Coordinator.Services;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Orchestration;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Coordinator.Services;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Orchestration;
 
-namespace ArchiForge.Host.Core.Hosted;
+namespace ArchLucid.Host.Core.Hosted;
 
 /// <inheritdoc cref="IAuthorityPipelineWorkProcessor" />
 public sealed class AuthorityPipelineWorkProcessor(

@@ -1,6 +1,6 @@
 using Microsoft.OpenApi;
 
-namespace ArchiForge.Api.OpenApi;
+namespace ArchLucid.Api.OpenApi;
 
 /// <summary>
 /// Normalizes JSON Schema shapes that confuse common C# OpenAPI generators (e.g. NJsonSchema/NSwag):

@@ -1,9 +1,9 @@
-namespace ArchiForge.Persistence.Queries;
+namespace ArchLucid.Persistence.Queries;
 
 /// <summary>
-/// Compact golden-manifest projection (counts and rule-set metadata) for dashboards without loading full <see cref="ArchiForge.Decisioning.Models.GoldenManifest"/> JSON.
+/// Compact golden-manifest projection (counts and rule-set metadata) for dashboards without loading full <see cref="ArchLucid.Decisioning.Models.GoldenManifest"/> JSON.
 /// </summary>
-/// <remarks>HTTP mapping: <c>ArchiForge.Api.Contracts.ManifestSummaryResponse</c>.</remarks>
+/// <remarks>HTTP mapping: <c>ArchLucid.Api.Contracts.ManifestSummaryResponse</c>.</remarks>
 public class ManifestSummaryDto
 {
     public Guid ManifestId { get; set; }

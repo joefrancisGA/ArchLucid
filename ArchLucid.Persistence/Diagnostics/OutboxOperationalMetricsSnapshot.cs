@@ -1,4 +1,4 @@
-namespace ArchiForge.Persistence.Diagnostics;
+namespace ArchLucid.Persistence.Diagnostics;
 
 /// <summary>Depth and age snapshot for transactional outboxes (Prometheus / operator dashboards).</summary>
 public sealed class OutboxOperationalMetricsSnapshot

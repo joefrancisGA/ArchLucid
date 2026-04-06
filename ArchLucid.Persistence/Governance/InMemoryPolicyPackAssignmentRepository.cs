@@ -1,7 +1,7 @@
-using ArchiForge.Decisioning.Governance.PolicyPacks;
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Decisioning.Governance.Resolution;
 
-namespace ArchiForge.Persistence.Governance;
+namespace ArchLucid.Persistence.Governance;
 
 /// <summary>
 /// Thread-safe in-memory store for <see cref="PolicyPackAssignment"/> used when <c>StorageProvider=InMemory</c> or in unit tests.
@@ -12,7 +12,7 @@ namespace ArchiForge.Persistence.Governance;
 /// between SQL and in-memory hosts.
 /// </para>
 /// <para>
-/// Registered as singleton in in-memory storage bootstrap via <c>ArchiForge.Host.Composition</c> (<c>ArchiForgeStorageServiceCollectionExtensions</c>).
+/// Registered as singleton in in-memory storage bootstrap via <c>ArchLucid.Host.Composition</c> (<c>ArchLucidStorageServiceCollectionExtensions</c>).
 /// </para>
 /// </remarks>
 public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignmentRepository

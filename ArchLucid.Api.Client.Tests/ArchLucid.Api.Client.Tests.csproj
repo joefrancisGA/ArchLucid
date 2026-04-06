@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <AssemblyName>ArchiForge.Api.Client.Tests</AssemblyName>
+    <AssemblyName>ArchLucid.Api.Client.Tests</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <RootNamespace>ArchiForge.Api.Client.Tests</RootNamespace>
+    <RootNamespace>ArchLucid.Api.Client.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForge.Api.Client\ArchiForge.Api.Client.csproj" />
+    <ProjectReference Include="..\ArchLucid.Api.Client\ArchLucid.Api.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

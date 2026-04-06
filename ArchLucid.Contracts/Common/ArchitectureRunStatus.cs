@@ -1,6 +1,6 @@
-namespace ArchiForge.Contracts.Common;
+namespace ArchLucid.Contracts.Common;
 
-/// <summary>Lifecycle state of an <see cref="ArchiForge.Contracts.Metadata.ArchitectureRun"/>.</summary>
+/// <summary>Lifecycle state of an <see cref="ArchLucid.Contracts.Metadata.ArchitectureRun"/>.</summary>
 public enum ArchitectureRunStatus
 {
     /// <summary>Run record created; no tasks generated yet.</summary>

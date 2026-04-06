@@ -1,7 +1,7 @@
-using ArchiForge.Application.Analysis;
-using ArchiForge.Contracts.Architecture;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Architecture;
 
-namespace ArchiForge.Application.Jobs;
+namespace ArchLucid.Application.Jobs;
 
 /// <summary>
 /// Loads run detail from persistence and runs DOCX export pipelines for queued work units.

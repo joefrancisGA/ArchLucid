@@ -1,10 +1,10 @@
-using ArchiForge.ArtifactSynthesis.Models;
-using ArchiForge.ArtifactSynthesis.Packaging;
-using ArchiForge.Persistence.Queries;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
-namespace ArchiForge.Persistence.Tests;
+namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
 /// Ensures operator/UI-facing artifact ordering stays deterministic (name, then id).

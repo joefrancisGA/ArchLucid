@@ -31,6 +31,6 @@ Governance repositories (**`IGovernanceApprovalRequestRepository`**, **`IGoverna
 
 ## Related
 
-- `ArchiForge.Api.Configuration.ArchiForgeOptions`.
+- `ArchLucid.Api.Configuration.ArchiForgeOptions`.
 - ADR 0010 (dual contracts; both paths may need InMemory implementations).
 - `docs/GLOSSARY.md` (storage provider entry).

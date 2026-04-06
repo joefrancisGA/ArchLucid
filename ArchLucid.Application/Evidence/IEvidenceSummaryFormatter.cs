@@ -1,6 +1,6 @@
-using ArchiForge.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 
-namespace ArchiForge.Application.Evidence;
+namespace ArchLucid.Application.Evidence;
 
 /// <summary>
 /// Formats an <see cref="AgentEvidencePackage"/> as human-readable text for embedding in

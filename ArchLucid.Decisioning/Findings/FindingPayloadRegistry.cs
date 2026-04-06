@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Findings.Payloads;
 
-namespace ArchiForge.Decisioning.Findings;
+namespace ArchLucid.Decisioning.Findings;
 
 public static class FindingPayloadRegistry
 {

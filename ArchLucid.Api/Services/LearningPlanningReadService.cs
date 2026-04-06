@@ -1,9 +1,9 @@
-using ArchiForge.Api.Models.Learning;
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Contracts.ProductLearning.Planning;
-using ArchiForge.Persistence.ProductLearning.Planning;
+using ArchLucid.Api.Models.Learning;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Persistence.ProductLearning.Planning;
 
-namespace ArchiForge.Api.Services;
+namespace ArchLucid.Api.Services;
 
 public sealed class LearningPlanningReadService(IProductLearningPlanningRepository planningRepository)
     : ILearningPlanningReadService

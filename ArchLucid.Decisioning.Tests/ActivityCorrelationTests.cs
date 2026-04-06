@@ -1,10 +1,10 @@
 using System.Diagnostics;
 
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// <see cref="ActivityCorrelation"/> is used by the API audit path and persistence activities; tests require an <see cref="ActivityListener"/> so <see cref="ActivitySource"/> <c>StartActivity</c> returns real instances.
@@ -12,7 +12,7 @@ namespace ArchiForge.Decisioning.Tests;
 [Trait("Category", "Unit")]
 public sealed class ActivityCorrelationTests
 {
-    private static readonly ActivitySource TestSource = new("ArchiForge.Tests.ActivityCorrelation");
+    private static readonly ActivitySource TestSource = new("ArchLucid.Tests.ActivityCorrelation");
 
     static ActivityCorrelationTests()
     {

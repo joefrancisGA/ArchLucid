@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Diagrams;
+namespace ArchLucid.Application.Diagrams;
 
 /// <summary>
 /// No-op implementation of <see cref="IDiagramImageRenderer"/> that always returns <c>null</c>.

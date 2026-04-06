@@ -1,9 +1,9 @@
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace ArchiForge.Persistence.RelationalRead;
+namespace ArchLucid.Persistence.RelationalRead;
 
 /// <summary>
 /// Centralizes the decision to allow, warn on, or reject JSON-column fallback reads
@@ -14,7 +14,7 @@ namespace ArchiForge.Persistence.RelationalRead;
 /// behavior. All persistence code that branches on "relational rows vs JSON column" must route
 /// through <see cref="EvaluateFallback"/> so the mode decision is in one place.</para>
 /// <para>Diagnostics: every fallback event increments
-/// <see cref="ArchiForgeInstrumentation.JsonFallbackUsed"/> (OTel counter) and emits a
+/// <see cref="ArchLucidInstrumentation.JsonFallbackUsed"/> (OTel counter) and emits a
 /// structured log at <c>Debug</c> (allow) or <c>Warning</c> (warn) level.</para>
 /// <para>Wire as singleton in DI; the backfill tooling and repositories share one instance.</para>
 /// </remarks>
@@ -81,7 +81,7 @@ public sealed class JsonFallbackPolicy(PersistenceReadMode mode, ILogger logger)
     {
         string modeLabel = Mode.ToString();
 
-        ArchiForgeInstrumentation.JsonFallbackUsed.Add(
+        ArchLucidInstrumentation.JsonFallbackUsed.Add(
             1,
             new KeyValuePair<string, object?>("entity_type", entityType),
             new KeyValuePair<string, object?>("slice", sliceName),

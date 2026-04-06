@@ -13,7 +13,7 @@ One narrative for **new engineers and integrators** working on **ArchLucid** (th
 ```mermaid
 flowchart LR
   Client[Client / Operator UI]
-  API[API host /v1<br/>ArchiForge.Api]
+  API[API host /v1<br/>ArchLucid.Api]
   SQL[(Azure SQL)]
   Agents[Agent execution]
   AOAI[Azure OpenAI]

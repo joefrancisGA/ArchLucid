@@ -1,6 +1,6 @@
-﻿using Microsoft.OpenApi;
+using Microsoft.OpenApi;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
 /// <summary>
 /// Shared mutation for <see cref="OpenApiDocument"/> auth metadata (Swashbuckle + Microsoft OpenAPI).

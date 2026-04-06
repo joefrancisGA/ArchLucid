@@ -1,6 +1,6 @@
-using ArchiForge.Host.Core.Health;
-using ArchiForge.Host.Core.Hosted;
-using ArchiForge.Persistence.Archival;
+using ArchLucid.Host.Core.Health;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Persistence.Archival;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Unit tests for <see cref="DataArchivalHostHealthCheck"/> mapping from <see cref="DataArchivalHostHealthState"/>.

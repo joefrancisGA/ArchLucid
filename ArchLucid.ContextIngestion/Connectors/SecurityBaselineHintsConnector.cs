@@ -1,7 +1,7 @@
-﻿using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Interfaces;
+using ArchLucid.ContextIngestion.Models;
 
-namespace ArchiForge.ContextIngestion.Connectors;
+namespace ArchLucid.ContextIngestion.Connectors;
 
 public class SecurityBaselineHintsConnector : IContextConnector
 {

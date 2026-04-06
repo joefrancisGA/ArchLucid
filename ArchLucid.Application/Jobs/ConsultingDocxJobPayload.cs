@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Jobs;
+namespace ArchLucid.Application.Jobs;
 
 /// <summary>
 /// Serializable export parameters for async consulting DOCX jobs (mirrors API <c>ConsultingDocxExportRequest</c> fields).

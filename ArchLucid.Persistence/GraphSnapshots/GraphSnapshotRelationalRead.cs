@@ -1,12 +1,12 @@
-﻿using System.Data;
+using System.Data;
 
-using ArchiForge.KnowledgeGraph.Models;
-using ArchiForge.Persistence.RelationalRead;
-using ArchiForge.Persistence.Repositories;
+using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.RelationalRead;
+using ArchLucid.Persistence.Repositories;
 
 using Dapper;
 
-namespace ArchiForge.Persistence.GraphSnapshots;
+namespace ArchLucid.Persistence.GraphSnapshots;
 
 /// <summary>Loads graph snapshot nodes, warnings, and indexed edges from relational tables; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
 internal static class GraphSnapshotRelationalRead

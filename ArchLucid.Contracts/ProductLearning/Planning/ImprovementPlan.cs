@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.ProductLearning.Planning;
+namespace ArchLucid.Contracts.ProductLearning.Planning;
 
 /// <summary>
 /// Structured, bounded improvement proposal for a theme. Distinct from <see cref="ProductLearningImprovementPlanRecord"/> (SQL shape).

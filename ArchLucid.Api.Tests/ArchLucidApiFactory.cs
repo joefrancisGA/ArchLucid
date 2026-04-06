@@ -1,10 +1,10 @@
-using ArchiForge.TestSupport;
+using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server database per instance, runs DbUp migrations, and wires <c>ConnectionStrings:ArchiForge</c> plus in-memory auxiliary storage.
@@ -20,12 +20,12 @@ namespace ArchiForge.Api.Tests;
 /// cannot enable real completion clients (503 from circuit breaker), and raises rate limits for stable CI/local runs.
 /// </para>
 /// </remarks>
-public class ArchiForgeApiFactory : WebApplicationFactory<Program>
+public class ArchLucidApiFactory : WebApplicationFactory<Program>
 {
     private readonly string _connectionString;
 
     /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
-    public ArchiForgeApiFactory()
+    public ArchLucidApiFactory()
     {
         string databaseName = "ArchiForgeTest_" + Guid.NewGuid().ToString("N");
         _connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);

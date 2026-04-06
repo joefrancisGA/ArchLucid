@@ -361,7 +361,7 @@ describe("prepareArtifactBodyText", () => {
 
 The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey** coverage: a small set of linear flows with **deterministic mocked HTTP**, not exhaustive browser automation (single Chromium project, one worker in CI, no visual regression grid, no full route matrix).
 
-**Important:** These tests do **not** require or use a **live ArchiForge.Api** (C#). Do not read them as proof that the UI works against your real database or deployment.
+**Important:** These tests do **not** require or use a **live ArchLucid.Api** (C#). Do not read them as proof that the UI works against your real database or deployment.
 
 **How data is supplied**
 
@@ -404,7 +404,7 @@ Optional: **`npm run typecheck:e2e`** — TypeScript check for **`e2e/`** only.
 
 ### Manual testing against a live API
 
-To exercise the shell against a real **`ArchiForge.Api`**, run **`npm run dev`**, set **`ARCHIFORGE_API_BASE_URL`** in **`.env.local`**, start the API, and use the browser manually (or add **local-only** tests). The committed Playwright suite is intentionally **mock-backed** so CI does not depend on SQL or the .NET stack.
+To exercise the shell against a real **`ArchLucid.Api`**, run **`npm run dev`**, set **`ARCHIFORGE_API_BASE_URL`** in **`.env.local`**, start the API, and use the browser manually (or add **local-only** tests). The committed Playwright suite is intentionally **mock-backed** so CI does not depend on SQL or the .NET stack.
 
 ### How to write a Playwright test
 

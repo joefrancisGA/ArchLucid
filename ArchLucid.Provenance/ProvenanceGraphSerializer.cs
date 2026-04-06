@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ArchiForge.Provenance;
+namespace ArchLucid.Provenance;
 
 public static class ProvenanceGraphSerializer
 {

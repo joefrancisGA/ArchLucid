@@ -1,6 +1,6 @@
-﻿using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.Persistence.Repositories;
+namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// Builds denormalized edge rows for <c>dbo.GraphSnapshotEdges</c> from a <see cref="GraphSnapshot"/>.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Learning;
+namespace ArchLucid.Api.Models.Learning;
 
 /// <summary>Full improvement plan for detail views, including action steps and link-based evidence counts.</summary>
 public sealed class LearningPlanDetailResponse

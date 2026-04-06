@@ -46,7 +46,7 @@ cp .env.example .env.local
 
 Edit `.env.local`:
 
-- **`ARCHIFORGE_API_BASE_URL`** — ArchiForge API base (default in repo: `http://localhost:5128` per `ArchiForge.Api` launchSettings).
+- **`ARCHIFORGE_API_BASE_URL`** — ArchiForge API base (default in repo: `http://localhost:5128` per `ArchLucid.Api` launchSettings).
 - **`ARCHIFORGE_API_KEY`** — Required when the API has `Authentication:ApiKey:Enabled` = `true`. Sent from the Next.js server (RSC + `/api/proxy`). Do not rely on public env for secrets in production; keep this server-only.
 
 Optional:
@@ -55,7 +55,7 @@ Optional:
 
 ### OIDC / JWT (Entra ID)
 
-When the API uses **`ArchiForgeAuth:Mode = JwtBearer`** (see `ArchiForge.Api/appsettings.Entra.sample.json`):
+When the API uses **`ArchiForgeAuth:Mode = JwtBearer`** (see `ArchLucid.Api/appsettings.Entra.sample.json`):
 
 1. Set **`NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE=jwt`** (or `jwt-bearer`).
 2. Register a **single-page application** client in Entra; add redirect URI **`http://localhost:3000/auth/callback`** (and production origins).
@@ -67,7 +67,7 @@ Sign-in flow: **`/auth/signin`** → IdP → **`/auth/callback`** → tokens in 
 
 ## Run
 
-Start the ArchLucid API (`ArchiForge.Api`), then:
+Start the ArchLucid API (`ArchLucid.Api`), then:
 
 ```bash
 npm run dev
@@ -103,7 +103,7 @@ Downloads use **`/api/proxy/...`** so the browser receives files without attachi
 
 - Authority: `/api/authority/...`
 - Artifacts: `/api/artifacts/...` — list returns `200` + array (empty allowed); bundle ZIP may return `404` when there is no bundle (distinct problem type from unknown manifest when the API is configured that way).
-- Replay modes: `ReconstructOnly`, `RebuildManifest`, `RebuildArtifacts` (see `ArchiForge.Persistence.Replay.ReplayMode`).
+- Replay modes: `ReconstructOnly`, `RebuildManifest`, `RebuildArtifacts` (see `ArchLucid.Persistence.Replay.ReplayMode`).
 
 ## Auth
 

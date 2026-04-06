@@ -1,13 +1,13 @@
-using ArchiForge.ArtifactSynthesis.Generators;
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.Decisioning.Manifest.Sections;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.ArtifactSynthesis.Generators;
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
 using Moq;
 
-namespace ArchiForge.ArtifactSynthesis.Tests;
+namespace ArchLucid.ArtifactSynthesis.Tests;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

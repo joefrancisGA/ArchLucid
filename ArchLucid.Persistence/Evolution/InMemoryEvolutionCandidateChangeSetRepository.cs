@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 
-using ArchiForge.Contracts.Evolution;
-using ArchiForge.Contracts.ProductLearning;
+using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.ProductLearning;
 
-namespace ArchiForge.Persistence.Evolution;
+namespace ArchLucid.Persistence.Evolution;
 
 /// <summary>In-memory 60R candidates for StorageProvider=InMemory.</summary>
 public sealed class InMemoryEvolutionCandidateChangeSetRepository : IEvolutionCandidateChangeSetRepository

@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Integration;
+namespace ArchLucid.Core.Integration;
 
 /// <summary>Optional Azure Service Bus publishing and transactional outbox for integration events.</summary>
 public sealed class IntegrationEventsOptions

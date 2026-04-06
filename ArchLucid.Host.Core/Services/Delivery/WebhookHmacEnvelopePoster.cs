@@ -1,10 +1,10 @@
-using ArchiForge.Host.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 
-using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchLucid.Decisioning.Advisory.Delivery;
 
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Core.Services.Delivery;
+namespace ArchLucid.Host.Core.Services.Delivery;
 
 /// <summary>
 /// Merges <see cref="WebhookDeliveryOptions.HmacSha256SharedSecret"/> with per-call <see cref="WebhookPostOptions"/>.

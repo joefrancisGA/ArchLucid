@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Composite;
+namespace ArchLucid.Decisioning.Alerts.Composite;
 
 /// <summary>
 /// Outcome of <see cref="IAlertSuppressionPolicy.DecideAsync"/> for a single composite rule match.

@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models.Evolution;
+namespace ArchLucid.Api.Models.Evolution;
 
 /// <summary>Persisted simulation row with optional parsed evaluation (60R-v2 outcome envelope).</summary>
 public sealed class EvolutionSimulationRunWithEvaluationResponse

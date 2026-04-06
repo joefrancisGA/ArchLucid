@@ -1,12 +1,12 @@
 using System.Text.Json;
 
-using ArchiForge.Decisioning.Findings.Factories;
-using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Models;
+using ArchLucid.Decisioning.Findings.Factories;
+using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests.Findings;
+namespace ArchLucid.Decisioning.Tests.Findings;
 
 [Trait("Category", "Unit")]
 public sealed class FindingPayloadConverterAdditionalTests

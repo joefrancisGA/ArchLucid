@@ -1,14 +1,14 @@
-namespace ArchiForge.Persistence.Transactions;
+namespace ArchLucid.Persistence.Transactions;
 
 /// <summary>
-/// Returns new <see cref="InMemoryArchiForgeUnitOfWork"/> instances for tests and in-memory API mode.
+/// Returns new <see cref="InMemoryArchLucidUnitOfWork"/> instances for tests and in-memory API mode.
 /// </summary>
-public sealed class InMemoryArchiForgeUnitOfWorkFactory : IArchiForgeUnitOfWorkFactory
+public sealed class InMemoryArchLucidUnitOfWorkFactory : IArchLucidUnitOfWorkFactory
 {
     /// <inheritdoc />
-    public Task<IArchiForgeUnitOfWork> CreateAsync(CancellationToken ct)
+    public Task<IArchLucidUnitOfWork> CreateAsync(CancellationToken ct)
     {
         _ = ct;
-        return Task.FromResult<IArchiForgeUnitOfWork>(new InMemoryArchiForgeUnitOfWork());
+        return Task.FromResult<IArchLucidUnitOfWork>(new InMemoryArchLucidUnitOfWork());
     }
 }

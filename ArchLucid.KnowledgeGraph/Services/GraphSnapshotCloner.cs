@@ -1,7 +1,7 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.KnowledgeGraph.Models;
 
-namespace ArchiForge.KnowledgeGraph.Services;
+namespace ArchLucid.KnowledgeGraph.Services;
 
 /// <summary>
 /// Clones a persisted <see cref="GraphSnapshot"/> for a new run when

@@ -1,6 +1,6 @@
 using BenchmarkDotNet.Running;
 
-namespace ArchiForge.Benchmarks;
+namespace ArchLucid.Benchmarks;
 
 internal static class Program
 {

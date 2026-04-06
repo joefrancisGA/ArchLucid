@@ -1,8 +1,8 @@
-using ArchiForge.Api.Models.Learning;
-using ArchiForge.Contracts.ProductLearning;
-using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchLucid.Api.Models.Learning;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
 
-namespace ArchiForge.Api.Services;
+namespace ArchLucid.Api.Services;
 
 /// <summary>Scoped read model for 59R learning themes and improvement plans.</summary>
 public interface ILearningPlanningReadService

@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Scheduling;
+using ArchLucid.Decisioning.Advisory.Scheduling;
 
-namespace ArchiForge.Persistence.Advisory;
+namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
 /// Persistence for <see cref="ArchitectureDigest"/> rows (<c>dbo.ArchitectureDigests</c> on SQL Server).

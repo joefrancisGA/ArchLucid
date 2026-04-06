@@ -2,7 +2,7 @@ using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace ArchiForge.Api.Swagger;
+namespace ArchLucid.Api.Swagger;
 
 public sealed class ReplayExamplesOperationFilter : IOperationFilter
 {
@@ -23,7 +23,7 @@ public sealed class ReplayExamplesOperationFilter : IOperationFilter
                           + "**Verify mode:** regenerates the comparison and diffs against the stored payload. "
                           + "If drift is detected, the API returns **422 Unprocessable Entity** (application/problem+json) "
                           + "with type `#comparison-verification-failed`, plus extensions **driftDetected** (boolean) and **driftSummary** (string) when applicable. "
-                          + "Successful verify returns **200** with the replay artifact and header X-ArchiForge-VerificationPassed=true.";
+                          + "Successful verify returns **200** with the replay artifact and header X-ArchLucid-VerificationPassed=true.";
         operation.Description = string.IsNullOrWhiteSpace(operation.Description)
             ? baseDesc
             : operation.Description + " " + baseDesc;

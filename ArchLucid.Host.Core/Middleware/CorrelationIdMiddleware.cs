@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using Serilog.Context;
 
-namespace ArchiForge.Host.Core.Middleware;
+namespace ArchLucid.Host.Core.Middleware;
 
 public sealed class CorrelationIdMiddleware(RequestDelegate next)
 {

@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Alerts.Composite;
+using ArchLucid.Decisioning.Alerts.Composite;
 
-namespace ArchiForge.Decisioning.Alerts.Simulation;
+namespace ArchLucid.Decisioning.Alerts.Simulation;
 
 /// <summary>Input to <see cref="IRuleSimulationService.SimulateAsync"/> describing rule kind, payload, and which runs to replay.</summary>
 public class RuleSimulationRequest

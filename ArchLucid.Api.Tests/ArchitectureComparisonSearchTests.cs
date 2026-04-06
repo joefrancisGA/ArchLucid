@@ -1,23 +1,23 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Contracts.Metadata;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Architecture Comparison Search.
 /// </summary>
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
+public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
-    private readonly ArchiForgeApiFactory _factory = factory;
+    private readonly ArchLucidApiFactory _factory = factory;
 
     [Fact]
     public async Task SearchComparisons_PagingDoesNotOverlap_AndSortAscWorks()

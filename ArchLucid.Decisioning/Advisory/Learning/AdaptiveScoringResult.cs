@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Models;
+using ArchLucid.Decisioning.Advisory.Models;
 
-namespace ArchiForge.Decisioning.Advisory.Learning;
+namespace ArchLucid.Decisioning.Advisory.Learning;
 
 /// <summary>
 /// Outcome of <see cref="IAdaptiveRecommendationScorer.Score"/> for diagnostics and assigning <see cref="ImprovementRecommendation.PriorityScore"/>.

@@ -1,12 +1,12 @@
-using ArchiForge.Contracts.DecisionTraces;
-using ArchiForge.Decisioning.Manifest.Builders;
-using ArchiForge.Decisioning.Models;
-using ArchiForge.Decisioning.Rules;
-using ArchiForge.KnowledgeGraph.Models;
+using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Decisioning.Manifest.Builders;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Rules;
+using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
-namespace ArchiForge.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests;
 
 /// <summary>
 /// Integration tests: Default Golden Manifest Builder Graph (HTTP host, database, or cross-component).

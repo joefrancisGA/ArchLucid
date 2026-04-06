@@ -1,4 +1,4 @@
-namespace ArchiForge.Core.Pagination;
+namespace ArchLucid.Core.Pagination;
 
 /// <summary>
 /// Standard pagination envelope for list endpoints.

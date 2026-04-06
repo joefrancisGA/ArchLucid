@@ -2,13 +2,13 @@ using System.ClientModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchiForge.Core.Diagnostics;
+using ArchLucid.Core.Diagnostics;
 
 using Azure.AI.OpenAI;
 
 using OpenAI.Chat;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// Azure OpenAI chat client using JSON object response format and low temperature for deterministic structured outputs.
@@ -98,7 +98,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()
         };
 
-        using Activity? llmActivity = ArchiForgeInstrumentation.AgentLlmCompletion.StartActivity(
+        using Activity? llmActivity = ArchLucidInstrumentation.AgentLlmCompletion.StartActivity(
             "gen_ai.chat.completion",
             ActivityKind.Client);
 

@@ -1,4 +1,4 @@
-namespace ArchiForge.Contracts.Architecture;
+namespace ArchLucid.Contracts.Architecture;
 
 /// <summary>
 /// Well-known <see cref="ArchitectureLinkageNode.Type"/> and <see cref="ArchitectureLinkageEdge.Type"/> values for

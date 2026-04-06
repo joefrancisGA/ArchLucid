@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
-namespace ArchiForge.Core.Diagnostics;
+namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
 /// Helpers for propagating a logical correlation id across <see cref="Activity"/> hierarchies (OTel / diagnostics).
@@ -8,7 +8,7 @@ namespace ArchiForge.Core.Diagnostics;
 /// <remarks>
 /// HTTP requests set <see cref="LogicalCorrelationIdTag"/> in <c>CorrelationIdMiddleware</c>. Child activities started
 /// during the request may become <see cref="Activity.Current"/>; audit enrichment walks the parent chain so
-/// <see cref="ArchiForge.Core.Audit.AuditEvent.CorrelationId"/> still matches the client <c>X-Correlation-ID</c> when unset.
+/// <see cref="ArchLucid.Core.Audit.AuditEvent.CorrelationId"/> still matches the client <c>X-Correlation-ID</c> when unset.
 /// </remarks>
 public static class ActivityCorrelation
 {

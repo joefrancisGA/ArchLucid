@@ -1,11 +1,11 @@
 using Microsoft.FeatureManagement;
 
-namespace ArchiForge.Host.Composition.Startup;
+namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
     /// <summary>Registers Microsoft Feature Management for gradual authority pipeline rollout.</summary>
-    public static IServiceCollection AddArchiForgeFeatureManagement(
+    public static IServiceCollection AddArchLucidFeatureManagement(
         this IServiceCollection services,
         IConfiguration configuration)
     {

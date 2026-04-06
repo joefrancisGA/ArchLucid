@@ -1,21 +1,21 @@
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Requests;
-using ArchiForge.Core.Configuration;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Coordinator.Services;
-using ArchiForge.Decisioning.Merge;
-using ArchiForge.Decisioning.Validation;
-using ArchiForge.Persistence.Models;
-using ArchiForge.Persistence.Orchestration;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Coordinator.Services;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Validation;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Orchestration;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests;
 
 /// <summary>
 /// Tests for Real Runtime Mixed Mode.

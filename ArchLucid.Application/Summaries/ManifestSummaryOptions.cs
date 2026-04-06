@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Summaries;
+namespace ArchLucid.Application.Summaries;
 
 /// <summary>
 /// Controls which sections are included in the Markdown output of <see cref="IManifestSummaryService"/>.

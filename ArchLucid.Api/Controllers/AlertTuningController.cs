@@ -1,10 +1,10 @@
 using System.Text.Json;
 
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Alerts.Tuning;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Alerts.Tuning;
 
 using Asp.Versioning;
 
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// HTTP API for threshold recommendation (simulation + noise scoring) scoped to the caller’s tenant/workspace/project.
@@ -21,7 +21,7 @@ namespace ArchiForge.Api.Controllers;
 /// Stamps scope ids onto <see cref="ThresholdRecommendationRequest.BaseSimpleRule"/> / <see cref="ThresholdRecommendationRequest.BaseCompositeRule"/> before tuning.
 /// </remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/alert-tuning")]
 [EnableRateLimiting("fixed")]

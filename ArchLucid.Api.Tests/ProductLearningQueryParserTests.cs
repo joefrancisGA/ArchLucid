@@ -1,8 +1,8 @@
-using ArchiForge.Api.ProductLearning;
+using ArchLucid.Api.ProductLearning;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>Deterministic query parsing for <c>/v1/product-learning/*</c> (58R).</summary>
 [Trait("Category", "Unit")]

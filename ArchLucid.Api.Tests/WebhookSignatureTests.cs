@@ -1,8 +1,8 @@
-using ArchiForge.Host.Core.Services.Delivery;
+using ArchLucid.Host.Core.Services.Delivery;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 public sealed class WebhookSignatureTests
 {

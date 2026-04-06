@@ -1,10 +1,10 @@
-using ArchiForge.Application.Diffs;
-using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Manifest;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 
 using FluentAssertions;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Tests for Manifest Diff Service.

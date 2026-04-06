@@ -1,4 +1,4 @@
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>Provider labels attached to LLM token metrics (configured in DI, not required in appsettings).</summary>
 public sealed class LlmTelemetryLabelOptions

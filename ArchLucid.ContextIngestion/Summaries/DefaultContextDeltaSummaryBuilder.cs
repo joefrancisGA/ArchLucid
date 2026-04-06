@@ -1,6 +1,6 @@
-﻿using ArchiForge.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 
-namespace ArchiForge.ContextIngestion.Summaries;
+namespace ArchLucid.ContextIngestion.Summaries;
 
 public sealed class DefaultContextDeltaSummaryBuilder : IContextDeltaSummaryBuilder
 {

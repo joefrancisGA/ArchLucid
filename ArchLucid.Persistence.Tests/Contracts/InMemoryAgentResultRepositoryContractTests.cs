@@ -1,6 +1,6 @@
-using ArchiForge.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Data.Repositories;
 
-namespace ArchiForge.Persistence.Tests.Contracts;
+namespace ArchLucid.Persistence.Tests.Contracts;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]

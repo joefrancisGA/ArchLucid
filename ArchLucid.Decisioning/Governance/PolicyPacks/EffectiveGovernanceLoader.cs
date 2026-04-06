@@ -1,6 +1,6 @@
-using ArchiForge.Decisioning.Governance.Resolution;
+using ArchLucid.Decisioning.Governance.Resolution;
 
-namespace ArchiForge.Decisioning.Governance.PolicyPacks;
+namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>
 /// Default implementation of <see cref="IEffectiveGovernanceLoader"/> that forwards to <see cref="IEffectiveGovernanceResolver"/>.

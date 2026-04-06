@@ -1,8 +1,8 @@
-﻿using System.Text;
+using System.Text;
 
-using ArchiForge.Contracts.Agents;
+using ArchLucid.Contracts.Agents;
 
-namespace ArchiForge.Application.Evidence;
+namespace ArchLucid.Application.Evidence;
 
 /// <summary>
 /// Formats an <see cref="AgentEvidencePackage"/> as a Markdown document, producing sections for

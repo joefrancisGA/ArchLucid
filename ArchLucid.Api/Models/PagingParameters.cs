@@ -1,4 +1,4 @@
-namespace ArchiForge.Api.Models;
+namespace ArchLucid.Api.Models;
 
 public sealed class PagingParameters
 {

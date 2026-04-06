@@ -1,12 +1,12 @@
 using JetBrains.Annotations;
 
-namespace ArchiForge.Decisioning.Advisory.Workflow;
+namespace ArchLucid.Decisioning.Advisory.Workflow;
 
 /// <summary>
 /// Aggregates persisted recommendation rows into coarse counts for learning and dashboards.
 /// </summary>
 /// <remarks>
-/// Implemented by <c>ArchiForge.Persistence.Advisory.RecommendationFeedbackAnalyzer</c>. Used by <see cref="ArchiForge.Decisioning.Advisory.Learning.IRecommendationLearningAnalyzer"/> when building profiles.
+/// Implemented by <c>ArchLucid.Persistence.Advisory.RecommendationFeedbackAnalyzer</c>. Used by <see cref="ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningAnalyzer"/> when building profiles.
 /// </remarks>
 public interface IRecommendationFeedbackAnalyzer
 {

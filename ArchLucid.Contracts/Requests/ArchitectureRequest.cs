@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-using ArchiForge.Contracts.Common;
+using ArchLucid.Contracts.Common;
 
-namespace ArchiForge.Contracts.Requests;
+namespace ArchLucid.Contracts.Requests;
 
 /// <summary>
 /// Describes a request for an architecture analysis run. Contains all input signals

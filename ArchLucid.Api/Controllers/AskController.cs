@@ -1,7 +1,7 @@
-using ArchiForge.Api.Auth.Models;
-using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Ask;
-using ArchiForge.Core.Scoping;
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Ask;
+using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
 
@@ -9,14 +9,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchiForge.Api.Controllers;
+namespace ArchLucid.Api.Controllers;
 
 /// <summary>
 /// Grounded architect assistant: manifest + provenance + optional comparison + retrieval, with threaded conversations.
 /// </summary>
 /// <remarks>POST <c>api/ask</c>. Maps validation errors to 400; <see cref="InvalidOperationException"/> from the service to 404.</remarks>
 [ApiController]
-[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/ask")]
 [EnableRateLimiting("fixed")]

@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Alerts.Delivery;
+namespace ArchLucid.Decisioning.Alerts.Delivery;
 
 /// <summary>
 /// Orders severities for subscription filtering: <see cref="AlertRoutingSubscription.MinimumSeverity"/> vs <see cref="AlertRecord.Severity"/>.

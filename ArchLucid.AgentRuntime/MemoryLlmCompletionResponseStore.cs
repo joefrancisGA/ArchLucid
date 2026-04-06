@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Caching.Memory;
 
-namespace ArchiForge.AgentRuntime;
+namespace ArchLucid.AgentRuntime;
 
 /// <summary>In-process <see cref="MemoryCache"/> store with bounded entry count.</summary>
 public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseStore, IDisposable

@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>ArchiForge.Core</RootNamespace>
+    <RootNamespace>ArchLucid.Core</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="ArchiForge.Api.Tests" />
-    <InternalsVisibleTo Include="ArchiForge.Core.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Core.Tests" />
   </ItemGroup>
 
 </Project>

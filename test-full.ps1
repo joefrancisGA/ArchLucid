@@ -1,7 +1,7 @@
-# Full regression: entire ArchiForge.sln test run. See docs/TEST_EXECUTION_MODEL.md
+# Full regression: entire ArchLucid.sln test run. See docs/TEST_EXECUTION_MODEL.md
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $root
-dotnet test ArchiForge.sln
+dotnet test ArchLucid.sln
 exit $LASTEXITCODE

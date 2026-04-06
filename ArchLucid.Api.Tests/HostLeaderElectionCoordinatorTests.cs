@@ -1,6 +1,6 @@
-using ArchiForge.Persistence.Data.Repositories;
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Hosted;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Hosted;
 
 using FluentAssertions;
 
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchiForge.Api.Tests;
+namespace ArchLucid.Api.Tests;
 
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
