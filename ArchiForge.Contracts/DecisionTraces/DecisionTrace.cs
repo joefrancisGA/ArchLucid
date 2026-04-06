@@ -1,43 +1,34 @@
+using System.Text.Json.Serialization;
+
 namespace ArchiForge.Contracts.DecisionTraces;
 
 /// <summary>
-/// Unified trace model: coordinator <see cref="RunEventTracePayload"/> or authority <see cref="RuleAuditTracePayload"/>.
+/// Base type for coordinator vs authority traces. JSON uses <c>kind</c> plus either <c>runEvent</c> or <c>ruleAudit</c>
+/// (<see cref="DecisionTraceJsonConverter"/>); CLR types are <see cref="RunEventTrace"/> or <see cref="RuleAuditTrace"/>.
 /// </summary>
-public sealed class DecisionTrace
+[JsonConverter(typeof(DecisionTraceJsonConverter))]
+public abstract class DecisionTrace
 {
-    public DecisionTraceKind Kind { get; set; }
+    /// <summary>Pipeline discriminator; not duplicated in JSON when polymorphic serialization is used.</summary>
+    public abstract DecisionTraceKind Kind { get; }
 
-    public RunEventTracePayload? RunEvent { get; set; }
-
-    public RuleAuditTracePayload? RuleAudit { get; set; }
-
-    public static DecisionTrace FromRunEvent(RunEventTracePayload body) =>
-        new()
-        {
-            Kind = DecisionTraceKind.RunEvent,
-            RunEvent = body ?? throw new ArgumentNullException(nameof(body))
-        };
-
-    public static DecisionTrace FromRuleAudit(RuleAuditTracePayload body) =>
-        new()
-        {
-            Kind = DecisionTraceKind.RuleAudit,
-            RuleAudit = body ?? throw new ArgumentNullException(nameof(body))
-        };
-
+    /// <summary>Requires a coordinator merge/agent step trace.</summary>
     public RunEventTracePayload RequireRunEvent()
     {
-        if (Kind != DecisionTraceKind.RunEvent || RunEvent is null)
-            throw new InvalidOperationException("Expected a RunEvent decision trace.");
+        if (this is RunEventTrace runEvent)
 
-        return RunEvent;
+            return runEvent.RunEvent;
+
+        throw new InvalidOperationException("Expected a RunEvent trace (coordinator pipeline).");
     }
 
+    /// <summary>Requires an authority rule-audit trace.</summary>
     public RuleAuditTracePayload RequireRuleAudit()
     {
-        if (Kind != DecisionTraceKind.RuleAudit || RuleAudit is null)
-            throw new InvalidOperationException("Expected a RuleAudit decision trace.");
+        if (this is RuleAuditTrace ruleAudit)
 
-        return RuleAudit;
+            return ruleAudit.RuleAudit;
+
+        throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
     }
 }

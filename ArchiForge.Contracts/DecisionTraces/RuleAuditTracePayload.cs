@@ -2,7 +2,7 @@ namespace ArchiForge.Contracts.DecisionTraces;
 
 /// <summary>
 /// Authority pipeline record of which rules were applied and which findings were accepted or rejected;
-/// nested under <see cref="DecisionTrace"/> when <see cref="DecisionTrace.Kind"/> is <see cref="DecisionTraceKind.RuleAudit"/>.
+/// carried on <see cref="RuleAuditTrace.RuleAudit"/>.
 /// </summary>
 public sealed class RuleAuditTracePayload
 {

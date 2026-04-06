@@ -103,7 +103,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         if (row is null)
             return null;
 
-        return DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
+        return RuleAuditTrace.From(new RuleAuditTracePayload
         {
             TenantId = row.TenantId,
             WorkspaceId = row.WorkspaceId,

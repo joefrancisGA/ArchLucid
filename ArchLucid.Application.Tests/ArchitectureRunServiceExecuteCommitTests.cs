@@ -345,7 +345,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             Manifest = manifest,
             DecisionTraces =
             [
-                DecisionTrace.FromRunEvent(new RunEventTracePayload
+                RunEventTrace.From(new RunEventTracePayload
                 {
                     RunId = runId,
                     EventType = "Commit",

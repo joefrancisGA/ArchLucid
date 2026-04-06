@@ -16701,10 +16701,7 @@
             ]
           },
           "decisionTraces": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DecisionTrace"
-            }
+            "type": "array"
           },
           "isCommitted": {
             "type": "boolean"
@@ -17288,10 +17285,7 @@
             "$ref": "#/components/schemas/GoldenManifest"
           },
           "decisionTraces": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DecisionTrace"
-            }
+            "type": "array"
           },
           "warnings": {
             "type": "array",
@@ -18372,37 +18366,7 @@
           }
         }
       },
-      "DecisionTrace": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "$ref": "#/components/schemas/DecisionTraceKind"
-          },
-          "runEvent": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/RunEventTracePayload"
-              }
-            ]
-          },
-          "ruleAudit": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/RuleAuditTracePayload"
-              }
-            ]
-          }
-        }
-      },
-      "DecisionTraceKind": {
-        "type": "integer"
-      },
+      "DecisionTrace": {},
       "DeterminismCheckRequest": {
         "type": "object",
         "properties": {
@@ -22522,10 +22486,7 @@
             ]
           },
           "decisionTraces": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DecisionTrace"
-            }
+            "type": "array"
           },
           "warnings": {
             "type": "array",
@@ -22659,68 +22620,6 @@
               "string"
             ],
             "format": "double"
-          }
-        }
-      },
-      "RuleAuditTracePayload": {
-        "type": "object",
-        "properties": {
-          "tenantId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "workspaceId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "projectId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "decisionTraceId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "runId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdUtc": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "ruleSetId": {
-            "type": "string"
-          },
-          "ruleSetVersion": {
-            "type": "string"
-          },
-          "ruleSetHash": {
-            "type": "string"
-          },
-          "appliedRuleIds": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "acceptedFindingIds": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "rejectedFindingIds": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "notes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         }
       },
@@ -23021,37 +22920,7 @@
             ]
           },
           "decisionTraces": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DecisionTrace"
-            }
-          }
-        }
-      },
-      "RunEventTracePayload": {
-        "type": "object",
-        "properties": {
-          "traceId": {
-            "type": "string"
-          },
-          "runId": {
-            "type": "string"
-          },
-          "eventType": {
-            "type": "string"
-          },
-          "eventDescription": {
-            "type": "string"
-          },
-          "createdUtc": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "metadata": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
+            "type": "array"
           }
         }
       },

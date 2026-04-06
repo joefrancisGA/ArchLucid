@@ -1,8 +1,10 @@
 # Happy path — from request to answer
 
-**Last reviewed:** 2026-04-04
+**Last reviewed:** 2026-04-06
 
 One narrative for **new engineers and integrators** working on **ArchLucid** (this codebase). Deep dives are linked; this page is the **spine**.
+
+> **Two pipelines (coordinator string run vs authority ingestion)?** Read **[DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md)** first — side-by-side flows, shared artifacts, and a step-by-step coordinator commit walkthrough.
 
 > **Environments and delivery (clone → local → Azure)?** Use **[GOLDEN_PATH.md](GOLDEN_PATH.md)** — role-based entry (developer / SRE / security), one maturity diagram, ordered phases, and an **advanced appendix** for rarely used paths. *This* page focuses on **one HTTP request’s journey** through the API and data plane.
 
@@ -28,7 +30,7 @@ flowchart LR
 ## Steps
 
 1. **Authenticate** — API key (`X-Api-Key`) or JWT (Entra), per environment. Scope: `x-tenant-id`, `x-workspace-id`, `x-project-id` (or claims).
-2. **Create run** — `POST /v1/architecture/run/request` with `ArchitectureRequest`. Optional `Idempotency-Key` (see `docs/API_CONTRACTS.md`).
+2. **Create run** — `POST /v1/architecture/request` with `ArchitectureRequest`. Optional `Idempotency-Key` (see `docs/API_CONTRACTS.md`).
 3. **Execute authority** — Pipeline stages ingest context, graph, findings, decisioning, artifacts (see traces: `ArchiForge.AuthorityRun` in logs/telemetry).
 4. **Agents** — `AgentExecution:Mode` `Simulator` (deterministic) or `Real` (Azure OpenAI). Token usage and optional per-tenant metrics: `docs/OPERATIONS_LLM_QUOTA.md`.
 5. **Commit** — `POST /v1/architecture/run/{runId}/commit` when the run is ready; handle `409` for invalid state.

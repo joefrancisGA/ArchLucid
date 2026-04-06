@@ -53,15 +53,15 @@ public static class CommittedManifestTraceabilityRules
 
         foreach (DecisionTrace trace in traces)
         {
-            if (trace.Kind != DecisionTraceKind.RunEvent || trace.RunEvent is null)
+            if (trace is not RunEventTrace runEventTrace)
             {
                 gaps.Add(
-                    $"Decision trace row is not a RunEvent (Kind={trace.Kind}); coordinator commits expect RunEvent payloads only.");
+                    $"Decision trace row is not a {nameof(RunEventTrace)} (Kind={trace.Kind}); coordinator commits expect run-event traces only.");
 
                 continue;
             }
 
-            string traceId = trace.RunEvent.TraceId;
+            string traceId = runEventTrace.RunEvent.TraceId;
 
             if (string.IsNullOrWhiteSpace(traceId))
                 gaps.Add("A coordinator decision trace has an empty TraceId.");

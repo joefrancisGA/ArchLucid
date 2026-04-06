@@ -738,7 +738,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         string description,
         Dictionary<string, string> metadata)
     {
-        output.DecisionTraces.Add(DecisionTrace.FromRunEvent(new RunEventTracePayload
+        output.DecisionTraces.Add(RunEventTrace.From(new RunEventTracePayload
         {
             TraceId = Guid.NewGuid().ToString("N"),
             RunId = runId,

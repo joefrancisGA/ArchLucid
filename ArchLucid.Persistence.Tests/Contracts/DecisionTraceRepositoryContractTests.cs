@@ -19,7 +19,7 @@ public abstract class DecisionTraceRepositoryContractTests
 
     private static DecisionTrace NewTrace(ScopeContext scope, Guid runId, Guid traceId)
     {
-        return DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
+        return RuleAuditTrace.From(new RuleAuditTracePayload
         {
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,

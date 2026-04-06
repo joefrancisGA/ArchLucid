@@ -92,7 +92,7 @@ public sealed class RunDetailQueryServiceTests
         GoldenManifest manifest = Manifest();
         AgentTask task = new() { TaskId = "t1", RunId = run.RunId };
         AgentResult agentResult = new() { ResultId = "r1", RunId = run.RunId };
-        DecisionTrace trace = DecisionTrace.FromRunEvent(new RunEventTracePayload { TraceId = "tr1", RunId = run.RunId });
+        DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload { TraceId = "tr1", RunId = run.RunId });
 
         _runRepo.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(run);

@@ -99,7 +99,7 @@ public sealed class ShadowExecutionService(
                 payload.Metadata["AcceptanceCriteria"] = step.AcceptanceCriteria;
             }
 
-            detail.DecisionTraces.Add(DecisionTrace.FromRunEvent(payload));
+            detail.DecisionTraces.Add(RunEventTrace.From(payload));
         }
     }
 

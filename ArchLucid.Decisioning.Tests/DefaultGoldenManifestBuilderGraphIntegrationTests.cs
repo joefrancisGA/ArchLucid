@@ -44,7 +44,7 @@ public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
             Findings = []
         };
 
-        DecisionTrace trace = DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
+        DecisionTrace trace = RuleAuditTrace.From(new RuleAuditTracePayload
         {
             DecisionTraceId = Guid.NewGuid(),
             RunId = runId

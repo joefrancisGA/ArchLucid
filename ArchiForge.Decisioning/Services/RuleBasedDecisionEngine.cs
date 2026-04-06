@@ -88,7 +88,7 @@ public class RuleBasedDecisionEngine(
             }
         }
 
-        DecisionTrace trace = DecisionTrace.FromRuleAudit(audit);
+        DecisionTrace trace = RuleAuditTrace.From(audit);
 
         GoldenManifest manifest = manifestBuilder.Build(
             runId,

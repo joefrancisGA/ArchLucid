@@ -43,10 +43,11 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         lock (_lock)
         {
             DecisionTrace? result = _store.FirstOrDefault(x =>
-                x.RuleAudit!.DecisionTraceId == decisionTraceId &&
-                x.RuleAudit.TenantId == scope.TenantId &&
-                x.RuleAudit.WorkspaceId == scope.WorkspaceId &&
-                x.RuleAudit.ProjectId == scope.ProjectId);
+                x is RuleAuditTrace rat &&
+                rat.RuleAudit.DecisionTraceId == decisionTraceId &&
+                rat.RuleAudit.TenantId == scope.TenantId &&
+                rat.RuleAudit.WorkspaceId == scope.WorkspaceId &&
+                rat.RuleAudit.ProjectId == scope.ProjectId);
 
             return Task.FromResult(result is null ? null : Clone(result));
         }
@@ -54,11 +55,11 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 
     private static DecisionTrace Clone(DecisionTrace source)
     {
-        string json = JsonSerializer.Serialize(source.RuleAudit, ContractJson.Default);
+        string json = JsonSerializer.Serialize(source.RequireRuleAudit(), ContractJson.Default);
         RuleAuditTracePayload? copy = JsonSerializer.Deserialize<RuleAuditTracePayload>(json, ContractJson.Default);
 
         return copy is null
             ? throw new InvalidOperationException("Clone produced null RuleAuditTracePayload.")
-            : DecisionTrace.FromRuleAudit(copy);
+            : RuleAuditTrace.From(copy);
     }
 }

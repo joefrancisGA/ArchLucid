@@ -1,8 +1,7 @@
 namespace ArchiForge.Contracts.DecisionTraces;
 
 /// <summary>
-/// Coordinator run event (options evaluated, merges applied, etc.); nested under <see cref="DecisionTrace"/> when
-/// <see cref="DecisionTrace.Kind"/> is <see cref="DecisionTraceKind.RunEvent"/>.
+/// Coordinator run event (options evaluated, merges applied, etc.); carried on <see cref="RunEventTrace.RunEvent"/>.
 /// </summary>
 public sealed class RunEventTracePayload
 {

@@ -279,7 +279,7 @@ public sealed class ReplayRunServiceTests
 
         List<DecisionTrace> traces =
         [
-            DecisionTrace.FromRunEvent(new RunEventTracePayload
+            RunEventTrace.From(new RunEventTracePayload
             {
                 TraceId = "tr1",
                 RunId = "replay-run",

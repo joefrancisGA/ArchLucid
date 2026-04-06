@@ -283,17 +283,17 @@ public sealed class ArchitectureRunProvenanceService(
                 });
         }
 
-        List<DecisionTrace> runEventTraces = detail.DecisionTraces
-            .Where(t => t.Kind == DecisionTraceKind.RunEvent && t.RunEvent is not null)
-            .OrderBy(t => t.RunEvent!.CreatedUtc)
-            .ThenBy(t => t.RunEvent!.TraceId, StringComparer.Ordinal)
+        List<RunEventTrace> runEventTraces = detail.DecisionTraces
+            .OfType<RunEventTrace>()
+            .OrderBy(t => t.RunEvent.CreatedUtc)
+            .ThenBy(t => t.RunEvent.TraceId, StringComparer.Ordinal)
             .ToList();
 
         string? previousTraceNodeId = null;
 
-        foreach (DecisionTrace trace in runEventTraces)
+        foreach (RunEventTrace trace in runEventTraces)
         {
-            RunEventTracePayload ev = trace.RunEvent!;
+            RunEventTracePayload ev = trace.RunEvent;
             string traceNodeId = $"trace:{ev.TraceId}";
             AddNode(
                 new ArchitectureLinkageNode

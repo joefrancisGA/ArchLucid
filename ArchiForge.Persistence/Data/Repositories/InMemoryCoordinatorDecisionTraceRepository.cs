@@ -71,6 +71,6 @@ public sealed class InMemoryCoordinatorDecisionTraceRepository : ICoordinatorDec
 
         return copy is null
             ? throw new InvalidOperationException("Clone produced null RunEventTracePayload.")
-            : DecisionTrace.FromRunEvent(copy);
+            : RunEventTrace.From(copy);
     }
 }

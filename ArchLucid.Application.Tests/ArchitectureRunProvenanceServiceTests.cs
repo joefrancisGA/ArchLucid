@@ -85,7 +85,7 @@ public sealed class ArchitectureRunProvenanceServiceTests
             },
             DecisionTraces =
             [
-                DecisionTrace.FromRunEvent(
+                RunEventTrace.From(
                     new RunEventTracePayload
                     {
                         TraceId = "tr1",

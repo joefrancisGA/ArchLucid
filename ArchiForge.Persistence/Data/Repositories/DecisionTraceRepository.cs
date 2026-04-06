@@ -105,7 +105,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
                     "The stored JSON may be empty or corrupt.");
 
 
-            traces.Add(DecisionTrace.FromRunEvent(payload));
+            traces.Add(RunEventTrace.From(payload));
         }
 
         return traces;

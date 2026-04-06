@@ -39,7 +39,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
 
         List<DecisionTrace> batch =
         [
-            DecisionTrace.FromRunEvent(new RunEventTracePayload
+            RunEventTrace.From(new RunEventTracePayload
             {
                 TraceId = "a-" + Guid.NewGuid().ToString("N"),
                 RunId = runId,
@@ -47,7 +47,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
                 EventDescription = "d2",
                 CreatedUtc = t1,
             }),
-            DecisionTrace.FromRunEvent(new RunEventTracePayload
+            RunEventTrace.From(new RunEventTracePayload
             {
                 TraceId = "b-" + Guid.NewGuid().ToString("N"),
                 RunId = runId,

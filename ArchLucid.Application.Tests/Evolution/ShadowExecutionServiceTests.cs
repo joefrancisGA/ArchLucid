@@ -51,7 +51,7 @@ public sealed class ShadowExecutionServiceTests
             },
             DecisionTraces =
             [
-                DecisionTrace.FromRunEvent(new RunEventTracePayload
+                RunEventTrace.From(new RunEventTracePayload
                 {
                     TraceId = "t0",
                     RunId = "run1",

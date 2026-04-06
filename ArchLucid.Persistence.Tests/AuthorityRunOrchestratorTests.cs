@@ -90,7 +90,7 @@ public sealed class AuthorityRunOrchestratorTests
                         CreatedUtc = DateTime.UtcNow,
                     };
 
-                    ctx.Trace = DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
+                    ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
                     {
                         TenantId = ctx.Scope.TenantId,
                         WorkspaceId = ctx.Scope.WorkspaceId,
@@ -262,7 +262,7 @@ public sealed class AuthorityRunOrchestratorTests
                         CreatedUtc = DateTime.UtcNow,
                     };
 
-                    ctx.Trace = DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
+                    ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
                     {
                         TenantId = ctx.Scope.TenantId,
                         WorkspaceId = ctx.Scope.WorkspaceId,

@@ -1,6 +1,6 @@
 namespace ArchiForge.Contracts.DecisionTraces;
 
-/// <summary>Discriminator for <see cref="DecisionTrace"/> payloads (coordinator vs authority).</summary>
+/// <summary>JSON discriminator for polymorphic <see cref="DecisionTrace"/> (<see cref="RunEventTrace"/> vs <see cref="RuleAuditTrace"/>).</summary>
 public enum DecisionTraceKind
 {
     /// <summary>Merge/engine step log for string architecture runs (coordinator pipeline).</summary>

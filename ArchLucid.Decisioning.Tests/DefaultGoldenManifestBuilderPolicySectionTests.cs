@@ -129,7 +129,7 @@ public sealed class DefaultGoldenManifestBuilderPolicySectionTests
             Findings = findings
         };
 
-        DecisionTrace trace = DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
+        DecisionTrace trace = RuleAuditTrace.From(new RuleAuditTracePayload
         {
             DecisionTraceId = Guid.NewGuid(),
             RunId = runId

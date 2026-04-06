@@ -65,13 +65,20 @@ RUN dotnet restore ArchiForge.Api/ArchiForge.Api.csproj \
 FROM restore AS publish
 
 COPY . .
-RUN dotnet publish ArchiForge.Api/ArchiForge.Api.csproj \
+# Re-restore after full sources land: restore stage only had .csproj stubs; assets must match real tree before --no-restore publish.
+RUN dotnet restore ArchiForge.Api/ArchiForge.Api.csproj \
+    && dotnet restore ArchiForge.Worker/ArchiForge.Worker.csproj \
+    && dotnet publish ArchiForge.Api/ArchiForge.Api.csproj \
         -c Release \
+        -r linux-musl-x64 \
+        --self-contained false \
         -o /app \
         --no-restore \
         /p:PublishReadyToRun=true \
     && dotnet publish ArchiForge.Worker/ArchiForge.Worker.csproj \
         -c Release \
+        -r linux-musl-x64 \
+        --self-contained false \
         -o /app \
         --no-restore \
         /p:PublishReadyToRun=true

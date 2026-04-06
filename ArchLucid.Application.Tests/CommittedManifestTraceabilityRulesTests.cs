@@ -35,7 +35,7 @@ public sealed class CommittedManifestTraceabilityRulesTests
 
         IReadOnlyList<string> gaps = CommittedManifestTraceabilityRules.GetLinkageGaps(
             manifest,
-            [DecisionTrace.FromRunEvent(ev)]);
+            [RunEventTrace.From(ev)]);
 
         gaps.Should().BeEmpty();
     }
@@ -64,7 +64,7 @@ public sealed class CommittedManifestTraceabilityRulesTests
 
         IReadOnlyList<string> gaps = CommittedManifestTraceabilityRules.GetLinkageGaps(
             manifest,
-            [DecisionTrace.FromRunEvent(ev)]);
+            [RunEventTrace.From(ev)]);
 
         gaps.Should().ContainSingle()
             .Which.Should().Contain("missing");
