@@ -1,5 +1,7 @@
 # Build & project hygiene
 
+> **Product naming:** Documentation refers to the product as **ArchLucid** where it helps readers; repository folders, .NET assemblies (`ArchiForge.*`), and many CLI paths still use the `ArchiForge` prefix until later rename phases (see `docs/ARCHLUCID_RENAME_CHECKLIST.md`).
+
 See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) for test categories and filtering, **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** (54R) for Core / Fast core / Integration / SQL / Full regression scripts and CI alignment, and **[RELEASE_LOCAL.md](RELEASE_LOCAL.md)** (56R) for `build-release` / `package-release` / `run-readiness-check`.
 
 **API controllers:** Keep all MVC controllers under **`ArchiForge.Api/Controllers/`** (single folder). On Windows, tools may show the same path with `\` or `/`; on Linux, Git is case-sensitive—do not introduce a second `Controllers` directory that differs only by casing or path style, or you risk duplicate types and confusing diffs.

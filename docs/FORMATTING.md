@@ -1,6 +1,6 @@
 # C# formatting (blank lines & layout)
 
-ArchiForge uses **EditorConfig** (repo root `.editorconfig`) so Visual Studio, Rider, and `dotnet format` share the same rules.
+The ArchLucid .NET codebase uses **EditorConfig** (repo root `.editorconfig`) so Visual Studio, Rider, and `dotnet format` share the same rules.
 
 Notable choices for **readability**:
 

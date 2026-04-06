@@ -1,6 +1,6 @@
 # Test execution model (54R — release readiness)
 
-This document is the **canonical reference** for how ArchiForge classifies and runs automated tests. It aligns local scripts, contributor docs, and CI behavior.
+This document is the **canonical reference** for how the ArchLucid product codebase (`ArchiForge.*` assemblies today) classifies and runs automated tests. It aligns local scripts, contributor docs, and CI behavior.
 
 **See also:** [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (**54R operator cheat sheet** — copy-paste commands), [BUILD.md](BUILD.md) (SQL Server setup for tests), [RELEASE_LOCAL.md](RELEASE_LOCAL.md) (**56R** — `build-release`, `package-release`, `run-readiness-check`), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (**56R** — `release-smoke` E2E gate).
 

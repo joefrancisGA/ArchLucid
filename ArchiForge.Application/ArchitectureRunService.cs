@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Transactions;
 
 using ArchiForge.AgentSimulator.Services;
+using ArchiForge.Application.Architecture;
 using ArchiForge.Application.Common;
 using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
@@ -622,6 +623,14 @@ public sealed class ArchitectureRunService(
             await FailRunAfterMergeFailureAsync(runId, run.CurrentManifestVersion, merge.Errors, actor, cancellationToken);
         
 
+        IReadOnlyList<string> traceabilityGaps = CommittedManifestTraceabilityRules.GetLinkageGaps(
+            merge.Manifest,
+            merge.DecisionTraces);
+
+        if (traceabilityGaps.Count > 0)
+            throw new InvalidOperationException(
+                "Committed manifest traceability invariant failed: " + string.Join("; ", traceabilityGaps));
+
         try
         {
             await PersistCommittedRunAsync(runId, decisionNodes, merge, cancellationToken);
@@ -690,6 +699,14 @@ public sealed class ArchitectureRunService(
                 "It may have been deleted or there is a replication lag.");
 
         IReadOnlyList<DecisionTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        IReadOnlyList<string> storedGaps = CommittedManifestTraceabilityRules.GetLinkageGaps(existingManifest, existingTraces);
+
+        if (storedGaps.Count > 0)
+            logger.LogWarning(
+                "Committed run {RunId} has manifest/trace linkage gaps (data drift or legacy row): {Gaps}",
+                runId,
+                string.Join("; ", storedGaps));
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation(

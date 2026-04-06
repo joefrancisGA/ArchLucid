@@ -17,7 +17,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 - [x] 1.6 Update `docs/DEPLOYMENT.md`, `docs/DEPLOYMENT_TERRAFORM.md`, `docs/CONTAINERIZATION.md` (2026-04-06 — ArchLucid product naming pass where referenced)
 - [x] 1.7 Update `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/RELEASE_SMOKE.md`, `docs/RELEASE_LOCAL.md` (2026-04-06 — ArchLucid product naming in pilot/release docs; literal `ArchiForge.*` paths and config keys unchanged)
 - [x] 1.8 Update onboarding docs: `docs/onboarding/day-one-developer.md`, `day-one-sre.md`, `day-one-security.md`, `docs/CONTRIBUTOR_ONBOARDING.md`, `docs/ONBOARDING_HAPPY_PATH.md` (2026-04-06 — ArchLucid product naming in prose; repo folder, `ArchiForge.*` assemblies, and config keys unchanged)
-- [ ] 1.9 Update `docs/BUILD.md`, `docs/FORMATTING.md`, `docs/TEST_STRUCTURE.md`, `docs/TEST_EXECUTION_MODEL.md`
+- [x] 1.9 Update `docs/BUILD.md`, `docs/FORMATTING.md`, `docs/TEST_STRUCTURE.md`, `docs/TEST_EXECUTION_MODEL.md` (2026-04-06 — ArchLucid product naming note / prose; `ArchiForge.*` paths unchanged)
 - [ ] 1.10 Update remaining docs: ADRs, runbooks, CLI docs, changelogs, and any other `.md` files with stale references (batch as needed)
 - [ ] 1.11 Update `archiforge-ui/docs/*.md` (ARCHITECTURE, COMPONENT_REFERENCE, TESTING_AND_TROUBLESHOOTING, OPERATOR_SHELL_TUTORIAL, etc.)
 - [ ] 1.12 Update `.cursor/rules/Navigation.mdc` and `CSharp-EmbeddedStatements-NoBraces.mdc`

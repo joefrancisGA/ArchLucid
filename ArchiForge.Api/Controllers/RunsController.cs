@@ -3,6 +3,7 @@ using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application;
+using ArchiForge.Application.Architecture;
 using ArchiForge.Application.Common;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Runs;
@@ -40,6 +41,7 @@ public sealed partial class RunsController(
     IReplayRunService replayRunService,
     IArchitectureApplicationService architectureApplicationService,
     IRunDetailQueryService runDetailQueryService,
+    IArchitectureRunProvenanceService architectureRunProvenanceService,
     IDeterminismCheckService determinismCheckService,
     IArchitectureRunRepository runRepository,
     IDecisionNodeRepository decisionNodeRepository,
@@ -344,6 +346,27 @@ public sealed partial class RunsController(
             detail.DecisionTraces);
 
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Returns the coordinator linkage graph (request, tasks, results, findings, manifest, traces, decisions) and a sorted trace timeline.
+    /// </summary>
+    [HttpGet("runs/{runId}/provenance")]
+    [ProducesResponseType(typeof(ArchitectureRunProvenanceGraph), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetArchitectureRunProvenance(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRunProvenanceGraph? graph = await architectureRunProvenanceService
+            .GetProvenanceAsync(runId, cancellationToken);
+
+        if (graph is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found, or its manifest reference is broken.",
+                ProblemTypes.RunNotFound);
+
+        return Ok(graph);
     }
 
     /// <summary>

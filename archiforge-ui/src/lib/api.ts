@@ -21,6 +21,7 @@ import type {
   ConversationMessage,
   ConversationThread,
 } from "@/types/conversation";
+import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 import type { ImprovementPlan } from "@/types/advisory";
 import type { LearningProfile } from "@/types/recommendation-learning";
 import type {
@@ -218,6 +219,13 @@ export async function createArchitectureRun(
   body: CreateArchitectureRunRequestPayload,
 ): Promise<CreateArchitectureRunResponsePayload> {
   return apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body);
+}
+
+/** Linkage graph + trace timeline for a coordinator architecture run. */
+export async function getArchitectureRunProvenance(runId: string): Promise<ArchitectureRunProvenanceGraph> {
+  return apiGet<ArchitectureRunProvenanceGraph>(
+    `/v1/architecture/runs/${encodeURIComponent(runId)}/provenance`,
+  );
 }
 
 /** Lists recent runs for a project (GET /v1/authority/projects/{id}/runs). */

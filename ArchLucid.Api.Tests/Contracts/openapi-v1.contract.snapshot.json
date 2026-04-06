@@ -14487,6 +14487,105 @@
         }
       }
     },
+    "/v1/architecture/runs/{runId}/provenance": {
+      "get": {
+        "tags": [
+          "Runs"
+        ],
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRunProvenanceGraph"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRunProvenanceGraph"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitectureRunProvenanceGraph"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/architecture/run/{runId}/result": {
       "post": {
         "tags": [
@@ -16343,6 +16442,64 @@
           }
         }
       },
+      "ArchitectureLinkageEdge": {
+        "required": [
+          "id",
+          "type",
+          "fromNodeId",
+          "toNodeId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "fromNodeId": {
+            "type": "string"
+          },
+          "toNodeId": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ArchitectureLinkageNode": {
+        "required": [
+          "id",
+          "type",
+          "referenceId",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "ArchitectureRequest": {
         "required": [
           "requestId",
@@ -16557,8 +16714,74 @@
           }
         }
       },
+      "ArchitectureRunProvenanceGraph": {
+        "required": [
+          "runId"
+        ],
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureLinkageNode"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureLinkageEdge"
+            }
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchitectureTraceTimelineEntry"
+            }
+          },
+          "traceabilityGaps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "ArchitectureRunStatus": {
         "type": "integer"
+      },
+      "ArchitectureTraceTimelineEntry": {
+        "required": [
+          "kind",
+          "label"
+        ],
+        "type": "object",
+        "properties": {
+          "timestampUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
       },
       "ArtifactBundle": {
         "type": "object",

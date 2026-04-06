@@ -1,6 +1,6 @@
 # Test structure (Change Set 54R)
 
-Operator cheat sheet for **what each tier means** and **how to run it**. CI job names and full narrative: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**. SQL variables and LocalDB: **[BUILD.md](BUILD.md)**.
+Operator cheat sheet for **ArchLucid** / **ArchiForge** .NET tests: **what each tier means** and **how to run it**. CI job names and full narrative: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**. SQL variables and LocalDB: **[BUILD.md](BUILD.md)**.
 
 ## 54R tiers
 

@@ -1,6 +1,7 @@
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
 using ArchiForge.Application.Analysis;
+using ArchiForge.Application.Architecture;
 using ArchiForge.Application.Common;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diagrams;
@@ -97,6 +98,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.AddScoped<IArchitectureRunProvenanceService, ArchitectureRunProvenanceService>();
         services.AddScoped<IReplayRunService, ReplayRunService>();
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
