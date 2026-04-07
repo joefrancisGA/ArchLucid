@@ -194,7 +194,7 @@ jobs:
             echo "NUGET_API_KEY not set — skipping NuGet push."
             exit 0
           fi
-          dotnet restore
+          dotnet restore ArchLucid.Api.Client/ArchLucid.Api.Client.csproj
           dotnet pack ArchLucid.Api.Client/ArchLucid.Api.Client.csproj \
             --no-restore -c Release -o "${RUNNER_TEMP}/nuget" \
             /p:ArchiForgeApiClientPackageVersion=1.0.${{ github.run_number }}

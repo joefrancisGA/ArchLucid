@@ -28,7 +28,7 @@ jobs:
             **/*.csproj
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore ArchLucid.Api.Client/ArchLucid.Api.Client.csproj
 
       - name: Pack
         run: |

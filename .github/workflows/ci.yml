@@ -126,13 +126,13 @@ jobs:
             **/*.csproj
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore ArchLucid.sln
 
       - name: Vulnerable package audit
         run: dotnet list ArchLucid.sln package --vulnerable --include-transitive --format json
 
       - name: Build (Release)
-        run: dotnet build --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+        run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
       - name: Generate .NET SBOM (CycloneDX)
         run: |
@@ -219,10 +219,10 @@ jobs:
             **/*.csproj
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore ArchLucid.sln
 
       - name: Build (Release)
-        run: dotnet build --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
+        run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
       - name: Test — full solution
         env:
@@ -294,7 +294,7 @@ jobs:
             **/*.csproj
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore ArchLucid.Api.Client/ArchLucid.Api.Client.csproj
 
       - name: Pack ArchLucid.Api.Client
         run: |
