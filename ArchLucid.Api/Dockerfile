@@ -28,6 +28,7 @@ COPY ArchLucid.Application.Tests/*.csproj    ArchLucid.Application.Tests/
 COPY ArchLucid.ArtifactSynthesis/*.csproj  ArchLucid.ArtifactSynthesis/
 COPY ArchLucid.ArtifactSynthesis.Tests/*.csproj ArchLucid.ArtifactSynthesis.Tests/
 COPY ArchLucid.Contracts/*.csproj          ArchLucid.Contracts/
+COPY ArchLucid.Contracts.Abstractions/*.csproj ArchLucid.Contracts.Abstractions/
 COPY ArchLucid.ContextIngestion/*.csproj   ArchLucid.ContextIngestion/
 COPY ArchLucid.Coordinator/*.csproj        ArchLucid.Coordinator/
 COPY ArchLucid.Core/*.csproj               ArchLucid.Core/

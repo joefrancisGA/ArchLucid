@@ -1,26 +1,35 @@
-# Continuous deployment: Azure OIDC login, push API/UI images to ACR, optional Terraform plan/apply, optional NuGet client push.
+# Continuous deployment: multi-job pipeline (build → Terraform plan/apply → Container Apps → smoke → optional rollback → NuGet → notify).
+# Azure auth: OIDC only (`azure/login@v2`, `id-token: write`). Do not use AZURE_CREDENTIALS or stored SP passwords.
 #
-# Per GitHub Environment (staging / production), configure:
+# Per GitHub Environment (`staging` / `production`), configure required reviewers + secrets:
 #   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
-#   ACR_LOGIN_SERVER (e.g. myregistry.azurecr.io) — optional; skips image push when unset
+#   ACR_LOGIN_SERVER (optional; skips image push when unset)
 #   ACR_NAME — optional explicit registry name for `az acr login --name`
-#   TF_WORKING_DIRECTORY — optional, e.g. infra/terraform-container-apps
-#   NUGET_API_KEY — optional; pushes ArchLucid.Api.Client when set
+#   TF_WORKING_DIRECTORY — optional, e.g. infra/terraform-container-apps (copy .example tfvars to terraform.tfvars / production.tfvars)
+#   NUGET_API_KEY — optional; pushes ArchLucid.Api.Client when set (production path)
 #   AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME — optional; `az containerapp update` after image push
 #   CONTAINER_APP_UI_NAME — optional second Container App for the UI image
-#   SMOKE_TEST_BASE_URL — optional; curl GET {base}/health/live and {base}{SMOKE_SYNTHETIC_PATH} after deploy
-#   SMOKE_SYNTHETIC_PATH — optional second check (default /version); set repo/org variable if needed
-#   CD_NOTIFY_WEBHOOK_URL — optional; Slack-compatible JSON webhook for job status (success/failure)
+#   SMOKE_TEST_BASE_URL — optional; health + OpenAPI + synthetic path checks after deploy
+#   SMOKE_SYNTHETIC_PATH — optional (default /version)
+#   CD_NOTIFY_WEBHOOK_URL — optional Slack-compatible JSON webhook
 #
-# Rollback: set repository variable CD_ROLLBACK_ON_SMOKE_FAILURE=true to deactivate the new API revision when smoke fails
-# (restores traffic to the prior revision if Container Apps routes automatically).
+# Rollback: set repository variable CD_ROLLBACK_ON_SMOKE_FAILURE=true to deactivate the new API revision when smoke fails.
+# Manual rollback: workflow_dispatch with action=rollback (same target environment).
 #
-# Container Apps image update: point your stack at ${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG} (and archiforge-ui) or run Terraform apply with updated variables.
+# Traceability: images and Terraform runs are tagged with git SHA (`IMAGE_TAG`, default github.sha).
 name: CD
 
 on:
   workflow_dispatch:
     inputs:
+      action:
+        description: "deploy runs the full pipeline; rollback runs only manual rollback for the target environment"
+        required: true
+        type: choice
+        default: deploy
+        options:
+          - deploy
+          - rollback
       target:
         description: "Deployment target"
         required: true
@@ -37,14 +46,183 @@ on:
 permissions:
   id-token: write
   contents: read
+  actions: write
 
 concurrency:
   group: archiforge-cd-${{ github.event.inputs.target }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Deploy (${{ github.event.inputs.target }})
+  build-push-images:
+    name: Build and push images (${{ github.event.inputs.target }})
+    if: github.event.inputs.action == 'deploy'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target }}
+    outputs:
+      image_tag: ${{ steps.image_tag_out.outputs.image_tag }}
+    env:
+      TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set image tag and latest alias
+        run: |
+          TAG="${{ vars.IMAGE_TAG }}"
+          if [ -z "$TAG" ]; then TAG="${{ github.sha }}"; fi
+          echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
+          if [ "${{ github.event.inputs.target }}" = "staging" ]; then
+            echo "LATEST_ALIAS=latest-staging" >> "$GITHUB_ENV"
+          else
+            echo "LATEST_ALIAS=latest-production" >> "$GITHUB_ENV"
+          fi
+
+      - name: Export image_tag output
+        id: image_tag_out
+        run: echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Detect ACR configuration
+        id: acr
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+        run: |
+          if [ -n "${ACR_LOGIN_SERVER:-}" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "ACR_LOGIN_SERVER not set — skipping image build/push."
+          fi
+
+      - name: Set up Docker Buildx
+        if: steps.acr.outputs.configured == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to ACR
+        if: steps.acr.outputs.configured == 'true'
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+        run: |
+          REG_NAME="${ACR_NAME:-${ACR_LOGIN_SERVER%%.*}}"
+          az acr login --name "$REG_NAME"
+
+      - name: Build and push API image (BuildKit + GHA cache)
+        if: steps.acr.outputs.configured == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ArchLucid.Api/Dockerfile
+          tags: |
+            ${{ secrets.ACR_LOGIN_SERVER }}/archiforge-api:${{ env.IMAGE_TAG }}
+            ${{ secrets.ACR_LOGIN_SERVER }}/archiforge-api:${{ env.LATEST_ALIAS }}
+          push: true
+          provenance: false
+          sbom: false
+          cache-from: type=gha,scope=api-docker-smoke
+          cache-to: type=gha,scope=api-docker-smoke,mode=max
+
+      - name: Build and push UI image (BuildKit + GHA cache)
+        if: steps.acr.outputs.configured == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./archiforge-ui
+          tags: |
+            ${{ secrets.ACR_LOGIN_SERVER }}/archiforge-ui:${{ env.IMAGE_TAG }}
+            ${{ secrets.ACR_LOGIN_SERVER }}/archiforge-ui:${{ env.LATEST_ALIAS }}
+          push: true
+          provenance: false
+          sbom: false
+          cache-from: type=gha,scope=ui-docker-smoke
+          cache-to: type=gha,scope=ui-docker-smoke,mode=max
+
+  terraform-plan:
+    name: Terraform plan (${{ github.event.inputs.target }})
+    needs: build-push-images
+    if: github.event.inputs.action == 'deploy'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target }}
+    outputs:
+      plan_created: ${{ steps.plan_gate.outputs.plan_created }}
+    env:
+      TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform plan gate
+        id: plan_gate
+        run: |
+          if [ -z "${TF_DIR:-}" ]; then
+            echo "TF_WORKING_DIRECTORY not set — skipping Terraform plan."
+            echo "plan_created=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "plan_created=true" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Terraform
+        if: steps.plan_gate.outputs.plan_created == 'true'
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform init and plan
+        if: steps.plan_gate.outputs.plan_created == 'true'
+        env:
+          TARGET: ${{ github.event.inputs.target }}
+        run: |
+          cd "$TF_DIR"
+          terraform init -input=false
+          VAR_FILE_ARGS=""
+          if [ "$TARGET" = "production" ] && [ -f production.tfvars ]; then
+            VAR_FILE_ARGS="-var-file=production.tfvars"
+          elif [ "$TARGET" = "staging" ] && [ -f terraform.tfvars ]; then
+            VAR_FILE_ARGS="-var-file=terraform.tfvars"
+          fi
+          # terraform.tfvars is auto-loaded when present; explicit -var-file documents operator intent per target.
+          terraform plan -input=false -out=tfplan $VAR_FILE_ARGS
+
+      - name: Stage Terraform plan for artifact upload
+        if: steps.plan_gate.outputs.plan_created == 'true'
+        run: mkdir -p "$GITHUB_WORKSPACE/.cd-tfplan" && cp "$TF_DIR/tfplan" "$GITHUB_WORKSPACE/.cd-tfplan/tfplan"
+
+      - name: Upload Terraform plan artifact
+        if: steps.plan_gate.outputs.plan_created == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: tfplan-${{ github.event.inputs.target }}
+          path: .cd-tfplan/tfplan
+          if-no-files-found: error
+
+      - name: Terraform plan summary
+        if: steps.plan_gate.outputs.plan_created == 'true'
+        run: |
+          cd "$TF_DIR"
+          echo "## Terraform plan (${{ github.event.inputs.target }})" >> "$GITHUB_STEP_SUMMARY"
+          echo '```hcl' >> "$GITHUB_STEP_SUMMARY"
+          terraform show -no-color tfplan >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+  terraform-apply:
+    name: Terraform apply (${{ github.event.inputs.target }})
+    needs: terraform-plan
+    if: |
+      github.event.inputs.action == 'deploy' &&
+      (github.event.inputs.run_terraform_apply == true || github.event.inputs.run_terraform_apply == 'true') &&
+      needs.terraform-plan.outputs.plan_created == 'true'
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target }}
     env:
@@ -60,27 +238,53 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Set image tag
-        run: |
-          TAG="${{ vars.IMAGE_TAG }}"
-          if [ -z "$TAG" ]; then TAG="${{ github.sha }}"; fi
-          echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
 
-      - name: Build and push container images
-        env:
-          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
-          ACR_NAME: ${{ secrets.ACR_NAME }}
+      - name: Download Terraform plan
+        uses: actions/download-artifact@v6
+        with:
+          name: tfplan-${{ github.event.inputs.target }}
+          path: ${{ runner.temp }}/tfplan-artifact
+
+      - name: Terraform init and apply
         run: |
-          if [ -z "$ACR_LOGIN_SERVER" ]; then
-            echo "ACR_LOGIN_SERVER not set — skipping image push."
-            exit 0
+          cd "$TF_DIR"
+          terraform init -input=false
+          PLAN_FILE=$(find "${{ runner.temp }}/tfplan-artifact" -name tfplan -type f | head -1)
+          if [ -z "$PLAN_FILE" ] || [ ! -f "$PLAN_FILE" ]; then
+            echo "Could not locate downloaded tfplan under ${{ runner.temp }}/tfplan-artifact"
+            exit 1
           fi
-          REG_NAME="${ACR_NAME:-${ACR_LOGIN_SERVER%%.*}}"
-          az acr login --name "$REG_NAME"
-          docker build -f ArchLucid.Api/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}" .
-          docker push "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}"
-          docker build -f archiforge-ui/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}" ./archiforge-ui
-          docker push "${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}"
+          cp "$PLAN_FILE" ./tfplan
+          terraform apply -input=false tfplan
+
+  deploy-container-apps:
+    name: Deploy Container Apps (${{ github.event.inputs.target }})
+    needs: [build-push-images, terraform-plan, terraform-apply]
+    if: |
+      always() &&
+      github.event.inputs.action == 'deploy' &&
+      needs.build-push-images.result == 'success' &&
+      needs.terraform-plan.result == 'success' &&
+      (needs.terraform-apply.result == 'success' || needs.terraform-apply.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target }}
+    outputs:
+      revision_before: ${{ steps.api_rev_before.outputs.revision }}
+      revision_after: ${{ steps.api_rev_after.outputs.revision }}
+      api_rev_before_skip: ${{ steps.api_rev_before.outputs.skip }}
+    env:
+      IMAGE_TAG: ${{ needs.build-push-images.outputs.image_tag }}
+    steps:
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Record API revision before Container Apps update
         id: api_rev_before
@@ -115,6 +319,26 @@ jobs:
             az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE"
           fi
 
+      - name: Record API revision after update
+        id: api_rev_after
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+        run: |
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
+            echo "revision=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          REV=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
+          echo "revision=$REV" >> "$GITHUB_OUTPUT"
+
+  smoke-test:
+    name: Smoke test (${{ github.event.inputs.target }})
+    needs: deploy-container-apps
+    if: github.event.inputs.action == 'deploy' && needs.deploy-container-apps.result == 'success'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target }}
+    steps:
       - name: Smoke test deployed API (optional)
         id: smoke_api
         env:
@@ -126,7 +350,13 @@ jobs:
             exit 0
           fi
           BASE="${SMOKE_TEST_BASE_URL%/}"
+          curl -fsS "$BASE/health/ready" -o /dev/null
           curl -fsS "$BASE/health/live" -o /dev/null
+          OPENAPI_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/openapi/v1.json")
+          if [ "$OPENAPI_CODE" != "200" ]; then
+            echo "Expected HTTP 200 from /openapi/v1.json, got $OPENAPI_CODE"
+            exit 1
+          fi
           SYN="${SMOKE_SYNTHETIC_PATH:-/version}"
           case "$SYN" in
             /*) ;;
@@ -134,8 +364,24 @@ jobs:
           esac
           curl -fsS "$BASE$SYN" -o /dev/null
 
-      - name: Roll back API revision after failed smoke (optional)
-        if: ${{ failure() && steps.smoke_api.outcome == 'failure' }}
+  rollback:
+    name: Roll back API after failed smoke (optional)
+    needs: [deploy-container-apps, smoke-test]
+    if: |
+      always() &&
+      github.event.inputs.action == 'deploy' &&
+      needs.smoke-test.result == 'failure'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target }}
+    steps:
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deactivate new revision after failed smoke
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
@@ -145,7 +391,7 @@ jobs:
             echo "CD_ROLLBACK_ON_SMOKE_FAILURE is not true — skipping rollback."
             exit 0
           fi
-          if [ "${{ steps.api_rev_before.outputs.skip }}" = "true" ]; then
+          if [ "${{ needs.deploy-container-apps.outputs.api_rev_before_skip }}" = "true" ]; then
             echo "No API app context — skipping rollback."
             exit 0
           fi
@@ -153,8 +399,11 @@ jobs:
             echo "Smoke URL missing — not rolling back."
             exit 0
           fi
-          BEFORE="${{ steps.api_rev_before.outputs.revision }}"
-          AFTER=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
+          BEFORE="${{ needs.deploy-container-apps.outputs.revision_before }}"
+          AFTER="${{ needs.deploy-container-apps.outputs.revision_after }}"
+          if [ -z "$AFTER" ]; then
+            AFTER=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
+          fi
           if [ -z "$AFTER" ] || [ "$AFTER" = "$BEFORE" ]; then
             echo "No distinct new revision; skipping rollback."
             exit 0
@@ -162,24 +411,55 @@ jobs:
           echo "Smoke failed — deactivating revision $AFTER (revision before deploy was $BEFORE)."
           az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision "$AFTER"
 
-      - name: Setup Terraform
-        if: env.TF_DIR != ''
-        uses: hashicorp/setup-terraform@v3
+  manual-rollback:
+    name: Manual rollback (${{ github.event.inputs.target }})
+    if: github.event.inputs.action == 'rollback'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target }}
+    steps:
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
         with:
-          terraform_wrapper: false
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Terraform plan
-        if: env.TF_DIR != ''
+      - name: Deactivate current API revision
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
         run: |
-          cd "$TF_DIR"
-          terraform init -input=false
-          terraform plan -input=false -out=tfplan
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
+            echo "AZURE_RESOURCE_GROUP and CONTAINER_APP_API_NAME are required for rollback."
+            exit 1
+          fi
+          BEFORE=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
+          if [ -z "$BEFORE" ]; then
+            echo "Could not read latest revision name."
+            exit 1
+          fi
+          echo "Deactivating revision: $BEFORE"
+          az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision "$BEFORE"
+          sleep 15
+          AFTER=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
+          if [ -z "$AFTER" ] || [ "$AFTER" = "$BEFORE" ]; then
+            echo "Expected a new active revision after deactivating $BEFORE; latest is '${AFTER:-empty}'."
+            exit 1
+          fi
+          echo "Active revision is now: $AFTER"
 
-      - name: Terraform apply
-        if: env.TF_DIR != '' && inputs.run_terraform_apply
-        run: |
-          cd "$TF_DIR"
-          terraform apply -input=false tfplan
+  nuget-push:
+    name: Pack and push API client (NuGet)
+    needs: smoke-test
+    if: |
+      github.event.inputs.action == 'deploy' &&
+      github.event.inputs.target == 'production' &&
+      needs.smoke-test.result == 'success'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -203,22 +483,45 @@ jobs:
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
 
+  notify:
+    name: CD notify and summary
+    needs:
+      - build-push-images
+      - terraform-plan
+      - terraform-apply
+      - deploy-container-apps
+      - smoke-test
+      - rollback
+      - nuget-push
+      - manual-rollback
+    if: always()
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target }}
+    steps:
       - name: CD notification webhook (optional)
-        if: always()
         env:
           CD_NOTIFY_WEBHOOK_URL: ${{ secrets.CD_NOTIFY_WEBHOOK_URL }}
+          IMAGE_TAG: ${{ needs.build-push-images.outputs.image_tag }}
         run: |
           if [ -z "${CD_NOTIFY_WEBHOOK_URL:-}" ]; then
             exit 0
           fi
+          TAG="${IMAGE_TAG:-${{ github.sha }}}"
           curl -fsS -X POST -H "Content-Type: application/json" \
-            -d "{\"text\":\"CD ${{ job.status }} — ${{ github.event.inputs.target }} — image ${IMAGE_TAG:-unknown} — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+            -d "{\"text\":\"CD ${{ job.status }} — ${{ github.event.inputs.action }} / ${{ github.event.inputs.target }} — image ${TAG} — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
             "$CD_NOTIFY_WEBHOOK_URL" || true
 
       - name: CD summary
-        if: always()
+        env:
+          IMAGE_TAG: ${{ needs.build-push-images.outputs.image_tag }}
         run: |
           echo "## CD summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Action: ${{ github.event.inputs.action }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Target: ${{ github.event.inputs.target }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Image tag: ${IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Terraform apply: ${{ github.event.inputs.run_terraform_apply }}" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "${IMAGE_TAG:-}" ]; then
+            echo "- Image tag: ${IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- Image tag: ${{ github.sha }} (no build job output)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "- Terraform apply requested: ${{ github.event.inputs.run_terraform_apply }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Job results: build ${{ needs.build-push-images.result }}, plan ${{ needs.terraform-plan.result }}, apply ${{ needs.terraform-apply.result }}, deploy ${{ needs.deploy-container-apps.result }}, smoke ${{ needs.smoke-test.result }}, rollback ${{ needs.rollback.result }}, nuget ${{ needs.nuget-push.result }}, manual-rollback ${{ needs.manual-rollback.result }}" >> "$GITHUB_STEP_SUMMARY"

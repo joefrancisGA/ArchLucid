@@ -30,7 +30,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 
 - [x] 2.1 Add fallback readers for `ArchiForgeAuth` → `ArchLucidAuth` in auth options binding (2026-04-05)
 - [x] 2.2 Add fallback readers for `ArchiForge:StorageProvider` → `ArchLucid:StorageProvider` (2026-04-05)
-- [ ] 2.3 Add fallback readers for any other `ArchiForge*` config sections (grep `appsettings*.json`)
+- [x] 2.3 Add fallback readers for any other `ArchiForge*` config sections (grep `appsettings*.json`) (2026-04-07 — `ResolveArchLucidOptions` merges `ArchLucid` section over legacy `ArchiForge` section; `FeatureManagementAuthorityPipelineModeResolver` uses bridge for effective storage mode)
 - [ ] 2.4 Update `appsettings*.json` files to use new key names (old keys kept as comments for reference)
 - [x] 2.5 Update `.env.example` — `ARCHLUCID_API_KEY` preferred + `ARCHIFORGE_API_KEY` fallback in proxy (2026-04-05)
 - [ ] 2.6 Add OIDC storage key bridge reads (`archiforge_oidc_*` → `archlucid_oidc_*`) in `session.ts` and `storage-keys.ts`
@@ -113,6 +113,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 
 | Date | Batch | Notes |
 |------|-------|-------|
+| 2026-04-07 | 2.3 | ArchLucid product config section merge + authority resolver uses `ResolveArchLucidOptions` |
 | 2026-04-04 | 1.1 | layout.tsx title + heading → ArchLucid |
 | 2026-04-05 | 1.2 | archiforge-ui/README.md product-facing name → ArchLucid (env keys unchanged) |
 | 2026-04-05 | 1.4 | GLOSSARY.md title + ArchLucid note; outbox / integration dead-letter terms |

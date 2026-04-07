@@ -25,13 +25,23 @@ public static class ArchLucidConfigurationBridge
                ?? configuration.GetConnectionString(LegacySqlConnectionName);
     }
 
-    /// <summary>Effective storage mode: <c>ArchLucid:StorageProvider</c> wins when set.</summary>
+    /// <summary>
+    /// Effective product options: legacy <c>ArchiForge</c> section, then <c>ArchLucid</c> section (same shape),
+    /// then flat <c>ArchLucid:StorageProvider</c> (highest precedence).
+    /// </summary>
     public static ArchLucidOptions ResolveArchLucidOptions(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
         ArchLucidOptions options =
             configuration.GetSection(ArchLucidOptions.SectionName).Get<ArchLucidOptions>() ?? new ArchLucidOptions();
+
+        ArchLucidOptions? lucidSection = configuration.GetSection(ArchLucidSectionName).Get<ArchLucidOptions>();
+
+        if (lucidSection is not null && !string.IsNullOrWhiteSpace(lucidSection.StorageProvider))
+        {
+            options.StorageProvider = lucidSection.StorageProvider;
+        }
 
         string? lucidStorage = configuration[$"{ArchLucidSectionName}:StorageProvider"]?.Trim();
 

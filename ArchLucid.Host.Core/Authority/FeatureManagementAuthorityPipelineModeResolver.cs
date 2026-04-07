@@ -21,7 +21,8 @@ public sealed class FeatureManagementAuthorityPipelineModeResolver(
     /// <inheritdoc />
     public async Task<bool> ShouldQueueContextAndGraphStagesAsync(CancellationToken cancellationToken = default)
     {
-        string? storage = _configuration["ArchiForge:StorageProvider"]?.Trim();
+        ArchLucidOptions archLucid = ArchLucidConfigurationBridge.ResolveArchLucidOptions(_configuration);
+        string? storage = archLucid.StorageProvider?.Trim();
 
         if (string.Equals(storage, "InMemory", StringComparison.OrdinalIgnoreCase))
             return false;

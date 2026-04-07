@@ -26,6 +26,22 @@ public sealed class ArchLucidConfigurationBridgeTests
     }
 
     [Fact]
+    public void ResolveArchLucidOptions_uses_archlucid_keys_when_legacy_product_section_absent()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ArchLucid:StorageProvider"] = "InMemory"
+                })
+            .Build();
+
+        ArchLucidOptions resolved = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+
+        resolved.StorageProvider.Should().Be("InMemory");
+    }
+
+    [Fact]
     public void ResolveAuthConfigurationValue_prefers_ArchLucidAuth()
     {
         IConfiguration configuration = new ConfigurationBuilder()

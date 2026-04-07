@@ -349,16 +349,29 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
 
         if (recordCount == 0)
         {
-            return new FindingsSnapshot
+            if (string.IsNullOrWhiteSpace(row.FindingsJson))
             {
-                FindingsSnapshotId = row.FindingsSnapshotId,
-                RunId = row.RunId,
-                ContextSnapshotId = row.ContextSnapshotId,
-                GraphSnapshotId = row.GraphSnapshotId,
-                CreatedUtc = row.CreatedUtc,
-                SchemaVersion = row.SchemaVersion,
-                Findings = [],
-            };
+                return new FindingsSnapshot
+                {
+                    FindingsSnapshotId = row.FindingsSnapshotId,
+                    RunId = row.RunId,
+                    ContextSnapshotId = row.ContextSnapshotId,
+                    GraphSnapshotId = row.GraphSnapshotId,
+                    CreatedUtc = row.CreatedUtc,
+                    SchemaVersion = row.SchemaVersion,
+                    Findings = [],
+                };
+            }
+
+            FindingsSnapshot fromJson = JsonEntitySerializer.Deserialize<FindingsSnapshot>(row.FindingsJson);
+            fromJson.FindingsSnapshotId = row.FindingsSnapshotId;
+            fromJson.RunId = row.RunId;
+            fromJson.ContextSnapshotId = row.ContextSnapshotId;
+            fromJson.GraphSnapshotId = row.GraphSnapshotId;
+            fromJson.CreatedUtc = row.CreatedUtc;
+            fromJson.SchemaVersion = row.SchemaVersion;
+            FindingsSnapshotMigrator.Apply(fromJson);
+            return fromJson;
         }
 
         FindingsSnapshot snapshot = await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, ct);
