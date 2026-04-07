@@ -15,6 +15,7 @@
     <PackageTags>ArchLucid;OpenAPI;NSwag;HttpClient</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- 1591: missing XML on NSwag-generated members. TreatWarningsAsErrors is set repo-wide; add analyzer/compiler codes here only for Generated/*.g.cs output—never broaden NoWarn to hide issues in hand-written code. -->
     <NoWarn>$(NoWarn);1591</NoWarn>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>

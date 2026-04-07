@@ -29,7 +29,7 @@ Give operators a **repeatable** way to:
 
 | Piece | Location | Role |
 |-------|----------|------|
-| **API SLO definitions + synthetic slice** | `docs/API_SLOS.md`, `.github/workflows/api-synthetic-probe.yml` | Human-readable SLO table; **external** scheduled `GET /health/live` + `GET /version` (secrets `SYNTHETIC_API_BASE_URL`, optional `SYNTHETIC_API_PROBE_KEY`) |
+| **API SLO definitions + synthetic slice** | `docs/API_SLOS.md`, `.github/workflows/api-synthetic-probe.yml` | Human-readable SLO table; **external** scheduled `GET /health/live` + `GET /version` (secrets `SYNTHETIC_API_BASE_URL`, optional `SYNTHETIC_API_PROBE_KEY`). Optional separate `GET /health/ready` uses **summary** JSON only (no exception text). `GET /health` (full detail) is **authenticated** (`ReadAuthority`) and is not part of the default anonymous synthetic probe. |
 | SLO recording + burn alerts | `infra/prometheus/archiforge-slo-rules.yml` | `archiforge:slo:http_availability:ratio`, burn-rate alerts, **p99** recording (`archiforge:slo:http_p99_seconds`) + `ArchiForgeSloHttpP99High`, simple **5xx ratio** alert, combined **outbox depth** alert |
 | Threshold / backlog alerts | `infra/prometheus/archiforge-alerts.yml` | Outbox depth, integration backlog, etc. |
 | Resilience test philosophy | `docs/CHAOS_TESTING.md` | Deterministic fault injection in unit tests; staging drills pair with these alerts |

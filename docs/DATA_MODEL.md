@@ -1,4 +1,4 @@
-## ArchiForge data model (pragmatic)
+## ArchLucid data model (pragmatic)
 
 This document summarizes the persisted data model used by ArchiForge. It is based on the migration scripts in `ArchLucid.Persistence/Migrations/*` and the `ArchLucid.Contracts.Metadata` records.
 
@@ -14,7 +14,7 @@ This document summarizes the persisted data model used by ArchiForge. It is base
   - **Export records** persist export artifacts and enable replay.
   - **Comparison records** persist comparison payloads and enable replay/export/verification.
 - **Structured payloads are stored as JSON** in NVARCHAR columns (`RequestJson`, `ResultJson`, `ManifestJson`, `PayloadJson`, etc.).
-- **Authority entities** (ContextSnapshots, GraphSnapshots, FindingsSnapshots, GoldenManifests, ArtifactBundles) now have **relational child tables** alongside their JSON columns. The persistence layer reads from relational tables first and falls back to JSON when relational rows are absent, governed by `PersistenceReadMode`. See **[SqlRelationalBackfill.md](SqlRelationalBackfill.md)** for operating modes, backfill, and cutover.
+- **Authority entities** (ContextSnapshots, GraphSnapshots, FindingsSnapshots, GoldenManifests, ArtifactBundles) have **relational child tables** alongside JSON columns. Reads are **relational-first** (no runtime JSON fallback for most slices; see **[JSON_FALLBACK_AUDIT.md](JSON_FALLBACK_AUDIT.md)**). See **[SqlRelationalBackfill.md](SqlRelationalBackfill.md)** for backfill and readiness.
 
 ---
 
@@ -79,7 +79,7 @@ These tables support the persisted authority pipeline (context → graph → fin
 - **Key**: `SnapshotId`
 - **Fields**: `RunId`, `ProjectId`, `CreatedUtc`, `CanonicalObjectsJson`, `DeltaSummary`, optional warnings/errors/source hashes (JSON columns as applicable)
 - **Why it matters**: durable **normalized context** after multi-connector ingestion; **`ProjectId`** + **`CreatedUtc`** index supports **latest snapshot per project** (used for connector delta messaging and future diff features).
-- **Relational children**: `ContextSnapshotCanonicalObjects` (and properties), warnings, errors, source hashes. Read path governed by `PersistenceReadMode` — see **[SqlRelationalBackfill.md](SqlRelationalBackfill.md)**.
+- **Relational children**: `ContextSnapshotCanonicalObjects` (and properties), warnings, errors, source hashes. Reads use those tables only — see **[JSON_FALLBACK_AUDIT.md](JSON_FALLBACK_AUDIT.md)**.
 - **Pipeline detail**: `docs/CONTEXT_INGESTION.md`
 
 #### `GraphSnapshots`, `FindingsSnapshots`, …

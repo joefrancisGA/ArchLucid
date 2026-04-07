@@ -1,4 +1,4 @@
-# Architecture on a page (ArchLucid / ArchiForge)
+# Architecture on a page (ArchLucid)
 
 ## 1. Objective
 
@@ -54,7 +54,7 @@ flowchart LR
 |------|------------------|
 | **ArchLucid.Api** | REST surface, auth, OpenAPI, OTel + Prometheus scrape, admin diagnostics. |
 | **ArchLucid.Worker** | Background processors (outbox publishers, advisory, indexing). |
-| **ArchLucid.Host.Composition** | DI graphs (`AddArchiForgeStorage`, agents, retrieval). |
+| **ArchLucid.Host.Composition** | DI graphs (`AddArchLucidStorage`, agents, retrieval). |
 | **ArchLucid.Persistence** | Dapper data access, outbox tables, integration dead-letter paths. |
 | **archiforge-ui** | Operator shell; server **proxy** to API with scope + correlation headers. |
 
@@ -62,7 +62,7 @@ flowchart LR
 
 1. **Run commit:** Client → API → SQL transactional write → post-commit **retrieval indexing outbox**.
 2. **Integration events:** SQL **integration outbox** → Worker → Service Bus → downstream (with **dead-letter** and admin retry).
-3. **Authority pipeline:** **AuthorityPipelineWorkOutbox** tracks async/staged work; metrics exported as **observable gauges** (see `ArchiForgeInstrumentation`).
+3. **Authority pipeline:** **AuthorityPipelineWorkOutbox** tracks async/staged work; metrics exported as **observable gauges** (see `ArchLucidInstrumentation`).
 
 ## 7. Security model
 

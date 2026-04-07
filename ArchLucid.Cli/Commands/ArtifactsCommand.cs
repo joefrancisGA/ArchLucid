@@ -1,0 +1,82 @@
+using System.Text.Json;
+
+using ArchLucid.Cli.Support;
+
+namespace ArchLucid.Cli.Commands;
+
+internal static class ArtifactsCommand
+{
+    public static async Task<int> RunAsync(string runId, bool saveArtifacts)
+    {
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config = CliCommandShared.TryLoadConfigFromCwd();
+        string baseUrl = CliCommandShared.GetBaseUrl(config);
+
+        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl))
+        {
+            return 1;
+        }
+
+        ArchLucidApiClient client = new(baseUrl);
+
+        ArchLucidApiClient.GetRunResult? run = await client.GetRunAsync(runId);
+
+        if (run is null)
+        {
+            Console.WriteLine($"Run '{runId}' not found. Ensure the ArchiForge API is running at {baseUrl}.");
+            CliOperatorHints.WriteAfterApiFailure(404, null);
+
+            return 1;
+        }
+
+        string? version = run.Run.CurrentManifestVersion;
+
+        if (string.IsNullOrEmpty(version))
+        {
+            Console.WriteLine($"Run {runId} has not been committed. Submit all agent results and call commit first.");
+            await Console.Error.WriteLineAsync(
+                "Next: archiforge status <runId>, then submit results or use seed (Development), then archiforge commit.");
+
+            return 1;
+        }
+
+        object? manifest = await client.GetManifestAsync(version);
+
+        if (manifest is null)
+        {
+            Console.WriteLine($"Manifest '{version}' not found.");
+            CliOperatorHints.WriteAfterApiFailure(404, null);
+
+            return 1;
+        }
+
+        string json = JsonSerializer.Serialize(manifest, CliCommandShared.JsonWriteIndented);
+        Console.WriteLine($"Manifest version: {version}");
+        Console.WriteLine();
+
+        if (saveArtifacts && config is not null)
+        {
+            try
+            {
+                string projectRoot = Directory.GetCurrentDirectory();
+                string outputsDir = Path.Combine(projectRoot, config.Outputs.LocalCacheDir);
+                Directory.CreateDirectory(outputsDir);
+                string fileName = $"manifest-{version}.json";
+                string filePath = Path.Combine(outputsDir, fileName);
+                await File.WriteAllTextAsync(filePath, json);
+                Console.WriteLine($"Saved to {filePath}");
+                Console.WriteLine($"URI: {baseUrl}/v1/architecture/manifest/{version}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Warning: Could not save manifest to outputs: {ex.Message}");
+                Console.WriteLine(json);
+            }
+        }
+        else
+        {
+            Console.WriteLine(json);
+        }
+
+        return 0;
+    }
+}

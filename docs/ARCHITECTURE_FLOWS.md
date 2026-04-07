@@ -1,4 +1,4 @@
-## ArchiForge architecture (Key flows)
+## ArchLucid architecture (Key flows)
 
 This doc describes the main runtime flows in “sequence narrative” form. It’s meant to be readable without diagrams.
 

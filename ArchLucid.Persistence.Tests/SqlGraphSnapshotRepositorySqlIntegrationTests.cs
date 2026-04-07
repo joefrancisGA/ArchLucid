@@ -12,7 +12,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// <see cref="SqlGraphSnapshotRepository"/> against SQL Server + DbUp (relational children + JSON dual-write / read fallback).
+/// <see cref="SqlGraphSnapshotRepository"/> against SQL Server + DbUp (relational children + JSON dual-write; reads are relational-first).
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
@@ -127,7 +127,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
     }
 
     [SkippableFact]
-    public async Task GetById_when_relational_children_absent_falls_back_to_json_for_nodes_and_warnings()
+    public async Task GetById_relational_edges_merge_label_and_properties_from_edges_json_when_edge_properties_table_empty()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
@@ -217,8 +217,8 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded.Nodes.Should().ContainSingle(n => n.NodeId == "legacy-n");
-        loaded.Warnings.Should().Equal("jw");
+        loaded.Nodes.Should().BeEmpty("nodes are relational-only; JSON columns are not read");
+        loaded.Warnings.Should().BeEmpty("warnings are relational-only; JSON columns are not read");
         loaded.Edges.Should().ContainSingle();
         loaded.Edges[0].Label.Should().Be("edge-label-from-json");
         loaded.Edges[0].Properties["k"].Should().Be("v");

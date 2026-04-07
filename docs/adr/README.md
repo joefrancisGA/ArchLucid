@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-04-04
 
-Short, durable decisions for ArchiForge. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history.
+Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history.
 
 | ADR | Title |
 |-----|--------|

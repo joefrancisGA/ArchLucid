@@ -1,6 +1,6 @@
 # Step-by-Step Implementation Plan: CLI–API Architecture
 
-Repository-specific plan for **ArchiForge**: CLI calling the ArchiForge API. Includes order of work, files to create or modify, and tests to add.
+Repository-specific plan for **ArchLucid**: CLI calling the ArchLucid API. Includes order of work, files to create or modify, and tests to add.
 
 ---
 
@@ -9,11 +9,11 @@ Repository-specific plan for **ArchiForge**: CLI calling the ArchiForge API. Inc
 | Component | Status | Location |
 |-----------|--------|----------|
 | Config + URL resolution | Done | `ArchLucid.Cli/ArchiForgeProjectScaffolder.cs`, `ArchLucid.Cli/Program.cs` |
-| HTTP client (ArchiForgeApiClient) | Done | `ArchLucid.Cli/ArchiForgeApiClient.cs` |
+| HTTP client (ArchLucidApiClient) | Done | `ArchLucid.Cli/ArchLucidApiClient.cs` |
 | CLI commands (run, status, submit, commit, seed, artifacts, health, dev up, new) | Done | `ArchLucid.Cli/Program.cs` |
 | CLI test project | Done | `ArchLucid.Cli.Tests/ArchLucid.Cli.Tests.csproj` |
-| Config / URL resolution tests | Done | `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs`, `ArchLucid.Cli.Tests/ArchiForgeApiClientTests.cs` |
-| API client unit tests (mocked HTTP) | Done | `ArchLucid.Cli.Tests/ArchiForgeApiClientHttpTests.cs` |
+| Config / URL resolution tests | Done | `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs`, `ArchLucid.Cli.Tests/ArchLucidApiClientTests.cs` |
+| API client unit tests (mocked HTTP) | Done | `ArchLucid.Cli.Tests/ArchLucidApiClientHttpTests.cs` |
 | Command-line / exit-code tests | Done | `ArchLucid.Cli.Tests/CommandLineTests.cs` |
 | Smoke tests | Done | `ArchLucid.Cli.Tests/CliSmokeTests.cs` |
 | CLI USAGE docs | Done | `docs/CLI_USAGE.md` |
@@ -94,7 +94,7 @@ Do the phases in this order. Later phases depend on earlier ones.
 | File | Purpose |
 |------|---------|
 | `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs` | Tests for `ArchiForgeProjectScaffolder.LoadConfig` and validation. |
-| `ArchLucid.Cli.Tests/ArchiForgeApiClientTests.cs` | Tests for `ArchiForgeApiClient.ResolveBaseUrl` (and optionally `GetDefaultBaseUrl` with env). |
+| `ArchLucid.Cli.Tests/ArchLucidApiClientTests.cs` | Tests for `ArchLucidApiClient.ResolveBaseUrl` (and optionally `GetDefaultBaseUrl` with env). |
 | `ArchLucid.Cli.Tests/Fixtures/archiforge-valid.json` | Minimal valid config for tests (schemaVersion, projectName, inputs.brief, outputs.localCacheDir, plugins.lockFile, infra.terraform). |
 | `ArchLucid.Cli.Tests/Fixtures/archiforge-invalid.json` | Invalid JSON or missing required field (e.g. `{}` or missing `projectName`). |
 
@@ -113,7 +113,7 @@ Do the phases in this order. Later phases depend on earlier ones.
 | `LoadConfig_InvalidJson_ThrowsInvalidDataException` | Write invalid JSON to `archiforge.json` in temp dir; assert throws `InvalidDataException` (or `JsonException`). |
 | `LoadConfig_MissingBriefFile_Throws` | Valid JSON but `inputs/brief.md` missing under project root; assert throws (per `ValidateConfigOrThrow`). |
 
-**In `ArchLucid.Cli.Tests/ArchiForgeApiClientTests.cs`:**
+**In `ArchLucid.Cli.Tests/ArchLucidApiClientTests.cs`:**
 
 | Test name | Behavior |
 |-----------|----------|
@@ -123,13 +123,13 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 ### Validation
 
-- `dotnet test ArchLucid.Cli.Tests --filter "FullyQualifiedName~ArchiForgeConfigTests|FullyQualifiedName~ArchiForgeApiClientTests"` passes.
+- `dotnet test ArchLucid.Cli.Tests --filter "FullyQualifiedName~ArchiForgeConfigTests|FullyQualifiedName~ArchLucidApiClientTests"` passes.
 
 ---
 
 ## Phase 3: API Client Unit Tests (Mocked HTTP)
 
-**Goal:** Test `ArchiForgeApiClient` against fixed HTTP responses without a real API.
+**Goal:** Test `ArchLucidApiClient` against fixed HTTP responses without a real API.
 
 ### Option A: Inject HttpClient (recommended)
 
@@ -137,15 +137,15 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 | File | Change |
 |------|--------|
-| `ArchLucid.Cli/ArchiForgeApiClient.cs` | Add a second constructor: `public ArchiForgeApiClient(HttpClient httpClient)` that uses the provided client and builds the pipeline the same way (or a no-retry pipeline for tests). Keep existing `ArchiForgeApiClient(string baseUrl)` creating an internal `HttpClient`. |
+| `ArchLucid.Cli/ArchLucidApiClient.cs` | Add a second constructor: `public ArchLucidApiClient(HttpClient httpClient)` that uses the provided client and builds the pipeline the same way (or a no-retry pipeline for tests). Keep existing `ArchLucidApiClient(string baseUrl)` creating an internal `HttpClient`. |
 
 **Files to create**
 
 | File | Purpose |
 |------|---------|
-| `ArchLucid.Cli.Tests/ArchiForgeApiClientHttpTests.cs` | Instantiate client with a custom `HttpMessageHandler` that returns canned responses; assert success/failure and parsed DTOs. |
+| `ArchLucid.Cli.Tests/ArchLucidApiClientHttpTests.cs` | Instantiate client with a custom `HttpMessageHandler` that returns canned responses; assert success/failure and parsed DTOs. |
 
-**Tests to add (in `ArchiForgeApiClientHttpTests.cs`)**
+**Tests to add (in `ArchLucidApiClientHttpTests.cs`)**
 
 | Test name | Behavior |
 |-----------|----------|
@@ -157,15 +157,15 @@ Do the phases in this order. Later phases depend on earlier ones.
 | `CheckHealthAsync_On200_ReturnsTrue` | Handler returns 200; assert `CheckHealthAsync` returns true. |
 | `CheckHealthAsync_On503_ReturnsFalse` | Handler returns 503; assert `CheckHealthAsync` returns false. |
 
-Use a helper that creates `HttpClient` with `new HttpClient(new MockHandler(...))` and pass to `ArchiForgeApiClient(httpClient)`.
+Use a helper that creates `HttpClient` with `new HttpClient(new MockHandler(...))` and pass to `ArchLucidApiClient(httpClient)`.
 
 ### Option B: No production code change
 
-Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchLucid.Api.Tests` or a simple `HttpListener`) in the test project that responds with fixed JSON. No change to `ArchiForgeApiClient.cs`; tests call `new ArchiForgeApiClient(serverBaseUrl)`.
+Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchLucid.Api.Tests` or a simple `HttpListener`) in the test project that responds with fixed JSON. No change to `ArchLucidApiClient.cs`; tests call `new ArchLucidApiClient(serverBaseUrl)`.
 
 ### Validation
 
-- `dotnet test ArchLucid.Cli.Tests --filter "FullyQualifiedName~ArchiForgeApiClientHttpTests"` passes.
+- `dotnet test ArchLucid.Cli.Tests --filter "FullyQualifiedName~ArchLucidApiClientHttpTests"` passes.
 
 ---
 
@@ -230,12 +230,12 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchLuc
 | `ArchLucid.Cli.Tests/ArchLucid.Cli.Tests.csproj` | **Create** – test project. |
 | `ArchLucid.sln` | **Modify** – add ArchLucid.Cli.Tests under tests folder. |
 | `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs` | **Create** – 4 tests for LoadConfig. |
-| `ArchLucid.Cli.Tests/ArchiForgeApiClientTests.cs` | **Create** – 3 tests for ResolveBaseUrl. |
-| `ArchLucid.Cli.Tests/ArchiForgeApiClientHttpTests.cs` | **Create** – 7 tests for client with mocked HTTP. |
+| `ArchLucid.Cli.Tests/ArchLucidApiClientTests.cs` | **Create** – 3 tests for ResolveBaseUrl. |
+| `ArchLucid.Cli.Tests/ArchLucidApiClientHttpTests.cs` | **Create** – 7 tests for client with mocked HTTP. |
 | `ArchLucid.Cli.Tests/CommandLineTests.cs` | **Create** – 4 tests for exit codes/output. |
 | `ArchLucid.Cli.Tests/Fixtures/archiforge-valid.json` | **Create** – valid config fixture. |
 | `ArchLucid.Cli.Tests/Fixtures/archiforge-invalid.json` | **Create** – invalid config fixture. |
-| `ArchLucid.Cli/ArchiForgeApiClient.cs` | **Modify** (optional) – add constructor taking `HttpClient` for tests. |
+| `ArchLucid.Cli/ArchLucidApiClient.cs` | **Modify** (optional) – add constructor taking `HttpClient` for tests. |
 | `ArchLucid.Cli/Program.cs` | **Modify** (optional) – expose `RunAsync(args)` for tests. |
 | `README.md` | **Modify** – add CLI section. |
 | `docs/CLI_USAGE.md` | **Create** (optional) – full CLI reference. |

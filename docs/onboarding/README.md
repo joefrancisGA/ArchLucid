@@ -1,5 +1,7 @@
 # Week-one onboarding (role-scoped)
 
+→ **New here?** Start at **[../START_HERE.md](../START_HERE.md)** for the full orientation, then return here for your role’s checklist.
+
 Short **ticket-style** checklists for onboarding to **ArchLucid**: each page lists only **3–5** outcomes a role typically touches in the **first week**. Deep dives stay in the linked golden path and architecture docs.
 
 | Role | Day-one ticket |

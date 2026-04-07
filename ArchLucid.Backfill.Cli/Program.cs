@@ -99,8 +99,8 @@ internal static class Program
         Console.WriteLine();
 
         Console.WriteLine(report.IsFullyReady
-            ? "All slices are READY. Safe to switch to PersistenceReadMode.RequireRelational."
-            : $"{report.SlicesNotReady.Count} slice(s) NOT READY. Run backfill before enabling RequireRelational.");
+            ? "All slices are READY. Relational-only read paths are supported for audited slices."
+            : $"{report.SlicesNotReady.Count} slice(s) NOT READY. Run backfill before relying on relational-only reads.");
 
         Console.WriteLine();
 
@@ -122,7 +122,7 @@ internal static class Program
               (default)       Run the backfill (JSON → relational child tables).
               --readiness     Read-only assessment: per-slice coverage report.
                               Shows how many header rows have relational children
-                              and whether each slice is ready for RequireRelational.
+                              and whether each slice has full relational coverage.
 
             Backfill scope (default: all stages enabled, ignored when --readiness):
               --only <list>   Comma-separated: context, graph, findings, golden, artifact

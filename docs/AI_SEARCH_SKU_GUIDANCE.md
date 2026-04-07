@@ -1,4 +1,4 @@
-# Azure AI Search — SKU notes for ArchiForge retrieval
+# Azure AI Search — SKU notes for ArchLucid retrieval
 
 **Objective:** Pick a search tier that matches environment (dev vs prod), network boundaries, and cost.
 

@@ -34,7 +34,7 @@ Configuration load → bridge merge → `ArchiForgeOptions` / `ArchiForgeAuthOpt
 
 ## 7. Security model
 
-- Misconfiguration (e.g. production + development bypass) is blocked in validation (`ArchiForgeConfigurationRules`) using **resolved** auth values so **ArchLucidAuth** cannot be accidentally ignored.
+- Misconfiguration (e.g. production + development bypass) is blocked in validation (`ArchLucidConfigurationRules`) using **resolved** auth values so **ArchLucidAuth** cannot be accidentally ignored.
 
 ## 8. Operational considerations
 

@@ -139,12 +139,6 @@ public static class ArchLucidStorageServiceCollectionExtensions
             return services;
         }
 
-        // Singleton: one policy governs all read-time JSON fallback decisions.
-        // Change mode to WarnOnJsonFallback during migration roll-out or RequireRelational after backfill.
-        services.AddSingleton(sp => new Persistence.RelationalRead.JsonFallbackPolicy(
-            Persistence.RelationalRead.PersistenceReadMode.AllowJsonFallback,
-            sp.GetRequiredService<ILoggerFactory>().CreateLogger("ArchLucid.Persistence.JsonFallback")));
-
         string connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration)
                                   ?? throw new InvalidOperationException(
                                       "Missing connection string 'ArchLucid' (or legacy 'ArchiForge').");

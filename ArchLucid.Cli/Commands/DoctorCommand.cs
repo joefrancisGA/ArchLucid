@@ -1,11 +1,13 @@
 using System.Reflection;
 using System.Text.Json;
 
-namespace ArchLucid.Cli;
+using ArchLucid.Cli.Support;
+
+namespace ArchLucid.Cli.Commands;
 
 /// <summary>
 /// Operator-facing readiness diagnostics: CLI build identity, local project layout,
-/// API <c>GET /version</c>, and API <c>/health/live</c>, <c>/health/ready</c>, and combined <c>/health</c>.
+/// API <c>GET /version</c>, and API <c>/health/live</c>, <c>/health/ready</c>, and optional combined <c>/health</c> (requires API key or JWT with read authority).
 /// </summary>
 internal static class DoctorCommand
 {
@@ -41,7 +43,7 @@ internal static class DoctorCommand
 
         (int aggregateCode, string aggregateBody) = await client.GetHealthProbeAsync("/health", ct);
         Console.WriteLine();
-        Console.WriteLine($"Combined health (/health) HTTP {aggregateCode}");
+        Console.WriteLine($"Detailed health (/health) HTTP {aggregateCode}");
         Console.WriteLine(TruncateForDisplay(aggregateBody, maxChars: 4000));
 
         if (!readyOk)
@@ -53,7 +55,13 @@ internal static class DoctorCommand
             return 1;
         }
 
-        if (aggregateCode < 200 || aggregateCode >= 300)
+        if (aggregateCode == 401)
+        {
+            Console.WriteLine();
+            Console.WriteLine(
+                "Detailed /health requires authentication (ReadAuthority). Set X-Api-Key (e.g. ARCHIFORGE_API_KEY) for full JSON. Liveness and readiness above are sufficient for a basic pass.");
+        }
+        else if (aggregateCode < 200 || aggregateCode >= 300)
         {
             Console.WriteLine();
             Console.WriteLine("Combined /health did not return 2xx; review JSON above.");
@@ -63,7 +71,10 @@ internal static class DoctorCommand
         }
 
         Console.WriteLine();
-        Console.WriteLine("Doctor finished: readiness and combined /health OK.");
+        Console.WriteLine(
+            aggregateCode == 401
+                ? "Doctor finished: readiness OK (detailed /health skipped — no credentials)."
+                : "Doctor finished: readiness and detailed /health OK.");
 
         return 0;
     }
@@ -170,14 +181,14 @@ internal static class DoctorCommand
     private static string TruncateForDisplay(string body, int maxChars)
     {
         if (string.IsNullOrEmpty(body))
-        
+        {
             return "(empty body)";
-        
+        }
 
         if (body.Length <= maxChars)
-        
+        {
             return body;
-        
+        }
 
         return body[..maxChars] + "\n... (truncated)";
     }

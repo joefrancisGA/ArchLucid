@@ -10,6 +10,11 @@ public static class WorkerHostPipelineExtensions
     /// <summary>
     /// Minimal pipeline for the background Worker host (<c>Hosting:Role=Worker</c>): health checks, security headers, optional Prometheus.
     /// </summary>
+    /// <remarks>
+    /// Worker has no API authentication stack. <c>/health/live</c> stays minimal; <c>/health/ready</c> and <c>/health</c> use
+    /// summary JSON only. For full diagnostic health (build version, exception text), call the API host <c>GET /health</c>
+    /// with an authenticated principal that satisfies the API <c>ReadAuthority</c> policy.
+    /// </remarks>
     public static WebApplication UseArchLucidWorkerPipeline(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
@@ -67,12 +72,14 @@ public static class WorkerHostPipelineExtensions
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
             Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
-            ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
+            ResponseWriter = static (ctx, r) =>
+                DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary),
         })
             .AllowAnonymous();
         app.MapHealthChecks("/health", new HealthCheckOptions
         {
-            ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
+            ResponseWriter = static (ctx, r) =>
+                DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary),
         })
             .AllowAnonymous();
 

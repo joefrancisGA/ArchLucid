@@ -84,4 +84,4 @@ The three-level hierarchical identifier that isolates data between customers and
 
 ## Unit of work (UoW)
 
-**`IArchiForgeUnitOfWork`** — wraps a SQL connection + transaction. Repositories that implement `SupportsExternalTransaction` can enlist in the same transaction as the calling orchestrator, ensuring e.g. authority commit + outbox enqueue are atomic. Created by **`IArchiForgeUnitOfWorkFactory`**.
+**`IArchiForgeUnitOfWork`** — wraps a SQL connection + transaction. Repositories that implement `SupportsExternalTransaction` can enlist in the same transaction as the calling orchestrator, ensuring e.g. authority commit + outbox enqueue are atomic. Created by **`IArchLucidUnitOfWorkFactory`**.

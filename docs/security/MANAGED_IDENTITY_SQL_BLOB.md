@@ -1,4 +1,4 @@
-# Managed identity for Azure SQL and Blob (ArchiForge)
+# Managed identity for Azure SQL and Blob (ArchLucid)
 
 ## 1. Objective
 

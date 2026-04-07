@@ -1,7 +1,9 @@
-## ArchiForge documentation index
+## ArchLucid documentation index
 
 ### Orientation
 
+- **Start here (new contributors)** — canonical front door: layered overview, pick-your-role, key concepts, quick commands  
+  - `docs/START_HERE.md`
 - **Golden path (environments: zero → local → prod-like → Azure)** — role lanes, one diagram, phased checklists, advanced appendix  
   - `docs/GOLDEN_PATH.md`
 - **Week-one role tickets (dev / SRE / security)** — 3–5 checkboxes each  
@@ -24,7 +26,7 @@
   - `docs/ARCHITECTURE_COMPONENTS.md`
 - **Dual pipeline navigator** – Coordinator (string run) vs Authority (ingestion) paths, shared artifacts, `RunEventTrace` vs `RuleAuditTrace` (JSON still one `DecisionTrace` envelope with `kind`)  
   - `docs/DUAL_PIPELINE_NAVIGATOR.md`
-- **DI registration map** – `AddArchiForgeApplicationServices` order, `AddArchiForgeStorage`, partial `ServiceCollectionExtensions`, config gates  
+- **DI registration map** – `AddArchLucidApplicationServices` order (`ArchLucid.Host.Composition`), `AddArchLucidStorage`, partial `ServiceCollectionExtensions`, config gates  
   - `docs/DI_REGISTRATION_MAP.md`
 - **Key flows** – run, export, comparison, replay sequences  
   - `docs/ARCHITECTURE_FLOWS.md`
@@ -64,7 +66,7 @@
   - `docs/CHANGELOG.md`
 - **ADRs** – 11 numbered decisions; no shared prefix IDs  
   - `docs/adr/README.md`
-- **Contributor onboarding** – build, test filters  
+- **Contributor onboarding** – build, test filters (see **START_HERE** for entry point)  
   - `docs/CONTRIBUTOR_ONBOARDING.md`
 
 ### API and contracts

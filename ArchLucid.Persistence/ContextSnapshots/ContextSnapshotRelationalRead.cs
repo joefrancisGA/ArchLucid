@@ -7,15 +7,14 @@ using Dapper;
 
 namespace ArchLucid.Persistence.ContextSnapshots;
 
-/// <summary>Relational-first hydration for <see cref="ContextSnapshot"/>; JSON fallback is governed by <see cref="JsonFallbackPolicy"/>.</summary>
+/// <summary>Hydrates <see cref="ContextSnapshot"/> from relational child tables (JSON columns are write-only legacy).</summary>
 internal static class ContextSnapshotRelationalRead
 {
     public static async Task<ContextSnapshot> HydrateAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
         ContextSnapshotStorageRow row,
-        CancellationToken ct,
-        JsonFallbackPolicy? fallbackPolicy = null)
+        CancellationToken ct)
     {
         Guid snapshotId = row.SnapshotId;
 
@@ -59,21 +58,12 @@ internal static class ContextSnapshotRelationalRead
             },
             ct);
 
-        string entityId = snapshotId.ToString();
+        List<CanonicalObject> canonicalObjects = canonicalCount > 0
+            ? await LoadCanonicalObjectsRelationalAsync(connection, transaction, snapshotId, ct)
+            : [];
 
-        List<CanonicalObject> canonicalObjects = await RelationalFirstRead.ReadSliceAsync(
-            canonicalCount,
-            "ContextSnapshot.CanonicalObjects",
-            () => LoadCanonicalObjectsRelationalAsync(connection, transaction, snapshotId, ct),
-            () => ContextSnapshotJsonFallback.DeserializeCanonicalObjects(row.CanonicalObjectsJson),
-            () => [],
-            fallbackPolicy,
-            "ContextSnapshot", entityId);
-
-        List<string> warnings = await RelationalFirstRead.ReadSliceAsync(
-            warningsCount,
-            "ContextSnapshot.Warnings",
-            () => LoadStringColumnRelationalAsync(
+        List<string> warnings = warningsCount > 0
+            ? await LoadStringColumnRelationalAsync(
                 connection,
                 transaction,
                 """
@@ -83,16 +73,11 @@ internal static class ContextSnapshotRelationalRead
                 ORDER BY SortOrder;
                 """,
                 snapshotId,
-                ct),
-            () => ContextSnapshotJsonFallback.DeserializeStringList(row.WarningsJson),
-            () => [],
-            fallbackPolicy,
-            "ContextSnapshot", entityId);
+                ct)
+            : [];
 
-        List<string> errors = await RelationalFirstRead.ReadSliceAsync(
-            errorsCount,
-            "ContextSnapshot.Errors",
-            () => LoadStringColumnRelationalAsync(
+        List<string> errors = errorsCount > 0
+            ? await LoadStringColumnRelationalAsync(
                 connection,
                 transaction,
                 """
@@ -102,20 +87,12 @@ internal static class ContextSnapshotRelationalRead
                 ORDER BY SortOrder;
                 """,
                 snapshotId,
-                ct),
-            () => ContextSnapshotJsonFallback.DeserializeStringList(row.ErrorsJson),
-            () => [],
-            fallbackPolicy,
-            "ContextSnapshot", entityId);
+                ct)
+            : [];
 
-        Dictionary<string, string> sourceHashes = await RelationalFirstRead.ReadSliceAsync(
-            hashesCount,
-            "ContextSnapshot.SourceHashes",
-            () => LoadSourceHashesRelationalAsync(connection, transaction, snapshotId, ct),
-            () => ContextSnapshotJsonFallback.DeserializeStringDictionary(row.SourceHashesJson),
-            () => new Dictionary<string, string>(StringComparer.Ordinal),
-            fallbackPolicy,
-            "ContextSnapshot", entityId);
+        Dictionary<string, string> sourceHashes = hashesCount > 0
+            ? await LoadSourceHashesRelationalAsync(connection, transaction, snapshotId, ct)
+            : new Dictionary<string, string>(StringComparer.Ordinal);
 
         return new ContextSnapshot
         {

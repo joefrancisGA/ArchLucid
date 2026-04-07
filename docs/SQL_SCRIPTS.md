@@ -1,6 +1,6 @@
 # SQL scripts — reference & operations
 
-This document is the **canonical guide** to every SQL artifact in ArchiForge: what each file does, how it is executed, how the pieces relate, and how to change schema safely.
+This document is the **canonical guide** to every SQL artifact in ArchLucid: what each file does, how it is executed, how the pieces relate, and how to change schema safely.
 
 **Related:** [DATA_MODEL.md](DATA_MODEL.md) (tables and domains at a glance) · [README.md](../README.md) (database setup & DbUp) · [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (`DatabaseMigrationScriptTests`)
 
@@ -8,17 +8,17 @@ This document is the **canonical guide** to every SQL artifact in ArchiForge: wh
 
 ## 1. Why there are two SQL pathways
 
-ArchiForge uses **two** mechanisms for SQL Server schema (by design):
+ArchLucid uses **two** mechanisms for SQL Server schema (by design):
 
 | Pathway | When it runs | Engine | Script source | Purpose |
 |--------|----------------|--------|----------------|--------|
-| **DbUp migrations** | API startup when `ConnectionStrings:ArchiForge` is set | SQL Server | `ArchLucid.Persistence/Migrations/*.sql` embedded in **ArchLucid.Persistence** | **Authoritative upgrades** for deployed and test databases; ordered, transactional, logged. |
+| **DbUp migrations** | API startup when **`ConnectionStrings:ArchLucid`** (or legacy **`ConnectionStrings:ArchiForge`**) is set | SQL Server | `ArchLucid.Persistence/Migrations/*.sql` embedded in **ArchLucid.Persistence** | **Authoritative upgrades** for deployed and test databases; ordered, transactional, logged. |
 | **Persistence schema bootstrap** | First use of Dapper SQL persistence (same DB as API typically) | SQL Server | `ArchLucid.Persistence/Scripts/ArchiForge.sql` copied to **ArchLucid.Persistence** output as `Scripts/ArchiForge.sql` | Ensures **authority + decisioning** objects exist; runs **full** consolidated DDL in `GO` batches (see §3). |
 
 **Important:**
 
 - **Production / dev SQL Server:** Schema evolution is driven by **migrations**. The consolidated `ArchiForge.sql` is still run by Persistence bootstrap and should stay **aligned** with migrations + authority DDL, but **do not** rely on it alone for long-lived DB upgrades.
-- **Integration tests:** `WebApplicationFactory` hosts use **SQL Server** (e.g. `localhost` with a per-run database name from **`ArchiForgeApiFactory`**). **DbUp runs** on test host startup against that database, same as production code paths.
+- **Integration tests:** `WebApplicationFactory` hosts use **SQL Server** (e.g. `localhost` with a per-run database name from **`ArchLucidApiFactory`**). **DbUp** runs on test host startup against that database, same as production code paths.
 
 ---
 
@@ -40,13 +40,13 @@ There is **no** remaining `001_AuthorityStore.sql` under Persistence; authority 
 
 ### 3.1 Purpose
 
-- **Single readable file** describing the **entire** SQL Server surface area used by ArchiForge today: legacy API/agent/commit tables, export/comparison/decision nodes, and the **authority** (`Runs` with `UNIQUEIDENTIFIER`), **Dapper** repositories, and **decisioning** (recommendations, advisory, digests, alerts, composite rules, policy packs).
+- **Single readable file** describing the **entire** SQL Server surface area used by ArchLucid today: legacy API/agent/commit tables, export/comparison/decision nodes, and the **authority** (`Runs` with `UNIQUEIDENTIFIER`), **Dapper** repositories, and **decisioning** (recommendations, advisory, digests, alerts, composite rules, policy packs).
 - **Idempotent** for objects it creates: safe to run multiple times on a database where objects may already exist from DbUp or an older run.
 
 ### 3.2 How it is executed
 
-- **`SqlSchemaBootstrapper`** (`ArchLucid.Persistence`) reads the file as text, splits on **`GO`** (line-based, case-insensitive), and executes each batch with Dapper against the **ArchiForge** SQL connection.
-- Path resolution: `Path.Combine(assemblyDir, "Scripts", "ArchiForge.sql")` where the assembly is **ArchLucid.Persistence** (see `ArchiForgeStorageServiceCollectionExtensions`).
+- **`SqlSchemaBootstrapper`** (`ArchLucid.Persistence`) reads the file as text, splits on **`GO`** (line-based, case-insensitive), and executes each batch with Dapper against the **application** SQL connection (from `ISqlConnectionFactory`).
+- Path resolution: `Path.Combine(assemblyDir, "Scripts", "ArchiForge.sql")` where the assembly is **ArchLucid.Persistence** (see `ArchLucidStorageServiceCollectionExtensions`).
 - **Requirement:** `ArchiForge.sql` must use **`GO`** batch separators compatible with that splitter (batch per logical unit).
 
 ### 3.3 Idempotency rules (what “safe to re-run” means)

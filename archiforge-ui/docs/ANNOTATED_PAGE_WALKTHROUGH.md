@@ -33,7 +33,7 @@ import {
 
 Three status components from our shared library. The `@/` prefix is a path alias defined in `tsconfig.json` — it means `src/`. So `@/components/OperatorShellMessage` resolves to `src/components/OperatorShellMessage.tsx`.
 
-**C# analogy:** `using ArchiForge.UI.Components;`
+**C# analogy:** `using ArchLucid.UI.Components;`
 
 ```tsx
 import { coerceRunSummaryList } from "@/lib/operator-response-guards";

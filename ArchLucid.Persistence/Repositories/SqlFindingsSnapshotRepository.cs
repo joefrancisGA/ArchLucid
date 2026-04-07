@@ -17,15 +17,13 @@ namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// SQL Server-backed <see cref="IFindingsSnapshotRepository"/> with dual-write to <c>FindingsJson</c> and relational
-/// finding tables; reads prefer <c>dbo.FindingRecords</c> when any exist, otherwise deserialize <c>FindingsJson</c>.
+/// finding tables; reads use <c>dbo.FindingRecords</c> only (empty list when no rows).
 /// Typed <see cref="Finding.Payload"/> is stored only in <c>FindingRecords.PayloadJson</c> (sidecar). All other finding
 /// fields and trace lists are relational with stable <c>SortOrder</c>. <see cref="FindingsSnapshotMigrator"/> runs on
-/// save and after load so schema versioning stays consistent.
+/// save and after load so schema versioning stays consistent. Legacy <c>FindingsJson</c> is written on save but not read.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class SqlFindingsSnapshotRepository(
-    ISqlConnectionFactory connectionFactory,
-    JsonFallbackPolicy? fallbackPolicy = null) : IFindingsSnapshotRepository
+public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connectionFactory) : IFindingsSnapshotRepository
 {
     public async Task SaveAsync(
         FindingsSnapshot snapshot,
@@ -351,9 +349,6 @@ public sealed class SqlFindingsSnapshotRepository(
 
         if (recordCount == 0)
         {
-            if (fallbackPolicy is null || fallbackPolicy.EvaluateFallback(0, "FindingsSnapshot.Findings", "FindingsSnapshot", findingsSnapshotId.ToString()))
-                return FindingsSnapshotJsonFallback.FromHeaderRow(row);
-
             return new FindingsSnapshot
             {
                 FindingsSnapshotId = row.FindingsSnapshotId,
@@ -366,8 +361,7 @@ public sealed class SqlFindingsSnapshotRepository(
             };
         }
 
-        FindingsSnapshot snapshot = await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
-            connection, row, ct, fallbackPolicy);
+        FindingsSnapshot snapshot = await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, ct);
         FindingsSnapshotMigrator.Apply(snapshot);
         return snapshot;
     }

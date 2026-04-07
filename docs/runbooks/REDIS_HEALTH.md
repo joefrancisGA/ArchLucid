@@ -2,7 +2,7 @@
 
 ## Objective
 
-Describe how Redis appears in ArchiForge’s **local Docker Compose** profile, how to verify it is healthy, and what production operators should verify when Redis (or Azure Cache for Redis) backs session/cache features.
+Describe how Redis appears in ArchLucid’s **local Docker Compose** profile, how to verify it is healthy, and what production operators should verify when Redis (or Azure Cache for Redis) backs session/cache features.
 
 ## Assumptions
 
@@ -19,7 +19,7 @@ Describe how Redis appears in ArchiForge’s **local Docker Compose** profile, h
 ```mermaid
 flowchart LR
   subgraph dev[Docker Compose dev profile]
-    API[ArchiForge API optional native]
+    API[ArchLucid API optional native]
     R[redis:6379]
   end
   API -. optional cache/session .-> R

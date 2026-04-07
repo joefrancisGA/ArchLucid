@@ -48,7 +48,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **Program.cs** has a long block of `AddScoped`/`AddSingleton`/`Configure` calls. Harder to scan and to test registration in isolation.
 
 **Change:**
-- Create **ArchLucid.Api/Startup/ServiceCollectionExtensions.cs** (or similar) with extension methods such as `AddArchiForgeApplicationServices(this IServiceCollection services, IConfiguration configuration)` and `AddArchiForgeApiServices(this IServiceCollection services)` that move the relevant registrations out of **Program.cs**. Call them from **Program.cs** so the host file stays short and grouped by feature (e.g. AddControllers, AddRateLimiter, AddArchiForgeApplicationServices, MapEndpoints).
+- **Done (composition vs API):** Domain DI is **`AddArchLucidApplicationServices`** in **`ArchLucid.Host.Composition`**; the API host adds **`AddArchLucidMvc`**, **`AddArchLucidAuth`**, **`AddArchLucidApiWebLayerServices`**, etc., from **`ArchLucid.Api`** (see **`Program.cs`**).
 
 **Outcome:** Clearer **Program.cs** and a single place to see all application service wiring.
 
@@ -77,10 +77,10 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ## 13. CORS documentation
 
-**Problem:** The API configures CORS (policy name `ArchiForge`, config key `Cors:AllowedOrigins`) but this isn’t documented. Operators don’t know how to allow cross-origin calls.
+**Problem:** The API configures CORS (policy name `ArchLucid`, config key `Cors:AllowedOrigins`) but this isn’t documented. Operators don’t know how to allow cross-origin calls.
 
 **Change:**
-- In **README.md** or **docs/BUILD.md**, add a short **CORS** note: config key `Cors:AllowedOrigins` (array of origins); if empty or missing, no origins are allowed (`SetIsOriginAllowed(_ => false)`). Policy name `ArchiForge` is used by `UseCors("ArchiForge")`.
+- In **README.md** or **docs/BUILD.md**, add a short **CORS** note: config key `Cors:AllowedOrigins` (array of origins); if empty or missing, no origins are allowed (`SetIsOriginAllowed(_ => false)`). Policy name **`ArchLucid`** is used by `UseCors("ArchLucid")`.
 
 **Outcome:** Clear setup for SPA or cross-origin API clients.
 
@@ -124,7 +124,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **Program.cs** still contains the **AddRateLimiter** and **AddCors** blocks (and possibly auth policies). Moving them into extension methods would make Program.cs even thinner and group config by concern.
 
 **Change:**
-- Add **AddArchiForgeRateLimiting(this IServiceCollection services, IConfiguration configuration)** in **Startup/** (e.g. in a new **RateLimitingExtensions.cs** or in **ServiceCollectionExtensions.cs**) and move the existing **AddRateLimiter** lambda there. Add **AddArchiForgeCors(this IServiceCollection services, IConfiguration configuration)** and move the **AddCors** block. Call both from **Program.cs** after **AddArchiForgeApplicationServices**. Optionally move **AddAuthorization** policy configuration into an **AddArchiForgeAuthorization** extension.
+- Add **AddArchLucidRateLimiting(this IServiceCollection services, IConfiguration configuration)** in **Startup/** (e.g. in a new **RateLimitingExtensions.cs** or in **ServiceCollectionExtensions.cs**) and move the existing **AddRateLimiter** lambda there. Add **AddArchLucidCors(this IServiceCollection services, IConfiguration configuration)** and move the **AddCors** block. Call both from **Program.cs** after **AddArchLucidApplicationServices**. Optionally move **AddAuthorization** policy configuration into an **AddArchLucidAuthorization** extension.
 
 **Outcome:** Shorter Program.cs; rate limiting and CORS config in one place each.
 
@@ -145,7 +145,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **Program.cs** still contains the **AddAuthorization** block with five policies (CanCommitRuns, CanSeedResults, CanExportConsultingDocx, CanReplayComparisons, CanViewReplayDiagnostics). Moving it into an extension would match the pattern used for rate limiting and CORS.
 
 **Change:**
-- Add **AddArchiForgeAuthorization(this IServiceCollection services)** in **Startup/InfrastructureExtensions.cs** (or a dedicated **AuthorizationExtensions.cs**) and move the existing **AddAuthorization** lambda there. Call it from **Program.cs** after **AddAuthentication**.
+- Add **AddArchLucidAuthorization(this IServiceCollection services)** in **Startup/InfrastructureExtensions.cs** (or a dedicated **AuthorizationExtensions.cs**) and move the existing **AddAuthorization** lambda there. Call it from **Program.cs** after **AddAuthentication**.
 
 **Outcome:** Shorter Program.cs; all auth-related registration in one place.
 
@@ -178,7 +178,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **Program.cs** still contains the **AddOpenTelemetry** block (tracing, metrics, Prometheus, console exporter). Moving it into an extension would shorten Program.cs and group observability config.
 
 **Change:**
-- Add **AddArchiForgeOpenTelemetry(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)** in **Startup/** and move the **AddOpenTelemetry** chain (ConfigureResource, WithTracing, WithMetrics) there. Use **configuration** and **environment** for Prometheus/console flags and service name. Call from **Program.cs** before **AddArchiForgeRateLimiting**.
+- Add **AddArchLucidOpenTelemetry(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)** in **Startup/** and move the **AddOpenTelemetry** chain (ConfigureResource, WithTracing, WithMetrics) there. Use **configuration** and **environment** for Prometheus/console flags and service name. Call from **Program.cs** before **AddArchLucidRateLimiting**.
 
 **Outcome:** Shorter Program.cs; observability config in one place.
 
@@ -197,10 +197,10 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ## Checklist (continued)
 
-- [x] 18. Api: extract AddAuthorization into AddArchiForgeAuthorization extension
+- [x] 18. Api: extract AddAuthorization into AddArchLucidAuthorization extension
 - [x] 19. Docs: Authentication / API key and permissions section
 - [x] 20. Api.Tests: test that invalid batch replay body returns 400 with validation errors
-- [x] 21. Api: extract AddOpenTelemetry into AddArchiForgeOpenTelemetry extension
+- [x] 21. Api: extract AddOpenTelemetry into AddArchLucidOpenTelemetry extension
 - [x] 22. Swagger: document description or link to API_CONTRACTS
 
 ---
@@ -210,7 +210,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **Program.cs** still contains the middleware and endpoint pipeline (UseMiddleware, UseExceptionHandler, UseHttpsRedirection, UseCors, UseRateLimiter, UseAuthentication, UseAuthorization, MapHealthChecks, Prometheus scraping, MapControllers). Moving it into an extension would leave Program.cs with just builder setup, build, and Run.
 
 **Change:**
-- Add **UseArchiForgePipeline(this WebApplication app)** in **Startup/** (e.g. **PipelineExtensions.cs** or in **InfrastructureExtensions.cs**). Move the block from **app.UseMiddleware&lt;CorrelationIdMiddleware&gt;** through **app.MapControllers()** (and the Prometheus conditional) into that method. Call **app.UseArchiForgePipeline()** from **Program.cs** after **var app = builder.Build()** and the migration check.
+- Add **UseArchLucidPipeline(this WebApplication app)** in **Startup/** (e.g. **PipelineExtensions.cs** or in **InfrastructureExtensions.cs**). Move the block from **app.UseMiddleware&lt;CorrelationIdMiddleware&gt;** through **app.MapControllers()** (and the Prometheus conditional) into that method. Call **app.UseArchLucidPipeline()** from **Program.cs** after **var app = builder.Build()** and the migration check.
 
 **Outcome:** Minimal Program.cs; pipeline logic in one place.
 
@@ -254,7 +254,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** **Program.cs** still contains the **AddSwaggerGen** block (SwaggerDoc with Title, Version, Description, and the three operation filters). Moving it into an extension would keep Program.cs thin and group Swagger config.
 
 **Change:**
-- Add **AddArchiForgeSwagger(this IServiceCollection services)** in **Startup/** (e.g. **SwaggerExtensions.cs**) and move the **AddSwaggerGen** lambda there (including the Description and operation filters). Call **builder.Services.AddArchiForgeSwagger()** from **Program.cs** instead of the inline **AddSwaggerGen**.
+- Add **AddArchLucidSwagger(this IServiceCollection services)** in **Startup/** (e.g. **SwaggerExtensions.cs**) and move the **AddSwaggerGen** lambda there (including the Description and operation filters). Call **builder.Services.AddArchLucidSwagger()** from **Program.cs** instead of the inline **AddSwaggerGen**.
 
 **Outcome:** Shorter Program.cs; Swagger config in one place.
 
@@ -262,20 +262,20 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ## Checklist (continued)
 
-- [x] 23. Api: extract app pipeline (middleware + Map*) into UseArchiForgePipeline extension
+- [x] 23. Api: extract app pipeline (middleware + Map*) into UseArchLucidPipeline extension
 - [x] 24. Docs: migration failure behavior (throw, no start)
 - [x] 25. Api: shared ReplayValidationConstants for replay validators
 - [x] 26. README: link TEST_STRUCTURE in Running Tests
-- [x] 27. Api: extract AddSwaggerGen into AddArchiForgeSwagger extension
+- [x] 27. Api: extract AddSwaggerGen into AddArchLucidSwagger extension
 
 ---
 
 ## 28. Extract MVC/API service registration into extension
 
-**Problem:** **Program.cs** still contains **AddControllers** (with filter), **AddProblemDetails**, **AddApiVersioning** (and AddMvc, AddApiExplorer), **AddFluentValidationAutoValidation**, **AddValidatorsFromAssemblyContaining**, **AddOpenApi**, **AddEndpointsApiExplorer**, and **AddArchiForgeSwagger**. Moving these into an extension would leave Program with only builder configuration, Build(), migration check, and UseArchiForgePipeline().
+**Problem:** **Program.cs** still contains **AddControllers** (with filter), **AddProblemDetails**, **AddApiVersioning** (and AddMvc, AddApiExplorer), **AddFluentValidationAutoValidation**, **AddValidatorsFromAssemblyContaining**, **AddOpenApi**, **AddEndpointsApiExplorer**, and **AddArchLucidSwagger**. Moving these into an extension would leave Program with only builder configuration, Build(), migration check, and UseArchLucidPipeline().
 
 **Change:**
-- Add **AddArchiForgeMvc(this IServiceCollection services)** (or **AddArchiForgeApi**) in **Startup/** and move the block from **AddControllers** through **AddArchiForgeSwagger** there. Call **builder.Services.AddArchiForgeMvc()** from **Program.cs**. Ensure the extension has the necessary usings (Asp.Versioning, FluentValidation, etc.).
+- Add **AddArchLucidMvc(this IServiceCollection services)** (or **AddArchLucidApi**) in **Startup/** and move the block from **AddControllers** through **AddArchLucidSwagger** there. Call **builder.Services.AddArchLucidMvc()** from **Program.cs**. Ensure the extension has the necessary usings (Asp.Versioning, FluentValidation, etc.).
 
 **Outcome:** Minimal Program.cs; MVC/API/versioning/Swagger registration in one place.
 
@@ -327,7 +327,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ## Checklist (continued)
 
-- [x] 28. Api: extract MVC/API service registration (AddControllers through AddArchiForgeSwagger) into AddArchiForgeMvc extension
+- [x] 28. Api: extract MVC/API service registration (AddControllers through AddArchLucidSwagger) into AddArchLucidMvc extension
 - [x] 29. Docs: API versioning (URL v1, default, report versions)
 - [x] 30. Docs: Correlation ID (X-Correlation-ID header, request/response, tracing)
 - [x] 31. Api.Tests: unit test for ReplayValidationConstants allowed values
@@ -348,7 +348,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ## 34. Extract replay result → response headers helper
 
-**Problem (current code):** After **`comparisonReplayApiService.ReplayAsync`**, **ComparisonsController** sets many **`X-ArchiForge-*`** headers on **`Response`** in a long, repeated pattern (comparison id, type, replay mode, verification flags, run/export ids).
+**Problem (current code):** After **`comparisonReplayApiService.ReplayAsync`**, **ComparisonsController** sets many **`X-ArchLucid-*`** headers on **`Response`** in a long, repeated pattern (comparison id, type, replay mode, verification flags, run/export ids).
 
 **Change:**
 - Add a private method or small static helper (e.g. **`ApplyReplayComparisonResultHeaders(HttpResponse response, ReplayComparisonResult result)`**) and call it from each action that returns a replay artifact so header logic lives in one place.
@@ -357,12 +357,12 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ---
 
-## 35. Split or segment `AddArchiForgeApplicationServices`
+## 35. Split or segment `AddArchLucidApplicationServices`
 
-**Problem (current code):** **`ServiceCollectionExtensions.AddArchiForgeApplicationServices`** is a long, single method registering repositories, analysis, comparison, agents, DecisionEngine, etc. Hard to navigate and review in PRs.
+**Problem (current code):** **`ServiceCollectionExtensions.AddArchLucidApplicationServices`** is a long, single method registering repositories, analysis, comparison, agents, DecisionEngine, etc. Hard to navigate and review in PRs.
 
 **Change:**
-- Split into private methods inside the same file (**`AddRepositories`**, **`AddComparisonAndReplay`**, **`AddAgentExecution`**, etc.) *or* separate extension methods (**`AddArchiForgeRepositories`**, **`AddArchiForgeAnalysisServices`**, …) composed from **`AddArchiForgeApplicationServices`**. Keep **one** public entry point for **Program.cs**.
+- Split into private methods inside the same file (**`AddRepositories`**, **`AddComparisonAndReplay`**, **`AddAgentExecution`**, etc.) *or* separate extension methods (**`AddArchLucidRepositories`**, **`AddArchLucidAnalysisServices`**, …) composed from **`AddArchLucidApplicationServices`**. Keep **one** public entry point for **Program.cs**.
 
 **Outcome:** Easier maintenance and clearer dependency grouping.
 
@@ -381,10 +381,10 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ## 37. Finish the “thin Program + docs + constants” backlog
 
-**Problem (current code):** **Program.cs** still inlines **AddControllers** through **AddArchiForgeSwagger** (see item 28). **ReplayValidationConstants** still has no dedicated unit test (item 31). README still lacks a consolidated **Key documentation** index and explicit notes on **API versioning** and **X-Correlation-ID** (items 29–30, 32).
+**Problem (current code):** **Program.cs** still inlines **AddControllers** through **AddArchLucidSwagger** (see item 28). **ReplayValidationConstants** still has no dedicated unit test (item 31). README still lacks a consolidated **Key documentation** index and explicit notes on **API versioning** and **X-Correlation-ID** (items 29–30, 32).
 
 **Change:**
-- Implement **AddArchiForgeMvc** (or **AddArchiForgeApi**) extension; add **ReplayValidationConstantsTests**; add short README/API_CONTRACTS sections for versioning and correlation ID; add README **Key documentation** list.
+- Implement **AddArchLucidMvc** (or **AddArchLucidApi**) extension; add **ReplayValidationConstantsTests**; add short README/API_CONTRACTS sections for versioning and correlation ID; add README **Key documentation** list.
 
 **Outcome:** Closes the remaining checklist items 28–32 with concrete deliverables.
 
@@ -393,8 +393,8 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 ## Checklist (analysis — Feb 2026)
 
 - [x] 33. Api: mapper for Api replay request → AppReplayComparisonRequest (ComparisonsController)
-- [x] 34. Api: helper for ReplayComparisonResult → X-ArchiForge-* response headers
-- [x] 35. Api: split or segment AddArchiForgeApplicationServices registration
+- [x] 34. Api: helper for ReplayComparisonResult → X-ArchLucid-* response headers
+- [x] 35. Api: split or segment AddArchLucidApplicationServices registration
 - [x] 36. Api: ComparisonHistoryQuery → FluentValidation alignment
 - [x] 37. Bundle: thin Program (28) + docs (29–30, 32) + ReplayValidationConstants test (31)
 
@@ -444,7 +444,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 - Add unit tests for:
   - query/body format precedence in `ToApplicationForReplayEndpoint`
   - summary/batch mapping defaults
-  - expected `X-ArchiForge-*` headers in full vs metadata modes.
+  - expected `X-ArchLucid-*` headers in full vs metadata modes.
 
 **Outcome:** Safe refactoring surface for replay API contract behavior.
 
@@ -748,7 +748,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 **Problem:** Integrators discover `PolicyPackContentDocument` shape only from code or `API_CONTRACTS.md`; Swagger did not show example JSON for governance POST bodies.
 
-**Change:** Add **`PolicyPackExamplesOperationFilter`** (markdown JSON blocks on **PolicyPacksController** `Create`, `Publish`, `Assign`) and register it in **`AddArchiForgeSwagger`**.
+**Change:** Add **`PolicyPackExamplesOperationFilter`** (markdown JSON blocks on **PolicyPacksController** `Create`, `Publish`, `Assign`) and register it in **`AddArchLucidSwagger`**.
 
 **Outcome:** Interactive docs parity with architecture create-run examples.
 
@@ -982,7 +982,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 **Future:**
 - Replace clear-on-max with an LRU eviction pattern if hot-path caching matters.
-- Wire `MeterName` into `AddArchiForgeOpenTelemetry` so Prometheus sees it.
+- Wire `MeterName` into `AddArchLucidOpenTelemetry` so Prometheus sees it.
 
 ---
 
@@ -1123,7 +1123,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ---
 
-## §104 — OTel: SchemaValidation meter wired into `AddArchiForgeOpenTelemetry`
+## §104 — OTel: SchemaValidation meter wired into `AddArchLucidOpenTelemetry`
 
 **Status:** Done (Mar 2026).
 
@@ -1144,7 +1144,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 101. `DefaultGraphBuilder`: 6 unit tests in `KnowledgeGraph.Tests`
 - [x] 102. `RecommendationGenerator`: 8 unit tests; Moq added to Decisioning.Tests
 - [x] 103. `docs/KNOWLEDGE_GRAPH.md`: next refactors table updated
-- [x] 104. OTel: SchemaValidation meter wired into `AddArchiForgeOpenTelemetry`
+- [x] 104. OTel: SchemaValidation meter wired into `AddArchLucidOpenTelemetry`
 
 ---
 
@@ -1157,7 +1157,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ---
 
-## §106 — `ArchiForgeApiClient`: stderr logging on unexpected failures
+## §106 — `ArchLucidApiClient`: stderr logging on unexpected failures
 
 **Status:** Done (Mar 2026).
 
@@ -1244,7 +1244,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ## Checklist (§105–114)
 
 - [x] 105. `InMemoryBackgroundJobQueue`: `ILogger` + `LogError` on failure
-- [x] 106. `ArchiForgeApiClient`: `LogCliFailure` / explicit exception catches
+- [x] 106. `ArchLucidApiClient`: `LogCliFailure` / explicit exception catches
 - [x] 107. `SimpleScanScheduleCalculator` tests
 - [x] 108. `ArchitectureDigestBuilder` tests
 - [x] 109. `FindingsOrchestrator` tests
@@ -1821,7 +1821,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 210. Retry / DLQ for background jobs — `InMemoryBackgroundJobQueue` now supports `maxRetries` (exponential backoff, DLQ on exhaustion); `BackgroundJobInfo` tracks `RetryCount`/`MaxRetries`; tests: retry→succeed, retry→exhaust→fail, zero-retry immediate fail.
 - [x] 211. Outbox for post-commit indexing.
   - **`019_RetrievalIndexingOutbox.sql`**: table `dbo.RetrievalIndexingOutbox` (`OutboxId`, `RunId`, scope Guids, `CreatedUtc`, `ProcessedUtc`); filtered index on pending rows.
-  - **`IRetrievalIndexingOutboxRepository`**: `DapperRetrievalIndexingOutboxRepository` / `InMemoryRetrievalIndexingOutboxRepository`; registered in `ArchiForgeStorageServiceCollectionExtensions` (singleton in-memory, scoped SQL).
+  - **`IRetrievalIndexingOutboxRepository`**: `DapperRetrievalIndexingOutboxRepository` / `InMemoryRetrievalIndexingOutboxRepository`; registered in `ArchLucidStorageServiceCollectionExtensions` (singleton in-memory, scoped SQL).
   - **`AuthorityRunOrchestrator`**: after successful commit + run-completed audit, enqueues `RunId` + scope; no longer calls `IRetrievalRunCompletionIndexer` inline.
   - **`RetrievalIndexingOutboxProcessor`**: loads `RunDetailDto` via `IAuthorityQueryService`, rebuilds provenance, calls `IRetrievalRunCompletionIndexer`, marks processed.
   - **`RetrievalIndexingOutboxHostedService`**: polls every 2s (API `Hosted/`).
@@ -1834,7 +1834,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **Tests**: `CircuitBreakerGateTests`, `CircuitBreakingOpenAiEmbeddingClientTests` (`ArchLucid.Retrieval.Tests`); `CircuitBreakingAgentCompletionClientTests` (`ArchLucid.Api.Tests` + `AgentRuntime` reference).
 - [x] 213. Graceful shutdown: advisory poller + host — `AdvisoryScanHostedServiceShutdownTests` (clean exit on cancellation during delay, continues after non-cancellation exception, handles OCE during processing).
 - [x] 214. SLO dashboards (Grafana + Prometheus).
-  - **`docs/runbooks/SLO_PROMETHEUS_GRAFANA.md`**: enable **`Observability:Prometheus:Enabled`**, metric inventory from **`ArchiForgeInstrumentation`**, example recording rule, Grafana panel outline, burn-rate note.
+  - **`docs/runbooks/SLO_PROMETHEUS_GRAFANA.md`**: enable **`Observability:Prometheus:Enabled`**, metric inventory from **`ArchLucidInstrumentation`**, example recording rule, Grafana panel outline, burn-rate note.
 
 ### Security (215–226)
 
@@ -1882,7 +1882,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 231. Graph snapshot pagination API design.
   - **`GET /api/graph/runs/{runId}/nodes`**: `page` / `pageSize` (see **`PaginationDefaults`**); response **`GraphNodesPageResponse`** (nodes + edges with both endpoints on the page). **`GraphSnapshotPagination`** + **`GraphSnapshotNodesPage`** in **`ArchLucid.KnowledgeGraph`**.
 - [x] 232. Embedding batching cost caps.
-  - **`RetrievalEmbeddingCapOptions`** (`Retrieval:EmbeddingCaps`), **`RetrievalIndexingService`** batches **`EmbedManyAsync`** and optional **`MaxChunksPerIndexOperation`**; validation in **`ArchiForgeConfigurationRules`**; tests **`RetrievalIndexingServiceTests`**.
+  - **`RetrievalEmbeddingCapOptions`** (`Retrieval:EmbeddingCaps`), **`RetrievalIndexingService`** batches **`EmbedManyAsync`** and optional **`MaxChunksPerIndexOperation`**; validation in **`ArchLucidConfigurationRules`**; tests **`RetrievalIndexingServiceTests`**.
 - [x] 233. AI Search SKU guidance (dev vs prod).
   - **`docs/AI_SEARCH_SKU_GUIDANCE.md`**.
 - [x] 234. Cold-start profiling + trimming options.
@@ -1911,9 +1911,9 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`docs/API_CONTRACTS.md`**: contract table + cross-store limitation note.
   - **Tests**: `ArchitectureControllerTests` idempotency cases.
 - [x] 241. Bulk endpoint limits + partial success model.
-  - **Batch comparison replay:** **`ComparisonReplay:Batch:MaxComparisonRecordIds`**, per-ID try/catch, **`batch-replay-manifest.json`**, **`X-ArchiForge-Batch-Partial`**, **422** when all fail; **`docs/API_CONTRACTS.md`**.
+  - **Batch comparison replay:** **`ComparisonReplay:Batch:MaxComparisonRecordIds`**, per-ID try/catch, **`batch-replay-manifest.json`**, **`X-ArchLucid-Batch-Partial`**, **422** when all fail; **`docs/API_CONTRACTS.md`**.
 - [x] 242. JSON camelCase audit on public DTOs.
-  - **`AddArchiForgeMvc`**: `AddJsonOptions` sets `PropertyNamingPolicy` and `DictionaryKeyPolicy` to **camelCase** for controller JSON.
+  - **`AddArchLucidMvc`**: `AddJsonOptions` sets `PropertyNamingPolicy` and `DictionaryKeyPolicy` to **camelCase** for controller JSON.
   - **`docs/JSON_PUBLIC_CONTRACTS.md`**: documents policy and Problem Details extensions.
 
 ### Data & persistence (243–249)
@@ -1925,7 +1925,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 245. Connection resilience (retry + backoff).
   - **`SqlTransientDetector`** (`ArchLucid.Persistence.Connections`): shared classifier for transient SQL Server error numbers (-2 timeout, 40613 Azure SQL unavailable, 40197 service error, 49918–49920 throttling) and `TimeoutException`. Used by both the health check and the resilient factory.
   - **`ResilientSqlConnectionFactory`** (`ArchLucid.Persistence.Connections`): decorator over `ISqlConnectionFactory` that retries `CreateOpenConnectionAsync` on transient failures with exponential backoff (default 3 retries, 200 ms base, ±25 % jitter). Non-transient exceptions propagate immediately.
-  - **DI wiring**: `ArchiForgeStorageServiceCollectionExtensions` now wraps `SqlConnectionFactory` in `ResilientSqlConnectionFactory` for the SQL storage path.
+  - **DI wiring**: `ArchLucidStorageServiceCollectionExtensions` now wraps `SqlConnectionFactory` in `ResilientSqlConnectionFactory` for the SQL storage path.
   - **Health check**: `SqlConnectionHealthCheck` delegates to the shared `SqlTransientDetector`.
   - **Tests**: `SqlTransientDetectorTests` (9 cases — all error numbers, null, `TimeoutException`, inner exception), `ResilientSqlConnectionFactoryTests` (8 cases — success, transient retry + success, retry exhaustion, non-transient immediate throw, cancellation, exponential delay range, null guards, zero-retries).
 - [x] 246. Read replica routing for heavy authority lists.
@@ -1971,7 +1971,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ### Archival, replay diagnostics, contracts & IaC (257–274)
 
 - [x] 257. **Data archival hosted iteration + health state** — `DataArchivalHostIteration` outcome wiring in `DataArchivalHostedService`; `DataArchivalHostHealthState` records last success/failure.
-- [x] 258. **`DataArchivalHostHealthCheck`** — readiness tag **`data_archival`**; **Healthy** when disabled, enabled with no attempt yet, or last success; **Degraded** when enabled and last iteration failed (`failureStatus: Degraded` in `RegisterArchiForgeHealthChecks`).
+- [x] 258. **`DataArchivalHostHealthCheck`** — readiness tag **`data_archival`**; **Healthy** when disabled, enabled with no attempt yet, or last success; **Degraded** when enabled and last iteration failed (`failureStatus: Degraded` in `RegisterArchLucidHealthChecks`).
 - [x] 259. **`ReplayDiagnosticsOptions`** — config section, recorder retention for replay diagnostics endpoint.
 - [x] 260. **`InMemoryComparisonRecordRepository`** — thread-safe in-memory implementation in **`ArchLucid.Persistence.Data.Repositories`**; parity with Dapper via contract tests.
 - [x] 261. **Comparison record contract tests** — abstract base + InMemory + Dapper (`ComparisonRecordRepositoryContractTests`).
@@ -1991,8 +1991,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Data access clarity & test depth (275–283)
 
-- [x] 275. **Dual `IGoldenManifestRepository` / `IDecisionTraceRepository` contracts** — `ArchLucid.Persistence.Data.Repositories` (run/commit Dapper: `CreateAsync`, `GetByVersionAsync`, batch traces) vs `ArchLucid.Decisioning.Interfaces` (authority SQL: `SaveAsync`, scoped `GetByIdAsync`). Coordinator registrations use **fully qualified Data interface types** so DI is not mistaken for a duplicate override of the Decisioning contracts registered in **`AddArchiForgeStorage`**.
-- [x] 276. **`SqlScopedResolutionDbConnectionFactory`** — singleton **`IDbConnectionFactory`** for SQL storage that opens connections via a **short scope** resolving scoped **`ISqlConnectionFactory`** (resilience + optional RLS) for **`CreateOpenConnectionAsync`**, while **`CreateConnection`** stays an unopened **`SqlConnection`** for readiness probes. **`RegisterDataInfrastructure`** registers **`Data.SqlConnectionFactory`** only when **`StorageProvider=InMemory`**; SQL mode registers this bridge inside **`AddArchiForgeStorage`**.
+- [x] 275. **Dual `IGoldenManifestRepository` / `IDecisionTraceRepository` contracts** — `ArchLucid.Persistence.Data.Repositories` (run/commit Dapper: `CreateAsync`, `GetByVersionAsync`, batch traces) vs `ArchLucid.Decisioning.Interfaces` (authority SQL: `SaveAsync`, scoped `GetByIdAsync`). Coordinator registrations use **fully qualified Data interface types** so DI is not mistaken for a duplicate override of the Decisioning contracts registered in **`AddArchLucidStorage`**.
+- [x] 276. **`SqlScopedResolutionDbConnectionFactory`** — singleton **`IDbConnectionFactory`** for SQL storage that opens connections via a **short scope** resolving scoped **`ISqlConnectionFactory`** (resilience + optional RLS) for **`CreateOpenConnectionAsync`**, while **`CreateConnection`** stays an unopened **`SqlConnection`** for readiness probes. **`RegisterDataInfrastructure`** registers **`Data.SqlConnectionFactory`** only when **`StorageProvider=InMemory`**; SQL mode registers this bridge inside **`AddArchLucidStorage`**.
 - [x] 277. **`CorrelationIdMiddlewareTests`** + **`ApiDeprecationHeadersMiddlewareTests`** (Core suite).
 - [x] 278. **`RetrievalIndexingOutboxHostedServiceTests`** — clean shutdown and continue-after-failure loop behavior.
 - [x] 279. **CI coverage artifacts** — **`dotnet test`** with **`--collect:"XPlat Code Coverage"`** on fast-core and full-regression jobs; upload Cobertura XML artifacts.
@@ -2008,7 +2008,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 286. **Controller rate limiting** — **`[EnableRateLimiting("fixed")]`** on **`JobsController`**, **`ScopeDebugController`**; **`[EnableRateLimiting("expensive")]`** on **`DemoController`**; XML remarks on **`AuthDebugController`** / **`DocsController`** explaining intentional omission.
 - [x] 287. **`DataArchivalHostedServiceTests`** — cancellation during delay; coordinator failure records **`DataArchivalHostHealthState`** attempt.
 - [x] 288. **`docker-compose.yml`** — Azurite **`healthcheck`** (Node HTTP probe); **`api`** **`depends_on`** Azurite **`service_healthy`** (full-stack profile).
-- [x] 289. **`ArchiForgeConfigurationRules.CollectRateLimitingErrors`** — **`PermitLimit` ≥ 1, `WindowMinutes` ≥ 1, `QueueLimit` ≥ 0** for Fixed/Expensive/Replay light & heavy when sections exist; **`ArchiForgeConfigurationRulesTests`** cases.
+- [x] 289. **`ArchLucidConfigurationRules.CollectRateLimitingErrors`** — **`PermitLimit` ≥ 1, `WindowMinutes` ≥ 1, `QueueLimit` ≥ 0** for Fixed/Expensive/Replay light & heavy when sections exist; **`ArchLucidConfigurationRulesTests`** cases.
 - [x] 290. **`docs/CONSULTING_DOCX_TEMPLATE.md`** — **`ConsultingDocxTemplate`** / **`ConsultingDocxTemplateProfiles`** reference.
 - [x] 291. **CI** — **`dotnet test`** for **`templates/archiforge-finding-engine/...Tests.csproj`** in **`dotnet-fast-core`** (project stays outside main solution).
 - [x] 292. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §284–292 recorded.
@@ -2021,7 +2021,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 296. **Persistence contract tests** — **`GoldenManifestRepositoryContractTests`** + InMemory + SQL; **`DecisionTraceRepositoryContractTests`** + InMemory + SQL (run FK seed); **`PolicyPackRepositoryContractTests`** + InMemory + Dapper; shared **`AuthorityRunChainTestSeed`** extracted from **`SqlGoldenManifestRepositorySqlIntegrationTests`**.
 - [x] 297. **CI** — **`.github/workflows/ci.yml`**: job **`terraform-validate-public-stacks`** matrix **`infra/terraform`**, **`infra/terraform-edge`**, **`infra/terraform-entra`** (`init -backend=false`, `validate`, `fmt -check`).
 - [x] 298. **`docker-compose.yml` (full-stack)** — explicit **`healthcheck`** for **`api`** and **`ui`**; **`ui`** **`depends_on`** **`api`** **`condition: service_healthy`**.
-- [x] 299. **`CollectProductionSafetyErrors`** — Production CORS allow-list + webhook HMAC when HTTP delivery enabled; **`ArchiForgeConfigurationRulesTests`** (existing Production cases updated with valid CORS/webhook stubs + new failure cases).
+- [x] 299. **`CollectProductionSafetyErrors`** — Production CORS allow-list + webhook HMAC when HTTP delivery enabled; **`ArchLucidConfigurationRulesTests`** (existing Production cases updated with valid CORS/webhook stubs + new failure cases).
 - [x] 300. **`docs/ARCHITECTURE_CONTAINERS.md`** — Decisioning, Persistence, KnowledgeGraph, ContextIngestion, Retrieval, ArtifactSynthesis; updated API/Application dependency bullets.
 - [x] 301. **Runbooks** — **`docs/runbooks/README.md`**, **`INFRASTRUCTURE_OPS.md`**, **`REDIS_HEALTH.md`**.
 - [x] 302. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §293–302 recorded; component doc: contract coverage + production safety note.
@@ -2030,7 +2030,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 - [x] 303. **Persistence contract tests** — **`AgentResultRepositoryContractTests`** + InMemory + Dapper (FK seed via **`ArchitectureCommitTestSeed`**); **`AdvisoryScanScheduleRepositoryContractTests`** + InMemory + **`DapperAdvisoryScanScheduleRepository`**; **`AlertDeliveryAttemptRepositoryContractTests`** + InMemory + **`DapperAlertDeliveryAttemptRepository`**.
 - [x] 304. **`ArchLucid.Application.Tests`** — **`ArchitectureRunServiceCreateRunIdempotencyTests`**: idempotent replay skips **`ICoordinatorService`**; fingerprint mismatch → **`ConflictException`**.
-- [x] 305. **`ArchiForgeConfigurationRules`** — **`Retrieval:VectorIndex`** must be **`InMemory`**, **`AzureSearch`**, or omitted; Production webhook HMAC secret minimum length when HTTP delivery is enabled; **`RateLimiting:Replay:Light` / `Heavy`** honor configured **`QueueLimit`**; matching **`ArchiForgeConfigurationRulesTests`**.
+- [x] 305. **`ArchLucidConfigurationRules`** — **`Retrieval:VectorIndex`** must be **`InMemory`**, **`AzureSearch`**, or omitted; Production webhook HMAC secret minimum length when HTTP delivery is enabled; **`RateLimiting:Replay:Light` / `Heavy`** honor configured **`QueueLimit`**; matching **`ArchLucidConfigurationRulesTests`**.
 - [x] 306. **`ArchLucid.ArtifactSynthesis.Tests`** — **`InventoryArtifactGeneratorTests`**, **`ArtifactBundleValidatorTests`** (duplicate type + empty content).
 - [x] 307. **Docs** — **`docs/BUILD.md`** (Application.Tests, Terraform gate on fast-core); **`docs/CONTRIBUTOR_ONBOARDING.md`** (**`Suite=Core`** filter).
 - [x] 308. **CI** — **`dotnet-fast-core`** **`needs:`** **`terraform-validate-private`** and **`terraform-validate-public-stacks`** (after **`gitleaks`**).
@@ -2043,7 +2043,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 312. **`DecisionEngineV2Tests`** — empty topology pair; three topics when topology present; security promotion from **strengthen** + “private”; complexity prefers reduce under **caution**.
 - [x] 313. **In-memory Data repositories** — **`InMemoryArchitectureRequestRepository`**, **`InMemoryArchitectureRunRepository`** (optional request lookup for **`ListAsync`**), **`InMemoryEvidenceBundleRepository`**, **`InMemoryAgentEvidencePackageRepository`**, **`InMemoryAgentExecutionTraceRepository`**.
 - [x] 314. **Persistence contract tests** — request, evidence bundle, architecture run (incl. **`ListAsync`** system name), agent evidence package, agent execution trace (incl. paging); Dapper subclasses + **`ArchitectureCommitTestSeed.InsertArchitectureRequestOnlyAsync`**.
-- [x] 315. **`ArchiForgeConfigurationRulesTests`** — ApiKey enabled without keys; embedding caps; **`DataArchival:RunsRetentionDays`**; batch replay **> 500**; empty schema path; Production ApiKey both keys missing.
+- [x] 315. **`ArchLucidConfigurationRulesTests`** — ApiKey enabled without keys; embedding caps; **`DataArchival:RunsRetentionDays`**; batch replay **> 500**; empty schema path; Production ApiKey both keys missing.
 - [x] 316. **Runbooks** — **`docs/runbooks/AGENT_EXECUTION_FAILURES.md`**, **`ALERT_DELIVERY_FAILURES.md`**; **`docs/runbooks/README.md`** index rows.
 - [x] 317. **`docs/ARCHITECTURE_COMPONENTS.md`** — contract list + new in-memory Data repositories note.
 - [x] 318. **This file** — §311–318 recorded.

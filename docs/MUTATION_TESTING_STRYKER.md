@@ -15,8 +15,10 @@ The repo includes **`stryker-config.json`** at the solution root for **Persisten
 
 - **`stryker-config.application.json`** — `ArchLucid.Application` + `ArchLucid.Application.Tests`
 - **`stryker-config.agentruntime.json`** — `ArchLucid.AgentRuntime` + `ArchLucid.AgentRuntime.Tests`
+- **`stryker-config.coordinator.json`** — `ArchLucid.Coordinator` + `ArchLucid.Coordinator.Tests`
+- **`stryker-config.decisioning.json`** — `ArchLucid.Decisioning` + `ArchLucid.Decisioning.Tests`
 
-Scheduled CI runs all three targets (matrix) and uploads separate artifacts (`stryker-report-Persistence`, `…-Application`, `…-AgentRuntime`).
+Scheduled CI runs all five targets (matrix) and uploads separate artifacts (`stryker-report-Persistence`, `…-Application`, `…-AgentRuntime`, `…-Coordinator`, `…-Decisioning`). Full table: **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)** (Stryker configs).
 
 ## Commands
 
@@ -27,6 +29,8 @@ dotnet tool restore
 dotnet dotnet-stryker
 dotnet dotnet-stryker -f stryker-config.application.json
 dotnet dotnet-stryker -f stryker-config.agentruntime.json
+dotnet dotnet-stryker -f stryker-config.coordinator.json
+dotnet dotnet-stryker -f stryker-config.decisioning.json
 ```
 
 ## Scheduled CI

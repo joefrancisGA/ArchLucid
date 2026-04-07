@@ -1,4 +1,4 @@
-# ArchLucid (ArchiForge) — Comprehensive Quality Assessment
+# ArchLucid — Comprehensive Quality Assessment
 
 **Date**: 2026-04-04
 **Scope**: Full codebase — .NET backend, Next.js UI, Terraform IaC, CI/CD, documentation
@@ -244,7 +244,7 @@
 - Trace bridge: `SimulatorExecutionTraceRecordingExecutor`.
 - LLM: `AzureOpenAiCompletionClient` — directly coupled to Azure OpenAI SDK.
 - Quotas: `LlmTokenQuotaWindowTracker` per tenant.
-- Metrics: `ArchiForgeInstrumentation.RecordLlmTokenUsage` counters exist.
+- Metrics: `ArchLucidInstrumentation.RecordLlmTokenUsage` counters exist.
 - No `ILlmProvider` abstraction; no multi-model routing.
 
 **Tradeoffs**: Azure OpenAI coupling simplifies deployment and avoids provider abstraction overhead. But it prevents using Anthropic, local models, or OpenAI-direct as alternatives.
@@ -262,7 +262,7 @@
 **Justification**: Configuration validation at startup catches misconfigurations before the app serves traffic. Feature flags enable runtime feature toggling. Health check endpoints provide readiness/liveness probes. Runbooks cover 13 operational scenarios. But there is no admin CLI for common ops tasks (restart workers, drain queues, force-migrate), the CLI `doctor` command is limited, and there is no centralized configuration management (no Azure App Configuration).
 
 **Evidence**:
-- Startup validation: `ArchiForgeConfigurationRules.CollectErrors()` — 30+ rules, fail-fast.
+- Startup validation: `ArchLucidConfigurationRules.CollectErrors()` — 30+ rules, fail-fast.
 - Health checks: 6 health check implementations, `/health/ready`, `/health/live`.
 - Runbooks: 13 documented operational procedures.
 - CLI: `doctor` command checks health, support-bundle collects diagnostics.
@@ -309,7 +309,7 @@
 - Circuit breaker: `CircuitBreakerGate` for completion + embedding clients.
 - SQL resilience: `SqlOpenResilienceDefaults` (3 retries, exponential + jitter).
 - Graceful shutdown: `GracefulShutdownNotificationHostedService`, `HostOptions.ShutdownTimeout = 45s`.
-- Rate limiting: `AddArchiForgeRateLimiting()` with fixed/expensive/replay policies.
+- Rate limiting: `AddArchLucidRateLimiting()` with fixed/expensive/replay policies.
 - No `HttpClient` timeout configuration for webhooks.
 - No dead-letter queue in `BackgroundJobRepository`.
 - `DataArchivalHostedService` logs errors but does not retry individual archival batches.
@@ -351,7 +351,7 @@
 **Evidence**:
 - Logging: `ArchiForgeSerilogConfiguration`, `CorrelationIdMiddleware` (`LogContext.PushProperty`).
 - Tracing: `ObservabilityExtensions.AddOpenTelemetry()` — ASP.NET, HTTP, SQL, custom sources.
-- Metrics: `ArchiForgeInstrumentation` — `Meter("ArchiForge")`, counters for runs, tokens, alert evaluation.
+- Metrics: `ArchLucidInstrumentation` — `Meter("ArchiForge")`, counters for runs, tokens, alert evaluation.
 - Prometheus: Scrape endpoint with optional Basic auth, `archiforge-alerts.yml`, `archiforge-slo-rules.yml`.
 - Grafana: 3 dashboard JSON files in `infra/grafana/`.
 - OTLP exporter: Optional in `ObservabilityExtensions`.
@@ -456,7 +456,7 @@
 - Constant-time key comparison: `ConstantTimeKeyEquals` in `ApiKeyAuthenticationHandler`.
 - JWT: `AddJwtBearer` with `ValidateAudience`, `RoleClaimType`.
 - RBAC: `ArchiForgePolicies`, `ArchiForgeRoles`, `ArchiForgeRoleClaimsTransformation`.
-- RLS: `RlsSessionContextApplicator`, enforced in production via `ArchiForgeConfigurationRules`.
+- RLS: `RlsSessionContextApplicator`, enforced in production via `ArchLucidConfigurationRules`.
 - Input validation: `AddFluentValidationAutoValidation()`.
 - CSP: `script-src 'self' 'unsafe-inline' 'unsafe-eval'` (Next.js limitation).
 - CI security: gitleaks, Trivy, CodeQL, NuGet audit, SBOMs.
@@ -504,7 +504,7 @@
 - `.editorconfig`, Cursor rules for coding style.
 - CI: `terraform fmt -check`, `dotnet build`, full test suite, coverage.
 - DbUp: Checksum-validated migrations, `DatabaseMigrator.Run`.
-- Configuration validation: `ArchiForgeConfigurationRules` — 30+ rules.
+- Configuration validation: `ArchLucidConfigurationRules` — 30+ rules.
 - Consistent patterns: Repository + UoW + DI + configuration options.
 - Test coverage: PR comments, scheduled mutation testing.
 

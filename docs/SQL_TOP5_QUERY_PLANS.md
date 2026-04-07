@@ -19,7 +19,7 @@ Document the **five highest-churn read SQL shapes** used on hot API paths (autho
 
 ```mermaid
 flowchart LR
-  API[ArchiForge API]
+  API[ArchLucid API]
   Primary[(Primary SQL)]
   RO[(Read-only listener)]
   API -->|writes + some reads| Primary

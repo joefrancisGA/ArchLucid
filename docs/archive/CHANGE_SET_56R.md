@@ -13,10 +13,10 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 ### Prompt 2 — configuration & environment validation (current)
 
-- **API fail-fast:** `ArchiForgeConfigurationRules.CollectErrors` runs **immediately after** `WebApplication.Build()` and **before** schema bootstrap / DbUp. Any error → log each line and **`InvalidOperationException`** (process exit). Replaces the late **`IHostedService`** validator so misconfiguration is not masked in Development.
+- **API fail-fast:** `ArchLucidConfigurationRules.CollectErrors` runs **immediately after** `WebApplication.Build()` and **before** schema bootstrap / DbUp. Any error → log each line and **`InvalidOperationException`** (process exit). Replaces the late **`IHostedService`** validator so misconfiguration is not masked in Development.
 - **SQL vs InMemory:** `ConnectionStrings:ArchiForge` is **required** only when **`ArchiForge:StorageProvider`** is **Sql** (including default `Sql` when the section is absent). **InMemory** allows no SQL connection string.
 - **Policy/schema files:** Validates **SchemaValidation** JSON schema paths are **relative**, stay **under** `AppContext.BaseDirectory`, and **exist on disk** at startup (matches `SchemaValidationService` load semantics).
-- **CLI:** `ArchiForgeApiClient.GetInvalidApiBaseUrlReason` + constructor guard; `EnsureApiConnectedAsync` and **`health`** print stderr guidance for bad URLs.
+- **CLI:** `ArchLucidApiClient.GetInvalidApiBaseUrlReason` + constructor guard; `EnsureApiConnectedAsync` and **`health`** print stderr guidance for bad URLs.
 - **UI:** `resolveUpstreamApiBaseUrlForProxy()` returns **503** JSON problem from `/api/proxy/*` when the upstream base URL is empty, malformed, or non-http(s).
 - **Artifacts:** No separate on-disk artifact root in API config (exports are streams/DB-backed); **CLI** `archiforge run` already validates brief path and creates `outputs` from `archiforge.json` — unchanged.
 
@@ -46,14 +46,14 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 ### Prompt 8 — error presentation and supportability
 
 - **API:** `ProblemSupportHints` adds optional **`extensions.supportHint`** on problem+json for known `ProblemTypes` (controllers + `ApplicationProblemMapper` + global 500 handler).
-- **CLI:** `CliOperatorHints` — stderr **`Next:`** lines after API failures, health unreachable, readiness failure, brief/manifest/run issues; `ArchiForgeApiClient` records **HTTP status** on failed commit/submit/seed responses for hint selection.
+- **CLI:** `CliOperatorHints` — stderr **`Next:`** lines after API failures, health unreachable, readiness failure, brief/manifest/run issues; `ArchLucidApiClient` records **HTTP status** on failed commit/submit/seed responses for hint selection.
 - **UI:** Proxy returns **502** with **`supportHint`** when fetch to the C# API fails; **503** config errors include **`supportHint`** for `.env.local`.
 - **Docs:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — `supportHint` / CLI `Next:` / UI proxy errors.
 
 ### Prompt 9 — focused tests for 56R hardening
 
-- **API:** `ProblemSupportHintsTests`, extended **`ArchiForgeConfigurationRulesTests`** (storage/mode/Azure/schema paths), **`ApiProblemDetailsExceptionFilterTests`** assert **`supportHint`** on mapped problems.
-- **CLI:** `InternalsVisibleTo` for **`ArchLucid.Cli.Tests`**; **`CliOperatorHintsTests`**; **`ArchiForgeApiClientHttpTests`** — commit failure preserves **HTTP status code**.
+- **API:** `ProblemSupportHintsTests`, extended **`ArchLucidConfigurationRulesTests`** (storage/mode/Azure/schema paths), **`ApiProblemDetailsExceptionFilterTests`** assert **`supportHint`** on mapped problems.
+- **CLI:** `InternalsVisibleTo` for **`ArchLucid.Cli.Tests`**; **`CliOperatorHintsTests`**; **`ArchLucidApiClientHttpTests`** — commit failure preserves **HTTP status code**.
 
 ### Prompt 10 — release-candidate coherence (final pass)
 
@@ -90,7 +90,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **API:** `/health/ready` and `/health` now use `DetailedHealthCheckResponseWriter` — enriched JSON with per-check `name`, `status`, `durationMs`, `description`, `error`, plus top-level `version`, `commitSha`, and `totalDurationMs`. `/health/live` stays minimal for orchestrator probes.
 - **CI:** Both `dotnet-fast-core` and `dotnet-full-regression` build steps now pass `/p:SourceRevisionId=$(git rev-parse HEAD)` so the commit SHA is embedded in the informational version automatically.
 - **CLI:** `doctor` now prints a **CLI build info** section (version, assembly, runtime) and calls **`GET /version`** to display the API's build identity before running health probes.
-- **CLI:** `ArchiForgeApiClient.GetVersionJsonAsync` — new method for retrieving `/version` JSON.
+- **CLI:** `ArchLucidApiClient.GetVersionJsonAsync` — new method for retrieving `/version` JSON.
 - **Release:** `package-release.ps1` / `.cmd` now emit `artifacts/release/metadata.json` with `application`, `informationalVersion`, `commitSha`, `buildTimestampUtc`, `dotnetSdkVersion`, `packagerHost`.
 - **Tests:** `BuildProvenanceTests` — `ParseCommitSha` theory tests, `BuildInfoResponse.FromProvenance` mapping/null tests. `VersionControllerTests` — controller returns expected fields and JSON shape. `DetailedHealthCheckResponseWriterTests` — healthy/unhealthy reports produce correct JSON payload.
 - **Docs:** `OPERATOR_QUICKSTART.md` updated with `/version`, `/health/ready` enrichment, `SourceRevisionId` guidance. `CLI_USAGE.md` — `doctor` description updated.
@@ -145,11 +145,11 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `ArchLucid.Api/Controllers/VersionController.cs`
 - `ArchLucid.Api/Health/DetailedHealthCheckResponseWriter.cs`
 - `ArchLucid.Api/Startup/Diagnostics/*`
-- `ArchLucid.Api/Startup/Validation/ArchiForgeConfigurationRules.cs`
+- `ArchLucid.Api/Startup/Validation/ArchLucidConfigurationRules.cs`
 - `ArchLucid.Api/Startup/PipelineExtensions.cs` (`/health/live`, `/health/ready`, `/health`)
 - `ArchLucid.Api/Program.cs`
 - `ArchLucid.Api/appsettings.json`, `appsettings.KeyVault.sample.json`
-- `ArchLucid.Cli/ArchiForgeApiClient.cs`, `ArchLucid.Cli/Program.cs`, `ArchLucid.Cli/DoctorCommand.cs`, `ArchLucid.Cli/Support/*` (support bundle)
+- `ArchLucid.Cli/ArchLucidApiClient.cs`, `ArchLucid.Cli/Program.cs`, `ArchLucid.Cli/DoctorCommand.cs`, `ArchLucid.Cli/Support/*` (support bundle)
 - `ArchLucid.Api/Health/*` (readiness tags, schema/compliance/temp checks, SQL check behavior)
 - `archiforge-ui/src/lib/config.ts`, `archiforge-ui/src/app/api/proxy/[...path]/route.ts`
 - `docs/CONFIGURATION_KEY_VAULT.md`

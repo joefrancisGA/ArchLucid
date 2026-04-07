@@ -16,7 +16,7 @@ namespace ArchLucid.Persistence.Repositories;
 
 /// <summary>
 /// SQL Server-backed <see cref="IContextSnapshotRepository"/> with dual-write to legacy JSON columns
-/// and relational child tables; reads prefer child rows per collection when any exist, else JSON.
+/// and relational child tables; reads use child tables only (empty collections when no rows).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectionFactory) : IContextSnapshotRepository

@@ -2,7 +2,7 @@
 
 ## Objective
 
-Describe how operators rotate credentials and TLS-related material for ArchiForge deployments without assuming a single cloud SKU. The API and UI are commonly hosted on Azure App Service with secrets in Key Vault or app settings; adjust names to match your environment.
+Describe how operators rotate credentials and TLS-related material for ArchLucid deployments without assuming a single cloud SKU. The API and UI are commonly hosted on Azure App Service with secrets in Key Vault or app settings; adjust names to match your environment.
 
 ## Assumptions
 
@@ -11,7 +11,7 @@ Describe how operators rotate credentials and TLS-related material for ArchiForg
 
 ## Constraints
 
-- Rotating **`ConnectionStrings:ArchiForge`** requires the API to restart (or reload config if you implement hot reload for that section — not the default).
+- Rotating **`ConnectionStrings:ArchLucid`** (or legacy **`ConnectionStrings:ArchiForge`**) requires the API to restart (or reload config if you implement hot reload for that section — not the default).
 - Rotating **JWT signing keys** invalidates existing bearer tokens unless you use overlapping keys (not modeled in the default template).
 - **Webhook HMAC** secrets (`WebhookDelivery:HmacSha256SharedSecret`) require coordinated updates with every subscriber that verifies signatures.
 
@@ -25,7 +25,7 @@ flowchart LR
     Entra[Entra ID app registration]
   end
   subgraph apps [Workloads]
-    API[ArchiForge API]
+    API[ArchLucid API]
     UI[Operator UI]
   end
   KV --> API
@@ -38,7 +38,7 @@ flowchart LR
 
 | Asset | Typical location | Consumer | Notes |
 |-------|------------------|----------|--------|
-| SQL login / AAD auth | Key Vault reference or App Service setting | API (`ConnectionStrings:ArchiForge`) | Prefer Entra ID auth to SQL where supported; avoid plaintext in repo. |
+| SQL login / AAD auth | Key Vault reference or App Service setting | API (`ConnectionStrings:ArchLucid` / legacy `ConnectionStrings:ArchiForge`) | Prefer Entra ID auth to SQL where supported; avoid plaintext in repo. |
 | API keys (`ApiKeys:*`) | App settings / Key Vault | API | Rotating a key strands clients still sending the old value; publish a cutover date. |
 | JWT authority / audience | `ArchiForgeAuth:*` | API | Wrong metadata URL causes 401 for all JWT clients until fixed. |
 | Webhook HMAC | `WebhookDelivery:HmacSha256SharedSecret` | API outbound webhooks | Update digest subscribers before or in sync with API change. |
@@ -54,7 +54,7 @@ flowchart LR
 
 ## Security model
 
-- **Least privilege:** new SQL logins should retain the minimum DDL/DML rights required for ArchiForge migrations and runtime (see `docs/SQL_DDL_DISCIPLINE.md`).
+- **Least privilege:** new SQL logins should retain the minimum DDL/DML rights required for ArchLucid migrations and runtime (see `docs/SQL_DDL_DISCIPLINE.md`).
 - **Audit:** record who rotated what and ticket linkage; correlate with App Service restart timestamps and SQL audit logs if enabled.
 
 ## Operational considerations

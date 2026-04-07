@@ -1,14 +1,14 @@
-# ArchiForge Operator Shell — Architecture
+# ArchLucid Operator Shell — Architecture
 
-This document describes the architectural design of the ArchiForge operator shell (`archiforge-ui`). It follows the same C4-style conventions used in the backend architecture docs (`docs/ARCHITECTURE_CONTEXT.md`, `docs/ARCHITECTURE_CONTAINERS.md`, etc.) and the project's required architecture output sections.
+This document describes the architectural design of the ArchLucid operator shell (`archiforge-ui`). It follows the same C4-style conventions used in the backend architecture docs (`docs/ARCHITECTURE_CONTEXT.md`, `docs/ARCHITECTURE_CONTAINERS.md`, etc.) and the project's required architecture output sections.
 
 ---
 
 ## 1. Objective
 
-Provide a thin, read-mostly operator interface for ArchiForge that lets an operator inspect runs, review manifests and artifacts, compare runs, replay authority chains, explore provenance graphs, manage alerts and advisory workflows, and download exports — all backed by the ArchiForge C# API.
+Provide a thin, read-mostly operator interface for ArchLucid that lets an operator inspect runs, review manifests and artifacts, compare runs, replay authority chains, explore provenance graphs, manage alerts and advisory workflows, and download exports — all backed by the **ArchLucid** C# API.
 
-The UI is **not** a general-purpose SPA. It is a dashboard for operators who understand the ArchiForge domain. Design priority is determinism and clarity over interactivity.
+The UI is **not** a general-purpose SPA. It is a dashboard for operators who understand the ArchLucid domain. Design priority is determinism and clarity over interactivity.
 
 ---
 
@@ -53,7 +53,7 @@ The UI is **not** a general-purpose SPA. It is a dashboard for operators who und
                          │ HTTPS (port 3000)
                          ▼
 ┌──────────────────────────────────────────────────────────────┐
-│               ARCHIFORGE OPERATOR SHELL                      │
+│               ARCHLUCID OPERATOR SHELL                      │
 │               (Next.js 15 / Node.js)                         │
 │                                                              │
 │  Server components render HTML from API data.                │
@@ -63,7 +63,7 @@ The UI is **not** a general-purpose SPA. It is a dashboard for operators who und
                          │ HTTP (port 5128, internal)
                          ▼
 ┌──────────────────────────────────────────────────────────────┐
-│               ARCHIFORGE C# API                              │
+│               ARCHLUCID C# API                              │
 │               (ASP.NET Core)                                 │
 │                                                              │
 │  Authority, artifact, comparison, replay, graph,             │
@@ -77,7 +77,7 @@ The operator shell is a single Next.js application. Inside it are four logical c
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                     ARCHIFORGE OPERATOR SHELL                           │
+│                     ARCHLUCID OPERATOR SHELL                           │
 │                                                                         │
 │  ┌───────────────────────┐  ┌────────────────────────────────────────┐  │
 │  │  SERVER COMPONENTS    │  │  CLIENT COMPONENTS                     │  │
@@ -354,7 +354,7 @@ artifact-review-helpers.ts
                    │
                    ▼
 ┌─────────────────────────────────────────────┐
-│         ARCHIFORGE C# API                    │
+│         ARCHLUCID C# API                    │
 │                                              │
 │  • Validates X-Api-Key                       │
 │  • Validates scope headers                   │

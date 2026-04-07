@@ -1,74 +1,76 @@
-# DI registration map (Host.Core)
+# DI registration map (Host.Composition)
 
 **Purpose:** One-page map from extension methods and partial `ServiceCollectionExtensions` files to the capabilities they register, including configuration gates and key sections.
 
-**Entry point:** `ArchLucid.Host.Core.Startup.ServiceCollectionExtensions.AddArchiForgeApplicationServices` orchestrates everything below (after options on the main partial).
+**Entry point:** `ArchLucid.Host.Composition.Startup.ServiceCollectionExtensions.AddArchLucidApplicationServices` orchestrates everything below (after options on the main partial of the same class).
 
-**Source files:**
+**Source files** (under `ArchLucid.Host.Composition/`):
 
 | File | Responsibility |
 |------|----------------|
-| `ServiceCollectionExtensions.cs` | `AddArchiForgeApplicationServices` — calls all `Register*` methods in order |
-| `ServiceCollectionExtensions.FeatureManagement.cs` | `AddArchiForgeFeatureManagement` |
-| `ArchiForgeStorageServiceCollectionExtensions.cs` | `AddArchiForgeStorage` |
-| `ServiceCollectionExtensions.SchedulingAndAlerts.cs` | Advisory schedules, digests, alerts, retrieval/authority pipeline workers, archival host |
-| `ServiceCollectionExtensions.DataHealthAndJobs.cs` | In-memory `IDbConnectionFactory`, health checks, background jobs |
-| `ServiceCollectionExtensions.ApplicationPipeline.cs` | Run export, analysis, replay/drift, **core run pipeline** (`IArchitectureRunService`, …), context ingestion + knowledge graph |
-| `ServiceCollectionExtensions.Decisioning.cs` | Finding engines, decision engine, manifest builders/validators |
-| `ServiceCollectionExtensions.CoordinatorAndArtifacts.cs` | Coordinator, decision engine services, **`ArchLucid.Persistence.Data.Repositories`** for runs/tasks/manifests, artifact synthesis |
-| `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` | Agent execution (Simulator vs Real), governance repos, retrieval + embeddings |
+| `Startup/ServiceCollectionExtensions.cs` | `AddArchLucidApplicationServices` — calls all `Register*` methods in order |
+| `Startup/ServiceCollectionExtensions.FeatureManagement.cs` | `AddArchLucidFeatureManagement` |
+| `Configuration/ArchLucidStorageServiceCollectionExtensions.cs` | `AddArchLucidStorage` |
+| `Startup/ServiceCollectionExtensions.SchedulingAndAlerts.cs` | Advisory schedules, digests, integration event publisher, alerts, retrieval/authority pipeline workers, integration-event outbox, archival host |
+| `Startup/ServiceCollectionExtensions.DataHealthAndJobs.cs` | In-memory `IDbConnectionFactory`, health checks, background jobs |
+| `Startup/ServiceCollectionExtensions.ApplicationPipeline.cs` | Run export, analysis, replay/drift, **core run pipeline** (`IArchitectureRunService`, …), context ingestion + knowledge graph |
+| `Startup/ServiceCollectionExtensions.Decisioning.cs` | Finding engines, decision engine, manifest builders/validators |
+| `Startup/ServiceCollectionExtensions.CoordinatorAndArtifacts.cs` | Coordinator, decision engine services, **`ArchLucid.Persistence.Data.Repositories`** for runs/tasks/manifests, artifact synthesis |
+| `Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` | Agent execution (Simulator vs Real), governance repos, retrieval + embeddings |
 
 ---
 
-## `AddArchiForgeApplicationServices` (order)
+## `AddArchLucidApplicationServices` (order)
 
 Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `BatchReplay`, `ApiDeprecation`, `DataArchival`, `HostLeaderElection`.
 
 1. `IDemoSeedService`
-2. **`AddArchiForgeFeatureManagement`** → `FeatureManagement` section
-3. **`AddArchiForgeStorage`** → **`ArchiForge:StorageProvider`** (`Sql` vs `InMemory`) — see below
+2. **`AddArchLucidFeatureManagement`** → `FeatureManagement` section
+3. **`AddArchLucidStorage`** → **`ArchiForge:StorageProvider`** (`Sql` vs `InMemory`) — see below (Phase 7: prefer **`ArchLucid:StorageProvider`** when bridges are removed)
 4. **`RegisterAdvisoryScheduling`** — **role:** `Combined` \| `Worker` → `AdvisoryScanHostedService`
-5. **`RegisterDigestDelivery`** → `WebhookDelivery` (+ HTTP client `ArchiForgeWebhooks`)
-6. **`RegisterAlerts`** — evaluators, channels, dispatcher, `IAlertService`
-7. **`RegisterDataInfrastructure`** — only when **`ArchiForge:StorageProvider=InMemory`**: registers `IDbConnectionFactory` → `SqlConnectionFactory` (test/local SQL helpers)
-8. **`RegisterBackgroundJobs`** → **`BackgroundJobs`** (`Mode`: `Durable` vs in-memory); **role** gates queue processor vs API queue sender — see below
-9. **`RegisterRunExportAndArchitectureAnalysis`** — gated **`IRunExportRecordRepository`** by `StorageProvider`
-10. **`RegisterComparisonReplayAndDrift`** → `ReplayDiagnostics`
-11. **`RegisterRunReplayManifestAndDiffs`** — `IArchitectureRunService`, replay, diffs, exports, `IActorContext`, audit
-12. **`RegisterContextIngestionAndKnowledgeGraph`** — connectors, parsers, `IContextIngestionService`, graph builder/service
-13. **`RegisterDecisioningEngines`** — findings orchestrator, rule engine, manifest services, compliance pack loader
-14. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**
-15. **`RegisterArtifactSynthesis`**
-16. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
-17. **`RegisterGovernance`** → **`ArchiForge:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
-18. **`RegisterRetrieval`** → `Retrieval:VectorIndex` (`AzureSearch` vs in-memory), `AzureOpenAI:Embedding*`, `AzureOpenAI:CircuitBreaker`
-19. **`RegisterRetrievalIndexingOutbox`** — **role:** `Combined` \| `Worker` → hosted outbox + authority pipeline work processors
-20. **`RegisterDataArchivalHostedService`** — **role:** `Combined` \| `Worker`
-21. **`RegisterArchiForgeHealthChecks`** — SQL, schema, compliance pack, blob, temp dir; archival check when worker/combined
+5. **`RegisterDigestDelivery`** → `WebhookDelivery` (+ HTTP client named **`ArchLucidWebhooks`**)
+6. **`RegisterIntegrationEventPublishing`** → `IntegrationEvents` / Service Bus publisher (or null publisher when unset)
+7. **`RegisterAlerts`** — evaluators, channels, dispatcher, `IAlertService`
+8. **`RegisterDataInfrastructure`** — only when **`ArchiForge:StorageProvider=InMemory`**: registers `IDbConnectionFactory` → `SqlConnectionFactory` (test/local SQL helpers)
+9. **`RegisterBackgroundJobs`** → **`BackgroundJobs`** (`Mode`: `Durable` vs in-memory); **role** gates queue processor vs API queue sender — see below
+10. **`RegisterRunExportAndArchitectureAnalysis`** — gated **`IRunExportRecordRepository`** by `StorageProvider`
+11. **`RegisterComparisonReplayAndDrift`** → `ReplayDiagnostics`
+12. **`RegisterRunReplayManifestAndDiffs`** — `IArchitectureRunService`, replay, diffs, exports, `IActorContext`, audit
+13. **`RegisterContextIngestionAndKnowledgeGraph`** — connectors, parsers, `IContextIngestionService`, graph builder/service
+14. **`RegisterDecisioningEngines`** — findings orchestrator, rule engine, manifest services, compliance pack loader
+15. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**
+16. **`RegisterArtifactSynthesis`**
+17. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
+18. **`RegisterGovernance`** → **`ArchiForge:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
+19. **`RegisterRetrieval`** → `Retrieval:VectorIndex` (`AzureSearch` vs in-memory), `AzureOpenAI:Embedding*`, `AzureOpenAI:CircuitBreaker`
+20. **`RegisterRetrievalIndexingOutbox`** — **role:** `Combined` \| `Worker` → hosted outbox + authority pipeline work processors
+21. **`RegisterIntegrationEventOutbox`** — **role:** `Combined` \| `Worker` → `IntegrationEventOutboxHostedService`
+22. **`RegisterDataArchivalHostedService`** — **role:** `Combined` \| `Worker`
+23. **`RegisterArchLucidHealthChecks`** — SQL, schema, compliance pack, blob, temp dir; archival check when worker/combined
 
 ---
 
-## `AddArchiForgeStorage` (`ArchiForgeStorageServiceCollectionExtensions`)
+## `AddArchLucidStorage` (`ArchLucidStorageServiceCollectionExtensions`)
 
-**Gate:** `ArchiForge:StorageProvider`
+**Gate:** `ArchiForge:StorageProvider` (Phase 7: **`ArchLucid:StorageProvider`**)
 
 ### `InMemory`
 
 - Singleton in-memory persistence for authority stores (context/graph/findings/manifest/trace/artifact/run, audit, provenance, advisory, alerts, policy packs, conversations, product learning, evolution, pipeline work, retrieval outbox).
-- **`IArchiForgeUnitOfWorkFactory`** → `InMemoryArchiForgeUnitOfWorkFactory`
+- **`IArchLucidUnitOfWorkFactory`** → `InMemoryArchLucidUnitOfWorkFactory`
 - **`IAsyncAuthorityPipelineModeResolver`** → `DisabledAsyncAuthorityPipelineModeResolver` (async/deferred pipeline path effectively off)
 - **`IAuthorityRunOrchestrator`**, **`IAuthorityPipelineStagesExecutor`**, **`IDataArchivalCoordinator`**, host leader lease **NoOp**
 - Optional: distributed cache + LLM completion response store when configured
 
 ### `Sql` (default production shape)
 
-- **`ConnectionStrings:ArchiForge`** required
+- **`ConnectionStrings:ArchLucid`** required (legacy fallback: **`ConnectionStrings:ArchiForge`**)
 - **`SqlServer`** section — RLS session context, read-replica routing (`ReadReplicaRoutedConnectionFactory` for list/governance/manifest lookup routes)
 - **`ISqlConnectionFactory`** — resilient open + optional `SessionContextSqlConnectionFactory`
 - Dapper/SQL implementations for the same repository surface as InMemory
 - **`IAsyncAuthorityPipelineModeResolver`** → `FeatureManagementAuthorityPipelineModeResolver` (coordinates with **`FeatureManagement`**)
 - **`IData.Infrastructure.IDbConnectionFactory`** → `SqlScopedResolutionDbConnectionFactory` (scoped resolution for legacy Data access)
-- Schema bootstrap via `ISqlConnectionFactory` + embedded `ArchiForge.sql`
+- Schema bootstrap via `ISqlConnectionFactory` + embedded **`ArchiForge.sql`** (Phase 7: rename script coordinated with deploy)
 - **`ArtifactLargePayload`**, **`HotPathCache`**, LLM completion cache options as applicable
 
 ---
@@ -77,7 +79,7 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 
 **Config:** `BackgroundJobs:Mode` — `Durable` uses Azure Queue + `BackgroundJobRepository` + blob result accessor; otherwise in-memory queue + hosted pump.
 
-**Gate:** `ArchiForgeHostingRole`
+**Gate:** `ArchLucidHostingRole`
 
 | Role | Behavior |
 |------|----------|
@@ -118,7 +120,7 @@ Always: `IGovernanceWorkflowService` scoped.
 
 ## Dual `IGoldenManifestRepository` / `IDecisionTraceRepository` (important)
 
-- **Decisioning / authority (Persistence)** types are registered in **`AddArchiForgeStorage`** (e.g. SQL or InMemory authority stores).
+- **Decisioning / authority (Persistence)** types are registered in **`AddArchLucidStorage`** (e.g. SQL or InMemory authority stores).
 - **Coordinator / application workflow (Data)** types with the **same interface names** are registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** — see comments in that file. ADR 0004 documents the split.
 
 ---
@@ -129,4 +131,4 @@ HTTP **`POST /v1/architecture/request`** → `RunsController` → `IArchitecture
 
 ---
 
-**Last reviewed:** 2026-04-04
+**Last reviewed:** 2026-04-07

@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence.Backfill;
 public sealed class CutoverSliceReadiness
 {
     /// <summary>
-    /// Logical name matching the slice labels used by <see cref="ArchLucid.Persistence.RelationalRead.JsonFallbackPolicy"/>
+    /// Logical name for cutover reporting (matches historical slice labels, e.g. <c>ContextSnapshot.CanonicalObjects</c>).
     /// (e.g. "ContextSnapshot.CanonicalObjects").
     /// </summary>
     public required string SliceName { get; init; }
@@ -22,7 +22,7 @@ public sealed class CutoverSliceReadiness
 
     /// <summary>
     /// <c>true</c> when every header row has at least one relational child row,
-    /// meaning this slice is safe for <see cref="ArchLucid.Persistence.RelationalRead.PersistenceReadMode.RequireRelational"/>.
+    /// meaning every header row has relational child data for this slice (safe for relational-only reads).
     /// </summary>
     public bool IsReady => HeadersMissingRelationalRows == 0;
 }

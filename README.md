@@ -2,11 +2,16 @@
 
 ArchLucid (repository and packages may still use the **ArchiForge** name) is an API for orchestrating AI-driven architecture design. It coordinates topology, cost, and compliance agents to produce architecture manifests from high-level requests.
 
+## Getting started
+
+**New contributors:** read **[docs/START_HERE.md](docs/START_HERE.md)** first — short architecture overview, pick-your-role links (developer / SRE / security), key concepts, and quick commands. Then use [docs/GOLDEN_PATH.md](docs/GOLDEN_PATH.md) for environment setup order and [docs/ONBOARDING_HAPPY_PATH.md](docs/ONBOARDING_HAPPY_PATH.md) for one HTTP request’s path through the system.
+
 ## Key documentation
 
 | Doc | Purpose |
 |-----|---------|
-| **[docs/GOLDEN_PATH.md](docs/GOLDEN_PATH.md)** | **Start here for setup order:** role-based entry (developer / SRE / security), one diagram (**zero → local → prod-like dev → Azure**), phased checklists, **advanced appendix** for optional paths |
+| **[docs/START_HERE.md](docs/START_HERE.md)** | **Single entry point for new contributors:** 5-minute architecture, role links, key concepts, quick commands |
+| **[docs/GOLDEN_PATH.md](docs/GOLDEN_PATH.md)** | **Environment setup order:** role-based entry (developer / SRE / security), one diagram (**zero → local → prod-like dev → Azure**), phased checklists, **advanced appendix** for optional paths |
 | [docs/onboarding/README.md](docs/onboarding/README.md) | **Week-one tickets:** 3–5 checkboxes per role (dev, SRE, security) |
 | [docs/diagrams/c4/README.md](docs/diagrams/c4/README.md) | **C4 PNG set** (context, container, API components) for exec/security + `.mmd` sources |
 | [docs/BUILD.md](docs/BUILD.md) | Build, CPM, project references, DecisionEngine bundle |

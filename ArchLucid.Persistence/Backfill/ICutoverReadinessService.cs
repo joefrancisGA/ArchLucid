@@ -2,7 +2,7 @@ namespace ArchLucid.Persistence.Backfill;
 
 /// <summary>
 /// Read-only assessment: can the database move from fallback-permitted mode to
-/// <see cref="ArchLucid.Persistence.RelationalRead.PersistenceReadMode.RequireRelational"/>?
+/// relational-only reads (no legacy JSON slice hydration)?
 /// </summary>
 public interface ICutoverReadinessService
 {

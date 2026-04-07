@@ -48,7 +48,7 @@ export default function GlobalError({
     <html lang="en">
       <body>
         <div style={shell}>
-          <h1 style={{ margin: "0 0 12px", fontSize: 26 }}>ArchiForge</h1>
+          <h1 style={{ margin: "0 0 12px", fontSize: 26 }}>ArchLucid</h1>
           <div role="alert" style={callout}>
             <strong>The operator shell could not load.</strong>
             <p style={{ margin: "8px 0 0" }}>

@@ -48,7 +48,7 @@ UI alignment: **`docs/operator-shell.md`**.
 
 | Outcome | HTTP | Notes |
 |--------|------|--------|
-| Match | **200** | Replay artifact returned; `X-ArchiForge-VerificationPassed: true` |
+| Match | **200** | Replay artifact returned; `X-ArchLucid-VerificationPassed: true` |
 | Drift | **422** | `application/problem+json`, `type` … `#comparison-verification-failed`, optional **`driftDetected`**, **`driftSummary`** |
 
 Clients must not assume verify failure returns 200 with a JSON body flag.
@@ -67,7 +67,7 @@ The replay endpoint body (`format`, `replayMode`, `profile`, `persistReplay`) is
 
 The **batch replay** endpoint (`POST /v1/architecture/comparisons/replay/batch`) validates the same replay fields as single replay, plus `comparisonRecordIds`. **Maximum list size** is **`ComparisonReplay:Batch:MaxComparisonRecordIds`** (default **50**, startup-validated between **1** and **500**). Duplicate IDs are processed once, in first-seen order.
 
-**Success (200):** response is **`application/zip`** containing **`batch-replay-manifest.json`** (successes, failures, processed IDs) and one folder per successful comparison ID with the replay artifact. If some IDs fail and at least one succeeds, **`X-ArchiForge-Batch-Partial: true`** is set.
+**Success (200):** response is **`application/zip`** containing **`batch-replay-manifest.json`** (successes, failures, processed IDs) and one folder per successful comparison ID with the replay artifact. If some IDs fail and at least one succeeds, **`X-ArchLucid-Batch-Partial: true`** is set.
 
 **All IDs fail:** **422 Unprocessable Entity** with problem type **`#batch-replay-all-failed`** and **`extensions.errorCode`** **`BATCH_REPLAY_ALL_FAILED`** (no ZIP body).
 

@@ -2,7 +2,7 @@
 
 ## Policy summary
 
-**`AddArchiForgeRateLimiting`** registers a **`replay`** partition policy:
+**`AddArchLucidRateLimiting`** registers a **`replay`** partition policy:
 
 - **Light** (default formats): higher permit count per window.
 - **Heavy** (e.g. **`docx`**, **`pdf`** query): lower permit count per longer window.
@@ -14,7 +14,7 @@ Partition key combines the authenticated user (if any) or remote IP with **`ligh
 ## Operator actions
 
 1. **429 on replay:** Confirm client is not batching heavy exports on a shared NAT IP. Prefer authenticated callers so limits partition by identity.
-2. **Tune config:** Adjust **`RateLimiting:Replay:Light:*`** and **`RateLimiting:Replay:Heavy:*`** in app settings (see **`InfrastructureExtensions.AddArchiForgeRateLimiting`**).
+2. **Tune config:** Adjust **`RateLimiting:Replay:Light:*`** and **`RateLimiting:Replay:Heavy:*`** in app settings (see **`InfrastructureExtensions.AddArchLucidRateLimiting`**).
 
 ## References
 

@@ -1,4 +1,4 @@
-# ArchiForge Operator Shell — Data Flow and State Management
+# ArchLucid Operator Shell — Data Flow and State Management
 
 > **Audience:** Back-end developers learning how data moves through the front end.  
 > Prerequisite: `OPERATOR_SHELL_TUTORIAL.md` (concepts) and `COMPONENT_REFERENCE.md` (components).
@@ -38,7 +38,7 @@
 │  │  2. page.tsx calls api.ts functions (listRunsByProject…)    │ │
 │  │  3. api.ts → resolveRequest() → HTTP GET/POST              │ │
 │  │  4. ──────────────────────────────────────────────────────► │ │
-│  │     │          ARCHIFORGE C# API (localhost:5128)           │ │
+│  │     │          ARCHLUCID C# API (localhost:5128)           │ │
 │  │     │          X-Api-Key + scope headers                    │ │
 │  │  5. ◄──────────── JSON response ─────────────────────────  │ │
 │  │  6. page.tsx → coerce*(raw) → validate shape               │ │

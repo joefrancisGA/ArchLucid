@@ -1,6 +1,6 @@
-# ArchiForge operator shell (Change Set 55R)
+# ArchLucid operator shell (Change Set 55R)
 
-**Audience:** Internal operators and design partners using the thin Next.js UI in `archiforge-ui/` against the ArchiForge API.
+**Audience:** Internal operators and design partners using the thin Next.js UI in `archiforge-ui/` against the ArchLucid API.
 
 ---
 

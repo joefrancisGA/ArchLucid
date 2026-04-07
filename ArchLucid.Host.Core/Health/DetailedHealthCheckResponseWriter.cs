@@ -7,9 +7,9 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 namespace ArchLucid.Host.Core.Health;
 
 /// <summary>
-/// Writes a richer JSON payload for <c>/health/ready</c> and <c>/health</c> that includes
-/// per-check duration, description, error message, and the running build version.
-/// <c>/health/live</c> should remain minimal for orchestrator probes.
+/// Writes JSON for health endpoints. Use <see cref="HealthCheckResponseDetailLevel.Summary"/> for anonymous
+/// readiness probes; use <see cref="HealthCheckResponseDetailLevel.Detailed"/> only behind authentication.
+/// <c>/health/live</c> should remain minimal for orchestrator probes (default writer).
 /// </summary>
 public static class DetailedHealthCheckResponseWriter
 {
@@ -22,13 +22,45 @@ public static class DetailedHealthCheckResponseWriter
         WriteIndented = true,
     };
 
-    public static Task WriteAsync(HttpContext context, HealthReport report)
+    /// <summary>Writes detailed JSON (backward-compatible default for callers that omit the level).</summary>
+    public static Task WriteAsync(HttpContext context, HealthReport report) =>
+        WriteAsync(context, report, HealthCheckResponseDetailLevel.Detailed);
+
+    public static Task WriteAsync(
+        HttpContext context,
+        HealthReport report,
+        HealthCheckResponseDetailLevel detailLevel)
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(report);
 
         context.Response.ContentType = "application/json; charset=utf-8";
 
+        return detailLevel switch
+        {
+            HealthCheckResponseDetailLevel.Summary => WriteSummaryPayloadAsync(context, report),
+            HealthCheckResponseDetailLevel.Detailed => WriteDetailedPayloadAsync(context, report),
+            _ => throw new ArgumentOutOfRangeException(nameof(detailLevel), detailLevel, null),
+        };
+    }
+
+    private static Task WriteSummaryPayloadAsync(HttpContext context, HealthReport report)
+    {
+        var payload = new
+        {
+            status = report.Status.ToString(),
+            entries = report.Entries.Select(entry => new
+            {
+                name = entry.Key,
+                status = entry.Value.Status.ToString(),
+            }),
+        };
+
+        return context.Response.WriteAsJsonAsync(payload, JsonOptions, context.RequestAborted);
+    }
+
+    private static Task WriteDetailedPayloadAsync(HttpContext context, HealthReport report)
+    {
         // "version" matches GET /version "informationalVersion" (same BuildProvenance source).
         var payload = new
         {

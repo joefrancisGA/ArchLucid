@@ -1,4 +1,4 @@
-# ArchiForge Operator Shell — Component Reference
+# ArchLucid Operator Shell — Component Reference
 
 > **Audience:** Developers maintaining or extending the operator shell UI.  
 > See `OPERATOR_SHELL_TUTORIAL.md` for foundational concepts. This document is the reference.
@@ -281,7 +281,7 @@ All three live in `src/components/compare/` and are client components (used insi
 
 The root layout renders:
 1. `<html>` and `<body>` tags
-2. A `<header>` with the "ArchiForge" title
+2. A `<header>` with the "ArchLucid" title
 3. A `<nav>` with `<Link>` elements for every page
 4. `<AuthPanel />`
 5. `{children}` — the current page
@@ -292,8 +292,8 @@ The `<Link>` component from `next/link` performs client-side navigation (no full
 
 ```ts
 export const metadata = {
-  title: "ArchiForge",
-  description: "ArchiForge operator shell",
+  title: "ArchLucid",
+  description: "ArchLucid operator shell",
 };
 ```
 
@@ -309,7 +309,7 @@ Next.js uses this to set `<title>` and `<meta name="description">` in the HTML h
 |----------|------|---------|
 | `apiGet<T>(path)` | GET | Core JSON fetch (server or browser) |
 | `apiPostJson<T>(path, body)` | POST | Core JSON post |
-| `fetchArchiForgeJson<T>(path)` | GET | Alias for `apiGet` (used by graph API) |
+| `fetchArchiForgeJson<T>(path)` | GET | Alias for `apiGet` (used by graph API). **Note:** export name is still `fetchArchiForgeJson` in `src/lib/api.ts` until the UI package/env rename (Phase 3); it targets the **ArchLucid** API. |
 | `listRunsByProject(projectId, take)` | GET | `/api/authority/projects/{id}/runs` |
 | `getRunSummary(runId)` | GET | `/api/authority/runs/{id}/summary` |
 | `getRunDetail(runId)` | GET | `/api/authority/runs/{id}` |

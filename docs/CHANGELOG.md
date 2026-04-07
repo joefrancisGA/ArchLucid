@@ -1,4 +1,4 @@
-# ArchiForge changelog
+# ArchLucid changelog
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
@@ -59,7 +59,7 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 **Area:** Configuration, observability, packaging, operator docs  
 **Key deliverables:**
 
-- Fail-fast config validation (`ArchiForgeConfigurationRules`) before DbUp; SQL connection required only when `StorageProvider=Sql`.
+- Fail-fast config validation (`ArchLucidConfigurationRules`) before DbUp; SQL connection required only when `StorageProvider=Sql`.
 - `/health/live` (minimal) + `/health/ready` (DB, schema files, compliance pack, writable temp) + `/health` (all) with `DetailedHealthCheckResponseWriter` (enriched JSON including `version`, `commitSha`, `totalDurationMs`).
 - Startup non-secret configuration snapshot log (toggle `Hosting:LogStartupConfigurationSummary`).
 - `GET /version` endpoint (`VersionController`, `[AllowAnonymous]`): `application`, `informationalVersion`, `assemblyVersion`, `fileVersion`, `commitSha`, `runtimeFramework`, `environment`.

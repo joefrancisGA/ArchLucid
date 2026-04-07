@@ -132,13 +132,13 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Check connectivity to the ArchiForge API (GET /health). Returns true if the API is reachable and healthy.
+    /// Check connectivity to the ArchiForge API (GET /health/live). Returns true if the API process responds successfully (liveness only).
     /// </summary>
     public async Task<bool> CheckHealthAsync(CancellationToken ct = default)
     {
         try
         {
-            HttpResponseMessage response = await _http.GetAsync("/health", ct);
+            HttpResponseMessage response = await _http.GetAsync("/health/live", ct);
 
             return response.IsSuccessStatusCode;
         }

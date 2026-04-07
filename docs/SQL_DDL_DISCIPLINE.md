@@ -25,7 +25,7 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 ## Component breakdown
 
 - **`ArchLucid.Persistence.Data.*`** — embeds migrations, ships SQL files, exposes **`DatabaseMigrator`**.
-- **`ArchLucid.Persistence`** — MSBuild **link** copies **`ArchiForge.sql`** to output **`Scripts/ArchiForge.sql`** for **`SqlSchemaBootstrapper`** (see **`ArchiForgeStorageServiceCollectionExtensions`**).
+- **`ArchLucid.Persistence`** — MSBuild **link** copies **`ArchiForge.sql`** to output **`Scripts/ArchiForge.sql`** for **`SqlSchemaBootstrapper`** (see **`ArchLucidStorageServiceCollectionExtensions`**).
 
 ## Data flow
 

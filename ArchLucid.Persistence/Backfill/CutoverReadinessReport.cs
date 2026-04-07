@@ -2,7 +2,7 @@ namespace ArchLucid.Persistence.Backfill;
 
 /// <summary>
 /// Aggregate readiness report across all authority types and slices.
-/// Answers: "Is the database ready to switch to <see cref="ArchLucid.Persistence.RelationalRead.PersistenceReadMode.RequireRelational"/>?"
+/// Answers: "Is every backfilled slice ready so reads can rely on relational tables only?"
 /// </summary>
 public sealed class CutoverReadinessReport
 {

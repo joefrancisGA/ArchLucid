@@ -62,7 +62,7 @@ flowchart LR
 
 - **Identity:** Prefer **managed identity** from compute to SQL, Key Vault, and storage APIs; fall back to Key Vault–backed secrets only where required.
 - **Network:** Private endpoints for data planes; no public SQL; align with workspace SMB rule for any file share access.
-- **RLS:** Production hosts with `ArchiForge:StorageProvider=Sql` must set `SqlServer:RowLevelSecurity:ApplySessionContext=true` (validated at startup — see `ArchiForgeConfigurationRules`).
+- **RLS:** Production hosts with `ArchiForge:StorageProvider=Sql` must set `SqlServer:RowLevelSecurity:ApplySessionContext=true` (validated at startup — see `ArchLucidConfigurationRules`).
 
 ## Operational considerations
 

@@ -1,5 +1,7 @@
 # Contributor onboarding
 
+→ New here? Start at [docs/START_HERE.md](START_HERE.md) instead.
+
 The shipped product is **ArchLucid**; this repository and .NET projects still use the **`ArchiForge.*`** naming until the Phase 5–6 bulk rename.
 
 **Where does this fit?** For the full **clone → Azure** narrative (not just build/tests), see **[GOLDEN_PATH.md](GOLDEN_PATH.md)**.

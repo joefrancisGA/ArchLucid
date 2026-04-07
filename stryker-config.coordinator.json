@@ -1,0 +1,12 @@
+{
+  "stryker-config": {
+    "project": "ArchLucid.Coordinator/ArchLucid.Coordinator.csproj",
+    "test-projects": ["ArchLucid.Coordinator.Tests/ArchLucid.Coordinator.Tests.csproj"],
+    "reporters": ["progress", "html"],
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 60
+    }
+  }
+}

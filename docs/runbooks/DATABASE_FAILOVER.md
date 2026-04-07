@@ -8,13 +8,13 @@ Use this runbook when the primary Azure SQL database is unavailable, when Micros
 
 - Application health checks report SQL connectivity failures across instances.
 - Azure Portal / Azure Monitor shows primary region outage or database **Failover** in progress.
-- You are validating **business continuity** requirements (RPO/RTO) for ArchiForge.
+- You are validating **business continuity** requirements (RPO/RTO) for ArchLucid.
 
 ## Components (mental model)
 
 ```mermaid
 flowchart LR
-  subgraph app [ArchiForge API]
+  subgraph app [ArchLucid API]
     Api[ArchLucid.Api]
   end
   subgraph data [Data plane]
@@ -52,8 +52,8 @@ Store connection strings in **Key Vault** (or managed identity–backed settings
 
 ## Application behavior
 
-- ArchiForge uses **Dapper** and **resilient SQL** wiring in the API; during failover windows expect **transient errors** — clients should retry with backoff.
-- After failover, **no ArchiForge-specific cache** invalidates SQL; new connections pick up the new primary automatically if the listener is correct.
+- ArchLucid uses **Dapper** and **resilient SQL** wiring in the API; during failover windows expect **transient errors** — clients should retry with backoff.
+- After failover, **no product-specific SQL cache layer** invalidates connections; new connections pick up the new primary automatically if the listener is correct.
 
 ## Post-failover validation
 

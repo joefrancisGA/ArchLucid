@@ -18,13 +18,13 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 - [x] 1.7 Update `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/RELEASE_SMOKE.md`, `docs/RELEASE_LOCAL.md` (2026-04-06 — ArchLucid product naming in pilot/release docs; literal `ArchiForge.*` paths and config keys unchanged)
 - [x] 1.8 Update onboarding docs: `docs/onboarding/day-one-developer.md`, `day-one-sre.md`, `day-one-security.md`, `docs/CONTRIBUTOR_ONBOARDING.md`, `docs/ONBOARDING_HAPPY_PATH.md` (2026-04-06 — ArchLucid product naming in prose; repo folder, `ArchiForge.*` assemblies, and config keys unchanged)
 - [x] 1.9 Update `docs/BUILD.md`, `docs/FORMATTING.md`, `docs/TEST_STRUCTURE.md`, `docs/TEST_EXECUTION_MODEL.md` (2026-04-06 — ArchLucid product naming note / prose; `ArchiForge.*` paths unchanged)
-- [ ] 1.10 Update remaining docs: ADRs, runbooks, CLI docs, changelogs, and any other `.md` files with stale references (batch as needed)
+- [x] 1.10 Update remaining docs: ADRs, runbooks, CLI docs, changelogs, and any other `.md` files with stale references (batch as needed) (2026-04-07 — product naming + API/DI/header alignment; Phase 7 literals retained)
   - [x] API SLO doc + synthetic probe runbook link (`docs/API_SLOS.md`, `SLO_PROMETHEUS_GRAFANA.md` §10, `.github/workflows/api-synthetic-probe.yml`) (2026-04-06)
   - [x] AgentRuntime multi-vendor LLM seam: `ILlmProvider`, `LlmProviderDescriptor`, `LlmProviderAuthScheme`; `IAgentCompletionClient` : `ILlmProvider`; DI `ILlmProvider` → `ILlmCompletionProvider` (2026-04-06)
   - [x] Agent prompt versioning: catalog templates + SHA-256, `AgentExecutionTrace` repro fields, `AgentPrompts` release labels, OTel tags (2026-04-06)
   - [x] `docs/CONTAINERIZATION.md` — Docker `restore` / `publish` stages must use `-r linux-musl-x64` with `--no-restore` publish (NETSDK1047) (2026-04-06)
-- [ ] 1.11 Update `archiforge-ui/docs/*.md` (ARCHITECTURE, COMPONENT_REFERENCE, TESTING_AND_TROUBLESHOOTING, OPERATOR_SHELL_TUTORIAL, etc.)
-- [ ] 1.12 Update `.cursor/rules/Navigation.mdc` and `CSharp-EmbeddedStatements-NoBraces.mdc`
+- [x] 1.11 Update `archiforge-ui/docs/*.md` (ARCHITECTURE, COMPONENT_REFERENCE, TESTING_AND_TROUBLESHOOTING, OPERATOR_SHELL_TUTORIAL, etc.) (2026-04-07)
+- [x] 1.12 Update `.cursor/rules/Navigation.mdc` and `CSharp-EmbeddedStatements-NoBraces.mdc` (2026-04-06 — Navigation: ArchLucid product naming + `ArchLucidHostingRole.cs` path; CSharp rule: no product literals, verified)
 
 ## Phase 2 — Configuration key bridges (medium risk, any session)
 
@@ -76,7 +76,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 - [x] 5.7 Rename host projects: `Host.Core`, `Host.Composition` (2026-04-06)
 - [x] 5.8 Rename `ArchiForge.Api`, `ArchiForge.Worker` → `ArchLucid.Api`, `ArchLucid.Worker` (2026-04-06)
 - [x] 5.9 `ArchiForge.sln` → `ArchLucid.sln` (paths + CI/scripts/docs) (2026-04-06)
-- [x] 5.10 Update `Directory.Build.props` — `ArchLucidApiClientPackageVersion` + `ArchiForgeApiClientPackageVersion` bridge (2026-04-06)
+- [x] 5.10 Update `Directory.Build.props` — `ArchLucidApiClientPackageVersion` + `ArchLucidApiClientPackageVersion` bridge (2026-04-06)
 - [ ] 5.11 Update `templates/archiforge-finding-engine/` directory and contents
 - [x] 5.12 Rename C# files with `ArchiForge` prefix (instrumentation, configuration bridge, policies, UoW, CLI client, etc.) (2026-04-06)
 - [x] 5.13 Update NSwag config (`nswag.json`) and regenerate client (`ArchLucidApiClient.g.cs`) (2026-04-06)
@@ -131,3 +131,4 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 | 2026-04-06 | 1.10 (slice) | **Prompt reproducibility:** `Prompts/*SystemPromptTemplate`, **`IAgentSystemPromptCatalog`** / **`CachedAgentSystemPromptCatalog`**, **`AgentPromptReproMetadata`**, trace fields + **`IAgentExecutionTraceRecorder`**; **`AgentPromptActivityTags`**; Simulator traces; NSwag client regen. |
 | 2026-04-06 | 1.10 (slice) | **`docs/CONTAINERIZATION.md`** — table + notes: RID-scoped `dotnet restore` matches Alpine `publish -r linux-musl-x64 --no-restore`; aligns with `ArchLucid.Api/Dockerfile` (avoids NETSDK1047 in CI/buildx). |
 | 2026-04-06 | Phase 4 slice (4.4 partial) | **`infra/terraform-container-apps/main.tf`** worker `command` → **`ArchLucid.Worker.dll`**; locals comment; **`variables.tf`**, **`terraform.tfvars.example`**, **`README.md`**; **`infra/terraform-entra/variables.tf`** + **`infra/terraform/variables.tf`** descriptions (ArchLucid.Api / API backend). **`terraform fmt`** on `terraform-container-apps`. |
+| 2026-04-07 | **1.10 + 1.11** | **Docs + UI docs rename sweep:** `docs/**/*.md` product/DI/telemetry names aligned to **ArchLucid** (`DI_REGISTRATION_MAP` → `Host.Composition`, `AddArchLucid*`, `X-ArchLucid-*`, `SYSTEM_MAP`, ADRs 0010–0011, SQL/runbook prose); **kept** `ArchiForge.sql`, `ArchiForge:*` / `ArchiForgeAuth` / legacy connection string keys / Prometheus alert names / `archiforge_*` metric prefixes where operational. **`archiforge-ui/docs/*.md`** titles + diagrams + examples; **`archiforge-ui/src/app/global-error.tsx`** heading → **ArchLucid**. |

@@ -1,4 +1,4 @@
-# ArchiForge Operator Shell — Testing and Troubleshooting Guide
+# ArchLucid Operator Shell — Testing and Troubleshooting Guide
 
 > **Audience:** Back-end developers running, debugging, and extending the front-end test suite.
 
@@ -374,7 +374,7 @@ The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey**
 
 | File | What it asserts |
 |------|-----------------|
-| **`e2e/smoke.spec.ts`** | Home renders **ArchiForge** (h1) and **Start here** (h2). |
+| **`e2e/smoke.spec.ts`** | Home renders **ArchLucid** (h1) and **Start here** (h2). |
 | **`e2e/run-manifest-journey.spec.ts`** | Run detail (mock API) → open manifest link → manifest summary, artifacts table, bundle affordance → **Run detail** back. |
 | **`e2e/manifest-empty-artifacts.spec.ts`** | Manifest whose artifact list is **`200` + `[]`**: valid-empty status region and copy; **no** “could not be loaded” failure callouts; bundle link present; no artifact table headers. |
 | **`e2e/compare-journey.spec.ts`** | **`/compare?leftRunId&rightRunId`** prefills inputs; **Compare** runs mocked legacy + structured responses; structured-before-legacy guidance and **Review order** nav; **Last compare request** outcome region. |
@@ -411,9 +411,9 @@ To exercise the shell against a real **`ArchLucid.Api`**, run **`npm run dev`**,
 ```ts
 import { test, expect } from "@playwright/test";
 
-test("home page has ArchiForge heading", async ({ page }) => {
+test("home page has ArchLucid heading", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "ArchiForge", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "ArchLucid", level: 1 })).toBeVisible();
 });
 ```
 

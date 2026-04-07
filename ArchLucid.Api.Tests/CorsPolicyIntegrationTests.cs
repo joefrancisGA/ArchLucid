@@ -16,7 +16,7 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
     [Fact]
     public async Task HealthCheck_DoesNotEmitAllowOrigin_ForDisallowedOrigin()
     {
-        using HttpRequestMessage request = new(HttpMethod.Get, "/health");
+        using HttpRequestMessage request = new(HttpMethod.Get, "/health/ready");
         request.Headers.TryAddWithoutValidation("Origin", "https://malicious.example");
 
         HttpResponseMessage response = await _client.SendAsync(request);
@@ -28,7 +28,7 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
     [Fact]
     public async Task HealthCheck_EmitsAllowOrigin_ForConfiguredOrigin()
     {
-        using HttpRequestMessage request = new(HttpMethod.Get, "/health");
+        using HttpRequestMessage request = new(HttpMethod.Get, "/health/ready");
         request.Headers.TryAddWithoutValidation("Origin", "https://trusted.app.example");
 
         HttpResponseMessage response = await _client.SendAsync(request);

@@ -1,4 +1,4 @@
-# ArchiForge system map
+# ArchLucid system map
 
 High-level flows for navigation and onboarding. For component detail see [ARCHITECTURE_COMPONENTS.md](./ARCHITECTURE_COMPONENTS.md) and [ARCHITECTURE_FLOWS.md](./ARCHITECTURE_FLOWS.md).
 
@@ -67,9 +67,9 @@ sequenceDiagram
 
 | Host | File | Responsibility |
 |------|------|----------------|
-| API | `ArchLucid.Api/Program.cs` | HTTP pipeline, config validation, `AddArchiForgeApplicationServices` |
+| API | `ArchLucid.Api/Program.cs` | HTTP pipeline, config validation, `AddArchLucidApplicationServices` |
 | Worker | `ArchLucid.Worker/Program.cs` | Background loops, health, shared DI |
-| DI assembly | `ArchLucid.Host.Core/Startup/ServiceCollectionExtensions*.cs` | Partial classes: storage, agents, scheduling, observability, auth |
+| DI assembly | `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions*.cs` (+ `Configuration/ArchLucidStorageServiceCollectionExtensions.cs`) | Partial classes: storage, agents, scheduling, alerts, pipeline, coordinator |
 
 ---
 
@@ -81,6 +81,6 @@ Section `FeatureManagement:FeatureFlags` in configuration. Used for gradual roll
 
 ## Observability artifacts
 
-- **Traces**: `ArchiForgeInstrumentation` activity sources (including `ArchiForge.AuthorityRun` and per-stage child activities).
-- **Metrics**: OpenTelemetry meter `ArchiForge`; Prometheus scrape path under `Observability:Prometheus`.
+- **Traces**: `ArchLucidInstrumentation` activity sources (including `ArchLucid.AuthorityRun` and per-stage child activities).
+- **Metrics**: OpenTelemetry meter **`ArchLucid`** (`ArchLucidInstrumentation.MeterName`); Prometheus scrape path under `Observability:Prometheus`. (Some exported **metric series names** still use an `archiforge_*` prefix until monitoring renames — see `infra/prometheus/`.)
 - **Dashboards / alerts**: `infra/grafana/` and `infra/prometheus/` (reference JSON and rule files for operators).

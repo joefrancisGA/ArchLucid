@@ -1,3 +1,4 @@
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Middleware;
@@ -73,14 +74,16 @@ internal static class PipelineExtensions
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
             Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
-            ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
+            ResponseWriter = static (ctx, r) =>
+                DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Summary),
         })
             .AllowAnonymous();
         app.MapHealthChecks("/health", new HealthCheckOptions
         {
-            ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
+            ResponseWriter = static (ctx, r) =>
+                DetailedHealthCheckResponseWriter.WriteAsync(ctx, r, HealthCheckResponseDetailLevel.Detailed),
         })
-            .AllowAnonymous();
+            .RequireAuthorization(ArchLucidPolicies.ReadAuthority);
 
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
         if (prometheusEnabled)

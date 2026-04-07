@@ -3,20 +3,24 @@ using System.Data;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Serialization;
 
 using Dapper;
 
 namespace ArchLucid.Persistence.GraphSnapshots;
 
-/// <summary>Loads graph snapshot nodes, warnings, and indexed edges from relational tables; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
+/// <summary>Loads graph snapshot nodes, warnings, and indexed edges from relational tables.</summary>
+/// <remarks>
+/// When <c>dbo.GraphSnapshotEdges</c> has rows but <c>dbo.GraphSnapshotEdgeProperties</c> is empty, label/properties
+/// are merged from <c>EdgesJson</c> (legacy enrichment until all edge metadata is backfilled relationally).
+/// </remarks>
 internal static class GraphSnapshotRelationalRead
 {
     public static async Task<GraphSnapshot> HydrateAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
         GraphSnapshotStorageRow row,
-        CancellationToken ct,
-        JsonFallbackPolicy? fallbackPolicy = null)
+        CancellationToken ct)
     {
         Guid graphSnapshotId = row.GraphSnapshotId;
 
@@ -68,7 +72,7 @@ internal static class GraphSnapshotRelationalRead
         List<string>? warningsOverride = null;
 
         if (warningsCount > 0)
-        
+
             warningsOverride = await LoadStringColumnRelationalAsync(
                 connection,
                 transaction,
@@ -80,18 +84,17 @@ internal static class GraphSnapshotRelationalRead
                 """,
                 graphSnapshotId,
                 ct);
-        
+
 
         List<GraphEdge>? edgesOverride = null;
 
         if (edgesCount <= 0)
-            return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride, fallbackPolicy);
+            return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
 
-        bool mergeEdgeMetadataFromJson = edgePropsCount == 0
-            && (fallbackPolicy is null || fallbackPolicy.EvaluateFallback(edgePropsCount, "GraphSnapshot.EdgeProperties", "GraphSnapshot", row.GraphSnapshotId.ToString()));
+        bool mergeEdgeMetadataFromJson = edgePropsCount == 0 && edgesCount > 0;
         edgesOverride = await LoadEdgesRelationalAsync(connection, transaction, row, mergeEdgeMetadataFromJson, ct);
 
-        return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride, fallbackPolicy);
+        return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
     }
 
     private static async Task<List<string>> LoadStringColumnRelationalAsync(
@@ -251,7 +254,7 @@ internal static class GraphSnapshotRelationalRead
 
         if (mergeMetadataFromJson)
         {
-            List<GraphEdge> jsonEdges = GraphSnapshotJsonFallback.DeserializeEdgesForMerge(row.EdgesJson);
+            List<GraphEdge> jsonEdges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson);
             jsonById = jsonEdges.ToDictionary(e => e.EdgeId, StringComparer.Ordinal);
         }
 
@@ -262,19 +265,15 @@ internal static class GraphSnapshotRelationalRead
             Dictionary<string, string> props = new(StringComparer.Ordinal);
 
             if (propsByEdge.TryGetValue(er.EdgeId, out List<EdgePropertyRow>? rowsForEdge))
-            
+            {
                 foreach (EdgePropertyRow pr in rowsForEdge.OrderBy(x => x.PropertySortOrder))
-                
+                {
                     if (string.Equals(pr.PropertyKey, GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey, StringComparison.Ordinal))
-                    
                         label = pr.PropertyValue;
-                    
                     else
-                    
                         props[pr.PropertyKey] = pr.PropertyValue;
-                    
-                
-            
+                }
+            }
 
             GraphEdge edge = new()
             {

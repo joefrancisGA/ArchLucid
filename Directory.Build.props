@@ -1,5 +1,8 @@
 <Project>
   <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <!-- NuGet semver for ArchLucid.Api.Client; bump when releasing a new SDK drop. -->
     <ArchLucidApiClientPackageVersion>1.0.0</ArchLucidApiClientPackageVersion>

@@ -1,4 +1,4 @@
-# ArchiForge Operator Shell — Front-End Tutorial
+# ArchLucid Operator Shell — Front-End Tutorial
 
 > **Audience:** Back-end developers who know C# / SQL / HTTP APIs but are new to React and Next.js.
 > Read this start-to-finish the first time; use the table of contents as a reference later.
@@ -246,7 +246,7 @@ export default function GraphPage() {
 All HTTP calls go through `src/lib/api.ts`. The two core functions are:
 
 ```
-apiGet<T>(path)       → fetches JSON from the ArchiForge API and returns T
+apiGet<T>(path)       → fetches JSON from the ArchLucid API and returns T
 apiPostJson<T>(path, body) → POSTs JSON and returns T
 ```
 

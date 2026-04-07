@@ -1,8 +1,10 @@
 # Golden path — zero → prod-like dev → Azure
 
+→ New here? Start at [docs/START_HERE.md](START_HERE.md) instead.
+
 **Last reviewed:** 2026-04-04
 
-One **environment and delivery** spine for ArchiForge. Use this page when you need **where to start** and **in what order** to turn things on.
+One **environment and delivery** spine for ArchLucid. Use this page when you need **where to start** and **in what order** to turn things on.
 
 - **Different question?** If you need how a **single API request** moves through the system (client → API → SQL → agents), see **[ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md)** (request lifecycle).
 

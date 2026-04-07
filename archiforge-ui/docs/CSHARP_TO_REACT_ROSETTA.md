@@ -423,8 +423,8 @@ function ArtifactListTable(props: {
 ### C#
 ```csharp
 using System.Collections.Generic;
-using ArchiForge.Models;
-using ArchiForge.Services;
+using ArchLucid.Models;
+using ArchLucid.Services;
 ```
 
 ### TypeScript

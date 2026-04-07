@@ -14,7 +14,7 @@ internal static class InfrastructureExtensions
     /// </summary>
     /// <remarks>
     /// <see cref="AuthorizationOptions.FallbackPolicy"/> requires an authenticated principal so new controllers
-    /// are closed by default; use <c>[AllowAnonymous]</c> only for intentional public surface (e.g. <c>/version</c>, health).
+    /// are closed by default; use <c>[AllowAnonymous]</c> only for intentional public surface (e.g. <c>/version</c>, <c>/health/live</c>, <c>/health/ready</c>).
     /// </remarks>
     public static IServiceCollection AddArchLucidAuthorization(this IServiceCollection services)
     {

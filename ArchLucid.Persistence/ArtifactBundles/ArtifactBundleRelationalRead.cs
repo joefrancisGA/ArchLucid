@@ -8,15 +8,14 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.ArtifactBundles;
 
-/// <summary>Relational-first hydration for <see cref="ArtifactBundle"/> reads; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
+/// <summary>Relational hydration for artifact list slices; trace base remains JSON with relational list overlays.</summary>
 internal static class ArtifactBundleRelationalRead
 {
     internal static async Task<ArtifactBundle> HydrateBundleAsync(
         SqlConnection connection,
         ArtifactBundleStorageRow row,
         IArtifactBlobStore blobStore,
-        CancellationToken ct,
-        JsonFallbackPolicy? fallbackPolicy = null)
+        CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(blobStore);
 
@@ -62,24 +61,14 @@ internal static class ArtifactBundleRelationalRead
             },
             ct);
 
-        string entityId = bundleId.ToString();
+        List<SynthesizedArtifact> artifacts = artifactCount > 0
+            ? await LoadArtifactsRelationalAsync(connection, bundleId, blobStore, ct)
+            : [];
 
-        List<SynthesizedArtifact> artifacts = await RelationalFirstRead.ReadSliceAsync(
-            artifactCount,
-            "ArtifactBundle.Artifacts",
-            () => LoadArtifactsRelationalAsync(connection, bundleId, blobStore, ct),
-            () => ArtifactBundleJsonFallback.DeserializeArtifacts(row.ArtifactsJson),
-            () => [],
-            fallbackPolicy,
-            "ArtifactBundle", entityId);
-
-        // Trace base is always deserialized from JSON (scalar header fields); list sub-properties
-        // are overwritten from relational tables when available. The JSON-base read is intentional
-        // and not governed by fallback policy (it holds non-list scalar fields not yet relational).
-        SynthesisTrace trace = ArtifactBundleJsonFallback.DeserializeTraceBase(row.TraceJson);
+        SynthesisTrace trace = ArtifactBundleTraceJsonReader.DeserializeTraceBase(row.TraceJson);
 
         if (genCount > 0)
-        
+
             trace.GeneratorsUsed = await LoadOrderedStringsAsync(
                 connection,
                 """
@@ -90,10 +79,10 @@ internal static class ArtifactBundleRelationalRead
                 """,
                 bundleId,
                 ct);
-        
+
 
         if (traceDecCount > 0)
-        
+
             trace.SourceDecisionIds = await LoadOrderedStringsAsync(
                 connection,
                 """
@@ -104,10 +93,10 @@ internal static class ArtifactBundleRelationalRead
                 """,
                 bundleId,
                 ct);
-        
+
 
         if (notesCount > 0)
-        
+
             trace.Notes = await LoadOrderedStringsAsync(
                 connection,
                 """
@@ -118,7 +107,7 @@ internal static class ArtifactBundleRelationalRead
                 """,
                 bundleId,
                 ct);
-        
+
 
         return new ArtifactBundle
         {

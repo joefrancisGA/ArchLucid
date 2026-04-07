@@ -35,13 +35,13 @@ curl -X POST \
 ```
 
 2. **Inspect headers**
-   - `X-ArchiForge-ComparisonRecordId`
-   - `X-ArchiForge-ComparisonType`
-   - `X-ArchiForge-ReplayMode`
-   - `X-ArchiForge-LeftRunId` / `RightRunId`
-   - `X-ArchiForge-LeftExportRecordId` / `RightExportRecordId`
-   - `X-ArchiForge-Format-Profile`
-   - `X-ArchiForge-PersistedReplayRecordId` (if `persistReplay=true`)
+   - `X-ArchLucid-ComparisonRecordId`
+   - `X-ArchLucid-ComparisonType`
+   - `X-ArchLucid-ReplayMode`
+   - `X-ArchLucid-LeftRunId` / `RightRunId`
+   - `X-ArchLucid-LeftExportRecordId` / `RightExportRecordId`
+   - `X-ArchLucid-Format-Profile`
+   - `X-ArchLucid-PersistedReplayRecordId` (if `persistReplay=true`)
 
 3. **If replay fails**
    - HTTP 400 with error JSON:
@@ -65,8 +65,8 @@ curl -X POST \
 ```
 
 2. **Check verification headers**
-   - `X-ArchiForge-VerificationPassed: true|false`
-   - `X-ArchiForge-VerificationMessage`
+   - `X-ArchLucid-VerificationPassed: true|false`
+   - `X-ArchLucid-VerificationMessage`
 
 3. **If verification fails (drift detected)**
    - Use `POST /v1/architecture/comparisons/{id}/drift` to get structured `DriftAnalysisResponse`:

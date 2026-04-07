@@ -4,7 +4,7 @@
 
 ## Objective
 
-Document **Recovery Time Objective (RTO)** and **Recovery Point Objective (RPO)** expectations for ArchiForge so landing zones, SRE, and procurement can align Azure SKUs (SQL HA, geo-replication, backups) with business requirements. This file is **policy guidance** for the product; your organization may tighten or relax numbers in internal runbooks.
+Document **Recovery Time Objective (RTO)** and **Recovery Point Objective (RPO)** expectations for ArchLucid so landing zones, SRE, and procurement can align Azure SKUs (SQL HA, geo-replication, backups) with business requirements. This file is **policy guidance** for the product; your organization may tighten or relax numbers in internal runbooks.
 
 ## Assumptions
 

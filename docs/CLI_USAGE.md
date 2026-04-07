@@ -1,6 +1,6 @@
-# ArchiForge CLI Reference
+# ArchLucid CLI Reference
 
-Reference for the ArchiForge CLI: commands, configuration, and API URL behavior.
+Reference for the ArchLucid CLI: commands, configuration, and API URL behavior.
 
 ## Running the CLI
 
@@ -20,7 +20,7 @@ archiforge <command> [options]
 
 ## API URL
 
-The CLI talks to the ArchiForge API over HTTP. Resolution order:
+The CLI talks to the ArchLucid API over HTTP. Resolution order:
 
 1. **`apiUrl`** in `archiforge.json` (if set)
 2. **`ARCHIFORGE_API_URL`** environment variable

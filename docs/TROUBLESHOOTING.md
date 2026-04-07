@@ -22,7 +22,7 @@ API error responses may include:
 - **`extensions.errorCode`** — stable machine-readable code (e.g. `RUN_NOT_FOUND`).
 - **`extensions.supportHint`** — short **next step** for common situations (no secrets).
 
-The **ArchiForge CLI** prints **`Next:`** lines on **stderr** after many failures, aligned with the same guidance.
+The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures, aligned with the same guidance.
 
 **Operator UI:** JSON error bodies from **`/api/proxy/*`** may include **`supportHint`** when the proxy cannot reach the API (502) or when upstream URL configuration is invalid (503).
 
@@ -32,7 +32,7 @@ The **ArchiForge CLI** prints **`Next:`** lines on **stderr** after many failure
 
 | Symptom | Likely cause | What to try |
 |--------|----------------|-------------|
-| API **does not start**; log mentions migration / DbUp | Bad **connection string**, DB unreachable, or migration failure | Fix `ConnectionStrings:ArchiForge`. Confirm SQL is up. See log lines mentioning **DbUp** or **migration**. [BUILD.md](BUILD.md), [SQL_SCRIPTS.md](SQL_SCRIPTS.md) |
+| API **does not start**; log mentions migration / DbUp | Bad **connection string**, DB unreachable, or migration failure | Fix **`ConnectionStrings:ArchLucid`** (or legacy **`ConnectionStrings:ArchiForge`**). Confirm SQL is up. See log lines mentioning **DbUp** or **migration**. [BUILD.md](BUILD.md), [SQL_SCRIPTS.md](SQL_SCRIPTS.md) |
 | **`/health/ready`** returns **503** | Database (when using Sql), schema files, rule pack, or temp directory check failed | Read JSON body for which check failed. Fix config/paths/permissions. |
 | **`401` / `403`** on API | Auth mode / role mismatch | **Development:** ensure `ArchiForgeAuth` is **DevelopmentBypass** for local pilots. **JWT:** confirm token roles map to Reader/Operator/Admin. [README.md](../README.md#api-authentication-archiforgeauth) |
 | **`429 Too Many Requests`** | Rate limiting | Wait for the window to reset or adjust `RateLimiting:*` in config (non-production). |
@@ -49,7 +49,7 @@ The **ArchiForge CLI** prints **`Next:`** lines on **stderr** after many failure
 
 1. Read the **console output** from first line to first `InvalidOperationException` / stack stop.
 2. **Configuration validation** runs **right after** the host is built: errors are logged as **`Startup configuration error:`** — fix each listed setting.
-3. If **`ConnectionStrings:ArchiForge`** is unset while **`ArchiForge:StorageProvider`** is **`Sql`**, startup will fail once DB is required.
+3. If **`ConnectionStrings:ArchLucid`** / legacy **`ConnectionStrings:ArchiForge`** is unset while **`ArchiForge:StorageProvider`** is **`Sql`**, startup will fail once DB is required.
 
 ---
 

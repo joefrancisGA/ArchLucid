@@ -8,6 +8,24 @@ See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) for test categories and filterin
 
 **RunComparisonController** intentionally depends on three application services (`IEndToEndReplayComparisonService`, `IEndToEndReplayComparisonSummaryFormatter`, `IEndToEndReplayComparisonExportService`) rather than a single facade, for clarity and testability.
 
+## Compiler quality (warnings as errors)
+
+Root **`Directory.Build.props`** enables:
+
+| Property | Purpose |
+|----------|---------|
+| **`TreatWarningsAsErrors`** | **All warnings are errors** — the build fails on any C# compiler or analyzer warning. |
+| **`AnalysisLevel`** | `latest` — use the current Roslyn analyzer baseline shipped with the SDK. |
+| **`EnforceCodeStyleInBuild`** | IDE-style analyzers (`.editorconfig`) run during **`dotnet build`**, not only in the editor. |
+
+**Suppressions:** Do **not** disable warnings globally in `Directory.Build.props`. If a warning is **known-acceptable** for a single project only (e.g. NSwag-generated code, a constrained test utility), add a `NoWarn` property to that project’s **`.csproj`** (e.g. `NoWarn` with `$(NoWarn)` plus specific `CA`/`CS` codes) and **document the reason** in an XML comment beside it (or extend this section). **`ArchLucid.Api.Client`** already suppresses **1591** (missing XML documentation) for generated HTTP client types; add further codes there **only** when they come from **`Generated/`** output after OpenAPI/NSwag changes.
+
+Verify locally with a Release build (matches typical CI compile strictness):
+
+```bash
+dotnet build ArchLucid.sln -c Release
+```
+
 ## Full solution
 
 ```bash
@@ -36,9 +54,9 @@ cd archiforge-ui && npx @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.js
 
 Add **`.tools-cdx/`** (or your chosen tool path) to your local ignore habits; do not commit generated BOMs unless your release process requires it.
 
-## OpenTelemetry metrics (`ArchiForge` meter)
+## OpenTelemetry metrics (`ArchLucid` meter)
 
-The API registers meter **`ArchiForge`** (`ArchiForgeInstrumentation.MeterName`). Notable series:
+The API registers meter **`ArchLucid`** (`ArchLucidInstrumentation.MeterName`). Notable series:
 
 | Metric | Notes |
 |--------|--------|

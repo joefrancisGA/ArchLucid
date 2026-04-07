@@ -1,4 +1,4 @@
-# Weekly mutation testing: Persistence (default stryker-config.json), Application, AgentRuntime — see docs/MUTATION_TESTING_STRYKER.md.
+# Weekly mutation testing: Persistence, Application, AgentRuntime, Coordinator, Decisioning — see docs/MUTATION_TESTING_STRYKER.md and docs/TEST_STRUCTURE.md (Stryker configs table).
 name: Stryker (scheduled)
 
 on:
@@ -23,6 +23,10 @@ jobs:
             config: stryker-config.application.json
           - label: AgentRuntime
             config: stryker-config.agentruntime.json
+          - label: Coordinator
+            config: stryker-config.coordinator.json
+          - label: Decisioning
+            config: stryker-config.decisioning.json
     steps:
       - uses: actions/checkout@v5
 

@@ -1,5 +1,4 @@
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Persistence.RelationalRead;
 
 using Dapper;
 
@@ -7,14 +6,13 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Findings;
 
-/// <summary>Builds <see cref="FindingsSnapshot"/> from relational tables; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
+/// <summary>Builds <see cref="FindingsSnapshot"/> from relational finding tables.</summary>
 internal static class FindingsSnapshotRelationalRead
 {
     internal static async Task<FindingsSnapshot> LoadRelationalSnapshotAsync(
         SqlConnection connection,
         FindingsSnapshotStorageRow row,
-        CancellationToken ct,
-        JsonFallbackPolicy? fallbackPolicy = null)
+        CancellationToken ct)
     {
         const string recordsSql = """
             SELECT
@@ -36,9 +34,6 @@ internal static class FindingsSnapshotRelationalRead
 
         if (records.Count == 0)
         {
-            if (fallbackPolicy is null || fallbackPolicy.EvaluateFallback(0, "FindingsSnapshot.Findings", "FindingsSnapshot", row.FindingsSnapshotId.ToString()))
-                return FindingsSnapshotJsonFallback.FromHeaderRow(row);
-
             return new FindingsSnapshot
             {
                 FindingsSnapshotId = row.FindingsSnapshotId,

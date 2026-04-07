@@ -1,4 +1,4 @@
-## Comparison replay in ArchiForge
+## Comparison replay in ArchLucid
 
 Comparison replay lets you take a **previously persisted comparison record** and:
 
@@ -93,16 +93,16 @@ If the requested format is not supported for the record type, the API returns **
 
 Response headers:
 
-- `X-ArchiForge-ComparisonRecordId` – original comparison record ID  
-- `X-ArchiForge-ComparisonType` – `"end-to-end-replay"` or `"export-record-diff"`  
-- `X-ArchiForge-ReplayMode` – `"artifact" | "regenerate" | "verify"`  
-- `X-ArchiForge-VerificationPassed` – `true`/`false` for verify mode  
-- `X-ArchiForge-VerificationMessage` – human‑readable verification message (optional)  
-- `X-ArchiForge-LeftRunId` / `X-ArchiForge-RightRunId` – run IDs (when available)  
-- `X-ArchiForge-LeftExportRecordId` / `X-ArchiForge-RightExportRecordId` – export record IDs (when available)  
-- `X-ArchiForge-CreatedUtc` – original comparison record timestamp (ISO‑8601)  
-- `X-ArchiForge-Format-Profile` – export profile used (end‑to‑end)  
-- `X-ArchiForge-PersistedReplayRecordId` – **new comparison record ID**, when `persistReplay = true`
+- `X-ArchLucid-ComparisonRecordId` – original comparison record ID  
+- `X-ArchLucid-ComparisonType` – `"end-to-end-replay"` or `"export-record-diff"`  
+- `X-ArchLucid-ReplayMode` – `"artifact" | "regenerate" | "verify"`  
+- `X-ArchLucid-VerificationPassed` – `true`/`false` for verify mode  
+- `X-ArchLucid-VerificationMessage` – human‑readable verification message (optional)  
+- `X-ArchLucid-LeftRunId` / `X-ArchLucid-RightRunId` – run IDs (when available)  
+- `X-ArchLucid-LeftExportRecordId` / `X-ArchLucid-RightExportRecordId` – export record IDs (when available)  
+- `X-ArchLucid-CreatedUtc` – original comparison record timestamp (ISO‑8601)  
+- `X-ArchLucid-Format-Profile` – export profile used (end‑to‑end)  
+- `X-ArchLucid-PersistedReplayRecordId` – **new comparison record ID**, when `persistReplay = true`
 
 ---
 
@@ -153,7 +153,7 @@ curl -X POST \
 After the call:
 
 - The DOCX file is written to `comparison.docx`.  
-- `headers.txt` will include a new `X-ArchiForge-PersistedReplayRecordId` which you can store or use later.
+- `headers.txt` will include a new `X-ArchLucid-PersistedReplayRecordId` which you can store or use later.
 
 **Example – export-record diff replay as DOCX**
 
@@ -200,7 +200,7 @@ Use this endpoint when you only need the **shape** of the replay (type, format, 
 #### A. Persisted end-to-end comparison, then replay as Markdown
 
 1. Run an end‑to‑end comparison and **persist** it (e.g., `POST /v1/architecture/run/compare/end-to-end/summary?leftRunId=...&rightRunId=...` with `{ "persist": true }`).  
-2. Read `X-ArchiForge-ComparisonRecordId` from the response headers.  
+2. Read `X-ArchLucid-ComparisonRecordId` from the response headers.  
 3. Replay and download the summary as Markdown:
 
 ```bash
@@ -228,8 +228,8 @@ curl -X POST \
 ```
 
 2. Inspect headers:
-   - `X-ArchiForge-VerificationPassed: true` / `false`  
-   - `X-ArchiForge-VerificationMessage` – high‑level drift message
+   - `X-ArchLucid-VerificationPassed: true` / `false`  
+   - `X-ArchLucid-VerificationMessage` – high‑level drift message
 
 3. (Optional) Use drift analysis APIs if exposed, or log the replay metadata for audit.
 

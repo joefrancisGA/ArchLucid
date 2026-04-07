@@ -1,9 +1,9 @@
 ---
-description: Where to start when extending ArchiForge (runs, agents, authority, connectors, alerts).
+description: Where to start when extending ArchLucid (runs, agents, authority, connectors, alerts).
 alwaysApply: false
 ---
 
-# ArchiForge navigation (quick map)
+# ArchLucid navigation (quick map)
 
 ## Read first
 
@@ -34,4 +34,4 @@ alwaysApply: false
 
 ## Host roles
 
-- **`Hosting:Role`**: `Combined` (default dev), `Api` (HTTP only), `Worker` (background services). See `ArchLucid.Host.Core/Hosting/ArchiForgeHostingRole.cs`.
+- **`Hosting:Role`**: `Combined` (default dev), `Api` (HTTP only), `Worker` (background services). See `ArchLucid.Host.Core/Hosting/ArchLucidHostingRole.cs`.

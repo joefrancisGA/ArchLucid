@@ -1,0 +1,146 @@
+using ArchLucid.Cli.Support;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
+
+namespace ArchLucid.Cli.Commands;
+
+internal static class RunCommand
+{
+    public static async Task<int> RunAsync(bool quick)
+    {
+        string projectRoot = Directory.GetCurrentDirectory();
+        ArchLucidProjectScaffolder.ArchLucidCliConfig config;
+
+        try
+        {
+            config = ArchLucidProjectScaffolder.LoadConfig(projectRoot);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+
+            return 1;
+        }
+
+        string briefPath = Path.Combine(projectRoot, config.Inputs.Brief);
+
+        if (!File.Exists(briefPath))
+        {
+            Console.WriteLine($"Error: Brief file not found at {config.Inputs.Brief}");
+            CliOperatorHints.WriteBriefMissingHint(config.Inputs.Brief);
+
+            return 1;
+        }
+
+        string briefContent = (await File.ReadAllTextAsync(briefPath)).Trim();
+
+        if (briefContent.Length < 10)
+        {
+            Console.WriteLine("Error: Brief must be at least 10 characters (API requirement).");
+            await Console.Error.WriteLineAsync("Next: Edit inputs/brief.md (or the path in archiforge.json) with a longer description.");
+
+            return 1;
+        }
+
+        ArchitectureRequest request = CliCommandShared.BuildArchitectureRequest(config, briefContent);
+        string baseUrl = CliCommandShared.GetBaseUrl(config);
+
+        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl))
+        {
+            return 1;
+        }
+
+        ArchLucidApiClient client = new(baseUrl);
+
+        Console.WriteLine($"Submitting request to {baseUrl}...");
+
+        ArchLucidApiClient.CreateRunResult result = await client.CreateRunAsync(request);
+
+        if (!result.Success)
+        {
+            Console.WriteLine($"Error: {result.Error}");
+            CliOperatorHints.WriteAfterApiFailure(result.StatusCode, result.Error);
+
+            return 1;
+        }
+
+        ArchLucidApiClient.CreateRunResponse resp = result.Response!;
+
+        string outputsDir = Path.Combine(projectRoot, config.Outputs.LocalCacheDir);
+        Directory.CreateDirectory(outputsDir);
+        string summaryPath = Path.Combine(outputsDir, "run-summary.json");
+
+        CliCommandShared.WriteRunSummary(
+            summaryPath,
+            baseUrl,
+            resp.Run.RunId,
+            resp.Run.RequestId,
+            resp.Run.Status,
+            resp.Run.CreatedUtc,
+            resp.Tasks,
+            manifestVersion: null);
+
+        Console.WriteLine();
+        Console.WriteLine($"Run created: {resp.Run.RunId}");
+        Console.WriteLine($"Status: {resp.Run.Status}");
+        Console.WriteLine($"run-summary.json written to {summaryPath}");
+        Console.WriteLine();
+        Console.WriteLine("Tasks:");
+
+        foreach (ArchLucidApiClient.AgentTaskInfo task in resp.Tasks)
+        {
+            AgentType agentType = (AgentType)task.AgentType;
+            Console.WriteLine($"  - {agentType}: {task.Objective}");
+        }
+
+        Console.WriteLine();
+
+        if (quick)
+        {
+            Console.WriteLine("Quick mode: seeding fake results and committing...");
+            ArchLucidApiClient.SeedFakeResultsResult? seedResult = await client.SeedFakeResultsAsync(resp.Run.RunId);
+
+            if (seedResult is null || !seedResult.Success)
+            {
+                Console.WriteLine($"Warning: Seed failed. {seedResult?.Error ?? "Unknown"}");
+                Console.WriteLine("Note: Seed is only available when the API runs in Development.");
+                CliOperatorHints.WriteAfterApiFailure(seedResult?.HttpStatusCode, seedResult?.Error);
+                Console.WriteLine($"Continue with: archiforge seed {resp.Run.RunId} then archiforge commit {resp.Run.RunId}");
+
+                return 0;
+            }
+
+            Console.WriteLine($"Seeded {seedResult.ResultCount} fake results.");
+            ArchLucidApiClient.CommitRunResult? commitResult = await client.CommitRunAsync(resp.Run.RunId);
+
+            if (commitResult is null || !commitResult.Success)
+            {
+                Console.WriteLine($"Error: Commit failed. {commitResult?.Error ?? "Unknown"}");
+
+                return 1;
+            }
+
+            string version = commitResult.Response?.Manifest.Metadata.ManifestVersion ?? "unknown";
+            Console.WriteLine($"Committed. Manifest version: {version}");
+
+            CliCommandShared.WriteRunSummary(
+                summaryPath,
+                baseUrl,
+                resp.Run.RunId,
+                resp.Run.RequestId,
+                resp.Run.Status,
+                resp.Run.CreatedUtc,
+                resp.Tasks,
+                version);
+
+            Console.WriteLine($"Use 'archiforge artifacts {resp.Run.RunId}' to view the manifest.");
+
+            return 0;
+        }
+
+        Console.WriteLine($"Next: Submit agent results, then commit. Use 'archiforge status {resp.Run.RunId}' to check progress.");
+
+        return 0;
+    }
+}

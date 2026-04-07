@@ -23,10 +23,10 @@ Reduce time-to-orientation for a developer or SRE by listing **high-signal paths
 | API startup | `ArchLucid.Api/Program.cs`, `ArchLucid.Api/Startup/` |
 | Auth + ArchLucid bridge | `ArchLucid.Api/Auth/`, `ArchLucid.Api/Configuration/ArchiForgeAuthConfigurationBridge.cs` |
 | Config merge (storage + auth keys) | `ArchLucid.Host.Core/Configuration/ArchiForgeConfigurationBridge.cs` |
-| Storage + repository registration | `ArchLucid.Host.Composition/Configuration/ArchiForgeStorageServiceCollectionExtensions.cs` |
+| Storage + repository registration | `ArchLucid.Host.Composition/Configuration/ArchLucidStorageServiceCollectionExtensions.cs` |
 | Feature DI slices | `ArchLucid.Host.Composition/Startup/ServiceCollectionExtensions.*.cs` |
 | Outbox operational metrics | `ArchLucid.Persistence/Diagnostics/DapperOutboxOperationalMetricsReader.cs`, `ArchLucid.Host.Core/Hosted/OutboxOperationalMetricsHostedService.cs` |
-| OTel meters / gauges | `ArchLucid.Core/Diagnostics/ArchiForgeInstrumentation.cs` |
+| OTel meters / gauges | `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs` |
 | SQL schema (master) | `ArchLucid.Persistence/Scripts/ArchiForge.sql` |
 | UI API proxy | `archiforge-ui/src/app/api/proxy/[...path]/route.ts` |
 | CD smoke + rollback | `.github/workflows/cd.yml`, `cd-staging-on-merge.yml` |

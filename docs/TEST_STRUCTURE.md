@@ -1,6 +1,6 @@
 # Test structure (Change Set 54R)
 
-Operator cheat sheet for **ArchLucid** / **ArchiForge** .NET tests: **what each tier means** and **how to run it**. CI job names and full narrative: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**. SQL variables and LocalDB: **[BUILD.md](BUILD.md)**.
+Operator cheat sheet for **ArchLucid** .NET tests: **what each tier means** and **how to run it**. CI job names and full narrative: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**. SQL variables and LocalDB: **[BUILD.md](BUILD.md)**.
 
 ## 54R tiers
 
@@ -76,6 +76,18 @@ npm run test:e2e
 
 **Change Set 55R — focused review-workflow smoke:** component + mocked API contract tests under `archiforge-ui/src/review-workflow/`, `ShellNav`, artifact/compare helpers. Command list: [archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md#3-55r--review-workflow-smoke-tests-change-set-55r). Operator context: [docs/operator-shell.md](operator-shell.md).
 
+### Stryker.NET mutation configs (repo root)
+
+Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config below and uploads HTML under `StrykerOutput`. Narrative and local commands: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**. All listed configs use thresholds **high 80 / low 60 / break 60**.
+
+| Config file | Code project | Test project |
+|-------------|--------------|--------------|
+| `stryker-config.json` | `ArchLucid.Persistence` | `ArchLucid.Persistence.Tests` |
+| `stryker-config.application.json` | `ArchLucid.Application` | `ArchLucid.Application.Tests` |
+| `stryker-config.agentruntime.json` | `ArchLucid.AgentRuntime` | `ArchLucid.AgentRuntime.Tests` |
+| `stryker-config.coordinator.json` | `ArchLucid.Coordinator` | `ArchLucid.Coordinator.Tests` |
+| `stryker-config.decisioning.json` | `ArchLucid.Decisioning` | `ArchLucid.Decisioning.Tests` |
+
 ---
 
 ## SQL Server for API + Persistence tests
@@ -122,7 +134,7 @@ dotnet test ArchLucid.sln --filter "Category!=Integration&Category!=SqlServerCon
 | **ArchLucid.Decisioning.Tests** (`Merge/`, `Validation/`) | Schema validation, manifest merge, decision-engine v2 scenarios. |
 | **ArchLucid.KnowledgeGraph.Tests** | Graph models, edge inference contracts. |
 | **ArchLucid.Retrieval.Tests** | `RetrievalQueryService`, `InMemoryVectorIndex` (empty index, ranking, scope filters), **`CircuitBreakerGateTests`**, **`CircuitBreakingOpenAiEmbeddingClientTests`** (OpenAI embedding circuit breaker). |
-| **ArchLucid.Persistence.Tests** | Dapper repositories against **real SQL Server** via **`ARCHIFORGE_SQL_TEST`** or Windows **LocalDB**; schema from **`DatabaseMigrator`** (same DbUp migrations as production SQL Server). **`Contracts/`** abstract bases with **InMemory** + **Dapper** implementations (agent evaluations, decision nodes, coordinator manifest/trace, run exports, architecture runs, etc.). **`AuthorityRunOrchestratorTests`** exercise **`ArchLucid.Persistence.Orchestration.AuthorityRunOrchestrator`** with mocks (commit vs rollback). Includes **53R cutover** tests: `JsonFallbackPolicyTests`, `FallbackPolicyDiagnosticsTests`, `CutoverReadinessReportTests` (unit); `PolicyModeFallbackSqlIntegrationTests`, `CutoverReadinessSqlIntegrationTests` (SQL integration). |
+| **ArchLucid.Persistence.Tests** | Dapper repositories against **real SQL Server** via **`ARCHIFORGE_SQL_TEST`** or Windows **LocalDB**; schema from **`DatabaseMigrator`** (same DbUp migrations as production SQL Server). **`Contracts/`** abstract bases with **InMemory** + **Dapper** implementations (agent evaluations, decision nodes, coordinator manifest/trace, run exports, architecture runs, etc.). **`AuthorityRunOrchestratorTests`** exercise **`ArchLucid.Persistence.Orchestration.AuthorityRunOrchestrator`** with mocks (commit vs rollback). **53R / relational cutover:** `CutoverReadinessReportTests` (unit), `CutoverReadinessSqlIntegrationTests` (SQL). Relational read behavior is covered by repository SQL integration tests (e.g. `SqlGraphSnapshotRepositorySqlIntegrationTests` for edge JSON merge). |
 
 ## API routes ↔ primary automated tests (319R)
 
@@ -136,14 +148,14 @@ Many flows are covered by **scenario-named** integration tests under **`ArchLuci
 | **Policy packs** | **`PolicyPacksIntegrationTests`**, **`PolicyPacksAppServiceTests`** |
 | **Manifests / diagrams / summaries** | **`ManifestSummaryServiceTests`**, **`ManifestDiagramServiceTests`**, **`ArchitectureDiagramTests`**, **`ArchitectureSummaryTests`** |
 | **Exports & analysis reports** | **`ArchitectureAnalysisReportTests`**, **`ArchitectureAnalysisExportTests`**, **`ArchitectureExportAuditTests`** |
-| **Configuration & startup** | **`ArchiForgeConfigurationRulesTests`**, **`StartupConfigurationFactsReaderTests`**, **`OpenApiContractSnapshotTests`** |
+| **Configuration & startup** | **`ArchLucidConfigurationRulesTests`**, **`StartupConfigurationFactsReaderTests`**, **`OpenApiContractSnapshotTests`** |
 | **Alerts, advisory, retrieval** (when not using dedicated factories) | Search **`Alert*`**, **`Advisory*`**, **`RetrievalQuerySmokeIntegrationTests`**, **`AskThreadIntegrationTests`** |
 
 **Persistence / Application parity:** coordinator Data contracts and **`AuthorityRunOrchestrator`** behavior are also covered in **`ArchLucid.Persistence.Tests`** and **`ArchLucid.Application.Tests`** so logic is testable without **`WebApplicationFactory`**.
 
 ## Projects (detail)
 
-- **ArchLucid.Api.Tests** — API integration tests using `WebApplicationFactory` (full app, **SQL Server** per factory via **`ArchiForgeApiFactory`**). Heavier; use for HTTP contracts, comparison replay, exports, run-not-found, 422/409. Advisory + alerts: **`AlertLifecycleIntegrationTests`**, **`DigestDeliveryLifecycleIntegrationTests`**, **`RetrievalQuerySmokeIntegrationTests`**, **`AskThreadIntegrationTests`** with **`AlertLifecycleWebAppFactory`**. Resilience and unit-style classes: see source tree; many use **`[Trait("Category", "Unit")]`** or **`Integration`**.
+- **ArchLucid.Api.Tests** — API integration tests using `WebApplicationFactory` (full app, **SQL Server** per factory via **`ArchLucidApiFactory`**). Heavier; use for HTTP contracts, comparison replay, exports, run-not-found, 422/409. Advisory + alerts: **`AlertLifecycleIntegrationTests`**, **`DigestDeliveryLifecycleIntegrationTests`**, **`RetrievalQuerySmokeIntegrationTests`**, **`AskThreadIntegrationTests`** with **`AlertLifecycleWebAppFactory`**. Resilience and unit-style classes: see source tree; many use **`[Trait("Category", "Unit")]`** or **`Integration`**.
 - **ArchLucid.Decisioning.Tests** — Under `Validation/` and `Merge/`; unit and scenario tests; optional integration with real JSON schemas (`SchemaValidationIntegrationTests`).
 - **ArchLucid.ContextIngestion.Tests** — Fast unit tests for ingestion parsers, deduplication, connectors, **`ContextIngestionService`**.
 - **ArchLucid.Coordinator.Tests**, **ArchLucid.AgentRuntime.Tests**, **ArchLucid.Decisioning.Tests**, **ArchLucid.Retrieval.Tests**, etc. — Domain/component tests unless marked integration.
@@ -186,7 +198,7 @@ dotnet test ArchLucid.sln --filter "Category!=Integration"
 
 ## Fixtures and shared setup
 
-- **IntegrationTestBase** (Api.Tests) — `HttpClient`, `JsonOptions`, `JsonContent` via **`ArchiForgeApiFactory`**.
+- **IntegrationTestBase** (Api.Tests) — `HttpClient`, `JsonOptions`, `JsonContent` via **`ArchLucidApiFactory`**.
 - **ComparisonReplayTestFixture** (Api.Tests) — comparison-replay flow helpers.
 
 **Unit-style tests in Api.Tests** that do not extend **IntegrationTestBase** are often tagged **`Category=Unit`**.

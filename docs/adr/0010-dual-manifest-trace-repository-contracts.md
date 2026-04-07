@@ -5,11 +5,11 @@
 
 ## Context
 
-ArchiForge persists golden manifests and decision traces in two different lifecycles:
+ArchLucid persists golden manifests and decision traces in two different lifecycles:
 
 1. **Run / commit pipeline (coordinator)** — manifests and traces are created and read with run-scoped APIs (`CreateAsync`, `GetByVersionAsync`, batch traces by run). These contracts live in **`ArchLucid.Persistence.Data.Repositories`** (`IGoldenManifestRepository`, `IDecisionTraceRepository`) and are implemented with Dapper against coordinator SQL tables, or with in-memory types when `ArchiForge:StorageProvider=InMemory`.
 
-2. **Authority / decisioning persistence** — manifests and traces are saved and loaded with authority-oriented shapes (`SaveAsync`, scoped `GetByIdAsync`) for advisory and policy flows. These contracts live in **`ArchLucid.Decisioning.Interfaces`** and are registered in `AddArchiForgeStorage`, with SQL or in-memory implementations that are distinct from the Data-layer types.
+2. **Authority / decisioning persistence** — manifests and traces are saved and loaded with authority-oriented shapes (`SaveAsync`, scoped `GetByIdAsync`) for advisory and policy flows. These contracts live in **`ArchLucid.Decisioning.Interfaces`** and are registered in `AddArchLucidStorage`, with SQL or in-memory implementations that are distinct from the Data-layer types.
 
 Both families use similar names, which risks mistaken DI registrations if interface types are not fully qualified at registration time.
 
@@ -20,7 +20,7 @@ Keep **two interface families** permanently:
 - **Data repositories** — coordinator execution, commit, replay, and governance features that need run/manifest versioning semantics.
 - **Decisioning interfaces** — authority graph, policy packs, and related decisioning storage.
 
-API startup registers Data-layer manifest/trace repositories inside **`RegisterCoordinatorDecisionEngineAndRepositories`**, using **fully qualified** interface types (e.g. `ArchLucid.Persistence.Data.Repositories.IGoldenManifestRepository`) so they do not collide with Decisioning registrations from **`AddArchiForgeStorage`**.
+API startup registers Data-layer manifest/trace repositories inside **`RegisterCoordinatorDecisionEngineAndRepositories`**, using **fully qualified** interface types (e.g. `ArchLucid.Persistence.Data.Repositories.IGoldenManifestRepository`) so they do not collide with Decisioning registrations from **`AddArchLucidStorage`**.
 
 ## Consequences
 

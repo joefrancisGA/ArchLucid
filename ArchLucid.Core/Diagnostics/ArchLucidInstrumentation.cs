@@ -113,15 +113,6 @@ public static class ArchLucidInstrumentation
     public static readonly Counter<long> GovernancePackContentDeserializeCacheMisses =
         AppMeter.CreateCounter<long>("governance_pack_content_deserialize_cache_misses");
 
-    /// <summary>
-    /// Incremented each time a persistence read falls back to a JSON column because
-    /// relational child rows are absent. Tags: <c>entity_type</c>, <c>slice</c>, <c>read_mode</c>.
-    /// </summary>
-    public static readonly Counter<long> JsonFallbackUsed =
-        AppMeter.CreateCounter<long>(
-            "persistence_json_fallback_used",
-            description: "Count of persistence reads that fell back to JSON columns.");
-
     /// <summary>Authority runs that finished the synchronous pipeline successfully (post-commit).</summary>
     public static readonly Counter<long> AuthorityRunsCompletedTotal =
         AppMeter.CreateCounter<long>(

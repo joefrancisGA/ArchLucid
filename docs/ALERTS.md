@@ -31,7 +31,7 @@ Composite evaluation uses `AlertMetricSnapshotBuilder`, `CompositeAlertRuleEvalu
 
 When **`WebhookDelivery:HmacSha256SharedSecret`** is set (prefer **Key Vault** references in production — see **`appsettings.KeyVault.sample.json`**), the API signs the **exact UTF-8 JSON body** posted to Teams/Slack/on-call webhooks using **HMAC-SHA256** and sends:
 
-- Header: **`X-ArchiForge-Webhook-Signature`**
+- Header: **`X-ArchLucid-Webhook-Signature`**
 - Value: **`sha256=`** + lowercase **hex** digest (see **`WebhookSignature`** / **`HttpWebhookPoster`**).
 
 Integrators should compute HMAC-SHA256 over the **raw request body bytes** with the same shared secret and compare using a **constant-time** equality check. If the secret is unset, the header is omitted and receivers should not expect integrity protection from ArchiForge.

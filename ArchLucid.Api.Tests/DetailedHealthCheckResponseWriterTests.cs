@@ -110,4 +110,38 @@ public sealed class DetailedHealthCheckResponseWriterTests
         first.GetProperty("error").GetString().Should().Contain("timeout");
         first.TryGetProperty("durationMs", out _).Should().BeTrue();
     }
+
+    [Fact]
+    public async Task WriteAsync_summary_omits_version_duration_and_error()
+    {
+        Dictionary<string, HealthReportEntry> entries = new()
+        {
+            ["database"] = new HealthReportEntry(
+                HealthStatus.Unhealthy,
+                "SQL probe failed.",
+                TimeSpan.FromMilliseconds(12),
+                exception: new InvalidOperationException("timeout"),
+                data: null),
+        };
+
+        HealthReport report = new(entries, TimeSpan.FromMilliseconds(15));
+        DefaultHttpContext httpContext = new();
+        httpContext.Response.Body = new MemoryStream();
+
+        await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report, HealthCheckResponseDetailLevel.Summary);
+
+        httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        using JsonDocument doc = await JsonDocument.ParseAsync(httpContext.Response.Body);
+        JsonElement root = doc.RootElement;
+
+        root.TryGetProperty("version", out _).Should().BeFalse();
+        root.TryGetProperty("commitSha", out _).Should().BeFalse();
+        root.TryGetProperty("totalDurationMs", out _).Should().BeFalse();
+
+        JsonElement first = root.GetProperty("entries")[0];
+        first.GetProperty("name").GetString().Should().Be("database");
+        first.GetProperty("status").GetString().Should().Be("Unhealthy");
+        first.TryGetProperty("error", out _).Should().BeFalse();
+        first.TryGetProperty("description", out _).Should().BeFalse();
+    }
 }

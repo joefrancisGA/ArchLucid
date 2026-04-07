@@ -13,7 +13,7 @@
    - Adds one **`ContextSnapshot`** root node (`nodeId` = `context-{SnapshotId:N}`).
    - Maps each **`CanonicalObject`** with **`IGraphNodeFactory`** → **`GraphNode`** (`NodeId` = `obj-{ObjectId}`, **`NodeType`** = `ObjectType`, **`Category`** from `properties["category"]` when present, **`SourceType`** / **`SourceId`**).
    - Calls **`IGraphEdgeInferer.InferEdges`**.
-3. **`GraphSnapshot`** is persisted (SQL) as JSON columns for nodes, edges, and warnings (`ArchLucid.Persistence`). **`SqlGraphSnapshotRepository`** also inserts denormalized rows into **`GraphSnapshotEdges`** (same transaction) for **`IGraphSnapshotRepository.ListIndexedEdgesAsync`** without loading **`EdgesJson`**. The read path uses relational child tables first and falls back to JSON, governed by `PersistenceReadMode` — see **[SqlRelationalBackfill.md](SqlRelationalBackfill.md#operating-modes-persistencereadmode)** for the three operating modes.
+3. **`GraphSnapshot`** is persisted (SQL) with JSON columns and relational child tables (`ArchLucid.Persistence`). **`SqlGraphSnapshotRepository`** inserts denormalized rows into **`GraphSnapshotEdges`** (same transaction) for **`IGraphSnapshotRepository.ListIndexedEdgesAsync`**. Reads hydrate from relational tables; a narrow **`EdgesJson`** merge remains when edge property rows are missing — see **[JSON_FALLBACK_AUDIT.md](JSON_FALLBACK_AUDIT.md)** and **[SqlRelationalBackfill.md](SqlRelationalBackfill.md)**.
 4. When the latest committed **`ContextSnapshot`** for the project matches the new snapshot’s canonical fingerprint (**`GraphSnapshotCanonicalFingerprint`**), **`AuthorityRunOrchestrator`** may **`GraphSnapshotCloner.CloneForNewRun`** from **`GetLatestByContextSnapshotIdAsync`** instead of rebuilding the graph.
 
 ---

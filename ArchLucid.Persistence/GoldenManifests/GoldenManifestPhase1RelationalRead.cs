@@ -9,14 +9,13 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.GoldenManifests;
 
-/// <summary>Phase-1 relational-first hydration for <see cref="GoldenManifest"/>; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
+/// <summary>Phase-1 relational hydration for slice tables (assumptions, warnings, decisions, provenance).</summary>
 internal static class GoldenManifestPhase1RelationalRead
 {
     internal static async Task<GoldenManifest> HydrateAsync(
         SqlConnection connection,
         GoldenManifestStorageRow row,
-        CancellationToken ct,
-        JsonFallbackPolicy? fallbackPolicy = null)
+        CancellationToken ct)
     {
         Guid manifestId = row.ManifestId;
 
@@ -80,12 +79,8 @@ internal static class GoldenManifestPhase1RelationalRead
             },
             ct);
 
-        string entityId = manifestId.ToString();
-
-        List<string> assumptions = await RelationalFirstRead.ReadSliceAsync(
-            assumptionsCount,
-            "GoldenManifest.Assumptions",
-            () => LoadOrderedStringsAsync(
+        List<string> assumptions = assumptionsCount > 0
+            ? await LoadOrderedStringsAsync(
                 connection,
                 """
                 SELECT AssumptionText AS Item
@@ -94,16 +89,11 @@ internal static class GoldenManifestPhase1RelationalRead
                 ORDER BY SortOrder;
                 """,
                 manifestId,
-                ct),
-            () => GoldenManifestJsonFallback.DeserializeStringList(row.AssumptionsJson),
-            () => [],
-            fallbackPolicy,
-            "GoldenManifest", entityId);
+                ct)
+            : [];
 
-        List<string> warnings = await RelationalFirstRead.ReadSliceAsync(
-            warningsCount,
-            "GoldenManifest.Warnings",
-            () => LoadOrderedStringsAsync(
+        List<string> warnings = warningsCount > 0
+            ? await LoadOrderedStringsAsync(
                 connection,
                 """
                 SELECT WarningText AS Item
@@ -112,11 +102,8 @@ internal static class GoldenManifestPhase1RelationalRead
                 ORDER BY SortOrder;
                 """,
                 manifestId,
-                ct),
-            () => GoldenManifestJsonFallback.DeserializeStringList(row.WarningsJson),
-            () => [],
-            fallbackPolicy,
-            "GoldenManifest", entityId);
+                ct)
+            : [];
 
         int totalProvCount = provFindingCount + provNodeCount + provRuleCount;
         ManifestProvenance provenance;
@@ -169,23 +156,14 @@ internal static class GoldenManifestPhase1RelationalRead
                 AppliedRuleIds = appliedRules,
             };
         }
-        else if (fallbackPolicy is null || fallbackPolicy.EvaluateFallback(totalProvCount, "GoldenManifest.Provenance", "GoldenManifest", entityId))
-        
-            provenance = GoldenManifestJsonFallback.DeserializeProvenance(row.ProvenanceJson);
-        
         else
-        
+        {
             provenance = new ManifestProvenance();
-        
+        }
 
-        List<ResolvedArchitectureDecision> decisions = await RelationalFirstRead.ReadSliceAsync(
-            decisionsCount,
-            "GoldenManifest.Decisions",
-            () => LoadDecisionsRelationalAsync(connection, manifestId, ct),
-            () => GoldenManifestJsonFallback.DeserializeDecisions(row.DecisionsJson),
-            () => [],
-            fallbackPolicy,
-            "GoldenManifest", entityId);
+        List<ResolvedArchitectureDecision> decisions = decisionsCount > 0
+            ? await LoadDecisionsRelationalAsync(connection, manifestId, ct)
+            : [];
 
         return new GoldenManifest
         {

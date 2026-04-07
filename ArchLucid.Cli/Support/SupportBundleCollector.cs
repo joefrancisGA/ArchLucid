@@ -239,8 +239,8 @@ public static class SupportBundleCollector
             [
                 "GET /version — build identity (no auth)",
                 "GET /health/live — liveness",
-                "GET /health/ready — readiness + check detail",
-                "GET /health — combined checks",
+                "GET /health/ready — readiness (summary JSON; no exception text)",
+                "GET /health — combined checks (detailed JSON; requires ReadAuthority / API key when configured)",
             ],
             Documentation =
             [

@@ -4,29 +4,16 @@
 
 One-time alignment for databases that still have authority data only in legacy JSON columns (`CanonicalObjectsJson`, `NodesJson`, `FindingsJson`, GoldenManifest slice JSON, `ArtifactsJson` / `TraceJson`). The utility **deserializes** using the same shapes as production code and **INSERT**s missing rows into relational tables. **JSON columns are not deleted or altered.**
 
-## Operating modes (`PersistenceReadMode`)
+## Read path (relational-first)
 
-The persistence layer supports three read modes, controlled via `JsonFallbackPolicy` (registered as a DI singleton). The mode governs what happens when a relational child table has zero rows for a given entity.
+Runtime **`JsonFallbackPolicy` / `PersistenceReadMode` were removed.** Reads use relational child tables for the audited slices; if child rows are missing, collections are **empty** (not hydrated from JSON), except the **graph edge metadata merge** documented in **[JSON_FALLBACK_AUDIT.md](JSON_FALLBACK_AUDIT.md)**.
 
-| Mode | Behavior | When to use |
-|------|----------|-------------|
-| **`AllowJsonFallback`** (default) | Silently reads from the JSON column. Emits a `Debug`-level structured log and increments the `persistence_json_fallback_used` OTel counter. | Normal operation. No action required. |
-| **`WarnOnJsonFallback`** | Same data behavior as Allow, but logs at `Warning` level. Counter still increments. | **Migration roll-out.** Deploy this mode after running the backfill to surface any remaining JSON reads in your log sinks. |
-| **`RequireRelational`** | Throws `RelationalDataMissingException` if relational rows are absent. No fallback. | **Post-cutover.** Only enable after confirming all slices are backfilled via the readiness report. |
-
-To change the mode, update the DI registration in `ArchiForgeStorageServiceCollectionExtensions.cs`:
-
-```csharp
-services.AddSingleton(sp => new JsonFallbackPolicy(
-    PersistenceReadMode.WarnOnJsonFallback, // ← change here
-    sp.GetRequiredService<ILoggerFactory>().CreateLogger("ArchLucid.Persistence.JsonFallback")));
-```
+Use **`ArchLucid.Backfill.Cli --readiness`** to confirm per-slice relational coverage before assuming historical rows are visible through the API.
 
 ## When to run the backfill
 
 - After deploying dual-write repositories to an environment that already contained rows written **before** relational tables existed.
-- Before relying on relational-first reads in reporting or analytics.
-- Before enabling `WarnOnJsonFallback` or `RequireRelational`.
+- Before relying on relational reads for reporting, analytics, or operator workflows.
 
 ## What it does
 
@@ -109,13 +96,13 @@ dotnet test ArchLucid.Persistence.Tests --filter "FullyQualifiedName~SqlRelation
 
 ## Security and operations
 
-- Use a **least-privilege** SQL login limited to the ArchiForge database; the tool only **INSERT**s into relational tables (no JSON column drops).
+- Use a **least-privilege** SQL login limited to the target SQL database; the tool only **INSERT**s into relational tables (no JSON column drops).
 - Run during a **maintenance window** if the database is large (full table scans of snapshot/manifest/bundle ids).
 - **Backup** the database before the first production run.
 
 ## Readiness report (`--readiness`)
 
-Before enabling `RequireRelational`, run the **readiness report** to verify that every header row has relational children across all slices. This is a **read-only** operation — no data is modified.
+Run the **readiness report** to verify that every header row has relational children across all monitored slices (read-only; no data is modified). Use it before assuming **relational-only** reads will return full data for legacy databases.
 
 ```powershell
 dotnet run --project ArchLucid.Backfill.Cli -- --readiness -c "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True"
@@ -145,7 +132,7 @@ ArtifactBundle.Artifacts                          80      80         0      READ
 ...
 --------------------------------------------------------------------------------
 
-2 slice(s) NOT READY. Run backfill before enabling RequireRelational.
+2 slice(s) NOT READY. Run backfill before relying on relational-only reads.
 ```
 
 **Exit codes:** `0` = all slices ready, `3` = one or more slices not ready.
@@ -157,7 +144,7 @@ ICutoverReadinessService readiness = provider.GetRequiredService<ICutoverReadine
 CutoverReadinessReport report = await readiness.AssessAsync(ct);
 
 if (report.IsFullyReady)
-    // safe to switch to RequireRelational
+    // relational coverage complete for monitored slices
 else
     foreach (CutoverSliceReadiness slice in report.SlicesNotReady)
         Console.WriteLine($"{slice.SliceName}: {slice.HeadersMissingRelationalRows} rows need backfill");
@@ -177,18 +164,10 @@ else
 
 ## Cutover checklist
 
-Follow this sequence when migrating from `AllowJsonFallback` to `RequireRelational`:
-
-1. **Run the backfill** across all environments.
-2. **Run `--readiness`** to confirm all 14 slices report `READY`.
-3. **Switch to `WarnOnJsonFallback`** in DI registration. Deploy. Monitor:
-   - `persistence_json_fallback_used` OTel counter (should be zero or trending to zero).
-   - `Warning`-level logs containing `"JSON fallback used"`.
-4. **Re-run `--readiness`** after a monitoring period to confirm.
-5. **Switch to `RequireRelational`**. Deploy. Any un-backfilled rows throw `RelationalDataMissingException` with:
-   - Entity type, entity ID, slice name.
-   - Remediation: `"Run SqlRelationalBackfillService or re-save the entity"`.
-6. **Clean up** (future): delete `*JsonFallback.cs` helpers, remove backward-compat `ReadSliceAsync` overload, remove JSON reads from `GraphSnapshotStorageMapper`, retire the OTel counter.
+1. **Run the backfill** across all environments that have legacy JSON-only rows.
+2. **Run `--readiness`** until all monitored slices report `READY`.
+3. **Verify** application behavior (saved snapshots, manifests, findings) in staging before production.
+4. **Optional:** stop dual-writing JSON columns and remove the remaining `EdgesJson` merge path after edge-property backfill (see **JSON_FALLBACK_AUDIT.md**).
 
 ---
 

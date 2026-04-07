@@ -1,4 +1,6 @@
-namespace ArchLucid.Cli.Support;
+using ArchLucid.Cli.Support;
+
+namespace ArchLucid.Cli.Commands;
 
 /// <summary>
 /// CLI entry for <c>archiforge support-bundle</c>: writes a reviewable JSON bundle (and optional zip).
@@ -109,9 +111,9 @@ internal static class SupportBundleCommand
         string jsonPath = Path.Combine(cwd, "archiforge.json");
 
         if (!File.Exists(jsonPath))
-        
+        {
             return null;
-        
+        }
 
         try
         {

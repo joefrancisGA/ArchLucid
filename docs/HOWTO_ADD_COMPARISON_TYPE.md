@@ -7,7 +7,7 @@ All steps are numbered; skip steps that do not apply to your type.
 
 ## 1. Objective
 
-A "comparison type" in ArchiForge is an artifact produced by comparing two runs, two exports, or any two structured payloads.
+A "comparison type" in ArchLucid is an artifact produced by comparing two runs, two exports, or any two structured payloads.
 It is persisted as a `ComparisonRecord` and later replayed to a format (Markdown, HTML, DOCX, PDF) on demand.
 
 Examples already in the system:
@@ -214,7 +214,7 @@ ReplayComparisonResult (content + headers)
 |---|---|---|
 | `CompareAsync_PersistsRecord_WithCorrectType` | `MyNewTypeComparisonServiceTests.cs` (unit) | `comparisonRecordRepository` called with `ComparisonType == "my-new-type"` |
 | `FormatMarkdown_GivenPayload_ContainsExpectedSections` | `MyNewTypeReplayFormatterTests.cs` (unit) | Returned string contains header and at least one diff entry |
-| `ReplayEndpoint_Returns200_WithCorrectHeaders` | `ArchLucid.Api.Tests` (integration) | Full round-trip: persist → replay → assert X-ArchiForge-* headers and body not empty |
+| `ReplayEndpoint_Returns200_WithCorrectHeaders` | `ArchLucid.Api.Tests` (integration) | Full round-trip: persist → replay → assert X-ArchLucid-* headers and body not empty |
 | `ReplayEndpoint_UnknownType_Returns422` | `ArchLucid.Api.Tests` (integration) | POST replay on a record with an unsupported type returns 422 |
 
 ---

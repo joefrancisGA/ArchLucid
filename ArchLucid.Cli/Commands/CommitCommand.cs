@@ -1,0 +1,48 @@
+using ArchLucid.Cli.Support;
+
+namespace ArchLucid.Cli.Commands;
+
+internal static class CommitCommand
+{
+    public static async Task<int> RunAsync(string runId)
+    {
+        string baseUrl = CliCommandShared.GetBaseUrl(CliCommandShared.TryLoadConfigFromCwd());
+
+        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl))
+        {
+            return 1;
+        }
+
+        ArchLucidApiClient client = new(baseUrl);
+
+        ArchLucidApiClient.CommitRunResult? result = await client.CommitRunAsync(runId);
+
+        if (result is null || !result.Success)
+        {
+            Console.WriteLine($"Error: {result?.Error ?? "Commit failed"}");
+            CliOperatorHints.WriteAfterApiFailure(result?.HttpStatusCode, result?.Error);
+
+            return 1;
+        }
+
+        ArchLucidApiClient.CommitRunResponse resp = result.Response!;
+        string version = resp.Manifest.Metadata.ManifestVersion;
+        Console.WriteLine($"Committed: {resp.Manifest.SystemName}");
+        Console.WriteLine($"Manifest version: {version}");
+
+        if (resp.Warnings.Count > 0)
+        {
+            Console.WriteLine("Warnings:");
+
+            foreach (string w in resp.Warnings)
+            {
+                Console.WriteLine($"  - {w}");
+            }
+        }
+
+        Console.WriteLine();
+        Console.WriteLine($"Use 'archiforge artifacts {runId}' to view the manifest.");
+
+        return 0;
+    }
+}
