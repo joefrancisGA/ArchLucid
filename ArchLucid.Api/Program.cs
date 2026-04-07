@@ -79,6 +79,13 @@ public partial class Program
                 "ArchiForgeAuth:Mode cannot be DevelopmentBypass when ASPNETCORE_ENVIRONMENT is Production.");
         }
 
+        if (app.Environment.IsProduction()
+            && app.Configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
+        {
+            throw new InvalidOperationException(
+                "Authentication:ApiKey:DevelopmentBypassAll cannot be true when ASPNETCORE_ENVIRONMENT is Production.");
+        }
+
         StartupConfigurationDiagnostics.LogIfEnabled(
             app.Logger,
             app.Configuration,

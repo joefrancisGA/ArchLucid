@@ -131,6 +131,11 @@ public static class ArchLucidConfigurationRules
             return errors;
 
 
+        if (configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
+
+            errors.Add("Authentication:ApiKey:DevelopmentBypassAll must be false in Production.");
+
+
         ArchLucidHostingRole hostingRole = HostingRoleResolver.Resolve(configuration);
 
         if (hostingRole == ArchLucidHostingRole.Worker)

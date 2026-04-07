@@ -1,44 +1,60 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
 
+using ArchLucid.Api.Auth.Models;
+
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
 namespace ArchLucid.Api.Authentication;
 
-[ExcludeFromCodeCoverage(Justification = "ASP.NET authentication handler; tested via integration/E2E tests against the HTTP pipeline.")]
-public sealed class ApiKeyAuthenticationHandler(
+/// <summary>
+/// API key authentication. When <c>Authentication:ApiKey:Enabled</c> is false, authentication fails closed
+/// unless <c>Authentication:ApiKey:DevelopmentBypassAll</c> is true in a non-Production environment
+/// (explicit opt-in for local development only; blocked in Production by API startup and <see cref="ArchLucid.Host.Core.Startup.Validation.ArchLucidConfigurationRules"/>).
+/// </summary>
+public class ApiKeyAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    IConfiguration configuration)
+    IConfiguration configuration,
+    IHostEnvironment environment)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         bool enabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
+        bool developmentBypassAll = configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false);
 
-        // If API key auth is disabled, treat all requests as authenticated so existing callers/tests keep working.
+        // Previously, Enabled=false authenticated every request as a synthetic admin-equivalent principal. That meant
+        // any host misconfigured with ArchiForgeAuth:Mode=ApiKey but keys "off" silently granted full access to anonymous callers.
         if (!enabled)
         {
-            // When disabled, include full permissions so policy-protected endpoints continue to work locally.
-            ClaimsIdentity identity = new([
-                new Claim(ClaimTypes.Name, "DevUser"),
-                new Claim("permission", "commit:run"),
-                new Claim("permission", "seed:results"),
-                new Claim("permission", "export:consulting-docx"),
-                new Claim("permission", "metrics:read"),
-                new Claim("permission", "replay:comparisons"),
-                new Claim("permission", "replay:diagnostics")
-            ], Scheme.Name);
-            ClaimsPrincipal principal = new(identity);
-            AuthenticationTicket ticket = new(principal, Scheme.Name);
+            if (!developmentBypassAll)
+            {
+                return Task.FromResult(
+                    AuthenticateResult.Fail(
+                        "API key authentication is disabled. Set Authentication:ApiKey:Enabled to true and configure keys, " +
+                        "or set Authentication:ApiKey:DevelopmentBypassAll=true only in non-Production for intentional open access."));
+            }
 
-            return Task.FromResult(AuthenticateResult.Success(ticket));
+            if (environment.IsProduction())
+            {
+                return Task.FromResult(
+                    AuthenticateResult.Fail("Authentication:ApiKey:DevelopmentBypassAll is not allowed in Production."));
+            }
+
+            ClaimsIdentity bypassIdentity = new(
+                BuildSyntheticAdminClaims(),
+                Scheme.Name);
+            ClaimsPrincipal bypassPrincipal = new(bypassIdentity);
+            AuthenticationTicket bypassTicket = new(bypassPrincipal, Scheme.Name);
+
+            return Task.FromResult(AuthenticateResult.Success(bypassTicket));
         }
 
         if (!Request.Headers.TryGetValue("X-Api-Key", out StringValues providedKey))
@@ -60,6 +76,7 @@ public sealed class ApiKeyAuthenticationHandler(
             claims =
             [
                 new Claim(ClaimTypes.Name, userName),
+                new Claim(ClaimTypes.Role, ArchLucidRoles.Admin),
                 new Claim("permission", "commit:run"),
                 new Claim("permission", "seed:results"),
                 new Claim("permission", "export:consulting-docx"),
@@ -74,6 +91,7 @@ public sealed class ApiKeyAuthenticationHandler(
             claims =
             [
                 new Claim(ClaimTypes.Name, userName),
+                new Claim(ClaimTypes.Role, ArchLucidRoles.Reader),
                 new Claim("permission", "metrics:read")
             ];
         }
@@ -103,5 +121,20 @@ public sealed class ApiKeyAuthenticationHandler(
         ReadOnlySpan<byte> b = SHA256.HashData(Encoding.UTF8.GetBytes(expected));
 
         return CryptographicOperations.FixedTimeEquals(a, b);
+    }
+
+    private static Claim[] BuildSyntheticAdminClaims()
+    {
+        return
+        [
+            new Claim(ClaimTypes.Name, "DevUser"),
+            new Claim(ClaimTypes.Role, ArchLucidRoles.Admin),
+            new Claim("permission", "commit:run"),
+            new Claim("permission", "seed:results"),
+            new Claim("permission", "export:consulting-docx"),
+            new Claim("permission", "metrics:read"),
+            new Claim("permission", "replay:comparisons"),
+            new Claim("permission", "replay:diagnostics")
+        ];
     }
 }

@@ -76,6 +76,28 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenProductionAndApiKeyDevelopmentBypassAll_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "JwtBearer",
+            ["ArchiForgeAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
+            ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("Authentication:ApiKey:DevelopmentBypassAll", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CollectErrors_WhenDevelopmentAndDevelopmentBypassAndInMemory_is_empty_when_schema_files_exist()
     {
         Dictionary<string, string?> data = new()
