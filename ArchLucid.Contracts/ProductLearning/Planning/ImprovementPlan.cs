@@ -19,7 +19,7 @@ public sealed class ImprovementPlan
     public DateTime CreatedUtc { get; init; }
 
     /// <summary>
-    /// Filled by <see cref="IImprovementPlanPrioritizationService"/> with a short deterministic breakdown (weights + normalized axes).
+    /// Filled by <c>IImprovementPlanPrioritizationService</c> with a short deterministic breakdown (weights + normalized axes).
     /// </summary>
     public string? PrioritizationExplanation { get; init; }
 }

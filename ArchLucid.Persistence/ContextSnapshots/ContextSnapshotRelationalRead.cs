@@ -7,7 +7,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.ContextSnapshots;
 
-/// <summary>Hydrates <see cref="ContextSnapshot"/> from relational child tables (JSON columns are write-only legacy).</summary>
+/// <summary>Hydrates <see cref="ContextSnapshot"/> from relational child tables when rows exist; otherwise legacy JSON columns.</summary>
 internal static class ContextSnapshotRelationalRead
 {
     public static async Task<ContextSnapshot> HydrateAsync(
@@ -60,7 +60,7 @@ internal static class ContextSnapshotRelationalRead
 
         List<CanonicalObject> canonicalObjects = canonicalCount > 0
             ? await LoadCanonicalObjectsRelationalAsync(connection, transaction, snapshotId, ct)
-            : [];
+            : ContextSnapshotLegacyJsonReader.DeserializeCanonicalObjects(row.CanonicalObjectsJson);
 
         List<string> warnings = warningsCount > 0
             ? await LoadStringColumnRelationalAsync(
@@ -74,7 +74,7 @@ internal static class ContextSnapshotRelationalRead
                 """,
                 snapshotId,
                 ct)
-            : [];
+            : ContextSnapshotLegacyJsonReader.DeserializeStringList(row.WarningsJson);
 
         List<string> errors = errorsCount > 0
             ? await LoadStringColumnRelationalAsync(
@@ -88,11 +88,11 @@ internal static class ContextSnapshotRelationalRead
                 """,
                 snapshotId,
                 ct)
-            : [];
+            : ContextSnapshotLegacyJsonReader.DeserializeStringList(row.ErrorsJson);
 
         Dictionary<string, string> sourceHashes = hashesCount > 0
             ? await LoadSourceHashesRelationalAsync(connection, transaction, snapshotId, ct)
-            : new Dictionary<string, string>(StringComparer.Ordinal);
+            : ContextSnapshotLegacyJsonReader.DeserializeSourceHashes(row.SourceHashesJson);
 
         return new ContextSnapshot
         {

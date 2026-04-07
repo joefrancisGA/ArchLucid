@@ -40,7 +40,7 @@ public sealed class ProductLearningTriageOptions
 
     /// <summary>
     /// Take size for reject/revised rollup queries on the repository. Not used by
-    /// <see cref="IProductLearningFeedbackAggregationService.GetSnapshotAsync"/> in 58R (property reserved for a future panel or caller).
+    /// <c>IProductLearningFeedbackAggregationService.GetSnapshotAsync</c> in 58R (property reserved for a future panel or caller).
     /// </summary>
     public int TopRejectedRevisedTake { get; init; } = 25;
 

@@ -12,7 +12,7 @@ public sealed class ProductLearningAggregationSnapshot
 
     /// <summary>
     /// Reserved: reject/revise-focused rollups are not merged into the dashboard or report pipeline in 58R
-    /// (always empty from <see cref="IProductLearningFeedbackAggregationService.GetSnapshotAsync"/> to avoid an extra query).
+    /// (always empty from <c>IProductLearningFeedbackAggregationService.GetSnapshotAsync</c> to avoid an extra query).
     /// </summary>
     public IReadOnlyList<FeedbackAggregate> TopRejectedRevisedRollups { get; init; } = [];
     public IReadOnlyList<RepeatedCommentTheme> RepeatedCommentThemes { get; init; } = [];
