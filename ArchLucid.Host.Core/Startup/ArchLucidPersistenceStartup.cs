@@ -11,12 +11,13 @@ public static class ArchLucidPersistenceStartup
 {
     public static void RunSchemaBootstrapMigrationsAndOptionalDemoSeed(WebApplication app)
     {
+        ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(app.Configuration);
+        bool storageIsSql = string.Equals(archLucidOptions.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase);
+
         using (IServiceScope scope = app.Services.CreateScope())
         {
-            IConfiguration config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-            ArchLucidOptions? options = ArchLucidConfigurationBridge.ResolveArchLucidOptions(config);
 
-            if (string.Equals(options.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
+            if (storageIsSql)
             {
                 app.Logger.LogInformation(
                     "Startup: running ISchemaBootstrapper (ArchLucid:StorageProvider or ArchiForge:StorageProvider=Sql).");
@@ -32,26 +33,34 @@ public static class ArchLucidPersistenceStartup
             }
         }
 
-        string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
-        if (string.IsNullOrWhiteSpace(connectionString))
-
-            app.Logger.LogWarning(
-                "Startup: ConnectionStrings:ArchLucid (or legacy ArchiForge) is not set; skipping DbUp migrations.");
-
-        else
+        // DbUp targets SQL only. Development often sets InMemory while base appsettings still carry a template SQL
+        // connection string; running migrations would fail on Linux containers (ZAP CI, etc.).
+        if (storageIsSql)
         {
-            app.Logger.LogInformation(
-                "Startup: running DbUp migrations (embedded scripts under ArchLucid.Persistence/Migrations).");
+            string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
 
-            DatabaseMigrator.Run(connectionString);
 
-            app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                app.Logger.LogWarning(
+                    "Startup: ConnectionStrings:ArchLucid (or legacy ArchiForge) is not set; skipping DbUp migrations.");
+            }
+            else
+            {
+                app.Logger.LogInformation(
+                    "Startup: running DbUp migrations (embedded scripts under ArchLucid.Persistence/Migrations).");
+
+                DatabaseMigrator.Run(connectionString);
+
+                app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
+            }
         }
 
         if (!app.Environment.IsDevelopment())
             return;
 
         DemoOptions? demo = app.Configuration.GetSection(DemoOptions.SectionName).Get<DemoOptions>();
+
         if (demo is not { Enabled: true, SeedOnStartup: true })
             return;
 
