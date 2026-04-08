@@ -1,4 +1,7 @@
+using System.Diagnostics;
+
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Decisioning.Models;
@@ -9,6 +12,8 @@ using ArchLucid.Retrieval.Indexing;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+using Serilog.Context;
 
 namespace ArchLucid.Persistence.Coordination.Retrieval;
 
@@ -35,7 +40,16 @@ public sealed class RetrievalIndexingOutboxProcessor(
         IReadOnlyList<RetrievalIndexingOutboxEntry> batch = await outbox.DequeuePendingAsync(25, ct);
 
         foreach (RetrievalIndexingOutboxEntry entry in batch)
-        
+        {
+            using Activity? activity = ArchLucidInstrumentation.RetrievalIndexingOutbox.StartActivity(
+                "RetrievalIndexingOutbox.ProcessEntry");
+            string correlationId = FormattableString.Invariant($"retrieval-outbox:{entry.OutboxId:D}");
+            activity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, correlationId);
+            activity?.SetTag("archiforge.run_id", entry.RunId.ToString("D"));
+            activity?.SetTag("archiforge.outbox_id", entry.OutboxId.ToString("D"));
+
+            using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
+
             try
             {
                 ScopeContext scopeContext = new()
@@ -91,6 +105,6 @@ public sealed class RetrievalIndexingOutboxProcessor(
                     entry.OutboxId,
                     entry.RunId);
             }
-        
+        }
     }
 }

@@ -1,3 +1,7 @@
+using System.Diagnostics;
+
+using ArchLucid.Core.Diagnostics;
+
 namespace ArchLucid.Core.Resilience;
 
 /// <summary>
@@ -10,6 +14,8 @@ namespace ArchLucid.Core.Resilience;
 /// </remarks>
 public sealed class CircuitBreakerGate
 {
+    private readonly string _gateName;
+
     private readonly CircuitBreakerOptions _options;
 
     private readonly Func<DateTimeOffset> _utcNow;
@@ -24,12 +30,15 @@ public sealed class CircuitBreakerGate
 
     private bool _probeInFlight;
 
+    /// <param name="gateName">Stable low-cardinality label for metrics (e.g. keyed DI name).</param>
     /// <param name="options">Threshold and open duration.</param>
     /// <param name="utcNow">Optional clock for tests; defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
-    public CircuitBreakerGate(CircuitBreakerOptions options, Func<DateTimeOffset>? utcNow = null)
+    public CircuitBreakerGate(string gateName, CircuitBreakerOptions options, Func<DateTimeOffset>? utcNow = null)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(gateName);
         ArgumentNullException.ThrowIfNull(options);
         options.ApplyDefaults();
+        _gateName = gateName;
         _options = options;
         _utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
     }
@@ -44,26 +53,42 @@ public sealed class CircuitBreakerGate
         lock (_sync)
         {
             if (_state == State.Closed)
+            {
                 return;
+            }
 
             if (_state == State.Open)
             {
                 if (_utcNow() < _openUntilUtc)
+                {
+                    EmitRejection();
+
                     throw new CircuitBreakerOpenException(_openUntilUtc);
+                }
 
                 if (_probeInFlight)
+                {
+                    EmitRejection();
+
                     throw new CircuitBreakerOpenException(
                         "Upstream AI recovery probe in progress; retry shortly.");
+                }
 
                 _state = State.HalfOpen;
                 _probeInFlight = true;
+                EmitStateTransition("Open", "HalfOpen");
+
                 return;
             }
 
             // HalfOpen: only the probing thread holds the slot; others wait out.
             if (_probeInFlight)
+            {
+                EmitRejection();
+
                 throw new CircuitBreakerOpenException(
                     "Upstream AI recovery probe in progress; retry shortly.");
+            }
         }
     }
 
@@ -72,6 +97,14 @@ public sealed class CircuitBreakerGate
     {
         lock (_sync)
         {
+            bool wasHalfOpenProbe = _state == State.HalfOpen && _probeInFlight;
+
+            if (wasHalfOpenProbe)
+            {
+                EmitProbeOutcome("success");
+                EmitStateTransition("HalfOpen", "Closed");
+            }
+
             _consecutiveFailures = 0;
             _state = State.Closed;
             _probeInFlight = false;
@@ -85,17 +118,24 @@ public sealed class CircuitBreakerGate
         {
             if (_state == State.HalfOpen)
             {
+                EmitProbeOutcome("failure");
+                EmitStateTransition("HalfOpen", "Open");
                 _state = State.Open;
                 _openUntilUtc = _utcNow().AddSeconds(_options.DurationOfBreakSeconds);
                 _probeInFlight = false;
                 _consecutiveFailures = _options.FailureThreshold;
+
                 return;
             }
 
             _consecutiveFailures++;
 
-            if (_consecutiveFailures < _options.FailureThreshold) return;
-            
+            if (_consecutiveFailures < _options.FailureThreshold)
+            {
+                return;
+            }
+
+            EmitStateTransition("Closed", "Open");
             _state = State.Open;
             _openUntilUtc = _utcNow().AddSeconds(_options.DurationOfBreakSeconds);
         }
@@ -109,12 +149,40 @@ public sealed class CircuitBreakerGate
         lock (_sync)
         {
             if (_state != State.HalfOpen || !_probeInFlight)
+            {
                 return;
+            }
 
+            EmitProbeOutcome("cancelled");
+            EmitStateTransition("HalfOpen", "Open");
             _probeInFlight = false;
             _state = State.Open;
             _openUntilUtc = _utcNow();
         }
+    }
+
+    private void EmitRejection()
+    {
+        TagList tags = new TagList { { "gate", _gateName } };
+        ArchLucidInstrumentation.CircuitBreakerRejections.Add(1, tags);
+    }
+
+    private void EmitStateTransition(string fromState, string toState)
+    {
+        TagList tags = new TagList
+        {
+            { "gate", _gateName },
+            { "from_state", fromState },
+            { "to_state", toState },
+        };
+
+        ArchLucidInstrumentation.CircuitBreakerStateTransitions.Add(1, tags);
+    }
+
+    private void EmitProbeOutcome(string outcome)
+    {
+        TagList tags = new TagList { { "gate", _gateName }, { "outcome", outcome } };
+        ArchLucidInstrumentation.CircuitBreakerProbeOutcomes.Add(1, tags);
     }
 
     private enum State

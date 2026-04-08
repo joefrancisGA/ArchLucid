@@ -38,6 +38,26 @@ public sealed class CliRetryDelegatingHandlerTests
         attempt.Should().BeGreaterThan(1);
     }
 
+    [Fact]
+    public async Task SendAsync_with_zero_retries_does_not_retry_on_500()
+    {
+        int attempt = 0;
+        HttpMessageHandler inner = new LambdaHandler((_, _) =>
+        {
+            attempt++;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+        });
+
+        CliResilienceOptions options = new() { MaxRetryAttempts = 0 };
+        using HttpClient http = new(new CliRetryDelegatingHandler(options) { InnerHandler = inner }, disposeHandler: true);
+
+        HttpResponseMessage response = await http.GetAsync("http://localhost/ping");
+
+        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        attempt.Should().Be(1);
+    }
+
     private sealed class LambdaHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> send)
         : HttpMessageHandler
     {

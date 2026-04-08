@@ -33,6 +33,8 @@ jobs:
           docker network create "$ZNET"
           ZAP_WRK="${RUNNER_TEMP:-/tmp}/zap-wrk-${ZNET}"
           mkdir -p "$ZAP_WRK"
+          # ZAP runs as uid 1000 (zap); RUNNER_TEMP is often owned by uid 1001 (runner) → Permission denied without this.
+          chmod -R a+rwx "$ZAP_WRK"
           docker run -d --name archlucid-zap-api-strict --network "$ZNET" -p 8080:8080 \
             -e ASPNETCORE_URLS=http://+:8080 \
             -e ASPNETCORE_ENVIRONMENT=Development \

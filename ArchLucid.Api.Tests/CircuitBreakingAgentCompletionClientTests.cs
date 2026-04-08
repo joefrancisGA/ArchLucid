@@ -25,7 +25,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
             .ReturnsAsync("{}");
 
         CircuitBreakerOptions options = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
-        CircuitBreakerGate gate = new(options);
+        CircuitBreakerGate gate = new("test-gate", options);
 
         CircuitBreakingAgentCompletionClient sut = new(
             inner.Object,
@@ -47,7 +47,7 @@ public sealed class CircuitBreakingAgentCompletionClientTests
 
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
         TestClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerGate gate = new(options, clock.ToFunc());
+        CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         CircuitBreakingAgentCompletionClient sut = new(
             inner.Object,

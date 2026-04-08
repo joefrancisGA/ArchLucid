@@ -183,6 +183,19 @@ public static class ArchLucidProjectScaffolder
 
         [JsonPropertyName("architecture")]
         public ArchitectureSection? Architecture { get; set; }
+
+        [JsonPropertyName("httpResilience")]
+        public CliHttpResilienceConfig? HttpResilience { get; set; }
+    }
+
+    /// <summary>Optional HTTP retry tuning for the CLI API client (<c>archiforge.json</c>).</summary>
+    public sealed class CliHttpResilienceConfig
+    {
+        [JsonPropertyName("maxRetryAttempts")]
+        public int? MaxRetryAttempts { get; set; }
+
+        [JsonPropertyName("initialDelaySeconds")]
+        public int? InitialDelaySeconds { get; set; }
     }
 
     public sealed class ArchitectureSection

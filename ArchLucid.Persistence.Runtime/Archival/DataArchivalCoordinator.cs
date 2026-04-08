@@ -1,8 +1,13 @@
+using System.Diagnostics;
+
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
+
+using Serilog.Context;
 
 namespace ArchLucid.Persistence.Archival;
 
@@ -29,6 +34,13 @@ public sealed class DataArchivalCoordinator(
     public async Task RunOnceAsync(DataArchivalOptions options, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(options);
+
+        using Activity? activity = ArchLucidInstrumentation.DataArchival.StartActivity("DataArchival.RunOnce");
+        string correlationId = FormattableString.Invariant($"data-archival:{DateTime.UtcNow:yyyyMMddHHmmss}");
+        activity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, correlationId);
+
+        using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
+
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
         if (options.RunsRetentionDays > 0)

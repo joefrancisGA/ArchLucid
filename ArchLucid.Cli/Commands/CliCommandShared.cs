@@ -33,7 +33,10 @@ internal static class CliCommandShared
     internal static string GetBaseUrl(ArchLucidProjectScaffolder.ArchLucidCliConfig? config) =>
         ArchLucidApiClient.ResolveBaseUrl(config);
 
-    internal static async Task<bool> EnsureApiConnectedAsync(string baseUrl, CancellationToken ct = default)
+    internal static async Task<bool> EnsureApiConnectedAsync(
+        string baseUrl,
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config = null,
+        CancellationToken ct = default)
     {
         string? urlError = ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl);
 
@@ -44,7 +47,7 @@ internal static class CliCommandShared
             return false;
         }
 
-        ArchLucidApiClient client = new(baseUrl);
+        ArchLucidApiClient client = new(baseUrl, config);
 
         if (await client.CheckHealthAsync(ct))
         {

@@ -10,7 +10,7 @@
 ## Layout
 
 - `baseline-pr.tsv` — tab-separated rule overrides (`RULE_ID`, `IGNORE` \| `INFO` \| `FAIL`, description). Mounted read-only into the ZAP container as `/zap/wrk/config/baseline-pr.tsv`.
-- CI mounts a **writable** host directory at `/zap/wrk` (see workflows) so `zap-baseline.py` can create `zap.yaml` there; the official image often runs as a non-root user that cannot write the image’s default `/zap/wrk`.
+- CI mounts a **writable** host directory at `/zap/wrk` (see workflows) so `zap-baseline.py` can create `zap.yaml` there; the official image often runs as a non-root user that cannot write the image’s default `/zap/wrk`. Workflows run `chmod -R a+rwx` on that host path because GitHub’s `runner` user (typical uid 1001) owns `RUNNER_TEMP` while the ZAP image’s `zap` user is often uid **1000**, which would otherwise get **Permission denied** on `zap.yaml`.
 
 ## Operations
 

@@ -18,6 +18,8 @@ using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Queries;
 
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Composition.Startup;
@@ -77,7 +79,7 @@ public static partial class ServiceCollectionExtensions
             {
                 services.AddKeyedSingleton<CircuitBreakerGate>(
                     OpenAiCircuitBreakerKeys.Completion,
-                    (sp, _) => new CircuitBreakerGate(ResolveOpenAiCircuitBreakerOptions(sp.GetRequiredService<IConfiguration>())));
+                    (sp, _) => CreateOpenAiCircuitBreakerGate(sp, OpenAiCircuitBreakerKeys.Completion));
 
                 services.AddSingleton<AzureOpenAiCompletionClient>(sp =>
                 {
@@ -352,7 +354,7 @@ public static partial class ServiceCollectionExtensions
         {
             services.AddKeyedSingleton<CircuitBreakerGate>(
                 OpenAiCircuitBreakerKeys.Embedding,
-                (sp, _) => new CircuitBreakerGate(ResolveOpenAiCircuitBreakerOptions(sp.GetRequiredService<IConfiguration>())));
+                (sp, _) => CreateOpenAiCircuitBreakerGate(sp, OpenAiCircuitBreakerKeys.Embedding));
 
             services.AddSingleton<IOpenAiEmbeddingClient>(sp =>
             {
@@ -371,17 +373,64 @@ public static partial class ServiceCollectionExtensions
         }
     }
 
-    private static CircuitBreakerOptions ResolveOpenAiCircuitBreakerOptions(IConfiguration configuration)
+    private static void RegisterAzureOpenAiCircuitBreakerOptions(IServiceCollection services, IConfiguration configuration)
     {
-        IConfigurationSection section = configuration.GetSection("AzureOpenAI:CircuitBreaker");
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = section.GetValue<int?>("FailureThreshold") ?? CircuitBreakerOptions.DefaultFailureThreshold,
-            DurationOfBreakSeconds = section.GetValue<int?>("DurationOfBreakSeconds")
-                                     ?? CircuitBreakerOptions.DefaultDurationOfBreakSeconds
-        };
-        options.ApplyDefaults();
+        const string completionPath = "AzureOpenAI:CircuitBreaker:Completion";
+        const string embeddingPath = "AzureOpenAI:CircuitBreaker:Embedding";
+        const string sharedPath = "AzureOpenAI:CircuitBreaker";
 
-        return options;
+        services.Configure<CircuitBreakerOptions>(
+            OpenAiCircuitBreakerKeys.Completion,
+            configuration.GetSection(completionPath));
+        services.Configure<CircuitBreakerOptions>(
+            OpenAiCircuitBreakerKeys.Embedding,
+            configuration.GetSection(embeddingPath));
+
+        services.PostConfigure<CircuitBreakerOptions>(
+            OpenAiCircuitBreakerKeys.Completion,
+            opts => ApplySharedOpenAiCircuitBreakerFallback(configuration, completionPath, sharedPath, opts));
+
+        services.PostConfigure<CircuitBreakerOptions>(
+            OpenAiCircuitBreakerKeys.Embedding,
+            opts => ApplySharedOpenAiCircuitBreakerFallback(configuration, embeddingPath, sharedPath, opts));
+    }
+
+    private static void ApplySharedOpenAiCircuitBreakerFallback(
+        IConfiguration configuration,
+        string perGateConfigurationPath,
+        string sharedConfigurationPath,
+        CircuitBreakerOptions options)
+    {
+        IConfigurationSection perGate = configuration.GetSection(perGateConfigurationPath);
+        IConfigurationSection shared = configuration.GetSection(sharedConfigurationPath);
+
+        if (string.IsNullOrEmpty(perGate["FailureThreshold"]))
+        {
+            int? fromShared = shared.GetValue<int?>("FailureThreshold");
+            if (fromShared.HasValue)
+            {
+                options.FailureThreshold = fromShared.Value;
+            }
+        }
+
+        if (string.IsNullOrEmpty(perGate["DurationOfBreakSeconds"]))
+        {
+            int? fromShared = shared.GetValue<int?>("DurationOfBreakSeconds");
+            if (fromShared.HasValue)
+            {
+                options.DurationOfBreakSeconds = fromShared.Value;
+            }
+        }
+
+        options.ApplyDefaults();
+    }
+
+    private static CircuitBreakerGate CreateOpenAiCircuitBreakerGate(IServiceProvider serviceProvider, string gateName)
+    {
+        IOptionsFactory<CircuitBreakerOptions> factory =
+            serviceProvider.GetRequiredService<IOptionsFactory<CircuitBreakerOptions>>();
+        CircuitBreakerOptions options = factory.Create(gateName);
+
+        return new CircuitBreakerGate(gateName, options);
     }
 }

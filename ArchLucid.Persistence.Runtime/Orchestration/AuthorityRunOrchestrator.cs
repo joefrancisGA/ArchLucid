@@ -19,6 +19,8 @@ using ArchLucid.Core.Transactions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Serilog.Context;
+
 namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>
@@ -67,6 +69,8 @@ public sealed class AuthorityRunOrchestrator(
                 ActivityCorrelation.FindTagValueInChain(runActivity?.Parent, ActivityCorrelation.LogicalCorrelationIdTag)
                 ?? run.RunId.ToString("D");
             runActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
+
+            using IDisposable _ = LogContext.PushProperty("CorrelationId", logicalCorrelation);
 
             await SaveRunAsync(run, uow, cancellationToken);
 
@@ -184,6 +188,13 @@ public sealed class AuthorityRunOrchestrator(
 
             using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();
             runActivity?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
+
+            string logicalCorrelation =
+                ActivityCorrelation.FindTagValueInChain(runActivity?.Parent, ActivityCorrelation.LogicalCorrelationIdTag)
+                ?? run.RunId.ToString("D");
+            runActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
+
+            using IDisposable serilogCorrelation = LogContext.PushProperty("CorrelationId", logicalCorrelation);
 
             AuthorityPipelineContext ctx = new()
             {

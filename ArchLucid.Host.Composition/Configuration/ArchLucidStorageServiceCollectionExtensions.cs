@@ -70,6 +70,9 @@ public static class ArchLucidStorageServiceCollectionExtensions
     {
         ArchLucidOptions options = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
+        services.Configure<SqlOpenResilienceOptions>(configuration.GetSection(SqlOpenResilienceOptions.SectionName));
+        services.PostConfigure<SqlOpenResilienceOptions>(static o => o.Normalize());
+
         services.AddOptions<ArchLucidOptions>()
             .Configure<IConfiguration>(
                 static (opts, cfg) =>
@@ -161,10 +164,16 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.AddSingleton<SqlConnectionFactory>(
             _ => new SqlConnectionFactory(connectionString));
         services.AddSingleton<ResilientSqlConnectionFactory>(sp =>
-            new ResilientSqlConnectionFactory(
+        {
+            SqlOpenResilienceOptions sqlOpenOpts = sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>().Value;
+
+            return new ResilientSqlConnectionFactory(
                 sp.GetRequiredService<SqlConnectionFactory>(),
                 SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(
-                    sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>())));
+                    sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>(),
+                    sqlOpenOpts.MaxRetryAttempts,
+                    TimeSpan.FromMilliseconds(sqlOpenOpts.BaseDelayMilliseconds)));
+        });
 
         services.AddScoped<IRlsSessionContextApplicator, RlsSessionContextApplicator>();
         services.AddScoped<ISqlConnectionFactory>(sp =>

@@ -82,6 +82,15 @@ public static class ArchLucidInstrumentation
     /// <summary>Azure OpenAI chat completion calls (nested under agent handler when a trace is active).</summary>
     public static readonly ActivitySource AgentLlmCompletion = new("ArchLucid.Agent.LlmCompletion", "1.0.0");
 
+    /// <summary>Retrieval indexing outbox batch processor (<c>RetrievalIndexingOutboxProcessor</c>).</summary>
+    public static readonly ActivitySource RetrievalIndexingOutbox = new("ArchLucid.RetrievalIndexing.Outbox", "1.0.0");
+
+    /// <summary>Integration event Service Bus publish outbox (<c>IntegrationEventOutboxProcessor</c>).</summary>
+    public static readonly ActivitySource IntegrationEventOutbox = new("ArchLucid.IntegrationEvent.Outbox", "1.0.0");
+
+    /// <summary>Scheduled data retention archival (<c>DataArchivalCoordinator</c>).</summary>
+    public static readonly ActivitySource DataArchival = new("ArchLucid.DataArchival", "1.0.0");
+
     /// <summary>Digest channel send succeeded (labels: <c>channel</c>).</summary>
     public static readonly Counter<long> DigestDeliverySucceeded = AppMeter.CreateCounter<long>("digest_delivery_succeeded");
 
@@ -101,6 +110,24 @@ public static class ArchLucidInstrumentation
         "governance_resolve_duration_ms",
         unit: "ms",
         description: "Time to resolve effective governance for a tenant/workspace/project scope.");
+
+    /// <summary>Circuit breaker state changes (labels: <c>gate</c>, <c>from_state</c>, <c>to_state</c>).</summary>
+    public static readonly Counter<long> CircuitBreakerStateTransitions =
+        AppMeter.CreateCounter<long>(
+            "archiforge_circuit_breaker_state_transitions_total",
+            description: "Circuit breaker state transitions (labels: gate, from_state, to_state).");
+
+    /// <summary>Calls rejected while open or while a half-open probe is in flight (label: <c>gate</c>).</summary>
+    public static readonly Counter<long> CircuitBreakerRejections =
+        AppMeter.CreateCounter<long>(
+            "archiforge_circuit_breaker_rejections_total",
+            description: "Calls rejected because the circuit was open or a probe was in flight (label: gate).");
+
+    /// <summary>Half-open probe results (labels: <c>gate</c>, <c>outcome</c>=success|failure|cancelled).</summary>
+    public static readonly Counter<long> CircuitBreakerProbeOutcomes =
+        AppMeter.CreateCounter<long>(
+            "archiforge_circuit_breaker_probe_outcomes_total",
+            description: "Half-open probe results (labels: gate, outcome=success|failure|cancelled).");
 
     /// <summary>
     /// Hits on the in-resolve <c>(packId, version)</c> deserialized content cache inside <c>EffectiveGovernanceResolver</c>

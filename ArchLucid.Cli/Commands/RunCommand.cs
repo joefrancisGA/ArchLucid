@@ -46,12 +46,12 @@ internal static class RunCommand
         ArchitectureRequest request = CliCommandShared.BuildArchitectureRequest(config, briefContent);
         string baseUrl = CliCommandShared.GetBaseUrl(config);
 
-        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl))
+        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl, config))
         {
             return 1;
         }
 
-        ArchLucidApiClient client = new(baseUrl);
+        ArchLucidApiClient client = new(baseUrl, config);
 
         Console.WriteLine($"Submitting request to {baseUrl}...");
 

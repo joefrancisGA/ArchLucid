@@ -25,7 +25,7 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
 
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerGate gate = new(options, clock.ToFunc());
+        CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         CircuitBreakingOpenAiEmbeddingClient sut = new(
             inner.Object,
@@ -47,7 +47,7 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
 
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerGate gate = new(options, clock.ToFunc());
+        CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         CircuitBreakingOpenAiEmbeddingClient sut = new(
             inner.Object,

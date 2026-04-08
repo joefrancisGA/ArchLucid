@@ -15,7 +15,7 @@ public sealed class CircuitBreakerGateTests
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerOptions options = new() { FailureThreshold = 3, DurationOfBreakSeconds = 10 };
-        CircuitBreakerGate gate = new(options, clock.ToFunc());
+        CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         gate.ThrowIfBroken();
         gate.RecordFailure();
@@ -34,7 +34,7 @@ public sealed class CircuitBreakerGateTests
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 30 };
-        CircuitBreakerGate gate = new(options, clock.ToFunc());
+        CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         gate.ThrowIfBroken();
         gate.RecordFailure();
@@ -52,7 +52,7 @@ public sealed class CircuitBreakerGateTests
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 30 };
-        CircuitBreakerGate gate = new(options, clock.ToFunc());
+        CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         gate.RecordFailure();
         clock.Advance(TimeSpan.FromSeconds(31));
@@ -69,7 +69,7 @@ public sealed class CircuitBreakerGateTests
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
-        CircuitBreakerGate gate = new(options, clock.ToFunc());
+        CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         gate.RecordFailure();
         clock.Advance(TimeSpan.FromMinutes(2));
@@ -99,7 +99,7 @@ public sealed class CircuitBreakerGateTests
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
-        CircuitBreakerGate gate = new(options, clock.ToFunc());
+        CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
         gate.RecordFailure();
         clock.Advance(TimeSpan.FromMinutes(2));

@@ -21,6 +21,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
+        RegisterAzureOpenAiCircuitBreakerOptions(services, configuration);
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
         services.Configure<ApiDeprecationOptions>(configuration.GetSection(ApiDeprecationOptions.SectionName));
         services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));

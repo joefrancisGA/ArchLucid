@@ -78,7 +78,10 @@ public static class ObservabilityExtensions
                     ArchLucidInstrumentation.AuthorityRun.Name,
                     ArchLucidInstrumentation.RetrievalIndex.Name,
                     ArchLucidInstrumentation.AgentHandler.Name,
-                    ArchLucidInstrumentation.AgentLlmCompletion.Name);
+                    ArchLucidInstrumentation.AgentLlmCompletion.Name,
+                    ArchLucidInstrumentation.RetrievalIndexingOutbox.Name,
+                    ArchLucidInstrumentation.IntegrationEventOutbox.Name,
+                    ArchLucidInstrumentation.DataArchival.Name);
 
                 if (consoleExporterEnabled)
                     tracing.AddConsoleExporter();

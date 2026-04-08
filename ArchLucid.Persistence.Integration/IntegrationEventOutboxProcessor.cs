@@ -1,8 +1,13 @@
+using System.Diagnostics;
+
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+using Serilog.Context;
 
 namespace ArchLucid.Persistence.Integration;
 
@@ -36,6 +41,22 @@ public sealed class IntegrationEventOutboxProcessor(
 
         foreach (IntegrationEventOutboxEntry entry in batch)
         {
+            using Activity? activity = ArchLucidInstrumentation.IntegrationEventOutbox.StartActivity(
+                "IntegrationEventOutbox.ProcessEntry");
+            string correlationId = entry.RunId.HasValue
+                ? FormattableString.Invariant($"run:{entry.RunId.Value:D}")
+                : FormattableString.Invariant($"integration-outbox:{entry.OutboxId:D}");
+            activity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, correlationId);
+            activity?.SetTag("archiforge.outbox_id", entry.OutboxId.ToString("D"));
+            activity?.SetTag("archiforge.event_type", entry.EventType);
+
+            if (entry.RunId.HasValue)
+            {
+                activity?.SetTag("archiforge.run_id", entry.RunId.Value.ToString("D"));
+            }
+
+            using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
+
             try
             {
                 await publisher.PublishAsync(

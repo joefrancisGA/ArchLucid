@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text.Json;
 
+using ArchLucid.Cli.Commands;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 
@@ -26,7 +27,7 @@ public sealed class ArchLucidApiClient
         WriteIndented = false,
     };
 
-    public ArchLucidApiClient(string baseUrl)
+    public ArchLucidApiClient(string baseUrl, ArchLucidProjectScaffolder.ArchLucidCliConfig? cliConfig = null)
     {
         string? invalidReason = GetInvalidApiBaseUrlReason(baseUrl);
         if (invalidReason is not null)
@@ -35,7 +36,10 @@ public sealed class ArchLucidApiClient
         }
 
         string normalized = baseUrl.Trim().TrimEnd('/');
-        _http = CreateHttpClient(normalized, useRetry: true);
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? effectiveConfig =
+            cliConfig ?? CliCommandShared.TryLoadConfigFromCwd();
+        CliResilienceOptions httpResilience = CliResilienceOptions.FromCliConfig(effectiveConfig);
+        _http = CreateHttpClient(normalized, useRetry: true, httpResilience);
         _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = normalized + "/" };
     }
 
@@ -51,12 +55,12 @@ public sealed class ArchLucidApiClient
         _api = new Gen.ArchLucidApiClient(_http) { BaseUrl = baseUrl + "/" };
     }
 
-    private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry)
+    private static HttpClient CreateHttpClient(string normalizedBaseUrl, bool useRetry, CliResilienceOptions? httpResilience = null)
     {
         HttpMessageHandler inner = new HttpClientHandler();
         if (useRetry)
         {
-            inner = new CliRetryDelegatingHandler { InnerHandler = inner };
+            inner = new CliRetryDelegatingHandler(httpResilience) { InnerHandler = inner };
         }
 
         HttpClient http = new(inner, disposeHandler: true)

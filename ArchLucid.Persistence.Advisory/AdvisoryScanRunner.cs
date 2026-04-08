@@ -24,6 +24,8 @@ using ArchLucid.Persistence.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Serilog.Context;
+
 namespace ArchLucid.Persistence.Advisory;
 
 /// <summary>
@@ -84,10 +86,11 @@ public sealed class AdvisoryScanRunner(
         ArgumentNullException.ThrowIfNull(schedule);
 
         using Activity? scanActivity = ArchLucidInstrumentation.AdvisoryScan.StartActivity();
+        string logicalCorrelation = FormattableString.Invariant($"advisory-schedule:{schedule.ScheduleId:D}");
         scanActivity?.SetTag("archiforge.schedule_id", schedule.ScheduleId.ToString("D"));
-        scanActivity?.SetTag(
-            ActivityCorrelation.LogicalCorrelationIdTag,
-            FormattableString.Invariant($"advisory-schedule:{schedule.ScheduleId:D}"));
+        scanActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
+
+        using IDisposable _ = LogContext.PushProperty("CorrelationId", logicalCorrelation);
 
         ScopeContext scope = new()
         {
