@@ -20,7 +20,7 @@ internal static class BackgroundJobsRules
 
         if (!string.Equals(archi.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
         {
-            errors.Add("BackgroundJobs:Mode Durable requires ArchiForge:StorageProvider Sql (shared job state in SQL).");
+            errors.Add("BackgroundJobs:Mode Durable requires ArchLucid:StorageProvider Sql (shared job state in SQL).");
         }
 
         ArtifactLargePayloadOptions large =

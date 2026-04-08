@@ -52,12 +52,12 @@ dotnet test ArchLucid.Persistence.Tests --filter "Category=SqlServerContainer"
 
 **Script:** `test-sqlserver-integration.cmd` / `.ps1`
 
-### Operator UI (`archiforge-ui/`)
+### Operator UI (`archlucid-ui/`)
 
 **Vitest** (jsdom, fast — minimal harness):
 
 ```bash
-cd archiforge-ui
+cd archlucid-ui
 npm ci
 npm test
 ```
@@ -74,7 +74,7 @@ npm run test:e2e
 
 **Scripts (repo root):** `test-ui-unit.cmd` / `.ps1` (Vitest), `test-ui-smoke.cmd` / `.ps1` (Playwright)
 
-**Change Set 55R — focused review-workflow smoke:** component + mocked API contract tests under `archiforge-ui/src/review-workflow/`, `ShellNav`, artifact/compare helpers. Command list: [archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md#3-55r--review-workflow-smoke-tests-change-set-55r). Operator context: [docs/operator-shell.md](operator-shell.md).
+**Change Set 55R — focused review-workflow smoke:** component + mocked API contract tests under `archlucid-ui/src/review-workflow/`, `ShellNav`, artifact/compare helpers. Command list: [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#3-55r--review-workflow-smoke-tests-change-set-55r). Operator context: [docs/operator-shell.md](operator-shell.md).
 
 ### Stryker.NET mutation configs (repo root)
 

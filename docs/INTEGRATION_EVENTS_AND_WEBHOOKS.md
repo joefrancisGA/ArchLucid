@@ -8,7 +8,7 @@ When `WebhookDelivery:UseCloudEventsEnvelope` is **true**, digest and alert webh
 
 ## Azure Service Bus (optional)
 
-`IIntegrationEventPublisher` publishes UTF-8 JSON payloads after selected lifecycle events (e.g. authority run completed). Messages include a deterministic `messageId` when publishing directly or from the outbox (for Service Bus duplicate detection when enabled on the queue/topic).
+`IIntegrationEventPublisher` publishes UTF-8 JSON payloads after lifecycle events. Messages set `MessageId` when provided (duplicate detection on the queue/topic) and include application property `event_type` plus `Subject` with the same logical type string.
 
 **Managed identity (preferred in Azure):** set the namespace FQDN and queue/topic name. Optionally set `ServiceBusManagedIdentityClientId` for a user-assigned identity.
 
@@ -16,38 +16,67 @@ When `WebhookDelivery:UseCloudEventsEnvelope` is **true**, digest and alert webh
 "IntegrationEvents": {
   "ServiceBusFullyQualifiedNamespace": "mysb.servicebus.windows.net",
   "ServiceBusManagedIdentityClientId": "",
-  "QueueOrTopicName": "archiforge-integration-events"
+  "QueueOrTopicName": "archlucid-integration-events",
+  "SubscriptionName": "archlucid-worker",
+  "ConsumerEnabled": false,
+  "MaxConcurrentCalls": 4,
+  "PrefetchCount": 0
 }
 ```
 
-**Connection string (legacy bootstrap):** still supported when the namespace is not set.
+**Connection string (legacy bootstrap):** still supported when the namespace FQDN is not set.
 
 ```json
 "IntegrationEvents": {
   "ServiceBusConnectionString": "<connection-string>",
-  "QueueOrTopicName": "archiforge-integration-events"
+  "QueueOrTopicName": "archlucid-integration-events"
 }
 ```
 
-**Transactional outbox:** when `TransactionalOutboxEnabled` is **true** and storage is **Sql**, the run-completed event is written to `dbo.IntegrationEventOutbox` in the same SQL transaction as the authority commit; a worker leader publishes rows asynchronously.
+### Transactional outbox (`dbo.IntegrationEventOutbox`)
+
+When `TransactionalOutboxEnabled` is **true** and storage is **Sql**, integration events are written to `dbo.IntegrationEventOutbox` and published asynchronously by the **leader-elected** `IntegrationEventOutboxHostedService` (same retry/dead-letter behavior for all event types that use the outbox path).
+
+Events using the outbox today:
+
+| Event type (canonical) | When enqueued |
+|------------------------|---------------|
+| `com.archlucid.authority.run.completed` | Same SQL transaction as authority commit when `SupportsExternalTransaction` |
+| `com.archlucid.governance.approval.submitted` | After approval request create (standalone SQL connection if no ambient transaction) |
+| `com.archlucid.governance.promotion.activated` | Same transaction as environment activation when `SupportsExternalTransaction`; otherwise standalone enqueue after commit |
+| `com.archlucid.alert.fired` / `com.archlucid.alert.resolved` | After alert row write (standalone enqueue) |
+| `com.archlucid.advisory.scan.completed` | After scan execution completes (standalone enqueue) |
+
+When `TransactionalOutboxEnabled` is **false**, the same call sites use **best-effort** `IIntegrationEventPublisher.PublishAsync` (failures are logged; domain commits are not rolled back).
+
+**Legacy type strings:** `com.archiforge.*` values are **aliases** for the same logical events. In-process consumers should treat canonical and legacy names as equivalent (`IntegrationEventTypes.MapToCanonical` / `AreEquivalent`).
+
+**Operations:** pending and dead-letter depth surface in metrics; admin APIs remain `GET /admin/integration-outbox/dead-letters` and `POST /admin/integration-outbox/retry` (see API OpenAPI).
+
+### Worker subscription consumer
+
+When the host role is **Worker** and `IntegrationEvents:ConsumerEnabled` is **true**, `AzureServiceBusIntegrationEventConsumer` runs a `ServiceBusProcessor` on `QueueOrTopicName` + `SubscriptionName`. Handlers implement `IIntegrationEventHandler`; a default `LoggingIntegrationEventHandler` (`EventType` `*`) logs payload size/preview so subscriptions can be validated before custom logic is added.
+
+- Successful handling → `CompleteMessageAsync`
+- Handler errors → `AbandonMessageAsync` (redelivery; subscription `max_delivery_count` then moves to DLQ)
+- Missing `event_type` / unknown poison shape → `DeadLetterMessageAsync` with explicit reason
+
+### Terraform
+
+Module: **`infra/terraform-servicebus`** — namespace (Standard), topic with duplicate detection, subscriptions `archlucid-worker` and `archlucid-external`, optional private endpoint variables, RBAC Sender/Receiver. See module `README.md`.
+
+### Event catalog (canonical types)
+
+Payloads use `IntegrationEventJson` (camelCase, omit nulls). See **`docs/contracts/archiforge-asyncapi-2.6.yaml`** for structured schemas.
+
+1. **`com.archlucid.authority.run.completed`** — `schemaVersion`, `runId`, `manifestId`, `tenantId`, `workspaceId`, `projectId`
+2. **`com.archlucid.governance.approval.submitted`** — `schemaVersion`, scope ids, `approvalRequestId`, `runId`, `manifestVersion`, `sourceEnvironment`, `targetEnvironment`, `requestedBy`
+3. **`com.archlucid.governance.promotion.activated`** — `schemaVersion`, scope ids, `activationId`, `runId`, `manifestVersion`, `environment`, `activatedBy`, `activatedUtc`
+4. **`com.archlucid.alert.fired`** — `schemaVersion`, scope ids, `alertId`, optional `runId` / `comparedToRunId`, `ruleId`, `category`, `severity`, `title`, `deduplicationKey`
+5. **`com.archlucid.alert.resolved`** — `schemaVersion`, scope ids, `alertId`, optional `runId`, `resolvedByUserId`, optional `comment`
+6. **`com.archlucid.advisory.scan.completed`** — `schemaVersion`, scope ids, `scheduleId`, `executionId`, `hasRuns`, optional run/digest ids, `completedUtc`
 
 When no usable Service Bus configuration is present, a **no-op** publisher is registered.
 
 - Use a **queue** for simplest at-least-once delivery; use a **topic** with subscriptions for fan-out.
-- Grant the API/worker identity **Azure Service Bus Data Sender** on the namespace when using managed identity.
-
-## Event type: `com.archiforge.authority.run.completed`
-
-Payload shape (UTF-8 JSON):
-
-```json
-{
-  "runId": "...",
-  "manifestId": "...",
-  "tenantId": "...",
-  "workspaceId": "...",
-  "projectId": "..."
-}
-```
-
-Publish failures are logged as warnings and **do not** roll back the committed authority run. With the transactional outbox, failed sends leave the row pending for retry until `MarkProcessed` succeeds.
+- Grant identities **Azure Service Bus Data Sender** on the namespace for publish/outbox drain; grant the worker **Data Receiver** when using the subscription consumer.

@@ -1,6 +1,6 @@
 # ArchLucid Operator Shell — Architecture
 
-This document describes the architectural design of the ArchLucid operator shell (`archiforge-ui`). It follows the same C4-style conventions used in the backend architecture docs (`docs/ARCHITECTURE_CONTEXT.md`, `docs/ARCHITECTURE_CONTAINERS.md`, etc.) and the project's required architecture output sections.
+This document describes the architectural design of the ArchLucid operator shell (`archlucid-ui`). It follows the same C4-style conventions used in the backend architecture docs (`docs/ARCHITECTURE_CONTEXT.md`, `docs/ARCHITECTURE_CONTAINERS.md`, etc.) and the project's required architecture output sections.
 
 ---
 
@@ -580,10 +580,10 @@ This is intentional. The operator shell is thin — it does not have business lo
 ## Where to go next
 
 - **Operator workflow (55R, repo root):** `docs/operator-shell.md`
-- **Tutorial (for learning):** `archiforge-ui/docs/OPERATOR_SHELL_TUTORIAL.md`
-- **C# ↔ React translation:** `archiforge-ui/docs/CSHARP_TO_REACT_ROSETTA.md`
-- **Line-by-line code reading:** `archiforge-ui/docs/ANNOTATED_PAGE_WALKTHROUGH.md`
-- **Component API reference:** `archiforge-ui/docs/COMPONENT_REFERENCE.md`
-- **Data flow diagrams:** `archiforge-ui/docs/DATA_FLOW_AND_STATE.md`
-- **Testing guide:** `archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md`
+- **Tutorial (for learning):** `archlucid-ui/docs/OPERATOR_SHELL_TUTORIAL.md`
+- **C# ↔ React translation:** `archlucid-ui/docs/CSHARP_TO_REACT_ROSETTA.md`
+- **Line-by-line code reading:** `archlucid-ui/docs/ANNOTATED_PAGE_WALKTHROUGH.md`
+- **Component API reference:** `archlucid-ui/docs/COMPONENT_REFERENCE.md`
+- **Data flow diagrams:** `archlucid-ui/docs/DATA_FLOW_AND_STATE.md`
+- **Testing guide:** `archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md`
 - **Backend architecture:** `docs/ARCHITECTURE_INDEX.md`

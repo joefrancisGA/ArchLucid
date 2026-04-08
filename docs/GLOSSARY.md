@@ -44,7 +44,7 @@ A structured observation produced by a **finding engine** about the architecture
 
 ## Finding engine
 
-A class implementing **`IFindingEngine`** (`ArchLucid.Decisioning`) that analyses a **context snapshot / knowledge graph** and returns a list of **findings**. Multiple engines run in parallel inside **`FindingsOrchestrator`**. Add new engines via DI registration or the `dotnet new archiforge-finding-engine` template.
+A class implementing **`IFindingEngine`** (`ArchLucid.Decisioning`) that analyses a **context snapshot / knowledge graph** and returns a list of **findings**. Multiple engines run in parallel inside **`FindingsOrchestrator`**. Add new engines via DI registration or the `dotnet new archlucid-finding-engine` template.
 
 ## Golden manifest
 

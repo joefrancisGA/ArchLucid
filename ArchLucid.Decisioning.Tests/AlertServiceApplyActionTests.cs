@@ -4,10 +4,12 @@ using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Alerts;
+using ArchLucid.Persistence.Integration;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -58,6 +60,23 @@ public sealed class AlertServiceApplyActionTests
             .Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        outbox
+            .Setup(
+                o => o.EnqueueAsync(
+                    It.IsAny<Guid?>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<ReadOnlyMemory<byte>>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = false });
+
         AlertService sut = new(
             ruleRepo.Object,
             alertRepo.Object,
@@ -66,6 +85,8 @@ public sealed class AlertServiceApplyActionTests
             audit.Object,
             governance.Object,
             integration.Object,
+            outbox.Object,
+            opts.Object,
             NullLogger<AlertService>.Instance);
 
         return (sut, alertRepo, audit);

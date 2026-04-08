@@ -9,9 +9,11 @@ using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Alerts.Helpers;
+using ArchLucid.Persistence.Integration;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Alerts;
 
@@ -39,6 +41,8 @@ public sealed class CompositeAlertService(
     IAuditService auditService,
     IEffectiveGovernanceLoader effectiveGovernanceLoader,
     IIntegrationEventPublisher integrationEventPublisher,
+    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     ILogger<CompositeAlertService> logger) : ICompositeAlertService
 {
     /// <summary>
@@ -133,7 +137,13 @@ public sealed class CompositeAlertService(
                 await alertDeliveryDispatcher.DeliverAsync(alert, ct);
                 created.Add(alert);
 
-                await AlertIntegrationEventPublishing.TryPublishFiredAsync(integrationEventPublisher, logger, alert, ct);
+                await AlertIntegrationEventPublishing.TryPublishFiredAsync(
+                    integrationEventOutbox,
+                    integrationEventPublisher,
+                    integrationEventsOptions,
+                    logger,
+                    alert,
+                    ct);
 
                 await auditService.LogAsync(
                     new AuditEvent

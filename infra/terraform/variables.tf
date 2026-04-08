@@ -24,14 +24,14 @@ variable "location" {
 
 variable "apim_name" {
   type        = string
-  description = "Globally unique name for the API Management instance (alphanumeric, max 50). Example: archiforge-dev-apim."
+  description = "Globally unique name for the API Management instance (alphanumeric, max 50). Example: archlucid-dev-apim."
   default     = ""
 }
 
 variable "apim_publisher_name" {
   type        = string
   description = "Publisher name shown in APIM developer portal metadata."
-  default     = "ArchiForge"
+  default     = "ArchLucid"
 }
 
 variable "apim_publisher_email" {
@@ -42,13 +42,13 @@ variable "apim_publisher_email" {
 
 variable "archiforge_api_backend_url" {
   type        = string
-  description = "HTTPS origin URL for the ArchLucid API backend as reached from APIM (trailing slash stripped), e.g. https://archiforge-api.azurewebsites.net"
+  description = "HTTPS origin URL for the ArchLucid API backend as reached from APIM (trailing slash stripped), e.g. https://archlucid-api.azurewebsites.net"
   default     = ""
 }
 
 variable "apim_api_path_suffix" {
   type        = string
-  description = "URL path suffix on the APIM gateway for this API (no leading slash), e.g. v1 or archiforge."
+  description = "URL path suffix on the APIM gateway for this API (no leading slash), e.g. v1 or archlucid."
   default     = "v1"
 }
 

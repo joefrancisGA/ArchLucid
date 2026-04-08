@@ -19,10 +19,10 @@
 **/*.suo
 
 # Node (UI project — not needed for API image)
-archiforge-ui/node_modules/
-archiforge-ui/.next/
-archiforge-ui/playwright-report/
-archiforge-ui/test-results/
+archlucid-ui/node_modules/
+archlucid-ui/.next/
+archlucid-ui/playwright-report/
+archlucid-ui/test-results/
 
 # Git
 .git/

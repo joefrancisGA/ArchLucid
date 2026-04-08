@@ -5,8 +5,9 @@ namespace ArchLucid.Persistence.Integration;
 /// <summary>Transactional outbox for integration events (same pattern as <see cref="Retrieval.IRetrievalIndexingOutboxRepository"/>).</summary>
 public interface IIntegrationEventOutboxRepository
 {
+    /// <param name="runId">Optional correlation to an authority run; null for governance-only, alert, or advisory events.</param>
     Task EnqueueAsync(
-        Guid runId,
+        Guid? runId,
         string eventType,
         string? messageId,
         ReadOnlyMemory<byte> payloadUtf8,
@@ -15,8 +16,9 @@ public interface IIntegrationEventOutboxRepository
         Guid projectId,
         CancellationToken ct);
 
+    /// <param name="runId">Optional correlation to an authority run; null when the event is not run-scoped.</param>
     Task EnqueueAsync(
-        Guid runId,
+        Guid? runId,
         string eventType,
         string? messageId,
         ReadOnlyMemory<byte> payloadUtf8,

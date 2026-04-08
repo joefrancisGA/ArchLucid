@@ -1,19 +1,23 @@
 asyncapi: 2.6.0
 info:
-  title: ArchiForge outbound webhooks & integration events
-  version: 1.1.0
+  title: ArchLucid outbound webhooks & integration events
+  version: 1.2.0
   description: |
-    ArchiForge **pushes** JSON to operator-configured HTTPS URLs for alert routing and digest delivery.
+    ArchLucid **pushes** JSON to operator-configured HTTPS URLs for alert routing and digest delivery.
     This is **not** the primary REST API (see OpenAPI `/openapi/v1.json` and `/swagger/v1/swagger.json`).
 
     When `WebhookDelivery:UseHttpClient` is true and a shared secret is configured, requests include
     header `X-ArchiForge-Webhook-Signature` with value `sha256=<hex>` (HMAC-SHA256 over the raw UTF-8 body).
     Verify using `ArchLucid.Host.Core.Services.Delivery.WebhookSignature` semantics.
 
-    **Azure Service Bus (optional):** UTF-8 JSON payloads are also published to a configured queue or topic
+    **Azure Service Bus (optional):** UTF-8 JSON payloads are published to a configured queue or topic
     (`IntegrationEvents:QueueOrTopicName`). Message `subject` and application property `event_type` carry the
-    logical type (e.g. `com.archiforge.alert.fired`). Payloads include `schemaVersion: 1`; additive fields are
-    expected; breaking changes will ship as new event type strings or higher schema versions documented here.
+    logical type. **Canonical** type strings are `com.archlucid.*`; **`com.archiforge.*` aliases** match the same
+    payloads and should be accepted during migration. Payloads include `schemaVersion: 1`; additive fields are
+    expected; breaking changes ship as new event type strings or higher schema versions documented here.
+
+    **Bindings:** channels below map to Azure Service Bus **topic** publish (see `infra/terraform-servicebus`).
+    Consumer subscriptions use `IntegrationEvents:SubscriptionName` on the worker when `ConsumerEnabled` is true.
 
 defaultContentType: application/json
 channels:
@@ -86,7 +90,12 @@ channels:
 
   integrationAuthorityRunCompleted:
     description: |
-      Service Bus message after an authority run commits successfully (`com.archiforge.authority.run.completed`).
+      Service Bus message after an authority run commits successfully (`com.archlucid.authority.run.completed`; legacy `com.archiforge.authority.run.completed`).
+    bindings:
+      serviceBus:
+        bindingVersion: 0.2.0
+        destination: archlucid-integration-events
+        destinationType: topic
     publish:
       operationId: publishAuthorityRunCompleted
       message:
@@ -115,7 +124,12 @@ channels:
               format: uuid
 
   integrationGovernanceApprovalSubmitted:
-    description: Governance approval request persisted (`com.archiforge.governance.approval.submitted`).
+    description: Governance approval request persisted (`com.archlucid.governance.approval.submitted`; legacy `com.archiforge.governance.approval.submitted`).
+    bindings:
+      serviceBus:
+        bindingVersion: 0.2.0
+        destination: archlucid-integration-events
+        destinationType: topic
     publish:
       operationId: publishGovernanceApprovalSubmitted
       message:
@@ -136,7 +150,12 @@ channels:
             requestedBy: { type: string }
 
   integrationGovernancePromotionActivated:
-    description: Environment activation recorded (`com.archiforge.governance.promotion.activated`).
+    description: Environment activation recorded (`com.archlucid.governance.promotion.activated`; legacy `com.archiforge.governance.promotion.activated`).
+    bindings:
+      serviceBus:
+        bindingVersion: 0.2.0
+        destination: archlucid-integration-events
+        destinationType: topic
     publish:
       operationId: publishGovernancePromotionActivated
       message:
@@ -157,7 +176,12 @@ channels:
             activatedUtc: { type: string, format: date-time }
 
   integrationAlertFired:
-    description: New alert row persisted and delivered (`com.archiforge.alert.fired`).
+    description: New alert row persisted and delivered (`com.archlucid.alert.fired`; legacy `com.archiforge.alert.fired`).
+    bindings:
+      serviceBus:
+        bindingVersion: 0.2.0
+        destination: archlucid-integration-events
+        destinationType: topic
     publish:
       operationId: publishAlertFired
       message:
@@ -180,7 +204,12 @@ channels:
             deduplicationKey: { type: string }
 
   integrationAlertResolved:
-    description: Alert resolved via API (`com.archiforge.alert.resolved`).
+    description: Alert resolved via API (`com.archlucid.alert.resolved`; legacy `com.archiforge.alert.resolved`).
+    bindings:
+      serviceBus:
+        bindingVersion: 0.2.0
+        destination: archlucid-integration-events
+        destinationType: topic
     publish:
       operationId: publishAlertResolved
       message:
@@ -199,7 +228,12 @@ channels:
             comment: { type: string }
 
   integrationAdvisoryScanCompleted:
-    description: Advisory scan execution completed (`com.archiforge.advisory.scan.completed`).
+    description: Advisory scan execution completed (`com.archlucid.advisory.scan.completed`; legacy `com.archiforge.advisory.scan.completed`).
+    bindings:
+      serviceBus:
+        bindingVersion: 0.2.0
+        destination: archlucid-integration-events
+        destinationType: topic
     publish:
       operationId: publishAdvisoryScanCompleted
       message:

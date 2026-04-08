@@ -38,7 +38,7 @@ User/API load → compute → SQL write path → outbox/async → external integ
 
 ## 8. Operational considerations
 
-- **Start minimal:** single revision, modest SQL tier, Worker replica count aligned with outbox depth alerts (`infra/prometheus/archiforge-alerts.yml`).
+- **Start minimal:** single revision, modest SQL tier, Worker replica count aligned with outbox depth alerts (`infra/prometheus/archlucid-alerts.yml`).
 - **Evolve:** separate **read scaling** (cached read models) from **write scaling** (partitioning hot tenants, job sharding) when metrics justify.
 - **Review monthly:** top queries, token dashboards, unused environments, log retention.
 

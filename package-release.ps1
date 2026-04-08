@@ -23,7 +23,7 @@ if (-not $SkipUiBuild) {
     $node = Get-Command node -ErrorAction SilentlyContinue
 
     if ($null -ne $node) {
-        $uiRoot = Join-Path $root 'archiforge-ui'
+        $uiRoot = Join-Path $root 'archlucid-ui'
         Set-Location $uiRoot
         npm ci
         if ($LASTEXITCODE -ne 0) { Set-Location $root; exit $LASTEXITCODE }
@@ -33,7 +33,7 @@ if (-not $SkipUiBuild) {
         $uiProductionBuildIncluded = $true
     }
     else {
-        Write-Warning 'Node.js not on PATH; skipped archiforge-ui production build. Use -SkipUiBuild to silence this warning.'
+        Write-Warning 'Node.js not on PATH; skipped archlucid-ui production build. Use -SkipUiBuild to silence this warning.'
     }
 }
 

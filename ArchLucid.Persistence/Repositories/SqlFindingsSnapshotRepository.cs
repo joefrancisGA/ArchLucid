@@ -371,6 +371,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             fromJson.CreatedUtc = row.CreatedUtc;
             fromJson.SchemaVersion = row.SchemaVersion;
             FindingsSnapshotMigrator.Apply(fromJson);
+            FindingPayloadJsonCodec.HydrateJsonElementPayloads(fromJson.Findings);
             return fromJson;
         }
 

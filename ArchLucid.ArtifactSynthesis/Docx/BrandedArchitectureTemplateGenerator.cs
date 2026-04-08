@@ -29,7 +29,7 @@ public static class BrandedArchitectureTemplateGenerator
                             new Bold(),
                             new FontSize { Val = "28" },
                             new Color { Val = "2F5496" }),
-                        new Text("ArchiForge"))),
+                        new Text("ArchLucid"))),
                 new Paragraph(
                     new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
                     new Run(

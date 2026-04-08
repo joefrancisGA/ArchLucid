@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <RootNamespace>ArchLucidFindingEngine.Tests</RootNamespace>
+    <AssemblyName>ArchLucidFindingEngine.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForgeFindingEngine\ArchiForgeFindingEngine.csproj" />
+    <ProjectReference Include="..\ArchLucidFindingEngine\ArchLucidFindingEngine.csproj" />
   </ItemGroup>
 
 </Project>

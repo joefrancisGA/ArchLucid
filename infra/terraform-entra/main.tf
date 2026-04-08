@@ -26,20 +26,20 @@ resource "azuread_application" "api" {
     requested_access_token_version = 2
 
     oauth2_permission_scope {
-      admin_consent_description  = "Allow the application to access ArchiForge on behalf of the signed-in user."
-      admin_consent_display_name = "Access ArchiForge API"
+      admin_consent_description  = "Allow the application to access ArchLucid on behalf of the signed-in user."
+      admin_consent_display_name = "Access ArchLucid API"
       enabled                    = true
       id                         = random_uuid.oauth_scope_access_as_user.result
       type                       = "User"
-      user_consent_description   = "Allow this client to call ArchiForge when you are signed in."
-      user_consent_display_name  = "Access ArchiForge API"
+      user_consent_description   = "Allow this client to call ArchLucid when you are signed in."
+      user_consent_display_name  = "Access ArchLucid API"
       value                      = "access_as_user"
     }
   }
 
   app_role {
     allowed_member_types = ["User", "Application"]
-    description          = "Full access to ArchiForge API operations."
+    description          = "Full access to ArchLucid API operations."
     display_name         = "Admin"
     enabled              = true
     id                   = random_uuid.role_admin.result

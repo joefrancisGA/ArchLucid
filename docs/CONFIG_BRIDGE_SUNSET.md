@@ -39,4 +39,4 @@ Configuration load → bridge merge → `ArchiForgeOptions` / `ArchiForgeAuthOpt
 ## 8. Operational considerations
 
 - **Sunset:** checklist **Phase 7.1–7.3** — remove `ArchiForge*` keys and env fallbacks after telemetry shows no legacy usage in target environments.
-- **UI:** proxy prefers **`ARCHLUCID_API_KEY`**, falls back to **`ARCHIFORGE_API_KEY`** (`archiforge-ui/.env.example`).
+- **UI:** proxy prefers **`ARCHLUCID_API_KEY`**, falls back to **`ARCHIFORGE_API_KEY`** (`archlucid-ui/.env.example`).

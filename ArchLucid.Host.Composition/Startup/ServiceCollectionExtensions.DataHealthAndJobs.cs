@@ -34,7 +34,7 @@ public static partial class ServiceCollectionExtensions
         IHealthChecksBuilder builder = services.AddHealthChecks()
             .AddCheck(
                 "liveness",
-                () => HealthCheckResult.Healthy("ArchiForge API process is running."),
+                () => HealthCheckResult.Healthy("ArchLucid API process is running."),
                 tags: [ReadinessTags.Live])
             .AddCheck<SqlConnectionHealthCheck>(
                 "database",

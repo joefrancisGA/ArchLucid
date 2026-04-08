@@ -19,7 +19,7 @@ public sealed class SwaggerJsonJwtBearerWebAppFactory : WebApplicationFactory<Pr
                 new Dictionary<string, string?>
                 {
                     ["ArchiForge:StorageProvider"] = "InMemory",
-                    ["ConnectionStrings:ArchiForge"] = "",
+                    ["ConnectionStrings:ArchLucid"] = "",
                     ["AgentExecution:Mode"] = "Simulator",
                     ["AzureOpenAI:Endpoint"] = "",
                     ["AzureOpenAI:ApiKey"] = "",

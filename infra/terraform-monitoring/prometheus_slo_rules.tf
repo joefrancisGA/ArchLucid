@@ -1,5 +1,5 @@
 # Optional Azure Monitor managed Prometheus rule group — mirrors key PromQL from
-# ../prometheus/archiforge-slo-rules.yml (p99 latency, 5xx ratio, outbox depth).
+# ../prometheus/archlucid-slo-rules.yml (p99 latency, 5xx ratio, outbox depth).
 # Requires an Azure Monitor workspace (scopes) scraped with the same metric names as self-hosted Prometheus.
 
 locals {
@@ -30,7 +30,7 @@ resource "azurerm_monitor_alert_prometheus_rule_group" "archiforge_slo" {
 (histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le)) or histogram_quantile(0.99, sum(rate(http_server_duration_milliseconds_bucket[5m])) by (le)) / 1000) > 5
 EOT
     annotations = {
-      summary = "HTTP p99 latency above 5s (see infra/prometheus/archiforge-slo-rules.yml ArchiForgeSloHttpP99High)."
+      summary = "HTTP p99 latency above 5s (see infra/prometheus/archlucid-slo-rules.yml ArchiForgeSloHttpP99High)."
     }
 
     action {

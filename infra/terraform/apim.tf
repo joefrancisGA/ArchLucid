@@ -39,7 +39,7 @@ resource "azurerm_api_management_api" "archiforge" {
   api_management_name = azurerm_api_management.archiforge[0].name
   resource_group_name = local.apim_resource_group_name
   revision            = "1"
-  display_name        = "ArchiForge API"
+  display_name        = "ArchLucid API"
   path                = var.apim_api_path_suffix
   protocols           = ["https"]
 

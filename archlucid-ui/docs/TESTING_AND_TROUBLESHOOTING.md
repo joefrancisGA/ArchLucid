@@ -41,7 +41,7 @@ Playwright tests launch a **real Chromium browser** and navigate to the running 
 ### Unit tests (Vitest)
 
 ```powershell
-cd archiforge-ui
+cd archlucid-ui
 
 # Run all tests once (CI mode):
 npm test
@@ -69,7 +69,7 @@ test-ui-unit.cmd
 ### E2E tests (Playwright)
 
 ```powershell
-cd archiforge-ui
+cd archlucid-ui
 
 # Install browser (one-time):
 npx playwright install --with-deps chromium
@@ -84,7 +84,7 @@ From the repo root: **`test-ui-smoke.cmd`** or **`test-ui-smoke.ps1`**. **What i
 
 ## 3. 55R / review workflow smoke tests (Change Set 55R)
 
-Focused **component** and **API client contract** coverage for the operator shell (no heavy E2E in this set). Run from `archiforge-ui/`:
+Focused **component** and **API client contract** coverage for the operator shell (no heavy E2E in this set). Run from `archlucid-ui/`:
 
 ```powershell
 # Full suite (includes 55R tests):
@@ -388,7 +388,7 @@ The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey**
 Playwright **`webServer`** runs **`npm run build`** and the mock launcher (see **`playwright.config.ts`**). You do **not** start **`npm run dev`** or **`dotnet run`** for the default suite.
 
 ```powershell
-cd archiforge-ui
+cd archlucid-ui
 
 # One-time per machine (Chromium for the configured project):
 npx playwright install --with-deps chromium
@@ -400,7 +400,7 @@ Optional: **`npm run typecheck:e2e`** — TypeScript check for **`e2e/`** only.
 
 **From the repo root:** **`test-ui-smoke.cmd`** / **`test-ui-smoke.ps1`** ( **`npm ci`**, browser install, **`npm run test:e2e`** ).
 
-**Release smoke (optional):** repo root **`.\release-smoke.ps1 -RunPlaywright`** runs this same **`npm run test:e2e`** after the usual release-smoke steps. That UI gate uses **archiforge-ui’s mocks**, not the C# API instance **`release-smoke`** may have started for steps 5–6 — see **[docs/RELEASE_SMOKE.md](../../../docs/RELEASE_SMOKE.md)**.
+**Release smoke (optional):** repo root **`.\release-smoke.ps1 -RunPlaywright`** runs this same **`npm run test:e2e`** after the usual release-smoke steps. That UI gate uses **archlucid-ui’s mocks**, not the C# API instance **`release-smoke`** may have started for steps 5–6 — see **[docs/RELEASE_SMOKE.md](../../../docs/RELEASE_SMOKE.md)**.
 
 ### Manual testing against a live API
 

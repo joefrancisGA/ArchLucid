@@ -1,4 +1,4 @@
-# ArchiForge development dependencies
+# ArchLucid development dependencies
 # ────────────────────────────────────────────────────────────────────
 # Default (hot-reload dev):
 #   docker compose up -d
@@ -6,7 +6,7 @@
 #
 # Full-stack integration (containerised API + UI):
 #   docker compose --profile full-stack up -d
-#   → Everything, including the ArchiForge API and Operator UI images.
+#   → Everything, including the ArchLucid API and Operator UI images.
 #
 # SQL Server: localhost:1433
 # Azurite:    localhost:10000 (blob), 10001 (queue), 10002 (table)
@@ -76,14 +76,14 @@ services:
     build:
       context: .
       dockerfile: ArchLucid.Api/Dockerfile
-    container_name: archiforge-api
+    container_name: archlucid-api
     ports:
       - "5000:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__ArchiForge: "Server=sqlserver,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;"
-      ArchiForge__StorageProvider: "Sql"
-      ArchiForge__Auth__Mode: "DevelopmentBypass"
+      ConnectionStrings__ArchLucid: "Server=sqlserver,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;"
+      ArchLucid__StorageProvider: "Sql"
+      ArchLucidAuth__Mode: "DevelopmentBypass"
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -107,9 +107,9 @@ services:
   ui:
     profiles: ["full-stack"]
     build:
-      context: archiforge-ui
+      context: archlucid-ui
       dockerfile: Dockerfile
-    container_name: archiforge-ui
+    container_name: archlucid-ui
     ports:
       - "3000:3000"
     environment:

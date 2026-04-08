@@ -39,7 +39,7 @@ Thin Next.js App Router UI for runs, manifest summary, **artifact review**, **gr
 ## Setup
 
 ```bash
-cd archiforge-ui
+cd archlucid-ui
 npm install
 cp .env.example .env.local
 ```

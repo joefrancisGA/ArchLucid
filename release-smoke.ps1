@@ -45,7 +45,7 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
 
     if (-not $Requested) { return }
 
-    $uiRoot = Join-Path $RepoRoot 'archiforge-ui'
+    $uiRoot = Join-Path $RepoRoot 'archlucid-ui'
     $node = Get-Command node -ErrorAction SilentlyContinue
 
     if ($null -eq $node) {
@@ -77,8 +77,8 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
                 Write-OperatorFailureTriage -Stage 'Playwright E2E (-RunPlaywright)' -Category 'PlaywrightFailure' `
                     -Details @("npm run test:e2e exited $LASTEXITCODE (see Playwright output above).") `
                     -NextSteps @(
-                    'cd archiforge-ui; npx playwright install',
-                    'archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md — section 8',
+                    'cd archlucid-ui; npx playwright install',
+                    'archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md — section 8',
                     'Ensure port 3000 free for test webServer'
                 )
                 exit $LASTEXITCODE
@@ -145,14 +145,14 @@ try
         if ($null -ne $node)
         {
             Write-OperatorPhaseHeader -Title 'Operator UI — Vitest' -Step 3 -Total 6
-            $uiRoot = Join-Path $root 'archiforge-ui'
+            $uiRoot = Join-Path $root 'archlucid-ui'
             Push-Location $uiRoot
             & $releaseSmokeNpm ci
             if ($LASTEXITCODE -ne 0) {
                 Pop-Location
                 Write-OperatorFailureTriage -Stage '3/6 UI Vitest' -Category 'NpmCiFailure' `
-                    -Details @('npm ci failed in archiforge-ui.') `
-                    -NextSteps @('cd archiforge-ui; npm ci', 'Or: .\release-smoke.ps1 -SkipUi')
+                    -Details @('npm ci failed in archlucid-ui.') `
+                    -NextSteps @('cd archlucid-ui; npm ci', 'Or: .\release-smoke.ps1 -SkipUi')
                 exit $LASTEXITCODE
             }
             & $releaseSmokeNpm run test
@@ -160,7 +160,7 @@ try
                 Pop-Location
                 Write-OperatorFailureTriage -Stage '3/6 UI Vitest' -Category 'VitestFailure' `
                     -Details @('Vitest failed — file names above.') `
-                    -NextSteps @('cd archiforge-ui; npm run test', 'Or: .\release-smoke.ps1 -SkipUi')
+                    -NextSteps @('cd archlucid-ui; npm run test', 'Or: .\release-smoke.ps1 -SkipUi')
                 exit $LASTEXITCODE
             }
 
@@ -170,7 +170,7 @@ try
             if ($LASTEXITCODE -ne 0) {
                 Write-OperatorFailureTriage -Stage '4/6 UI production build' -Category 'NextBuildFailure' `
                     -Details @('next build / npm run build failed.') `
-                    -NextSteps @('cd archiforge-ui; npm run build', 'Or: .\release-smoke.ps1 -SkipUi')
+                    -NextSteps @('cd archlucid-ui; npm run build', 'Or: .\release-smoke.ps1 -SkipUi')
                 exit $LASTEXITCODE
             }
         }

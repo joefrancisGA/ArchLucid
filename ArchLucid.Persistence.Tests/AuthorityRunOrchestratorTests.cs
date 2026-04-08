@@ -349,8 +349,8 @@ public sealed class AuthorityRunOrchestratorTests
         integrationOutbox.Verify(
             x => x.EnqueueAsync(
                 result.RunId,
-                "com.archiforge.authority.run.completed",
-                $"{result.RunId:D}:com.archiforge.authority.run.completed",
+                IntegrationEventTypes.AuthorityRunCompletedV1,
+                $"{result.RunId:D}:{IntegrationEventTypes.AuthorityRunCompletedV1}",
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 scope.TenantId,
                 scope.WorkspaceId,
@@ -551,7 +551,7 @@ public sealed class AuthorityRunOrchestratorTests
     private static void StubIntegrationOutbox(Mock<IIntegrationEventOutboxRepository> mock)
     {
         mock.Setup(x => x.EnqueueAsync(
-                It.IsAny<Guid>(),
+                It.IsAny<Guid?>(),
                 It.IsAny<string>(),
                 It.IsAny<string?>(),
                 It.IsAny<ReadOnlyMemory<byte>>(),
@@ -562,7 +562,7 @@ public sealed class AuthorityRunOrchestratorTests
             .Returns(Task.CompletedTask);
 
         mock.Setup(x => x.EnqueueAsync(
-                It.IsAny<Guid>(),
+                It.IsAny<Guid?>(),
                 It.IsAny<string>(),
                 It.IsAny<string?>(),
                 It.IsAny<ReadOnlyMemory<byte>>(),

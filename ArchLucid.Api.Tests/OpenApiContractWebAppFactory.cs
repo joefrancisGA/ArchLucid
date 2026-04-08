@@ -20,7 +20,7 @@ public sealed class OpenApiContractWebAppFactory : WebApplicationFactory<Program
                 new Dictionary<string, string?>
                 {
                     ["ArchiForge:StorageProvider"] = "InMemory",
-                    ["ConnectionStrings:ArchiForge"] = "",
+                    ["ConnectionStrings:ArchLucid"] = "",
                     ["AgentExecution:Mode"] = "Simulator",
                     ["AzureOpenAI:Endpoint"] = "",
                     ["AzureOpenAI:ApiKey"] = "",

@@ -66,7 +66,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Meter **ArchiForge** counters. If a panel is empty, scrape `/metrics` and adjust the series name for your OpenTelemetry → Prometheus exporter (name mangling varies by exporter version).",
+      "description": "Meter **ArchLucid** counters. If a panel is empty, scrape `/metrics` and adjust the series name for your OpenTelemetry → Prometheus exporter (name mangling varies by exporter version).",
       "fieldConfig": {
         "defaults": {},
         "overrides": []
@@ -145,7 +145,7 @@
   ],
   "refresh": "30s",
   "schemaVersion": 38,
-  "tags": ["archiforge", "authority"],
+  "tags": ["archlucid", "authority"],
   "templating": {
     "list": [
       {
@@ -164,8 +164,8 @@
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "ArchiForge — Authority pipeline",
-  "uid": "archiforge-authority",
+  "title": "ArchLucid — Authority pipeline",
+  "uid": "archlucid-authority",
   "version": 1,
   "weekStart": ""
 }

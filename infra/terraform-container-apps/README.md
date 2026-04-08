@@ -6,7 +6,7 @@ Optional root that deploys:
 - **Container Apps Environment** (consumption; optional **VNet integration** + internal load balancer)
 - **`azurerm_container_app`** for **ArchLucid.Api** (port **8080**, **`Hosting__Role=Api`**, liveness `/health/live`, readiness `/health/ready`, `ASPNETCORE_URLS`)
 - **`azurerm_container_app`** for **ArchLucid.Worker** (same image by default, **`command` = `dotnet ArchLucid.Worker.dll`**, **`Hosting__Role=Worker`**, configurable **min/max replicas**, health probes on **8080**; optional **azure-queue** scale rule when **`worker_enable_queue_depth_scaling`** and a **queue connection string** secret are set)
-- **`azurerm_container_app`** for **archiforge-ui** (port **3000**, probes on `/`)
+- **`azurerm_container_app`** for **archlucid-ui** (port **3000**, probes on `/`)
 
 HTTP **KEDA-style** scale rules scale each app between **min/max replicas** using **concurrent request** targets.
 
@@ -42,7 +42,7 @@ The UI calls the backend via same-origin **`/api/proxy`** in dev. In Container A
 
 ## Background services and replicas
 
-**Terraform** provisions a dedicated **`archiforge-worker`** container app (**`worker_min_replicas` / `worker_max_replicas`**, default **1 / 20**) that runs **advisory scan polling**, **data archival**, **retrieval indexing outbox** processing, and (when durable) **background export jobs** from Azure Storage Queue. The **API** app uses **`Hosting__Role=Api`**, so it does **not** run those loops.
+**Terraform** provisions a dedicated **`archlucid-worker`** container app (**`worker_min_replicas` / `worker_max_replicas`**, default **1 / 20**) that runs **advisory scan polling**, **data archival**, **retrieval indexing outbox** processing, and (when durable) **background export jobs** from Azure Storage Queue. The **API** app uses **`Hosting__Role=Api`**, so it does **not** run those loops.
 
 **Export async jobs** (`IBackgroundJobQueue`): default **`background_jobs_mode = "InMemory"`** keeps the **in-process** queue on the API (or Combined host). Set **`background_jobs_mode = "Durable"`** to use **SQL** (`dbo.BackgroundJobs`), **Azure Storage Queue** (Terraform creates **`azurerm_storage_queue`** when the blob URI parses a storage account name), and **worker-side processing** (`BackgroundJobQueueProcessorHostedService`). The module then sets **`BackgroundJobs__Mode`**, **`BackgroundJobs__QueueName`**, **`BackgroundJobs__ResultsContainerName`**, grants the API **Storage Queue Data Message Sender** and the worker **Storage Queue Data Message Processor** (blob contributor was already required). **Durable** requires **`ArchiForge:StorageProvider=Sql`**, **Azure Blob** artifacts, and matching app configuration (validated at startup).
 

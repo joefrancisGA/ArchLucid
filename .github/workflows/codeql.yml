@@ -69,17 +69,17 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: javascript
-          source-root: archiforge-ui
+          source-root: archlucid-ui
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: archiforge-ui/package-lock.json
+          cache-dependency-path: archlucid-ui/package-lock.json
 
       - name: Install and build UI
-        working-directory: archiforge-ui
+        working-directory: archlucid-ui
         run: |
           npm ci
           npm run build

@@ -56,7 +56,7 @@ flowchart LR
 | **ArchLucid.Worker** | Background processors (outbox publishers, advisory, indexing). |
 | **ArchLucid.Host.Composition** | DI graphs (`AddArchLucidStorage`, agents, retrieval). |
 | **ArchLucid.Persistence** | Dapper data access, outbox tables, integration dead-letter paths. |
-| **archiforge-ui** | Operator shell; server **proxy** to API with scope + correlation headers. |
+| **archlucid-ui** | Operator shell; server **proxy** to API with scope + correlation headers. |
 
 ## 6. Data flow
 
@@ -74,7 +74,7 @@ flowchart LR
 
 - **Smoke:** CD workflows hit **`/health/live`** plus optional second path (default **`/version`**) via repository variable **`SMOKE_SYNTHETIC_PATH`**.
 - **Rollback:** Container Apps revision deactivation when **`CD_ROLLBACK_ON_SMOKE_FAILURE`** is true (see workflow comments in `.github/workflows/cd.yml`).
-- **Metrics:** `infra/prometheus/archiforge-alerts.yml` targets **ArchiForge** meter outbox gauges fed by **`OutboxOperationalMetricsHostedService`**.
+- **Metrics:** `infra/prometheus/archlucid-alerts.yml` targets **ArchiForge** meter outbox gauges fed by **`OutboxOperationalMetricsHostedService`**.
 - **Cost / capacity:** see [CAPACITY_AND_COST_PLAYBOOK.md](CAPACITY_AND_COST_PLAYBOOK.md).
 
 ## 9. Deeper reading

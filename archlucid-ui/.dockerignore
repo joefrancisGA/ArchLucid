@@ -1,4 +1,4 @@
-# ── Docker build context exclusions (archiforge-ui) ────────────────
+# ── Docker build context exclusions (archlucid-ui) ────────────────
 node_modules/
 .next/
 out/

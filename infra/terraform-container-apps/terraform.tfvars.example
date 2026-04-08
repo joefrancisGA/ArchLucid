@@ -9,9 +9,9 @@ location                = "eastus2"
 # Build and push images (repo root). Dockerfile publishes ArchLucid.Api + ArchLucid.Worker into one image; default entrypoint is the API.
 #   docker build -f ArchLucid.Api/Dockerfile -t <acr>.azurecr.io/archiforge:2026.04.1 .
 # Worker container app runs: dotnet ArchLucid.Worker.dll (same image as API unless you set worker_container_image).
-#   docker build -t <acr>.azurecr.io/archiforge-ui:2026.04.1 archiforge-ui/
+#   docker build -t <acr>.azurecr.io/archlucid-ui:2026.04.1 archlucid-ui/
 api_container_image = "<your-acr>.azurecr.io/archiforge:2026.04.1"
-ui_container_image  = "<your-acr>.azurecr.io/archiforge-ui:2026.04.1"
+ui_container_image  = "<your-acr>.azurecr.io/archlucid-ui:2026.04.1"
 
 # Optional: use a different image for the worker (default: same as api_container_image).
 # worker_container_image = "<your-acr>.azurecr.io/archiforge-worker:2026.04.1"

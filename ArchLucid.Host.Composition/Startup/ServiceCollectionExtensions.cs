@@ -46,6 +46,7 @@ public static partial class ServiceCollectionExtensions
         RegisterGovernance(services, configuration);
         RegisterRetrievalIndexingOutbox(services, hostingRole);
         RegisterIntegrationEventOutbox(services, hostingRole);
+        RegisterIntegrationEventConsumer(services, hostingRole);
         RegisterDataArchivalHostedService(services, hostingRole);
         RegisterArchLucidHealthChecks(services, hostingRole);
 

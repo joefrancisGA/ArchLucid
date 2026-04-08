@@ -8,8 +8,10 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Integration;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Governance;
 
@@ -27,6 +29,8 @@ public sealed class GovernanceWorkflowService(
     IBaselineMutationAuditService baselineMutationAudit,
     IScopeContextProvider scopeContextProvider,
     IIntegrationEventPublisher integrationEventPublisher,
+    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<GovernanceWorkflowService> logger)
     : IGovernanceWorkflowService
@@ -308,6 +312,10 @@ public sealed class GovernanceWorkflowService(
 
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
+        IntegrationEventsOptions integrationOpts = integrationEventsOptions.CurrentValue;
+        bool enqueuePromotionInSqlTx =
+            integrationOpts.TransactionalOutboxEnabled && uow.SupportsExternalTransaction;
+
         try
         {
             if (uow.SupportsExternalTransaction)
@@ -319,6 +327,16 @@ public sealed class GovernanceWorkflowService(
                 }
 
                 await activationRepo.CreateAsync(activation, cancellationToken, uow.Connection, uow.Transaction);
+
+                if (enqueuePromotionInSqlTx)
+                {
+                    await TryPublishGovernancePromotionActivatedAsync(
+                        activation,
+                        activatedBy,
+                        uow.Connection,
+                        uow.Transaction,
+                        cancellationToken);
+                }
             }
             else
             {
@@ -358,7 +376,15 @@ public sealed class GovernanceWorkflowService(
                 activation.Environment);
         }
 
-        await TryPublishGovernancePromotionActivatedAsync(activation, activatedBy, cancellationToken);
+        if (!enqueuePromotionInSqlTx)
+        {
+            await TryPublishGovernancePromotionActivatedAsync(
+                activation,
+                activatedBy,
+                connection: null,
+                transaction: null,
+                cancellationToken);
+        }
 
         return activation;
     }
@@ -385,18 +411,30 @@ public sealed class GovernanceWorkflowService(
 
         string messageId = $"{request.ApprovalRequestId}:{IntegrationEventTypes.GovernanceApprovalSubmittedV1}";
 
-        return IntegrationEventPublishing.TryPublishAsync(
+        Guid? runKey = Guid.TryParse(request.RunId, out Guid rid) ? rid : null;
+
+        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+            integrationEventOutbox,
             integrationEventPublisher,
+            integrationEventsOptions.CurrentValue,
             logger,
             IntegrationEventTypes.GovernanceApprovalSubmittedV1,
             payload,
             messageId,
+            runKey,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            connection: null,
+            transaction: null,
             cancellationToken);
     }
 
     private Task TryPublishGovernancePromotionActivatedAsync(
         GovernanceEnvironmentActivation activation,
         string activatedBy,
+        IDbConnection? connection,
+        IDbTransaction? transaction,
         CancellationToken cancellationToken)
     {
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
@@ -417,12 +455,22 @@ public sealed class GovernanceWorkflowService(
 
         string messageId = $"{activation.ActivationId}:{IntegrationEventTypes.GovernancePromotionActivatedV1}";
 
-        return IntegrationEventPublishing.TryPublishAsync(
+        Guid? runKey = Guid.TryParse(activation.RunId, out Guid rid) ? rid : null;
+
+        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+            integrationEventOutbox,
             integrationEventPublisher,
+            integrationEventsOptions.CurrentValue,
             logger,
             IntegrationEventTypes.GovernancePromotionActivatedV1,
             payload,
             messageId,
+            runKey,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            connection,
+            transaction,
             cancellationToken);
     }
 }

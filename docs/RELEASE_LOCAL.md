@@ -11,8 +11,8 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 | Script | Purpose |
 |--------|---------|
 | `build-release.cmd` / `build-release.ps1` | `dotnet restore` + `dotnet build ArchLucid.sln -c Release` |
-| `package-release.cmd` / `package-release.ps1` | Runs release build, then **`dotnet publish`** API to `artifacts/release/api/`; if **Node** is on `PATH`, also runs `npm ci` + `npm run build` in `archiforge-ui/`. Emits **handoff metadata** next to `api/` (see below). |
-| `run-readiness-check.cmd` / `run-readiness-check.ps1` | Release build → **fast core** tests (`-c Release --no-build`) → **Vitest** in `archiforge-ui/` when Node is available. Failures print a **triage** block (stage, category, **Next:** hints) via `scripts/OperatorDiagnostics.ps1`. |
+| `package-release.cmd` / `package-release.ps1` | Runs release build, then **`dotnet publish`** API to `artifacts/release/api/`; if **Node** is on `PATH`, also runs `npm ci` + `npm run build` in `archlucid-ui/`. Emits **handoff metadata** next to `api/` (see below). |
+| `run-readiness-check.cmd` / `run-readiness-check.ps1` | Release build → **fast core** tests (`-c Release --no-build`) → **Vitest** in `archlucid-ui/` when Node is available. Failures print a **triage** block (stage, category, **Next:** hints) via `scripts/OperatorDiagnostics.ps1`. |
 | `release-smoke.cmd` / `release-smoke.ps1` | **E2E smoke:** build + fast core (+ optional `-FullCore`) + optional UI build + temporary API + CLI **`run --quick`** + artifact API check — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
 | `test-core.cmd` / `test-core.ps1` | Full Core suite (default configuration, usually Debug). See [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) |
 | `test-fast-core.cmd` / `test-fast-core.ps1` | Core excluding Slow + Integration (default configuration) |
@@ -33,7 +33,7 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 | **`checksums-sha256.txt`** | One line per published file: `<lowercase-hex>  api/relative/path` (same order as `apiPublishFiles` in the manifest) |
 | **`PACKAGE-HANDOFF.txt`** | Short human-readable summary for design partners (what each file is, how to run `dotnet ArchLucid.Api.dll`) |
 
-The operator UI remains developed from `archiforge-ui/` in the repo (or deploy via your host’s Node/Next workflow); it is **not** copied into `artifacts/release/` except as noted in the manifest.
+The operator UI remains developed from `archlucid-ui/` in the repo (or deploy via your host’s Node/Next workflow); it is **not** copied into `artifacts/release/` except as noted in the manifest.
 
 ---
 
@@ -72,7 +72,7 @@ Defaults for URLs are in `ArchLucid.Api/Properties/launchSettings.json` when dev
 
 ## Run the operator UI locally
 
-From repo `archiforge-ui/`:
+From repo `archlucid-ui/`:
 
 ```bash
 npm ci
@@ -86,7 +86,7 @@ npm run build
 npm start
 ```
 
-Point the UI at the API using `archiforge-ui` env conventions (e.g. upstream base URL for the proxy — see [archiforge-ui/README.md](../archiforge-ui/README.md) and [operator-shell.md](operator-shell.md)).
+Point the UI at the API using `archlucid-ui` env conventions (e.g. upstream base URL for the proxy — see [archlucid-ui/README.md](../archlucid-ui/README.md) and [operator-shell.md](operator-shell.md)).
 
 ---
 

@@ -38,8 +38,8 @@ The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures
 | **`429 Too Many Requests`** | Rate limiting | Wait for the window to reset or adjust `RateLimiting:*` in config (non-production). |
 | **`404`** on run or manifest | Wrong **run ID**, wrong **scope** (tenant/workspace/project), or data not in that scope | Re-use default scope headers or match the scope used at create time. |
 | **`409`** on commit | Run state / idempotency conflict | Follow message; may need to re-fetch run status or use a fresh run. [API_CONTRACTS.md](API_CONTRACTS.md) |
-| UI shows **503** JSON “Invalid upstream API configuration” | **`ARCHIFORGE_API_BASE_URL`** missing or invalid in **`.env.local`** | Set server-side base URL in `archiforge-ui/.env.local`. Restart `npm run dev`. |
-| UI loads but API calls fail | Proxy or CORS | Check **browser network** tab and **Next server logs** (look for **`archiforge-ui-proxy`** JSON warnings). Confirm API URL and that API allows your UI origin under **`Cors:AllowedOrigins`**. |
+| UI shows **503** JSON “Invalid upstream API configuration” | **`ARCHIFORGE_API_BASE_URL`** missing or invalid in **`.env.local`** | Set server-side base URL in `archlucid-ui/.env.local`. Restart `npm run dev`. |
+| UI loads but API calls fail | Proxy or CORS | Check **browser network** tab and **Next server logs** (look for **`archlucid-ui-proxy`** JSON warnings). Confirm API URL and that API allows your UI origin under **`Cors:AllowedOrigins`**. |
 | **`run --quick` / execute** fails with LLM or timeout errors | **Real agent** mode without valid Azure OpenAI config | For pilots, prefer **simulator** / default dev settings so no cloud keys are required. Check `AgentExecution` / related appsettings. |
 | .NET tests fail with SQL errors | No SQL Server for integration tests | Set **`ARCHIFORGE_SQL_TEST`** or **`ARCHIFORGE_API_TEST_SQL`** (Linux/macOS/CI), or run **fast core** only. [BUILD.md](BUILD.md) |
 
@@ -58,7 +58,7 @@ The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures
 - **`RunId=`** — ties log lines to a single architecture run.
 - **`X-Correlation-ID`** you sent on the request (or the ID the server returned) — ties client attempts to server handling.
 - **`Authority pipeline`** / **`Architecture run execution failed`** — authority vs application run paths.
-- **`archiforge-ui-proxy`** — UI server-side forwarder problems (upstream status, bad base URL).
+- **`archlucid-ui-proxy`** — UI server-side forwarder problems (upstream status, bad base URL).
 
 Logs go to **stdout** unless your host redirects them (Docker/Kubernetes, IIS, Windows Service).
 

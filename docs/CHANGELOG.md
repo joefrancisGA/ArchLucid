@@ -50,7 +50,7 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 - `e2e/mock-archiforge-api-server.ts` + `e2e/start-e2e-with-mock.ts` — loopback HTTP mock on port 18765 for RSC pages; `playwright.config.ts` `webServer` updated.
 - `tsx` devDependency for TS mock runner; `e2e/tsconfig.json` + `npm run typecheck:e2e`.
 - `-RunPlaywright` flag added to `release-smoke.ps1` / `.cmd`.
-- Docs: `archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md` (section 8 rewritten).
+- Docs: `archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md` (section 8 rewritten).
 
 ---
 

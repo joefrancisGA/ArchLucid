@@ -52,16 +52,16 @@ if (-not $SkipUi) {
 
     if ($null -ne $node) {
         Write-OperatorPhaseHeader -Title 'Operator UI unit tests (Vitest)' -Step 3 -Total $totalPhases
-        $uiRoot = Join-Path $root 'archiforge-ui'
+        $uiRoot = Join-Path $root 'archlucid-ui'
         Set-Location $uiRoot
         npm ci
 
         if ($LASTEXITCODE -ne 0) {
             Set-Location $root
             Write-OperatorFailureTriage -Stage '3 UI unit tests' -Category 'NpmCiFailure' `
-                -Details @('npm ci failed in archiforge-ui (lockfile / registry / network).') `
+                -Details @('npm ci failed in archlucid-ui (lockfile / registry / network).') `
                 -NextSteps @(
-                'cd archiforge-ui; npm ci',
+                'cd archlucid-ui; npm ci',
                 'Confirm Node 22+ and a clean node_modules if needed',
                 'To skip UI gate: .\run-readiness-check.ps1 -SkipUi'
             )
@@ -75,7 +75,7 @@ if (-not $SkipUi) {
             Write-OperatorFailureTriage -Stage '3 UI unit tests' -Category 'VitestFailure' `
                 -Details @('Vitest reported failures (see file names above).') `
                 -NextSteps @(
-                'cd archiforge-ui; npm run test',
+                'cd archlucid-ui; npm run test',
                 'Run a single file: npx vitest run path/to/file.test.ts',
                 'To skip UI gate: .\run-readiness-check.ps1 -SkipUi'
             )

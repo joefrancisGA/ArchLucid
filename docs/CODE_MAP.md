@@ -6,7 +6,7 @@ Reduce time-to-orientation for a developer or SRE by listing **high-signal paths
 
 ## 2. Assumptions
 
-- You build with **.NET 10** and **C#**; UI with **Next.js** under `archiforge-ui/`.
+- You build with **.NET 10** and **C#**; UI with **Next.js** under `archlucid-ui/`.
 
 ## 3. Constraints
 
@@ -28,10 +28,10 @@ Reduce time-to-orientation for a developer or SRE by listing **high-signal paths
 | Outbox operational metrics | `ArchLucid.Persistence/Diagnostics/DapperOutboxOperationalMetricsReader.cs`, `ArchLucid.Host.Core/Hosted/OutboxOperationalMetricsHostedService.cs` |
 | OTel meters / gauges | `ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs` |
 | SQL schema (master) | `ArchLucid.Persistence/Scripts/ArchiForge.sql` |
-| UI API proxy | `archiforge-ui/src/app/api/proxy/[...path]/route.ts` |
+| UI API proxy | `archlucid-ui/src/app/api/proxy/[...path]/route.ts` |
 | CD smoke + rollback | `.github/workflows/cd.yml`, `cd-staging-on-merge.yml` |
 | ZAP tiers | `infra/zap/`, `.github/workflows/ci.yml`, `zap-baseline-strict-scheduled.yml` |
-| Prometheus alerts | `infra/prometheus/archiforge-alerts.yml` |
+| Prometheus alerts | `infra/prometheus/archlucid-alerts.yml` |
 
 ## 6. Data flow
 

@@ -31,4 +31,16 @@ public sealed class IntegrationEventsOptions
 
     /// <summary>Upper bound for exponential backoff delay between publish retries (seconds).</summary>
     public int OutboxMaxBackoffSeconds { get; set; } = 300;
+
+    /// <summary>When true, the worker hosts a Service Bus subscription processor for integration events.</summary>
+    public bool ConsumerEnabled { get; set; }
+
+    /// <summary>Service Bus subscription under <see cref="QueueOrTopicName"/> (topic mode).</summary>
+    public string? SubscriptionName { get; set; }
+
+    /// <summary>Concurrent callbacks per processor instance.</summary>
+    public int MaxConcurrentCalls { get; set; } = 4;
+
+    /// <summary>Prefetch count for the processor (0 = SDK default).</summary>
+    public int PrefetchCount { get; set; }
 }

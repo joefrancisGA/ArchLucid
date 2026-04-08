@@ -2,7 +2,7 @@
 
 ## Prompt 1 — deterministic fixtures + proxy route interception
 
-**Scope:** `archiforge-ui` only. No production behavior changes.
+**Scope:** `archlucid-ui` only. No production behavior changes.
 
 **Delivered:**
 
@@ -61,7 +61,7 @@
 
 ## Prompt 6 — Playwright harness cleanup and readability pass
 
-**Scope:** `archiforge-ui/e2e` only. Small helpers; specs stay explicit.
+**Scope:** `archlucid-ui/e2e` only. Small helpers; specs stay explicit.
 
 **Delivered:**
 
@@ -77,8 +77,8 @@
 
 **Delivered:**
 
-- **`-RunPlaywright`** — after the normal smoke steps (UI and, unless **`-SkipE2E`**, API+CLI+artifact checks), runs **`archiforge-ui`** **`npm run test:e2e`** with **`CI=1`**. Section header **`=== Playwright E2E (opt-in: -RunPlaywright) ===`**. Exits non-zero if Playwright fails; errors if Node is missing when the flag is set.
-- **`-SkipE2E`** path still runs Playwright when **`-RunPlaywright`** is set (after UI); **`npm ci`** runs in **`archiforge-ui`** when **`-SkipUi`** or missing **`node_modules`** so E2E can run without the standard UI step.
+- **`-RunPlaywright`** — after the normal smoke steps (UI and, unless **`-SkipE2E`**, API+CLI+artifact checks), runs **`archlucid-ui`** **`npm run test:e2e`** with **`CI=1`**. Section header **`=== Playwright E2E (opt-in: -RunPlaywright) ===`**. Exits non-zero if Playwright fails; errors if Node is missing when the flag is set.
+- **`-SkipE2E`** path still runs Playwright when **`-RunPlaywright`** is set (after UI); **`npm ci`** runs in **`archlucid-ui`** when **`-SkipUi`** or missing **`node_modules`** so E2E can run without the standard UI step.
 - **`release-smoke.cmd`** passes **`%*`** unchanged (flags work from CMD). **`docs/RELEASE_SMOKE.md`** documents the switch, examples, and Playwright troubleshooting.
 
 ---
@@ -89,8 +89,8 @@
 
 **Delivered:**
 
-- **`archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md`** — section 8 rewritten: per-spec journey table, mock strategies (loopback server vs **`page.route`**), explicit **non-goals**, how to run **`npm run test:e2e`** / **`test-ui-smoke`** / **`-RunPlaywright`**, troubleshooting note when mocks pass but a real API fails.
-- **`archiforge-ui/README.md`** — Tests + doc table updated for **57R** Playwright scope and links.
+- **`archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md`** — section 8 rewritten: per-spec journey table, mock strategies (loopback server vs **`page.route`**), explicit **non-goals**, how to run **`npm run test:e2e`** / **`test-ui-smoke`** / **`-RunPlaywright`**, troubleshooting note when mocks pass but a real API fails.
+- **`archlucid-ui/README.md`** — Tests + doc table updated for **57R** Playwright scope and links.
 - **`docs/RELEASE_SMOKE.md`** — subsection **What `-RunPlaywright` actually exercises (57R)**; independence from C# API smoke; restored **`-RunPlaywright`** row in the parameters table.
 - **`README.md`** — Key docs table, pilot handoff paragraph, Operator UI paragraph: concise **57R** / Playwright pointers without overstating coverage.
 
@@ -102,7 +102,7 @@
 
 **Validation run (green):**
 
-- **`archiforge-ui`:** `npm test` (71 tests), `npm run typecheck:e2e`, `CI=1` / `npm run test:e2e` (6 Playwright tests).
+- **`archlucid-ui`:** `npm test` (71 tests), `npm run typecheck:e2e`, `CI=1` / `npm run test:e2e` (6 Playwright tests).
 - **Repo root:** `.\test-ui-smoke.ps1` after script fix.
 
 **Fix delivered:**

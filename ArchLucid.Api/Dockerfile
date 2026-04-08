@@ -2,7 +2,7 @@
 # Multi-stage build: SDK (restore + publish) → Alpine runtime.
 # Build context MUST be the repository root so project references resolve.
 #
-#   docker build -f ArchLucid.Api/Dockerfile -t archiforge-api .
+#   docker build -f ArchLucid.Api/Dockerfile -t archlucid-api .
 # Publishes API and Worker into /app (shared Host.Core); image contains ArchLucid.Api.dll + ArchLucid.Worker.dll.
 # Default ENTRYPOINT runs the API; Container Apps worker revision sets command ["dotnet","ArchLucid.Worker.dll"].
 # ────────────────────────────────────────────────────────────────────

@@ -7,7 +7,7 @@ variable "enable_entra_api_app" {
 variable "api_application_display_name" {
   type        = string
   description = "Display name of the API registration."
-  default     = "ArchiForge API"
+  default     = "ArchLucid API"
 }
 
 variable "api_identifier_uri" {

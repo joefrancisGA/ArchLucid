@@ -827,7 +827,7 @@ The following were implemented together for safer operator APIs, tests, and back
 | # | Item | Notes |
 |---|------|--------|
 | 1 | OpenAPI schema enrichment for `PolicyPackContentDocument` | `PolicyPackContentDocumentSchemaFilter` (description + pointer to POST examples). |
-| 2 | UI route constants | `archiforge-ui/src/lib/api-v1-routes.ts` + `api.ts` uses `ApiV1Routes`; fixed stray `/api/...` for policy packs & digest toggle. |
+| 2 | UI route constants | `archlucid-ui/src/lib/api-v1-routes.ts` + `api.ts` uses `ApiV1Routes`; fixed stray `/api/...` for policy packs & digest toggle. |
 | 3 | SemVer 2 validation | `PolicyPackRequestValidationRules.BePolicyPackSemVerVersion` on publish + assign; `API_CONTRACTS.md` updated. |
 | 4 | `IPolicyPacksAppService` / `PolicyPacksAppService` | Create, publish, assign + audit orchestration; thin `PolicyPacksController`. |
 | 5 | Integration tests | `PublishPolicyPack_InvalidSemVerVersion_Returns400`; `EffectiveContent_MergesAlertRuleIds_FromAssignedPack`; repaired `ResolvedPackResponse` DTO. |
@@ -1809,7 +1809,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 203. CI: migrate from N−1 schema.
   - **`DatabaseMigrator.RunExcludingTrailingScripts`** (**`ArchLucid.Persistence`**, `Data/Infrastructure/DatabaseMigrator.cs`) + **`DatabaseMigratorUpgradePathSqlIntegrationTests`** (`SqlServerContainer`): N−1 pass then full **`Run`**.
 - [x] 204. UI e2e: policy assign + effective-content.
-  - **`archiforge-ui/e2e/policy-packs-journey.spec.ts`** + extended **`mock-archiforge-api-server`** (`v1/policy-packs` POST/GET).
+  - **`archlucid-ui/e2e/policy-packs-journey.spec.ts`** + extended **`mock-archiforge-api-server`** (`v1/policy-packs` POST/GET).
 
 ### Observability & reliability (205–214)
 
@@ -1946,25 +1946,25 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ### UI & developer experience (250–256)
 
 - [x] 250. UI feature flags for experimental advisory panels.
-  - **`archiforge-ui/src/lib/feature-flags.ts`** (`NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS`), optional section on **`advisory`** page.
+  - **`archlucid-ui/src/lib/feature-flags.ts`** (`NEXT_PUBLIC_EXPERIMENTAL_ADVISORY_PANELS`), optional section on **`advisory`** page.
 - [x] 251. Operator UI: Problem Details + **X-Correlation-ID** + Vitest coverage.
-  - **ProblemDetails in the shell:** `archiforge-ui/src/lib/api-problem.ts` (`tryParseApiProblemDetails`), `api-problem-copy.ts` (`operatorCopyForProblem` maps `extensions.errorCode` + prefers `supportHint`), `api-request-error.ts` / `api-error.ts` (`buildApiRequestErrorFromParts`, `readApiFailureMessage`), `api-load-failure.ts` (`toApiLoadFailure`, `uiFailureFromMessage`).
-  - **Correlation:** `archiforge-ui/src/lib/correlation.ts` (`CORRELATION_ID_HEADER`, `generateCorrelationId`, `isSafeCorrelationId`); browser `api.ts` sends the header; `archiforge-ui/src/app/api/proxy/[...path]/route.ts` forwards safe inbound ids or generates, and `passThrough` echoes upstream **X-Correlation-ID** on responses.
+  - **ProblemDetails in the shell:** `archlucid-ui/src/lib/api-problem.ts` (`tryParseApiProblemDetails`), `api-problem-copy.ts` (`operatorCopyForProblem` maps `extensions.errorCode` + prefers `supportHint`), `api-request-error.ts` / `api-error.ts` (`buildApiRequestErrorFromParts`, `readApiFailureMessage`), `api-load-failure.ts` (`toApiLoadFailure`, `uiFailureFromMessage`).
+  - **Correlation:** `archlucid-ui/src/lib/correlation.ts` (`CORRELATION_ID_HEADER`, `generateCorrelationId`, `isSafeCorrelationId`); browser `api.ts` sends the header; `archlucid-ui/src/app/api/proxy/[...path]/route.ts` forwards safe inbound ids or generates, and `passThrough` echoes upstream **X-Correlation-ID** on responses.
   - **Rendering:** `OperatorApiProblem` on server pages (runs, run detail, manifests, compare) and client operator pages (alerts, advisory, ask, graph, replay, policy packs, etc.).
   - **Tests (Vitest):** `src/lib/api-problem.test.ts`, `api-problem-copy.test.ts`, `correlation.test.ts`, `api-request-error.test.ts`, `api-load-failure.test.ts`, extended `api-error.test.ts`, `src/components/OperatorApiProblem.test.tsx`, `src/app/api/proxy/proxy-route-correlation.test.ts` (plus existing `proxy-route-post-body.test.ts`).
 - [x] 252. Dev container (SQL + Azurite + fakes).
   - **`.devcontainer/devcontainer.json`** (.NET 10 + Node 22); **`docs/DEVCONTAINER.md`** + host **`docker compose up -d`**.
 - [x] 253. `dotnet new` template for finding engine + tests.
-  - **`templates/archiforge-finding-engine`** (`dotnet new install ./templates/archiforge-finding-engine`, shortName **`archiforge-finding-engine`**); see **`docs/BUILD.md`**.
+  - **`templates/archlucid-finding-engine`** (`dotnet new install ./templates/archlucid-finding-engine`, shortName **`archlucid-finding-engine`**); see **`docs/BUILD.md`**.
 - [x] 254. Contributor onboarding checklist (build, test filters, integration opt-in).
 - [x] 255. **Dockerfiles for API + UI** (multi-stage, Alpine, non-root, `HEALTHCHECK`).
   - **`ArchLucid.Api/Dockerfile`**: three-stage (`restore` → `publish` → `runtime`); `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`; `HEALTHCHECK` on `/health/live`; port 8080.
-  - **`archiforge-ui/Dockerfile`**: three-stage (`deps` → `build` → `runtime`); `node:22-alpine`; Next.js standalone output (`output: "standalone"` in `next.config.ts`); `HEALTHCHECK` on `/`; port 3000.
-  - **`.dockerignore`** (repo root) + **`archiforge-ui/.dockerignore`**: exclude build artifacts, secrets, test data.
+  - **`archlucid-ui/Dockerfile`**: three-stage (`deps` → `build` → `runtime`); `node:22-alpine`; Next.js standalone output (`output: "standalone"` in `next.config.ts`); `HEALTHCHECK` on `/`; port 3000.
+  - **`.dockerignore`** (repo root) + **`archlucid-ui/.dockerignore`**: exclude build artifacts, secrets, test data.
   - **`docker-compose.yml`**: `--profile full-stack` adds `api` + `ui` containers alongside SQL/Azurite/Redis; default profile unchanged (dependencies only, hot-reload dev).
   - **`docs/CONTAINERIZATION.md`**: build/run commands, security posture, WAF alignment, layer caching, future Azure notes.
 - [x] 256. **Operator UI route boundaries (404 + loading).**
-  - **`archiforge-ui/src/app/not-found.tsx`**: custom 404 with **`OperatorEmptyState`**, links to Home / Runs / Compare (WAF RE:05 / SE:01).
+  - **`archlucid-ui/src/app/not-found.tsx`**: custom 404 with **`OperatorEmptyState`**, links to Home / Runs / Compare (WAF RE:05 / SE:01).
   - **Route `loading.tsx`**: advisory, advisory-scheduling, alert-routing, alert-rules, alert-simulation, alert-tuning, alerts, ask, composite-alert-rules, digest-subscriptions, digests, governance-resolution, policy-packs, recommendation-learning, search (context-specific copy; **`OperatorLoadingNotice`**).
   - **`not-found.test.tsx`**: Vitest render gate for 404 copy and links.
 
@@ -2010,7 +2010,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 288. **`docker-compose.yml`** — Azurite **`healthcheck`** (Node HTTP probe); **`api`** **`depends_on`** Azurite **`service_healthy`** (full-stack profile).
 - [x] 289. **`ArchLucidConfigurationRules.CollectRateLimitingErrors`** — **`PermitLimit` ≥ 1, `WindowMinutes` ≥ 1, `QueueLimit` ≥ 0** for Fixed/Expensive/Replay light & heavy when sections exist; **`ArchLucidConfigurationRulesTests`** cases.
 - [x] 290. **`docs/CONSULTING_DOCX_TEMPLATE.md`** — **`ConsultingDocxTemplate`** / **`ConsultingDocxTemplateProfiles`** reference.
-- [x] 291. **CI** — **`dotnet test`** for **`templates/archiforge-finding-engine/...Tests.csproj`** in **`dotnet-fast-core`** (project stays outside main solution).
+- [x] 291. **CI** — **`dotnet test`** for **`templates/archlucid-finding-engine/...Tests.csproj`** in **`dotnet-fast-core`** (project stays outside main solution).
 - [x] 292. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §284–292 recorded.
 
 ### Synthesis tests, CI Terraform breadth, production safety & ops docs (293–302)

@@ -17,12 +17,12 @@ updates:
     open-pull-requests-limit: 15
 
   - package-ecosystem: nuget
-    directory: "/templates/archiforge-finding-engine"
+    directory: "/templates/archlucid-finding-engine"
     schedule:
       interval: monthly
 
   - package-ecosystem: npm
-    directory: "/archiforge-ui"
+    directory: "/archlucid-ui"
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
@@ -53,6 +53,6 @@ updates:
       interval: weekly
 
   - package-ecosystem: docker
-    directory: "/archiforge-ui"
+    directory: "/archlucid-ui"
     schedule:
       interval: weekly

@@ -44,7 +44,7 @@ resource "azurerm_monitor_metric_alert" "api_container_cpu_high" {
   name                = "${var.name_prefix}-api-cpu-high"
   resource_group_name = var.resource_group_name
   scopes              = [var.api_container_app_resource_id]
-  description         = "ArchiForge API Container App average CPU (nano cores) exceeded threshold over 5 minutes."
+  description         = "ArchLucid API Container App average CPU (nano cores) exceeded threshold over 5 minutes."
   severity            = 2
   frequency           = "PT1M"
   window_size         = "PT5M"
@@ -72,7 +72,7 @@ resource "azurerm_monitor_metric_alert" "worker_container_cpu_high" {
   name                = "${var.name_prefix}-worker-cpu-high"
   resource_group_name = var.resource_group_name
   scopes              = [var.worker_container_app_resource_id]
-  description         = "ArchiForge Worker Container App average CPU (nano cores) exceeded threshold over 5 minutes."
+  description         = "ArchLucid Worker Container App average CPU (nano cores) exceeded threshold over 5 minutes."
   severity            = 2
   frequency           = "PT1M"
   window_size         = "PT5M"

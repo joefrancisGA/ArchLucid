@@ -336,7 +336,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchiForge:StorageProvider"] = "Sql",
             ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
-            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["LlmCompletionCache:Enabled"] = "true",
             ["LlmCompletionCache:Provider"] = "Distributed",
             ["HotPathCache:Enabled"] = "true",
@@ -366,7 +366,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchiForge:StorageProvider"] = "Sql",
             ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
-            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["BackgroundJobs:Mode"] = "Durable",
             ["BackgroundJobs:ResultsContainerName"] = "background-job-results",
             ["BackgroundJobs:ProcessorReceiveBatchSize"] = "99",
@@ -1053,7 +1053,7 @@ public sealed class ArchLucidConfigurationRulesTests
         {
             ["ArchiForge:StorageProvider"] = "Sql",
             ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
-            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
             ["WebhookDelivery:UseHttpClient"] = "false",
         };
@@ -1077,7 +1077,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchiForge:StorageProvider"] = "Sql",
             ["ArchiForgeAuth:Mode"] = "JwtBearer",
             ["ArchiForgeAuth:Authority"] = "https://login.example.com",
-            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
@@ -1100,7 +1100,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchiForge:StorageProvider"] = "Sql",
             ["ArchiForgeAuth:Mode"] = "JwtBearer",
             ["ArchiForgeAuth:Authority"] = "https://login.example.com",
-            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
@@ -1125,7 +1125,7 @@ public sealed class ArchLucidConfigurationRulesTests
             ["ArchiForge:StorageProvider"] = "Sql",
             ["ArchiForgeAuth:Mode"] = "JwtBearer",
             ["ArchiForgeAuth:Authority"] = "https://login.example.com",
-            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
             ["WebhookDelivery:UseHttpClient"] = "false",
         };

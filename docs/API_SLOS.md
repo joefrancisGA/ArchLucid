@@ -10,7 +10,7 @@ This document defines **customer-visible** HTTP objectives for the ArchLucid API
 
 ## 2. Assumptions
 
-- The HTTP availability SLO is **99.5%** over a **30-day** rolling window (matches `0.005` error budget in `infra/prometheus/archiforge-slo-rules.yml`). Leadership may change this number; then update recording rules, alerts, and this doc together.
+- The HTTP availability SLO is **99.5%** over a **30-day** rolling window (matches `0.005` error budget in `infra/prometheus/archlucid-slo-rules.yml`). Leadership may change this number; then update recording rules, alerts, and this doc together.
 - **“Good” requests** for the availability SLI are responses **without HTTP 5xx** (same proxy as in Prometheus rules; 4xx are excluded from “good”/“bad” in that formula unless you add a separate SLO).
 - **Synthetic probes** call **anonymous** endpoints: `GET /health/live` (process up) and `GET /version` (build identity). They do **not** prove database connectivity; use `GET /health/ready` in a separate probe if you need readiness signal in SLO math — its JSON is **summary only** (status + per-check status, no exception text or build metadata). Full diagnostic health JSON (`GET /health`) requires **ReadAuthority** (API key or JWT with reader/operator/admin role).
 - GitHub Actions runners reach your API over the **public** URL you configure (or private runner + internal URL). Network path differs from in-cluster scrapes.
@@ -33,7 +33,7 @@ This document defines **customer-visible** HTTP objectives for the ArchLucid API
 
 | Piece | Location | Role |
 |-------|----------|------|
-| Quantified HTTP SLO (5xx, availability ratio, burn) | `infra/prometheus/archiforge-slo-rules.yml` | Server-side SLI from request metrics |
+| Quantified HTTP SLO (5xx, availability ratio, burn) | `infra/prometheus/archlucid-slo-rules.yml` | Server-side SLI from request metrics |
 | Burn-rate runbook | `docs/runbooks/SLO_PROMETHEUS_GRAFANA.md` | How alerts map to the 99.5% target |
 | **Synthetic probe** | `.github/workflows/api-synthetic-probe.yml` | Periodic external `GET /health/live` + `GET /version`, latency check |
 | Live/ready/detailed health maps | `ArchLucid.Api/Startup/PipelineExtensions.cs` | Anonymous: `/health/live` (minimal), `/health/ready` (summary JSON). `/health` is detailed JSON and requires `ReadAuthority`. |

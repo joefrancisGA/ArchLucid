@@ -29,7 +29,7 @@ public sealed class ConsultingDocxTemplateOptions
     public int DisplayOrder { get; set; } = 100;
 
     /// <summary>Organization name injected into report headers and the <see cref="GeneratedByLine"/>.</summary>
-    public string OrganizationName { get; set; } = "ArchiForge";
+    public string OrganizationName { get; set; } = "ArchLucid";
 
     /// <summary>Main title displayed on the report cover page.</summary>
     public string DocumentTitle { get; set; } = "Architecture Analysis Report";

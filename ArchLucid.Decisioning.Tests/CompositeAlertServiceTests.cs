@@ -6,11 +6,13 @@ using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 using ArchLucid.Persistence.Alerts;
+using ArchLucid.Persistence.Integration;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -251,6 +253,8 @@ public sealed class CompositeAlertServiceTests
         IAuditService auditService,
         IEffectiveGovernanceLoader effectiveGovernanceLoader,
         IIntegrationEventPublisher? integrationEvents = null,
+        IIntegrationEventOutboxRepository? integrationOutbox = null,
+        IOptionsMonitor<IntegrationEventsOptions>? integrationEventsOptions = null,
         ILogger<CompositeAlertService>? logger = null) =>
         new(
             ruleRepository,
@@ -262,7 +266,17 @@ public sealed class CompositeAlertServiceTests
             auditService,
             effectiveGovernanceLoader,
             integrationEvents ?? Mock.Of<IIntegrationEventPublisher>(),
+            integrationOutbox ?? Mock.Of<IIntegrationEventOutboxRepository>(),
+            integrationEventsOptions ?? StubIntegrationEventsOptions(),
             logger ?? NullLogger<CompositeAlertService>.Instance);
+
+    private static IOptionsMonitor<IntegrationEventsOptions> StubIntegrationEventsOptions()
+    {
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> mock = new();
+        mock.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions());
+
+        return mock.Object;
+    }
 
     private static AlertEvaluationContext CreateContext(
         PolicyPackContentDocument? preloadedGovernance,

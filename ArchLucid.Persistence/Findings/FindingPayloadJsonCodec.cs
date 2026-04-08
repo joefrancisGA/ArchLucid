@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System.Text.Json;
 
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Serialization;
+using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Persistence.Findings;
 
@@ -36,5 +38,23 @@ public static class FindingPayloadJsonCodec
 
         using JsonDocument document = JsonDocument.Parse(json);
         return document.RootElement.Clone();
+    }
+
+    /// <summary>
+    /// After <see cref="ArchLucid.Persistence.Serialization.JsonEntitySerializer"/> deserializes a
+    /// <see cref="FindingsSnapshot"/>, nested <see cref="Finding.Payload"/> values are often <see cref="JsonElement"/>.
+    /// This aligns the JSON fallback read path with relational reads by materializing registered payload types.
+    /// </summary>
+    public static void HydrateJsonElementPayloads(IReadOnlyList<Finding> findings)
+    {
+        ArgumentNullException.ThrowIfNull(findings);
+
+        foreach (Finding finding in findings)
+        {
+            if (finding.Payload is not JsonElement element)
+                continue;
+
+            finding.Payload = DeserializePayload(element.GetRawText(), finding.PayloadType);
+        }
     }
 }

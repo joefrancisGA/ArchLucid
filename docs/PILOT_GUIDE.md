@@ -28,7 +28,7 @@ Default local setups often use a **simulator** for agents so you do not need clo
 | **SQL Server** | LocalDB, Express, Docker (`dotnet run --project ArchLucid.Cli -- dev up`), or an existing instance. |
 | **Connection string** | Set `ConnectionStrings:ArchiForge` (User Secrets in Development, or environment variables in production). See [README.md](../README.md#secrets-development). |
 | **Storage mode** | For a normal pilot, use **`ArchiForge:StorageProvider`** = **`Sql`** (typical default in appsettings). |
-| **Node.js 22+** | Optional; only for the **operator UI** in `archiforge-ui/`. |
+| **Node.js 22+** | Optional; only for the **operator UI** in `archlucid-ui/`. |
 
 Clone or unpack the repo, then from `ArchLucid.Api`:
 
@@ -118,7 +118,7 @@ This creates a project folder, submits from `inputs/brief.md`, seeds simulated r
 
 | Where | What to do |
 |-------|------------|
-| **Operator UI** | Start API, then in `archiforge-ui/`: `npm ci`, copy `.env.example` → `.env.local`, set **`ARCHIFORGE_API_BASE_URL`**, run **`npm run dev`**. Open **Runs** → your run → **Artifacts** → **Review** / **Download**. Details: [operator-shell.md](operator-shell.md), [archiforge-ui/README.md](../archiforge-ui/README.md). |
+| **Operator UI** | Start API, then in `archlucid-ui/`: `npm ci`, copy `.env.example` → `.env.local`, set **`ARCHIFORGE_API_BASE_URL`**, run **`npm run dev`**. Open **Runs** → your run → **Artifacts** → **Review** / **Download**. Details: [operator-shell.md](operator-shell.md), [archlucid-ui/README.md](../archlucid-ui/README.md). |
 | **API** | List/download via artifact endpoints (see Swagger under artifacts/manifests). Empty list `[]` means “no files for this manifest,” not always an error. |
 | **CLI** | `dotnet run --project ArchLucid.Cli -- artifacts <runId>` (add `--save` to write manifest JSON under `outputs/`). Same via global tool: `archiforge artifacts …`. |
 
@@ -200,7 +200,7 @@ Scripts: `test-fast-core.cmd`, `test-core.cmd` (and `.ps1`). Full tier list: [TE
 | **Published API** | If you used **`package-release`**, the DLLs are under **`artifacts/release/api/`** (gitignored). The parent folder also has **`PACKAGE-HANDOFF.txt`**, **`metadata.json`**, **`release-manifest.json`**, and **`checksums-sha256.txt`** for support and integrity checks — see [RELEASE_LOCAL.md](RELEASE_LOCAL.md). |
 | **Synthesized architecture artifacts** | Stored **in the database**; exposed through the API and UI (not a shared folder on disk by default). |
 | **CLI `outputs/`** | Optional local copies when you use **`dotnet run --project ArchLucid.Cli -- artifacts <runId> --save`** (or `archiforge artifacts --save` if the tool is installed). |
-| **UI proxy diagnostics** | Next.js server logs may include JSON lines from **`archiforge-ui-proxy`** when the upstream API returns errors (see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)). |
+| **UI proxy diagnostics** | Next.js server logs may include JSON lines from **`archlucid-ui-proxy`** when the upstream API returns errors (see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)). |
 
 ---
 

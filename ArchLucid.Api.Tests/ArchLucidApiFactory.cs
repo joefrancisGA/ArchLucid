@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server database per instance, runs DbUp migrations, and wires <c>ConnectionStrings:ArchiForge</c> plus in-memory auxiliary storage.
+/// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server database per instance, runs DbUp migrations, and wires <c>ConnectionStrings:ArchLucid</c> (legacy <c>ArchiForge</c> fallback) plus in-memory auxiliary storage.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -46,7 +46,7 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Development");
 
-        builder.UseSetting("ConnectionStrings:ArchiForge", _connectionString);
+        builder.UseSetting("ConnectionStrings:ArchLucid", _connectionString);
         builder.UseSetting("ArchiForge:StorageProvider", "InMemory");
 
         builder.ConfigureAppConfiguration((_, config) =>
@@ -56,7 +56,7 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ArchiForge:StorageProvider"] = "InMemory",
-                ["ConnectionStrings:ArchiForge"] = _connectionString,
+                ["ConnectionStrings:ArchLucid"] = _connectionString,
                 ["AgentExecution:Mode"] = "Simulator",
                 ["AzureOpenAI:Endpoint"] = "",
                 ["AzureOpenAI:ApiKey"] = "",

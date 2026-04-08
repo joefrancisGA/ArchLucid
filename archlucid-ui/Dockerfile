@@ -1,8 +1,8 @@
 # ── ArchiForge Operator UI ──────────────────────────────────────────
 # Multi-stage build: install + build → Alpine runtime with standalone output.
-# Build context is the archiforge-ui directory.
+# Build context is the archlucid-ui directory.
 #
-#   docker build -t archiforge-ui archiforge-ui/
+#   docker build -t archlucid-ui archlucid-ui/
 # ────────────────────────────────────────────────────────────────────
 
 # ── Stage 1: dependencies (layer-cached until package-lock changes) ─

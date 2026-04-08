@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Build API image
-        run: docker build -f ArchLucid.Api/Dockerfile -t archiforge-api:zap-strict .
+        run: docker build -f ArchLucid.Api/Dockerfile -t archlucid-api:zap-strict .
 
       - name: Run API and ZAP (no -I)
         continue-on-error: true
@@ -26,17 +26,17 @@ jobs:
         run: |
           set -e
           cleanup() {
-            docker rm -f archiforge-zap-api-strict 2>/dev/null || true
+            docker rm -f archlucid-zap-api-strict 2>/dev/null || true
             docker network rm "$ZNET" 2>/dev/null || true
           }
           trap cleanup EXIT
           docker network create "$ZNET"
           ZAP_WRK="${RUNNER_TEMP:-/tmp}/zap-wrk-${ZNET}"
           mkdir -p "$ZAP_WRK"
-          docker run -d --name archiforge-zap-api-strict --network "$ZNET" -p 8080:8080 \
+          docker run -d --name archlucid-zap-api-strict --network "$ZNET" -p 8080:8080 \
             -e ASPNETCORE_URLS=http://+:8080 \
             -e ASPNETCORE_ENVIRONMENT=Development \
-            archiforge-api:zap-strict
+            archlucid-api:zap-strict
           for i in $(seq 1 60); do
             if curl -fsS http://127.0.0.1:8080/health/live; then
               break
@@ -51,4 +51,4 @@ jobs:
             -v "$ZAP_WRK:/zap/wrk" \
             -v "$GITHUB_WORKSPACE/infra/zap:/zap/wrk/config:ro" \
             ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py -t http://archiforge-zap-api-strict:8080 -c config/baseline-pr.tsv
+            zap-baseline.py -t http://archlucid-zap-api-strict:8080 -c config/baseline-pr.tsv

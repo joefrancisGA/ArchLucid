@@ -2,7 +2,7 @@
 
 ## Objective
 
-Provide production-ready Docker images for the **ArchLucid** API and Operator UI (image names and paths may still use `archiforge` until rename batches) that are identical across local integration testing and cloud deployment.
+Provide production-ready Docker images for the **ArchLucid** API and Operator UI that are identical across local integration testing and cloud deployment.
 
 ## Assumptions
 
@@ -48,7 +48,7 @@ Run only infrastructure in Docker; run API and UI natively for fast iteration.
 ```bash
 docker compose up -d              # SQL, Azurite, Redis
 dotnet run --project ArchLucid.Api
-cd archiforge-ui && npm run dev
+cd archlucid-ui && npm run dev
 ```
 
 This is unchanged from before containerization was added.
@@ -66,8 +66,8 @@ docker compose --profile full-stack up -d --build
 | SQL Server | 1433 | 1433 | `mcr.microsoft.com/mssql/server:2022-latest` |
 | Azurite | 10000–10002 | 10000–10002 | `mcr.microsoft.com/azure-storage/azurite:latest` |
 | Redis | 6379 | 6379 | `redis:7-alpine` |
-| API | 5000 | 8080 | `archiforge-api` (local build) |
-| UI | 3000 | 3000 | `archiforge-ui` (local build) |
+| API | 5000 | 8080 | `archlucid-api` (local build) |
+| UI | 3000 | 3000 | `archlucid-ui` (local build) |
 
 ### Workflow 3 — Azure deployment
 
@@ -81,14 +81,14 @@ Same images pushed to ACR, deployed via **Terraform** roots under `infra/terrafo
 
 ```bash
 # From the repository root (the API Dockerfile needs sibling project references)
-docker build -f ArchLucid.Api/Dockerfile -t archiforge-api .
+docker build -f ArchLucid.Api/Dockerfile -t archlucid-api .
 ```
 
 ### UI
 
 ```bash
-# From the archiforge-ui directory (self-contained Next.js project)
-docker build -t archiforge-ui archiforge-ui/
+# From the archlucid-ui directory (self-contained Next.js project)
+docker build -t archlucid-ui archlucid-ui/
 ```
 
 ---
@@ -103,7 +103,7 @@ docker build -t archiforge-ui archiforge-ui/
 | `publish` | (extends `restore`) | Copy source, re-restore with same RID, then `dotnet publish -c Release -r linux-musl-x64 --no-restore` (API + Worker → `/app`) |
 | `runtime` | `mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23` (ASP.NET **runtime** tag — not the SDK `10.0.201` patch) | Non-root user, health check, port 8080 |
 
-### UI Dockerfile (`archiforge-ui/Dockerfile`)
+### UI Dockerfile (`archlucid-ui/Dockerfile`)
 
 | Stage | Base image | Purpose |
 |-------|-----------|---------|
@@ -150,8 +150,8 @@ Runtime configuration is injected via environment variables. The `docker-compose
 
 | Image | Expected size |
 |-------|--------------|
-| `archiforge-api` (Alpine + .NET runtime + published app) | ~120–150 MB |
-| `archiforge-ui` (Alpine + Node + standalone output) | ~80–120 MB |
+| `archlucid-api` (Alpine + .NET runtime + published app) | ~120–150 MB |
+| `archlucid-ui` (Alpine + Node + standalone output) | ~80–120 MB |
 
 ### Layer caching
 
@@ -159,7 +159,7 @@ Both Dockerfiles are structured so that dependency installation (NuGet restore /
 
 ### `.dockerignore`
 
-The repository root `.dockerignore` is used by the API build context (which is the repo root). The `archiforge-ui/.dockerignore` is used by the UI build context (which is the `archiforge-ui` directory).
+The repository root `.dockerignore` is used by the API build context (which is the repo root). The `archlucid-ui/.dockerignore` is used by the UI build context (which is the `archlucid-ui` directory).
 
 ---
 

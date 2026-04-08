@@ -1,0 +1,23 @@
+resource_group_name = "rg-archlucid-prod"
+location            = "eastus"
+
+namespace_name = "archlucid-events-prod"
+topic_name     = "archlucid-integration-events"
+
+sku            = "Standard"
+zone_redundant = true
+
+max_delivery_count = 10
+
+# Optional Entra managed identities (principal IDs from azurerm_user_assigned_identity or container app identity)
+api_managed_identity_principal_id    = ""
+worker_managed_identity_principal_id = ""
+
+# Private endpoint: wire subnet + DNS from infra/terraform-private (privatelink.servicebus.windows.net)
+enable_private_endpoint     = false
+private_endpoints_subnet_id = ""
+private_dns_zone_ids        = []
+
+tags = {
+  Product = "ArchLucid"
+}

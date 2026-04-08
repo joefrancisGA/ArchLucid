@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="ArchiForgeFindingEngine.Tests/ArchiForgeFindingEngine.Tests.csproj" />
-  <Project Path="ArchiForgeFindingEngine/ArchiForgeFindingEngine.csproj" />
+  <Project Path="ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj" />
+  <Project Path="ArchLucidFindingEngine/ArchLucidFindingEngine.csproj" />
 </Solution>

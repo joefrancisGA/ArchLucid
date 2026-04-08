@@ -36,20 +36,20 @@ dotnet test
 
 **Dev Container:** Optional VS Code / Cursor setup lives in **`.devcontainer/`** — .NET 10 + Node 22; start **`docker compose up -d`** on the host for SQL, Azurite, and Redis (see **`docs/DEVCONTAINER.md`**).
 
-**Finding-engine template:** Install the local template with **`dotnet new install ./templates/archiforge-finding-engine`**, then **`dotnet new archiforge-finding-engine -n MyFindingEngine`** (class library + xUnit tests).
+**Finding-engine template:** Install the local template with **`dotnet new install ./templates/archlucid-finding-engine`**, then **`dotnet new archlucid-finding-engine -n MyFindingEngine`** (class library + xUnit tests).
 
-**CI / supply chain:** GitHub Actions workflow **`.github/workflows/ci.yml`** runs **`dotnet list package --vulnerable --include-transitive`** so known-vulnerable NuGet packages fail the pipeline (see **`NEXT_REFACTORINGS.md`** item **220**). Run the same command locally after dependency changes. The workflow uses **tiered jobs** (fast .NET core, then full .NET regression with SQL, plus **Vitest** and **Playwright** for `archiforge-ui`); see **`TEST_EXECUTION_MODEL.md`**.
+**CI / supply chain:** GitHub Actions workflow **`.github/workflows/ci.yml`** runs **`dotnet list package --vulnerable --include-transitive`** so known-vulnerable NuGet packages fail the pipeline (see **`NEXT_REFACTORINGS.md`** item **220**). Run the same command locally after dependency changes. The workflow uses **tiered jobs** (fast .NET core, then full .NET regression with SQL, plus **Vitest** and **Playwright** for `archlucid-ui`); see **`TEST_EXECUTION_MODEL.md`**.
 
 **Secret scanning:** The **`gitleaks`** job scans the full Git history with **`gitleaks/gitleaks-action`** and **`.gitleaks.toml`** (extends default rules; allowlists only the two documented dev/CI SQL passwords that appear verbatim in-repo). To run locally: install [gitleaks](https://github.com/gitleaks/gitleaks) and run **`gitleaks detect --source . --verbose`** from the repo root.
 
-**SBOM (CycloneDX):** CI uploads **`sbom-dotnet`** (JSON for **`ArchLucid.Api/ArchLucid.Api.csproj`**, matching the API container surface) and **`sbom-npm`** (JSON for **`archiforge-ui`**). Regenerate locally:
+**SBOM (CycloneDX):** CI uploads **`sbom-dotnet`** (JSON for **`ArchLucid.Api/ArchLucid.Api.csproj`**, matching the API container surface) and **`sbom-npm`** (JSON for **`archlucid-ui`**). Regenerate locally:
 
 ```bash
 dotnet tool install CycloneDX --tool-path ./.tools-cdx
 ./.tools-cdx/dotnet-cyclonedx ArchLucid.Api/ArchLucid.Api.csproj -o sbom-dotnet.json
 # On Windows the shim may be dotnet-CycloneDX.exe instead of dotnet-cyclonedx.
 
-cd archiforge-ui && npx @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
+cd archlucid-ui && npx @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
 ```
 
 Add **`.tools-cdx/`** (or your chosen tool path) to your local ignore habits; do not commit generated BOMs unless your release process requires it.
@@ -66,7 +66,7 @@ The API registers meter **`ArchLucid`** (`ArchLucidInstrumentation.MeterName`). 
 | `governance_pack_content_deserialize_cache_hits` / `_misses` | In-resolve dedupe when the same pack **version** appears on multiple assignments (not HTTP-scope cache — see **`NEXT_REFACTORINGS.md`** §230). |
 | `archiforge_llm_prompt_tokens_total` / `archiforge_llm_completion_tokens_total` | Aggregate by default; with **`LlmTelemetry:RecordPerTenantTokens=true`**, also emitted **with** `tenant_id` label (cardinality). |
 
-Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping. SLO-oriented Grafana: **`infra/grafana/dashboard-archiforge-slo.json`**.
+Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping. SLO-oriented Grafana: **`infra/grafana/dashboard-archlucid-slo.json`**.
 
 ## SQL Server for integration tests (Dapper + API)
 

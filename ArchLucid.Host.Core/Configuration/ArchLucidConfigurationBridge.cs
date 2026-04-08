@@ -16,6 +16,8 @@ public static class ArchLucidConfigurationBridge
 
     public const string LegacySqlConnectionName = "ArchiForge";
 
+    public const string LegacyProductSectionName = "ArchiForge";
+
     /// <summary>SQL connection string: <c>ConnectionStrings:ArchLucid</c> wins when set (legacy <c>ArchiForge</c> fallback).</summary>
     public static string? ResolveSqlConnectionString(IConfiguration configuration)
     {
@@ -26,7 +28,7 @@ public static class ArchLucidConfigurationBridge
     }
 
     /// <summary>
-    /// Effective product options: legacy <c>ArchiForge</c> section, then <c>ArchLucid</c> section (same shape),
+    /// Effective product options: legacy <c>ArchiForge</c> section as base, then <c>ArchLucid</c> section (same shape),
     /// then flat <c>ArchLucid:StorageProvider</c> (highest precedence).
     /// </summary>
     public static ArchLucidOptions ResolveArchLucidOptions(IConfiguration configuration)
@@ -34,7 +36,7 @@ public static class ArchLucidConfigurationBridge
         ArgumentNullException.ThrowIfNull(configuration);
 
         ArchLucidOptions options =
-            configuration.GetSection(ArchLucidOptions.SectionName).Get<ArchLucidOptions>() ?? new ArchLucidOptions();
+            configuration.GetSection(LegacyProductSectionName).Get<ArchLucidOptions>() ?? new ArchLucidOptions();
 
         ArchLucidOptions? lucidSection = configuration.GetSection(ArchLucidSectionName).Get<ArchLucidOptions>();
 

@@ -1,4 +1,7 @@
+using System.Text.Json;
+
 using ArchLucid.Decisioning.Findings.Payloads;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Findings;
 
 using FluentAssertions;
@@ -44,5 +47,45 @@ public sealed class FindingPayloadJsonCodecTests
     {
         FindingPayloadJsonCodec.DeserializePayload(null, "x").Should().BeNull();
         FindingPayloadJsonCodec.DeserializePayload("   ", "x").Should().BeNull();
+    }
+
+    [Fact]
+    public void HydrateJsonElementPayloads_replaces_JsonElement_with_typed_payload()
+    {
+        using JsonDocument doc = JsonDocument.Parse(
+            """{"RequirementText":"Must","RequirementName":"R1","IsMandatory":true}""");
+
+        Finding finding = new()
+        {
+            Payload = doc.RootElement.Clone(),
+            PayloadType = nameof(RequirementFindingPayload),
+        };
+
+        FindingPayloadJsonCodec.HydrateJsonElementPayloads(new[] { finding });
+
+        finding.Payload.Should().BeOfType<RequirementFindingPayload>();
+        RequirementFindingPayload typed = (RequirementFindingPayload)finding.Payload;
+        typed.RequirementName.Should().Be("R1");
+        typed.RequirementText.Should().Be("Must");
+        typed.IsMandatory.Should().BeTrue();
+    }
+
+    [Fact]
+    public void HydrateJsonElementPayloads_leaves_non_JsonElement_unchanged()
+    {
+        RequirementFindingPayload original = new() { RequirementName = "n" };
+        Finding finding = new() { Payload = original, PayloadType = nameof(RequirementFindingPayload) };
+
+        FindingPayloadJsonCodec.HydrateJsonElementPayloads(new[] { finding });
+
+        finding.Payload.Should().BeSameAs(original);
+    }
+
+    [Fact]
+    public void HydrateJsonElementPayloads_null_findings_throws()
+    {
+        Action act = () => FindingPayloadJsonCodec.HydrateJsonElementPayloads(null!);
+
+        act.Should().Throw<ArgumentNullException>();
     }
 }

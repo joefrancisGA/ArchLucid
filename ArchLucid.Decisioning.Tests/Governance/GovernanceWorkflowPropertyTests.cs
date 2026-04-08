@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Integration;
 
 using FluentAssertions;
 
@@ -16,8 +17,11 @@ using FsCheck;
 using FsCheck.Xunit;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Moq;
+
+using System.Data;
 
 namespace ArchLucid.Decisioning.Tests.Governance;
 
@@ -282,6 +286,9 @@ internal static class GovernanceWorkflowTestFactory
 
         Mock<ILogger<GovernanceWorkflowService>> logger = new();
 
+        Mock<IIntegrationEventOutboxRepository> outbox = CreateIntegrationOutboxStub();
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> opts = CreateIntegrationEventsOptionsMonitor();
+
         return new GovernanceWorkflowService(
             approvalRepo.Object,
             promotionRepo.Object,
@@ -290,6 +297,8 @@ internal static class GovernanceWorkflowTestFactory
             audit.Object,
             scopeProvider.Object,
             publisher.Object,
+            outbox.Object,
+            opts.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             logger.Object);
     }
@@ -333,6 +342,9 @@ internal static class GovernanceWorkflowTestFactory
 
         Mock<ILogger<GovernanceWorkflowService>> logger = new();
 
+        Mock<IIntegrationEventOutboxRepository> outbox = CreateIntegrationOutboxStub();
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> opts = CreateIntegrationEventsOptionsMonitor();
+
         return new GovernanceWorkflowService(
             approvalRepo.Object,
             promotionRepo.Object,
@@ -341,7 +353,48 @@ internal static class GovernanceWorkflowTestFactory
             audit.Object,
             scopeProvider.Object,
             publisher.Object,
+            outbox.Object,
+            opts.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             logger.Object);
+    }
+
+    private static Mock<IIntegrationEventOutboxRepository> CreateIntegrationOutboxStub()
+    {
+        Mock<IIntegrationEventOutboxRepository> mock = new();
+        mock.Setup(
+                o => o.EnqueueAsync(
+                    It.IsAny<Guid?>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<ReadOnlyMemory<byte>>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        mock.Setup(
+                o => o.EnqueueAsync(
+                    It.IsAny<Guid?>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<ReadOnlyMemory<byte>>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<IDbConnection>(),
+                    It.IsAny<IDbTransaction>(),
+                    It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        return mock;
+    }
+
+    private static Mock<IOptionsMonitor<IntegrationEventsOptions>> CreateIntegrationEventsOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> mock = new();
+        mock.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = false });
+
+        return mock;
     }
 }

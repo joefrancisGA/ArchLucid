@@ -70,8 +70,13 @@ public static class ArchLucidStorageServiceCollectionExtensions
     {
         ArchLucidOptions options = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        services.Configure<ArchLucidOptions>(
-            configuration.GetSection(ArchLucidOptions.SectionName));
+        services.AddOptions<ArchLucidOptions>()
+            .Configure<IConfiguration>(
+                static (opts, cfg) =>
+                {
+                    ArchLucidOptions resolved = ArchLucidConfigurationBridge.ResolveArchLucidOptions(cfg);
+                    opts.StorageProvider = resolved.StorageProvider;
+                });
 
         if (string.Equals(options.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         {

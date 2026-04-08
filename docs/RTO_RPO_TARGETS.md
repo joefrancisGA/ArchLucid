@@ -69,7 +69,7 @@ Document **Recovery Time Objective (RTO)** and **Recovery Point Objective (RPO)*
 ## Operational considerations
 
 - **Drills:** Run at least annual **geo-failover** exercises for production; record actual RTO/RPO achieved vs table above.
-- **Monitoring:** Alert on **geo-replication lag** and failed failovers; tie to SLO dashboards in `infra/grafana/dashboard-archiforge-slo.json` and `docs/runbooks/SLO_PROMETHEUS_GRAFANA.md`.
+- **Monitoring:** Alert on **geo-replication lag** and failed failovers; tie to SLO dashboards in `infra/grafana/dashboard-archlucid-slo.json` and `docs/runbooks/SLO_PROMETHEUS_GRAFANA.md`.
 - **Review:** Revisit this document after major topology changes (single region → multi-region, SQL tier change).
 
 ## Related documentation

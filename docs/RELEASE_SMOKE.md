@@ -13,15 +13,15 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 5. **API readiness** — starts the **`ArchLucid.Api`** project (Release, **http** profile, port **5128**), waits for **`GET /health/ready`** and **`GET /health/live`**.
 6. **Sample run** — CLI **`new ArchiForgeSmokeRc`** in a temp folder, then **`run --quick`** (Development seed + commit).
 7. **Artifacts** — **`GET /v1/architecture/run/{runId}`** must show **`goldenManifestId`**; **`GET /api/artifacts/manifests/{manifestId}`** must return **≥ 1** descriptor.
-8. **Optional: Playwright** — **`-RunPlaywright`** runs **`archiforge-ui`** **`npm run test:e2e`** (with **`CI=1`**) **after** the steps above. Not run by default.
+8. **Optional: Playwright** — **`-RunPlaywright`** runs **`archlucid-ui`** **`npm run test:e2e`** (with **`CI=1`**) **after** the steps above. Not run by default.
 
 **Not included (unless opted in):** Playwright (use **`-RunPlaywright`**), SQL container contract tests, multi-tenant matrix, performance — by design.
 
 ### What `-RunPlaywright` actually exercises (57R)
 
-The Playwright suite is **operator-journey smoke** for the Next shell: **home**, **run → manifest → back**, **manifest with empty artifact list**, **compare** (prefill, structured/legacy outcomes, stale-input warning), and **compare + Explain (AI)** via mocked **`/api/proxy`** — all with **deterministic fixtures** and a **loopback TypeScript mock** (`archiforge-ui/e2e/`), **not** the live **`ArchLucid.Api`** started in steps 5–6. Passing it does **not** imply the UI was validated against the same SQL-backed API instance used for the CLI smoke.
+The Playwright suite is **operator-journey smoke** for the Next shell: **home**, **run → manifest → back**, **manifest with empty artifact list**, **compare** (prefill, structured/legacy outcomes, stale-input warning), and **compare + Explain (AI)** via mocked **`/api/proxy`** — all with **deterministic fixtures** and a **loopback TypeScript mock** (`archlucid-ui/e2e/`), **not** the live **`ArchLucid.Api`** started in steps 5–6. Passing it does **not** imply the UI was validated against the same SQL-backed API instance used for the CLI smoke.
 
-It is **not** a full browser regression suite. Authoritative detail: **[archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md)** — **section 8 (E2E tests / Playwright)**.
+It is **not** a full browser regression suite. Authoritative detail: **[archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md)** — **section 8 (E2E tests / Playwright)**.
 
 ---
 
@@ -98,7 +98,7 @@ With **`-SkipE2E`**, Playwright still runs **after** the UI block (if any); use 
 | **`-ApiBaseUrl`** | Default `http://localhost:5128` |
 | **`-SkipE2E`** | Build + tests (+ UI) only; no API/CLI/artifact checks |
 | **`-SkipUi`** | No `npm ci` / Vitest / `next build` |
-| **`-RunPlaywright`** | After other steps: **`archiforge-ui`** Playwright E2E (**`CI=1`**); see [What `-RunPlaywright` actually exercises](#what--runplaywright-actually-exercises-57r) |
+| **`-RunPlaywright`** | After other steps: **`archlucid-ui`** Playwright E2E (**`CI=1`**); see [What `-RunPlaywright` actually exercises](#what--runplaywright-actually-exercises-57r) |
 | **`-FullCore`** | After fast core, run **`dotnet test` —filter `Suite=Core`** |
 
 ---
@@ -141,6 +141,6 @@ Deterministic behavior is unchanged: same step order, same filters, same timeout
 - **API exits before ready:** wrong SQL string, migrations failing, or port in use — watch for a separate console if you run API manually; the smoke script starts a **hidden** `dotnet run` (stdout not shown). Re-run with **`-SkipE2E`** and start the API yourself to read logs, or temporarily change the script to use a visible window for debugging.
 - **`run --quick` seed fails:** API must be **`Development`** (the script sets **`ASPNETCORE_ENVIRONMENT=Development`** for the child process).
 - **Zero artifacts:** synthesis or persistence regression — check API logs for the smoke **`RunId`**.
-- **Playwright fails:** ensure browsers are installed (**`npx playwright install`** in **`archiforge-ui`**) and port **3000** is free for the test **`webServer`**.
+- **Playwright fails:** ensure browsers are installed (**`npx playwright install`** in **`archlucid-ui`**) and port **3000** is free for the test **`webServer`**.
 
 More: [TROUBLESHOOTING.md](TROUBLESHOOTING.md), [PILOT_GUIDE.md](PILOT_GUIDE.md).

@@ -10,7 +10,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
 
     /// <inheritdoc />
     public Task EnqueueAsync(
-        Guid runId,
+        Guid? runId,
         string eventType,
         string? messageId,
         ReadOnlyMemory<byte> payloadUtf8,
@@ -24,7 +24,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
 
     /// <inheritdoc />
     public Task EnqueueAsync(
-        Guid runId,
+        Guid? runId,
         string eventType,
         string? messageId,
         ReadOnlyMemory<byte> payloadUtf8,
@@ -42,7 +42,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     }
 
     private Task EnqueueCoreAsync(
-        Guid runId,
+        Guid? runId,
         string eventType,
         string? messageId,
         ReadOnlyMemory<byte> payloadUtf8,

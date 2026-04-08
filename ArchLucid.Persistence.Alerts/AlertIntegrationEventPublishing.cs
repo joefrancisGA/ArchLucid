@@ -1,7 +1,9 @@
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
+using ArchLucid.Persistence.Integration;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Alerts;
 
@@ -9,12 +11,16 @@ namespace ArchLucid.Persistence.Alerts;
 internal static class AlertIntegrationEventPublishing
 {
     internal static Task TryPublishFiredAsync(
+        IIntegrationEventOutboxRepository integrationEventOutbox,
         IIntegrationEventPublisher integrationEventPublisher,
+        IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
         ILogger logger,
         AlertRecord alert,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(integrationEventOutbox);
         ArgumentNullException.ThrowIfNull(integrationEventPublisher);
+        ArgumentNullException.ThrowIfNull(integrationEventsOptions);
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(alert);
 
@@ -36,24 +42,36 @@ internal static class AlertIntegrationEventPublishing
 
         string messageId = $"{alert.AlertId:D}:{IntegrationEventTypes.AlertFiredV1}";
 
-        return IntegrationEventPublishing.TryPublishAsync(
+        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+            integrationEventOutbox,
             integrationEventPublisher,
+            integrationEventsOptions.CurrentValue,
             logger,
             IntegrationEventTypes.AlertFiredV1,
             payload,
             messageId,
+            alert.RunId,
+            alert.TenantId,
+            alert.WorkspaceId,
+            alert.ProjectId,
+            connection: null,
+            transaction: null,
             cancellationToken);
     }
 
     internal static Task TryPublishResolvedAsync(
+        IIntegrationEventOutboxRepository integrationEventOutbox,
         IIntegrationEventPublisher integrationEventPublisher,
+        IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
         ILogger logger,
         AlertRecord alert,
         string userId,
         string? comment,
         CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(integrationEventOutbox);
         ArgumentNullException.ThrowIfNull(integrationEventPublisher);
+        ArgumentNullException.ThrowIfNull(integrationEventsOptions);
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(alert);
 
@@ -71,12 +89,20 @@ internal static class AlertIntegrationEventPublishing
 
         string messageId = $"{alert.AlertId:D}:{IntegrationEventTypes.AlertResolvedV1}";
 
-        return IntegrationEventPublishing.TryPublishAsync(
+        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+            integrationEventOutbox,
             integrationEventPublisher,
+            integrationEventsOptions.CurrentValue,
             logger,
             IntegrationEventTypes.AlertResolvedV1,
             payload,
             messageId,
+            alert.RunId,
+            alert.TenantId,
+            alert.WorkspaceId,
+            alert.ProjectId,
+            connection: null,
+            transaction: null,
             cancellationToken);
     }
 }

@@ -26,7 +26,7 @@ echo See docs\RELEASE_LOCAL.md for run instructions.
 exit /b 0
 
 :BuildUi
-pushd "%~dp0archiforge-ui"
+pushd "%~dp0archlucid-ui"
 call npm ci
 if errorlevel 1 goto :UiFail
 call npm run build

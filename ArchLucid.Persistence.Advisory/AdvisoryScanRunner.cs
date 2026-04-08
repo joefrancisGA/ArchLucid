@@ -17,10 +17,12 @@ using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Integration;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Advisory;
 
@@ -64,6 +66,8 @@ public sealed class AdvisoryScanRunner(
     IScanScheduleCalculator scheduleCalculator,
     IAuditService auditService,
     IIntegrationEventPublisher integrationEventPublisher,
+    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     ILogger<AdvisoryScanRunner> logger) : IAdvisoryScanRunner
 {
     private const string StatusStarted = "Started";
@@ -412,12 +416,20 @@ public sealed class AdvisoryScanRunner(
 
         string messageId = $"{execution.ExecutionId:D}:{IntegrationEventTypes.AdvisoryScanCompletedV1}";
 
-        return IntegrationEventPublishing.TryPublishAsync(
+        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+            integrationEventOutbox,
             integrationEventPublisher,
+            integrationEventsOptions.CurrentValue,
             logger,
             IntegrationEventTypes.AdvisoryScanCompletedV1,
             payload,
             messageId,
+            runId,
+            schedule.TenantId,
+            schedule.WorkspaceId,
+            schedule.ProjectId,
+            connection: null,
+            transaction: null,
             ct);
     }
 

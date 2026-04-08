@@ -1,6 +1,6 @@
-using ArchiForgeFindingEngine;
+using ArchLucidFindingEngine;
 
-namespace ArchiForgeFindingEngine.Tests;
+namespace ArchLucidFindingEngine.Tests;
 
 public sealed class SampleFindingTests
 {
@@ -9,6 +9,6 @@ public sealed class SampleFindingTests
     {
         string s = SampleFinding.Describe();
 
-        Assert.Equal("archiforge-finding-engine", s);
+        Assert.Equal("archlucid-finding-engine", s);
     }
 }

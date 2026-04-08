@@ -151,7 +151,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `ArchLucid.Api/appsettings.json`, `appsettings.KeyVault.sample.json`
 - `ArchLucid.Cli/ArchLucidApiClient.cs`, `ArchLucid.Cli/Program.cs`, `ArchLucid.Cli/DoctorCommand.cs`, `ArchLucid.Cli/Support/*` (support bundle)
 - `ArchLucid.Api/Health/*` (readiness tags, schema/compliance/temp checks, SQL check behavior)
-- `archiforge-ui/src/lib/config.ts`, `archiforge-ui/src/app/api/proxy/[...path]/route.ts`
+- `archlucid-ui/src/lib/config.ts`, `archlucid-ui/src/app/api/proxy/[...path]/route.ts`
 - `docs/CONFIGURATION_KEY_VAULT.md`
 - `scripts/OperatorDiagnostics.ps1`, `scripts/Write-ReleasePackageArtifacts.ps1`, `build-release.cmd`, `build-release.ps1`, `package-release.cmd`, `package-release.ps1`, `run-readiness-check.cmd`, `run-readiness-check.ps1`
 - `docs/RELEASE_LOCAL.md`
@@ -159,5 +159,5 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `release-smoke.ps1`, `release-smoke.cmd`, `docs/RELEASE_SMOKE.md`
 - `ArchLucid.Api/ProblemDetails/ProblemSupportHints.cs`, `ArchLucid.Api/ProblemDetails/*` (extensions wiring)
 - `ArchLucid.Cli/CliOperatorHints.cs`
-- `archiforge-ui/src/app/api/proxy/[...path]/route.ts`, `docs/API_CONTRACTS.md` (problem extensions)
+- `archlucid-ui/src/app/api/proxy/[...path]/route.ts`, `docs/API_CONTRACTS.md` (problem extensions)
 - `.github/workflows/ci.yml` (SourceRevisionId stamping)

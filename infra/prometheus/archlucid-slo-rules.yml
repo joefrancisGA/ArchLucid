@@ -1,5 +1,5 @@
 # Recording rules for SLO-style dashboards. Metric names must match your OTel → Prometheus scrape.
-# Load alongside archiforge-alerts.yml in Prometheus operator or server config.
+# Load alongside archlucid-alerts.yml in Prometheus operator or server config.
 #
 # HTTP availability burn-rate alerts assume a 99.5% availability SLO (0.5% error budget).
 # Multi-window pairs follow the Google SRE multi-burn pattern (fast: 5m+1h at 14.4×, slow: 30m+6h at 6×).
@@ -197,4 +197,4 @@ groups:
           summary: Worst-case SQL outbox depth across authority, retrieval, and integration queues is very high
           description: >-
             At least one outbox gauge exceeded 500 pending rows for 15 minutes. Cross-check
-            infra/prometheus/archiforge-alerts.yml per-queue rules and workers; scale or fix root cause.
+            infra/prometheus/archlucid-alerts.yml per-queue rules and workers; scale or fix root cause.

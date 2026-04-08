@@ -6,7 +6,7 @@ variable "enable_monitoring_stack" {
 
 variable "resource_group_name" {
   type        = string
-  description = "Existing resource group that holds ArchiForge Container Apps (or shared monitoring RG)."
+  description = "Existing resource group that holds ArchLucid Container Apps (or shared monitoring RG)."
   default     = ""
 }
 

@@ -46,7 +46,7 @@ internal static class CliOperatorHints
     {
         stderr ??= Console.Error;
         stderr.WriteLine(
-            "Next: Open GET /health/ready in a browser or curl and fix the failing check (often ConnectionStrings:ArchiForge or DbUp). Capture GET /version for build identity when opening a ticket. See docs/TROUBLESHOOTING.md.");
+            "Next: Open GET /health/ready in a browser or curl and fix the failing check (often ConnectionStrings:ArchLucid or DbUp). Capture GET /version for build identity when opening a ticket. See docs/TROUBLESHOOTING.md.");
     }
 
     public static void WriteBriefMissingHint(string relativeBriefPath, TextWriter? stderr = null)

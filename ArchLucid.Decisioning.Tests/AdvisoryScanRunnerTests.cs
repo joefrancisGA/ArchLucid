@@ -13,10 +13,12 @@ using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Integration;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -77,6 +79,8 @@ public sealed class AdvisoryScanRunnerTests
             calculator.Object,
             audit.Object,
             Mock.Of<IIntegrationEventPublisher>(),
+            Mock.Of<IIntegrationEventOutboxRepository>(),
+            OptionsMonitor(),
             NullLogger<AdvisoryScanRunner>.Instance);
 
         AdvisoryScanSchedule schedule = new()
@@ -248,6 +252,8 @@ public sealed class AdvisoryScanRunnerTests
             calculator.Object,
             audit.Object,
             Mock.Of<IIntegrationEventPublisher>(),
+            Mock.Of<IIntegrationEventOutboxRepository>(),
+            OptionsMonitor(),
             NullLogger<AdvisoryScanRunner>.Instance);
 
         AdvisoryScanSchedule schedule = new()
@@ -262,5 +268,14 @@ public sealed class AdvisoryScanRunnerTests
 
         digestRepo.Verify(x => x.CreateAsync(It.Is<ArchitectureDigest>(d => d.DigestId == digestId), It.IsAny<CancellationToken>()), Times.Once);
         delivery.Verify(x => x.DeliverAsync(It.Is<ArchitectureDigest>(d => d.DigestId == digestId), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private static IOptionsMonitor<IntegrationEventsOptions> OptionsMonitor(bool transactionalOutbox = false)
+    {
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> mock = new();
+        mock.Setup(m => m.CurrentValue)
+            .Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = transactionalOutbox });
+
+        return mock.Object;
     }
 }

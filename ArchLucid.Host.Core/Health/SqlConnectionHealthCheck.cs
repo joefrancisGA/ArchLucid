@@ -25,7 +25,7 @@ public sealed class SqlConnectionHealthCheck(
         if (string.Equals(archiForgeOptions.Value.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         
             return HealthCheckResult.Healthy(
-                "Database readiness skipped: ArchiForge:StorageProvider is InMemory (no SQL persistence).");
+                "Database readiness skipped: storage is InMemory (no SQL persistence).");
         
 
         try

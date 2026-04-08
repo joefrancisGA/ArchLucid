@@ -91,7 +91,7 @@ curl -s -X POST "$BASE/v1/architecture/run/RUN_ID/commit" -H "X-Correlation-ID: 
 ## Operator UI
 
 ```bash
-cd archiforge-ui
+cd archlucid-ui
 cp .env.example .env.local
 ```
 
@@ -144,7 +144,7 @@ dotnet test ArchLucid.sln --filter "Suite=Core"
 ```
 
 ```bash
-cd archiforge-ui && npm ci && npm test
+cd archlucid-ui && npm ci && npm test
 ```
 
 ```bat

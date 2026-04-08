@@ -16,7 +16,7 @@ public static class LearningPlanningReportMarkdownFormatter
         StringBuilder sb = new();
         IFormatProvider inv = CultureInfo.InvariantCulture;
 
-        sb.AppendLine("# ArchiForge planning report (59R)");
+        sb.AppendLine("# ArchLucid planning report (59R)");
         sb.AppendLine();
         sb.AppendLine($"Generated (UTC): {document.GeneratedUtc:O}");
         sb.AppendLine();

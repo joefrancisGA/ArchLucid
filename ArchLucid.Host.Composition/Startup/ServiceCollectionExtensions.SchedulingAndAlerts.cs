@@ -60,6 +60,17 @@ public static partial class ServiceCollectionExtensions
         }
     }
 
+    private static void RegisterIntegrationEventConsumer(IServiceCollection services, ArchLucidHostingRole hostingRole)
+    {
+        if (hostingRole is not ArchLucidHostingRole.Worker)
+        {
+            return;
+        }
+
+        services.AddSingleton<IIntegrationEventHandler, LoggingIntegrationEventHandler>();
+        services.AddHostedService<AzureServiceBusIntegrationEventConsumer>();
+    }
+
     private static void RegisterAdvisoryScheduling(IServiceCollection services, ArchLucidHostingRole hostingRole)
     {
         services.AddScoped<IScanScheduleCalculator, SimpleScanScheduleCalculator>();

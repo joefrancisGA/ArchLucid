@@ -46,7 +46,7 @@ flowchart LR
 
 | Job | Purpose |
 |-----|---------|
-| `build-push-images` | Checkout, OIDC login, Docker Buildx, push API (`ArchLucid.Api/Dockerfile`) and UI (`archiforge-ui/Dockerfile`) to ACR. Tags: `${IMAGE_TAG}` (defaults to `github.sha`), plus `latest-staging` or `latest-production` per target. BuildKit cache scopes: `api-docker-smoke`, `ui-docker-smoke` (aligned with CI / merge-to-staging CD). |
+| `build-push-images` | Checkout, OIDC login, Docker Buildx, push API (`ArchLucid.Api/Dockerfile`) and UI (`archlucid-ui/Dockerfile`) to ACR. Tags: `${IMAGE_TAG}` (defaults to `github.sha`), plus `latest-staging` or `latest-production` per target. BuildKit cache scopes: `api-docker-smoke`, `ui-docker-smoke` (aligned with CI / merge-to-staging CD). |
 | `terraform-plan` | OIDC, `terraform init`, `terraform plan` (saved as `tfplan`), upload artifact `tfplan-<target>`, plan summary in step summary. **Skipped** when secret `TF_WORKING_DIRECTORY` is unset (job succeeds with no plan artifact). Production adds `-var-file=production.tfvars` when the file exists; staging adds `-var-file=terraform.tfvars` when present (otherwise default `terraform.tfvars` auto-load applies if present). |
 | `terraform-apply` | Runs only when `run_terraform_apply` is true and a plan was produced. Downloads the plan artifact and runs `terraform apply tfplan`. Uses the same environment as the target (reviewer gate). |
 | `deploy-container-apps` | OIDC, records API revision **before** update, `az containerapp update` for API (and UI when configured), records revision **after**. Skips update when ACR / RG / app name secrets are incomplete (same behavior as the legacy single job). |

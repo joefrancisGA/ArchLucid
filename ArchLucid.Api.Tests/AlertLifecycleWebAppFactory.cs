@@ -24,7 +24,7 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Development");
 
-        builder.UseSetting("ConnectionStrings:ArchiForge", _connectionString);
+        builder.UseSetting("ConnectionStrings:ArchLucid", _connectionString);
         builder.UseSetting("ArchiForge:StorageProvider", "InMemory");
 
         builder.ConfigureAppConfiguration((_, config) =>
@@ -32,7 +32,7 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ArchiForge:StorageProvider"] = "InMemory",
-                ["ConnectionStrings:ArchiForge"] = _connectionString
+                ["ConnectionStrings:ArchLucid"] = _connectionString
             });
         });
     }

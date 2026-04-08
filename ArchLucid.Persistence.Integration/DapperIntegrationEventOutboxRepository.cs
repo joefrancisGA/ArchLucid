@@ -16,7 +16,7 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
 {
     /// <inheritdoc />
     public async Task EnqueueAsync(
-        Guid runId,
+        Guid? runId,
         string eventType,
         string? messageId,
         ReadOnlyMemory<byte> payloadUtf8,
@@ -44,7 +44,7 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
 
     /// <inheritdoc />
     public Task EnqueueAsync(
-        Guid runId,
+        Guid? runId,
         string eventType,
         string? messageId,
         ReadOnlyMemory<byte> payloadUtf8,
@@ -78,7 +78,7 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
         IDbConnection connection,
         IDbTransaction? transaction,
         Guid outboxId,
-        Guid runId,
+        Guid? runId,
         string eventType,
         string? messageId,
         ReadOnlyMemory<byte> payloadUtf8,

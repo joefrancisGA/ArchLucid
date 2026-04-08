@@ -51,7 +51,7 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
 
 /** One-line JSON for operators scraping UI server logs (no response bodies). */
 function logProxyDiagnostic(event: string, fields: Record<string, string | number>): void {
-  console.warn(JSON.stringify({ component: "archiforge-ui-proxy", event, ...fields }));
+  console.warn(JSON.stringify({ component: "archlucid-ui-proxy", event, ...fields }));
 }
 
 /** Forwards a request to the upstream ArchiForge API, preserving query string and method. */
@@ -71,7 +71,7 @@ async function forward(
         status: 503,
         detail: resolved.detail,
         supportHint:
-          "Set ARCHIFORGE_API_BASE_URL in archiforge-ui/.env.local to the API root (e.g. http://localhost:5128). Restart the dev server after editing.",
+          "Set ARCHIFORGE_API_BASE_URL in archlucid-ui/.env.local to the API root (e.g. http://localhost:5128). Restart the dev server after editing.",
       },
       { status: 503 },
     );

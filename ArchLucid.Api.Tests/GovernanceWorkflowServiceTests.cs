@@ -9,12 +9,16 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Integration;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Moq;
+
+using System.Data;
 
 namespace ArchLucid.Api.Tests;
 
@@ -32,6 +36,8 @@ public sealed class GovernanceWorkflowServiceTests
     private readonly Mock<IBaselineMutationAuditService> _baselineAudit;
     private readonly Mock<IScopeContextProvider> _scopeContext;
     private readonly Mock<IIntegrationEventPublisher> _integrationEvents;
+    private readonly Mock<IIntegrationEventOutboxRepository> _integrationOutbox;
+    private readonly Mock<IOptionsMonitor<IntegrationEventsOptions>> _integrationEventOptions;
     private readonly GovernanceWorkflowService _sut;
 
     public GovernanceWorkflowServiceTests()
@@ -43,6 +49,39 @@ public sealed class GovernanceWorkflowServiceTests
         _baselineAudit = new Mock<IBaselineMutationAuditService>();
         _scopeContext = new Mock<IScopeContextProvider>();
         _integrationEvents = new Mock<IIntegrationEventPublisher>();
+        _integrationOutbox = new Mock<IIntegrationEventOutboxRepository>();
+        _integrationEventOptions = new Mock<IOptionsMonitor<IntegrationEventsOptions>>();
+        _integrationEventOptions
+            .Setup(m => m.CurrentValue)
+            .Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = false });
+
+        _integrationOutbox
+            .Setup(
+                o => o.EnqueueAsync(
+                    It.IsAny<Guid?>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<ReadOnlyMemory<byte>>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        _integrationOutbox
+            .Setup(
+                o => o.EnqueueAsync(
+                    It.IsAny<Guid?>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<ReadOnlyMemory<byte>>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<Guid>(),
+                    It.IsAny<IDbConnection>(),
+                    It.IsAny<IDbTransaction>(),
+                    It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         _scopeContext
             .Setup(s => s.GetCurrentScope())
@@ -73,6 +112,8 @@ public sealed class GovernanceWorkflowServiceTests
             _baselineAudit.Object,
             _scopeContext.Object,
             _integrationEvents.Object,
+            _integrationOutbox.Object,
+            _integrationEventOptions.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             logger.Object);
     }
@@ -117,6 +158,36 @@ public sealed class GovernanceWorkflowServiceTests
                 It.Is<string>(d => d.Contains("run-1", StringComparison.Ordinal) && d.Contains("v1", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task SubmitApprovalRequest_when_transactional_outbox_enqueues_without_direct_publish()
+    {
+        _integrationEventOptions.Setup(m => m.CurrentValue)
+            .Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = true });
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
+        _approvalRepo.Setup(r => r.CreateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        await _sut.SubmitApprovalRequestAsync("run-1", "v1", "dev", "test", "alice", null);
+
+        _integrationOutbox.Verify(
+            o => o.EnqueueAsync(
+                It.IsAny<Guid?>(),
+                IntegrationEventTypes.GovernanceApprovalSubmittedV1,
+                It.IsAny<string?>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _integrationEvents.Verify(
+            p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

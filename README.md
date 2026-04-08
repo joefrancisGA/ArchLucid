@@ -43,7 +43,7 @@ ArchLucid (repository and packages may still use the **ArchiForge** name) is an 
 
 **Start here:** [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) (narrative), [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) (commands). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
 
-**Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
+**Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
 
 **Build / version:** **`GET /version`** on the API, or **`dotnet run --project ArchLucid.Cli -- doctor`**. **Diagnostics:** **`dotnet run --project ArchLucid.Cli -- support-bundle --zip`** (review before sharing). **Reporting issues:** [docs/PILOT_GUIDE.md#when-you-report-an-issue](docs/PILOT_GUIDE.md#when-you-report-an-issue) (version, correlation ID, logs, bundle).
 
@@ -59,11 +59,11 @@ ArchLucid (repository and packages may still use the **ArchiForge** name) is an 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - SQL Server (LocalDB, Express, or full) with a database for ArchiForge
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (optional; for `archiforge dev up`)
-- Node.js 22+ (optional; for the operator UI in `archiforge-ui/` — aligns with CI)
+- Node.js 22+ (optional; for the operator UI in `archlucid-ui/` — aligns with CI)
 
-## Operator UI (`archiforge-ui`)
+## Operator UI (`archlucid-ui`)
 
-A thin Next.js shell for runs, manifest summary, artifacts, compare, replay, graphs, and ZIP downloads. **Operator workflow and 55R contract notes:** [docs/operator-shell.md](docs/operator-shell.md). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright). Setup and doc index: [archiforge-ui/README.md](archiforge-ui/README.md).
+A thin Next.js shell for runs, manifest summary, artifacts, compare, replay, graphs, and ZIP downloads. **Operator workflow and 55R contract notes:** [docs/operator-shell.md](docs/operator-shell.md). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright). Setup and doc index: [archlucid-ui/README.md](archlucid-ui/README.md).
 
 ## API authentication (`ArchiForgeAuth`)
 
@@ -155,7 +155,7 @@ Override in `appsettings.json` or via environment variables.
 
 ## Running Tests
 
-Full **54R** tier list, copy-paste commands, SQL variables, and **`archiforge-ui`** Vitest/Playwright: **[docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md)**. CI job mapping: **[docs/TEST_EXECUTION_MODEL.md](docs/TEST_EXECUTION_MODEL.md)**.
+Full **54R** tier list, copy-paste commands, SQL variables, and **`archlucid-ui`** Vitest/Playwright: **[docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md)**. CI job mapping: **[docs/TEST_EXECUTION_MODEL.md](docs/TEST_EXECUTION_MODEL.md)**.
 
 **Common entry points (repo root):**
 
@@ -168,7 +168,7 @@ dotnet test ArchLucid.sln
 ```
 
 ```bash
-cd archiforge-ui && npm ci && npm test
+cd archlucid-ui && npm ci && npm test
 ```
 
 **ArchLucid.Api.Tests** integration tests need a reachable **SQL Server**; **`ArchiForgeApiFactory`** creates ephemeral databases and runs **DbUp**. See **[docs/BUILD.md](docs/BUILD.md)** for CPM, connection strings, and DecisionEngine’s Microsoft.Extensions bundle.

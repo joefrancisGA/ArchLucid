@@ -219,7 +219,7 @@
 
 **Evidence**:
 - Extension points: `IFindingEngine`, `IContextConnector`, `IAgentHandler`, `IAlertDeliveryChannel`, `IDigestDeliveryChannel`.
-- Template: `templates/archiforge-finding-engine/` with `.template.config/template.json`.
+- Template: `templates/archlucid-finding-engine/` with `.template.config/template.json`.
 - Feature flags: `ServiceCollectionExtensions.FeatureManagement.cs`, `FeatureManagementAuthorityPipelineModeResolver`.
 - API: Single `/openapi/v1.json`, no `Asp.Versioning.Mvc` package.
 - Contracts: 130 files mixing `ISimulationEngine`, `ICandidateChangeSetService` with DTOs.
@@ -333,7 +333,7 @@
 - Context connectors: `DocumentConnector`, `InfrastructureDeclarationConnector`, etc. — ordered pipeline.
 - Agent handlers: 4 registered in `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs`.
 - Alert channels: Slack, Teams, on-call webhooks.
-- Template: `templates/archiforge-finding-engine/`.
+- Template: `templates/archlucid-finding-engine/`.
 
 **Tradeoffs**: Compile-time registration is safe and debuggable. Dynamic plugin loading adds security and versioning risks.
 
@@ -352,7 +352,7 @@
 - Logging: `ArchiForgeSerilogConfiguration`, `CorrelationIdMiddleware` (`LogContext.PushProperty`).
 - Tracing: `ObservabilityExtensions.AddOpenTelemetry()` — ASP.NET, HTTP, SQL, custom sources.
 - Metrics: `ArchLucidInstrumentation` — `Meter("ArchiForge")`, counters for runs, tokens, alert evaluation.
-- Prometheus: Scrape endpoint with optional Basic auth, `archiforge-alerts.yml`, `archiforge-slo-rules.yml`.
+- Prometheus: Scrape endpoint with optional Basic auth, `archlucid-alerts.yml`, `archlucid-slo-rules.yml`.
 - Grafana: 3 dashboard JSON files in `infra/grafana/`.
 - OTLP exporter: Optional in `ObservabilityExtensions`.
 - No Jaeger/Tempo default configuration.
@@ -480,7 +480,7 @@
 **Justification**: Extensive documentation corpus — ~100 markdown files covering architecture (context, containers, components, flows), deployment, operations, security, testing, onboarding (day-one developer, SRE, security), CLI usage, API contracts, ADRs, runbooks (13 operational procedures), pilot guide, troubleshooting, and changelogs. The Navigation rule provides a quick-start map. But some docs reference stale names (ArchiForge → ArchLucid rename in progress), there are no auto-generated API docs beyond the OpenAPI spec, and the ADR series is small (11 entries) for the project's complexity.
 
 **Evidence**:
-- ~100 `.md` files across `docs/`, `archiforge-ui/docs/`, project READMEs.
+- ~100 `.md` files across `docs/`, `archlucid-ui/docs/`, project READMEs.
 - Onboarding: `day-one-developer.md`, `day-one-sre.md`, `day-one-security.md`.
 - Runbooks: 13 operational procedures in `docs/runbooks/`.
 - Architecture: C4-style context/container/component diagrams.

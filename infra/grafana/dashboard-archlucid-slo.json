@@ -65,7 +65,7 @@
   ],
   "refresh": "30s",
   "schemaVersion": 38,
-  "tags": ["archiforge", "slo"],
+  "tags": ["archlucid", "slo"],
   "templating": {
     "list": [
       {
@@ -84,8 +84,8 @@
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
-  "title": "ArchiForge — SLO signals (HTTP + LLM)",
-  "uid": "archiforge-slo",
+  "title": "ArchLucid — SLO signals (HTTP + LLM)",
+  "uid": "archlucid-slo",
   "version": 1,
   "weekStart": ""
 }

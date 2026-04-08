@@ -15,4 +15,4 @@ That starts **SQL Server**, **Azurite**, and **Redis** per **`docker-compose.yml
 ## Environment
 
 - Set **`ConnectionStrings:ArchiForge`** in **`appsettings.Development.json`** or user secrets to point at the forwarded SQL instance.
-- For the UI, set **`ARCHIFORGE_API_BASE_URL`** in **`archiforge-ui/.env.local`** to the API URL reachable from the dev container network.
+- For the UI, set **`ARCHIFORGE_API_BASE_URL`** in **`archlucid-ui/.env.local`** to the API URL reachable from the dev container network.

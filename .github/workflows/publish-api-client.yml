@@ -40,7 +40,7 @@ jobs:
 
       - uses: actions/upload-artifact@v6
         with:
-          name: archiforge-api-client-nupkg
+          name: archlucid-api-client-nupkg
           path: ${{ runner.temp }}/nuget/*.nupkg
 
       # secrets cannot be used in step `if:` in this workflow validator; branch in the shell instead.

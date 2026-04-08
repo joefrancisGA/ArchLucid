@@ -94,7 +94,7 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 ### Prompt 9 — documentation
 
 - **Added** [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) (capture, dashboard, opportunities, export, owner guidance).
-- **Updated** [PILOT_GUIDE.md](PILOT_GUIDE.md), [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md), [README.md](../README.md), [archiforge-ui/README.md](../archiforge-ui/README.md), this file (overview §4–§7, component table, prompt log).
+- **Updated** [PILOT_GUIDE.md](PILOT_GUIDE.md), [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md), [README.md](../README.md), [archlucid-ui/README.md](../archlucid-ui/README.md), this file (overview §4–§7, component table, prompt log).
 
 ### Coherence / cleanup pass (post–Prompt 9)
 

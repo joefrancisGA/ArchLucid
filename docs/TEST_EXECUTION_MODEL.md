@@ -130,15 +130,15 @@ dotnet test ArchLucid.sln
 
 ### 6. Operator shell unit (Next.js + Vitest)
 
-**Meaning:** **Fast, deterministic** component and pure-function tests for **archiforge-ui** (React Testing Library + jsdom). No browser install; suitable for every PR and local iteration.
+**Meaning:** **Fast, deterministic** component and pure-function tests for **archlucid-ui** (React Testing Library + jsdom). No browser install; suitable for every PR and local iteration.
 
 | Mechanism | Location |
 |-----------|----------|
 | Runner | **Vitest** |
-| Config | `archiforge-ui/vitest.config.ts`, `archiforge-ui/vitest.setup.ts` |
-| Specs | `archiforge-ui/src/**/*.test.{ts,tsx}` (and `*.spec.{ts,tsx}` under `src/`) |
+| Config | `archlucid-ui/vitest.config.ts`, `archlucid-ui/vitest.setup.ts` |
+| Specs | `archlucid-ui/src/**/*.test.{ts,tsx}` (and `*.spec.{ts,tsx}` under `src/`) |
 
-**Run (from `archiforge-ui/`):**
+**Run (from `archlucid-ui/`):**
 
 ```bash
 npm ci
@@ -150,15 +150,15 @@ npm run test:watch       # local loop
 
 ### 7. Operator shell e2e smoke (Next.js + Playwright)
 
-**Meaning:** A **minimal** browser check that the **archiforge-ui** app builds and the home route renders expected headings. Slower than Vitest; not a replacement for manual UX review.
+**Meaning:** A **minimal** browser check that the **archlucid-ui** app builds and the home route renders expected headings. Slower than Vitest; not a replacement for manual UX review.
 
 | Mechanism | Location |
 |-----------|----------|
 | Runner | **Playwright** (`@playwright/test`) |
-| Config | `archiforge-ui/playwright.config.ts` |
-| Specs | `archiforge-ui/e2e/*.spec.ts` |
+| Config | `archlucid-ui/playwright.config.ts` |
+| Specs | `archlucid-ui/e2e/*.spec.ts` |
 
-**Run (from `archiforge-ui/`):**
+**Run (from `archlucid-ui/`):**
 
 ```bash
 npm ci
@@ -191,8 +191,8 @@ Workflow: `.github/workflows/ci.yml` — **five jobs**, tiered for clarity and f
 | **0** | **`gitleaks`** | Full-history secret scan (`gitleaks/gitleaks-action`, **`.gitleaks.toml`**). All other jobs **`needs: gitleaks`**. |
 | **1** | **`dotnet-fast-core`** | Restore, vulnerable package audit, `dotnet build -c Release`, **CycloneDX** SBOM for **`ArchLucid.Api`** (artifact **`sbom-dotnet`**), context-ingestion DI guards, then `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration`. **No SQL** service (fast gate). |
 | **2** | **`dotnet-full-regression`** | Runs **after** Tier 1 passes. Restore, build, SQL Server service container, `dotnet test ArchLucid.sln` with `ARCHIFORGE_SQL_TEST` (entire solution). |
-| **3a** | **`ui-unit`** | `archiforge-ui`: `npm ci`, `npm run test` (Vitest / jsdom), **CycloneDX** npm SBOM (artifact **`sbom-npm`**). |
-| **3b** | **`ui-e2e-smoke`** | `archiforge-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). Browser-heavy. |
+| **3a** | **`ui-unit`** | `archlucid-ui`: `npm ci`, `npm run test` (Vitest / jsdom), **CycloneDX** npm SBOM (artifact **`sbom-npm`**). |
+| **3b** | **`ui-e2e-smoke`** | `archlucid-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). Browser-heavy. |
 
 PRs must pass **all five** jobs. Tier 2 is skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up and full-suite time on obvious breaks.
 
@@ -205,8 +205,8 @@ Optional **local** sequence before a PR:
 1. `test-fast-core.cmd`
 2. `test-sqlserver-integration.cmd` (if you touched Persistence / SQL)
 3. `test-integration.cmd` (if you touched API / HTTP)
-4. `test-ui-unit.cmd` or `npm test` in `archiforge-ui/` (if you touched `archiforge-ui` logic/components)
-5. `test-ui-smoke.cmd` (if you touched `archiforge-ui` routes/build/e2e-relevant behavior)
+4. `test-ui-unit.cmd` or `npm test` in `archlucid-ui/` (if you touched `archlucid-ui` logic/components)
+5. `test-ui-smoke.cmd` (if you touched `archlucid-ui` routes/build/e2e-relevant behavior)
 6. `test-full.cmd` before merge (or rely on CI)
 
 ---
@@ -215,7 +215,7 @@ Optional **local** sequence before a PR:
 
 | Item | Status |
 |------|--------|
-| **Expand Playwright** coverage (navigation, critical flows, a11y) | Add specs under `archiforge-ui/e2e/`. |
+| **Expand Playwright** coverage (navigation, critical flows, a11y) | Add specs under `archlucid-ui/e2e/`. |
 | **Pin Node dependency graph further** (e.g. `npm audit fix`, Renovate) | `package-lock.json` is committed for `npm ci` in CI. |
 | **Split .NET CI jobs** (parallel `build` vs `test` matrix) | Done: `gitleaks` + `dotnet-fast-core` + `dotnet-full-regression` + `ui-unit` + `ui-e2e-smoke`. |
 

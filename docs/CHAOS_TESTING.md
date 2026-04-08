@@ -11,4 +11,4 @@
 
 **Operational chaos** (staging)
 
-- Run controlled drills documented in `docs/runbooks/DATABASE_FAILOVER.md` and measure RTO/RPO; pair with Prometheus rules in `infra/prometheus/archiforge-alerts.yml` and `archiforge-slo-rules.yml`, and optional **Azure Monitor Prometheus rule groups** from `infra/terraform-monitoring/prometheus_slo_rules.tf` when `enable_prometheus_slo_rule_group` is set.
+- Run controlled drills documented in `docs/runbooks/DATABASE_FAILOVER.md` and measure RTO/RPO; pair with Prometheus rules in `infra/prometheus/archlucid-alerts.yml` and `archlucid-slo-rules.yml`, and optional **Azure Monitor Prometheus rule groups** from `infra/terraform-monitoring/prometheus_slo_rules.tf` when `enable_prometheus_slo_rule_group` is set.

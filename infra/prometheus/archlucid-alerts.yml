@@ -1,4 +1,4 @@
-# Recording / alert rules for ArchiForge when scraping OTLP → Prometheus or app metrics.
+# Recording / alert rules for ArchLucid when scraping OTLP → Prometheus or app metrics.
 # Adjust metric names to match your Prometheus scrape (e.g. OTel SDK exporter naming).
 groups:
   - name: archiforge-authority

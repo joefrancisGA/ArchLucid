@@ -1,6 +1,6 @@
 # ArchLucid operator shell (Change Set 55R)
 
-**Audience:** Internal operators and design partners using the thin Next.js UI in `archiforge-ui/` against the ArchLucid API.
+**Audience:** Internal operators and design partners using the thin Next.js UI in `archlucid-ui/` against the ArchLucid API.
 
 ---
 
@@ -44,7 +44,7 @@ Breadcrumb links on key pages tie **Home · Runs · Graph · Compare** together.
 
 ## Running focused UI tests (55R smoke)
 
-From `archiforge-ui/`:
+From `archlucid-ui/`:
 
 ```bash
 npm test
@@ -61,7 +61,7 @@ npx vitest run src/review-workflow/compare-views.test.tsx
 npx vitest run src/lib/api.review-workflow.test.ts src/lib/operator-response-guards.test.ts
 ```
 
-Full detail: [archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md).
+Full detail: [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md).
 
 ---
 
@@ -73,4 +73,4 @@ Full detail: [archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archiforge-u
 - **Artifact bundle 404:** Prefer distinguishing **manifest not in scope** (`manifest-not-found`) from **no bundle / zero artifacts** (`resource-not-found`) when interpreting bundle download failures next to an empty artifact table.
 - **Ordering:** Treat artifact list and ZIP entry order as **stable** (name, then id) for screenshots and diffs.
 
-Deeper UI architecture: [archiforge-ui/docs/ARCHITECTURE.md](../archiforge-ui/docs/ARCHITECTURE.md). Tutorial: [archiforge-ui/docs/OPERATOR_SHELL_TUTORIAL.md](../archiforge-ui/docs/OPERATOR_SHELL_TUTORIAL.md).
+Deeper UI architecture: [archlucid-ui/docs/ARCHITECTURE.md](../archlucid-ui/docs/ARCHITECTURE.md). Tutorial: [archlucid-ui/docs/OPERATOR_SHELL_TUTORIAL.md](../archlucid-ui/docs/OPERATOR_SHELL_TUTORIAL.md).

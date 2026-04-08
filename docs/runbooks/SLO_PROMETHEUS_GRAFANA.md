@@ -11,7 +11,7 @@ Give operators a **repeatable** way to:
 ## 2. Assumptions
 
 - HTTP traffic is instrumented with **`http.server.request.duration`** (Prometheus names often `http_server_request_duration_seconds_*`) or legacy **`http_server_duration_milliseconds_*`**.
-- Prometheus loads **`infra/prometheus/archiforge-slo-rules.yml`** next to **`archiforge-alerts.yml`**.
+- Prometheus loads **`infra/prometheus/archlucid-slo-rules.yml`** next to **`archlucid-alerts.yml`**.
 - **99.5% monthly availability** is the documented HTTP target for burn math in-repo (0.5% error budget). Adjust `0.005` in the rules file if your leadership signs a different number.
 
 ## 3. Constraints
@@ -30,8 +30,8 @@ Give operators a **repeatable** way to:
 | Piece | Location | Role |
 |-------|----------|------|
 | **API SLO definitions + synthetic slice** | `docs/API_SLOS.md`, `.github/workflows/api-synthetic-probe.yml` | Human-readable SLO table; **external** scheduled `GET /health/live` + `GET /version` (secrets `SYNTHETIC_API_BASE_URL`, optional `SYNTHETIC_API_PROBE_KEY`). Optional separate `GET /health/ready` uses **summary** JSON only (no exception text). `GET /health` (full detail) is **authenticated** (`ReadAuthority`) and is not part of the default anonymous synthetic probe. |
-| SLO recording + burn alerts | `infra/prometheus/archiforge-slo-rules.yml` | `archiforge:slo:http_availability:ratio`, burn-rate alerts, **p99** recording (`archiforge:slo:http_p99_seconds`) + `ArchiForgeSloHttpP99High`, simple **5xx ratio** alert, combined **outbox depth** alert |
-| Threshold / backlog alerts | `infra/prometheus/archiforge-alerts.yml` | Outbox depth, integration backlog, etc. |
+| SLO recording + burn alerts | `infra/prometheus/archlucid-slo-rules.yml` | `archiforge:slo:http_availability:ratio`, burn-rate alerts, **p99** recording (`archiforge:slo:http_p99_seconds`) + `ArchiForgeSloHttpP99High`, simple **5xx ratio** alert, combined **outbox depth** alert |
+| Threshold / backlog alerts | `infra/prometheus/archlucid-alerts.yml` | Outbox depth, integration backlog, etc. |
 | Resilience test philosophy | `docs/CHAOS_TESTING.md` | Deterministic fault injection in unit tests; staging drills pair with these alerts |
 | Dashboard JSON | `infra/grafana/*.json`, `infra/grafana/dashboards/*.json` | Import or Terraform-provision |
 | Managed Grafana instance | `infra/terraform-monitoring/main.tf` | `azurerm_dashboard_grafana` |
@@ -62,7 +62,7 @@ With a **99.5%** target, the **0.005** divisor scales “how many budgets worth 
 ### Validate rule syntax before deploy
 
 ```bash
-promtool check rules infra/prometheus/archiforge-slo-rules.yml
+promtool check rules infra/prometheus/archlucid-slo-rules.yml
 ```
 
 Optional: add `promtool test rules` YAML under `infra/prometheus/tests/` when you want time-series regression coverage (see `infra/prometheus/tests/README.md`).

@@ -20,7 +20,7 @@ public sealed class StartupConfigurationFactsReaderTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;",
+            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;",
             ["ArchiForge:StorageProvider"] = "Sql",
             ["Retrieval:VectorIndex"] = "InMemory",
             ["AgentExecution:Mode"] = "Simulator",

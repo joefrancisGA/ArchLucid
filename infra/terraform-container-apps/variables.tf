@@ -73,19 +73,19 @@ variable "container_apps_internal_load_balancer" {
 variable "api_container_app_name" {
   type        = string
   description = "Name of the API container app (must be DNS-compliant, lowercase alphanumeric and hyphens)."
-  default     = "archiforge-api"
+  default     = "archlucid-api"
 }
 
 variable "ui_container_app_name" {
   type        = string
   description = "Name of the Operator UI container app."
-  default     = "archiforge-ui"
+  default     = "archlucid-ui"
 }
 
 variable "worker_container_app_name" {
   type        = string
   description = "Name of the background worker container app (advisory scan, archival, retrieval outbox)."
-  default     = "archiforge-worker"
+  default     = "archlucid-worker"
 }
 
 variable "worker_container_image" {
@@ -120,13 +120,13 @@ variable "worker_memory" {
 
 variable "api_container_image" {
   type        = string
-  description = "Full image reference for the API container (default entrypoint ArchLucid.Api.dll), e.g. myregistry.azurecr.io/archiforge-api:2026.04.1. Required when enable_container_apps = true."
+  description = "Full image reference for the API container (default entrypoint ArchLucid.Api.dll), e.g. myregistry.azurecr.io/archlucid-api:2026.04.1. Required when enable_container_apps = true."
   default     = ""
 }
 
 variable "ui_container_image" {
   type        = string
-  description = "Full image reference for archiforge-ui. Required when enable_container_apps = true."
+  description = "Full image reference for archlucid-ui. Required when enable_container_apps = true."
   default     = ""
 }
 

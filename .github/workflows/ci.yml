@@ -6,7 +6,7 @@
 #   Tier 3b — Operator UI e2e (Playwright; browser-heavy)
 #
 # Re-run failed jobs from the Actions tab. Local equivalents: test-fast-core.*, test-full.*,
-# archiforge-ui: npm test / npm run test:e2e.
+# archlucid-ui: npm test / npm run test:e2e.
 #
 # .NET coverage: each test job writes a collapsible report to the job summary; download
 # coverage-report-*-html artifacts for browsable index.html (ReportGenerator).
@@ -185,7 +185,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Test — finding-engine template (not in main solution)
-        run: dotnet test templates/archiforge-finding-engine/ArchiForgeFindingEngine.Tests/ArchiForgeFindingEngine.Tests.csproj -c Release
+        run: dotnet test templates/archlucid-finding-engine/ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj -c Release
 
   dotnet-full-regression:
     name: ".NET: full regression (SQL)"
@@ -307,7 +307,7 @@ jobs:
 
       - uses: actions/upload-artifact@v6
         with:
-          name: archiforge-api-client-nupkg-ci
+          name: archlucid-api-client-nupkg-ci
           path: ${{ runner.temp }}/nuget/*.nupkg
 
       - name: Push (NuGet.org)
@@ -399,7 +399,7 @@ jobs:
       - uses: marocchino/sticky-pull-request-comment@v3
         if: steps.gate.outputs.post == 'true'
         with:
-          header: archiforge-coverage
+          header: archlucid-coverage
           recreate: true
           number: ${{ github.event.pull_request.number }}
           message: ${{ steps.cov.outputs.body }}
@@ -434,7 +434,7 @@ jobs:
         with:
           context: .
           file: ArchLucid.Api/Dockerfile
-          tags: archiforge-api:ci
+          tags: archlucid-api:ci
           load: true
           provenance: false
           sbom: false
@@ -447,7 +447,7 @@ jobs:
         with:
           context: .
           file: ArchLucid.Api/Dockerfile
-          tags: archiforge-api:ci
+          tags: archlucid-api:ci
           load: true
           provenance: false
           sbom: false
@@ -457,8 +457,8 @@ jobs:
         if: steps.gha_cache_write.outputs.enabled == 'true'
         uses: docker/build-push-action@v6
         with:
-          context: ./archiforge-ui
-          tags: archiforge-ui:ci
+          context: ./archlucid-ui
+          tags: archlucid-ui:ci
           load: true
           provenance: false
           sbom: false
@@ -469,8 +469,8 @@ jobs:
         if: steps.gha_cache_write.outputs.enabled != 'true'
         uses: docker/build-push-action@v6
         with:
-          context: ./archiforge-ui
-          tags: archiforge-ui:ci
+          context: ./archlucid-ui
+          tags: archlucid-ui:ci
           load: true
           provenance: false
           sbom: false
@@ -480,7 +480,7 @@ jobs:
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           scan-type: image
-          image-ref: archiforge-api:ci
+          image-ref: archlucid-api:ci
           severity: CRITICAL,HIGH
           exit-code: "1"
 
@@ -488,7 +488,7 @@ jobs:
         uses: aquasecurity/trivy-action@v0.35.0
         with:
           scan-type: image
-          image-ref: archiforge-ui:ci
+          image-ref: archlucid-ui:ci
           severity: CRITICAL,HIGH
           exit-code: "1"
 
@@ -504,22 +504,22 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: archiforge-ui/package-lock.json
+          cache-dependency-path: archlucid-ui/package-lock.json
 
       - name: Install & run unit tests
-        working-directory: archiforge-ui
+        working-directory: archlucid-ui
         run: |
           npm ci
           npm run test
 
       - name: Generate npm SBOM (CycloneDX)
-        working-directory: archiforge-ui
+        working-directory: archlucid-ui
         run: npx --yes @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
 
       - uses: actions/upload-artifact@v6
         with:
           name: sbom-npm
-          path: archiforge-ui/sbom-npm.json
+          path: archlucid-ui/sbom-npm.json
 
   ui-e2e-smoke:
     name: "Operator UI: e2e smoke (Playwright)"
@@ -533,10 +533,10 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: archiforge-ui/package-lock.json
+          cache-dependency-path: archlucid-ui/package-lock.json
 
       - name: Install dependencies & run Playwright smoke
-        working-directory: archiforge-ui
+        working-directory: archlucid-ui
         env:
           CI: true
           # Next.js production build in webServer can OOM on default ubuntu-latest Node heap.
@@ -596,7 +596,7 @@ jobs:
         with:
           context: .
           file: ArchLucid.Api/Dockerfile
-          tags: archiforge-api:zap
+          tags: archlucid-api:zap
           load: true
           provenance: false
           sbom: false
@@ -608,7 +608,7 @@ jobs:
         run: |
           set -e
           cleanup() {
-            docker rm -f archiforge-zap-api 2>/dev/null || true
+            docker rm -f archlucid-zap-api 2>/dev/null || true
             docker network rm "$ZNET" 2>/dev/null || true
           }
           trap cleanup EXIT
@@ -616,10 +616,10 @@ jobs:
           # zap-baseline.py writes /zap/wrk/zap.yaml; the image user often cannot write the image's /zap/wrk.
           ZAP_WRK="${RUNNER_TEMP:-/tmp}/zap-wrk-${ZNET}"
           mkdir -p "$ZAP_WRK"
-          docker run -d --name archiforge-zap-api --network "$ZNET" -p 8080:8080 \
+          docker run -d --name archlucid-zap-api --network "$ZNET" -p 8080:8080 \
             -e ASPNETCORE_URLS=http://+:8080 \
             -e ASPNETCORE_ENVIRONMENT=Development \
-            archiforge-api:zap
+            archlucid-api:zap
           for i in $(seq 1 60); do
             if curl -fsS http://127.0.0.1:8080/health/live; then
               break
@@ -634,4 +634,4 @@ jobs:
             -v "$ZAP_WRK:/zap/wrk" \
             -v "$GITHUB_WORKSPACE/infra/zap:/zap/wrk/config:ro" \
             ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py -t http://archiforge-zap-api:8080 -I -c config/baseline-pr.tsv
+            zap-baseline.py -t http://archlucid-zap-api:8080 -I -c config/baseline-pr.tsv

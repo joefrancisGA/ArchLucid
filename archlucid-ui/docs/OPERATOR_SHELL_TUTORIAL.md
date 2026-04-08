@@ -33,7 +33,7 @@
 
 ## 1. Why does this project exist?
 
-The **operator shell** (`archiforge-ui`) is a thin, read-mostly UI that lets an operator:
+The **operator shell** (`archlucid-ui`) is a thin, read-mostly UI that lets an operator:
 
 - browse architecture runs for a project,
 - inspect golden manifests (decisions, warnings, unresolved issues),
@@ -70,7 +70,7 @@ It is **not** a full SPA with rich client-side routing and state management. It 
 ## 3. Project structure
 
 ```
-archiforge-ui/
+archlucid-ui/
 ├── package.json              ← dependencies + scripts
 ├── tsconfig.json             ← TypeScript config (strict, path alias @/*)
 ├── next.config.ts            ← Next.js config
@@ -668,7 +668,7 @@ They all use `OperatorLoadingNotice` — a calm, borderless status card with no 
 ### Unit tests (Vitest)
 
 ```bash
-cd archiforge-ui
+cd archlucid-ui
 npm test          # runs once
 npm run test:watch  # re-runs on file changes
 ```

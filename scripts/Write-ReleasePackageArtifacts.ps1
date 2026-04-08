@@ -144,11 +144,11 @@ $manifest = [ordered]@{
     layout         = [ordered]@{
         releaseRootRelative = 'artifacts/release'
         apiPublishRelative  = 'artifacts/release/api'
-        operatorUiSourceRelative = 'archiforge-ui'
+        operatorUiSourceRelative = 'archlucid-ui'
     }
     operatorUi     = [ordered]@{
         productionBuildIncluded = [bool] $UiProductionBuildIncluded
-        note                    = 'Operator UI is built from archiforge-ui/ in the repo. Production output is under archiforge-ui/.next (not copied into artifacts/release).'
+        note                    = 'Operator UI is built from archlucid-ui/ in the repo. Production output is under archlucid-ui/.next (not copied into artifacts/release).'
     }
     build          = [ordered]@{
         informationalVersion = $informationalVersion
@@ -191,7 +191,7 @@ else {
 # --- Plain-text handoff blurb ---
 $handoffPath = Join-Path $releaseRoot 'PACKAGE-HANDOFF.txt'
 $uiLine = if ($UiProductionBuildIncluded) {
-    'Operator UI: production build was run in this session (see archiforge-ui/.next in the repo).'
+    'Operator UI: production build was run in this session (see archlucid-ui/.next in the repo).'
 }
 else {
     'Operator UI: production build was not run this session (install Node or use package-release.ps1 without -SkipUiBuild).'

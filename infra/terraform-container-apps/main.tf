@@ -3,7 +3,7 @@ locals {
 
   # FinOps: merge application tag + caller tags + optional standard keys (see variables finops_*).
   merged_tags = merge(
-    { Application = "ArchiForge" },
+    { Application = "ArchLucid" },
     var.tags,
     length(trimspace(var.finops_environment)) > 0 ? { Environment = trimspace(var.finops_environment) } : {},
     length(trimspace(var.finops_cost_center)) > 0 ? { CostCenter = trimspace(var.finops_cost_center) } : {}
@@ -95,7 +95,7 @@ resource "azurerm_container_app" "api" {
     max_replicas = var.api_max_replicas
 
     container {
-      name   = "archiforge-api"
+      name   = "archlucid-api"
       image  = var.api_container_image
       cpu    = var.api_cpu
       memory = var.api_memory
@@ -230,7 +230,7 @@ resource "azurerm_container_app" "worker" {
     max_replicas = var.worker_max_replicas
 
     container {
-      name    = "archiforge-worker"
+      name    = "archlucid-worker"
       image   = local.worker_effective_image
       cpu     = var.worker_cpu
       memory  = var.worker_memory
@@ -347,7 +347,7 @@ resource "azurerm_container_app" "ui" {
     max_replicas = var.ui_max_replicas
 
     container {
-      name   = "archiforge-ui"
+      name   = "archlucid-ui"
       image  = var.ui_container_image
       cpu    = var.ui_cpu
       memory = var.ui_memory
