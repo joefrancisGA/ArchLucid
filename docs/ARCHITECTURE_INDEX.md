@@ -24,6 +24,8 @@
   - `docs/ARCHITECTURE_CONTAINERS.md`
 - **Components** – key modules inside each container  
   - `docs/ARCHITECTURE_COMPONENTS.md`
+- **Architecture constraint tests** – NetArchTest + assembly-reference rules (`ArchLucid.Architecture.Tests`, `Suite=Core`)  
+  - `docs/ARCHITECTURE_CONSTRAINTS.md`
 - **Dual pipeline navigator** – Coordinator (string run) vs Authority (ingestion) paths, shared artifacts, `RunEventTrace` vs `RuleAuditTrace` (JSON still one `DecisionTrace` envelope with `kind`)  
   - `docs/DUAL_PIPELINE_NAVIGATOR.md`
 - **DI registration map** – `AddArchLucidApplicationServices` order (`ArchLucid.Host.Composition`), `AddArchLucidStorage`, partial `ServiceCollectionExtensions`, config gates  

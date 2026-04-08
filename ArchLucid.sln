@@ -125,6 +125,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Persistence.Advis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Contracts.Abstractions", "ArchLucid.Contracts.Abstractions\ArchLucid.Contracts.Abstractions.csproj", "{489ECE4C-41E0-4D48-9EB2-38733679F2D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Architecture.Tests", "ArchLucid.Architecture.Tests\ArchLucid.Architecture.Tests.csproj", "{7D9277BB-835D-41F5-9FFD-435291E13704}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -651,6 +653,18 @@ Global
 		{489ECE4C-41E0-4D48-9EB2-38733679F2D7}.Release|x64.Build.0 = Release|Any CPU
 		{489ECE4C-41E0-4D48-9EB2-38733679F2D7}.Release|x86.ActiveCfg = Release|Any CPU
 		{489ECE4C-41E0-4D48-9EB2-38733679F2D7}.Release|x86.Build.0 = Release|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Debug|x64.Build.0 = Debug|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Debug|x86.Build.0 = Debug|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Release|x64.ActiveCfg = Release|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Release|x64.Build.0 = Release|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Release|x86.ActiveCfg = Release|Any CPU
+		{7D9277BB-835D-41F5-9FFD-435291E13704}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

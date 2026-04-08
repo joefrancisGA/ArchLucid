@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>ArchLucid.Architecture.Tests</RootNamespace>
+    <AssemblyName>ArchLucid.Architecture.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NetArchTest.Rules" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.ArtifactSynthesis\ArchLucid.ArtifactSynthesis.csproj" />
+    <ProjectReference Include="..\ArchLucid.Cli\ArchLucid.Cli.csproj" />
+    <ProjectReference Include="..\ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj" />
+    <ProjectReference Include="..\ArchLucid.Contracts.Abstractions\ArchLucid.Contracts.Abstractions.csproj" />
+    <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
+    <ProjectReference Include="..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+    <ProjectReference Include="..\ArchLucid.KnowledgeGraph\ArchLucid.KnowledgeGraph.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Advisory\ArchLucid.Persistence.Advisory.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Alerts\ArchLucid.Persistence.Alerts.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Coordination\ArchLucid.Persistence.Coordination.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Integration\ArchLucid.Persistence.Integration.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Runtime\ArchLucid.Persistence.Runtime.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>
