@@ -47,6 +47,8 @@ public sealed class PolicyApplicabilityFindingEngineTests
         Finding infoFinding = findings.Single(x => x.Severity == FindingSeverity.Info);
         infoFinding.RelatedNodeIds.Should().Contain("p1");
         infoFinding.RelatedNodeIds.Should().Contain("t1");
+        infoFinding.Trace.RulesApplied.Should().Contain("policy-applicability-mapping");
+        infoFinding.Trace.Notes.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -72,6 +74,8 @@ public sealed class PolicyApplicabilityFindingEngineTests
 
         findings.Should().ContainSingle(x =>
             x.FindingType == "PolicyApplicabilityFinding" && x.Severity == FindingSeverity.Warning);
+        Finding warningFinding = findings.Single(x => x.Severity == FindingSeverity.Warning);
+        warningFinding.Trace.RulesApplied.Should().Contain("policy-applicability-gap");
     }
 
     [Fact]

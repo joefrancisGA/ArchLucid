@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://archlucid.dev/schemas/integration-events/advisory-scan-completed.v1.schema.json",
   "title": "com.archlucid.advisory.scan.completed",
-  "description": "Advisory scan execution completed (canonical com.archlucid.advisory.scan.completed; legacy com.archiforge.advisory.scan.completed).",
+  "description": "Advisory scan execution completed (canonical com.archlucid.advisory.scan.completed; legacy V1 type alias supported).",
   "type": "object",
   "required": [
     "schemaVersion",

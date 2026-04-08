@@ -8,7 +8,7 @@ public sealed class BackgroundJobsOptions
     /// <summary><c>InMemory</c> (default) or <c>Durable</c>.</summary>
     public string Mode { get; set; } = "InMemory";
 
-    public string QueueName { get; set; } = "archiforge-export-jobs";
+    public string QueueName { get; set; } = "archlucid-export-jobs";
 
     /// <summary>Queue service URI, e.g. <c>https://{account}.queue.core.windows.net</c>. When empty, derived from <see cref="ArtifactLargePayloadOptions.AzureBlobServiceUri"/>.</summary>
     public string? QueueServiceUri { get; set; }

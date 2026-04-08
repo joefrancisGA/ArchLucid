@@ -149,27 +149,51 @@ jobs:
           fi
           echo "Audit Core constants: $CONST_COUNT (matrix marker OK)."
 
-      - name: Guard — unexpected ArchiForge string literals in C#
+      - name: Guard — unexpected archiforge string literals in C# (case-insensitive)
         run: |
           set +e
-          grep -rn "ArchiForge" --include="*.cs" --exclude-dir=obj --exclude-dir=bin --exclude-dir=.git . > "${RUNNER_TEMP}/archiforge-cs-hits.txt"
+          grep -rni "archiforge" --include="*.cs" --exclude-dir=obj --exclude-dir=bin --exclude-dir=.git . > "${RUNNER_TEMP}/archiforge-cs-hits.txt"
           rc=$?
           set -e
           if [ "$rc" -gt 1 ]; then
-            echo "::error::grep failed while scanning for ArchiForge in .cs files (rc=$rc)"
+            echo "::error::grep failed while scanning for archiforge in .cs files (rc=$rc)"
             exit 1
           fi
           if [ "$rc" -eq 1 ]; then
-            echo "No ArchiForge matches in .cs files."
+            echo "No archiforge matches in .cs files."
             exit 0
           fi
           HITS=$(grep -v -F -f scripts/ci/archiforge-rename-allowlist.txt "${RUNNER_TEMP}/archiforge-cs-hits.txt" || true)
           if [ -n "$HITS" ]; then
-            echo "::error::Found unexpected 'ArchiForge' references in .cs files (Phase 6.4 regression):"
+            echo "::error::Found unexpected 'archiforge' references in .cs files (rename guard):"
             echo "$HITS"
             exit 1
           fi
-          echo "ArchiForge references in .cs are limited to allowlisted Phase 7 / bridge files."
+          echo "archiforge references in .cs are limited to allowlisted Phase 7 / bridge patterns."
+
+      - name: Guard — unexpected archiforge string literals in TS/TSX
+        run: |
+          set +e
+          grep -rni "archiforge" --include="*.ts" --include="*.tsx" \
+            --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git . \
+            > "${RUNNER_TEMP}/archiforge-ts-hits.txt"
+          rc=$?
+          set -e
+          if [ "$rc" -gt 1 ]; then
+            echo "::error::grep failed while scanning for archiforge in TS/TSX files (rc=$rc)"
+            exit 1
+          fi
+          if [ "$rc" -eq 1 ]; then
+            echo "No archiforge matches in TS/TSX files."
+            exit 0
+          fi
+          HITS=$(grep -v -F -f scripts/ci/archiforge-rename-allowlist-ts.txt "${RUNNER_TEMP}/archiforge-ts-hits.txt" || true)
+          if [ -n "$HITS" ]; then
+            echo "::error::Found unexpected 'archiforge' references in TS/TSX files:"
+            echo "$HITS"
+            exit 1
+          fi
+          echo "archiforge references in TS/TSX are limited to allowlisted Phase 7 / bridge files."
 
       - name: Guard — no direct IIntegrationEventPublisher.PublishAsync bypasses
         run: |

@@ -5,7 +5,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import {
-  askArchiForge,
+  askArchLucid,
   getConversationMessages,
   listConversationThreads,
 } from "@/lib/conversation-api";
@@ -73,7 +73,7 @@ export default function AskPage() {
 
     setLoading(true);
     try {
-      const result = await askArchiForge({
+      const result = await askArchLucid({
         threadId: tid || undefined,
         runId: rid || undefined,
         question: q,
@@ -99,7 +99,7 @@ export default function AskPage() {
 
   return (
     <main style={{ maxWidth: 1100 }}>
-      <h2 style={{ marginTop: 0 }}>Ask ArchiForge</h2>
+      <h2 style={{ marginTop: 0 }}>Ask ArchLucid</h2>
       <p style={{ color: "#444", fontSize: 14 }}>
         Multi-turn conversations are scoped to your workspace. First message needs a <strong>run ID</strong>;
         follow-ups can use the same thread without resending it.

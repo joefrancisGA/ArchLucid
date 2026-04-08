@@ -41,7 +41,7 @@ internal static class CommitCommand
         }
 
         Console.WriteLine();
-        Console.WriteLine($"Use 'archiforge artifacts {runId}' to view the manifest.");
+        Console.WriteLine($"Use 'archlucid artifacts {runId}' to view the manifest.");
 
         return 0;
     }

@@ -2,6 +2,7 @@ import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import { getServerApiBaseUrl } from "@/lib/config";
+import { readServerSideApiKey } from "@/lib/legacy-arch-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import { getScopeHeaders } from "@/lib/scope";
@@ -109,7 +110,7 @@ function resolveBinaryGetRequest(path: string): { url: string; headers: HeadersI
     Accept: "*/*",
     ...getScopeHeaders(),
   };
-  const key = process.env.ARCHIFORGE_API_KEY;
+  const key = readServerSideApiKey();
 
   if (key) {
     headers["X-Api-Key"] = key;
@@ -140,7 +141,7 @@ function resolveRequest(path: string): { url: string; headers: HeadersInit } {
     Accept: "application/json",
     ...getScopeHeaders(),
   };
-  const key = process.env.ARCHIFORGE_API_KEY;
+  const key = readServerSideApiKey();
   if (key) headers["X-Api-Key"] = key;
   return { url, headers };
 }
@@ -152,7 +153,7 @@ function withCorrelationHeaders(headers: HeadersInit): Headers {
   return h;
 }
 
-/** GETs JSON from the ArchiForge API. Throws {@link ApiRequestError} on HTTP errors. */
+/** GETs JSON from the ArchLucid API. Throws {@link ApiRequestError} on HTTP errors. */
 export async function apiGet<T>(path: string): Promise<T> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
@@ -170,7 +171,7 @@ export async function apiGet<T>(path: string): Promise<T> {
   return JSON.parse(text) as T;
 }
 
-/** POSTs a JSON body to the ArchiForge API and returns the parsed response. Throws on HTTP errors. */
+/** POSTs a JSON body to the ArchLucid API and returns the parsed response. Throws on HTTP errors. */
 export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
@@ -192,7 +193,7 @@ export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
 }
 
 /** Same proxy/scope/API-key behavior as other UI API calls; for graph modules, etc. */
-export async function fetchArchiForgeJson<T>(path: string): Promise<T> {
+export async function fetchArchLucidJson<T>(path: string): Promise<T> {
   return apiGet<T>(path);
 }
 
@@ -357,8 +358,8 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
   return apiGet<RunExplanation>(`/v1/explain/runs/${encodeURIComponent(runId)}/explain`);
 }
 
-/** Sends a natural-language question to the ArchiForge conversational AI endpoint. */
-export async function askArchiForge(payload: {
+/** Sends a natural-language question to the ArchLucid conversational AI endpoint. */
+export async function askArchLucid(payload: {
   threadId?: string;
   runId?: string;
   question: string;

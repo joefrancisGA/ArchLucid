@@ -7,13 +7,13 @@ info:
     This is **not** the primary REST API (see OpenAPI `/openapi/v1.json` and `/swagger/v1/swagger.json`).
 
     When `WebhookDelivery:UseHttpClient` is true and a shared secret is configured, requests include
-    header `X-ArchiForge-Webhook-Signature` with value `sha256=<hex>` (HMAC-SHA256 over the raw UTF-8 body).
+    header `X-ArchLucid-Webhook-Signature` with value `sha256=<hex>` (HMAC-SHA256 over the raw UTF-8 body).
     Verify using `ArchLucid.Host.Core.Services.Delivery.WebhookSignature` semantics.
 
     **Azure Service Bus (optional):** UTF-8 JSON payloads are published to a configured queue or topic
     (`IntegrationEvents:QueueOrTopicName`). Message `subject` and application property `event_type` carry the
-    logical type. **Canonical** type strings are `com.archlucid.*`; **`com.archiforge.*` aliases** match the same
-    payloads and should be accepted during migration. Payloads include `schemaVersion: 1`; additive fields are
+    logical type. **Canonical** type strings are `com.archlucid.*`; legacy V1 aliases in `IntegrationEventTypes`
+    match the same payloads and should be accepted during migration. Payloads include `schemaVersion: 1`; additive fields are
     expected; breaking changes ship as new event type strings or higher schema versions documented here.
 
     **Bindings:** channels below map to Azure Service Bus **topic** publish (see `infra/terraform-servicebus`).
@@ -90,7 +90,7 @@ channels:
 
   integrationAuthorityRunCompleted:
     description: |
-      Service Bus message after an authority run commits successfully (`com.archlucid.authority.run.completed`; legacy `com.archiforge.authority.run.completed`).
+      Service Bus message after an authority run commits successfully (`com.archlucid.authority.run.completed`; legacy V1 alias supported).
     bindings:
       serviceBus:
         bindingVersion: 0.2.0
@@ -124,7 +124,7 @@ channels:
               format: uuid
 
   integrationGovernanceApprovalSubmitted:
-    description: Governance approval request persisted (`com.archlucid.governance.approval.submitted`; legacy `com.archiforge.governance.approval.submitted`).
+    description: Governance approval request persisted (`com.archlucid.governance.approval.submitted`; legacy V1 alias supported).
     bindings:
       serviceBus:
         bindingVersion: 0.2.0
@@ -150,7 +150,7 @@ channels:
             requestedBy: { type: string }
 
   integrationGovernancePromotionActivated:
-    description: Environment activation recorded (`com.archlucid.governance.promotion.activated`; legacy `com.archiforge.governance.promotion.activated`).
+    description: Environment activation recorded (`com.archlucid.governance.promotion.activated`; legacy V1 alias supported).
     bindings:
       serviceBus:
         bindingVersion: 0.2.0
@@ -176,7 +176,7 @@ channels:
             activatedUtc: { type: string, format: date-time }
 
   integrationAlertFired:
-    description: New alert row persisted and delivered (`com.archlucid.alert.fired`; legacy `com.archiforge.alert.fired`).
+    description: New alert row persisted and delivered (`com.archlucid.alert.fired`; legacy V1 alias supported).
     bindings:
       serviceBus:
         bindingVersion: 0.2.0
@@ -204,7 +204,7 @@ channels:
             deduplicationKey: { type: string }
 
   integrationAlertResolved:
-    description: Alert resolved via API (`com.archlucid.alert.resolved`; legacy `com.archiforge.alert.resolved`).
+    description: Alert resolved via API (`com.archlucid.alert.resolved`; legacy V1 alias supported).
     bindings:
       serviceBus:
         bindingVersion: 0.2.0
@@ -228,7 +228,7 @@ channels:
             comment: { type: string }
 
   integrationAdvisoryScanCompleted:
-    description: Advisory scan execution completed (`com.archlucid.advisory.scan.completed`; legacy `com.archiforge.advisory.scan.completed`).
+    description: Advisory scan execution completed (`com.archlucid.advisory.scan.completed`; legacy V1 alias supported).
     bindings:
       serviceBus:
         bindingVersion: 0.2.0

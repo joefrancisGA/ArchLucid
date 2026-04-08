@@ -49,7 +49,7 @@ Events using the outbox today:
 
 When `TransactionalOutboxEnabled` is **false**, the same call sites use **best-effort** `IIntegrationEventPublisher.PublishAsync` (failures are logged; domain commits are not rolled back).
 
-**Legacy type strings:** `com.archiforge.*` values are **aliases** for the same logical events. In-process consumers should treat canonical and legacy names as equivalent (`IntegrationEventTypes.MapToCanonical` / `AreEquivalent`).
+**Legacy type strings:** older `IntegrationEventTypes.*LegacyV1` values are **aliases** for the same logical events. In-process consumers should treat canonical and legacy names as equivalent (`IntegrationEventTypes.MapToCanonical` / `AreEquivalent`).
 
 **Operations:** pending and dead-letter depth surface in metrics; admin APIs remain `GET /admin/integration-outbox/dead-letters` and `POST /admin/integration-outbox/retry` (see API OpenAPI).
 
@@ -82,7 +82,7 @@ External consumers can validate inbound Service Bus message bodies against these
 
 ### Event catalog (canonical types)
 
-Payloads use `IntegrationEventJson` (camelCase, omit nulls). See **`docs/contracts/archiforge-asyncapi-2.6.yaml`** for structured schemas (aligned with the JSON Schema files above).
+Payloads use `IntegrationEventJson` (camelCase, omit nulls). See **`docs/contracts/archlucid-asyncapi-2.6.yaml`** for structured schemas (aligned with the JSON Schema files above).
 
 1. **`com.archlucid.authority.run.completed`** — `schemaVersion`, `runId`, `manifestId`, `tenantId`, `workspaceId`, `projectId`
 2. **`com.archlucid.governance.approval.submitted`** — `schemaVersion`, scope ids, `approvalRequestId`, `runId`, `manifestVersion`, `sourceEnvironment`, `targetEnvironment`, `requestedBy`

@@ -1,7 +1,8 @@
+import { readNextPublicAuthMode } from "@/lib/legacy-arch-env";
+
 /**
  * Authentication mode for the operator shell.
- * Values: "development-bypass" (default, no sign-in), "jwt" / "jwt-bearer" (OIDC tokens).
- * Must match the API's ArchiForgeAuth:Mode configuration.
+ * Values: "development-bypass" (default, no real sign-in), "jwt" / "jwt-bearer" (OIDC tokens).
+ * Must match the API auth mode configuration (see API appsettings).
  */
-export const AUTH_MODE =
-  process.env.NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE ?? "development-bypass";
+export const AUTH_MODE = readNextPublicAuthMode();

@@ -33,7 +33,7 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
             activity.SetTag("http.request_id", context.TraceIdentifier);
             string? runId = context.Request.RouteValues["runId"]?.ToString();
             if (!string.IsNullOrEmpty(runId))
-                activity.SetTag("archiforge.run_id", runId);
+                activity.SetTag("archlucid.run_id", runId);
         }
 
         using (LogContext.PushProperty("CorrelationId", correlationId))

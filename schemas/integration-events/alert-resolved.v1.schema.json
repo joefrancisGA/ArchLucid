@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://archlucid.dev/schemas/integration-events/alert-resolved.v1.schema.json",
   "title": "com.archlucid.alert.resolved",
-  "description": "Alert resolved via API (canonical com.archlucid.alert.resolved; legacy com.archiforge.alert.resolved).",
+  "description": "Alert resolved via API (canonical com.archlucid.alert.resolved; legacy V1 type alias supported).",
   "type": "object",
   "required": [
     "schemaVersion",

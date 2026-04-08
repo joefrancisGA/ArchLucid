@@ -3,7 +3,7 @@ using ArchLucid.Cli.Support;
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
-/// CLI entry for <c>archiforge support-bundle</c>: writes a reviewable JSON bundle (and optional zip).
+/// CLI entry for <c>archlucid support-bundle</c>: writes a reviewable JSON bundle (and optional zip).
 /// </summary>
 internal static class SupportBundleCommand
 {
@@ -100,7 +100,7 @@ internal static class SupportBundleCommand
 
     private static void PrintUsage()
     {
-        Console.WriteLine("Usage: archiforge support-bundle [--output <dir>] [--zip]");
+        Console.WriteLine("Usage: archlucid support-bundle [--output <dir>] [--zip]");
         Console.WriteLine("  Writes manifest.json, build.json, health.json, config-summary.json, environment.json,");
         Console.WriteLine("  workspace.json, references.json, logs.json under a new UTC-stamped folder (or --output).");
         Console.WriteLine("  --zip  Also creates <folder>.zip next to the folder.");

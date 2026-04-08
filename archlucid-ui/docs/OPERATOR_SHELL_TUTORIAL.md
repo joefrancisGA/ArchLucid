@@ -263,7 +263,7 @@ Browser → GET /runs
            ↓
   apiGet() uses resolveRequest() which sees isBrowser() === false:
     - builds URL: http://localhost:5128/api/authority/projects/default/runs
-    - adds X-Api-Key header (from process.env.ARCHIFORGE_API_KEY)
+    - adds X-Api-Key header (from process.env.ARCHLUCID_API_KEY)
     - adds scope headers (x-tenant-id, x-workspace-id, x-project-id)
            ↓
   C# API responds with JSON
@@ -294,7 +294,7 @@ Browser JavaScript calls compareRuns(leftRunId, rightRunId)
 
 ### Why two paths?
 
-**Security.** The `ARCHIFORGE_API_KEY` is a server-side secret. Server components can use it directly. Browser code cannot — it would be visible in DevTools. So browser code goes through `/api/proxy`, which adds the key on the server.
+**Security.** The `ARCHLUCID_API_KEY` is a server-side secret. Server components can use it directly. Browser code cannot — it would be visible in DevTools. So browser code goes through `/api/proxy`, which adds the key on the server.
 
 This is exactly the same pattern as a BFF (Backend-for-Frontend) in ASP.NET.
 
@@ -308,7 +308,7 @@ This is a Next.js **Route Handler** — the equivalent of a minimal API endpoint
 
 1. Receives any `GET` or `POST` to `/api/proxy/*`.
 2. Strips the `/api/proxy` prefix.
-3. Forwards the request to `ARCHIFORGE_API_BASE_URL` with:
+3. Forwards the request to `ARCHLUCID_API_BASE_URL` with:
    - `X-Api-Key` from environment
    - Scope headers (`x-tenant-id`, etc.)
    - Authorization header from the browser (if present)
@@ -740,10 +740,10 @@ describe("myGuard", () => {
 
 | Variable | Required | Where used | Purpose |
 |----------|----------|-----------|---------|
-| `ARCHIFORGE_API_BASE_URL` | Yes | Server (RSC + proxy) | C# API URL |
-| `ARCHIFORGE_API_KEY` | When API key auth is on | Server (proxy) | Sent as `X-Api-Key` |
+| `ARCHLUCID_API_BASE_URL` | Yes | Server (RSC + proxy) | C# API URL |
+| `ARCHLUCID_API_KEY` | When API key auth is on | Server (proxy) | Sent as `X-Api-Key` |
 | `NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE` | No | Client + server | `"development-bypass"` (default) |
-| `NEXT_PUBLIC_ARCHIFORGE_API_BASE_URL` | No | Fallback | Documentation / legacy |
+| `NEXT_PUBLIC_ARCHLUCID_API_BASE_URL` | No | Fallback | Documentation / legacy |
 
 **Important:** Variables starting with `NEXT_PUBLIC_` are visible in browser JavaScript. Everything else is server-only. Never put secrets in `NEXT_PUBLIC_*`.
 

@@ -6,10 +6,10 @@
 # The 14.4 / 6 factors are the canonical pair from the workbook; with a 0.5% budget they page when the
 # short-window 5xx ratio exceeds ~7.2% and ~3% respectively (see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md).
 groups:
-  - name: archiforge-slo-http
+  - name: archlucid-slo-http
     interval: 30s
     rules:
-      - record: archiforge:slo:http_p95_seconds
+      - record: archlucid:slo:http_p95_seconds
         expr: |
           histogram_quantile(
             0.95,
@@ -22,7 +22,7 @@ groups:
           ) / 1000
         labels:
           component: api
-      - record: archiforge:slo:http_5xx_rate
+      - record: archlucid:slo:http_5xx_rate
         expr: |
           sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m]))
           or
@@ -30,7 +30,7 @@ groups:
         labels:
           component: api
       # Good / total for availability SLI (non-5xx / all), OTel HTTP semantic conventions.
-      - record: archiforge:slo:http_availability:ratio
+      - record: archlucid:slo:http_availability:ratio
         expr: |
           (
             sum(rate(http_server_request_duration_seconds_count{http_response_status_code!~"5.."}[5m]))
@@ -44,25 +44,25 @@ groups:
         labels:
           component: api
       # Instantaneous burn vs a 99.5% target: (error_ratio) / 0.005 — 1 means consuming budget at nominal rate.
-      - record: archiforge:slo:http_error_budget_burn_rate:ratio
+      - record: archlucid:slo:http_error_budget_burn_rate:ratio
         expr: |
-          clamp_min((1 - archiforge:slo:http_availability:ratio) / 0.005, 0)
+          clamp_min((1 - archlucid:slo:http_availability:ratio) / 0.005, 0)
         labels:
           component: api
 
-  - name: archiforge-slo-llm
+  - name: archlucid-slo-llm
     interval: 30s
     rules:
-      - record: archiforge:slo:llm_prompt_tokens_per_second
+      - record: archlucid:slo:llm_prompt_tokens_per_second
         expr: |
-          sum(rate(archiforge_llm_prompt_tokens_total[5m]))
+          sum(rate(archlucid_llm_prompt_tokens_total[5m]))
         labels:
           component: llm
 
-  - name: archiforge-slo-http-burn-alerts
+  - name: archlucid-slo-http-burn-alerts
     interval: 30s
     rules:
-      - alert: ArchiForgeSloHttpErrorBudgetBurnFast
+      - alert: ArchLucidSloHttpErrorBudgetBurnFast
         expr: |
           (
             (
@@ -96,7 +96,7 @@ groups:
             Multi-window burn-rate check: both short (5m) and long (1h) windows exceed 14.4× the nominal
             0.5% error budget. See runbook docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
 
-      - alert: ArchiForgeSloHttpErrorBudgetBurnSlow
+      - alert: ArchLucidSloHttpErrorBudgetBurnSlow
         expr: |
           (
             (
@@ -130,10 +130,10 @@ groups:
             Sustained elevation: 30m and 6h 5xx ratios exceed 6× the 0.5% budget. Tune windows/thresholds
             to match your paging policy; see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
 
-  - name: archiforge-slo-http-p99
+  - name: archlucid-slo-http-p99
     interval: 30s
     rules:
-      - record: archiforge:slo:http_p99_seconds
+      - record: archlucid:slo:http_p99_seconds
         expr: |
           histogram_quantile(
             0.99,
@@ -146,8 +146,8 @@ groups:
           ) / 1000
         labels:
           component: api
-      - alert: ArchiForgeSloHttpP99High
-        expr: archiforge:slo:http_p99_seconds > 5
+      - alert: ArchLucidSloHttpP99High
+        expr: archlucid:slo:http_p99_seconds > 5
         for: 10m
         labels:
           severity: warning
@@ -157,10 +157,10 @@ groups:
             Tail latency SLO breach: p99 from http.server.request.duration (or legacy http_server_duration_milliseconds)
             exceeds 5 seconds for 10 minutes. Tune threshold per product expectations; see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
 
-  - name: archiforge-slo-http-error-ratio
+  - name: archlucid-slo-http-error-ratio
     interval: 30s
     rules:
-      - alert: ArchiForgeSloHttp5xxRatioElevated
+      - alert: ArchLucidSloHttp5xxRatioElevated
         expr: |
           (
             (
@@ -182,14 +182,14 @@ groups:
             Simple error-rate guardrail complementing multi-window burn alerts. Adjust 0.02 and duration for your SLO;
             see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
 
-  - name: archiforge-slo-outbox-depth
+  - name: archlucid-slo-outbox-depth
     interval: 30s
     rules:
-      - alert: ArchiForgeSloOutboxDepthCritical
+      - alert: ArchLucidSloOutboxDepthCritical
         expr: |
-          (archiforge_authority_pipeline_work_pending > 500)
-          or (archiforge_retrieval_indexing_outbox_pending > 500)
-          or (archiforge_integration_event_outbox_publish_pending > 500)
+          (archlucid_authority_pipeline_work_pending > 500)
+          or (archlucid_retrieval_indexing_outbox_pending > 500)
+          or (archlucid_integration_event_outbox_publish_pending > 500)
         for: 15m
         labels:
           severity: critical

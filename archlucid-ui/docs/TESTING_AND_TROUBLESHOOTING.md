@@ -367,7 +367,7 @@ The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey**
 
 | Mechanism | Used for |
 |-----------|----------|
-| **`e2e/start-e2e-with-mock.ts`** + **`e2e/mock-archiforge-api-server.ts`** | Playwright **`webServer`**: production **`next start`** with **`ARCHIFORGE_API_BASE_URL`** pointing at a loopback mock (default **127.0.0.1:18765**). Server components (run detail, manifest pages) receive **typed JSON fixtures** from `e2e/fixtures/`. |
+| **`e2e/start-e2e-with-mock.ts`** + **`e2e/mock-archlucid-api-server.ts`** | Playwright **`webServer`**: production **`next start`** with **`ARCHLUCID_API_BASE_URL`** pointing at a loopback mock (default **127.0.0.1:18765**). Server components (run detail, manifest pages) receive **typed JSON fixtures** from `e2e/fixtures/`. |
 | **`page.route` + `e2e/helpers/register-operator-api-routes.ts`** | **Client** compare flows: browser calls to **`/api/proxy/...`** are fulfilled in-process with the same fixture shapes (no backend). |
 
 **Specs and operator journeys** (one focused scenario each)
@@ -404,7 +404,7 @@ Optional: **`npm run typecheck:e2e`** — TypeScript check for **`e2e/`** only.
 
 ### Manual testing against a live API
 
-To exercise the shell against a real **`ArchLucid.Api`**, run **`npm run dev`**, set **`ARCHIFORGE_API_BASE_URL`** in **`.env.local`**, start the API, and use the browser manually (or add **local-only** tests). The committed Playwright suite is intentionally **mock-backed** so CI does not depend on SQL or the .NET stack.
+To exercise the shell against a real **`ArchLucid.Api`**, run **`npm run dev`**, set **`ARCHLUCID_API_BASE_URL`** in **`.env.local`** (legacy `ARCHIFORGE_*` names still work), start the API, and use the browser manually (or add **local-only** tests). The committed Playwright suite is intentionally **mock-backed** so CI does not depend on SQL or the .NET stack.
 
 ### How to write a Playwright test
 
@@ -462,7 +462,7 @@ resolve: {
 **Cause:** Usually a server component threw an error (API unreachable, missing env var, bad import).  
 **Fix:**
 1. Check the terminal where `npm run dev` is running — error messages appear there.
-2. Verify `.env.local` has `ARCHIFORGE_API_BASE_URL=http://localhost:5128`.
+2. Verify `.env.local` has `ARCHLUCID_API_BASE_URL=http://localhost:5128` (or legacy `ARCHIFORGE_API_BASE_URL`).
 3. Verify the C# API is running: `curl http://localhost:5128/api/authority/projects/default/runs`.
 
 ### "I get CORS errors in the browser console"

@@ -22,4 +22,22 @@ public sealed class FindingFactoryTests
         f.PayloadType.Should().Be(nameof(RequirementFindingPayload));
         f.Category.Should().Be("Requirement");
     }
+
+    [Fact]
+    public void CreateTopologyGapFinding_PopulatesExplainabilityTrace()
+    {
+        Finding f = FindingFactory.CreateTopologyGapFinding(
+            "topology-gap-engine",
+            "Gap title",
+            "Rationale",
+            gapCode: "missing-edge",
+            description: "No path between subnets",
+            impact: "high",
+            relatedNodeIds: ["n1", "n2"]);
+
+        f.Trace.GraphNodeIdsExamined.Should().Equal("n1", "n2");
+        f.Trace.RulesApplied.Should().Contain("topology-gap-missing-edge");
+        f.Trace.DecisionsTaken.Should().ContainSingle()
+            .Which.Should().Be("Detected topology gap: No path between subnets");
+    }
 }

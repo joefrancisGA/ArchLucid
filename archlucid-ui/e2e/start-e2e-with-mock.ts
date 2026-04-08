@@ -1,6 +1,6 @@
 /**
  * Playwright webServer entry: serves typed fixture JSON on a loopback port, then starts Next.js
- * with ARCHIFORGE_API_BASE_URL pointing at that stub (RSC run/manifest fetches).
+ * with ARCHLUCID_API_BASE_URL pointing at that stub (RSC run/manifest fetches).
  *
  * Uses `output: "standalone"` from next.config — `next start` does not serve that layout correctly
  * (Next logs a warning and pages break). Mirror Dockerfile: copy static + public into standalone, then
@@ -10,7 +10,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-import { startMockArchiforgeApiServer } from "./mock-archiforge-api-server";
+import { startMockArchlucidApiServer } from "./mock-archlucid-api-server";
 
 const MOCK_PORT = Number(process.env.E2E_MOCK_API_PORT ?? "18765");
 const MOCK_BASE = `http://127.0.0.1:${MOCK_PORT}`;
@@ -49,7 +49,7 @@ function syncStandaloneRuntimeAssets(projectRoot: string): string {
 }
 
 async function main(): Promise<void> {
-  const mock = await startMockArchiforgeApiServer(MOCK_PORT);
+  const mock = await startMockArchlucidApiServer(MOCK_PORT);
 
   const projectRoot = process.cwd();
   const standaloneRoot = syncStandaloneRuntimeAssets(projectRoot);
@@ -59,7 +59,7 @@ async function main(): Promise<void> {
     stdio: "inherit",
     env: {
       ...process.env,
-      ARCHIFORGE_API_BASE_URL: MOCK_BASE,
+      ARCHLUCID_API_BASE_URL: MOCK_BASE,
       NODE_ENV: "production",
       PORT: process.env.PORT ?? "3000",
       // Bind all interfaces so Playwright can reach 127.0.0.1:3000 (do not inherit shell HOSTNAME).

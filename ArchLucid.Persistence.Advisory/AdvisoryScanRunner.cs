@@ -88,7 +88,7 @@ public sealed class AdvisoryScanRunner(
 
         using Activity? scanActivity = ArchLucidInstrumentation.AdvisoryScan.StartActivity();
         string logicalCorrelation = FormattableString.Invariant($"advisory-schedule:{schedule.ScheduleId:D}");
-        scanActivity?.SetTag("archiforge.schedule_id", schedule.ScheduleId.ToString("D"));
+        scanActivity?.SetTag("archlucid.schedule_id", schedule.ScheduleId.ToString("D"));
         scanActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
 
         using IDisposable _ = LogContext.PushProperty("CorrelationId", logicalCorrelation);

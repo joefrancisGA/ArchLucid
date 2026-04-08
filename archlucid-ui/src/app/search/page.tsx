@@ -47,7 +47,7 @@ export default function SearchPage() {
     <main style={{ maxWidth: 900 }}>
       <h2 style={{ marginTop: 0 }}>Semantic Search</h2>
       <p style={{ color: "#444", fontSize: 14 }}>
-        Scoped to your workspace. Uses the same embedding + index as Ask ArchiForge (in-memory + fake vectors by
+        Scoped to your workspace. Uses the same embedding + index as Ask ArchLucid (in-memory + fake vectors by
         default).
       </p>
 

@@ -45,10 +45,12 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 },
                 Trace = new ExplainabilityTrace
                 {
+                    RulesApplied = ["topology-coverage-presence"],
                     DecisionsTaken =
                     [
                         "No TopologyResource nodes found in graph — emitted coverage warning."
-                    ]
+                    ],
+                    Notes = ["Expected categories: network, compute, storage, data"]
                 }
             });
 
@@ -79,9 +81,16 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 ],
                 Trace = new ExplainabilityTrace
                 {
+                    GraphNodeIdsExamined = [.. result.TopologyNodeIds],
+                    RulesApplied = ["topology-coverage-categories"],
                     DecisionsTaken =
                     [
                         "Compared present topology categories to expected coverage categories."
+                    ],
+                    Notes =
+                    [
+                        $"Present: {string.Join(", ", result.PresentCategories)}",
+                        $"Missing: {string.Join(", ", result.MissingCategories)}"
                     ]
                 }
             });

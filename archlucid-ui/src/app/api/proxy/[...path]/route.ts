@@ -5,6 +5,7 @@ import {
   isSafeCorrelationId,
 } from "@/lib/correlation";
 import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
+import { readServerSideApiKey } from "@/lib/legacy-arch-env";
 import { declaredPostBodyExceedsLimit, readRequestBodyWithLimit } from "@/lib/proxy-body-read";
 import { PROXY_MAX_BODY_BYTES } from "@/lib/proxy-constants";
 import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
@@ -17,10 +18,7 @@ import { getScopeHeaders } from "@/lib/scope";
  */
 function buildUpstreamHeaders(request: NextRequest): Headers {
   const h = new Headers();
-  const key =
-    process.env.ARCHLUCID_API_KEY?.trim() ||
-    process.env.ARCHIFORGE_API_KEY?.trim() ||
-    "";
+  const key = readServerSideApiKey()?.trim() ?? "";
   const authHeader = request.headers.get("authorization");
   const bearer = authHeader?.trim() ?? "";
   const hasBearer = bearer.length > 0;
@@ -54,7 +52,7 @@ function logProxyDiagnostic(event: string, fields: Record<string, string | numbe
   console.warn(JSON.stringify({ component: "archlucid-ui-proxy", event, ...fields }));
 }
 
-/** Forwards a request to the upstream ArchiForge API, preserving query string and method. */
+/** Forwards a request to the upstream ArchLucid API, preserving query string and method. */
 async function forward(
   request: NextRequest,
   pathSegments: string[],
@@ -71,7 +69,7 @@ async function forward(
         status: 503,
         detail: resolved.detail,
         supportHint:
-          "Set ARCHIFORGE_API_BASE_URL in archlucid-ui/.env.local to the API root (e.g. http://localhost:5128). Restart the dev server after editing.",
+          "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local to the API root (e.g. http://localhost:5128). Restart the dev server after editing.",
       },
       { status: 503 },
     );
@@ -152,7 +150,7 @@ async function forward(
           status: 502,
           detail: message,
           supportHint:
-            "Confirm the ArchiForge API is running and reachable from this machine. Check ARCHIFORGE_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
+            "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
         },
         { status: 502 },
       );
@@ -189,8 +187,8 @@ async function forward(
         title: "Upstream API unreachable",
         status: 502,
         detail: message,
-        supportHint:
-          "Confirm the ArchiForge API is running and reachable from this machine. Check ARCHIFORGE_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
+          supportHint:
+            "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
       },
       { status: 502 },
     );

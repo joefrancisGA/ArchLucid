@@ -44,9 +44,16 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                 ],
                 Trace = new ExplainabilityTrace
                 {
+                    GraphNodeIdsExamined = [.. result.UnprotectedResources],
+                    RulesApplied = ["security-coverage-protection"],
                     DecisionsTaken =
                     [
                         "Compared topology resources against PROTECTS edges."
+                    ],
+                    Notes =
+                    [
+                        $"Security nodes: {result.SecurityNodeCount}",
+                        $"Protected: {result.ProtectedResourceCount}, Unprotected: {result.UnprotectedResourceCount}"
                     ]
                 }
             });

@@ -1,4 +1,4 @@
-/** Header echoed by ArchiForge.Api `CorrelationIdMiddleware` (must match server). */
+/** Header echoed by ArchLucid.Api `CorrelationIdMiddleware` (must match server). */
 export const CORRELATION_ID_HEADER = "X-Correlation-ID";
 
 const SAFE_CORRELATION_ID = /^[a-zA-Z0-9\-_.]+$/;
@@ -28,7 +28,7 @@ export function generateCorrelationId(): string {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
-/** True if the value satisfies ArchiForge.Api correlation id validation (reuse inbound browser id when valid). */
+/** True if the value satisfies ArchLucid.Api correlation id validation (reuse inbound browser id when valid). */
 export function isSafeCorrelationId(value: string | null | undefined): boolean {
   if (value === null || value === undefined) {
     return false;

@@ -9,15 +9,15 @@ internal static class ComparisonsCommand
         if (args.Length == 0)
         {
             Console.WriteLine(
-                "Usage: archiforge comparisons list [--type <type>] [--left-run <runId>] [--right-run <runId>] [--tag <tag>] [--skip <n>] [--limit <n>] [--cursor <cursor>] [--sort-by <createdUtc|type|label|leftRunId|rightRunId>] [--sort <asc|desc>] [--json|--table]");
+                "Usage: archlucid comparisons list [--type <type>] [--left-run <runId>] [--right-run <runId>] [--tag <tag>] [--skip <n>] [--limit <n>] [--cursor <cursor>] [--sort-by <createdUtc|type|label|leftRunId|rightRunId>] [--sort <asc|desc>] [--json|--table]");
             Console.WriteLine(
-                "   or: archiforge comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
+                "   or: archlucid comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
             Console.WriteLine(
-                "   or: archiforge comparisons replay-batch <id1,id2,...> [--format ...] [--mode ...] [--profile ...] [--persist] [--out <path>] [--force]");
-            Console.WriteLine("   or: archiforge comparisons summary <comparisonRecordId> [--json]");
-            Console.WriteLine("   or: archiforge comparisons drift <comparisonRecordId> [--json]");
-            Console.WriteLine("   or: archiforge comparisons diagnostics [--limit <n>] [--json|--table]");
-            Console.WriteLine("   or: archiforge comparisons tag <comparisonRecordId> [--label <label>] [--tag <t>]...");
+                "   or: archlucid comparisons replay-batch <id1,id2,...> [--format ...] [--mode ...] [--profile ...] [--persist] [--out <path>] [--force]");
+            Console.WriteLine("   or: archlucid comparisons summary <comparisonRecordId> [--json]");
+            Console.WriteLine("   or: archlucid comparisons drift <comparisonRecordId> [--json]");
+            Console.WriteLine("   or: archlucid comparisons diagnostics [--limit <n>] [--json|--table]");
+            Console.WriteLine("   or: archlucid comparisons tag <comparisonRecordId> [--label <label>] [--tag <t>]...");
 
             return 1;
         }
@@ -235,7 +235,7 @@ internal static class ComparisonsCommand
     {
         if (args.Length == 0)
         {
-            Console.WriteLine("Usage: archiforge comparisons tag <comparisonRecordId> [--label <label>] [--tag <t>]...");
+            Console.WriteLine("Usage: archlucid comparisons tag <comparisonRecordId> [--label <label>] [--tag <t>]...");
 
             return 1;
         }
@@ -276,7 +276,7 @@ internal static class ComparisonsCommand
         if (args.Length == 0)
         {
             Console.WriteLine(
-                "Usage: archiforge comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
+                "Usage: archlucid comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
 
             return 1;
         }
@@ -324,7 +324,7 @@ internal static class ComparisonsCommand
         if (args.Length == 0)
         {
             Console.WriteLine(
-                "Usage: archiforge comparisons replay-batch <id1,id2,...> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
+                "Usage: archlucid comparisons replay-batch <id1,id2,...> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
 
             return 1;
         }
@@ -376,7 +376,7 @@ internal static class ComparisonsCommand
     {
         if (args.Length == 0)
         {
-            Console.WriteLine("Usage: archiforge comparisons summary <comparisonRecordId> [--json]");
+            Console.WriteLine("Usage: archlucid comparisons summary <comparisonRecordId> [--json]");
 
             return 1;
         }
@@ -409,7 +409,7 @@ internal static class ComparisonsCommand
     {
         if (args.Length == 0)
         {
-            Console.WriteLine("Usage: archiforge comparisons drift <comparisonRecordId> [--json]");
+            Console.WriteLine("Usage: archlucid comparisons drift <comparisonRecordId> [--json]");
 
             return 1;
         }

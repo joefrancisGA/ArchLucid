@@ -26,7 +26,7 @@ public sealed class RetrievalRunCompletionIndexer(
         CancellationToken ct)
     {
         using Activity? indexActivity = ArchLucidInstrumentation.RetrievalIndex.StartActivity();
-        indexActivity?.SetTag("archiforge.run_id", manifest.RunId.ToString("D"));
+        indexActivity?.SetTag("archlucid.run_id", manifest.RunId.ToString("D"));
 
         string logicalCorrelation =
             ActivityCorrelation.FindTagValueInChain(indexActivity?.Parent, ActivityCorrelation.LogicalCorrelationIdTag)

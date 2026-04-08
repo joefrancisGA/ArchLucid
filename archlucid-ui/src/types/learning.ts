@@ -1,5 +1,5 @@
 /**
- * 59R learning / improvement planning API (`GET /v1/learning/*`). Shapes match ArchiForge.Api.Models.Learning (camelCase JSON).
+ * 59R learning / improvement planning API (`GET /v1/learning/*`). Shapes match ArchLucid.Api.Models.Learning (camelCase JSON).
  */
 
 export type LearningThemeResponse = {

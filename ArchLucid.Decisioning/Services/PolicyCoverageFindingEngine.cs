@@ -39,10 +39,12 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                 },
                 Trace = new ExplainabilityTrace
                 {
+                    RulesApplied = ["policy-coverage-presence"],
                     DecisionsTaken =
                     [
                         "No PolicyControl nodes found in graph — emitted coverage warning."
-                    ]
+                    ],
+                    Notes = [$"Uncovered topology resources: {result.UncoveredResources.Count}"]
                 }
             });
 
@@ -70,9 +72,16 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [.. result.UncoveredResources],
+                    RulesApplied = ["policy-coverage-applicability"],
                     DecisionsTaken =
                     [
                         "Compared PolicyControl APPLIES_TO edges against topology resources."
+                    ],
+                    Notes =
+                    [
+                        $"Policy nodes: {result.PolicyNodeCount}",
+                        $"APPLIES_TO edges: {result.PolicyApplicabilityEdgeCount}",
+                        $"Uncovered resources: {result.UncoveredResources.Count}"
                     ]
                 }
             });

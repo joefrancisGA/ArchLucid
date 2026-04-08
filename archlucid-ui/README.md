@@ -46,22 +46,22 @@ cp .env.example .env.local
 
 Edit `.env.local`:
 
-- **`ARCHIFORGE_API_BASE_URL`** — ArchiForge API base (default in repo: `http://localhost:5128` per `ArchLucid.Api` launchSettings).
-- **`ARCHIFORGE_API_KEY`** — Required when the API has `Authentication:ApiKey:Enabled` = `true`. Sent from the Next.js server (RSC + `/api/proxy`). Do not rely on public env for secrets in production; keep this server-only.
+- **`ARCHLUCID_API_BASE_URL`** — ArchLucid API base (default in repo: `http://localhost:5128` per `ArchLucid.Api` launchSettings). Legacy `ARCHIFORGE_API_BASE_URL` is still read if unset.
+- **`ARCHLUCID_API_KEY`** — Required when the API has `Authentication:ApiKey:Enabled` = `true`. Sent from the Next.js server (RSC + `/api/proxy`). Legacy `ARCHIFORGE_API_KEY` is still read if unset. Keep server-only in production.
 
 Optional:
 
-- **`NEXT_PUBLIC_ARCHIFORGE_API_BASE_URL`** — Fallback if `ARCHIFORGE_API_BASE_URL` is unset (documentation only; browser calls use `/api/proxy`).
+- **`NEXT_PUBLIC_ARCHLUCID_API_BASE_URL`** — Public fallback (documentation / tooling; browser calls use `/api/proxy`). Legacy `NEXT_PUBLIC_ARCHIFORGE_API_BASE_URL` still read if unset.
 
 ### OIDC / JWT (Entra ID)
 
-When the API uses **`ArchiForgeAuth:Mode = JwtBearer`** (see `ArchLucid.Api/appsettings.Entra.sample.json`):
+When the API uses **JWT bearer** auth (see `ArchLucid.Api/appsettings.Entra.sample.json` and API `ArchLucidAuth` / legacy `ArchiForgeAuth` sections):
 
-1. Set **`NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE=jwt`** (or `jwt-bearer`).
+1. Set **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt`** (or `jwt-bearer`; legacy `NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE` still works).
 2. Register a **single-page application** client in Entra; add redirect URI **`http://localhost:3000/auth/callback`** (and production origins).
 3. Expose an API scope on the ArchLucid API app registration; grant the SPA **delegated** permission to that scope.
-4. Set **`NEXT_PUBLIC_OIDC_AUTHORITY`**, **`NEXT_PUBLIC_OIDC_CLIENT_ID`**, and **`NEXT_PUBLIC_OIDC_SCOPES`** (must include `openid` and your API scope so the access token validates against **`ArchiForgeAuth:Audience`**).
-5. Leave **`ARCHIFORGE_API_KEY`** empty when using delegated user tokens — the proxy forwards **`Authorization: Bearer`** and omits the API key when a bearer token is present.
+4. Set **`NEXT_PUBLIC_OIDC_AUTHORITY`**, **`NEXT_PUBLIC_OIDC_CLIENT_ID`**, and **`NEXT_PUBLIC_OIDC_SCOPES`** (must include `openid` and your API scope so the access token validates against the API audience).
+5. Leave **`ARCHLUCID_API_KEY`** empty when using delegated user tokens — the proxy forwards **`Authorization: Bearer`** and omits the API key when a bearer token is present.
 
 Sign-in flow: **`/auth/signin`** → IdP → **`/auth/callback`** → tokens in **sessionStorage** (short-lived access token; refresh when `offline_access` is granted).
 
@@ -107,6 +107,6 @@ Downloads use **`/api/proxy/...`** so the browser receives files without attachi
 
 ## Auth
 
-- **`NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE`**: `development-bypass` (default) matches the API’s `ArchiForgeAuth:Mode` = `DevelopmentBypass` (no real sign-in; API authenticates a dev principal).
-- For **`JwtBearer`** API mode, set `ARCHIFORGE_API_KEY` only if you still use a gateway key; otherwise forward **`Authorization: Bearer`** from the browser (proxy passes it through) and implement `getBearerToken()` in `src/lib/api.ts`.
+- **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE`**: `development-bypass` (default) matches the API’s development-bypass auth mode (no real sign-in; API authenticates a dev principal). Legacy `NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE` still works.
+- For **`JwtBearer`** API mode, set `ARCHLUCID_API_KEY` only if you still use a gateway key; otherwise forward **`Authorization: Bearer`** from the browser (proxy passes it through) and implement `getBearerToken()` in `src/lib/api.ts`.
 - Verify the API principal: `GET /api/auth/me` (requires Reader+).

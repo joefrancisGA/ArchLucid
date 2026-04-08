@@ -1,4 +1,4 @@
-/** A conversation thread in the ArchiForge Ask system (scoped to tenant/workspace/project). */
+/** A conversation thread in the ArchLucid Ask system (scoped to tenant/workspace/project). */
 export type ConversationThread = {
   threadId: string;
   tenantId: string;

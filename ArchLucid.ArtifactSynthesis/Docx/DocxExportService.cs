@@ -69,7 +69,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         return new DocxExportResult
         {
-            FileName = $"archiforge-architecture-package-{manifest.ManifestId:N}.docx",
+            FileName = $"archlucid-architecture-package-{manifest.ManifestId:N}.docx",
             Content = stream.ToArray()
         };
     }

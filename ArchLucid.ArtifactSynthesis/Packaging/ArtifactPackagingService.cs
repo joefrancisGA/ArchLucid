@@ -136,7 +136,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
         return new ArtifactPackage
         {
-            PackageFileName = $"archiforge-run-export-{runId:N}.zip",
+            PackageFileName = $"archlucid-run-export-{runId:N}.zip",
             Content = memoryStream.ToArray()
         };
     }

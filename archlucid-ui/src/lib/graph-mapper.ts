@@ -29,7 +29,7 @@ function pickColor(type: string): string {
 }
 
 /**
- * Converts ArchiForge graph nodes/edges into React Flow format.
+ * Converts ArchLucid graph nodes/edges into React Flow format.
  * Nodes are laid out in a grid (5 columns, 240px wide, 140px tall) for a simple initial view.
  */
 export function mapGraphToReactFlow(graph: GraphViewModel): {

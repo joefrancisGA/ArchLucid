@@ -98,7 +98,7 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.context_ingestion"))
         {
-            a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
+            a?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
             ctx.PriorCommittedContext ??= await _contextSnapshotRepository.GetLatestAsync(ctx.Request.ProjectId, ct);
 
             ContextSnapshot contextSnapshot = await _contextIngestionService.IngestAsync(ctx.Request, ct);
@@ -111,7 +111,7 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.graph"))
         {
-            a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
+            a?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
             GraphSnapshotResolutionResult graphResolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
                 ctx.PriorCommittedContext,
                 ctx.ContextSnapshot!,
@@ -141,7 +141,7 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.findings"))
         {
-            a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
+            a?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
             FindingsSnapshot findingsSnapshot = await _findingsOrchestrator.GenerateFindingsSnapshotAsync(
                 run.RunId,
                 ctx.ContextSnapshot!.SnapshotId,
@@ -157,7 +157,7 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.decisioning"))
         {
-            a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
+            a?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
             (GoldenManifest manifest, DecisionTrace trace) = await _decisionEngine.DecideAsync(
                 run.RunId,
                 ctx.ContextSnapshot!.SnapshotId,
@@ -198,7 +198,7 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.artifacts"))
         {
-            a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
+            a?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
             ArtifactBundle artifactBundle = await _artifactSynthesisService.SynthesizeAsync(ctx.Manifest!, ct);
 
             if (_logger.IsEnabled(LogLevel.Information))

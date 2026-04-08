@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://archlucid.dev/schemas/integration-events/governance-approval-submitted.v1.schema.json",
   "title": "com.archlucid.governance.approval.submitted",
-  "description": "Governance approval request persisted (canonical com.archlucid.governance.approval.submitted; legacy com.archiforge.governance.approval.submitted).",
+  "description": "Governance approval request persisted (canonical com.archlucid.governance.approval.submitted; legacy V1 type alias supported).",
   "type": "object",
   "required": [
     "schemaVersion",

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://archlucid.dev/schemas/integration-events/authority-run-completed.v1.schema.json",
   "title": "com.archlucid.authority.run.completed",
-  "description": "Service Bus message after an authority run commits successfully (canonical com.archlucid.authority.run.completed; legacy com.archiforge.authority.run.completed).",
+  "description": "Service Bus message after an authority run commits successfully (canonical com.archlucid.authority.run.completed; legacy V1 type alias supported).",
   "type": "object",
   "required": [
     "schemaVersion",

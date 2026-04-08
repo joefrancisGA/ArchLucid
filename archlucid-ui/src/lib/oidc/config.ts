@@ -1,10 +1,12 @@
+import { readNextPublicAuthMode } from "@/lib/legacy-arch-env";
+
 /**
  * Public OIDC settings (Entra ID / any OIDC provider with PKCE + SPA CORS on the token endpoint).
- * Align scopes with the API app registration so the access token audience matches ArchiForgeAuth:Audience.
+ * Align scopes with the API app registration so the access token audience matches the API audience setting.
  */
 
 export function isJwtAuthMode(): boolean {
-  const mode = process.env.NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE ?? "development-bypass";
+  const mode = readNextPublicAuthMode();
 
   return mode === "jwt" || mode === "jwt-bearer";
 }
@@ -60,7 +62,7 @@ export function getOidcPostLogoutRedirectUri(): string {
 
 export function assertOidcSignInConfig(): { ok: true } | { ok: false; message: string } {
   if (!isJwtAuthMode()) {
-    return { ok: false, message: "Set NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE to jwt or jwt-bearer." };
+    return { ok: false, message: "Set NEXT_PUBLIC_ARCHLUCID_AUTH_MODE to jwt or jwt-bearer." };
   }
 
   if (!getOidcAuthority()) {

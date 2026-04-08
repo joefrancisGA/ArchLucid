@@ -122,6 +122,6 @@ describe("operator client pages — render gate", () => {
 
   it("AskPage renders primary heading", () => {
     render(<AskPage />);
-    expect(screen.getByRole("heading", { level: 2, name: "Ask ArchiForge" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Ask ArchLucid" })).toBeInTheDocument();
   });
 });

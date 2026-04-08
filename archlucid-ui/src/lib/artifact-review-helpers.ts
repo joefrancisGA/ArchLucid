@@ -1,5 +1,5 @@
 /**
- * Operator-facing copy for synthesized artifact types (ArchiForge.ArtifactSynthesis.Models.ArtifactType).
+ * Operator-facing copy for synthesized artifact types (ArchLucid.ArtifactSynthesis.Models.ArtifactType).
  */
 const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }> = {
   ReferenceArchitectureMarkdown: {

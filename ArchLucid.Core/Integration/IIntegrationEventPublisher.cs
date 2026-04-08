@@ -5,7 +5,7 @@ namespace ArchLucid.Core.Integration;
 /// </summary>
 public interface IIntegrationEventPublisher
 {
-    /// <param name="eventType">Logical type (canonical <c>com.archlucid.*</c>; legacy <c>com.archiforge.*</c> aliases may still appear in older rows).</param>
+    /// <param name="eventType">Logical type (canonical <c>com.archlucid.*</c>; older persisted rows may still use legacy V1 aliases from <see cref="IntegrationEventTypes"/>).</param>
     /// <param name="utf8JsonPayload">UTF-8 JSON body for the message.</param>
     Task PublishAsync(string eventType, ReadOnlyMemory<byte> utf8JsonPayload, CancellationToken cancellationToken = default);
 

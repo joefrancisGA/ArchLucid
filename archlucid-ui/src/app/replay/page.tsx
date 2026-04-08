@@ -16,7 +16,7 @@ import { replayRun } from "@/lib/api";
 import { replayModeLabel, sortReplayNotes } from "@/lib/replay-display";
 import type { ReplayResponse } from "@/types/authority";
 
-/** Matches ArchiForge.Persistence.Replay.ReplayMode */
+/** Matches ArchLucid.Persistence.Replay.ReplayMode */
 const replayModes = ["ReconstructOnly", "RebuildManifest", "RebuildArtifacts"] as const;
 
 /** Replay form: operator enters a run ID, selects a mode, and triggers an authority chain replay. */

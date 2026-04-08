@@ -106,7 +106,7 @@ internal static class RunCommand
                 Console.WriteLine($"Warning: Seed failed. {seedResult?.Error ?? "Unknown"}");
                 Console.WriteLine("Note: Seed is only available when the API runs in Development.");
                 CliOperatorHints.WriteAfterApiFailure(seedResult?.HttpStatusCode, seedResult?.Error);
-                Console.WriteLine($"Continue with: archiforge seed {resp.Run.RunId} then archiforge commit {resp.Run.RunId}");
+                Console.WriteLine($"Continue with: archlucid seed {resp.Run.RunId} then archlucid commit {resp.Run.RunId}");
 
                 return 0;
             }
@@ -134,12 +134,12 @@ internal static class RunCommand
                 resp.Tasks,
                 version);
 
-            Console.WriteLine($"Use 'archiforge artifacts {resp.Run.RunId}' to view the manifest.");
+            Console.WriteLine($"Use 'archlucid artifacts {resp.Run.RunId}' to view the manifest.");
 
             return 0;
         }
 
-        Console.WriteLine($"Next: Submit agent results, then commit. Use 'archiforge status {resp.Run.RunId}' to check progress.");
+        Console.WriteLine($"Next: Submit agent results, then commit. Use 'archlucid status {resp.Run.RunId}' to check progress.");
 
         return 0;
     }

@@ -45,8 +45,8 @@ public sealed class RetrievalIndexingOutboxProcessor(
                 "RetrievalIndexingOutbox.ProcessEntry");
             string correlationId = FormattableString.Invariant($"retrieval-outbox:{entry.OutboxId:D}");
             activity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, correlationId);
-            activity?.SetTag("archiforge.run_id", entry.RunId.ToString("D"));
-            activity?.SetTag("archiforge.outbox_id", entry.OutboxId.ToString("D"));
+            activity?.SetTag("archlucid.run_id", entry.RunId.ToString("D"));
+            activity?.SetTag("archlucid.outbox_id", entry.OutboxId.ToString("D"));
 
             using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
 

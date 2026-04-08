@@ -1,9 +1,9 @@
 /**
- * Conversation + Ask helpers (same-origin proxy / scope headers as other ArchiForge API calls).
+ * Conversation + Ask helpers (same-origin proxy / scope headers as other ArchLucid API calls).
  * @see {@link ./api.ts}
  */
 export {
-  askArchiForge,
+  askArchLucid,
   getConversationMessages,
   listConversationThreads,
 } from "./api";

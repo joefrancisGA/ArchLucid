@@ -23,14 +23,14 @@ resource "azurerm_monitor_alert_prometheus_rule_group" "archiforge_slo" {
 
   rule {
     enabled    = true
-    alert      = "ArchiForgeSloHttpP99HighTf"
+    alert      = "ArchLucidSloHttpP99HighTf"
     severity   = 2
     for        = "PT10M"
     expression = <<-EOT
 (histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le)) or histogram_quantile(0.99, sum(rate(http_server_duration_milliseconds_bucket[5m])) by (le)) / 1000) > 5
 EOT
     annotations = {
-      summary = "HTTP p99 latency above 5s (see infra/prometheus/archlucid-slo-rules.yml ArchiForgeSloHttpP99High)."
+      summary = "HTTP p99 latency above 5s (see infra/prometheus/archlucid-slo-rules.yml ArchLucidSloHttpP99High)."
     }
 
     action {
@@ -40,7 +40,7 @@ EOT
 
   rule {
     enabled    = true
-    alert      = "ArchiForgeSloHttp5xxRatioElevatedTf"
+    alert      = "ArchLucidSloHttp5xxRatioElevatedTf"
     severity   = 2
     for        = "PT10M"
     expression = <<-EOT
@@ -51,7 +51,7 @@ EOT
 ) > 0.02
 EOT
     annotations = {
-      summary = "HTTP 5xx ratio above 2% over 10m (see ArchiForgeSloHttp5xxRatioElevated)."
+      summary = "HTTP 5xx ratio above 2% over 10m (see ArchLucidSloHttp5xxRatioElevated)."
     }
 
     action {
@@ -61,11 +61,11 @@ EOT
 
   rule {
     enabled    = true
-    alert      = "ArchiForgeSloOutboxDepthCriticalTf"
+    alert      = "ArchLucidSloOutboxDepthCriticalTf"
     severity   = 1
     for        = "PT15M"
     expression = <<-EOT
-(archiforge_authority_pipeline_work_pending > 500) or (archiforge_retrieval_indexing_outbox_pending > 500) or (archiforge_integration_event_outbox_publish_pending > 500)
+(archlucid_authority_pipeline_work_pending > 500) or (archlucid_retrieval_indexing_outbox_pending > 500) or (archlucid_integration_event_outbox_publish_pending > 500)
 EOT
     annotations = {
       summary = "SQL outbox depth SLO breach (any queue > 500 pending)."

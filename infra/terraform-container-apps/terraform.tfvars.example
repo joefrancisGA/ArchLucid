@@ -45,7 +45,7 @@ artifact_storage_account_id   = "/subscriptions/<sub>/resourceGroups/<rg>/provid
 
 # Optional: durable async export jobs (SQL + Storage Queue + worker). Requires Sql + AzureBlob + ConnectionStrings:ArchiForge in app config.
 # background_jobs_mode             = "Durable"
-# background_jobs_queue_name       = "archiforge-export-jobs"
+# background_jobs_queue_name       = "archlucid-export-jobs"
 # background_jobs_results_container = "background-job-results"
 
 # Optional: VNet-integrated environment (subnet must be delegated to Microsoft.App/environments).

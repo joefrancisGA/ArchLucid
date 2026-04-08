@@ -5,7 +5,7 @@ namespace ArchLucid.Host.Core.ProblemDetails;
 /// </summary>
 public static class ProblemTypes
 {
-    public const string Base = "https://archiforge.example.org/errors";
+    public const string Base = "https://archlucid.example.org/errors";
 
     public const string RequestBodyRequired = Base + "#request-body-required";
     public const string ValidationFailed = Base + "#validation-failed";

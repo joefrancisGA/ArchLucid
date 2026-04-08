@@ -33,7 +33,7 @@ public sealed class SwaggerJsonJwtBearerWebAppFactory : WebApplicationFactory<Pr
                     ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                     ["ArchiForgeAuth:Mode"] = "JwtBearer",
                     ["ArchiForgeAuth:Authority"] = "https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/v2.0",
-                    ["ArchiForgeAuth:Audience"] = "api://archiforge-swagger-test",
+                    ["ArchiForgeAuth:Audience"] = "api://archlucid-swagger-test",
                 });
         });
     }

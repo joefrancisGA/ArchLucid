@@ -29,7 +29,7 @@ namespace ArchLucid.Cli
                 case "new":
                     if (args.Length <= 1)
                     {
-                        Console.WriteLine("Usage: archiforge new <projectName>");
+                        Console.WriteLine("Usage: archlucid new <projectName>");
 
                         return 1;
                     }
@@ -42,7 +42,7 @@ namespace ArchLucid.Cli
                         return await DevUpCommand.RunAsync();
                     }
 
-                    Console.WriteLine("Expected: archiforge dev up");
+                    Console.WriteLine("Expected: archlucid dev up");
 
                     return 1;
 
@@ -57,7 +57,7 @@ namespace ArchLucid.Cli
                         return await StatusCommand.RunAsync(args[1]);
                     }
 
-                    Console.WriteLine("Usage: archiforge status <runId>");
+                    Console.WriteLine("Usage: archlucid status <runId>");
 
                     return 1;
 
@@ -67,7 +67,7 @@ namespace ArchLucid.Cli
                         return await SubmitCommand.RunAsync(args[1], args[2]);
                     }
 
-                    Console.WriteLine("Usage: archiforge submit <runId> <result.json>");
+                    Console.WriteLine("Usage: archlucid submit <runId> <result.json>");
 
                     return 1;
 
@@ -77,7 +77,7 @@ namespace ArchLucid.Cli
                         return await CommitCommand.RunAsync(args[1]);
                     }
 
-                    Console.WriteLine("Usage: archiforge commit <runId>");
+                    Console.WriteLine("Usage: archlucid commit <runId>");
 
                     return 1;
 
@@ -87,14 +87,14 @@ namespace ArchLucid.Cli
                         return await SeedCommand.RunAsync(args[1]);
                     }
 
-                    Console.WriteLine("Usage: archiforge seed <runId>");
+                    Console.WriteLine("Usage: archlucid seed <runId>");
 
                     return 1;
 
                 case "artifacts":
                     if (args.Length <= 1)
                     {
-                        Console.WriteLine("Usage: archiforge artifacts <runId> [--save]");
+                        Console.WriteLine("Usage: archlucid artifacts <runId> [--save]");
 
                         return 1;
                     }

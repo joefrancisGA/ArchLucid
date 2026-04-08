@@ -24,17 +24,42 @@ public sealed class ArchLucidApiClientTests
     [Fact]
     public void ResolveBaseUrl_WhenConfigNull_ReturnsDefaultOrEnv()
     {
-        string envKey = "ARCHIFORGE_API_URL";
-        string? previous = Environment.GetEnvironmentVariable(envKey);
+        string? priorLucid = Environment.GetEnvironmentVariable("ARCHLUCID_API_URL");
+        string? priorLegacy = Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL");
+
         try
         {
-            Environment.SetEnvironmentVariable(envKey, null);
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", null);
+            Environment.SetEnvironmentVariable("ARCHIFORGE_API_URL", null);
             string result = ArchLucidApiClient.ResolveBaseUrl(null);
             result.Should().Be("http://localhost:5128");
         }
         finally
         {
-            Environment.SetEnvironmentVariable(envKey, previous);
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", priorLucid);
+            Environment.SetEnvironmentVariable("ARCHIFORGE_API_URL", priorLegacy);
+        }
+    }
+
+    [Fact]
+    public void ResolveBaseUrl_WhenConfigNull_prefers_ARCHLUCID_API_URL_over_legacy()
+    {
+        string? priorLucid = Environment.GetEnvironmentVariable("ARCHLUCID_API_URL");
+        string? priorLegacy = Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", "http://preferred:7070");
+            Environment.SetEnvironmentVariable("ARCHIFORGE_API_URL", "http://legacy:6060");
+
+            string result = ArchLucidApiClient.ResolveBaseUrl(null);
+
+            result.Should().Be("http://preferred:7070");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", priorLucid);
+            Environment.SetEnvironmentVariable("ARCHIFORGE_API_URL", priorLegacy);
         }
     }
 

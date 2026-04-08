@@ -14,9 +14,9 @@ public sealed class WebhookDeliveryOptions
     /// <summary>When true, wraps payloads in a CloudEvents 1.0 JSON envelope before signing and POSTing.</summary>
     public bool UseCloudEventsEnvelope { get; set; }
 
-    /// <summary>CloudEvents <c>source</c> URI reference (default <c>/archiforge/webhooks</c>).</summary>
+    /// <summary>CloudEvents <c>source</c> URI reference (default <c>/archlucid/webhooks</c>).</summary>
     public string? CloudEventsSource { get; set; }
 
-    /// <summary>CloudEvents <c>type</c> (default <c>com.archiforge.webhook.payload</c>).</summary>
+    /// <summary>CloudEvents <c>type</c> (default <c>com.archlucid.webhook.payload</c>).</summary>
     public string? CloudEventsType { get; set; }
 }

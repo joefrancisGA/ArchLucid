@@ -8,10 +8,10 @@ internal static class ProductionSafetyRules
     /// <summary>Require RLS session context when using SQL in Production (API and Worker).</summary>
     public static void CollectSqlRowLevelSecurity(
         IConfiguration configuration,
-        ArchLucidOptions archiForge,
+        ArchLucidOptions archLucidOptions,
         List<string> errors)
     {
-        if (!string.Equals(archiForge.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(archLucidOptions.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
         {
             return;
         }

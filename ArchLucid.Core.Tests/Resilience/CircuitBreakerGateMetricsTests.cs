@@ -23,7 +23,7 @@ public sealed class CircuitBreakerGateMetricsTests
         gate.RecordFailure();
 
         capture.Measures.Should().Contain(m =>
-            m.Name == "archiforge_circuit_breaker_state_transitions_total"
+            m.Name == "archlucid_circuit_breaker_state_transitions_total"
             && m.Value == 1
             && m.Tags.Any(t => t.Key == "gate" && string.Equals(t.Value as string, "test-gate", StringComparison.Ordinal))
             && m.Tags.Any(t => t.Key == "from_state" && string.Equals(t.Value as string, "Closed", StringComparison.Ordinal))
@@ -46,7 +46,7 @@ public sealed class CircuitBreakerGateMetricsTests
         act.Should().Throw<CircuitBreakerOpenException>();
 
         capture.Measures.Should().Contain(m =>
-            m.Name == "archiforge_circuit_breaker_rejections_total"
+            m.Name == "archlucid_circuit_breaker_rejections_total"
             && m.Value == 1
             && m.Tags.Any(t => t.Key == "gate" && string.Equals(t.Value as string, "reject-gate", StringComparison.Ordinal)));
     }
@@ -68,13 +68,13 @@ public sealed class CircuitBreakerGateMetricsTests
         gate.RecordSuccess();
 
         capture.Measures.Should().Contain(m =>
-            m.Name == "archiforge_circuit_breaker_probe_outcomes_total"
+            m.Name == "archlucid_circuit_breaker_probe_outcomes_total"
             && m.Value == 1
             && m.Tags.Any(t => t.Key == "gate" && string.Equals(t.Value as string, "probe-gate", StringComparison.Ordinal))
             && m.Tags.Any(t => t.Key == "outcome" && string.Equals(t.Value as string, "success", StringComparison.Ordinal)));
 
         capture.Measures.Should().Contain(m =>
-            m.Name == "archiforge_circuit_breaker_state_transitions_total"
+            m.Name == "archlucid_circuit_breaker_state_transitions_total"
             && m.Tags.Any(t => t.Key == "gate" && string.Equals(t.Value as string, "probe-gate", StringComparison.Ordinal))
             && m.Tags.Any(t => t.Key == "from_state" && string.Equals(t.Value as string, "HalfOpen", StringComparison.Ordinal))
             && m.Tags.Any(t => t.Key == "to_state" && string.Equals(t.Value as string, "Closed", StringComparison.Ordinal)));
@@ -118,9 +118,9 @@ public sealed class CircuitBreakerGateMetricsTests
             }
 
             if (instrument.Name is not (
-                "archiforge_circuit_breaker_state_transitions_total"
-                or "archiforge_circuit_breaker_rejections_total"
-                or "archiforge_circuit_breaker_probe_outcomes_total"))
+                "archlucid_circuit_breaker_state_transitions_total"
+                or "archlucid_circuit_breaker_rejections_total"
+                or "archlucid_circuit_breaker_probe_outcomes_total"))
             {
                 return;
             }

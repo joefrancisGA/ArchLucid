@@ -1,4 +1,4 @@
-/** Default dev scope (matches ArchiForge.Core.Scoping.ScopeIds). */
+/** Default dev scope (matches ArchLucid.Core.Scoping.ScopeIds). */
 export function getScopeHeaders(): Record<string, string> {
   return {
     "x-tenant-id": "11111111-1111-1111-1111-111111111111",

@@ -24,7 +24,7 @@ export function SignInClient() {
 
   useEffect(() => {
     if (!isJwtAuthMode()) {
-      setError("JWT / OIDC mode is not enabled (set NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE=jwt).");
+      setError("JWT / OIDC mode is not enabled (set NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt).");
 
       return;
     }

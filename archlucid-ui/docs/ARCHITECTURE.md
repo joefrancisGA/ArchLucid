@@ -33,7 +33,7 @@ The UI is **not** a general-purpose SPA. It is a dashboard for operators who und
 | No CSS framework or design system (Tailwind, MUI, etc.) | Keeps the dependency surface minimal; inline styles for now |
 | No component library beyond React Flow (for graphs) | Avoids lock-in; shell components are small enough to maintain directly |
 | Server components by default; `"use client"` only when interactivity requires it | Minimizes JavaScript shipped to the browser; aligns with Next.js App Router best practices |
-| All API secrets stay server-side | `ARCHIFORGE_API_KEY` is never exposed to the browser; proxy route enforces this |
+| All API secrets stay server-side | `ARCHLUCID_API_KEY` is never exposed to the browser; proxy route enforces this |
 | TypeScript strict mode | Catches type errors at compile time; all types are explicit |
 
 ---
@@ -335,8 +335,8 @@ artifact-review-helpers.ts
 ┌─────────────────────────────────────────────┐
 │                BROWSER                       │
 │                                              │
-│  • Never sees ARCHIFORGE_API_KEY             │
-│  • Never sees ARCHIFORGE_API_BASE_URL        │
+│  • Never sees ARCHLUCID_API_KEY             │
+│  • Never sees ARCHLUCID_API_BASE_URL        │
 │  • Sends requests to same-origin /api/proxy  │
 │  • May forward Authorization: Bearer (JWT)   │
 └──────────────────┬──────────────────────────┘
@@ -345,8 +345,8 @@ artifact-review-helpers.ts
 ┌─────────────────────────────────────────────┐
 │         NEXT.JS SERVER (Node.js)             │
 │                                              │
-│  • Holds ARCHIFORGE_API_KEY (env var)        │
-│  • Holds ARCHIFORGE_API_BASE_URL (env var)   │
+│  • Holds ARCHLUCID_API_KEY (env var)        │
+│  • Holds ARCHLUCID_API_BASE_URL (env var)   │
 │  • Adds X-Api-Key to upstream requests       │
 │  • Adds scope headers                        │
 │  • Forwards browser Authorization header     │
@@ -364,7 +364,7 @@ artifact-review-helpers.ts
 
 **Why this matters:**
 
-- The `ARCHIFORGE_API_KEY` is a server-only secret (`process.env`, not `NEXT_PUBLIC_*`). It never reaches the browser.
+- The `ARCHLUCID_API_KEY` is a server-only secret (`process.env`, not `NEXT_PUBLIC_*`). It never reaches the browser.
 - `NEXT_PUBLIC_*` variables are compiled into the JavaScript bundle and visible in DevTools. Only non-secret configuration uses this prefix.
 - The proxy route is the single point where server-side credentials are attached. Browser JavaScript never constructs authenticated requests directly.
 
@@ -420,7 +420,7 @@ In development, these are hardcoded in `scope.ts`. In production, they would com
 | **Build** | `npm run build` produces a standalone Next.js output |
 | **Runtime** | Node.js 18+ |
 | **Container** | Standard Next.js Dockerfile (multi-stage: install → build → run) |
-| **Environment variables** | `ARCHIFORGE_API_BASE_URL`, `ARCHIFORGE_API_KEY`, `NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE` |
+| **Environment variables** | `ARCHLUCID_API_BASE_URL`, `ARCHLUCID_API_KEY`, `NEXT_PUBLIC_ARCHLUCID_AUTH_MODE` |
 | **Health** | Next.js serves `/` as a static page; add a `/api/health` route if needed |
 | **Port** | Default 3000, configurable via `-p` flag |
 

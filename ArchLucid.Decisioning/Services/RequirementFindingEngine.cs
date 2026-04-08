@@ -44,6 +44,8 @@ public class RequirementFindingEngine : IFindingEngine
                 relatedNodeIds: relatedNodeIds);
 
             finding.RecommendedActions.Add("Carry this requirement into the GoldenManifest.");
+            string text = requirementText ?? string.Empty;
+
             finding.Trace = new ExplainabilityTrace
             {
                 GraphNodeIdsExamined = relatedNodeIds,
@@ -53,6 +55,13 @@ public class RequirementFindingEngine : IFindingEngine
                     relatedFromGraph.Count > 0
                         ? "Linked requirement to topology resources via RELATES_TO graph edges."
                         : "Promote requirement into candidate architecture decision input."
+                ],
+                Notes =
+                [
+                    $"Related topology resources: {relatedFromGraph.Count}",
+                    string.IsNullOrWhiteSpace(text)
+                        ? "No requirement text provided."
+                        : $"Requirement text length: {text.Length} chars"
                 ]
             };
 

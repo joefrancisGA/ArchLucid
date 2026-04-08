@@ -1,7 +1,7 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
 
 /**
- * Thrown when an ArchiForge API call returns a non-success HTTP status.
+ * Thrown when an ArchLucid API call returns a non-success HTTP status.
  * Carries structured Problem Details and correlation id when present.
  */
 export class ApiRequestError extends Error {

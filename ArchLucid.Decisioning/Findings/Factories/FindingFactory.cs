@@ -61,6 +61,12 @@ public static class FindingFactory
                 GapCode = gapCode,
                 Description = description,
                 Impact = impact
+            },
+            Trace = new ExplainabilityTrace
+            {
+                GraphNodeIdsExamined = relatedNodeIds?.ToList() ?? [],
+                RulesApplied = [$"topology-gap-{gapCode}"],
+                DecisionsTaken = [$"Detected topology gap: {description}"]
             }
         };
     }
@@ -93,7 +99,9 @@ public static class FindingFactory
             Trace = new ExplainabilityTrace
             {
                 GraphNodeIdsExamined = graphNodeIdsExamined.Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
-                DecisionsTaken = ["Interpreted APPLIES_TO edges as policy applicability to topology resources."]
+                RulesApplied = ["policy-applicability-mapping"],
+                DecisionsTaken = ["Interpreted APPLIES_TO edges as policy applicability to topology resources."],
+                Notes = [$"Applicable topology targets: {applicableTopologyNodeIds.Count}"]
             }
         };
     }
@@ -125,7 +133,9 @@ public static class FindingFactory
             Trace = new ExplainabilityTrace
             {
                 GraphNodeIdsExamined = [policyNode.NodeId],
-                DecisionsTaken = ["No APPLIES_TO edges from this policy to TopologyResource nodes were found."]
+                RulesApplied = ["policy-applicability-gap"],
+                DecisionsTaken = ["No APPLIES_TO edges from this policy to TopologyResource nodes were found."],
+                Notes = [$"Policy: {policyNode.Label}"]
             }
         };
     }

@@ -29,39 +29,39 @@ public static class ArchLucidInstrumentation
         OutboxDepthGaugeState s = OutboxDepthGauges;
 
         AppMeter.CreateObservableGauge(
-            "archiforge_authority_pipeline_work_pending",
+            "archlucid_authority_pipeline_work_pending",
             () => new Measurement<long>(s.Current.AuthorityPipelineWorkPending),
             description: "Rows in dbo.AuthorityPipelineWorkOutbox awaiting processing.");
 
         AppMeter.CreateObservableGauge(
-            "archiforge_authority_pipeline_work_oldest_pending_age_seconds",
+            "archlucid_authority_pipeline_work_oldest_pending_age_seconds",
             () => new Measurement<double>(s.Current.AuthorityPipelineWorkOldestPendingAgeSeconds),
             unit: "s",
             description: "Age in seconds of the oldest pending authority pipeline work outbox row.");
 
         AppMeter.CreateObservableGauge(
-            "archiforge_retrieval_indexing_outbox_pending",
+            "archlucid_retrieval_indexing_outbox_pending",
             () => new Measurement<long>(s.Current.RetrievalIndexingOutboxPending),
             description: "Rows in dbo.RetrievalIndexingOutbox awaiting indexing.");
 
         AppMeter.CreateObservableGauge(
-            "archiforge_retrieval_indexing_outbox_oldest_pending_age_seconds",
+            "archlucid_retrieval_indexing_outbox_oldest_pending_age_seconds",
             () => new Measurement<double>(s.Current.RetrievalIndexingOutboxOldestPendingAgeSeconds),
             unit: "s",
             description: "Age in seconds of the oldest pending retrieval indexing outbox row.");
 
         AppMeter.CreateObservableGauge(
-            "archiforge_integration_event_outbox_publish_pending",
+            "archlucid_integration_event_outbox_publish_pending",
             () => new Measurement<long>(s.Current.IntegrationEventOutboxPublishPending),
             description: "Integration outbox rows eligible for Service Bus publish (excludes dead letters).");
 
         AppMeter.CreateObservableGauge(
-            "archiforge_integration_event_outbox_dead_letter",
+            "archlucid_integration_event_outbox_dead_letter",
             () => new Measurement<long>(s.Current.IntegrationEventOutboxDeadLetter),
             description: "Integration outbox rows in dead-letter state.");
 
         AppMeter.CreateObservableGauge(
-            "archiforge_integration_event_outbox_oldest_actionable_pending_age_seconds",
+            "archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds",
             () => new Measurement<double>(s.Current.IntegrationEventOutboxOldestActionablePendingAgeSeconds),
             unit: "s",
             description: "Age in seconds of the oldest actionable integration outbox publish row.");
@@ -121,19 +121,19 @@ public static class ArchLucidInstrumentation
     /// <summary>Circuit breaker state changes (labels: <c>gate</c>, <c>from_state</c>, <c>to_state</c>).</summary>
     public static readonly Counter<long> CircuitBreakerStateTransitions =
         AppMeter.CreateCounter<long>(
-            "archiforge_circuit_breaker_state_transitions_total",
+            "archlucid_circuit_breaker_state_transitions_total",
             description: "Circuit breaker state transitions (labels: gate, from_state, to_state).");
 
     /// <summary>Calls rejected while open or while a half-open probe is in flight (label: <c>gate</c>).</summary>
     public static readonly Counter<long> CircuitBreakerRejections =
         AppMeter.CreateCounter<long>(
-            "archiforge_circuit_breaker_rejections_total",
+            "archlucid_circuit_breaker_rejections_total",
             description: "Calls rejected because the circuit was open or a probe was in flight (label: gate).");
 
     /// <summary>Half-open probe results (labels: <c>gate</c>, <c>outcome</c>=success|failure|cancelled).</summary>
     public static readonly Counter<long> CircuitBreakerProbeOutcomes =
         AppMeter.CreateCounter<long>(
-            "archiforge_circuit_breaker_probe_outcomes_total",
+            "archlucid_circuit_breaker_probe_outcomes_total",
             description: "Half-open probe results (labels: gate, outcome=success|failure|cancelled).");
 
     /// <summary>
@@ -158,25 +158,25 @@ public static class ArchLucidInstrumentation
     /// <summary>Authority runs that finished the synchronous pipeline successfully (post-commit).</summary>
     public static readonly Counter<long> AuthorityRunsCompletedTotal =
         AppMeter.CreateCounter<long>(
-            "archiforge_authority_runs_completed_total",
+            "archlucid_authority_runs_completed_total",
             description: "Authority runs completed through FinalizeCommittedPipelineAsync.");
 
     /// <summary>Production agent handler completions (label: <c>agent_type_key</c>, <c>outcome</c>=success|error).</summary>
     public static readonly Counter<long> AgentHandlerInvocationsTotal =
         AppMeter.CreateCounter<long>(
-            "archiforge_agent_handler_invocations_total",
+            "archlucid_agent_handler_invocations_total",
             description: "Agent handler invocations by type and outcome.");
 
     /// <summary>Azure OpenAI chat completion prompt (input) tokens.</summary>
     public static readonly Counter<long> LlmPromptTokensTotal =
         AppMeter.CreateCounter<long>(
-            "archiforge_llm_prompt_tokens_total",
+            "archlucid_llm_prompt_tokens_total",
             description: "Cumulative prompt tokens reported by Azure OpenAI completions.");
 
     /// <summary>Azure OpenAI chat completion output tokens.</summary>
     public static readonly Counter<long> LlmCompletionTokensTotal =
         AppMeter.CreateCounter<long>(
-            "archiforge_llm_completion_tokens_total",
+            "archlucid_llm_completion_tokens_total",
             description: "Cumulative completion tokens reported by Azure OpenAI completions.");
 
     /// <summary>

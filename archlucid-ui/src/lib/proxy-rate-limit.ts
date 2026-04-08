@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import {
+  readProxyRateLimitDisabled,
+  readProxyRateLimitPerMinute,
+  readProxyRateLimitWindowMs,
+} from "@/lib/legacy-arch-env";
+
 type WindowEntry = {
   count: number;
   windowStartMs: number;
@@ -13,44 +19,6 @@ const MAX_BUCKET_KEYS = 10_000;
 /** Clears in-process counters (Vitest only). */
 export function resetProxyRateLimitStateForTests(): void {
   buckets.clear();
-}
-
-function isRateLimitDisabled(): boolean {
-  const v = process.env.ARCHIFORGE_PROXY_RATE_LIMIT_DISABLED?.trim().toLowerCase();
-
-  return v === "1" || v === "true" || v === "yes";
-}
-
-function maxRequestsPerWindow(): number {
-  const raw = process.env.ARCHIFORGE_PROXY_RATE_LIMIT_PER_MINUTE?.trim();
-
-  if (raw === undefined || raw === "") {
-    return 120;
-  }
-
-  const n = Number(raw);
-
-  if (!Number.isFinite(n) || n < 1) {
-    return 120;
-  }
-
-  return Math.floor(n);
-}
-
-function windowDurationMs(): number {
-  const raw = process.env.ARCHIFORGE_PROXY_RATE_LIMIT_WINDOW_MS?.trim();
-
-  if (raw === undefined || raw === "") {
-    return 60_000;
-  }
-
-  const n = Number(raw);
-
-  if (!Number.isFinite(n) || n < 1000) {
-    return 60_000;
-  }
-
-  return Math.floor(n);
 }
 
 /**
@@ -102,12 +70,12 @@ function pruneStaleEntries(nowMs: number, windowMs: number): void {
  * @returns `NextResponse` with 429 when limited; `null` when allowed.
  */
 export function enforceProxyRateLimit(request: NextRequest): NextResponse | null {
-  if (isRateLimitDisabled()) {
+  if (readProxyRateLimitDisabled()) {
     return null;
   }
 
-  const maxRequests = maxRequestsPerWindow();
-  const windowMs = windowDurationMs();
+  const maxRequests = readProxyRateLimitPerMinute();
+  const windowMs = readProxyRateLimitWindowMs();
   const nowMs = Date.now();
   const key = proxyRateLimitClientKey(request);
 

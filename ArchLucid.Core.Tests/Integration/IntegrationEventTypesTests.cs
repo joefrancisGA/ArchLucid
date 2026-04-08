@@ -9,7 +9,7 @@ namespace ArchLucid.Core.Tests.Integration;
 public sealed class IntegrationEventTypesTests
 {
     [Fact]
-    public void MapToCanonical_maps_legacy_archiforge_strings()
+    public void MapToCanonical_maps_legacy_v1_integration_event_type_strings()
     {
         IntegrationEventTypes.MapToCanonical(IntegrationEventTypes.AuthorityRunCompletedLegacyV1)
             .Should().Be(IntegrationEventTypes.AuthorityRunCompletedV1);

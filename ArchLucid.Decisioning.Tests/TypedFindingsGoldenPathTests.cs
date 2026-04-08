@@ -142,7 +142,8 @@ public sealed class TypedFindingsGoldenPathTests
             f.FindingType == "RequirementFinding"
             && f.RelatedNodeIds.Contains("t1")
             && f.Trace.DecisionsTaken.Count > 0
-            && f.Trace.RulesApplied.Contains("requirement-surface"));
+            && f.Trace.RulesApplied.Contains("requirement-surface")
+            && f.Trace.Notes.Any(n => n.StartsWith("Related topology resources:", StringComparison.Ordinal)));
 
         snapshot.Findings.Should().Contain(f => f.FindingType == "CostConstraintFinding");
         snapshot.Findings.Should().Contain(f =>

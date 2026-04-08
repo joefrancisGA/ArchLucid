@@ -21,7 +21,8 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
             HasStorage = categories.Exists(x => x.Equals(GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase)),
             HasData = categories.Exists(x => x.Equals(GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)),
             PresentCategories = categories,
-            TopologyNodeCount = topologyNodes.Count
+            TopologyNodeCount = topologyNodes.Count,
+            TopologyNodeIds = topologyNodes.Select(n => n.NodeId).ToList()
         };
 
         if (!result.HasNetwork)

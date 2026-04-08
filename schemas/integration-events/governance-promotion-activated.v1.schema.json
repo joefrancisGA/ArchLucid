@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://archlucid.dev/schemas/integration-events/governance-promotion-activated.v1.schema.json",
   "title": "com.archlucid.governance.promotion.activated",
-  "description": "Environment activation recorded (canonical com.archlucid.governance.promotion.activated; legacy com.archiforge.governance.promotion.activated).",
+  "description": "Environment activation recorded (canonical com.archlucid.governance.promotion.activated; legacy V1 type alias supported).",
   "type": "object",
   "required": [
     "schemaVersion",

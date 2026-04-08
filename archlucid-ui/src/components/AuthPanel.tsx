@@ -51,7 +51,7 @@ export function AuthPanel() {
         }}
       >
         <strong>Auth mode:</strong> Development bypass (API auto-authenticates; no UI sign-in). Set{" "}
-        <code style={{ fontSize: 13 }}>NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE=jwt</code> and OIDC env vars
+        <code style={{ fontSize: 13 }}>NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt</code> and OIDC env vars
         for Entra / OIDC.
       </div>
     );

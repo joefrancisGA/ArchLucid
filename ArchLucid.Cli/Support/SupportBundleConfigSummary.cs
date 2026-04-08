@@ -4,8 +4,13 @@ namespace ArchLucid.Cli.Support;
 
 public sealed class SupportBundleConfigSummary
 {
+    [JsonPropertyName("hasArchlucidJson")]
+    public bool HasArchlucidJson { get; init; }
+
+    /// <summary>Legacy bundle key; omitted when writing new bundles.</summary>
     [JsonPropertyName("hasArchiforgeJson")]
-    public bool HasArchiforgeJson { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
+    public bool? HasArchiforgeJson { get; init; }
 
     [JsonPropertyName("projectName")]
     public string? ProjectName { get; init; }

@@ -18,7 +18,7 @@ public sealed class ProcessTempDirectoryHealthCheck : IHealthCheck
                 HealthCheckResult.Unhealthy("System temp path is empty; cannot verify writable temp storage."));
         
 
-        string probePath = Path.Combine(tempRoot, $"archiforge-ready-{Guid.NewGuid():N}.tmp");
+        string probePath = Path.Combine(tempRoot, $"archlucid-ready-{Guid.NewGuid():N}.tmp");
 
         try
         {

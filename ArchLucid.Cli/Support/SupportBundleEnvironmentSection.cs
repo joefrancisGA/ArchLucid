@@ -22,7 +22,12 @@ public sealed class SupportBundleEnvironmentSection
     [JsonPropertyName("timeZone")]
     public string TimeZone { get; init; } = string.Empty;
 
-    [JsonPropertyName("archiforgeAndDotnetEnvironment")]
-    public IReadOnlyDictionary<string, string> ArchiforgeAndDotnetEnvironment { get; init; } =
+    [JsonPropertyName("archlucidAndDotnetEnvironment")]
+    public IReadOnlyDictionary<string, string> ArchlucidAndDotnetEnvironment { get; init; } =
         new Dictionary<string, string>();
+
+    /// <summary>Legacy bundle key; omitted when writing new bundles.</summary>
+    [JsonPropertyName("archiforgeAndDotnetEnvironment")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
+    public IReadOnlyDictionary<string, string>? ArchiforgeAndDotnetEnvironment { get; init; }
 }

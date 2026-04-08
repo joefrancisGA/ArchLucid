@@ -66,13 +66,13 @@ Closed --(N consecutive failures)--> Open --(after DurationOfBreakSeconds)--> Ha
 
 ## OpenTelemetry metrics
 
-All use meter name **`ArchLucid`** (see `ArchLucidInstrumentation.MeterName`). Series names intentionally keep the **`archiforge_`** prefix until the operational metric rename (Phase 7 of the ArchLucid rename checklist).
+All use meter name **`ArchLucid`** (see `ArchLucidInstrumentation.MeterName`). Circuit breaker counters use the **`archlucid_`** metric name prefix.
 
 | Metric | Type | Labels | When incremented |
 |--------|------|--------|------------------|
-| `archiforge_circuit_breaker_state_transitions_total` | Counter | `gate`, `from_state`, `to_state` | Only on real transitions (e.g. `Closed`→`Open`, `Open`→`HalfOpen`, `HalfOpen`→`Closed`, `HalfOpen`→`Open`). |
-| `archiforge_circuit_breaker_rejections_total` | Counter | `gate` | Each `ThrowIfBroken` that throws `CircuitBreakerOpenException`. |
-| `archiforge_circuit_breaker_probe_outcomes_total` | Counter | `gate`, `outcome` (`success` / `failure` / `cancelled`) | Half-open probe completion paths only. |
+| `archlucid_circuit_breaker_state_transitions_total` | Counter | `gate`, `from_state`, `to_state` | Only on real transitions (e.g. `Closed`→`Open`, `Open`→`HalfOpen`, `HalfOpen`→`Closed`, `HalfOpen`→`Open`). |
+| `archlucid_circuit_breaker_rejections_total` | Counter | `gate` | Each `ThrowIfBroken` that throws `CircuitBreakerOpenException`. |
+| `archlucid_circuit_breaker_probe_outcomes_total` | Counter | `gate`, `outcome` (`success` / `failure` / `cancelled`) | Half-open probe completion paths only. |
 
 **Cardinality**: `gate` is bounded (currently `OpenAiCompletion` and `OpenAiEmbedding`). Do not add tenant or request identifiers to these series.
 
@@ -80,15 +80,15 @@ All use meter name **`ArchLucid`** (see `ArchLucidInstrumentation.MeterName`). S
 
 ```promql
 # Rejection rate per gate (5m)
-sum by (gate) (rate(archiforge_circuit_breaker_rejections_total[5m]))
+sum by (gate) (rate(archlucid_circuit_breaker_rejections_total[5m]))
 
 # Transition rate into Open from Closed (completion gate)
-rate(archiforge_circuit_breaker_state_transitions_total{
+rate(archlucid_circuit_breaker_state_transitions_total{
   gate="OpenAiCompletion",from_state="Closed",to_state="Open"
 }[5m])
 
 # Half-open probe failures (embedding)
-rate(archiforge_circuit_breaker_probe_outcomes_total{
+rate(archlucid_circuit_breaker_probe_outcomes_total{
   gate="OpenAiEmbedding",outcome="failure"
 }[5m])
 ```

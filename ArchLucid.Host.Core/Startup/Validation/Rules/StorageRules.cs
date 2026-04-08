@@ -6,12 +6,12 @@ namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class StorageRules
 {
-    public static void Collect(IConfiguration configuration, ArchLucidOptions archiForge, List<string> errors)
+    public static void Collect(IConfiguration configuration, ArchLucidOptions archLucidOptions, List<string> errors)
     {
-        bool storageIsSql = string.Equals(archiForge.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase);
+        bool storageIsSql = string.Equals(archLucidOptions.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase);
 
-        if (!string.IsNullOrWhiteSpace(archiForge.StorageProvider) &&
-            !string.Equals(archiForge.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase) &&
+        if (!string.IsNullOrWhiteSpace(archLucidOptions.StorageProvider) &&
+            !string.Equals(archLucidOptions.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase) &&
             !storageIsSql)
         {
             errors.Add(

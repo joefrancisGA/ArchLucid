@@ -98,5 +98,6 @@ GO
 IF OBJECT_ID(N'dbo.ArtifactBundles', N'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.ArtifactBundles ALTER COLUMN ArtifactsJson NVARCHAR(MAX) NULL;
+    ALTER TABLE dbo.ArtifactBundles ALTER COLUMN TraceJson NVARCHAR(MAX) NULL;
 END;
 GO

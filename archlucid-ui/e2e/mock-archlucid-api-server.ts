@@ -52,9 +52,9 @@ function readJsonBody(req: http.IncomingMessage): Promise<unknown> {
 }
 
 /**
- * Minimal HTTP stub for ArchiForge API routes used by RSC run/manifest pages and policy-packs E2E.
+ * Minimal HTTP stub for ArchLucid API routes used by RSC run/manifest pages and policy-packs E2E.
  */
-export function startMockArchiforgeApiServer(port: number): Promise<{ stop: () => Promise<void> }> {
+export function startMockArchlucidApiServer(port: number): Promise<{ stop: () => Promise<void> }> {
   const host = "127.0.0.1";
   resetPolicyPacksMockState();
 

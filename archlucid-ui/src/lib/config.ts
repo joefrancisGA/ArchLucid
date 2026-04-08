@@ -1,14 +1,12 @@
+import { readPublicBrowserApiBaseDefault, readServerApiBaseUrlFromEnv } from "@/lib/legacy-arch-env";
+
 function rawServerApiBaseUrlFromEnv(): string {
-  return (
-    process.env.ARCHIFORGE_API_BASE_URL ??
-    process.env.NEXT_PUBLIC_ARCHIFORGE_API_BASE_URL ??
-    "http://localhost:5128"
-  );
+  return readServerApiBaseUrlFromEnv();
 }
 
 /**
- * Server-side: direct ArchiForge API URL (RSC + proxy route).
- * Falls back to NEXT_PUBLIC value for local dev convenience.
+ * Server-side: direct ArchLucid API URL (RSC + proxy route).
+ * Falls back to NEXT_PUBLIC values for local dev convenience.
  * Does not validate URL shape; use {@link resolveUpstreamApiBaseUrlForProxy} before forwarding HTTP.
  */
 export function getServerApiBaseUrl(): string {
@@ -30,7 +28,7 @@ export function resolveUpstreamApiBaseUrlForProxy(): UpstreamApiBaseResolution {
     return {
       ok: false,
       detail:
-        "ARCHIFORGE_API_BASE_URL (or NEXT_PUBLIC_ARCHIFORGE_API_BASE_URL) is empty. Set it to the C# API origin, e.g. http://localhost:5128",
+        "ARCHLUCID_API_BASE_URL (or NEXT_PUBLIC_ARCHLUCID_API_BASE_URL) is empty. Set it to the C# API origin, e.g. http://localhost:5128",
     };
   }
 
@@ -40,7 +38,7 @@ export function resolveUpstreamApiBaseUrlForProxy(): UpstreamApiBaseResolution {
     if (u.protocol !== "http:" && u.protocol !== "https:") {
       return {
         ok: false,
-        detail: `Upstream API URL must use http: or https: (got ${u.protocol}). Check ARCHIFORGE_API_BASE_URL.`,
+        detail: `Upstream API URL must use http: or https: (got ${u.protocol}). Check ARCHLUCID_API_BASE_URL.`,
       };
     }
 
@@ -54,5 +52,4 @@ export function resolveUpstreamApiBaseUrlForProxy(): UpstreamApiBaseResolution {
 }
 
 /** Documented public default; browser traffic should use `/api/proxy/...` from `api.ts`. */
-export const PUBLIC_API_BASE_URL =
-  process.env.NEXT_PUBLIC_ARCHIFORGE_API_BASE_URL ?? "http://localhost:5128";
+export const PUBLIC_API_BASE_URL = readPublicBrowserApiBaseDefault();

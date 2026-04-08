@@ -16,7 +16,7 @@
       "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
       "targets": [
         {
-          "expr": "sum by (llm_provider, llm_deployment) (rate(archiforge_llm_prompt_tokens_total[5m]))",
+          "expr": "sum by (llm_provider, llm_deployment) (rate(archlucid_llm_prompt_tokens_total[5m]))",
           "legendFormat": "{{llm_provider}} / {{llm_deployment}}",
           "refId": "A"
         }
@@ -33,7 +33,7 @@
       "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
       "targets": [
         {
-          "expr": "sum by (llm_provider, llm_deployment) (rate(archiforge_llm_completion_tokens_total[5m]))",
+          "expr": "sum by (llm_provider, llm_deployment) (rate(archlucid_llm_completion_tokens_total[5m]))",
           "legendFormat": "{{llm_provider}} / {{llm_deployment}}",
           "refId": "A"
         }

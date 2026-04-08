@@ -34,7 +34,7 @@ internal static class ArtifactsCommand
         {
             Console.WriteLine($"Run {runId} has not been committed. Submit all agent results and call commit first.");
             await Console.Error.WriteLineAsync(
-                "Next: archiforge status <runId>, then submit results or use seed (Development), then archiforge commit.");
+                "Next: archlucid status <runId>, then submit results or use seed (Development), then archlucid commit.");
 
             return 1;
         }

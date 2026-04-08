@@ -1,6 +1,6 @@
 /**
- * Path segments for ArchiForge API v1 (no trailing slash; prefix with "/" when building URLs).
- * Keeps UI aligned with `ArchiForge.Api.Routing.ApiV1Routes` in tests.
+ * Path segments for ArchLucid API v1 (no trailing slash; prefix with "/" when building URLs).
+ * Keeps UI aligned with `ArchLucid.Api.Routing.ApiV1Routes` in tests.
  */
 export const ApiV1Routes = {
   policyPacks: "v1/policy-packs",

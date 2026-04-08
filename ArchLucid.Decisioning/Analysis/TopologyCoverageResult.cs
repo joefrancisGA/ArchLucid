@@ -9,4 +9,7 @@ public class TopologyCoverageResult
     public List<string> PresentCategories { get; set; } = [];
     public List<string> MissingCategories { get; set; } = [];
     public int TopologyNodeCount { get; set; }
+
+    /// <summary>Node ids of all <c>TopologyResource</c> nodes examined for category coverage.</summary>
+    public List<string> TopologyNodeIds { get; set; } = [];
 }

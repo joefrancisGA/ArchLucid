@@ -27,7 +27,7 @@ import type { OidcTokenResponse } from "@/lib/oidc/token-client";
 
 const EXPIRY_SKEW_MS = 60_000;
 
-/** Prefer the ArchLucid key; if only the legacy ArchiForge-era key exists, copy forward and drop legacy. */
+/** Prefer the ArchLucid key; if only the legacy browser storage key exists, copy forward and drop legacy. */
 function readSessionMigrateForward(newKey: string, legacyKey: string): string | null {
   if (typeof sessionStorage === "undefined") {
     return null;

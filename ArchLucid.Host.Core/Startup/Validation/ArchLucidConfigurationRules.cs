@@ -18,9 +18,9 @@ public static class ArchLucidConfigurationRules
     {
         List<string> errors = [];
 
-        ArchLucidOptions archiForge = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+        ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        StorageRules.Collect(configuration, archiForge, errors);
+        StorageRules.Collect(configuration, archLucidOptions, errors);
         AuthenticationRules.CollectApiKeyWhenEnabled(configuration, errors);
         AgentExecutionRules.Collect(configuration, errors);
         LlmCompletionCacheRules.Collect(configuration, errors);
@@ -50,14 +50,14 @@ public static class ArchLucidConfigurationRules
         if (hostingRole == ArchLucidHostingRole.Worker)
         {
             ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
-            ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archiForge, errors);
+            ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
 
             return errors;
         }
 
         ProductionSafetyRules.CollectCors(configuration, errors);
         ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
-        ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archiForge, errors);
+        ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
         AuthenticationRules.CollectProductionAuthModes(configuration, errors);
 
         return errors;

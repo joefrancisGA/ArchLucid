@@ -34,11 +34,11 @@ public sealed class CloudEventsWrappingWebhookPoster(
         }
 
         string source = string.IsNullOrWhiteSpace(deliveryOptions.CurrentValue.CloudEventsSource)
-            ? "/archiforge/webhooks"
+            ? "/archlucid/webhooks"
             : deliveryOptions.CurrentValue.CloudEventsSource.Trim();
 
         string type = string.IsNullOrWhiteSpace(deliveryOptions.CurrentValue.CloudEventsType)
-            ? "com.archiforge.webhook.payload"
+            ? "com.archlucid.webhook.payload"
             : deliveryOptions.CurrentValue.CloudEventsType.Trim();
 
         CloudEventV10 envelope = CloudEventV10.Create(type, source, payload);

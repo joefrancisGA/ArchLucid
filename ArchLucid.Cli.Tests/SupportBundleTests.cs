@@ -61,7 +61,7 @@ public sealed class SupportBundleTests
             payload.Build.Cli.InformationalVersion.Should().NotBeNullOrWhiteSpace();
             payload.Build.ApiVersionJson.Should().Contain("informationalVersion");
             payload.Health.Ready.HttpStatus.Should().Be(200);
-            payload.ConfigSummary.HasArchiforgeJson.Should().BeTrue();
+            payload.ConfigSummary.HasArchlucidJson.Should().BeTrue();
             payload.Workspace.FileCount.Should().Be(1);
         }
         finally

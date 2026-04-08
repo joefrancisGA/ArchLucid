@@ -26,7 +26,7 @@ export async function gotoComparePageWithFixturePair(
   await page.goto(`/compare?${comparePairSearchParams(leftRunId, rightRunId)}`);
 }
 
-/** Run detail for the standard mock-api run fixture (`e2e/mock-archiforge-api-server`). */
+/** Run detail for the standard mock-api run fixture (`e2e/mock-archlucid-api-server`). */
 export async function gotoRunDetailForMockFixtureRun(page: Page): Promise<void> {
   await page.goto(`/runs/${encodeURIComponent(FIXTURE_RUN_ID)}`);
 }

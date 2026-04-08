@@ -27,7 +27,7 @@ internal static class SeedCommand
         }
 
         Console.WriteLine($"Seeded {result.ResultCount} fake results for run {runId}");
-        Console.WriteLine($"Use 'archiforge commit {runId}' to produce the manifest.");
+        Console.WriteLine($"Use 'archlucid commit {runId}' to produce the manifest.");
 
         return 0;
     }

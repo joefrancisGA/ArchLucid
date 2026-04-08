@@ -4,19 +4,22 @@
 
 `ExplainabilityTrace` on each `Finding` records how the engine justified its output (`GraphNodeIdsExamined`, `RulesApplied`, `DecisionsTaken`, `AlternativePathsConsidered`, `Notes`). This document describes how completeness is measured, where it appears in advisory scans, and what engine authors should populate.
 
-## Trace field coverage matrix (baseline audit)
+## Trace field coverage matrix (rule-based engines)
 
-| Engine | GraphNodeIdsExamined | RulesApplied | DecisionsTaken | AlternativePathsConsidered | Notes |
-|--------|----------------------|-------------|----------------|---------------------------|-------|
-| RequirementFindingEngine | yes | yes (`requirement-surface`) | yes | — | — |
-| ComplianceFindingEngine | yes | yes (rule id) | yes | — | yes (rule pack) |
-| SecurityBaselineFindingEngine | yes | yes (`security-baseline-coverage`) | yes | — | yes (PROTECTS count) |
-| CostConstraintFindingEngine | yes | yes (`cost-constraint-surface`) | yes | — | yes (budget cap) |
-| TopologyCoverageFindingEngine | — / partial | — | yes (both branches) | — | — |
-| SecurityCoverageFindingEngine | — | — | yes | — | — |
-| PolicyApplicabilityFindingEngine | via factory | — | via factory | — | — |
-| PolicyCoverageFindingEngine | when uncovered | — | yes | — | — |
-| RequirementCoverageFindingEngine | when uncovered | — | yes | — | — |
+Target: **3/5** or **4/5** per finding (`AlternativePathsConsidered` stays empty — reserved for LLM-style engines).
+
+| Engine | GraphNodeIdsExamined | RulesApplied | DecisionsTaken | AlternativePathsConsidered | Notes | Typical ratio |
+|--------|----------------------|-------------|----------------|---------------------------|-------|---------------|
+| RequirementFindingEngine | yes | yes (`requirement-surface`) | yes | — | yes (related count, text length) | 4/5 |
+| ComplianceFindingEngine | yes | yes (rule id) | yes | — | yes (rule pack) | 4/5 |
+| SecurityBaselineFindingEngine | yes | yes (`security-baseline-coverage`) | yes | — | yes (PROTECTS count) | 4/5 |
+| CostConstraintFindingEngine | yes | yes (`cost-constraint-surface`) | yes | — | yes (budget cap) | 4/5 |
+| TopologyCoverageFindingEngine | empty when no topology; else all topology node ids | yes (`topology-coverage-presence` / `topology-coverage-categories`) | yes | — | yes (expected categories / present+missing) | 3/5 (no nodes) or 4/5 |
+| SecurityCoverageFindingEngine | yes (unprotected resource ids from analyzer) | yes (`security-coverage-protection`) | yes | — | yes (counts) | 4/5 |
+| PolicyApplicabilityFindingEngine | via `FindingFactory` | yes (`policy-applicability-mapping` / `policy-applicability-gap`) | yes | — | yes (target count / policy label) | 4/5 |
+| PolicyCoverageFindingEngine | when uncovered | yes (`policy-coverage-presence` / `policy-coverage-applicability`) | yes | — | yes (counts) | 3/5 (no policies) or 4/5 |
+| RequirementCoverageFindingEngine | when uncovered | yes (`requirement-coverage-relation`) | yes | — | yes (totals) | 4/5 |
+| Topology gap findings (`FindingFactory.CreateTopologyGapFinding`) | yes | yes (`topology-gap-{gapCode}`) | yes | — | — | 3/5 |
 
 `AlternativePathsConsidered` is intentionally not required for rule-based engines in v1; analyzers report it as empty until LLM-style engines can justify branches.
 

@@ -138,7 +138,7 @@ public static class SupportBundleCollector
 
             return new SupportBundleConfigSummary
             {
-                HasArchiforgeJson = false,
+                HasArchlucidJson = false,
                 ApiBaseUrlRedacted = fallbackUrl,
             };
         }
@@ -147,7 +147,7 @@ public static class SupportBundleCollector
 
         return new SupportBundleConfigSummary
         {
-            HasArchiforgeJson = true,
+            HasArchlucidJson = true,
             ProjectName = config.ProjectName,
             SchemaVersion = config.SchemaVersion,
             ApiBaseUrlRedacted = SupportBundleRedactor.RedactHttpUrl(resolved),
@@ -170,7 +170,7 @@ public static class SupportBundleCollector
             ProcessArchitecture = RuntimeInformation.ProcessArchitecture.ToString(),
             DotnetRuntime = RuntimeInformation.FrameworkDescription,
             TimeZone = TimeZoneInfo.Local.Id,
-            ArchiforgeAndDotnetEnvironment = SupportBundleRedactor.SnapshotEnvironmentForBundle(),
+            ArchlucidAndDotnetEnvironment = SupportBundleRedactor.SnapshotEnvironmentForBundle(),
         };
     }
 

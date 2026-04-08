@@ -69,7 +69,7 @@ export default async function RunsPage({
             correlationId={loadFailure.correlationId}
           />
           <p style={{ margin: "12px 0 0", fontSize: 14 }}>
-            Check that the API is running, <code>ARCHIFORGE_API_BASE_URL</code> / proxy is correct, and
+            Check that the API is running, <code>ARCHLUCID_API_BASE_URL</code> / proxy is correct, and
             credentials (if any) are set for server-side fetches.
           </p>
         </>

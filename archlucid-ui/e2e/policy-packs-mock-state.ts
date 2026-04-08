@@ -1,5 +1,5 @@
 /**
- * Mutable policy-pack graph for E2E mock API (assign + effective-content without a live ArchiForge API).
+ * Mutable policy-pack graph for E2E mock API (assign + effective-content without a live ArchLucid API).
  */
 import { randomUUID } from "node:crypto";
 

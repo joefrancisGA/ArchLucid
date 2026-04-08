@@ -50,7 +50,7 @@ internal static class SubmitCommand
 
         Console.WriteLine($"Result submitted: {submitResult.ResultId}");
         Console.WriteLine(
-            $"Use 'archiforge status {runId}' to check progress, then 'archiforge commit {runId}' when all results are in.");
+            $"Use 'archlucid status {runId}' to check progress, then 'archlucid commit {runId}' when all results are in.");
 
         return 0;
     }

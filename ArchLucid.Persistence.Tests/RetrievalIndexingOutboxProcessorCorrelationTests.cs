@@ -69,7 +69,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         stopped.Should().ContainSingle(a => a.OperationName == "RetrievalIndexingOutbox.ProcessEntry");
         Activity entryActivity = stopped.Single(a => a.OperationName == "RetrievalIndexingOutbox.ProcessEntry");
         entryActivity.GetTagItem(ActivityCorrelation.LogicalCorrelationIdTag).Should().Be($"retrieval-outbox:{outboxId:D}");
-        entryActivity.GetTagItem("archiforge.outbox_id").Should().Be(outboxId.ToString("D"));
-        entryActivity.GetTagItem("archiforge.run_id").Should().Be(runId.ToString("D"));
+        entryActivity.GetTagItem("archlucid.outbox_id").Should().Be(outboxId.ToString("D"));
+        entryActivity.GetTagItem("archlucid.run_id").Should().Be(runId.ToString("D"));
     }
 }

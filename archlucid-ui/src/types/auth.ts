@@ -1,2 +1,2 @@
-/** Role assigned to a principal in the ArchiForge RBAC model. */
-export type ArchiForgeRole = "Admin" | "Operator" | "Reader";
+/** Role assigned to a principal in the ArchLucid RBAC model. */
+export type ArchLucidRole = "Admin" | "Operator" | "Reader";

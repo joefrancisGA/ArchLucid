@@ -1,5 +1,5 @@
 /**
- * 60R evolution API (`/v1/evolution/*`). Shapes match ArchiForge.Api.Models.Evolution (camelCase JSON).
+ * 60R evolution API (`/v1/evolution/*`). Shapes match ArchLucid.Api.Models.Evolution (camelCase JSON).
  */
 
 export type EvolutionCandidateChangeSetResponse = {

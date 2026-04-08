@@ -64,15 +64,15 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
             stopped
                 .Where(a =>
                     a.OperationName == "IntegrationEventOutbox.ProcessEntry"
-                    && string.Equals(a.GetTagItem("archiforge.outbox_id") as string, outboxIdTag, StringComparison.Ordinal))
+                    && string.Equals(a.GetTagItem("archlucid.outbox_id") as string, outboxIdTag, StringComparison.Ordinal))
                 .ToList();
 
         entryActivities.Should().ContainSingle();
         Activity entryActivity = entryActivities[0];
         entryActivity.GetTagItem(ActivityCorrelation.LogicalCorrelationIdTag).Should().Be($"run:{runId:D}");
-        entryActivity.GetTagItem("archiforge.outbox_id").Should().Be(outboxId.ToString("D"));
-        entryActivity.GetTagItem("archiforge.run_id").Should().Be(runId.ToString("D"));
-        entryActivity.GetTagItem("archiforge.event_type").Should().Be("t");
+        entryActivity.GetTagItem("archlucid.outbox_id").Should().Be(outboxId.ToString("D"));
+        entryActivity.GetTagItem("archlucid.run_id").Should().Be(runId.ToString("D"));
+        entryActivity.GetTagItem("archlucid.event_type").Should().Be("t");
     }
 
     [Fact]
@@ -121,14 +121,14 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
             stopped
                 .Where(a =>
                     a.OperationName == "IntegrationEventOutbox.ProcessEntry"
-                    && string.Equals(a.GetTagItem("archiforge.outbox_id") as string, outboxIdTag, StringComparison.Ordinal))
+                    && string.Equals(a.GetTagItem("archlucid.outbox_id") as string, outboxIdTag, StringComparison.Ordinal))
                 .ToList();
 
         entryActivities.Should().ContainSingle();
         Activity entryActivity = entryActivities[0];
         entryActivity.GetTagItem(ActivityCorrelation.LogicalCorrelationIdTag).Should().Be($"integration-outbox:{outboxId:D}");
-        entryActivity.GetTagItem("archiforge.outbox_id").Should().Be(outboxId.ToString("D"));
-        entryActivity.GetTagItem("archiforge.run_id").Should().BeNull();
+        entryActivity.GetTagItem("archlucid.outbox_id").Should().Be(outboxId.ToString("D"));
+        entryActivity.GetTagItem("archlucid.run_id").Should().BeNull();
     }
 
     private static IntegrationEventOutboxProcessor CreateProcessor(

@@ -47,12 +47,12 @@ public sealed class IntegrationEventOutboxProcessor(
                 ? FormattableString.Invariant($"run:{entry.RunId.Value:D}")
                 : FormattableString.Invariant($"integration-outbox:{entry.OutboxId:D}");
             activity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, correlationId);
-            activity?.SetTag("archiforge.outbox_id", entry.OutboxId.ToString("D"));
-            activity?.SetTag("archiforge.event_type", entry.EventType);
+            activity?.SetTag("archlucid.outbox_id", entry.OutboxId.ToString("D"));
+            activity?.SetTag("archlucid.event_type", entry.EventType);
 
             if (entry.RunId.HasValue)
             {
-                activity?.SetTag("archiforge.run_id", entry.RunId.Value.ToString("D"));
+                activity?.SetTag("archlucid.run_id", entry.RunId.Value.ToString("D"));
             }
 
             using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);

@@ -37,6 +37,8 @@ public sealed class TopologyCoverageFindingEngineTests
         finding.FindingType.Should().Be(FindingTypes.TopologyCoverageFinding);
         finding.Title.Should().Contain("No topology");
         finding.Trace.DecisionsTaken.Should().NotBeEmpty();
+        finding.Trace.RulesApplied.Should().Contain("topology-coverage-presence");
+        finding.Trace.Notes.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -47,6 +49,7 @@ public sealed class TopologyCoverageFindingEngineTests
             TopologyNodeCount = 3,
             PresentCategories = ["network"],
             MissingCategories = ["storage"],
+            TopologyNodeIds = ["topo-a", "topo-b", "topo-c"],
         };
 
         Mock<IGraphCoverageAnalyzer> analyzer = new();
@@ -61,6 +64,10 @@ public sealed class TopologyCoverageFindingEngineTests
         payload.Should().NotBeNull();
         payload.MissingCategories.Should().Contain("storage");
         findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
+        findings[0].Trace.RulesApplied.Should().Contain("topology-coverage-categories");
+        findings[0].Trace.GraphNodeIdsExamined.Should().Equal("topo-a", "topo-b", "topo-c");
+        findings[0].Trace.Notes.Should().Contain(n => n.StartsWith("Present:", StringComparison.Ordinal));
+        findings[0].Trace.Notes.Should().Contain(n => n.StartsWith("Missing:", StringComparison.Ordinal));
     }
 
     [Fact]

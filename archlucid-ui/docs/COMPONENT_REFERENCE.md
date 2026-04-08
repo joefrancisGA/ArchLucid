@@ -309,7 +309,7 @@ Next.js uses this to set `<title>` and `<meta name="description">` in the HTML h
 |----------|------|---------|
 | `apiGet<T>(path)` | GET | Core JSON fetch (server or browser) |
 | `apiPostJson<T>(path, body)` | POST | Core JSON post |
-| `fetchArchiForgeJson<T>(path)` | GET | Alias for `apiGet` (used by graph API). **Note:** export name is still `fetchArchiForgeJson` in `src/lib/api.ts` until the UI package/env rename (Phase 3); it targets the **ArchLucid** API. |
+| `fetchArchLucidJson<T>(path)` | GET | Alias for `apiGet` (used by graph API). Targets the **ArchLucid** API via same-origin proxy or server-side base URL. |
 | `listRunsByProject(projectId, take)` | GET | `/api/authority/projects/{id}/runs` |
 | `getRunSummary(runId)` | GET | `/api/authority/runs/{id}/summary` |
 | `getRunDetail(runId)` | GET | `/api/authority/runs/{id}` |

@@ -185,10 +185,10 @@ public sealed class RealAgentExecutorTests
         }
 
         completed.Should().HaveCount(2);
-        completed.Should().OnlyContain(a => a.OperationName == "archiforge.agent.handle");
+        completed.Should().OnlyContain(a => a.OperationName == "archlucid.agent.handle");
 
         string[] types = completed
-            .Select(a => (string)a.GetTagItem("archiforge.agent.type")!)
+            .Select(a => (string)a.GetTagItem("archlucid.agent.type")!)
             .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 

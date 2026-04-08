@@ -28,7 +28,7 @@ public sealed class MermaidCliDiagramImageRenderer(
             return null;
         
 
-        string tempDir = Path.Combine(Path.GetTempPath(), "archiforge-mermaid", Guid.NewGuid().ToString("N"));
+        string tempDir = Path.Combine(Path.GetTempPath(), "archlucid-mermaid", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
 
         string inputPath = Path.Combine(tempDir, "diagram.mmd");

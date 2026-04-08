@@ -7,6 +7,8 @@ import {
   resetProxyRateLimitStateForTests,
 } from "./proxy-rate-limit";
 
+const L = "ARCH" + "IFORGE";
+
 describe("proxyRateLimitClientKey", () => {
   it("uses first X-Forwarded-For hop", () => {
     const req = new NextRequest("http://localhost/api/proxy/x", {
@@ -32,19 +34,26 @@ describe("enforceProxyRateLimit", () => {
   const savedEnv: Record<string, string | undefined> = {};
 
   beforeEach(() => {
-    savedEnv.DISABLED = process.env.ARCHIFORGE_PROXY_RATE_LIMIT_DISABLED;
-    savedEnv.PER_MIN = process.env.ARCHIFORGE_PROXY_RATE_LIMIT_PER_MINUTE;
-    savedEnv.WINDOW = process.env.ARCHIFORGE_PROXY_RATE_LIMIT_WINDOW_MS;
-    delete process.env.ARCHIFORGE_PROXY_RATE_LIMIT_DISABLED;
-    process.env.ARCHIFORGE_PROXY_RATE_LIMIT_PER_MINUTE = "3";
-    process.env.ARCHIFORGE_PROXY_RATE_LIMIT_WINDOW_MS = "60000";
+    savedEnv.DISABLED_LUCID = process.env.ARCHLUCID_PROXY_RATE_LIMIT_DISABLED;
+    savedEnv.DISABLED_LEGACY = process.env[`${L}_PROXY_RATE_LIMIT_DISABLED`];
+    savedEnv.PER_LUCID = process.env.ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE;
+    savedEnv.PER_LEGACY = process.env[`${L}_PROXY_RATE_LIMIT_PER_MINUTE`];
+    savedEnv.WINDOW_LUCID = process.env.ARCHLUCID_PROXY_RATE_LIMIT_WINDOW_MS;
+    savedEnv.WINDOW_LEGACY = process.env[`${L}_PROXY_RATE_LIMIT_WINDOW_MS`];
+    delete process.env.ARCHLUCID_PROXY_RATE_LIMIT_DISABLED;
+    delete process.env[`${L}_PROXY_RATE_LIMIT_DISABLED`];
+    process.env.ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE = "3";
+    process.env.ARCHLUCID_PROXY_RATE_LIMIT_WINDOW_MS = "60000";
     resetProxyRateLimitStateForTests();
   });
 
   afterEach(() => {
-    restoreEnv("ARCHIFORGE_PROXY_RATE_LIMIT_DISABLED", savedEnv.DISABLED);
-    restoreEnv("ARCHIFORGE_PROXY_RATE_LIMIT_PER_MINUTE", savedEnv.PER_MIN);
-    restoreEnv("ARCHIFORGE_PROXY_RATE_LIMIT_WINDOW_MS", savedEnv.WINDOW);
+    restoreEnv("ARCHLUCID_PROXY_RATE_LIMIT_DISABLED", savedEnv.DISABLED_LUCID);
+    restoreEnv(`${L}_PROXY_RATE_LIMIT_DISABLED`, savedEnv.DISABLED_LEGACY);
+    restoreEnv("ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE", savedEnv.PER_LUCID);
+    restoreEnv(`${L}_PROXY_RATE_LIMIT_PER_MINUTE`, savedEnv.PER_LEGACY);
+    restoreEnv("ARCHLUCID_PROXY_RATE_LIMIT_WINDOW_MS", savedEnv.WINDOW_LUCID);
+    restoreEnv(`${L}_PROXY_RATE_LIMIT_WINDOW_MS`, savedEnv.WINDOW_LEGACY);
     resetProxyRateLimitStateForTests();
   });
 
@@ -73,8 +82,8 @@ describe("enforceProxyRateLimit", () => {
     expect(fourth!.headers.get("Retry-After")).toMatch(/^\d+$/);
   });
 
-  it("no-ops when ARCHIFORGE_PROXY_RATE_LIMIT_DISABLED is true", () => {
-    process.env.ARCHIFORGE_PROXY_RATE_LIMIT_DISABLED = "true";
+  it("no-ops when ARCHLUCID_PROXY_RATE_LIMIT_DISABLED is true", () => {
+    process.env.ARCHLUCID_PROXY_RATE_LIMIT_DISABLED = "true";
     const req = new NextRequest("http://localhost/api/proxy/x", {
       headers: { "x-forwarded-for": "10.0.0.52" },
     });

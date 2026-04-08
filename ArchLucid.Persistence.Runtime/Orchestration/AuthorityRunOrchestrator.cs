@@ -63,7 +63,7 @@ public sealed class AuthorityRunOrchestrator(
             ApplyScope(run, scope);
 
             using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();
-            runActivity?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
+            runActivity?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
 
             string logicalCorrelation =
                 ActivityCorrelation.FindTagValueInChain(runActivity?.Parent, ActivityCorrelation.LogicalCorrelationIdTag)
@@ -187,7 +187,7 @@ public sealed class AuthorityRunOrchestrator(
             RunRecord run = existing;
 
             using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();
-            runActivity?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
+            runActivity?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
 
             string logicalCorrelation =
                 ActivityCorrelation.FindTagValueInChain(runActivity?.Parent, ActivityCorrelation.LogicalCorrelationIdTag)

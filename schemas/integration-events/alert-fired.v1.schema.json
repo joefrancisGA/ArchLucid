@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://archlucid.dev/schemas/integration-events/alert-fired.v1.schema.json",
   "title": "com.archlucid.alert.fired",
-  "description": "New alert row persisted and delivered (canonical com.archlucid.alert.fired; legacy com.archiforge.alert.fired).",
+  "description": "New alert row persisted and delivered (canonical com.archlucid.alert.fired; legacy V1 type alias supported).",
   "type": "object",
   "required": [
     "schemaVersion",

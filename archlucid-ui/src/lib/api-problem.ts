@@ -1,5 +1,5 @@
 /**
- * Subset of RFC 7807 Problem Details plus ArchiForge extensions (`errorCode`, `supportHint`).
+ * Subset of RFC 7807 Problem Details plus ArchLucid API extensions (`errorCode`, `supportHint`).
  * ASP.NET Core typically serializes `ProblemDetails.Extensions` as extra root JSON properties (camelCase).
  */
 export type ApiProblemDetails = {

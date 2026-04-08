@@ -11,7 +11,7 @@ public sealed class LocalFileArtifactBlobStoreTests
     [Fact]
     public async Task Write_then_Read_round_trips_utf8_content()
     {
-        string root = Path.Combine(Path.GetTempPath(), "archiforge-blob-test-" + Guid.NewGuid().ToString("N"));
+        string root = Path.Combine(Path.GetTempPath(), "archlucid-blob-test-" + Guid.NewGuid().ToString("N"));
         LocalFileArtifactBlobStore store = new(root);
 
         try

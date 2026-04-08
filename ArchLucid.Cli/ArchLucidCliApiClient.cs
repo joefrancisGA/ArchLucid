@@ -70,7 +70,8 @@ public sealed class ArchLucidApiClient
         };
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
-        string? apiKey = Environment.GetEnvironmentVariable("ARCHIFORGE_API_KEY");
+        string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY")
+            ?? Environment.GetEnvironmentVariable("ARCHIFORGE_API_KEY");
         if (!string.IsNullOrWhiteSpace(apiKey))
         {
             http.DefaultRequestHeaders.Remove("X-Api-Key");
@@ -81,7 +82,9 @@ public sealed class ArchLucidApiClient
     }
 
     public static string GetDefaultBaseUrl() =>
-        Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL") ?? "http://localhost:5128";
+        Environment.GetEnvironmentVariable("ARCHLUCID_API_URL")
+        ?? Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL")
+        ?? "http://localhost:5128";
 
     /// <summary>
     /// Returns a human-readable reason when the value cannot be used as an absolute HTTP API base URL, or null when valid.
@@ -90,7 +93,7 @@ public sealed class ArchLucidApiClient
     {
         if (string.IsNullOrWhiteSpace(baseUrl))
         {
-            return "API base URL is empty. Set apiUrl in archiforge.json in the project folder or the ARCHIFORGE_API_URL environment variable (example: http://localhost:5128).";
+            return "API base URL is empty. Set apiUrl in archiforge.json in the project folder or ARCHLUCID_API_URL (legacy ARCHIFORGE_API_URL) (example: http://localhost:5128).";
         }
 
         string trimmed = baseUrl.Trim();
@@ -107,7 +110,7 @@ public sealed class ArchLucidApiClient
         return null;
     }
 
-    /// <summary>Resolve API base URL: config.ApiUrl (when set) &gt; ARCHIFORGE_API_URL env &gt; default.</summary>
+    /// <summary>Resolve API base URL: config.ApiUrl (when set) &gt; ARCHLUCID_API_URL (legacy ARCHIFORGE_API_URL) &gt; default.</summary>
     public static string ResolveBaseUrl(ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
         return !string.IsNullOrWhiteSpace(config?.ApiUrl) ? config.ApiUrl.Trim().TrimEnd('/') : GetDefaultBaseUrl().TrimEnd('/');

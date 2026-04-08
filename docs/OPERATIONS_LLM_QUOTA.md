@@ -18,7 +18,7 @@ When quota is exceeded, the API returns **429** with problem type `#llm-token-qu
 
 ## Metrics
 
-- Aggregate (default): `archiforge_llm_prompt_tokens_total`, `archiforge_llm_completion_tokens_total` without tenant labels.
+- Aggregate (default): `archlucid_llm_prompt_tokens_total`, `archlucid_llm_completion_tokens_total` without tenant labels.
 - Per-tenant (optional): same metric names **with** `tenant_id` label when `LlmTelemetry:RecordPerTenantTokens` is true.
 
 Use Grafana dashboard **`infra/grafana/dashboard-archlucid-authority.json`** (LLM panels) and **`dashboard-archlucid-slo.json`** for HTTP latency objectives.

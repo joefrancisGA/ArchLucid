@@ -13,7 +13,7 @@ Keep **end-to-end traceability** when work leaves the HTTP pipeline: every backg
 ## 3. Constraints
 
 - Do **not** change `CorrelationIdMiddleware` or `ActivityCorrelation` contracts for this workstream.
-- Tag names for domain identifiers remain the **`archiforge.*`** prefix in telemetry (operational rename deferred to Phase 7 of the product rename checklist).
+- Tag names for domain identifiers use the **`archlucid.*`** prefix in telemetry (aligned with OpenTelemetry attribute naming for this product).
 - Logical correlation uses `ActivityCorrelation.LogicalCorrelationIdTag` (`correlation.id`), aligned with HTTP and audit enrichment.
 
 ## 4. Architecture overview
@@ -68,7 +68,7 @@ Correlation ids are **diagnostic identifiers**, not secrets. They may appear in 
 1. Add or reuse an `ActivitySource` in `ArchLucidInstrumentation` (if new, append to `ObservabilityExtensions.AddSource` list).
 2. At the **per-unit-of-work** boundary (per message, per row, or once per scheduled invocation), call `StartActivity` with a stable operation name.
 3. Set `activity.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, syntheticId)`.
-4. Add domain tags (`archiforge.*`) for low-cardinality dimensions (ids, event type, etc.).
+4. Add domain tags (`archlucid.*`) for low-cardinality dimensions (ids, event type, etc.).
 5. `using IDisposable _ = LogContext.PushProperty("CorrelationId", syntheticId);` for the same scope as the activity.
 6. Add a **Core** unit test with `ActivityListener` and literal source name string in `ShouldListenTo`.
 

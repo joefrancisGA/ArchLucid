@@ -143,7 +143,7 @@ internal static class DoctorCommand
         string briefPath = Path.Combine(cwd, config.Inputs.Brief);
         Console.WriteLine(File.Exists(briefPath)
             ? $"Brief: OK — {config.Inputs.Brief}"
-            : $"Brief: MISSING — expected file at {config.Inputs.Brief} (needed for 'archiforge run').");
+            : $"Brief: MISSING — expected file at {config.Inputs.Brief} (needed for 'archlucid run').");
 
         string outputsDir = Path.Combine(cwd, config.Outputs.LocalCacheDir);
 

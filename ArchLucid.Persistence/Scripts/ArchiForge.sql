@@ -1148,8 +1148,8 @@ BEGIN
         RunId UNIQUEIDENTIFIER NOT NULL,
         ManifestId UNIQUEIDENTIFIER NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        ArtifactsJson NVARCHAR(MAX) NOT NULL,
-        TraceJson NVARCHAR(MAX) NOT NULL,
+        ArtifactsJson NVARCHAR(MAX) NULL,
+        TraceJson NVARCHAR(MAX) NULL,
         BundlePayloadBlobUri NVARCHAR(2000) NULL,
         TenantId UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
@@ -1157,6 +1157,31 @@ BEGIN
         INDEX IX_ArtifactBundles_RunId NONCLUSTERED (RunId),
         INDEX IX_ArtifactBundles_ManifestId NONCLUSTERED (ManifestId)
     );
+END;
+GO
+
+/* ArtifactBundles legacy JSON columns nullable (see Migrations/043_ArtifactBundles_LegacyJsonNullable.sql). */
+IF OBJECT_ID(N'dbo.ArtifactBundles', N'U') IS NOT NULL
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM sys.columns c
+        INNER JOIN sys.tables t ON c.object_id = t.object_id
+        WHERE t.schema_id = SCHEMA_ID(N'dbo')
+          AND t.name = N'ArtifactBundles'
+          AND c.name = N'ArtifactsJson'
+          AND c.is_nullable = 0)
+        ALTER TABLE dbo.ArtifactBundles ALTER COLUMN ArtifactsJson NVARCHAR(MAX) NULL;
+
+    IF EXISTS (
+        SELECT 1
+        FROM sys.columns c
+        INNER JOIN sys.tables t ON c.object_id = t.object_id
+        WHERE t.schema_id = SCHEMA_ID(N'dbo')
+          AND t.name = N'ArtifactBundles'
+          AND c.name = N'TraceJson'
+          AND c.is_nullable = 0)
+        ALTER TABLE dbo.ArtifactBundles ALTER COLUMN TraceJson NVARCHAR(MAX) NULL;
 END;
 GO
 

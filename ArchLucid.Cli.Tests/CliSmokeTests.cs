@@ -34,7 +34,7 @@ public sealed class CliSmokeTests
             Console.SetOut(oldOut);
         }
 
-        sb.ToString().Should().Contain("Usage: archiforge comparisons");
+        sb.ToString().Should().Contain("Usage: archlucid comparisons");
     }
 }
 

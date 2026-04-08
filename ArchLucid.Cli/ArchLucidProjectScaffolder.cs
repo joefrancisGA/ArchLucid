@@ -7,7 +7,7 @@ using Microsoft.Data.SqlClient;
 
 
 /*________________________________________
-2) Folder layout created by archiforge new
+2) Folder layout created by archlucid new
     <projectName>/
 archiforge.json
     inputs/
@@ -385,7 +385,7 @@ Describe the outcome you want (business + technical). Keep it short and runnable
                                                "plugins": [
                                                    {
                                                        "name": "example.generator.docs",
-                                                       "image": "ghcr.io/your-org/archiforge-plugin-docs",
+                                                       "image": "ghcr.io/your-org/archlucid-plugin-docs",
                                                        "version": "1.0.0",
                                                    "endpoint": "local"
                                                    }
@@ -441,7 +441,7 @@ Describe the outcome you want (business + technical). Keep it short and runnable
 
              1. Edit `inputs/brief.md`
              2. Update `archiforge.json` if needed
-             3. Run ArchLucid against the brief (implementation-specific)
+             3. Run `archlucid run` (or your host workflow) against the brief
 
              """;
     }

@@ -228,7 +228,7 @@ variable "background_jobs_mode" {
 variable "background_jobs_queue_name" {
   type        = string
   description = "Azure Storage Queue name for durable export jobs (lowercase alphanumeric and hyphens, 3–63 chars)."
-  default     = "archiforge-export-jobs"
+  default     = "archlucid-export-jobs"
 }
 
 variable "background_jobs_results_container" {

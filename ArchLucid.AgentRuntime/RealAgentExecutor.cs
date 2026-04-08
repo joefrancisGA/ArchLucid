@@ -163,15 +163,15 @@ public sealed class RealAgentExecutor : IAgentExecutor
         AgentResult result;
 
         using (Activity? activity = ArchLucidInstrumentation.AgentHandler.StartActivity(
-                   "archiforge.agent.handle"))
+                   "archlucid.agent.handle"))
         {
-            activity?.SetTag("archiforge.run_id", runId);
-            activity?.SetTag("archiforge.task_id", task.TaskId);
-            activity?.SetTag("archiforge.agent.type", dispatchKey);
-            activity?.SetTag("archiforge.agent.type_enum", task.AgentType.ToString());
+            activity?.SetTag("archlucid.run_id", runId);
+            activity?.SetTag("archlucid.task_id", task.TaskId);
+            activity?.SetTag("archlucid.agent.type", dispatchKey);
+            activity?.SetTag("archlucid.agent.type_enum", task.AgentType.ToString());
 
             string promptVersion = ResolvePromptVersion(dispatchKey);
-            activity?.SetTag("archiforge.agent.prompt_version", promptVersion);
+            activity?.SetTag("archlucid.agent.prompt_version", promptVersion);
 
             try
             {
@@ -205,9 +205,9 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 throw;
             }
 
-            activity?.SetTag("archiforge.agent.confidence", result.Confidence);
-            activity?.SetTag("archiforge.agent.findings_count", result.Findings.Count);
-            activity?.SetTag("archiforge.agent.claims_count", result.Claims.Count);
+            activity?.SetTag("archlucid.agent.confidence", result.Confidence);
+            activity?.SetTag("archlucid.agent.findings_count", result.Findings.Count);
+            activity?.SetTag("archlucid.agent.claims_count", result.Claims.Count);
         }
 
         sw.Stop();
