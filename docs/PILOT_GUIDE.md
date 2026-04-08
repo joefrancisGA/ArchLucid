@@ -2,6 +2,8 @@
 
 **Audience:** Design partners and early pilots who need to run **ArchLucid** locally or in a test environment **without** walking through internal design docs. *(Repository projects and packages still use the `ArchiForge.*` prefix until the directory rename completes.)*
 
+**Scope:** For a decisive **V1 boundary** (in scope, out of scope, happy path, release gates), read **[V1_SCOPE.md](V1_SCOPE.md)** first; this guide is the practical onboarding narrative.
+
 **CLI naming:** Docs sometimes show the global tool form `archiforge …`. From a **clone without** `dotnet tool install`, use **`dotnet run --project ArchLucid.Cli -- <command>`** from the repo root (same as [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) and the **`release-smoke.ps1`** script).
 
 **Support:** See **[When you report an issue](#when-you-report-an-issue)** below and [TROUBLESHOOTING.md](TROUBLESHOOTING.md). Prefer a **support bundle** (sanitized JSON) plus **build/version** identity so we can reproduce quickly.
