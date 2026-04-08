@@ -16,13 +16,13 @@ namespace ArchLucid.Host.Core.Health;
 /// </summary>
 public sealed class SqlConnectionHealthCheck(
     IDbConnectionFactory connectionFactory,
-    IOptions<ArchLucidOptions> archiForgeOptions) : IHealthCheck
+    IOptions<ArchLucidOptions> archLucidOptions) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
         CancellationToken cancellationToken = default)
     {
-        if (string.Equals(archiForgeOptions.Value.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(archLucidOptions.Value.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
         
             return HealthCheckResult.Healthy(
                 "Database readiness skipped: storage is InMemory (no SQL persistence).");

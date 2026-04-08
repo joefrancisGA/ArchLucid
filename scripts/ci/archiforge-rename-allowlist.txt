@@ -29,6 +29,7 @@ ComparisonReplayVerifyDriftIntegrationTests.cs
 SwaggerOpenApiAuthTests.cs
 ComparisonDriftAnalyzerTests.cs
 SqlServerPersistenceFixture.cs
+RlsArchLucidScopeIntegrationTests.cs
 DatabaseMigratorUpgradePathSqlIntegrationTests.cs
 JsonInfrastructureDeclarationParserTests.cs
 SupportBundleConfigSummary.cs
