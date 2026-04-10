@@ -12,7 +12,7 @@ public static class ArchLucidPersistenceStartup
     public static void RunSchemaBootstrapMigrationsAndOptionalDemoSeed(WebApplication app)
     {
         ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(app.Configuration);
-        bool storageIsSql = string.Equals(archLucidOptions.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase);
+        bool storageIsSql = ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider);
 
         using (IServiceScope scope = app.Services.CreateScope())
         {

@@ -81,7 +81,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
                     opts.StorageProvider = resolved.StorageProvider;
                 });
 
-        if (string.Equals(options.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        if (ArchLucidOptions.EffectiveIsInMemory(options.StorageProvider))
         {
             services.AddSingleton<IContextSnapshotRepository, InMemoryContextSnapshotRepository>();
             services.AddSingleton<IGraphSnapshotRepository, InMemoryGraphSnapshotRepository>();

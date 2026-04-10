@@ -11,7 +11,7 @@ internal static class ProductionSafetyRules
         ArchLucidOptions archLucidOptions,
         List<string> errors)
     {
-        if (!string.Equals(archLucidOptions.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
+        if (!ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider))
         {
             return;
         }

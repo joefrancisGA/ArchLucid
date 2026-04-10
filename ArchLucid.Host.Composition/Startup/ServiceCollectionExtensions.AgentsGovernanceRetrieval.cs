@@ -319,7 +319,7 @@ public static partial class ServiceCollectionExtensions
     {
         ArchLucidOptions governanceStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        if (string.Equals(governanceStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        if (ArchLucidOptions.EffectiveIsInMemory(governanceStorage.StorageProvider))
         {
             services.AddSingleton<IGovernanceApprovalRequestRepository, InMemoryGovernanceApprovalRequestRepository>();
             services.AddSingleton<IGovernancePromotionRecordRepository, InMemoryGovernancePromotionRecordRepository>();

@@ -52,7 +52,7 @@ public static partial class ServiceCollectionExtensions
 
         ArchLucidOptions coordinatorStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        if (string.Equals(coordinatorStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        if (ArchLucidOptions.EffectiveIsInMemory(coordinatorStorage.StorageProvider))
         {
             services.AddSingleton<IArchitectureRequestRepository, InMemoryArchitectureRequestRepository>();
             services.AddSingleton<IArchitectureRunRepository>(sp =>

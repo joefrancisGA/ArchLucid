@@ -21,7 +21,7 @@ public static partial class ServiceCollectionExtensions
     {
         ArchLucidOptions mode = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        if (!string.Equals(mode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        if (!ArchLucidOptions.EffectiveIsInMemory(mode.StorageProvider))
         {
             return;
         }

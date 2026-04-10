@@ -19,7 +19,7 @@ public static class ApiWebLayerServiceCollectionExtensions
     {
         ArchLucidOptions options = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        if (string.Equals(options.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        if (ArchLucidOptions.EffectiveIsInMemory(options.StorageProvider))
         {
             services.AddSingleton<ILearningPlanningReadService, LearningPlanningReadService>();
             services.AddScoped<IEvolutionSimulationService, EvolutionSimulationService>();

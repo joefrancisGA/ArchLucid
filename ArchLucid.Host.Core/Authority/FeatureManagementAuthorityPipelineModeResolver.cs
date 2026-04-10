@@ -22,13 +22,11 @@ public sealed class FeatureManagementAuthorityPipelineModeResolver(
     public async Task<bool> ShouldQueueContextAndGraphStagesAsync(CancellationToken cancellationToken = default)
     {
         ArchLucidOptions archLucid = ArchLucidConfigurationBridge.ResolveArchLucidOptions(_configuration);
-        string? storage = archLucid.StorageProvider?.Trim();
 
-        if (string.Equals(storage, "InMemory", StringComparison.OrdinalIgnoreCase))
+        if (ArchLucidOptions.EffectiveIsInMemory(archLucid.StorageProvider))
             return false;
 
-        if (!string.Equals(storage, "Sql", StringComparison.OrdinalIgnoreCase) &&
-            !string.IsNullOrEmpty(storage))
+        if (!ArchLucidOptions.EffectiveIsSql(archLucid.StorageProvider))
             return false;
 
         return await _featureManager.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline, cancellationToken);

@@ -8,7 +8,7 @@ internal static class StorageRules
 {
     public static void Collect(IConfiguration configuration, ArchLucidOptions archLucidOptions, List<string> errors)
     {
-        bool storageIsSql = string.Equals(archLucidOptions.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase);
+        bool storageIsSql = ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider);
 
         if (!string.IsNullOrWhiteSpace(archLucidOptions.StorageProvider) &&
             !string.Equals(archLucidOptions.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase) &&

@@ -40,7 +40,7 @@ public static partial class ServiceCollectionExtensions
     {
         ArchLucidOptions exportStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        if (string.Equals(exportStorage.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        if (ArchLucidOptions.EffectiveIsInMemory(exportStorage.StorageProvider))
         {
             services.AddSingleton<IRunExportRecordRepository, InMemoryRunExportRecordRepository>();
         }
@@ -85,7 +85,7 @@ public static partial class ServiceCollectionExtensions
 
         ArchLucidOptions storageMode = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        if (string.Equals(storageMode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        if (ArchLucidOptions.EffectiveIsInMemory(storageMode.StorageProvider))
         {
             services.AddSingleton<IComparisonRecordRepository, InMemoryComparisonRecordRepository>();
         }

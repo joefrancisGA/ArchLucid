@@ -18,7 +18,7 @@ internal static class BackgroundJobsRules
 
         ArchLucidOptions archi = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        if (!string.Equals(archi.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
+        if (!ArchLucidOptions.EffectiveIsSql(archi.StorageProvider))
         {
             errors.Add("BackgroundJobs:Mode Durable requires ArchLucid:StorageProvider Sql (shared job state in SQL).");
         }
