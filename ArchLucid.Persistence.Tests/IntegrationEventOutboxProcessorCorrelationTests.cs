@@ -2,7 +2,6 @@ using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
-using ArchLucid.Persistence.Integration;
 
 using FluentAssertions;
 

@@ -6,7 +6,6 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.TestSupport;
 

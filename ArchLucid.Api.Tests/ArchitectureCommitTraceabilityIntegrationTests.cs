@@ -47,7 +47,7 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
 
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
-        string runId = created!.Run.RunId;
+        string runId = created.Run.RunId;
 
         HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
@@ -59,7 +59,7 @@ public sealed class ArchitectureCommitTraceabilityIntegrationTests
         commitPayload.Should().NotBeNull();
 
         IReadOnlyList<string> gaps = CommittedManifestTraceabilityRules.GetLinkageGaps(
-            commitPayload!.Manifest,
+            commitPayload.Manifest,
             commitPayload.DecisionTraces);
 
         gaps.Should().BeEmpty("manifest metadata must list exactly the coordinator trace ids returned with the commit body");

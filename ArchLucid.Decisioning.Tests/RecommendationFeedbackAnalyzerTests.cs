@@ -1,5 +1,5 @@
 using ArchLucid.Decisioning.Advisory.Workflow;
-using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence;
 
 using FluentAssertions;
 

@@ -6,7 +6,6 @@ using Polly;
 using Polly.Retry;
 using Polly.Simmy;
 using Polly.Simmy.Fault;
-using Polly.Simmy.Latency;
 using Polly.Timeout;
 
 namespace ArchLucid.AgentRuntime.Tests;
@@ -21,7 +20,10 @@ public sealed class LlmCallRetrySimmyTests
         int innerCalls = 0;
         int chaosWave = 0;
 
-        ChaosFaultStrategyOptions chaosOptions = new() { InjectionRate = 1.0 };
+        ChaosFaultStrategyOptions chaosOptions = new()
+        {
+            InjectionRate = 1.0
+        };
         chaosOptions.EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2);
         chaosOptions.FaultGenerator = static _ =>
             new ValueTask<Exception?>(

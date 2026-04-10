@@ -2,17 +2,15 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Application;
-using ArchLucid.Application.Architecture;
-using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Coordinator.Services;
+using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.TestSupport;
-using ArchLucid.Decisioning.Merge;
 
 using FluentAssertions;
 
@@ -52,8 +50,15 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 RequestFingerprint = fingerprint,
             });
 
-        ArchitectureRun run = new() { RunId = runId, RequestId = "prior-req" };
-        EvidenceBundle bundle = new() { EvidenceBundleId = "eb-contract" };
+        ArchitectureRun run = new()
+        {
+            RunId = runId,
+            RequestId = "prior-req"
+        };
+        EvidenceBundle bundle = new()
+        {
+            EvidenceBundleId = "eb-contract"
+        };
         List<AgentTask> tasks =
         [
             new()

@@ -47,6 +47,12 @@ body {
   outline-offset: 3px;
 }
 
+/* Underline distinguishes links from surrounding body text (WCAG 1.4.1 / axe link-in-text-block). */
+.workflow-inline-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .workflow-inline-link:focus-visible {
   outline: 2px solid #0f766e;
   outline-offset: 2px;

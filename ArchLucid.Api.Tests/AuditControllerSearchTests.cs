@@ -119,7 +119,7 @@ public sealed class AuditControllerSearchTests
             .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
             .Count(static f => f is { IsLiteral: true, FieldType: { } t } && t == typeof(string));
 
-        types!.Count.Should().Be(expected);
+        types.Count.Should().Be(expected);
         types.Should().Contain(AuditEventTypes.CircuitBreakerStateTransition);
     }
 }

@@ -1,6 +1,9 @@
-using ArchLucid.Api.Authentication;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
+using ArchLucid.Api.Authentication;
 
 using FluentAssertions;
 
@@ -11,12 +14,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 
 using Moq;
-
-using System.Security.Claims;
-using System.Text.Encodings.Web;
 
 namespace ArchLucid.Api.Tests;
 

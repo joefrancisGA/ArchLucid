@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Alerts.Composite;
 
-namespace ArchLucid.Persistence.Alerts;
+namespace ArchLucid.Persistence;
 
 /// <summary>In-memory <see cref="ICompositeAlertRuleRepository"/> for tests; clones rules on write to mimic isolated rows.</summary>
 public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRepository

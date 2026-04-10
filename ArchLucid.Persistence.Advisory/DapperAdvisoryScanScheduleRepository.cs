@@ -7,7 +7,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// SQL Server implementation of <see cref="IAdvisoryScanScheduleRepository"/> against <c>dbo.AdvisoryScanSchedules</c>.

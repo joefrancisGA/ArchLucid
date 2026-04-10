@@ -1,6 +1,6 @@
-using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Persistence.Advisory;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Persistence;
 
 using FluentAssertions;
 
@@ -19,8 +19,14 @@ public sealed class AdvisoryDueScheduleProcessorTests
     [Fact]
     public async Task ProcessDueAsync_invokes_runner_for_each_due_schedule_in_order()
     {
-        AdvisoryScanSchedule a = new() { ScheduleId = Guid.NewGuid() };
-        AdvisoryScanSchedule b = new() { ScheduleId = Guid.NewGuid() };
+        AdvisoryScanSchedule a = new()
+        {
+            ScheduleId = Guid.NewGuid()
+        };
+        AdvisoryScanSchedule b = new()
+        {
+            ScheduleId = Guid.NewGuid()
+        };
 
         Mock<IAdvisoryScanScheduleRepository> schedules = new();
         schedules
@@ -49,8 +55,14 @@ public sealed class AdvisoryDueScheduleProcessorTests
     [Fact]
     public async Task ProcessDueAsync_continues_second_schedule_when_first_runner_throws_non_cancel()
     {
-        AdvisoryScanSchedule a = new() { ScheduleId = Guid.NewGuid() };
-        AdvisoryScanSchedule b = new() { ScheduleId = Guid.NewGuid() };
+        AdvisoryScanSchedule a = new()
+        {
+            ScheduleId = Guid.NewGuid()
+        };
+        AdvisoryScanSchedule b = new()
+        {
+            ScheduleId = Guid.NewGuid()
+        };
 
         Mock<IAdvisoryScanScheduleRepository> schedules = new();
         schedules
@@ -78,7 +90,10 @@ public sealed class AdvisoryDueScheduleProcessorTests
     [Fact]
     public async Task ProcessDueAsync_propagates_OperationCanceledException()
     {
-        AdvisoryScanSchedule a = new() { ScheduleId = Guid.NewGuid() };
+        AdvisoryScanSchedule a = new()
+        {
+            ScheduleId = Guid.NewGuid()
+        };
 
         Mock<IAdvisoryScanScheduleRepository> schedules = new();
         schedules

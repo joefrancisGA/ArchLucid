@@ -41,7 +41,7 @@ public sealed class DecisionTraceJsonRoundTripTests
 
         DecisionTrace? back = JsonSerializer.Deserialize<DecisionTrace>(json, JsonOptions);
         back.Should().NotBeNull().And.BeOfType<RunEventTrace>();
-        RunEventTracePayload ev = back!.RequireRunEvent();
+        RunEventTracePayload ev = back.RequireRunEvent();
         ev.TraceId.Should().Be("trace-rt-1");
         ev.RunId.Should().Be("run-rt-1");
         ev.EventType.Should().Be("Merge.Completed");
@@ -76,7 +76,7 @@ public sealed class DecisionTraceJsonRoundTripTests
 
         DecisionTrace? back = JsonSerializer.Deserialize<DecisionTrace>(json, JsonOptions);
         back.Should().NotBeNull().And.BeOfType<RuleAuditTrace>();
-        RuleAuditTracePayload audit = back!.RequireRuleAudit();
+        RuleAuditTracePayload audit = back.RequireRuleAudit();
         audit.DecisionTraceId.Should().Be(traceId);
         audit.RunId.Should().Be(runId);
         audit.AppliedRuleIds.Should().Equal("r1");
@@ -101,6 +101,6 @@ public sealed class DecisionTraceJsonRoundTripTests
 
         DecisionTrace? back = JsonSerializer.Deserialize<DecisionTrace>(json, JsonOptions);
         back.Should().NotBeNull().And.BeOfType<RunEventTrace>();
-        back!.RequireRunEvent().TraceId.Should().Be("t-legacy");
+        back.RequireRunEvent().TraceId.Should().Be("t-legacy");
     }
 }

@@ -9,7 +9,7 @@ using ArchLucid.Decisioning.Validation;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests.Merge;
 
 /// <summary>
 /// Tests for Decision Engine Service.

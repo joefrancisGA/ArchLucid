@@ -11,7 +11,11 @@ public sealed class CircuitBreakerGateAuditCallbackTests
     public void StateTransition_Closed_To_Open_InvokesCallback()
     {
         List<CircuitBreakerAuditEntry> entries = [];
-        CircuitBreakerOptions options = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 5,
+            DurationOfBreakSeconds = 60
+        };
         CircuitBreakerGate gate = new(
             "cb-test",
             options,
@@ -26,7 +30,7 @@ public sealed class CircuitBreakerGateAuditCallbackTests
             e => e.TransitionType == "StateTransition");
 
         lastTransition.Should().NotBeNull();
-        lastTransition!.FromState.Should().Be("Closed");
+        lastTransition.FromState.Should().Be("Closed");
         lastTransition.ToState.Should().Be("Open");
     }
 
@@ -34,7 +38,11 @@ public sealed class CircuitBreakerGateAuditCallbackTests
     public void Rejection_WhenOpen_InvokesCallback()
     {
         List<CircuitBreakerAuditEntry> entries = [];
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 60
+        };
         CircuitBreakerGate gate = new("cb-reject", options, onAuditEntry: entries.Add);
         gate.RecordFailure();
 
@@ -50,7 +58,11 @@ public sealed class CircuitBreakerGateAuditCallbackTests
     {
         List<CircuitBreakerAuditEntry> entries = [];
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 30 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30
+        };
         CircuitBreakerGate gate = new("cb-probe-ok", options, clock.ToFunc(), entries.Add);
 
         gate.RecordFailure();
@@ -67,7 +79,11 @@ public sealed class CircuitBreakerGateAuditCallbackTests
     {
         List<CircuitBreakerAuditEntry> entries = [];
         MutableUtcClock clock = new(new DateTimeOffset(2026, 2, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 30 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30
+        };
         CircuitBreakerGate gate = new("cb-probe-fail", options, clock.ToFunc(), entries.Add);
 
         gate.RecordFailure();
@@ -82,7 +98,11 @@ public sealed class CircuitBreakerGateAuditCallbackTests
     [Fact]
     public void Callback_Null_DoesNotThrow()
     {
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 10 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 10
+        };
         CircuitBreakerGate gate = new("cb-null", options);
         Action actOpen = () => gate.RecordFailure();
 
@@ -96,7 +116,11 @@ public sealed class CircuitBreakerGateAuditCallbackTests
     [Fact]
     public void Callback_that_throws_is_swallowed()
     {
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 10 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 10
+        };
         CircuitBreakerGate gate = new(
             "cb-bad-callback",
             options,

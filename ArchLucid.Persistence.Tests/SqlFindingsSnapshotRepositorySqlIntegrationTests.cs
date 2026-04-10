@@ -361,7 +361,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Findings.Should().HaveCount(3);
+        loaded.Findings.Should().HaveCount(3);
         loaded.Findings[0].FindingId.Should().Be("f-first");
         loaded.Findings[1].FindingId.Should().Be("f-middle");
         loaded.Findings[2].FindingId.Should().Be("f-last");
@@ -538,7 +538,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Findings.Should().HaveCount(3);
+        loaded.Findings.Should().HaveCount(3);
         loaded.Findings[0].FindingId.Should().Be("f-req");
         loaded.Findings[1].FindingId.Should().Be("f-comp");
         loaded.Findings[2].FindingId.Should().Be("f-cost");
@@ -610,7 +610,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Findings.Should().BeEmpty();
+        loaded.Findings.Should().BeEmpty();
         loaded.FindingsSnapshotId.Should().Be(findingsId);
         loaded.RunId.Should().Be(runId);
         loaded.ContextSnapshotId.Should().Be(contextId);
@@ -667,7 +667,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Findings.Should().BeEmpty();
+        loaded.Findings.Should().BeEmpty();
         loaded.FindingsSnapshotId.Should().Be(findingsId);
         loaded.RunId.Should().Be(runId);
         loaded.ContextSnapshotId.Should().Be(contextId);
@@ -737,7 +737,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Findings.Should().BeEmpty();
+        loaded.Findings.Should().BeEmpty();
         loaded.FindingsSnapshotId.Should().Be(findingsId);
         loaded.RunId.Should().Be(runId);
         loaded.ContextSnapshotId.Should().Be(contextId);

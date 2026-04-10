@@ -1,6 +1,5 @@
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
-using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -151,13 +150,13 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
         storedTraces.Should().NotBeEmpty();
 
         CommittedManifestTraceabilityRules
-            .GetLinkageGaps(storedManifest!, storedTraces)
+            .GetLinkageGaps(storedManifest, storedTraces)
             .Should()
             .BeEmpty();
 
         ArchitectureRun? updatedRun = await runRepository.GetByIdAsync(runId, CancellationToken.None);
         updatedRun.Should().NotBeNull();
-        updatedRun!.Status.Should().Be(ArchitectureRunStatus.Committed);
+        updatedRun.Status.Should().Be(ArchitectureRunStatus.Committed);
         updatedRun.CurrentManifestVersion.Should().Be(version);
     }
 }

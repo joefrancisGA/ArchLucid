@@ -40,7 +40,7 @@ public sealed class KeyContractsJsonRoundTripTests
         ArchitectureRequest? back = JsonSerializer.Deserialize<ArchitectureRequest>(json, JsonOptions);
 
         back.Should().NotBeNull();
-        back!.RequestId.Should().Be(original.RequestId);
+        back.RequestId.Should().Be(original.RequestId);
         back.Description.Should().Be(original.Description);
         back.SystemName.Should().Be(original.SystemName);
         back.Environment.Should().Be(original.Environment);
@@ -65,7 +65,7 @@ public sealed class KeyContractsJsonRoundTripTests
         AgentTask? back = JsonSerializer.Deserialize<AgentTask>(json, JsonOptions);
 
         back.Should().NotBeNull();
-        back!.TaskId.Should().Be(original.TaskId);
+        back.TaskId.Should().Be(original.TaskId);
         back.RunId.Should().Be(original.RunId);
         back.AgentType.Should().Be(original.AgentType);
         back.Objective.Should().Be(original.Objective);
@@ -110,7 +110,7 @@ public sealed class KeyContractsJsonRoundTripTests
         DecisionNode? back = JsonSerializer.Deserialize<DecisionNode>(json, JsonOptions);
 
         back.Should().NotBeNull();
-        back!.RunId.Should().Be(original.RunId);
+        back.RunId.Should().Be(original.RunId);
         back.Topic.Should().Be(original.Topic);
         back.Options.Should().HaveCount(2);
         back.SelectedOptionId.Should().Be(original.SelectedOptionId);

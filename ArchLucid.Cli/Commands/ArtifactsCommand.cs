@@ -1,7 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Cli.Support;
-
 namespace ArchLucid.Cli.Commands;
 
 internal static class ArtifactsCommand

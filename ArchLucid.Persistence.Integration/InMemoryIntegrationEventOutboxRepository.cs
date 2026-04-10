@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace ArchLucid.Persistence.Integration;
+namespace ArchLucid.Persistence;
 
 /// <summary>In-memory outbox for tests and <c>StorageProvider=InMemory</c>.</summary>
 public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEventOutboxRepository

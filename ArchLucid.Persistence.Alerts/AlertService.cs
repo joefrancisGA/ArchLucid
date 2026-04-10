@@ -7,14 +7,13 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
-using ArchLucid.Persistence.Alerts.Helpers;
-using ArchLucid.Persistence.Integration;
+using ArchLucid.Persistence.Helpers;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Persistence.Alerts;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Loads alert rules for a scope, applies policy-pack governance filtering, evaluates, persists new open alerts, delivers, and audits.
@@ -75,9 +74,9 @@ public sealed class AlertService(
                 bool wasCreated = await PersistAndDeliverAlertAsync(alert, context, ct);
 
                 if (wasCreated)
-                
+
                     persisted.Add(alert);
-                
+
             }
 
             return new AlertEvaluationOutcome(generated, persisted);

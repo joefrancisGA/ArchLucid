@@ -6,7 +6,6 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Persistence.Repositories;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 

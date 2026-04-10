@@ -1,5 +1,3 @@
-using System.Data;
-
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Governance.Resolution;
 
@@ -169,9 +167,9 @@ public sealed class PolicyPackManagementService(
             proj = Guid.Empty;
         }
         else if (string.Equals(normalized, GovernanceScopeLevel.Workspace, StringComparison.Ordinal))
-        
+
             proj = Guid.Empty;
-        
+
 
         PolicyPackAssignment assignment = new()
         {

@@ -1,5 +1,3 @@
-using ArchLucid.Cli;
-
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
@@ -28,7 +26,11 @@ public sealed class CliResilienceOptionsTests
     [Fact]
     public void Normalize_clamps_extreme_values()
     {
-        CliResilienceOptions options = new() { MaxRetryAttempts = 100, InitialDelaySeconds = 10_000 };
+        CliResilienceOptions options = new()
+        {
+            MaxRetryAttempts = 100,
+            InitialDelaySeconds = 10_000
+        };
         options.Normalize();
 
         options.MaxRetryAttempts.Should().Be(10);

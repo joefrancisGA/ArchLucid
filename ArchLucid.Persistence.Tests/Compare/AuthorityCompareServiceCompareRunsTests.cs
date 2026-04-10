@@ -50,11 +50,11 @@ public sealed class AuthorityCompareServiceCompareRunsTests
         RunComparisonResult? result = await sut.CompareRunsAsync(scope, leftRunId, rightRunId, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.ManifestComparison.Should().BeNull();
+        result.ManifestComparison.Should().BeNull();
 
         DiffItem? goldenDiff = result.RunLevelDiffs.SingleOrDefault(d => d.Key == "GoldenManifestId");
         goldenDiff.Should().NotBeNull();
-        goldenDiff!.DiffKind.Should().Be(DiffKind.Changed);
+        goldenDiff.DiffKind.Should().Be(DiffKind.Changed);
         goldenDiff.BeforeValue.Should().Be(manifestId.ToString());
         goldenDiff.AfterValue.Should().BeNull();
     }

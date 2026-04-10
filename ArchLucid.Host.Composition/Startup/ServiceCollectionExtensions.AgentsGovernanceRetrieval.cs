@@ -19,9 +19,6 @@ using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Queries;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Polly;
@@ -118,8 +115,7 @@ public static partial class ServiceCollectionExtensions
                         sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
                     IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
                         sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
-                    ILogger<LlmCompletionAccountingClient> accountingLogger =
-                        sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+                    sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
 
                     IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
                         azureInner,
@@ -231,8 +227,7 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
             IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
                 sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
-            ILogger<LlmCompletionAccountingClient> accountingLogger =
-                sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+            sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
 
             IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
                 echoInner,

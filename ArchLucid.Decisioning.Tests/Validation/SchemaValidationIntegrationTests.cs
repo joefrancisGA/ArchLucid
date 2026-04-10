@@ -4,7 +4,7 @@ using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ArchLucid.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests.Validation;
 
 /// <summary>
 /// Integration tests: Schema Validation (HTTP host, database, or cross-component).

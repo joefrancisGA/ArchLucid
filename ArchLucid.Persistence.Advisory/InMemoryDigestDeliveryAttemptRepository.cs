@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Delivery;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Thread-safe in-memory implementation of <see cref="IDigestDeliveryAttemptRepository"/> used for testing and local development.

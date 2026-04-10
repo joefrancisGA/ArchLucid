@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Scheduling;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Persistence for <see cref="AdvisoryScanSchedule"/> rows (CRUD subset used by API and the advisory scan runner).

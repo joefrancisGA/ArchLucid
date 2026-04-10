@@ -7,7 +7,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence.Integration;
+namespace ArchLucid.Persistence;
 
 /// <summary>Dapper implementation over <c>dbo.IntegrationEventOutbox</c>.</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
@@ -132,7 +132,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         IEnumerable<IntegrationEventOutboxRow> rows = await connection.QueryAsync<IntegrationEventOutboxRow>(
-            new CommandDefinition(sql, new { Take = take }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                Take = take
+            }, cancellationToken: ct));
 
         List<IntegrationEventOutboxEntry> list = [];
 
@@ -176,7 +179,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
-        await connection.ExecuteAsync(new CommandDefinition(sql, new { OutboxId = outboxId }, cancellationToken: ct));
+        await connection.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            OutboxId = outboxId
+        }, cancellationToken: ct));
     }
 
     /// <inheritdoc />
@@ -264,7 +270,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         IEnumerable<DeadLetterRow> rows = await connection.QueryAsync<DeadLetterRow>(
-            new CommandDefinition(sql, new { Take = take }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                Take = take
+            }, cancellationToken: ct));
 
         List<IntegrationEventOutboxDeadLetterRow> list = [];
 
@@ -305,7 +314,10 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
-        int rows = await connection.ExecuteAsync(new CommandDefinition(sql, new { OutboxId = outboxId }, cancellationToken: ct));
+        int rows = await connection.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            OutboxId = outboxId
+        }, cancellationToken: ct));
 
         return rows > 0;
     }
@@ -325,46 +337,103 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Dapper materialization.")]
     private sealed class IntegrationEventOutboxRow
     {
-        public Guid OutboxId { get; init; }
+        public Guid OutboxId
+        {
+            get; init;
+        }
 
-        public Guid? RunId { get; init; }
+        public Guid? RunId
+        {
+            get; init;
+        }
 
-        public string? EventType { get; init; }
+        public string? EventType
+        {
+            get; init;
+        }
 
-        public string? MessageId { get; init; }
+        public string? MessageId
+        {
+            get; init;
+        }
 
-        public byte[]? PayloadUtf8 { get; init; }
+        public byte[]? PayloadUtf8
+        {
+            get; init;
+        }
 
-        public Guid TenantId { get; init; }
+        public Guid TenantId
+        {
+            get; init;
+        }
 
-        public Guid WorkspaceId { get; init; }
+        public Guid WorkspaceId
+        {
+            get; init;
+        }
 
-        public Guid ProjectId { get; init; }
+        public Guid ProjectId
+        {
+            get; init;
+        }
 
-        public DateTime CreatedUtc { get; init; }
+        public DateTime CreatedUtc
+        {
+            get; init;
+        }
 
-        public int RetryCount { get; init; }
+        public int RetryCount
+        {
+            get; init;
+        }
 
-        public DateTime? NextRetryUtc { get; init; }
+        public DateTime? NextRetryUtc
+        {
+            get; init;
+        }
 
-        public string? LastErrorMessage { get; init; }
+        public string? LastErrorMessage
+        {
+            get; init;
+        }
 
-        public DateTime? DeadLetteredUtc { get; init; }
+        public DateTime? DeadLetteredUtc
+        {
+            get; init;
+        }
     }
 
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Dapper materialization.")]
     private sealed class DeadLetterRow
     {
-        public Guid OutboxId { get; init; }
+        public Guid OutboxId
+        {
+            get; init;
+        }
 
-        public Guid? RunId { get; init; }
+        public Guid? RunId
+        {
+            get; init;
+        }
 
-        public string? EventType { get; init; }
+        public string? EventType
+        {
+            get; init;
+        }
 
-        public DateTime DeadLetteredUtc { get; init; }
+        public DateTime DeadLetteredUtc
+        {
+            get; init;
+        }
 
-        public int RetryCount { get; init; }
+        public int RetryCount
+        {
+            get; init;
+        }
 
-        public string? LastErrorMessage { get; init; }
+        public string? LastErrorMessage
+        {
+            get; init;
+        }
     }
 }

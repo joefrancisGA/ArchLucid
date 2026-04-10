@@ -3,7 +3,6 @@ using System.Text.Json;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Host.Core.Services;
 
 using FluentAssertions;
 

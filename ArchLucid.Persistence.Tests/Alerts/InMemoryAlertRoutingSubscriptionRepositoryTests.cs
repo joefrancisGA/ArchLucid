@@ -1,5 +1,4 @@
 using ArchLucid.Decisioning.Alerts.Delivery;
-using ArchLucid.Persistence.Alerts;
 
 using FluentAssertions;
 

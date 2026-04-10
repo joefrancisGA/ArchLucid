@@ -41,9 +41,14 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
 # Standalone server needs only `node`; the official Node base still ships npm/yarn trees that Trivy flags (e.g. picomatch
-# under npm) even though the app never invokes them. Upgrade Alpine packages for OS CVEs (e.g. zlib), then drop npm/yarn.
-RUN apk update \
+# under npm) even though the app never invokes them. Refresh Alpine index, upgrade OS packages, then pin OpenSSL ≥ 3.5.6-r0
+# (CVE-2026-28390) so cached layers cannot keep libssl3/libcrypto3 on an older revision. Then drop npm/yarn.
+RUN apk update --no-cache \
     && apk upgrade --no-cache \
+    && apk add --no-cache --upgrade \
+         "openssl>=3.5.6-r0" \
+         "libssl3>=3.5.6-r0" \
+         "libcrypto3>=3.5.6-r0" \
     && rm -rf /usr/local/lib/node_modules/npm \
     && ( [ ! -d /opt ] || find /opt -maxdepth 1 -type d -name 'yarn-v*' -exec rm -rf {} + ) \
     && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/yarn /usr/local/bin/yarnpkg

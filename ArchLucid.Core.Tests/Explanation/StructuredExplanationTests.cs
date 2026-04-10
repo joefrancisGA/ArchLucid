@@ -33,7 +33,7 @@ public sealed class StructuredExplanationTests
         StructuredExplanation? back = JsonSerializer.Deserialize<StructuredExplanation>(json, JsonOptions);
 
         back.Should().NotBeNull();
-        back!.SchemaVersion.Should().Be(1);
+        back.SchemaVersion.Should().Be(1);
         back.Reasoning.Should().Be(original.Reasoning);
         back.EvidenceRefs.Should().Equal("edge-1", "node-2");
         back.Confidence.Should().Be(0.82m);

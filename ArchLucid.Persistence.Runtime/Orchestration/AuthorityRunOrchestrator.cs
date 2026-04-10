@@ -2,19 +2,18 @@ using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Integration;
+using ArchLucid.Core.Transactions;
+using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration.Pipeline;
-using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Serialization;
-using ArchLucid.Core.Transactions;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -92,7 +91,11 @@ public sealed class AuthorityRunOrchestrator(
                     EventType = AuditEventTypes.RunStarted,
                     RunId = run.RunId,
                     DataJson = JsonSerializer.Serialize(
-                        new { run.ProjectId, Queued = false },
+                        new
+                        {
+                            run.ProjectId,
+                            Queued = false
+                        },
                         AuditJsonSerializationOptions.Instance),
                 },
                 cancellationToken);
@@ -128,7 +131,11 @@ public sealed class AuthorityRunOrchestrator(
                         EventType = AuditEventTypes.RunStarted,
                         RunId = run.RunId,
                         DataJson = JsonSerializer.Serialize(
-                            new { run.ProjectId, Queued = true },
+                            new
+                            {
+                                run.ProjectId,
+                                Queued = true
+                            },
                             AuditJsonSerializationOptions.Instance),
                     },
                     cancellationToken);
@@ -233,7 +240,12 @@ public sealed class AuthorityRunOrchestrator(
                     EventType = AuditEventTypes.RunStarted,
                     RunId = run.RunId,
                     DataJson = JsonSerializer.Serialize(
-                        new { run.ProjectId, Queued = true, ResumedFromQueue = true },
+                        new
+                        {
+                            run.ProjectId,
+                            Queued = true,
+                            ResumedFromQueue = true
+                        },
                         AuditJsonSerializationOptions.Instance),
                 },
                 cancellationToken);

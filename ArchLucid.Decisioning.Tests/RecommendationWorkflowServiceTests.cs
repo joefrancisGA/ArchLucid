@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Workflow;
-using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence;
 
 using FluentAssertions;
 
@@ -132,7 +132,11 @@ public sealed class RecommendationWorkflowServiceTests
         _repo.Setup(r => r.UpsertAsync(It.IsAny<RecommendationRecord>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        RecommendationActionRequest request = new() { Action = action, Comment = "note" };
+        RecommendationActionRequest request = new()
+        {
+            Action = action,
+            Comment = "note"
+        };
 
         RecommendationRecord? result = await _sut.ApplyActionAsync(recId, "user-1", "User One", request, CancellationToken.None);
 
@@ -151,7 +155,10 @@ public sealed class RecommendationWorkflowServiceTests
         _repo.Setup(r => r.GetByIdAsync(recId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RecommendationRecord?)null);
 
-        RecommendationActionRequest request = new() { Action = RecommendationActionType.Accept };
+        RecommendationActionRequest request = new()
+        {
+            Action = RecommendationActionType.Accept
+        };
 
         RecommendationRecord? result = await _sut.ApplyActionAsync(recId, "user-1", "User One", request, CancellationToken.None);
 
@@ -202,7 +209,10 @@ public sealed class RecommendationWorkflowServiceTests
         _repo.Setup(r => r.UpsertAsync(It.IsAny<RecommendationRecord>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        RecommendationActionRequest request = new() { Action = "SomethingUnknown" };
+        RecommendationActionRequest request = new()
+        {
+            Action = "SomethingUnknown"
+        };
 
         RecommendationRecord? result = await _sut.ApplyActionAsync(recId, "user-1", "User One", request, CancellationToken.None);
 

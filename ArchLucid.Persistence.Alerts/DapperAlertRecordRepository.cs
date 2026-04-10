@@ -8,7 +8,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence.Alerts;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Dapper-backed <see cref="IAlertRecordRepository"/> against <c>dbo.AlertRecords</c>.

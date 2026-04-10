@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Scheduling;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <inheritdoc cref="IArchitectureDigestRepository" />
 public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRepository
@@ -75,7 +75,7 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
                 d.ArchivedUtc = stamp;
                 count++;
             }
-        
+
         return Task.FromResult(count);
     }
 }

@@ -148,13 +148,11 @@ public sealed class IntegrationEventPayloadContractTests
         if (schemaRoot.TryGetProperty("required", out JsonElement requiredElement)
             && requiredElement.ValueKind == JsonValueKind.Array)
         {
-            foreach (JsonElement nameElement in requiredElement.EnumerateArray())
+            foreach (var name in requiredElement.EnumerateArray().Select(nameElement => nameElement.GetString()))
             {
-                string? name = nameElement.GetString();
-
                 name.Should().NotBeNullOrWhiteSpace();
 
-                payloadRoot.TryGetProperty(name!, out JsonElement _).Should().BeTrue(
+                payloadRoot.TryGetProperty(name, out JsonElement _).Should().BeTrue(
                     because: $"required property '{name}' must exist in serialized payload for {schemaFileName}");
             }
         }

@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 namespace ArchLucid.Api.ProblemDetails;
 
 /// <summary>

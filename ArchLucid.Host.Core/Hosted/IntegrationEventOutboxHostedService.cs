@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Integration;
+using ArchLucid.Persistence;
 
 namespace ArchLucid.Host.Core.Hosted;
 

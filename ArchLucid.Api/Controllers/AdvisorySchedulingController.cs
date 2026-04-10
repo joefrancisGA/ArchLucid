@@ -5,7 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence;
 
 using Asp.Versioning;
 

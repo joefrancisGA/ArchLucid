@@ -7,32 +7,24 @@ using Azure.Core;
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Integration;
 
 /// <summary>Pulls JSON integration events from a Service Bus topic subscription and dispatches to <see cref="IIntegrationEventHandler"/>.</summary>
 [ExcludeFromCodeCoverage(Justification = "Requires live Service Bus; covered by configuration and handler unit tests.")]
-public sealed class AzureServiceBusIntegrationEventConsumer : BackgroundService
+public sealed class AzureServiceBusIntegrationEventConsumer(
+    IEnumerable<IIntegrationEventHandler> handlers,
+    IOptionsMonitor<IntegrationEventsOptions> options,
+    ILogger<AzureServiceBusIntegrationEventConsumer> logger)
+    : BackgroundService
 {
-    private readonly IEnumerable<IIntegrationEventHandler> _handlers;
-    private readonly IOptionsMonitor<IntegrationEventsOptions> _options;
-    private readonly ILogger<AzureServiceBusIntegrationEventConsumer> _logger;
+    private readonly IEnumerable<IIntegrationEventHandler> _handlers = handlers ?? throw new ArgumentNullException(nameof(handlers));
+    private readonly IOptionsMonitor<IntegrationEventsOptions> _options = options ?? throw new ArgumentNullException(nameof(options));
+    private readonly ILogger<AzureServiceBusIntegrationEventConsumer> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     private ServiceBusClient? _client;
     private ServiceBusProcessor? _processor;
-
-    public AzureServiceBusIntegrationEventConsumer(
-        IEnumerable<IIntegrationEventHandler> handlers,
-        IOptionsMonitor<IntegrationEventsOptions> options,
-        ILogger<AzureServiceBusIntegrationEventConsumer> logger)
-    {
-        _handlers = handlers ?? throw new ArgumentNullException(nameof(handlers));
-        _options = options ?? throw new ArgumentNullException(nameof(options));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
 
     /// <inheritdoc />
     public override async Task StopAsync(CancellationToken cancellationToken)
@@ -238,12 +230,7 @@ public sealed class AzureServiceBusIntegrationEventConsumer : BackgroundService
                 h.EventType != IntegrationEventTypes.WildcardEventType
                 && IntegrationEventTypes.AreEquivalent(h.EventType, eventType));
 
-        if (specific is not null)
-        {
-            return specific;
-        }
-
-        return list.FirstOrDefault(h => h.EventType == IntegrationEventTypes.WildcardEventType);
+        return specific ?? list.FirstOrDefault(h => h.EventType == IntegrationEventTypes.WildcardEventType);
     }
 
     private static string ResolveEventType(ServiceBusReceivedMessage message)
@@ -265,19 +252,14 @@ public sealed class AzureServiceBusIntegrationEventConsumer : BackgroundService
         string? connectionString,
         string? managedIdentityClientId)
     {
-        if (!string.IsNullOrEmpty(fullyQualifiedNamespace))
-        {
-            TokenCredential credential = CreateCredential(managedIdentityClientId);
+        if (string.IsNullOrEmpty(fullyQualifiedNamespace))
+            return !string.IsNullOrEmpty(connectionString)
+                ? new ServiceBusClient(connectionString)
+                : throw new InvalidOperationException("Service Bus namespace or connection string is required.");
+        TokenCredential credential = CreateCredential(managedIdentityClientId);
 
-            return new ServiceBusClient(fullyQualifiedNamespace, credential);
-        }
+        return new ServiceBusClient(fullyQualifiedNamespace, credential);
 
-        if (!string.IsNullOrEmpty(connectionString))
-        {
-            return new ServiceBusClient(connectionString);
-        }
-
-        throw new InvalidOperationException("Service Bus namespace or connection string is required.");
     }
 
     private static TokenCredential CreateCredential(string? managedIdentityClientId)

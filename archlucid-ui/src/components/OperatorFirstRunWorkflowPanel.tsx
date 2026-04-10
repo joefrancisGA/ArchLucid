@@ -240,7 +240,7 @@ export function OperatorFirstRunWorkflowPanel() {
           </li>
         ))}
       </ol>
-      <p style={{ margin: "18px 0 0", fontSize: 13, color: "#64748b" }}>
+      <p style={{ margin: "18px 0 0", fontSize: 13, color: "#334155" }}>
         More orientation:{" "}
         <Link className="workflow-inline-link" href="/onboarding" style={{ color: "#0f766e" }}>
           Onboarding

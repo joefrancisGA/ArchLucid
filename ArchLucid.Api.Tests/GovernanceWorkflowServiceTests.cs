@@ -1,19 +1,18 @@
+using System.Data;
+
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
-using ArchLucid.TestSupport;
-using ArchLucid.Core.Audit;
-using ArchLucid.Core.Integration;
-
-using BaselineAuditEventTypes = ArchLucid.Application.Common.AuditEventTypes;
-using CoreAuditEventTypes = ArchLucid.Core.Audit.AuditEventTypes;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Integration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Integration;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -22,7 +21,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-using System.Data;
+using BaselineAuditEventTypes = ArchLucid.Application.Common.AuditEventTypes;
+using CoreAuditEventTypes = ArchLucid.Core.Audit.AuditEventTypes;
 
 namespace ArchLucid.Api.Tests;
 

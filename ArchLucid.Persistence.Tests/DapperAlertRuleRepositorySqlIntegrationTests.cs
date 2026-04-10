@@ -1,5 +1,4 @@
 using ArchLucid.Decisioning.Alerts;
-using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Connections;
 
 using FluentAssertions;

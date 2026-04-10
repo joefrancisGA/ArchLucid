@@ -9,7 +9,7 @@ using Moq;
 
 #pragma warning disable CA1873 // Avoid conditional access in logger message for test verifications
 
-namespace ArchLucid.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests.Validation;
 
 /// <summary>
 /// Tests for Schema Validation Service.
@@ -160,10 +160,10 @@ public sealed class SchemaValidationServiceTests
         SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
 
         if (result.IsValid)
-        
+
             return;
-        
-        
+
+
         result.DetailedErrors.Should().NotBeEmpty();
         result.DetailedErrors.Should().AllSatisfy(error =>
         {
@@ -191,9 +191,9 @@ public sealed class SchemaValidationServiceTests
         SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
 
         if (!result.IsValid)
-        
+
             result.DetailedErrors.Should().BeEmpty();
-        
+
     }
 
     [Fact]

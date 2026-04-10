@@ -1,7 +1,4 @@
 using System.Net;
-using System.Net.Http;
-
-using ArchLucid.Cli;
 
 using FluentAssertions;
 
@@ -49,7 +46,10 @@ public sealed class CliRetryDelegatingHandlerTests
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
         });
 
-        CliResilienceOptions options = new() { MaxRetryAttempts = 0 };
+        CliResilienceOptions options = new()
+        {
+            MaxRetryAttempts = 0
+        };
         using HttpClient http = new(new CliRetryDelegatingHandler(options) { InnerHandler = inner }, disposeHandler: true);
 
         HttpResponseMessage response = await http.GetAsync("http://localhost/ping");

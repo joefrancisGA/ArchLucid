@@ -387,7 +387,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.ManifestId.Should().Be(manifestId);
+        loaded.ManifestId.Should().Be(manifestId);
         loaded.RunId.Should().Be(runId);
         loaded.ManifestHash.Should().Be(manifestHash);
         loaded.RuleSetId.Should().Be(ruleSetId);

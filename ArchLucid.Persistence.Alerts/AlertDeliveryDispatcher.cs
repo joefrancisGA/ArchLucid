@@ -5,7 +5,7 @@ using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Persistence.Serialization;
 
-namespace ArchLucid.Persistence.Alerts;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Default <see cref="IAlertDeliveryDispatcher"/>: loads routing subscriptions, matches severity, sends through registered <see cref="IAlertDeliveryChannel"/>s, and tracks <see cref="AlertDeliveryAttempt"/> rows.

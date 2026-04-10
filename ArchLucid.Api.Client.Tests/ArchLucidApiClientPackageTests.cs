@@ -9,6 +9,6 @@ public sealed class ArchLucidApiClientPackageTests
         Type t = typeof(ArchLucidApiClientPackage);
 
         Assert.True(t.IsPublic);
-        Assert.True(t.IsAbstract && t.IsSealed);
+        Assert.True(t is { IsAbstract: true, IsSealed: true });
     }
 }

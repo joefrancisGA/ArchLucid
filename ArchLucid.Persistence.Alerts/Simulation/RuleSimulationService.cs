@@ -2,7 +2,7 @@ using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Simulation;
 
-namespace ArchLucid.Persistence.Alerts.Simulation;
+namespace ArchLucid.Persistence.Simulation;
 
 /// <summary>
 /// Default <see cref="IRuleSimulationService"/>: replays rules against contexts from <see cref="IAlertSimulationContextProvider"/> without persisting simple-rule alerts; composite path uses live suppression reads.
@@ -32,7 +32,7 @@ public sealed class RuleSimulationService(
         ArgumentNullException.ThrowIfNull(request);
 
         if (request is { UseHistoricalWindow: false, RunId: null })
-        
+
             return new RuleSimulationResult
             {
                 RuleKind = request.RuleKind,
@@ -40,7 +40,7 @@ public sealed class RuleSimulationService(
                 EvaluatedRunCount = 0,
                 SummaryNotes = { "UseHistoricalWindow is false and no RunId was provided; nothing evaluated." },
             };
-        
+
 
         IReadOnlyList<AlertEvaluationContext> contexts = await contextProvider
             .GetContextsAsync(
@@ -68,7 +68,7 @@ public sealed class RuleSimulationService(
         }
 
         foreach (AlertEvaluationContext context in contexts)
-        
+
             if (request.RuleKind.Equals(RuleKindSimple, StringComparison.OrdinalIgnoreCase) &&
                 request.SimpleRule is not null)
             {
@@ -76,9 +76,9 @@ public sealed class RuleSimulationService(
                 IReadOnlyList<AlertRecord> generated = alertEvaluator.Evaluate([rule], context);
 
                 if (generated.Count > 0)
-                
+
                     foreach (AlertRecord alert in generated)
-                    
+
                         result.Outcomes.Add(
                             new SimulatedAlertOutcome
                             {
@@ -95,10 +95,10 @@ public sealed class RuleSimulationService(
                                 EvaluationMode = RuleKindSimple,
                                 Notes = ["Simple rule matched (production evaluator; no persistence or delivery)."],
                             });
-                    
-                
+
+
                 else
-                
+
                     result.Outcomes.Add(
                         new SimulatedAlertOutcome
                         {
@@ -115,7 +115,7 @@ public sealed class RuleSimulationService(
                             EvaluationMode = RuleKindSimple,
                             Notes = ["Simple rule did not match."],
                         });
-                
+
             }
             else if (request.RuleKind.Equals(RuleKindComposite, StringComparison.OrdinalIgnoreCase) &&
                      request.CompositeRule is not null)
@@ -169,7 +169,7 @@ public sealed class RuleSimulationService(
                         ],
                     });
             }
-        
+
 
         result.MatchedCount = result.Outcomes.Count(x => x.RuleMatched);
         result.WouldCreateCount = result.Outcomes.Count(x => x.WouldCreateAlert);

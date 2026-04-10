@@ -222,7 +222,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
 
         ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.CanonicalObjects.Should().HaveCount(2);
+        loaded.CanonicalObjects.Should().HaveCount(2);
 
         loaded.CanonicalObjects[0].ObjectId.Should().Be("obj-props");
         loaded.CanonicalObjects[0].ObjectType.Should().Be("Resource");
@@ -286,7 +286,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
 
         ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.CanonicalObjects.Should().BeEmpty();
+        loaded.CanonicalObjects.Should().BeEmpty();
         loaded.Warnings.Should().BeEmpty();
         loaded.Errors.Should().BeEmpty();
         loaded.SourceHashes.Should().BeEmpty();
@@ -352,7 +352,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
 
         ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.SnapshotId.Should().Be(snapshotId);
+        loaded.SnapshotId.Should().Be(snapshotId);
         loaded.RunId.Should().Be(runId);
         loaded.ProjectId.Should().Be(projectId);
         loaded.CreatedUtc.Should().Be(createdUtc);

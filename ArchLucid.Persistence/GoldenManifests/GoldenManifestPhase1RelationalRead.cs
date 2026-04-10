@@ -1,5 +1,3 @@
-using System;
-
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.RelationalRead;
@@ -371,26 +369,38 @@ internal static class GoldenManifestPhase1RelationalRead
 
     private sealed class ManifestDecisionRow
     {
-        public int SortOrder { get; init; }
+        public int SortOrder
+        {
+            get; init;
+        }
         public string DecisionId { get; init; } = null!;
         public string Category { get; init; } = null!;
         public string Title { get; init; } = null!;
         public string SelectedOption { get; init; } = null!;
         public string Rationale { get; init; } = null!;
-        public string? RawDecisionJson { get; init; }
+        public string? RawDecisionJson
+        {
+            get; init;
+        }
     }
 
     private sealed class DecisionEvidenceRow
     {
         public string DecisionId { get; init; } = null!;
-        public int SortOrder { get; init; }
+        public int SortOrder
+        {
+            get; init;
+        }
         public string FindingId { get; init; } = null!;
     }
 
     private sealed class DecisionNodeRow
     {
         public string DecisionId { get; init; } = null!;
-        public int SortOrder { get; init; }
+        public int SortOrder
+        {
+            get; init;
+        }
         public string NodeId { get; init; } = null!;
     }
 }

@@ -1,8 +1,7 @@
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Simulation;
-
-using ArchLucid.Persistence.Alerts.Simulation;
+using ArchLucid.Persistence.Simulation;
 
 using FluentAssertions;
 

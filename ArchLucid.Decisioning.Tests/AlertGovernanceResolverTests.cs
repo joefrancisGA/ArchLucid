@@ -1,7 +1,6 @@
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
-
-using ArchLucid.Persistence.Alerts.Helpers;
+using ArchLucid.Persistence.Helpers;
 
 using FluentAssertions;
 
@@ -41,7 +40,10 @@ public sealed class AlertGovernanceResolverTests
         Guid tenantId = Guid.NewGuid();
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
-        PolicyPackContentDocument loaded = new() { Metadata = { ["k"] = "v" } };
+        PolicyPackContentDocument loaded = new()
+        {
+            Metadata = { ["k"] = "v" }
+        };
 
         AlertEvaluationContext context = new()
         {

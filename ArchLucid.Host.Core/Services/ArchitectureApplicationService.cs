@@ -1,6 +1,3 @@
-using System.Data;
-
-using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Application;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Contracts.Agents;
@@ -10,6 +7,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Host.Core.Services;
@@ -61,9 +59,9 @@ public sealed class ArchitectureApplicationService(
 
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
-        
+
             return new SubmitResultResult(false, null, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
-        
+
 
         ArchitectureRun run = detail.Run;
         List<AgentTask> tasks = detail.Tasks;
@@ -78,33 +76,33 @@ public sealed class ArchitectureApplicationService(
         }
 
         if (!string.Equals(result.RunId, runId, StringComparison.OrdinalIgnoreCase))
-        
+
             return new SubmitResultResult(false, null,
                 $"Result RunId '{result.RunId}' does not match route runId '{runId}'.",
                 ApplicationServiceFailureKind.BadRequest);
-        
+
 
         AgentTask? task = tasks.FirstOrDefault(t => string.Equals(t.TaskId, result.TaskId, StringComparison.Ordinal));
         if (task is null)
-        
+
             return new SubmitResultResult(false, null,
                 $"Task '{result.TaskId}' was not found for run '{runId}'.",
                 ApplicationServiceFailureKind.ResourceNotFound);
-        
+
 
         if (task.AgentType != result.AgentType)
-        
+
             return new SubmitResultResult(false, null,
                 $"Result AgentType '{result.AgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.",
                 ApplicationServiceFailureKind.BadRequest);
-        
+
 
         if (existingResults.Any(r => string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal)))
-        
+
             return new SubmitResultResult(false, null,
                 $"A result for task '{result.TaskId}' has already been submitted for this run.",
                 ApplicationServiceFailureKind.BadRequest);
-        
+
 
         await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
@@ -142,10 +140,10 @@ public sealed class ArchitectureApplicationService(
             return false;
 
         foreach (AgentType required in RequiredAgentTypes)
-        
+
             if (results.Count(r => r.AgentType == required) != 1)
                 return false;
-        
+
 
         return true;
     }
@@ -162,9 +160,9 @@ public sealed class ArchitectureApplicationService(
 
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
-        
+
             return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
-        
+
 
         ArchitectureRun run = detail.Run;
 
@@ -178,18 +176,18 @@ public sealed class ArchitectureApplicationService(
 
         ArchitectureRequest? architectureRequest = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
         if (architectureRequest is null)
-        
+
             return new SeedFakeResultsResult(false, 0,
                 $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found.",
                 ApplicationServiceFailureKind.ResourceNotFound);
-        
+
 
         List<AgentTask> tasks = detail.Tasks;
 
         if (tasks.Count == 0)
-        
+
             return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
-        
+
 
         List<AgentResult> existingResults = detail.Results;
 

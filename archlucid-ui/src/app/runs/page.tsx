@@ -186,7 +186,9 @@ export default async function RunsPage({
               Previous
             </Link>
           ) : (
-            <span style={{ color: "#94a3b8" }}>Previous</span>
+            <span style={{ color: "#64748b" }} aria-disabled="true">
+              Previous
+            </span>
           )}
           {page < totalPages(totalCount) ? (
             <Link
@@ -196,7 +198,9 @@ export default async function RunsPage({
               Next
             </Link>
           ) : (
-            <span style={{ color: "#94a3b8" }}>Next</span>
+            <span style={{ color: "#64748b" }} aria-disabled="true">
+              Next
+            </span>
           )}
         </nav>
       ) : null}

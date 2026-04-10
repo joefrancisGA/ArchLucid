@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Delivery;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// In-memory implementation of <see cref="IDigestSubscriptionRepository"/> for testing and storage-off mode.

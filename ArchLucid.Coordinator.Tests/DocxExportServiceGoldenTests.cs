@@ -1,8 +1,8 @@
 using ArchLucid.Application.Diagrams;
-using ArchLucid.Core.Diagrams;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Services;
 using ArchLucid.Decisioning.Manifest.Sections;
@@ -176,7 +176,7 @@ public sealed class DocxExportServiceGoldenTests
         using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
         MainDocumentPart? main = wordDoc.MainDocumentPart;
         main.Should().NotBeNull();
-        string xml = main!.Document.OuterXml;
+        string xml = main.Document.OuterXml;
         xml.Should().Contain("flowchart TD");
     }
 
@@ -264,7 +264,7 @@ public sealed class DocxExportServiceGoldenTests
         using WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordStream, false);
         MainDocumentPart? main = wordDoc.MainDocumentPart;
         main.Should().NotBeNull();
-        string xml = main!.Document.OuterXml;
+        string xml = main.Document.OuterXml;
         xml.Should().Contain("blip");
 
         diagram.Verify(

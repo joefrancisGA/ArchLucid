@@ -2,19 +2,13 @@ using System.Text;
 
 using ArchLucid.Core.Integration;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Integration;
 
 /// <summary>Catch-all handler that records integration events at Information level (payload size + safe preview).</summary>
-public sealed class LoggingIntegrationEventHandler : IIntegrationEventHandler
+public sealed class LoggingIntegrationEventHandler(ILogger<LoggingIntegrationEventHandler> logger)
+    : IIntegrationEventHandler
 {
-    private readonly ILogger<LoggingIntegrationEventHandler> _logger;
-
-    public LoggingIntegrationEventHandler(ILogger<LoggingIntegrationEventHandler> logger)
-    {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly ILogger<LoggingIntegrationEventHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
     public string EventType => IntegrationEventTypes.WildcardEventType;

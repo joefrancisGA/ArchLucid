@@ -9,7 +9,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests.Validation;
 
 /// <summary>
 /// Tests for Schema Validation.

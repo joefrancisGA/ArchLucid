@@ -5,16 +5,11 @@ using Azure.Storage.Blobs.Models;
 namespace ArchLucid.Persistence.BlobStore;
 
 /// <summary>Azure Blob Storage using a shared <see cref="BlobServiceClient"/> and <see cref="TokenCredential"/>.</summary>
-public sealed class AzureBlobArtifactBlobStore : IArtifactBlobStore
+public sealed class AzureBlobArtifactBlobStore(BlobServiceClient serviceClient, TokenCredential credential)
+    : IArtifactBlobStore
 {
-    private readonly BlobServiceClient _serviceClient;
-    private readonly TokenCredential _credential;
-
-    public AzureBlobArtifactBlobStore(BlobServiceClient serviceClient, TokenCredential credential)
-    {
-        _serviceClient = serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
-        _credential = credential ?? throw new ArgumentNullException(nameof(credential));
-    }
+    private readonly BlobServiceClient _serviceClient = serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
+    private readonly TokenCredential _credential = credential ?? throw new ArgumentNullException(nameof(credential));
 
     public async Task<string> WriteAsync(string containerName, string blobName, string content, CancellationToken ct)
     {
@@ -22,7 +17,7 @@ public sealed class AzureBlobArtifactBlobStore : IArtifactBlobStore
         ArgumentException.ThrowIfNullOrWhiteSpace(blobName);
 
         BlobContainerClient container = _serviceClient.GetBlobContainerClient(containerName.ToLowerInvariant());
-        await container.CreateIfNotExistsAsync(PublicAccessType.None, cancellationToken: ct);
+        await container.CreateIfNotExistsAsync(cancellationToken: ct);
         BlobClient blob = container.GetBlobClient(blobName);
         await blob.UploadAsync(
             new BinaryData(content),

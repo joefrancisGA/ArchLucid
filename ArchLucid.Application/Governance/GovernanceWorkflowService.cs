@@ -2,15 +2,15 @@ using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Application.Common;
-using ArchLucid.Core.Audit;
-using ArchLucid.Core.Integration;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Integration;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Persistence;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Integration;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
@@ -75,7 +75,7 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                Application.Common.AuditEventTypes.Governance.ApprovalRequestSubmitted,
+                Common.AuditEventTypes.Governance.ApprovalRequestSubmitted,
                 requestedBy,
                 request.ApprovalRequestId,
                 $"RunId={runId}; ManifestVersion={manifestVersion}; Source={sourceEnvironment}; Target={targetEnvironment}",
@@ -86,7 +86,7 @@ public sealed class GovernanceWorkflowService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = ArchLucid.Core.Audit.AuditEventTypes.GovernanceApprovalSubmitted,
+                EventType = Core.Audit.AuditEventTypes.GovernanceApprovalSubmitted,
                 RunId = auditRunId,
                 DataJson = JsonSerializer.Serialize(
                     new
@@ -129,11 +129,11 @@ public sealed class GovernanceWorkflowService(
                                             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
-        
+
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be approved from status '{request.Status}'. " +
                 "Approve is only valid from Draft or Submitted.");
-        
+
 
         request.Status = GovernanceApprovalStatus.Approved;
         request.ReviewedBy = reviewedBy;
@@ -144,7 +144,7 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                Application.Common.AuditEventTypes.Governance.ApprovalRequestApproved,
+                Common.AuditEventTypes.Governance.ApprovalRequestApproved,
                 reviewedBy,
                 approvalRequestId,
                 $"Status={GovernanceApprovalStatus.Approved}",
@@ -155,7 +155,7 @@ public sealed class GovernanceWorkflowService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = ArchLucid.Core.Audit.AuditEventTypes.GovernanceApprovalApproved,
+                EventType = Core.Audit.AuditEventTypes.GovernanceApprovalApproved,
                 RunId = approvedRunId,
                 DataJson = JsonSerializer.Serialize(
                     new
@@ -170,12 +170,12 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-        
+
             logger.LogInformation(
                 "Governance approval request approved: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 request.ApprovalRequestId,
                 reviewedBy);
-        
+
 
         return request;
     }
@@ -194,11 +194,11 @@ public sealed class GovernanceWorkflowService(
                                             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
-        
+
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be rejected from status '{request.Status}'. " +
                 "Reject is only valid from Draft or Submitted.");
-        
+
 
         request.Status = GovernanceApprovalStatus.Rejected;
         request.ReviewedBy = reviewedBy;
@@ -209,7 +209,7 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                Application.Common.AuditEventTypes.Governance.ApprovalRequestRejected,
+                Common.AuditEventTypes.Governance.ApprovalRequestRejected,
                 reviewedBy,
                 approvalRequestId,
                 $"Status={GovernanceApprovalStatus.Rejected}",
@@ -220,7 +220,7 @@ public sealed class GovernanceWorkflowService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = ArchLucid.Core.Audit.AuditEventTypes.GovernanceApprovalRejected,
+                EventType = Core.Audit.AuditEventTypes.GovernanceApprovalRejected,
                 RunId = rejectedRunId,
                 DataJson = JsonSerializer.Serialize(
                     new
@@ -235,12 +235,12 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-        
+
             logger.LogInformation(
                 "Governance approval request rejected: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 request.ApprovalRequestId,
                 reviewedBy);
-        
+
 
         return request;
     }
@@ -268,39 +268,39 @@ public sealed class GovernanceWorkflowService(
         if (string.Equals(targetEnvironment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase))
         {
             if (string.IsNullOrWhiteSpace(approvalRequestId))
-            
+
                 throw new InvalidOperationException(
                     "Promotion to prod requires an approved approval request. Provide an approvalRequestId.");
-            
+
 
             GovernanceApprovalRequest? approvalRequest = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
             if (approvalRequest?.Status != GovernanceApprovalStatus.Approved)
-            
+
                 throw new InvalidOperationException(
                     $"Promotion to prod requires an approved approval request. " +
                     $"Approval request '{approvalRequestId}' has status '{approvalRequest?.Status ?? "not found"}'.");
-            
+
 
             if (!string.Equals(approvalRequest.RunId, runId, StringComparison.Ordinal))
-            
+
                 throw new InvalidOperationException(
                     $"Approval request '{approvalRequestId}' was issued for run '{approvalRequest.RunId}', " +
                     $"not '{runId}'. Use an approval request that matches the promoted run.");
-            
+
 
             if (!string.Equals(approvalRequest.ManifestVersion, manifestVersion, StringComparison.Ordinal))
-            
+
                 throw new InvalidOperationException(
                     $"Approval request '{approvalRequestId}' was issued for manifest version '{approvalRequest.ManifestVersion}', " +
                     $"not '{manifestVersion}'. Use an approval request that matches the promoted manifest version.");
-            
+
 
             if (!string.Equals(approvalRequest.TargetEnvironment, targetEnvironment, StringComparison.OrdinalIgnoreCase))
-            
+
                 throw new InvalidOperationException(
                     $"Approval request '{approvalRequestId}' targets environment '{approvalRequest.TargetEnvironment}', " +
                     $"not '{targetEnvironment}'. Use an approval request that matches the target environment.");
-            
+
 
             approvalRequest.Status = GovernanceApprovalStatus.Promoted;
             await approvalRepo.UpdateAsync(approvalRequest, cancellationToken);
@@ -322,7 +322,7 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                Application.Common.AuditEventTypes.Governance.ManifestPromoted,
+                Common.AuditEventTypes.Governance.ManifestPromoted,
                 promotedBy,
                 record.PromotionRecordId,
                 $"RunId={runId}; ManifestVersion={manifestVersion}; {sourceEnvironment}->{targetEnvironment}",
@@ -333,7 +333,7 @@ public sealed class GovernanceWorkflowService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = ArchLucid.Core.Audit.AuditEventTypes.GovernanceManifestPromoted,
+                EventType = Core.Audit.AuditEventTypes.GovernanceManifestPromoted,
                 RunId = promotedRunId,
                 DataJson = JsonSerializer.Serialize(
                     new
@@ -350,14 +350,14 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-        
+
             logger.LogInformation(
                 "Manifest promoted: PromotionRecordId={PromotionRecordId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Target={TargetEnvironment}",
                 record.PromotionRecordId,
                 record.RunId,
                 record.ManifestVersion,
                 record.TargetEnvironment);
-        
+
 
         return record;
     }
@@ -438,7 +438,7 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                Application.Common.AuditEventTypes.Governance.EnvironmentActivated,
+                Common.AuditEventTypes.Governance.EnvironmentActivated,
                 activatedBy,
                 activation.ActivationId,
                 $"RunId={runId}; ManifestVersion={manifestVersion}; Environment={environment}",
@@ -449,7 +449,7 @@ public sealed class GovernanceWorkflowService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = ArchLucid.Core.Audit.AuditEventTypes.GovernanceEnvironmentActivated,
+                EventType = Core.Audit.AuditEventTypes.GovernanceEnvironmentActivated,
                 RunId = activationRunId,
                 DataJson = JsonSerializer.Serialize(
                     new

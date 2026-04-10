@@ -458,7 +458,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Artifacts.Should().HaveCount(2);
+        loaded.Artifacts.Should().HaveCount(2);
 
         SynthesizedArtifact first = loaded.Artifacts[0];
         first.ArtifactType.Should().Be("TypeAlpha");
@@ -598,7 +598,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Artifacts.Should().BeEmpty();
+        loaded.Artifacts.Should().BeEmpty();
         loaded.Trace.Should().NotBeNull();
         loaded.Trace.TraceId.Should().Be(emptyTrace.TraceId);
         loaded.Trace.GeneratorsUsed.Should().BeEmpty();
@@ -706,7 +706,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Artifacts.Should().BeEmpty();
+        loaded.Artifacts.Should().BeEmpty();
         loaded.Trace.Should().NotBeNull();
         loaded.Trace.GeneratorsUsed.Should().BeEmpty();
         loaded.Trace.SourceDecisionIds.Should().BeEmpty();

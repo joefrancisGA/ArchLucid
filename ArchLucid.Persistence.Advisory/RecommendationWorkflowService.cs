@@ -3,7 +3,7 @@ using System.Text.Json;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Workflow;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <inheritdoc cref="IRecommendationWorkflowService" />
 public sealed class RecommendationWorkflowService(IRecommendationRepository repository) : IRecommendationWorkflowService

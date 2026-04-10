@@ -1,8 +1,6 @@
 using System.Reflection;
 using System.Text.Json;
 
-using ArchLucid.Cli.Support;
-
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>

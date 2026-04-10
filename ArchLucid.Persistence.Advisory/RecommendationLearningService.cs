@@ -1,7 +1,7 @@
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Workflow;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Default <see cref="IRecommendationLearningService"/>: pulls recommendation history, builds a profile via <see cref="IRecommendationLearningAnalyzer"/>, and persists via <see cref="IRecommendationLearningProfileRepository"/>.

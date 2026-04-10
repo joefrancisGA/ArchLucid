@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Workflow;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <inheritdoc cref="IRecommendationRepository" />
 public sealed class InMemoryRecommendationRepository : IRecommendationRepository
@@ -32,9 +32,9 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-        
+
             return Task.FromResult(_items.FirstOrDefault(x => x.RecommendationId == recommendationId));
-        
+
     }
 
     /// <inheritdoc />

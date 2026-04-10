@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Alerts.Delivery;
 
-namespace ArchLucid.Persistence.Alerts;
+namespace ArchLucid.Persistence;
 
 /// <summary>In-memory <see cref="IAlertRoutingSubscriptionRepository"/> for tests and storage-off hosts.</summary>
 public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSubscriptionRepository

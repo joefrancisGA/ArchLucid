@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Scheduling;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Thread-safe in-memory <see cref="IAdvisoryScanExecutionRepository"/> for tests and storage-off mode.

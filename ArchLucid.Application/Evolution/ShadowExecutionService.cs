@@ -5,7 +5,6 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Evolution;
-using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Evolution;
 

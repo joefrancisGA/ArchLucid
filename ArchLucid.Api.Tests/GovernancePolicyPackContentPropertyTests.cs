@@ -28,7 +28,7 @@ public sealed class GovernancePolicyPackContentPropertyTests
             PolicyPackJsonSerializerOptions.Default);
 
         Assert.NotNull(back);
-        Assert.True(back!.Metadata.TryGetValue(key, out string? read));
+        Assert.True(back.Metadata.TryGetValue(key, out string? read));
         Assert.Equal(value, read);
     }
 }

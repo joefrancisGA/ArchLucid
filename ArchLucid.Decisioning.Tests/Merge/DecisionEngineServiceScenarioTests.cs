@@ -8,7 +8,7 @@ using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
 
-namespace ArchLucid.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests.Merge;
 
 /// <summary>Broader merge scenarios (formerly in Api.Tests). Uses passthrough schema validation.</summary>
 [Trait("Category", "Unit")]

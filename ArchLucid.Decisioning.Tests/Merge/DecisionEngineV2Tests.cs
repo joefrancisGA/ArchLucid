@@ -6,7 +6,7 @@ using ArchLucid.Decisioning.Merge;
 
 using FluentAssertions;
 
-namespace ArchLucid.Decisioning.Tests;
+namespace ArchLucid.Decisioning.Tests.Merge;
 
 /// <summary>
 /// Tests for Decision Engine V2.

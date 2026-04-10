@@ -3,8 +3,7 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
-using ArchLucid.Persistence.Alerts;
-using ArchLucid.Persistence.Integration;
+using ArchLucid.Persistence;
 
 using FluentAssertions;
 

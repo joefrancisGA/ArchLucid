@@ -1,5 +1,4 @@
 using ArchLucid.Decisioning.Advisory.Learning;
-using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;
 

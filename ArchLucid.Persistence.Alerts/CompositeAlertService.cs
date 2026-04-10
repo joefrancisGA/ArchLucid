@@ -8,14 +8,13 @@ using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Alerts.Delivery;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
-using ArchLucid.Persistence.Alerts.Helpers;
-using ArchLucid.Persistence.Integration;
+using ArchLucid.Persistence.Helpers;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Persistence.Alerts;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Evaluates composite (multi-metric) alert rules after policy governance filtering, applies suppression policy, then persists and delivers.

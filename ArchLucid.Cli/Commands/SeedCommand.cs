@@ -1,5 +1,3 @@
-using ArchLucid.Cli.Support;
-
 namespace ArchLucid.Cli.Commands;
 
 internal static class SeedCommand

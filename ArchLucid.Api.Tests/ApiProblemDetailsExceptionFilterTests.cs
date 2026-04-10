@@ -156,7 +156,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
 
         mapped.Should().BeTrue();
         result.Should().NotBeNull();
-        result!.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("db-timeout-cid");
     }
@@ -171,7 +171,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
 
         mapped.Should().BeTrue();
         result.Should().NotBeNull();
-        result!.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.DatabaseUnavailable);
         p.Extensions.Should().ContainKey("supportHint");

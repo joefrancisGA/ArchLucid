@@ -60,7 +60,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             parent.Should().NotBeNull();
 
             AuthorityPipelineStagesExecutor sut = CreateExecutor();
-            AuthorityPipelineContext ctx = CreateContext(parent!, runId: Guid.NewGuid());
+            AuthorityPipelineContext ctx = CreateContext(parent, runId: Guid.NewGuid());
 
             await sut.ExecuteAfterRunPersistedAsync(ctx, CancellationToken.None);
 
@@ -97,7 +97,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             for (int i = 0; i < 5; i++)
             {
                 Activity child = stages[i];
-                child.ParentId.Should().Be(parent!.Id);
+                child.ParentId.Should().Be(parent.Id);
                 child.GetTagItem("archlucid.run_id").Should().Be(ctx.Run.RunId.ToString("D"));
                 child.GetTagItem("archlucid.stage.name").Should().Be(expectedStages[i]);
             }
@@ -232,7 +232,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
 
             Activity? failed = stopped.LastOrDefault(a => a.OperationName == "authority.context_ingestion");
             failed.Should().NotBeNull();
-            failed!.Status.Should().Be(ActivityStatusCode.Error);
+            failed.Status.Should().Be(ActivityStatusCode.Error);
             failed.StatusDescription.Should().Contain("ingest failed");
             failed.GetTagItem("error.type").Should().Be("InvalidOperationException");
 

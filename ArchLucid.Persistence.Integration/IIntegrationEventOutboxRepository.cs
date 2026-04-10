@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace ArchLucid.Persistence.Integration;
+namespace ArchLucid.Persistence;
 
 /// <summary>Transactional outbox for integration events (same pattern as <see cref="Retrieval.IRetrievalIndexingOutboxRepository"/>).</summary>
 public interface IIntegrationEventOutboxRepository

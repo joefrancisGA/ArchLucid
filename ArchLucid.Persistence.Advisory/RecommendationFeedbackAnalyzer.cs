@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Workflow;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <inheritdoc cref="IRecommendationFeedbackAnalyzer" />
 public sealed class RecommendationFeedbackAnalyzer(IRecommendationRepository repository) : IRecommendationFeedbackAnalyzer

@@ -5,7 +5,7 @@ using ArchLucid.Core.Integration;
 
 using Microsoft.Extensions.Logging;
 
-namespace ArchLucid.Persistence.Integration;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Publishes integration events through <see cref="IIntegrationEventOutboxRepository"/> when

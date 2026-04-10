@@ -1,6 +1,5 @@
 using ArchLucid.Core.Pagination;
 using ArchLucid.Decisioning.Alerts;
-using ArchLucid.Persistence.Alerts;
 
 using FluentAssertions;
 

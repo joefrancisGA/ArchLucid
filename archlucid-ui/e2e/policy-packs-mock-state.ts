@@ -43,9 +43,9 @@ export function listMockPacks(): MockPolicyPack[] {
 }
 
 export function createMockPack(body: {
-  name: string;
+  name?: string;
   description?: string;
-  packType: string;
+  packType?: string;
   initialContentJson?: string;
 }): MockPolicyPack {
   const policyPackId = randomUUID();

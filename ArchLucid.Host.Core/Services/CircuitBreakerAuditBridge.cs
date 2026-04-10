@@ -5,9 +5,6 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Scoping;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Services;
 
 /// <summary>

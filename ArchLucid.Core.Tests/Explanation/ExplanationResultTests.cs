@@ -26,16 +26,17 @@ public sealed class ExplanationResultTests
     [Fact]
     public void ExplanationResult_SetsAndReads_AllProperties()
     {
-        ExplanationResult sut = new();
-
-        sut.RawText = "raw";
-        sut.Structured = new StructuredExplanation { Reasoning = "r" };
-        sut.Summary = "summary";
-        sut.DetailedNarrative = "details";
-        sut.KeyDrivers = ["k1"];
-        sut.RiskImplications = ["r1"];
-        sut.CostImplications = ["c1"];
-        sut.ComplianceImplications = ["m1"];
+        ExplanationResult sut = new()
+        {
+            RawText = "raw",
+            Structured = new StructuredExplanation { Reasoning = "r" },
+            Summary = "summary",
+            DetailedNarrative = "details",
+            KeyDrivers = ["k1"],
+            RiskImplications = ["r1"],
+            CostImplications = ["c1"],
+            ComplianceImplications = ["m1"]
+        };
 
         sut.RawText.Should().Be("raw");
         sut.Structured!.Reasoning.Should().Be("r");
@@ -61,12 +62,13 @@ public sealed class ExplanationResultTests
     [Fact]
     public void ComparisonExplanationResult_SetsAndReads_AllProperties()
     {
-        ComparisonExplanationResult sut = new();
-
-        sut.HighLevelSummary = "high";
-        sut.Narrative = "long";
-        sut.MajorChanges = ["a"];
-        sut.KeyTradeoffs = ["b"];
+        ComparisonExplanationResult sut = new()
+        {
+            HighLevelSummary = "high",
+            Narrative = "long",
+            MajorChanges = ["a"],
+            KeyTradeoffs = ["b"]
+        };
 
         sut.HighLevelSummary.Should().Be("high");
         sut.Narrative.Should().Be("long");

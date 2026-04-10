@@ -2,8 +2,8 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
@@ -20,7 +20,7 @@ public sealed class ArchitectureRunProvenanceServiceTests
     public async Task GetProvenanceAsync_WhenRunMissing_ReturnsNull()
     {
         Mock<IRunDetailQueryService> detail = new();
-        detail.Setup(d => d.GetRunDetailAsync("x", default)).ReturnsAsync((ArchitectureRunDetail?)null);
+        detail.Setup(d => d.GetRunDetailAsync("x", CancellationToken.None)).ReturnsAsync((ArchitectureRunDetail?)null);
 
         ArchitectureRunProvenanceService sut = new(
             detail.Object,
@@ -98,12 +98,12 @@ public sealed class ArchitectureRunProvenanceServiceTests
         };
 
         Mock<IRunDetailQueryService> detail = new();
-        detail.Setup(d => d.GetRunDetailAsync(runId, default)).ReturnsAsync(loaded);
+        detail.Setup(d => d.GetRunDetailAsync(runId, CancellationToken.None)).ReturnsAsync(loaded);
 
         Mock<IArchitectureRequestRepository> requests = new();
-        requests.Setup(r => r.GetByIdAsync(requestId, default))
+        requests.Setup(r => r.GetByIdAsync(requestId, CancellationToken.None))
             .ReturnsAsync(
-                new ArchLucid.Contracts.Requests.ArchitectureRequest
+                new Contracts.Requests.ArchitectureRequest
                 {
                     RequestId = requestId,
                     SystemName = "Sys",
@@ -112,11 +112,11 @@ public sealed class ArchitectureRunProvenanceServiceTests
                 });
 
         Mock<IEvidenceBundleRepository> bundles = new();
-        bundles.Setup(b => b.GetByIdAsync("eb1", default))
+        bundles.Setup(b => b.GetByIdAsync("eb1", CancellationToken.None))
             .ReturnsAsync(new EvidenceBundle { EvidenceBundleId = "eb1" });
 
         Mock<IDecisionNodeRepository> decisions = new();
-        decisions.Setup(d => d.GetByRunIdAsync(runId, default))
+        decisions.Setup(d => d.GetByRunIdAsync(runId, CancellationToken.None))
             .ReturnsAsync(
                 new List<DecisionNode>
                 {
@@ -138,7 +138,7 @@ public sealed class ArchitectureRunProvenanceServiceTests
         ArchitectureRunProvenanceGraph? graph = await sut.GetProvenanceAsync(runId);
 
         graph.Should().NotBeNull();
-        graph!.RunId.Should().Be(runId);
+        graph.RunId.Should().Be(runId);
         graph.TraceabilityGaps.Should().BeEmpty();
         graph.Nodes.Should().Contain(n => n.Type == ArchitectureLinkageKinds.Nodes.Request);
         graph.Nodes.Should().Contain(n => n.Type == ArchitectureLinkageKinds.Nodes.Run);

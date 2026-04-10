@@ -1,5 +1,3 @@
-using ArchLucid.AgentRuntime;
-
 namespace ArchLucid.AgentRuntime.Tests;
 
 public sealed class StubAgentCompletionClient(string json) : IAgentCompletionClient

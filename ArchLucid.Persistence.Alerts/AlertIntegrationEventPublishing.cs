@@ -1,11 +1,10 @@
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
-using ArchLucid.Persistence.Integration;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Persistence.Alerts;
+namespace ArchLucid.Persistence;
 
 /// <summary>Publishes alert lifecycle integration events (Service Bus) after persistence and delivery.</summary>
 internal static class AlertIntegrationEventPublishing

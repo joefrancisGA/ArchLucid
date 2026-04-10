@@ -1,6 +1,6 @@
 using ArchLucid.Decisioning.Advisory.Scheduling;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Persistence for <see cref="AdvisoryScanExecution"/> audit/history rows created by <see cref="IAdvisoryScanRunner"/>.

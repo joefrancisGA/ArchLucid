@@ -8,7 +8,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence.Alerts;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Dapper implementation of <see cref="ICompositeAlertRuleRepository"/>; writes <c>dbo.CompositeAlertRules</c> and child condition rows in a transaction.
@@ -54,7 +54,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                 new CommandDefinition(insertRule, rule, transaction: tx, cancellationToken: ct));
 
             foreach (AlertRuleCondition c in rule.Conditions)
-            
+
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertCondition,
@@ -68,7 +68,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         },
                         transaction: tx,
                         cancellationToken: ct));
-            
+
 
             await tx.CommitAsync(ct);
         }
@@ -124,7 +124,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                     cancellationToken: ct));
 
             foreach (AlertRuleCondition c in rule.Conditions)
-            
+
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertCondition,
@@ -138,7 +138,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         },
                         transaction: tx,
                         cancellationToken: ct));
-            
+
 
             await tx.CommitAsync(ct);
         }
@@ -298,7 +298,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                 continue;
 
             foreach (ConditionRow row in list)
-            
+
                 rule.Conditions.Add(
                     new AlertRuleCondition
                     {
@@ -307,16 +307,25 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         Operator = row.Operator,
                         ThresholdValue = row.ThresholdValue,
                     });
-            
+
         }
     }
 
     private sealed class ConditionRow
     {
-        public Guid ConditionId { get; init; }
-        public Guid CompositeRuleId { get; init; }
+        public Guid ConditionId
+        {
+            get; init;
+        }
+        public Guid CompositeRuleId
+        {
+            get; init;
+        }
         public string MetricType { get; init; } = null!;
         public string Operator { get; init; } = null!;
-        public decimal ThresholdValue { get; init; }
+        public decimal ThresholdValue
+        {
+            get; init;
+        }
     }
 }

@@ -106,7 +106,7 @@ public sealed class ArtifactPackagingServiceTests
         using ZipArchive archive = new(stream, ZipArchiveMode.Read);
         ZipArchiveEntry? readmeEntry = archive.GetEntry("README.txt");
         readmeEntry.Should().NotBeNull();
-        using StreamReader reader = new(readmeEntry!.Open(), Encoding.UTF8);
+        using StreamReader reader = new(readmeEntry.Open(), Encoding.UTF8);
         string text = reader.ReadToEnd();
         text.Should().Contain(runId.ToString());
         text.Should().Contain(manifestId.ToString());

@@ -1,4 +1,3 @@
-using ArchLucid.AgentRuntime;
 using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
@@ -108,7 +107,10 @@ public sealed class CachingAgentCompletionClientTests
 
     private sealed class CountingCompletionClient : IAgentCompletionClient
     {
-        public int CallCount { get; private set; }
+        public int CallCount
+        {
+            get; private set;
+        }
 
         public LlmProviderDescriptor Descriptor => LlmProviderDescriptor.ForOffline("test", "counting");
 

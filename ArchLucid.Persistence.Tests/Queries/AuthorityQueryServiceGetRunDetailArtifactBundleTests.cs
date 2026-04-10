@@ -1,7 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Interfaces;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -27,7 +26,12 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         Guid projectId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
-        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId
+        };
 
         RunRecord run = new()
         {
@@ -40,7 +44,11 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
             ArtifactBundleId = null
         };
 
-        ArtifactBundle bundle = new() { ManifestId = manifestId, BundleId = Guid.NewGuid() };
+        ArtifactBundle bundle = new()
+        {
+            ManifestId = manifestId,
+            BundleId = Guid.NewGuid()
+        };
 
         Mock<IRunRepository> runs = new();
         runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>())).ReturnsAsync(run);
@@ -68,7 +76,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         RunDetailDto? detail = await sut.GetRunDetailAsync(scope, runId, CancellationToken.None);
 
         detail.Should().NotBeNull();
-        detail!.ArtifactBundle.Should().BeSameAs(bundle);
+        detail.ArtifactBundle.Should().BeSameAs(bundle);
         bundles.Verify(b => b.GetByManifestIdAsync(scope, manifestId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -81,7 +89,12 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
-        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId
+        };
 
         RunRecord run = new()
         {
@@ -117,7 +130,7 @@ public sealed class AuthorityQueryServiceGetRunDetailArtifactBundleTests
         RunDetailDto? detail = await sut.GetRunDetailAsync(scope, runId, CancellationToken.None);
 
         detail.Should().NotBeNull();
-        detail!.ArtifactBundle.Should().BeNull();
+        detail.ArtifactBundle.Should().BeNull();
         bundles.Verify(
             b => b.GetByManifestIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
             Times.Never);

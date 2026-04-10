@@ -8,7 +8,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <summary>
 /// Dapper implementation of <see cref="IRecommendationLearningProfileRepository"/> backed by <c>dbo.RecommendationLearningProfiles</c>.

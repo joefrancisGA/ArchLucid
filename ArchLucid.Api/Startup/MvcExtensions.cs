@@ -7,12 +7,9 @@ using ArchLucid.Api.Validators;
 
 using Asp.Versioning;
 
-using ArchLucid.Host.Core.ProblemDetails;
-
 using FluentValidation;
 using FluentValidation.AspNetCore;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Startup;

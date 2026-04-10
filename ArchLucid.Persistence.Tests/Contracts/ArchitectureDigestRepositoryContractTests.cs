@@ -1,5 +1,4 @@
 using ArchLucid.Decisioning.Advisory.Scheduling;
-using ArchLucid.Persistence.Advisory;
 
 using FluentAssertions;
 

@@ -1,0 +1,63 @@
+# Accessibility
+
+## Target compliance level
+
+**WCAG 2.1 Level AA** — the ArchLucid operator UI targets conformance with the [Web Content Accessibility Guidelines 2.1](https://www.w3.org/TR/WCAG21/) at Level AA.
+
+## Current status
+
+**Baseline** — automated axe-core scanning covers the top 5 operator pages. Critical and serious violations are gated in CI; minor/moderate violations are tracked for incremental resolution.
+
+### Pages with automated checks
+
+| Page         | Route                       | Status  |
+| ------------ | --------------------------- | ------- |
+| Home         | `/`                         | Scanned |
+| Runs         | `/runs?projectId=default`   | Scanned |
+| Audit        | `/audit`                    | Scanned |
+| Policy packs | `/policy-packs`             | Scanned |
+| Alerts       | `/alerts`                   | Scanned |
+
+## Tooling
+
+| Tool                                      | Purpose              | Scope                 |
+| ----------------------------------------- | -------------------- | --------------------- |
+| **axe-core** via `@axe-core/playwright`   | Automated WCAG scan  | Playwright e2e suite  |
+| **eslint-plugin-jsx-a11y**                | Static JSX linting   | ESLint (via Next.js)  |
+
+CI enforcement: the `ui-e2e-smoke` job in `.github/workflows/ci.yml` fails on any critical or serious axe violation reported for the routes in `archlucid-ui/e2e/accessibility.spec.ts`.
+
+## Existing accessibility controls
+
+- **Skip-to-content link**: first focusable element in `layout.tsx`, jumps to `#main-content` (visible on focus)
+- **Language attribute**: `<html lang="en">`
+- **Landmark navigation**: `<main>` on page components, `<nav>` with `aria-label` in `ShellNav`, `<header>` in layout
+- **Form labels**: `<label>` wrapping on audit, policy packs, and alerts controls
+- **Focus management**: custom `focus-visible` styles for nav links, workflow actions, and auth controls (`globals.css`)
+- **Error regions**: `role="alert"` on API error messages
+
+## Known exemptions
+
+None at this time. Document any intentional deviations here with:
+
+- The axe rule ID being exempted
+- The affected page(s)
+- The justification
+- The planned resolution date (if temporary)
+
+## Expanding coverage
+
+To add accessibility checks for a new page:
+
+1. Add an entry to the `PAGES` array in `archlucid-ui/e2e/accessibility.spec.ts`.
+2. Ensure the mock API server (`e2e/mock-archlucid-api-server.ts`) returns fixture data for that route when needed.
+3. Run `npm run test:e2e` locally to verify zero critical/serious violations before pushing.
+
+## Manual testing guidance
+
+Automated scanning catches roughly 30–40% of WCAG issues. Supplement with:
+
+- **Keyboard navigation**: Tab, Shift+Tab, Enter, Escape through all interactive elements — verify visible focus indicators and logical tab order
+- **Screen reader**: NVDA (Windows) or VoiceOver (macOS) — verify headings, landmarks, and dynamic content announce correctly
+- **Zoom**: 200% browser zoom — verify no clipping or overlapping
+- **Reduced motion**: `prefers-reduced-motion` — verify animations respect the preference (currently none are used)

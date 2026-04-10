@@ -1,14 +1,13 @@
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application;
-using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Coordinator.Services;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;

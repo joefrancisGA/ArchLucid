@@ -1,4 +1,4 @@
-namespace ArchLucid.Host.Core.Services;
+namespace ArchLucid.Api.Services;
 
 /// <summary>Produces a single path segment safe for <see cref="System.IO.Compression.ZipArchive"/> entry names.</summary>
 public static class BatchReplayZipPathSanitizer

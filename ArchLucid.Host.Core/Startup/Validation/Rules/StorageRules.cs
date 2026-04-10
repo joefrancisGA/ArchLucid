@@ -1,6 +1,5 @@
 using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Configuration;
-using ArchLucid.Persistence.Connections;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 

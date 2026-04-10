@@ -178,6 +178,53 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      const runsPagedMatchV1 = /^\/v1\/authority\/projects\/([^/]+)\/runs$/.exec(pathname);
+
+      if (req.method === "GET" && runsPagedMatchV1) {
+        const pageNum = Math.max(1, Number.parseInt(u.searchParams.get("page") ?? "1", 10) || 1);
+        const pageSize = Math.min(200, Math.max(1, Number.parseInt(u.searchParams.get("pageSize") ?? "20", 10) || 20));
+        const projectId = runsPagedMatchV1[1];
+        sendJson(res, 200, {
+          items: [
+            {
+              runId: FIXTURE_RUN_ID,
+              projectId,
+              description: "E2E fixture run (mock API).",
+              createdUtc: "2025-06-01T12:00:00.000Z",
+              goldenManifestId: FIXTURE_MANIFEST_ID,
+            },
+          ],
+          totalCount: 1,
+          page: pageNum,
+          pageSize,
+          hasMore: false,
+        });
+        return;
+      }
+
+      if (req.method === "GET" && pathname === "/v1/audit/event-types") {
+        sendJson(res, 200, ["Authority.RunCompleted", "Policy.PackPublished"]);
+        return;
+      }
+
+      if (req.method === "GET" && pathname === "/v1/audit/search") {
+        sendJson(res, 200, []);
+        return;
+      }
+
+      if (req.method === "GET" && pathname === "/v1/alerts") {
+        const pageNum = Math.max(1, Number.parseInt(u.searchParams.get("page") ?? "1", 10) || 1);
+        const pageSize = Math.min(200, Math.max(1, Number.parseInt(u.searchParams.get("pageSize") ?? "25", 10) || 25));
+        sendJson(res, 200, {
+          items: [],
+          totalCount: 0,
+          page: pageNum,
+          pageSize,
+          hasMore: false,
+        });
+        return;
+      }
+
       if (req.method !== "GET") {
         res.writeHead(405);
         res.end();

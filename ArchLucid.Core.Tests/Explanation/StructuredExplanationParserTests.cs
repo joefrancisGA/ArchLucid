@@ -20,7 +20,7 @@ public sealed class StructuredExplanationParserTests
 
         ok.Should().BeTrue();
         s.Should().NotBeNull();
-        s!.Reasoning.Should().Be("Main text");
+        s.Reasoning.Should().Be("Main text");
         s.EvidenceRefs.Should().Equal("a");
         s.Confidence.Should().Be(0.5m);
         s.AlternativesConsidered.Should().Equal("b");

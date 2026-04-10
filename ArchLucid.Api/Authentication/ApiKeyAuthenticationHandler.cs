@@ -6,7 +6,6 @@ using System.Text.Encodings.Web;
 using ArchLucid.Api.Auth.Models;
 
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 

@@ -1,7 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Cli.Support;
-using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 

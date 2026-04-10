@@ -7,7 +7,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence.Advisory;
+namespace ArchLucid.Persistence;
 
 /// <inheritdoc cref="IArchitectureDigestRepository" />
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
@@ -107,6 +107,9 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { Cutoff = cutoffUtc.UtcDateTime }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                Cutoff = cutoffUtc.UtcDateTime
+            }, cancellationToken: ct));
     }
 }

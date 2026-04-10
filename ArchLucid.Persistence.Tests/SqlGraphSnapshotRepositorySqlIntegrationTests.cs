@@ -361,7 +361,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.GraphSnapshotId.Should().Be(graphId);
+        loaded.GraphSnapshotId.Should().Be(graphId);
         loaded.ContextSnapshotId.Should().Be(contextId);
         loaded.RunId.Should().Be(runId);
         loaded.CreatedUtc.Should().Be(createdUtc);

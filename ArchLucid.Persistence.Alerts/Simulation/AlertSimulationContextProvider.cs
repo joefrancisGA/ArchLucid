@@ -10,7 +10,7 @@ using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 
-namespace ArchLucid.Persistence.Alerts.Simulation;
+namespace ArchLucid.Persistence.Simulation;
 
 /// <summary>
 /// Replays advisory-style plan generation for historical runs to produce <see cref="AlertEvaluationContext"/> for simulation APIs or tooling.
@@ -111,7 +111,7 @@ public sealed class AlertSimulationContextProvider(
         ImprovementPlan plan = comparison is null
             ? await improvementAdvisorService
                 .GeneratePlanAsync(detail.GoldenManifest, findings, ct)
-                
+
             : await improvementAdvisorService
                 .GeneratePlanAsync(detail.GoldenManifest, findings, comparison, ct)
                 ;

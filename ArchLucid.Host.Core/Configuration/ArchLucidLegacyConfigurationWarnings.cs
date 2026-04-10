@@ -1,6 +1,3 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>

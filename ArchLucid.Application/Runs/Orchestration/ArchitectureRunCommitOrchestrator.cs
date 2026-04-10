@@ -1,18 +1,14 @@
-using System.Data;
-
-using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
-using ArchLucid.Application.Decisions;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Decisioning.Merge;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;

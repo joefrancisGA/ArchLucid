@@ -7,7 +7,6 @@ using Polly;
 using Polly.Retry;
 using Polly.Simmy;
 using Polly.Simmy.Fault;
-using Polly.Simmy.Latency;
 using Polly.Timeout;
 
 namespace ArchLucid.AgentRuntime.Tests;

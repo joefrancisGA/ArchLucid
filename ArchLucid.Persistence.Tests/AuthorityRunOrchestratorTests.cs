@@ -1,18 +1,20 @@
+using System.Data;
+using System.Text.Json;
+
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Integration;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Orchestration.Pipeline;
-using ArchLucid.Persistence.Coordination.Retrieval;
-using ArchLucid.Core.Transactions;
 
 using FluentAssertions;
 
@@ -20,9 +22,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
-
-using System.Data;
-using System.Text.Json;
 
 using DecisioningManifestMetadata = ArchLucid.Decisioning.Manifest.Sections.ManifestMetadata;
 
@@ -466,7 +465,11 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new() { ProjectId = "q", Description = "d" };
+        ContextIngestionRequest request = new()
+        {
+            ProjectId = "q",
+            Description = "d"
+        };
 
         RunRecord result = await sut.ExecuteAsync(request, CancellationToken.None, evidenceBundleIdForDeferredWork: "evidence-bundle");
 
@@ -740,7 +743,10 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEventOpts.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
-        ContextIngestionRequest request = new() { ProjectId = "proj-fail" };
+        ContextIngestionRequest request = new()
+        {
+            ProjectId = "proj-fail"
+        };
 
         Func<Task> act = async () => await sut.ExecuteAsync(request, CancellationToken.None);
 

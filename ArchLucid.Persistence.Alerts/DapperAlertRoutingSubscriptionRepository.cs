@@ -7,7 +7,7 @@ using Dapper;
 
 using Microsoft.Data.SqlClient;
 
-namespace ArchLucid.Persistence.Alerts;
+namespace ArchLucid.Persistence;
 
 /// <summary>Dapper implementation of <see cref="IAlertRoutingSubscriptionRepository"/> over <c>dbo.AlertRoutingSubscriptions</c>.</summary>
 /// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
