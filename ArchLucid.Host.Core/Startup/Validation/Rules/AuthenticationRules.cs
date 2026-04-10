@@ -31,6 +31,34 @@ internal static class AuthenticationRules
         }
     }
 
+    /// <summary>
+    /// When API keys are enabled in Production, rejects placeholder-like or overly short configured keys.
+    /// Applies to API and Worker hosts (runs before Worker-only early return).
+    /// </summary>
+    public static void CollectProductionApiKeyPlaceholders(IConfiguration configuration, List<string> errors)
+    {
+        if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
+        {
+            return;
+        }
+
+        string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
+
+        if (!string.IsNullOrWhiteSpace(adminKey) && ApiKeyPlaceholderValue.IsPlaceholderValue(adminKey))
+        {
+            errors.Add(
+                "Production: Authentication:ApiKey:AdminKey must be a strong secret (not a sample/placeholder value and at least 24 characters).");
+        }
+
+        string? readOnlyKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
+
+        if (!string.IsNullOrWhiteSpace(readOnlyKey) && ApiKeyPlaceholderValue.IsPlaceholderValue(readOnlyKey))
+        {
+            errors.Add(
+                "Production: Authentication:ApiKey:ReadOnlyKey must be a strong secret (not a sample/placeholder value and at least 24 characters).");
+        }
+    }
+
     /// <summary>JwtBearer / ApiKey production checks for API hosts (not Worker).</summary>
     public static void CollectProductionAuthModes(IConfiguration configuration, List<string> errors)
     {

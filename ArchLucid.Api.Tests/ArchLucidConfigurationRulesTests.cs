@@ -98,6 +98,126 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenProductionAndApiKeyEnabledWithPlaceholderAdminKey_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = "changeme",
+            ["Authentication:ApiKey:ReadOnlyKey"] = "",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("Authentication:ApiKey:AdminKey", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndApiKeyEnabledWithPlaceholderReadOnlyKey_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = "abcdefghijklmnopqrstuvwxyz123456",
+            ["Authentication:ApiKey:ReadOnlyKey"] = "password",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("Authentication:ApiKey:ReadOnlyKey", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionWorkerAndApiKeyEnabledWithPlaceholderAdminKey_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["Hosting:Role"] = "Worker",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = "your-api-key",
+            ["Authentication:ApiKey:ReadOnlyKey"] = "",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("Authentication:ApiKey:AdminKey", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenDevelopmentAndApiKeyEnabledWithPlaceholder_does_not_add_production_placeholder_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = "changeme",
+            ["Authentication:ApiKey:ReadOnlyKey"] = "",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("Production: Authentication:ApiKey:AdminKey", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndApiKeyEnabledWithStrongKeys_has_no_placeholder_error()
+    {
+        const string strongAdmin = "a7f3c9e2b1d80456n8m0k2j4h6g8f0e2";
+        const string strongReader = "b8g4d0f3c2e90567o9n1l3k5i7h9g1f3";
+
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = strongAdmin,
+            ["Authentication:ApiKey:ReadOnlyKey"] = strongReader,
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("sample/placeholder value", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void CollectErrors_WhenDevelopmentAndDevelopmentBypassAndInMemory_is_empty_when_schema_files_exist()
     {
         Dictionary<string, string?> data = new()

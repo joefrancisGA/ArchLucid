@@ -6,6 +6,10 @@ namespace ArchLucid.Host.Core.Middleware;
 /// </summary>
 public sealed class SecurityHeadersMiddleware(RequestDelegate next)
 {
+    /// <summary>Content-Security-Policy for JSON API responses (single source of truth for middleware and tests).</summary>
+    public const string ContentSecurityPolicyApiJson =
+        "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'";
+
     public Task InvokeAsync(HttpContext context)
     {
         HttpResponse response = context.Response;
@@ -13,9 +17,7 @@ public sealed class SecurityHeadersMiddleware(RequestDelegate next)
         response.Headers.TryAdd("X-Frame-Options", "DENY");
         response.Headers.TryAdd("Referrer-Policy", "strict-origin-when-cross-origin");
         // API JSON responses: deny active content; tighten further at the edge (Front Door / WAF) for SPAs.
-        response.Headers.TryAdd(
-            "Content-Security-Policy",
-            "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");
+        response.Headers.TryAdd("Content-Security-Policy", ContentSecurityPolicyApiJson);
 
         return next(context);
     }

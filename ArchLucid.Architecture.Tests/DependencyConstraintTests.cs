@@ -9,11 +9,8 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.KnowledgeGraph;
-using ArchLucid.Persistence.Advisory;
-using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Coordination.Replay;
-using ArchLucid.Persistence.Integration;
-using ArchLucid.Persistence.Orchestration;
+using global::ArchLucid.Persistence;
 
 using FluentAssertions;
 

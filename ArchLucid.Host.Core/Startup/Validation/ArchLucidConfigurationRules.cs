@@ -44,6 +44,7 @@ public static class ArchLucidConfigurationRules
         }
 
         AuthenticationRules.CollectProductionApiKeyBypass(configuration, errors);
+        AuthenticationRules.CollectProductionApiKeyPlaceholders(configuration, errors);
 
         ArchLucidHostingRole hostingRole = HostingRoleResolver.Resolve(configuration);
 

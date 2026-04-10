@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Integration;
+using global::ArchLucid.Persistence;
 
 using FluentAssertions;
 

@@ -32,5 +32,6 @@ public sealed class SecurityHeadersMiddlewareTests
         headers["X-Content-Type-Options"].ToString().Should().Be("nosniff");
         headers["X-Frame-Options"].ToString().Should().Be("DENY");
         headers["Referrer-Policy"].ToString().Should().Be("strict-origin-when-cross-origin");
+        headers["Content-Security-Policy"].ToString().Should().Be(SecurityHeadersMiddleware.ContentSecurityPolicyApiJson);
     }
 }
