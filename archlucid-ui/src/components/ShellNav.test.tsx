@@ -30,6 +30,10 @@ describe("ShellNav (55R smoke — primary navigation)", () => {
 
     expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
     expect(screen.getByRole("link", { name: "New run" })).toHaveAttribute("href", "/runs/new");
+    expect(screen.getByRole("link", { name: "New run" })).toHaveAttribute(
+      "title",
+      "Guided first-run wizard — system identity through pipeline tracking",
+    );
     expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute(
       "href",
       "/runs?projectId=default",

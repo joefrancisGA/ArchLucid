@@ -47,7 +47,7 @@ type WorkflowStep = {
 const steps: WorkflowStep[] = [
   {
     title: "Create an architecture request",
-    body: "Use the wizard to post a new run to the API. You will get a run ID to track.",
+    body: "The guided wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the run and tracks the pipeline in real time.",
     primaryHref: "/runs/new",
     primaryLabel: "Start new run wizard",
     secondary: (
@@ -67,7 +67,7 @@ const steps: WorkflowStep[] = [
     primaryLabel: "Open runs list",
     secondary: (
       <>
-        Tip: from the wizard (step 4), use <strong>Open run detail</strong> for the new ID.
+        Tip: from the wizard’s final step, use <strong>Open run detail</strong> for the new ID.
       </>
     ),
   },

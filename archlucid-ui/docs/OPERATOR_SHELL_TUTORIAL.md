@@ -439,6 +439,12 @@ The order matters: **error → malformed → empty → data**. This is determini
 **What it does:** Static landing page with quick links. No API calls.  
 **States:** `OperatorEmptyState` explaining this page is static.
 
+### `/runs/new` — First-run wizard (create architecture request)
+
+**File:** `app/runs/new/page.tsx` (server shell) + `NewRunWizardClient.tsx` (**client component** — form state, stepper, `POST` via proxy).  
+**What it does:** Seven-step wizard (preset → identity → description → constraints → advanced → review → pipeline tracking) that posts **`/v1/architecture/request`** with the full **`ArchitectureRequest`** surface and polls run summary on the last step.  
+**Operator doc (purpose, field mapping, troubleshooting):** [docs/FIRST_RUN_WIZARD.md](../../docs/FIRST_RUN_WIZARD.md) in the repo root.
+
 ### `/runs?projectId=default` — Run list
 
 **File:** `app/runs/page.tsx` (server component)  

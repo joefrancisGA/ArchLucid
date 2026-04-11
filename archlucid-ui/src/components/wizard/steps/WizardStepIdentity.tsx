@@ -1,0 +1,113 @@
+"use client";
+
+import { Controller, useFormContext } from "react-hook-form";
+
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
+import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import type { WizardFormValues } from "@/lib/wizard-schema";
+
+const ENVIRONMENT_OPTIONS = [
+  { value: "staging", label: "Staging" },
+  { value: "production", label: "Production" },
+  { value: "development", label: "Development" },
+  { value: "sandbox", label: "Sandbox" },
+] as const;
+
+/**
+ * Step 2: system name, environment, cloud (Azure only), optional prior manifest version.
+ */
+export function WizardStepIdentity() {
+  const { register, control } = useFormContext<WizardFormValues>();
+
+  return (
+    <WizardStepPanel title="System identity" description="Names and deployment targets for this architecture request.">
+      <div className="space-y-6">
+        <div>
+          <WizardFieldHint
+            htmlFor="wizard-systemName"
+            label="System name"
+            hint="Short project slug, e.g. OrderService. Used as the ingestion project ID."
+          />
+          <Input id="wizard-systemName" autoComplete="off" {...register("systemName")} />
+        </div>
+
+        <div>
+          <Label className="mb-1 block" htmlFor="wizard-environment">
+            Environment
+          </Label>
+          <Controller
+            name="environment"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger id="wizard-environment" className="w-full max-w-md">
+                  <SelectValue placeholder="Select environment" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ENVIRONMENT_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+
+        <div>
+          <Label className="mb-1 block">Cloud provider</Label>
+          <Controller
+            name="cloudProvider"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="w-full max-w-md">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Azure">Microsoft Azure</SelectItem>
+                  <SelectItem disabled value="Aws">
+                    <span className="flex items-center gap-2">
+                      Amazon Web Services
+                      <Badge variant="secondary">Coming soon</Badge>
+                    </span>
+                  </SelectItem>
+                  <SelectItem disabled value="Gcp">
+                    <span className="flex items-center gap-2">
+                      Google Cloud
+                      <Badge variant="secondary">Coming soon</Badge>
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+          <p className="mt-1 text-xs text-neutral-500">Only Azure is available in this release.</p>
+        </div>
+
+        <Separator />
+
+        <div>
+          <WizardFieldHint
+            htmlFor="wizard-priorManifest"
+            label="Prior manifest version (optional)"
+            hint="Leave blank for greenfield. Enter a version string to use as baseline for incremental changes."
+          />
+          <Input id="wizard-priorManifest" autoComplete="off" {...register("priorManifestVersion")} />
+        </div>
+      </div>
+    </WizardStepPanel>
+  );
+}

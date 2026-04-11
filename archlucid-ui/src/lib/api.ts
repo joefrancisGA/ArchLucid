@@ -198,7 +198,21 @@ export async function fetchArchLucidJson<T>(path: string): Promise<T> {
   return apiGet<T>(path);
 }
 
-/** Body shape for POST /v1/architecture/request (minimal fields for operator wizard). */
+/** Attached context document (camelCase JSON — matches API `ContextDocumentRequest`). */
+export type CreateArchitectureRunDocumentPayload = {
+  name: string;
+  contentType: string;
+  content: string;
+};
+
+/** IaC / declaration blob (camelCase JSON — matches API `InfrastructureDeclarationRequest`). */
+export type CreateArchitectureRunInfrastructureDeclarationPayload = {
+  name: string;
+  format: string;
+  content: string;
+};
+
+/** Body shape for POST /v1/architecture/request (operator wizard + full `ArchitectureRequest` surface). */
 export type CreateArchitectureRunRequestPayload = {
   requestId: string;
   description: string;
@@ -208,6 +222,13 @@ export type CreateArchitectureRunRequestPayload = {
   constraints: string[];
   requiredCapabilities: string[];
   assumptions: string[];
+  priorManifestVersion?: string;
+  inlineRequirements?: string[];
+  documents?: CreateArchitectureRunDocumentPayload[];
+  policyReferences?: string[];
+  topologyHints?: string[];
+  securityBaselineHints?: string[];
+  infrastructureDeclarations?: CreateArchitectureRunInfrastructureDeclarationPayload[];
 };
 
 /** Response envelope for create run (subset used by the UI). */

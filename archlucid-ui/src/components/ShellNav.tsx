@@ -37,7 +37,11 @@ export function ShellNav() {
           <Link className="shell-nav-link" href="/onboarding" title="Guided operator onboarding checklist">
             Onboarding
           </Link>
-          <Link className="shell-nav-link" href="/runs/new" title="Create a run with the guided wizard (typical first step)">
+          <Link
+            className="shell-nav-link"
+            href="/runs/new"
+            title="Guided first-run wizard — system identity through pipeline tracking"
+          >
             New run
           </Link>
           <Link

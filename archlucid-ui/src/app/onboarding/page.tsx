@@ -33,14 +33,18 @@ export default function OnboardingPage() {
         </li>
         <li style={{ marginBottom: 14 }}>
           <strong>Open your first run.</strong>{" "}
-          <Link href="/runs/new" title="Create a run with the wizard">
+          <Link
+            href="/runs/new"
+            title="Guided first-run wizard — system identity through pipeline tracking"
+          >
             New run
           </Link>{" "}
           or{" "}
           <Link href="/runs?projectId=default" title="Browse runs for the default project">
             Runs
           </Link>
-          , then review manifest and artifacts from run detail after commit.
+          . The seven-step wizard covers the full lifecycle from description and requirements through submit and live
+          pipeline tracking; after commit, review manifest and artifacts from run detail.
         </li>
         <li style={{ marginBottom: 14 }}>
           <strong>Trace provenance.</strong> From a known run ID, use{" "}

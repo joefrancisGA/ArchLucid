@@ -11,28 +11,17 @@ export default function NewRunPage() {
   return (
     <main>
       <h2>New run</h2>
-      <p style={{ marginTop: 8 }}>
-        <Link href="/runs">Runs list</Link>
-        {" · "}
-        <Link href="/">Home</Link>
+      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        Guided end-to-end wizard — from system description to pipeline tracking.
       </p>
-      <p
-        style={{
-          maxWidth: 640,
-          marginTop: 12,
-          padding: "12px 14px",
-          background: "#f8fafc",
-          border: "1px solid #e2e8f0",
-          borderRadius: 8,
-          fontSize: 14,
-          color: "#475569",
-          lineHeight: 1.55,
-        }}
-      >
-        <strong>What happens next:</strong> this wizard <strong>creates</strong> the run. The pipeline executes
-        asynchronously. On the last step, open <strong>run detail</strong> to watch the authority chain. When the
-        run is ready, <strong>commit</strong> the manifest via API/CLI (see run detail copy) — then manifest
-        summary, artifacts, and ZIP exports appear.
+      <p className="mt-2 text-sm">
+        <Link href="/runs" className="text-teal-700 underline">
+          Runs list
+        </Link>
+        {" · "}
+        <Link href="/" className="text-teal-700 underline">
+          Home
+        </Link>
       </p>
       <NewRunWizardClient />
     </main>
