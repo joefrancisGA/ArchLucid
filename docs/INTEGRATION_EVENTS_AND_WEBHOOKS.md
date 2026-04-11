@@ -65,6 +65,8 @@ Module: **`infra/terraform-servicebus`** — namespace (Standard), topic with du
 
 ### JSON Schema catalog
 
+Machine-readable catalog: `schemas/integration-events/catalog.json` — lists all event types, schema file paths, and URIs for consumer-side tooling.
+
 Individual event payload schemas are published as [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/schema) files under `schemas/integration-events/`:
 
 | Schema file | Event type |

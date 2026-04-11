@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/catalog.json",
+  "title": "ArchLucid integration event schema catalog",
+  "description": "Discoverable index of all published integration event payload schemas.",
+  "events": [
+    {
+      "eventType": "com.archlucid.authority.run.completed",
+      "schemaFile": "authority-run-completed.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/authority-run-completed.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true
+    },
+    {
+      "eventType": "com.archlucid.governance.approval.submitted",
+      "schemaFile": "governance-approval-submitted.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/governance-approval-submitted.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true
+    },
+    {
+      "eventType": "com.archlucid.governance.promotion.activated",
+      "schemaFile": "governance-promotion-activated.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/governance-promotion-activated.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true
+    },
+    {
+      "eventType": "com.archlucid.alert.fired",
+      "schemaFile": "alert-fired.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/alert-fired.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true
+    },
+    {
+      "eventType": "com.archlucid.alert.resolved",
+      "schemaFile": "alert-resolved.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/alert-resolved.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true
+    },
+    {
+      "eventType": "com.archlucid.advisory.scan.completed",
+      "schemaFile": "advisory-scan-completed.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/advisory-scan-completed.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true
+    }
+  ]
+}

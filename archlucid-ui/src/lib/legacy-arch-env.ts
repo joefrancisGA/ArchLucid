@@ -1,6 +1,7 @@
 /**
- * Reads operator UI environment variables (ArchLucid-prefixed only; Phase 7 removed legacy name fallbacks).
- * Legacy keys are detected separately so deploy systems still mapping old secret names get a visible warning.
+ * Reads operator UI environment variables (ArchLucid-prefixed first).
+ * Server-side API base still accepts `NEXT_PUBLIC_*ARCHIFORGE*_API_BASE_URL` when the Lucid public var is unset (migration).
+ * Other legacy `ARCHIFORGE_*` keys are warned once and ignored for reads here.
  */
 const _legacyEnvPrefix = "ARCH" + "IFORGE_";
 
@@ -44,6 +45,12 @@ export function readServerApiBaseUrlFromEnv(): string {
 
   if (lucidNp) {
     return lucidNp;
+  }
+
+  const legacyNpApiBase = process.env[`NEXT_PUBLIC_${_legacyEnvPrefix}API_BASE_URL`]?.trim();
+
+  if (legacyNpApiBase) {
+    return legacyNpApiBase;
   }
 
   return "http://localhost:5128";

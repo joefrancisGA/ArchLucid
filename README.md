@@ -61,6 +61,15 @@ ArchLucid is an API for orchestrating AI-driven architecture design. It coordina
 - **Auth:** Configure **`ArchLucidAuth`** (`DevelopmentBypass` locally, `JwtBearer` in production). Policies map to `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` (see **API authentication** below).
 - **SMB / storage:** Do not expose file shares (SMB, port 445) on the public internet; use private endpoints and controlled boundaries for any Azure storage or hybrid file access.
 
+### Integration events (optional Azure Service Bus)
+
+ArchLucid publishes JSON integration events to an Azure Service Bus topic for
+lifecycle hooks (run completion, governance, alerts, advisory scans).
+- **Event catalog:** [`schemas/integration-events/catalog.json`](schemas/integration-events/catalog.json)
+- **Payload schemas:** [`schemas/integration-events/*.v1.schema.json`](schemas/integration-events/)
+- **AsyncAPI spec:** [`docs/contracts/archlucid-asyncapi-2.6.yaml`](docs/contracts/archlucid-asyncapi-2.6.yaml)
+- **Full reference:** [`docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md)
+
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
