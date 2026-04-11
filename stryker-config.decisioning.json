@@ -2,7 +2,7 @@
   "stryker-config": {
     "project": "ArchLucid.Decisioning/ArchLucid.Decisioning.csproj",
     "test-projects": ["ArchLucid.Decisioning.Tests/ArchLucid.Decisioning.Tests.csproj"],
-    "reporters": ["progress", "html"],
+    "reporters": ["progress", "html", "json"],
     "thresholds": {
       "high": 80,
       "low": 60,

@@ -1,46 +1,151 @@
 #!/usr/bin/env python3
 """
-CI guard: merged Cobertura (ReportGenerator output) must meet a minimum line coverage percent.
+CI guard: merged Cobertura (ReportGenerator output) must meet:
+  - minimum merged line coverage (default 70%),
+  - minimum merged branch coverage (default 50%; root branch-rate required),
+  - minimum line coverage per product ArchLucid.* package with coverable lines (default 40%).
 
 Coverlet runs per test assembly; enforcing <Threshold> in coverage.runsettings would not
 represent solution-wide coverage. The full-regression job merges Cobertura files first.
+
+Packages with zero coverable <line/> rows are skipped (no executable lines in Cobertura for
+that package). Packages with coverable lines but missing line-rate are treated as failures
+(inconsistent report).
+
+Edge cases are documented here so behavior stays stable across Coverlet/ReportGenerator versions.
 """
 from __future__ import annotations
 
+import argparse
 import sys
-import xml.etree.ElementTree as ET
+from pathlib import Path
+
+_CI_DIR = Path(__file__).resolve().parent
+if str(_CI_DIR) not in sys.path:
+    sys.path.insert(0, str(_CI_DIR))
+
+from coverage_cobertura import (
+    is_product_archlucid_package,
+    parse_cobertura,
+    product_packages_for_gate,
+)
 
 
-def _main() -> int:
-    if len(sys.argv) < 2:
+def _failures_for_packages(summary, min_package_line_pct: float) -> list[str]:
+    """Return human-readable failure lines for product packages under the line floor."""
+    bad: list[str] = []
+    for p in product_packages_for_gate(summary):
+        if p.line_rate is None:
+            bad.append(
+                f"  {p.name}: missing line-rate in Cobertura but coverable_lines={p.coverable_lines} (invalid report).",
+            )
+            continue
+        pct = p.line_rate * 100.0
+        if pct + 1e-9 < min_package_line_pct:
+            bad.append(f"  {p.name}: line coverage {pct:.2f}% (minimum {min_package_line_pct:.2f}%).")
+    return bad
+
+
+def _main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(
+        description="Enforce merged Cobertura line, branch, and per-product-package line floors.",
+    )
+    parser.add_argument(
+        "cobertura",
+        type=Path,
+        help="Path to merged Cobertura.xml (e.g. coverage-report-full/Cobertura.xml).",
+    )
+    parser.add_argument(
+        "min_line_positional",
+        nargs="?",
+        type=float,
+        default=None,
+        help="Optional merged line minimum %% (backward compatible); overrides --min-line-pct when set.",
+    )
+    parser.add_argument(
+        "--min-line-pct",
+        type=float,
+        default=70.0,
+        help="Merged line coverage minimum (default 70).",
+    )
+    parser.add_argument(
+        "--min-branch-pct",
+        type=float,
+        default=50.0,
+        help="Merged branch coverage minimum from root branch-rate (default 50).",
+    )
+    parser.add_argument(
+        "--min-package-line-pct",
+        type=float,
+        default=40.0,
+        help="Minimum line %% for each product ArchLucid.* package with coverable lines (default 40).",
+    )
+    args = parser.parse_args(argv)
+
+    line_min = (
+        args.min_line_positional
+        if args.min_line_positional is not None
+        else args.min_line_pct
+    )
+
+    summary = parse_cobertura(args.cobertura)
+    if summary is None:
+        print(f"Could not parse Cobertura: {args.cobertura!r}.", file=sys.stderr)
+        return 2
+
+    if summary.root_line_pct is None:
+        print(f"Missing line-rate on root element in {args.cobertura!r}.", file=sys.stderr)
+        return 2
+
+    if summary.root_branch_pct is None:
         print(
-            "Usage: assert_merged_line_coverage_min.py <Cobertura.xml> [min_percent]",
+            f"Missing branch-rate on root element in {args.cobertura!r} "
+            "(merged branch gate requires root branch-rate; do not silently pass).",
             file=sys.stderr,
         )
         return 2
 
-    path = sys.argv[1]
-    min_pct = float(sys.argv[2]) if len(sys.argv) > 2 else 70.0
+    exit_code = 0
 
-    tree = ET.parse(path)
-    root = tree.getroot()
-    line_rate_str = root.attrib.get("line-rate")
-    if line_rate_str is None:
-        print(f"Missing line-rate on root element in {path!r}.", file=sys.stderr)
-        return 2
-
-    line_rate = float(line_rate_str)
-    pct = line_rate * 100.0
-
-    if pct + 1e-9 < min_pct:
+    if summary.root_line_pct + 1e-9 < line_min:
         print(
-            f"Merged line coverage {pct:.2f}% is below required minimum {min_pct:.2f}%."
+            f"Merged line coverage {summary.root_line_pct:.2f}% is below required minimum {line_min:.2f}%.",
         )
-        return 1
+        exit_code = 1
+    else:
+        print(
+            f"Merged line coverage gate OK: {summary.root_line_pct:.2f}% (minimum {line_min:.2f}%).",
+        )
 
-    print(f"Merged line coverage gate OK: {pct:.2f}% (minimum {min_pct:.2f}%).")
-    return 0
+    if summary.root_branch_pct + 1e-9 < args.min_branch_pct:
+        print(
+            f"Merged branch coverage {summary.root_branch_pct:.2f}% is below required minimum "
+            f"{args.min_branch_pct:.2f}%.",
+        )
+        exit_code = 1
+    else:
+        print(
+            f"Merged branch coverage gate OK: {summary.root_branch_pct:.2f}% "
+            f"(minimum {args.min_branch_pct:.2f}%).",
+        )
+
+    pkg_failures = _failures_for_packages(summary, args.min_package_line_pct)
+    if pkg_failures:
+        print("Per-product-package line coverage failures (ArchLucid.* with coverable lines):")
+        for line in pkg_failures:
+            print(line)
+        exit_code = 1
+    else:
+        product = [p for p in summary.packages if is_product_archlucid_package(p.name)]
+        gated = product_packages_for_gate(summary)
+        print(
+            f"Per-package line gate OK: {len(gated)} product package(s) with coverable lines "
+            f"all >= {args.min_package_line_pct:.2f}% "
+            f"({len(product)} ArchLucid.* product package nodes total).",
+        )
+
+    return exit_code
 
 
 if __name__ == "__main__":
-    raise SystemExit(_main())
+    raise SystemExit(_main(sys.argv[1:]))

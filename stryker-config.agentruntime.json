@@ -2,7 +2,7 @@
   "stryker-config": {
     "project": "ArchLucid.AgentRuntime/ArchLucid.AgentRuntime.csproj",
     "test-projects": ["ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj"],
-    "reporters": ["progress", "html"],
+    "reporters": ["progress", "html", "json"],
     "thresholds": {
       "high": 80,
       "low": 60,

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchLucid.Persistence.Tests;
 
+[Collection(nameof(DataArchivalCoordinatorCollection))]
 public sealed class DataArchivalCoordinatorTests
 {
     [Fact]

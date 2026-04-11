@@ -332,9 +332,13 @@ jobs:
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
 
-      - name: Enforce minimum merged line coverage (70%)
+      - name: Enforce merged coverage gates (line 70%, branch 50%, product packages 40% line)
         if: success()
-        run: python3 scripts/ci/assert_merged_line_coverage_min.py "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 70
+        run: >
+          python3 scripts/ci/assert_merged_line_coverage_min.py
+          "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 70
+          --min-branch-pct 50
+          --min-package-line-pct 40
 
       - uses: actions/upload-artifact@v6
         if: success()

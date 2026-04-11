@@ -140,4 +140,12 @@ The improvement is due to removing untestable SQL infrastructure code from the d
 
 ## Repo-wide minimum (merged Cobertura)
 
-`coverage.runsettings` intentionally does **not** set Coverlet `<Threshold>`: VSTest runs collectors **per test assembly**, so a single global percentage would fail assemblies that only cover part of the tree. CI merges Cobertura files with ReportGenerator (see `.github/workflows/ci.yml`), then **`scripts/ci/assert_merged_line_coverage_min.py`** enforces **70%** merged **line** coverage on `Cobertura.xml` from that merge step.
+`coverage.runsettings` intentionally does **not** set Coverlet `<Threshold>`: VSTest runs collectors **per test assembly**, so a single global percentage would fail assemblies that only cover part of the tree. CI merges Cobertura files with ReportGenerator (see `.github/workflows/ci.yml`), then **`scripts/ci/assert_merged_line_coverage_min.py`** enforces, on merged **`Cobertura.xml`**:
+
+| Gate | Threshold | Source |
+|------|-----------|--------|
+| Merged **line** | **70%** | Root `line-rate` |
+| Merged **branch** | **50%** | Root `branch-rate` (required; missing → fail) |
+| Per **product** package line | **40%** | Each Cobertura `<package>` matching `ArchLucid.*` (excluding tests/TestSupport) with at least one coverable `<line/>`; packages with zero coverable lines are skipped |
+
+Shared parsing and the product-package filter live in **`scripts/ci/coverage_cobertura.py`** (also used by **`scripts/ci/build_coverage_pr_comment.py`**).

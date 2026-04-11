@@ -15,6 +15,7 @@ using Moq;
 
 namespace ArchLucid.Persistence.Tests;
 
+[Collection(nameof(DataArchivalCoordinatorCollection))]
 [Trait("Suite", "Core")]
 public sealed class DataArchivalCoordinatorCorrelationTests
 {

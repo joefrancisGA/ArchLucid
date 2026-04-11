@@ -78,7 +78,7 @@ npm run test:e2e
 
 ### Stryker.NET mutation configs (repo root)
 
-Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config below and uploads HTML under `StrykerOutput`. Narrative and local commands: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**. All listed configs use thresholds **high 80 / low 60 / break 60**.
+Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config with **`-s ArchLucid.sln`**, reporters **`progress` / `html` / `json`**, then **`scripts/ci/assert_stryker_score_vs_baseline.py`** vs **`scripts/ci/stryker-baselines.json`**. Narrative and baseline refresh: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**. All listed configs use thresholds **high 80 / low 60 / break 60** (baseline regression is separate from `break`).
 
 | Config file | Code project | Test project |
 |-------------|--------------|--------------|

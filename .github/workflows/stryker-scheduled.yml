@@ -42,7 +42,16 @@ jobs:
         run: dotnet tool restore
 
       - name: Run Stryker
-        run: dotnet dotnet-stryker -f ${{ matrix.config }}
+        run: dotnet dotnet-stryker -f ${{ matrix.config }} -s ArchLucid.sln
+
+      - name: Assert mutation score vs committed baseline
+        if: success()
+        run: >
+          python3 scripts/ci/assert_stryker_score_vs_baseline.py
+          --baseline scripts/ci/stryker-baselines.json
+          --label "${{ matrix.label }}"
+          --stryker-root StrykerOutput
+          --tolerance 0.15
 
       - name: Upload Stryker report
         uses: actions/upload-artifact@v6

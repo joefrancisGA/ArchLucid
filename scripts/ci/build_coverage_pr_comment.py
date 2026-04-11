@@ -6,18 +6,23 @@ from __future__ import annotations
 import os
 import re
 import sys
-import xml.etree.ElementTree as ET
 from pathlib import Path
+
+_CI_DIR = Path(__file__).resolve().parent
+if str(_CI_DIR) not in sys.path:
+    sys.path.insert(0, str(_CI_DIR))
+
+from coverage_cobertura import (
+    is_product_archlucid_package,
+    parse_cobertura,
+    parse_cobertura_packages_simple,
+)
 
 # Informational gates (do not fail the job): warn in the PR comment + workflow annotations.
 OVERALL_LINE_WARN_PCT = 70.0
+# CI hard gate for product packages is 40% line (assert_merged_line_coverage_min.py). This higher
+# threshold only adds PR visibility before the floor is hit.
 PER_PROJECT_LINE_WARN_PCT = 50.0
-
-
-def _local_name(tag: str) -> str:
-    if "}" in tag:
-        return tag.split("}", 1)[1]
-    return tag
 
 
 def parse_metrics(path: Path) -> tuple[float | None, float | None]:
@@ -31,51 +36,6 @@ def parse_metrics(path: Path) -> tuple[float | None, float | None]:
     branch_pct = float(branch_m.group(1)) if branch_m else None
 
     return line_pct, branch_pct
-
-
-def parse_cobertura_packages(path: Path) -> tuple[float | None, list[tuple[str, float]]]:
-    """Return (overall_line_pct, [(package_name, line_pct), ...]) from merged Cobertura."""
-    if not path.is_file():
-        return None, []
-
-    try:
-        tree = ET.parse(path)
-    except ET.ParseError:
-        return None, []
-
-    root = tree.getroot()
-    if root is None:
-        return None, []
-
-    overall_raw = root.get("line-rate")
-    overall_pct = float(overall_raw) * 100.0 if overall_raw is not None else None
-
-    packages: list[tuple[str, float]] = []
-    for element in root.iter():
-        if _local_name(element.tag) != "package":
-            continue
-        name = (element.get("name") or "").strip()
-        rate_raw = element.get("line-rate")
-        if not name or rate_raw is None:
-            continue
-        try:
-            packages.append((name, float(rate_raw) * 100.0))
-        except ValueError:
-            continue
-
-    packages.sort(key=lambda x: x[0])
-    return overall_pct, packages
-
-
-def _is_product_archlucid_package(name: str) -> bool:
-    if not name.startswith("ArchLucid."):
-        return False
-    lower = name.lower()
-    if ".tests" in lower or name.endswith("Tests"):
-        return False
-    if "tests." in lower or ".testsupport" in lower or "TestSupport" in name:
-        return False
-    return True
 
 
 def format_delta(current: float | None, previous: float | None) -> str:
@@ -129,8 +89,8 @@ def main() -> int:
         write_annotation_lines(annotations_file, [])
         return 0
 
-    cob_overall, cob_packages = parse_cobertura_packages(cobertura_file)
-    product_rows = [(n, p) for n, p in cob_packages if _is_product_archlucid_package(n)]
+    cob_overall, cob_packages = parse_cobertura_packages_simple(cobertura_file)
+    product_rows = [(n, p) for n, p in cob_packages if is_product_archlucid_package(n)]
     low_projects = sorted(
         [(n, p) for n, p in product_rows if p < PER_PROJECT_LINE_WARN_PCT],
         key=lambda x: x[1],
@@ -151,6 +111,12 @@ def main() -> int:
     if head_branch is not None:
         lines.append(
             f"| Branch | **{head_branch:.1f}%**{format_delta(head_branch, base_branch)} |",
+        )
+
+    cob_summary = parse_cobertura(cobertura_file)
+    if cob_summary is not None and cob_summary.root_branch_pct is not None:
+        lines.append(
+            f"| Branch (merged Cobertura root) | **{cob_summary.root_branch_pct:.1f}%** |",
         )
 
     lines.append("")

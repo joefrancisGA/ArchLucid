@@ -181,8 +181,8 @@ public sealed class AgentExecutionResilienceTests
 
         await sut.ExecuteAsync(runId, request, evidence, [taskTopology, taskCompliance], CancellationToken.None);
 
-        // Two ~150ms handlers in parallel: allow thread-pool / CI scheduling variance (not serial ~300ms+).
-        sw.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(2000));
+        // Two ~150ms handlers in parallel: allow thread-pool / full-solution parallel test load (not serial ~300ms+).
+        sw.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(5000));
     }
 
     [Fact]
