@@ -4,15 +4,14 @@ namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 /// Detects API key strings that are unsuitable for Production when API key authentication is enabled.
 /// Callers must not log values passed here.
 /// </summary>
-internal static class ApiKeyPlaceholderValue
+internal static class ApiKeyPlaceholderDetection
 {
     /// <summary>
-    /// Minimum length (24 characters after trim). Shorter non-empty keys are rejected in Production so operators
-    /// cannot deploy trivially guessable secrets; entropy from random generators typically exceeds this.
+    /// API keys under 20 characters have insufficient entropy for production use.
     /// </summary>
-    private const int MinimumProductionKeyLength = 24;
+    private const int MinimumProductionKeyLength = 20;
 
-    private static readonly string[] ObviousPlaceholderTokens =
+    private static readonly string[] ExactBlocklist =
     [
         "changeme",
         "placeholder",
@@ -22,6 +21,21 @@ internal static class ApiKeyPlaceholderValue
         "test",
         "admin",
         "password",
+        "example",
+        "default",
+        "demo",
+        "key",
+        "apikey",
+        "api-key",
+    ];
+
+    private static readonly string[] SubstringBlocklist =
+    [
+        "todo",
+        "fixme",
+        "changeme",
+        "placeholder",
+        "replace",
     ];
 
     /// <summary>
@@ -37,9 +51,17 @@ internal static class ApiKeyPlaceholderValue
 
         string trimmed = value.Trim();
 
-        foreach (string token in ObviousPlaceholderTokens)
+        foreach (string token in ExactBlocklist)
         {
             if (string.Equals(trimmed, token, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        foreach (string fragment in SubstringBlocklist)
+        {
+            if (trimmed.Contains(fragment, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }

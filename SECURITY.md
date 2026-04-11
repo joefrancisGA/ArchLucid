@@ -1,38 +1,55 @@
-# Security policy
+# Security
 
-## Scope
+Responsible disclosure for **ArchLucid** — this repository, published **container images** (for example API and operator UI), and **NuGet** packages (for example the generated API client) produced from it.
 
-This policy applies to the **ArchLucid** product sources in this repository (API, worker, operator UI, and related tooling) and to security issues that affect deployments built from them.
+## How to report
 
-## Supported versions
+**Preferred:** Use **[GitHub Security Advisories](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)** to submit a **private** report for this repository.
 
-Security fixes are applied on the **main development line** reflected in this repo. Release branches or tagged versions, if any, are supported according to your organization’s release policy; when in doubt, use the latest tagged release or `main`.
+**Alternative (placeholder — update before GA):** Email **security@archlucid.dev**. Treat this address as a **stand-in** until your team publishes a verified security contact.
 
-## Reporting a vulnerability
-
-**Preferred:** If this repository is hosted on GitHub, use **[GitHub Security Advisories](https://docs.github.com/en/code-security/security-advisories)** to open a **private** advisory for maintainers.
-
-**Alternative:** Email **security@YOURDOMAIN** (replace with your organization’s security contact). If you do not yet have a mailbox, configure one or use GitHub private advisories until you do.
-
-Please **do not** file public issues for undisclosed security bugs.
+Please **do not** open public issues for undisclosed vulnerabilities.
 
 ## What to include
 
-- A short description of the issue and its impact (confidentiality, integrity, availability).
-- Affected component (e.g. API, worker, UI) and version or commit when known.
-- Steps to reproduce or proof-of-concept **without** live exploitation of production systems.
-- Your contact for follow-up (optional).
+- Clear description of the issue and impact (confidentiality, integrity, availability).
+- Steps to reproduce or a safe proof-of-concept (no exploitation of production systems you do not own).
+- Affected **versions**, **commits**, **images**, or **packages** when known.
+- Suggested **severity** (optional).
 
-**Do not** send real production secrets, live API keys, or personal data in the initial report.
+Do not send production secrets, live credentials, or unnecessary personal data.
 
-## Our commitment
+## Our response
 
-We aim to **acknowledge** valid reports within a **reasonable window** (typically a few business days) and to work toward a coordinated fix and disclosure timeline.
+- **Acknowledgment** within **5 business days** of a report we can act on.
+- **Initial assessment** (severity, scope, and direction) within **15 business days**.
 
-## Disclosure
+Timelines assume good-faith reports with enough detail to triage; complex issues may need follow-up.
 
-Please **coordinate** with maintainers before **public** disclosure (blog posts, CVE without agreement, etc.) so users can deploy mitigations or patches first (**responsible disclosure**).
+## Coordinated disclosure
 
-## Safe harbor
+Do **not** publicly disclose details (blogs, CVEs, social posts) until **maintainers** confirm a **fix or agreed mitigation** is available and a disclosure timeline is coordinated (**responsible disclosure**).
 
-If you act in good faith—reporting issues without exploiting them beyond what is needed to demonstrate impact, and without accessing data that is not yours—we will treat your research as authorized for the purpose of improving security.
+## Supported versions
+
+Security fixes are applied to **`main`** and the **latest release** built from it. **Older tags** or branches receive fixes at **maintainer discretion**.
+
+## Product security documentation
+
+Deeper design and controls (not duplicated here):
+
+- [docs/security/ASK_RAG_THREAT_MODEL.md](docs/security/ASK_RAG_THREAT_MODEL.md) — Ask / RAG threat model  
+- [docs/security/MULTI_TENANT_RLS.md](docs/security/MULTI_TENANT_RLS.md) — Multi-tenant RLS  
+- [docs/security/MANAGED_IDENTITY_SQL_BLOB.md](docs/security/MANAGED_IDENTITY_SQL_BLOB.md) — Managed identity, SQL, Blob  
+- [docs/security/PII_RETENTION_CONVERSATIONS.md](docs/security/PII_RETENTION_CONVERSATIONS.md) — PII retention (conversations)
+
+## CI security tooling (summary)
+
+Pipelines include automated checks such as:
+
+- **Gitleaks** — secret scanning in repository content.  
+- **Trivy** — IaC and container image vulnerability scanning.  
+- **CodeQL** — static analysis (C#, JavaScript/TypeScript).  
+- **NuGet** — package vulnerability audit in .NET builds.  
+- **CycloneDX** — SBOM generation for supply-chain visibility.  
+- **OWASP ZAP** — baseline dynamic scanning against the API where configured.

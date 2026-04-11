@@ -187,7 +187,7 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().NotContain(e => e.Contains("Production: Authentication:ApiKey:AdminKey", StringComparison.Ordinal));
+        errors.Should().NotContain(e => e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -214,7 +214,78 @@ public sealed class ArchLucidConfigurationRulesTests
 
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
-        errors.Should().NotContain(e => e.Contains("sample/placeholder value", StringComparison.Ordinal));
+        errors.Should().NotContain(e => e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndApiKeyEnabledWithTwentyCharAdminKey_has_no_placeholder_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = "aB3$xK9mN2pQ7wR5vZ1y",
+            ["Authentication:ApiKey:ReadOnlyKey"] = "",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndApiKeyEnabledWithReadOnlyKeyTest_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = "aB3$xK9mN2pQ7wR5vZ1yabcdefghijklmnopqrst",
+            ["Authentication:ApiKey:ReadOnlyKey"] = "test",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("Authentication:ApiKey:ReadOnlyKey", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndApiKeyDisabled_weakAdminKey_does_not_add_placeholder_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Authentication:ApiKey:Enabled"] = "false",
+            ["Authentication:ApiKey:AdminKey"] = "test",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("appears to be a placeholder or weak value", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

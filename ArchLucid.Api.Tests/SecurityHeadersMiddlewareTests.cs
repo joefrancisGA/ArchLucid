@@ -34,4 +34,20 @@ public sealed class SecurityHeadersMiddlewareTests
         headers["Referrer-Policy"].ToString().Should().Be("strict-origin-when-cross-origin");
         headers["Content-Security-Policy"].ToString().Should().Be(SecurityHeadersMiddleware.ContentSecurityPolicyApiJson);
     }
+
+    [Fact]
+    public async Task InvokeAsync_DoesNotOverwriteExistingHeaders()
+    {
+        const string existingCsp = "default-src 'self'; frame-ancestors 'none'";
+        DefaultHttpContext context = new();
+        context.Response.Headers["Content-Security-Policy"] = existingCsp;
+
+        SecurityHeadersMiddleware middleware = new(_ => Task.CompletedTask);
+
+        await middleware.InvokeAsync(context);
+
+        IHeaderDictionary headers = context.Response.Headers;
+        headers["Content-Security-Policy"].ToString().Should().Be(existingCsp);
+        headers["X-Content-Type-Options"].ToString().Should().Be("nosniff");
+    }
 }

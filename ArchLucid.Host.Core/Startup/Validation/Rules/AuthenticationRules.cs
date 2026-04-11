@@ -44,18 +44,18 @@ internal static class AuthenticationRules
 
         string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
 
-        if (!string.IsNullOrWhiteSpace(adminKey) && ApiKeyPlaceholderValue.IsPlaceholderValue(adminKey))
+        if (!string.IsNullOrWhiteSpace(adminKey) && ApiKeyPlaceholderDetection.IsPlaceholderValue(adminKey))
         {
             errors.Add(
-                "Production: Authentication:ApiKey:AdminKey must be a strong secret (not a sample/placeholder value and at least 24 characters).");
+                "Authentication:ApiKey:AdminKey appears to be a placeholder or weak value. Use a cryptographically random key of at least 20 characters in Production.");
         }
 
         string? readOnlyKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
 
-        if (!string.IsNullOrWhiteSpace(readOnlyKey) && ApiKeyPlaceholderValue.IsPlaceholderValue(readOnlyKey))
+        if (!string.IsNullOrWhiteSpace(readOnlyKey) && ApiKeyPlaceholderDetection.IsPlaceholderValue(readOnlyKey))
         {
             errors.Add(
-                "Production: Authentication:ApiKey:ReadOnlyKey must be a strong secret (not a sample/placeholder value and at least 24 characters).");
+                "Authentication:ApiKey:ReadOnlyKey appears to be a placeholder or weak value. Use a cryptographically random key of at least 20 characters in Production.");
         }
     }
 
