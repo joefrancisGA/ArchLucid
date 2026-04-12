@@ -48,6 +48,7 @@ import type {
   PolicyPackVersion,
 } from "@/types/policy-packs";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
+import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
 import type {
   GovernanceApprovalRequest,
   GovernanceEnvironmentActivation,
@@ -888,6 +889,21 @@ export async function getGovernanceResolution(): Promise<EffectiveGovernanceReso
 }
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
+
+/** Cross-run governance dashboard: pending approvals, recent decisions, tenant policy change log. */
+export async function getGovernanceDashboard(
+  maxPending = 20,
+  maxDecisions = 20,
+  maxChanges = 20,
+): Promise<GovernanceDashboardSummary> {
+  const query = new URLSearchParams({
+    maxPending: String(maxPending),
+    maxDecisions: String(maxDecisions),
+    maxChanges: String(maxChanges),
+  });
+
+  return apiGet<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
+}
 
 /** Lists approval requests for a run (governance workflow). */
 export async function listApprovalRequests(runId: string): Promise<GovernanceApprovalRequest[]> {

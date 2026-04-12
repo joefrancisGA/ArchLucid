@@ -72,8 +72,8 @@ export function ShellNav() {
           <Link
             className="shell-nav-link"
             href="/graph"
-            title={navTitleWithShortcut("Provenance or architecture graph for one run ID", "alt+g")}
-            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+g")}
+            title={navTitleWithShortcut("Provenance or architecture graph for one run ID", "alt+shift+g")}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+shift+g")}
           >
             Graph
           </Link>
@@ -180,6 +180,14 @@ export function ShellNav() {
           </Link>
           <Link className="shell-nav-link" href="/governance-resolution" title="Effective governance resolution">
             Governance resolution
+          </Link>
+          <Link
+            className="shell-nav-link"
+            href="/governance/dashboard"
+            title={navTitleWithShortcut("Cross-run governance dashboard — pending approvals and policy changes", "alt+g")}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+g")}
+          >
+            Dashboard
           </Link>
           <Link className="shell-nav-link" href="/governance" title="Approval, promotion, and activation workflow">
             Governance workflow

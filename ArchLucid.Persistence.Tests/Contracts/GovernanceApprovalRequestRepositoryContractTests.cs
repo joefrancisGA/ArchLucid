@@ -81,6 +81,80 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         list[1].ApprovalRequestId.Should().Be("apr-old");
     }
 
+    [SkippableFact]
+    public async Task GetPendingAsync_returns_draft_and_submitted_ordered_by_RequestedUtc_desc()
+    {
+        SkipIfSqlServerUnavailable();
+        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        DateTime older = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
+        DateTime newer = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
+
+        GovernanceApprovalRequest draftOld = NewApproval("apr-draft-old", runId, older);
+        draftOld.Status = GovernanceApprovalStatus.Draft;
+        await repo.CreateAsync(draftOld, CancellationToken.None);
+
+        await repo.CreateAsync(NewApproval("apr-sub-new", runId, newer), CancellationToken.None);
+
+        IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(50, CancellationToken.None);
+
+        pending.Should().HaveCount(2);
+        pending[0].ApprovalRequestId.Should().Be("apr-sub-new");
+        pending[1].ApprovalRequestId.Should().Be("apr-draft-old");
+    }
+
+    [SkippableFact]
+    public async Task GetPendingAsync_respects_maxRows()
+    {
+        SkipIfSqlServerUnavailable();
+        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        DateTime t1 = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
+        DateTime t2 = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
+        DateTime t3 = new(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc);
+
+        await repo.CreateAsync(NewApproval("apr-a", runId, t1), CancellationToken.None);
+        await repo.CreateAsync(NewApproval("apr-b", runId, t2), CancellationToken.None);
+        await repo.CreateAsync(NewApproval("apr-c", runId, t3), CancellationToken.None);
+
+        IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(2, CancellationToken.None);
+
+        pending.Should().HaveCount(2);
+        pending[0].ApprovalRequestId.Should().Be("apr-c");
+        pending[1].ApprovalRequestId.Should().Be("apr-b");
+    }
+
+    [SkippableFact]
+    public async Task GetRecentDecisionsAsync_orders_by_ReviewedUtc_desc_and_excludes_pending()
+    {
+        SkipIfSqlServerUnavailable();
+        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        DateTime requested = new(2026, 4, 1, 9, 0, 0, DateTimeKind.Utc);
+        DateTime reviewedOlder = new(2026, 4, 2, 10, 0, 0, DateTimeKind.Utc);
+        DateTime reviewedNewer = new(2026, 4, 2, 12, 0, 0, DateTimeKind.Utc);
+
+        GovernanceApprovalRequest approved = NewApproval("apr-apr", runId, requested);
+        approved.Status = GovernanceApprovalStatus.Approved;
+        approved.ReviewedBy = "r1";
+        approved.ReviewedUtc = reviewedOlder;
+        await repo.CreateAsync(approved, CancellationToken.None);
+
+        GovernanceApprovalRequest rejected = NewApproval("apr-rej", runId, requested);
+        rejected.Status = GovernanceApprovalStatus.Rejected;
+        rejected.ReviewedBy = "r2";
+        rejected.ReviewedUtc = reviewedNewer;
+        await repo.CreateAsync(rejected, CancellationToken.None);
+
+        await repo.CreateAsync(NewApproval("apr-still-open", runId, requested), CancellationToken.None);
+
+        IReadOnlyList<GovernanceApprovalRequest> decisions = await repo.GetRecentDecisionsAsync(50, CancellationToken.None);
+
+        decisions.Should().HaveCount(2);
+        decisions[0].ApprovalRequestId.Should().Be("apr-rej");
+        decisions[1].ApprovalRequestId.Should().Be("apr-apr");
+    }
+
     private static GovernanceApprovalRequest NewApproval(string approvalId, string runId, DateTime requestedUtc)
     {
         return new GovernanceApprovalRequest

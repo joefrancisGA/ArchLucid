@@ -163,4 +163,92 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
 
         return [.. rows];
     }
+
+    public async Task<IReadOnlyList<GovernanceApprovalRequest>> GetPendingAsync(
+        int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        if (maxRows <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
+        }
+
+        const string sql = """
+            SELECT TOP (@MaxRows)
+                ApprovalRequestId,
+                RunId,
+                ManifestVersion,
+                SourceEnvironment,
+                TargetEnvironment,
+                Status,
+                RequestedBy,
+                ReviewedBy,
+                RequestComment,
+                ReviewComment,
+                RequestedUtc,
+                ReviewedUtc
+            FROM GovernanceApprovalRequests
+            WHERE Status IN (@Draft, @Submitted)
+            ORDER BY RequestedUtc DESC;
+            """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
+            sql,
+            new
+            {
+                MaxRows = maxRows,
+                Draft = GovernanceApprovalStatus.Draft,
+                Submitted = GovernanceApprovalStatus.Submitted,
+            },
+            cancellationToken: cancellationToken));
+
+        return [.. rows];
+    }
+
+    public async Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(
+        int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        if (maxRows <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
+        }
+
+        const string sql = """
+            SELECT TOP (@MaxRows)
+                ApprovalRequestId,
+                RunId,
+                ManifestVersion,
+                SourceEnvironment,
+                TargetEnvironment,
+                Status,
+                RequestedBy,
+                ReviewedBy,
+                RequestComment,
+                ReviewComment,
+                RequestedUtc,
+                ReviewedUtc
+            FROM GovernanceApprovalRequests
+            WHERE Status IN (@Approved, @Rejected, @Promoted)
+              AND ReviewedUtc IS NOT NULL
+            ORDER BY ReviewedUtc DESC;
+            """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
+            sql,
+            new
+            {
+                MaxRows = maxRows,
+                Approved = GovernanceApprovalStatus.Approved,
+                Rejected = GovernanceApprovalStatus.Rejected,
+                Promoted = GovernanceApprovalStatus.Promoted,
+            },
+            cancellationToken: cancellationToken));
+
+        return [.. rows];
+    }
 }

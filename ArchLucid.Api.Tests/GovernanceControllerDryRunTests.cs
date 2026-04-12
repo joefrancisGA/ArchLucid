@@ -7,6 +7,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -59,6 +60,8 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IGovernancePromotionRecordRepository>(),
             Mock.Of<IGovernanceEnvironmentActivationRepository>(),
             actor.Object,
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IGovernanceDashboardService>(),
             NullLogger<GovernanceController>.Instance);
 
         DefaultHttpContext http = new();
@@ -113,6 +116,8 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IGovernancePromotionRecordRepository>(),
             Mock.Of<IGovernanceEnvironmentActivationRepository>(),
             Mock.Of<IActorContext>(),
+            Mock.Of<IScopeContextProvider>(),
+            Mock.Of<IGovernanceDashboardService>(),
             NullLogger<GovernanceController>.Instance);
 
         DefaultHttpContext http = new();

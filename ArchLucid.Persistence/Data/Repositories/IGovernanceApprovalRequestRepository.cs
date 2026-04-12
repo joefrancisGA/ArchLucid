@@ -31,4 +31,24 @@ public interface IGovernanceApprovalRequestRepository
     /// Returns an empty list (never <see langword="null"/>) when none are found.
     /// </summary>
     Task<IReadOnlyList<GovernanceApprovalRequest>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns all approval requests in <see cref="GovernanceApprovalStatus.Submitted"/> or <see cref="GovernanceApprovalStatus.Draft"/> status,
+    /// ordered by <see cref="GovernanceApprovalRequest.RequestedUtc"/> descending, limited to <paramref name="maxRows"/>.
+    /// </summary>
+    /// <remarks>
+    /// <c>GovernanceApprovalRequests</c> is keyed by run, not tenant; this query is not tenant-scoped. Use run-level APIs or a future join when tenant isolation is required.
+    /// </remarks>
+    Task<IReadOnlyList<GovernanceApprovalRequest>> GetPendingAsync(
+        int maxRows = 50,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns the most recent decisions (<see cref="GovernanceApprovalStatus.Approved"/>, <see cref="GovernanceApprovalStatus.Rejected"/>, <see cref="GovernanceApprovalStatus.Promoted"/>)
+    /// ordered by <see cref="GovernanceApprovalRequest.ReviewedUtc"/> descending, limited to <paramref name="maxRows"/>.
+    /// Rows without <see cref="GovernanceApprovalRequest.ReviewedUtc"/> are excluded.
+    /// </summary>
+    Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(
+        int maxRows = 50,
+        CancellationToken cancellationToken = default);
 }

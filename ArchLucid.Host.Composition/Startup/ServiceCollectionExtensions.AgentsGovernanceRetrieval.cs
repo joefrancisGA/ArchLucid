@@ -328,6 +328,7 @@ public static partial class ServiceCollectionExtensions
         }
 
         services.AddScoped<IGovernanceWorkflowService, GovernanceWorkflowService>();
+        services.AddScoped<IGovernanceDashboardService, GovernanceDashboardService>();
     }
 
     private static void RegisterRetrieval(IServiceCollection services, IConfiguration configuration)

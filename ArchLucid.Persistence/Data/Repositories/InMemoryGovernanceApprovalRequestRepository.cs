@@ -88,6 +88,62 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         }
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<GovernanceApprovalRequest>> GetPendingAsync(
+        int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        if (maxRows <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            List<GovernanceApprovalRequest> ordered = _byId.Values
+                .Where(
+                    x => string.Equals(x.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
+                         || string.Equals(x.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal))
+                .OrderByDescending(x => x.RequestedUtc)
+                .Take(maxRows)
+                .Select(Clone)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<GovernanceApprovalRequest>>(ordered);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(
+        int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        if (maxRows <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(maxRows));
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            List<GovernanceApprovalRequest> ordered = _byId.Values
+                .Where(
+                    x => x.ReviewedUtc.HasValue
+                         && (string.Equals(x.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal)
+                             || string.Equals(x.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal)
+                             || string.Equals(x.Status, GovernanceApprovalStatus.Promoted, StringComparison.Ordinal)))
+                .OrderByDescending(x => x.ReviewedUtc)
+                .Take(maxRows)
+                .Select(Clone)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<GovernanceApprovalRequest>>(ordered);
+        }
+    }
+
     private static GovernanceApprovalRequest Clone(GovernanceApprovalRequest source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);

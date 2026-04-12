@@ -9224,6 +9224,116 @@
         }
       }
     },
+    "/v1/governance/dashboard": {
+      "get": {
+        "tags": [
+          "Governance"
+        ],
+        "parameters": [
+          {
+            "name": "maxPending",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "maxDecisions",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "maxChanges",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceDashboardSummary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceDashboardSummary"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceDashboardSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/governance/runs/{runId}/approval-requests": {
       "get": {
         "tags": [
@@ -15622,6 +15732,42 @@
           }
         }
       }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "ArchLucid.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/robots.txt": {
+      "get": {
+        "tags": [
+          "ArchLucid.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/sitemap.xml": {
+      "get": {
+        "tags": [
+          "ArchLucid.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -19990,6 +20136,33 @@
           }
         }
       },
+      "GovernanceDashboardSummary": {
+        "type": "object",
+        "properties": {
+          "pendingApprovals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GovernanceApprovalRequest"
+            }
+          },
+          "recentDecisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GovernanceApprovalRequest"
+            }
+          },
+          "recentChanges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PolicyPackChangeLogEntry"
+            }
+          },
+          "pendingCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "GovernanceDiffItem": {
         "type": "object",
         "properties": {
@@ -21914,6 +22087,59 @@
               "string"
             ],
             "format": "date-time"
+          }
+        }
+      },
+      "PolicyPackChangeLogEntry": {
+        "type": "object",
+        "properties": {
+          "changeLogId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "policyPackId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "workspaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "changeType": {
+            "type": "string"
+          },
+          "changedBy": {
+            "type": "string"
+          },
+          "changedUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "previousValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "newValue": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "summaryText": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -24484,6 +24710,9 @@
     },
     {
       "name": "Version"
+    },
+    {
+      "name": "ArchLucid.Api"
     }
   ]
 }

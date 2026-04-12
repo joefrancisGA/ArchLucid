@@ -6,6 +6,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
@@ -32,9 +33,16 @@ public sealed class GovernanceController(
     IGovernancePromotionRecordRepository promotionRepo,
     IGovernanceEnvironmentActivationRepository activationRepo,
     IActorContext actorContext,
+    IScopeContextProvider scopeContextProvider,
+    IGovernanceDashboardService governanceDashboardService,
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly IGovernanceDashboardService _governanceDashboardService =
+        governanceDashboardService ?? throw new ArgumentNullException(nameof(governanceDashboardService));
     [HttpPost("approval-requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
@@ -219,6 +227,26 @@ public sealed class GovernanceController(
             logger.LogWarning(ex, "Activate failed: run not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+    }
+
+    [HttpGet("dashboard")]
+    [ProducesResponseType(typeof(GovernanceDashboardSummary), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDashboard(
+        [FromQuery] int maxPending = 20,
+        [FromQuery] int maxDecisions = 20,
+        [FromQuery] int maxChanges = 20,
+        CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        GovernanceDashboardSummary summary = await _governanceDashboardService.GetDashboardAsync(
+            scope.TenantId,
+            maxPending,
+            maxDecisions,
+            maxChanges,
+            cancellationToken);
+
+        return Ok(summary);
     }
 
     [HttpGet("runs/{runId}/approval-requests")]
