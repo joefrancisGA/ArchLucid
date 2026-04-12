@@ -6,11 +6,14 @@ test.describe("policy packs — mock API journey", () => {
 
     await expect(page.getByRole("heading", { name: "Policy packs", level: 2 })).toBeVisible();
 
+    const createButton = page.getByRole("button", { name: "Create pack" });
     const publishButton = page.getByRole("button", { name: "Publish" });
     const assignButton = page.getByRole("button", { name: "Assign" });
 
-    await page.getByRole("button", { name: "Create pack" }).click();
-    // Create runs load(); Assign/Publish stay disabled until packs + selectedPackId are ready.
+    // Initial useEffect runs load(); Create pack / Refresh are disabled until listPolicyPacks + effective calls finish.
+    await expect(createButton).toBeEnabled({ timeout: 60_000 });
+    await createButton.click();
+    // onCreate runs load() again; Assign/Publish stay disabled until packs + selectedPackId are ready.
     await expect(publishButton).toBeEnabled({ timeout: 60_000 });
 
     await publishButton.click();
