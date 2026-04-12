@@ -62,24 +62,24 @@ Append-only semantics for `dbo.AuditEvents` are enforced at the database for the
 
 ### Example: periodic CSV export (`curl`)
 
-Replace placeholders for base URL, scope headers, and authentication mode (`ApiKey` vs `JwtBearer`).
+Replace placeholders for base URL and scope header values. Add authentication the same way as for other ArchLucid API calls (**`X-Api-Key`** when using API-key mode, or **`Authorization`** with a bearer token when using JWT); see [`docs/API_CONTRACTS.md`](./API_CONTRACTS.md) and [`docs/BUILD.md`](./BUILD.md). Do not commit real secrets into scripts or repos.
+
+**CSV** (supply your own auth headers before or after the `Accept` line, e.g. from a secrets manager or env var):
 
 ```bash
-# ApiKey mode (example)
 curl -sS -D - -o "audit-export.csv" \
   -H "Accept: text/csv" \
-  -H "X-Api-Key: YOUR_API_KEY" \
   -H "X-ArchLucid-Tenant-Id: {tenantGuid}" \
   -H "X-ArchLucid-Workspace-Id: {workspaceGuid}" \
   -H "X-ArchLucid-Project-Id: {projectGuid}" \
   "https://api.example.com/v1/audit/export?fromUtc=2026-01-01T00:00:00Z&toUtc=2026-04-01T00:00:00Z&maxRows=10000"
 ```
 
+**JSON** (same pattern; set **`Accept: application/json`**):
+
 ```bash
-# JWT bearer (example)
 curl -sS -D - -o "audit-export.json" \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer YOUR_JWT" \
   -H "X-ArchLucid-Tenant-Id: {tenantGuid}" \
   -H "X-ArchLucid-Workspace-Id: {workspaceGuid}" \
   -H "X-ArchLucid-Project-Id: {projectGuid}" \

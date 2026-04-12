@@ -20,9 +20,9 @@ The repo includes **`stryker-config.json`** at the solution root for **Persisten
 
 Each config enables **`json`** alongside `progress` and `html` so CI can parse **`mutation-report.json`** (mutation-testing-elements schema).
 
-Scheduled CI runs all five targets (matrix) with **`-s ArchLucid.sln`** (avoids ambiguity when multiple `.sln` files exist), uploads **`StrykerOutput`** as an artifact, then runs **`scripts/ci/assert_stryker_score_vs_baseline.py`** against committed scores in **`scripts/ci/stryker-baselines.json`** (default tolerance **0.15** percentage points below baseline → fail). This is a **regression guard** on top of each config’s **`thresholds.break`** (**62**, aligned with **`stryker-baselines.json`** after the latest ratchet).
+Scheduled CI runs all five targets (matrix) with **`-s ArchLucid.sln`** (avoids ambiguity when multiple `.sln` files exist), uploads **`StrykerOutput`** as an artifact, then runs **`scripts/ci/assert_stryker_score_vs_baseline.py`** against committed scores in **`scripts/ci/stryker-baselines.json`** (default tolerance **0.15** percentage points below baseline → fail). This is a **regression guard** on top of each config’s **`thresholds.break`** (**70**, aligned with **`stryker-baselines.json`** after the latest ratchet).
 
-**Why baselines should track observed scores:** When baseline and **`thresholds.break`** are equal (currently **62**), the assert script still enforces **baseline − 0.15** pp. Prefer **observed green scores** from **`refresh_stryker_baselines.py`** (rounded **down** to one decimal, e.g. 78.37 → **78.3**) so regressions inside the passing band are caught; ratchet **up** when measured scores justify it (e.g. **65**), never down without a product decision.
+**Why baselines should track observed scores:** When baseline and **`thresholds.break`** are equal (currently **70**), the assert script still enforces **baseline − 0.15** pp. Prefer **observed green scores** from **`refresh_stryker_baselines.py`** (rounded **down** to one decimal, e.g. 78.37 → **78.3**) so regressions inside the passing band are caught; ratchet **up** when measured scores justify it (e.g. **72**), never down without a product decision.
 
 ### Refreshing `stryker-baselines.json` (calibrated scores)
 
