@@ -6,9 +6,17 @@ test.describe("policy packs — mock API journey", () => {
 
     await expect(page.getByRole("heading", { name: "Policy packs", level: 2 })).toBeVisible();
 
+    const publishButton = page.getByRole("button", { name: "Publish" });
+    const assignButton = page.getByRole("button", { name: "Assign" });
+
     await page.getByRole("button", { name: "Create pack" }).click();
-    await page.getByRole("button", { name: "Publish" }).click();
-    await page.getByRole("button", { name: "Assign" }).click();
+    // Create runs load(); Assign/Publish stay disabled until packs + selectedPackId are ready.
+    await expect(publishButton).toBeEnabled({ timeout: 60_000 });
+
+    await publishButton.click();
+    // Publish runs load() again; wait before clicking Assign so the button is stable and enabled.
+    await expect(assignButton).toBeEnabled({ timeout: 60_000 });
+    await assignButton.click();
 
     await expect(page.getByText("e2e-mock-rule", { exact: false })).toBeVisible({ timeout: 60_000 });
   });
