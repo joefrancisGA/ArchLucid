@@ -156,6 +156,11 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
         string? text = parts[0].Text;
 
-        return string.IsNullOrEmpty(text) ? throw new InvalidOperationException("Azure OpenAI returned an empty assistant message.") : text;
+        if (string.IsNullOrEmpty(text))
+            throw new InvalidOperationException("Azure OpenAI returned an empty assistant message.");
+
+        ArchLucidInstrumentation.RecordLlmCompletionCallForCurrentRunBatch();
+
+        return text;
     }
 }

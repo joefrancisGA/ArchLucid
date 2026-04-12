@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Linq;
 using System.Text.Json;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -148,6 +149,8 @@ public sealed class AuthorityPipelineStagesExecutor(
 
             await SaveFindingsAsync(findingsSnapshot, uow, token);
             ctx.FindingsSnapshot = findingsSnapshot;
+
+            RecordFindingsProducedForMetrics(findingsSnapshot);
 
             run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
             await UpdateRunAsync(run, uow, token);
@@ -327,6 +330,19 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _artifactBundleRepository.SaveAsync(bundle, ct, uow.Connection, uow.Transaction);
         else
             await _artifactBundleRepository.SaveAsync(bundle, ct);
+    }
+
+    private static void RecordFindingsProducedForMetrics(FindingsSnapshot snapshot)
+    {
+        if (snapshot.Findings is null || snapshot.Findings.Count == 0)
+            return;
+
+        foreach (IGrouping<FindingSeverity, Finding> group in snapshot.Findings.GroupBy(static f => f.Severity))
+        {
+            TagList tags = new TagList { { "severity", group.Key.ToString() } };
+
+            ArchLucidInstrumentation.FindingsProducedTotal.Add(group.Count(), tags);
+        }
     }
 
     private static void ApplyScope(DecisionTrace trace, ScopeContext scope)

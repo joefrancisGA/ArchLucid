@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Caching;
@@ -9,7 +10,7 @@ namespace ArchLucid.AgentRuntime.Explanation;
 
 /// <summary>
 /// Decorates <see cref="IRunExplanationSummaryService"/> with hot-path read caching so repeat run-detail views
-/// do not repeat LLM work. Cache keys include <see cref="Models.RunRecord.RowVersion"/> so updates invalidate entries.
+/// do not repeat LLM work. Cache keys include the run row <c>ROWVERSION</c> (<see cref="ArchLucid.Persistence.Models.RunRecord.RowVersion"/>) so updates invalidate entries.
 /// </summary>
 public sealed class CachingRunExplanationSummaryService(
     IRunExplanationSummaryService inner,
@@ -55,9 +56,22 @@ public sealed class CachingRunExplanationSummaryService(
 
         string key = $"explanation:aggregate:{runId}:{Convert.ToHexString(rowVersion)}";
 
-        return await _cache.GetOrCreateAsync(
+        bool factoryInvoked = false;
+
+        RunExplanationSummary? summary = await _cache.GetOrCreateAsync(
             key,
-            innerCt => _inner.GetSummaryAsync(scope, runId, innerCt),
+            async innerCt =>
+            {
+                factoryInvoked = true;
+                ArchLucidInstrumentation.ExplanationCacheMisses.Add(1);
+
+                return await _inner.GetSummaryAsync(scope, runId, innerCt);
+            },
             ct);
+
+        if (!factoryInvoked)
+            ArchLucidInstrumentation.ExplanationCacheHits.Add(1);
+
+        return summary;
     }
 }

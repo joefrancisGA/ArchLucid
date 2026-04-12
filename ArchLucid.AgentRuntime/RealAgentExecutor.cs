@@ -113,6 +113,9 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
         ScopeContext batchScope = _scopeContextProvider.GetCurrentScope();
 
+        AgentExecutionLlmCallAccumulator llmCalls = new();
+
+        using (ArchLucidInstrumentation.BeginLlmCallsPerRunAccumulation(llmCalls))
         using (AmbientScopeContext.Push(batchScope))
         using (CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
         {
@@ -138,6 +141,12 @@ public sealed class RealAgentExecutor : IAgentExecutor
             {
                 await linked.CancelAsync();
                 throw;
+            }
+            finally
+            {
+                int n = llmCalls.Consume();
+
+                ArchLucidInstrumentation.LlmCallsPerRun.Record(n);
             }
         }
     }

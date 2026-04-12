@@ -19,7 +19,12 @@ using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Services.Ask;
+using ArchLucid.Persistence.Caching;
+using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Queries;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -46,7 +51,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ExplanationServiceOptions>(
             configuration.GetSection(ExplanationServiceOptions.SectionPath));
         services.AddScoped<IExplanationService, ExplanationService>();
-        services.AddScoped<IRunExplanationSummaryService, RunExplanationSummaryService>();
+        RegisterRunExplanationSummaryService(services, configuration);
         services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<IAskService, AskService>();
         services.AddScoped<IAgentEvaluationService, DefaultAgentEvaluationService>();
@@ -85,6 +90,29 @@ public static partial class ServiceCollectionExtensions
             services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
             services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
         }
+    }
+
+    private static void RegisterRunExplanationSummaryService(
+        IServiceCollection services,
+        IConfiguration configuration)
+    {
+        HotPathCacheOptions hotPath = configuration
+                                          .GetSection(HotPathCacheOptions.SectionName)
+                                          .Get<HotPathCacheOptions>()
+                                      ?? new HotPathCacheOptions();
+
+        if (!hotPath.Enabled)
+        {
+            services.AddScoped<IRunExplanationSummaryService, RunExplanationSummaryService>();
+            return;
+        }
+
+        services.AddScoped<RunExplanationSummaryService>();
+        services.AddScoped<IRunExplanationSummaryService>(sp => new CachingRunExplanationSummaryService(
+            sp.GetRequiredService<RunExplanationSummaryService>(),
+            sp.GetRequiredService<IHotPathReadCache>(),
+            sp.GetRequiredService<IAuthorityQueryService>(),
+            sp.GetRequiredService<ILogger<CachingRunExplanationSummaryService>>()));
     }
 
     private static void RegisterArtifactSynthesis(IServiceCollection services)

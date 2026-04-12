@@ -76,6 +76,8 @@ public sealed class AuthorityRunOrchestrator(
 
             await SaveRunAsync(run, uow, cancellationToken);
 
+            ArchLucidInstrumentation.RunsCreatedTotal.Add(1);
+
             pipelineRunIdForDiagnostics = run.RunId;
 
             if (logger.IsEnabled(LogLevel.Information))

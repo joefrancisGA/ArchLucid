@@ -3,6 +3,27 @@ using System.Diagnostics.Metrics;
 
 namespace ArchLucid.Core.Diagnostics;
 
+/// <summary>Thread-safe completion count for one <c>RealAgentExecutor.ExecuteAsync</c> batch (parallel handlers share one instance).</summary>
+public sealed class AgentExecutionLlmCallAccumulator
+{
+    private int _count;
+
+    /// <summary>Adds <paramref name="delta"/> successful remote completions (ignored if non-positive).</summary>
+    public void AddCompletions(int delta)
+    {
+        if (delta > 0)
+        {
+            _ = Interlocked.Add(ref _count, delta);
+        }
+    }
+
+    /// <summary>Reads and resets the accumulated count.</summary>
+    public int Consume()
+    {
+        return Interlocked.Exchange(ref _count, 0);
+    }
+}
+
 /// <summary>
 /// Shared <see cref="ActivitySource"/> and <see cref="Meter"/> names for cross-cutting observability (OTel wiring in the API host).
 /// </summary>
@@ -12,6 +33,8 @@ public static class ArchLucidInstrumentation
     public const string MeterName = "ArchLucid";
 
     private static readonly Meter AppMeter = new(MeterName, "1.0.0");
+
+    private static readonly AsyncLocal<AgentExecutionLlmCallAccumulator?> LlmCallsPerRunAccumulator = new();
 
     private static int _outboxObservableGaugesRegistered;
 
@@ -168,6 +191,37 @@ public static class ArchLucidInstrumentation
             "archlucid_authority_runs_completed_total",
             description: "Authority runs completed through FinalizeCommittedPipelineAsync.");
 
+    /// <summary>Authority runs created (pre-pipeline, at <c>RunRecord</c> insertion).</summary>
+    public static readonly Counter<long> RunsCreatedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_runs_created_total",
+            description: "Authority runs created (pre-pipeline, at RunRecord insertion).");
+
+    /// <summary>Findings produced across completed runs (label: <c>severity</c>).</summary>
+    public static readonly Counter<long> FindingsProducedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_findings_produced_total",
+            description: "Findings produced across all completed runs (label: severity).");
+
+    /// <summary>LLM completion calls made during a single <c>RealAgentExecutor.ExecuteAsync</c> batch.</summary>
+    public static readonly Histogram<int> LlmCallsPerRun =
+        AppMeter.CreateHistogram<int>(
+            "archlucid_llm_calls_per_run",
+            unit: "{call}",
+            description: "Number of LLM completion calls made during a single authority run.");
+
+    /// <summary>Aggregate explanation cache hits (<c>CachingRunExplanationSummaryService</c>).</summary>
+    public static readonly Counter<long> ExplanationCacheHits =
+        AppMeter.CreateCounter<long>(
+            "archlucid_explanation_cache_hits_total",
+            description: "Aggregate explanation cache hits (via CachingRunExplanationSummaryService).");
+
+    /// <summary>Aggregate explanation cache misses (factory invoked; LLM work may follow).</summary>
+    public static readonly Counter<long> ExplanationCacheMisses =
+        AppMeter.CreateCounter<long>(
+            "archlucid_explanation_cache_misses_total",
+            description: "Aggregate explanation cache misses (LLM call required).");
+
     /// <summary>Per-stage wall time inside the authority pipeline (labels: <c>stage</c>, <c>outcome</c>=success|error).</summary>
     public static readonly Histogram<double> AuthorityPipelineStageDurationMilliseconds =
         AppMeter.CreateHistogram<double>(
@@ -198,6 +252,30 @@ public static class ArchLucidInstrumentation
     /// <c>tenant_id</c> (increases Prometheus cardinality — use only for bounded tenant counts).
     /// Optional <paramref name="llmProviderId"/> and <paramref name="llmDeploymentLabel"/> add low-cardinality series for FinOps dashboards.
     /// </summary>
+    /// <summary>
+    /// Associates <paramref name="accumulator"/> with the current async flow so the agent host&apos;s completion client
+    /// can count remote completions toward <see cref="LlmCallsPerRun"/>. Dispose to detach.
+    /// </summary>
+    public static IDisposable BeginLlmCallsPerRunAccumulation(AgentExecutionLlmCallAccumulator accumulator)
+    {
+        ArgumentNullException.ThrowIfNull(accumulator);
+
+        LlmCallsPerRunAccumulator.Value = accumulator;
+
+        return new LlmCallsPerRunAccumulationScope();
+    }
+
+    /// <summary>Increments the current batch&apos;s LLM completion count when an accumulator scope is active.</summary>
+    public static void RecordLlmCompletionCallForCurrentRunBatch()
+    {
+        AgentExecutionLlmCallAccumulator? acc = LlmCallsPerRunAccumulator.Value;
+
+        if (acc is not null)
+        {
+            acc.AddCompletions(1);
+        }
+    }
+
     public static void RecordLlmTokenUsage(
         long promptTokens,
         long completionTokens,
@@ -255,5 +333,10 @@ public static class ArchLucidInstrumentation
                 LlmCompletionTokensTotal.Add(completionTokens);
             }
         }
+    }
+
+    private readonly struct LlmCallsPerRunAccumulationScope : IDisposable
+    {
+        public void Dispose() => LlmCallsPerRunAccumulator.Value = null;
     }
 }

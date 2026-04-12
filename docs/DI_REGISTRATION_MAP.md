@@ -38,7 +38,7 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 12. **`RegisterRunReplayManifestAndDiffs`** — `IArchitectureRunService`, replay, diffs, exports, `IActorContext`, audit
 13. **`RegisterContextIngestionAndKnowledgeGraph`** — connectors, parsers, `IContextIngestionService`, graph builder/service
 14. **`RegisterDecisioningEngines`** — findings orchestrator, rule engine, manifest services, compliance pack loader
-15. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**
+15. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**; **`IRunExplanationSummaryService`** — see **`CachingRunExplanationSummaryService`** below
 16. **`RegisterArtifactSynthesis`**
 17. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, **`ArchLucid:FallbackLlm`** (optional), `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
 18. **`RegisterGovernance`** → **`ArchLucid:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
@@ -135,6 +135,17 @@ Always: `IGovernanceWorkflowService` scoped.
 
 - **Decisioning / authority (Persistence)** types are registered in **`AddArchLucidStorage`** (e.g. SQL or InMemory authority stores).
 - **Coordinator / application workflow (Data)** types with the **same interface names** are registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** — see comments in that file. ADR 0004 documents the split.
+
+---
+
+## `IRunExplanationSummaryService` + `CachingRunExplanationSummaryService` (hot path)
+
+Registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** (`ServiceCollectionExtensions.CoordinatorAndArtifacts.cs`), mirroring **`CachingRunRepository`** / **`CachingGoldenManifestRepository`**: **`IHotPathReadCache`** is only registered when **`HotPathCache:Enabled`** is true in **`AddArchLucidStorage`**.
+
+| **`HotPathCache:Enabled`** | `IRunExplanationSummaryService` registration |
+|----------------------------|---------------------------------------------|
+| **false** | **`RunExplanationSummaryService`** directly (scoped) |
+| **true** | Scoped concrete **`RunExplanationSummaryService`** + scoped **`CachingRunExplanationSummaryService`** decorator implementing **`IRunExplanationSummaryService`**, delegating to **`GetOrCreateAsync`** on **`IHotPathReadCache`**. Cache key: `explanation:aggregate:{runId}:{hex(RowVersion)}` after **`IAuthorityQueryService.GetRunDetailAsync`**; **no** cache when detail is null (returns null) or **`GoldenManifest`** is missing (returns null); if **`Run.RowVersion`** is missing, delegates to the inner service without caching (same TTL behavior as other hot-path entries: **`HotPathCache:AbsoluteExpirationSeconds`**). |
 
 ---
 
