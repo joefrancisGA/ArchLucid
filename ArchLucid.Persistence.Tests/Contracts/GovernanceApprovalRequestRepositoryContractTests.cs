@@ -1,3 +1,5 @@
+using System.Linq;
+
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -98,9 +100,12 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
 
         IReadOnlyList<GovernanceApprovalRequest> pending = await repo.GetPendingAsync(50, CancellationToken.None);
 
-        pending.Should().HaveCount(2);
-        pending[0].ApprovalRequestId.Should().Be("apr-sub-new");
-        pending[1].ApprovalRequestId.Should().Be("apr-draft-old");
+        // GetPendingAsync is scoped to the whole table (Draft/Submitted); SQL contract tests share one database.
+        GovernanceApprovalRequest[] mine = [.. pending.Where(r => r.RunId == runId).OrderByDescending(r => r.RequestedUtc)];
+
+        mine.Should().HaveCount(2);
+        mine[0].ApprovalRequestId.Should().Be("apr-sub-new");
+        mine[1].ApprovalRequestId.Should().Be("apr-draft-old");
     }
 
     [SkippableFact]
@@ -109,9 +114,10 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IGovernanceApprovalRequestRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
-        DateTime t1 = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
-        DateTime t2 = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
-        DateTime t3 = new(2026, 4, 1, 12, 0, 0, DateTimeKind.Utc);
+        // Far-future instants so these rows sort ahead of other tests' data under global ORDER BY RequestedUtc DESC.
+        DateTime t1 = new(9999, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime t2 = new(9999, 1, 1, 0, 0, 1, DateTimeKind.Utc);
+        DateTime t3 = new(9999, 1, 1, 0, 0, 2, DateTimeKind.Utc);
 
         await repo.CreateAsync(NewApproval("apr-a", runId, t1), CancellationToken.None);
         await repo.CreateAsync(NewApproval("apr-b", runId, t2), CancellationToken.None);
@@ -150,9 +156,11 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
 
         IReadOnlyList<GovernanceApprovalRequest> decisions = await repo.GetRecentDecisionsAsync(50, CancellationToken.None);
 
-        decisions.Should().HaveCount(2);
-        decisions[0].ApprovalRequestId.Should().Be("apr-rej");
-        decisions[1].ApprovalRequestId.Should().Be("apr-apr");
+        GovernanceApprovalRequest[] mine = [.. decisions.Where(r => r.RunId == runId).OrderByDescending(r => r.ReviewedUtc)];
+
+        mine.Should().HaveCount(2);
+        mine[0].ApprovalRequestId.Should().Be("apr-rej");
+        mine[1].ApprovalRequestId.Should().Be("apr-apr");
     }
 
     private static GovernanceApprovalRequest NewApproval(string approvalId, string runId, DateTime requestedUtc)

@@ -37,6 +37,7 @@ public sealed class SecurityHeadersMiddlewareTests
         headers["Pragma"].ToString().Should().Be("no-cache");
         headers["Cross-Origin-Resource-Policy"].ToString().Should().Be("cross-origin");
         headers["Cross-Origin-Embedder-Policy"].ToString().Should().Be("require-corp");
+        headers["Cross-Origin-Opener-Policy"].ToString().Should().Be("same-origin");
         headers["Permissions-Policy"].ToString().Should().StartWith("accelerometer=()");
     }
 
@@ -56,6 +57,7 @@ public sealed class SecurityHeadersMiddlewareTests
         headers["Cache-Control"].ToString().Should().Be("public, max-age=3600");
         headers.ContainsKey("Pragma").Should().BeFalse();
         headers["Cross-Origin-Embedder-Policy"].ToString().Should().Be("require-corp");
+        headers["Cross-Origin-Opener-Policy"].ToString().Should().Be("same-origin");
     }
 
     [Fact]

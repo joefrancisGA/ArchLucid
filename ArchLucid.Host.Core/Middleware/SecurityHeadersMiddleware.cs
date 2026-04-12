@@ -48,6 +48,8 @@ public sealed class SecurityHeadersMiddleware(RequestDelegate next)
         response.Headers.TryAdd("Cross-Origin-Resource-Policy", "cross-origin");
         // Site isolation posture expected by ZAP 90004-2; subresources must carry CORP/CORS when embedded cross-origin.
         response.Headers.TryAdd("Cross-Origin-Embedder-Policy", "require-corp");
+        // Top-level / navigated-context isolation (ZAP 90004-3); JSON API responses are not framed as cross-origin opener targets.
+        response.Headers.TryAdd("Cross-Origin-Opener-Policy", "same-origin");
 
         return next(context);
     }

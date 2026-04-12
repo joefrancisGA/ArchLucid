@@ -26,5 +26,7 @@ public sealed class PublicCrawlerHintsIntegrationTests(OpenApiContractWebAppFact
         string.Join(", ", cc!).Should().Contain("public", "ZAP 10049-1: crawler stubs use short public caching");
         response.Headers.TryGetValues("Cross-Origin-Embedder-Policy", out IEnumerable<string>? coep).Should().BeTrue();
         string.Join(", ", coep!).Should().Be("require-corp", "ZAP 90004-2");
+        response.Headers.TryGetValues("Cross-Origin-Opener-Policy", out IEnumerable<string>? coop).Should().BeTrue();
+        string.Join(", ", coop!).Should().Be("same-origin", "ZAP 90004-3");
     }
 }
