@@ -122,6 +122,7 @@ Read the file top-down; major comment banners include:
 | **047_DropForeignKeysToArchitectureRuns.sql** | Drops **15** FK constraints from coordinator / learning tables to **`dbo.ArchitectureRuns`** (see migration header for names). Does **not** add FKs to **`dbo.Runs`** (**`UNIQUEIDENTIFIER`** vs legacy **`NVARCHAR(64)`** **`RunId`**). |
 | **049_DropArchitectureRunsTable.sql** | **`DROP TABLE dbo.ArchitectureRuns`** when present (after **047**). Greenfield **`ArchLucid.sql`** no longer creates **`ArchitectureRuns`**. |
 | **050_PolicyPackChangeLog.sql** | Append-only **`dbo.PolicyPackChangeLog`** (policy pack / version / assignment mutations) plus RLS predicate when **`ArchiforgeTenantScope`** exists. |
+| **051_AuditEvents_DenyUpdateDelete.sql** | When database role **`ArchLucidApp`** exists: **`DENY UPDATE`** and **`DENY DELETE`** on **`dbo.AuditEvents`** (append-only enforcement). Skips if role absent. See **`docs/AUDIT_COVERAGE_MATRIX.md`**. |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 

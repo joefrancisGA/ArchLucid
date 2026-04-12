@@ -2,7 +2,7 @@
 
 This document is the **canonical reference** for how the ArchLucid product codebase (`ArchLucid.*` assemblies) classifies and runs automated tests. It aligns local scripts, contributor docs, and CI behavior.
 
-**See also:** [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (**54R operator cheat sheet** — copy-paste commands), [BUILD.md](BUILD.md) (SQL Server setup for tests), [RELEASE_LOCAL.md](RELEASE_LOCAL.md) (**56R** — `build-release`, `package-release`, `run-readiness-check`), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (**56R** — `release-smoke` E2E gate).
+**See also:** [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (**54R operator cheat sheet** — copy-paste commands), [BUILD.md](BUILD.md) (SQL Server setup for tests), [API_FUZZ_TESTING.md](API_FUZZ_TESTING.md) (scheduled Schemathesis OpenAPI fuzz), [RELEASE_LOCAL.md](RELEASE_LOCAL.md) (**56R** — `build-release`, `package-release`, `run-readiness-check`), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (**56R** — `release-smoke` E2E gate).
 
 ---
 
@@ -196,6 +196,15 @@ Workflow: `.github/workflows/ci.yml` — **six jobs**, tiered for clarity and fa
 | **3b** | **`ui-e2e-smoke`** | `archlucid-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). Browser-heavy. |
 
 PRs must pass **all six** jobs. Tier 2 (and 2b) are skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up, full-suite time, and chaos runs on obvious breaks.
+
+### Tier 4 — scheduled security testing (not per-PR)
+
+These workflows run on a **weekly** cron (**Monday 06:00 UTC**) and **`workflow_dispatch`**. They are **not** merge gates for every pull request; runtime is typically **tens of minutes** (image build + scans).
+
+| Tier | Workflow | What runs |
+|------|----------|-----------|
+| **4a** | **[`zap-baseline-strict-scheduled.yml`](../.github/workflows/zap-baseline-strict-scheduled.yml)** (**Security: ZAP baseline (scheduled, strict visibility)**) | OWASP ZAP **baseline** scan against the API container; strict rules. See [security/ZAP_BASELINE_RULES.md](security/ZAP_BASELINE_RULES.md). |
+| **4b** | **[`schemathesis-scheduled.yml`](../.github/workflows/schemathesis-scheduled.yml)** (**Security: Schemathesis API fuzz (scheduled)**) | **Schemathesis** property-based fuzzing from **`/openapi/v1.json`**; JUnit artifact. See [API_FUZZ_TESTING.md](API_FUZZ_TESTING.md). |
 
 **Follow-on / re-run:** Use the Actions tab to **re-run failed jobs** only (e.g. retry e2e after a flake) without redefining workflows.
 

@@ -1460,6 +1460,39 @@ BEGIN
 END;
 GO
 
+/* Append-only enforcement: see Migration 051. */
+IF DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NOT NULL
+   AND OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.database_permissions AS dp
+        INNER JOIN sys.database_principals AS gp ON dp.grantee_principal_id = gp.principal_id
+        WHERE dp.class_desc = N'OBJECT_OR_COLUMN'
+          AND dp.major_id = OBJECT_ID(N'dbo.AuditEvents')
+          AND dp.permission_name = N'UPDATE'
+          AND dp.state_desc = N'DENY'
+          AND gp.name = N'ArchLucidApp')
+BEGIN
+    DENY UPDATE ON dbo.AuditEvents TO [ArchLucidApp];
+END;
+GO
+
+IF DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NOT NULL
+   AND OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
+   AND NOT EXISTS (
+        SELECT 1
+        FROM sys.database_permissions AS dp
+        INNER JOIN sys.database_principals AS gp ON dp.grantee_principal_id = gp.principal_id
+        WHERE dp.class_desc = N'OBJECT_OR_COLUMN'
+          AND dp.major_id = OBJECT_ID(N'dbo.AuditEvents')
+          AND dp.permission_name = N'DELETE'
+          AND dp.state_desc = N'DENY'
+          AND gp.name = N'ArchLucidApp')
+BEGIN
+    DENY DELETE ON dbo.AuditEvents TO [ArchLucidApp];
+END;
+GO
+
 IF OBJECT_ID('dbo.ProvenanceSnapshots', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.ProvenanceSnapshots

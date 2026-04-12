@@ -12,6 +12,8 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 CI hardening: Simmy chaos tests now block PRs (burn-in complete). Per-package line coverage gate raised from 50% to 60%.
 
+Added Schemathesis API fuzz testing as a scheduled CI workflow against the OpenAPI spec. Operator docs: `docs/API_FUZZ_TESTING.md`; execution model and test matrix updated for Tier 4 (ZAP + Schemathesis).
+
 ---
 
 ## 2026-04-12 — Aggregate run explanation

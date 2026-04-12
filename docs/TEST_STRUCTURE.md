@@ -88,6 +88,17 @@ Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config
 | `stryker-config.coordinator.json` | `ArchLucid.Coordinator` | `ArchLucid.Coordinator.Tests` |
 | `stryker-config.decisioning.json` | `ArchLucid.Decisioning` | `ArchLucid.Decisioning.Tests` |
 
+### Scheduled security (Tier 4 — not xUnit)
+
+These jobs live in **separate workflows** (weekly + manual dispatch). They do **not** use `dotnet test` traits.
+
+| Workflow file | Tool | Target | When |
+|----------------|------|--------|------|
+| [`zap-baseline-strict-scheduled.yml`](../.github/workflows/zap-baseline-strict-scheduled.yml) | OWASP ZAP baseline | API HTTP surface (container) | Monday 06:00 UTC + `workflow_dispatch` |
+| [`schemathesis-scheduled.yml`](../.github/workflows/schemathesis-scheduled.yml) | Schemathesis (OpenAPI-driven fuzz) | `GET /openapi/v1.json` + exercised routes | Same |
+
+**Schemathesis narrative and local commands:** [API_FUZZ_TESTING.md](API_FUZZ_TESTING.md). **ZAP rules:** [security/ZAP_BASELINE_RULES.md](security/ZAP_BASELINE_RULES.md). **CI tier context:** [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) (Tier 4).
+
 ---
 
 ## SQL Server for API + Persistence tests
