@@ -14,6 +14,21 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
     private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
+    public async Task HealthCheck_IncludesW3CTraceResponseHeaders_OnSuccess()
+    {
+        HttpResponseMessage response = await _client.GetAsync("/health/ready");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Headers.TryGetValues("traceparent", out IEnumerable<string>? tp).Should().BeTrue();
+        tp!.Should().ContainSingle();
+        tp!.First().Should().MatchRegex("^00-[0-9a-fA-F]{32}-[0-9a-fA-F]{16}-[0-9a-fA-F]{2}$");
+
+        response.Headers.TryGetValues("X-Trace-Id", out IEnumerable<string>? xt).Should().BeTrue();
+        xt!.Should().ContainSingle();
+        xt!.First().Should().MatchRegex("^[0-9a-fA-F]{32}$");
+    }
+
+    [Fact]
     public async Task HealthCheck_DoesNotEmitAllowOrigin_ForDisallowedOrigin()
     {
         using HttpRequestMessage request = new(HttpMethod.Get, "/health/ready");

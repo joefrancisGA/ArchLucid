@@ -160,7 +160,8 @@ internal static class InfrastructureExtensions
 
                 _ = policy.WithOrigins(origins)
                     .WithMethods(methods)
-                    .WithHeaders(headers);
+                    .WithHeaders(headers)
+                    .WithExposedHeaders("traceparent", "X-Trace-Id", "X-Correlation-ID");
             });
         });
 

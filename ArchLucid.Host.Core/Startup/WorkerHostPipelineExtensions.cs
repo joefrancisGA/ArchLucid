@@ -18,6 +18,7 @@ public static class WorkerHostPipelineExtensions
     public static WebApplication UseArchLucidWorkerPipeline(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseMiddleware<TraceResponseHeaderMiddleware>();
         app.UseMiddleware<SecurityHeadersMiddleware>();
         app.UseExceptionHandler(exceptionHandlerApp =>
         {

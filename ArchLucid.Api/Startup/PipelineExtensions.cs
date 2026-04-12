@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
@@ -14,6 +16,7 @@ internal static class PipelineExtensions
     public static WebApplication UseArchLucidPipeline(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseMiddleware<TraceResponseHeaderMiddleware>();
         app.UseMiddleware<SecurityHeadersMiddleware>();
         app.UseMiddleware<ApiDeprecationHeadersMiddleware>();
         app.UseExceptionHandler(exceptionHandlerApp =>
@@ -39,7 +42,11 @@ internal static class PipelineExtensions
                     Detail =
                         "An unhandled exception has occurred. Use the correlationId value in this response (and the X-Correlation-ID header) when contacting support.",
                     Instance = context.Request.Path,
-                    Extensions = { ["traceId"] = context.TraceIdentifier }
+                    Extensions =
+                    {
+                        ["traceId"] = context.TraceIdentifier,
+                        ["traceParent"] = Activity.Current?.Id,
+                    }
                 };
                 ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.InternalError);
                 ProblemSupportHints.AttachForProblemType(problem);
