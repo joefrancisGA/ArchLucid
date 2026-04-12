@@ -116,7 +116,7 @@ export default function AlertsPage() {
         </button>
       </div>
 
-      <span className="mb-4 mt-1 block text-xs text-neutral-400">
+      <span className="mb-4 mt-1 block text-xs text-neutral-700 dark:text-neutral-300">
         Alt+J/K navigate · Alt+1 ack · Alt+2 resolve · Alt+3 suppress
       </span>
 

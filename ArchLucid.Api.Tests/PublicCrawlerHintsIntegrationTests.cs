@@ -22,5 +22,9 @@ public sealed class PublicCrawlerHintsIntegrationTests(OpenApiContractWebAppFact
         HttpResponseMessage response = await client.GetAsync(path);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Headers.TryGetValues("Cache-Control", out IEnumerable<string>? cc).Should().BeTrue();
+        string.Join(", ", cc!).Should().Contain("public", "ZAP 10049-1: crawler stubs use short public caching");
+        response.Headers.TryGetValues("Cross-Origin-Embedder-Policy", out IEnumerable<string>? coep).Should().BeTrue();
+        string.Join(", ", coep!).Should().Be("require-corp", "ZAP 90004-2");
     }
 }

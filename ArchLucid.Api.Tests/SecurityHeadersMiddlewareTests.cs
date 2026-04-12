@@ -36,7 +36,26 @@ public sealed class SecurityHeadersMiddlewareTests
         headers["Cache-Control"].ToString().Should().Be("no-store, max-age=0");
         headers["Pragma"].ToString().Should().Be("no-cache");
         headers["Cross-Origin-Resource-Policy"].ToString().Should().Be("cross-origin");
+        headers["Cross-Origin-Embedder-Policy"].ToString().Should().Be("require-corp");
         headers["Permissions-Policy"].ToString().Should().StartWith("accelerometer=()");
+    }
+
+    [Theory]
+    [InlineData("/")]
+    [InlineData("/robots.txt")]
+    [InlineData("/sitemap.xml")]
+    public async Task InvokeAsync_PublicCrawlerPaths_UseShortPublicCache(string path)
+    {
+        DefaultHttpContext context = new();
+        context.Request.Path = path;
+        SecurityHeadersMiddleware middleware = new(_ => Task.CompletedTask);
+
+        await middleware.InvokeAsync(context);
+
+        IHeaderDictionary headers = context.Response.Headers;
+        headers["Cache-Control"].ToString().Should().Be("public, max-age=3600");
+        headers.ContainsKey("Pragma").Should().BeFalse();
+        headers["Cross-Origin-Embedder-Policy"].ToString().Should().Be("require-corp");
     }
 
     [Fact]

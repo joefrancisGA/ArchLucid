@@ -2,7 +2,7 @@
 
 ArchLucid wires **OWASP ZAP** baseline scanning into **GitHub Actions** using `zap-baseline.py` and a small **rule override file** in the repository. The CI job builds **`ArchLucid.Api/Dockerfile`**, waits for **`/health/live`**, then runs the scanner against the API on an isolated Docker network.
 
-The baseline **target URL** is the API origin (`http://archlucid-zap-api:8080`). ZAP’s automation expects **HTTP 200** on **`/`**, **`/robots.txt`**, and **`/sitemap.xml`**; the API serves minimal anonymous responses there so the spider plan and passive rule **10049** do not fail on **404** bodies.
+The baseline **target URL** is the API origin (`http://archlucid-zap-api:8080`). ZAP’s automation expects **HTTP 200** on **`/`**, **`/robots.txt`**, and **`/sitemap.xml`**; the API serves minimal anonymous responses there so the spider plan does not fail on **404** bodies. **`SecurityHeadersMiddleware`** uses **`Cache-Control: public, max-age=3600`** on those paths (not `no-store`) so passive **10049-1** (non-storable) does not warn on anonymous stubs, and adds **`Cross-Origin-Embedder-Policy: require-corp`** (with existing **`Cross-Origin-Resource-Policy: cross-origin`**) for **90004-2**.
 
 ## What “blocking” means
 

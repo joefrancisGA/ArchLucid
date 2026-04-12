@@ -89,7 +89,7 @@ internal static class PipelineExtensions
             .RequireAuthorization(ArchLucidPolicies.ReadAuthority);
 
         // OWASP ZAP baseline (and similar spiders) expect 200 on the scan root, /robots.txt, and /sitemap.xml.
-        // Without these, passive rule 10049 (Non-Storable Content) fires on 404 bodies and the automation plan fails.
+        // Without these, the automation plan fails on 404s; SecurityHeadersMiddleware uses short public caching on these paths to satisfy passive 10049-1.
         app.MapGet(
                 "/",
                 static () => Results.Text("ArchLucid API", "text/plain", statusCode: StatusCodes.Status200OK))
