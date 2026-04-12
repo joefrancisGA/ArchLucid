@@ -2,7 +2,7 @@
 #   Tier 0 — Secret scan (gitleaks; full clone)
 #   Tier 1 — .NET fast core (fail-fast, no SQL) + CycloneDX SBOM artifact
 #   Tier 2 — .NET full regression + SQL (runs after Tier 1 passes)
-#   Tier 2b — Simmy chaos (after Tier 2; no SQL; continue-on-error during burn-in — see chaos-tests job)
+#   Tier 2b — Simmy chaos (after Tier 2; no SQL)
 #   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact
 #   Tier 3b — Operator UI e2e (Playwright; browser-heavy)
 #
@@ -376,12 +376,10 @@ jobs:
   # Polly Simmy chaos (LLM + SQL-fault + blob compositions). No SQL service container: Persistence
   # Simmy tests use synthetic SqlException and in-memory delegates only.
   #
-  # TEMPORARY: continue-on-error avoids blocking PR merges while we establish a CI baseline (~2 weeks
-  # from introduction). Remove continue-on-error: true after that burn-in once runs stay green.
+  # Simmy chaos tests are CI-blocking; failures indicate resilience regressions.
   chaos-tests:
     name: "Resilience: Simmy chaos tests"
     needs: dotnet-full-regression
-    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
