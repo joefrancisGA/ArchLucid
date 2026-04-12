@@ -43,6 +43,8 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IRecommendationLearningAnalyzer, RecommendationLearningAnalyzer>();
         services.AddSingleton<IRecommendationGenerator, RecommendationGenerator>();
         services.AddScoped<IImprovementAdvisorService, ImprovementAdvisorService>();
+        services.Configure<ExplanationServiceOptions>(
+            configuration.GetSection(ExplanationServiceOptions.SectionPath));
         services.AddScoped<IExplanationService, ExplanationService>();
         services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<IAskService, AskService>();

@@ -8,6 +8,12 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-12 — CI hardening
+
+CI hardening: Simmy chaos tests now block PRs (burn-in complete). Per-package line coverage gate raised from 50% to 60%.
+
+---
+
 ## Phase 7 — ArchLucid rename (code-level)
 
 **Area:** Rename / operator breaking changes  

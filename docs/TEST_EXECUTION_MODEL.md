@@ -184,17 +184,18 @@ The config’s `webServer` runs `npm run build && npm run start` (production ser
 
 ## CI mapping (54R)
 
-Workflow: `.github/workflows/ci.yml` — **five jobs**, tiered for clarity and fail-fast behavior.
+Workflow: `.github/workflows/ci.yml` — **six jobs**, tiered for clarity and fail-fast behavior.
 
 | Tier | Job | What runs |
 |------|-----|-----------|
 | **0** | **`gitleaks`** | Full-history secret scan (`gitleaks/gitleaks-action`, **`.gitleaks.toml`**). All other jobs **`needs: gitleaks`**. |
 | **1** | **`dotnet-fast-core`** | Restore, vulnerable package audit, `dotnet build -c Release`, **CycloneDX** SBOM for **`ArchLucid.Api`** (artifact **`sbom-dotnet`**), context-ingestion DI guards, then `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration`. **No SQL** service (fast gate). |
 | **2** | **`dotnet-full-regression`** | Runs **after** Tier 1 passes. Restore, build, SQL Server service container, `dotnet test ArchLucid.sln` with `ARCHLUCID_SQL_TEST` (entire solution). |
+| **2b** | **`chaos-tests`** | Runs **after** Tier 2 passes. **Resilience: Simmy chaos tests** — `ArchLucid.AgentRuntime.Tests` and `ArchLucid.Persistence.Tests` filtered to Simmy/Chaos FQNs. **CI-blocking** (failures block the PR). See [CHAOS_TESTING.md](CHAOS_TESTING.md). |
 | **3a** | **`ui-unit`** | `archlucid-ui`: `npm ci`, `npm run test` (Vitest / jsdom), **CycloneDX** npm SBOM (artifact **`sbom-npm`**). |
 | **3b** | **`ui-e2e-smoke`** | `archlucid-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). Browser-heavy. |
 
-PRs must pass **all five** jobs. Tier 2 is skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up and full-suite time on obvious breaks.
+PRs must pass **all six** jobs. Tier 2 (and 2b) are skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up, full-suite time, and chaos runs on obvious breaks.
 
 **Follow-on / re-run:** Use the Actions tab to **re-run failed jobs** only (e.g. retry e2e after a flake) without redefining workflows.
 
@@ -217,7 +218,7 @@ Optional **local** sequence before a PR:
 |------|--------|
 | **Expand Playwright** coverage (navigation, critical flows, a11y) | Add specs under `archlucid-ui/e2e/`. |
 | **Pin Node dependency graph further** (e.g. `npm audit fix`, Renovate) | `package-lock.json` is committed for `npm ci` in CI. |
-| **Split .NET CI jobs** (parallel `build` vs `test` matrix) | Done: `gitleaks` + `dotnet-fast-core` + `dotnet-full-regression` + `ui-unit` + `ui-e2e-smoke`. |
+| **Split .NET CI jobs** (parallel `build` vs `test` matrix) | Done: `gitleaks` + `dotnet-fast-core` + `dotnet-full-regression` + `chaos-tests` + `ui-unit` + `ui-e2e-smoke`. |
 
 ---
 

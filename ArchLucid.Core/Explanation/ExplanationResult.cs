@@ -12,6 +12,12 @@ public class ExplanationResult
     /// <summary>Programmatic explanation envelope when the model returned structured JSON; always set (fallback wraps free text).</summary>
     public StructuredExplanation? Structured { get; set; }
 
+    /// <summary>Convenience mirror of <see cref="StructuredExplanation.Confidence"/> for operator surfaces without opening the structured envelope.</summary>
+    public decimal? Confidence { get; set; }
+
+    /// <summary>Which agent role, model/deployment, and prompt revision produced this explanation.</summary>
+    public ExplanationProvenance? Provenance { get; set; }
+
     /// <summary>One-paragraph headline (LLM or manifest metadata fallback).</summary>
     public string Summary { get; set; } = string.Empty;
 

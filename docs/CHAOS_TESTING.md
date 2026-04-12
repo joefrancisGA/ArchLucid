@@ -17,7 +17,9 @@
    - `dotnet test ArchLucid.AgentRuntime.Tests --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos"`
    - `dotnet test ArchLucid.Persistence.Tests --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos"`
 
-**Burn-in:** the `chaos-tests` job is configured with **`continue-on-error: true`** for an initial ~2-week period so flaky or environmental issues do not block merges while we confirm stability. The workflow still surfaces failures in the job UI. Remove `continue-on-error` from that job in `.github/workflows/ci.yml` once the baseline is trusted.
+## CI enforcement
+
+Simmy chaos tests run in the **`chaos-tests`** job are **CI-blocking**: a failing job fails the workflow and blocks merging the PR (the job does not use `continue-on-error`). If a chaos test flakes, **re-run the failed workflow job first**; if the failure persists, fix the underlying resilience gap (or stabilize the test) rather than weakening the gate.
 
 **Approach in this repo**
 

@@ -8,6 +8,7 @@ using ArchLucid.Provenance;
 using JetBrains.Annotations;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Explanation;
 
@@ -17,6 +18,7 @@ namespace ArchLucid.AgentRuntime.Explanation;
 /// <inheritdoc cref="IExplanationService"/>
 public sealed class ExplanationService(
     IAgentCompletionClient completionClient,
+    IOptions<ExplanationServiceOptions> explanationOptions,
     ILogger<ExplanationService> logger) : IExplanationService
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -116,13 +118,39 @@ public sealed class ExplanationService(
         string? json = await TryCompleteJsonAsync(userPrompt, ct);
         string rawStored = json ?? string.Empty;
 
-        return BuildExplanationResultFromLlmResponse(
-            manifest,
-            keyDrivers,
-            risks,
-            costs,
-            compliance,
-            rawStored);
+        return FinalizeRunExplanation(
+            BuildExplanationResultFromLlmResponse(
+                manifest,
+                keyDrivers,
+                risks,
+                costs,
+                compliance,
+                rawStored));
+    }
+
+    private ExplanationResult FinalizeRunExplanation(ExplanationResult result)
+    {
+        result.Confidence = result.Structured?.Confidence;
+        result.Provenance = BuildProvenance();
+
+        return result;
+    }
+
+    private ExplanationProvenance BuildProvenance()
+    {
+        ExplanationServiceOptions o = explanationOptions.Value;
+        LlmProviderDescriptor d = completionClient.Descriptor;
+        string agentType = string.IsNullOrWhiteSpace(o.AgentType) ? "run-explanation" : o.AgentType.Trim();
+        string modelId = string.IsNullOrWhiteSpace(d.ModelId) ? "unknown" : d.ModelId.Trim();
+
+        return new ExplanationProvenance(
+            AgentType: agentType,
+            ModelId: modelId,
+            PromptTemplateId: string.IsNullOrWhiteSpace(o.PromptTemplateId) ? null : o.PromptTemplateId.Trim(),
+            PromptTemplateVersion: string.IsNullOrWhiteSpace(o.PromptTemplateVersion)
+                ? null
+                : o.PromptTemplateVersion.Trim(),
+            PromptContentHash: string.IsNullOrWhiteSpace(o.PromptContentHash) ? null : o.PromptContentHash.Trim());
     }
 
     private ExplanationResult BuildExplanationResultFromLlmResponse(
