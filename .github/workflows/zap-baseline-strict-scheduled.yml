@@ -1,5 +1,5 @@
-# Weekly ZAP baseline without -I: surfaces WARN/FAIL while continue-on-error avoids blocking the repo.
-# See infra/zap/README.md.
+# Weekly ZAP baseline (same strict mode as PR CI): WARN and FAIL both fail the step — second line of defense for config drift.
+# See docs/security/ZAP_BASELINE_RULES.md and infra/zap/README.md.
 name: "Security: ZAP baseline (scheduled, strict visibility)"
 
 on:
@@ -19,8 +19,7 @@ jobs:
       - name: Build API image
         run: docker build -f ArchLucid.Api/Dockerfile -t archlucid-api:zap-strict .
 
-      - name: Run API and ZAP (no -I)
-        continue-on-error: true
+      - name: Run API and ZAP (strict baseline)
         env:
           ZNET: zapstrict-${{ github.run_id }}-${{ github.run_attempt }}
         run: |

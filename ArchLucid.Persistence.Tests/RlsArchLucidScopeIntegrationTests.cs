@@ -99,6 +99,49 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
         await cmd.ExecuteNonQueryAsync();
     }
 
+    private static async Task InsertContextSnapshotAsync(
+        SqlConnection connection,
+        Guid snapshotId,
+        Guid runId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid scopeProjectId)
+    {
+        await using SqlCommand cmd = connection.CreateCommand();
+        cmd.CommandText = """
+            INSERT INTO dbo.ContextSnapshots (
+                SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId,
+                CreatedUtc, CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson)
+            VALUES (
+                @SnapshotId, @RunId, N'rls-ctx-test', @TenantId, @WorkspaceId, @ScopeProjectId,
+                SYSUTCDATETIME(), N'[]', NULL, N'[]', N'[]', N'{}');
+            """;
+        cmd.Parameters.AddWithValue("@SnapshotId", snapshotId);
+        cmd.Parameters.AddWithValue("@RunId", runId);
+        cmd.Parameters.AddWithValue("@TenantId", tenantId);
+        cmd.Parameters.AddWithValue("@WorkspaceId", workspaceId);
+        cmd.Parameters.AddWithValue("@ScopeProjectId", scopeProjectId);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    private static async Task DeleteContextSnapshotAsync(SqlConnection connection, Guid snapshotId)
+    {
+        await using SqlCommand cmd = connection.CreateCommand();
+        cmd.CommandText = "DELETE FROM dbo.ContextSnapshots WHERE SnapshotId = @SnapshotId;";
+        cmd.Parameters.AddWithValue("@SnapshotId", snapshotId);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    private static async Task<int> CountContextSnapshotsAsync(SqlConnection connection, Guid snapshotId)
+    {
+        await using SqlCommand cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM dbo.ContextSnapshots WHERE SnapshotId = @SnapshotId;";
+        cmd.Parameters.AddWithValue("@SnapshotId", snapshotId);
+        object? scalar = await cmd.ExecuteScalarAsync();
+
+        return Convert.ToInt32(scalar);
+    }
+
     private static async Task SetTenantScopeContextAsync(
         SqlConnection connection,
         Guid tenantId,
@@ -207,6 +250,47 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
             await SetBypassAsync(admin);
             await DeleteAuditEventAsync(admin, eventA);
             await DeleteAuditEventAsync(admin, eventB);
+        }
+        finally
+        {
+            await using SqlCommand disable = admin.CreateCommand();
+            disable.CommandText = "ALTER SECURITY POLICY " + TenantScopePolicyQualifiedName + " WITH (STATE = OFF);";
+            await disable.ExecuteNonQueryAsync();
+        }
+    }
+
+    [SkippableFact]
+    public async Task Rls_filters_ContextSnapshots_by_denormalized_scope_columns()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        await using SqlConnection admin = new(fixture.ConnectionString);
+        await admin.OpenAsync();
+
+        await using (SqlCommand enable = admin.CreateCommand())
+        {
+            enable.CommandText = "ALTER SECURITY POLICY " + TenantScopePolicyQualifiedName + " WITH (STATE = ON);";
+            await enable.ExecuteNonQueryAsync();
+        }
+
+        Guid runId = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+
+        try
+        {
+            await SetBypassAsync(admin);
+            await InsertRunAsync(admin, runId, TenantA, WorkspaceW, ProjectP);
+            await InsertContextSnapshotAsync(admin, snapshotId, runId, TenantA, WorkspaceW, ProjectP);
+
+            await using SqlConnection connB = new(fixture.ConnectionString);
+            await connB.OpenAsync();
+            await SetTenantScopeContextAsync(connB, TenantB, WorkspaceW, ProjectP);
+            int countWrongTenant = await CountContextSnapshotsAsync(connB, snapshotId);
+            countWrongTenant.Should().Be(0);
+
+            await SetBypassAsync(admin);
+            await DeleteContextSnapshotAsync(admin, snapshotId);
+            await DeleteRunAsync(admin, runId);
         }
         finally
         {

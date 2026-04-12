@@ -1,6 +1,14 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 
+import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
+
+function navTitleWithShortcut(baseTitle: string, registryCombo: string): string {
+  const aria = registryKeyToAriaKeyShortcuts(registryCombo);
+
+  return `${baseTitle} (${aria})`;
+}
+
 const groupLabel: CSSProperties = {
   fontSize: 12,
   color: "#475569",
@@ -31,7 +39,12 @@ export function ShellNav() {
       <div style={{ marginBottom: 4 }}>
         <div style={groupLabel}>Start here · runs &amp; review</div>
         <nav aria-label="Primary operator workflows" style={navRow}>
-          <Link className="shell-nav-link" href="/" title="Home — V1 checklist and quick links">
+          <Link
+            className="shell-nav-link"
+            href="/"
+            title={navTitleWithShortcut("Home — V1 checklist and quick links", "alt+h")}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+h")}
+          >
             Home
           </Link>
           <Link className="shell-nav-link" href="/onboarding" title="Guided operator onboarding checklist">
@@ -40,24 +53,44 @@ export function ShellNav() {
           <Link
             className="shell-nav-link"
             href="/runs/new"
-            title="Guided first-run wizard — system identity through pipeline tracking"
+            title={navTitleWithShortcut(
+              "Guided first-run wizard — system identity through pipeline tracking",
+              "alt+n",
+            )}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+n")}
           >
             New run
           </Link>
           <Link
             className="shell-nav-link"
             href="/runs?projectId=default"
-            title="Runs list — open detail, manifest, artifacts, exports"
+            title={navTitleWithShortcut("Runs list — open detail, manifest, artifacts, exports", "alt+r")}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+r")}
           >
             Runs
           </Link>
-          <Link className="shell-nav-link" href="/graph" title="Provenance or architecture graph for one run ID">
+          <Link
+            className="shell-nav-link"
+            href="/graph"
+            title={navTitleWithShortcut("Provenance or architecture graph for one run ID", "alt+g")}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+g")}
+          >
             Graph
           </Link>
-          <Link className="shell-nav-link" href="/compare" title="Diff two runs (base vs target)">
+          <Link
+            className="shell-nav-link"
+            href="/compare"
+            title={navTitleWithShortcut("Diff two runs (base vs target)", "alt+c")}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+c")}
+          >
             Compare two runs
           </Link>
-          <Link className="shell-nav-link" href="/replay" title="Re-validate authority chain for one run">
+          <Link
+            className="shell-nav-link"
+            href="/replay"
+            title={navTitleWithShortcut("Re-validate authority chain for one run", "alt+p")}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+p")}
+          >
             Replay a run
           </Link>
         </nav>
@@ -68,7 +101,12 @@ export function ShellNav() {
       <div style={{ marginBottom: 4 }}>
         <div style={groupLabel}>Q&amp;A &amp; advisory</div>
         <nav aria-label="Question answering and advisory" style={navRow}>
-          <Link className="shell-nav-link" href="/ask" title="Natural language ask against architecture context">
+          <Link
+            className="shell-nav-link"
+            href="/ask"
+            title={navTitleWithShortcut("Natural language ask against architecture context", "alt+a")}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+a")}
+          >
             Ask
           </Link>
           <Link className="shell-nav-link" href="/search" title="Search indexed architecture content">
@@ -114,7 +152,12 @@ export function ShellNav() {
       <div>
         <div style={groupLabel}>Alerts &amp; governance</div>
         <nav aria-label="Alerts and governance" style={navRow}>
-          <Link className="shell-nav-link" href="/alerts" title="Open and acknowledged alerts">
+          <Link
+            className="shell-nav-link"
+            href="/alerts"
+            title={navTitleWithShortcut("Open and acknowledged alerts", "alt+l")}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+l")}
+          >
             Alerts
           </Link>
           <Link className="shell-nav-link" href="/alert-rules" title="Configure alert rules">
@@ -138,11 +181,21 @@ export function ShellNav() {
           <Link className="shell-nav-link" href="/governance-resolution" title="Effective governance resolution">
             Governance resolution
           </Link>
+          <Link className="shell-nav-link" href="/governance" title="Approval, promotion, and activation workflow">
+            Governance workflow
+          </Link>
           <Link className="shell-nav-link" href="/audit" title="Search and filter audit events">
             Audit log
           </Link>
         </nav>
       </div>
+
+      <span
+        className="mt-2 block text-xs text-neutral-400"
+        aria-keyshortcuts="Shift+?"
+      >
+        Press Shift+? for keyboard shortcuts
+      </span>
     </>
   );
 }

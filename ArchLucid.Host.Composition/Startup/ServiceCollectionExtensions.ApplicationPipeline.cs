@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Analysis;
@@ -112,6 +113,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRunCommitOrchestrator, ArchitectureRunCommitOrchestrator>();
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.AddScoped<IRunRationaleService, RunRationaleService>();
         services.AddScoped<IArchitectureRunProvenanceService, ArchitectureRunProvenanceService>();
         services.AddScoped<IReplayRunService, ReplayRunService>();
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();

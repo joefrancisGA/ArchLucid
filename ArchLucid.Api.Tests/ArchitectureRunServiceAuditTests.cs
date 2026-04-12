@@ -6,6 +6,7 @@ using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Coordinator.Services;
+using ArchLucid.Core.Audit;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.TestSupport;
@@ -48,7 +49,7 @@ public sealed class ArchitectureRunServiceAuditTests
 
         audit.Verify(
             a => a.RecordAsync(
-                AuditEventTypes.Architecture.RunFailed,
+                AuditEventTypes.Baseline.Architecture.RunFailed,
                 "audit-actor",
                 "missing",
                 "Run not found.",
@@ -79,7 +80,7 @@ public sealed class ArchitectureRunServiceAuditTests
 
         audit.Verify(
             a => a.RecordAsync(
-                AuditEventTypes.Architecture.RunFailed,
+                AuditEventTypes.Baseline.Architecture.RunFailed,
                 "audit-actor",
                 "missing",
                 "Run not found.",

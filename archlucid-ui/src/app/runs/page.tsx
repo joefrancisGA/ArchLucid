@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import {
   OperatorEmptyState,
   OperatorMalformedCallout,
@@ -74,7 +75,8 @@ export default async function RunsPage({
       <p style={{ marginTop: 8 }}>
         <Link href="/">Home</Link>
         {" · "}
-        <Link href="/runs/new">New run (wizard)</Link>
+        <Link href="/runs/new">New run (wizard)</Link>{" "}
+        <ShortcutHint shortcut="Alt+N" className="ml-1 align-middle text-[0.75rem]" />
         {" · "}
         <Link href="/graph">Graph</Link>
         {" · "}

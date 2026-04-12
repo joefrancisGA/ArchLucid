@@ -24,6 +24,9 @@ public partial class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+        // DAST / defense in depth: omit Kestrel "Server" version token (ZAP 10036); TLS identity lives at the ingress.
+        builder.WebHost.ConfigureKestrel(static options => options.AddServerHeader = false);
+
         builder.AddArchLucidGracefulShutdown();
 
         ArchLucidSerilogConfiguration.Configure(builder, "ArchLucid.Api");

@@ -21,7 +21,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-using BaselineAuditEventTypes = ArchLucid.Application.Common.AuditEventTypes;
+using BaselineAuditEventTypes = ArchLucid.Core.Audit.AuditEventTypes.Baseline;
 using CoreAuditEventTypes = ArchLucid.Core.Audit.AuditEventTypes;
 
 namespace ArchLucid.Api.Tests;

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.ContextSnapshots;
 using ArchLucid.Persistence.RelationalRead;
@@ -19,8 +20,13 @@ namespace ArchLucid.Persistence.Repositories;
 /// and relational child tables; reads use child tables only (empty collections when no rows).
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectionFactory) : IContextSnapshotRepository
+public sealed class SqlContextSnapshotRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider) : IContextSnapshotRepository
 {
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     public async Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(projectId);
@@ -125,21 +131,23 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
         }
     }
 
-    private static async Task SaveCoreAsync(
+    private async Task SaveCoreAsync(
         ContextSnapshot snapshot,
         IDbConnection connection,
         IDbTransaction? transaction,
         CancellationToken ct)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         const string headerSql = """
             INSERT INTO dbo.ContextSnapshots
             (
-                SnapshotId, RunId, ProjectId, CreatedUtc,
+                SnapshotId, RunId, ProjectId, TenantId, WorkspaceId, ScopeProjectId, CreatedUtc,
                 CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
             )
             VALUES
             (
-                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                @SnapshotId, @RunId, @ProjectId, @TenantId, @WorkspaceId, @ScopeProjectId, @CreatedUtc,
                 @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
             );
             """;
@@ -149,6 +157,9 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             snapshot.SnapshotId,
             snapshot.RunId,
             snapshot.ProjectId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
             snapshot.CreatedUtc,
             CanonicalObjectsJson = JsonEntitySerializer.Serialize(snapshot.CanonicalObjects),
             snapshot.DeltaSummary,

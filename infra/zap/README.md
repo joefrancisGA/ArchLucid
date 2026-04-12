@@ -1,11 +1,13 @@
-# OWASP ZAP baseline (tiered)
+# OWASP ZAP baseline
 
 ## Tiers
 
 | Tier | Workflow | Behavior |
 |------|-----------|----------|
-| **PR** | `.github/workflows/ci.yml` → `security-zap-api-baseline` | `zap-baseline.py` with **`-I`** (do not fail the build on warnings) and **`-c config/baseline-pr.tsv`** to downgrade known low-value findings for a headless JSON API behind a reverse proxy. |
-| **Scheduled** | `.github/workflows/zap-baseline-strict-scheduled.yml` | Same spider profile **without** **`-I`**: unresolved WARN/FAIL findings fail the step. The job uses **`continue-on-error: true`** so the repository is not blocked; operators review the failing run and tighten `baseline-pr.tsv` or fix the API. |
+| **PR (merge gate)** | `.github/workflows/ci.yml` → `security-zap-api-baseline` | `zap-baseline.py` **without** **`-I`** and **`-c config/baseline-pr.tsv`**: **WARN and FAIL** both fail the job. |
+| **Scheduled** | `.github/workflows/zap-baseline-strict-scheduled.yml` | Same command and config — second line of defense for drift; **no** `continue-on-error`. |
+
+Rule format and triage: **[docs/security/ZAP_BASELINE_RULES.md](../docs/security/ZAP_BASELINE_RULES.md)**.
 
 ## Layout
 
@@ -14,5 +16,5 @@
 
 ## Operations
 
-- If the scheduled run turns red, open the job log for the ZAP stdout summary, then either fix the finding or add a deliberate `IGNORE` with a short justification in `baseline-pr.tsv`.
+- If ZAP fails in CI or on the schedule, open the job log for the summary (`FAIL-NEW`, `WARN-NEW`), then either fix the finding or add a deliberate `IGNORE` with a short justification in `baseline-pr.tsv` (see **ZAP_BASELINE_RULES.md**).
 - Do not mount SMB (445) or expose internal admin URLs to ZAP; the CI job targets only the local Docker network.

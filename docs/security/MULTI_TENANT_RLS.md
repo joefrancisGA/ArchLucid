@@ -80,11 +80,14 @@ flowchart LR
 - **Cost:** Minimal SQL overhead; engineering cost for migration, testing, and runbooks.
 - **Terraform / IaC:** RLS is **DDL**; shipped via DbUp migrations and mirrored at the end of `ArchLucid.Persistence/Scripts/ArchLucid.sql` for greenfield parity.
 
-## 9. Covered tables and known gaps (DbUp 036)
+## 9. Covered tables and known gaps (DbUp 036 + 046)
 
 **In policy `rls.ArchiforgeTenantScope` (FILTER on all listed tables; ships `STATE = OFF`):**
 
 - `dbo.Runs` — `(TenantId, WorkspaceId, ScopeProjectId)`
+- `dbo.ContextSnapshots` — `(TenantId, WorkspaceId, ScopeProjectId)` — denormalized scope (**DbUp 046**, 2026-04-10)
+- `dbo.FindingsSnapshots` — `(TenantId, WorkspaceId, ProjectId)` — denormalized scope (**DbUp 046**, 2026-04-10)
+- `dbo.GoldenManifestAssumptions` — `(TenantId, WorkspaceId, ProjectId)` — denormalized scope (**DbUp 046**, 2026-04-10)
 - `dbo.DecisioningTraces`, `dbo.GoldenManifests`, `dbo.ArtifactBundles`
 - `dbo.AuditEvents`, `dbo.ProvenanceSnapshots`, `dbo.ConversationThreads`
 - `dbo.RecommendationRecords`, `dbo.RecommendationLearningProfiles`
@@ -100,15 +103,15 @@ flowchart LR
 **Not covered (no scope triple on row — application must enforce):**
 
 - Legacy **architecture commit** graph: `dbo.ArchitectureRequests`, `dbo.ArchitectureRuns`, `dbo.AgentTasks`, `dbo.AgentResults`, … (string `RunId` model without tenant columns on those rows).
-- **Child / graph tables** keyed only by `RunId`, `SnapshotId`, `ManifestId`, `BundleId`, `ThreadId`, etc.: e.g. `dbo.ContextSnapshots`, `dbo.GraphSnapshots`, `dbo.FindingsSnapshots`, `dbo.FindingRecords`, `dbo.GoldenManifestAssumptions`, `dbo.ArtifactBundleArtifacts`, `dbo.ConversationMessages`, `dbo.PolicyPackVersions`, `dbo.CompositeAlertRuleConditions`, `dbo.EvolutionSimulationRuns`, product-learning bridge tables without scope columns.
+- **Child / graph tables** keyed only by `RunId`, `SnapshotId`, `ManifestId`, `BundleId`, `ThreadId`, etc.: e.g. `dbo.GraphSnapshots`, `dbo.FindingRecords`, `dbo.ArtifactBundleArtifacts`, `dbo.ConversationMessages`, `dbo.PolicyPackVersions`, `dbo.CompositeAlertRuleConditions`, `dbo.EvolutionSimulationRuns`, product-learning bridge tables without scope columns.
 - **Operational:** `dbo.BackgroundJobs`, `dbo.HostLeaderLeases`.
 
-**Future hardening:** denormalize `TenantId`, `WorkspaceId`, `ProjectId` onto high-traffic child tables (or add security-barrier views) so predicates can attach without referencing other tables inside the inline function (not supported for RLS predicates).
+**Future hardening:** denormalize scope onto additional high-traffic child tables (or add security-barrier views) so predicates can attach without referencing other tables inside the inline function (not supported for RLS predicates). `dbo.ContextSnapshots` / `dbo.FindingsSnapshots` / `dbo.GoldenManifestAssumptions` are done in **046**.
 
 ## 10. Evolution
 
 Pilot **`rls.RunsScopeFilter`** / `runs_scope_predicate` (DbUp 030) is **superseded** by **036**: single function **`rls.archiforge_scope_predicate`** and policy **`rls.ArchiforgeTenantScope`**. Brownfield databases receive 036 via DbUp after 030.
 
-Integration tests: `ArchLucid.Persistence.Tests/RlsArchLucidScopeIntegrationTests.cs` (SQL Server container) assert cross-tenant isolation on **`dbo.Runs`** and **`dbo.AuditEvents`** with the policy temporarily set to `STATE = ON`.
+Integration tests: `ArchLucid.Persistence.Tests/RlsArchLucidScopeIntegrationTests.cs` (SQL Server container) assert cross-tenant isolation on **`dbo.Runs`**, **`dbo.AuditEvents`**, and **`dbo.ContextSnapshots`** with the policy temporarily set to `STATE = ON`.
 
 Later, consider **separate database per tenant** only if compliance or noisy-neighbor isolation demands it (higher ops cost).

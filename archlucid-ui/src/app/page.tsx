@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
+import { ShortcutHint } from "@/components/ShortcutHint";
 
 export const metadata: Metadata = {
   title: "Operator home",
@@ -50,8 +51,9 @@ export default function HomePage() {
         </p>
         <ul style={{ lineHeight: 1.75, maxWidth: 720, margin: 0, paddingLeft: 20, color: "#334155" }}>
           <li>
-            <Link href="/runs/new">New run (wizard)</Link> — guided create; then find the run on{" "}
-            <Link href="/runs?projectId=default">Runs</Link>
+            <Link href="/runs/new">New run (wizard)</Link>{" "}
+            <ShortcutHint shortcut="Alt+N" className="ml-1 align-middle text-[0.75rem]" /> — guided create; then find the
+            run on <Link href="/runs?projectId=default">Runs</Link>
           </li>
           <li>
             <Link href="/runs?projectId=default">Runs</Link> — list, open detail, manifest, artifacts, exports,

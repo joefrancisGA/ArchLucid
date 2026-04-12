@@ -9,13 +9,14 @@ vi.mock("next/link", () => ({
     children,
     title,
     className,
+    ...rest
   }: {
     href: string;
     children: import("react").ReactNode;
     title?: string;
     className?: string;
-  }) => (
-    <a href={href} title={title} className={className}>
+  } & Record<string, unknown>) => (
+    <a href={href} title={title} className={className} {...rest}>
       {children}
     </a>
   ),
@@ -32,7 +33,7 @@ describe("ShellNav (55R smoke — primary navigation)", () => {
     expect(screen.getByRole("link", { name: "New run" })).toHaveAttribute("href", "/runs/new");
     expect(screen.getByRole("link", { name: "New run" })).toHaveAttribute(
       "title",
-      "Guided first-run wizard — system identity through pipeline tracking",
+      "Guided first-run wizard — system identity through pipeline tracking (Alt+N)",
     );
     expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute(
       "href",
@@ -41,6 +42,15 @@ describe("ShellNav (55R smoke — primary navigation)", () => {
     expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
     expect(screen.getByRole("link", { name: "Compare two runs" })).toHaveAttribute("href", "/compare");
     expect(screen.getByRole("link", { name: "Replay a run" })).toHaveAttribute("href", "/replay");
+
+    const linksWithKeyShortcuts = screen
+      .getAllByRole("link")
+      .filter((link) => {
+        const v = link.getAttribute("aria-keyshortcuts");
+
+        return v !== null && v !== "";
+      });
+    expect(linksWithKeyShortcuts.length).toBeGreaterThanOrEqual(2);
   });
 
   it("exposes Q&A and alerts group navigations", () => {
@@ -50,5 +60,12 @@ describe("ShellNav (55R smoke — primary navigation)", () => {
     expect(screen.getByRole("navigation", { name: "Alerts and governance" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
+    expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");
+  });
+
+  it("shows a hint for opening keyboard shortcuts help", () => {
+    render(<ShellNav />);
+
+    expect(screen.getByText("Press Shift+? for keyboard shortcuts")).toBeInTheDocument();
   });
 });

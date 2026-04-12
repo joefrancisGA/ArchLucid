@@ -59,7 +59,7 @@ Registered via `tracing.AddSource(...)` in **`ObservabilityExtensions`** (includ
 
 ## Health JSON (detailed)
 
-**`GET /health`** (authenticated; **ReadAuthority**; detailed response writer) includes a **`circuit_breakers`** check whose **`data.gates`** array lists each OpenAI breaker (**`name`**, **`state`**: `Closed` / `Open` / `HalfOpen`). Use it alongside **`archlucid_circuit_breaker_*`** metrics for live triage. **`/health/live`** and **`/health/ready`** omit this check (it has no readiness/liveness tags).
+**`GET /health`** (authenticated; **ReadAuthority**; detailed response writer) includes a **`circuit_breakers`** check whose **`data.gates`** array lists each OpenAI breaker with **`name`**, **`state`** (`Closed` / `Open` / `HalfOpen`), **`consecutiveFailures`**, **`failureThreshold`**, **`breakDurationSeconds`**, and **`lastStateChangeUtc`** (ISO-8601 or **`never`**). That gives operators the same operational shape as metrics-backed triage **without requiring Prometheus** for thresholds, failure counts, or last transition time. Still use **`archlucid_circuit_breaker_*`** counters for trends and dashboards. **`/health/live`** and **`/health/ready`** omit this check (it has no readiness/liveness tags).
 
 ---
 

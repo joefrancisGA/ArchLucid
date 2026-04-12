@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
   OperatorLoadingNotice,
   OperatorTryNext,
 } from "@/components/OperatorShellMessage";
+import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
 import { applyAlertAction, listAlertsPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -48,7 +50,7 @@ export default function AlertsPage() {
     void load();
   }, [load]);
 
-  async function act(alertId: string, action: "Acknowledge" | "Resolve" | "Suppress") {
+  const act = useCallback(async (alertId: string, action: "Acknowledge" | "Resolve" | "Suppress") => {
     const comment = typeof window !== "undefined" ? window.prompt(`Optional comment for ${action}:`) ?? "" : "";
     setFailure(null);
     try {
@@ -57,7 +59,18 @@ export default function AlertsPage() {
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     }
-  }
+  }, [load]);
+
+  const onAlertShortcutAction = useCallback(
+    (alertId: string, action: string) => {
+      if (action === "Acknowledge" || action === "Resolve" || action === "Suppress") {
+        void act(alertId, action);
+      }
+    },
+    [act],
+  );
+
+  useAlertCardShortcuts({ onAction: onAlertShortcutAction });
 
   return (
     <main style={{ maxWidth: 800 }}>
@@ -103,6 +116,10 @@ export default function AlertsPage() {
         </button>
       </div>
 
+      <span className="mb-4 mt-1 block text-xs text-neutral-400">
+        Alt+J/K navigate · Alt+1 ack · Alt+2 resolve · Alt+3 suppress
+      </span>
+
       <div style={{ display: "grid", gap: 12 }}>
         {loading && failure === null && alerts.length === 0 ? (
           <OperatorLoadingNotice>
@@ -132,6 +149,9 @@ export default function AlertsPage() {
           alerts.map((alert) => (
             <div
               key={alert.alertId}
+              role="article"
+              tabIndex={0}
+              data-alert-id={alert.alertId}
               style={{
                 border: "1px solid #ddd",
                 borderRadius: 8,

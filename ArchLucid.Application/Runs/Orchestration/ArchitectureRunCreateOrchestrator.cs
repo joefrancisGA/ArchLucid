@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -63,7 +64,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
             await _baselineMutationAudit
                 .RecordAsync(
-                    AuditEventTypes.Architecture.RunFailed,
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
                     request.RequestId,
                     $"Coordination failed: {detail}",
@@ -111,7 +112,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         {
             await _baselineMutationAudit
                 .RecordAsync(
-                    AuditEventTypes.Architecture.RunFailed,
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
                     coordination.Run.RunId,
                     $"Persist failed: {ex.GetType().Name}",
@@ -133,7 +134,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
         await _baselineMutationAudit
             .RecordAsync(
-                AuditEventTypes.Architecture.RunCreated,
+                AuditEventTypes.Baseline.Architecture.RunCreated,
                 actor,
                 coordination.Run.RunId,
                 $"RequestId={request.RequestId}; Environment={request.Environment}",

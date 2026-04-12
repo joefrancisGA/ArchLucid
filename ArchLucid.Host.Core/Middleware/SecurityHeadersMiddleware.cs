@@ -18,6 +18,15 @@ public sealed class SecurityHeadersMiddleware(RequestDelegate next)
         response.Headers.TryAdd("Referrer-Policy", "strict-origin-when-cross-origin");
         // API JSON responses: deny active content; tighten further at the edge (Front Door / WAF) for SPAs.
         response.Headers.TryAdd("Content-Security-Policy", ContentSecurityPolicyApiJson);
+        // Passive-scan hygiene (ZAP 10015): API responses are not browser cache assets.
+        response.Headers.TryAdd("Cache-Control", "no-store, max-age=0");
+        response.Headers.TryAdd("Pragma", "no-cache");
+        // ZAP 10063 Feature-Policy / Permissions-Policy: headless JSON API has no device features.
+        response.Headers.TryAdd(
+            "Permissions-Policy",
+            "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()");
+        // Declares cross-origin embedding/read posture for JSON resources (ZAP 90004 context).
+        response.Headers.TryAdd("Cross-Origin-Resource-Policy", "cross-origin");
 
         return next(context);
     }

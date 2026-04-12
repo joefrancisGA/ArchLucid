@@ -6,7 +6,7 @@ This document defines what the repo treats as **intentionally complete and demo-
 
 - **Actor resolution:** Application code resolves the acting principal via **`IActorContext`** (namespace **`ArchLucid.Application`**, source under `ArchLucid.Application/Common/`), backed by **`IHttpContextAccessor`**. When no identity name is present, the fallback is the non-empty string **`api-user`** (not an empty string). Baseline services should use **`IActorContext`** instead of reading **`HttpContext.User`** directly.
 - **Auth on baseline controllers:** **`RunsController`**, **`GovernanceController`**, and **`RunComparisonController`** use the existing **`ReadAuthority`** / **`ExecuteAuthority`** policy split consistent with **`ArchLucidPolicies`**. Controllers outside this set may still differ until intentionally aligned.
-- **Mutation audit (logging, not SQL `AuditEvents`):** Successful and failed **trusted baseline mutations** emit structured **`ILogger`** lines via **`IBaselineMutationAuditService`** / **`BaselineMutationAuditService`**. This is separate from **`ArchLucid.Core.Audit.IAuditService`**, which persists to the database for other scenarios. Event type strings live in **`AuditEventTypes`** (e.g. **`Architecture.RunStarted`**, **`Architecture.RunCompleted`**, **`Governance.ManifestPromoted`**). Failed or blocked operations must not log a **success** event; blocked commits and merge failures emit **`Architecture.RunFailed`** with a short reason.
+- **Mutation audit (logging, not SQL `AuditEvents`):** Successful and failed **trusted baseline mutations** emit structured **`ILogger`** lines via **`IBaselineMutationAuditService`** / **`BaselineMutationAuditService`**. This is separate from **`ArchLucid.Core.Audit.IAuditService`**, which persists to the database for other scenarios. Event type strings live in **`ArchLucid.Core.Audit.AuditEventTypes.Baseline`** (e.g. **`Baseline.Architecture.RunStarted`**, **`Baseline.Architecture.RunCompleted`**, **`Baseline.Governance.ManifestPromoted`**). Failed or blocked operations must not log a **success** event; blocked commits and merge failures emit **`Baseline.Architecture.RunFailed`** with a short reason.
 
 ## What is trusted (Category A)
 
@@ -27,7 +27,7 @@ This document defines what the repo treats as **intentionally complete and demo-
 - **Service:** `IDemoSeedService` / `DemoSeedService` in `ArchLucid.Application/Bootstrap/`.
 - **Config:** `Demo:Enabled`, `Demo:SeedOnStartup` (startup seed only in **Development**).
 - **HTTP:** `POST /v1.0/demo/seed` when `Demo:Enabled` and Development.
-- **Story:** Contoso Retail — **baseline** run `run-baseline-demo` vs **hardened** run `run-hardened-demo`, deterministic IDs in `ContosoRetailDemoIdentifiers`.
+- **Story:** Contoso Retail — **baseline** vs **hardened** runs use stable GUID primary keys (`ContosoRetailDemoIdentifiers.AuthorityRunBaselineId` / `AuthorityRunHardenedId`); legacy string `RunId` is the same values formatted as **`N`** (no dashes), e.g. `6e8c4a102b1f4c9a9d3e10b2a4f0c501` and `…502`. Seed writes **`dbo.Runs`** first, then legacy **`ArchitectureRuns`** via **`DemoLegacyArchitectureRunSynchronizer`** for coordinator FKs (ADR-0012).
 - **Idempotent:** Re-running seed skips existing keys.
 
 ## Proof checklist (local)
@@ -35,8 +35,8 @@ This document defines what the repo treats as **intentionally complete and demo-
 1. Configure `ConnectionStrings:ArchLucid` (SQL Server) and `ArchLucid:StorageProvider` = `Sql` if using the full SQL stack.
 2. Start API → logs show schema bootstrap (if applicable), DbUp, optional demo seed.
 3. `GET /health` → healthy.
-4. `GET /v1/architecture/run/run-baseline-demo` (with auth) → 200 with manifest.
-5. `GET /v1/architecture/run/compare/agents?leftRunId=run-baseline-demo&rightRunId=run-hardened-demo` → 200.
+4. `GET /v1/architecture/run/6e8c4a102b1f4c9a9d3e10b2a4f0c501` (with auth) → 200 with manifest.
+5. `GET /v1/architecture/run/compare/agents?leftRunId=6e8c4a102b1f4c9a9d3e10b2a4f0c501&rightRunId=6e8c4a102b1f4c9a9d3e10b2a4f0c502` → 200.
 6. `GET /v1.0/architecture/manifest/compare?leftVersion=contoso-baseline-v1&rightVersion=contoso-hardened-v1` → 200 (adjust host/version as needed).
 
 Later features may ship in the same repo; **this list** is the boundary for “Corrected 50R” foundation closure.

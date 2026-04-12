@@ -196,8 +196,12 @@ public sealed class SqlGoldenManifestRepository(
         Guid manifestId = manifest.ManifestId;
 
         const string insertAssumptionSql = """
-            INSERT INTO dbo.GoldenManifestAssumptions (ManifestId, SortOrder, AssumptionText)
-            VALUES (@ManifestId, @SortOrder, @AssumptionText);
+            INSERT INTO dbo.GoldenManifestAssumptions (
+                ManifestId, SortOrder, AssumptionText,
+                TenantId, WorkspaceId, ProjectId)
+            VALUES (
+                @ManifestId, @SortOrder, @AssumptionText,
+                @TenantId, @WorkspaceId, @ProjectId);
             """;
 
         for (int i = 0; i < manifest.Assumptions.Count; i++)
@@ -210,6 +214,9 @@ public sealed class SqlGoldenManifestRepository(
                         ManifestId = manifestId,
                         SortOrder = i,
                         AssumptionText = manifest.Assumptions[i],
+                        manifest.TenantId,
+                        manifest.WorkspaceId,
+                        manifest.ProjectId,
                     },
                     transaction,
                     cancellationToken: ct));

@@ -1,9 +1,8 @@
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-/// Well-known event type constants used when writing audit log entries for governance
-/// workflow transitions. These values are stored as the <c>EventType</c> field in
-/// governance audit records so that event streams can be filtered and correlated.
+/// Well-known event type constants for governance workflow transitions. Values match
+/// <see cref="ArchLucid.Core.Audit.AuditEventTypes.Baseline.Governance"/> (baseline structured log channel).
 /// </summary>
 public static class GovernanceAuditEventTypes
 {

@@ -80,4 +80,45 @@ public static class AuditEventTypes
     public const string CircuitBreakerRejection = "CircuitBreakerRejection";
 
     public const string CircuitBreakerProbeOutcome = "CircuitBreakerProbeOutcome";
+
+    /// <summary>
+    /// Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured <c>ILogger</c> only).
+    /// They are <b>not</b> written to <c>dbo.AuditEvents</c>.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Dual-written governance flows also call <c>IAuditService</c> with the top-level <c>GovernanceApproval*</c> / <c>GovernanceManifestPromoted</c> / <c>GovernanceEnvironmentActivated</c> constants above.
+    /// Those durable <c>EventType</c> values (e.g. <c>GovernanceApprovalSubmitted</c>) differ from nested <c>Governance.*</c> string values (e.g. <c>Governance.ApprovalRequestSubmitted</c>) by design — do not unify without a migration plan for existing rows and log parsers.
+    /// </para>
+    /// </remarks>
+    public static class Baseline
+    {
+        /// <summary>Architecture run / string-run workflow (legacy <c>ArchitectureRuns</c> pipeline).</summary>
+        public static class Architecture
+        {
+            public const string RunCreated = "Architecture.RunCreated";
+
+            public const string RunStarted = "Architecture.RunStarted";
+
+            public const string RunExecuteSucceeded = "Architecture.RunExecuteSucceeded";
+
+            public const string RunCompleted = "Architecture.RunCompleted";
+
+            public const string RunFailed = "Architecture.RunFailed";
+        }
+
+        /// <summary>Governance workflow mutations when integrated with the trusted baseline (baseline log channel).</summary>
+        public static class Governance
+        {
+            public const string ApprovalRequestSubmitted = "Governance.ApprovalRequestSubmitted";
+
+            public const string ApprovalRequestApproved = "Governance.ApprovalRequestApproved";
+
+            public const string ApprovalRequestRejected = "Governance.ApprovalRequestRejected";
+
+            public const string ManifestPromoted = "Governance.ManifestPromoted";
+
+            public const string EnvironmentActivated = "Governance.EnvironmentActivated";
+        }
+    }
 }

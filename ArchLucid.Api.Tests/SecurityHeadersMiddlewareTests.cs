@@ -33,6 +33,10 @@ public sealed class SecurityHeadersMiddlewareTests
         headers["X-Frame-Options"].ToString().Should().Be("DENY");
         headers["Referrer-Policy"].ToString().Should().Be("strict-origin-when-cross-origin");
         headers["Content-Security-Policy"].ToString().Should().Be(SecurityHeadersMiddleware.ContentSecurityPolicyApiJson);
+        headers["Cache-Control"].ToString().Should().Be("no-store, max-age=0");
+        headers["Pragma"].ToString().Should().Be("no-cache");
+        headers["Cross-Origin-Resource-Policy"].ToString().Should().Be("cross-origin");
+        headers["Permissions-Policy"].ToString().Should().StartWith("accelerometer=()");
     }
 
     [Fact]

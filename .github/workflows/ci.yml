@@ -2,6 +2,7 @@
 #   Tier 0 — Secret scan (gitleaks; full clone)
 #   Tier 1 — .NET fast core (fail-fast, no SQL) + CycloneDX SBOM artifact
 #   Tier 2 — .NET full regression + SQL (runs after Tier 1 passes)
+#   Tier 2b — Simmy chaos (after Tier 2; no SQL; continue-on-error during burn-in — see chaos-tests job)
 #   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact
 #   Tier 3b — Operator UI e2e (Playwright; browser-heavy)
 #
@@ -340,13 +341,13 @@ jobs:
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
 
-      - name: Enforce merged coverage gates (line 70%, branch 50%, product packages 40% line)
+      - name: Enforce merged coverage gates (line 70%, branch 50%, product packages 50% line)
         if: success()
         run: >
           python3 scripts/ci/assert_merged_line_coverage_min.py
           "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 70
           --min-branch-pct 50
-          --min-package-line-pct 40
+          --min-package-line-pct 50
 
       - uses: actions/upload-artifact@v6
         if: success()
@@ -373,6 +374,53 @@ jobs:
         with:
           name: coverage-report-full-regression-html
           path: ${{ runner.temp }}/coverage-report-full/**
+          if-no-files-found: warn
+
+  # Polly Simmy chaos (LLM + SQL-fault + blob compositions). No SQL service container: Persistence
+  # Simmy tests use synthetic SqlException and in-memory delegates only.
+  #
+  # TEMPORARY: continue-on-error avoids blocking PR merges while we establish a CI baseline (~2 weeks
+  # from introduction). Remove continue-on-error: true after that burn-in once runs stay green.
+  chaos-tests:
+    name: "Resilience: Simmy chaos tests"
+    needs: dotnet-full-regression
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore ArchLucid.sln
+
+      - name: Run AgentRuntime chaos tests
+        run: >
+          dotnet test ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj
+          --no-restore -c Release
+          --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos"
+          --logger "trx;LogFileName=chaos-agent.trx"
+
+      - name: Run Persistence chaos tests
+        run: >
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj
+          --no-restore -c Release
+          --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos"
+          --logger "trx;LogFileName=chaos-persistence.trx"
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: chaos-test-results
+          path: "**/*.trx"
           if-no-files-found: warn
 
   publish-api-client-nuget:
@@ -737,4 +785,4 @@ jobs:
             -v "$ZAP_WRK:/zap/wrk" \
             -v "$GITHUB_WORKSPACE/infra/zap:/zap/wrk/config:ro" \
             ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py -t http://archlucid-zap-api:8080 -I -c config/baseline-pr.tsv
+            zap-baseline.py -t http://archlucid-zap-api:8080 -c config/baseline-pr.tsv

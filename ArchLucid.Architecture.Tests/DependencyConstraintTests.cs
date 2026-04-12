@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Cli;
 using ArchLucid.ContextIngestion;
@@ -317,6 +318,19 @@ public sealed class DependencyConstraintTests
             "only IntegrationEventPublishing (TryPublishAsync) and IntegrationEventOutboxProcessor may call IIntegrationEventPublisher.PublishAsync directly. Violations:{0}{1}",
             Environment.NewLine,
             violations.Count == 0 ? "(none)" : string.Join(Environment.NewLine, violations));
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Application_references_Core_for_consolidated_audit_event_type_catalog()
+    {
+        Assembly application = typeof(ArchitectureRunCreateOrchestrator).Assembly;
+        AssemblyName[] references = application.GetReferencedAssemblies();
+
+        references.Should().Contain(
+            a => a.Name == "ArchLucid.Core",
+            because: "Application orchestrators use ArchLucid.Core.Audit.AuditEventTypes.Baseline for trusted-baseline mutation strings (single catalog with durable AuditEventTypes).");
     }
 
     private static string? FindRepositoryRootContainingSolution()

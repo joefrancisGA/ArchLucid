@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { AuthPanel } from "@/components/AuthPanel";
+import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { ShellNav } from "@/components/ShellNav";
 import { Button } from "@/components/ui/button";
 
@@ -37,13 +38,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <ShellNav />
           </header>
           <AuthPanel />
-          <div
-            id="main-content"
-            tabIndex={-1}
-            className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2"
-          >
-            {children}
-          </div>
+          <KeyboardShortcutProvider>
+            <div
+              id="main-content"
+              tabIndex={-1}
+              className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2"
+            >
+              {children}
+            </div>
+          </KeyboardShortcutProvider>
         </div>
       </body>
     </html>

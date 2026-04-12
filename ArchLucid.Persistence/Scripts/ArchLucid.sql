@@ -478,6 +478,9 @@ BEGIN
         SnapshotId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
         RunId UNIQUEIDENTIFIER NOT NULL,
         ProjectId NVARCHAR(200) NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ScopeProjectId UNIQUEIDENTIFIER NULL,
         CreatedUtc DATETIME2 NOT NULL,
         CanonicalObjectsJson NVARCHAR(MAX) NOT NULL,
         DeltaSummary NVARCHAR(MAX) NULL,
@@ -487,6 +490,20 @@ BEGIN
         INDEX IX_ContextSnapshots_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC),
         INDEX IX_ContextSnapshots_RunId NONCLUSTERED (RunId)
     );
+END;
+GO
+
+/* Brownfield: RLS scope denormalization (DbUp 046 parity) on dbo.ContextSnapshots */
+IF OBJECT_ID(N'dbo.ContextSnapshots', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'dbo.ContextSnapshots', N'TenantId') IS NULL
+        ALTER TABLE dbo.ContextSnapshots ADD TenantId UNIQUEIDENTIFIER NULL;
+
+    IF COL_LENGTH(N'dbo.ContextSnapshots', N'WorkspaceId') IS NULL
+        ALTER TABLE dbo.ContextSnapshots ADD WorkspaceId UNIQUEIDENTIFIER NULL;
+
+    IF COL_LENGTH(N'dbo.ContextSnapshots', N'ScopeProjectId') IS NULL
+        ALTER TABLE dbo.ContextSnapshots ADD ScopeProjectId UNIQUEIDENTIFIER NULL;
 END;
 GO
 
@@ -746,6 +763,9 @@ BEGIN
         RunId UNIQUEIDENTIFIER NOT NULL,
         ContextSnapshotId UNIQUEIDENTIFIER NOT NULL,
         GraphSnapshotId UNIQUEIDENTIFIER NOT NULL,
+        TenantId UNIQUEIDENTIFIER NULL,
+        WorkspaceId UNIQUEIDENTIFIER NULL,
+        ProjectId UNIQUEIDENTIFIER NULL,
         CreatedUtc DATETIME2 NOT NULL,
         SchemaVersion INT NOT NULL DEFAULT (1),
         FindingsJson NVARCHAR(MAX) NOT NULL,
@@ -753,6 +773,20 @@ BEGIN
         INDEX IX_FindingsSnapshots_ContextSnapshotId NONCLUSTERED (ContextSnapshotId),
         INDEX IX_FindingsSnapshots_GraphSnapshotId NONCLUSTERED (GraphSnapshotId)
     );
+END;
+GO
+
+/* Brownfield: RLS scope denormalization (DbUp 046 parity) on dbo.FindingsSnapshots */
+IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'dbo.FindingsSnapshots', N'TenantId') IS NULL
+        ALTER TABLE dbo.FindingsSnapshots ADD TenantId UNIQUEIDENTIFIER NULL;
+
+    IF COL_LENGTH(N'dbo.FindingsSnapshots', N'WorkspaceId') IS NULL
+        ALTER TABLE dbo.FindingsSnapshots ADD WorkspaceId UNIQUEIDENTIFIER NULL;
+
+    IF COL_LENGTH(N'dbo.FindingsSnapshots', N'ProjectId') IS NULL
+        ALTER TABLE dbo.FindingsSnapshots ADD ProjectId UNIQUEIDENTIFIER NULL;
 END;
 GO
 
@@ -1003,6 +1037,9 @@ BEGIN
         ManifestId      UNIQUEIDENTIFIER NOT NULL,
         SortOrder       INT NOT NULL,
         AssumptionText  NVARCHAR(MAX) NOT NULL,
+        TenantId        UNIQUEIDENTIFIER NULL,
+        WorkspaceId     UNIQUEIDENTIFIER NULL,
+        ProjectId       UNIQUEIDENTIFIER NULL,
         CONSTRAINT PK_GoldenManifestAssumptions PRIMARY KEY (ManifestId, SortOrder),
         CONSTRAINT FK_GoldenManifestAssumptions_GoldenManifests FOREIGN KEY (ManifestId)
             REFERENCES dbo.GoldenManifests (ManifestId) ON DELETE CASCADE
@@ -1010,6 +1047,20 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_GoldenManifestAssumptions_ManifestId
         ON dbo.GoldenManifestAssumptions (ManifestId);
+END;
+GO
+
+/* Brownfield: RLS scope denormalization (DbUp 046 parity) on dbo.GoldenManifestAssumptions */
+IF OBJECT_ID(N'dbo.GoldenManifestAssumptions', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'dbo.GoldenManifestAssumptions', N'TenantId') IS NULL
+        ALTER TABLE dbo.GoldenManifestAssumptions ADD TenantId UNIQUEIDENTIFIER NULL;
+
+    IF COL_LENGTH(N'dbo.GoldenManifestAssumptions', N'WorkspaceId') IS NULL
+        ALTER TABLE dbo.GoldenManifestAssumptions ADD WorkspaceId UNIQUEIDENTIFIER NULL;
+
+    IF COL_LENGTH(N'dbo.GoldenManifestAssumptions', N'ProjectId') IS NULL
+        ALTER TABLE dbo.GoldenManifestAssumptions ADD ProjectId UNIQUEIDENTIFIER NULL;
 END;
 GO
 
@@ -2437,6 +2488,9 @@ CREATE SECURITY POLICY rls.ArchiforgeTenantScope
     ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs,
     ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DecisioningTraces,
     ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifests,
+    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshots,
+    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingsSnapshots,
+    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestAssumptions,
     ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundles,
     ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuditEvents,
     ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProvenanceSnapshots,

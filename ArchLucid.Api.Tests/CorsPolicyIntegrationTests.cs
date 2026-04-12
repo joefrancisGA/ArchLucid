@@ -39,4 +39,55 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
             : null;
         acao.Should().Be("https://trusted.app.example");
     }
+
+    [Fact]
+    public async Task PreflightOptions_FromTrustedOrigin_WithPost_ReflectsAllowedMethods()
+    {
+        using HttpRequestMessage request = new(HttpMethod.Options, "/health/ready");
+        request.Headers.TryAddWithoutValidation("Origin", "https://trusted.app.example");
+        request.Headers.TryAddWithoutValidation("Access-Control-Request-Method", "POST");
+        request.Headers.TryAddWithoutValidation("Access-Control-Request-Headers", "content-type");
+
+        HttpResponseMessage response = await _client.SendAsync(request);
+
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.NoContent, HttpStatusCode.OK);
+        response.Headers.TryGetValues("Access-Control-Allow-Origin", out IEnumerable<string>? acao).Should().BeTrue();
+        acao!.Should().ContainSingle().Which.Should().Be("https://trusted.app.example");
+
+        response.Headers.TryGetValues("Access-Control-Allow-Methods", out IEnumerable<string>? methods).Should().BeTrue();
+        string joined = string.Join(", ", methods!);
+        joined.Contains("POST", StringComparison.OrdinalIgnoreCase).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task PreflightOptions_FromTrustedOrigin_WithDisallowedRequestHeader_IsRejected()
+    {
+        using HttpRequestMessage request = new(HttpMethod.Options, "/health/ready");
+        request.Headers.TryAddWithoutValidation("Origin", "https://trusted.app.example");
+        request.Headers.TryAddWithoutValidation("Access-Control-Request-Method", "POST");
+        request.Headers.TryAddWithoutValidation("Access-Control-Request-Headers", "X-Custom-Header");
+
+        HttpResponseMessage response = await _client.SendAsync(request);
+
+        bool allowsCustom =
+            response.Headers.TryGetValues("Access-Control-Allow-Headers", out IEnumerable<string>? allowHeaders)
+            && HeaderNamesContainsToken(allowHeaders!, "X-Custom-Header");
+
+        allowsCustom.Should().BeFalse(
+            because: "requested header is not in the explicit Cors:AllowedHeaders allow-list");
+    }
+
+    private static bool HeaderNamesContainsToken(IEnumerable<string> headerValues, string token)
+    {
+        foreach (string part in headerValues)
+        {
+            foreach (string name in part.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (name.Equals(token, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+
+        return false;
+    }
 }

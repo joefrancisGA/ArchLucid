@@ -10,15 +10,15 @@ After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cob
 |--------|-----------|--------|--------|------------------|
 | Merged **line** | **70%** | [`scripts/ci/assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py) (positional `70` = `--min-line-pct`) | `.NET: full regression (SQL)` | Exit **1** if root `line-rate` × 100 is below the floor. |
 | Merged **branch** | **50%** | same (`--min-branch-pct 50`) | same | Exit **1** if root `branch-rate` × 100 is below the floor. |
-| Per-product **line** | **40%** | same (`--min-package-line-pct 40`) | same | Exit **1** if any gated package is below the floor or has coverable lines but missing `line-rate`. |
+| Per-product **line** | **50%** | same (`--min-package-line-pct 50`; script default **50**) | same | Exit **1** if any gated package is below the floor or has coverable lines but missing `line-rate`. |
 
 **Exit 2** (script-wide): merged file missing/unparseable, or root **`line-rate`** or **`branch-rate`** missing so gates cannot be evaluated without silently passing.
 
-**Rationale:** **70%** merged line is the solution-wide bar (per-assembly Coverlet thresholds are not used—they do not match tree-wide coverage). **50%** merged branch adds conditional coverage without demanding perfect branches on generated or thin code. **40%** per product package catches effectively untested projects while allowing a lower bar than the global line target for small production assemblies.
+**Rationale:** **70%** merged line is the solution-wide bar (per-assembly Coverlet thresholds are not used—they do not match tree-wide coverage). **50%** merged branch adds conditional coverage without demanding perfect branches on generated or thin code. **50%** per product package aligns the per-assembly floor with PR visibility and catches thin or effectively untested production projects.
 
-**Informational vs blocking:** **`scripts/ci/build_coverage_pr_comment.py`** may show a **50%** per-project **line** warning on PRs; that is **not** a gate. The **hard** per-product-package floor remains **40%** ([`assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py)).
+**PR comment:** **`scripts/ci/build_coverage_pr_comment.py`** lists any product **`ArchLucid.*`** package under **50%** line as the **same CI gate** as [`assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py) on merged Cobertura (not a separate “warning” threshold).
 
-Mutation testing (Stryker baselines) is documented separately in **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
+**Stryker ratchet:** Committed regression baselines in **`scripts/ci/stryker-baselines.json`** for **Persistence**, **Application**, **AgentRuntime**, **Coordinator**, and **Decisioning** were raised to **62.0** (conservative step from **60.0**; no recent artifact scores were available here). Matching **`stryker-config*.json`** **`thresholds.low` / `thresholds.break`** are **62**. Refresh measured scores with **`scripts/ci/refresh_stryker_baselines.py`** when possible. Details: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
 
 ## Exclusion Policy
 
@@ -160,4 +160,10 @@ The improvement is due to removing untestable SQL infrastructure code from the d
 
 ## Cobertura merge (why no Coverlet `<Threshold>`)
 
-`coverage.runsettings` does **not** set Coverlet `<Threshold>`: collectors run **per test assembly**, so a single assembly-wide threshold would not match solution-wide coverage. CI merges fragments with ReportGenerator in **.NET: full regression (SQL)**, then applies the gates in **Enforced CI coverage gates**. **`scripts/ci/build_coverage_pr_comment.py`** reuses **`coverage_cobertura.py`** for PR summary text (informational per-project line warning vs blocking floors — see that section).
+`coverage.runsettings` does **not** set Coverlet `<Threshold>`: collectors run **per test assembly**, so a single assembly-wide threshold would not match solution-wide coverage. CI merges fragments with ReportGenerator in **.NET: full regression (SQL)**, then applies the gates in **Enforced CI coverage gates**. **`scripts/ci/build_coverage_pr_comment.py`** reuses **`coverage_cobertura.py`** for PR summary text (per-package **50%** line lists the same gate as **`assert_merged_line_coverage_min.py`**).
+
+### Tracking — packages under the 50% per-product line floor
+
+Merged **`Cobertura.xml`** is produced only after a successful **full regression** test run (see **`.github/workflows/ci.yml`** → **`.NET: full regression (SQL)`**). If that job fails **`assert_merged_line_coverage_min.py`** on the per-package gate, the script stdout lists each offending **`ArchLucid.*`** package and its line percentage.
+
+**Remediation:** Add or extend tests for that assembly, adjust **`[ExcludeFromCodeCoverage]`** only per **Exclusion Policy** above, or open a time-bound exemption with an explicit tracking item (issue/ADR) — do not weaken the gate without product sign-off.

@@ -7,6 +7,7 @@ using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
@@ -65,7 +66,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
         {
             await _baselineMutationAudit
                 .RecordAsync(
-                    AuditEventTypes.Architecture.RunFailed,
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
                     runId,
                     "Run not found.",
@@ -103,7 +104,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
         {
             await _baselineMutationAudit
                 .RecordAsync(
-                    AuditEventTypes.Architecture.RunFailed,
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
                     runId,
                     $"Commit blocked: {ex.Message}",
@@ -156,7 +157,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
         {
             await _baselineMutationAudit
                 .RecordAsync(
-                    AuditEventTypes.Architecture.RunFailed,
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
                     runId,
                     ex.GetType().Name,
@@ -184,7 +185,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
         {
             await _baselineMutationAudit
                 .RecordAsync(
-                    AuditEventTypes.Architecture.RunFailed,
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
                     runId,
                     $"Persist failed: {ex.GetType().Name}",
@@ -195,7 +196,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         await _baselineMutationAudit
             .RecordAsync(
-                AuditEventTypes.Architecture.RunCompleted,
+                AuditEventTypes.Baseline.Architecture.RunCompleted,
                 actor,
                 runId,
                 $"ManifestVersion={merge.Manifest.Metadata.ManifestVersion}; WarningCount={merge.Warnings.Count}",
@@ -299,7 +300,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         await _baselineMutationAudit
             .RecordAsync(
-                AuditEventTypes.Architecture.RunFailed,
+                AuditEventTypes.Baseline.Architecture.RunFailed,
                 actor,
                 runId,
                 $"Merge failed: {detail}",

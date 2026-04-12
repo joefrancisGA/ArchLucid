@@ -29,7 +29,10 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
     }
 
-    private static void RegisterArchLucidHealthChecks(IServiceCollection services, ArchLucidHostingRole hostingRole)
+    private static void RegisterArchLucidHealthChecks(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
     {
         IHealthChecksBuilder builder = services.AddHealthChecks()
             .AddCheck(
@@ -48,6 +51,19 @@ public static partial class ServiceCollectionExtensions
                 "circuit_breakers",
                 failureStatus: HealthStatus.Degraded,
                 tags: []);
+
+        ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+
+        if (!ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.StorageProvider))
+        {
+            services.Configure<DualPersistenceConsistencyHealthCheckOptions>(
+                configuration.GetSection(DualPersistenceConsistencyHealthCheckOptions.SectionName));
+
+            builder.AddCheck<DualPersistenceConsistencyHealthCheck>(
+                "dual_persistence_consistency",
+                failureStatus: HealthStatus.Degraded,
+                tags: []);
+        }
 
         if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
         {

@@ -1,6 +1,6 @@
 # Data consistency matrix
 
-**Last reviewed:** 2026-04-09 (hot-path cache + archival eviction)
+**Last reviewed:** 2026-04-12 (dual persistence diagnostic health check)
 
 This document states **what consistency guarantees callers should assume** for major aggregates. It complements `docs/SQL_DDL_DISCIPLINE.md` and `docs/API_CONTRACTS.md`.
 
@@ -21,6 +21,7 @@ Make explicit which paths are **strongly consistent** (read-your-writes within a
 | Run optimistic concurrency | Row-level | `ROWVERSION` on `dbo.Runs` (and selected tables) | Conflicting updates → `409` with conflict problem type. |
 | Retrieval indexing after commit | Eventual | Transactional enqueue + worker processing | Enqueue is tied to commit transaction where configured; indexer may lag. |
 | Idempotency key on create run | Scoped replay-safe | Hash of body + scope keys | Documented caveat: extreme races may not span **both** legacy and authority stores atomically — treat as **best-effort** across dual persistence. |
+| Demo trusted-baseline seed | Dual write (ordered) | **`IRunRepository.SaveAsync`** → **`dbo.Runs`** first; **`DemoLegacyArchitectureRunSynchronizer`** → **`ArchitectureRuns`** for coordinator FKs only | Reduces direct **`IArchitectureRunRepository`** usage in **`DemoSeedService`**; legacy row is demo-scoped until coordinator children reference **`dbo.Runs`**. See ADR-0012 row **DemoLegacyArchitectureRunSynchronizer**. |
 | Multi-tenant isolation (SQL) | Defense in depth | RLS policies + `SESSION_CONTEXT` when `SqlServer:RowLevelSecurity:ApplySessionContext=true` | Not every table carries scope columns; see `docs/security/MULTI_TENANT_RLS.md`. |
 | Policy pack assignments | Per-row transactional | SQL writes | `ROWVERSION` on assignments supports future optimistic flows. |
 | LLM completion cache | Best-effort | Distributed/memory cache | Cache hits do not consume Azure usage; stale entries TTL-bound. |
@@ -48,6 +49,10 @@ These dates are **planning defaults** for the product repo; your organization ma
 2. When adding persistence, avoid new **`ArchitectureRuns`** dependencies without an ADR (`docs/adr/`).
 3. Track remaining readers with a periodic codebase search for `ArchitectureRuns` / legacy `RunId` string keys.
 4. Tag work items **`RunsAuthorityConvergence`** so release notes and audits can filter progress.
+
+### Runtime verification (SQL)
+
+When **`ArchLucid:StorageProvider`** is **`Sql`**, the diagnostic health check **`dual_persistence_consistency`** runs two indexed **`COUNT(*)`** queries over **`dbo.ArchitectureRuns`** and **`dbo.Runs`**, restricted to rows with **`CreatedUtc`** in a recent UTC window (default **24 hours**, configurable via **`HealthChecks:DualPersistenceConsistency:RecentWindowHours`**). If the absolute delta exceeds **`HealthChecks:DualPersistenceConsistency:MaxAllowedDelta`** (default **5**), the check reports **Degraded** with **`architectureRunCount`**, **`runCount`**, and **`delta`** in the detailed **`/health`** JSON. Query failures report **Unhealthy**. The check is **not** tagged **`live`** or **`ready`** — it is informational only (same pattern as **`circuit_breakers`**).
 
 ## Related
 

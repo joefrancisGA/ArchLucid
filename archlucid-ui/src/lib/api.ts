@@ -48,6 +48,11 @@ import type {
   PolicyPackVersion,
 } from "@/types/policy-packs";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
+import type {
+  GovernanceApprovalRequest,
+  GovernanceEnvironmentActivation,
+  GovernancePromotionRecord,
+} from "@/types/governance-workflow";
 import type { ProductLearningDashboardBundle } from "@/types/product-learning";
 import type {
   LearningPlanDetailResponse,
@@ -880,6 +885,94 @@ export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocu
 /** Fetches the governance resolution result (merge decisions, conflicts, effective content). */
 export async function getGovernanceResolution(): Promise<EffectiveGovernanceResolutionResult> {
   return apiGet<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
+}
+
+const governanceBase = (): string => `/${ApiV1Routes.governance}`;
+
+/** Lists approval requests for a run (governance workflow). */
+export async function listApprovalRequests(runId: string): Promise<GovernanceApprovalRequest[]> {
+  return apiGet<GovernanceApprovalRequest[]>(
+    `${governanceBase()}/runs/${encodeURIComponent(runId)}/approval-requests`,
+  );
+}
+
+/** Submits a new governance approval request for manifest promotion between environments. */
+export async function submitApprovalRequest(body: {
+  runId: string;
+  manifestVersion: string;
+  sourceEnvironment: string;
+  targetEnvironment: string;
+  requestComment?: string;
+}): Promise<GovernanceApprovalRequest> {
+  return apiPostJson<GovernanceApprovalRequest>(`${governanceBase()}/approval-requests`, body);
+}
+
+/** Approves a pending governance approval request. */
+export async function approveRequest(
+  approvalRequestId: string,
+  body: { reviewedBy: string; reviewComment?: string },
+): Promise<GovernanceApprovalRequest> {
+  return apiPostJson<GovernanceApprovalRequest>(
+    `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/approve`,
+    body,
+  );
+}
+
+/** Rejects a pending governance approval request. */
+export async function rejectRequest(
+  approvalRequestId: string,
+  body: { reviewedBy: string; reviewComment?: string },
+): Promise<GovernanceApprovalRequest> {
+  return apiPostJson<GovernanceApprovalRequest>(
+    `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/reject`,
+    body,
+  );
+}
+
+/** Records promotion of a manifest from source to target environment (after approval when required). */
+export async function promoteManifest(body: {
+  runId: string;
+  manifestVersion: string;
+  sourceEnvironment: string;
+  targetEnvironment: string;
+  promotedBy: string;
+  approvalRequestId?: string;
+  notes?: string;
+}): Promise<GovernancePromotionRecord> {
+  return apiPostJson<GovernancePromotionRecord>(`${governanceBase()}/promotions`, body);
+}
+
+/**
+ * Activates a run/manifest as the baseline for an environment.
+ * `activatedBy` is part of the UI contract for operator context; the API derives the actor from auth and only reads runId, manifestVersion, environment from the JSON body.
+ */
+export async function activateEnvironment(body: {
+  runId: string;
+  manifestVersion: string;
+  environment: string;
+  activatedBy: string;
+}): Promise<GovernanceEnvironmentActivation> {
+  void body.activatedBy;
+
+  return apiPostJson<GovernanceEnvironmentActivation>(`${governanceBase()}/activations`, {
+    runId: body.runId,
+    manifestVersion: body.manifestVersion,
+    environment: body.environment,
+  });
+}
+
+/** Lists promotion audit rows for a run. */
+export async function listPromotions(runId: string): Promise<GovernancePromotionRecord[]> {
+  return apiGet<GovernancePromotionRecord[]>(
+    `${governanceBase()}/runs/${encodeURIComponent(runId)}/promotions`,
+  );
+}
+
+/** Lists environment activation rows for a run. */
+export async function listActivations(runId: string): Promise<GovernanceEnvironmentActivation[]> {
+  return apiGet<GovernanceEnvironmentActivation[]>(
+    `${governanceBase()}/runs/${encodeURIComponent(runId)}/activations`,
+  );
 }
 
 /** Creates a new policy pack with an initial content document. */

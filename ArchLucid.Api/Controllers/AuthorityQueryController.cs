@@ -1,8 +1,10 @@
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Explanation;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
@@ -30,6 +32,7 @@ namespace ArchLucid.Api.Controllers;
 [EnableRateLimiting("fixed")]
 public sealed class AuthorityQueryController(
     IAuthorityQueryService queryService,
+    IRunRationaleService runRationaleService,
     IScopeContextProvider scopeProvider,
     IProvenanceBuilder provenanceBuilder) : ControllerBase
 {
@@ -106,6 +109,22 @@ public sealed class AuthorityQueryController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? result = await queryService.GetRunDetailAsync(scope, runId, ct);
         return result is null ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) : Ok(result);
+    }
+
+    /// <summary>Unified decision rationale (authority or coordinator) for operator triage.</summary>
+    [HttpGet("runs/{runId:guid}/rationale")]
+    [ProducesResponseType(typeof(RunRationale), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetRunRationale(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunRationale? rationale = await runRationaleService.GetRunRationaleAsync(scope, runId, ct);
+
+        return rationale is null
+            ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound)
+            : Ok(rationale);
     }
 
     /// <summary>Gets compact counts/metadata for a golden manifest in the current scope.</summary>

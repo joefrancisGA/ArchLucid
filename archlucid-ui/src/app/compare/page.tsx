@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { ShortcutHint } from "@/components/ShortcutHint";
 import {
   OperatorEmptyState,
   OperatorLoadingNotice,
@@ -214,7 +215,10 @@ function CompareForm() {
 
   return (
     <main>
-      <h2>Compare runs</h2>
+      <h2 className="flex flex-wrap items-baseline gap-2">
+        Compare runs
+        <ShortcutHint shortcut="Alt+C" className="align-middle text-[0.75rem] text-neutral-500" />
+      </h2>
       <p style={{ marginTop: 4, fontSize: 14 }}>
         <Link href="/">Home</Link>
         {" · "}

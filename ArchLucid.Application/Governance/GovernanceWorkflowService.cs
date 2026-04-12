@@ -1,10 +1,10 @@
 using System.Data;
 using System.Text.Json;
 
-using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
@@ -79,7 +79,7 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                Common.AuditEventTypes.Governance.ApprovalRequestSubmitted,
+                AuditEventTypes.Baseline.Governance.ApprovalRequestSubmitted,
                 requestedBy,
                 request.ApprovalRequestId,
                 $"RunId={runId}; ManifestVersion={manifestVersion}; Source={sourceEnvironment}; Target={targetEnvironment}",
@@ -148,7 +148,7 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                Common.AuditEventTypes.Governance.ApprovalRequestApproved,
+                AuditEventTypes.Baseline.Governance.ApprovalRequestApproved,
                 reviewedBy,
                 approvalRequestId,
                 $"Status={GovernanceApprovalStatus.Approved}",
@@ -213,7 +213,7 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                Common.AuditEventTypes.Governance.ApprovalRequestRejected,
+                AuditEventTypes.Baseline.Governance.ApprovalRequestRejected,
                 reviewedBy,
                 approvalRequestId,
                 $"Status={GovernanceApprovalStatus.Rejected}",
@@ -337,7 +337,7 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                Common.AuditEventTypes.Governance.ManifestPromoted,
+                AuditEventTypes.Baseline.Governance.ManifestPromoted,
                 promotedBy,
                 record.PromotionRecordId,
                 $"RunId={runId}; ManifestVersion={manifestVersion}; {sourceEnvironment}->{targetEnvironment}",
@@ -453,7 +453,7 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                Common.AuditEventTypes.Governance.EnvironmentActivated,
+                AuditEventTypes.Baseline.Governance.EnvironmentActivated,
                 activatedBy,
                 activation.ActivationId,
                 $"RunId={runId}; ManifestVersion={manifestVersion}; Environment={environment}",

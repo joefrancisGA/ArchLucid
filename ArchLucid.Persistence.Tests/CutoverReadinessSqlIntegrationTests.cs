@@ -4,6 +4,8 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 
+using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
+
 using Dapper;
 
 using FluentAssertions;
@@ -166,7 +168,7 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
 
     private static async Task SeedRelationalContextSnapshotAsync(SqlConnectionFactory factory)
     {
-        SqlContextSnapshotRepository repository = new(factory);
+        SqlContextSnapshotRepository repository = new(factory, Empty);
 
         ContextSnapshot snapshot = new()
         {

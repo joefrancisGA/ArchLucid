@@ -3,7 +3,7 @@
 CI guard: merged Cobertura (ReportGenerator output) must meet:
   - minimum merged line coverage (default 70%),
   - minimum merged branch coverage (default 50%; root branch-rate required),
-  - minimum line coverage per product ArchLucid.* package with coverable lines (default 40%).
+  - minimum line coverage per product ArchLucid.* package with coverable lines (default 50%).
 
 Coverlet runs per test assembly; enforcing <Threshold> in coverage.runsettings would not
 represent solution-wide coverage. The full-regression job merges Cobertura files first.
@@ -77,8 +77,8 @@ def _main(argv: list[str]) -> int:
     parser.add_argument(
         "--min-package-line-pct",
         type=float,
-        default=40.0,
-        help="Minimum line %% for each product ArchLucid.* package with coverable lines (default 40).",
+        default=50.0,
+        help="Minimum line %% for each product ArchLucid.* package with coverable lines (default 50).",
     )
     args = parser.parse_args(argv)
 

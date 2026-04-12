@@ -108,6 +108,46 @@ stateDiagram-v2
   HalfOpen --> Open : probe failure
 ```
 
+### Enriched `/health` (circuit breakers)
+
+Authenticated **`GET /health`** (detailed JSON) includes **`entries[].data.gates`** for the **`circuit_breakers`** check. Each gate row carries operational metadata so operators can triage breaker state **without** opening Prometheus first:
+
+| Field | Meaning |
+|-------|---------|
+| **`name`** | Gate key (e.g. completion vs embedding). |
+| **`state`** | `Closed`, `Open`, or `HalfOpen`. |
+| **`consecutiveFailures`** | Current failure counter toward open (or threshold after a failed half-open probe). |
+| **`failureThreshold`** | Effective threshold from `CircuitBreakerOptions` (including hot-reloaded values when the gate uses `IOptionsMonitor`). |
+| **`breakDurationSeconds`** | Effective open duration before a recovery probe is allowed. |
+| **`lastStateChangeUtc`** | ISO-8601 round-trip timestamp of the last state transition, or **`never`** if the gate has not yet transitioned since process start. |
+
+Example (abridged; real payloads include all health entries):
+
+```json
+{
+  "entries": [
+    {
+      "name": "circuit_breakers",
+      "status": "Degraded",
+      "data": {
+        "gates": [
+          {
+            "name": "OpenAiCompletion",
+            "state": "Open",
+            "consecutiveFailures": 5,
+            "failureThreshold": 5,
+            "breakDurationSeconds": 30,
+            "lastStateChangeUtc": "2026-04-10T12:34:56.7890123+00:00"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+See also **`docs/OBSERVABILITY.md`** (Health JSON).
+
 ## Simmy chaos testing
 
 - **Local:** `dotnet test ArchLucid.AgentRuntime.Tests --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos"`

@@ -4,6 +4,8 @@ using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 
+using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
+
 using Dapper;
 
 using FluentAssertions;
@@ -162,9 +164,9 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
     {
         return new SqlRelationalBackfillService(
             factory,
-            new SqlContextSnapshotRepository(factory),
+            new SqlContextSnapshotRepository(factory, Empty),
             new SqlGraphSnapshotRepository(factory),
-            new SqlFindingsSnapshotRepository(factory),
+            new SqlFindingsSnapshotRepository(factory, Empty),
             SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory),
             SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory),
             NullLogger<SqlRelationalBackfillService>.Instance);

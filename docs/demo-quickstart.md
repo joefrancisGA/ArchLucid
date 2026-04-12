@@ -51,7 +51,7 @@ Stable identifiers are defined in [ContosoRetailDemoIdentifiers](../ArchLucid.Ap
 | Area | Content |
 |------|---------|
 | Request | `request-contoso-demo` — Contoso Retail Platform scenario |
-| Runs | `run-baseline-demo` (weaker posture), `run-hardened-demo` (improved controls) |
+| Runs | Legacy string `RunId` = authority GUID **`N`** format: `6e8c4a102b1f4c9a9d3e10b2a4f0c501` (baseline), `6e8c4a102b1f4c9a9d3e10b2a4f0c502` (hardened); **`dbo.Runs`** rows use the same GUIDs |
 | Manifests | `contoso-baseline-v1`, `contoso-hardened-v1` |
 | Tasks / results | One topology task + result per run |
 | Decision traces | One commit trace per run |
@@ -63,9 +63,9 @@ Stable identifiers are defined in [ContosoRetailDemoIdentifiers](../ArchLucid.Ap
 
 Replace base URL and version as needed (`v1.0`).
 
-- **Run detail:** `GET /v1.0/architecture/run/run-baseline-demo` (and `run-hardened-demo`).
-- **Compare agents:** `GET /v1.0/architecture/run/compare/agents?leftRunId=run-baseline-demo&rightRunId=run-hardened-demo`
-- **Export history:** `GET /v1.0/architecture/run/run-baseline-demo/exports`
+- **Run detail:** `GET /v1.0/architecture/run/6e8c4a102b1f4c9a9d3e10b2a4f0c501` (and `…502` for hardened).
+- **Compare agents:** `GET /v1.0/architecture/run/compare/agents?leftRunId=6e8c4a102b1f4c9a9d3e10b2a4f0c501&rightRunId=6e8c4a102b1f4c9a9d3e10b2a4f0c502`
+- **Export history:** `GET /v1.0/architecture/run/6e8c4a102b1f4c9a9d3e10b2a4f0c501/exports`
 - **Governance preview:** use existing governance preview endpoints with environments **dev** / **test** and manifest versions above.
 - **Governance workflow:** list approvals/promotions/activations by run via your governance APIs.
 

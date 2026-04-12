@@ -34,6 +34,8 @@ public sealed class CircuitBreakerGate
 
     private bool _probeInFlight;
 
+    private DateTimeOffset? _lastStateChangeUtc;
+
     private readonly Action<CircuitBreakerAuditEntry>? _onAuditEntry;
 
     /// <param name="gateName">Stable low-cardinality label for metrics (e.g. keyed DI name).</param>
@@ -83,6 +85,54 @@ public sealed class CircuitBreakerGate
             lock (_sync)
             {
                 return _state.ToString();
+            }
+        }
+    }
+
+    /// <summary>Consecutive failure ticks in the closed state (or threshold after half-open failure); thread-safe snapshot.</summary>
+    public int ConsecutiveFailureCount
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _consecutiveFailures;
+            }
+        }
+    }
+
+    /// <summary>Effective failure threshold from bound or monitored options.</summary>
+    public int CurrentFailureThreshold
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return ResolveOptions().FailureThreshold;
+            }
+        }
+    }
+
+    /// <summary>Effective break duration from bound or monitored options.</summary>
+    public int CurrentDurationOfBreakSeconds
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return ResolveOptions().DurationOfBreakSeconds;
+            }
+        }
+    }
+
+    /// <summary>UTC time of the last <c>Closed</c>↔<c>Open</c>↔<c>HalfOpen</c> transition; <see langword="null"/> until the first transition.</summary>
+    public DateTimeOffset? LastStateChangeUtc
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _lastStateChangeUtc;
             }
         }
     }
@@ -218,6 +268,8 @@ public sealed class CircuitBreakerGate
 
     private void EmitStateTransition(string fromState, string toState)
     {
+        _lastStateChangeUtc = _utcNow();
+
         TagList tags = new TagList
         {
             { "gate", _gateName },

@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -60,7 +61,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             await _baselineMutationAudit
                 .RecordAsync(
-                    AuditEventTypes.Architecture.RunFailed,
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
                     runId,
                     "Run not found.",
@@ -90,7 +91,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         await _baselineMutationAudit
             .RecordAsync(
-                AuditEventTypes.Architecture.RunStarted,
+                AuditEventTypes.Baseline.Architecture.RunStarted,
                 actor,
                 runId,
                 null,
@@ -134,7 +135,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
             await _baselineMutationAudit
                 .RecordAsync(
-                    AuditEventTypes.Architecture.RunExecuteSucceeded,
+                    AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded,
                     actor,
                     runId,
                     $"ResultCount={results.Count}",
@@ -164,7 +165,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
             await _baselineMutationAudit
                 .RecordAsync(
-                    AuditEventTypes.Architecture.RunFailed,
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
                     actor,
                     runId,
                     ex.GetType().Name,

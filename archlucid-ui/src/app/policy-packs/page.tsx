@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
+import { PolicyPackDiffView } from "@/components/PolicyPackDiffView";
 import {
   assignPolicyPack,
   createPolicyPack,
@@ -13,7 +14,12 @@ import {
   listPolicyPacks,
   publishPolicyPackVersion,
 } from "@/lib/api";
-import type { EffectivePolicyPackSet, PolicyPack, PolicyPackContentDocument } from "@/types/policy-packs";
+import type {
+  EffectivePolicyPackSet,
+  PolicyPack,
+  PolicyPackContentDocument,
+  PolicyPackVersion,
+} from "@/types/policy-packs";
 
 const PACK_TYPES = [
   { value: "BuiltIn", label: "Built-in template" },
@@ -51,6 +57,11 @@ export default function PolicyPacksPage() {
   const [assignScopeLevel, setAssignScopeLevel] = useState("Project");
   const [assignPinned, setAssignPinned] = useState(false);
 
+  const [packVersions, setPackVersions] = useState<PolicyPackVersion[]>([]);
+  const [compareLeftId, setCompareLeftId] = useState("");
+  const [compareRightId, setCompareRightId] = useState("");
+  const [showVersionDiff, setShowVersionDiff] = useState(false);
+
   const load = useCallback(async () => {
     setLoading(true);
     setFailure(null);
@@ -81,18 +92,44 @@ export default function PolicyPacksPage() {
   }, [packs, selectedPackId]);
 
   useEffect(() => {
-    if (!selectedPackId) return;
+    if (!selectedPackId) {
+      setPackVersions([]);
+      setCompareLeftId("");
+      setCompareRightId("");
+      setShowVersionDiff(false);
+
+      return;
+    }
+
     void (async () => {
       try {
         const versions = await listPolicyPackVersions(selectedPackId);
+        setPackVersions(versions);
         const latest = versions[0];
+
         if (latest) {
           setPublishVersion(latest.version);
           setPublishJson(latest.contentJson || DEFAULT_CONTENT);
           setAssignVersion(latest.version);
         }
+
+        if (versions.length >= 2) {
+          setCompareLeftId(versions[1]!.policyPackVersionId);
+          setCompareRightId(versions[0]!.policyPackVersionId);
+        } else if (versions.length === 1) {
+          setCompareLeftId(versions[0]!.policyPackVersionId);
+          setCompareRightId(versions[0]!.policyPackVersionId);
+        } else {
+          setCompareLeftId("");
+          setCompareRightId("");
+        }
+
+        setShowVersionDiff(false);
       } catch {
-        /* ignore */
+        setPackVersions([]);
+        setCompareLeftId("");
+        setCompareRightId("");
+        setShowVersionDiff(false);
       }
     })();
   }, [selectedPackId]);
@@ -167,6 +204,9 @@ export default function PolicyPacksPage() {
       setLoading(false);
     }
   }
+
+  const compareLeftVersion = packVersions.find((v) => v.policyPackVersionId === compareLeftId);
+  const compareRightVersion = packVersions.find((v) => v.policyPackVersionId === compareRightId);
 
   return (
     <main style={{ maxWidth: 960 }}>
@@ -302,6 +342,87 @@ export default function PolicyPacksPage() {
             Publish
           </button>
         </div>
+      </section>
+
+      <section style={{ marginBottom: 32 }}>
+        <h3>Published versions</h3>
+        {packVersions.length === 0 ? (
+          <p style={{ color: "#666", fontSize: 14 }}>
+            {selectedPackId ? "No published versions loaded for this pack yet." : "Select a pack to load versions."}
+          </p>
+        ) : (
+          <ul style={{ fontSize: 14, lineHeight: 1.6 }}>
+            {packVersions.map((v) => (
+              <li key={v.policyPackVersionId}>
+                <strong>{v.version}</strong>
+                {v.isPublished ? " · published" : " · draft"}
+                <span style={{ color: "#64748b" }}> · {v.createdUtc}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <h4 style={{ marginTop: 20, marginBottom: 8 }}>Compare versions</h4>
+        <p style={{ fontSize: 14, color: "#555", marginTop: 0 }}>
+          Pick two published content snapshots for the selected pack and diff JSON structure (added / removed / changed
+          paths).
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "flex-end", marginBottom: 12 }}>
+          <label>
+            Left version
+            <select
+              value={compareLeftId}
+              onChange={(e) => {
+                setCompareLeftId(e.target.value);
+                setShowVersionDiff(false);
+              }}
+              style={{ display: "block", minWidth: 220, padding: 8, marginTop: 4 }}
+            >
+              <option value="">—</option>
+              {packVersions.map((v) => (
+                <option key={`L-${v.policyPackVersionId}`} value={v.policyPackVersionId}>
+                  {v.version} ({v.policyPackVersionId.slice(0, 8)}…)
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Right version
+            <select
+              value={compareRightId}
+              onChange={(e) => {
+                setCompareRightId(e.target.value);
+                setShowVersionDiff(false);
+              }}
+              style={{ display: "block", minWidth: 220, padding: 8, marginTop: 4 }}
+            >
+              <option value="">—</option>
+              {packVersions.map((v) => (
+                <option key={`R-${v.policyPackVersionId}`} value={v.policyPackVersionId}>
+                  {v.version} ({v.policyPackVersionId.slice(0, 8)}…)
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowVersionDiff(true)}
+            disabled={!compareLeftId || !compareRightId || compareLeftId === compareRightId}
+          >
+            Show diff
+          </button>
+          {showVersionDiff ? (
+            <button type="button" onClick={() => setShowVersionDiff(false)}>
+              Hide diff
+            </button>
+          ) : null}
+        </div>
+        {showVersionDiff && compareLeftId !== compareRightId && compareLeftVersion && compareRightVersion ? (
+          <PolicyPackDiffView leftVersion={compareLeftVersion} rightVersion={compareRightVersion} />
+        ) : null}
+        {showVersionDiff && compareLeftId !== compareRightId && (!compareLeftVersion || !compareRightVersion) ? (
+          <p style={{ color: "#b91c1c" }}>Selected versions are no longer in the list; refresh and try again.</p>
+        ) : null}
       </section>
 
       <section style={{ marginBottom: 32 }}>

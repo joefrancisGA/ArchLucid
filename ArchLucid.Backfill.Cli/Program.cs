@@ -1,8 +1,10 @@
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Options;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Scoping;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -31,6 +33,7 @@ internal static class Program
 
         ServiceCollection services = new();
         services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
+        services.AddSingleton<IScopeContextProvider, EmptyPersistenceScopeContextProvider>();
         services.AddSingleton<SqlPrimaryMirroredReadReplicaConnectionFactory>(sp =>
             new SqlPrimaryMirroredReadReplicaConnectionFactory(sp.GetRequiredService<ISqlConnectionFactory>()));
         services.AddSingleton<IGoldenManifestLookupReadConnectionFactory>(sp =>

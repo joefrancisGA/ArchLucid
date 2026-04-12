@@ -4,6 +4,8 @@ using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Persistence.Tests.Support;
 
+using static ArchLucid.Persistence.Tests.Support.PersistenceIntegrationTestScope;
+
 using Dapper;
 
 using FluentAssertions;
@@ -24,7 +26,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlContextSnapshotRepository repository = new(factory);
+        SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
@@ -80,7 +82,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlContextSnapshotRepository repository = new(factory);
+        SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
@@ -154,7 +156,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlContextSnapshotRepository repository = new(factory);
+        SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
@@ -247,7 +249,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlContextSnapshotRepository repository = new(factory);
+        SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();
@@ -298,7 +300,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlContextSnapshotRepository repository = new(factory);
+        SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -367,7 +369,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
-        SqlContextSnapshotRepository repository = new(factory);
+        SqlContextSnapshotRepository repository = new(factory, Empty);
 
         Guid snapshotId = Guid.NewGuid();
         Guid runId = Guid.NewGuid();

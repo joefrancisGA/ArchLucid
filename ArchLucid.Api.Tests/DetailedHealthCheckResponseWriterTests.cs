@@ -118,7 +118,15 @@ public sealed class DetailedHealthCheckResponseWriterTests
         {
             ["gates"] = new List<object>
             {
-                new Dictionary<string, object> { ["name"] = "OpenAiCompletion", ["state"] = "Closed" },
+                new Dictionary<string, object>
+                {
+                    ["name"] = "OpenAiCompletion",
+                    ["state"] = "Closed",
+                    ["consecutiveFailures"] = 0,
+                    ["failureThreshold"] = 5,
+                    ["breakDurationSeconds"] = 30,
+                    ["lastStateChangeUtc"] = "never",
+                },
             },
         };
 
@@ -147,6 +155,54 @@ public sealed class DetailedHealthCheckResponseWriterTests
         JsonElement gate0 = dataEl.GetProperty("gates")[0];
         gate0.GetProperty("name").GetString().Should().Be("OpenAiCompletion");
         gate0.GetProperty("state").GetString().Should().Be("Closed");
+        gate0.GetProperty("consecutiveFailures").GetInt32().Should().Be(0);
+        gate0.GetProperty("failureThreshold").GetInt32().Should().Be(5);
+        gate0.GetProperty("breakDurationSeconds").GetInt32().Should().Be(30);
+        gate0.GetProperty("lastStateChangeUtc").GetString().Should().Be("never");
+    }
+
+    [Fact]
+    public async Task WriteAsync_detailed_serializes_circuit_breaker_last_transition_roundtrip()
+    {
+        string lastChange = new DateTimeOffset(2026, 4, 10, 15, 30, 0, TimeSpan.Zero).ToString("o");
+        Dictionary<string, object> checkData = new()
+        {
+            ["gates"] = new List<object>
+            {
+                new Dictionary<string, object>
+                {
+                    ["name"] = "OpenAiEmbedding",
+                    ["state"] = "Open",
+                    ["consecutiveFailures"] = 5,
+                    ["failureThreshold"] = 5,
+                    ["breakDurationSeconds"] = 60,
+                    ["lastStateChangeUtc"] = lastChange,
+                },
+            },
+        };
+
+        Dictionary<string, HealthReportEntry> entries = new()
+        {
+            ["circuit_breakers"] = new HealthReportEntry(
+                HealthStatus.Degraded,
+                "One or more OpenAI circuits are open or probing.",
+                TimeSpan.FromMilliseconds(3),
+                exception: null,
+                data: checkData),
+        };
+
+        HealthReport report = new(entries, TimeSpan.FromMilliseconds(6));
+        DefaultHttpContext httpContext = new();
+        httpContext.Response.Body = new MemoryStream();
+
+        await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report);
+
+        httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        using JsonDocument doc = await JsonDocument.ParseAsync(httpContext.Response.Body);
+        JsonElement gate0 = doc.RootElement.GetProperty("entries")[0].GetProperty("data").GetProperty("gates")[0];
+
+        gate0.GetProperty("lastStateChangeUtc").GetString().Should().Be(lastChange);
+        gate0.GetProperty("consecutiveFailures").GetInt32().Should().Be(5);
     }
 
     [Fact]

@@ -117,27 +117,53 @@ internal static class InfrastructureExtensions
         return services;
     }
 
+    /// <summary>
+    /// Registers CORS policy <c>ArchLucid</c>. When <c>Cors:AllowedOrigins</c> is empty, no browser origin is allowed.
+    /// Methods and headers are explicit by default; override via <c>Cors:AllowedMethods</c> and <c>Cors:AllowedHeaders</c>.
+    /// </summary>
     public static IServiceCollection AddArchLucidCors(
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        string[] defaultMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"];
+        string[] defaultHeaders =
+        [
+            "Content-Type",
+            "Authorization",
+            "X-Api-Key",
+            "X-Correlation-ID",
+            "Idempotency-Key",
+            "Accept",
+        ];
+
         services.AddCors(options =>
         {
             options.AddPolicy("ArchLucid", policy =>
             {
                 string[] origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-                if (origins.Length > 0)
-                
-                    policy.WithOrigins(origins)
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
-                
-                else
-                
+
+                if (origins.Length == 0)
+                {
                     policy.SetIsOriginAllowed(_ => false);
-                
+                    return;
+                }
+
+                string[]? configuredMethods = configuration.GetSection("Cors:AllowedMethods").Get<string[]>();
+                string[] methods = configuredMethods is { Length: > 0 }
+                    ? configuredMethods
+                    : defaultMethods;
+
+                string[]? configuredHeaders = configuration.GetSection("Cors:AllowedHeaders").Get<string[]>();
+                string[] headers = configuredHeaders is { Length: > 0 }
+                    ? configuredHeaders
+                    : defaultHeaders;
+
+                _ = policy.WithOrigins(origins)
+                    .WithMethods(methods)
+                    .WithHeaders(headers);
             });
         });
+
         return services;
     }
 

@@ -18,10 +18,9 @@ from coverage_cobertura import (
     parse_cobertura_packages_simple,
 )
 
-# Informational gates (do not fail the job): warn in the PR comment + workflow annotations.
+# Informational: merged overall line below 70% — warn in the PR comment (merged line gate is still enforced by CI).
 OVERALL_LINE_WARN_PCT = 70.0
-# CI hard gate for product packages is 40% line (assert_merged_line_coverage_min.py). This higher
-# threshold only adds PR visibility before the floor is hit.
+# Same floor as `assert_merged_line_coverage_min.py --min-package-line-pct` (per-product-package merge gate).
 PER_PROJECT_LINE_WARN_PCT = 50.0
 
 
@@ -135,7 +134,8 @@ def main() -> int:
 
     if low_projects:
         lines.append(
-            f"⚠️ **Projects under {PER_PROJECT_LINE_WARN_PCT:.0f}% line coverage** (informational; consider tests or exclusions review):",
+            f"**CI gate — per-package line floor** — projects under **{PER_PROJECT_LINE_WARN_PCT:.0f}%** "
+            f"(`assert_merged_line_coverage_min.py` on merged Cobertura; merge blocked):",
         )
         lines.append("")
         lines.append("| Assembly / package | Line % |")
@@ -145,7 +145,7 @@ def main() -> int:
         lines.append("")
         for name, pct in low_projects[:10]:
             annotation_lines.append(
-                f"Low coverage: {name} at {pct:.1f}% line (threshold {PER_PROJECT_LINE_WARN_PCT:.0f}%).",
+                f"Per-package line gate: {name} at {pct:.1f}% line (minimum {PER_PROJECT_LINE_WARN_PCT:.0f}%).",
             )
 
     if cobertura_file.is_file() and not product_rows and cob_packages:

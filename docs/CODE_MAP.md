@@ -30,7 +30,7 @@ Reduce time-to-orientation for a developer or SRE by listing **high-signal paths
 | SQL schema (master) | `ArchLucid.Persistence/Scripts/ArchLucid.sql` |
 | UI API proxy | `archlucid-ui/src/app/api/proxy/[...path]/route.ts` |
 | CD smoke + rollback | `.github/workflows/cd.yml`, `cd-staging-on-merge.yml` |
-| ZAP tiers | `infra/zap/`, `.github/workflows/ci.yml`, `zap-baseline-strict-scheduled.yml` |
+| ZAP baseline (blocking) | `infra/zap/baseline-pr.tsv`, `.github/workflows/ci.yml` (`security-zap-api-baseline`), `zap-baseline-strict-scheduled.yml` |
 | Prometheus alerts | `infra/prometheus/archlucid-alerts.yml` |
 
 ## 6. Data flow

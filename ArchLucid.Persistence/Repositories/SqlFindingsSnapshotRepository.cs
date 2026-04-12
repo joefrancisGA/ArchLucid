@@ -1,6 +1,7 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -23,8 +24,13 @@ namespace ArchLucid.Persistence.Repositories;
 /// save and after load so schema versioning stays consistent.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connectionFactory) : IFindingsSnapshotRepository
+public sealed class SqlFindingsSnapshotRepository(
+    ISqlConnectionFactory connectionFactory,
+    IScopeContextProvider scopeContextProvider) : IFindingsSnapshotRepository
 {
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     public async Task SaveAsync(
         FindingsSnapshot snapshot,
         CancellationToken ct,
@@ -54,7 +60,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
         }
     }
 
-    private static async Task SaveCoreAsync(
+    private async Task SaveCoreAsync(
         FindingsSnapshot snapshot,
         IDbConnection connection,
         IDbTransaction? transaction,
@@ -62,16 +68,20 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
     {
         FindingsSnapshotMigrator.Apply(snapshot);
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         const string headerSql = """
             INSERT INTO dbo.FindingsSnapshots
             (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
+                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId,
+                TenantId, WorkspaceId, ProjectId,
+                CreatedUtc, SchemaVersion, FindingsJson
             )
             VALUES
             (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
-                @SchemaVersion, @FindingsJson
+                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId,
+                @TenantId, @WorkspaceId, @ProjectId,
+                @CreatedUtc, @SchemaVersion, @FindingsJson
             );
             """;
 
@@ -81,6 +91,9 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             snapshot.RunId,
             snapshot.ContextSnapshotId,
             snapshot.GraphSnapshotId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
             snapshot.CreatedUtc,
             snapshot.SchemaVersion,
             FindingsJson = JsonEntitySerializer.Serialize(snapshot),

@@ -42,6 +42,18 @@ This document ties together how **ArchLucid** (product; repository and assemblie
 | Build and test | [BUILD.md](BUILD.md) |
 | Storage provider semantics | [adr/0011-inmemory-vs-sql-storage-provider.md](adr/0011-inmemory-vs-sql-storage-provider.md) |
 
+## CORS (browser → API)
+
+The API registers policy **`ArchLucid`** (`UseCors("ArchLucid")` in the pipeline).
+
+| Configuration | Behavior |
+|---------------|----------|
+| **`Cors:AllowedOrigins`** (array) | If **empty or missing**, **no** browser origin is allowed (`SetIsOriginAllowed(_ => false)`). If non-empty, only those exact origins receive `Access-Control-Allow-Origin`. |
+| **`Cors:AllowedMethods`** (array, optional) | Defaults: **`GET`**, **`POST`**, **`PUT`**, **`DELETE`**, **`OPTIONS`**. **`OPTIONS`** is required for preflight. If you set this array, it **replaces** the default list (include every method you need). |
+| **`Cors:AllowedHeaders`** (array, optional) | Defaults: **`Content-Type`**, **`Authorization`**, **`X-Api-Key`**, **`X-Correlation-ID`**, **`Idempotency-Key`**, **`Accept`**. Aligns with the operator UI proxy and idempotent run creation. If you set this array, it **replaces** the default list—add any extra request headers your SPA sends. |
+
+Production validation (`ArchLucidConfigurationRules.CollectProductionSafetyErrors`) still requires a non-empty **`Cors:AllowedOrigins`** without wildcard `*`.
+
 ## Security note
 
 Do not expose SMB (port 445) or SQL endpoints publicly. Align with private endpoints and controlled boundaries described in infrastructure Terraform and org network standards.

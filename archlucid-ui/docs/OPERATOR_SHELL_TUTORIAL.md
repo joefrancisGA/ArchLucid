@@ -27,7 +27,8 @@
 16. [Testing](#16-testing)
 17. [Configuration and environment](#17-configuration-and-environment)
 18. [Common tasks for back-end developers](#18-common-tasks-for-back-end-developers)
-19. [Glossary](#19-glossary)
+19. [Keyboard shortcuts](#19-keyboard-shortcuts)
+20. [Glossary](#20-glossary)
 
 ---
 
@@ -821,7 +822,13 @@ Key differences from HTML:
 
 ---
 
-## 19. Glossary
+## 19. Keyboard shortcuts
+
+The operator shell registers **Alt+letter** navigation (e.g. Alt+N → new run), a **Shift+?** help dialog, and **page-specific** shortcuts on Alerts. Shortcuts are **guarded** inside text fields and selects. For the full shortcut table, discoverability (nav `aria-keyshortcuts`, `<ShortcutHint>` badges), accessibility notes, and how to extend [`shortcut-registry.ts`](../src/lib/shortcut-registry.ts), read **[KEYBOARD_SHORTCUTS.md](./KEYBOARD_SHORTCUTS.md)**. Integration coverage: `src/integration/keyboard-shortcuts-*.test.tsx`.
+
+---
+
+## 20. Glossary
 
 | Term | Meaning |
 |------|---------|

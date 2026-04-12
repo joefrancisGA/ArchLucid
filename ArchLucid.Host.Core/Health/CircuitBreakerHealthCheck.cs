@@ -22,7 +22,19 @@ public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) 
         CancellationToken cancellationToken = default)
     {
         List<Dictionary<string, object>> gateRows = [];
-        gateRows.AddRange(GateKeys.Select(key => serviceProvider.GetKeyedService<CircuitBreakerGate>(key)).OfType<CircuitBreakerGate>().Select(gate => new Dictionary<string, object> { ["name"] = gate.GateName, ["state"] = gate.CurrentState, }));
+        gateRows.AddRange(
+            GateKeys.Select(key => serviceProvider.GetKeyedService<CircuitBreakerGate>(key))
+                .OfType<CircuitBreakerGate>()
+                .Select(
+                    gate => new Dictionary<string, object>
+                    {
+                        ["name"] = gate.GateName,
+                        ["state"] = gate.CurrentState,
+                        ["consecutiveFailures"] = gate.ConsecutiveFailureCount,
+                        ["failureThreshold"] = gate.CurrentFailureThreshold,
+                        ["breakDurationSeconds"] = gate.CurrentDurationOfBreakSeconds,
+                        ["lastStateChangeUtc"] = gate.LastStateChangeUtc?.ToString("o") ?? "never",
+                    }));
 
         IReadOnlyDictionary<string, object> data =
             new Dictionary<string, object> { ["gates"] = gateRows };

@@ -4,6 +4,8 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance.Preview;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
@@ -15,6 +17,25 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Integration")]
 public sealed class DemoSeedServiceTests
 {
+    [Fact]
+    public async Task SeedAsync_inserts_run_records_listable_via_IAuthorityQueryService()
+    {
+        await using ArchLucidApiFactory factory = new();
+        using IServiceScope scope = factory.Services.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
+
+        IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
+        IAuthorityQueryService authority = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
+        ScopeContext ctx = scopeProvider.GetCurrentScope();
+
+        IReadOnlyList<RunSummaryDto> rows =
+            await authority.ListRunsByProjectAsync(ctx, "Contoso Retail Platform", 50, CancellationToken.None);
+
+        rows.Should().Contain(r => r.RunId == ContosoRetailDemoIdentifiers.AuthorityRunBaselineId);
+        rows.Should().Contain(r => r.RunId == ContosoRetailDemoIdentifiers.AuthorityRunHardenedId);
+        rows.Should().OnlyContain(r => r.ProjectId == "Contoso Retail Platform");
+    }
+
     [Fact]
     public async Task SeedAsync_twice_does_not_throw_and_remains_idempotent()
     {

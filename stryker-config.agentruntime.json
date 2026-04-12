@@ -5,8 +5,8 @@
     "reporters": ["progress", "html", "json"],
     "thresholds": {
       "high": 80,
-      "low": 60,
-      "break": 60
+      "low": 62,
+      "break": 62
     }
   }
 }

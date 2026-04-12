@@ -131,6 +131,88 @@ public sealed class CircuitBreakerGateAuditCallbackTests
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void ConsecutiveFailureCount_increments_before_threshold_and_resets_on_success()
+    {
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 5,
+            DurationOfBreakSeconds = 60
+        };
+        CircuitBreakerGate gate = new("cb-count", options);
+
+        gate.ConsecutiveFailureCount.Should().Be(0);
+
+        gate.RecordFailure();
+        gate.RecordFailure();
+        gate.ConsecutiveFailureCount.Should().Be(2);
+
+        gate.RecordSuccess();
+        gate.ConsecutiveFailureCount.Should().Be(0);
+    }
+
+    [Fact]
+    public void LastStateChangeUtc_is_null_until_first_transition()
+    {
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 5,
+            DurationOfBreakSeconds = 60
+        };
+        CircuitBreakerGate gate = new("cb-never-transition", options);
+
+        gate.LastStateChangeUtc.Should().BeNull();
+    }
+
+    [Fact]
+    public void LastStateChangeUtc_updates_on_Closed_to_Open_and_Open_to_HalfOpen()
+    {
+        MutableUtcClock clock = new(new DateTimeOffset(2026, 3, 1, 12, 0, 0, TimeSpan.Zero));
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 2,
+            DurationOfBreakSeconds = 30
+        };
+        CircuitBreakerGate gate = new("cb-last-change", options, clock.ToFunc());
+
+        gate.LastStateChangeUtc.Should().BeNull();
+
+        gate.RecordFailure();
+        gate.LastStateChangeUtc.Should().BeNull();
+
+        gate.RecordFailure();
+        gate.LastStateChangeUtc.Should().Be(new DateTimeOffset(2026, 3, 1, 12, 0, 0, TimeSpan.Zero));
+
+        clock.Advance(TimeSpan.FromSeconds(31));
+        gate.ThrowIfBroken();
+        gate.LastStateChangeUtc.Should().Be(new DateTimeOffset(2026, 3, 1, 12, 0, 31, TimeSpan.Zero));
+    }
+
+    [Fact]
+    public void LastStateChangeUtc_updates_on_HalfOpen_to_Closed_after_probe_success()
+    {
+        MutableUtcClock clock = new(new DateTimeOffset(2026, 3, 2, 8, 0, 0, TimeSpan.Zero));
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 10
+        };
+        CircuitBreakerGate gate = new("cb-half-to-closed", options, clock.ToFunc());
+
+        gate.RecordFailure();
+        DateTimeOffset? afterOpen = gate.LastStateChangeUtc;
+
+        afterOpen.Should().NotBeNull();
+
+        clock.Advance(TimeSpan.FromSeconds(11));
+        gate.ThrowIfBroken();
+        clock.Advance(TimeSpan.FromSeconds(1));
+        gate.RecordSuccess();
+
+        gate.LastStateChangeUtc.Should().Be(new DateTimeOffset(2026, 3, 2, 8, 0, 12, TimeSpan.Zero));
+        gate.CurrentState.Should().Be("Closed");
+    }
+
     private sealed class MutableUtcClock(DateTimeOffset start)
     {
         private DateTimeOffset _now = start;

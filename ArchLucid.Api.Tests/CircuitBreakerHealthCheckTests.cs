@@ -32,6 +32,26 @@ public sealed class CircuitBreakerHealthCheckTests
 
         result.Status.Should().Be(HealthStatus.Healthy);
         result.Data.Should().ContainKey("gates");
+        object gatesObj = result.Data["gates"];
+        List<Dictionary<string, object>>? gateList = gatesObj as List<Dictionary<string, object>>;
+        gateList.Should().NotBeNull();
+        gateList!.Should().HaveCount(2);
+
+        foreach (Dictionary<string, object> row in gateList)
+        {
+            row.Should().ContainKeys(
+                "name",
+                "state",
+                "consecutiveFailures",
+                "failureThreshold",
+                "breakDurationSeconds",
+                "lastStateChangeUtc");
+            row["state"].Should().Be("Closed");
+            row["consecutiveFailures"].Should().Be(0);
+            row["failureThreshold"].Should().Be(5);
+            row["breakDurationSeconds"].Should().Be(60);
+            row["lastStateChangeUtc"].Should().Be("never");
+        }
     }
 
     [Fact]
@@ -54,6 +74,17 @@ public sealed class CircuitBreakerHealthCheckTests
         HealthCheckResult result = await check.CheckHealthAsync(new HealthCheckContext());
 
         result.Status.Should().Be(HealthStatus.Degraded);
+        object gatesObj = result.Data["gates"];
+        List<Dictionary<string, object>>? gateList = gatesObj as List<Dictionary<string, object>>;
+        gateList.Should().NotBeNull();
+        Dictionary<string, object>? completionRow = gateList!.FirstOrDefault(
+            r => (string)r["name"] == OpenAiCircuitBreakerKeys.Completion);
+        completionRow.Should().NotBeNull();
+        completionRow!["state"].Should().Be("Open");
+        completionRow["consecutiveFailures"].Should().Be(1);
+        completionRow["failureThreshold"].Should().Be(1);
+        completionRow["breakDurationSeconds"].Should().Be(60);
+        completionRow["lastStateChangeUtc"].Should().BeOfType<string>().Which.Should().NotBe("never");
     }
 
     [Fact]

@@ -26,6 +26,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ApiDeprecationOptions>(configuration.GetSection(ApiDeprecationOptions.SectionName));
         services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));
         services.Configure<HostLeaderElectionOptions>(configuration.GetSection(HostLeaderElectionOptions.SectionName));
+        services.AddScoped<IDemoLegacyArchitectureRunSynchronizer, DemoLegacyArchitectureRunSynchronizer>();
         services.AddScoped<IDemoSeedService, DemoSeedService>();
         services.AddArchLucidFeatureManagement(configuration);
         services.AddArchLucidStorage(configuration);
@@ -49,7 +50,7 @@ public static partial class ServiceCollectionExtensions
         RegisterIntegrationEventOutbox(services, hostingRole);
         RegisterIntegrationEventConsumer(services, hostingRole);
         RegisterDataArchivalHostedService(services, hostingRole);
-        RegisterArchLucidHealthChecks(services, hostingRole);
+        RegisterArchLucidHealthChecks(services, configuration, hostingRole);
 
         return services;
     }

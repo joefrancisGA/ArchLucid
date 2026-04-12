@@ -2,6 +2,23 @@
 
 **Objective**: Catch regressions in retry and circuit-breaker wiring before production incidents.
 
+## CI and scheduled runs
+
+| Mechanism | When | Purpose |
+|-----------|------|---------|
+| **Main CI — job `Resilience: Simmy chaos tests` (`chaos-tests`)** | Every push / PR to `main` or `master`, after **`.NET: full regression (SQL)`** succeeds | Runs `ArchLucid.AgentRuntime.Tests` and `ArchLucid.Persistence.Tests` with the same Simmy/Chaos FQN filter as `simmy-chaos-scheduled.yml`; uploads TRX as artifact **`chaos-test-results`**. |
+| **`.github/workflows/simmy-chaos-scheduled.yml`** | Weekly cron + manual dispatch | Second line of defense; same test filter today; can be extended later for longer or parameterized suites. |
+
+**Triage when `chaos-tests` fails**
+
+1. Open the failed workflow run → job **Resilience: Simmy chaos tests** → expand the failing step (**Run AgentRuntime chaos tests** or **Run Persistence chaos tests**).
+2. Download artifact **`chaos-test-results`** and open the `.trx` in Visual Studio Test Explorer, `trx-viewer`, or CI log output for the failing test name.
+3. Reproduce locally:
+   - `dotnet test ArchLucid.AgentRuntime.Tests --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos"`
+   - `dotnet test ArchLucid.Persistence.Tests --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos"`
+
+**Burn-in:** the `chaos-tests` job is configured with **`continue-on-error: true`** for an initial ~2-week period so flaky or environmental issues do not block merges while we confirm stability. The workflow still surfaces failures in the job UI. Remove `continue-on-error` from that job in `.github/workflows/ci.yml` once the baseline is trusted.
+
 **Approach in this repo**
 
 1. **HTTP (CLI)**: `ArchLucid.Cli.Tests.CliRetryDelegatingHandlerTests` sends a **500** on the first attempt and **200** on the next, asserting Polly retries via `CliRetryDelegatingHandler`.
