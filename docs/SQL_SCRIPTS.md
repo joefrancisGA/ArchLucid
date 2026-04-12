@@ -121,6 +121,7 @@ Read the file top-down; major comment banners include:
 | **032_ProductLearningPlanningBridge.sql** | **59R:** Improvement themes, bounded plans (`BoundedActionsJson`), links to **`ArchitectureRuns`**, **`ProductLearningPilotSignals`**, and authority bundle artifacts / pilot hints. |
 | **047_DropForeignKeysToArchitectureRuns.sql** | Drops **15** FK constraints from coordinator / learning tables to **`dbo.ArchitectureRuns`** (see migration header for names). Does **not** add FKs to **`dbo.Runs`** (**`UNIQUEIDENTIFIER`** vs legacy **`NVARCHAR(64)`** **`RunId`**). |
 | **049_DropArchitectureRunsTable.sql** | **`DROP TABLE dbo.ArchitectureRuns`** when present (after **047**). Greenfield **`ArchLucid.sql`** no longer creates **`ArchitectureRuns`**. |
+| **050_PolicyPackChangeLog.sql** | Append-only **`dbo.PolicyPackChangeLog`** (policy pack / version / assignment mutations) plus RLS predicate when **`ArchiforgeTenantScope`** exists. |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 

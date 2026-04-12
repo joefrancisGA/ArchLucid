@@ -40,6 +40,7 @@ using ArchLucid.Persistence.Coordination.ProductLearning;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Coordination.Retrieval;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Orchestration;
@@ -113,6 +114,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
             services.AddSingleton<IPolicyPackRepository, InMemoryPolicyPackRepository>();
             services.AddSingleton<IPolicyPackVersionRepository, InMemoryPolicyPackVersionRepository>();
             services.AddSingleton<IPolicyPackAssignmentRepository, InMemoryPolicyPackAssignmentRepository>();
+            services.AddSingleton<IPolicyPackChangeLogRepository, InMemoryPolicyPackChangeLogRepository>();
             // Required by CoordinatorService → IAuthorityRunOrchestrator.
             services.AddSingleton<IArchLucidUnitOfWorkFactory, InMemoryArchLucidUnitOfWorkFactory>();
             services.AddSingleton<IRetrievalIndexingOutboxRepository, InMemoryRetrievalIndexingOutboxRepository>();
@@ -267,6 +269,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.AddScoped<ICompositeAlertRuleRepository, DapperCompositeAlertRuleRepository>();
         services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
+        services.AddScoped<IPolicyPackChangeLogRepository, DapperPolicyPackChangeLogRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
 
         services.AddSingleton<Persistence.Data.Infrastructure.IDbConnectionFactory>(p =>
