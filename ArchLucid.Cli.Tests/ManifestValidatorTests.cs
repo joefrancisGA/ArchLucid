@@ -8,8 +8,8 @@ public sealed class ManifestValidatorTests
     [Fact]
     public void ValidateOrThrow_when_schema_missing_throws_FileNotFoundException()
     {
-        using TempPaths temp = new();
-        string manifest = Path.Combine(temp.Dir, "m.json");
+        using TempDirectory temp = new();
+        string manifest = Path.Combine(temp.Path, "m.json");
         File.WriteAllText(manifest, "{}");
 
         Action act = () => ManifestValidator.ValidateOrThrow(Path.Combine(temp.Path, "missing.schema.json"), manifest);
@@ -73,8 +73,8 @@ public sealed class ManifestValidatorTests
     [Fact]
     public void TryValidate_when_invalid_returns_false_and_errors_json()
     {
-        using TempPaths temp = new();
-        string schema = Path.Combine(temp.Dir, "schema.json");
+        using TempDirectory temp = new();
+        string schema = Path.Combine(temp.Path, "schema.json");
         File.WriteAllText(schema, MinimalObjectSchemaJson);
 
         bool ok = ManifestValidator.TryValidate(schema, "{}", out string errorsJson);
@@ -106,14 +106,5 @@ public sealed class ManifestValidatorTests
         }
 
         public void Dispose() => Directory.Delete(Path, recursive: true);
-    }
-
-    private sealed class TempPaths : IDisposable
-    {
-        private readonly TempDirectory _inner = new();
-
-        public string Dir => _inner.Path;
-
-        public void Dispose() => _inner.Dispose();
     }
 }

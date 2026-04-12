@@ -90,4 +90,86 @@ public sealed class CliOperatorHintsTests
         text.Should().Contain("correlation");
         text.Should().Contain("runid");
     }
+
+    [Fact]
+    public void WriteAfterApiFailure_When401_writes_auth_hint()
+    {
+        StringWriter stderr = new();
+
+        CliOperatorHints.WriteAfterApiFailure(401, "x", stderr);
+
+        stderr.ToString().ToLowerInvariant().Should().Contain("jwt");
+    }
+
+    [Fact]
+    public void WriteAfterApiFailure_When403_writes_identity_hint()
+    {
+        StringWriter stderr = new();
+
+        CliOperatorHints.WriteAfterApiFailure(403, "x", stderr);
+
+        stderr.ToString().ToLowerInvariant().Should().Contain("reader");
+    }
+
+    [Fact]
+    public void WriteAfterApiFailure_When409_writes_idempotency_hint()
+    {
+        StringWriter stderr = new();
+
+        CliOperatorHints.WriteAfterApiFailure(409, "x", stderr);
+
+        stderr.ToString().ToLowerInvariant().Should().Contain("idempotency");
+    }
+
+    [Fact]
+    public void WriteAfterApiFailure_When400_writes_body_hint()
+    {
+        StringWriter stderr = new();
+
+        CliOperatorHints.WriteAfterApiFailure(400, "x", stderr);
+
+        stderr.ToString().ToLowerInvariant().Should().Contain("problem");
+    }
+
+    [Fact]
+    public void WriteAfterApiFailure_When422_writes_body_hint()
+    {
+        StringWriter stderr = new();
+
+        CliOperatorHints.WriteAfterApiFailure(422, "x", stderr);
+
+        stderr.ToString().ToLowerInvariant().Should().Contain("problem");
+    }
+
+    [Fact]
+    public void WriteAfterApiFailure_When429_writes_retry_hint()
+    {
+        StringWriter stderr = new();
+
+        CliOperatorHints.WriteAfterApiFailure(429, "x", stderr);
+
+        stderr.ToString().ToLowerInvariant().Should().Contain("retry");
+    }
+
+    [Fact]
+    public void WriteAfterApiFailure_When418_writes_nothing_extra()
+    {
+        StringWriter stderr = new();
+
+        CliOperatorHints.WriteAfterApiFailure(418, "x", stderr);
+
+        stderr.ToString().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void WriteBriefMissingHint_writes_path_and_inputs_brief()
+    {
+        StringWriter stderr = new();
+
+        CliOperatorHints.WriteBriefMissingHint("inputs/brief.md", stderr);
+
+        string text = stderr.ToString();
+        text.Should().Contain("inputs/brief.md");
+        text.ToLowerInvariant().Should().Contain("archlucid.json");
+    }
 }

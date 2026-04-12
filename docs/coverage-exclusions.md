@@ -132,6 +132,24 @@ Pure data-transfer objects used by Dapper for SQL result mapping. They contain o
 | `Program` (static) | Cli | CLI argument dispatch and console I/O |
 | `ApiKeyAuthenticationHandler` | Api | ASP.NET authentication handler; tested via HTTP pipeline integration tests |
 
+## Category 8b: CLI API-orchestration subcommands (`ArchLucid.Cli`)
+
+These `internal static` command entry points wire console output to `ArchLucidApiClient` (already excluded in this assembly). Unit-testing them end-to-end would duplicate HTTP client tests; `SupportBundleCollector`, `ManifestValidator`, `CliCommandShared`, and related helpers retain line coverage.
+
+| Class | Assembly | Justification |
+|-------|----------|---------------|
+| `ComparisonsCommand` | Cli | Comparisons / replay / diagnostics against API |
+| `DoctorCommand` | Cli | Multi-probe readiness against API |
+| `RunCommand` | Cli | Run workflow + API + filesystem |
+| `DevUpCommand` | Cli | Host `docker compose`; environment-specific |
+| `SupportBundleCommand` | Cli | Thin wrapper over `SupportBundleCollector` (tested) |
+| `ArtifactsCommand` | Cli | Artifact download via API |
+| `StatusCommand` | Cli | Run status via API |
+| `SubmitCommand` | Cli | Agent result POST via API |
+| `CommitCommand` | Cli | Commit manifest via API |
+| `SeedCommand` | Cli | Seed path via API |
+| `HealthCommand` | Cli | Reachability via `ArchLucidApiClient` |
+
 ## Category 9: Method-Level Exclusions
 
 | Class | Method | Justification |
