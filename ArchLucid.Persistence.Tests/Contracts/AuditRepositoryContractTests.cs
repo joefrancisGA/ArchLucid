@@ -305,4 +305,119 @@ public abstract class AuditRepositoryContractTests
 
         list.Count.Should().Be(500);
     }
+
+    [SkippableFact]
+    public async Task GetExportAsync_DateRange_IsHalfOpen_OnOccurredUtc()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+        DateTime mid = DateTime.UtcNow.AddMinutes(-40);
+        AuditEvent before = NewEvent(occurredUtc: mid.AddHours(-2));
+        AuditEvent inside = NewEvent(occurredUtc: mid);
+        AuditEvent after = NewEvent(occurredUtc: mid.AddHours(2));
+
+        await repo.AppendAsync(before, CancellationToken.None);
+        await repo.AppendAsync(inside, CancellationToken.None);
+        await repo.AppendAsync(after, CancellationToken.None);
+
+        DateTime from = mid.AddHours(-1);
+        DateTime to = mid.AddHours(1);
+        IReadOnlyList<AuditEvent> list =
+            await repo.GetExportAsync(TenantId, WorkspaceId, ProjectId, from, to, maxRows: 100, CancellationToken.None);
+
+        list.Should().Contain(x => x.EventId == inside.EventId);
+        list.Should().NotContain(x => x.EventId == before.EventId);
+        list.Should().NotContain(x => x.EventId == after.EventId);
+    }
+
+    [SkippableFact]
+    public async Task GetExportAsync_OrdersByOccurredUtc_Ascending()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+        Guid isolatedProjectId = Guid.NewGuid();
+        DateTime older = DateTime.UtcNow.AddMinutes(-25);
+        DateTime newer = DateTime.UtcNow.AddMinutes(-15);
+        AuditEvent first = NewEvent(occurredUtc: older, projectId: isolatedProjectId);
+        AuditEvent second = NewEvent(occurredUtc: newer, projectId: isolatedProjectId);
+
+        await repo.AppendAsync(second, CancellationToken.None);
+        await repo.AppendAsync(first, CancellationToken.None);
+
+        DateTime from = older.AddMinutes(-10);
+        DateTime to = newer.AddMinutes(10);
+        IReadOnlyList<AuditEvent> list =
+            await repo.GetExportAsync(
+                TenantId,
+                WorkspaceId,
+                isolatedProjectId,
+                from,
+                to,
+                maxRows: 50,
+                CancellationToken.None);
+
+        list.Should().HaveCount(2);
+        list[0].EventId.Should().Be(first.EventId);
+        list[1].EventId.Should().Be(second.EventId);
+    }
+
+    [SkippableFact]
+    public async Task GetExportAsync_RespectsMaxRows()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+        Guid isolatedProjectId = Guid.NewGuid();
+        DateTime t0 = DateTime.UtcNow.AddHours(-3);
+
+        for (int i = 0; i < 12; i++)
+        {
+            await repo.AppendAsync(
+                NewEvent(eventType: "ExportCap", occurredUtc: t0.AddMinutes(i), projectId: isolatedProjectId),
+                CancellationToken.None);
+        }
+
+        DateTime from = t0.AddMinutes(-1);
+        DateTime to = t0.AddMinutes(20);
+        IReadOnlyList<AuditEvent> list =
+            await repo.GetExportAsync(
+                TenantId,
+                WorkspaceId,
+                isolatedProjectId,
+                from,
+                to,
+                maxRows: 4,
+                CancellationToken.None);
+
+        list.Should().HaveCount(4);
+    }
+
+    [SkippableFact]
+    public async Task GetExportAsync_WhenMoreRowsExistThanMax_ReturnsMaxRows()
+    {
+        SkipIfSqlServerUnavailable();
+        IAuditRepository repo = CreateRepository();
+        Guid isolatedProjectId = Guid.NewGuid();
+        DateTime t0 = DateTime.UtcNow.AddHours(-8);
+
+        for (int i = 0; i < 80; i++)
+        {
+            await repo.AppendAsync(
+                NewEvent(eventType: "ExportMany", occurredUtc: t0.AddSeconds(i), projectId: isolatedProjectId),
+                CancellationToken.None);
+        }
+
+        DateTime from = t0.AddSeconds(-1);
+        DateTime to = t0.AddSeconds(200);
+        IReadOnlyList<AuditEvent> list =
+            await repo.GetExportAsync(
+                TenantId,
+                WorkspaceId,
+                isolatedProjectId,
+                from,
+                to,
+                maxRows: 25,
+                CancellationToken.None);
+
+        list.Should().HaveCount(25);
+    }
 }

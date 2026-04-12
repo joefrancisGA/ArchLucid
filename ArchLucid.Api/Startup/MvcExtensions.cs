@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Api.Formatters;
 using ArchLucid.Api.OpenApi;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Validators;
@@ -21,6 +22,7 @@ internal static class MvcExtensions
         services.AddControllers(options =>
             {
                 options.Filters.Add<ApiProblemDetailsExceptionFilter>();
+                options.OutputFormatters.Add(new AuditEventCsvFormatter());
             })
             .AddJsonOptions(options =>
             {

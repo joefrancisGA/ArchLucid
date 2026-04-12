@@ -25,6 +25,17 @@ public sealed class AuditControllerSearchApiFactory : ArchLucidApiFactory
                 It.IsAny<AuditEventFilter>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+
+        AuditRepositoryMock
+            .Setup(r => r.GetExportAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

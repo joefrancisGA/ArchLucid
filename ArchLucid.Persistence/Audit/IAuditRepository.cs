@@ -41,4 +41,20 @@ public interface IAuditRepository
         Guid projectId,
         AuditEventFilter filter,
         CancellationToken ct);
+
+    /// <summary>
+    /// Bulk export for compliance reporting: events in <paramref name="tenantId"/> /
+    /// <paramref name="workspaceId"/> / <paramref name="projectId"/> with
+    /// <c>OccurredUtc</c> in the half-open range <c>[fromUtc, toUtc)</c> (i.e.
+    /// <c>&gt;= fromUtc</c> and <c>&lt; toUtc</c>), ordered oldest-first.
+    /// </summary>
+    /// <param name="maxRows">Maximum rows to return; implementations clamp to 1–10,000.</param>
+    Task<IReadOnlyList<AuditEvent>> GetExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        int maxRows,
+        CancellationToken ct);
 }

@@ -116,4 +116,36 @@ public sealed class InMemoryAuditRepository : IAuditRepository
 
         return Task.FromResult<IReadOnlyList<AuditEvent>>(snapshot);
     }
+
+    public Task<IReadOnlyList<AuditEvent>> GetExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        int maxRows,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        int take = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
+        List<AuditEvent> result;
+
+
+        lock (_gate)
+        {
+            result = _events
+                .Where(
+                    x =>
+                        x.TenantId == tenantId
+                        && x.WorkspaceId == workspaceId
+                        && x.ProjectId == projectId
+                        && x.OccurredUtc >= fromUtc
+                        && x.OccurredUtc < toUtc)
+                .OrderBy(x => x.OccurredUtc)
+                .Take(take)
+                .ToList();
+        }
+
+        return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
+    }
 }

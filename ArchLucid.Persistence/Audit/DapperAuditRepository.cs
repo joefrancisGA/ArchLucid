@@ -160,4 +160,49 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         return rows.ToList();
     }
+
+    public async Task<IReadOnlyList<AuditEvent>> GetExportAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        int maxRows,
+        CancellationToken ct)
+    {
+        int take = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
+
+        const string sql = """
+            SELECT TOP (@MaxRows)
+                EventId, OccurredUtc, EventType,
+                ActorUserId, ActorUserName,
+                TenantId, WorkspaceId, ProjectId,
+                RunId, ManifestId, ArtifactId,
+                DataJson, CorrelationId
+            FROM dbo.AuditEvents
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND OccurredUtc >= @FromUtc
+              AND OccurredUtc < @ToUtc
+            ORDER BY OccurredUtc ASC;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    FromUtc = fromUtc,
+                    ToUtc = toUtc,
+                    MaxRows = take,
+                },
+                cancellationToken: ct));
+
+        return rows.ToList();
+    }
 }
