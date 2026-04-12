@@ -48,7 +48,7 @@ def test_main_all_passes(tmp_path: Path) -> None:
             ("ArchLucid.Host.Core", "0.85", "0.70", 1),
         ],
     )
-    assert merged._main([str(p), "--min-line-pct", "70", "--min-branch-pct", "50", "--min-package-line-pct", "50"]) == 0
+    assert merged._main([str(p), "--min-line-pct", "70", "--min-branch-pct", "50", "--min-package-line-pct", "60"]) == 0
 
 
 def test_main_line_below_min(tmp_path: Path) -> None:
@@ -76,18 +76,18 @@ def test_main_package_below_min(tmp_path: Path) -> None:
         tmp_path / "low-pkg.xml",
         line_rate="0.90",
         branch_rate="0.60",
-        packages=[("ArchLucid.Core", "0.49", "0.50", 2)],
+        packages=[("ArchLucid.Core", "0.59", "0.50", 2)],
     )
-    assert merged._main([str(p), "--min-package-line-pct", "50"]) == 1
+    assert merged._main([str(p), "--min-package-line-pct", "60"]) == 1
 
 
 def test_main_package_at_new_floor(tmp_path: Path) -> None:
-    """Exactly at 50% package line with default --min-package-line-pct (50) must pass."""
+    """Exactly at 60% package line with default --min-package-line-pct (60) must pass."""
     p = _write_cobertura(
         tmp_path / "floor-pkg.xml",
         line_rate="0.90",
         branch_rate="0.60",
-        packages=[("ArchLucid.Core", "0.50", "0.50", 2)],
+        packages=[("ArchLucid.Core", "0.60", "0.50", 2)],
     )
     assert merged._main([str(p)]) == 0
 

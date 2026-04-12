@@ -21,7 +21,7 @@ from coverage_cobertura import (
 # Informational: merged overall line below 70% — warn in the PR comment (merged line gate is still enforced by CI).
 OVERALL_LINE_WARN_PCT = 70.0
 # Same floor as `assert_merged_line_coverage_min.py --min-package-line-pct` (per-product-package merge gate).
-PER_PROJECT_LINE_WARN_PCT = 50.0
+PER_PROJECT_LINE_WARN_PCT = 60.0
 
 
 def parse_metrics(path: Path) -> tuple[float | None, float | None]:
