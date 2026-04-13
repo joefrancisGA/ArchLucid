@@ -17,12 +17,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getGovernanceDashboard } from "@/lib/api";
+import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
+import { getComplianceDriftTrend, getGovernanceDashboard } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { cn } from "@/lib/utils";
-import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
+import type {
+  ComplianceDriftTrendPoint,
+  GovernanceDashboardSummary,
+} from "@/types/governance-dashboard";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
 function statusBadgeClass(status: string): string {
@@ -77,6 +81,7 @@ function navigateToWorkflowReview(router: ReturnType<typeof useRouter>, runId: s
 export default function GovernanceDashboardPage() {
   const router = useRouter();
   const [summary, setSummary] = useState<GovernanceDashboardSummary | null>(null);
+  const [trendPoints, setTrendPoints] = useState<ComplianceDriftTrendPoint[]>([]);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [initialLoad, setInitialLoad] = useState(true);
 
@@ -88,6 +93,16 @@ export default function GovernanceDashboardPage() {
     try {
       const next = await getGovernanceDashboard();
       setSummary(next);
+
+      try {
+        const to = new Date();
+        const from = new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const trend = await getComplianceDriftTrend(from.toISOString(), to.toISOString(), 1440);
+        setTrendPoints(trend);
+      } catch {
+        setTrendPoints([]);
+      }
+
       setFailure(null);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
@@ -247,6 +262,18 @@ export default function GovernanceDashboardPage() {
                 ))}
               </div>
             )}
+          </section>
+
+          <Separator className="mb-10" />
+
+          <section className="mb-10" aria-labelledby="gov-dash-drift-heading">
+            <h3 id="gov-dash-drift-heading" className="mb-4 text-lg font-semibold">
+              Compliance drift trend (last 30 days)
+            </h3>
+            <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
+              Daily counts of policy pack mutations from the change log (same source as the list below).
+            </p>
+            <ComplianceDriftChart points={trendPoints} />
           </section>
 
           <Separator className="mb-10" />

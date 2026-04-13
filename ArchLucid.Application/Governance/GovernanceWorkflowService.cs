@@ -56,6 +56,13 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(targetEnvironment);
         ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
 
+        if (!GovernanceEnvironmentOrder.IsValidPromotion(sourceEnvironment, targetEnvironment))
+        {
+            throw new InvalidOperationException(
+                $"Governance approval requests must follow environment ordering (dev → test → prod). " +
+                $"'{sourceEnvironment}' → '{targetEnvironment}' is not a valid step.");
+        }
+
         ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
                                           ?? throw new RunNotFoundException(runId);
         ArchitectureRun run = runDetail.Run;
@@ -273,6 +280,13 @@ public sealed class GovernanceWorkflowService(
 
         _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
+
+        if (!GovernanceEnvironmentOrder.IsValidPromotion(sourceEnvironment, targetEnvironment))
+        {
+            throw new InvalidOperationException(
+                $"Promotion must follow environment ordering (dev → test → prod). " +
+                $"'{sourceEnvironment}' → '{targetEnvironment}' is not a valid promotion step.");
+        }
 
         GovernanceApprovalRequest? prodApprovalToMarkPromoted = null;
 

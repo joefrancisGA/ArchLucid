@@ -2,9 +2,11 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getGovernanceDashboardMock = vi.fn();
+const getComplianceDriftTrendMock = vi.fn();
 
 vi.mock("@/lib/api", () => ({
   getGovernanceDashboard: (...args: unknown[]) => getGovernanceDashboardMock(...args),
+  getComplianceDriftTrend: (...args: unknown[]) => getComplianceDriftTrendMock(...args),
 }));
 
 const pushMock = vi.fn();
@@ -18,6 +20,7 @@ import GovernanceDashboardPage from "./page";
 describe("GovernanceDashboardPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getComplianceDriftTrendMock.mockResolvedValue([]);
   });
 
   it("renders pending count badge when > 0", async () => {

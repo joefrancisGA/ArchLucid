@@ -73,6 +73,8 @@ Request and domain logic flow **inward** through contracts, then **out** through
 
 **Environment path (clone → local → prod-like → Azure):** after the day-one ticket, follow [GOLDEN_PATH.md](GOLDEN_PATH.md).
 
+**When LLM or agent backends are down:** [DEGRADED_MODE.md](DEGRADED_MODE.md) — what still works and what fails closed.
+
 **One request’s journey (HTTP → SQL → agents):** [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md).
 
 **Build / test commands only:** [CONTRIBUTOR_ONBOARDING.md](CONTRIBUTOR_ONBOARDING.md).
@@ -104,3 +106,25 @@ Request and domain logic flow **inward** through contracts, then **out** through
 | **API + Worker in containers** | `docker compose --profile full-stack up -d --build` — [CONTAINERIZATION.md](CONTAINERIZATION.md) |
 
 **Full doc index:** [ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md).
+
+---
+
+## Recommended reading order
+
+After the role-specific day-one checklist above:
+
+1. [GLOSSARY.md](GLOSSARY.md) — terminology and abbreviations used across all docs  
+2. [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md) — trace one HTTP request end-to-end  
+3. [CONTRIBUTOR_ONBOARDING.md](CONTRIBUTOR_ONBOARDING.md) — build, test, lint commands  
+4. [GOLDEN_PATH.md](GOLDEN_PATH.md) — from local dev to production  
+5. [ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md) — full doc catalog (for reference, not linear reading)  
+
+## Documentation tiers
+
+| Tier | Audience | Examples |
+|------|----------|----------|
+| **Start** | Everyone | This file, GLOSSARY, CONTRIBUTOR_ONBOARDING |
+| **Operate** | SRE, operators | GOLDEN_PATH, DEPLOYMENT, OPERATIONS_ADMIN, runbooks |
+| **Architecture** | Developers, architects | ADRs, ARCHITECTURE_*, DATA_MODEL, API_CONTRACTS |
+| **Reference** | Lookup | DI_REGISTRATION_MAP, CODE_MAP, SYSTEM_MAP |
+| **Archive** | Historical | `docs/archive/` — change-set summaries, superseded docs |

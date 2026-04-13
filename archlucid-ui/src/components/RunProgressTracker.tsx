@@ -53,7 +53,8 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
 
     let cancelled = false;
     const started = Date.now();
-    let intervalId: ReturnType<typeof window.setInterval> | undefined;
+    // Browser timers return `number`; Node's `@types/node` overloads can make `ReturnType<typeof setInterval>` `NodeJS.Timeout`.
+    let intervalId: number | undefined;
 
     const stopInterval = () => {
       if (intervalId !== undefined) {

@@ -141,4 +141,40 @@ public sealed class DapperPolicyPackChangeLogRepository(
 
         return rows.ToList();
     }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByTenantInRangeAsync(
+        Guid tenantId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken cancellationToken = default)
+    {
+        if (fromUtc >= toUtc)
+        {
+            throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
+        }
+
+        const string sql = """
+            SELECT
+                ChangeLogId, PolicyPackId, TenantId, WorkspaceId, ProjectId,
+                ChangeType, ChangedBy, ChangedUtc,
+                PreviousValue, NewValue, SummaryText
+            FROM dbo.PolicyPackChangeLog
+            WHERE TenantId = @TenantId
+              AND ChangedUtc >= @FromUtc
+              AND ChangedUtc < @ToUtc
+            ORDER BY ChangedUtc ASC;
+            """;
+
+        await using SqlConnection connection =
+            await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<PolicyPackChangeLogEntry> rows = await connection.QueryAsync<PolicyPackChangeLogEntry>(
+            new CommandDefinition(
+                sql,
+                new { TenantId = tenantId, FromUtc = fromUtc, ToUtc = toUtc },
+                cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
 }

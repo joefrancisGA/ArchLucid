@@ -207,6 +207,23 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequest_InvalidEnvironmentStep_ThrowsInvalidOperationException()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
+
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.SubmitApprovalRequestAsync(
+            "run-1", "v1", "dev", GovernanceEnvironment.Prod, "alice", null);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*environment ordering*");
+
+        _approvalRepo.Verify(
+            r => r.CreateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task SubmitApprovalRequest_when_transactional_outbox_enqueues_without_direct_publish()
     {
         _integrationEventOptions.Setup(m => m.CurrentValue)
@@ -779,6 +796,24 @@ public sealed class GovernanceWorkflowServiceTests
                 It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceManifestPromoted),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task Promote_SkipsEnvironmentOrdering_ThrowsInvalidOperationException()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
+
+        Func<Task<GovernancePromotionRecord>> act = () => _sut.PromoteAsync(
+            "run-1", "v1", "dev", GovernanceEnvironment.Prod,
+            "alice", null, null);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*environment ordering*");
+
+        _promotionRepo.Verify(
+            r => r.CreateAsync(It.IsAny<GovernancePromotionRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ── Activate ─────────────────────────────────────────────────────────────

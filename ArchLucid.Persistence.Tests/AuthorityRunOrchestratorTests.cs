@@ -161,6 +161,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEvents.Object,
             integrationOutbox.Object,
             integrationEventOpts.Object,
+            CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -355,6 +356,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEvents.Object,
             integrationOutbox.Object,
             integrationEventOpts.Object,
+            CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -463,6 +465,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEvents.Object,
             integrationOutbox.Object,
             integrationEventOpts.Object,
+            CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -643,6 +646,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEvents.Object,
             integrationOutbox.Object,
             integrationEventOpts.Object,
+            CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -741,6 +745,7 @@ public sealed class AuthorityRunOrchestratorTests
             integrationEvents.Object,
             integrationOutbox.Object,
             integrationEventOpts.Object,
+            CreatePipelineOptionsMonitor().Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -783,12 +788,101 @@ public sealed class AuthorityRunOrchestratorTests
             .Returns(Task.CompletedTask);
     }
 
+    [Fact]
+    public async Task ExecuteAsync_when_pipeline_exceeds_timeout_rolls_back_and_emits_counter()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1"),
+            WorkspaceId = Guid.Parse("a2a2a2a2-a2a2-a2a2-a2a2-a2a2a2a2a2a2"),
+            ProjectId = Guid.Parse("a3a3a3a3-a3a3-a3a3-a3a3-a3a3a3a3a3a3"),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(x => x.GetCurrentScope()).Returns(scope);
+
+        Mock<IArchLucidUnitOfWork> uow = new();
+        uow.SetupGet(x => x.SupportsExternalTransaction).Returns(false);
+        uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
+
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = new();
+        uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
+        pipeline
+            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()))
+            .Returns<AuthorityPipelineContext, CancellationToken>((_, ct) => Task.Delay(Timeout.Infinite, ct));
+
+        Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
+        Mock<IAuthorityPipelineWorkRepository> workRepo = new();
+        Mock<IAsyncAuthorityPipelineModeResolver> modeResolver = new();
+        modeResolver
+            .Setup(x => x.ShouldQueueContextAndGraphStagesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventPublisher> integrationEvents = new();
+        Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
+        StubIntegrationOutbox(integrationOutbox);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(false);
+
+        Mock<IOptionsMonitor<AuthorityPipelineOptions>> pipelineOpts = new();
+        pipelineOpts.Setup(m => m.CurrentValue)
+            .Returns(new AuthorityPipelineOptions { PipelineTimeout = TimeSpan.FromMilliseconds(200) });
+
+        AuthorityRunOrchestrator sut = new(
+            uowFactory.Object,
+            scopeProvider.Object,
+            audit.Object,
+            runRepo.Object,
+            pipeline.Object,
+            retrievalOutbox.Object,
+            workRepo.Object,
+            modeResolver.Object,
+            integrationEvents.Object,
+            integrationOutbox.Object,
+            integrationEventOpts.Object,
+            pipelineOpts.Object,
+            NullLogger<AuthorityRunOrchestrator>.Instance);
+
+        ContextIngestionRequest request = new()
+        {
+            ProjectId = "proj-timeout",
+            Description = "d",
+        };
+
+        Func<Task> act = () => sut.ExecuteAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        uow.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+        uow.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private static Mock<IOptionsMonitor<IntegrationEventsOptions>> CreateIntegrationEventsOptionsMonitor(
         bool transactionalOutboxEnabled)
     {
         Mock<IOptionsMonitor<IntegrationEventsOptions>> mock = new();
         mock.Setup(m => m.CurrentValue)
             .Returns(new IntegrationEventsOptions { TransactionalOutboxEnabled = transactionalOutboxEnabled });
+
+        return mock;
+    }
+
+    private static Mock<IOptionsMonitor<AuthorityPipelineOptions>> CreatePipelineOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<AuthorityPipelineOptions>> mock = new();
+        mock.Setup(m => m.CurrentValue)
+            .Returns(new AuthorityPipelineOptions { PipelineTimeout = TimeSpan.FromHours(1) });
 
         return mock;
     }

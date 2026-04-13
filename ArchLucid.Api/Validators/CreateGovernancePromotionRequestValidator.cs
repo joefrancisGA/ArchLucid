@@ -35,6 +35,11 @@ public sealed class CreateGovernancePromotionRequestValidator : AbstractValidato
             .WithMessage("SourceEnvironment and TargetEnvironment must be different.")
             .When(x => !string.IsNullOrEmpty(x.SourceEnvironment) && !string.IsNullOrEmpty(x.TargetEnvironment));
 
+        RuleFor(x => x)
+            .Must(x => GovernanceEnvironmentOrder.IsValidPromotion(x.SourceEnvironment, x.TargetEnvironment))
+            .WithMessage("Promotion must follow environment ordering: dev → test → prod.")
+            .When(x => !string.IsNullOrEmpty(x.SourceEnvironment) && !string.IsNullOrEmpty(x.TargetEnvironment));
+
         RuleFor(x => x.PromotedBy)
             .NotEmpty().WithMessage("PromotedBy is required.")
             .MaximumLength(200).WithMessage("PromotedBy must not exceed 200 characters.");

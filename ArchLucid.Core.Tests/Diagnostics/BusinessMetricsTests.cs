@@ -72,6 +72,19 @@ public sealed class BusinessMetricsTests
             m.Name == "archlucid_explanation_cache_misses_total" && m.Value == 1);
     }
 
+    [Fact]
+    public void PipelineTimeoutsTotal_increment_emits_measurement()
+    {
+        _ = ArchLucidInstrumentation.PipelineTimeoutsTotal;
+
+        using BusinessMeasurementCapture capture = BusinessMeasurementCapture.Start();
+
+        ArchLucidInstrumentation.PipelineTimeoutsTotal.Add(1);
+
+        capture.LongMeasures.Should().Contain(m =>
+            m.Name == "archlucid_authority_pipeline_timeouts_total" && m.Value == 1 && m.Tags.Count == 0);
+    }
+
     private sealed class BusinessMeasurementCapture : IDisposable
     {
         private static readonly string[] LongInstrumentNames =
@@ -80,6 +93,7 @@ public sealed class BusinessMetricsTests
             "archlucid_findings_produced_total",
             "archlucid_explanation_cache_hits_total",
             "archlucid_explanation_cache_misses_total",
+            "archlucid_authority_pipeline_timeouts_total",
         ];
 
         private readonly MeterListener _listener = new();

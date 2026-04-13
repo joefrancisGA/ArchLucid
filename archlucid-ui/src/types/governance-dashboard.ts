@@ -20,3 +20,10 @@ export interface GovernanceDashboardSummary {
   recentChanges: PolicyPackChangeLogEntry[];
   pendingCount: number;
 }
+
+/** One time bucket from GET /v1/governance/compliance-drift-trend. */
+export interface ComplianceDriftTrendPoint {
+  bucketUtc: string;
+  changeCount: number;
+  changesByType: Record<string, number>;
+}

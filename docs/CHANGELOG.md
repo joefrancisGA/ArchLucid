@@ -8,6 +8,22 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-13 — Governance drift trend, promotion ordering, pipeline timeout, RunId, docs, Schemathesis PR
+
+**Added:** **`GET /v1/governance/compliance-drift-trend`** and **`ComplianceDriftTrendService`** (time-bucketed policy pack change log aggregates). Operator UI **`ComplianceDriftChart`** on the governance dashboard (last 30 days, daily buckets).
+
+**Changed:** Governance **promotions** and **approval requests** must follow **dev → test → prod** single steps (**`GovernanceEnvironmentOrder`**).
+
+**Added:** **`AuthorityPipelineOptions`** (`AuthorityPipeline:PipelineTimeout`, default 5 minutes; **`TimeSpan.Zero`** disables). Authority orchestrator uses a linked cancellation source; timeouts roll back, log, and increment **`archlucid_authority_pipeline_timeouts_total`**.
+
+**Added:** Strongly typed **`RunId`** (**`ArchLucid.Core.Identity`**) with **`System.Text.Json`** converter (incremental adoption; **`Guid`** remains the primary wire/storage shape until migrated).
+
+**Docs:** **`DEGRADED_MODE.md`**; **`START_HERE.md`** reading order + documentation tiers + degraded-mode link; **`DATA_CONSISTENCY_MATRIX.md`** read-replica lag section; **`docs/archive/README.md`** and **`ARCHITECTURE_INDEX.md`** archive pointers; **`API_FUZZ_TESTING.md`** PR vs scheduled Schemathesis; **`UI_COMPONENTS.md`** **`ComplianceDriftChart`**.
+
+**CI:** **`api-schemathesis-light`** job in **`ci.yml`** (Schemathesis **examples** phase only).
+
+---
+
 ## 2026-04-12 — LogSanitizer (CWE-117)
 
 **Added:** **`LogSanitizer`** utility for CWE-117 log injection prevention. Applied to string-typed HTTP input in the global exception handler, **`RunsController`** (**`CreateRun`** **`RequestId`**), and **`GovernanceController`** (**`Promote`** **`RunId`**).

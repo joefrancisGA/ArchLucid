@@ -137,6 +137,11 @@
 
 ---
 
+### Archive (`docs/archive/`)
+
+- **Historical change-set logs and superseded notes** — not maintained for current-code accuracy; see folder README  
+  - `docs/archive/README.md`
+
 ### Typical questions and where to read
 
 - **“How does a run become a manifest?”**  

@@ -37,6 +37,7 @@ public sealed class AuthorityRunOrchestrator(
     IIntegrationEventPublisher integrationEventPublisher,
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
     /// <inheritdoc />
@@ -51,6 +52,16 @@ public sealed class AuthorityRunOrchestrator(
 
         try
         {
+            TimeSpan pipelineTimeout = authorityPipelineOptions.CurrentValue.PipelineTimeout;
+            using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            if (pipelineTimeout > TimeSpan.Zero)
+            {
+                linkedCts.CancelAfter(pipelineTimeout);
+            }
+
+            CancellationToken pipelineCt = linkedCts.Token;
+
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
             RunRecord run = new()
             {
@@ -74,7 +85,7 @@ public sealed class AuthorityRunOrchestrator(
 
             run.OtelTraceId = Activity.Current?.TraceId.ToString();
 
-            await SaveRunAsync(run, uow, cancellationToken);
+            await SaveRunAsync(run, uow, pipelineCt);
 
             ArchLucidInstrumentation.RunsCreatedTotal.Add(1);
 
@@ -103,11 +114,11 @@ public sealed class AuthorityRunOrchestrator(
                         },
                         AuditJsonSerializationOptions.Instance),
                 },
-                cancellationToken);
+                pipelineCt);
 
             request.RunId = run.RunId;
 
-            bool queue = await asyncAuthorityPipelineModeResolver.ShouldQueueContextAndGraphStagesAsync(cancellationToken)
+            bool queue = await asyncAuthorityPipelineModeResolver.ShouldQueueContextAndGraphStagesAsync(pipelineCt)
                          && !string.IsNullOrWhiteSpace(evidenceBundleIdForDeferredWork);
 
             if (queue)
@@ -126,9 +137,9 @@ public sealed class AuthorityRunOrchestrator(
                     scope.WorkspaceId,
                     scope.ProjectId,
                     AuthorityPipelineWorkPayloadJson.Serialize(payload),
-                    cancellationToken);
+                    pipelineCt);
 
-                await uow.CommitAsync(cancellationToken);
+                await uow.CommitAsync(pipelineCt);
 
                 await auditService.LogAsync(
                     new AuditEvent
@@ -143,7 +154,7 @@ public sealed class AuthorityRunOrchestrator(
                             },
                             AuditJsonSerializationOptions.Instance),
                     },
-                    cancellationToken);
+                    pipelineCt);
 
                 if (logger.IsEnabled(LogLevel.Information))
                 {
@@ -165,7 +176,7 @@ public sealed class AuthorityRunOrchestrator(
                 RunActivity = runActivity,
             };
 
-            await pipelineStagesExecutor.ExecuteAfterRunPersistedAsync(ctx, cancellationToken);
+            await pipelineStagesExecutor.ExecuteAfterRunPersistedAsync(ctx, pipelineCt);
 
             return await FinalizeCommittedPipelineAsync(
                 run,
@@ -175,7 +186,20 @@ public sealed class AuthorityRunOrchestrator(
                 ctx.Trace!,
                 scope,
                 uow,
-                cancellationToken);
+                pipelineCt);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            await uow.RollbackAsync(cancellationToken);
+
+            logger.LogError(
+                "Authority pipeline timed out after {PipelineTimeout}. RunId={RunId}",
+                authorityPipelineOptions.CurrentValue.PipelineTimeout,
+                pipelineRunIdForDiagnostics);
+
+            ArchLucidInstrumentation.PipelineTimeoutsTotal.Add(1);
+
+            throw;
         }
         catch (Exception ex)
         {
@@ -218,6 +242,16 @@ public sealed class AuthorityRunOrchestrator(
                 return existing;
             }
 
+            TimeSpan pipelineTimeout = authorityPipelineOptions.CurrentValue.PipelineTimeout;
+            using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            if (pipelineTimeout > TimeSpan.Zero)
+            {
+                linkedCts.CancelAfter(pipelineTimeout);
+            }
+
+            CancellationToken pipelineCt = linkedCts.Token;
+
             RunRecord run = existing;
 
             using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity();
@@ -253,9 +287,9 @@ public sealed class AuthorityRunOrchestrator(
                         },
                         AuditJsonSerializationOptions.Instance),
                 },
-                cancellationToken);
+                pipelineCt);
 
-            await pipelineStagesExecutor.ExecuteAfterRunPersistedAsync(ctx, cancellationToken);
+            await pipelineStagesExecutor.ExecuteAfterRunPersistedAsync(ctx, pipelineCt);
 
             return await FinalizeCommittedPipelineAsync(
                 run,
@@ -265,7 +299,20 @@ public sealed class AuthorityRunOrchestrator(
                 ctx.Trace!,
                 scope,
                 uow,
-                cancellationToken);
+                pipelineCt);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            await uow.RollbackAsync(cancellationToken);
+
+            logger.LogError(
+                "Queued authority pipeline timed out after {PipelineTimeout}. RunId={RunId}",
+                authorityPipelineOptions.CurrentValue.PipelineTimeout,
+                pipelineRunIdForDiagnostics);
+
+            ArchLucidInstrumentation.PipelineTimeoutsTotal.Add(1);
+
+            throw;
         }
         catch (Exception ex)
         {

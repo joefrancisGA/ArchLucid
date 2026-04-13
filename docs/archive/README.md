@@ -1,8 +1,12 @@
 # docs/archive — historical design-session logs
 
-These files are **immutable historical records**. They capture incremental prompt logs, deferred-backlog decisions, and exact delivery scope for each change set as it was produced.
+This folder contains **historical implementation records** and superseded notes. Files here are **not maintained** for accuracy against the current codebase (class names, tables, and flows may be outdated). They are kept for archaeological reference.
 
-Do **not** edit them. If a decision changes, write a new ADR or add a new CHANGELOG entry.
+**Current documentation** starts at **[START_HERE.md](../START_HERE.md)**.
+
+These change-set files are **immutable historical records** where noted. They capture incremental prompt logs, deferred-backlog decisions, and exact delivery scope for each change set as it was produced.
+
+Do **not** edit archived change-set bodies. If a decision changes, write a new ADR or add a new CHANGELOG entry.
 
 | File | What it covers |
 |------|---------------|

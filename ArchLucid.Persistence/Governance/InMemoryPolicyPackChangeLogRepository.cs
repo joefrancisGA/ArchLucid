@@ -105,4 +105,28 @@ public sealed class InMemoryPolicyPackChangeLogRepository : IPolicyPackChangeLog
             return Task.FromResult<IReadOnlyList<PolicyPackChangeLogEntry>>(result);
         }
     }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByTenantInRangeAsync(
+        Guid tenantId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken cancellationToken = default)
+    {
+        if (fromUtc >= toUtc)
+        {
+            throw new ArgumentOutOfRangeException(nameof(toUtc), "toUtc must be greater than fromUtc.");
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            List<PolicyPackChangeLogEntry> result = _items
+                .Where(e => e.TenantId == tenantId && e.ChangedUtc >= fromUtc && e.ChangedUtc < toUtc)
+                .OrderBy(e => e.ChangedUtc)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<PolicyPackChangeLogEntry>>(result);
+        }
+    }
 }

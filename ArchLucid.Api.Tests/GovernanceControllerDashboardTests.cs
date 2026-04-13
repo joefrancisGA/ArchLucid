@@ -55,6 +55,7 @@ public sealed class GovernanceControllerDashboardTests
             Mock.Of<IActorContext>(),
             scope.Object,
             dashboard.Object,
+            Mock.Of<IComplianceDriftTrendService>(),
             NullLogger<GovernanceController>.Instance);
 
         IActionResult result = await sut.GetDashboard(20, 20, 20, CancellationToken.None);

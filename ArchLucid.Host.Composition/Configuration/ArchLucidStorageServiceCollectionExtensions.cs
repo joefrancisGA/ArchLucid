@@ -72,6 +72,8 @@ public static class ArchLucidStorageServiceCollectionExtensions
         services.Configure<SqlOpenResilienceOptions>(configuration.GetSection(SqlOpenResilienceOptions.SectionName));
         services.PostConfigure<SqlOpenResilienceOptions>(static o => o.Normalize());
 
+        services.Configure<AuthorityPipelineOptions>(configuration.GetSection(AuthorityPipelineOptions.SectionName));
+
         services.AddOptions<ArchLucidOptions>()
             .Configure<IConfiguration>(
                 static (opts, cfg) =>

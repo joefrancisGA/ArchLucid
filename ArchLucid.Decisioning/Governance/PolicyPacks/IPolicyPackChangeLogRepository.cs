@@ -29,4 +29,13 @@ public interface IPolicyPackChangeLogRepository
         Guid tenantId,
         int maxRows = 100,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns change log rows for a tenant with <c>ChangedUtc</c> in <c>[fromUtc, toUtc)</c>, ascending by time.
+    /// </summary>
+    Task<IReadOnlyList<PolicyPackChangeLogEntry>> GetByTenantInRangeAsync(
+        Guid tenantId,
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken cancellationToken = default);
 }

@@ -1,6 +1,6 @@
 # Data consistency matrix
 
-**Last reviewed:** 2026-04-12 (migration **049** — **`dbo.ArchitectureRuns`** dropped; **`dbo.Runs`** is the sole persisted run header; dual-persistence health checks removed)
+**Last reviewed:** 2026-04-13 (read-replica lag expectations documented below)
 
 This document states **what consistency guarantees callers should assume** for major aggregates. It complements `docs/SQL_DDL_DISCIPLINE.md` and `docs/API_CONTRACTS.md`.
 
@@ -12,6 +12,7 @@ Make explicit which paths are **strongly consistent** (read-your-writes within a
 
 - Primary authority state lives in **`dbo.Runs`** and related authority tables scoped by tenant/workspace/project.
 - Coordinator-facing tables use string **`RunId`** (no-dash hex) as a **logical** correlation key aligned with **`dbo.Runs.RunId`**; referential integrity to **`dbo.Runs`** is application-enforced (migration **047** dropped legacy FKs to **`ArchitectureRuns`**; migration **049** dropped the legacy table).
+- A strongly typed **`RunId`** value object exists in **`ArchLucid.Core.Identity`** for gradual adoption at API and persistence boundaries; most code paths still use **`Guid`** today.
 
 ## Matrix
 
@@ -33,6 +34,32 @@ Dual persistence (**`ArchitectureRuns`** vs **`Runs`**) is **retired** in suppor
 
 - **ADR 0012** — **Completed** (2026-04-12): **`IArchitectureRunRepository`** and **`dbo.ArchitectureRuns`** removed; reads and writes use **`IRunRepository`** / **`dbo.Runs`** (see `docs/adr/0012-runs-authority-convergence-write-freeze.md`).
 - **ADR 0002** — **Superseded** by ADR 0012 completion; historical note retained in `docs/adr/0002-dual-persistence-architecture-runs-and-runs.md`.
+
+## Read-replica staleness expectations
+
+When read replica routing is enabled (via **`ReadReplicaRoutedConnectionFactory`** and **`SqlServerOptions`**), read-only queries may hit an Azure SQL **readable secondary**. Writes always go to the **primary**. That path is **eventually consistent**: a successful write on the primary may not appear on a replica-bound read for a short interval.
+
+| Scenario | Expected lag | Mitigation |
+|----------|-------------|------------|
+| Normal steady-state | Usually under **5 seconds** | Acceptable for list views, dashboards, and search-style reads |
+| Heavy write burst (bulk archival, large seed) | **10–30 seconds** or more | Operators should wait and refresh; **`IHotPathReadCache`** reduces perceived lag for single-row reads that go through cache-invalidating repository methods |
+| Geo-dr / failover group failover | **Minutes** (RPO/RPO per Azure SLA) | Follow database failover runbooks; app health checks reflect DB readiness |
+
+### Which queries may hit the replica?
+
+Services resolved through **`ReadReplicaRoutedConnectionFactory`** (per route enum, e.g. authority run list, governance resolution reads, golden manifest lookup) use the replica connection when configured. Examples include run list/search, some governance dashboard reads, and read-only manifest lookups.
+
+Single-row hot-path reads may still be satisfied from **`IHotPathReadCache`**, which is invalidated on documented write paths; TTL remains a back-stop if data changes outside those writers.
+
+### Queries that should stay on the primary
+
+- All **`INSERT` / `UPDATE`** paths inside **`IArchLucidUnitOfWork`**
+- Read-your-writes inside an open transaction (UoW connection)
+- Health probes that must reflect primary connectivity
+
+### Operator guidance
+
+If a list view looks stale immediately after a write, wait briefly and refresh. For suspected replica issues during bulk operations, temporarily disable replica routing (**`ReadReplica:Enabled=false`**) only with operational awareness of added primary load.
 
 ## Related
 

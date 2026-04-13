@@ -782,3 +782,51 @@ jobs:
             -v "$GITHUB_WORKSPACE/infra/zap:/zap/wrk/config:ro" \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t http://archlucid-zap-api:8080 -c config/baseline-pr.tsv
+
+  # Lightweight per-PR API fuzz: Schemathesis examples-only phase (~1–2 min) to catch response
+  # schema violations before merge. Full fuzz (fuzzing + stateful) runs weekly in schemathesis-scheduled.yml.
+  api-schemathesis-light:
+    name: "Security: Schemathesis light fuzz (PR)"
+    needs: dotnet-full-regression
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build API image
+        run: docker build -f ArchLucid.Api/Dockerfile -t archlucid-api:fuzz-light .
+
+      - name: Run API and lightweight Schemathesis
+        env:
+          FUZZNET: fuzz-light-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          cleanup() {
+            docker rm -f archlucid-fuzz-api 2>/dev/null || true
+            docker network rm "$FUZZNET" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          docker network create "$FUZZNET"
+          docker run -d --name archlucid-fuzz-api --network "$FUZZNET" -p 8080:8080 \
+            -e ASPNETCORE_URLS=http://+:8080 \
+            -e ASPNETCORE_ENVIRONMENT=Development \
+            archlucid-api:fuzz-light
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/health/live; then
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "API did not become healthy in time"
+              exit 1
+            fi
+            sleep 2
+          done
+          docker run --rm --network "$FUZZNET" \
+            schemathesis/schemathesis:stable \
+            run http://archlucid-fuzz-api:8080/openapi/v1.json \
+            --url http://archlucid-fuzz-api:8080 \
+            --checks=all \
+            --phases=examples \
+            --request-timeout 5 \
+            --max-response-time 10

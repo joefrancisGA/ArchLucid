@@ -54,6 +54,8 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 
 **Gate:** `ArchLucid:StorageProvider` (Phase 7: **`ArchLucid:StorageProvider`**)
 
+**Config (both modes):** **`AuthorityPipeline`** section → **`AuthorityPipelineOptions`** (`PipelineTimeout`; **`00:00:00`** disables timeout).
+
 ### `InMemory`
 
 - Singleton in-memory persistence for authority stores (context/graph/findings/manifest/trace/artifact/run, audit, provenance, advisory, alerts, policy packs, conversations, product learning, evolution, pipeline work, retrieval outbox).
@@ -120,6 +122,8 @@ Related options: `AgentPromptCatalog`, `LlmTokenQuota`, `LlmTelemetry`, **`Fallb
 **Gate:** `ArchLucid:StorageProvider=InMemory` → singleton in-memory governance repos; else scoped Dapper repos.
 
 Always: `IGovernanceWorkflowService` scoped.
+
+Also: `IGovernanceDashboardService` → `GovernanceDashboardService` scoped; `IComplianceDriftTrendService` → `ComplianceDriftTrendService` scoped.
 
 ---
 

@@ -35,6 +35,11 @@ public sealed class CreateGovernanceApprovalRequestValidator : AbstractValidator
             .WithMessage("SourceEnvironment and TargetEnvironment must be different.")
             .When(x => !string.IsNullOrEmpty(x.SourceEnvironment) && !string.IsNullOrEmpty(x.TargetEnvironment));
 
+        RuleFor(x => x)
+            .Must(x => GovernanceEnvironmentOrder.IsValidPromotion(x.SourceEnvironment, x.TargetEnvironment))
+            .WithMessage("Approval requests must follow environment ordering: dev → test → prod.")
+            .When(x => !string.IsNullOrEmpty(x.SourceEnvironment) && !string.IsNullOrEmpty(x.TargetEnvironment));
+
         RuleFor(x => x.RequestComment)
             .MaximumLength(4000).WithMessage("RequestComment must not exceed 4000 characters.")
             .When(x => x.RequestComment is not null);

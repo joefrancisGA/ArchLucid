@@ -91,6 +91,30 @@ The run detail page (`archlucid-ui/src/app/runs/[runId]/page.tsx`) loads an init
 
 ---
 
+## `ComplianceDriftChart`
+
+**File:** `archlucid-ui/src/components/ComplianceDriftChart.tsx`
+
+### Props (`ComplianceDriftChartProps`)
+
+| Prop | Type | Notes |
+|------|------|--------|
+| **`points`** | `ComplianceDriftTrendPoint[]` | From **`getComplianceDriftTrend`** → **`GET /v1/governance/compliance-drift-trend`**. |
+
+### Behavior
+
+- **Empty `points`:** Renders a short message (“No compliance drift data for this period.”).
+- **Chart:** CSS bar column layout (no extra charting dependency). Bar height is proportional to **`changeCount`** vs. the max in the series; non-zero bars have a **2px** minimum height. Each bar’s **`title`** summarizes counts and top **`changesByType`** keys.
+- **Accessibility:** Root uses **`role="img"`** with an **`aria-label`** describing the trend.
+
+### Where it is used
+
+- **`archlucid-ui/src/app/governance/dashboard/page.tsx`** — “Compliance drift trend (last 30 days)” section (daily buckets).
+
+**Tests:** `archlucid-ui/src/components/ComplianceDriftChart.test.tsx`
+
+---
+
 ## Related documents
 
 - [ACCESSIBILITY.md](ACCESSIBILITY.md) — Alert dialog focus behavior and live region for progress.

@@ -36,6 +36,7 @@ public sealed class GovernanceController(
     IActorContext actorContext,
     IScopeContextProvider scopeContextProvider,
     IGovernanceDashboardService governanceDashboardService,
+    IComplianceDriftTrendService complianceDriftTrendService,
     ILogger<GovernanceController> logger)
     : ControllerBase
 {
@@ -44,6 +45,9 @@ public sealed class GovernanceController(
 
     private readonly IGovernanceDashboardService _governanceDashboardService =
         governanceDashboardService ?? throw new ArgumentNullException(nameof(governanceDashboardService));
+
+    private readonly IComplianceDriftTrendService _complianceDriftTrendService =
+        complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
     [HttpPost("approval-requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
@@ -248,6 +252,38 @@ public sealed class GovernanceController(
             cancellationToken);
 
         return Ok(summary);
+    }
+
+    [HttpGet("compliance-drift-trend")]
+    [ProducesResponseType(typeof(IReadOnlyList<ComplianceDriftTrendPoint>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetComplianceDriftTrend(
+        [FromQuery] DateTime fromUtc,
+        [FromQuery] DateTime toUtc,
+        [FromQuery] int bucketMinutes = 1440,
+        CancellationToken cancellationToken = default)
+    {
+        if (fromUtc >= toUtc)
+        {
+            return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.BadRequest);
+        }
+
+        if (bucketMinutes is < 60 or > 43_200)
+        {
+            return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
+        }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
+
+        IReadOnlyList<ComplianceDriftTrendPoint> points = await _complianceDriftTrendService.GetTrendAsync(
+            scope.TenantId,
+            fromUtc,
+            toUtc,
+            bucketSize,
+            cancellationToken);
+
+        return Ok(points);
     }
 
     [HttpGet("runs/{runId}/approval-requests")]

@@ -197,6 +197,12 @@ public static class ArchLucidInstrumentation
             "archlucid_runs_created_total",
             description: "Authority runs created (pre-pipeline, at RunRecord insertion).");
 
+    /// <summary>Authority pipeline runs that exceeded <c>AuthorityPipeline:PipelineTimeout</c>.</summary>
+    public static readonly Counter<long> PipelineTimeoutsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_authority_pipeline_timeouts_total",
+            description: "Authority pipeline executions cancelled by configured pipeline timeout.");
+
     /// <summary>Findings produced across completed runs (label: <c>severity</c>).</summary>
     public static readonly Counter<long> FindingsProducedTotal =
         AppMeter.CreateCounter<long>(

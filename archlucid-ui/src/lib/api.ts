@@ -52,7 +52,10 @@ import type {
   PolicyPackVersion,
 } from "@/types/policy-packs";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
-import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
+import type {
+  ComplianceDriftTrendPoint,
+  GovernanceDashboardSummary,
+} from "@/types/governance-dashboard";
 import type {
   GovernanceApprovalRequest,
   GovernanceEnvironmentActivation,
@@ -932,6 +935,23 @@ export async function getGovernanceDashboard(
   });
 
   return apiGet<GovernanceDashboardSummary>(`${governanceBase()}/dashboard?${query.toString()}`);
+}
+
+/** Policy pack change activity buckets for the governance dashboard trend chart. */
+export async function getComplianceDriftTrend(
+  fromUtc: string,
+  toUtc: string,
+  bucketMinutes = 1440,
+): Promise<ComplianceDriftTrendPoint[]> {
+  const query = new URLSearchParams({
+    fromUtc,
+    toUtc,
+    bucketMinutes: String(bucketMinutes),
+  });
+
+  return apiGet<ComplianceDriftTrendPoint[]>(
+    `${governanceBase()}/compliance-drift-trend?${query.toString()}`,
+  );
 }
 
 /** Lists approval requests for a run (governance workflow). */

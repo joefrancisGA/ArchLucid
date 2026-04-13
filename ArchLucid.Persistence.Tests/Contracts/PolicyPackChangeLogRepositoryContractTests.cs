@@ -121,4 +121,33 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         list[0].SummaryText.Should().Be("row-4");
         list[1].SummaryText.Should().Be("row-3");
     }
+
+    [SkippableFact]
+    public async Task GetByTenantInRangeAsync_ReturnsAscending_ExcludesEnds()
+    {
+        SkipIfSqlServerUnavailable();
+        IPolicyPackChangeLogRepository repo = CreateRepository();
+        Guid packId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        DateTime from = new(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 6, 2, 0, 0, 0, DateTimeKind.Utc);
+
+        await repo.AppendAsync(
+            CreateEntry(packId, TenantA, summary: "before", changedUtc: from.AddHours(-1)),
+            CancellationToken.None);
+        await repo.AppendAsync(
+            CreateEntry(packId, TenantA, summary: "in1", changedUtc: from.AddHours(1)),
+            CancellationToken.None);
+        await repo.AppendAsync(
+            CreateEntry(packId, TenantA, summary: "in2", changedUtc: from.AddHours(2)),
+            CancellationToken.None);
+        await repo.AppendAsync(
+            CreateEntry(packId, TenantA, summary: "after", changedUtc: to),
+            CancellationToken.None);
+
+        IReadOnlyList<PolicyPackChangeLogEntry> list =
+            await repo.GetByTenantInRangeAsync(TenantA, from, to, CancellationToken.None);
+
+        list.Should().HaveCount(2);
+        list.Select(e => e.SummaryText).Should().Equal("in1", "in2");
+    }
 }
