@@ -1,0 +1,9 @@
+# CodeQL model pack: teach cs/log-forging that LogSanitizer.Sanitize is a barrier (CWE-117).
+# See docs/CODEQL_TRIAGE.md and https://codeql.github.com/docs/codeql-language-guides/customizing-library-models-for-csharp/
+name: archlucid/csharp-log-sanitizer-models
+version: 0.0.1
+library: true
+extensionTargets:
+  codeql/csharp-all: "*"
+dataExtensions:
+  - models/*.yml

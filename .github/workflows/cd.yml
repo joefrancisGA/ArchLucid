@@ -54,7 +54,7 @@ concurrency:
   group: archlucid-cd-${{ github.event.inputs.target }}
   cancel-in-progress: false
 
-# Align JavaScript actions with Node 24 (GitHub default June 2026); reduces node20 deprecation noise.
+# Align JavaScript actions with Node 24 (GitHub default June 2026). Docker uses setup-buildx@v4 / build-push@v7 (Node 24).
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -108,7 +108,7 @@ jobs:
 
       - name: Set up Docker Buildx
         if: steps.acr.outputs.configured == 'true'
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to ACR
         if: steps.acr.outputs.configured == 'true'
@@ -121,7 +121,7 @@ jobs:
 
       - name: Build and push API image (BuildKit + GHA cache)
         if: steps.acr.outputs.configured == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ArchLucid.Api/Dockerfile
@@ -136,7 +136,7 @@ jobs:
 
       - name: Build and push UI image (BuildKit + GHA cache)
         if: steps.acr.outputs.configured == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./archlucid-ui
           tags: |

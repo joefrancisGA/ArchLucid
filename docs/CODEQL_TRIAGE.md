@@ -16,6 +16,17 @@ Treat as a **real issue** when an **`ILogger`** call logs a **`string`-typed** p
 
 **Fix:** pass the value through **`LogSanitizer.Sanitize()`** from **`ArchLucid.Core.Diagnostics`** before logging. See **`docs/SECURITY.md`** (Log injection / CWE-117).
 
+### CodeQL model pack (`cs/log-forging` and `LogSanitizer`)
+
+Built-in **`cs/log-forging`** does not know your custom sanitizer unless you model it. This repo ships a **CodeQL model pack** that registers **`LogSanitizer.Sanitize`** as a **`log-injection`** barrier (aligned with **`LogForgingQuery`**’s **`barrierNode(..., "log-injection")`** in upstream CodeQL).
+
+- **Pack:** `.github/codeql/archlucid-csharp-log-sanitizer-models/` (`qlpack.yml` + `models/*.yml`)
+- **Workflow wiring:** `.github/codeql/codeql-config.yml` lists that pack under **`packs.csharp`**; **`.github/workflows/codeql.yml`** passes **`config-file`** only on the **csharp** job’s **`init`** step (the JavaScript job is unchanged).
+
+After this is merged, **`LogSanitizer.Sanitize(...)`** call sites should stop alerting as unsanitized user input. If an alert remains, check the sink is actually the sanitizer’s **return value** (not a raw parameter) and that the method signature still matches **`(System.String)`** in the model file.
+
+**Copilot Autofix** for CodeQL cannot infer custom sanitizers; use this model pack (or dismiss manually with rationale).
+
 ### False positives
 
 Treat as a **false positive** when the logged parameter is a **value type** bound from **`[FromRoute]`** (or otherwise not arbitrary attacker-controlled string content), e.g. **`Guid`**, **`int`**, **`DateTime`**. Their formatted output does not carry the same newline/control-character injection risk as arbitrary strings.
@@ -36,9 +47,9 @@ Treat as a **false positive** when the logged parameter is a **value type** boun
 
 Dismiss with: *False positive — value type cannot contain control characters* (or your org’s equivalent).
 
-**`string` route parameters (tooling may still flag):**
+**`string` route parameters:**
 
-Several endpoints bind identifiers as **`[FromRoute] string`** (not **`Guid`**) even when values are semantically UUIDs. CodeQL may therefore keep reporting **“log entries from user input”** for those parameters.
+Several endpoints bind identifiers as **`[FromRoute] string`** (not **`Guid`**) even when values are semantically UUIDs. Controllers should log those strings only as **`LogSanitizer.Sanitize(...)`**; the **model pack** above should clear **`cs/log-forging`** for those call sites.
 
 | Location | What is logged | Parameter type in code |
 | -------- | -------------- | ------------------------ |
@@ -46,13 +57,7 @@ Several endpoints bind identifiers as **`[FromRoute] string`** (not **`Guid`**) 
 | **`ArchLucid.Api/Controllers/AnalysisReportsController.cs`** | **`runId`** in analysis / export logs | **`[FromRoute] string runId`** |
 | **`ArchLucid.Api/Controllers/GovernanceController.cs`** | **`approvalRequestId`** in approve / reject logs | **`[FromRoute] string approvalRequestId`** |
 
-For these, either:
-
-- Apply **`LogSanitizer.Sanitize(...)`** (safest for static analysis and plaintext sinks), or  
-- Refactor to **`Guid`** + **`{param:guid}`** (code change; aligns types with the dismissal rationale), or  
-- **Dismiss in CodeQL** only with an **explicit org rationale** (e.g. identifier validated as a GUID before use and no control characters possible in practice).
-
-After dismissing, prefer **“false positive”** (or your org’s equivalent) where applicable so alerts do not churn unnecessarily.
+If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the extension pack is loaded (see workflow **`config-file`**) or refactor to **`Guid`** + **`{param:guid}`** and dismiss value-type cases per above.
 
 ---
 

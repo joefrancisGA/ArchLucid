@@ -72,7 +72,7 @@ jobs:
 
       - name: Set up Docker Buildx
         if: steps.acr.outputs.configured == 'true'
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to ACR
         if: steps.acr.outputs.configured == 'true'
@@ -85,7 +85,7 @@ jobs:
 
       - name: Build and push API image (BuildKit + GHA cache from CI smoke)
         if: steps.acr.outputs.configured == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ArchLucid.Api/Dockerfile
@@ -98,7 +98,7 @@ jobs:
 
       - name: Build and push UI image (BuildKit + GHA cache from CI smoke)
         if: steps.acr.outputs.configured == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./archlucid-ui
           tags: ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.IMAGE_TAG }}

@@ -35,6 +35,7 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: csharp
+          config-file: ./.github/codeql/codeql-config.yml
           # `none` is required for PR overlay-base incremental DBs; `manual` forces a full DB and logs a warning.
           # Trade-off: analysis is "good" vs "best" per GitHub docs; we restore packages to help resolution without a traced build.
           build-mode: none

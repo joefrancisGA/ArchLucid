@@ -1,0 +1,4 @@
+# Local CodeQL model packs (C# only). JavaScript job uses a separate init step without this file.
+packs:
+  csharp:
+    - ./.github/codeql/archlucid-csharp-log-sanitizer-models
