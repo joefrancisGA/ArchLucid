@@ -999,12 +999,13 @@ jobs:
             -e ASPNETCORE_URLS=http://+:8080 \
             -e ASPNETCORE_ENVIRONMENT=Development \
             archlucid-api:fuzz-light
-          for i in $(seq 1 30); do
+          for i in $(seq 1 60); do
             if curl -fsS http://127.0.0.1:8080/health/live; then
               break
             fi
-            if [ "$i" -eq 30 ]; then
+            if [ "$i" -eq 60 ]; then
               echo "API did not become healthy in time"
+              docker logs archlucid-fuzz-api 2>&1 | tail -n 200 || true
               exit 1
             fi
             sleep 2

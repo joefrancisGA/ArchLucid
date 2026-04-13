@@ -52,6 +52,7 @@ jobs:
             fi
             if [ "$i" -eq 60 ]; then
               echo "API did not become healthy in time"
+              docker logs archlucid-fuzz-api 2>&1 | tail -n 200 || true
               exit 1
             fi
             sleep 2

@@ -1,4 +1,5 @@
 using ArchLucid.Host.Core.Health;
+using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Middleware;
 using ArchLucid.Host.Core.ProblemDetails;
 
@@ -55,7 +56,8 @@ public static class WorkerHostPipelineExtensions
         if (!app.Environment.IsDevelopment())
             app.UseHsts();
 
-        app.UseHttpsRedirection();
+        if (AspNetCoreHostingUrls.ShouldUseHttpsRedirection(app.Configuration))
+            app.UseHttpsRedirection();
 
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
         if (prometheusEnabled)

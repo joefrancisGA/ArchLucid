@@ -151,7 +151,11 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
           <span>Pipeline progress</span>
           <span>{completedStages} / 4 stages</span>
         </div>
-        <Progress value={progressValue} className="h-2" />
+        <Progress
+          value={progressValue}
+          className="h-2"
+          aria-label="Authority pipeline stages completed"
+        />
       </div>
 
       <Separator className="my-6" />

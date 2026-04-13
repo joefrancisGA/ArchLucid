@@ -8,21 +8,28 @@ import { cn } from "@/lib/utils"
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>
->(({ className, value, ...props }, ref) => (
-  <ProgressPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative h-2 w-full overflow-hidden rounded-full bg-oklch(0.205 0 0)/20 dark:bg-oklch(0.922 0 0)/20",
-      className
-    )}
-    {...props}
-  >
-    <ProgressPrimitive.Indicator
-      className="h-full w-full flex-1 bg-oklch(0.205 0 0) transition-all dark:bg-oklch(0.922 0 0)"
-      style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-    />
-  </ProgressPrimitive.Root>
-))
+>(({ className, value, "aria-label": ariaLabel, "aria-labelledby": ariaLabelledBy, ...props }, ref) => {
+  const hasLabelledBy = typeof ariaLabelledBy === "string" && ariaLabelledBy.trim().length > 0;
+  const hasLabel = typeof ariaLabel === "string" && ariaLabel.trim().length > 0;
+
+  return (
+    <ProgressPrimitive.Root
+      ref={ref}
+      className={cn(
+        "relative h-2 w-full overflow-hidden rounded-full bg-oklch(0.205 0 0)/20 dark:bg-oklch(0.922 0 0)/20",
+        className
+      )}
+      aria-labelledby={hasLabelledBy ? ariaLabelledBy : undefined}
+      aria-label={hasLabelledBy ? undefined : hasLabel ? ariaLabel : "Progress"}
+      {...props}
+    >
+      <ProgressPrimitive.Indicator
+        className="h-full w-full flex-1 bg-oklch(0.205 0 0) transition-all dark:bg-oklch(0.922 0 0)"
+        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+      />
+    </ProgressPrimitive.Root>
+  );
+});
 Progress.displayName = ProgressPrimitive.Root.displayName
 
 export { Progress }

@@ -5,6 +5,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Host.Core.Health;
+using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Middleware;
 
 using Microsoft.AspNetCore.Diagnostics;
@@ -71,7 +72,8 @@ internal static class PipelineExtensions
         if (!app.Environment.IsDevelopment())
             app.UseHsts();
 
-        app.UseHttpsRedirection();
+        if (AspNetCoreHostingUrls.ShouldUseHttpsRedirection(app.Configuration))
+            app.UseHttpsRedirection();
         app.UseResponseCompression();
         app.UseCors("ArchLucid");
         app.UseRateLimiter();
