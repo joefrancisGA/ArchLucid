@@ -4,7 +4,7 @@
  *   npx playwright test -c playwright.live.config.ts
  * Set `LIVE_API_URL` if the API is not on http://127.0.0.1:5128.
  */
-import { expect, test, type APIRequestContext } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 import {
   approveGovernanceRequest,
@@ -17,6 +17,7 @@ import {
   listArchitectureRuns,
   liveApiBase,
   waitForArchitectureRunListCommitted,
+  waitForReadyForCommit,
   waitForRunDetailCommitted,
   postGovernanceApproveRaw,
   searchAudit,
@@ -28,31 +29,6 @@ const peerReviewerActor = "e2e-peer-reviewer";
 const developmentBypassActorName = "Developer";
 
 const liveE2eForensics: { runId?: string; approvalRequestId?: string; auditCorrelationId?: string } = {};
-
-async function waitForReadyForCommit(runId: string, request: APIRequestContext, timeoutMs: number): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-
-  while (Date.now() < deadline) {
-    const detail = await getRunDetailsWithTransientRetries(request, runId);
-    const status = detail.run?.status;
-
-    if (status === 4 || status === "ReadyForCommit") {
-      return;
-    }
-
-    if (status === 5 || status === "Committed") {
-      return;
-    }
-
-    if (status === 6 || status === "Failed") {
-      throw new Error(`Run ${runId} reached Failed before ReadyForCommit`);
-    }
-
-    await new Promise((r) => setTimeout(r, 2000));
-  }
-
-  throw new Error(`Run ${runId} did not reach ReadyForCommit within ${timeoutMs}ms`);
-}
 
 test.describe("live-api-journey", () => {
   test.afterAll(() => {
@@ -99,7 +75,7 @@ test.describe("live-api-journey", () => {
 
     await executeRun(request, runId);
 
-    await waitForReadyForCommit(runId, request, 90_000);
+    await waitForReadyForCommit(request, runId, 90_000);
 
     const commitJson = await commitRun(request, runId);
     const manifestVersion = commitJson.manifest?.metadata?.manifestVersion;

@@ -6,7 +6,7 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "e2e",
   // Live API + SQL journey runs only via playwright.live.config.ts (CI ui-e2e-live / local with API up).
-  testIgnore: "**/live-api-journey.spec.ts",
+  testIgnore: "**/live-api-*.spec.ts",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,

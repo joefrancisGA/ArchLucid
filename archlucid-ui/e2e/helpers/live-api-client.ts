@@ -1,5 +1,6 @@
 /**
- * Typed helpers for Playwright live-API E2E against ArchLucid.Api (see `live-api-journey.spec.ts`).
+ * Typed helpers for Playwright live-API E2E against ArchLucid.Api
+ * (`live-api-journey.spec.ts`, `live-api-conflict-journey.spec.ts`, `live-api-governance-rejection.spec.ts`, …).
  */
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 
@@ -66,6 +67,13 @@ export async function commitRun(request: APIRequestContext, runId: string): Prom
   return res.json() as Promise<CommitRunResponseJson>;
 }
 
+/** Same as {@link commitRun} but returns the raw response for negative-path assertions (409, 404, …). */
+export async function commitRunRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
+    headers: { Accept: "application/json" },
+  });
+}
+
 /** Minimal commit response shape for E2E (camelCase JSON). */
 export type CommitRunResponseJson = {
   manifest?: {
@@ -111,6 +119,39 @@ export async function getRunDetailsWithTransientRetries(
   }
 
   throw new Error("getRunDetailsWithTransientRetries: retry loop exhausted");
+}
+
+/**
+ * Polls GET run detail until status is ReadyForCommit (4), Committed (5), or timeout.
+ * Throws if the run reaches Failed (6) first.
+ */
+export async function waitForReadyForCommit(
+  request: APIRequestContext,
+  runId: string,
+  timeoutMs: number,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const detail = await getRunDetailsWithTransientRetries(request, runId);
+    const status = detail.run?.status;
+
+    if (status === 4 || status === "ReadyForCommit") {
+      return;
+    }
+
+    if (status === 5 || status === "Committed") {
+      return;
+    }
+
+    if (status === 6 || status === "Failed") {
+      throw new Error(`Run ${runId} reached Failed before ReadyForCommit`);
+    }
+
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+
+  throw new Error(`Run ${runId} did not reach ReadyForCommit within ${timeoutMs}ms`);
 }
 
 /** Row from `GET /v1/architecture/runs` (coordinator list). */
@@ -266,6 +307,43 @@ export async function approveGovernanceRequest(
   await throwIfNotOk(res, "POST /v1/governance/approval-requests/.../approve");
 
   return res.json() as Promise<GovernanceApprovalRequestJson>;
+}
+
+/** POST `/v1/governance/approval-requests/{id}/reject`. */
+export async function rejectGovernanceRequest(
+  request: APIRequestContext,
+  approvalRequestId: string,
+  body: { reviewedBy: string; reviewComment?: string },
+): Promise<GovernanceApprovalRequestJson> {
+  const res = await request.post(
+    `${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/reject`,
+    {
+      data: {
+        reviewedBy: body.reviewedBy,
+        reviewComment: body.reviewComment ?? null,
+      },
+      headers: jsonHeaders,
+    },
+  );
+
+  await throwIfNotOk(res, "POST /v1/governance/approval-requests/.../reject");
+
+  return res.json() as Promise<GovernanceApprovalRequestJson>;
+}
+
+/** POST reject without throwing — for negative-path assertions. */
+export async function postGovernanceRejectRaw(
+  request: APIRequestContext,
+  approvalRequestId: string,
+  body: { reviewedBy: string; reviewComment?: string | null },
+): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/reject`, {
+    data: {
+      reviewedBy: body.reviewedBy,
+      reviewComment: body.reviewComment ?? null,
+    },
+    headers: jsonHeaders,
+  });
 }
 
 /** GET `/v1/audit/search` — filtered audit events (`runId` and/or `correlationId` query params). */

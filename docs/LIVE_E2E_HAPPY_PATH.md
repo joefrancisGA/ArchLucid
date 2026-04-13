@@ -2,7 +2,15 @@
 
 **Purpose:** Describe the **single** CI Playwright journey that proves the operator shell against a **real** `ArchLucid.Api` and **SQL Server**, not the mock API server used by default `playwright.config.ts`.
 
-**Spec:** `archlucid-ui/e2e/live-api-journey.spec.ts`  
+**Specs (same Playwright live config):**
+
+| File | `describe` | Purpose |
+|------|------------|---------|
+| `archlucid-ui/e2e/live-api-journey.spec.ts` | `live-api-journey` | Operator happy path (create → commit → manifest → export → governance approve → audit UI). |
+| `archlucid-ui/e2e/live-api-conflict-journey.spec.ts` | `live-api-conflict-journey` | Double **commit** → **409** `#conflict`; **ManifestGenerated** audit count unchanged; run detail UI still **Committed**. **404** `#run-not-found` on commit for a random missing `runId`. |
+| `archlucid-ui/e2e/live-api-governance-rejection.spec.ts` | `live-api-governance-rejection` | Governance **submit → reject** (`e2e-rejector`); audit **`GovernanceApprovalRejected`**; **400** on approve-after-reject and duplicate reject; **`/governance`** UI shows **Rejected**. |
+| `archlucid-ui/e2e/live-api-error-states.spec.ts` | `live-api-error-states` | UI resilience: fake run detail, **`/runs`** list, **`/audit`** no-results search, **`/governance/dashboard`** load (no mock API). |
+
 **Config:** `archlucid-ui/playwright.live.config.ts`  
 **HTTP helpers:** `archlucid-ui/e2e/helpers/live-api-client.ts`  
 **CI job:** `.github/workflows/ci.yml` → **`ui-e2e-live`** (**merge-blocking**; failures fail the workflow).
@@ -75,11 +83,24 @@ sequenceDiagram
 
 ---
 
+## Error-path E2E (conflict journey)
+
+The **`live-api-conflict-journey`** spec complements the happy path:
+
+- After a successful commit, a second **`POST …/commit`** must return **409** with problem type **`#conflict`** and a **`correlationId`** in the problem body.
+- **`GET /v1/audit/search?runId=…`** must not gain an extra **`ManifestGenerated`** row after the failed second commit.
+- **`GET /v1/architecture/run/{runId}`** must still show **Committed** status.
+- Committing a **non-existent** `runId` returns **404** with **`#run-not-found`**.
+
+Shared helpers: **`commitRunRaw`**, **`waitForReadyForCommit`** (exported from **`live-api-client.ts`**).
+
+---
+
 ## Known limitations
 
 - **No real LLM** in CI — semantic quality of outputs is not under test.
 - **DevelopmentBypass** — not a production auth configuration; do not equate this gate with Entra/API-key hardening.
-- **One path** — compare, replay, DOCX consulting export, and other surfaces remain primarily **mock-backed** in **`ui-e2e-smoke`**.
+- **Compare, replay, DOCX consulting export** and other surfaces remain primarily **mock-backed** in **`ui-e2e-smoke`** (live E2E now covers happy path + conflict + governance rejection + basic error-state UI).
 
 ---
 
