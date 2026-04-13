@@ -84,7 +84,14 @@ public sealed class LlmCallRetrySimmyTests
     [Fact]
     public async Task ChaosLatency_InnerTimeout_RetryThenTimeoutRejected()
     {
-        // Align timeouts with SimmyChaosPipelineTests: chaos latency must exceed the inner timeout so every attempt rejects.
+        // Compose timeout+chaos as an inner pipeline (same shape as ChaosLatency_inner_timeout_outer_fails_fast),
+        // then wrap with retry. A flat AddRetry→AddTimeout→AddChaos chain has been observed to complete without
+        // TimeoutRejected on some Linux CI hosts (ordering/composition), while this layout stays deterministic.
+        ResiliencePipeline timeoutAndChaos = new ResiliencePipelineBuilder()
+            .AddTimeout(TimeSpan.FromMilliseconds(80))
+            .AddChaosLatency(1.0, TimeSpan.FromMilliseconds(200))
+            .Build();
+
         ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
             .AddRetry(
                 new RetryStrategyOptions
@@ -93,8 +100,7 @@ public sealed class LlmCallRetrySimmyTests
                     Delay = TimeSpan.FromMilliseconds(1),
                     ShouldHandle = new PredicateBuilder().Handle<TimeoutRejectedException>(),
                 })
-            .AddTimeout(TimeSpan.FromMilliseconds(80))
-            .AddChaosLatency(1.0, TimeSpan.FromMilliseconds(200))
+            .AddPipeline(timeoutAndChaos)
             .Build();
 
         Func<Task> act = () => pipeline.ExecuteAsync(
