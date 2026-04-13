@@ -1,3 +1,9 @@
+/**
+ * Requires a running ArchLucid.Api (Sql + DevelopmentBypass by default in CI).
+ * Not part of the mock `playwright.config.ts` suite — run:
+ *   npx playwright test -c playwright.live.config.ts
+ * Set `LIVE_API_URL` if the API is not on http://127.0.0.1:5128.
+ */
 import { expect, test } from "@playwright/test";
 
 const liveApiBase = process.env.LIVE_API_URL ?? "http://127.0.0.1:5128";

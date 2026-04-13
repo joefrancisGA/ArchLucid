@@ -745,6 +745,15 @@ jobs:
           npm ci
           npm run build
 
+      # API connects with Initial Catalog set; schema bootstrap does not CREATE DATABASE (unlike dotnet test + SqlServerTestCatalogCommands).
+      - name: Create SQL catalog for live API e2e
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2e') CREATE DATABASE ArchLucidLiveE2e;"
+
       - name: Start ArchLucid.Api (background)
         env:
           ASPNETCORE_ENVIRONMENT: Development
@@ -837,6 +846,14 @@ jobs:
         run: |
           dotnet restore ArchLucid.sln
           dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Create SQL catalog for k6 API
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidK6Smoke') CREATE DATABASE ArchLucidK6Smoke;"
 
       - name: Start ArchLucid.Api (background)
         env:
