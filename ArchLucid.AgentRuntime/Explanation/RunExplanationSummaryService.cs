@@ -1,6 +1,6 @@
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Manifest.Sections;
+using ArchLucid.Decisioning.Manifest;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
@@ -28,7 +28,7 @@ public sealed class RunExplanationSummaryService(
         DecisionProvenanceGraph? graph = await TryLoadProvenanceGraphAsync(scope, runId, ct);
         ExplanationResult explanation = await explanationService.ExplainRunAsync(manifest, graph, ct);
         List<string> themeSummaries = BuildThemeSummaries(explanation.KeyDrivers);
-        string riskPosture = DeriveRiskPosture(manifest);
+        string riskPosture = AuthorityManifestRiskPosture.Derive(manifest);
         string overallAssessment = BuildOverallAssessment(explanation, manifest, riskPosture);
         int findingCount = detail.FindingsSnapshot?.Findings.Count ?? 0;
 
@@ -137,50 +137,8 @@ public sealed class RunExplanationSummaryService(
         return category.Length > 0;
     }
 
-    internal static string DeriveRiskPosture(GoldenManifest manifest)
-    {
-        if (manifest.UnresolvedIssues.Items.Count == 0)
-            return "Low";
-
-        int worst = 0;
-
-        foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
-        {
-            worst = Math.Max(worst, MapSeverityRank(issue.Severity));
-        }
-
-        return worst switch
-        {
-            >= 4 => "Critical",
-            3 => "High",
-            2 => "Medium",
-            _ => "Low",
-        };
-    }
-
-    private static int MapSeverityRank(string? severity)
-    {
-        if (string.IsNullOrWhiteSpace(severity))
-            return 2;
-
-        string s = severity.Trim();
-
-        if (string.Equals(s, "Critical", StringComparison.OrdinalIgnoreCase))
-            return 4;
-
-        if (string.Equals(s, "High", StringComparison.OrdinalIgnoreCase))
-            return 3;
-
-        if (string.Equals(s, "Medium", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(s, "Warning", StringComparison.OrdinalIgnoreCase))
-            return 2;
-
-        if (string.Equals(s, "Low", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(s, "Info", StringComparison.OrdinalIgnoreCase))
-            return 1;
-
-        return 2;
-    }
+    internal static string DeriveRiskPosture(GoldenManifest manifest) =>
+        AuthorityManifestRiskPosture.Derive(manifest);
 
     internal static string BuildOverallAssessment(ExplanationResult explanation, GoldenManifest manifest, string riskPosture)
     {

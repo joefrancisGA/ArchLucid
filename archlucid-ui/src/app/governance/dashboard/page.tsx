@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -203,7 +204,14 @@ export default function GovernanceDashboardPage() {
                         {formatIsoUtcForDisplay(row.requestedUtc)}
                       </div>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="flex flex-wrap gap-2">
+                      <Button type="button" size="sm" variant="outline" asChild>
+                        <Link
+                          href={`/governance/approval-requests/${encodeURIComponent(row.approvalRequestId)}/lineage`}
+                        >
+                          Lineage
+                        </Link>
+                      </Button>
                       <Button
                         type="button"
                         size="sm"

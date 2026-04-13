@@ -15,3 +15,7 @@ Error responses include:
 ## OpenAPI / clients
 
 Generated clients should assume **camelCase** JSON unless a specific DTO opts out with `JsonPropertyName` for an exception.
+
+## Persisted aggregate `schemaVersion`
+
+Authority **`GoldenManifest`** and **`GraphSnapshot`** include **`schemaVersion`** (integer, default **1**) for forward-compatible evolution. **Additive** optional fields do not require a bump; **removing or renaming** fields should bump **`schemaVersion`** and be documented in **ADR 0013** and release notes.

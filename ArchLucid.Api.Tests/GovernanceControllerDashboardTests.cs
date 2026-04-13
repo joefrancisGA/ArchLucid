@@ -55,6 +55,7 @@ public sealed class GovernanceControllerDashboardTests
             Mock.Of<IActorContext>(),
             scope.Object,
             dashboard.Object,
+            Mock.Of<IGovernanceLineageService>(),
             Mock.Of<IComplianceDriftTrendService>(),
             NullLogger<GovernanceController>.Instance);
 

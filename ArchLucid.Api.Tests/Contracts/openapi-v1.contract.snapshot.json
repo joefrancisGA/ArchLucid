@@ -8058,6 +8058,74 @@
         }
       }
     },
+    "/v1/explain/runs/{runId}/findings/{findingId}/explainability": {
+      "get": {
+        "tags": [
+          "Explanation"
+        ],
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "findingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingExplainabilityResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingExplainabilityResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindingExplainabilityResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/explain/compare/explain": {
       "get": {
         "tags": [
@@ -9594,6 +9662,105 @@
           },
           "400": {
             "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/governance/approval-requests/{approvalRequestId}/lineage": {
+      "get": {
+        "tags": [
+          "Governance"
+        ],
+        "parameters": [
+          {
+            "name": "approvalRequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceLineageResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceLineageResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceLineageResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -20255,6 +20422,61 @@
           }
         }
       },
+      "FindingExplainabilityResult": {
+        "type": "object",
+        "properties": {
+          "findingId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "engineType": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "traceCompletenessRatio": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "graphNodeIdsExamined": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rulesApplied": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "decisionsTaken": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "alternativePathsConsidered": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "FindingRationale": {
         "type": "object",
         "properties": {
@@ -20595,6 +20817,128 @@
           }
         }
       },
+      "GovernanceLineageFindingSummary": {
+        "type": "object",
+        "properties": {
+          "findingId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "engineType": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "traceCompletenessRatio": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "GovernanceLineageManifestSummary": {
+        "type": "object",
+        "properties": {
+          "manifestVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "decisionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unresolvedIssueCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "complianceGapCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GovernanceLineageResult": {
+        "type": "object",
+        "properties": {
+          "approvalRequest": {
+            "$ref": "#/components/schemas/GovernanceApprovalRequest"
+          },
+          "run": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/GovernanceLineageRunSummary"
+              }
+            ]
+          },
+          "manifest": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/GovernanceLineageManifestSummary"
+              }
+            ]
+          },
+          "topFindings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GovernanceLineageFindingSummary"
+            }
+          },
+          "riskPosture": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "promotions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GovernancePromotionRecord"
+            }
+          }
+        }
+      },
+      "GovernanceLineageRunSummary": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "currentManifestVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "GovernancePreviewResult": {
         "type": "object",
         "properties": {
@@ -20888,6 +21232,10 @@
       "GraphSnapshot": {
         "type": "object",
         "properties": {
+          "schemaVersion": {
+            "type": "integer",
+            "format": "int32"
+          },
           "graphSnapshotId": {
             "type": "string",
             "format": "uuid"

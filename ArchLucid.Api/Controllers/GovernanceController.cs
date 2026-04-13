@@ -36,6 +36,7 @@ public sealed class GovernanceController(
     IActorContext actorContext,
     IScopeContextProvider scopeContextProvider,
     IGovernanceDashboardService governanceDashboardService,
+    IGovernanceLineageService governanceLineageService,
     IComplianceDriftTrendService complianceDriftTrendService,
     ILogger<GovernanceController> logger)
     : ControllerBase
@@ -48,6 +49,9 @@ public sealed class GovernanceController(
 
     private readonly IComplianceDriftTrendService _complianceDriftTrendService =
         complianceDriftTrendService ?? throw new ArgumentNullException(nameof(complianceDriftTrendService));
+
+    private readonly IGovernanceLineageService _governanceLineageService =
+        governanceLineageService ?? throw new ArgumentNullException(nameof(governanceLineageService));
     [HttpPost("approval-requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
@@ -284,6 +288,27 @@ public sealed class GovernanceController(
             cancellationToken);
 
         return Ok(points);
+    }
+
+    [HttpGet("approval-requests/{approvalRequestId}/lineage")]
+    [ProducesResponseType(typeof(GovernanceLineageResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetApprovalRequestLineage(
+        [FromRoute] string approvalRequestId,
+        CancellationToken cancellationToken)
+    {
+        GovernanceLineageResult? result = await _governanceLineageService.GetApprovalRequestLineageAsync(
+            approvalRequestId,
+            cancellationToken);
+
+        if (result is null)
+        {
+            return this.NotFoundProblem(
+                $"Approval request '{approvalRequestId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(result);
     }
 
     [HttpGet("runs/{runId}/approval-requests")]

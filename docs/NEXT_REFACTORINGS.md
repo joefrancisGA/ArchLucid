@@ -8,6 +8,8 @@ Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, compari
 
 Numbered sections **8+** below continue the living backlog (rate limits, traits, CORS, OpenTelemetry extraction, …).
 
+**Contracts service-interface split (future batch):** Move the heaviest **service interfaces** still living in **`ArchLucid.Contracts`** into their **owning** assemblies (e.g. decisioning vs coordinator ports) once team boundaries or circular-reference risk justify the churn; keep DTOs and cross-cutting contracts in **`ArchLucid.Contracts`** until then. See **ADR 0013** (`docs/adr/0013-api-versioning-and-json-schema-versioning.md`) for HTTP + JSON **`schemaVersion`** direction.
+
 ---
 
 ## 8. Rate limiting documentation

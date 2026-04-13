@@ -1,10 +1,13 @@
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
@@ -87,6 +90,58 @@ public sealed class ExplanationController(
                 ProblemTypes.RunNotFound);
 
         return Ok(summary);
+    }
+
+    /// <summary>
+    /// Returns persisted <c>ExplainabilityTrace</c> fields for one finding on an authority run (no LLM).
+    /// </summary>
+    [HttpGet("runs/{runId:guid}/findings/{findingId}/explainability")]
+    [ProducesResponseType(typeof(FindingExplainabilityResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFindingExplainability(
+        Guid runId,
+        string findingId,
+        CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+        if (detail?.FindingsSnapshot?.Findings is not { Count: > 0 } list)
+        {
+            return this.NotFoundProblem(
+                $"Run '{runId}' has no findings snapshot in the current scope.",
+                ProblemTypes.RunNotFound);
+        }
+
+        Finding? match = list.FirstOrDefault(f =>
+            string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
+
+        if (match is null)
+        {
+            return this.NotFoundProblem(
+                $"Finding '{findingId}' was not found on run '{runId}'.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(match);
+        ExplainabilityTrace t = match.Trace;
+
+        FindingExplainabilityResult body = new()
+        {
+            FindingId = match.FindingId,
+            Title = match.Title,
+            EngineType = match.EngineType,
+            Severity = match.Severity.ToString(),
+            TraceCompletenessRatio = score.CompletenessRatio,
+            GraphNodeIdsExamined = t.GraphNodeIdsExamined,
+            RulesApplied = t.RulesApplied,
+            DecisionsTaken = t.DecisionsTaken,
+            AlternativePathsConsidered = t.AlternativePathsConsidered,
+            Notes = t.Notes,
+        };
+
+        return Ok(body);
     }
 
     /// <summary>AI narrative for manifest delta between two runs (base ? target).</summary>

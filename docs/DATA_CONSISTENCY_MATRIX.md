@@ -1,6 +1,6 @@
 # Data consistency matrix
 
-**Last reviewed:** 2026-04-13 (read-replica lag expectations documented below)
+**Last reviewed:** 2026-04-14 (archival cascade + transaction pattern notes)
 
 This document states **what consistency guarantees callers should assume** for major aggregates. It complements `docs/SQL_DDL_DISCIPLINE.md` and `docs/API_CONTRACTS.md`.
 
@@ -60,6 +60,19 @@ Single-row hot-path reads may still be satisfied from **`IHotPathReadCache`**, w
 ### Operator guidance
 
 If a list view looks stale immediately after a write, wait briefly and refresh. For suspected replica issues during bulk operations, temporarily disable replica routing (**`ReadReplica:Enabled=false`**) only with operational awareness of added primary load.
+
+## Archival cascade (runs)
+
+| Area | Behavior today | Notes |
+|------|----------------|--------|
+| **`dbo.Runs`** | **`ArchivedUtc`** soft-archive on bulk archival | Primary visibility gate for run lists that respect archival |
+| **Child snapshots / manifest rows** | **Not** always cascaded in the same SQL statement | Downstream rows may remain until a dedicated cleanup job or future migration adds cascade / orphan policy |
+| **Coordinator artifacts** | Application-enforced consistency | Treat archived authority runs as **logically** inactive; do not assume every child FK is nulled automatically |
+| **Hot-path cache** | **`ArchiveRunsCreatedBeforeAsync`** removes per-run keys via **`OUTPUT`** scope columns | See matrix row **Hot-path read cache** |
+
+**Operator expectation:** after bulk archival, some read paths may still resolve historical snapshot ids until TTL or explicit invalidation; prefer **run list** and **authority detail** APIs that honor **`ArchivedUtc`** over ad-hoc SQL.
+
+**Transaction pattern:** **`TransactionScope`** is **not** used in product Application code today; **`IArchLucidUnitOfWork`** is the standard for mutating authority SQL in one transaction. Prefer UoW for new writes.
 
 ## Related
 

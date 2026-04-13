@@ -1,0 +1,4 @@
+# Historical doc-only curl examples (placeholders, not deployed secrets) in
+# docs/AUDIT_RETENTION_POLICY.md; content removed from later commits. See gitleaks rule curl-auth-header.
+a538addceb7d7e059e336d3a03df1b149d433ade:docs/AUDIT_RETENTION_POLICY.md:curl-auth-header:69
+a538addceb7d7e059e336d3a03df1b149d433ade:docs/AUDIT_RETENTION_POLICY.md:curl-auth-header:80

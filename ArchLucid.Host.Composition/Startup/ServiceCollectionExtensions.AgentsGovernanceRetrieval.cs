@@ -351,6 +351,7 @@ public static partial class ServiceCollectionExtensions
 
         services.AddScoped<IGovernanceWorkflowService, GovernanceWorkflowService>();
         services.AddScoped<IGovernanceDashboardService, GovernanceDashboardService>();
+        services.AddScoped<IGovernanceLineageService, GovernanceLineageService>();
         services.AddScoped<IComplianceDriftTrendService, ComplianceDriftTrendService>();
     }
 

@@ -4,6 +4,9 @@ namespace ArchLucid.Decisioning.Models;
 
 public class GoldenManifest
 {
+    /// <summary>JSON contract version for persisted authority manifests (default <c>1</c>).</summary>
+    public int SchemaVersion { get; set; } = 1;
+
     public Guid TenantId { get; set; }
     public Guid WorkspaceId { get; set; }
     public Guid ProjectId { get; set; }

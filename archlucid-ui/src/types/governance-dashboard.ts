@@ -1,4 +1,7 @@
-import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
+import type {
+  GovernanceApprovalRequest,
+  GovernancePromotionRecord,
+} from "@/types/governance-workflow";
 
 export interface PolicyPackChangeLogEntry {
   changeLogId: string;
@@ -26,4 +29,37 @@ export interface ComplianceDriftTrendPoint {
   bucketUtc: string;
   changeCount: number;
   changesByType: Record<string, number>;
+}
+
+/** GET /v1/governance/approval-requests/{id}/lineage */
+export interface GovernanceLineageRunSummary {
+  runId: string;
+  status: string;
+  createdUtc: string;
+  completedUtc: string | null;
+  currentManifestVersion: string | null;
+}
+
+export interface GovernanceLineageManifestSummary {
+  manifestVersion: string | null;
+  decisionCount: number;
+  unresolvedIssueCount: number;
+  complianceGapCount: number;
+}
+
+export interface GovernanceLineageFindingSummary {
+  findingId: string;
+  title: string;
+  engineType: string;
+  severity: string;
+  traceCompletenessRatio: number;
+}
+
+export interface GovernanceLineageResult {
+  approvalRequest: GovernanceApprovalRequest;
+  run: GovernanceLineageRunSummary | null;
+  manifest: GovernanceLineageManifestSummary | null;
+  topFindings: GovernanceLineageFindingSummary[];
+  riskPosture: string | null;
+  promotions: GovernancePromotionRecord[];
 }

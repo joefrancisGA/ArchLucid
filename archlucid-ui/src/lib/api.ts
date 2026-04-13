@@ -55,6 +55,7 @@ import type { EffectiveGovernanceResolutionResult } from "@/types/governance-res
 import type {
   ComplianceDriftTrendPoint,
   GovernanceDashboardSummary,
+  GovernanceLineageResult,
 } from "@/types/governance-dashboard";
 import type {
   GovernanceApprovalRequest,
@@ -951,6 +952,15 @@ export async function getComplianceDriftTrend(
 
   return apiGet<ComplianceDriftTrendPoint[]>(
     `${governanceBase()}/compliance-drift-trend?${query.toString()}`,
+  );
+}
+
+/** Joins an approval request to run summary, authority manifest/findings (when linked), and promotions. */
+export async function getApprovalRequestLineage(
+  approvalRequestId: string,
+): Promise<GovernanceLineageResult> {
+  return apiGet<GovernanceLineageResult>(
+    `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/lineage`,
   );
 }
 

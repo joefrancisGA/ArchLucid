@@ -62,6 +62,7 @@ public sealed class GovernanceControllerDryRunTests
             actor.Object,
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IGovernanceDashboardService>(),
+            Mock.Of<IGovernanceLineageService>(),
             Mock.Of<IComplianceDriftTrendService>(),
             NullLogger<GovernanceController>.Instance);
 
@@ -119,6 +120,7 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IActorContext>(),
             Mock.Of<IScopeContextProvider>(),
             Mock.Of<IGovernanceDashboardService>(),
+            Mock.Of<IGovernanceLineageService>(),
             Mock.Of<IComplianceDriftTrendService>(),
             NullLogger<GovernanceController>.Instance);
 
