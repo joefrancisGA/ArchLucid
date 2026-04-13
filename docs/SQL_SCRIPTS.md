@@ -17,7 +17,8 @@ ArchLucid uses **two** mechanisms for SQL Server schema (by design):
 
 **Important:**
 
-- **Production / dev SQL Server:** Schema evolution is driven by **migrations**. The consolidated `ArchLucid.sql` is still run by Persistence bootstrap and should stay **aligned** with migrations + authority DDL, but **do not** rely on it alone for long-lived DB upgrades.
+- **API / Worker startup (`ArchLucidPersistenceStartup`):** runs **DbUp first**, then **`SqlSchemaBootstrapper`** (`ArchLucid.sql`). If bootstrap ran first on an **empty** catalog, `ArchLucid.sql` would create objects that migration **`001`** also creates; DbUp would then see an empty **`SchemaVersions`** journal and fail with **“There is already an object named …”**. DbUp-first matches **`DatabaseMigrator.Run`**-only integration setups (e.g. **`ARCHLUCID_SQL_TEST`** full regression).
+- **Production / dev SQL Server:** Schema evolution is driven by **migrations**. The consolidated `ArchLucid.sql` is still run after DbUp and should stay **aligned** with migrations + authority DDL, but **do not** rely on it alone for long-lived DB upgrades.
 - **Integration tests:** `WebApplicationFactory` hosts use **SQL Server** (e.g. `localhost` with a per-run database name from **`ArchLucidApiFactory`**). **DbUp** runs on test host startup against that database, same as production code paths.
 
 ---

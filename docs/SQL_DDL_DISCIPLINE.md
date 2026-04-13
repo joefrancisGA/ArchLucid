@@ -32,6 +32,7 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 1. **New column/table/index:** add **`ArchLucid.Persistence/Migrations/NNN_....sql`** (idempotent `IF NOT EXISTS` where possible).
 2. **Mirror** the same logical object into **`ArchLucid.sql`**.
 3. Run **`DatabaseMigrator`** in CI or locally against SQL Server test instances (see **`ArchLucid.Persistence.Tests`** / **`TEST_STRUCTURE.md`**).
+4. **API / Worker:** **`ArchLucidPersistenceStartup`** applies **DbUp** before **`SqlSchemaBootstrapper`** so greenfield catalogs get a populated **`SchemaVersions`** journal before idempotent **`ArchLucid.sql`** (see **`SQL_SCRIPTS.md`** §1).
 
 ## Security model
 

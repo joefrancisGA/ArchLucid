@@ -6,7 +6,7 @@ using ArchLucid.Persistence.Sql;
 
 namespace ArchLucid.Host.Core.Startup;
 
-/// <summary>SQL schema bootstrap, DbUp migrations, and optional demo seed (shared by API and Worker).</summary>
+/// <summary>SQL DbUp migrations, idempotent consolidated bootstrap, and optional demo seed (shared by API and Worker).</summary>
 public static class ArchLucidPersistenceStartup
 {
     public static void RunSchemaBootstrapMigrationsAndOptionalDemoSeed(WebApplication app)
@@ -14,31 +14,13 @@ public static class ArchLucidPersistenceStartup
         ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(app.Configuration);
         bool storageIsSql = ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider);
 
-        using (IServiceScope scope = app.Services.CreateScope())
-        {
-
-            if (storageIsSql)
-            {
-                app.Logger.LogInformation(
-                    "Startup: running ISchemaBootstrapper (ArchLucid:StorageProvider=Sql).");
-
-                ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
-                using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
-                using (SqlRowLevelSecurityBypassAmbient.Enter())
-
-                    bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
-
-
-                app.Logger.LogInformation("Startup: schema bootstrap completed.");
-            }
-        }
-
-        // DbUp targets SQL only. Development often sets InMemory while base appsettings still carry a template SQL
-        // connection string; running migrations would fail on Linux containers (ZAP CI, etc.).
+        // DbUp must run before SqlSchemaBootstrapper (ArchLucid.sql). On an empty database, the bootstrapper
+        // creates objects that migration 001 also creates; DbUp then sees an empty journal and fails with
+        // "already an object named …". Integration tests use DbUp-only on a fresh catalog; API startup should match.
+        // After migrations, ArchLucid.sql is idempotent (IF OBJECT_ID …) and aligns greenfield with the reference DDL.
         if (storageIsSql)
         {
             string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
-
 
             if (string.IsNullOrWhiteSpace(connectionString))
             {
@@ -53,6 +35,23 @@ public static class ArchLucidPersistenceStartup
                 DatabaseMigrator.Run(connectionString);
 
                 app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
+            }
+        }
+
+        using (IServiceScope scope = app.Services.CreateScope())
+        {
+            if (storageIsSql)
+            {
+                app.Logger.LogInformation(
+                    "Startup: running ISchemaBootstrapper (ArchLucid:StorageProvider=Sql).");
+
+                ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
+                using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
+                using (SqlRowLevelSecurityBypassAmbient.Enter())
+
+                    bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
+
+                app.Logger.LogInformation("Startup: schema bootstrap completed.");
             }
         }
 

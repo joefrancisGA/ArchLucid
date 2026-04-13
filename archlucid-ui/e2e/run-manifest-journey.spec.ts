@@ -13,6 +13,7 @@ test.describe("operator journey — run detail to manifest and back", () => {
 
     await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible();
 
+    // "Pipeline progress" also shows Run ID in a <code>; scope to the metadata <section> with heading "Run".
     const runSummarySection = page
       .locator("section")
       .filter({ has: page.getByRole("heading", { name: "Run", level: 3 }) });
@@ -48,6 +49,6 @@ test.describe("operator journey — run detail to manifest and back", () => {
     await page.getByRole("link", { name: "Run detail" }).click();
 
     await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible();
-    await expect(page.getByText(FIXTURE_RUN_ID)).toBeVisible();
+    await expect(runSummarySection.getByText(FIXTURE_RUN_ID)).toBeVisible();
   });
 });
