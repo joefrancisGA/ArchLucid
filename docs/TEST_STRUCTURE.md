@@ -52,6 +52,21 @@ dotnet test ArchLucid.Persistence.Tests --filter "Category=SqlServerContainer"
 
 **Script:** `test-sqlserver-integration.cmd` / `.ps1`
 
+### Greenfield SQL boot (empty catalog + API host)
+
+**Why:** Integration tests that use a **pre-migrated** database never exercise **`ArchLucidPersistenceStartup`** on an **empty** catalog — ordering bugs between **DbUp** and **`SqlSchemaBootstrapper`** can slip through until deploy or live CI.
+
+**What:**
+
+- **`ArchLucid.Api.Tests`**: **`GreenfieldSqlApiFactory`** + **`GreenfieldSqlBootIntegrationTests`** (`Suite=Core`, `Category=Integration`). Each test creates an empty database, boots the real API with **`StorageProvider=Sql`**, asserts **`/health/ready`**, **`dbo.SchemaVersions`**, and core columns.
+- **CI**: job **`api-greenfield-boot`** in **`.github/workflows/ci.yml`** (Tier **1.5**) runs the API process against **`ArchLucidGreenfieldCi`** and asserts the DbUp journal.
+
+**Local (requires SQL per [BUILD.md](BUILD.md)):**
+
+```bash
+dotnet test ArchLucid.Api.Tests --filter "FullyQualifiedName~GreenfieldSqlBoot" -c Release --settings coverage.runsettings
+```
+
 ### Operator UI (`archlucid-ui/`)
 
 **Vitest** (jsdom, fast — minimal harness):

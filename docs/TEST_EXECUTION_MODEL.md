@@ -184,13 +184,14 @@ The config’s `webServer` runs `npm run build && npm run start` (production ser
 
 ## CI mapping (54R)
 
-Workflow: `.github/workflows/ci.yml` — **six jobs**, tiered for clarity and fail-fast behavior.
+Workflow: `.github/workflows/ci.yml` — **tiered jobs** for clarity and fail-fast behavior.
 
 | Tier | Job | What runs |
 |------|-----|-----------|
 | **0** | **`gitleaks`** | Full-history secret scan (`gacts/gitleaks@v1.3.2` + **`.gitleaks.toml`**). All other jobs **`needs: gitleaks`**. |
 | **1** | **`dotnet-fast-core`** | Restore, vulnerable package audit, `dotnet build -c Release`, **CycloneDX** SBOM for **`ArchLucid.Api`** (artifact **`sbom-dotnet`**), context-ingestion DI guards, then `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration`. **No SQL** service (fast gate). |
-| **2** | **`dotnet-full-regression`** | Runs **after** Tier 1 passes. Restore, build, SQL Server service container, `dotnet test ArchLucid.sln` with `ARCHLUCID_SQL_TEST` (entire solution). |
+| **1.5** | **`api-greenfield-boot`** | After Tier **1**. SQL Server service, **`CREATE DATABASE ArchLucidGreenfieldCi`** (empty catalog), **`dotnet run`** **`ArchLucid.Api`** with **`ArchLucid:StorageProvider=Sql`**, wait for **`/health/ready`**, assert **`dbo.SchemaVersions`** has rows (DbUp journal). **Blocking** — catches greenfield startup / DbUp vs bootstrap ordering bugs. See **`GreenfieldSqlBootIntegrationTests`** for the same path via **`WebApplicationFactory`**. |
+| **2** | **`dotnet-full-regression`** | Runs **after** Tier **1** and **`api-greenfield-boot`**. Restore, build, SQL Server service container, `dotnet test ArchLucid.sln` with `ARCHLUCID_SQL_TEST` (entire solution). |
 | **2b** | **`chaos-tests`** | Runs **after** Tier 2 passes. **Resilience: Simmy chaos tests** — `ArchLucid.AgentRuntime.Tests` and `ArchLucid.Persistence.Tests` filtered to Simmy/Chaos FQNs. **CI-blocking** (failures block the PR). See [CHAOS_TESTING.md](CHAOS_TESTING.md). |
 | **3a** | **`ui-unit`** | `archlucid-ui`: `npm ci`, `npm run test` (Vitest / jsdom), **CycloneDX** npm SBOM (artifact **`sbom-npm`**). |
 | **3b** | **`ui-e2e-smoke`** | `archlucid-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). Browser-heavy. |

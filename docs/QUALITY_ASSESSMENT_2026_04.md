@@ -526,3 +526,9 @@
 | **3** | **Enable production cost guardrails by default** — budgets on, `LlmTokenQuota` on, Log Analytics daily cap, WAF on | Cost-Effectiveness: 58 → ~70, Security: 80 → ~84. Prevents bill shock and blocks OWASP top-10 at the edge. | 1 session |
 | **4** | **Add multi-region availability** — secondary Container Apps env, Front Door active-passive, Redis HA | Availability: 52 → ~68, Reliability: 69 → ~75. Required for production SLA. | 3–4 sessions |
 | **5** | **Introduce LLM provider abstraction + cost attribution** — `ILlmCompletionProvider`, per-run token cost tracking, Grafana LLM dashboard | AI/Agent Readiness: 66 → ~78. Unlocks model portability and FinOps visibility. | 2 sessions |
+
+---
+
+## Supplement (2026-04-13)
+
+**Greenfield SQL API boot (quality-improvement #1 from 2026-04-13 assessment):** Implemented **`GreenfieldSqlBootIntegrationTests`** + CI job **`api-greenfield-boot`** (empty catalog, API **`/health/ready`**, **`dbo.SchemaVersions`** check). See **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** § CI mapping Tier **1.5** and **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)** § Greenfield SQL boot.
