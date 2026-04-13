@@ -7,7 +7,7 @@ The **`tests/load/smoke.js`** script is a **short, read-only** load profile agai
 - **`docs/PERFORMANCE.md`** — runtime caching and hot-path design notes.
 - **`docs/API_SLOS.md`** — product SLOs and error budgets.
 
-k6 establishes a **regression baseline** for latency and error rate on health, version, paged runs list, and audit search.
+k6 establishes a **regression baseline** for latency and error rate on health, version, coordinator runs list, and audit search.
 
 ## Running locally
 
@@ -21,14 +21,27 @@ BASE_URL=http://127.0.0.1:5128 k6 run tests/load/smoke.js --out json=k6-results.
 
 Adjust **`BASE_URL`** if the API listens elsewhere.
 
+### Rate limiting (local runs)
+
+Controllers that use **`[EnableRateLimiting("fixed")]`** share a **fixed window** (default **100 requests / minute** per partition, **no queue**). k6’s scenarios issue **far more** than that, so you will see **`429 Too Many Requests`** and a failed **`http_req_failed`** threshold unless you raise the limit for the test process.
+
+**CI** sets **`RateLimiting__FixedWindow__PermitLimit=200000`** for the k6 API job only. For a comparable local run, set the same env vars (or a large value) when starting **`ArchLucid.Api`**, for example:
+
+```bash
+# PowerShell example
+$env:RateLimiting__FixedWindow__PermitLimit = "200000"
+$env:RateLimiting__FixedWindow__WindowMinutes = "1"
+dotnet run --project ArchLucid.Api
+```
+
 ## Scenarios and thresholds
 
 | Scenario | Traffic | p95 target | Notes |
 |----------|---------|------------|--------|
 | `health` | Ramp to **10** VUs over **30s** | **&lt; 500ms** | `GET /health/live`, `GET /health/ready` |
 | `version` | Ramp to **5** VUs, **30s** | **&lt; 500ms** | `GET /version` |
-| `runs_list` | Ramp to **5** VUs, **30s** | **&lt; 2000ms** | `GET /v1/authority/projects/{defaultGuid}/runs?page=1&pageSize=20` |
-| `audit_search` | Ramp to **3** VUs, **30s** | **&lt; 2000ms** | `GET /v1/audit/search?maxResults=50` |
+| `runs_list` | Ramp to **5** VUs, **30s** | **&lt; 2000ms** | `GET /v1/architecture/runs` (scope from DevelopmentBypass defaults) |
+| `audit_search` | Ramp to **3** VUs, **30s** | **&lt; 2000ms** | `GET /v1/audit/search?take=50` |
 
 Global: **`http_req_failed` rate &lt; 1%**.
 
@@ -44,7 +57,7 @@ Raise thresholds only when a change **intentionally** increases latency (for exa
 
 ## CI
 
-See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 smoke (API baseline)`** (non-blocking initially). The workflow starts the API with SQL (same pattern as live E2E), waits for **`/health/ready`**, runs k6 in Docker, and uploads **`k6-results.json`**.
+See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 smoke (API baseline)`** (non-blocking initially). The workflow starts the API with SQL (same pattern as live E2E), **raises `RateLimiting:FixedWindow:PermitLimit` for the job**, waits for **`/health/ready`**, runs k6 in Docker, and uploads **`k6-results.json`**.
 
 ### Docker: `permission denied` on `--out json=/out/...`
 

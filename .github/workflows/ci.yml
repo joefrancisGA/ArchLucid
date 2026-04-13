@@ -864,6 +864,9 @@ jobs:
           ArchLucidAuth__Mode: DevelopmentBypass
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
+          # Default fixed-window limit (100/min) is far below k6 VU rates; all [EnableRateLimiting("fixed")] calls share one bucket per principal → mass 429. Raise only for this synthetic job.
+          RateLimiting__FixedWindow__PermitLimit: "200000"
+          RateLimiting__FixedWindow__WindowMinutes: "1"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/k6-api.log" 2>&1 &

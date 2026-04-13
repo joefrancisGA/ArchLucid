@@ -4,9 +4,46 @@
  *   npx playwright test -c playwright.live.config.ts
  * Set `LIVE_API_URL` if the API is not on http://127.0.0.1:5128.
  */
-import { expect, test } from "@playwright/test";
+import { expect, test, type APIRequestContext } from "@playwright/test";
 
-const liveApiBase = process.env.LIVE_API_URL ?? "http://127.0.0.1:5128";
+import {
+  approveGovernanceRequest,
+  commitRun,
+  createApprovalRequest,
+  createRun,
+  executeRun,
+  getRunDetails,
+  getRunExportZip,
+  liveApiBase,
+  searchAudit,
+} from "./helpers/live-api-client";
+
+const peerReviewerActor = "e2e-peer-reviewer";
+
+async function waitForReadyForCommit(runId: string, request: APIRequestContext, timeoutMs: number): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const detail = await getRunDetails(request, runId);
+    const status = detail.run?.status;
+
+    if (status === 4 || status === "ReadyForCommit") {
+      return;
+    }
+
+    if (status === 5 || status === "Committed") {
+      return;
+    }
+
+    if (status === 6 || status === "Failed") {
+      throw new Error(`Run ${runId} reached Failed before ReadyForCommit`);
+    }
+
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+
+  throw new Error(`Run ${runId} did not reach ReadyForCommit within ${timeoutMs}ms`);
+}
 
 test.describe("live-api-journey", () => {
   test.beforeAll(async ({ request }) => {
@@ -19,11 +56,11 @@ test.describe("live-api-journey", () => {
     }
   });
 
-  test("operator shell against real API: runs, audit RunStarted, governance", async ({
+  test("operator happy path: create → execute → commit → manifest → export → governance → audit", async ({
     page,
     request,
   }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
 
     const createBody = {
       requestId: `E2E-LIVE-${Date.now()}`,
@@ -38,32 +75,24 @@ test.describe("live-api-journey", () => {
       priorManifestVersion: null as string | null,
     };
 
-    const createRes = await request.post(`${liveApiBase}/v1/architecture/request`, {
-      data: createBody,
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-    });
+    const { runId } = await createRun(request, createBody);
 
-    if (!createRes.ok()) {
-      const text = await createRes.text();
+    await executeRun(request, runId);
 
-      throw new Error(`POST /v1/architecture/request failed ${createRes.status()}: ${text.slice(0, 500)}`);
+    await waitForReadyForCommit(runId, request, 90_000);
+
+    const commitJson = await commitRun(request, runId);
+    const manifestVersion = commitJson.manifest?.metadata?.manifestVersion;
+
+    if (!manifestVersion) {
+      throw new Error("Commit response missing manifest.metadata.manifestVersion");
     }
 
-    const created = (await createRes.json()) as { run?: { runId?: string } };
-    const runId = created.run?.runId;
+    const afterCommit = await getRunDetails(request, runId);
+    const goldenManifestId = afterCommit.run?.goldenManifestId;
 
-    if (!runId) {
-      throw new Error("Create run response missing run.runId");
-    }
-
-    const execRes = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/execute`, {
-      headers: { Accept: "application/json" },
-    });
-
-    if (!execRes.ok()) {
-      const text = await execRes.text();
-
-      throw new Error(`POST execute failed ${execRes.status()}: ${text.slice(0, 500)}`);
+    if (!goldenManifestId) {
+      throw new Error("Run detail after commit missing run.goldenManifestId");
     }
 
     await page.goto("/runs");
@@ -72,17 +101,88 @@ test.describe("live-api-journey", () => {
 
     await page.goto(`/runs/${runId}`);
 
-    await expect(page.getByText(/run|status|manifest/i).first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 60_000 });
 
-    const auditApi = await request.get(`${liveApiBase}/v1/audit/search`, {
-      params: { runId, take: "50" },
+    const manifestLink = page.getByRole("link", { name: goldenManifestId });
+
+    await expect(manifestLink).toBeVisible({ timeout: 60_000 });
+
+    await manifestLink.click();
+
+    await expect(page.getByRole("heading", { name: "Manifest", level: 2 })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByText("Manifest ID:", { exact: false })).toBeVisible();
+    await expect(page.getByText(goldenManifestId)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Artifacts", level: 3 })).toBeVisible();
+    await expect(page.getByRole("table")).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: "Artifact" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Download bundle (ZIP)" })).toBeVisible();
+
+    const exportRes = await getRunExportZip(request, runId);
+
+    expect(exportRes.ok(), `GET run export expected 200, got ${exportRes.status()}`).toBeTruthy();
+
+    const exportCt = exportRes.headers()["content-type"] ?? "";
+
+    expect(
+      exportCt.includes("application/zip") || exportCt.includes("octet-stream"),
+      `export content-type unexpected: ${exportCt}`,
+    ).toBeTruthy();
+
+    const exportBody = await exportRes.body();
+
+    expect(exportBody.length).toBeGreaterThan(0);
+
+    const submitted = await createApprovalRequest(request, {
+      runId,
+      manifestVersion,
+      sourceEnvironment: "dev",
+      targetEnvironment: "test",
+      requestComment: "E2E live happy path",
     });
 
-    if (!auditApi.ok()) {
-      const body = await auditApi.text();
+    const approvalRequestId = submitted.approvalRequestId;
 
-      throw new Error(`GET /v1/audit/search failed ${auditApi.status()}: ${body.slice(0, 400)}`);
+    if (!approvalRequestId) {
+      throw new Error("Governance submit response missing approvalRequestId");
     }
+
+    const approved = await approveGovernanceRequest(request, approvalRequestId, {
+      reviewedBy: peerReviewerActor,
+      reviewComment: "E2E test auto-approve",
+    });
+
+    expect(approved.status).toBe("Approved");
+
+    const auditEvents = await searchAudit(request, { runId, take: "100" });
+    const types = new Set(auditEvents.map((e) => e.eventType).filter(Boolean) as string[]);
+
+    const required = [
+      "RunStarted",
+      "ManifestGenerated",
+      "GovernanceApprovalSubmitted",
+      "GovernanceApprovalApproved",
+      "RunExported",
+    ];
+    const missing = required.filter((t) => !types.has(t));
+
+    if (missing.length > 0) {
+      throw new Error(
+        `Missing audit event types: ${missing.join(", ")}. Found: ${[...types].sort().join(", ")}`,
+      );
+    }
+
+    await page.goto(`/governance?runId=${encodeURIComponent(runId)}`);
+
+    await expect(page.getByRole("heading", { name: /governance workflow/i })).toBeVisible({
+      timeout: 60_000,
+    });
+
+    await expect(page.locator("#gov-query-run")).toHaveValue(runId, { timeout: 15_000 });
+
+    await page.getByRole("button", { name: /^Load$/i }).click();
+
+    await expect(page.getByText(approvalRequestId).first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByText("Approved").first()).toBeVisible({ timeout: 60_000 });
 
     await page.goto("/audit");
 
@@ -92,12 +192,6 @@ test.describe("live-api-journey", () => {
     await page.getByRole("button", { name: /^Search$/i }).click();
 
     await expect(page.locator('[role="alert"]').filter({ hasText: /problem|error|failed/i })).toHaveCount(0, {
-      timeout: 60_000,
-    });
-
-    await page.goto("/governance");
-
-    await expect(page.getByRole("heading", { name: /governance workflow/i })).toBeVisible({
       timeout: 60_000,
     });
   });

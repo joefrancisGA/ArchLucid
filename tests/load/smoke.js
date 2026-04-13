@@ -6,7 +6,6 @@ import http from "k6/http";
 import { check } from "k6";
 
 const BASE = __ENV.BASE_URL || "http://127.0.0.1:5128";
-const PROJECT = "00000000-0000-0000-0000-000000000001";
 
 function req(scenario, method, url, body = null) {
   const params = {
@@ -31,7 +30,8 @@ export function healthFn() {
 }
 
 export function runsListFn() {
-  const url = `${BASE}/v1/authority/projects/${PROJECT}/runs?page=1&pageSize=20`;
+  // Coordinator list for current scope (matches operator `/runs`); avoids authority slug mismatch.
+  const url = `${BASE}/v1/architecture/runs`;
   const r = req("runs_list", "GET", url);
   check(r, { "runs list 200": (res) => res.status === 200 });
 }
@@ -42,7 +42,7 @@ export function versionFn() {
 }
 
 export function auditSearchFn() {
-  const r = req("audit_search", "GET", `${BASE}/v1/audit/search?maxResults=50`);
+  const r = req("audit_search", "GET", `${BASE}/v1/audit/search?take=50`);
   check(r, { "audit search 200": (res) => res.status === 200 });
 }
 
