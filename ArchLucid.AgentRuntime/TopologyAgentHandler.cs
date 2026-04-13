@@ -77,6 +77,8 @@ public sealed class TopologyAgentHandler(
                 promptRepro,
                 inTok,
                 outTok,
+                modelDeploymentName: null,
+                modelVersion: null,
                 cancellationToken);
 
             return parsed;
@@ -98,6 +100,8 @@ public sealed class TopologyAgentHandler(
                 promptRepro,
                 inTok,
                 outTok,
+                modelDeploymentName: null,
+                modelVersion: null,
                 cancellationToken);
 
             throw;

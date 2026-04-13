@@ -27,6 +27,47 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
+    public Task PatchBlobStorageFieldsAsync(
+        string traceId,
+        string? fullSystemPromptBlobKey,
+        string? fullUserPromptBlobKey,
+        string? fullResponseBlobKey,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+            if (i < 0)
+            {
+                return Task.CompletedTask;
+            }
+
+            AgentExecutionTrace t = Clone(_items[i]);
+
+            if (fullSystemPromptBlobKey is not null)
+            {
+                t.FullSystemPromptBlobKey = fullSystemPromptBlobKey;
+            }
+
+            if (fullUserPromptBlobKey is not null)
+            {
+                t.FullUserPromptBlobKey = fullUserPromptBlobKey;
+            }
+
+            if (fullResponseBlobKey is not null)
+            {
+                t.FullResponseBlobKey = fullResponseBlobKey;
+            }
+
+            _items[i] = t;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();

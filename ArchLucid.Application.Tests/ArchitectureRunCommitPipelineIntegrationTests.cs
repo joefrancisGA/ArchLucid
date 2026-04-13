@@ -1,11 +1,13 @@
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
@@ -18,6 +20,7 @@ using ArchLucid.TestSupport;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -144,6 +147,9 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
             actor.Object,
             Mock.Of<IBaselineMutationAuditService>(),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            Mock.Of<IPreCommitGovernanceGate>(),
+            Options.Create(new PreCommitGovernanceGateOptions()),
+            Mock.Of<IAuditService>(),
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         CommitRunResult committed = await commitOrchestrator.CommitRunAsync(runId, CancellationToken.None);

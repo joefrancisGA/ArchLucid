@@ -20,6 +20,9 @@ public static class ProblemTypes
     /// <summary>Reviewer attempted to approve or reject their own governance request (segregation of duties).</summary>
     public const string GovernanceSelfApproval = Base + "#governance-self-approval";
 
+    /// <summary>Optional pre-commit governance blocked manifest commit (Critical findings under enforcing policy assignment).</summary>
+    public const string GovernancePreCommitBlocked = Base + "#governance-pre-commit-blocked";
+
     public const string ResourceNotFound = Base + "#resource-not-found";
 
     /// <summary>59R learning plan not found for the current scope.</summary>

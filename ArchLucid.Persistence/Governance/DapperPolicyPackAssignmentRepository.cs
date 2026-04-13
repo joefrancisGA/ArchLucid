@@ -40,12 +40,14 @@ public sealed class DapperPolicyPackAssignmentRepository(
             INSERT INTO dbo.PolicyPackAssignments
             (
                 AssignmentId, TenantId, WorkspaceId, ProjectId,
-                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc
+                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc,
+                BlockCommitOnCritical
             )
             VALUES
             (
                 @AssignmentId, @TenantId, @WorkspaceId, @ProjectId,
-                @PolicyPackId, @PolicyPackVersion, @IsEnabled, @ScopeLevel, @IsPinned, @AssignedUtc, @ArchivedUtc
+                @PolicyPackId, @PolicyPackVersion, @IsEnabled, @ScopeLevel, @IsPinned, @AssignedUtc, @ArchivedUtc,
+                @BlockCommitOnCritical
             );
             """;
 
@@ -83,7 +85,8 @@ public sealed class DapperPolicyPackAssignmentRepository(
         const string sql = """
             SELECT TOP 200
                 AssignmentId, TenantId, WorkspaceId, ProjectId,
-                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc
+                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc,
+                BlockCommitOnCritical
             FROM dbo.PolicyPackAssignments
             WHERE TenantId = @TenantId
               AND ArchivedUtc IS NULL
@@ -115,7 +118,8 @@ public sealed class DapperPolicyPackAssignmentRepository(
         const string sql = """
             SELECT TOP 1
                 AssignmentId, TenantId, WorkspaceId, ProjectId,
-                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc
+                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc,
+                BlockCommitOnCritical
             FROM dbo.PolicyPackAssignments
             WHERE TenantId = @TenantId
               AND AssignmentId = @AssignmentId;

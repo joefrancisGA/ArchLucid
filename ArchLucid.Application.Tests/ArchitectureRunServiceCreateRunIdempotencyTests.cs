@@ -5,9 +5,11 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
@@ -18,6 +20,7 @@ using ArchLucid.TestSupport;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -271,6 +274,9 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 actorContext,
                 audit,
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+                Mock.Of<IPreCommitGovernanceGate>(),
+                Options.Create(new PreCommitGovernanceGateOptions()),
+                Mock.Of<IAuditService>(),
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }

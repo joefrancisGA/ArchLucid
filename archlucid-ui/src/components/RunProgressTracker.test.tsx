@@ -54,7 +54,13 @@ describe("RunProgressTracker", () => {
   it("polls and updates badges as stages complete", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
+    // Strict Mode mounts effects twice; each run invokes `tick()` → two initial fetches.
     mockGetRunSummary
+      .mockResolvedValueOnce({
+        ...baseSummary,
+        runId: "live-1",
+        hasContextSnapshot: true,
+      })
       .mockResolvedValueOnce({
         ...baseSummary,
         runId: "live-1",

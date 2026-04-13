@@ -8,6 +8,20 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-12 — Quality prompts batch (live E2E docs, k6, trace blobs, audit UI, pre-commit gate, Terraform runbook)
+
+**Added:** Optional **pre-commit governance gate** (`ArchLucid:Governance:PreCommitGateEnabled`, `PolicyPackAssignment.BlockCommitOnCritical`, SQL **`054`**), **`#governance-pre-commit-blocked`** problem type, durable audit **`GovernancePreCommitBlocked`**.
+
+**Added:** **Agent execution trace** full-text blob persistence behind **`AgentExecution:TraceStorage:PersistFullPrompts`** (async blob writes + **`PatchBlobStorageFieldsAsync`**), SQL **`053`**, contract fields on **`AgentExecutionTrace`**.
+
+**Added:** CI job **Performance: k6 smoke (API baseline)** (`tests/load/smoke.js`, non-blocking) and docs **`PERFORMANCE_TESTING.md`**.
+
+**Changed:** Operator **Audit** page — **Clear filters** re-queries, **Export CSV**, summary line, helpers + Vitest; **`ComparisonSummaryPersisted`** audit matrix row; **`ExportsControllerCompareSummaryAuditTests`** usings fix.
+
+**Docs:** **`AGENT_TRACE_FORENSICS.md`**, **`PRE_COMMIT_GOVERNANCE_GATE.md`**, **`TEST_STRUCTURE`** live E2E row, **`TEST_EXECUTION_MODEL`** k6/live rows, **`operator-shell`** audit section, Phase **7.5** Terraform runbook **`TERRAFORM_STATE_MV_PHASE_7_5.md`**, **`NEXT_REFACTORINGS`** backlog summary table.
+
+---
+
 ## 2026-04-13 — Governance drift trend, promotion ordering, pipeline timeout, RunId, docs, Schemathesis PR
 
 **Added:** **`GET /v1/governance/compliance-drift-trend`** and **`ComplianceDriftTrendService`** (time-bucketed policy pack change log aggregates). Operator UI **`ComplianceDriftChart`** on the governance dashboard (last 30 days, daily buckets).

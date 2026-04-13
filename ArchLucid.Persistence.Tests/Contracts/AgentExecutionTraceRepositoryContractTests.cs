@@ -98,6 +98,34 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         forA[0].TraceId.Should().Be("x1");
     }
 
+    [SkippableFact]
+    public async Task PatchBlobStorageFieldsAsync_updates_blob_keys_on_read()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-patch-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-patch");
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+
+        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "patch-trace", DateTime.UtcNow);
+        await repo.CreateAsync(created, CancellationToken.None);
+
+        await repo.PatchBlobStorageFieldsAsync(
+            "patch-trace",
+            fullSystemPromptBlobKey: "file:///sys",
+            fullUserPromptBlobKey: "file:///usr",
+            fullResponseBlobKey: "file:///rsp",
+            CancellationToken.None);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.FullSystemPromptBlobKey.Should().Be("file:///sys");
+        t.FullUserPromptBlobKey.Should().Be("file:///usr");
+        t.FullResponseBlobKey.Should().Be("file:///rsp");
+    }
+
     private static AgentTask NewTask(string runId, string taskId)
     {
         return new AgentTask

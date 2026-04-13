@@ -306,6 +306,11 @@ public sealed partial class RunsController(
 
             return Ok(response);
         }
+        catch (PreCommitGovernanceBlockedException ex)
+        {
+            logger.LogWarning(ex, "CommitRun blocked by pre-commit governance for run '{RunId}'.", runId);
+            return this.GovernancePreCommitBlockedProblem(ex.Result);
+        }
         catch (ConflictException ex)
         {
             logger.LogWarning(ex, "CommitRun conflict for run '{RunId}'.", runId);

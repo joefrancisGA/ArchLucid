@@ -102,6 +102,12 @@ For request-scoped correlation headers and sampling, see **Sampling strategy** a
 
 ---
 
+## Agent execution trace blob storage (optional)
+
+When **`AgentExecution:TraceStorage:PersistFullPrompts`** is **true**, the **`AgentExecutionTraceRecorder`** uploads **full** (unsanitized) system prompt, user prompt, and raw model response to **`IArtifactBlobStore`** under container **`agent-traces`** with object paths **`{runId}/{traceId}/system-prompt.txt`**, **`user-prompt.txt`**, **`response.txt`**. Uploads run **asynchronously** after the SQL row insert; failures are **logged** and blob pointer columns may stay **null**. Truncated **`TraceJson`** fields remain for lightweight reads. Operational and privacy notes: **`docs/AGENT_TRACE_FORENSICS.md`**.
+
+---
+
 ## Sampling strategy
 
 | Environment   | `SamplingRatio` | Rationale |

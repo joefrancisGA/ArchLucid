@@ -20,6 +20,9 @@ public static class AuditEventTypes
     /// <summary>Emitted when a replay export persists a new run export row (<c>RecordReplayExport</c> on replay POST).</summary>
     public const string ReplayExportRecorded = "ReplayExportRecorded";
 
+    /// <summary>Emitted when <c>POST .../run/exports/compare/summary</c> persists an export-record diff comparison row.</summary>
+    public const string ComparisonSummaryPersisted = "ComparisonSummaryPersisted";
+
     public const string RecommendationGenerated = "RecommendationGenerated";
     public const string RecommendationAccepted = "RecommendationAccepted";
     public const string RecommendationRejected = "RecommendationRejected";
@@ -72,6 +75,9 @@ public static class AuditEventTypes
 
     /// <summary>Durable audit when a reviewer is blocked from approving or rejecting their own governance request (segregation of duties).</summary>
     public const string GovernanceSelfApprovalBlocked = "GovernanceSelfApprovalBlocked";
+
+    /// <summary>Emitted when optional pre-commit governance blocks manifest commit due to critical findings.</summary>
+    public const string GovernancePreCommitBlocked = "GovernancePreCommitBlocked";
 
     public const string GovernanceManifestPromoted = "GovernanceManifestPromoted";
     public const string GovernanceEnvironmentActivated = "GovernanceEnvironmentActivated";

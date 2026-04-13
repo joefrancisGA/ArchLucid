@@ -194,8 +194,10 @@ Workflow: `.github/workflows/ci.yml` — **six jobs**, tiered for clarity and fa
 | **2b** | **`chaos-tests`** | Runs **after** Tier 2 passes. **Resilience: Simmy chaos tests** — `ArchLucid.AgentRuntime.Tests` and `ArchLucid.Persistence.Tests` filtered to Simmy/Chaos FQNs. **CI-blocking** (failures block the PR). See [CHAOS_TESTING.md](CHAOS_TESTING.md). |
 | **3a** | **`ui-unit`** | `archlucid-ui`: `npm ci`, `npm run test` (Vitest / jsdom), **CycloneDX** npm SBOM (artifact **`sbom-npm`**). |
 | **3b** | **`ui-e2e-smoke`** | `archlucid-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). Browser-heavy. |
+| **3c** | **`ui-e2e-live`** | After **`dotnet-full-regression`**. Real **ArchLucid.Api** + SQL + Playwright **`live-api-journey`** (`playwright.live.config.ts`). **`continue-on-error: true`** until the suite is proven stable. |
+| **3d** | **`Performance: k6 smoke (API baseline)`** | After **`dotnet-full-regression`**. API + Dockerized **k6** `tests/load/smoke.js`, JSON artifact. **`continue-on-error: true`** while baselines settle. See **[PERFORMANCE_TESTING.md](PERFORMANCE_TESTING.md)**. |
 
-PRs must pass **all six** jobs. Tier 2 (and 2b) are skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up, full-suite time, and chaos runs on obvious breaks.
+PRs must pass the **blocking** merge gates (Tier **0–3b** and **2b** as wired in `ci.yml`). Tier **3c** / **3d** are **informational** until `continue-on-error` is removed. Tier 2 (and 2b) are skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up, full-suite time, and chaos runs on obvious breaks.
 
 ### Tier 4 — scheduled security testing (not per-PR)
 

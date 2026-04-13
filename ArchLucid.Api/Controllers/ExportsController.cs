@@ -125,6 +125,22 @@ public sealed class ExportsController(
             cancellationToken);
         Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = comparisonRecordId;
 
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ComparisonSummaryPersisted,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        comparisonId = comparisonRecordId,
+                        sourceExportRecordId = leftExportRecordId,
+                        leftExportRecordId,
+                        rightExportRecordId,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
+
         return Ok(new ExportRecordDiffSummaryResponse
         {
             Format = "markdown",

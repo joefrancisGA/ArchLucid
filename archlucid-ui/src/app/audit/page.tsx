@@ -6,7 +6,8 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AuditEvent } from "@/lib/api";
-import { getAuditEventTypes, searchAuditEvents } from "@/lib/api";
+import { downloadAuditExportCsv, getAuditEventTypes, searchAuditEvents } from "@/lib/api";
+import { canExportAuditCsv, formatAuditSummaryHeading } from "@/app/audit/audit-ui-helpers";
 
 function formatUtc(iso: string): string {
   try {
@@ -30,6 +31,15 @@ function tryFormatDataJson(dataJson: string): string {
   }
 }
 
+interface AuditFilterFields {
+  eventType: string;
+  fromUtc: string;
+  toUtc: string;
+  correlationId: string;
+  actorUserId: string;
+  runId: string;
+}
+
 export default function AuditPage() {
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventType, setEventType] = useState<string>("");
@@ -43,6 +53,7 @@ export default function AuditPage() {
   const [loadingTypes, setLoadingTypes] = useState(true);
   const [searching, setSearching] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const loadTypes = useCallback(async () => {
@@ -62,19 +73,40 @@ export default function AuditPage() {
     void loadTypes();
   }, [loadTypes]);
 
+  const executeSearch = useCallback(async (filters: AuditFilterFields, appendBeforeUtc?: string) => {
+    setFailure(null);
+    const payload = {
+      eventType: filters.eventType || undefined,
+      fromUtc: filters.fromUtc ? new Date(filters.fromUtc).toISOString() : undefined,
+      toUtc: filters.toUtc ? new Date(filters.toUtc).toISOString() : undefined,
+      beforeUtc: appendBeforeUtc,
+      correlationId: filters.correlationId.trim() || undefined,
+      actorUserId: filters.actorUserId.trim() || undefined,
+      runId: filters.runId.trim() || undefined,
+      take: AUDIT_PAGE_SIZE,
+    };
+
+    const data = await searchAuditEvents(payload);
+
+    return data;
+  }, []);
+
+  const currentFilters = useCallback(
+    (): AuditFilterFields => ({
+      eventType,
+      fromUtc,
+      toUtc,
+      correlationId,
+      actorUserId,
+      runId,
+    }),
+    [actorUserId, correlationId, eventType, fromUtc, runId, toUtc],
+  );
+
   const runSearch = useCallback(async () => {
     setSearching(true);
-    setFailure(null);
     try {
-      const data = await searchAuditEvents({
-        eventType: eventType || undefined,
-        fromUtc: fromUtc ? new Date(fromUtc).toISOString() : undefined,
-        toUtc: toUtc ? new Date(toUtc).toISOString() : undefined,
-        correlationId: correlationId.trim() || undefined,
-        actorUserId: actorUserId.trim() || undefined,
-        runId: runId.trim() || undefined,
-        take: AUDIT_PAGE_SIZE,
-      });
+      const data = await executeSearch(currentFilters());
       setEvents(data);
       setHasMoreResults(data.length === AUDIT_PAGE_SIZE);
     } catch (e) {
@@ -82,7 +114,35 @@ export default function AuditPage() {
     } finally {
       setSearching(false);
     }
-  }, [actorUserId, correlationId, eventType, fromUtc, runId, toUtc]);
+  }, [currentFilters, executeSearch]);
+
+  const clearFiltersAndSearch = useCallback(async () => {
+    setEventType("");
+    setFromUtc("");
+    setToUtc("");
+    setCorrelationId("");
+    setActorUserId("");
+    setRunId("");
+    setSearching(true);
+    setFailure(null);
+    const empty: AuditFilterFields = {
+      eventType: "",
+      fromUtc: "",
+      toUtc: "",
+      correlationId: "",
+      actorUserId: "",
+      runId: "",
+    };
+    try {
+      const data = await executeSearch(empty);
+      setEvents(data);
+      setHasMoreResults(data.length === AUDIT_PAGE_SIZE);
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setSearching(false);
+    }
+  }, [executeSearch]);
 
   const loadMore = useCallback(async () => {
     if (events.length === 0) {
@@ -97,16 +157,7 @@ export default function AuditPage() {
     setLoadingMore(true);
     setFailure(null);
     try {
-      const more = await searchAuditEvents({
-        eventType: eventType || undefined,
-        fromUtc: fromUtc ? new Date(fromUtc).toISOString() : undefined,
-        toUtc: toUtc ? new Date(toUtc).toISOString() : undefined,
-        beforeUtc: lastOccurredUtc,
-        correlationId: correlationId.trim() || undefined,
-        actorUserId: actorUserId.trim() || undefined,
-        runId: runId.trim() || undefined,
-        take: AUDIT_PAGE_SIZE,
-      });
+      const more = await executeSearch(currentFilters(), lastOccurredUtc);
       setHasMoreResults(more.length === AUDIT_PAGE_SIZE);
       setEvents((prev) => {
         const seen = new Set(prev.map((e) => e.eventId));
@@ -123,19 +174,29 @@ export default function AuditPage() {
     } finally {
       setLoadingMore(false);
     }
-  }, [actorUserId, correlationId, eventType, events, fromUtc, runId, toUtc]);
+  }, [currentFilters, events, executeSearch]);
 
-  function clearFilters() {
-    setEventType("");
-    setFromUtc("");
-    setToUtc("");
-    setCorrelationId("");
-    setActorUserId("");
-    setRunId("");
-    setEvents([]);
-    setHasMoreResults(false);
+  const onExportCsv = useCallback(async () => {
+    if (!canExportAuditCsv(fromUtc, toUtc)) {
+      return;
+    }
+
+    setExporting(true);
     setFailure(null);
-  }
+    try {
+      await downloadAuditExportCsv({
+        fromUtcIso: new Date(fromUtc).toISOString(),
+        toUtcIso: new Date(toUtc).toISOString(),
+        maxRows: 10_000,
+      });
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setExporting(false);
+    }
+  }, [fromUtc, toUtc]);
+
+  const exportEnabled = canExportAuditCsv(fromUtc, toUtc);
 
   return (
     <main style={{ maxWidth: 900 }}>
@@ -228,15 +289,21 @@ export default function AuditPage() {
           <button type="button" onClick={() => void runSearch()} disabled={searching || loadingTypes}>
             {searching ? "Searching…" : "Search"}
           </button>
-          <button type="button" onClick={() => clearFilters()} disabled={searching}>
+          <button type="button" onClick={() => void clearFiltersAndSearch()} disabled={searching}>
             Clear filters
+          </button>
+          <button
+            type="button"
+            onClick={() => void onExportCsv()}
+            disabled={!exportEnabled || exporting || searching}
+            title={exportEnabled ? "Download CSV for the current date range" : "Set a date range to enable export"}
+          >
+            {exporting ? "Exporting…" : "Export CSV"}
           </button>
         </div>
       </section>
 
-      <p style={{ color: "#555", fontSize: 14 }}>
-        {events.length} result{events.length === 1 ? "" : "s"}
-      </p>
+      <p style={{ color: "#555", fontSize: 14 }}>{formatAuditSummaryHeading(events.length, hasMoreResults)}</p>
 
       <div style={{ display: "grid", gap: 12 }}>
         {events.length === 0 ? (

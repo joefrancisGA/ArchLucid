@@ -16,6 +16,16 @@ public interface IAgentExecutionTraceRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Updates blob pointer columns and refreshes <c>TraceJson</c> after asynchronous full-text uploads.
+    /// </summary>
+    Task PatchBlobStorageFieldsAsync(
+        string traceId,
+        string? fullSystemPromptBlobKey,
+        string? fullUserPromptBlobKey,
+        string? fullResponseBlobKey,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Returns all traces for the specified run, ordered by <c>CreatedUtc</c> ascending.
     /// </summary>
     /// <param name="runId">The run whose traces are requested.</param>

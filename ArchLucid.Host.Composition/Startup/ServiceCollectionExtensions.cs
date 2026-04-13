@@ -37,7 +37,7 @@ public static partial class ServiceCollectionExtensions
         RegisterBackgroundJobs(services, configuration, hostingRole);
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
         RegisterComparisonReplayAndDrift(services, configuration);
-        RegisterRunReplayManifestAndDiffs(services);
+        RegisterRunReplayManifestAndDiffs(services, configuration);
         RegisterContextIngestionAndKnowledgeGraph(services);
         RegisterDecisioningEngines(services);
         RegisterCoordinatorDecisionEngineAndRepositories(services, configuration);

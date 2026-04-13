@@ -23,6 +23,8 @@ public interface IAgentExecutionTraceRecorder
     /// <param name="promptRepro">Template id/version/hash and optional release label; <see langword="null"/> when not applicable.</param>
     /// <param name="inputTokenCount">Provider-reported prompt tokens, when known.</param>
     /// <param name="outputTokenCount">Provider-reported completion tokens, when known.</param>
+    /// <param name="modelDeploymentName">Provider deployment name when known (stored on the trace row).</param>
+    /// <param name="modelVersion">Provider model version string when known.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that completes when the trace is stored.</returns>
     Task RecordAsync(
@@ -38,5 +40,7 @@ public interface IAgentExecutionTraceRecorder
         AgentPromptReproMetadata? promptRepro = null,
         int? inputTokenCount = null,
         int? outputTokenCount = null,
+        string? modelDeploymentName = null,
+        string? modelVersion = null,
         CancellationToken cancellationToken = default);
 }

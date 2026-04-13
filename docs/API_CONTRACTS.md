@@ -89,6 +89,8 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 
 `POST /v1/architecture/run/{runId}/commit` returns **409 Conflict** with problem type **`#conflict`** when the run is in Failed status, already committed, or otherwise not in a state that allows commit.
 
+When **`ArchLucid:Governance:PreCommitGateEnabled`** is **true** and an enabled policy pack assignment has **`BlockCommitOnCritical`**, the same route may return **409** with problem type **`#governance-pre-commit-blocked`** (RFC 7807 **`extensions.blockingFindingIds`**, optional **`extensions.policyPackId`**) if the run’s findings snapshot contains **Critical** severity findings. See **`docs/PRE_COMMIT_GOVERNANCE_GATE.md`**.
+
 ## Comparison replay — request validation
 
 The replay endpoint body (`format`, `replayMode`, `profile`, `persistReplay`) is validated with FluentValidation. Invalid values (e.g. unsupported format or replayMode) return **400 Bad Request** with problem details describing validation errors.
@@ -101,7 +103,7 @@ The **batch replay** endpoint (`POST /v1/architecture/comparisons/replay/batch`)
 
 ## OpenAPI / .NET 10
 
-Swagger documents the comparison replay **422** response, **404** with `#run-not-found` on run/compare and comparisons routes, and **409** with `#conflict` on commit. The codebase does not use deprecated `WithOpenApi`; use operation filters / transformers for per-operation docs.
+Swagger documents the comparison replay **422** response, **404** with `#run-not-found` on run/compare and comparisons routes, and **409** with `#conflict` or `#governance-pre-commit-blocked` on commit when applicable. The codebase does not use deprecated `WithOpenApi`; use operation filters / transformers for per-operation docs.
 
 ### Security schemes (Swashbuckle)
 

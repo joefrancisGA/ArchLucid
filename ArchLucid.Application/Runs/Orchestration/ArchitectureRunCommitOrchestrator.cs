@@ -4,8 +4,11 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using System.Text.Json;
+
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.DecisionTraces;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
@@ -17,6 +20,7 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -37,6 +41,9 @@ public sealed class ArchitectureRunCommitOrchestrator(
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IPreCommitGovernanceGate preCommitGovernanceGate,
+    IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
+    IAuditService auditService,
     ILogger<ArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -58,6 +65,13 @@ public sealed class ArchitectureRunCommitOrchestrator(
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+    private readonly IPreCommitGovernanceGate _preCommitGovernanceGate =
+        preCommitGovernanceGate ?? throw new ArgumentNullException(nameof(preCommitGovernanceGate));
+
+    private readonly IOptions<PreCommitGovernanceGateOptions> _preCommitGovernanceGateOptions =
+        preCommitGovernanceGateOptions ?? throw new ArgumentNullException(nameof(preCommitGovernanceGateOptions));
+
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly ILogger<ArchitectureRunCommitOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
@@ -118,6 +132,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         if (idempotent is not null)
             return idempotent;
+
+        await EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, cancellationToken);
 
         try
         {
@@ -458,5 +474,49 @@ public sealed class ArchitectureRunCommitOrchestrator(
         throw new InvalidOperationException(
             $"Cannot increment manifest version '{currentVersion}': expected 'vN' format (e.g. 'v1', 'v2'). " +
             "Verify the CurrentManifestVersion stored in the database has not been corrupted.");
+    }
+
+    private async Task EvaluatePreCommitGovernanceGateOrThrowAsync(
+        string runId,
+        string actor,
+        CancellationToken cancellationToken)
+    {
+        if (!_preCommitGovernanceGateOptions.Value.PreCommitGateEnabled)
+        {
+            return;
+        }
+
+        PreCommitGateResult gateResult = await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken);
+
+        if (!gateResult.Blocked)
+        {
+            return;
+        }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid? runGuid = Guid.TryParse(runId, out Guid rid) ? rid : null;
+        string dataJson = JsonSerializer.Serialize(
+            new
+            {
+                reason = gateResult.Reason,
+                blockingFindingIds = gateResult.BlockingFindingIds,
+                policyPackId = gateResult.PolicyPackId,
+            });
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.GovernancePreCommitBlocked,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid,
+                DataJson = dataJson,
+            },
+            cancellationToken);
+
+        throw new PreCommitGovernanceBlockedException(gateResult);
     }
 }

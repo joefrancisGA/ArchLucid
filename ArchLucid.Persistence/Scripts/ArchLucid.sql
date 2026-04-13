@@ -208,6 +208,25 @@ BEGIN
 END
 GO
 
+IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'FullSystemPromptBlobKey') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD FullSystemPromptBlobKey NVARCHAR(2048) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'FullUserPromptBlobKey') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD FullUserPromptBlobKey NVARCHAR(2048) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'FullResponseBlobKey') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD FullResponseBlobKey NVARCHAR(2048) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ModelDeploymentName') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD ModelDeploymentName NVARCHAR(260) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ModelVersion') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD ModelVersion NVARCHAR(200) NULL;
+END
+GO
+
 /* ---- RunExportRecords: create or extend ---- */
 
 IF OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NULL
@@ -1926,6 +1945,12 @@ GO
 IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.PolicyPackAssignments', N'RowVersionStamp') IS NULL
     ALTER TABLE dbo.PolicyPackAssignments ADD RowVersionStamp ROWVERSION;
+GO
+
+IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPackAssignments', N'BlockCommitOnCritical') IS NULL
+    ALTER TABLE dbo.PolicyPackAssignments ADD BlockCommitOnCritical BIT NOT NULL
+        CONSTRAINT DF_PolicyPackAssignments_BlockCommitOnCritical_Create DEFAULT (0);
 GO
 
 /* -- First-wave CHECK constraints (obvious status domains only) ----

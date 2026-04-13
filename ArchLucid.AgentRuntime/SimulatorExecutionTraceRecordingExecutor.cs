@@ -72,6 +72,8 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
                 promptRepro,
                 inputTokenCount: null,
                 outputTokenCount: null,
+                modelDeploymentName: null,
+                modelVersion: null,
                 cancellationToken);
         }
 

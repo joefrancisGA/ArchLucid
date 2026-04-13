@@ -49,6 +49,12 @@ Goal: operators see **what happened**, **how it differs from “nothing here”*
 
 ---
 
+## Audit log (`/audit`)
+
+Filter durable `IAuditService` rows (event type, local **from/to** window, correlation id, actor, run id). **Clear filters** resets inputs and immediately re-queries with no filters. **Export CSV** calls `GET /v1/audit/export` (same-origin proxy) with the current **from/to** range and triggers a browser download; the button stays disabled until both bounds are set (tooltip explains why). A summary line above the list shows **Showing N events** or **Showing N+ events** when more pages remain (**Load more** uses the search keyset cursor).
+
+---
+
 ## Artifact review
 
 - **List:** `GET api/artifacts/manifests/{manifestId}` returns a **JSON array** (possibly empty) when the manifest exists in scope. Rows are ordered **by name, then artifact id** (deterministic for UI and ZIP).

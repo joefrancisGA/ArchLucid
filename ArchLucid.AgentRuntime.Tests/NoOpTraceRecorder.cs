@@ -18,5 +18,7 @@ public sealed class NoOpTraceRecorder : IAgentExecutionTraceRecorder
         AgentPromptReproMetadata? promptRepro = null,
         int? inputTokenCount = null,
         int? outputTokenCount = null,
+        string? modelDeploymentName = null,
+        string? modelVersion = null,
         CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

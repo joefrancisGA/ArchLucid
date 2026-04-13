@@ -72,6 +72,8 @@ npm run test:watch
 npm run test:e2e
 ```
 
+**Live API E2E (Tier 2+ — CI `ui-e2e-live`, non-blocking):** Playwright config `archlucid-ui/playwright.live.config.ts`, spec `e2e/live-api-journey.spec.ts`, `describe` name **`live-api-journey`**. Exercises a real `ArchLucid.Api` + SQL stack (`DevelopmentBypass`, simulator agents): health, run create/execute, audit search, governance dashboard. Filter locally with `npx playwright test -c playwright.live.config.ts`. See **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** for the CI job.
+
 **Scripts (repo root):** `test-ui-unit.cmd` / `.ps1` (Vitest), `test-ui-smoke.cmd` / `.ps1` (Playwright)
 
 **Change Set 55R — focused review-workflow smoke:** component + mocked API contract tests under `archlucid-ui/src/review-workflow/`, `ShellNav`, artifact/compare helpers. Command list: [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#3-55r--review-workflow-smoke-tests-change-set-55r). Operator context: [docs/operator-shell.md](operator-shell.md).

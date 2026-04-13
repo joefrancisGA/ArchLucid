@@ -57,10 +57,11 @@ export default function GovernanceApprovalLineagePage() {
 
   if (!approvalRequestId) {
     return (
-      <OperatorEmptyState
-        title="Missing approval id"
-        description="Open this page from a governance link that includes the approval request id."
-      />
+      <OperatorEmptyState title="Missing approval id">
+        <p className="text-sm">
+          Open this page from a governance link that includes the approval request id.
+        </p>
+      </OperatorEmptyState>
     );
   }
 
@@ -94,7 +95,11 @@ export default function GovernanceApprovalLineagePage() {
   }
 
   if (!data) {
-    return <OperatorEmptyState title="No data" description="Lineage could not be loaded." />;
+    return (
+      <OperatorEmptyState title="No data">
+        <p className="text-sm">Lineage could not be loaded.</p>
+      </OperatorEmptyState>
+    );
   }
 
   const a = data.approvalRequest;
@@ -196,10 +201,11 @@ export default function GovernanceApprovalLineagePage() {
         </CardHeader>
         <CardContent>
           {data.topFindings.length === 0 ? (
-            <OperatorEmptyState
-              title="No findings in lineage"
-              description="Authority findings are shown when the approval run id matches an authority run with a snapshot."
-            />
+            <OperatorEmptyState title="No findings in lineage">
+              <p className="text-sm">
+                Authority findings are shown when the approval run id matches an authority run with a snapshot.
+              </p>
+            </OperatorEmptyState>
           ) : (
             <ul className="space-y-2 text-sm">
               {data.topFindings.map((f) => (

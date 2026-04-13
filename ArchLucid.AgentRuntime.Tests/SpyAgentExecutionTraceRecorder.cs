@@ -22,6 +22,8 @@ public sealed class SpyAgentExecutionTraceRecorder : IAgentExecutionTraceRecorde
         AgentPromptReproMetadata? promptRepro = null,
         int? inputTokenCount = null,
         int? outputTokenCount = null,
+        string? modelDeploymentName = null,
+        string? modelVersion = null,
         CancellationToken cancellationToken = default)
     {
         Calls.Add((runId, taskId, agentType));

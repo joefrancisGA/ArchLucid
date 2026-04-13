@@ -28,14 +28,19 @@ export function OperatorErrorCallout({ children }: { children: ReactNode }) {
 
 /**
  * Empty collections or blocked review steps (e.g. run not committed).
+ * Use `children` for rich markup, or `description` for plain text (`children` wins when both are set).
  */
 export function OperatorEmptyState({
   title,
   children,
+  description,
 }: {
   title: string;
-  children: ReactNode;
+  children?: ReactNode;
+  description?: string;
 }) {
+  const detail: ReactNode = children ?? description;
+
   return (
     <div
       role="status"
@@ -47,7 +52,7 @@ export function OperatorEmptyState({
       }}
     >
       <strong>{title}</strong>
-      <div style={{ marginTop: 8 }}>{children}</div>
+      <div style={{ marginTop: 8 }}>{detail}</div>
     </div>
   );
 }

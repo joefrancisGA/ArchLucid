@@ -4,6 +4,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
@@ -17,6 +18,7 @@ using ArchLucid.TestSupport;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -154,6 +156,9 @@ public sealed class ArchitectureRunServiceAuditTests
                 actorContext,
                 baselineMutationAudit,
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+                Mock.Of<IPreCommitGovernanceGate>(),
+                Options.Create(new PreCommitGovernanceGateOptions()),
+                Mock.Of<IAuditService>(),
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }

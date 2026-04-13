@@ -44,4 +44,7 @@ public class PolicyPackAssignment
 
     /// <summary>When set, the assignment is retained for audit but ignored by <see cref="IPolicyPackAssignmentRepository.ListByScopeAsync"/>.</summary>
     public DateTime? ArchivedUtc { get; set; }
+
+    /// <summary>When true with <see cref="IsEnabled"/>, manifest commit is blocked if the run has Critical findings (optional gate).</summary>
+    public bool BlockCommitOnCritical { get; set; }
 }

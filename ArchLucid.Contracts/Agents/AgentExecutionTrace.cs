@@ -82,6 +82,21 @@ public sealed class AgentExecutionTrace
     /// <summary>Optional estimated USD cost from input/output token counts when cost estimation is enabled in the recorder.</summary>
     public decimal? EstimatedCostUsd { get; set; }
 
+    /// <summary>Blob store URI (or opaque pointer) for the unsanitized system prompt when full-trace persistence is enabled.</summary>
+    public string? FullSystemPromptBlobKey { get; set; }
+
+    /// <summary>Blob store URI for the unsanitized user prompt when full-trace persistence is enabled.</summary>
+    public string? FullUserPromptBlobKey { get; set; }
+
+    /// <summary>Blob store URI for the unsanitized raw model response when full-trace persistence is enabled.</summary>
+    public string? FullResponseBlobKey { get; set; }
+
+    /// <summary>Azure OpenAI deployment name (or provider equivalent) used for the call, when known.</summary>
+    public string? ModelDeploymentName { get; set; }
+
+    /// <summary>Provider-reported model version string, when available.</summary>
+    public string? ModelVersion { get; set; }
+
     /// <summary>UTC timestamp when this trace was created.</summary>
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }

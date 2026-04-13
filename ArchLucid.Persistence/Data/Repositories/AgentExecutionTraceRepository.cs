@@ -39,7 +39,12 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 ParseSucceeded,
                 ErrorMessage,
                 TraceJson,
-                CreatedUtc
+                CreatedUtc,
+                FullSystemPromptBlobKey,
+                FullUserPromptBlobKey,
+                FullResponseBlobKey,
+                ModelDeploymentName,
+                ModelVersion
             )
             VALUES
             (
@@ -50,7 +55,12 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 @ParseSucceeded,
                 @ErrorMessage,
                 @TraceJson,
-                @CreatedUtc
+                @CreatedUtc,
+                @FullSystemPromptBlobKey,
+                @FullUserPromptBlobKey,
+                @FullResponseBlobKey,
+                @ModelDeploymentName,
+                @ModelVersion
             );
             """;
 
@@ -69,9 +79,86 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 trace.ParseSucceeded,
                 trace.ErrorMessage,
                 TraceJson = json,
-                trace.CreatedUtc
+                trace.CreatedUtc,
+                trace.FullSystemPromptBlobKey,
+                trace.FullUserPromptBlobKey,
+                trace.FullResponseBlobKey,
+                trace.ModelDeploymentName,
+                trace.ModelVersion
             },
             cancellationToken: cancellationToken));
+    }
+
+    /// <inheritdoc />
+    public async Task PatchBlobStorageFieldsAsync(
+        string traceId,
+        string? fullSystemPromptBlobKey,
+        string? fullUserPromptBlobKey,
+        string? fullResponseBlobKey,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string selectSql = """
+            SELECT TraceJson
+            FROM AgentExecutionTraces
+            WHERE TraceId = @TraceId;
+            """;
+
+        string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
+            new CommandDefinition(selectSql, new { TraceId = traceId }, cancellationToken: cancellationToken));
+
+        if (string.IsNullOrEmpty(rowJson))
+        {
+            return;
+        }
+
+        AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+        if (trace is null)
+        {
+            return;
+        }
+
+        if (fullSystemPromptBlobKey is not null)
+        {
+            trace.FullSystemPromptBlobKey = fullSystemPromptBlobKey;
+        }
+
+        if (fullUserPromptBlobKey is not null)
+        {
+            trace.FullUserPromptBlobKey = fullUserPromptBlobKey;
+        }
+
+        if (fullResponseBlobKey is not null)
+        {
+            trace.FullResponseBlobKey = fullResponseBlobKey;
+        }
+
+        string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
+
+        const string updateSql = """
+            UPDATE AgentExecutionTraces
+            SET FullSystemPromptBlobKey = @FullSystemPromptBlobKey,
+                FullUserPromptBlobKey = @FullUserPromptBlobKey,
+                FullResponseBlobKey = @FullResponseBlobKey,
+                TraceJson = @TraceJson
+            WHERE TraceId = @TraceId;
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                updateSql,
+                new
+                {
+                    TraceId = traceId,
+                    FullSystemPromptBlobKey = trace.FullSystemPromptBlobKey,
+                    FullUserPromptBlobKey = trace.FullUserPromptBlobKey,
+                    FullResponseBlobKey = trace.FullResponseBlobKey,
+                    TraceJson = updatedJson
+                },
+                cancellationToken: cancellationToken));
     }
 
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(

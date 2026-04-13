@@ -8,6 +8,14 @@ Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, compari
 
 Numbered sections **8+** below continue the living backlog (rate limits, traits, CORS, OpenTelemetry extraction, …).
 
+## Backlog summary (as of 2026-04-12)
+
+| Status | Guidance |
+|--------|----------|
+| **Active** | Sections **8+** below until moved to the archive — prioritize correctness/security, then cross-cutting architecture, then polish. |
+| **Done (archived)** | Original items **1–7** live under [Archive (completed items 1–7)](#archive-completed-items-17). |
+| **Deferred / Obsolete** | Triage in a dedicated pass: mark deferred items inline with `(deferred: reason)` or move obsolete entries into the archive with `(obsolete: reason)` and today’s date. |
+
 **Contracts service-interface split (future batch):** Move the heaviest **service interfaces** still living in **`ArchLucid.Contracts`** into their **owning** assemblies (e.g. decisioning vs coordinator ports) once team boundaries or circular-reference risk justify the churn; keep DTOs and cross-cutting contracts in **`ArchLucid.Contracts`** until then. See **ADR 0013** (`docs/adr/0013-api-versioning-and-json-schema-versioning.md`) for HTTP + JSON **`schemaVersion`** direction.
 
 ---

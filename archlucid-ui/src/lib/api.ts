@@ -820,6 +820,59 @@ export async function getAuditEventTypes(): Promise<string[]> {
   return apiGet<string[]>("/v1/audit/event-types");
 }
 
+/**
+ * Downloads `GET /v1/audit/export` as CSV (browser only). Requires UTC instants acceptable to the API.
+ */
+export async function downloadAuditExportCsv(params: {
+  fromUtcIso: string;
+  toUtcIso: string;
+  maxRows?: number;
+}): Promise<void> {
+  if (typeof window === "undefined") {
+    throw new Error("downloadAuditExportCsv is only available in the browser.");
+  }
+
+  const query = new URLSearchParams();
+  query.set("fromUtc", params.fromUtcIso);
+  query.set("toUtc", params.toUtcIso);
+  if (params.maxRows !== undefined) {
+    query.set("maxRows", String(params.maxRows));
+  }
+
+  await ensureOidcBearerReady();
+  const { url, headers } = resolveBinaryGetRequest(`/v1/audit/export?${query.toString()}`);
+  const h = withCorrelationHeaders(new Headers(headers));
+  h.set("Accept", "text/csv");
+  const response = await fetch(url, { cache: "no-store", headers: h });
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw buildApiRequestErrorFromParts(response, text);
+  }
+
+  const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
+  const disposition = response.headers.get("Content-Disposition");
+  let filename = "audit-export.csv";
+
+  if (disposition) {
+    const m = /filename="?([^";]+)"?/i.exec(disposition);
+
+    if (m?.[1]) {
+      filename = m[1].trim();
+    }
+  }
+
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = objectUrl;
+  anchor.download = filename;
+  anchor.rel = "noopener";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(objectUrl);
+}
+
 /** Applies a lifecycle action (Acknowledge, Resolve, Suppress) to an alert record. */
 export async function applyAlertAction(
   alertId: string,

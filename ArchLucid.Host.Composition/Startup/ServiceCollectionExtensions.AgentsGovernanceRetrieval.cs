@@ -40,6 +40,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<LlmTokenQuotaOptions>(configuration.GetSection(LlmTokenQuotaOptions.SectionName));
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
         services.Configure<FallbackLlmOptions>(configuration.GetSection(FallbackLlmOptions.SectionName));
+        services.Configure<AgentExecutionTraceStorageOptions>(
+            configuration.GetSection(AgentExecutionTraceStorageOptions.SectionPath));
 
         string? agentMode = configuration["AgentExecution:Mode"];
         string? completionClientRaw = configuration["AgentExecution:CompletionClient"]?.Trim();

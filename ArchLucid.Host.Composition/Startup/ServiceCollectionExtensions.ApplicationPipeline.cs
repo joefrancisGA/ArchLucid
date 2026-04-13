@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Analysis;
@@ -20,6 +21,7 @@ using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Summaries;
 using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.KnowledgeGraph.Inference;
@@ -104,10 +106,13 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IReplayDiagnosticsRecorder, ReplayDiagnosticsRecorder>();
     }
 
-    private static void RegisterRunReplayManifestAndDiffs(IServiceCollection services)
+    private static void RegisterRunReplayManifestAndDiffs(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IActorContext, ActorContext>();
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
+        services.Configure<PreCommitGovernanceGateOptions>(
+            configuration.GetSection(PreCommitGovernanceGateOptions.SectionPath));
+        services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
         services.AddScoped<IArchitectureRunCommitOrchestrator, ArchitectureRunCommitOrchestrator>();

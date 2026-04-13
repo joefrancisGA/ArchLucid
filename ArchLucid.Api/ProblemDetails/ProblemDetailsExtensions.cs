@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Contracts.Governance;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -79,6 +80,38 @@ public static class ProblemDetailsExtensions
             Detail = detail,
             Instance = instance ?? controller.Request.Path
         };
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+        ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
+        return new ObjectResult(problem)
+        {
+            StatusCode = problem.Status,
+            ContentTypes = { ProblemJsonMediaType }
+        };
+    }
+
+    /// <summary>Returns 409 when optional pre-commit governance blocks commit.</summary>
+    public static IActionResult GovernancePreCommitBlockedProblem(
+        this ControllerBase controller,
+        PreCommitGateResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = ProblemTypes.GovernancePreCommitBlocked,
+            Title = "Conflict",
+            Status = StatusCodes.Status409Conflict,
+            Detail = result.Reason ?? "Commit blocked by governance policy.",
+            Instance = controller.Request.Path
+        };
+        problem.Extensions["blockingFindingIds"] = result.BlockingFindingIds.ToArray();
+
+        if (result.PolicyPackId is not null)
+        {
+            problem.Extensions["policyPackId"] = result.PolicyPackId;
+        }
+
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);

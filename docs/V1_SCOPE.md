@@ -81,6 +81,7 @@ These exist in the repo and may be turned on per environment; they are **not** p
 - **Webhooks** / digest delivery with CloudEvents envelope options (same doc).
 - **Governance workflow** tables and APIs where enabled ([DATA_MODEL.md](DATA_MODEL.md), SQL migration history).
 - **Alerts**, **advisory scans**, **retrieval indexing**, **Ask** threads — operational features documented elsewhere ([ALERTS.md](ALERTS.md), [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md)).
+- **Pre-commit governance gate** — optional **`ArchLucid:Governance:PreCommitGateEnabled`** blocks manifest commit when **Critical** findings exist under a **`BlockCommitOnCritical`** assignment ([PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md)).
 
 ---
 
