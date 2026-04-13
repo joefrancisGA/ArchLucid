@@ -118,7 +118,64 @@ export type ArchitectureRunListItemJson = {
   runId?: string;
   status?: string;
   requestId?: string;
+  currentManifestVersion?: string | null;
 };
+
+/** True when API status is {@link ArchitectureRunStatus.Committed} (numeric 5 or string "Committed"). */
+export function isArchitectureRunStatusCommitted(status: number | string | undefined): boolean {
+  if (status === undefined || status === null) {
+    return false;
+  }
+
+  if (typeof status === "number") {
+    return status === 5;
+  }
+
+  return /^committed$/i.test(String(status).trim());
+}
+
+/** Polls GET run detail until status is Committed or timeout (post-commit / read-your-writes). */
+export async function waitForRunDetailCommitted(
+  request: APIRequestContext,
+  runId: string,
+  timeoutMs: number,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const detail = await getRunDetailsWithTransientRetries(request, runId);
+
+    if (isArchitectureRunStatusCommitted(detail.run?.status)) {
+      return;
+    }
+
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+
+  throw new Error(`Run ${runId} did not reach Committed (GET /v1/architecture/run/{id}) within ${timeoutMs}ms`);
+}
+
+/** Polls GET /v1/architecture/runs until the row shows Committed or timeout (dashboard list consistency). */
+export async function waitForArchitectureRunListCommitted(
+  request: APIRequestContext,
+  runId: string,
+  timeoutMs: number,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const rows = await listArchitectureRuns(request);
+    const row = rows.find((r) => r.runId === runId);
+
+    if (row !== undefined && isArchitectureRunStatusCommitted(row.status)) {
+      return;
+    }
+
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+
+  throw new Error(`Run ${runId} did not show Committed on GET /v1/architecture/runs within ${timeoutMs}ms`);
+}
 
 /** GET `/v1/architecture/runs` — recent runs in scope (dashboard / picker). */
 export async function listArchitectureRuns(request: APIRequestContext): Promise<ArchitectureRunListItemJson[]> {

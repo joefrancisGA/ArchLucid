@@ -16,6 +16,8 @@ import {
   getRunExportZip,
   listArchitectureRuns,
   liveApiBase,
+  waitForArchitectureRunListCommitted,
+  waitForRunDetailCommitted,
   postGovernanceApproveRaw,
   searchAudit,
 } from "./helpers/live-api-client";
@@ -105,6 +107,8 @@ test.describe("live-api-journey", () => {
     if (!manifestVersion) {
       throw new Error("Commit response missing manifest.metadata.manifestVersion");
     }
+
+    await waitForRunDetailCommitted(request, runId, 60_000);
 
     const afterCommit = await getRunDetailsWithTransientRetries(request, runId);
     const goldenManifestId = afterCommit.run?.goldenManifestId;
@@ -226,11 +230,13 @@ test.describe("live-api-journey", () => {
       );
     }
 
+    await waitForArchitectureRunListCommitted(request, runId, 90_000);
+
     const runsList = await listArchitectureRuns(request);
     const listed = runsList.find((r) => r.runId === runId);
 
     expect(listed, `run ${runId} should appear in GET /v1/architecture/runs`).toBeTruthy();
-    expect.soft(listed?.status).toMatch(/committed/i);
+    expect.soft(listed?.status).toMatch(/^committed$/i);
 
     await page.goto(`/governance?runId=${encodeURIComponent(runId)}`);
 
