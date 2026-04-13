@@ -18,7 +18,7 @@ After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cob
 
 **PR comment:** **`scripts/ci/build_coverage_pr_comment.py`** lists any product **`ArchLucid.*`** package under **60%** line as the **same CI gate** as [`assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py) on merged Cobertura (not a separate “warning” threshold).
 
-**Stryker ratchet:** Committed regression baselines in **`scripts/ci/stryker-baselines.json`** for **Persistence**, **Application**, **AgentRuntime**, **Coordinator**, and **Decisioning** were raised to **62.0** (conservative step from **60.0**; no recent artifact scores were available here). Matching **`stryker-config*.json`** **`thresholds.low` / `thresholds.break`** are **62**. Refresh measured scores with **`scripts/ci/refresh_stryker_baselines.py`** when possible. Details: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
+**Stryker ratchet:** Committed regression baselines in **`scripts/ci/stryker-baselines.json`** for **Persistence**, **Application**, **AgentRuntime**, **Coordinator**, and **Decisioning** were raised to **62.0** (conservative step from **60.0**; no recent artifact scores were available here). Matching **`stryker-config*.json`** uses **`thresholds.low` / `thresholds.break`** at **70** each (Stryker.NET requires `low` ≥ `break`). Refresh measured scores with **`scripts/ci/refresh_stryker_baselines.py`** when possible. Details: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
 
 ## Exclusion Policy
 
