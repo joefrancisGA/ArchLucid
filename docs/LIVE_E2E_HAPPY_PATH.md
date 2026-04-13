@@ -5,7 +5,7 @@
 **Spec:** `archlucid-ui/e2e/live-api-journey.spec.ts`  
 **Config:** `archlucid-ui/playwright.live.config.ts`  
 **HTTP helpers:** `archlucid-ui/e2e/helpers/live-api-client.ts`  
-**CI job:** `.github/workflows/ci.yml` → **`ui-e2e-live`** (currently **`continue-on-error: true`** until the suite has a long green window).
+**CI job:** `.github/workflows/ci.yml` → **`ui-e2e-live`** (**merge-blocking**; failures fail the workflow).
 
 ---
 
@@ -26,16 +26,21 @@
 1. **`GET /health/ready`** — fail fast if the API is not up (`beforeAll`).
 2. **`POST /v1/architecture/request`** — create a run; capture **`runId`**.
 3. **`POST /v1/architecture/run/{runId}/execute`** — simulator execution.
-4. **Poll `GET /v1/architecture/run/{runId}`** until **`run.status`** is **`ReadyForCommit`** (numeric **`4`**) or already committed.
+4. **Poll `GET /v1/architecture/run/{runId}`** until **`run.status`** is **`ReadyForCommit`** (numeric **`4`**) or already committed. Each poll retries a few times on **HTTP 5xx** (short backoff) to ride out transient SQL/API blips.
 5. **`POST /v1/architecture/run/{runId}/commit`** — persist golden manifest; read **`manifest.metadata.manifestVersion`**.
 6. **`GET /v1/architecture/run/{runId}`** — read **`run.goldenManifestId`** for UI navigation.
 7. **UI:** **`/runs`** → **`/runs/{runId}`** — assert **Golden Manifest** link → **`/manifests/{goldenManifestId}`** — **Manifest** heading, **Artifacts**, table, **Download bundle (ZIP)**.
 8. **`GET /v1/artifacts/runs/{runId}/export`** — non-empty ZIP; emits **`RunExported`** audit.
 9. **`POST /v1/governance/approval-requests`** — **`dev` → `test`**, manifest version from commit.
-10. **`POST /v1/governance/approval-requests/{id}/approve`** — **`reviewedBy`** must differ from the DevelopmentBypass submitter (**`e2e-peer-reviewer`**) to satisfy segregation of duties.
-11. **`GET /v1/audit/search?runId=…`** — assert durable types: **`RunStarted`**, **`ManifestGenerated`**, **`GovernanceApprovalSubmitted`**, **`GovernanceApprovalApproved`**, **`RunExported`**.
-12. **UI:** **`/governance?runId=…`** — **Load** — expect approval card + **Approved** status.
-13. **UI:** **`/audit`** — filter by run ID, **Search**, no error alerts.
+10. **Negative (soft):** **`POST …/approve`** with **`reviewedBy: Developer`** (same as default **`ArchLucidAuth:DevUserName`** under DevelopmentBypass) → **400** self-approval block (**`expect.soft`** — does not fail the happy path).
+11. **`POST /v1/governance/approval-requests/{id}/approve`** — **`reviewedBy: e2e-peer-reviewer`** (differs from submitter) → **Approved**.
+12. **Negative (soft):** second **`POST …/approve`** on the same id → **400** (invalid transition from **Approved**).
+13. **`GET /v1/audit/search?runId=…`** — assert durable types: **`RunStarted`**, **`ManifestGenerated`**, **`GovernanceApprovalSubmitted`**, **`GovernanceApprovalApproved`**, **`RunExported`**.
+14. **`GET /v1/architecture/runs`** — list includes this **`runId`** with status **Committed** (**`expect.soft`** on status text).
+15. **UI:** **`/governance?runId=…`** — **Load** — expect approval card + **Approved** status.
+16. **UI:** **`/audit`** — filter by run ID, **Search**, no error alerts.
+
+**Forensics:** The spec sets Playwright **`test.info().annotations`** (`e2e-run-id`, `e2e-approval-request-id`) and logs **`runId` / `approvalRequestId`** in **`afterAll`** for CI log triage.
 
 ---
 

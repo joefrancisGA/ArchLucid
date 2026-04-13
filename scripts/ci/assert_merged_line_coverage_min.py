@@ -46,6 +46,31 @@ def _failures_for_packages(summary, min_package_line_pct: float) -> list[str]:
     return bad
 
 
+def _advisory_package_warnings(
+    summary,
+    min_package_line_pct: float,
+    warn_below_package_line_pct: float,
+) -> list[str]:
+    """
+    Packages that pass the merge floor but sit below an advisory ceiling (e.g. 60% OK, <70% warn).
+    """
+    if warn_below_package_line_pct <= min_package_line_pct + 1e-9:
+        return []
+
+    lines: list[str] = []
+    for p in product_packages_for_gate(summary):
+        if p.line_rate is None:
+            continue
+        pct = p.line_rate * 100.0
+        if pct + 1e-9 >= min_package_line_pct and pct + 1e-9 < warn_below_package_line_pct:
+            lines.append(
+                f"Per-package line advisory: {p.name} at {pct:.2f}% "
+                f"(merge floor {min_package_line_pct:.0f}%; consider raising toward "
+                f"{warn_below_package_line_pct:.0f}%).",
+            )
+    return lines
+
+
 def _main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Enforce merged Cobertura line, branch, and per-product-package line floors.",
@@ -79,6 +104,22 @@ def _main(argv: list[str]) -> int:
         type=float,
         default=60.0,
         help="Minimum line %% for each product ArchLucid.* package with coverable lines (default 60).",
+    )
+    parser.add_argument(
+        "--warn-below-package-line-pct",
+        type=float,
+        default=70.0,
+        help=(
+            "Emit GitHub ::warning:: (and optional --annotations-file lines) for product packages "
+            "with line %% in [min-package-line-pct, this value). Default 70. Set equal to "
+            "min-package-line-pct to disable."
+        ),
+    )
+    parser.add_argument(
+        "--annotations-file",
+        type=Path,
+        default=None,
+        help="Append one advisory line per row (plain text) for PR workflow warning aggregation.",
     )
     args = parser.parse_args(argv)
 
@@ -143,6 +184,26 @@ def _main(argv: list[str]) -> int:
             f"all >= {args.min_package_line_pct:.2f}% "
             f"({len(product)} ArchLucid.* product package nodes total).",
         )
+
+    advisory = _advisory_package_warnings(
+        summary,
+        args.min_package_line_pct,
+        args.warn_below_package_line_pct,
+    )
+    if advisory:
+        for w in advisory:
+            print(w)
+        if args.annotations_file is not None:
+            args.annotations_file.parent.mkdir(parents=True, exist_ok=True)
+            existing = ""
+            if args.annotations_file.is_file():
+                existing = args.annotations_file.read_text(encoding="utf-8", errors="replace")
+            block = "\n".join(advisory) + ("\n" if advisory else "")
+            args.annotations_file.write_text(existing + block, encoding="utf-8")
+    elif args.annotations_file is not None:
+        args.annotations_file.parent.mkdir(parents=True, exist_ok=True)
+        if not args.annotations_file.is_file():
+            args.annotations_file.write_text("", encoding="utf-8")
 
     return exit_code
 

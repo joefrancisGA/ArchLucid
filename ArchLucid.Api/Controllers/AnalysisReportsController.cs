@@ -10,6 +10,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
@@ -106,7 +107,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "Analysis failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "Analysis failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }
@@ -144,7 +145,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "Analysis export failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "Analysis export failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -173,7 +174,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "Analysis export file failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "Analysis export file failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -207,7 +208,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "DOCX export failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "DOCX export failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -337,7 +338,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "Consulting DOCX export failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "Consulting DOCX export failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }

@@ -443,17 +443,23 @@ jobs:
 
       - name: Enforce merged coverage gates (line 70%, branch 50%, product packages 60% line)
         if: success()
-        run: >
-          python3 scripts/ci/assert_merged_line_coverage_min.py
-          "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 70
-          --min-branch-pct 50
-          --min-package-line-pct 60
+        run: |
+          set -e
+          ART_DIR="${{ runner.temp }}/coverage-metrics-artifact"
+          mkdir -p "${ART_DIR}"
+          python3 scripts/ci/assert_merged_line_coverage_min.py \
+            "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 70 \
+            --min-branch-pct 50 \
+            --min-package-line-pct 60 \
+            --warn-below-package-line-pct 70 \
+            --annotations-file "${ART_DIR}/coverage-annotations-assert.txt"
+          cp "${{ runner.temp }}/coverage-metrics.txt" "${ART_DIR}/coverage-metrics.txt"
 
       - uses: actions/upload-artifact@v6
         if: success()
         with:
           name: coverage-metrics
-          path: ${{ runner.temp }}/coverage-metrics.txt
+          path: ${{ runner.temp }}/coverage-metrics-artifact/**
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
@@ -636,6 +642,9 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           python3 scripts/ci/build_coverage_pr_comment.py
+          if [ -f head-metrics/coverage-annotations-assert.txt ]; then
+            cat head-metrics/coverage-annotations-assert.txt >> head-metrics/coverage-annotations.txt
+          fi
           if [ -f head-metrics/coverage-annotations.txt ]; then
             while IFS= read -r line || [ -n "$line" ]; do
               [ -z "$line" ] && continue
@@ -795,11 +804,10 @@ jobs:
           npx playwright install --with-deps chromium
           npx playwright test
 
-  # Live API + Sql + Next.js (no mock). Non-blocking until stable; remove continue-on-error after ~2 weeks green.
+  # Live API + Sql + Next.js (no mock). Gating — failures block merge.
   ui-e2e-live:
     name: "Operator UI: e2e live API + SQL"
     needs: dotnet-full-regression
-    continue-on-error: true
     runs-on: ubuntu-latest
     services:
       sqlserver:
@@ -914,11 +922,10 @@ jobs:
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
-  # k6 read-only API smoke. Non-blocking until baselines are trusted; remove continue-on-error after a green window.
+  # k6 read-only API smoke. Gating — failures block merge (rate limits relaxed for this job).
   k6-smoke-api:
     name: "Performance: k6 smoke (API baseline)"
     needs: dotnet-full-regression
-    continue-on-error: true
     runs-on: ubuntu-latest
     services:
       sqlserver:

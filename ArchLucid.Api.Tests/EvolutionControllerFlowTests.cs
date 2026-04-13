@@ -18,6 +18,7 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>Execute paths for <c>/v1/evolution/*</c> (separate fixture from query tests so list endpoints stay isolated).</summary>
 [Trait("Category", "Integration")]
+[Trait("Suite", "Core")]
 [Trait("ChangeSet", "60R")]
 public sealed class EvolutionControllerFlowTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {

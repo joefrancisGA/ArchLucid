@@ -12,13 +12,17 @@ After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cob
 | Merged **branch** | **50%** | same (`--min-branch-pct 50`) | same | Exit **1** if root `branch-rate` × 100 is below the floor. |
 | Per-product **line** | **60%** | same (`--min-package-line-pct 60`; script default **60**) | same | Exit **1** if any gated package is below the floor or has coverable lines but missing `line-rate`. |
 
+**Advisory per-package band (non-blocking):** When **`--warn-below-package-line-pct`** (default **70**) is greater than **`--min-package-line-pct`**, packages that **pass** the merge floor but sit **below** the advisory ceiling get plain-text lines written to **`--annotations-file`** (e.g. **`coverage-annotations-assert.txt`** in the **`coverage-metrics`** artifact). The **`coverage-pr-comment`** job appends that file to **`coverage-annotations.txt`** and emits each line as a GitHub **`::warning::`** for visibility. This does **not** fail the build.
+
 **Exit 2** (script-wide): merged file missing/unparseable, or root **`line-rate`** or **`branch-rate`** missing so gates cannot be evaluated without silently passing.
 
 **Rationale:** **70%** merged line is the solution-wide bar (per-assembly Coverlet thresholds are not used—they do not match tree-wide coverage). **50%** merged branch adds conditional coverage without demanding perfect branches on generated or thin code. **60%** per product package raises the per-assembly floor so thin or effectively untested production projects surface in CI before merge.
 
 **PR comment:** **`scripts/ci/build_coverage_pr_comment.py`** lists any product **`ArchLucid.*`** package under **60%** line as the **same CI gate** as [`assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py) on merged Cobertura (not a separate “warning” threshold).
 
-**Stryker ratchet:** Committed regression baselines in **`scripts/ci/stryker-baselines.json`** for **Persistence**, **Application**, **AgentRuntime**, **Coordinator**, and **Decisioning** were raised to **62.0** (conservative step from **60.0**; no recent artifact scores were available here). Matching **`stryker-config*.json`** uses **`thresholds.low` / `thresholds.break`** at **70** each (Stryker.NET requires `low` ≥ `break`). Refresh measured scores with **`scripts/ci/refresh_stryker_baselines.py`** when possible. Details: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
+**Exclusions in `coverage.runsettings`:** Tier-5 excludes (generated **OpenAPI** client, **NSwag** output, etc.) shrink denominators for merged Cobertura; gates still apply to the merged tree. See the **`coverage.runsettings`** file at repo root for the current exclude list.
+
+**Stryker:** Scheduled mutation runs use multiple **`stryker-config*.json`** files (Persistence, Application, Decisioning, Coordinator, AgentRuntime); baseline scores are asserted via **`scripts/ci/assert_stryker_score_vs_baseline.py`** against **`stryker-baselines.json`**. Narrative: **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
 
 ## Exclusion Policy
 

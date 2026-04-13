@@ -57,7 +57,7 @@ Raise thresholds only when a change **intentionally** increases latency (for exa
 
 ## CI
 
-See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 smoke (API baseline)`** (non-blocking initially). The workflow starts the API with SQL (same pattern as live E2E), **raises `RateLimiting:FixedWindow:PermitLimit` for the job**, waits for **`/health/ready`**, runs k6 in Docker, and uploads **`k6-results.json`**.
+See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 smoke (API baseline)`** (**merge-blocking**). The workflow starts the API with SQL (same pattern as live E2E), **raises `RateLimiting:FixedWindow:PermitLimit` for the job**, waits for **`/health/ready`**, runs k6 in Docker, and uploads **`k6-results.json`**.
 
 ### Docker: `permission denied` on `--out json=/out/...`
 

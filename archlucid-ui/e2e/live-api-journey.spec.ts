@@ -12,19 +12,26 @@ import {
   createApprovalRequest,
   createRun,
   executeRun,
-  getRunDetails,
+  getRunDetailsWithTransientRetries,
   getRunExportZip,
+  listArchitectureRuns,
   liveApiBase,
+  postGovernanceApproveRaw,
   searchAudit,
 } from "./helpers/live-api-client";
 
 const peerReviewerActor = "e2e-peer-reviewer";
 
+/** Matches default `ArchLucidAuth:DevUserName` in DevelopmentBypass (submitter for governance requests). */
+const developmentBypassActorName = "Developer";
+
+const liveE2eForensics: { runId?: string; approvalRequestId?: string } = {};
+
 async function waitForReadyForCommit(runId: string, request: APIRequestContext, timeoutMs: number): Promise<void> {
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
-    const detail = await getRunDetails(request, runId);
+    const detail = await getRunDetailsWithTransientRetries(request, runId);
     const status = detail.run?.status;
 
     if (status === 4 || status === "ReadyForCommit") {
@@ -46,6 +53,14 @@ async function waitForReadyForCommit(runId: string, request: APIRequestContext, 
 }
 
 test.describe("live-api-journey", () => {
+  test.afterAll(() => {
+    if (liveE2eForensics.runId) {
+      console.log(
+        `[live-api-journey] runId=${liveE2eForensics.runId} approvalRequestId=${liveE2eForensics.approvalRequestId ?? ""}`,
+      );
+    }
+  });
+
   test.beforeAll(async ({ request }) => {
     const health = await request.get(`${liveApiBase}/health/ready`, { timeout: 60_000 });
 
@@ -77,6 +92,9 @@ test.describe("live-api-journey", () => {
 
     const { runId } = await createRun(request, createBody);
 
+    liveE2eForensics.runId = runId;
+    test.info().annotations.push({ type: "e2e-run-id", description: runId });
+
     await executeRun(request, runId);
 
     await waitForReadyForCommit(runId, request, 90_000);
@@ -88,7 +106,7 @@ test.describe("live-api-journey", () => {
       throw new Error("Commit response missing manifest.metadata.manifestVersion");
     }
 
-    const afterCommit = await getRunDetails(request, runId);
+    const afterCommit = await getRunDetailsWithTransientRetries(request, runId);
     const goldenManifestId = afterCommit.run?.goldenManifestId;
 
     if (!goldenManifestId) {
@@ -146,12 +164,31 @@ test.describe("live-api-journey", () => {
       throw new Error("Governance submit response missing approvalRequestId");
     }
 
+    liveE2eForensics.approvalRequestId = approvalRequestId;
+    test.info().annotations.push({ type: "e2e-approval-request-id", description: approvalRequestId });
+
+    const selfApprovalRes = await postGovernanceApproveRaw(request, approvalRequestId, {
+      reviewedBy: developmentBypassActorName,
+      reviewComment: "should be blocked (same as submitter)",
+    });
+
+    expect.soft(selfApprovalRes.ok(), `self-approval should fail, got ${selfApprovalRes.status()}`).toBe(false);
+    expect.soft(selfApprovalRes.status()).toBe(400);
+
     const approved = await approveGovernanceRequest(request, approvalRequestId, {
       reviewedBy: peerReviewerActor,
       reviewComment: "E2E test auto-approve",
     });
 
     expect(approved.status).toBe("Approved");
+
+    const duplicateApprove = await postGovernanceApproveRaw(request, approvalRequestId, {
+      reviewedBy: peerReviewerActor,
+      reviewComment: "second approve should fail",
+    });
+
+    expect.soft(duplicateApprove.ok(), `duplicate approve should fail, got ${duplicateApprove.status()}`).toBe(false);
+    expect.soft(duplicateApprove.status()).toBe(400);
 
     const auditEvents = await searchAudit(request, { runId, take: "100" });
     const types = new Set(auditEvents.map((e) => e.eventType).filter(Boolean) as string[]);
@@ -170,6 +207,12 @@ test.describe("live-api-journey", () => {
         `Missing audit event types: ${missing.join(", ")}. Found: ${[...types].sort().join(", ")}`,
       );
     }
+
+    const runsList = await listArchitectureRuns(request);
+    const listed = runsList.find((r) => r.runId === runId);
+
+    expect(listed, `run ${runId} should appear in GET /v1/architecture/runs`).toBeTruthy();
+    expect.soft(listed?.status).toMatch(/committed/i);
 
     await page.goto(`/governance?runId=${encodeURIComponent(runId)}`);
 

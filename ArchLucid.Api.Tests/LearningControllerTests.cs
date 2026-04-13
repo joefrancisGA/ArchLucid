@@ -14,6 +14,7 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>Integration tests for <c>/v1/learning/*</c> (59R planning read model).</summary>
 [Trait("Category", "Integration")]
+[Trait("Suite", "Core")]
 [Trait("ChangeSet", "59R")]
 public sealed class LearningControllerTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -113,6 +114,32 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
     }
 
     [Fact]
+    public async Task GetSummary_InvalidMaxThemes_Returns400Problem()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/summary?maxThemes=0");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("maxThemes");
+    }
+
+    [Fact]
+    public async Task GetPlans_InvalidMaxPlans_Returns400Problem()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/plans?maxPlans=-1");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("maxPlans");
+    }
+
+    [Fact]
     public async Task GetPlanningReport_Json_ReturnsOk_WithDocumentShape()
     {
         HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=json");
@@ -180,6 +207,18 @@ public sealed class LearningControllerTests(ArchLucidApiFactory factory) : Integ
         string text = await response.Content.ReadAsStringAsync();
         using JsonDocument doc = JsonDocument.Parse(text);
         doc.RootElement.GetProperty("summary").GetProperty("themeCount").GetInt32().Should().Be(0);
+    }
+
+    [Fact]
+    public async Task DownloadPlanningReport_File_InvalidFormat_Returns400Problem()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/report/file?format=yaml");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
     [Fact]

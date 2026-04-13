@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 using ArchLucid.Contracts.ProductLearning;
 
@@ -11,6 +12,7 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>Integration tests for <c>/v1/product-learning/*</c> (scoped read model; empty data is valid).</summary>
 [Trait("Category", "Integration")]
+[Trait("Suite", "Core")]
 [Trait("ChangeSet", "58R")]
 public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
@@ -160,6 +162,47 @@ public sealed class ProductLearningControllerTests(ArchLucidApiFactory factory) 
             await Client.GetAsync("/v1/product-learning/report?format=json&maxReportArtifacts=99");
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetArtifactOutcomeTrends_InvalidSince_Returns400Problem()
+    {
+        HttpResponseMessage response =
+            await Client.GetAsync("/v1/product-learning/artifact-outcome-trends?since=not-a-date");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Detail.Should().Contain("since");
+    }
+
+    [Fact]
+    public async Task GetTriageQueue_InvalidMaxTriageItems_Returns400Problem()
+    {
+        HttpResponseMessage response =
+            await Client.GetAsync("/v1/product-learning/triage-queue?maxTriageItems=0");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public async Task DownloadTriageReport_File_Json_ReturnsJsonContentType()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report/file?format=json");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+
+        string text = await response.Content.ReadAsStringAsync();
+        using JsonDocument doc = JsonDocument.Parse(text);
+        doc.RootElement.GetProperty("totalSignalsInScope").GetInt32().Should().Be(0);
+        doc.RootElement.GetProperty("generatedUtc").Should().NotBeNull();
     }
 
 }

@@ -17,8 +17,9 @@ async function throwIfNotOk(res: APIResponse, label: string): Promise<void> {
   }
 
   const text = await res.text();
+  const snippet = text.slice(0, 500);
 
-  throw new Error(`${label} failed ${res.status()}: ${text.slice(0, 500)}`);
+  throw new Error(`${label} failed ${res.status()}: ${snippet}`);
 }
 
 /** POST `/v1/architecture/request` — create a new architecture run. */
@@ -81,6 +82,68 @@ export async function getRunDetails(request: APIRequestContext, runId: string): 
   await throwIfNotOk(res, "GET /v1/architecture/run/...");
 
   return res.json() as Promise<RunDetailsJson>;
+}
+
+const maxTransientRetriesPerPoll = 3;
+
+/**
+ * Same as {@link getRunDetails} but retries a few times on HTTP 5xx (transient API/SQL blips during polling).
+ */
+export async function getRunDetailsWithTransientRetries(
+  request: APIRequestContext,
+  runId: string,
+): Promise<RunDetailsJson> {
+  for (let attempt = 0; attempt <= maxTransientRetriesPerPoll; attempt++) {
+    const res = await request.get(`${liveApiBase}/v1/architecture/run/${runId}`, {
+      headers: { Accept: "application/json" },
+    });
+    const code = res.status();
+
+    if (code >= 500 && code < 600 && attempt < maxTransientRetriesPerPoll) {
+      await new Promise((r) => setTimeout(r, 500));
+
+      continue;
+    }
+
+    await throwIfNotOk(res, "GET /v1/architecture/run/...");
+
+    return res.json() as Promise<RunDetailsJson>;
+  }
+
+  throw new Error("getRunDetailsWithTransientRetries: retry loop exhausted");
+}
+
+/** Row from `GET /v1/architecture/runs` (coordinator list). */
+export type ArchitectureRunListItemJson = {
+  runId?: string;
+  status?: string;
+  requestId?: string;
+};
+
+/** GET `/v1/architecture/runs` — recent runs in scope (dashboard / picker). */
+export async function listArchitectureRuns(request: APIRequestContext): Promise<ArchitectureRunListItemJson[]> {
+  const res = await request.get(`${liveApiBase}/v1/architecture/runs`, {
+    headers: { Accept: "application/json" },
+  });
+
+  await throwIfNotOk(res, "GET /v1/architecture/runs");
+
+  return res.json() as Promise<ArchitectureRunListItemJson[]>;
+}
+
+/** POST approve without throwing — use for negative-path assertions (`expect.soft` + status/body). */
+export async function postGovernanceApproveRaw(
+  request: APIRequestContext,
+  approvalRequestId: string,
+  body: { reviewedBy: string; reviewComment?: string | null },
+): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/approve`, {
+    data: {
+      reviewedBy: body.reviewedBy,
+      reviewComment: body.reviewComment ?? null,
+    },
+    headers: jsonHeaders,
+  });
 }
 
 export type RunDetailsJson = {

@@ -13,6 +13,7 @@ namespace ArchLucid.Api.Tests;
 /// End-to-end: seed authority run → POST <c>v1/ask</c> with fake LLM → verify response includes thread and answer → list conversations via <c>GET v1/conversations</c>.
 /// </summary>
 [Trait("Category", "Integration")]
+[Trait("Suite", "Core")]
 public sealed class AskThreadIntegrationTests
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)

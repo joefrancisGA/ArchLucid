@@ -175,7 +175,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "ExecuteRun failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "ExecuteRun failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
         catch (RunNotFoundException ex)
@@ -231,7 +231,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "ReplayRun failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "ReplayRun failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -266,7 +266,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "DeterminismCheck failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "DeterminismCheck failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -308,17 +308,17 @@ public sealed partial class RunsController(
         }
         catch (PreCommitGovernanceBlockedException ex)
         {
-            logger.LogWarning(ex, "CommitRun blocked by pre-commit governance for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "CommitRun blocked by pre-commit governance for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.GovernancePreCommitBlockedProblem(ex.Result);
         }
         catch (ConflictException ex)
         {
-            logger.LogWarning(ex, "CommitRun conflict for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "CommitRun conflict for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "CommitRun failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "CommitRun failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
         catch (RunNotFoundException ex)
