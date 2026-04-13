@@ -16622,6 +16622,36 @@
             ],
             "format": "double"
           },
+          "fullSystemPromptBlobKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fullUserPromptBlobKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fullResponseBlobKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "modelDeploymentName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "modelVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdUtc": {
             "type": "string",
             "format": "date-time"
@@ -22952,6 +22982,9 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "blockCommitOnCritical": {
+            "type": "boolean"
           }
         }
       },

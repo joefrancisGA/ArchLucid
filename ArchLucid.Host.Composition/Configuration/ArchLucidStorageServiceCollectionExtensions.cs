@@ -145,6 +145,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
             RegisterDistributedCacheForLlmCompletionIfNeeded(services, configuration);
             RegisterLlmCompletionResponseStore(services, configuration);
 
+            // Coordinator-scoped services (e.g. <see cref="AgentExecutionTraceRecorder"/>) depend on
+            // <see cref="IArtifactBlobStore"/> for optional full-prompt blob writes; SQL path registers this later.
+            RegisterArtifactLargePayloadBlobStore(services, configuration);
+
             services.AddSingleton<IOutboxOperationalMetricsReader, InMemoryOutboxOperationalMetricsReader>();
             services.AddHostedService<OutboxOperationalMetricsHostedService>();
 
