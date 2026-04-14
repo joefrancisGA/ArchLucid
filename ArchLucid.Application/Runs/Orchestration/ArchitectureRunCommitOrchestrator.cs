@@ -191,10 +191,10 @@ public sealed class ArchitectureRunCommitOrchestrator(
     {
         if (_logger.IsEnabled(LogLevel.Information))
         {
-            // codeql[cs/log-forging]: runId passed through LogSanitizer.Sanitize; CodeQL custom barrier is not tracked across params object?[] boxing on LogInformation (docs/CODEQL_TRIAGE.md).
+            // Barrier is not tracked through params object?[] boxing on LogInformation; value is sanitized (docs/CODEQL_TRIAGE.md).
             _logger.LogInformation(
                 "Committing architecture run: RunId={RunId}",
-                LogSanitizer.Sanitize(runId));
+                LogSanitizer.Sanitize(runId)); // codeql[cs/log-forging]
         }
 
         ArchitectureRun? run = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
