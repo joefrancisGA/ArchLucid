@@ -8,40 +8,49 @@ Set-Location $RepoRoot
 Write-Host "Starting full-stack Compose..."
 docker compose --profile full-stack up -d --build
 
-$Deadline = (Get-Date).AddMinutes(12)
-$Healthy = $false
-while ((Get-Date) -lt $Deadline) {
-    try {
-        $Response = Invoke-WebRequest -Uri "http://127.0.0.1:5000/health/live" -UseBasicParsing -TimeoutSec 5
-        if ($Response.StatusCode -eq 200) {
-            $Healthy = $true
-            break
+try {
+    $Deadline = (Get-Date).AddMinutes(12)
+    $Healthy = $false
+    while ((Get-Date) -lt $Deadline) {
+        try {
+            $Response = Invoke-WebRequest -Uri "http://127.0.0.1:5000/health/live" -UseBasicParsing -TimeoutSec 5
+            if ($Response.StatusCode -eq 200) {
+                $Healthy = $true
+                break
+            }
         }
+        catch {
+            Write-Host "Waiting for API health..."
+        }
+        Start-Sleep -Seconds 3
     }
-    catch {
-        Write-Host "Waiting for API health..."
+
+    if (-not $Healthy) {
+        throw "GET http://127.0.0.1:5000/health/live did not return 200 before timeout."
     }
-    Start-Sleep -Seconds 3
+
+    Write-Host "Running k6 in container (host.docker.internal -> API on host port 5000)..."
+    # Docker Desktop on Windows: forward slashes for bind mounts; quote env values so PowerShell does not parse commas/parens.
+    $DockerRepoRoot = $RepoRoot -replace "\\", "/"
+    docker run --rm `
+        -v "${DockerRepoRoot}:/work" `
+        -w /work `
+        -e BASE_URL=http://host.docker.internal:5000 `
+        -e VUS=5 `
+        -e DURATION=2m `
+        -e SLEEP_SEC=1 `
+        -e "K6_SUMMARY_TREND_STATS=med,p(95),p(99)" `
+        grafana/k6:latest run scripts/load/hotpaths.js --summary-export /work/k6-summary.json
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "k6 docker run failed with exit code $LASTEXITCODE"
+    }
+
+    python scripts/ci/print_k6_summary_metrics.py k6-summary.json
 }
-
-if (-not $Healthy) {
-    throw "GET http://127.0.0.1:5000/health/live did not return 200 before timeout."
+finally {
+    Write-Host "Tearing down Compose..."
+    docker compose --profile full-stack down --remove-orphans
 }
-
-Write-Host "Running k6 in container (host.docker.internal -> API on host port 5000)..."
-docker run --rm `
-    -v "${RepoRoot}:/work" `
-    -w /work `
-    -e BASE_URL=http://host.docker.internal:5000 `
-    -e VUS=5 `
-    -e DURATION=2m `
-    -e SLEEP_SEC=1 `
-    -e K6_SUMMARY_TREND_STATS=med,p(95),p(99) `
-    grafana/k6:latest run scripts/load/hotpaths.js --summary-export /work/k6-summary.json
-
-python scripts/ci/print_k6_summary_metrics.py k6-summary.json
-
-Write-Host "Tearing down Compose..."
-docker compose --profile full-stack down --remove-orphans
 
 Write-Host "Done. Update docs/LOAD_TEST_BASELINE.md with printed p50/p95/p99/rate and adjust scripts/load/hotpaths.js p(95) using the suggested threshold line."

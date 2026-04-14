@@ -16,6 +16,9 @@
 #
 # Connection string for SQL:
 #   Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=ArchLucid_Dev_Pass123!;TrustServerCertificate=True;
+#
+# The **ArchLucid** database is created by **sqlserver-init** after SQL is healthy (DbUp requires the catalog to exist).
+# Full-stack **api** service raises **RateLimiting** permit limits so k6 / local load scripts are not capped at 100 req/min.
 # ────────────────────────────────────────────────────────────────────
 
 services:
@@ -35,6 +38,22 @@ services:
       timeout: 5s
       retries: 20
       start_period: 20s
+
+  # Creates Application Catalog=ArchLucid once SQL is healthy (DbUp expects this DB to exist).
+  sqlserver-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: archlucid-sql-init
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      MSSQL_SA_PASSWORD: "ArchLucid_Dev_Pass123!"
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - >
+        /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "ArchLucid_Dev_Pass123!" -C
+        -Q "IF DB_ID(N'ArchLucid') IS NULL CREATE DATABASE ArchLucid;"
+    restart: "no"
 
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite:latest
@@ -84,9 +103,18 @@ services:
       ConnectionStrings__ArchLucid: "Server=sqlserver,1433;Database=ArchLucid;User Id=sa;Password=ArchLucid_Dev_Pass123!;TrustServerCertificate=True;"
       ArchLucid__StorageProvider: "Sql"
       ArchLucidAuth__Mode: "DevelopmentBypass"
+      # k6 / load scripts exceed default 100/min on fixed-window policy (see docs/PERFORMANCE_TESTING.md, ci.yml k6 job).
+      RateLimiting__FixedWindow__PermitLimit: "200000"
+      RateLimiting__FixedWindow__WindowMinutes: "1"
+      RateLimiting__Expensive__PermitLimit: "200000"
+      RateLimiting__Expensive__WindowMinutes: "1"
+      RateLimiting__Replay__Light__PermitLimit: "200000"
+      RateLimiting__Replay__Heavy__PermitLimit: "200000"
     depends_on:
       sqlserver:
         condition: service_healthy
+      sqlserver-init:
+        condition: service_completed_successfully
       azurite:
         condition: service_healthy
     healthcheck:

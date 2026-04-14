@@ -14,7 +14,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 
 - **No public SMB or shared infra** for test data; Compose binds SQL/Redis/Azurite locally on the runner.
 - CI load job is **manual only** (`.github/workflows/load-test.yml`) to avoid flaky PR gates and resource contention.
-- k6 **checks** rate threshold is **0.85**; **`http_req_duration` p(95)** stays at **8000** ms until you paste the **Suggested** line from `scripts/ci/print_k6_summary_metrics.py` (2× measured p95, rounded up to 500 ms) into `scripts/load/hotpaths.js`.
+- k6 **checks** rate threshold is **0.85**; **`http_req_duration` p(95)** cap is **2000** ms from the **Initial** baseline (2× ~773 ms p95, rounded up to 500 ms). Re-run the recorder after material infra or API changes and refresh this doc + `hotpaths.js`.
 
 ## Architecture overview
 
@@ -54,7 +54,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 
 | Run label | Date (UTC) | VUs | Duration | p50 `http_req_duration` (ms) | p95 | p99 | `http_reqs` rate | Commit / workflow run |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Initial | 2026-04-13 | 5 | 2m | — | — | — | — | — |
+| Initial | 2026-04-14 | 5 | 2m | 20.2 | 773 | 1232 | 13.34 | Local `pwsh ./scripts/load/record_baseline.ps1` (full-stack Compose); pair with `git rev-parse HEAD` on the commit that updates this table |
 
 **How to capture metrics (same profile as this row: VUs=5, DURATION=2m, SLEEP_SEC=1):**
 
@@ -64,7 +64,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 
 **CI alternative:** **Actions → Load test (k6, Compose full-stack)** — align inputs to **VUs 5** and **duration 2m** for parity; copy the job-summary k6 table and artifact `k6-summary.json`.
 
-> **Note:** The automation host that prepared this doc did not have a running Docker engine or k6; numeric cells remain **—** until someone runs the recorder above. The **checks** threshold in `hotpaths.js` is already **0.85**.
+> **Note:** The **Initial** row was recorded with **`pwsh ./scripts/load/record_baseline.ps1`** against Docker Desktop (Compose **full-stack**). Re-run after major changes to compare regressions.
 
 ### Scaling thresholds (evidence-based, not hard SLOs)
 

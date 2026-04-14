@@ -19,7 +19,12 @@ def _trend_values(payload: dict, metric_name: str) -> dict:
         return {}
 
     values = block.get("values")
-    return values if isinstance(values, dict) else {}
+    if isinstance(values, dict):
+        return values
+
+    # k6 summary-export (newer builds): med / p(95) / p(99) / rate / count live on the metric object.
+    trend_keys = ("med", "p(50)", "p(95)", "p(99)", "rate", "count")
+    return {key: block[key] for key in trend_keys if key in block}
 
 
 def _num(values: dict, *keys: str) -> str:

@@ -5,6 +5,13 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+cleanup() {
+  echo "Tearing down Compose..."
+  docker compose --profile full-stack down --remove-orphans
+}
+
+trap cleanup EXIT
+
 echo "Starting full-stack Compose..."
 docker compose --profile full-stack up -d --build
 
@@ -31,12 +38,9 @@ docker run --rm \
   -e VUS=5 \
   -e DURATION=2m \
   -e SLEEP_SEC=1 \
-  -e K6_SUMMARY_TREND_STATS=med,p(95),p(99) \
+  -e "K6_SUMMARY_TREND_STATS=med,p(95),p(99)" \
   grafana/k6:latest run scripts/load/hotpaths.js --summary-export /work/k6-summary.json
 
 python3 scripts/ci/print_k6_summary_metrics.py k6-summary.json
-
-echo "Tearing down Compose..."
-docker compose --profile full-stack down --remove-orphans
 
 echo "Done. Update docs/LOAD_TEST_BASELINE.md and scripts/load/hotpaths.js using the printed metrics and suggested p(95) threshold."

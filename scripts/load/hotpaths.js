@@ -25,8 +25,8 @@ export const options = {
     },
   },
   thresholds: {
-    // After a baseline: set p(95) from `python scripts/ci/print_k6_summary_metrics.py k6-summary.json` (suggested cap line).
-    http_req_duration: ["p(95)<8000"],
+    // Baseline 2026-04-14: Docker Compose full-stack, VUS=5, DURATION=2m (see docs/LOAD_TEST_BASELINE.md).
+    http_req_duration: ["p(95)<2000"],
     checks: ["rate>0.85"],
   },
 };
