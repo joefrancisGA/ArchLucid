@@ -24,6 +24,7 @@
 | **`alert_evaluation_duration_ms`** | Histogram | `ms` | Alert evaluation. |
 | **`governance_resolve_duration_ms`** | Histogram | `ms` | Effective governance resolution. |
 | **`archlucid_explainability_trace_completeness_ratio`** | Histogram | — | Advisory scan trace completeness. |
+| **`archlucid_explanation_faithfulness_ratio`** | Histogram | — | Heuristic overlap of aggregate explanation tokens vs finding **`ExplainabilityTrace`** text (**`ExplanationFaithfulnessChecker`** on **`RunExplanationSummaryService`**). |
 | **`archlucid_circuit_breaker_*`** | Counter | — | State transitions, rejections, probe outcomes. |
 | **`archlucid_llm_*`** | Counter | — | Token usage, retries (see `ArchLucidInstrumentation` source). |
 | **`archlucid_agent_output_structural_completeness_ratio`** | Histogram | — | **`agent_type`**: Topology, Cost, Compliance, Critic. Fraction of expected **`AgentResult`** JSON keys present on **`ParsedResultJson`** (see **`AgentOutputEvaluationRecorder`**). |

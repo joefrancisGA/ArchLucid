@@ -1,6 +1,7 @@
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Persistence.Coordination.Compliance;
 using ArchLucid.Provenance;
 
@@ -38,6 +39,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.CostConstraintFindingEngine>();
         services.AddScoped<Di.IFindingsOrchestrator, Ds.FindingsOrchestrator>();
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();
+        services.AddSingleton<IExplanationFaithfulnessChecker, ExplanationFaithfulnessChecker>();
         services.AddSingleton<Di.IDecisionRuleProvider, Dr.InMemoryDecisionRuleProvider>();
         services.AddScoped<Di.IGoldenManifestBuilder, Dm.DefaultGoldenManifestBuilder>();
         services.AddSingleton<Di.IGoldenManifestValidator, Ds.GoldenManifestValidator>();

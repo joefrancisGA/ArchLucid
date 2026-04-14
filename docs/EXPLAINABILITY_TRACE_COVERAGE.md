@@ -45,6 +45,13 @@ On successful completion of `AdvisoryScanRunner` when at least one authority run
 
 `GET /v1/advisory/schedules/{id}/executions` returns these rows unchanged; consumers parse `ResultJson` as JSON.
 
+## Explanation faithfulness (aggregate summary — heuristic)
+
+When **`GET /v1/explain/runs/{runId}/aggregate`** builds a **`RunExplanationSummary`**, **`ExplanationFaithfulnessChecker`** compares **word-like tokens** from the **`ExplanationResult`** text fields to a flattened corpus of **`ExplainabilityTrace`** strings on persisted findings. The result is **not** semantic entailment; it is a **coarse** signal for regressions after prompt or engine changes.
+
+- **Implementation:** `ArchLucid.Decisioning.Findings.ExplanationFaithfulnessChecker`, `IExplanationFaithfulnessChecker` (registered in host **Decisioning** DI).
+- **OpenTelemetry:** `archlucid_explanation_faithfulness_ratio` (histogram 0.0–1.0), recorded when at least one token was checked (**`ClaimsChecked` > 0**). See **`docs/OBSERVABILITY.md`**.
+
 ## OpenTelemetry metric
 
 - **Name:** `archlucid_explainability_trace_completeness_ratio`

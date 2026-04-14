@@ -10,6 +10,7 @@
 | `archlucid-ui/e2e/live-api-conflict-journey.spec.ts` | `live-api-conflict-journey` | Second **commit** → **200** (idempotent, same `manifestVersion`); **ManifestGenerated** audit count unchanged; run detail UI still **Committed**. **404** `#run-not-found` on commit for a random missing `runId`. |
 | `archlucid-ui/e2e/live-api-governance-rejection.spec.ts` | `live-api-governance-rejection` | Governance **submit → reject** (`e2e-rejector`); audit **`GovernanceApprovalRejected`**; **400** on approve-after-reject and duplicate reject; **`/governance`** UI shows **Rejected**. |
 | `archlucid-ui/e2e/live-api-error-states.spec.ts` | `live-api-error-states` | UI resilience: fake run detail, **`/runs`** list, **`/audit`** no-results search, **`/governance/dashboard`** load (no mock API). |
+| `archlucid-ui/e2e/live-api-negative-paths.spec.ts` | `live-api-negative-paths` | API-only negatives: **`GovernanceSelfApprovalBlocked`** + **`#governance-self-approval`** (approve as same **`Developer`** actor as submitter); **`GET /v1/architecture/run/{id}`** **404** `#run-not-found`; **`POST /v1/architecture/request`** with **`{}`** → **400** or **422**. |
 
 **Config:** `archlucid-ui/playwright.live.config.ts`  
 **HTTP helpers:** `archlucid-ui/e2e/helpers/live-api-client.ts`  

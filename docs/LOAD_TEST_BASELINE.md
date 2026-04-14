@@ -13,6 +13,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 ## Constraints
 
 - **No public SMB or shared infra** for test data; Compose binds SQL/Redis/Azurite locally on the runner.
+- **List endpoints:** prefer **keyset** cursors where the API exposes them (e.g. **`GET /v1/audit/search?beforeUtc=…`** for audit); offset pagination remains on some paths — see **`docs/API_CONTRACTS.md`**.
 - CI load job is **manual only** (`.github/workflows/load-test.yml`) to avoid flaky PR gates and resource contention.
 - k6 **checks** rate threshold is **0.85**; **`http_req_duration` p(95)** cap is **2000** ms from the **Initial** baseline (2× ~773 ms p95, rounded up to 500 ms). Re-run the recorder after material infra or API changes and refresh this doc + `hotpaths.js`.
 

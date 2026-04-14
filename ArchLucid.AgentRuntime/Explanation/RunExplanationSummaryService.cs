@@ -1,5 +1,7 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Manifest;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Provenance;
@@ -15,6 +17,7 @@ public sealed class RunExplanationSummaryService(
     IExplanationService explanationService,
     IAuthorityQueryService authorityQuery,
     IProvenanceSnapshotRepository provenanceSnapshotRepository,
+    IExplanationFaithfulnessChecker explanationFaithfulnessChecker,
     ILogger<RunExplanationSummaryService> logger) : IRunExplanationSummaryService
 {
     /// <inheritdoc />
@@ -27,6 +30,18 @@ public sealed class RunExplanationSummaryService(
         GoldenManifest manifest = detail.GoldenManifest;
         DecisionProvenanceGraph? graph = await TryLoadProvenanceGraphAsync(scope, runId, ct);
         ExplanationResult explanation = await explanationService.ExplainRunAsync(manifest, graph, ct);
+
+        if (detail.FindingsSnapshot is { Findings.Count: > 0 })
+        {
+            ExplanationFaithfulnessReport faithReport =
+                explanationFaithfulnessChecker.CheckFaithfulness(explanation, detail.FindingsSnapshot);
+
+            if (faithReport.ClaimsChecked > 0)
+            {
+                ArchLucidInstrumentation.RecordExplanationFaithfulnessRatio(faithReport.SupportRatio);
+            }
+        }
+
         List<string> themeSummaries = BuildThemeSummaries(explanation.KeyDrivers);
         string riskPosture = AuthorityManifestRiskPosture.Derive(manifest);
         string overallAssessment = BuildOverallAssessment(explanation, manifest, riskPosture);

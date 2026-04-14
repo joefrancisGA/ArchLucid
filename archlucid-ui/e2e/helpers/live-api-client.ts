@@ -23,15 +23,23 @@ async function throwIfNotOk(res: APIResponse, label: string): Promise<void> {
   throw new Error(`${label} failed ${res.status()}: ${snippet}`);
 }
 
+/** POST `/v1/architecture/request` — raw response for negative-path tests (400/422). */
+export async function postArchitectureRequestRaw(
+  request: APIRequestContext,
+  body: unknown,
+): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/architecture/request`, {
+    data: body,
+    headers: jsonHeaders,
+  });
+}
+
 /** POST `/v1/architecture/request` — create a new architecture run. */
 export async function createRun(
   request: APIRequestContext,
   body: Record<string, unknown>,
 ): Promise<{ runId: string }> {
-  const res = await request.post(`${liveApiBase}/v1/architecture/request`, {
-    data: body,
-    headers: jsonHeaders,
-  });
+  const res = await postArchitectureRequestRaw(request, body);
 
   await throwIfNotOk(res, "POST /v1/architecture/request");
 
@@ -81,11 +89,16 @@ export type CommitRunResponseJson = {
   };
 };
 
-/** GET `/v1/architecture/run/{runId}` — run aggregate including golden manifest id after commit. */
-export async function getRunDetails(request: APIRequestContext, runId: string): Promise<RunDetailsJson> {
-  const res = await request.get(`${liveApiBase}/v1/architecture/run/${runId}`, {
+/** GET `/v1/architecture/run/{runId}` — raw response (404/409 negative paths). */
+export async function getRunDetailsRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
+  return request.get(`${liveApiBase}/v1/architecture/run/${runId}`, {
     headers: { Accept: "application/json" },
   });
+}
+
+/** GET `/v1/architecture/run/{runId}` — run aggregate including golden manifest id after commit. */
+export async function getRunDetails(request: APIRequestContext, runId: string): Promise<RunDetailsJson> {
+  const res = await getRunDetailsRaw(request, runId);
 
   await throwIfNotOk(res, "GET /v1/architecture/run/...");
 

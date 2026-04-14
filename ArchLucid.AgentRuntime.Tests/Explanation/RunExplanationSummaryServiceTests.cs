@@ -1,6 +1,7 @@
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Models;
@@ -120,11 +121,13 @@ public sealed class RunExplanationSummaryServiceTests
 
         Mock<IExplanationService> explanation = new();
         Mock<IProvenanceSnapshotRepository> provenance = new();
+        Mock<IExplanationFaithfulnessChecker> faithfulness = new();
 
         RunExplanationSummaryService svc = new(
             explanation.Object,
             query.Object,
             provenance.Object,
+            faithfulness.Object,
             NullLogger<RunExplanationSummaryService>.Instance);
 
         RunExplanationSummary? result = await svc.GetSummaryAsync(
@@ -218,10 +221,16 @@ public sealed class RunExplanationSummaryServiceTests
             .Setup(p => p.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((DecisionProvenanceSnapshot?)null);
 
+        Mock<IExplanationFaithfulnessChecker> faithfulness = new();
+        faithfulness
+            .Setup(f => f.CheckFaithfulness(It.IsAny<ExplanationResult>(), It.IsAny<FindingsSnapshot?>()))
+            .Returns(new ExplanationFaithfulnessReport(1, 1, 0, 1.0, []));
+
         RunExplanationSummaryService svc = new(
             explanation.Object,
             query.Object,
             provenance.Object,
+            faithfulness.Object,
             NullLogger<RunExplanationSummaryService>.Instance);
 
         RunExplanationSummary? summary = await svc.GetSummaryAsync(

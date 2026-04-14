@@ -25,7 +25,7 @@ Give operators a **first-principles** way to scale ArchLucid/ArchLucid and contr
 | **Container Apps** | CPU throttling, revision restarts | Increase CPU/memory; split API vs Worker replicas; min replicas in prod. |
 | **SQL** | DTU/vCore maxed, long query store | Scale tier; index/outbox retention; archive cold runs. |
 | **Outboxes** | Gauges in `ArchLucid` meter | Add worker instances; fix poison messages; use admin DLQ tools. |
-| **LLM** | `archlucid_llm_*_tokens_total` | Cheaper deployment, caching, smaller prompts, quota per tenant. |
+| **LLM** | `archlucid_llm_*_tokens_total` (optional **`tenant_id`** tag when **`LlmTelemetry:RecordPerTenantTokens`** is true — bounded tenants only) | Cheaper deployment, caching, smaller prompts, quota per tenant. |
 | **Front Door / APIM** | 429/latency at edge | Caching rules, rate limits, regional PoPs. |
 
 ## 6. Data flow

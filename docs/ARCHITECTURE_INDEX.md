@@ -40,6 +40,14 @@
   - `docs/ARCHITECTURE_FLOWS.md`
 - **Observability** – `ArchLucid` meter, key histograms/counters, `ActivitySource` names, tag conventions (`archlucid.stage.name`, authority pipeline stages)  
   - `docs/OBSERVABILITY.md`
+- **Explainability trace coverage + faithfulness heuristic** – trace completeness ratio, aggregate explanation token overlap vs finding traces  
+  - `docs/EXPLAINABILITY_TRACE_COVERAGE.md`
+- **Code coverage (merged line gate, scripts)**  
+  - `docs/CODE_COVERAGE.md`
+- **Mutation testing (Stryker) + safe ratchet to higher floors**  
+  - `docs/MUTATION_TESTING_STRYKER.md`, `docs/STRYKER_RATchet_TARGET_72.md`
+- **System STRIDE threat summary (product boundary)**  
+  - `docs/security/SYSTEM_THREAT_MODEL.md`
 - **Agent output structural evaluation** – `AgentResult` JSON key completeness, `GET …/agent-evaluation`, optional metrics recorder  
   - `docs/AGENT_OUTPUT_EVALUATION.md`
 
@@ -96,6 +104,8 @@
 
 - **RTO / RPO targets by environment tier** – SQL HA, geo-replication, production vs dev  
   - `docs/RTO_RPO_TARGETS.md`
+- **Geo failover drill (operator checklist)**  
+  - `docs/runbooks/GEO_FAILOVER_DRILL.md`
 - **Build and run** – configuration, ports, local setup  
   - `docs/BUILD.md`
 - **CLI usage** – commands and flags  

@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -51,9 +52,9 @@ public sealed class CoordinatorService(
             {
                 _logger.LogWarning(
                     "Coordination rejected (validation): RequestId={RequestId}, SystemName={SystemName}, Errors={Errors}",
-                    request.RequestId,
-                    request.SystemName,
-                    string.Join("; ", validationErrors));
+                    LogSanitizer.Sanitize(request.RequestId),
+                    LogSanitizer.Sanitize(request.SystemName),
+                    LogSanitizer.Sanitize(string.Join("; ", validationErrors)));
             }
 
             return output;
@@ -92,7 +93,7 @@ public sealed class CoordinatorService(
             _logger.LogInformation(
                 "Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}, Deferred={Deferred}",
                 run.RunId,
-                request.RequestId,
+                LogSanitizer.Sanitize(request.RequestId),
                 tasks.Count,
                 evidenceBundle.EvidenceBundleId,
                 deferred);
@@ -117,7 +118,7 @@ public sealed class CoordinatorService(
                 _logger.LogWarning(
                     "Authority run header {RunId} not found for lifecycle patch (RequestId={RequestId}).",
                     authorityRunId,
-                    requestId);
+                    LogSanitizer.Sanitize(requestId));
             }
 
             return;

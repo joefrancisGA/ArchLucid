@@ -12,6 +12,8 @@ The **OWASP ZAP baseline** scan runs against the **ArchLucid API Docker image** 
 
 Other layers (authentication, RLS, rate limiting, CORS, security headers) are described in `docs/DEPLOYMENT.md`, `docs/security/MULTI_TENANT_RLS.md`, and product code under `ArchLucid.Api` / `ArchLucid.Host.Core`.
 
+**System-wide STRIDE summary (product boundary):** [docs/security/SYSTEM_THREAT_MODEL.md](security/SYSTEM_THREAT_MODEL.md).
+
 ## Log injection (CWE-117)
 
 ArchLucid uses **Serilog** with **structured logging**: message templates use named placeholders (`{RunId}`, `{Path}`, etc.), and sinks such as JSON formatters emit parameters as **separate fields**. That layout reduces the impact of delimiter injection in **JSON** and similar structured sinks.

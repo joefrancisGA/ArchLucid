@@ -8,11 +8,11 @@ Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, compari
 
 Numbered sections **8+** below continue the living backlog (rate limits, traits, CORS, OpenTelemetry extraction, …).
 
-## Backlog summary (as of 2026-04-12)
+## Backlog summary (as of 2026-04-14)
 
 | Status | Guidance |
 |--------|----------|
-| **Active** | Sections **8+** below until moved to the archive — prioritize correctness/security, then cross-cutting architecture, then polish. |
+| **Active** | Sections **9+** below (§8 is a completed pointer). Prioritize correctness/security, then cross-cutting architecture, then polish. |
 | **Done (archived)** | Original items **1–7** live under [Archive (completed items 1–7)](#archive-completed-items-17). |
 | **Deferred / Obsolete** | Triage in a dedicated pass: mark deferred items inline with `(deferred: reason)` or move obsolete entries into the archive with `(obsolete: reason)` and today’s date. |
 
@@ -22,10 +22,9 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ## 8. Rate limiting documentation
 
-**Problem:** The API configures three rate-limit policies (`fixed`, `expensive`, `replay`) and README only briefly mentions “100 requests per minute”. Operators and clients don’t have a clear reference for policy names, behavior, and config keys.
+**Status:** **Done (2026-04-14).** Root **README.md** now documents policies **`fixed`**, **`expensive`**, **`replay`**, default limits, and **`RateLimiting:*`** config keys; **`ArchLucidConfigurationRules`** validates limits (**§289** archive). This open item is retained only as a pointer — no further README/BUILD work required unless policies change.
 
-**Change:**
-- Add a short **Rate limiting** section in **README.md** or **docs/BUILD.md**: policy names (`fixed` = general, `expensive` = execute/commit/replay, `replay` = comparison replay with light/heavy by format); that 429 is returned when exceeded; config keys `RateLimiting:FixedWindow:*`, `RateLimiting:Expensive:*`, `RateLimiting:Replay:Light:*`, `RateLimiting:Replay:Heavy:*`.
+**Original problem (historical):** Operators needed a single reference for policy names vs “100/min” shorthand.
 
 **Outcome:** Clear contract for tuning and runbooks.
 

@@ -142,6 +142,13 @@ public static class ArchLucidInstrumentation
         description: "Per-scan trace completeness ratio (0.0–1.0).");
 
     /// <summary>
+    /// Heuristic overlap between aggregate explanation tokens and flattened finding <c>ExplainabilityTrace</c> text (0.0–1.0).
+    /// </summary>
+    public static readonly Histogram<double> ExplanationFaithfulnessRatio = AppMeter.CreateHistogram<double>(
+        "archlucid_explanation_faithfulness_ratio",
+        description: "Heuristic faithfulness of run explanation vs finding traces (0.0–1.0).");
+
+    /// <summary>
     /// Per provenance response: fraction of manifest decisions with finding, rule, and graph-context edges (0.0–1.0).
     /// </summary>
     public static readonly Histogram<double> ProvenanceCompleteness = AppMeter.CreateHistogram<double>(
@@ -330,6 +337,13 @@ public static class ArchLucidInstrumentation
         };
 
         ExplanationSchemaValidationsTotal.Add(1, tags);
+    }
+
+    /// <summary>Records <see cref="ExplanationFaithfulnessRatio"/> (clamped 0–1).</summary>
+    public static void RecordExplanationFaithfulnessRatio(double ratio)
+    {
+        double clamped = Math.Clamp(ratio, 0.0, 1.0);
+        ExplanationFaithfulnessRatio.Record(clamped);
     }
 
     public static void RecordLlmTokenUsage(
