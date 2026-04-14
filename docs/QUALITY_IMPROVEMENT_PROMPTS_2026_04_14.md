@@ -70,6 +70,8 @@ Expand the live-API E2E Playwright suite to cover additional operator workflows 
 ## Prompt 2 — Mandatory forensic prompt snapshots + semantic evaluation harness (Explainability, AI/Agent Readiness, Traceability, Auditability)
 
 > **Implementation status:** Product code and tests cover this prompt (blob retries with failure counter + `BlobUploadFailed`, semantic evaluator + OTel, API fields, docs). Blob retry backoff matches the spec below: **500 ms fixed** between attempts, **3** tries per blob.
+>
+> **Last verification (2026-04-14):** `dotnet test ArchLucid.sln -c Release --filter "FullyQualifiedName~AgentOutputSemanticEvaluatorTests|FullyQualifiedName~AgentExecutionTraceRecorderReproTests|FullyQualifiedName~AgentOutputEvaluationRecorderTests"` — **28** passed in **`ArchLucid.AgentRuntime.Tests`** (no code changes required for this prompt).
 
 ```
 Enhance the agent trace forensics system to make prompt blob persistence more reliable and build a semantic evaluation layer on top of the existing structural evaluator. The April 14 quality assessment found that while `PersistFullPrompts` defaults to true and blob storage is wired, the upload is fire-and-forget with no retry, and the evaluation harness only checks structural JSON key presence — there is no semantic scoring of agent output quality.
@@ -157,6 +159,8 @@ Enhance the agent trace forensics system to make prompt blob persistence more re
 ---
 
 ## Prompt 3 — Load-test baseline with CI regression gate (Performance, Reliability, Scalability, Correctness)
+
+> **Follow-on (split Cursor prompts):** after the baseline in this section landed in CI, use **`docs/CURSOR_PROMPTS_QUALITY_IMPROVEMENT_3.md`** for smaller, paste-ready tasks (per-tag assert, native k6 for `k6-ci-smoke`, `/version` parity, env var docs, optional composite action, soak docs).
 
 ```
 Extend the existing k6 load test suite with write-path scenarios and wire a CI regression gate that publishes baseline metrics. The April 14 quality assessment found that while `tests/load/smoke.js` exists with read-only scenarios and `scripts/load/hotpaths.js` covers create-run under manual dispatch, there is no automated CI smoke that includes the write path, and no published p95 regression gate in the PR workflow.

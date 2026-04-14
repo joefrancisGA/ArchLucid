@@ -113,15 +113,15 @@ Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config
 
 ### k6 performance smoke (Tier 2c — CI automated)
 
-Two k6 scripts run in CI via `.github/workflows/ci.yml`:
+Three k6 scripts run in CI via `.github/workflows/ci.yml` (merge-blocking) and `.github/workflows/k6-soak-scheduled.yml` (non-blocking):
 
 | CI job | Script | Scenarios | Write paths | Blocking |
 |--------|--------|-----------|-------------|----------|
-| `k6-smoke-api` | `tests/load/smoke.js` | health, runs list, version, audit search | No (read-only) | Yes (merge-blocking) |
-| `k6-ci-smoke` | `tests/load/ci-smoke.js` | health, create run, list runs, audit search | **Yes** (`POST /v1/architecture/request`) | **Yes** — `assert_k6_ci_smoke_summary.py` (p95 ≤ 3000 ms, failed rate ≤ 2%) |
+| `k6-smoke-api` | `tests/load/k6-api-smoke.js` | health ready, version, create run, authority runs list | **Yes** (`POST /v1/architecture/request`) | Yes (merge-blocking) |
+| `k6-ci-smoke` | `tests/load/ci-smoke.js` | health live/ready, create run, list runs, audit search, version | **Yes** (`POST /v1/architecture/request`) | **Yes** — `assert_k6_ci_smoke_summary.py` (per-tag p95; failed rate ≤ 2%) |
 | `k6-soak-scheduled` | `tests/load/soak.js` | longer low-rate read-only mix | No | No (`continue-on-error`; needs secret **`ARCHLUCID_SOAK_BASE_URL`**) |
 
-Both jobs start the API against a SQL Server service container with `DevelopmentBypass` auth and `Simulator` agent execution mode. k6 runs via the `grafana/k6:latest` Docker image (not installed as a system binary).
+Both merge-blocking jobs start the API against a SQL Server service container with `DevelopmentBypass` auth and `Simulator` agent execution mode. k6 is installed as a **native binary** on the Ubuntu runner (Grafana APT repo). The soak job uses the `grafana/k6:latest` Docker image.
 
 **Local (read + write smoke):**
 

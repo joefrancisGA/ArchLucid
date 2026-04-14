@@ -16866,6 +16866,12 @@
               "boolean"
             ]
           },
+          "inlineFallbackFailed": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
           "fullSystemPromptInline": {
             "type": [
               "null",

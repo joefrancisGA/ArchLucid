@@ -2,6 +2,8 @@
 
 ## Purpose
 
+> **Script reference:** see **[`tests/load/README.md`](../tests/load/README.md)** for the environment-variable matrix, per-script examples, and CI job mapping.
+
 The **`tests/load/smoke.js`** script is a **short, read-only** load profile against the ArchLucid API. It complements:
 
 - **`docs/PERFORMANCE.md`** — runtime caching and hot-path design notes.
@@ -68,6 +70,15 @@ See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 API smoke (ope
 
 The read-only **`tests/load/smoke.js`** profile remains documented for local / manual comparison; the **merge gate** uses **`k6-api-smoke.js`** (operator path including **`POST /v1/architecture/request`**).
 
-### Docker k6 (other jobs / local)
+### Docker k6 (local / soak)
 
-The **`k6-ci-smoke`** job still runs **`grafana/k6:latest`** with **`tests/load/ci-smoke.js`** (read + write mix). If you use **`docker run`** with **`--out json=/out/...`**, pass **`--user "$(id -u):$(id -g)"`** when bind-mounting a host directory so the container user can write the output file (see **`.github/workflows/ci.yml`** **`k6-ci-smoke`** step).
+Both **`k6-smoke-api`** and **`k6-ci-smoke`** CI jobs install **native k6** via the Grafana APT repo (same pattern). If you prefer Docker locally, for example for the read + write mix:
+
+```bash
+docker run --rm --network host \
+  -v "$(pwd)/tests/load:/scripts:ro" \
+  -e BASE_URL=http://127.0.0.1:5128 \
+  grafana/k6:latest run /scripts/ci-smoke.js
+```
+
+Pass **`--user "$(id -u):$(id -g)"`** when bind-mounting a host output directory so the container user can write summary files. The scheduled **`k6-soak-scheduled`** workflow still uses the Docker image.

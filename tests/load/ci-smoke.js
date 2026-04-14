@@ -1,11 +1,12 @@
 /**
  * k6 CI smoke — read + write operator API paths (DevelopmentBypass-friendly).
+ * Scenarios: health (live+ready), version, create_run, list_runs, audit_search.
  * Run: BASE_URL=http://127.0.0.1:5128 k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json
  */
 import http from "k6/http";
 import { check } from "k6";
 
-const BASE = __ENV.BASE_URL || "http://127.0.0.1:5128";
+const BASE = __ENV.ARCHLUCID_BASE_URL || __ENV.BASE_URL || "http://127.0.0.1:5128";
 
 function req(scenario, method, url, body = null) {
   const params = {
@@ -62,6 +63,11 @@ export function auditSearchFn() {
   check(r, { "audit search 200": (res) => res.status === 200 });
 }
 
+export function versionFn() {
+  const r = req("version", "GET", `${BASE}/version`);
+  check(r, { "version 200": (res) => res.status === 200 });
+}
+
 export const options = {
   scenarios: {
     health: {
@@ -89,6 +95,12 @@ export const options = {
       duration: "20s",
       exec: "auditSearchFn",
     },
+    version: {
+      executor: "constant-vus",
+      vus: 2,
+      duration: "20s",
+      exec: "versionFn",
+    },
   },
   thresholds: {
     "http_req_failed": ["rate<0.02"],
@@ -98,5 +110,6 @@ export const options = {
     "http_req_duration{k6ci:create_run}": ["p(95)<3000"],
     "http_req_duration{k6ci:list_runs}": ["p(95)<1500"],
     "http_req_duration{k6ci:audit_search}": ["p(95)<1500"],
+    "http_req_duration{k6ci:version}": ["p(95)<1500"],
   },
 };

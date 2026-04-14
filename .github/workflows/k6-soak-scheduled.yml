@@ -37,6 +37,15 @@ jobs:
             -e SOAK_DURATION=4m \
             grafana/k6:latest run /scripts/soak.js --summary-export /out/k6-soak-summary.json
 
+      - name: Soak summary (job log)
+        if: always()
+        run: |
+          if [ -f "${RUNNER_TEMP}/k6-soak-summary.json" ]; then
+            python3 scripts/ci/print_k6_summary_metrics.py "${RUNNER_TEMP}/k6-soak-summary.json"
+          else
+            echo "No soak summary JSON found (soak may have been skipped)."
+          fi
+
       - name: Upload k6 soak summary
         if: always()
         uses: actions/upload-artifact@v6

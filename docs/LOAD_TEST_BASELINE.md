@@ -94,14 +94,16 @@ Raise `ci/benchmark-baseline.json` only when a change **intentionally** improves
 
 ### Merge gate (summary JSON)
 
-After k6 finishes, **`scripts/ci/assert_k6_ci_smoke_summary.py`** parses `--summary-export` JSON and **fails the job** when:
+After k6 finishes, **`scripts/ci/assert_k6_ci_smoke_summary.py`** parses `--summary-export` JSON. Two enforcement modes:
 
-| Check | Default cap | Tune via workflow argv |
+| Mode | Flag | What is checked |
 | --- | --- | --- |
-| `http_req_failed` **rate** | **≤ 2%** | `--max-failed-rate` |
-| `http_req_duration` **p(95)** | **≤ 3000 ms** | `--max-p95-ms` |
+| **Global** (default) | `--max-p95-ms` | Overall `http_req_duration` p(95) |
+| **Per-tag** | `--per-tag-ci-smoke` | Each `k6ci:*` tagged sub-metric against built-in caps matching `ci-smoke.js` thresholds (health_live ≤ 500 ms, health_ready ≤ 1500 ms, create_run ≤ 3000 ms, list_runs ≤ 1500 ms, audit_search ≤ 1500 ms, version ≤ 1500 ms). Falls back to global if tags are absent. |
 
-Raise caps only after a measured baseline change (update this table and the workflow step in the same PR). Prefer fixing flakes (API readiness, SQL cold start) over widening thresholds.
+Both modes check `http_req_failed` **rate** against `--max-failed-rate` (default **0**, CI passes **0.02**).
+
+The **`k6-ci-smoke`** CI job uses **`--per-tag-ci-smoke`** so each scenario is individually gated. Raise caps only after a measured baseline change (update `ci-smoke.js` thresholds, `_CI_SMOKE_TAG_CAPS` in the Python script, and this table in the same PR). Prefer fixing flakes (API readiness, SQL cold start) over widening thresholds.
 
 ### Scenarios
 
@@ -111,6 +113,7 @@ Raise caps only after a measured baseline change (update this table and the work
 | `create_run` | constant-vus | 2 | 30 s | `POST /v1/architecture/request` | p(95) < 3000 ms |
 | `list_runs` | constant-vus | 3 | 20 s (`startTime: "5s"`) | `GET /v1/architecture/runs` | p(95) < 1500 ms |
 | `audit_search` | constant-vus | 2 | 20 s | `GET /v1/audit/search?take=20` | p(95) < 1500 ms |
+| `version` | constant-vus | 2 | 20 s | `GET /version` (`k6ci:version`) | p(95) < 1500 ms |
 
 Global failure threshold: `http_req_failed` rate < 2 %. Total wall-clock duration: ~30 s (longest scenario).
 
@@ -142,7 +145,7 @@ Mitigations in product code:
 BASE_URL=http://127.0.0.1:5128 k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json
 ```
 
-Or with Docker (matches CI execution):
+Or with Docker (soak / local; CI now uses native k6):
 
 ```bash
 docker run --rm --network host \
@@ -150,6 +153,36 @@ docker run --rm --network host \
   -e BASE_URL=http://127.0.0.1:5128 \
   grafana/k6:latest run /scripts/ci-smoke.js
 ```
+
+## Soak profile (scheduled / manual)
+
+**`tests/load/soak.js`** runs a **longer, low-rate** read-only mix against a **deployed** base URL. It differs from the CI smoke scripts in purpose and scope:
+
+| Dimension | CI smoke (`ci-smoke.js`) | Soak (`soak.js`) |
+| --- | --- | --- |
+| **Trigger** | Automatic on push / PR | Weekly cron (`0 7 * * 0`) or `workflow_dispatch` |
+| **Write paths** | Yes (`POST /v1/architecture/request`) | No (read-only) |
+| **Duration** | ~30 s | Configurable via `SOAK_DURATION` (default **4 m**) |
+| **VUs** | Fixed (2–5) | Configurable via `SOAK_VUS` (default **3**) |
+| **Auth** | DevelopmentBypass (CI service container) | External API (secret **`ARCHLUCID_SOAK_BASE_URL`**); auth depends on target |
+| **Blocking** | **Yes** (merge gate) | **No** (`continue-on-error: true`) |
+| **Thresholds** | Per-tag p95 (500–3000 ms) | Relaxed: health/version p95 < 2000 ms, list/search p95 < 8000 ms |
+
+### Workflow
+
+`.github/workflows/k6-soak-scheduled.yml` — repository secret **`ARCHLUCID_SOAK_BASE_URL`** must be set (e.g. `https://api.staging.example`) or the job logs a skip message and exits cleanly. k6 runs via `grafana/k6:latest` Docker image.
+
+Artifacts: **`k6-soak-summary`** (summary JSON) + job log printout via **`scripts/ci/print_k6_summary_metrics.py`**.
+
+### Alerting guidance (on-call)
+
+The soak workflow is **non-blocking** — failures do not break anything. Use the following triage process when soak fails:
+
+1. **Single failure:** download the **`k6-soak-summary`** artifact and compare p95/p99 to previous runs. A one-off spike usually means transient infrastructure noise (runner, network, staging restart).
+2. **Two consecutive failures:** investigate. Check staging deployment logs, SQL DTU / connection pool saturation, and any recent product changes that affect the exercised endpoints (`/health/live`, `/version`, `/v1/architecture/runs`, `/v1/audit/search`).
+3. **Three or more consecutive failures:** open a ticket. Compare soak p95 to the CI smoke baseline; if CI smoke (which hits a fresh SQL container) is fine but soak (which hits staging) is not, the problem is likely infrastructure or data-volume related.
+
+> **Never** make the soak workflow merge-blocking. Its purpose is to detect slow drift over time on real data, not to gate PRs.
 
 ## Pagination audit
 

@@ -1241,42 +1241,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y k6
 
-      - name: Create SQL catalog for k6 API
-        run: |
-          set -e
-          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
-            mcr.microsoft.com/mssql/server:2022-latest \
-            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
-            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidK6Smoke') CREATE DATABASE ArchLucidK6Smoke;"
-
-      - name: Start ArchLucid.Api (background)
-        env:
-          ASPNETCORE_ENVIRONMENT: Development
-          ASPNETCORE_URLS: http://127.0.0.1:5128
-          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidK6Smoke"
-          ArchLucid__StorageProvider: Sql
-          ArchLucidAuth__Mode: DevelopmentBypass
-          Authentication__ApiKey__DevelopmentBypassAll: "true"
-          AgentExecution__Mode: Simulator
-          # Default fixed-window limit (100/min) is far below k6 VU rates; all [EnableRateLimiting("fixed")] calls share one bucket per principal → mass 429. Raise only for this synthetic job.
-          RateLimiting__FixedWindow__PermitLimit: "200000"
-          RateLimiting__FixedWindow__WindowMinutes: "1"
-        run: |
-          set -e
-          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/k6-api.log" 2>&1 &
-          echo $! > "${RUNNER_TEMP}/k6-api.pid"
-          for i in $(seq 1 90); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              echo "API ready for k6."
-              exit 0
-            fi
-            if [ "$i" -eq 90 ]; then
-              echo "::error::API did not reach /health/ready in time"
-              tail -n 200 "${RUNNER_TEMP}/k6-api.log" || true
-              exit 1
-            fi
-            sleep 2
-          done
+      - name: Create catalog + start API (shared script)
+        run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6Smoke "${RUNNER_TEMP}/k6-api.log" "${RUNNER_TEMP}/k6-api.pid"
 
       - name: Run k6 API smoke (operator path)
         env:
@@ -1357,54 +1323,29 @@ jobs:
           dotnet restore ArchLucid.sln
           dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
 
-      - name: Create SQL catalog for k6 CI smoke
+      - name: Install k6
+        shell: bash
         run: |
-          set -e
-          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
-            mcr.microsoft.com/mssql/server:2022-latest \
-            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
-            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidK6CiSmoke') CREATE DATABASE ArchLucidK6CiSmoke;"
+          set -euo pipefail
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
+            --keyserver hkp://keyserver.ubuntu.com:80 \
+            --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
 
-      - name: Start ArchLucid.Api (background)
+      - name: Create catalog + start API (shared script)
+        run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6CiSmoke "${RUNNER_TEMP}/k6-ci-api.log" "${RUNNER_TEMP}/k6-ci-api.pid"
+
+      - name: Run k6 CI smoke
         env:
-          ASPNETCORE_ENVIRONMENT: Development
-          ASPNETCORE_URLS: http://127.0.0.1:5128
-          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidK6CiSmoke"
-          ArchLucid__StorageProvider: Sql
-          ArchLucidAuth__Mode: DevelopmentBypass
-          Authentication__ApiKey__DevelopmentBypassAll: "true"
-          AgentExecution__Mode: Simulator
-          RateLimiting__FixedWindow__PermitLimit: "200000"
-          RateLimiting__FixedWindow__WindowMinutes: "1"
+          BASE_URL: http://127.0.0.1:5128
         run: |
           set -e
-          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/k6-ci-api.log" 2>&1 &
-          echo $! > "${RUNNER_TEMP}/k6-ci-api.pid"
-          for i in $(seq 1 90); do
-            if curl -fsS http://127.0.0.1:5128/health/ready; then
-              echo "API ready for k6 CI smoke."
-              exit 0
-            fi
-            if [ "$i" -eq 90 ]; then
-              echo "::error::API did not reach /health/ready in time"
-              tail -n 200 "${RUNNER_TEMP}/k6-ci-api.log" || true
-              exit 1
-            fi
-            sleep 2
-          done
+          k6 run "${GITHUB_WORKSPACE}/tests/load/ci-smoke.js" --summary-export "${RUNNER_TEMP}/k6-ci-summary.json"
 
-      - name: Run k6 CI smoke (Docker)
-        run: |
-          set -e
-          docker run --rm --network host \
-            --user "$(id -u):$(id -g)" \
-            -v "${GITHUB_WORKSPACE}/tests/load:/scripts:ro" \
-            -v "${RUNNER_TEMP}:/out" \
-            -e BASE_URL=http://127.0.0.1:5128 \
-            grafana/k6:latest run /scripts/ci-smoke.js --summary-export /out/k6-ci-summary.json
-
-      - name: Assert k6 CI smoke thresholds (p95 + failed rate)
-        run: python3 scripts/ci/assert_k6_ci_smoke_summary.py "${RUNNER_TEMP}/k6-ci-summary.json" --max-failed-rate 0.02 --max-p95-ms 3000
+      - name: Assert k6 CI smoke thresholds (per-tag p95 + failed rate)
+        run: python3 scripts/ci/assert_k6_ci_smoke_summary.py "${RUNNER_TEMP}/k6-ci-summary.json" --max-failed-rate 0.02 --max-p95-ms 3000 --per-tag-ci-smoke
 
       - name: k6 CI smoke summary (job log)
         run: python3 scripts/ci/print_k6_summary_metrics.py "${RUNNER_TEMP}/k6-ci-summary.json"

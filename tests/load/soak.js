@@ -5,7 +5,7 @@
 import http from "k6/http";
 import { check } from "k6";
 
-const BASE = __ENV.BASE_URL || "http://127.0.0.1:5128";
+const BASE = __ENV.ARCHLUCID_BASE_URL || __ENV.BASE_URL || "http://127.0.0.1:5128";
 
 function req(scenario, method, url) {
   const params = {

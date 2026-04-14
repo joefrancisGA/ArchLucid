@@ -1,11 +1,29 @@
 #!/usr/bin/env python3
-"""Fail CI if k6 ci-smoke summary-export JSON exceeds http_req_failed rate or p(95) latency."""
+"""Fail CI if k6 ci-smoke summary-export JSON exceeds http_req_failed rate or p(95) latency.
+
+Supports two modes:
+  1. **Global** (default): checks overall ``http_req_duration`` p(95) against ``--max-p95-ms``.
+  2. **Per-tag** (``--per-tag-ci-smoke``): checks per-``k6ci`` tag p(95) against built-in caps
+     matching ``tests/load/ci-smoke.js`` thresholds.  Falls back to global if tagged metrics
+     are absent (older k6 or different script).
+"""
 from __future__ import annotations
 
 import argparse
 import json
 import sys
 from pathlib import Path
+
+# Per-tag p95 caps (ms) aligned with tests/load/ci-smoke.js thresholds.
+# Key = k6 summary metric name for the tagged sub-metric.
+_CI_SMOKE_TAG_CAPS: dict[str, float] = {
+    "http_req_duration{k6ci:health_live}": 500.0,
+    "http_req_duration{k6ci:health_ready}": 1500.0,
+    "http_req_duration{k6ci:create_run}": 3000.0,
+    "http_req_duration{k6ci:list_runs}": 1500.0,
+    "http_req_duration{k6ci:audit_search}": 1500.0,
+    "http_req_duration{k6ci:version}": 1500.0,
+}
 
 
 def _metric_values(payload: dict, metric_name: str) -> dict:
@@ -35,6 +53,27 @@ def _float(values: dict, *keys: str) -> float | None:
     return None
 
 
+def _check_per_tag(payload: dict, errors: list[str]) -> bool:
+    """Check per-tag p95 caps.  Returns True if at least one tagged metric was found."""
+    found_any = False
+
+    for metric_name, cap_ms in _CI_SMOKE_TAG_CAPS.items():
+        values = _metric_values(payload, metric_name)
+        p95 = _float(values, "p(95)")
+
+        if p95 is None:
+            continue
+
+        found_any = True
+
+        if p95 > cap_ms + 1e-9:
+            errors.append(
+                f"{metric_name} p(95) {p95:.1f} ms exceeds cap {cap_ms:.0f} ms",
+            )
+
+    return found_any
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("summary_json", type=Path, help="k6 --summary-export JSON path")
@@ -48,7 +87,13 @@ def main() -> int:
         "--max-p95-ms",
         type=float,
         default=1500.0,
-        help="Maximum allowed http_req_duration p(95) in ms (align with docs/LOAD_TEST_BASELINE.md CI gate)",
+        help="Maximum allowed global http_req_duration p(95) in ms (fallback when --per-tag-ci-smoke tags are missing)",
+    )
+    parser.add_argument(
+        "--per-tag-ci-smoke",
+        action="store_true",
+        default=False,
+        help="Enforce per-k6ci-tag p95 caps matching tests/load/ci-smoke.js thresholds; falls back to global --max-p95-ms if tags are absent",
     )
     args = parser.parse_args()
 
@@ -59,20 +104,40 @@ def main() -> int:
 
     payload = json.loads(path.read_text(encoding="utf-8"))
     failed = _metric_values(payload, "http_req_failed")
-    duration = _metric_values(payload, "http_req_duration")
 
     failed_rate = _float(failed, "rate")
-    p95_ms = _float(duration, "p(95)")
 
     errors: list[str] = []
+
     if failed_rate is not None and failed_rate > args.max_failed_rate + 1e-12:
         errors.append(
             f"http_req_failed rate {failed_rate:.6f} exceeds cap {args.max_failed_rate:.6f}",
         )
-    if p95_ms is not None and p95_ms > args.max_p95_ms + 1e-9:
-        errors.append(
-            f"http_req_duration p(95) {p95_ms:.1f} ms exceeds cap {args.max_p95_ms:.0f} ms",
-        )
+
+    if args.per_tag_ci_smoke:
+        found = _check_per_tag(payload, errors)
+
+        if not found:
+            print(
+                "warning: --per-tag-ci-smoke requested but no tagged metrics found; "
+                "falling back to global --max-p95-ms",
+                file=sys.stderr,
+            )
+            duration = _metric_values(payload, "http_req_duration")
+            p95_ms = _float(duration, "p(95)")
+
+            if p95_ms is not None and p95_ms > args.max_p95_ms + 1e-9:
+                errors.append(
+                    f"http_req_duration p(95) {p95_ms:.1f} ms exceeds cap {args.max_p95_ms:.0f} ms (global fallback)",
+                )
+    else:
+        duration = _metric_values(payload, "http_req_duration")
+        p95_ms = _float(duration, "p(95)")
+
+        if p95_ms is not None and p95_ms > args.max_p95_ms + 1e-9:
+            errors.append(
+                f"http_req_duration p(95) {p95_ms:.1f} ms exceeds cap {args.max_p95_ms:.0f} ms",
+            )
 
     if errors:
         print("k6 CI smoke gate failed:", file=sys.stderr)
@@ -80,10 +145,8 @@ def main() -> int:
             print(f"  - {line}", file=sys.stderr)
         return 1
 
-    print(
-        f"k6 CI smoke gate OK (http_req_failed rate={failed_rate!s}, "
-        f"http_req_duration p(95)={p95_ms!s} ms)",
-    )
+    mode = "per-tag" if args.per_tag_ci_smoke else "global"
+    print(f"k6 CI smoke gate OK ({mode}; http_req_failed rate={failed_rate!s})")
     return 0
 
 
