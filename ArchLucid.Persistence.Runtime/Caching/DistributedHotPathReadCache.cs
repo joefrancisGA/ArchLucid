@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Serialization;
 
@@ -46,7 +47,10 @@ public sealed class DistributedHotPathReadCache(
             }
             catch (JsonException ex)
             {
-                _logger.LogWarning(ex, "HotPath distributed cache entry for key {CacheKey} is corrupt; refreshing.", key);
+                _logger.LogWarning(
+                    ex,
+                    "HotPath distributed cache entry for key {CacheKey} is corrupt; refreshing.",
+                    LogSanitizer.Sanitize(key));
             }
         }
 

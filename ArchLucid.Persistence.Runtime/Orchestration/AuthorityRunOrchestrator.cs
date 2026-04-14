@@ -96,7 +96,7 @@ public sealed class AuthorityRunOrchestrator(
                 logger.LogInformation(
                     "Authority pipeline started: RunId={RunId}, ProjectId={ProjectId}, TenantId={TenantId}, WorkspaceId={WorkspaceId}",
                     run.RunId,
-                    request.ProjectId,
+                    LogSanitizer.Sanitize(request.ProjectId),
                     scope.TenantId,
                     scope.WorkspaceId);
             }
@@ -161,7 +161,7 @@ public sealed class AuthorityRunOrchestrator(
                     logger.LogInformation(
                         "Authority pipeline deferred (queued): RunId={RunId}, ProjectId={ProjectId}",
                         run.RunId,
-                        request.ProjectId);
+                        LogSanitizer.Sanitize(request.ProjectId));
                 }
 
                 return run;
