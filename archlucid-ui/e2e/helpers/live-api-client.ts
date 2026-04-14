@@ -2,27 +2,43 @@
  * Typed helpers for Playwright live-API E2E against ArchLucid.Api
  * (`live-api-journey.spec.ts`, `live-api-conflict-journey.spec.ts`, `live-api-governance-rejection.spec.ts`, …).
  *
- * When `LIVE_API_KEY` is set, every helper sends `X-Api-Key` (ApiKey auth / production-like gates).
- * See `docs/LIVE_E2E_AUTH_ASSUMPTIONS.md` (log injection is server-side; client uses fixed env keys in CI only).
+ * Auth lanes (see `docs/LIVE_E2E_AUTH_ASSUMPTIONS.md`):
+ * - **JWT:** `LIVE_JWT_TOKEN` → `Authorization: Bearer …` (takes precedence over API key when both are set).
+ * - **ApiKey:** `LIVE_API_KEY` → `X-Api-Key`.
+ * - **DevelopmentBypass:** no auth headers.
  */
 import type { APIRequestContext, APIResponse } from "@playwright/test";
+
+import { getLiveJwtTokenFromEnvSync, isLiveJwtTokenConfigured } from "./jwt-token-provider";
 
 /** Base URL for ArchLucid.Api (e.g. http://127.0.0.1:5128). */
 export const liveApiBase = process.env.LIVE_API_URL ?? "http://127.0.0.1:5128";
 
 const liveApiKeyEnv = process.env.LIVE_API_KEY?.trim() ?? "";
 
-/** True when `LIVE_API_KEY` is set — helpers attach `X-Api-Key` on each request. */
-export const isApiKeyMode = liveApiKeyEnv.length > 0;
+/** True when `LIVE_JWT_TOKEN` is set — helpers send `Authorization: Bearer`. */
+export const isJwtMode = isLiveJwtTokenConfigured();
+
+/** True when `LIVE_API_KEY` is set and JWT is not configured. */
+export const isApiKeyMode = liveApiKeyEnv.length > 0 && !isJwtMode;
+
+/** Detected primary auth lane for logging / assertions in specs. */
+export type LiveAuthMode = "bypass" | "apikey" | "jwt";
+
+export const liveAuthMode: LiveAuthMode = isJwtMode ? "jwt" : isApiKeyMode ? "apikey" : "bypass";
 
 /** Optional second key for readonly / least-privilege tests (`live-api-apikey-auth.spec.ts`). */
 export const liveApiKeyReadOnly = process.env.LIVE_API_KEY_READONLY?.trim() ?? "";
 
 /**
- * Governance submitter identity for segregation: DevelopmentBypass `DevUserName` (**Developer**) or
- * ApiKey admin principal (**ApiKeyAdmin**).
+ * Governance submitter identity for segregation: DevelopmentBypass **Developer**, ApiKey **ApiKeyAdmin**,
+ * JWT **LIVE_JWT_ACTOR_NAME** (default **JwtE2eAdmin**) — must match JWT `name` claim.
  */
-export const liveAuthActorName = isApiKeyMode ? "ApiKeyAdmin" : "Developer";
+export const liveAuthActorName = isJwtMode
+  ? (process.env.LIVE_JWT_ACTOR_NAME?.trim() || "JwtE2eAdmin")
+  : isApiKeyMode
+    ? "ApiKeyAdmin"
+    : "Developer";
 
 /** Distinct `reviewedBy` body value vs {@link liveAuthActorName} for approve/reject paths. */
 export const livePeerReviewerActorName = "e2e-peer-reviewer";
@@ -37,7 +53,35 @@ function pickApiKey(explicitApiKey?: string | null): string | undefined {
   return liveApiKeyEnv.length > 0 ? liveApiKeyEnv : undefined;
 }
 
-function pickAuthHeaders(explicitApiKey?: string | null): Record<string, string> {
+/**
+ * Builds auth headers. Pass explicit `""` to force **no** `Authorization` / `X-Api-Key` (negative tests).
+ * For JWT, optional `explicitBearerToken` overrides env token when non-empty (e.g. invalid token tests).
+ */
+function pickAuthHeaders(
+  explicitApiKey?: string | null,
+  explicitBearerToken?: string | null,
+): Record<string, string> {
+  if (explicitApiKey !== undefined && explicitApiKey !== null && explicitApiKey.trim().length === 0) {
+    return {};
+  }
+
+  if (explicitBearerToken !== undefined && explicitBearerToken !== null && explicitBearerToken.trim().length === 0) {
+    return {};
+  }
+
+  if (isJwtMode) {
+    const token =
+      explicitBearerToken !== undefined && explicitBearerToken !== null && explicitBearerToken.trim().length > 0
+        ? explicitBearerToken.trim()
+        : getLiveJwtTokenFromEnvSync();
+
+    if (token.length === 0) {
+      return {};
+    }
+
+    return { Authorization: `Bearer ${token}` };
+  }
+
   const key = pickApiKey(explicitApiKey);
 
   if (key === undefined) {
@@ -47,7 +91,7 @@ function pickAuthHeaders(explicitApiKey?: string | null): Record<string, string>
   return { "X-Api-Key": key };
 }
 
-/** JSON request headers. Pass `""` to force **no** API key (negative tests). Omit argument for default env key. */
+/** JSON request headers. Pass `""` to force **no** auth (negative tests). Omit argument for default credentials. */
 export function liveJsonHeaders(explicitApiKey?: string | null): Record<string, string> {
   return {
     ...pickAuthHeaders(explicitApiKey),
@@ -56,10 +100,21 @@ export function liveJsonHeaders(explicitApiKey?: string | null): Record<string, 
   };
 }
 
-/** GET JSON headers. Pass `""` to omit API key. */
+/** GET JSON headers. Pass `""` to omit auth. */
 export function liveAcceptHeaders(explicitApiKey?: string | null): Record<string, string> {
   return {
     ...pickAuthHeaders(explicitApiKey),
+    Accept: "application/json",
+  };
+}
+
+/**
+ * GET JSON headers with explicit Bearer token (JWT mode). Pass `""` for no `Authorization` header.
+ * Use for invalid-token negative tests; ApiKey mode ignores `token` and uses {@link pickAuthHeaders} key path.
+ */
+export function liveBearerAcceptHeaders(token?: string | null): Record<string, string> {
+  return {
+    ...pickAuthHeaders(undefined, token),
     Accept: "application/json",
   };
 }
@@ -70,8 +125,6 @@ function liveBinaryAcceptHeaders(accept: string, explicitApiKey?: string | null)
     Accept: accept,
   };
 }
-
-const jsonHeaders = liveJsonHeaders();
 
 async function throwIfNotOk(res: APIResponse, label: string): Promise<void> {
   if (res.ok()) {
@@ -91,7 +144,7 @@ export async function postArchitectureRequestRaw(
 ): Promise<APIResponse> {
   return request.post(`${liveApiBase}/v1/architecture/request`, {
     data: body,
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(),
   });
 }
 
@@ -356,7 +409,7 @@ export async function createApprovalRequest(
       targetEnvironment: body.targetEnvironment,
       requestComment: body.requestComment ?? null,
     },
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(),
   });
 
   await throwIfNotOk(res, "POST /v1/governance/approval-requests");
@@ -529,7 +582,7 @@ export async function createPolicyPack(
       packType: body.packType,
       initialContentJson: body.initialContentJson,
     },
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(),
   });
 
   await throwIfNotOk(res, "POST /v1/policy-packs");
@@ -552,7 +605,7 @@ export async function publishPolicyPackVersion(
 ): Promise<unknown> {
   const res = await request.post(`${liveApiBase}/v1/policy-packs/${policyPackId}/publish`, {
     data: { version: body.version, contentJson: body.contentJson },
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(),
   });
 
   await throwIfNotOk(res, "POST /v1/policy-packs/.../publish");
@@ -572,7 +625,7 @@ export async function assignPolicyPack(
       scopeLevel: body.scopeLevel ?? "Project",
       isPinned: body.isPinned ?? false,
     },
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(),
   });
 
   await throwIfNotOk(res, "POST /v1/policy-packs/.../assign");
@@ -612,7 +665,7 @@ export async function postAdvisoryScanRaw(
 ): Promise<APIResponse> {
   return request.post(`${liveApiBase}/v1/advisory/scans`, {
     data: { runId: body.runId, description: body.description ?? "" },
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(),
   });
 }
 
@@ -630,7 +683,7 @@ export async function postAnalysisReportRaw(
 ): Promise<APIResponse> {
   return request.post(`${liveApiBase}/v1/reports/analysis`, {
     data: { runId: body.runId },
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(),
   });
 }
 
@@ -659,7 +712,7 @@ export async function postAlertRuleRaw(
 ): Promise<APIResponse> {
   return request.post(`${liveApiBase}/v1/alert-rules`, {
     data: body,
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(),
   });
 }
 
@@ -684,7 +737,7 @@ export async function postAskRaw(
 ): Promise<APIResponse> {
   return request.post(`${liveApiBase}/v1/ask`, {
     data: { runId: body.runId, question: body.question },
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(),
   });
 }
 
@@ -709,7 +762,7 @@ export async function createDigestSubscription(
       isEnabled: body.isEnabled ?? true,
       metadataJson: body.metadataJson ?? "{}",
     },
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(),
   });
 
   await throwIfNotOk(res, "POST /v1/digest-subscriptions");

@@ -59,6 +59,39 @@ internal static class AuthenticationRules
         }
     }
 
+    /// <summary>
+    /// When <c>ArchLucidAuth:JwtSigningPublicKeyPemPath</c> is set (local RSA public key), require issuer and audience.
+    /// Applies in all environments so misconfigured CI or dev hosts fail fast.
+    /// </summary>
+    public static void CollectJwtBearerLocalSigningKey(IConfiguration configuration, List<string> errors)
+    {
+        string? authMode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
+
+        if (!string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        string? pemPath = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "JwtSigningPublicKeyPemPath");
+
+        if (string.IsNullOrWhiteSpace(pemPath))
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "JwtLocalIssuer")))
+        {
+            errors.Add(
+                "ArchLucidAuth:JwtLocalIssuer is required when ArchLucidAuth:JwtSigningPublicKeyPemPath is set.");
+        }
+
+        if (string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "JwtLocalAudience")))
+        {
+            errors.Add(
+                "ArchLucidAuth:JwtLocalAudience is required when ArchLucidAuth:JwtSigningPublicKeyPemPath is set.");
+        }
+    }
+
     /// <summary>JwtBearer / ApiKey production checks for API hosts (not Worker).</summary>
     public static void CollectProductionAuthModes(IConfiguration configuration, List<string> errors)
     {
@@ -72,7 +105,14 @@ internal static class AuthenticationRules
 
         if (string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
         {
-            if (string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Authority")))
+            string? pemPath = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "JwtSigningPublicKeyPemPath");
+
+            if (!string.IsNullOrWhiteSpace(pemPath))
+            {
+                errors.Add(
+                    "ArchLucidAuth:JwtSigningPublicKeyPemPath is set; local JWT validation is for non-production / CI only and must not be used in Production.");
+            }
+            else if (string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Authority")))
             {
                 errors.Add(
                     "ArchLucidAuth:Authority is required when auth Mode is JwtBearer in Production.");

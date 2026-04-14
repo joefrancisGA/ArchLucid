@@ -54,6 +54,51 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenDevelopmentAndJwtBearerWithPemMissingIssuer_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = "/tmp/archlucid-ci-public.pem",
+            ["ArchLucidAuth:JwtLocalIssuer"] = "",
+            ["ArchLucidAuth:JwtLocalAudience"] = "api://x",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("JwtLocalIssuer", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndJwtBearerWithLocalPem_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:JwtSigningPublicKeyPemPath"] = "/tmp/archlucid-ci-public.pem",
+            ["ArchLucidAuth:JwtLocalIssuer"] = "https://ci.local",
+            ["ArchLucidAuth:JwtLocalAudience"] = "api://x",
+            ["ArchLucidAuth:Authority"] = "",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("JwtSigningPublicKeyPemPath", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CollectErrors_WhenProductionAndApiKeyModeButKeysDisabled_contains_error()
     {
         Dictionary<string, string?> data = new()

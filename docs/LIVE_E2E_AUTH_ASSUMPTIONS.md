@@ -7,14 +7,15 @@ Document every **DevelopmentBypass-only** assumption in `archlucid-ui/e2e/live-a
 ## 2. Assumptions
 
 - **CI default (`ui-e2e-live`):** `ArchLucidAuth:Mode=DevelopmentBypass`, `Authentication:ApiKey:DevelopmentBypassAll=true` — HTTP calls need **no** `X-Api-Key` header.
-- **Production-like:** `ArchLucidAuth:Mode=ApiKey`, `Authentication:ApiKey:Enabled=true`, `DevelopmentBypassAll=false` — callers must send a valid **`X-Api-Key`** for authorized endpoints.
+- **Production-like (API key):** `ArchLucidAuth:Mode=ApiKey`, `Authentication:ApiKey:Enabled=true`, `DevelopmentBypassAll=false` — callers must send a valid **`X-Api-Key`** for authorized endpoints.
+- **JWT (CI / lab):** `ArchLucidAuth:Mode=JwtBearer` with **`JwtSigningPublicKeyPemPath`** + **`JwtLocalIssuer`** / **`JwtLocalAudience`** — callers send **`Authorization: Bearer`**; mint tokens with **`scripts/ci/mint_ci_jwt.py`** (see **`docs/LIVE_E2E_JWT_SETUP.md`**).
 - **Anonymous endpoints:** `GET /health/live` and `GET /health/ready` are **`AllowAnonymous`** — they succeed without auth in all modes (see `ArchLucid.Api/Startup/PipelineExtensions.cs`).
 
 ## 3. Constraints
 
 - **Simulator + auth are orthogonal:** `AgentExecution:Mode=Simulator` does not remove auth requirements under ApiKey mode.
 - **Governance `reviewedBy`** is a **JSON body field**, not the HTTP principal name — segregation compares `reviewedBy` to **`RequestedBy`** stored on the approval request (submitter identity from claims). Under ApiKey admin, submitter maps to **`ApiKeyAdmin`** (`ClaimTypes.Name` in `ApiKeyAuthenticationHandler`).
-- **JWT live E2E** is not implemented in-repo; this document focuses on DevelopmentBypass vs ApiKey.
+- **JWT live E2E** uses **`LIVE_JWT_TOKEN`** and optional **`ARCHLUCID_PROXY_BEARER_TOKEN`** for the Next.js BFF; **`liveAuthActorName`** must match the JWT **`name`** claim (default **`JwtE2eAdmin`**).
 
 ## 4. Architecture overview
 
@@ -30,7 +31,7 @@ flowchart LR
     H[helpers]
   end
   subgraph client [live-api-client.ts]
-    K[LIVE_API_KEY optional]
+    K[LIVE_API_KEY or LIVE_JWT_TOKEN]
   end
   API[ArchLucid.Api]
   specs --> H --> client --> API
@@ -40,7 +41,7 @@ flowchart LR
 
 | File | Location / topic | Assumption | Why it fails under ApiKey without headers | Severity |
 |------|------------------|------------|---------------------------------------------|----------|
-| `live-api-client.ts` | All `request.*` helpers | No `X-Api-Key` when `LIVE_API_KEY` unset | Authorized routes return **401** | **Blocking** |
+| `live-api-client.ts` | All `request.*` helpers | No `X-Api-Key` when `LIVE_API_KEY` unset and no `LIVE_JWT_TOKEN` | Authorized routes return **401** | **Blocking** |
 | `live-api-journey.spec.ts` | `developmentBypassActorName = "Developer"` | Self-approval soft check uses literal **Developer** | Under ApiKey, submitter is **ApiKeyAdmin** — same check must use `liveAuthActorName` | **Blocking** (assertion wrong) |
 | `live-api-journey.spec.ts` | `peerReviewerActor` | Body string **e2e-peer-reviewer** | Still valid — differs from **ApiKeyAdmin** | Non-issue |
 | `live-api-negative-paths.spec.ts` | `developmentBypassActorName` | Self-approval test title + `reviewedBy` | Must use `liveAuthActorName` under ApiKey | **Blocking** |
@@ -63,7 +64,7 @@ flowchart LR
 
 1. **DevelopmentBypass:** Authentication handler synthesizes principal (`DevUserName` / **Developer**, Admin role). No API key header.
 2. **ApiKey:** Handler validates `X-Api-Key` against configured admin/readonly segments; principal **ApiKeyAdmin** or **ApiKeyReadOnly** with permission claims.
-3. **Helpers:** When `process.env.LIVE_API_KEY` is set, `live-api-client.ts` attaches `X-Api-Key` on every helper call. Explicit `liveJsonHeaders("")` omits the key for negative tests.
+3. **Helpers:** When `process.env.LIVE_JWT_TOKEN` is set, helpers attach **`Authorization: Bearer`** (and ignore API key for outbound calls). When only `LIVE_API_KEY` is set, helpers attach **`X-Api-Key`**. Explicit `liveJsonHeaders("")` omits credentials for negative tests.
 
 ## 8. Security model
 
@@ -73,13 +74,14 @@ flowchart LR
 ## 9. Operational considerations
 
 - **PR job `ui-e2e-live-apikey`:** Subset of specs + dedicated `live-api-apikey-auth.spec.ts`; merge-blocking.
-- **Nightly `live-e2e-nightly.yml`:** Optional full `live-api-*.spec.ts` matrix for both auth modes; long duration acceptable off critical path.
+- **Nightly `live-e2e-nightly.yml`:** Full `live-api-*.spec.ts` matrix for DevelopmentBypass, ApiKey, and JwtBearer (three API boots); long duration acceptable off critical path.
 - **Docs:** Parity matrix in **`docs/LIVE_E2E_AUTH_PARITY.md`**; operator narrative in **`docs/LIVE_E2E_HAPPY_PATH.md`**.
 
 ## 10. Related links
 
 - [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)
 - [LIVE_E2E_AUTH_PARITY.md](LIVE_E2E_AUTH_PARITY.md)
+- [LIVE_E2E_JWT_SETUP.md](LIVE_E2E_JWT_SETUP.md)
 - [TEST_STRUCTURE.md](TEST_STRUCTURE.md)
 - [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)
 - [runbooks/API_KEY_ROTATION.md](runbooks/API_KEY_ROTATION.md)

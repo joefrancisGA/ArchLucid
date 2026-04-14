@@ -21,4 +21,16 @@ public class ArchLucidAuthOptions
 
     /// <summary>Admin | Operator | Reader</summary>
     public string DevRole { get; set; } = "Admin";
+
+    /// <summary>
+    /// Path to a PEM file containing an RSA <strong>public</strong> key for JWT signature validation.
+    /// When set, OIDC metadata from <see cref="Authority"/> is not used (CI / local signing-key E2E only).
+    /// </summary>
+    public string JwtSigningPublicKeyPemPath { get; set; } = string.Empty;
+
+    /// <summary><c>iss</c> claim value when using <see cref="JwtSigningPublicKeyPemPath"/>.</summary>
+    public string JwtLocalIssuer { get; set; } = string.Empty;
+
+    /// <summary><c>aud</c> claim value when using <see cref="JwtSigningPublicKeyPemPath"/>.</summary>
+    public string JwtLocalAudience { get; set; } = string.Empty;
 }

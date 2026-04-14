@@ -20,15 +20,22 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
   const h = new Headers();
   const key = readServerSideApiKey()?.trim() ?? "";
   const authHeader = request.headers.get("authorization");
-  const bearer = authHeader?.trim() ?? "";
-  const hasBearer = bearer.length > 0;
+  const browserBearer = authHeader?.trim() ?? "";
+  const serverBearerToken = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
+  const bearerToUse =
+    browserBearer.length > 0
+      ? browserBearer
+      : serverBearerToken.length > 0
+        ? `Bearer ${serverBearerToken}`
+        : "";
+  const hasBearer = bearerToUse.length > 0;
 
   if (key && !hasBearer) {
     h.set("X-Api-Key", key);
   }
 
   if (hasBearer) {
-    h.set("Authorization", bearer);
+    h.set("Authorization", bearerToUse);
   }
   for (const [k, v] of Object.entries(getScopeHeaders())) {
     const incoming = request.headers.get(k);

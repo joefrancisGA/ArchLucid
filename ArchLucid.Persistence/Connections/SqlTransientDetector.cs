@@ -7,8 +7,8 @@ namespace ArchLucid.Persistence.Connections;
 /// Shared by <c>SqlConnectionHealthCheck</c> and <c>ResilientSqlConnectionFactory</c>.
 /// </summary>
 /// <remarks>
-/// Error numbers: <c>-2</c> = timeout; <c>40613</c> = Azure SQL DB unavailable;
-/// <c>40197</c> = service error during processing; <c>49918–49920</c> = Azure throttling.
+/// Error numbers: <c>-2</c> = timeout; <c>1205</c> = deadlock victim (safe to retry when the UoW rolled back);
+/// <c>40613</c> = Azure SQL DB unavailable; <c>40197</c> = service error during processing; <c>49918–49920</c> = Azure throttling.
 /// </remarks>
 public static class SqlTransientDetector
 {
@@ -18,7 +18,7 @@ public static class SqlTransientDetector
         if (ex is null)
             return false;
 
-        return ex.Number is -2 or 40613 or 40197 or 49918 or 49919 or 49920;
+        return ex.Number is -2 or 1205 or 40613 or 40197 or 49918 or 49919 or 49920;
     }
 
     /// <summary>Returns <see langword="true"/> when the exception (or its inner exception) is a transient SQL or timeout error.</summary>

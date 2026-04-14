@@ -17,6 +17,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -76,6 +77,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly ILogger<ArchitectureRunCommitOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+    private const int CommitRunTransientMaxAttempts = 5;
+
     /// <inheritdoc />
     public async Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -83,31 +86,55 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         string actor = _actorContext.GetActor();
 
-        try
+        for (int attempt = 1; attempt <= CommitRunTransientMaxAttempts; attempt++)
         {
-            return await CommitRunCoreAsync(runId, actor, cancellationToken);
-        }
-        catch (RunNotFoundException)
-        {
-            await _baselineMutationAudit
-                .RecordAsync(
-                    AuditEventTypes.Baseline.Architecture.RunFailed,
+            try
+            {
+                return await CommitRunCoreAsync(runId, actor, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (RunNotFoundException)
+            {
+                await _baselineMutationAudit
+                    .RecordAsync(
+                        AuditEventTypes.Baseline.Architecture.RunFailed,
+                        actor,
+                        runId,
+                        "Run not found.",
+                        cancellationToken);
+
+                await CoordinatorRunFailedDurableAudit.TryLogAsync(
+                    _auditService,
+                    _scopeContextProvider,
+                    _logger,
                     actor,
                     runId,
                     "Run not found.",
                     cancellationToken);
 
-            await CoordinatorRunFailedDurableAudit.TryLogAsync(
-                _auditService,
-                _scopeContextProvider,
-                _logger,
-                actor,
-                runId,
-                "Run not found.",
-                cancellationToken);
+                throw;
+            }
+            catch (Exception ex) when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)
+            {
 
-            throw;
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "CommitRunAsync transient database error (attempt {Attempt}/{Max}) for RunId={RunId}; retrying.",
+                        attempt,
+                        CommitRunTransientMaxAttempts,
+                        LogSanitizer.Sanitize(runId));
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(25 * attempt), cancellationToken);
+            }
         }
+
+        throw new InvalidOperationException("CommitRunAsync exhausted transient retries without returning.");
     }
 
     private async Task<CommitRunResult> CommitRunCoreAsync(

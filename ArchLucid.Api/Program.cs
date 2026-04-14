@@ -86,6 +86,17 @@ public partial class Program
         // Belt-and-suspenders: refuse Production + DevelopmentBypass even if validation rules are bypassed later.
         ArchLucidAuthOptions authBound = ArchLucidAuthConfigurationBridge.Resolve(app.Configuration);
 
+        if (!app.Environment.IsProduction()
+            && string.Equals(authBound.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(authBound.JwtSigningPublicKeyPemPath?.Trim()))
+        {
+            if (app.Logger.IsEnabled(LogLevel.Warning))
+            {
+                app.Logger.LogWarning(
+                    "ArchLucidAuth:JwtSigningPublicKeyPemPath is set: JWTs are validated with a local RSA public key (CI / local E2E). Use Entra authority + metadata in real environments.");
+            }
+        }
+
         if (app.Environment.IsProduction()
             && string.Equals(authBound.Mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
         {

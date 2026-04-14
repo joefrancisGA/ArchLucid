@@ -22,6 +22,7 @@ public static class ArchLucidConfigurationRules
 
         StorageRules.Collect(configuration, archLucidOptions, errors);
         AuthenticationRules.CollectApiKeyWhenEnabled(configuration, errors);
+        AuthenticationRules.CollectJwtBearerLocalSigningKey(configuration, errors);
         AgentExecutionRules.Collect(configuration, errors);
         LlmCompletionCacheRules.Collect(configuration, errors);
         SchemaValidationRules.Collect(configuration, errors);

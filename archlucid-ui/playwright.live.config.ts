@@ -33,6 +33,8 @@ export default defineConfig({
     timeout: skipNextBuild ? 120_000 : 180_000,
     env: {
       LIVE_API_URL: process.env.LIVE_API_URL ?? "http://127.0.0.1:5128",
+      // Forward CI JWT so Next.js BFF proxy can reach the API when ArchLucidAuth:Mode=JwtBearer (see docs/LIVE_E2E_JWT_SETUP.md).
+      ARCHLUCID_PROXY_BEARER_TOKEN: process.env.ARCHLUCID_PROXY_BEARER_TOKEN ?? "",
     },
   },
 });

@@ -1048,6 +1048,151 @@ jobs:
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
+  ui-e2e-live-jwt:
+    name: "Operator UI: live e2e (JWT subset)"
+    continue-on-error: true
+    needs: dotnet-full-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Install UI deps & build Next (standalone)
+        working-directory: archlucid-ui
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run build
+
+      - name: Generate RSA keys & PyJWT (CI JWT mint)
+        run: |
+          set -e
+          pip install --quiet PyJWT cryptography
+          openssl genrsa -out "${RUNNER_TEMP}/ci-jwt-priv.pem" 2048
+          openssl rsa -in "${RUNNER_TEMP}/ci-jwt-priv.pem" -pubout -out "${RUNNER_TEMP}/ci-jwt-pub.pem"
+
+      - name: Create SQL catalog for live API e2e (JwtBearer)
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eJwt') CREATE DATABASE ArchLucidLiveE2eJwt;"
+
+      - name: Start ArchLucid.Api (background, JwtBearer + local PEM)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eJwt"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: JwtBearer
+          ArchLucidAuth__Authority: ""
+          ArchLucidAuth__Audience: ""
+          ArchLucidAuth__JwtSigningPublicKeyPemPath: ${{ runner.temp }}/ci-jwt-pub.pem
+          ArchLucidAuth__JwtLocalIssuer: "https://ci.archlucid.local"
+          ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-jwt"
+          Authentication__ApiKey__DevelopmentBypassAll: "false"
+          AgentExecution__Mode: Simulator
+          Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
+          Cors__AllowedOrigins__1: "http://localhost:3000"
+        run: |
+          set -e
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-jwt.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/live-api-jwt.pid"
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:5128/health/ready; then
+              echo "API ready (JwtBearer + local PEM)."
+              exit 0
+            fi
+            if [ "$i" -eq 90 ]; then
+              echo "::error::API (JwtBearer) did not reach /health/ready in time"
+              tail -n 200 "${RUNNER_TEMP}/live-api-jwt.log" || true
+              exit 1
+            fi
+            sleep 2
+          done
+
+      - name: Install Playwright browsers & run live e2e (JWT subset)
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          set -e
+          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
+            --private-key "${RUNNER_TEMP}/ci-jwt-priv.pem" \
+            --issuer "https://ci.archlucid.local" \
+            --audience "api://archlucid-live-e2e-jwt" \
+            --out-token "${RUNNER_TEMP}/ci-jwt-token.txt"
+          TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/ci-jwt-token.txt")"
+          echo "::add-mask::${TOKEN}"
+          export LIVE_JWT_TOKEN="${TOKEN}"
+          export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
+          npx playwright install --with-deps chromium
+          curl -fsS http://127.0.0.1:5128/health/ready
+          npx playwright test -c playwright.live.config.ts \
+            live-api-jwt-auth.spec.ts \
+            live-api-journey.spec.ts \
+            live-api-negative-paths.spec.ts
+
+      - name: Upload live API log (JwtBearer)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ui-e2e-live-jwt-api-log
+          path: ${{ runner.temp }}/live-api-jwt.log
+          if-no-files-found: warn
+
+      - name: Upload Playwright report (JwtBearer)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ui-e2e-live-jwt-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
   # k6 read-only API smoke. Gating — failures block merge (rate limits relaxed for this job).
   k6-smoke-api:
     name: "Performance: k6 smoke (API baseline)"
