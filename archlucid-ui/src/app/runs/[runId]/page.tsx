@@ -198,7 +198,10 @@ export default async function RunDetailPage({
           Manifest summary and artifacts appear below when this run has a golden manifest (after commit).
         </p>
         <p>
-          <strong>Run ID:</strong> {resolvedDetail.run.runId}
+          <strong>Run ID:</strong>{" "}
+          <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">
+            {resolvedDetail.run.runId}
+          </code>
         </p>
         <RunTraceViewerLink traceId={runDetailTraceId} />
         {resolvedDetail.run.otelTraceId && (
