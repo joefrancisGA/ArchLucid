@@ -27,6 +27,12 @@ After this is merged, **`LogSanitizer.Sanitize(...)`** call sites should stop al
 
 **Copilot Autofix** for CodeQL cannot infer custom sanitizers; use this model pack (or dismiss manually with rationale).
 
+### `LoggerExtensions.LogWarning(ILogger, Exception?, string?, params object?[])` (boxing)
+
+Some **`cs/log-forging`** findings persist even when the template argument is **`LogSanitizer.Sanitize(...)`** at the call site: the sanitizer’s return value is boxed into **`params object?[]`**, and the query may not treat the custom barrier as effective across that hop.
+
+**Mitigation in this repo:** use **`ArchLucid.Api.Logging.SanitizedLoggerExtensions.LogWarningWithSanitizedUserArg`**, which sanitizes immediately before the **`LogWarning`** call. A single **`// codeql[cs/log-forging]`** suppression documents the remaining false positive on that sink (exception context + params array) for controller catch blocks that already sanitize user-derived placeholders.
+
 ### False positives
 
 Treat as a **false positive** when the logged parameter is a **value type** bound from **`[FromRoute]`** (or otherwise not arbitrary attacker-controlled string content), e.g. **`Guid`**, **`int`**, **`DateTime`**. Their formatted output does not carry the same newline/control-character injection risk as arbitrary strings.
@@ -57,7 +63,7 @@ Several endpoints bind identifiers as **`[FromRoute] string`** (not **`Guid`**) 
 | **`ArchLucid.Api/Controllers/AnalysisReportsController.cs`** | **`runId`** in analysis / export logs | **`[FromRoute] string runId`** |
 | **`ArchLucid.Api/Controllers/GovernanceController.cs`** | **`approvalRequestId`** in approve / reject logs | **`[FromRoute] string approvalRequestId`** |
 
-If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the extension pack is loaded (see workflow **`config-file`**) or refactor to **`Guid`** + **`{param:guid}`** and dismiss value-type cases per above.
+If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the extension pack is loaded (see workflow **`config-file`**), route **`LogWarning`** + user string through **`LogWarningWithSanitizedUserArg`** (see § boxing above), or refactor to **`Guid`** + **`{param:guid}`** and dismiss value-type cases per above.
 
 ---
 

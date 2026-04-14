@@ -63,7 +63,7 @@ public static partial class ServiceCollectionExtensions
 
             return new AgentOutputReferenceCaseCatalog(refOpts, env.ContentRootPath, log);
         });
-        services.AddSingleton<AgentOutputReferenceCaseRunEvaluator>();
+        services.AddScoped<AgentOutputReferenceCaseRunEvaluator>();
         services.AddScoped<AgentOutputEvaluationRecorder>();
         services.AddScoped<IAgentOutputTraceEvaluationHook, AgentOutputTraceEvaluationHook>();
         services.Configure<AgentResultSchemaValidationOptions>(

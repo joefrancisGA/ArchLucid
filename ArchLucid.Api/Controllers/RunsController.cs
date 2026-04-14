@@ -1,4 +1,5 @@
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Logging;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -12,7 +13,6 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Data.Repositories;
@@ -118,13 +118,13 @@ public sealed partial class RunsController(
         }
         catch (ConflictException ex)
         {
-            logger.LogWarning(ex, "CreateRun conflict for request '{RequestId}'.", LogSanitizer.Sanitize(request.RequestId));
+            logger.LogWarningWithSanitizedUserArg(ex, "CreateRun conflict for request '{RequestId}'.", request.RequestId);
 
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "CreateRun failed for request '{RequestId}'.", LogSanitizer.Sanitize(request.RequestId));
+            logger.LogWarningWithSanitizedUserArg(ex, "CreateRun failed for request '{RequestId}'.", request.RequestId);
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }
@@ -178,7 +178,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "ExecuteRun failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
+            logger.LogWarningWithSanitizedUserArg(ex, "ExecuteRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
         catch (RunNotFoundException ex)
@@ -234,7 +234,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "ReplayRun failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
+            logger.LogWarningWithSanitizedUserArg(ex, "ReplayRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -269,7 +269,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "DeterminismCheck failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
+            logger.LogWarningWithSanitizedUserArg(ex, "DeterminismCheck failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -311,17 +311,20 @@ public sealed partial class RunsController(
         }
         catch (PreCommitGovernanceBlockedException ex)
         {
-            logger.LogWarning(ex, "CommitRun blocked by pre-commit governance for run '{RunId}'.", LogSanitizer.Sanitize(runId));
+            logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "CommitRun blocked by pre-commit governance for run '{RunId}'.",
+                runId);
             return this.GovernancePreCommitBlockedProblem(ex.Result);
         }
         catch (ConflictException ex)
         {
-            logger.LogWarning(ex, "CommitRun conflict for run '{RunId}'.", LogSanitizer.Sanitize(runId));
+            logger.LogWarningWithSanitizedUserArg(ex, "CommitRun conflict for run '{RunId}'.", runId);
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "CommitRun failed for run '{RunId}'.", LogSanitizer.Sanitize(runId));
+            logger.LogWarningWithSanitizedUserArg(ex, "CommitRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
         catch (RunNotFoundException ex)

@@ -1,12 +1,12 @@
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
+using ArchLucid.Api.Logging;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -123,12 +123,18 @@ public sealed class GovernanceController(
         }
         catch (GovernanceSelfApprovalException ex)
         {
-            logger.LogWarning(ex, "Approve blocked: segregation of duties for approval request '{ApprovalRequestId}'.", LogSanitizer.Sanitize(approvalRequestId));
+            logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "Approve blocked: segregation of duties for approval request '{ApprovalRequestId}'.",
+                approvalRequestId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.GovernanceSelfApproval);
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "Approve failed for approval request '{ApprovalRequestId}'.", LogSanitizer.Sanitize(approvalRequestId));
+            logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "Approve failed for approval request '{ApprovalRequestId}'.",
+                approvalRequestId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
     }
@@ -161,12 +167,18 @@ public sealed class GovernanceController(
         }
         catch (GovernanceSelfApprovalException ex)
         {
-            logger.LogWarning(ex, "Reject blocked: segregation of duties for approval request '{ApprovalRequestId}'.", LogSanitizer.Sanitize(approvalRequestId));
+            logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "Reject blocked: segregation of duties for approval request '{ApprovalRequestId}'.",
+                approvalRequestId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.GovernanceSelfApproval);
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "Reject failed for approval request '{ApprovalRequestId}'.", LogSanitizer.Sanitize(approvalRequestId));
+            logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "Reject failed for approval request '{ApprovalRequestId}'.",
+                approvalRequestId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
     }
@@ -207,7 +219,7 @@ public sealed class GovernanceController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "Promote failed for run '{RunId}'.", LogSanitizer.Sanitize(request.RunId));
+            logger.LogWarningWithSanitizedUserArg(ex, "Promote failed for run '{RunId}'.", request.RunId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
     }

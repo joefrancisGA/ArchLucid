@@ -1,9 +1,9 @@
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Logging;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Comparison;
-using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Comparison;
@@ -67,10 +67,10 @@ public sealed class ExplanationController(
             }
             catch (InvalidOperationException ex)
             {
-                logger.LogWarning(
+                logger.LogWarningWithSanitizedUserArg(
                     ex,
                     "Provenance graph JSON for run {RunId} is corrupt; explanation will proceed without provenance.",
-                    LogSanitizer.Sanitize(runId.ToString("D")));
+                    runId.ToString("D"));
             }
         }
 
