@@ -301,6 +301,18 @@ public static class ArchLucidInstrumentation
             "archlucid_agent_output_quality_gate_total",
             description: "Agent output quality gate outcomes (labels: agent_type, outcome=accepted|warned|rejected).");
 
+    /// <summary>Reference-case evaluation outcomes (labels: <c>case_id</c>, <c>agent_type</c>, <c>outcome</c>=pass|fail).</summary>
+    public static readonly Counter<long> AgentOutputReferenceCaseEvaluationsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_output_reference_case_evaluations_total",
+            description: "Reference-case agent output evaluations (labels: case_id, agent_type, outcome=pass|fail).");
+
+    /// <summary>Mean of structural completeness and semantic score for each reference-case evaluation (labels: <c>case_id</c>, <c>agent_type</c>).</summary>
+    public static readonly Histogram<double> AgentOutputReferenceCaseScoreRatio =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_agent_output_reference_case_score_ratio",
+            description: "Combined reference-case score (structural+semantic)/2 (0.0–1.0).");
+
     /// <summary>
     /// Aggregate explanation replaced LLM text with deterministic manifest narrative due to low explanation faithfulness.
     /// </summary>

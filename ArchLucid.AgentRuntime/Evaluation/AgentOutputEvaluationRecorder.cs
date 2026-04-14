@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
@@ -16,8 +17,12 @@ public sealed class AgentOutputEvaluationRecorder(
     IAgentOutputEvaluator evaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
     IAgentOutputQualityGate qualityGate,
+    AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
+    private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
+        referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
+
     private const double LowStructuralScoreThreshold = 0.5;
     private const double LowSemanticScoreThreshold = 0.5;
 
@@ -106,6 +111,8 @@ public sealed class AgentOutputEvaluationRecorder(
                     semanticScore.EmptyClaimCount,
                     semanticScore.IncompleteFindingCount);
             }
+
+            await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken);
         }
     }
 }

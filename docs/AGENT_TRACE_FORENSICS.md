@@ -8,9 +8,10 @@ Enable **replayable** inspection of exact LLM inputs and outputs for a single ag
 
 | Element | Behavior |
 |---------|----------|
-| **Config gate** | **`AgentExecution:TraceStorage:PersistFullPrompts`** (default **true**; override per environment if retention policy forbids full prompts). |
+| **Full prompts** | Always attempted after each trace insert (no opt-out). **`AgentExecution:TraceStorage:BlobPersistenceTimeoutSeconds`** caps blob wall time (default **30** s, clamped **5–300**). |
 | **Blob layout** | Container **`agent-traces`**; blobs **`{runId}/{traceId}/system-prompt.txt`**, **`user-prompt.txt`**, **`response.txt`**. |
 | **Stored pointers** | **`FullSystemPromptBlobKey`**, **`FullUserPromptBlobKey`**, **`FullResponseBlobKey`** on the trace row (opaque URI from **`IArtifactBlobStore.WriteAsync`** — e.g. **`file://`** locally, **`https://`** in Azure). |
+| **SQL inline fallback** | When a blob write fails or times out, **`FullSystemPromptInline`**, **`FullUserPromptInline`**, **`FullResponseInline`** (`NVARCHAR(MAX)`, migrations **062**+) store the missing full text so forensics can recover without blob (same privacy class as blobs). |
 | **Truncation** | Unchanged: **`SystemPrompt`**, **`UserPrompt`**, **`RawResponse`** in **`TraceJson`** stay capped at **8192** chars for quick SQL reads. |
 | **Model metadata** | **`ModelDeploymentName`** and **`ModelVersion`** on **`AgentExecutionTrace`** — see **sentinel values** below. |
 
@@ -31,11 +32,11 @@ Constants live in **`ArchLucid.Contracts.Agents.AgentExecutionTraceModelMetadata
 2. Read the three blob key columns (or the same properties inside **`TraceJson`**).
 3. Call **`IArtifactBlobStore.ReadAsync(blobUri)`** (or your cloud console / `az storage blob download`) using that URI.
 
-If keys are **null**, full-text persistence was **off**, **failed**, still **in progress** (the recorder awaits blob writes after the trace row insert), or the write **timed out** (see **Reliability** below).
+If blob keys are **null**, check the three **`Full*Inline`** columns (or the same properties in **`TraceJson`**) for text persisted when blob upload failed. If those are also empty, persistence **failed** completely, or the write **timed out** (see **Reliability** below).
 
 ## Privacy and retention
 
-Full prompts may contain **customer architecture details, credentials in prose, or personal data**. Treat blob containers with the same classification as **application secrets adjacent data**. Align lifecycle with **`docs/AUDIT_RETENTION_POLICY.md`** and your org’s data-retention policy; do not enable **`PersistFullPrompts`** in environments where long-lived sensitive prompt retention is prohibited.
+Full prompts may contain **customer architecture details, credentials in prose, or personal data**. Treat blob containers **and** SQL **`Full*Inline`** columns with the same classification as **application secrets adjacent data**. Align lifecycle with **`docs/AUDIT_RETENTION_POLICY.md`** and your org’s data-retention policy; use shorter retention or disable blob/SQL forensics paths only via operational policy (there is no product flag to skip full prompt attempts).
 
 ## Reliability
 

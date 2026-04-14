@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Evaluation;
+using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Governance;
@@ -20,6 +21,8 @@ using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Queries;
 
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Polly;
@@ -49,6 +52,18 @@ public static partial class ServiceCollectionExtensions
         services.Configure<AgentOutputQualityGateOptions>(
             configuration.GetSection(AgentOutputQualityGateOptions.SectionPath));
         services.AddSingleton<IAgentOutputQualityGate, AgentOutputQualityGate>();
+        services.Configure<AgentExecutionReferenceEvaluationOptions>(
+            configuration.GetSection(AgentExecutionReferenceEvaluationOptions.SectionPath));
+        services.AddSingleton<IAgentOutputReferenceCaseCatalog>(sp =>
+        {
+            IHostEnvironment env = sp.GetRequiredService<IHostEnvironment>();
+            IOptionsMonitor<AgentExecutionReferenceEvaluationOptions> refOpts =
+                sp.GetRequiredService<IOptionsMonitor<AgentExecutionReferenceEvaluationOptions>>();
+            ILogger<AgentOutputReferenceCaseCatalog> log = sp.GetRequiredService<ILogger<AgentOutputReferenceCaseCatalog>>();
+
+            return new AgentOutputReferenceCaseCatalog(refOpts, env.ContentRootPath, log);
+        });
+        services.AddSingleton<AgentOutputReferenceCaseRunEvaluator>();
         services.AddScoped<AgentOutputEvaluationRecorder>();
         services.AddScoped<IAgentOutputTraceEvaluationHook, AgentOutputTraceEvaluationHook>();
         services.Configure<AgentResultSchemaValidationOptions>(

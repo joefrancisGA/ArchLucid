@@ -227,6 +227,40 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'BlobUploadFailed') IS NULL
         ALTER TABLE dbo.AgentExecutionTraces ADD BlobUploadFailed BIT NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'FullSystemPromptInline') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD FullSystemPromptInline NVARCHAR(MAX) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'FullUserPromptInline') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD FullUserPromptInline NVARCHAR(MAX) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'FullResponseInline') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD FullResponseInline NVARCHAR(MAX) NULL;
+END
+GO
+
+/* ---- AgentOutputEvaluationResults (reference-case scores) ---- */
+
+IF OBJECT_ID(N'dbo.AgentOutputEvaluationResults', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AgentOutputEvaluationResults
+    (
+        EvaluationId     UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT DF_AgentOutputEvaluationResults_EvaluationId DEFAULT (NEWSEQUENTIALID()),
+        RunId            NVARCHAR(64)     NOT NULL,
+        TraceId          NVARCHAR(64)     NOT NULL,
+        CaseId           NVARCHAR(128)    NOT NULL,
+        AgentType        NVARCHAR(50)     NOT NULL,
+        OverallScore     FLOAT            NOT NULL,
+        StructuralMatch  FLOAT            NULL,
+        SemanticMatch    FLOAT            NULL,
+        MissingKeysJson  NVARCHAR(MAX)    NULL,
+        CreatedUtc       DATETIME2        NOT NULL,
+        CONSTRAINT PK_AgentOutputEvaluationResults PRIMARY KEY (EvaluationId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AgentOutputEvaluationResults_RunId_CreatedUtc
+        ON dbo.AgentOutputEvaluationResults (RunId, CreatedUtc DESC);
 END
 GO
 

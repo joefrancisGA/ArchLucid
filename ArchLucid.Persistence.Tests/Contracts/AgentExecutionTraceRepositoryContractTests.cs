@@ -126,6 +126,47 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         t.FullResponseBlobKey.Should().Be("file:///rsp");
     }
 
+    [SkippableFact]
+    public async Task PatchInlinePromptFallbackAsync_merges_inline_fields_on_read()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-inline-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-inline");
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+
+        AgentExecutionTrace created = NewTrace(runId, task.TaskId, "inline-trace", DateTime.UtcNow);
+        await repo.CreateAsync(created, CancellationToken.None);
+
+        await repo.PatchInlinePromptFallbackAsync(
+            "inline-trace",
+            fullSystemPromptInline: "sys-full",
+            fullUserPromptInline: null,
+            fullResponseInline: "resp-full",
+            CancellationToken.None);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.FullSystemPromptInline.Should().Be("sys-full");
+        t.FullUserPromptInline.Should().BeNull();
+        t.FullResponseInline.Should().Be("resp-full");
+
+        await repo.PatchInlinePromptFallbackAsync(
+            "inline-trace",
+            fullSystemPromptInline: null,
+            fullUserPromptInline: "user-full",
+            fullResponseInline: null,
+            CancellationToken.None);
+
+        list = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        t = list.Should().ContainSingle().Subject;
+        t.FullSystemPromptInline.Should().Be("sys-full");
+        t.FullUserPromptInline.Should().Be("user-full");
+        t.FullResponseInline.Should().Be("resp-full");
+    }
+
     private static AgentTask NewTask(string runId, string taskId)
     {
         return new AgentTask

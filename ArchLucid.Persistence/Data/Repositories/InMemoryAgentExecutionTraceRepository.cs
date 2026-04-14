@@ -18,10 +18,11 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     {
         ArgumentNullException.ThrowIfNull(trace);
         cancellationToken.ThrowIfCancellationRequested();
+
         lock (_gate)
-        
+        {
             _items.Add(Clone(trace));
-        
+        }
 
         return Task.CompletedTask;
     }
@@ -85,6 +86,49 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
                 t.BlobUploadFailed = failed;
                 _items[i] = t;
             }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task PatchInlinePromptFallbackAsync(
+        string traceId,
+        string? fullSystemPromptInline,
+        string? fullUserPromptInline,
+        string? fullResponseInline,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+            {
+                return Task.CompletedTask;
+            }
+
+            AgentExecutionTrace t = Clone(_items[i]);
+
+            if (fullSystemPromptInline is not null)
+            {
+                t.FullSystemPromptInline = fullSystemPromptInline;
+            }
+
+            if (fullUserPromptInline is not null)
+            {
+                t.FullUserPromptInline = fullUserPromptInline;
+            }
+
+            if (fullResponseInline is not null)
+            {
+                t.FullResponseInline = fullResponseInline;
+            }
+
+            _items[i] = t;
         }
 
         return Task.CompletedTask;

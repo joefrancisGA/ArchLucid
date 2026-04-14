@@ -118,9 +118,11 @@ For request-scoped correlation headers and sampling, see **Sampling strategy** a
 
 ---
 
-## Agent execution trace blob storage (optional)
+## Agent execution trace blob storage + SQL inline fallback
 
-When **`AgentExecution:TraceStorage:PersistFullPrompts`** is **true** (the **product default** in **`AgentExecutionTraceStorageOptions`** and sample **`appsettings`**), the **`AgentExecutionTraceRecorder`** uploads **full** (unsanitized) system prompt, user prompt, and raw model response to **`IArtifactBlobStore`** under container **`agent-traces`** with object paths **`{runId}/{traceId}/system-prompt.txt`**, **`user-prompt.txt`**, **`response.txt`**. Uploads run **asynchronously** after the SQL row insert; failures are **logged** and blob pointer columns may stay **null**. Truncated **`TraceJson`** fields remain for lightweight reads. Operational and privacy notes: **`docs/AGENT_TRACE_FORENSICS.md`**.
+**`AgentExecutionTraceRecorder`** always attempts to upload **full** (unsanitized) system prompt, user prompt, and raw model response to **`IArtifactBlobStore`** (container **`agent-traces`**, paths **`{runId}/{traceId}/system-prompt.txt`**, **`user-prompt.txt`**, **`response.txt`**) after the trace row insert, subject to **`AgentExecution:TraceStorage:BlobPersistenceTimeoutSeconds`**. Failed or timed-out parts are mirrored into SQL **`FullSystemPromptInline`**, **`FullUserPromptInline`**, **`FullResponseInline`** when blob keys are missing. Histograms/counters: **`archlucid_agent_trace_blob_persist_duration_ms`**, **`archlucid_agent_trace_blob_upload_failures_total`**. Operational and privacy notes: **`docs/AGENT_TRACE_FORENSICS.md`**.
+
+Optional reference-case scoring ( **`AgentExecution:ReferenceEvaluation`** ) emits **`archlucid_agent_output_reference_case_evaluations_total`** (labels **`case_id`**, **`agent_type`**, **`outcome`**) and **`archlucid_agent_output_reference_case_score_ratio`**; rows may be appended to **`dbo.AgentOutputEvaluationResults`** (migration **063**).
 
 ---
 

@@ -34,6 +34,17 @@ public interface IAgentExecutionTraceRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Merges full prompt/response text into <see cref="AgentExecutionTrace"/> JSON and optional SQL inline columns
+    /// for forensic recovery when blob keys are missing. Non-null parameters overwrite; null leaves existing values.
+    /// </summary>
+    Task PatchInlinePromptFallbackAsync(
+        string traceId,
+        string? fullSystemPromptInline,
+        string? fullUserPromptInline,
+        string? fullResponseInline,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Returns all traces for the specified run, ordered by <c>CreatedUtc</c> ascending.
     /// </summary>
     /// <param name="runId">The run whose traces are requested.</param>

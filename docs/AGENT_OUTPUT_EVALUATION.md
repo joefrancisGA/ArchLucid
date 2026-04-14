@@ -109,7 +109,7 @@ Add a new JSON file per scenario (minimal fields only); keep fixtures **small** 
 
 ## 8. Operational Considerations
 
-- **Default full blob prompts**: **`AgentExecution:TraceStorage:PersistFullPrompts`** defaults to **true**; see **`docs/AGENT_TRACE_FORENSICS.md`** for retention and privacy.
+- **Full prompts**: Blob upload is always attempted after trace insert; SQL **`Full*Inline`** columns back up missing blobs; see **`docs/AGENT_TRACE_FORENSICS.md`**. Optional JSON reference cases: **`AgentExecution:ReferenceEvaluation`** → **`archlucid_agent_output_reference_case_*`** metrics and **`dbo.AgentOutputEvaluationResults`**.
 - **Dashboards**: **`archlucid_agent_output_structural_completeness_ratio`** (histogram), **`archlucid_agent_output_semantic_score`** (histogram), **`archlucid_agent_output_parse_failures_total`** (counter), and optional **`archlucid_agent_output_quality_gate_total`** (counter)—see **`docs/OBSERVABILITY.md`**.
 - **Low score logs**: Recorder warns below **0.5** completeness for both structural and semantic scores (configurable in code if product asks).
 - **Evolution**: Per-**`AgentType`** key lists live in **`GetExpectedKeys`** for future stricter Topology/Cost/Critic profiles.

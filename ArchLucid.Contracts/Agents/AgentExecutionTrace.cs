@@ -100,6 +100,17 @@ public sealed class AgentExecutionTrace
     /// <summary>True when one or more full prompt/response blob uploads failed after all retries.</summary>
     public bool? BlobUploadFailed { get; set; }
 
+    /// <summary>
+    /// Full system prompt text stored in SQL when blob persistence failed or timed out (complements <see cref="FullSystemPromptBlobKey"/>).
+    /// </summary>
+    public string? FullSystemPromptInline { get; set; }
+
+    /// <summary>Full user prompt text stored inline when blob persistence failed.</summary>
+    public string? FullUserPromptInline { get; set; }
+
+    /// <summary>Full raw model response stored inline when blob persistence failed.</summary>
+    public string? FullResponseInline { get; set; }
+
     /// <summary>UTC timestamp when this trace was created.</summary>
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }

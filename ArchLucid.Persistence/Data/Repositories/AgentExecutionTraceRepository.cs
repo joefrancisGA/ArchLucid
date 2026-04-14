@@ -184,6 +184,78 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 cancellationToken: cancellationToken));
     }
 
+    /// <inheritdoc />
+    public async Task PatchInlinePromptFallbackAsync(
+        string traceId,
+        string? fullSystemPromptInline,
+        string? fullUserPromptInline,
+        string? fullResponseInline,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string selectSql = """
+            SELECT TraceJson
+            FROM AgentExecutionTraces
+            WHERE TraceId = @TraceId;
+            """;
+
+        string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
+            new CommandDefinition(selectSql, new { TraceId = traceId }, cancellationToken: cancellationToken));
+
+        if (string.IsNullOrEmpty(rowJson))
+        {
+            return;
+        }
+
+        AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+        if (trace is null)
+        {
+            return;
+        }
+
+        if (fullSystemPromptInline is not null)
+        {
+            trace.FullSystemPromptInline = fullSystemPromptInline;
+        }
+
+        if (fullUserPromptInline is not null)
+        {
+            trace.FullUserPromptInline = fullUserPromptInline;
+        }
+
+        if (fullResponseInline is not null)
+        {
+            trace.FullResponseInline = fullResponseInline;
+        }
+
+        string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
+
+        const string updateSql = """
+            UPDATE AgentExecutionTraces
+            SET FullSystemPromptInline = COALESCE(@FullSystemPromptInline, FullSystemPromptInline),
+                FullUserPromptInline = COALESCE(@FullUserPromptInline, FullUserPromptInline),
+                FullResponseInline = COALESCE(@FullResponseInline, FullResponseInline),
+                TraceJson = @TraceJson
+            WHERE TraceId = @TraceId;
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                updateSql,
+                new
+                {
+                    TraceId = traceId,
+                    FullSystemPromptInline = fullSystemPromptInline,
+                    FullUserPromptInline = fullUserPromptInline,
+                    FullResponseInline = fullResponseInline,
+                    TraceJson = updatedJson,
+                },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
@@ -287,11 +359,11 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             }
 
             if (trace is null)
-            
+            {
                 throw new InvalidOperationException(
                     $"An AgentExecutionTrace row for {context} deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
-            
+            }
 
             traces.Add(trace);
         }

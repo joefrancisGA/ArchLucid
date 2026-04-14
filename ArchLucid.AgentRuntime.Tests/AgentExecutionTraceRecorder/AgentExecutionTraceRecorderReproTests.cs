@@ -52,7 +52,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
     public async Task RecordAsync_persists_prompt_repro_fields()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, persistFull: false);
+        AgentExecutionTraceRecorder sut = CreateRecorder(repo);
 
         AgentPromptReproMetadata meta = new("topology-system", "1.0.0", "abc123deadbeef", "pilot-a");
 
@@ -81,7 +81,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
     public async Task RecordAsync_when_model_metadata_null_uses_unspecified_sentinels()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, persistFull: false);
+        AgentExecutionTraceRecorder sut = CreateRecorder(repo);
 
         await sut.RecordAsync(
             "run-1",
@@ -116,7 +116,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
                 InputUsdPerMillionTokens = 1m,
                 OutputUsdPerMillionTokens = 2m,
             });
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, persistFull: false, costOptions: opts);
+        AgentExecutionTraceRecorder sut = CreateRecorder(repo, costOptions: opts);
 
         await sut.RecordAsync(
             "run-1",
@@ -140,10 +140,10 @@ public sealed class AgentExecutionTraceRecorderReproTests
     }
 
     [Fact]
-    public async Task RecordAsync_when_persist_full_true_sets_blob_keys_inline_before_return()
+    public async Task RecordAsync_sets_blob_keys_when_store_succeeds()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, persistFull: true);
+        AgentExecutionTraceRecorder sut = CreateRecorder(repo);
 
         await sut.RecordAsync(
             "run-1",
@@ -161,14 +161,22 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.FullSystemPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullUserPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullResponseBlobKey.Should().NotBeNullOrEmpty();
-        t.BlobUploadFailed.Should().BeFalse();
+        (t.BlobUploadFailed ?? false).Should().BeFalse();
     }
 
     [Fact]
-    public async Task RecordAsync_when_persist_full_false_does_not_set_blob_keys()
+    public async Task RecordAsync_when_blob_writes_fail_persists_inline_text_for_missing_blobs()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, persistFull: false);
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, string path, string _, CancellationToken _) =>
+                path.Contains("user-prompt", StringComparison.OrdinalIgnoreCase)
+                    ? Task.FromResult<string>(null!)
+                    : Task.FromResult($"ok://{path}"));
+
+        AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
 
         await sut.RecordAsync(
             "run-1",
@@ -183,9 +191,10 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
-        t.FullSystemPromptBlobKey.Should().BeNull();
-        t.FullUserPromptBlobKey.Should().BeNull();
-        t.FullResponseBlobKey.Should().BeNull();
+        t.BlobUploadFailed.Should().BeTrue();
+        t.FullUserPromptInline.Should().Be("full-user");
+        t.FullSystemPromptInline.Should().BeNull();
+        t.FullResponseInline.Should().BeNull();
     }
 
     [Fact]
@@ -200,7 +209,6 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
         AgentExecutionTraceRecorder sut = CreateRecorder(
             repo,
-            persistFull: true,
             blobStore: blobMock.Object,
             auditService: spyAudit);
 
@@ -218,6 +226,9 @@ public sealed class AgentExecutionTraceRecorderReproTests
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.BlobUploadFailed.Should().BeTrue();
+        t.FullSystemPromptInline.Should().Be("s");
+        t.FullUserPromptInline.Should().Be("u");
+        t.FullResponseInline.Should().Be("r");
         spyAudit.LastEvent.Should().NotBeNull();
         spyAudit.LastEvent!.EventType.Should().Be(AuditEventTypes.AgentTraceBlobPersistenceFailed);
         spyAudit.LastEvent.DataJson.Should().Contain("upload_failed");
@@ -225,7 +236,6 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
     private static AgentExecutionTraceRecorder CreateRecorder(
         InMemoryAgentExecutionTraceRepository repo,
-        bool persistFull,
         IOptions<LlmCostEstimationOptions>? costOptions = null,
         IArtifactBlobStore? blobStore = null,
         IAuditService? auditService = null)
@@ -235,8 +245,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         services.AddScoped<IAgentExecutionTraceRepository>(_ => repo);
         services.AddSingleton(blobStore ?? new InMemoryArtifactBlobStore());
         services.AddSingleton(cost);
-        services.AddSingleton(
-            Options.Create(new AgentExecutionTraceStorageOptions { PersistFullPrompts = persistFull }));
+        services.AddSingleton(Options.Create(new AgentExecutionTraceStorageOptions()));
         services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
         services.AddSingleton<IAuditService>(_ => auditService ?? new NoOpAuditService());
         services.AddSingleton<IScopeContextProvider, FixedScopeProvider>();

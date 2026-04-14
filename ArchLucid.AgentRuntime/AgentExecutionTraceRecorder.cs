@@ -127,11 +127,6 @@ public sealed class AgentExecutionTraceRecorder(
 
         await _repository.CreateAsync(trace, cancellationToken);
 
-        if (!_traceStorageOptions.Value.PersistFullPrompts)
-        {
-            return;
-        }
-
         await PersistFullPromptsAsync(
             trace.TraceId,
             runId,
@@ -232,6 +227,16 @@ public sealed class AgentExecutionTraceRecorder(
 
             await _repository.PatchBlobUploadFailedAsync(traceId, true, CancellationToken.None);
 
+            await TryPatchInlineForMissingBlobsAsync(
+                traceId,
+                systemKey,
+                userKey,
+                responseKey,
+                systemPrompt,
+                userPrompt,
+                rawResponse,
+                CancellationToken.None);
+
             ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
 
             return;
@@ -250,9 +255,48 @@ public sealed class AgentExecutionTraceRecorder(
             string reason = timedOut ? "timeout" : "upload_failed";
 
             await TryLogBlobPersistenceAuditAsync(traceId, runId, agentType, reason, failed, CancellationToken.None);
+
+            await TryPatchInlineForMissingBlobsAsync(
+                traceId,
+                systemKey,
+                userKey,
+                responseKey,
+                systemPrompt,
+                userPrompt,
+                rawResponse,
+                CancellationToken.None);
         }
 
         ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
+    }
+
+    private Task TryPatchInlineForMissingBlobsAsync(
+        string traceId,
+        string? systemKey,
+        string? userKey,
+        string? responseKey,
+        string systemPrompt,
+        string userPrompt,
+        string rawResponse,
+        CancellationToken cancellationToken)
+    {
+        string? systemInline = systemKey is null ? systemPrompt : null;
+
+        string? userInline = userKey is null ? userPrompt : null;
+
+        string? responseInline = responseKey is null ? rawResponse : null;
+
+        if (systemInline is null && userInline is null && responseInline is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        return _repository.PatchInlinePromptFallbackAsync(
+            traceId,
+            systemInline,
+            userInline,
+            responseInline,
+            cancellationToken);
     }
 
     private async Task TryLogBlobPersistenceAuditAsync(

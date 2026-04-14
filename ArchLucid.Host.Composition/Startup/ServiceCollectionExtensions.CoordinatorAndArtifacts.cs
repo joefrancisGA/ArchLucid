@@ -80,6 +80,7 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<ICoordinatorDecisionTraceRepository, InMemoryCoordinatorDecisionTraceRepository>();
             services.AddSingleton<IAgentEvidencePackageRepository, InMemoryAgentEvidencePackageRepository>();
             services.AddSingleton<IAgentExecutionTraceRepository, InMemoryAgentExecutionTraceRepository>();
+            services.AddSingleton<IAgentOutputEvaluationResultRepository, NoOpAgentOutputEvaluationResultRepository>();
         }
         else
         {
@@ -96,6 +97,7 @@ public static partial class ServiceCollectionExtensions
             services.AddScoped<ICoordinatorDecisionTraceRepository, DecisionTraceRepository>();
             services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
             services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
+            services.AddScoped<IAgentOutputEvaluationResultRepository, AgentOutputEvaluationResultRepository>();
         }
     }
 
