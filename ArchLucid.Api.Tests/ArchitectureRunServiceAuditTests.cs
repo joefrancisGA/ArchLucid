@@ -4,6 +4,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Coordinator.Services;
@@ -141,6 +142,7 @@ public sealed class ArchitectureRunServiceAuditTests
                 baselineMutationAudit,
                 Mock.Of<IAuditService>(),
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+                new NoOpAgentOutputTraceEvaluationHook(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,

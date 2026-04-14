@@ -38,6 +38,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IBaselineMutationAuditService baselineMutationAudit,
     IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -58,6 +59,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+    private readonly IAgentOutputTraceEvaluationHook _outputTraceEvaluationHook =
+        outputTraceEvaluationHook ?? throw new ArgumentNullException(nameof(outputTraceEvaluationHook));
     private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <summary>One persisted result per required agent type (Topology, Cost, Compliance, Critic) before commit.</summary>
@@ -198,6 +201,21 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 results,
                 evaluations,
                 cancellationToken);
+
+            try
+            {
+                await _outputTraceEvaluationHook.AfterSuccessfulExecuteAsync(runId, cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
+                        LogSanitizer.Sanitize(runId));
+                }
+            }
 
             await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, results, cancellationToken);
 

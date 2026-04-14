@@ -50,6 +50,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AgentOutputQualityGateOptions.SectionPath));
         services.AddSingleton<IAgentOutputQualityGate, AgentOutputQualityGate>();
         services.AddScoped<AgentOutputEvaluationRecorder>();
+        services.AddScoped<IAgentOutputTraceEvaluationHook, AgentOutputTraceEvaluationHook>();
         services.Configure<AgentResultSchemaValidationOptions>(
             configuration.GetSection(AgentResultSchemaValidationOptions.SectionPath));
 

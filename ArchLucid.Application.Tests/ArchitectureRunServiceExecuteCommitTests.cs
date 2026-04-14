@@ -161,6 +161,118 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
     }
 
     [Fact]
+    public async Task ExecuteRunAsync_after_successful_persist_invokes_output_trace_evaluation_hook()
+    {
+        string runId = Guid.NewGuid().ToString("N");
+        string requestId = "req-hook-" + Guid.NewGuid().ToString("N");
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = requestId,
+            Status = ArchitectureRunStatus.TasksGenerated,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = requestId,
+            SystemName = "S",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Description = "d",
+        };
+
+        Mock<IArchitectureRequestRepository> requestRepo = new();
+        requestRepo.Setup(x => x.GetByIdAsync(requestId, It.IsAny<CancellationToken>())).ReturnsAsync(request);
+
+        AgentTask task = new()
+        {
+            TaskId = "t-hook",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+            Objective = "o",
+            Status = AgentTaskStatus.Created,
+            CreatedUtc = DateTime.UtcNow,
+            EvidenceBundleRef = "eb",
+        };
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(new List<AgentTask> { task });
+
+        AgentEvidencePackage package = new()
+        {
+            RunId = runId,
+            RequestId = requestId,
+            SystemName = "S",
+            Environment = "prod",
+            CloudProvider = "Azure",
+            Request = new RequestEvidence { Description = "d" },
+        };
+
+        Mock<IEvidenceBuilder> evidenceBuilder = new();
+        evidenceBuilder.Setup(x => x.BuildAsync(runId, request, It.IsAny<CancellationToken>())).ReturnsAsync(package);
+
+        AgentResult result = new()
+        {
+            RunId = runId,
+            TaskId = task.TaskId,
+            AgentType = AgentType.Topology,
+            Confidence = 0.7,
+            ResultId = "r-hook",
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IAgentExecutor> executor = new();
+        executor.Setup(x => x.ExecuteAsync(
+                runId,
+                request,
+                package,
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<AgentResult> { result });
+
+        Mock<IAgentEvaluationService> evaluationService = new();
+        evaluationService.Setup(x => x.EvaluateAsync(
+                runId,
+                request,
+                package,
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAgentEvidencePackageRepository> evidencePackageRepo = new();
+        Mock<IAgentResultRepository> resultRepo = new();
+        Mock<IAgentEvaluationRepository> evaluationRepo = new();
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(x => x.GetActor()).Returns("actor");
+
+        Mock<IAgentOutputTraceEvaluationHook> hook = new();
+        hook.Setup(h => h.AfterSuccessfulExecuteAsync(runId, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        ArchitectureRunService sut = CreateSut(
+            executor.Object,
+            runRepo,
+            scopeProvider,
+            requestRepo.Object,
+            taskRepo.Object,
+            evidenceBuilder.Object,
+            evaluationService.Object,
+            evidencePackageRepo.Object,
+            resultRepo.Object,
+            evaluationRepo.Object,
+            actor.Object,
+            hook.Object);
+
+        _ = await sut.ExecuteRunAsync(runId, CancellationToken.None);
+
+        hook.Verify(h => h.AfterSuccessfulExecuteAsync(runId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task ExecuteRunAsync_after_persist_sets_LegacyRunStatus_ReadyForCommit_when_four_required_agents_complete()
     {
         string runId = Guid.NewGuid().ToString("N");
@@ -902,7 +1014,8 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         IAgentEvidencePackageRepository agentEvidencePackageRepository,
         IAgentResultRepository resultRepository,
         IAgentEvaluationRepository agentEvaluationRepository,
-        IActorContext actorContext)
+        IActorContext actorContext,
+        IAgentOutputTraceEvaluationHook? outputTraceEvaluationHook = null)
     {
         IBaselineMutationAuditService audit = Mock.Of<IBaselineMutationAuditService>();
 
@@ -935,6 +1048,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 audit,
                 Mock.Of<IAuditService>(),
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+                outputTraceEvaluationHook ?? new NoOpAgentOutputTraceEvaluationHook(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,
@@ -1038,6 +1152,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 audit,
                 Mock.Of<IAuditService>(),
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+                new NoOpAgentOutputTraceEvaluationHook(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,

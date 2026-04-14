@@ -1,6 +1,8 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -10,11 +12,42 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Moq;
+
 namespace ArchLucid.AgentRuntime.Tests;
 
 [Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class AgentExecutionTraceRecorderReproTests
 {
+    private sealed class FixedScopeProvider : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope() =>
+            new()
+            {
+                TenantId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                WorkspaceId = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                ProjectId = Guid.Parse("00000000-0000-0000-0000-000000000003"),
+            };
+    }
+
+    private sealed class NoOpAuditService : IAuditService
+    {
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken) => Task.CompletedTask;
+    }
+
+    private sealed class SpyAuditService : IAuditService
+    {
+        public AuditEvent? LastEvent { get; private set; }
+
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
+        {
+            LastEvent = auditEvent;
+
+            return Task.CompletedTask;
+        }
+    }
+
     [Fact]
     public async Task RecordAsync_persists_prompt_repro_fields()
     {
@@ -107,7 +140,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
     }
 
     [Fact]
-    public async Task RecordAsync_when_persist_full_true_sets_blob_keys_after_background_upload()
+    public async Task RecordAsync_when_persist_full_true_sets_blob_keys_inline_before_return()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
         AgentExecutionTraceRecorder sut = CreateRecorder(repo, persistFull: true);
@@ -123,13 +156,12 @@ public sealed class AgentExecutionTraceRecorderReproTests
             parseSucceeded: true,
             errorMessage: null);
 
-        await Task.Delay(500);
-
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.FullSystemPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullUserPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullResponseBlobKey.Should().NotBeNullOrEmpty();
+        t.BlobUploadFailed.Should().BeFalse();
     }
 
     [Fact]
@@ -149,8 +181,6 @@ public sealed class AgentExecutionTraceRecorderReproTests
             parseSucceeded: true,
             errorMessage: null);
 
-        await Task.Delay(500);
-
         IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
         AgentExecutionTrace t = list.Should().ContainSingle().Subject;
         t.FullSystemPromptBlobKey.Should().BeNull();
@@ -158,19 +188,58 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.FullResponseBlobKey.Should().BeNull();
     }
 
+    [Fact]
+    public async Task RecordAsync_when_blob_writes_fail_sets_blob_upload_failed_and_audits()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        SpyAuditService spyAudit = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new IOException("simulated blob failure"));
+
+        AgentExecutionTraceRecorder sut = CreateRecorder(
+            repo,
+            persistFull: true,
+            blobStore: blobMock.Object,
+            auditService: spyAudit);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Compliance,
+            "s",
+            "u",
+            "r",
+            "{}",
+            parseSucceeded: true,
+            errorMessage: null);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.BlobUploadFailed.Should().BeTrue();
+        spyAudit.LastEvent.Should().NotBeNull();
+        spyAudit.LastEvent!.EventType.Should().Be(AuditEventTypes.AgentTraceBlobPersistenceFailed);
+        spyAudit.LastEvent.DataJson.Should().Contain("upload_failed");
+    }
+
     private static AgentExecutionTraceRecorder CreateRecorder(
         InMemoryAgentExecutionTraceRepository repo,
         bool persistFull,
-        IOptions<LlmCostEstimationOptions>? costOptions = null)
+        IOptions<LlmCostEstimationOptions>? costOptions = null,
+        IArtifactBlobStore? blobStore = null,
+        IAuditService? auditService = null)
     {
         IOptions<LlmCostEstimationOptions> cost = costOptions ?? Options.Create(new LlmCostEstimationOptions { Enabled = false });
         ServiceCollection services = new();
         services.AddScoped<IAgentExecutionTraceRepository>(_ => repo);
-        services.AddSingleton<IArtifactBlobStore, InMemoryArtifactBlobStore>();
+        services.AddSingleton(blobStore ?? new InMemoryArtifactBlobStore());
         services.AddSingleton(cost);
         services.AddSingleton(
             Options.Create(new AgentExecutionTraceStorageOptions { PersistFullPrompts = persistFull }));
         services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
+        services.AddSingleton<IAuditService>(_ => auditService ?? new NoOpAuditService());
+        services.AddSingleton<IScopeContextProvider, FixedScopeProvider>();
         services.AddLogging(b => b.SetMinimumLevel(LogLevel.None));
         services.AddScoped<AgentExecutionTraceRecorder>();
         ServiceProvider provider = services.BuildServiceProvider();

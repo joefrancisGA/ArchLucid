@@ -29,6 +29,10 @@ import type {
   ConversationThread,
 } from "@/types/conversation";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
+import type {
+  AgentExecutionTraceListPayload,
+  AgentOutputEvaluationSummaryPayload,
+} from "@/types/agent-forensics";
 import type { ImprovementPlan } from "@/types/advisory";
 import type { LearningProfile } from "@/types/recommendation-learning";
 import type {
@@ -327,6 +331,30 @@ export async function getRunProvenance(runId: string): Promise<DecisionProvenanc
 /** Run-scoped audit events oldest-first (pipeline / lifecycle timeline for operators). */
 export async function getRunPipelineTimeline(runId: string): Promise<PipelineTimelineItem[]> {
   return apiGet<PipelineTimelineItem[]>(`/v1/authority/runs/${runId}/pipeline-timeline`);
+}
+
+/** Paginated agent execution traces (LLM audit rows) for a coordinator architecture run. */
+export async function getRunTraces(
+  runId: string,
+  pageNumber = 1,
+  pageSize = 50,
+): Promise<ApiResponseWithTrace<AgentExecutionTraceListPayload>> {
+  const q = new URLSearchParams();
+  q.set("pageNumber", String(pageNumber));
+  q.set("pageSize", String(pageSize));
+
+  return apiGetJsonWithTrace<AgentExecutionTraceListPayload>(
+    `/v1/architecture/run/${encodeURIComponent(runId)}/traces?${q}`,
+  );
+}
+
+/** On-demand structural evaluation of persisted `parsedResultJson` per trace (no OTel side effects in API). */
+export async function getRunAgentEvaluation(
+  runId: string,
+): Promise<ApiResponseWithTrace<AgentOutputEvaluationSummaryPayload>> {
+  return apiGetJsonWithTrace<AgentOutputEvaluationSummaryPayload>(
+    `/v1/architecture/run/${encodeURIComponent(runId)}/agent-evaluation`,
+  );
 }
 
 /** Fetches golden manifest summary (decision count, warnings, status, etc.). */

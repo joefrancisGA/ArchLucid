@@ -1,12 +1,14 @@
 using System.Diagnostics;
+using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -21,11 +23,14 @@ public sealed class AgentExecutionTraceRecorder(
     IOptions<LlmCostEstimationOptions> costOptions,
     IOptions<AgentExecutionTraceStorageOptions> traceStorageOptions,
     IArtifactBlobStore blobStore,
-    IServiceScopeFactory scopeFactory,
+    IAuditService auditService,
+    IScopeContextProvider scopeContextProvider,
     ILogger<AgentExecutionTraceRecorder> logger)
     : IAgentExecutionTraceRecorder
 {
     private const string BlobContainerName = "agent-traces";
+
+    private static readonly JsonSerializerOptions AuditJsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     private readonly IAgentExecutionTraceRepository _repository =
         repository ?? throw new ArgumentNullException(nameof(repository));
@@ -42,14 +47,21 @@ public sealed class AgentExecutionTraceRecorder(
     private readonly IArtifactBlobStore _blobStore =
         blobStore ?? throw new ArgumentNullException(nameof(blobStore));
 
-    private readonly IServiceScopeFactory _scopeFactory =
-        scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly ILogger<AgentExecutionTraceRecorder> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <summary>Maximum stored length for prompt/response fields to prevent unbounded PII retention.</summary>
     private const int MaxContentLength = 8192;
+
+    private const int MinBlobPersistenceTimeoutSeconds = 5;
+
+    private const int MaxBlobPersistenceTimeoutSeconds = 300;
 
     /// <inheritdoc />
     public async Task RecordAsync(
@@ -115,44 +127,180 @@ public sealed class AgentExecutionTraceRecorder(
 
         await _repository.CreateAsync(trace, cancellationToken);
 
-        if (_traceStorageOptions.Value.PersistFullPrompts)
+        if (!_traceStorageOptions.Value.PersistFullPrompts)
         {
-            QueuePersistFullPrompts(trace.TraceId, runId, systemPrompt, userPrompt, rawResponse);
+            return;
         }
+
+        await PersistFullPromptsAsync(
+            trace.TraceId,
+            runId,
+            agentType,
+            systemPrompt,
+            userPrompt,
+            rawResponse,
+            cancellationToken);
     }
 
-    private void QueuePersistFullPrompts(
+    private async Task PersistFullPromptsAsync(
         string traceId,
         string runId,
+        AgentType agentType,
         string systemPrompt,
         string userPrompt,
-        string rawResponse)
+        string rawResponse,
+        CancellationToken cancellationToken)
     {
-        _ = Task.Run(async () =>
+        int timeoutSec = Math.Clamp(
+            _traceStorageOptions.Value.BlobPersistenceTimeoutSeconds,
+            MinBlobPersistenceTimeoutSeconds,
+            MaxBlobPersistenceTimeoutSeconds);
+
+        using CancellationTokenSource timeoutCts = new(TimeSpan.FromSeconds(timeoutSec));
+
+        using CancellationTokenSource linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+
+        CancellationToken blobCt = linked.Token;
+
+        Stopwatch sw = Stopwatch.StartNew();
+
+        string agentLabel = agentType.ToString();
+
+        TagList agentTags = new() { { "agent_type", agentLabel } };
+
+        bool timedOut = false;
+
+        string? systemKey = null;
+
+        string? userKey = null;
+
+        string? responseKey = null;
+
+        try
         {
-            try
+            systemKey = await WriteBlobWithRetryAsync(
+                BlobContainerName,
+                $"{runId}/{traceId}/system-prompt.txt",
+                systemPrompt,
+                traceId,
+                "system_prompt",
+                agentType,
+                blobCt);
+
+            userKey = await WriteBlobWithRetryAsync(
+                BlobContainerName,
+                $"{runId}/{traceId}/user-prompt.txt",
+                userPrompt,
+                traceId,
+                "user_prompt",
+                agentType,
+                blobCt);
+
+            responseKey = await WriteBlobWithRetryAsync(
+                BlobContainerName,
+                $"{runId}/{traceId}/response.txt",
+                rawResponse,
+                traceId,
+                "response",
+                agentType,
+                blobCt);
+        }
+        catch (OperationCanceledException)
+        {
+            if (cancellationToken.IsCancellationRequested)
             {
-                await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-                IAgentExecutionTraceRepository repo = scope.ServiceProvider.GetRequiredService<IAgentExecutionTraceRepository>();
+                throw;
+            }
 
-                string? systemKey = await WriteBlobWithRetryAsync(BlobContainerName, $"{runId}/{traceId}/system-prompt.txt", systemPrompt, traceId, "system_prompt");
-                string? userKey = await WriteBlobWithRetryAsync(BlobContainerName, $"{runId}/{traceId}/user-prompt.txt", userPrompt, traceId, "user_prompt");
-                string? responseKey = await WriteBlobWithRetryAsync(BlobContainerName, $"{runId}/{traceId}/response.txt", rawResponse, traceId, "response");
+            timedOut = true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Agent trace full prompt persistence failed for TraceId={TraceId}", traceId);
 
-                bool anyFailed = systemKey is null || userKey is null || responseKey is null;
+            List<string> failedOnException = BuildFailedBlobTypes(systemKey, userKey, responseKey);
 
-                await repo.PatchBlobStorageFieldsAsync(traceId, systemKey, userKey, responseKey, CancellationToken.None);
+            await TryLogBlobPersistenceAuditAsync(
+                traceId,
+                runId,
+                agentType,
+                "exception",
+                failedOnException,
+                CancellationToken.None);
 
-                if (anyFailed)
+            await _repository.PatchBlobStorageFieldsAsync(traceId, systemKey, userKey, responseKey, CancellationToken.None);
+
+            await _repository.PatchBlobUploadFailedAsync(traceId, true, CancellationToken.None);
+
+            ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
+
+            return;
+        }
+
+        bool anyFailed = timedOut || systemKey is null || userKey is null || responseKey is null;
+
+        await _repository.PatchBlobStorageFieldsAsync(traceId, systemKey, userKey, responseKey, CancellationToken.None);
+
+        if (anyFailed)
+        {
+            await _repository.PatchBlobUploadFailedAsync(traceId, true, CancellationToken.None);
+
+            List<string> failed = BuildFailedBlobTypes(systemKey, userKey, responseKey);
+
+            string reason = timedOut ? "timeout" : "upload_failed";
+
+            await TryLogBlobPersistenceAuditAsync(traceId, runId, agentType, reason, failed, CancellationToken.None);
+        }
+
+        ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
+    }
+
+    private async Task TryLogBlobPersistenceAuditAsync(
+        string traceId,
+        string runId,
+        AgentType agentType,
+        string reason,
+        IReadOnlyList<string> failedBlobTypes,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            Guid? runGuid = Guid.TryParse(runId, out Guid rid) ? rid : null;
+
+            string dataJson = JsonSerializer.Serialize(
+                new
                 {
-                    await repo.PatchBlobUploadFailedAsync(traceId, true, CancellationToken.None);
-                }
-            }
-            catch (Exception ex)
+                    traceId,
+                    runId,
+                    agentType = agentType.ToString(),
+                    reason,
+                    failedBlobTypes,
+                },
+                AuditJsonOptions);
+
+            AuditEvent auditEvent = new()
             {
-                _logger.LogWarning(ex, "Agent trace full prompt persistence failed for TraceId={TraceId}", traceId);
-            }
-        });
+                EventType = AuditEventTypes.AgentTraceBlobPersistenceFailed,
+                ActorUserId = "agent-runtime",
+                ActorUserName = "agent-runtime",
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid,
+                DataJson = dataJson,
+            };
+
+            await _auditService.LogAsync(auditEvent, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Durable audit for AgentTraceBlobPersistenceFailed failed for TraceId={TraceId}",
+                traceId);
+        }
     }
 
     private async Task<string?> WriteBlobWithRetryAsync(
@@ -160,16 +308,22 @@ public sealed class AgentExecutionTraceRecorder(
         string blobPath,
         string content,
         string traceId,
-        string blobType)
+        string blobType,
+        AgentType agentType,
+        CancellationToken cancellationToken)
     {
         const int maxAttempts = 3;
         const int retryDelayMs = 500;
+
+        string agentLabel = agentType.ToString();
+
+        TagList tags = new() { { "agent_type", agentLabel }, { "blob_type", blobType } };
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
         {
             try
             {
-                return await _blobStore.WriteAsync(containerName, blobPath, content, CancellationToken.None);
+                return await _blobStore.WriteAsync(containerName, blobPath, content, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -183,18 +337,39 @@ public sealed class AgentExecutionTraceRecorder(
 
                 if (attempt < maxAttempts)
                 {
-                    await Task.Delay(retryDelayMs);
+                    await Task.Delay(retryDelayMs, cancellationToken);
                 }
             }
         }
 
-        ArchLucidInstrumentation.AgentTraceBlobUploadFailuresTotal.Add(
-            1,
-            new TagList { { "agent_type", "unknown" }, { "blob_type", blobType } });
+        ArchLucidInstrumentation.AgentTraceBlobUploadFailuresTotal.Add(1, tags);
 
         return null;
+    }
+
+    private static List<string> BuildFailedBlobTypes(string? systemKey, string? userKey, string? responseKey)
+    {
+        List<string> failed = [];
+
+        if (systemKey is null)
+        {
+            failed.Add("system_prompt");
+        }
+
+        if (userKey is null)
+        {
+            failed.Add("user_prompt");
+        }
+
+        if (responseKey is null)
+        {
+            failed.Add("response");
+        }
+
+        return failed;
     }
 
     private static string Truncate(string value, int maxLength) =>
         value.Length <= maxLength ? value : string.Concat(value.AsSpan(0, maxLength), "...[truncated]");
 }
+

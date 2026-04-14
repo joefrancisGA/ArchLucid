@@ -259,6 +259,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 audit,
                 Mock.Of<IAuditService>(),
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+                new NoOpAgentOutputTraceEvaluationHook(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,

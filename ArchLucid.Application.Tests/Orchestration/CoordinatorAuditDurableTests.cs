@@ -215,6 +215,7 @@ public sealed class CoordinatorAuditDurableTests
             Mock.Of<IBaselineMutationAuditService>(),
             auditService.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            new NoOpAgentOutputTraceEvaluationHook(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         ExecuteRunResult result = await sut.ExecuteRunAsync(runId);

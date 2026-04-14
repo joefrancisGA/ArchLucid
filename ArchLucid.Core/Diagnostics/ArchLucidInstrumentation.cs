@@ -280,6 +280,13 @@ public static class ArchLucidInstrumentation
             "archlucid_agent_trace_blob_upload_failures_total",
             description: "Total failed agent trace blob uploads after all retries.");
 
+    /// <summary>Wall-clock milliseconds to complete agent trace full-text blob persistence (label <c>agent_type</c>).</summary>
+    public static readonly Histogram<double> AgentTraceBlobPersistDurationMs =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_agent_trace_blob_persist_duration_ms",
+            unit: "ms",
+            description: "Duration in milliseconds for full prompt/response blob writes per trace.");
+
     /// <summary>Agent output semantic quality score distribution (0-1; label <c>agent_type</c>).</summary>
     public static readonly Histogram<double> AgentOutputSemanticScore =
         AppMeter.CreateHistogram<double>(

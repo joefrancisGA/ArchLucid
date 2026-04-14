@@ -31,13 +31,23 @@ Constants live in **`ArchLucid.Contracts.Agents.AgentExecutionTraceModelMetadata
 2. Read the three blob key columns (or the same properties inside **`TraceJson`**).
 3. Call **`IArtifactBlobStore.ReadAsync(blobUri)`** (or your cloud console / `az storage blob download`) using that URI.
 
-If keys are **null**, full-text persistence was **off**, **failed**, or not yet completed (async).
+If keys are **null**, full-text persistence was **off**, **failed**, still **in progress** (the recorder awaits blob writes after the trace row insert), or the write **timed out** (see **Reliability** below).
 
 ## Privacy and retention
 
 Full prompts may contain **customer architecture details, credentials in prose, or personal data**. Treat blob containers with the same classification as **application secrets adjacent data**. Align lifecycle with **`docs/AUDIT_RETENTION_POLICY.md`** and your org’s data-retention policy; do not enable **`PersistFullPrompts`** in environments where long-lived sensitive prompt retention is prohibited.
 
 ## Reliability
+
+### Inline persistence (after trace insert)
+
+**`AgentExecutionTraceRecorder`** awaits full-prompt/blob writes **after** the trace row is created (still outside the SQL transaction that owns the row — blobs use **`IArtifactBlobStore`**). A **linked cancellation token** caps wall-clock time using **`AgentExecution:TraceStorage:BlobPersistenceTimeoutSeconds`** (default **30**, clamped **5–300**). On **timeout**, **partial blob failure**, or **unexpected exception**, the recorder:
+
+- **Patches** the trace row with whatever blob keys succeeded and sets **`BlobUploadFailed`** when appropriate.
+- Emits **durable audit** **`AgentTraceBlobPersistenceFailed`** (payload includes `traceId`, `runId`, `agentType`, `reason`, `failedBlobTypes`).
+- Records histogram **`archlucid_agent_trace_blob_persist_duration_ms`** with label **`agent_type`**.
+
+Execute path latency includes this work; the trade-off is **forensic completeness** (operators see **`BlobUploadFailed`** and audit rows instead of silent missing blobs).
 
 ### Retry behaviour
 
@@ -55,7 +65,7 @@ WHERE BlobUploadFailed = 1;
 
 ### Design rationale
 
-Fire-and-forget upload means the main trace insert path is never blocked by blob-storage latency. The retry loop adds transient-fault tolerance without introducing a dependency on Polly in the recorder. The `BlobUploadFailed` flag gives operators a queryable signal to re-upload or investigate without scanning logs.
+**Awaited** persistence (with timeout) ensures the run does not move on while operators still see **null** blob keys for content that was intended to be retained. The retry loop adds transient-fault tolerance without introducing a dependency on Polly in the recorder. The `BlobUploadFailed` flag and **`AgentTraceBlobPersistenceFailed`** audit give a queryable signal to re-upload or investigate without scanning logs alone.
 
 ## DDL
 

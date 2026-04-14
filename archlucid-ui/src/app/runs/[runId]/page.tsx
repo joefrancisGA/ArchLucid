@@ -17,6 +17,7 @@ import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimelin
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
+import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import {
   type ApiResponseWithTrace,
@@ -232,6 +233,8 @@ export default async function RunDetailPage({
           <AuthorityPipelineTimeline items={pipelineTimeline} />
         )}
       </section>
+
+      <RunAgentForensicsSection runId={runId} />
 
       <section style={{ marginBottom: 24 }}>
         <h3>Authority chain</h3>

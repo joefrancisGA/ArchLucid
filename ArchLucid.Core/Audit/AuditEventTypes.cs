@@ -104,6 +104,9 @@ public static class AuditEventTypes
     /// <summary>Agent LLM output failed <c>AgentResult</c> JSON schema validation at parse time (payload lists errors and model metadata when known).</summary>
     public const string AgentResultSchemaViolation = "AgentResultSchemaViolation";
 
+    /// <summary>Full agent trace prompt/response blob persistence failed or timed out after agent trace row insert.</summary>
+    public const string AgentTraceBlobPersistenceFailed = "AgentTraceBlobPersistenceFailed";
+
     public const string GovernanceManifestPromoted = "GovernanceManifestPromoted";
     public const string GovernanceEnvironmentActivated = "GovernanceEnvironmentActivated";
 
