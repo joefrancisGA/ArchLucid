@@ -47,9 +47,10 @@ Full prompts may contain **customer architecture details, credentials in prose, 
 
 - **Patches** the trace row with whatever blob keys succeeded and sets **`BlobUploadFailed`** when appropriate.
 - Emits **durable audit** **`AgentTraceBlobPersistenceFailed`** (payload includes `traceId`, `runId`, `agentType`, `reason`, `failedBlobTypes`).
+- **Mandatory inline + verification (Real mode):** after blob issues, the recorder patches missing parts into SQL **`Full*Inline`** (same as before), then **reloads** the trace row and checks that every **non-empty** prompt/response segment has either a blob key or inline text. If the inline **`UPDATE`** throws, the trace row is missing on read, or verification still fails, it sets **`InlineFallbackFailed`** (migration **064**, nullable `BIT`), emits **`AgentTraceInlineFallbackFailed`**, and logs — **without** changing the agent step outcome (same contract as blob audit).
 - Records histogram **`archlucid_agent_trace_blob_persist_duration_ms`** with label **`agent_type`**.
 
-Execute path latency includes this work; the trade-off is **forensic completeness** (operators see **`BlobUploadFailed`** and audit rows instead of silent missing blobs).
+Execute path latency includes this work; the trade-off is **forensic completeness** (operators see **`BlobUploadFailed`** / **`InlineFallbackFailed`** and audit rows instead of silent missing blobs).
 
 ### Retry behaviour
 
@@ -59,6 +60,14 @@ Each blob write (system prompt, user prompt, response) is retried up to **3 tota
 SELECT TraceId, RunId, CreatedUtc
 FROM dbo.AgentExecutionTraces
 WHERE BlobUploadFailed = 1;
+```
+
+Traces where mandatory inline fallback or post-patch verification failed:
+
+```sql
+SELECT TraceId, RunId, CreatedUtc
+FROM dbo.AgentExecutionTraces
+WHERE InlineFallbackFailed = 1;
 ```
 
 ### OTel counters
@@ -76,4 +85,4 @@ Correlate with blob-storage availability metrics in dashboards.
 
 ## DDL
 
-Schema additions ship in migration **`053_AgentExecutionTrace_FullPromptBlobKeys.sql`**, **`056_AgentExecutionTrace_BlobUploadFailed.sql`**, and **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.
+Schema additions ship in migrations **`053`**, **`056`**, **`062`** (inline columns), **`064`** (**`InlineFallbackFailed`**), and **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.

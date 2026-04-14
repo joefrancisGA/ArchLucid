@@ -1,4 +1,5 @@
 using System.Diagnostics.Metrics;
+using System.IO;
 
 using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Agents;
@@ -49,6 +50,70 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
             return Task.CompletedTask;
         }
+    }
+
+    private sealed class RecordingAuditService : IAuditService
+    {
+        public List<AuditEvent> Events { get; } = [];
+
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
+        {
+            Events.Add(auditEvent);
+
+            return Task.CompletedTask;
+        }
+    }
+
+    /// <summary>Forces SQL inline patch to throw while delegating other trace operations to memory.</summary>
+    private sealed class InlinePatchThrowsRepository : IAgentExecutionTraceRepository
+    {
+        private readonly InMemoryAgentExecutionTraceRepository _inner = new();
+
+        public Task CreateAsync(AgentExecutionTrace trace, CancellationToken cancellationToken = default) =>
+            _inner.CreateAsync(trace, cancellationToken);
+
+        public Task PatchBlobStorageFieldsAsync(
+            string traceId,
+            string? fullSystemPromptBlobKey,
+            string? fullUserPromptBlobKey,
+            string? fullResponseBlobKey,
+            CancellationToken cancellationToken = default) =>
+            _inner.PatchBlobStorageFieldsAsync(
+                traceId,
+                fullSystemPromptBlobKey,
+                fullUserPromptBlobKey,
+                fullResponseBlobKey,
+                cancellationToken);
+
+        public Task PatchBlobUploadFailedAsync(string traceId, bool failed, CancellationToken cancellationToken = default) =>
+            _inner.PatchBlobUploadFailedAsync(traceId, failed, cancellationToken);
+
+        public Task PatchInlinePromptFallbackAsync(
+            string traceId,
+            string? fullSystemPromptInline,
+            string? fullUserPromptInline,
+            string? fullResponseInline,
+            CancellationToken cancellationToken = default) =>
+            throw new IOException("simulated mandatory inline SQL patch failure");
+
+        public Task PatchInlineFallbackFailedAsync(string traceId, bool failed, CancellationToken cancellationToken = default) =>
+            _inner.PatchInlineFallbackFailedAsync(traceId, failed, cancellationToken);
+
+        public Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId, CancellationToken cancellationToken = default) =>
+            _inner.GetByTraceIdAsync(traceId, cancellationToken);
+
+        public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default) =>
+            _inner.GetByRunIdAsync(runId, cancellationToken);
+
+        public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
+            string runId,
+            int offset,
+            int limit,
+            CancellationToken cancellationToken = default) =>
+            _inner.GetPagedByRunIdAsync(runId, offset, limit, cancellationToken);
+
+        public Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(string taskId, CancellationToken cancellationToken = default) =>
+            _inner.GetByTaskIdAsync(taskId, cancellationToken);
     }
 
     [Fact]
@@ -391,6 +456,40 @@ public sealed class AgentExecutionTraceRecorderReproTests
         blobTypes.Should().BeEquivalentTo(["system_prompt", "user_prompt", "response"]);
     }
 
+    [Fact]
+    public async Task RecordAsync_when_inline_sql_patch_throws_sets_inline_fallback_failed_and_audits()
+    {
+        InlinePatchThrowsRepository repo = new();
+        RecordingAuditService recordingAudit = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new IOException("blob down"));
+
+        AgentExecutionTraceRecorder sut = CreateRecorder(
+            repo,
+            blobStore: blobMock.Object,
+            auditService: recordingAudit);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "s",
+            "u",
+            "r",
+            "{}",
+            parseSucceeded: true,
+            errorMessage: null);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.InlineFallbackFailed.Should().BeTrue();
+
+        recordingAudit.Events.Should().Contain(e => e.EventType == AuditEventTypes.AgentTraceInlineFallbackFailed);
+        recordingAudit.Events.Should().Contain(e => e.EventType == AuditEventTypes.AgentTraceBlobPersistenceFailed);
+    }
+
     private sealed class BlobUploadFailureMeasurementCapture : IDisposable
     {
         private readonly MeterListener _listener = new();
@@ -499,7 +598,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         IReadOnlyList<KeyValuePair<string, object?>> Tags);
 
     private static AgentExecutionTraceRecorder CreateRecorder(
-        InMemoryAgentExecutionTraceRepository repo,
+        IAgentExecutionTraceRepository repo,
         IOptions<LlmCostEstimationOptions>? costOptions = null,
         IArtifactBlobStore? blobStore = null,
         IAuditService? auditService = null)

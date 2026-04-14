@@ -236,6 +236,9 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'FullResponseInline') IS NULL
         ALTER TABLE dbo.AgentExecutionTraces ADD FullResponseInline NVARCHAR(MAX) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'InlineFallbackFailed') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD InlineFallbackFailed BIT NULL;
 END
 GO
 

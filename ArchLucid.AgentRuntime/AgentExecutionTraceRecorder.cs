@@ -236,18 +236,19 @@ public sealed class AgentExecutionTraceRecorder(
 
             await _repository.PatchBlobUploadFailedAsync(traceId, true, CancellationToken.None);
 
-            await TryPatchInlineForMissingBlobsAsync(
+            await ApplyMandatoryInlineAndVerifyAsync(
                 traceId,
-                systemKey,
-                userKey,
-                responseKey,
+                runId,
+                agentType,
                 systemPrompt,
                 userPrompt,
                 rawResponse,
-                agentType,
+                systemKey,
+                userKey,
+                responseKey,
+                sw,
+                agentTags,
                 CancellationToken.None);
-
-            ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
 
             return;
         }
@@ -266,6 +267,53 @@ public sealed class AgentExecutionTraceRecorder(
 
             await TryLogBlobPersistenceAuditAsync(traceId, runId, agentType, reason, failed, CancellationToken.None);
 
+            await ApplyMandatoryInlineAndVerifyAsync(
+                traceId,
+                runId,
+                agentType,
+                systemPrompt,
+                userPrompt,
+                rawResponse,
+                systemKey,
+                userKey,
+                responseKey,
+                sw,
+                agentTags,
+                CancellationToken.None);
+        }
+        else
+        {
+            await _repository.PatchBlobUploadFailedAsync(traceId, false, CancellationToken.None);
+
+            await VerifyMandatoryForensicCoverageAsync(
+                traceId,
+                runId,
+                agentType,
+                systemPrompt,
+                userPrompt,
+                rawResponse,
+                CancellationToken.None);
+
+            ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
+        }
+    }
+
+    private async Task ApplyMandatoryInlineAndVerifyAsync(
+        string traceId,
+        string runId,
+        AgentType agentType,
+        string systemPrompt,
+        string userPrompt,
+        string rawResponse,
+        string? systemKey,
+        string? userKey,
+        string? responseKey,
+        Stopwatch sw,
+        TagList agentTags,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
             await TryPatchInlineForMissingBlobsAsync(
                 traceId,
                 systemKey,
@@ -275,14 +323,148 @@ public sealed class AgentExecutionTraceRecorder(
                 userPrompt,
                 rawResponse,
                 agentType,
-                CancellationToken.None);
+                cancellationToken);
         }
-        else
+        catch (Exception ex)
         {
-            await _repository.PatchBlobUploadFailedAsync(traceId, false, CancellationToken.None);
+            _logger.LogError(
+                ex,
+                "Agent trace mandatory inline SQL fallback threw for TraceId={TraceId}",
+                LogSanitizer.Sanitize(traceId));
+
+            await MarkInlineForensicFailureAsync(
+                traceId,
+                runId,
+                agentType,
+                "inline_sql_patch_exception",
+                ex.Message,
+                cancellationToken);
+
+            ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
+
+            return;
         }
 
+        await VerifyMandatoryForensicCoverageAsync(
+            traceId,
+            runId,
+            agentType,
+            systemPrompt,
+            userPrompt,
+            rawResponse,
+            cancellationToken);
+
         ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
+    }
+
+    private static bool ForensicPartStored(string content, string? blobKey, string? inline) =>
+        string.IsNullOrEmpty(content)
+        || !string.IsNullOrEmpty(blobKey)
+        || !string.IsNullOrEmpty(inline);
+
+    private async Task VerifyMandatoryForensicCoverageAsync(
+        string traceId,
+        string runId,
+        AgentType agentType,
+        string systemPrompt,
+        string userPrompt,
+        string rawResponse,
+        CancellationToken cancellationToken)
+    {
+        AgentExecutionTrace? row = await _repository.GetByTraceIdAsync(traceId, cancellationToken);
+
+        if (row is null)
+        {
+            await MarkInlineForensicFailureAsync(
+                traceId,
+                runId,
+                agentType,
+                "trace_row_missing",
+                null,
+                cancellationToken);
+
+            return;
+        }
+
+        if (!ForensicPartStored(systemPrompt, row.FullSystemPromptBlobKey, row.FullSystemPromptInline)
+            || !ForensicPartStored(userPrompt, row.FullUserPromptBlobKey, row.FullUserPromptInline)
+            || !ForensicPartStored(rawResponse, row.FullResponseBlobKey, row.FullResponseInline))
+        {
+            await MarkInlineForensicFailureAsync(
+                traceId,
+                runId,
+                agentType,
+                "mandatory_full_text_incomplete",
+                null,
+                cancellationToken);
+        }
+    }
+
+    private async Task MarkInlineForensicFailureAsync(
+        string traceId,
+        string runId,
+        AgentType agentType,
+        string reason,
+        string? exceptionDetail,
+        CancellationToken cancellationToken)
+    {
+        await _repository.PatchInlineFallbackFailedAsync(traceId, true, cancellationToken);
+
+        await TryLogInlineFallbackFailedAuditAsync(
+            traceId,
+            runId,
+            agentType,
+            reason,
+            exceptionDetail,
+            cancellationToken);
+    }
+
+    private async Task TryLogInlineFallbackFailedAuditAsync(
+        string traceId,
+        string runId,
+        AgentType agentType,
+        string reason,
+        string? exceptionDetail,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            Guid? runGuid = Guid.TryParse(runId, out Guid rid) ? rid : null;
+
+            string dataJson = JsonSerializer.Serialize(
+                new
+                {
+                    traceId,
+                    runId,
+                    agentType = agentType.ToString(),
+                    reason,
+                    exceptionDetail,
+                },
+                AuditJsonOptions);
+
+            AuditEvent auditEvent = new()
+            {
+                EventType = AuditEventTypes.AgentTraceInlineFallbackFailed,
+                ActorUserId = "agent-runtime",
+                ActorUserName = "agent-runtime",
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid,
+                DataJson = dataJson,
+            };
+
+            await _auditService.LogAsync(auditEvent, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Durable audit for AgentTraceInlineFallbackFailed failed for TraceId={TraceId}",
+                LogSanitizer.Sanitize(traceId));
+        }
     }
 
     private Task TryPatchInlineForMissingBlobsAsync(

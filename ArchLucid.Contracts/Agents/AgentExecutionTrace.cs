@@ -105,6 +105,12 @@ public sealed class AgentExecutionTrace
     public bool? BlobUploadFailed { get; set; }
 
     /// <summary>
+    /// True when real-mode forensic persistence required SQL inline text but it was missing after patch, the patch threw, or the trace row vanished.
+    /// Simulator traces never set this flag.
+    /// </summary>
+    public bool? InlineFallbackFailed { get; set; }
+
+    /// <summary>
     /// Full system prompt text stored in SQL when blob persistence failed or timed out (complements <see cref="FullSystemPromptBlobKey"/>).
     /// </summary>
     public string? FullSystemPromptInline { get; set; }

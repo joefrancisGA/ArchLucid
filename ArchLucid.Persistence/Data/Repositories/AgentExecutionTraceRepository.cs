@@ -256,6 +256,85 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 cancellationToken: cancellationToken));
     }
 
+    /// <inheritdoc />
+    public async Task PatchInlineFallbackFailedAsync(
+        string traceId,
+        bool failed,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string selectSql = """
+            SELECT TraceJson
+            FROM AgentExecutionTraces
+            WHERE TraceId = @TraceId;
+            """;
+
+        string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
+            new CommandDefinition(selectSql, new { TraceId = traceId }, cancellationToken: cancellationToken));
+
+        if (string.IsNullOrEmpty(rowJson))
+        {
+            return;
+        }
+
+        AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+        if (trace is null)
+        {
+            return;
+        }
+
+        trace.InlineFallbackFailed = failed ? true : null;
+
+        string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
+
+        const string updateSql = """
+            UPDATE AgentExecutionTraces
+            SET InlineFallbackFailed = @InlineFallbackFailed,
+                TraceJson = @TraceJson
+            WHERE TraceId = @TraceId;
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                updateSql,
+                new
+                {
+                    TraceId = traceId,
+                    InlineFallbackFailed = failed ? true : (bool?)null,
+                    TraceJson = updatedJson,
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    /// <inheritdoc />
+    public async Task<AgentExecutionTrace?> GetByTraceIdAsync(
+        string traceId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        const string sql = """
+            SELECT TraceJson
+            FROM AgentExecutionTraces
+            WHERE TraceId = @TraceId;
+            """;
+
+        string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
+            new CommandDefinition(sql, new { TraceId = traceId }, cancellationToken: cancellationToken));
+
+        if (string.IsNullOrEmpty(rowJson))
+        {
+            return null;
+        }
+
+        return JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
+    }
+
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)

@@ -107,6 +107,9 @@ public static class AuditEventTypes
     /// <summary>Full agent trace prompt/response blob persistence failed or timed out after agent trace row insert.</summary>
     public const string AgentTraceBlobPersistenceFailed = "AgentTraceBlobPersistenceFailed";
 
+    /// <summary>Mandatory SQL inline fallback for full agent trace text failed or forensic coverage verification failed after blob issues.</summary>
+    public const string AgentTraceInlineFallbackFailed = "AgentTraceInlineFallbackFailed";
+
     public const string GovernanceManifestPromoted = "GovernanceManifestPromoted";
     public const string GovernanceEnvironmentActivated = "GovernanceEnvironmentActivated";
 

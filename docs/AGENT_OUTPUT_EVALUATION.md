@@ -55,6 +55,8 @@ flowchart LR
 | **`AgentOutputSemanticScore`** | Contract DTO for semantic ratios (also returned nested on each API score row). |
 | **`AgentOutputEvaluationScore` / `AgentOutputEvaluationSummary`** | Contracts for API and tests. |
 | **`GET …/run/{runId}/agent-evaluation`** | Structural + semantic scores per trace, **`blobUploadFailed`** from the trace row, and **`averageSemanticScore`** — does **not** record OTel metrics. |
+| **`IAgentOutputEvaluationHarness` / `AgentOutputEvaluationHarness`** | Test-time and offline composition of structural + semantic evaluators with **`AgentOutputExpectation`** (min scores, required JSON keys, finding categories). |
+| **`ISemanticScorer`** | Placeholder seam for **embedding-based** similarity vs reference text (not wired in DI today); current semantic path remains **`IAgentOutputSemanticEvaluator`**. |
 
 ## 6. Data Flow
 

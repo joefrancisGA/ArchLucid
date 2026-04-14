@@ -45,6 +45,19 @@ public interface IAgentExecutionTraceRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Sets <see cref="AgentExecutionTrace.InlineFallbackFailed"/> when mandatory inline forensic text could not be stored or verified.
+    /// </summary>
+    Task PatchInlineFallbackFailedAsync(
+        string traceId,
+        bool failed,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Returns a single trace by id, or <see langword="null"/> when the row is missing.</summary>
+    Task<AgentExecutionTrace?> GetByTraceIdAsync(
+        string traceId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Returns all traces for the specified run, ordered by <c>CreatedUtc</c> ascending.
     /// </summary>
     /// <param name="runId">The run whose traces are requested.</param>

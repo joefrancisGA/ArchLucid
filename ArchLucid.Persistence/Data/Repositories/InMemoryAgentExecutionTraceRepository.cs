@@ -135,6 +135,45 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
+    public Task PatchInlineFallbackFailedAsync(
+        string traceId,
+        bool failed,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i >= 0)
+            {
+                AgentExecutionTrace t = Clone(_items[i]);
+                t.InlineFallbackFailed = failed ? true : null;
+                _items[i] = t;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            AgentExecutionTrace? found = _items.FirstOrDefault(t =>
+                string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            return Task.FromResult(found is null ? null : Clone(found));
+        }
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();

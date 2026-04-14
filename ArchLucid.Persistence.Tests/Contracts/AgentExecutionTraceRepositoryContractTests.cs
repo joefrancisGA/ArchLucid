@@ -167,6 +167,47 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         t.FullResponseInline.Should().Be("resp-full");
     }
 
+    [SkippableFact]
+    public async Task GetByTraceIdAsync_returns_single_row()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-traceid-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-traceid");
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "by-trace-id-1", DateTime.UtcNow), CancellationToken.None);
+
+        AgentExecutionTrace? found = await repo.GetByTraceIdAsync("by-trace-id-1", CancellationToken.None);
+
+        found.Should().NotBeNull();
+        found!.TraceId.Should().Be("by-trace-id-1");
+        found.RunId.Should().Be(runId);
+    }
+
+    [SkippableFact]
+    public async Task PatchInlineFallbackFailedAsync_persists_on_read()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentExecutionTraceRepository repo = CreateRepository();
+        string requestId = "aet-inline-fail-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+        AgentTask task = NewTask(runId, "task-inline-fail");
+
+        await PrepareRunAndTaskAsync(requestId, runId, task, CancellationToken.None);
+
+        await repo.CreateAsync(NewTrace(runId, task.TaskId, "inline-fail-trace", DateTime.UtcNow), CancellationToken.None);
+
+        await repo.PatchInlineFallbackFailedAsync("inline-fail-trace", failed: true, CancellationToken.None);
+
+        AgentExecutionTrace? t = await repo.GetByTraceIdAsync("inline-fail-trace", CancellationToken.None);
+
+        t.Should().NotBeNull();
+        t!.InlineFallbackFailed.Should().BeTrue();
+    }
+
     private static AgentTask NewTask(string runId, string taskId)
     {
         return new AgentTask
