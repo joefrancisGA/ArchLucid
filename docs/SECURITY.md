@@ -12,6 +12,9 @@ The **OWASP ZAP baseline** scan runs against the **ArchLucid API Docker image** 
 
 Other layers (authentication, RLS, rate limiting, CORS, security headers) are described in `docs/DEPLOYMENT.md`, `docs/security/MULTI_TENANT_RLS.md`, and product code under `ArchLucid.Api` / `ArchLucid.Host.Core`.
 
+- **API key rotation (comma-separated overlap):** [docs/runbooks/API_KEY_ROTATION.md](runbooks/API_KEY_ROTATION.md)
+- **RLS residual risk acceptance (template):** [docs/security/RLS_RISK_ACCEPTANCE.md](security/RLS_RISK_ACCEPTANCE.md)
+
 **System-wide STRIDE summary (product boundary):** [docs/security/SYSTEM_THREAT_MODEL.md](security/SYSTEM_THREAT_MODEL.md).
 
 ## Log injection (CWE-117)

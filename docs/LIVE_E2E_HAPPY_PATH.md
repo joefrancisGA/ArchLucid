@@ -14,6 +14,8 @@
 | `archlucid-ui/e2e/live-api-advisory-flow.spec.ts` | `live-api-advisory-flow` | Advisory scan scheduling: create → commit run, **`POST /v1/advisory/scans`** (skip if 404), audit trail asserts **`AdvisoryScanScheduled`** or **`AdvisoryScanExecuted`**. |
 | `archlucid-ui/e2e/live-api-replay-export.spec.ts` | `live-api-replay-export` | Replay and re-export: create → commit run, **`POST /v1/replay/run/{id}`** (skip if 404), **`GET /v1/artifacts/runs/{id}/export`** ZIP, audit trail asserts **`ReplayExecuted`** + **`RunExported`**. |
 | `archlucid-ui/e2e/live-api-analysis-report.spec.ts` | `live-api-analysis-report` | Analysis report generation: create → commit run, **`POST /v1/reports/analysis`** (skip if 404), audit trail asserts **`ArchitectureAnalysisReportGenerated`**; optional DOCX export via **`GET /v1/exports/docx/runs/{id}/architecture-package`**. |
+| `archlucid-ui/e2e/live-api-policy-pack-lifecycle.spec.ts` | `live-api-policy-pack-lifecycle` | **`POST /v1/policy-packs`** → assign **`1.0.0`** → **`GET /v1/policy-packs/effective`**; UI **`/policy-packs`**; recent audit includes **`PolicyPackCreated`**. |
+| `archlucid-ui/e2e/live-api-compare-runs.spec.ts` | `live-api-compare-runs` | Two runs create → execute → commit; **`GET /v1/authority/compare/runs`**; UI **`/compare?leftRunId=…&rightRunId=…`**; **404** when second run id is missing. |
 
 **Config:** `archlucid-ui/playwright.live.config.ts`  
 **HTTP helpers:** `archlucid-ui/e2e/helpers/live-api-client.ts`  

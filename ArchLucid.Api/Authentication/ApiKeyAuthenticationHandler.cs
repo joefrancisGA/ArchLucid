@@ -63,13 +63,13 @@ public class ApiKeyAuthenticationHandler(
 
         string key = providedKey.ToString();
 
-        string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
-        string? readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
+        string? adminKeyRaw = configuration["Authentication:ApiKey:AdminKey"];
+        string? readerKeyRaw = configuration["Authentication:ApiKey:ReadOnlyKey"];
 
         string? userName;
         Claim[] claims;
 
-        if (!string.IsNullOrWhiteSpace(adminKey) && ConstantTimeKeyEquals(key, adminKey))
+        if (MatchesAnyCommaSeparatedKey(key, adminKeyRaw))
         {
             userName = "ApiKeyAdmin";
             claims =
@@ -84,7 +84,7 @@ public class ApiKeyAuthenticationHandler(
                 new Claim("permission", "replay:diagnostics")
             ];
         }
-        else if (!string.IsNullOrWhiteSpace(readerKey) && ConstantTimeKeyEquals(key, readerKey))
+        else if (MatchesAnyCommaSeparatedKey(key, readerKeyRaw))
         {
             userName = "ApiKeyReadOnly";
             claims =
@@ -104,6 +104,43 @@ public class ApiKeyAuthenticationHandler(
         AuthenticationTicket successTicket = new(successPrincipal, Scheme.Name);
 
         return Task.FromResult(AuthenticateResult.Success(successTicket));
+    }
+
+    /// <summary>
+    /// When <paramref name="raw"/> contains commas, each segment (trimmed) is an acceptable key material
+    /// (zero-downtime rotation: old and new keys during cutover). Empty segments are ignored.
+    /// </summary>
+    private static bool MatchesAnyCommaSeparatedKey(string provided, string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return false;
+        }
+
+        ReadOnlySpan<char> span = raw.AsSpan();
+        int start = 0;
+
+        for (int i = 0; i <= span.Length; i++)
+        {
+            if (i == span.Length || span[i] == ',')
+            {
+                ReadOnlySpan<char> segment = span.Slice(start, i - start).Trim();
+
+                if (!segment.IsEmpty)
+                {
+                    string expected = segment.ToString();
+
+                    if (ConstantTimeKeyEquals(provided, expected))
+                    {
+                        return true;
+                    }
+                }
+
+                start = i + 1;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>

@@ -109,6 +109,41 @@ Request and domain logic flow **inward** through contracts, then **out** through
 
 ---
 
+## What to open first (contributor decision tree)
+
+Use this when you know **what** you are changing but not **which folder** to open first. For deeper extension maps (finding engines, connectors, agents), see [.cursor/rules/Navigation.mdc](../.cursor/rules/Navigation.mdc).
+
+```mermaid
+flowchart TD
+  Q{What are you changing?}
+  Q -->|New API endpoint| A[ArchLucid.Api/Controllers/]
+  Q -->|New finding engine| B[templates/archlucid-finding-engine/]
+  Q -->|Persistence / SQL| C[ArchLucid.Persistence/]
+  Q -->|Agent behavior / LLM| D[ArchLucid.AgentRuntime/]
+  Q -->|Governance / policy| E[ArchLucid.Decisioning/]
+  Q -->|Operator UI page| F[archlucid-ui/src/app/]
+  Q -->|CLI command| G[ArchLucid.Cli/]
+  Q -->|Infrastructure| H[infra/terraform-*/]
+  A --> R1[Also: ArchLucid.Contracts, ArchLucid.Host.Composition]
+  C --> R2[Also: ArchLucid.Persistence/Migrations/, Scripts/ArchLucid.sql]
+  D --> R3[Also: ArchLucid.AgentRuntime.Tests, Host.Composition]
+  E --> R4[Also: ArchLucid.Decisioning.Tests, Persistence.Data repos]
+  F --> R5[Also: archlucid-ui/src/lib/api.ts, types/]
+```
+
+| Change type | Start here | Also touch | Test project | Key doc |
+|-------------|------------|------------|--------------|---------|
+| New API endpoint | `ArchLucid.Api/Controllers/` | `ArchLucid.Contracts` (DTOs), `ArchLucid.Host.Composition` (DI), OpenAPI snapshot | `ArchLucid.Api.Tests` | [API_CONTRACTS.md](API_CONTRACTS.md) |
+| New finding engine | `templates/archlucid-finding-engine/` | `ArchLucid.Decisioning/Findings/`, `Host.Composition` | `ArchLucid.Decisioning.Tests` | [DECISIONING_TYPED_FINDINGS.md](DECISIONING_TYPED_FINDINGS.md) |
+| SQL schema change | `ArchLucid.Persistence/Migrations/` | `Scripts/ArchLucid.sql`, Dapper + in-memory repos | `ArchLucid.Persistence.Tests` | [SQL_SCRIPTS.md](SQL_SCRIPTS.md), [SQL_DDL_DISCIPLINE.md](SQL_DDL_DISCIPLINE.md) |
+| Agent / LLM behavior | `ArchLucid.AgentRuntime/` | `Host.Composition`, `ArchLucid.Contracts` (trace models) | `ArchLucid.AgentRuntime.Tests` | [AGENT_TRACE_FORENSICS.md](AGENT_TRACE_FORENSICS.md) |
+| Governance / policy | `ArchLucid.Decisioning/` | `ArchLucid.Application`, `ArchLucid.Persistence.Data` | `ArchLucid.Decisioning.Tests`, `ArchLucid.Application.Tests` | [PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md) |
+| Operator UI page | `archlucid-ui/src/app/{route}/` | `archlucid-ui/src/lib/api.ts`, `components/` | Vitest (co-located `.test.tsx`) | [operator-shell.md](operator-shell.md) |
+| CLI command | `ArchLucid.Cli/` | `ArchLucid.Api.Client` when adding HTTP calls | `ArchLucid.Cli.Tests` | [CLI_USAGE.md](CLI_USAGE.md) |
+| Terraform | `infra/terraform-{area}/` | `terraform.tfvars.example`, CI validate matrix | CI `terraform validate` | [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md) |
+
+---
+
 ## Recommended reading order
 
 After the role-specific day-one checklist above:

@@ -15,6 +15,7 @@ public sealed class AgentOutputEvaluationRecorder(
     IAgentExecutionTraceRepository traceRepository,
     IAgentOutputEvaluator evaluator,
     IAgentOutputSemanticEvaluator semanticEvaluator,
+    IAgentOutputQualityGate qualityGate,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
     private const double LowStructuralScoreThreshold = 0.5;
@@ -63,6 +64,36 @@ public sealed class AgentOutputEvaluationRecorder(
             AgentOutputSemanticScore semanticScore = semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
 
             ArchLucidInstrumentation.AgentOutputSemanticScore.Record(semanticScore.OverallSemanticScore, tags);
+
+            AgentOutputQualityGateOutcome gateOutcome = qualityGate.Evaluate(score, semanticScore);
+            TagList gateTags = new()
+            {
+                { "agent_type", agentLabel },
+                { "outcome", gateOutcome.ToString().ToLowerInvariant() },
+            };
+
+            ArchLucidInstrumentation.AgentOutputQualityGateTotal.Add(1, gateTags);
+
+            if (gateOutcome == AgentOutputQualityGateOutcome.Rejected)
+            {
+                logger.LogWarning(
+                    "Agent output quality gate rejected run {RunId} trace {TraceId} agent {AgentType} (structural {Structural:F2}, semantic {Semantic:F2}).",
+                    runId,
+                    trace.TraceId,
+                    agentLabel,
+                    score.StructuralCompletenessRatio,
+                    semanticScore.OverallSemanticScore);
+            }
+            else if (gateOutcome == AgentOutputQualityGateOutcome.Warned)
+            {
+                logger.LogWarning(
+                    "Agent output quality gate warned for run {RunId} trace {TraceId} agent {AgentType} (structural {Structural:F2}, semantic {Semantic:F2}).",
+                    runId,
+                    trace.TraceId,
+                    agentLabel,
+                    score.StructuralCompletenessRatio,
+                    semanticScore.OverallSemanticScore);
+            }
 
             if (semanticScore.OverallSemanticScore < LowSemanticScoreThreshold)
             {

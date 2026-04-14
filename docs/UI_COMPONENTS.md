@@ -91,6 +91,28 @@ The run detail page (`archlucid-ui/src/app/runs/[runId]/page.tsx`) loads an init
 
 ---
 
+## `AuthorityPipelineTimeline`
+
+**File:** `archlucid-ui/src/components/AuthorityPipelineTimeline.tsx`
+
+### Props (`AuthorityPipelineTimelineProps`)
+
+| Prop | Type | Notes |
+|------|------|--------|
+| **`items`** | `PipelineTimelineItem[] \| null` | From **`getRunPipelineTimeline`** → **`GET /v1/authority/runs/{runId}/pipeline-timeline`**. |
+| **`loadErrorMessage`** | `string \| null \| undefined` | When set, shows a warning line instead of the list. |
+
+### Behavior
+
+- **Empty list:** Explains that no audit rows exist yet (normal for new runs or sparse auditing).
+- **Rows:** Ordered list — **timestamp**, **`eventType`**, **actor**, optional **correlation** id.
+
+The run detail page loads the timeline on the server (alongside other run sections).
+
+**Tests:** `archlucid-ui/src/components/AuthorityPipelineTimeline.test.tsx`
+
+---
+
 ## `ComplianceDriftChart`
 
 **File:** `archlucid-ui/src/components/ComplianceDriftChart.tsx`

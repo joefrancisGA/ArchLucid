@@ -13,6 +13,7 @@ import {
   coerceRunDetail,
 } from "@/lib/operator-response-guards";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
@@ -23,10 +24,17 @@ import {
   getRunDetail,
   getRunExplanationSummary,
   getRunExportDownloadUrl,
+  getRunPipelineTimeline,
   getRunSummary,
   listArtifacts,
 } from "@/lib/api";
-import type { ArtifactDescriptor, ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
+import type {
+  ArtifactDescriptor,
+  ManifestSummary,
+  PipelineTimelineItem,
+  RunDetail,
+  RunSummary,
+} from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 /** Server-rendered run detail page. Shows run metadata, authority chain, manifest summary, aggregate explanation, artifacts, and downloads. */
@@ -119,6 +127,14 @@ export default async function RunDetailPage({
   let artifactsMalformed: string | null = null;
   let explanationSummary: RunExplanationSummary | null = null;
   let explanationFailure: ApiLoadFailureState | null = null;
+  let pipelineTimeline: PipelineTimelineItem[] | null = null;
+  let pipelineTimelineFailure: ApiLoadFailureState | null = null;
+
+  try {
+    pipelineTimeline = await getRunPipelineTimeline(runId);
+  } catch (e) {
+    pipelineTimelineFailure = toApiLoadFailure(e);
+  }
 
   if (manifestId) {
     try {
@@ -198,6 +214,22 @@ export default async function RunDetailPage({
         <p>
           <strong>Created:</strong> {new Date(resolvedDetail.run.createdUtc).toLocaleString()}
         </p>
+      </section>
+
+      <section style={{ marginBottom: 24 }} aria-labelledby="pipeline-timeline-title">
+        <h3 id="pipeline-timeline-title">Pipeline timeline</h3>
+        <p style={{ fontSize: 14, color: "#64748b", marginTop: 0, maxWidth: 720 }}>
+          Audit events associated with this run (oldest first). Empty lists are normal when auditing is sparse or the run
+          was created outside the authority pipeline.
+        </p>
+        {pipelineTimelineFailure ? (
+          <AuthorityPipelineTimeline
+            items={null}
+            loadErrorMessage={pipelineTimelineFailure.message}
+          />
+        ) : (
+          <AuthorityPipelineTimeline items={pipelineTimeline} />
+        )}
       </section>
 
       <section style={{ marginBottom: 24 }}>

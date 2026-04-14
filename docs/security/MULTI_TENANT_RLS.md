@@ -108,6 +108,8 @@ flowchart LR
 
 **Future hardening:** denormalize scope onto additional high-traffic child tables (or add security-barrier views) so predicates can attach without referencing other tables inside the inline function (not supported for RLS predicates). `dbo.ContextSnapshots` / `dbo.FindingsSnapshots` / `dbo.GoldenManifestAssumptions` are done in **046**.
 
+**Risk acceptance (governance):** when RLS is **ON** with residual uncovered tables or bypass procedures, capture sign-off using [RLS_RISK_ACCEPTANCE.md](RLS_RISK_ACCEPTANCE.md).
+
 ## 10. Evolution
 
 Pilot **`rls.RunsScopeFilter`** / `runs_scope_predicate` (DbUp 030) is **superseded** by **036**: single function **`rls.archiforge_scope_predicate`** and policy **`rls.ArchiforgeTenantScope`**. Brownfield databases receive 036 via DbUp after 030.

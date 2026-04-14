@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime.Explanation;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
@@ -12,6 +13,7 @@ using ArchLucid.Provenance;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -120,14 +122,17 @@ public sealed class RunExplanationSummaryServiceTests
             .ReturnsAsync((RunDetailDto?)null);
 
         Mock<IExplanationService> explanation = new();
+        Mock<IDeterministicExplanationService> deterministic = new();
         Mock<IProvenanceSnapshotRepository> provenance = new();
         Mock<IExplanationFaithfulnessChecker> faithfulness = new();
 
         RunExplanationSummaryService svc = new(
             explanation.Object,
+            deterministic.Object,
             query.Object,
             provenance.Object,
             faithfulness.Object,
+            Options.Create(new RunExplanationAggregateOptions()),
             NullLogger<RunExplanationSummaryService>.Instance);
 
         RunExplanationSummary? result = await svc.GetSummaryAsync(
@@ -216,6 +221,8 @@ public sealed class RunExplanationSummaryServiceTests
             .Setup(e => e.ExplainRunAsync(manifest, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(explained);
 
+        Mock<IDeterministicExplanationService> deterministic = new();
+
         Mock<IProvenanceSnapshotRepository> provenance = new();
         provenance
             .Setup(p => p.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
@@ -228,9 +235,11 @@ public sealed class RunExplanationSummaryServiceTests
 
         RunExplanationSummaryService svc = new(
             explanation.Object,
+            deterministic.Object,
             query.Object,
             provenance.Object,
             faithfulness.Object,
+            Options.Create(new RunExplanationAggregateOptions()),
             NullLogger<RunExplanationSummaryService>.Instance);
 
         RunExplanationSummary? summary = await svc.GetSummaryAsync(
@@ -252,5 +261,153 @@ public sealed class RunExplanationSummaryServiceTests
         summary.ComplianceGapCount.Should().Be(1);
         summary.RiskPosture.Should().Be("Low");
         summary.ThemeSummaries.Should().Contain(t => t.StartsWith("Cost:", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task GetSummaryAsync_swaps_to_deterministic_when_faithfulness_support_ratio_is_low()
+    {
+        Guid runId = Guid.NewGuid();
+        GoldenManifest manifest = new()
+        {
+            RunId = runId,
+            ManifestId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            FindingsSnapshotId = Guid.NewGuid(),
+            DecisionTraceId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "h",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rsh",
+            Metadata = new ManifestMetadata { Summary = "Manifest headline" },
+            UnresolvedIssues = new UnresolvedIssuesSection(),
+            Decisions = [new ResolvedArchitectureDecision { Category = "Cost", Title = "SKU", SelectedOption = "A" }],
+            Compliance = new ComplianceSection(),
+        };
+
+        ExplanationResult llmLayer = new()
+        {
+            Summary = "Hallucinated summary not grounded in findings.",
+            DetailedNarrative = "Narrative without overlap.",
+            KeyDrivers = ["Cost: SKU → A"],
+        };
+
+        ExplanationResult deterministicLayer = new()
+        {
+            Summary = "Deterministic headline",
+            DetailedNarrative = "Deterministic body from manifest signals.",
+            KeyDrivers = ["Cost: SKU → A"],
+            Structured = new StructuredExplanation
+            {
+                SchemaVersion = 1,
+                Reasoning = "Deterministic body from manifest signals.",
+            },
+        };
+
+        Mock<IAuthorityQueryService> query = new();
+        query
+            .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = runId, TenantId = manifest.TenantId },
+                    GoldenManifest = manifest,
+                    FindingsSnapshot = new FindingsSnapshot
+                    {
+                        Findings =
+                        [
+                            new Finding
+                            {
+                                FindingType = "t",
+                                Category = "c",
+                                EngineType = "e",
+                                Title = "token-one",
+                                Rationale = "alpha",
+                            },
+                        ],
+                    },
+                });
+
+        Mock<IExplanationService> explanation = new();
+        explanation
+            .Setup(e => e.ExplainRunAsync(manifest, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(llmLayer);
+
+        Mock<IDeterministicExplanationService> deterministic = new();
+        deterministic
+            .Setup(d => d.ExtractRunKeyDrivers(manifest, null))
+            .Returns(["Cost: SKU → A"]);
+        deterministic
+            .Setup(d => d.ExtractRiskImplications(manifest))
+            .Returns(["No unresolved issues recorded."]);
+        deterministic
+            .Setup(d => d.ExtractCostImplications(manifest))
+            .Returns(["Max monthly cost not specified."]);
+        deterministic
+            .Setup(d => d.ExtractComplianceImplications(manifest))
+            .Returns(["No compliance gaps listed."]);
+        deterministic
+            .Setup(d =>
+                d.BuildRunExplanationFromLlmPayload(
+                    manifest,
+                    It.IsAny<List<string>>(),
+                    It.IsAny<List<string>>(),
+                    It.IsAny<List<string>>(),
+                    It.IsAny<List<string>>(),
+                    string.Empty))
+            .Returns(deterministicLayer);
+
+        Mock<IProvenanceSnapshotRepository> provenance = new();
+        provenance
+            .Setup(p => p.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((DecisionProvenanceSnapshot?)null);
+
+        Mock<IExplanationFaithfulnessChecker> faithfulness = new();
+        faithfulness
+            .Setup(f => f.CheckFaithfulness(llmLayer, It.IsAny<FindingsSnapshot?>()))
+            .Returns(new ExplanationFaithfulnessReport(2, 2, 0, 0.05, []));
+
+        RunExplanationAggregateOptions opts = new()
+        {
+            FaithfulnessFallbackEnabled = true,
+            MinSupportRatioToTrustLlmNarrative = 0.2,
+        };
+
+        RunExplanationSummaryService svc = new(
+            explanation.Object,
+            deterministic.Object,
+            query.Object,
+            provenance.Object,
+            faithfulness.Object,
+            Options.Create(opts),
+            NullLogger<RunExplanationSummaryService>.Instance);
+
+        RunExplanationSummary? summary = await svc.GetSummaryAsync(
+            new ScopeContext
+            {
+                TenantId = manifest.TenantId,
+                WorkspaceId = manifest.WorkspaceId,
+                ProjectId = manifest.ProjectId,
+            },
+            runId,
+            CancellationToken.None);
+
+        summary.Should().NotBeNull();
+        summary!.Explanation.Summary.Should().Be("Deterministic headline");
+        summary.Explanation.Provenance.Should().BeNull();
+        summary.Explanation.Confidence.Should().BeNull();
+        deterministic.Verify(
+            d => d.BuildRunExplanationFromLlmPayload(
+                manifest,
+                It.IsAny<List<string>>(),
+                It.IsAny<List<string>>(),
+                It.IsAny<List<string>>(),
+                It.IsAny<List<string>>(),
+                string.Empty),
+            Times.Once);
     }
 }

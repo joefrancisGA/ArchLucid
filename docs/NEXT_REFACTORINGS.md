@@ -1,6 +1,10 @@
 # Next refactorings
 
-**Last updated:** 7 April 2026 (Persistence split into Persistence + Persistence.Coordination delivered).
+**Last updated:** 13 April 2026.
+
+**Where to start for common change types:** see the contributor decision tree in [START_HERE.md — What to open first](START_HERE.md#what-to-open-first-contributor-decision-tree) (Mermaid + table). This file is the **maintainer backlog**; many numbered items below are already marked **Done** in their sections or checklists — use the section headers and `[x]` checklist rows to find still-open work.
+
+**Last updated (historical note):** 7 April 2026 (Persistence split into Persistence + Persistence.Coordination delivered).
 
 **ArchLucid rename:** Solution is **`ArchLucid.sln`**; product assemblies live under **`ArchLucid.*`** with aligned type names (`ArchLucidConfigurationBridge`, `IArchLucidUnitOfWork`, `AddArchLucid*` host extensions, NSwag **`ArchLucidApiClient`** / **`ArchLucidApiException`**). Use **`ConnectionStrings:ArchLucid`**, CORS policy **`ArchLucid`**, and comparison replay headers **`X-ArchLucid-*`**. Phase 7 removed legacy **`ArchLucid*`** configuration keys and env-var bridges; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` for deferred work (Terraform `state mv`, repo folder rename).
 

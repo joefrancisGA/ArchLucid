@@ -1,3 +1,4 @@
+using ArchLucid.Application.Audit;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Repositories;
 using ArchLucid.Contracts.Evolution;
@@ -62,6 +63,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
         services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
         services.AddSingleton<IAuditRepository, InMemoryAuditRepository>();
+        services.AddScoped<IRunPipelineAuditTimelineService, RunPipelineAuditTimelineService>();
         services.AddSingleton<IProvenanceSnapshotRepository, InMemoryProvenanceSnapshotRepository>();
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddSingleton<IRecommendationRepository, InMemoryRecommendationRepository>();

@@ -1,6 +1,7 @@
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Audit;
 using ArchLucid.Application.Explanation;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Diagnostics;
@@ -33,6 +34,7 @@ namespace ArchLucid.Api.Controllers;
 public sealed class AuthorityQueryController(
     IAuthorityQueryService queryService,
     IRunRationaleService runRationaleService,
+    IRunPipelineAuditTimelineService pipelineAuditTimeline,
     IScopeContextProvider scopeProvider,
     IProvenanceBuilder provenanceBuilder) : ControllerBase
 {
@@ -109,6 +111,37 @@ public sealed class AuthorityQueryController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? result = await queryService.GetRunDetailAsync(scope, runId, ct);
         return result is null ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) : Ok(result);
+    }
+
+    /// <summary>
+    /// Audit events associated with this run, oldest-first (pipeline / lifecycle visibility for operators).
+    /// </summary>
+    [HttpGet("runs/{runId:guid}/pipeline-timeline")]
+    [ProducesResponseType(typeof(IReadOnlyList<RunPipelineTimelineItemResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunPipelineTimeline(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IReadOnlyList<RunPipelineTimelineItemDto>? items =
+            await pipelineAuditTimeline.GetTimelineAsync(scope, runId, ct);
+
+        if (items is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        }
+
+        IReadOnlyList<RunPipelineTimelineItemResponse> body = items
+            .Select(i => new RunPipelineTimelineItemResponse
+            {
+                EventId = i.EventId,
+                OccurredUtc = i.OccurredUtc,
+                EventType = i.EventType,
+                ActorUserName = i.ActorUserName,
+                CorrelationId = i.CorrelationId,
+            })
+            .ToList();
+
+        return Ok(body);
     }
 
     /// <summary>Unified decision rationale (authority or coordinator) for operator triage.</summary>

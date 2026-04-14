@@ -47,6 +47,13 @@ Global: **`http_req_failed` rate &lt; 1%**.
 
 Every request sends **`X-Correlation-ID: k6-smoke-{scenario}-{vu}-{iter}`** for log correlation.
 
+## Soak profile (scheduled / manual)
+
+**`tests/load/soak.js`** runs a **longer, low-rate** read-only mix (`health`, `version`, `runs_list`, `audit_search`) with relaxed thresholds. Use it for **scheduled** or **manual** runs against a real base URL — not as a merge gate.
+
+- **Workflow:** `.github/workflows/k6-soak-scheduled.yml` (weekly cron + `workflow_dispatch`). Set repository secret **`ARCHLUCID_SOAK_BASE_URL`** (for example `https://api.staging.example`) or the job no-ops with a log line.
+- **Local:** `BASE_URL=http://127.0.0.1:5128 SOAK_VUS=3 SOAK_DURATION=4m k6 run tests/load/soak.js`
+
 ## Tuning thresholds
 
 Raise thresholds only when a change **intentionally** increases latency (for example new mandatory work in the hot path). Document the reason in the PR. If thresholds are too loose, the suite stops catching regressions.

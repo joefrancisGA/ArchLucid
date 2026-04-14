@@ -7,6 +7,7 @@ alwaysApply: false
 
 ## Read first
 
+- **Contributor decision tree (what folder to open first)**: `docs/START_HERE.md` → section **What to open first (contributor decision tree)** (Mermaid flowchart + table by change type).
 - **System flows (Mermaid)**: `docs/SYSTEM_MAP.md`
 - **Component detail**: `docs/ARCHITECTURE_COMPONENTS.md`
 - **API contracts**: `docs/API_CONTRACTS.md`
@@ -21,7 +22,7 @@ alwaysApply: false
 | Add an **alert delivery channel** | `ArchLucid.Decisioning/Alerts/Delivery/IAlertDeliveryChannel.cs` → register with alert dispatcher |
 | Change **authority pipeline** | `ArchLucid.Persistence/Orchestration/AuthorityRunOrchestrator.cs` and `Orchestration/Pipeline/*` stages |
 | **SQL + RLS + replica** | `ArchLucid.Persistence/Connections/SqlServerOptions.cs` (section `SqlServer`) |
-| **Configuration validation** | `ArchLucid.Host.Core/Startup/Validation/ArchiForgeConfigurationRules.cs` |
+| **Configuration validation** | `ArchLucid.Host.Core/Startup/Validation/ArchLucidConfigurationRules.cs` |
 
 ## Data vs persistence
 

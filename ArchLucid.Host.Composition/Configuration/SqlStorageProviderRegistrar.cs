@@ -26,6 +26,7 @@ using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Repositories;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Archival;
+using ArchLucid.Application.Audit;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Conversation;
@@ -154,6 +155,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IAuthorityPipelineStagesExecutor, AuthorityPipelineStagesExecutor>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
+        services.AddScoped<IRunPipelineAuditTimelineService, RunPipelineAuditTimelineService>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddScoped<IConversationThreadRepository, DapperConversationThreadRepository>();

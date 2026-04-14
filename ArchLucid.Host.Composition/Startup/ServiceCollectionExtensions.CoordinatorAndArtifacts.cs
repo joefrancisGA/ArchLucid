@@ -10,6 +10,7 @@ using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Ask;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Decisioning.Advisory.Analysis;
@@ -50,6 +51,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IImprovementAdvisorService, ImprovementAdvisorService>();
         services.Configure<ExplanationServiceOptions>(
             configuration.GetSection(ExplanationServiceOptions.SectionPath));
+        services.Configure<RunExplanationAggregateOptions>(
+            configuration.GetSection(RunExplanationAggregateOptions.SectionPath));
         services.Configure<LlmCostEstimationOptions>(
             configuration.GetSection(LlmCostEstimationOptions.SectionPath));
         services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();

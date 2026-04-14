@@ -158,3 +158,12 @@ export type DecisionProvenanceGraph = {
   nodes: ProvenanceNode[];
   edges: ProvenanceEdge[];
 };
+
+/** Audit timeline row for operator pipeline view (GET …/pipeline-timeline). */
+export type PipelineTimelineItem = {
+  eventId: string;
+  occurredUtc: string;
+  eventType: string;
+  actorUserName: string;
+  correlationId?: string | null;
+};

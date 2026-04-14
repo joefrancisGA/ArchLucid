@@ -50,10 +50,14 @@
   - `docs/security/SYSTEM_THREAT_MODEL.md`
 - **Agent output structural evaluation** – `AgentResult` JSON key completeness, `GET …/agent-evaluation`, optional metrics recorder  
   - `docs/AGENT_OUTPUT_EVALUATION.md`
+- **API key rotation (comma-separated overlap)** – `ApiKeys:*` cutover without single-step client flips  
+  - `docs/runbooks/API_KEY_ROTATION.md`
+- **RLS residual risk acceptance (template)** – governance note for uncovered tables / bypass  
+  - `docs/security/RLS_RISK_ACCEPTANCE.md`
 
 ### Operator shell (front end)
 
-- **Operator shell guide (55R)** – workflow, artifact review, graph vs compare/replay, focused UI tests, API expectations  
+- **Operator shell guide (55R)** – workflow, artifact review, graph vs compare/replay, run **pipeline timeline** (`AuthorityPipelineTimeline` on run detail), focused UI tests, API expectations  
   - `docs/operator-shell.md`
 - **Architecture** – context, containers, components, data flow, security model, operational concerns  
   - `archlucid-ui/docs/ARCHITECTURE.md`
@@ -119,6 +123,7 @@
 - **Advisory scan failures** – `docs/runbooks/ADVISORY_SCAN_FAILURES.md`
 - **Comparison replay rate limits** – `docs/runbooks/COMPARISON_REPLAY_RATE_LIMITS.md`
 - **Provenance / retrieval indexing** – `docs/runbooks/PROVENANCE_INDEXING.md`
+- **API key rotation** – `docs/runbooks/API_KEY_ROTATION.md`
 - **Terraform variable sketch (Azure)** – `docs/terraform-azure-variables.md`
 - **Infrastructure index (Terraform roots)** – `infra/README.md`
 - **Customer trust and access (edge, private data plane, Entra)** – `docs/CUSTOMER_TRUST_AND_ACCESS.md`

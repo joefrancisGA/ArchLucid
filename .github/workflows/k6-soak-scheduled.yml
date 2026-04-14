@@ -1,0 +1,46 @@
+# Scheduled / manual k6 soak against a deployed API base URL (read-only mix).
+# Configure repository secret ARCHLUCID_SOAK_BASE_URL (e.g. https://api.staging.example) for the schedule to run meaningful traffic.
+name: "Performance: k6 soak (scheduled)"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * 0"
+
+concurrency:
+  group: k6-soak-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  k6-soak:
+    name: k6 soak (external base URL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run k6 soak
+        env:
+          BASE_URL: ${{ secrets.ARCHLUCID_SOAK_BASE_URL }}
+        run: |
+          if [ -z "${BASE_URL}" ]; then
+            echo "ARCHLUCID_SOAK_BASE_URL is not set — skipping soak (configure the secret for weekly runs)."
+            exit 0
+          fi
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}/tests/load:/scripts:ro" \
+            -v "${RUNNER_TEMP}:/out" \
+            -e BASE_URL \
+            -e SOAK_VUS=3 \
+            -e SOAK_DURATION=4m \
+            grafana/k6:latest run /scripts/soak.js --summary-export /out/k6-soak-summary.json
+
+      - name: Upload k6 soak summary
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: k6-soak-summary
+          path: ${{ runner.temp }}/k6-soak-summary.json
+          if-no-files-found: ignore

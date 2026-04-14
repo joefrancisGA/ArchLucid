@@ -16,6 +16,7 @@ import type {
   ArtifactDescriptor,
   DecisionProvenanceGraph,
   ManifestSummary,
+  PipelineTimelineItem,
   ReplayResponse,
   RunComparison,
   RunDetail,
@@ -321,6 +322,11 @@ export async function getRunDetail(runId: string): Promise<ApiResponseWithTrace<
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */
 export async function getRunProvenance(runId: string): Promise<DecisionProvenanceGraph> {
   return apiGet<DecisionProvenanceGraph>(`/v1/authority/runs/${runId}/provenance`);
+}
+
+/** Run-scoped audit events oldest-first (pipeline / lifecycle timeline for operators). */
+export async function getRunPipelineTimeline(runId: string): Promise<PipelineTimelineItem[]> {
+  return apiGet<PipelineTimelineItem[]>(`/v1/authority/runs/${runId}/pipeline-timeline`);
 }
 
 /** Fetches golden manifest summary (decision count, warnings, status, etc.). */

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
@@ -9,15 +10,18 @@ using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Explanation;
 
 /// <inheritdoc cref="IRunExplanationSummaryService"/>
 public sealed class RunExplanationSummaryService(
     IExplanationService explanationService,
+    IDeterministicExplanationService deterministicExplanation,
     IAuthorityQueryService authorityQuery,
     IProvenanceSnapshotRepository provenanceSnapshotRepository,
     IExplanationFaithfulnessChecker explanationFaithfulnessChecker,
+    IOptions<RunExplanationAggregateOptions> aggregateOptions,
     ILogger<RunExplanationSummaryService> logger) : IRunExplanationSummaryService
 {
     /// <inheritdoc />
@@ -39,6 +43,36 @@ public sealed class RunExplanationSummaryService(
             if (faithReport.ClaimsChecked > 0)
             {
                 ArchLucidInstrumentation.RecordExplanationFaithfulnessRatio(faithReport.SupportRatio);
+            }
+
+            RunExplanationAggregateOptions aggOpts = aggregateOptions.Value;
+
+            if (aggOpts.FaithfulnessFallbackEnabled
+                && faithReport.ClaimsChecked > 0
+                && faithReport.SupportRatio < aggOpts.MinSupportRatioToTrustLlmNarrative)
+            {
+                List<string> keyDrivers = deterministicExplanation.ExtractRunKeyDrivers(manifest, graph);
+                List<string> risks = deterministicExplanation.ExtractRiskImplications(manifest);
+                List<string> costs = deterministicExplanation.ExtractCostImplications(manifest);
+                List<string> compliance = deterministicExplanation.ExtractComplianceImplications(manifest);
+
+                explanation = deterministicExplanation.BuildRunExplanationFromLlmPayload(
+                    manifest,
+                    keyDrivers,
+                    risks,
+                    costs,
+                    compliance,
+                    rawStored: string.Empty);
+
+                explanation.Provenance = null;
+                explanation.Confidence = null;
+                ArchLucidInstrumentation.ExplanationAggregateFaithfulnessFallbacksTotal.Add(1);
+
+                logger.LogInformation(
+                    "Aggregate explanation for run {RunId} used deterministic narrative (faithfulness support ratio {Ratio:F2} below threshold {Threshold:F2}).",
+                    runId,
+                    faithReport.SupportRatio,
+                    aggOpts.MinSupportRatioToTrustLlmNarrative);
             }
         }
 

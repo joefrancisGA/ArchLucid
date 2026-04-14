@@ -27,6 +27,7 @@ Simmy chaos tests run in the **`chaos-tests`** job are **CI-blocking**: a failin
 2. **SQL + blob (Polly Simmy)**: `ArchLucid.Persistence.Tests` — `SqlOpenResilienceSimmyTests` composes `SqlOpenResilienceDefaults` with Simmy `ChaosFault` (transient `SqlException`); `BlobStoreSimmyChaosTests` retries `IOException` on a synthetic `IArtifactBlobStore` write path. Test projects reference **`Polly.Extensions`** so Simmy builder extensions resolve (Simmy types live in `Polly.Core`; extensions are surfaced via that package).
 3. **LLM latency (Simmy)**: `ArchLucid.AgentRuntime.Tests.SimmyChaosPipelineTests` — `ChaosLatency` under a short Polly **timeout** (fails fast), plus SQL-style retry + fault composition (mirrors completion client protection patterns).
 4. **Agent execution bulkhead + timeout**: `ArchLucid.AgentRuntime.Tests.AgentExecutionResilienceTests` — process-wide `IAgentHandlerConcurrencyGate` (semaphore) and per-handler `ResiliencePipeline` timeout on `RealAgentExecutor` (configured under `AgentExecution:Resilience`).
+5. **Combined transient shapes (SQL + HTTP)**: `ArchLucid.AgentRuntime.Tests.CombinedFailureChaosTests` — one outer retry pipeline tolerates **alternating** transient `SqlException` and HTTP **429** faults (mixed-dependency incident shape).
 
 **Operational chaos** (staging)
 

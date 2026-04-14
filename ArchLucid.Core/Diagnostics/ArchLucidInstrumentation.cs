@@ -286,6 +286,22 @@ public static class ArchLucidInstrumentation
             "archlucid_agent_output_semantic_score",
             description: "Agent output semantic quality score (0-1).");
 
+    /// <summary>
+    /// Quality gate outcomes after structural + semantic evaluation (labels: <c>agent_type</c>, <c>outcome</c>=accepted|warned|rejected).
+    /// </summary>
+    public static readonly Counter<long> AgentOutputQualityGateTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_output_quality_gate_total",
+            description: "Agent output quality gate outcomes (labels: agent_type, outcome=accepted|warned|rejected).");
+
+    /// <summary>
+    /// Aggregate explanation replaced LLM text with deterministic manifest narrative due to low explanation faithfulness.
+    /// </summary>
+    public static readonly Counter<long> ExplanationAggregateFaithfulnessFallbacksTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_explanation_aggregate_faithfulness_fallback_total",
+            description: "Aggregate run explanation used deterministic narrative after low faithfulness vs findings.");
+
     /// <summary>Azure OpenAI chat completion prompt (input) tokens.</summary>
     public static readonly Counter<long> LlmPromptTokensTotal =
         AppMeter.CreateCounter<long>(

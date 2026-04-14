@@ -359,13 +359,13 @@ export async function postGovernanceRejectRaw(
   });
 }
 
-/** GET `/v1/audit/search` — filtered audit events (`runId` and/or `correlationId` query params). */
+/** GET `/v1/audit/search` — filtered audit events (optional `runId`, `correlationId`, `eventType`). */
 export async function searchAudit(
   request: APIRequestContext,
-  params: { runId?: string; correlationId?: string; take?: string },
+  params: { runId?: string; correlationId?: string; eventType?: string; take?: string },
 ): Promise<AuditEventJson[]> {
-  if (!params.runId && !params.correlationId) {
-    throw new Error("searchAudit: provide runId and/or correlationId");
+  if (!params.runId && !params.correlationId && !params.eventType) {
+    throw new Error("searchAudit: provide runId, correlationId, and/or eventType");
   }
 
   const query: Record<string, string> = { take: params.take ?? "100" };
@@ -378,12 +378,31 @@ export async function searchAudit(
     query.correlationId = params.correlationId;
   }
 
+  if (params.eventType) {
+    query.eventType = params.eventType;
+  }
+
   const res = await request.get(`${liveApiBase}/v1/audit/search`, {
     params: query,
     headers: { Accept: "application/json" },
   });
 
   await throwIfNotOk(res, "GET /v1/audit/search");
+
+  return res.json() as Promise<AuditEventJson[]>;
+}
+
+/** GET `/v1/audit` — recent audit events for scope (newest first). */
+export async function listRecentAudit(
+  request: APIRequestContext,
+  take = 200,
+): Promise<AuditEventJson[]> {
+  const res = await request.get(`${liveApiBase}/v1/audit`, {
+    params: { take: String(Math.min(500, Math.max(1, take))) },
+    headers: { Accept: "application/json" },
+  });
+
+  await throwIfNotOk(res, "GET /v1/audit");
 
   return res.json() as Promise<AuditEventJson[]>;
 }
@@ -397,5 +416,110 @@ export type AuditEventJson = {
 export async function getRunExportZip(request: APIRequestContext, runId: string): Promise<APIResponse> {
   return request.get(`${liveApiBase}/v1/artifacts/runs/${runId}/export`, {
     headers: { Accept: "application/zip, application/octet-stream, */*" },
+  });
+}
+
+/** Minimal policy pack content JSON (matches `PolicyPackContentDocument` shape used in API tests). */
+export function minimalPolicyPackContentJson(complianceKey: string): string {
+  return JSON.stringify({
+    complianceRuleIds: [],
+    complianceRuleKeys: [complianceKey],
+    alertRuleIds: [],
+    compositeAlertRuleIds: [],
+    advisoryDefaults: {},
+    metadata: { liveE2e: "true" },
+  });
+}
+
+/** POST `/v1/policy-packs` — create pack + initial draft version `1.0.0`. */
+export async function createPolicyPack(
+  request: APIRequestContext,
+  body: {
+    name: string;
+    description?: string;
+    packType: string;
+    initialContentJson: string;
+  },
+): Promise<{ policyPackId: string }> {
+  const res = await request.post(`${liveApiBase}/v1/policy-packs`, {
+    data: {
+      name: body.name,
+      description: body.description ?? "",
+      packType: body.packType,
+      initialContentJson: body.initialContentJson,
+    },
+    headers: jsonHeaders,
+  });
+
+  await throwIfNotOk(res, "POST /v1/policy-packs");
+
+  const created = (await res.json()) as { policyPackId?: string };
+  const policyPackId = created.policyPackId;
+
+  if (!policyPackId) {
+    throw new Error("Create policy pack response missing policyPackId");
+  }
+
+  return { policyPackId };
+}
+
+/** POST `/v1/policy-packs/{id}/publish` — publish or upsert version. */
+export async function publishPolicyPackVersion(
+  request: APIRequestContext,
+  policyPackId: string,
+  body: { version: string; contentJson: string },
+): Promise<unknown> {
+  const res = await request.post(`${liveApiBase}/v1/policy-packs/${policyPackId}/publish`, {
+    data: { version: body.version, contentJson: body.contentJson },
+    headers: jsonHeaders,
+  });
+
+  await throwIfNotOk(res, "POST /v1/policy-packs/.../publish");
+
+  return res.json();
+}
+
+/** POST `/v1/policy-packs/{id}/assign` — assign published version to scope tier. */
+export async function assignPolicyPack(
+  request: APIRequestContext,
+  policyPackId: string,
+  body: { version: string; scopeLevel?: string; isPinned?: boolean },
+): Promise<unknown> {
+  const res = await request.post(`${liveApiBase}/v1/policy-packs/${policyPackId}/assign`, {
+    data: {
+      version: body.version,
+      scopeLevel: body.scopeLevel ?? "Project",
+      isPinned: body.isPinned ?? false,
+    },
+    headers: jsonHeaders,
+  });
+
+  await throwIfNotOk(res, "POST /v1/policy-packs/.../assign");
+
+  return res.json();
+}
+
+/** GET `/v1/policy-packs/effective` — resolved packs for current scope. */
+export async function getEffectivePolicyPacks(request: APIRequestContext): Promise<{
+  packs?: { policyPackId?: string; version?: string }[];
+}> {
+  const res = await request.get(`${liveApiBase}/v1/policy-packs/effective`, {
+    headers: { Accept: "application/json" },
+  });
+
+  await throwIfNotOk(res, "GET /v1/policy-packs/effective");
+
+  return res.json() as Promise<{ packs?: { policyPackId?: string; version?: string }[] }>;
+}
+
+/** GET `/v1/authority/compare/runs` — compare two authority runs by id (Guid string, with or without dashes). */
+export async function compareAuthorityRuns(
+  request: APIRequestContext,
+  leftRunId: string,
+  rightRunId: string,
+): Promise<APIResponse> {
+  return request.get(`${liveApiBase}/v1/authority/compare/runs`, {
+    params: { leftRunId, rightRunId },
+    headers: { Accept: "application/json" },
   });
 }

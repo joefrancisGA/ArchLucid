@@ -39,7 +39,7 @@ flowchart LR
 | Asset | Typical location | Consumer | Notes |
 |-------|------------------|----------|--------|
 | SQL login / AAD auth | Key Vault reference or App Service setting | API (`ConnectionStrings:ArchLucid`) | Prefer Entra ID auth to SQL where supported; avoid plaintext in repo. |
-| API keys (`ApiKeys:*`) | App settings / Key Vault | API | Rotating a key strands clients still sending the old value; publish a cutover date. |
+| API keys (`ApiKeys:*`) | App settings / Key Vault | API | Rotating a key strands clients still sending the old value; publish a cutover date. **Dual-key overlap:** [API_KEY_ROTATION.md](API_KEY_ROTATION.md). |
 | JWT authority / audience | `ArchLucidAuth:*` | API | Wrong metadata URL causes 401 for all JWT clients until fixed. |
 | Webhook HMAC | `WebhookDelivery:HmacSha256SharedSecret` | API outbound webhooks | Update digest subscribers before or in sync with API change. |
 | TLS certificate (custom domain) | App Service managed cert or Key Vault | App Service / front door | Plan renewal before expiry; monitor expiry in your WAF or Key Vault. |
