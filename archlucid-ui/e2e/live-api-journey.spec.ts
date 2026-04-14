@@ -98,9 +98,19 @@ test.describe("live-api-journey", () => {
 
     await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 60_000 });
 
-    const manifestLink = page.getByRole("link", { name: goldenManifestId });
+    // Error/malformed run detail still renders the same h2; require loaded run metadata before the manifest link.
+    await expect(page.locator("main").getByText(runId, { exact: true }).first()).toBeVisible({
+      timeout: 60_000,
+    });
 
-    await expect(manifestLink).toBeVisible({ timeout: 60_000 });
+    // Prefer href: accessible name for the GUID link can differ by a11y tree / Next Link behavior in Chromium CI.
+    const manifestHref = `/manifests/${goldenManifestId}`;
+    const manifestLink = page.locator(`a[href="${manifestHref}"]`);
+
+    await expect(
+      manifestLink,
+      `Golden manifest link missing (expected href ${manifestHref}). Server run detail may lack goldenManifestId or UI/API mismatch.`,
+    ).toBeVisible({ timeout: 60_000 });
 
     await manifestLink.click();
 
