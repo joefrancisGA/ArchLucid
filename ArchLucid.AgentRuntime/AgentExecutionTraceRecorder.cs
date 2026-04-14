@@ -79,6 +79,7 @@ public sealed class AgentExecutionTraceRecorder(
         int? outputTokenCount = null,
         string? modelDeploymentName = null,
         string? modelVersion = null,
+        bool isSimulatorExecution = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -126,6 +127,11 @@ public sealed class AgentExecutionTraceRecorder(
         };
 
         await _repository.CreateAsync(trace, cancellationToken);
+
+        if (isSimulatorExecution)
+        {
+            return;
+        }
 
         await PersistFullPromptsAsync(
             trace.TraceId,
@@ -238,6 +244,7 @@ public sealed class AgentExecutionTraceRecorder(
                 systemPrompt,
                 userPrompt,
                 rawResponse,
+                agentType,
                 CancellationToken.None);
 
             ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
@@ -267,6 +274,7 @@ public sealed class AgentExecutionTraceRecorder(
                 systemPrompt,
                 userPrompt,
                 rawResponse,
+                agentType,
                 CancellationToken.None);
         }
         else
@@ -285,6 +293,7 @@ public sealed class AgentExecutionTraceRecorder(
         string systemPrompt,
         string userPrompt,
         string rawResponse,
+        AgentType agentType,
         CancellationToken cancellationToken)
     {
         string? systemInline = systemKey is null ? systemPrompt : null;
@@ -292,6 +301,21 @@ public sealed class AgentExecutionTraceRecorder(
         string? userInline = userKey is null ? userPrompt : null;
 
         string? responseInline = responseKey is null ? rawResponse : null;
+
+        if (systemInline is not null)
+        {
+            RecordPromptInlineFallback(agentType, "system_prompt");
+        }
+
+        if (userInline is not null)
+        {
+            RecordPromptInlineFallback(agentType, "user_prompt");
+        }
+
+        if (responseInline is not null)
+        {
+            RecordPromptInlineFallback(agentType, "response");
+        }
 
         if (systemInline is null && userInline is null && responseInline is null)
         {
@@ -304,6 +328,17 @@ public sealed class AgentExecutionTraceRecorder(
             userInline,
             responseInline,
             cancellationToken);
+    }
+
+    private static void RecordPromptInlineFallback(AgentType agentType, string blobType)
+    {
+        TagList tags = new()
+        {
+            { "agent_type", agentType.ToString() },
+            { "blob_type", blobType },
+        };
+
+        ArchLucidInstrumentation.AgentTracePromptInlineFallbacksTotal.Add(1, tags);
     }
 
     private async Task TryLogBlobPersistenceAuditAsync(
@@ -364,7 +399,7 @@ public sealed class AgentExecutionTraceRecorder(
         CancellationToken cancellationToken)
     {
         const int maxAttempts = 3;
-        const int retryDelayMs = 500;
+        const int baseRetryDelayMs = 200;
 
         string agentLabel = agentType.ToString();
 
@@ -388,7 +423,9 @@ public sealed class AgentExecutionTraceRecorder(
 
                 if (attempt < maxAttempts)
                 {
-                    await Task.Delay(retryDelayMs, cancellationToken);
+                    int delayMs = Math.Min(10_000, baseRetryDelayMs * (1 << (attempt - 1)));
+
+                    await Task.Delay(delayMs, cancellationToken);
                 }
             }
         }

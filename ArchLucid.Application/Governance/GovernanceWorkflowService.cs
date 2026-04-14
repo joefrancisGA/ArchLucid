@@ -152,13 +152,42 @@ public sealed class GovernanceWorkflowService(
                 $"Approval request '{approvalRequestId}' cannot be approved from status '{request.Status}'. " +
                 "Approve is only valid from Draft or Submitted.");
 
+        DateTime reviewedUtc = DateTime.UtcNow;
+
+        bool transitioned = await approvalRepo.TryTransitionFromReviewableAsync(
+            approvalRequestId,
+            GovernanceApprovalStatus.Approved,
+            reviewedBy,
+            reviewComment,
+            reviewedUtc,
+            cancellationToken);
+
+        if (!transitioned)
+        {
+            GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
+
+            if (fresh is null)
+            {
+                throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+            }
+
+            if (string.Equals(fresh.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
+            {
+                throw new GovernanceApprovalReviewConflictException(
+                    approvalRequestId,
+                    attemptedOutcome: "approve",
+                    currentStatus: fresh.Status);
+            }
+
+            throw new InvalidOperationException(
+                $"Approval request '{approvalRequestId}' cannot be approved from status '{fresh.Status}'. " +
+                "Approve is only valid from Draft or Submitted.");
+        }
 
         request.Status = GovernanceApprovalStatus.Approved;
         request.ReviewedBy = reviewedBy;
         request.ReviewComment = reviewComment;
-        request.ReviewedUtc = DateTime.UtcNow;
-
-        await approvalRepo.UpdateAsync(request, cancellationToken);
+        request.ReviewedUtc = reviewedUtc;
 
         await baselineMutationAudit
             .RecordAsync(
@@ -219,13 +248,42 @@ public sealed class GovernanceWorkflowService(
                 $"Approval request '{approvalRequestId}' cannot be rejected from status '{request.Status}'. " +
                 "Reject is only valid from Draft or Submitted.");
 
+        DateTime reviewedUtc = DateTime.UtcNow;
+
+        bool transitioned = await approvalRepo.TryTransitionFromReviewableAsync(
+            approvalRequestId,
+            GovernanceApprovalStatus.Rejected,
+            reviewedBy,
+            reviewComment,
+            reviewedUtc,
+            cancellationToken);
+
+        if (!transitioned)
+        {
+            GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
+
+            if (fresh is null)
+            {
+                throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+            }
+
+            if (string.Equals(fresh.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
+            {
+                throw new GovernanceApprovalReviewConflictException(
+                    approvalRequestId,
+                    attemptedOutcome: "reject",
+                    currentStatus: fresh.Status);
+            }
+
+            throw new InvalidOperationException(
+                $"Approval request '{approvalRequestId}' cannot be rejected from status '{fresh.Status}'. " +
+                "Reject is only valid from Draft or Submitted.");
+        }
 
         request.Status = GovernanceApprovalStatus.Rejected;
         request.ReviewedBy = reviewedBy;
         request.ReviewComment = reviewComment;
-        request.ReviewedUtc = DateTime.UtcNow;
-
-        await approvalRepo.UpdateAsync(request, cancellationToken);
+        request.ReviewedUtc = reviewedUtc;
 
         await baselineMutationAudit
             .RecordAsync(

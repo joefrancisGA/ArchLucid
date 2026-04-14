@@ -25,6 +25,10 @@ public interface IAgentExecutionTraceRecorder
     /// <param name="outputTokenCount">Provider-reported completion tokens, when known.</param>
     /// <param name="modelDeploymentName">Provider deployment name when known (stored on the trace row).</param>
     /// <param name="modelVersion">Provider model version string when known.</param>
+    /// <param name="isSimulatorExecution">
+    /// When <see langword="true"/> (simulator / deterministic executor), full-text blob + SQL inline persistence is skipped;
+    /// truncated columns on the trace row remain the forensic surface. Real LLM handlers pass <see langword="false"/> (default).
+    /// </param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that completes when the trace is stored.</returns>
     Task RecordAsync(
@@ -42,5 +46,6 @@ public interface IAgentExecutionTraceRecorder
         int? outputTokenCount = null,
         string? modelDeploymentName = null,
         string? modelVersion = null,
+        bool isSimulatorExecution = false,
         CancellationToken cancellationToken = default);
 }

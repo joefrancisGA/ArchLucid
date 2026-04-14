@@ -36,6 +36,44 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
     }
 
     /// <inheritdoc />
+    public Task<bool> TryTransitionFromReviewableAsync(
+        string approvalRequestId,
+        string newStatus,
+        string reviewedBy,
+        string? reviewComment,
+        DateTime reviewedUtc,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(newStatus);
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            if (!_byId.TryGetValue(approvalRequestId, out GovernanceApprovalRequest? row))
+            {
+                return Task.FromResult(false);
+            }
+
+            bool reviewable = string.Equals(row.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
+                              || string.Equals(row.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal);
+
+            if (!reviewable)
+            {
+                return Task.FromResult(false);
+            }
+
+            row.Status = newStatus;
+            row.ReviewedBy = reviewedBy;
+            row.ReviewComment = reviewComment;
+            row.ReviewedUtc = reviewedUtc;
+        }
+
+        return Task.FromResult(true);
+    }
+
+    /// <inheritdoc />
     public Task UpdateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);

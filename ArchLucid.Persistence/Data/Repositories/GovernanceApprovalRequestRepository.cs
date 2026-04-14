@@ -77,6 +77,50 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             cancellationToken: cancellationToken));
     }
 
+    /// <inheritdoc />
+    public async Task<bool> TryTransitionFromReviewableAsync(
+        string approvalRequestId,
+        string newStatus,
+        string reviewedBy,
+        string? reviewComment,
+        DateTime reviewedUtc,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(newStatus);
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
+
+        const string sql = """
+            UPDATE GovernanceApprovalRequests
+            SET
+                Status = @NewStatus,
+                ReviewedBy = @ReviewedBy,
+                ReviewComment = @ReviewComment,
+                ReviewedUtc = @ReviewedUtc
+            WHERE ApprovalRequestId = @ApprovalRequestId
+              AND Status IN (@Draft, @Submitted);
+            """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        int affected = await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    ApprovalRequestId = approvalRequestId,
+                    NewStatus = newStatus,
+                    ReviewedBy = reviewedBy,
+                    ReviewComment = reviewComment,
+                    ReviewedUtc = reviewedUtc,
+                    Draft = GovernanceApprovalStatus.Draft,
+                    Submitted = GovernanceApprovalStatus.Submitted,
+                },
+                cancellationToken: cancellationToken));
+
+        return affected == 1;
+    }
+
     public async Task UpdateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(item);

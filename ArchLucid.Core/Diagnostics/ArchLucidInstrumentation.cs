@@ -287,6 +287,14 @@ public static class ArchLucidInstrumentation
             unit: "ms",
             description: "Duration in milliseconds for full prompt/response blob writes per trace.");
 
+    /// <summary>
+    /// Real-mode SQL inline fallback for full prompt/response when blob key is missing (labels: <c>agent_type</c>, <c>blob_type</c>=system_prompt|user_prompt|response).
+    /// </summary>
+    public static readonly Counter<long> AgentTracePromptInlineFallbacksTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_trace_prompt_inline_fallback_total",
+            description: "Full-text agent trace fields stored inline after blob miss (Real execution only).");
+
     /// <summary>Agent output semantic quality score distribution (0-1; label <c>agent_type</c>).</summary>
     public static readonly Histogram<double> AgentOutputSemanticScore =
         AppMeter.CreateHistogram<double>(

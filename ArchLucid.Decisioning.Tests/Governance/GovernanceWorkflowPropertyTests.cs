@@ -84,18 +84,26 @@ public sealed class GovernanceWorkflowPropertyTests
 
         approvalRepo.Setup(r => r.GetByIdAsync("ar1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
 
-        GovernanceApprovalRequest? updated = null;
+        string? transitionedTo = null;
         approvalRepo
-            .Setup(r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
-            .Callback<GovernanceApprovalRequest, CancellationToken>((r, _) => updated = r)
-            .Returns(Task.CompletedTask);
+            .Setup(
+                r => r.TryTransitionFromReviewableAsync(
+                    "ar1",
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+            .Callback(
+                (string id, string newStatus, string rb, string? rc, DateTime ru, CancellationToken ct) =>
+                    transitionedTo = newStatus)
+            .ReturnsAsync(true);
 
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateWithApprovalRepo(approvalRepo);
 
         sut.ApproveAsync("ar1", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
 
-        updated.Should().NotBeNull();
-        updated!.Status.Should().Be(GovernanceApprovalStatus.Approved);
+        transitionedTo.Should().Be(GovernanceApprovalStatus.Approved);
     }
 
     [Property(Arbitrary = [typeof(GovernanceWorkflowArbitraries)], MaxTest = 30)]
@@ -111,18 +119,26 @@ public sealed class GovernanceWorkflowPropertyTests
 
         approvalRepo.Setup(r => r.GetByIdAsync("ar1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
 
-        GovernanceApprovalRequest? updated = null;
+        string? transitionedTo = null;
         approvalRepo
-            .Setup(r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
-            .Callback<GovernanceApprovalRequest, CancellationToken>((r, _) => updated = r)
-            .Returns(Task.CompletedTask);
+            .Setup(
+                r => r.TryTransitionFromReviewableAsync(
+                    "ar1",
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+            .Callback(
+                (string id, string newStatus, string rb, string? rc, DateTime ru, CancellationToken ct) =>
+                    transitionedTo = newStatus)
+            .ReturnsAsync(true);
 
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateWithApprovalRepo(approvalRepo);
 
         sut.RejectAsync("ar1", "reviewer", null, CancellationToken.None).GetAwaiter().GetResult();
 
-        updated.Should().NotBeNull();
-        updated!.Status.Should().Be(GovernanceApprovalStatus.Rejected);
+        transitionedTo.Should().Be(GovernanceApprovalStatus.Rejected);
     }
 
     [Property(Arbitrary = [typeof(GovernanceWorkflowArbitraries)], MaxTest = 25)]
@@ -234,8 +250,15 @@ internal static class GovernanceWorkflowTestFactory
 
         approvalRepo.Setup(r => r.GetByIdAsync("ar1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
         approvalRepo
-            .Setup(r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .Setup(
+                r => r.TryTransitionFromReviewableAsync(
+                    "ar1",
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>(),
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         return CreateWithApprovalRepo(approvalRepo);
     }

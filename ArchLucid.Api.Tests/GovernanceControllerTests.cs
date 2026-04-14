@@ -363,8 +363,9 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         HttpResponseMessage[] responses = await Task.WhenAll(tasks);
         int okCount = responses.Count(r => r.StatusCode == HttpStatusCode.OK);
         int badCount = responses.Count(r => r.StatusCode == HttpStatusCode.BadRequest);
+        int conflictCount = responses.Count(r => r.StatusCode == HttpStatusCode.Conflict);
         okCount.Should().BeGreaterThanOrEqualTo(1);
-        (okCount + badCount).Should().Be(5);
+        (okCount + badCount + conflictCount).Should().Be(5);
     }
 }
 

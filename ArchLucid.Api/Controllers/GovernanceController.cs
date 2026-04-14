@@ -99,6 +99,7 @@ public sealed class GovernanceController(
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Approve(
         [FromRoute] string approvalRequestId,
         [FromBody] ApproveGovernanceRequest? request,
@@ -129,6 +130,14 @@ public sealed class GovernanceController(
                 approvalRequestId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.GovernanceSelfApproval);
         }
+        catch (GovernanceApprovalReviewConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "Approve conflict: approval request '{ApprovalRequestId}' already finalized by a concurrent request.",
+                approvalRequestId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
         catch (InvalidOperationException ex)
         {
             logger.LogWarningWithSanitizedUserArg(
@@ -143,6 +152,7 @@ public sealed class GovernanceController(
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Reject(
         [FromRoute] string approvalRequestId,
         [FromBody] RejectGovernanceRequest? request,
@@ -172,6 +182,14 @@ public sealed class GovernanceController(
                 "Reject blocked: segregation of duties for approval request '{ApprovalRequestId}'.",
                 approvalRequestId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.GovernanceSelfApproval);
+        }
+        catch (GovernanceApprovalReviewConflictException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(
+                ex,
+                "Reject conflict: approval request '{ApprovalRequestId}' already finalized by a concurrent request.",
+                approvalRequestId);
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

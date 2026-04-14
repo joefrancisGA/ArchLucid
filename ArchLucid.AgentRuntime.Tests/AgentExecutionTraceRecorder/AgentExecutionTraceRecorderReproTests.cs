@@ -168,6 +168,36 @@ public sealed class AgentExecutionTraceRecorderReproTests
     }
 
     [Fact]
+    public async Task RecordAsync_when_simulator_execution_skips_blob_writes()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "full-system",
+            "full-user",
+            "full-response",
+            "{}",
+            parseSucceeded: true,
+            errorMessage: null,
+            isSimulatorExecution: true);
+
+        blobMock.Verify(
+            b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.FullSystemPromptBlobKey.Should().BeNull();
+        t.FullUserPromptBlobKey.Should().BeNull();
+        t.FullResponseBlobKey.Should().BeNull();
+    }
+
+    [Fact]
     public async Task RecordAsync_when_blob_writes_fail_persists_inline_text_for_missing_blobs()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
@@ -324,6 +354,43 @@ public sealed class AgentExecutionTraceRecorderReproTests
         blobTypes.Should().BeEquivalentTo(["system_prompt", "user_prompt", "response"]);
     }
 
+    [Fact]
+    public async Task RecordAsync_when_all_blobs_fail_increments_prompt_inline_fallback_total_per_blob_type()
+    {
+        _ = ArchLucidInstrumentation.AgentTracePromptInlineFallbacksTotal;
+
+        InMemoryAgentExecutionTraceRepository repo = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new IOException("always fail"));
+
+        using PromptInlineFallbackMeasurementCapture capture = PromptInlineFallbackMeasurementCapture.Start();
+
+        AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "s",
+            "u",
+            "r",
+            "{}",
+            parseSucceeded: true,
+            errorMessage: null);
+
+        IReadOnlyList<LongMeasurementRecord> inline = capture.MeasurementsFor("archlucid_agent_trace_prompt_inline_fallback_total");
+        inline.Should().HaveCount(3);
+        inline.Sum(m => m.Value).Should().Be(3);
+
+        HashSet<string> blobTypes = inline
+            .SelectMany(m => m.Tags.Where(t => t.Key == "blob_type").Select(t => (string)t.Value!))
+            .ToHashSet(StringComparer.Ordinal);
+
+        blobTypes.Should().BeEquivalentTo(["system_prompt", "user_prompt", "response"]);
+    }
+
     private sealed class BlobUploadFailureMeasurementCapture : IDisposable
     {
         private readonly MeterListener _listener = new();
@@ -352,6 +419,57 @@ public sealed class AgentExecutionTraceRecorderReproTests
             }
 
             if (instrument.Name == "archlucid_agent_trace_blob_upload_failures_total")
+            {
+                meterListener.EnableMeasurementEvents(instrument);
+            }
+        }
+
+        private void OnMeasurementLong(
+            Instrument instrument,
+            long measurement,
+            ReadOnlySpan<KeyValuePair<string, object?>> tags,
+            object? state)
+        {
+            _ = state;
+            List<KeyValuePair<string, object?>> tagList = [];
+
+            foreach (KeyValuePair<string, object?> tag in tags)
+            {
+                tagList.Add(tag);
+            }
+
+            _longMeasures.Add(new LongMeasurementRecord(instrument.Name, measurement, tagList));
+        }
+    }
+
+    private sealed class PromptInlineFallbackMeasurementCapture : IDisposable
+    {
+        private readonly MeterListener _listener = new();
+
+        private readonly List<LongMeasurementRecord> _longMeasures = [];
+
+        private PromptInlineFallbackMeasurementCapture()
+        {
+            _listener.InstrumentPublished = OnInstrumentPublished;
+            _listener.SetMeasurementEventCallback<long>(OnMeasurementLong);
+            _listener.Start();
+        }
+
+        public static PromptInlineFallbackMeasurementCapture Start() => new();
+
+        public void Dispose() => _listener.Dispose();
+
+        public IReadOnlyList<LongMeasurementRecord> MeasurementsFor(string instrumentName) =>
+            _longMeasures.Where(m => m.Name == instrumentName).ToList();
+
+        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        {
+            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            {
+                return;
+            }
+
+            if (instrument.Name == "archlucid_agent_trace_prompt_inline_fallback_total")
             {
                 meterListener.EnableMeasurementEvents(instrument);
             }

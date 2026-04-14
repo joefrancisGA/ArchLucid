@@ -302,8 +302,16 @@ public sealed class GovernanceWorkflowServiceTests
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
-        _approvalRepo.Setup(r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        _approvalRepo
+            .Setup(
+                r => r.TryTransitionFromReviewableAsync(
+                    "apr-1",
+                    GovernanceApprovalStatus.Approved,
+                    "bob",
+                    "LGTM",
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         GovernanceApprovalRequest result = await _sut.ApproveAsync("apr-1", "bob", "LGTM");
 
@@ -312,9 +320,19 @@ public sealed class GovernanceWorkflowServiceTests
         result.ReviewComment.Should().Be("LGTM");
         result.ReviewedUtc.Should().NotBeNull();
 
-        _approvalRepo.Verify(r => r.UpdateAsync(
-            It.Is<GovernanceApprovalRequest>(x => x.Status == GovernanceApprovalStatus.Approved),
-            It.IsAny<CancellationToken>()), Times.Once);
+        _approvalRepo.Verify(
+            r => r.TryTransitionFromReviewableAsync(
+                "apr-1",
+                GovernanceApprovalStatus.Approved,
+                "bob",
+                "LGTM",
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _approvalRepo.Verify(
+            r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
 
         _baselineAudit.Verify(
             a => a.RecordAsync(
@@ -344,8 +362,16 @@ public sealed class GovernanceWorkflowServiceTests
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-draft", It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
-        _approvalRepo.Setup(r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        _approvalRepo
+            .Setup(
+                r => r.TryTransitionFromReviewableAsync(
+                    "apr-draft",
+                    GovernanceApprovalStatus.Approved,
+                    "bob",
+                    null,
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         GovernanceApprovalRequest result = await _sut.ApproveAsync("apr-draft", "bob", null);
 
@@ -427,7 +453,13 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
 
         _approvalRepo.Verify(
-            r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
+            r => r.TryTransitionFromReviewableAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         _baselineAudit.Verify(
@@ -464,7 +496,13 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
 
         _approvalRepo.Verify(
-            r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
+            r => r.TryTransitionFromReviewableAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         _baselineAudit.Verify(
@@ -473,6 +511,62 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Approve_WhenAlreadyApprovedByConcurrentRequest_ThrowsGovernanceApprovalReviewConflictException()
+    {
+        GovernanceApprovalRequest submittedView = new()
+        {
+            ApprovalRequestId = "apr-race",
+            RunId = "run-1",
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "alice",
+        };
+
+        GovernanceApprovalRequest approvedView = new()
+        {
+            ApprovalRequestId = "apr-race",
+            RunId = "run-1",
+            Status = GovernanceApprovalStatus.Approved,
+            RequestedBy = "alice",
+            ReviewedBy = "other",
+        };
+
+        _approvalRepo
+            .SetupSequence(r => r.GetByIdAsync("apr-race", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(submittedView)
+            .ReturnsAsync(approvedView);
+
+        _approvalRepo
+            .Setup(
+                r => r.TryTransitionFromReviewableAsync(
+                    "apr-race",
+                    GovernanceApprovalStatus.Approved,
+                    "bob",
+                    null,
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-race", "bob", null);
+
+        await act.Should().ThrowAsync<GovernanceApprovalReviewConflictException>();
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceApprovalApproved),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -491,8 +585,16 @@ public sealed class GovernanceWorkflowServiceTests
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(existing);
-        _approvalRepo.Setup(r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        _approvalRepo
+            .Setup(
+                r => r.TryTransitionFromReviewableAsync(
+                    "apr-2",
+                    GovernanceApprovalStatus.Rejected,
+                    "carol",
+                    "Needs more detail",
+                    It.IsAny<DateTime>(),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         GovernanceApprovalRequest result = await _sut.RejectAsync("apr-2", "carol", "Needs more detail");
 
@@ -576,7 +678,13 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
 
         _approvalRepo.Verify(
-            r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
+            r => r.TryTransitionFromReviewableAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
 
         _baselineAudit.Verify(

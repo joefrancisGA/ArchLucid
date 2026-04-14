@@ -42,6 +42,7 @@ public sealed class SimulatorExecutionTraceRecordingExecutorTests
         spy.Calls.Should().OnlyContain(
             c => c.ModelDeploymentName == AgentExecutionTraceModelMetadata.SimulatorDeploymentName
                  && c.ModelVersion == AgentExecutionTraceModelMetadata.SimulatorModelVersion);
+        spy.Calls.Should().OnlyContain(c => c.IsSimulatorExecution);
     }
 
     private static AgentEvidencePackage CreateMinimalEvidence(string runId, ArchitectureRequest request)

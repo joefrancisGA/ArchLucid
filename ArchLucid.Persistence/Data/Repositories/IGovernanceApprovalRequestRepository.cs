@@ -15,6 +15,19 @@ public interface IGovernanceApprovalRequestRepository
     Task CreateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Atomically sets review fields when the row is still <see cref="GovernanceApprovalStatus.Draft"/> or
+    /// <see cref="GovernanceApprovalStatus.Submitted"/> (single-winner under concurrent approve/reject).
+    /// </summary>
+    /// <returns><see langword="true"/> when exactly one row was updated.</returns>
+    Task<bool> TryTransitionFromReviewableAsync(
+        string approvalRequestId,
+        string newStatus,
+        string reviewedBy,
+        string? reviewComment,
+        DateTime reviewedUtc,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Replaces the stored approval request with <paramref name="item"/>.
     /// Used to persist status transitions (e.g. Pending → Approved, Pending → Rejected).
     /// </summary>

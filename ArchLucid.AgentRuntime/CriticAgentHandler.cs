@@ -84,7 +84,7 @@ public sealed class CriticAgentHandler(
                 outTok,
                 modelDeploymentName: modelDeploy,
                 modelVersion: modelVer,
-                cancellationToken);
+                cancellationToken: cancellationToken);
 
             return parsed;
         }
@@ -120,7 +120,7 @@ public sealed class CriticAgentHandler(
                 outTok,
                 modelDeploymentName: modelDeploy,
                 modelVersion: modelVer,
-                cancellationToken);
+                cancellationToken: cancellationToken);
 
             throw;
         }

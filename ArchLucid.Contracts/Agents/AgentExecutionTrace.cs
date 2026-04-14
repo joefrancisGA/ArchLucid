@@ -91,7 +91,11 @@ public sealed class AgentExecutionTrace
     /// <summary>Blob store URI for the unsanitized raw model response when full-trace persistence is enabled.</summary>
     public string? FullResponseBlobKey { get; set; }
 
-    /// <summary>Azure OpenAI deployment name (or provider equivalent) used for the call, when known.</summary>
+    /// <summary>
+    /// Azure OpenAI deployment name (or provider equivalent) used for the call, when known.
+    /// Persisted rows use <see cref="AgentExecutionTraceModelMetadata"/> sentinels when the provider omits values;
+    /// see <c>UnspecifiedDeploymentName</c> (Real path) and <c>SimulatorDeploymentName</c> (simulator traces).
+    /// </summary>
     public string? ModelDeploymentName { get; set; }
 
     /// <summary>Provider-reported model version string, when available.</summary>

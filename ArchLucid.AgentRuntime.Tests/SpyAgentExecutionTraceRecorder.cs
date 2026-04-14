@@ -6,7 +6,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 /// <summary>Test double that records <see cref="IAgentExecutionTraceRecorder"/>.<c>RecordAsync</c> invocations.</summary>
 public sealed class SpyAgentExecutionTraceRecorder : IAgentExecutionTraceRecorder
 {
-    public List<(string RunId, string TaskId, AgentType AgentType, string? ModelDeploymentName, string? ModelVersion)>
+    public List<(string RunId, string TaskId, AgentType AgentType, string? ModelDeploymentName, string? ModelVersion, bool IsSimulatorExecution)>
         Calls { get; } = [];
 
     /// <inheritdoc />
@@ -25,9 +25,10 @@ public sealed class SpyAgentExecutionTraceRecorder : IAgentExecutionTraceRecorde
         int? outputTokenCount = null,
         string? modelDeploymentName = null,
         string? modelVersion = null,
+        bool isSimulatorExecution = false,
         CancellationToken cancellationToken = default)
     {
-        Calls.Add((runId, taskId, agentType, modelDeploymentName, modelVersion));
+        Calls.Add((runId, taskId, agentType, modelDeploymentName, modelVersion, isSimulatorExecution));
 
         return Task.CompletedTask;
     }

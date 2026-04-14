@@ -65,6 +65,46 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task TryTransitionFromReviewableAsync_second_approve_returns_false()
+    {
+        SkipIfSqlServerUnavailable();
+        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        string approvalId = "apr-try-" + Guid.NewGuid().ToString("N");
+        GovernanceApprovalRequest item = NewApproval(approvalId, runId, DateTime.UtcNow);
+
+        await repo.CreateAsync(item, CancellationToken.None);
+
+        DateTime reviewedUtc = new(2026, 4, 3, 12, 0, 0, DateTimeKind.Utc);
+
+        bool first = await repo.TryTransitionFromReviewableAsync(
+            approvalId,
+            GovernanceApprovalStatus.Approved,
+            "r1",
+            "ok",
+            reviewedUtc,
+            CancellationToken.None);
+
+        bool second = await repo.TryTransitionFromReviewableAsync(
+            approvalId,
+            GovernanceApprovalStatus.Approved,
+            "r2",
+            "dup",
+            reviewedUtc.AddMinutes(1),
+            CancellationToken.None);
+
+        first.Should().BeTrue();
+        second.Should().BeFalse();
+
+        GovernanceApprovalRequest? loaded = await repo.GetByIdAsync(approvalId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.Status.Should().Be(GovernanceApprovalStatus.Approved);
+        loaded.ReviewedBy.Should().Be("r1");
+        loaded.ReviewComment.Should().Be("ok");
+    }
+
+    [SkippableFact]
     public async Task GetByRunId_orders_descending_by_RequestedUtc()
     {
         SkipIfSqlServerUnavailable();
