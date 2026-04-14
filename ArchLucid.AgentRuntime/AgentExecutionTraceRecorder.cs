@@ -266,6 +266,10 @@ public sealed class AgentExecutionTraceRecorder(
                 rawResponse,
                 CancellationToken.None);
         }
+        else
+        {
+            await _repository.PatchBlobUploadFailedAsync(traceId, false, CancellationToken.None);
+        }
 
         ArchLucidInstrumentation.AgentTraceBlobPersistDurationMs.Record(sw.Elapsed.TotalMilliseconds, agentTags);
     }

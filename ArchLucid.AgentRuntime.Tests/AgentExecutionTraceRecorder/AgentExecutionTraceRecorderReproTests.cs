@@ -161,7 +161,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         t.FullSystemPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullUserPromptBlobKey.Should().NotBeNullOrEmpty();
         t.FullResponseBlobKey.Should().NotBeNullOrEmpty();
-        (t.BlobUploadFailed ?? false).Should().BeFalse();
+        t.BlobUploadFailed.Should().BeFalse();
     }
 
     [Fact]
