@@ -302,6 +302,12 @@ public static class ArchLucidInstrumentation
             "archlucid_explanation_aggregate_faithfulness_fallback_total",
             description: "Aggregate run explanation used deterministic narrative after low faithfulness vs findings.");
 
+    /// <summary>Rows detected by consistency probes referencing missing authority state (label <c>table</c>).</summary>
+    public static readonly Counter<long> DataConsistencyOrphansDetected =
+        AppMeter.CreateCounter<long>(
+            "archlucid_data_consistency_orphans_detected_total",
+            description: "Orphan or inconsistent coordinator rows detected (label table).");
+
     /// <summary>Azure OpenAI chat completion prompt (input) tokens.</summary>
     public static readonly Counter<long> LlmPromptTokensTotal =
         AppMeter.CreateCounter<long>(

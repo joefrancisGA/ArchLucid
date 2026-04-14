@@ -29,6 +29,7 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type {
   ComplianceDriftTrendPoint,
@@ -152,16 +153,20 @@ export default function GovernanceDashboardPage() {
         await approveRequest(reviewDialog.approvalRequestId, {
           reviewComment: "Approved from governance dashboard",
         });
+        showSuccess("Approval recorded.");
       } else {
         await rejectRequest(reviewDialog.approvalRequestId, {
           reviewComment: "Rejected from governance dashboard",
         });
+        showSuccess("Rejection recorded.");
       }
 
       setReviewDialog(null);
       await loadDashboard(false);
     } catch (e) {
-      setFailure(toApiLoadFailure(e));
+      const loadFailure = toApiLoadFailure(e);
+      showError("Governance action failed", loadFailure.message);
+      setFailure(loadFailure);
     } finally {
       setReviewBusy(false);
     }

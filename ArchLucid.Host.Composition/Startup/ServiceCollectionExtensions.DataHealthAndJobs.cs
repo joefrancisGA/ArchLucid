@@ -49,6 +49,10 @@ public static partial class ServiceCollectionExtensions
             .AddCheck<ComplianceRulePackHealthCheck>("compliance_rule_pack", tags: [ReadinessTags.Ready])
             .AddCheck<ProcessTempDirectoryHealthCheck>("temp_directory", tags: [ReadinessTags.Ready])
             .AddCheck<BlobStorageHealthCheck>("blob_storage", tags: [ReadinessTags.Ready])
+            .AddCheck<RunGoldenManifestConsistencyHealthCheck>(
+                "run_golden_manifest_consistency",
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
             .AddCheck<CircuitBreakerHealthCheck>(
                 "circuit_breakers",
                 failureStatus: HealthStatus.Degraded,

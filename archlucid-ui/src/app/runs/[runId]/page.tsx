@@ -14,6 +14,7 @@ import {
 } from "@/lib/operator-response-guards";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
@@ -317,8 +318,7 @@ export default async function RunDetailPage({
       )}
 
       {manifestId && (
-        <section style={{ marginBottom: 24 }} aria-labelledby="run-explanation-section-title">
-          <h3 id="run-explanation-section-title">Explanation</h3>
+        <CollapsibleSection title="Explanation (aggregate)" defaultOpen={false}>
           {explanationFailure && (
             <>
               <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
@@ -338,13 +338,11 @@ export default async function RunDetailPage({
           {!explanationFailure && (
             <RunExplanationSection summary={explanationSummary} loading={false} error={null} />
           )}
-        </section>
+        </CollapsibleSection>
       )}
 
       {manifestId && (
-        <section style={{ marginBottom: 24 }}>
-          <h3>Artifacts</h3>
-
+        <CollapsibleSection title="Artifacts & exports" defaultOpen>
           {artifactsFailure && (
             <>
               <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
@@ -392,7 +390,7 @@ export default async function RunDetailPage({
             <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
             <a href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>Download run export (ZIP)</a>
           </div>
-        </section>
+        </CollapsibleSection>
       )}
 
       <section style={{ marginBottom: 24 }}>

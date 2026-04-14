@@ -74,6 +74,13 @@ If a list view looks stale immediately after a write, wait briefly and refresh. 
 
 **Transaction pattern:** **`TransactionScope`** is **not** used in product Application code today; **`IArchLucidUnitOfWork`** is the standard for mutating authority SQL in one transaction. Prefer UoW for new writes.
 
+## Operational consistency signals
+
+| Signal | Type | Notes |
+|--------|------|--------|
+| **`run_golden_manifest_consistency`** (readiness) | Health check | **`RunGoldenManifestConsistencyHealthCheck`**: non-archived **`dbo.Runs`** with **`GoldenManifestId`** set but no matching **`dbo.GoldenManifests`** row → **Degraded**. Skipped when storage is InMemory. |
+| **`DataConsistencyOrphanProbeHostedService`** | Background timer | SQL only; configurable via **`DataConsistency:OrphanProbeEnabled`** / **`OrphanProbeIntervalMinutes`**. Counts **`dbo.ComparisonRecords`** with parsable **`LeftRunId`** missing from **`dbo.Runs`**; logs warning and emits **`archlucid_data_consistency_orphans_detected_total`** (detection-only). |
+
 ## Related
 
 - `docs/adr/0002-dual-persistence-architecture-runs-and-runs.md`

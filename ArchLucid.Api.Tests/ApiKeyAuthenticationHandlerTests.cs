@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using System.Threading;
 
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
@@ -10,6 +11,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -169,12 +171,55 @@ public sealed class ApiKeyAuthenticationHandlerTests
         result.Failure?.Message.Should().Contain("Production");
     }
 
+    /// <summary>
+    /// Simulates configuration reload: first request sees key A, subsequent <see cref="IOptionsMonitor{TOptions}.CurrentValue"/> sees key B.
+    /// </summary>
+    [Fact]
+    public async Task When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds()
+    {
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthenticationOptions first = new() { Enabled = true, AdminKey = "rotate-a" };
+        ApiKeyAuthenticationOptions second = new() { Enabled = true, AdminKey = "rotate-b" };
+        int pass = 0;
+        Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> apiKeyMonitor = new();
+        apiKeyMonitor.Setup(m => m.CurrentValue).Returns(() => Interlocked.Increment(ref pass) == 1 ? first : second);
+
+        DefaultHttpContext httpOkOld = new();
+        httpOkOld.Request.Headers.Append("X-Api-Key", "rotate-a");
+        ApiKeyAuthHandlerTestDouble h1 = CreateHandlerWithApiKeyMonitor(apiKeyMonitor.Object, httpOkOld, env);
+        (await h1.InvokeHandleAuthenticateAsync()).Succeeded.Should().BeTrue();
+
+        DefaultHttpContext httpFailOld = new();
+        httpFailOld.Request.Headers.Append("X-Api-Key", "rotate-a");
+        ApiKeyAuthHandlerTestDouble h2 = CreateHandlerWithApiKeyMonitor(apiKeyMonitor.Object, httpFailOld, env);
+        (await h2.InvokeHandleAuthenticateAsync()).Succeeded.Should().BeFalse();
+
+        DefaultHttpContext httpOkNew = new();
+        httpOkNew.Request.Headers.Append("X-Api-Key", "rotate-b");
+        ApiKeyAuthHandlerTestDouble h3 = CreateHandlerWithApiKeyMonitor(apiKeyMonitor.Object, httpOkNew, env);
+        (await h3.InvokeHandleAuthenticateAsync()).Succeeded.Should().BeTrue();
+    }
+
     private static ApiKeyAuthHandlerTestDouble CreateHandler(
         IReadOnlyDictionary<string, string?> configData,
         HttpContext httpContext,
         IHostEnvironment environment)
     {
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(configData).Build();
+        ServiceCollection services = new();
+        services.AddOptions();
+        services.Configure<ApiKeyAuthenticationOptions>(configuration.GetSection(ApiKeyAuthenticationOptions.SectionPath));
+        using ServiceProvider sp = services.BuildServiceProvider();
+        IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor = sp.GetRequiredService<IOptionsMonitor<ApiKeyAuthenticationOptions>>();
+
+        return CreateHandlerWithApiKeyMonitor(apiKeyMonitor, httpContext, environment);
+    }
+
+    private static ApiKeyAuthHandlerTestDouble CreateHandlerWithApiKeyMonitor(
+        IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyMonitor,
+        HttpContext httpContext,
+        IHostEnvironment environment)
+    {
         Mock<IOptionsMonitor<AuthenticationSchemeOptions>> monitor = new();
         AuthenticationSchemeOptions schemeOptions = new();
         monitor.Setup(m => m.CurrentValue).Returns(schemeOptions);
@@ -184,7 +229,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
             monitor.Object,
             NullLoggerFactory.Instance,
             UrlEncoder.Default,
-            configuration,
+            apiKeyMonitor,
             environment);
 
         AuthenticationScheme scheme = new(
@@ -202,9 +247,9 @@ public sealed class ApiKeyAuthenticationHandlerTests
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory loggerFactory,
             UrlEncoder encoder,
-            IConfiguration configuration,
+            IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyOptions,
             IHostEnvironment environment)
-            : base(options, loggerFactory, encoder, configuration, environment)
+            : base(options, loggerFactory, encoder, apiKeyOptions, environment)
         {
         }
 

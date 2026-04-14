@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { AppToaster } from "@/components/AppToaster";
 import { AuthPanel } from "@/components/AuthPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { ShellNav } from "@/components/ShellNav";
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <ShellNav />
           </header>
           <AuthPanel />
+          <AppToaster />
           <KeyboardShortcutProvider>
             <div
               id="main-content"

@@ -20,6 +20,7 @@ public static class AuthServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.Configure<ArchLucidAuthOptions>(configuration.GetSection(ArchLucidAuthOptions.SectionName));
+        services.Configure<ApiKeyAuthenticationOptions>(configuration.GetSection(ApiKeyAuthenticationOptions.SectionPath));
 
         ArchLucidAuthOptions authOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
 

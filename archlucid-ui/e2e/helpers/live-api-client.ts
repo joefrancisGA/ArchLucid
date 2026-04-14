@@ -173,7 +173,23 @@ export type ArchitectureRunListItemJson = {
   status?: string;
   requestId?: string;
   currentManifestVersion?: string | null;
+  systemName?: string | null;
 };
+
+/** Converts a 32-char hex run id to hyphenated GUID for API routes that use `{runId:guid}`. */
+export function toRunGuidPathSegment(runId: string): string {
+  const n = runId.trim();
+
+  if (n.includes("-")) {
+    return n;
+  }
+
+  if (n.length === 32 && /^[0-9a-fA-F]+$/.test(n)) {
+    return `${n.slice(0, 8)}-${n.slice(8, 12)}-${n.slice(12, 16)}-${n.slice(16, 20)}-${n.slice(20)}`;
+  }
+
+  return n;
+}
 
 /** True when API status is {@link ArchitectureRunStatus.Committed} (numeric 5 or string "Committed"). */
 export function isArchitectureRunStatusCommitted(status: number | string | undefined): boolean {

@@ -45,6 +45,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AgentExecutionTraceStorageOptions.SectionPath));
         services.AddSingleton<IAgentOutputEvaluator, AgentOutputEvaluator>();
         services.AddSingleton<IAgentOutputSemanticEvaluator, AgentOutputSemanticEvaluator>();
+        services.AddSingleton<IAgentOutputEvaluationHarness, AgentOutputEvaluationHarness>();
         services.Configure<AgentOutputQualityGateOptions>(
             configuration.GetSection(AgentOutputQualityGateOptions.SectionPath));
         services.AddSingleton<IAgentOutputQualityGate, AgentOutputQualityGate>();

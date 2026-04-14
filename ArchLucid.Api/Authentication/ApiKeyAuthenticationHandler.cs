@@ -16,18 +16,23 @@ namespace ArchLucid.Api.Authentication;
 /// unless <c>Authentication:ApiKey:DevelopmentBypassAll</c> is true in a non-Production environment
 /// (explicit opt-in for local development only; blocked in Production by API startup and <see cref="ArchLucid.Host.Core.Startup.Validation.ArchLucidConfigurationRules"/>).
 /// </summary>
+/// <remarks>
+/// Key material is read from <see cref="IOptionsMonitor{ApiKeyAuthenticationOptions}"/> so configuration reload
+/// (e.g. Key Vault rotation) can take effect without restarting the process.
+/// </remarks>
 public class ApiKeyAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    IConfiguration configuration,
+    IOptionsMonitor<ApiKeyAuthenticationOptions> apiKeyOptions,
     IHostEnvironment environment)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        bool enabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
-        bool developmentBypassAll = configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false);
+        ApiKeyAuthenticationOptions keys = apiKeyOptions.CurrentValue;
+        bool enabled = keys.Enabled;
+        bool developmentBypassAll = keys.DevelopmentBypassAll;
 
         // Previously, Enabled=false authenticated every request as a synthetic admin-equivalent principal. That meant
         // any host misconfigured with ArchLucidAuth:Mode=ApiKey but keys "off" silently granted full access to anonymous callers.
@@ -63,8 +68,8 @@ public class ApiKeyAuthenticationHandler(
 
         string key = providedKey.ToString();
 
-        string? adminKeyRaw = configuration["Authentication:ApiKey:AdminKey"];
-        string? readerKeyRaw = configuration["Authentication:ApiKey:ReadOnlyKey"];
+        string? adminKeyRaw = keys.AdminKey;
+        string? readerKeyRaw = keys.ReadOnlyKey;
 
         string? userName;
         Claim[] claims;

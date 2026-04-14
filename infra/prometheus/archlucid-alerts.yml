@@ -96,3 +96,17 @@ groups:
           description: >-
             Gauge `archlucid_integration_event_outbox_dead_letter` counts dead-lettered integration outbox rows.
             Use admin diagnostics and dead-letter retry flows; fix root cause before clearing.
+
+  - name: archlucid-data-consistency
+    rules:
+      - alert: ArchLucidDataConsistencyOrphansDetected
+        expr: |
+          sum(rate(archlucid_data_consistency_orphans_detected_total[1h])) > 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Orphan coordinator rows detected vs authority Runs
+          description: >-
+            `DataConsistencyOrphanProbeHostedService` incremented `archlucid_data_consistency_orphans_detected_total`.
+            Investigate `dbo.ComparisonRecords` LeftRunId references and authority run lifecycle; probe is detection-only.

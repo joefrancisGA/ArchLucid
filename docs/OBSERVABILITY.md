@@ -33,6 +33,7 @@
 | **`archlucid_agent_output_semantic_score`** | Histogram | — | **`agent_type`**. Semantic quality score (0.0–1.0) evaluating claim evidence and finding completeness in agent output JSON. |
 | **`archlucid_agent_output_quality_gate_total`** | Counter | — | **`agent_type`**, **`outcome`** (`accepted` / `warned` / `rejected`). Emitted when **`ArchLucid:AgentOutput:QualityGate:Enabled`** is **true** (see **`AgentOutputEvaluationRecorder`**). |
 | **`archlucid_explanation_aggregate_faithfulness_fallback_total`** | Counter | — | Aggregate **`GET …/explain/runs/{runId}/aggregate`** replaced LLM narrative with deterministic manifest text after low faithfulness vs findings. |
+| **`archlucid_data_consistency_orphans_detected_total`** | Counter | — | **`table`**: coordinator table key (e.g. **`ComparisonRecords`**). Rows counted by **`DataConsistencyOrphanProbeHostedService`** when **`LeftRunId`** parses as a GUID but **`dbo.Runs`** has no matching **`RunId`** (detection-only). |
 
 For the full set, read **`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`**.
 

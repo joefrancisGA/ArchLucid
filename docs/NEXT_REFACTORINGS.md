@@ -16,8 +16,8 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 | Status | Guidance |
 |--------|----------|
-| **Active** | Sections **9+** below (§8 is a completed pointer). Prioritize correctness/security, then cross-cutting architecture, then polish. |
-| **Done (archived)** | Original items **1–7** live under [Archive (completed items 1–7)](#archive-completed-items-17). |
+| **Active** | Sections **9+** below (§8 is a completed pointer). Prioritize correctness/security, then cross-cutting architecture, then polish. **Triage pass (2026-04-14):** §8 archived as done; §9–§10 remain the smallest open correctness items; large §11+ backlog unchanged — use contributor tree in **`START_HERE.md`** first. |
+| **Done (archived)** | Original items **1–7** live under [Archive (completed items 1–7)](#archive-completed-items-17). §8 (rate limiting documentation) is done — see §8 header. |
 | **Deferred / Obsolete** | Triage in a dedicated pass: mark deferred items inline with `(deferred: reason)` or move obsolete entries into the archive with `(obsolete: reason)` and today’s date. |
 
 **Contracts service-interface split (future batch):** Move the heaviest **service interfaces** still living in **`ArchLucid.Contracts`** into their **owning** assemblies (e.g. decisioning vs coordinator ports) once team boundaries or circular-reference risk justify the churn; keep DTOs and cross-cutting contracts in **`ArchLucid.Contracts`** until then. See **ADR 0013** (`docs/adr/0013-api-versioning-and-json-schema-versioning.md`) for HTTP + JSON **`schemaVersion`** direction.
@@ -26,11 +26,11 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 
 ## 8. Rate limiting documentation
 
-**Status:** **Done (2026-04-14).** Root **README.md** now documents policies **`fixed`**, **`expensive`**, **`replay`**, default limits, and **`RateLimiting:*`** config keys; **`ArchLucidConfigurationRules`** validates limits (**§289** archive). This open item is retained only as a pointer — no further README/BUILD work required unless policies change.
+**Status:** **Done (2026-04-14) — archived pointer only.**
 
 **Original problem (historical):** Operators needed a single reference for policy names vs “100/min” shorthand.
 
-**Outcome:** Clear contract for tuning and runbooks.
+**Outcome:** Root **README.md** documents **`fixed`**, **`expensive`**, **`replay`**, default limits, and **`RateLimiting:*`**; **`ArchLucidConfigurationRules`** validates limits. No further work unless policies change.
 
 ---
 
