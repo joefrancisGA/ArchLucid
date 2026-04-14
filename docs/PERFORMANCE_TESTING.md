@@ -64,8 +64,10 @@ Raise thresholds only when a change **intentionally** increases latency (for exa
 
 ## CI
 
-See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 smoke (API baseline)`** (**merge-blocking**). The workflow starts the API with SQL (same pattern as live E2E), **raises `RateLimiting:FixedWindow:PermitLimit` for the job**, waits for **`/health/ready`**, runs k6 in Docker, and uploads **`k6-results.json`**.
+See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 API smoke (operator path)`** (**merge-blocking**). After **`dotnet-full-regression`**, the workflow creates catalog **`ArchLucidK6Smoke`**, starts **`ArchLucid.Api`** (DevelopmentBypass, simulator agents, **raised `RateLimiting:FixedWindow:PermitLimit`**), waits for **`/health/ready`**, installs **k6** on the runner, runs **`tests/load/k6-api-smoke.js`** with **`K6_SUMMARY_PATH`** pointing at the job temp dir, asserts via **`scripts/ci/assert_k6_ci_smoke_summary.py`**, prints **`scripts/ci/print_k6_summary_metrics.py`**, and uploads artifact **`k6-smoke-results`**.
 
-### Docker: `permission denied` on `--out json=/out/...`
+The read-only **`tests/load/smoke.js`** profile remains documented for local / manual comparison; the **merge gate** uses **`k6-api-smoke.js`** (operator path including **`POST /v1/architecture/request`**).
 
-The **`grafana/k6`** image runs as a **non-root** user by default. If you bind-mount a host directory (for example **`RUNNER_TEMP`** in GitHub Actions) that is owned by another uid, k6 cannot create **`k6-results.json`**. The CI workflow passes **`docker run --user "$(id -u):$(id -g)"`** so the process matches the host user and can write to the mount. Reuse the same flag when reproducing the CI command locally.
+### Docker k6 (other jobs / local)
+
+The **`k6-ci-smoke`** job still runs **`grafana/k6:latest`** with **`tests/load/ci-smoke.js`** (read + write mix). If you use **`docker run`** with **`--out json=/out/...`**, pass **`--user "$(id -u):$(id -g)"`** when bind-mounting a host directory so the container user can write the output file (see **`.github/workflows/ci.yml`** **`k6-ci-smoke`** step).

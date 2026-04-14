@@ -20,6 +20,16 @@
 
 ---
 
+## k6 operator-path smoke (CI baseline)
+
+**What:** After a green **`.NET: full regression (SQL)`**, CI runs **`tests/load/k6-api-smoke.js`** (native k6 on the Ubuntu runner) against a fresh **`ArchLucid.Api`** process and SQL catalog **`ArchLucidK6Smoke`**. The script hits **`/health/ready`** (expects JSON **`status: "Healthy"`**), **`/version`**, **`POST /v1/architecture/request`**, and **`GET /v1/authority/projects/default/runs?take=10`**.
+
+**Job:** **`Performance: k6 API smoke (operator path)`** in **`.github/workflows/ci.yml`**. **~60s** profile: ramp to **5** VUs (10s hold 40s ramp 10s). **Merge-blocking** thresholds: **`http_req_failed` &lt; 1%**, **`http_req_duration` p95 &lt; 2000 ms** (Python gate **`scripts/ci/assert_k6_ci_smoke_summary.py`**; k6 also enforces **p99 &lt; 5000 ms**). Artifact **`k6-smoke-results`** holds the summary JSON.
+
+**Local:** See **[`tests/load/README.md`](../tests/load/README.md)**. Full hot-path baselines and Compose **`full-stack`**: **[LOAD_TEST_BASELINE.md](LOAD_TEST_BASELINE.md)**.
+
+---
+
 ## Related documents
 
 - [OBSERVABILITY.md](OBSERVABILITY.md) — **`archlucid_explanation_cache_*`** and other business KPI metrics.

@@ -72,6 +72,9 @@ _docker_r2r_noflag/
 # Benchmark JSON outputs under repo root (regenerate with BenchmarkDotNet locally)
 artifacts-bench/results/
 
+# k6 summary-export from tests/load/k6-api-smoke.js (local runs; directory kept via .gitkeep)
+tests/load/results/k6-summary.json
+
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
 

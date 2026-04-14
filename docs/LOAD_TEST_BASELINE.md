@@ -14,7 +14,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 
 - **No public SMB or shared infra** for test data; Compose binds SQL/Redis/Azurite locally on the runner.
 - **List endpoints:** prefer **keyset** cursors where the API exposes them (e.g. **`GET /v1/audit/search?beforeUtc=…`** for audit); offset pagination remains on some paths — see **`docs/API_CONTRACTS.md`**.
-- CI load job is **manual only** (`.github/workflows/load-test.yml`) to avoid flaky PR gates and resource contention.
+- **Merge-blocking** k6 operator-path smoke runs in **`.github/workflows/ci.yml`** after full regression (`tests/load/k6-api-smoke.js`). The **Compose full-stack** workflow **`.github/workflows/load-test.yml`** remains **manual only** for longer / heavier profiles.
 - k6 **checks** rate threshold is **0.85**; **`http_req_duration` p(95)** cap is **2000** ms from the **Initial** baseline (2× ~773 ms p95, rounded up to 500 ms). Re-run the recorder after material infra or API changes and refresh this doc + `hotpaths.js`.
 
 ## Architecture overview
@@ -34,6 +34,7 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 | k6 script (manual, full write) | `scripts/load/hotpaths.js` |
 | k6 script (CI smoke, read + write) | `tests/load/ci-smoke.js` |
 | k6 script (CI smoke, read-only) | `tests/load/smoke.js` |
+| k6 script (CI after full regression, operator path) | `tests/load/k6-api-smoke.js` |
 | Local runbook | `scripts/load/README.md` |
 | Manual CI workflow | `.github/workflows/load-test.yml` |
 | Summary → Markdown | `scripts/ci/print_k6_summary_metrics.py` |
