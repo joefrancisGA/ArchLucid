@@ -63,6 +63,25 @@ public sealed class GoldenAgentResultJsonEvaluationTests
         score.IsJsonParseFailure.Should().BeTrue();
     }
 
+    /// <summary>
+    /// Regression: stripping per-claim evidence must reduce semantic score (Prompt 2 — golden-set guard).
+    /// </summary>
+    [Fact]
+    public void Golden_claim_without_evidence_refs_lowers_semantic_score_relative_to_valid_fixture()
+    {
+        string validJson = LoadFixtureText("golden-agent-result-valid.json");
+        string withoutClaimEvidenceJson = LoadFixtureText("golden-agent-result-claim-without-evidence.json");
+
+        AgentOutputSemanticScore validSemantic = Semantic.Evaluate(TraceId, validJson, AgentType.Topology);
+        AgentOutputSemanticScore strippedSemantic = Semantic.Evaluate(TraceId, withoutClaimEvidenceJson, AgentType.Topology);
+
+        validSemantic.OverallSemanticScore.Should().BeApproximately(1.0, 0.001);
+        strippedSemantic.ClaimsQualityRatio.Should().Be(0.0);
+        strippedSemantic.EmptyClaimCount.Should().Be(1);
+        strippedSemantic.OverallSemanticScore.Should().BeApproximately(0.6, 0.001);
+        strippedSemantic.OverallSemanticScore.Should().BeLessThan(validSemantic.OverallSemanticScore);
+    }
+
     private static string LoadFixtureText(string fileName)
     {
         string dir = Path.Combine(AppContext.BaseDirectory, "Fixtures", "GoldenAgentResults");
