@@ -4,6 +4,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Resilience;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -176,6 +177,40 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         p.Type.Should().Be(ProblemTypes.DatabaseUnavailable);
         p.Extensions.Should().ContainKey("supportHint");
         ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("health/ready");
+    }
+
+    [Fact]
+    public void TryMapDatabaseException_DeadlockSqlException_Returns409Conflict()
+    {
+        DefaultHttpContext http = CreateHttpContextForMapper("/v1/architecture/run/x/commit", "deadlock-cid");
+
+        bool mapped = ApplicationProblemMapper.TryMapDatabaseException(
+            SqlExceptionTestFactory.Create(1205),
+            "/v1/architecture/run/x/commit",
+            http,
+            out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result.Should().NotBeNull();
+        result!.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        Microsoft.AspNetCore.Mvc.ProblemDetails p =
+            result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.Conflict);
+    }
+
+    [Fact]
+    public void TryMapDatabaseException_WrappedDeadlockSqlException_Returns409Conflict()
+    {
+        DefaultHttpContext http = CreateHttpContextForMapper("/v1/commit", "deadlock-wrap-cid");
+        Exception ex = new InvalidOperationException("persist failed", SqlExceptionTestFactory.Create(1205));
+
+        bool mapped = ApplicationProblemMapper.TryMapDatabaseException(ex, "/v1/commit", http, out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        Microsoft.AspNetCore.Mvc.ProblemDetails p =
+            result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.Conflict);
     }
 
     [Fact]

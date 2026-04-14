@@ -85,4 +85,14 @@ public sealed class SqlTransientDetectorTests
         SqlTransientDetector.IsTransient(outer).Should().BeFalse();
     }
 
+    [Fact]
+    public void IsTransient_DeepNestedSqlException1205_ReturnsTrue()
+    {
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+        Exception mid = new InvalidOperationException("repository", deadlock);
+        Exception outer = new InvalidOperationException("unit of work", mid);
+
+        SqlTransientDetector.IsTransient(outer).Should().BeTrue();
+    }
+
 }

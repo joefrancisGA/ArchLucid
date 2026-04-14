@@ -178,11 +178,13 @@ public static class ApplicationProblemMapper
 
     /// <summary>
     /// Maps SQL Server timeouts (<see cref="SqlException"/> with <c>Number == -2</c>),
-    /// generic <see cref="TimeoutException"/>, and <see cref="DbException"/> to 503 Service Unavailable.
+    /// deadlock victims (<c>1205</c>) to <see cref="StatusCodes.Status409Conflict"/>,
+    /// <see cref="TimeoutException"/> to 503, and other <see cref="DbException"/> to 503 Service Unavailable.
     /// </summary>
     /// <remarks>
     /// <see cref="SqlException.Number"/> <c>-2</c> is the canonical SQL Server timeout error code.
-    /// All database-origin exceptions are surfaced as retryable 503 so clients and load balancers
+    /// Deadlock (<c>1205</c>) from parallel writers is treated like other commit races so clients receive 409, not 503.
+    /// Remaining database-origin exceptions are surfaced as retryable 503 so clients and load balancers
     /// can distinguish transient failures from permanent 500 errors.
     /// </remarks>
     public static bool TryMapDatabaseException(
@@ -200,6 +202,19 @@ public static class ApplicationProblemMapper
                 "Database Timeout",
                 "The database query timed out. The request may succeed on retry.",
                 ProblemTypes.DatabaseTimeout,
+                instance,
+                httpContext);
+            return true;
+        }
+
+        // Parallel commits on the same run can deadlock; 409 matches other concurrency outcomes (ROWVERSION, unique key).
+        if (TryFindSqlExceptionWithNumber(ex, 1205) is not null)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status409Conflict,
+                "Concurrency conflict",
+                "The database transaction deadlocked with a concurrent request. Retry the commit.",
+                ProblemTypes.Conflict,
                 instance,
                 httpContext);
             return true;
@@ -229,6 +244,18 @@ public static class ApplicationProblemMapper
             httpContext);
 
         return true;
+    }
+
+    /// <summary>Walks <see cref="Exception.InnerException"/> chain for a <see cref="SqlException"/> with the given <see cref="SqlException.Number"/>.</summary>
+    private static SqlException? TryFindSqlExceptionWithNumber(Exception ex, int number)
+    {
+        for (Exception? e = ex; e is not null; e = e.InnerException)
+        {
+            if (e is SqlException sql && sql.Number == number)
+                return sql;
+        }
+
+        return null;
     }
 
     public static ObjectResult CreateProblemResult(

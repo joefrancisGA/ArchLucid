@@ -21,20 +21,24 @@ public static class SqlTransientDetector
         return ex.Number is -2 or 1205 or 40613 or 40197 or 49918 or 49919 or 49920;
     }
 
-    /// <summary>Returns <see langword="true"/> when the exception (or its inner exception) is a transient SQL or timeout error.</summary>
+    /// <summary>Returns <see langword="true"/> when the exception or any nested <see cref="Exception.InnerException"/> is a transient SQL or timeout error.</summary>
+    /// <remarks>
+    /// Dapper and repository layers may wrap <see cref="SqlException"/> more than one level deep; parallel commits
+    /// can surface deadlock (<c>1205</c>) inside wrappers — walking the full chain keeps commit retries effective.
+    /// </remarks>
     public static bool IsTransient(Exception? ex)
     {
         if (ex is null)
             return false;
 
-        if (ex is SqlException sqlEx)
-            return IsTransient(sqlEx);
+        for (Exception? e = ex; e is not null; e = e.InnerException)
+        {
+            if (e is TimeoutException)
+                return true;
 
-        if (ex is TimeoutException)
-            return true;
-
-        if (ex.InnerException is SqlException innerSql)
-            return IsTransient(innerSql);
+            if (e is SqlException sqlEx && IsTransient(sqlEx))
+                return true;
+        }
 
         return false;
     }

@@ -117,9 +117,33 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
                 throw;
             }
+            catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
+            {
+                CommitRunResult? reconciled = await TryReconcileAfterConcurrentCommitAsync(runId, cancellationToken);
+
+                if (reconciled is not null)
+                    return reconciled;
+
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "CommitRunAsync unique-key violation without reconcilable manifest (attempt {Attempt}/{Max}) for RunId={RunId}.",
+                        attempt,
+                        CommitRunTransientMaxAttempts,
+                        LogSanitizer.Sanitize(runId));
+                }
+
+                if (attempt >= CommitRunTransientMaxAttempts)
+                {
+                    throw new ConflictException(
+                        $"Commit for run '{runId}' raced with another commit. The manifest could not be loaded yet; retry the request.");
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(25 * attempt), cancellationToken);
+            }
             catch (Exception ex) when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)
             {
-
                 if (_logger.IsEnabled(LogLevel.Warning))
                 {
                     _logger.LogWarning(
@@ -135,6 +159,29 @@ public sealed class ArchitectureRunCommitOrchestrator(
         }
 
         throw new InvalidOperationException("CommitRunAsync exhausted transient retries without returning.");
+    }
+
+    /// <summary>
+    /// After a duplicate-key failure (parallel first commit), reload run state and return the winner's persisted manifest if present.
+    /// </summary>
+    private async Task<CommitRunResult?> TryReconcileAfterConcurrentCommitAsync(string runId, CancellationToken cancellationToken)
+    {
+        ArchitectureRun? runAgain = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
+            _runRepository,
+            _scopeContextProvider,
+            _taskRepository,
+            runId,
+            cancellationToken);
+
+        if (runAgain is null)
+            return null;
+
+        CommitRunResult? committed = await TryReturnCommittedManifestAsync(runAgain, runId, cancellationToken);
+
+        if (committed is not null)
+            return committed;
+
+        return await TryReturnPersistedCommitIfExistsAsync(runAgain, runId, cancellationToken);
     }
 
     private async Task<CommitRunResult> CommitRunCoreAsync(
