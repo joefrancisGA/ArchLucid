@@ -61,6 +61,10 @@
 - **Merged line coverage:** 77.65%
 - **Merged branch coverage:** 63.29%
 
+## Recent targeted tests (correctness improvement track)
+
+- **2026-04-14:** Extended `GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests` with relational **warnings** and **provenance source findings** paths (still requires SQL; same collection as existing Phase-1 direct SQL tests). Added FsCheck properties `AlertEvaluatorDeduplicationKeyPropertyTests` for `CriticalRecommendationCount` and `NewComplianceGapCount` dedupe keys (`ArchLucid.Decisioning.Tests`).
+
 ## How to refresh
 
 ```powershell
