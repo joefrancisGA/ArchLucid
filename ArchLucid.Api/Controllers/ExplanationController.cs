@@ -58,19 +58,28 @@ public sealed class ExplanationController(
 
         DecisionProvenanceGraph? graph = null;
         DecisionProvenanceSnapshot? snapshot = await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
+
         if (snapshot is not null)
-        
+        {
             try
             {
                 graph = ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
             }
             catch (InvalidOperationException ex)
             {
-                logger.LogWarning(ex, "Provenance graph JSON for run {RunId} is corrupt; explanation will proceed without provenance.", LogSanitizer.Sanitize(runId.ToString("D")));
+                logger.LogWarning(
+                    ex,
+                    "Provenance graph JSON for run {RunId} is corrupt; explanation will proceed without provenance.",
+                    LogSanitizer.Sanitize(runId.ToString("D")));
             }
-        
+        }
 
         ExplanationResult result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
+        List<FindingTraceConfidenceDto> traceRows = FindingTraceConfidenceMapper.FromSnapshot(detail.FindingsSnapshot);
+
+        if (traceRows.Count > 0)
+            result.FindingTraceConfidences = traceRows;
+
         return Ok(result);
     }
 

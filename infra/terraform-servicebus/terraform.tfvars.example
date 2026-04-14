@@ -1,3 +1,5 @@
+# Production: copy to terraform.tfvars (or production.tfvars) and apply when integration events to Service Bus are required.
+# Local dev often leaves the publisher as NullIntegrationEventPublisher — this stack is optional until operators enable the bus.
 resource_group_name = "rg-archlucid-prod"
 location            = "eastus"
 

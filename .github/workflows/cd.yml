@@ -570,4 +570,5 @@ jobs:
             echo "- Image tag: ${{ github.sha }} (no build job output)" >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "- Terraform apply requested: ${{ github.event.inputs.run_terraform_apply }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- NuGet API client version (when \`NUGET_API_KEY\` is set on production after successful smoke): \`1.0.${{ github.run_number }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- Job results: build ${{ needs.build-push-images.result }}, plan ${{ needs.terraform-plan.result }}, apply ${{ needs.terraform-apply.result }}, deploy ${{ needs.deploy-container-apps.result }}, smoke ${{ needs.smoke-test.result }}, rollback ${{ needs.rollback.result }}, nuget ${{ needs.nuget-push.result }}, manual-rollback ${{ needs.manual-rollback.result }}" >> "$GITHUB_STEP_SUMMARY"

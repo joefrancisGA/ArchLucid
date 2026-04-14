@@ -79,6 +79,15 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     $"Coordination failed: {detail}",
                     cancellationToken);
 
+            await CoordinatorRunFailedDurableAudit.TryLogAsync(
+                _auditService,
+                _scopeContextProvider,
+                _logger,
+                actor,
+                request.RequestId,
+                $"Coordination failed: {detail}",
+                cancellationToken);
+
             throw new InvalidOperationException(
                 $"CreateRun failed: {detail}");
         }
@@ -126,6 +135,15 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     coordination.Run.RunId,
                     $"Persist failed: {ex.GetType().Name}",
                     cancellationToken);
+
+            await CoordinatorRunFailedDurableAudit.TryLogAsync(
+                _auditService,
+                _scopeContextProvider,
+                _logger,
+                actor,
+                coordination.Run.RunId,
+                $"Persist failed: {ex.GetType().Name}",
+                cancellationToken);
 
             throw;
         }

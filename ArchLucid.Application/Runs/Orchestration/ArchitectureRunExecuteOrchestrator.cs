@@ -84,6 +84,15 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     "Run not found.",
                     cancellationToken);
 
+            await CoordinatorRunFailedDurableAudit.TryLogAsync(
+                _auditService,
+                _scopeContextProvider,
+                _logger,
+                actor,
+                runId,
+                "Run not found.",
+                cancellationToken);
+
             throw;
         }
     }
@@ -244,6 +253,15 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     runId,
                     ex.GetType().Name,
                     cancellationToken);
+
+            await CoordinatorRunFailedDurableAudit.TryLogAsync(
+                _auditService,
+                _scopeContextProvider,
+                _logger,
+                actor,
+                runId,
+                ex.GetType().Name,
+                cancellationToken);
 
             throw;
         }

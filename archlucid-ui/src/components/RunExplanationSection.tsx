@@ -11,6 +11,25 @@ export type RunExplanationSectionProps = {
 };
 
 /** Maps API `riskPosture` string to accessible badge colors (Low / Medium / High / Critical). */
+/** Maps aggregate faithfulness support ratio to badge styling (green / amber / red). */
+export function faithfulnessBadgeStyle(ratio: number): {
+  background: string;
+  color: string;
+  borderColor: string;
+} {
+  const pct = ratio <= 1 ? ratio * 100 : ratio;
+
+  if (pct >= 80 - 1e-9) {
+    return { background: "#dcfce7", color: "#166534", borderColor: "#bbf7d0" };
+  }
+
+  if (pct >= 50 - 1e-9) {
+    return { background: "#fef3c7", color: "#92400e", borderColor: "#fde68a" };
+  }
+
+  return { background: "#fee2e2", color: "#991b1b", borderColor: "#fecaca" };
+}
+
 export function riskPostureBadgeColors(posture: string): {
   background: string;
   color: string;
@@ -71,6 +90,10 @@ export function RunExplanationSection({ summary, loading, error }: RunExplanatio
   const conf = summary.explanation.confidence;
   const pct = conf !== null && conf !== undefined ? confidencePercent(conf) : null;
   const prov = summary.explanation.provenance;
+  const faith = summary.faithfulnessSupportRatio;
+  const faithPct =
+    faith !== null && faith !== undefined && Number.isFinite(faith) ? Math.round(faith * 100) : null;
+  const faithStyle = faithPct !== null ? faithfulnessBadgeStyle(faith) : null;
 
   return (
     <div style={{ maxWidth: 720 }}>
@@ -110,6 +133,82 @@ export function RunExplanationSection({ summary, loading, error }: RunExplanatio
           unresolved · {summary.complianceGapCount} compliance gaps
         </span>
       </p>
+
+      {faithPct !== null && faithStyle ? (
+        <p style={{ margin: "0 0 12px", fontSize: 14, color: "#475569" }}>
+          <span className="sr-only">Faithfulness vs findings:</span>
+          <span
+            role="status"
+            aria-label={`Faithfulness support ratio ${faithPct} percent`}
+            style={{
+              display: "inline-block",
+              padding: "4px 10px",
+              borderRadius: 6,
+              fontSize: 13,
+              fontWeight: 600,
+              border: `1px solid ${faithStyle.borderColor}`,
+              background: faithStyle.background,
+              color: faithStyle.color,
+            }}
+          >
+            Faithfulness {faithPct}%
+          </span>
+          <span style={{ marginLeft: 10, fontSize: 12, color: "#64748b" }}>
+            (token overlap vs finding traces — see docs)
+          </span>
+        </p>
+      ) : null}
+
+      {summary.usedDeterministicFallback === true ? (
+        <p
+          role="status"
+          style={{
+            margin: "0 0 12px",
+            padding: "10px 12px",
+            borderRadius: 6,
+            fontSize: 13,
+            lineHeight: 1.5,
+            background: "#fef9c3",
+            color: "#854d0e",
+            border: "1px solid #fde047",
+          }}
+        >
+          This explanation was generated from manifest structure because AI-generated text did not sufficiently match
+          the underlying findings.
+        </p>
+      ) : null}
+
+      {summary.faithfulnessWarning && summary.usedDeterministicFallback !== true ? (
+        <p
+          role="status"
+          style={{
+            margin: "0 0 12px",
+            padding: "10px 12px",
+            borderRadius: 6,
+            fontSize: 13,
+            lineHeight: 1.5,
+            background: "#fff7ed",
+            color: "#9a3412",
+            border: "1px solid #fdba74",
+          }}
+        >
+          {summary.faithfulnessWarning}
+        </p>
+      ) : null}
+
+      {summary.findingTraceConfidences && summary.findingTraceConfidences.length > 0 ? (
+        <div style={{ marginBottom: 16 }}>
+          <h4 style={{ margin: "0 0 8px", fontSize: 15 }}>Finding trace confidence</h4>
+          <ul style={{ margin: 0, paddingLeft: 20, fontSize: 13, lineHeight: 1.5, color: "#334155" }}>
+            {summary.findingTraceConfidences.map((row) => (
+              <li key={row.findingId}>
+                <code style={{ fontSize: 12 }}>{row.findingId}</code> — {row.traceConfidenceLabel} (
+                {Math.round(row.traceCompletenessRatio * 100)}% trace fields)
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div style={{ marginBottom: 16 }}>
         <p id="explanation-confidence-label" style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 600 }}>

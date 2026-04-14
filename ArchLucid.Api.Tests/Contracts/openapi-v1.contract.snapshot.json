@@ -20623,6 +20623,15 @@
           },
           "detailedNarrative": {
             "type": "string"
+          },
+          "findingTraceConfidences": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/FindingTraceConfidenceDto"
+            }
           }
         }
       },
@@ -20986,6 +20995,29 @@
               "string"
             ],
             "format": "double"
+          }
+        }
+      },
+      "FindingTraceConfidenceDto": {
+        "required": [
+          "findingId",
+          "traceConfidenceLabel"
+        ],
+        "type": "object",
+        "properties": {
+          "findingId": {
+            "type": "string"
+          },
+          "traceCompletenessRatio": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "traceConfidenceLabel": {
+            "type": "string"
           }
         }
       },
@@ -24808,6 +24840,33 @@
           "complianceGapCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "faithfulnessSupportRatio": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "usedDeterministicFallback": {
+            "type": "boolean"
+          },
+          "faithfulnessWarning": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "findingTraceConfidences": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/FindingTraceConfidenceDto"
+            }
           }
         }
       },

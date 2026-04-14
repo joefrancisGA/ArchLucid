@@ -8,7 +8,7 @@ After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cob
 
 | Metric | Threshold | Script | CI job | Failure behavior |
 |--------|-----------|--------|--------|------------------|
-| Merged **line** | **70%** | [`scripts/ci/assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py) (positional `70` = `--min-line-pct`) | `.NET: full regression (SQL)` | Exit **1** if root `line-rate` × 100 is below the floor. |
+| Merged **line** | **71%** | [`scripts/ci/assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py) (positional `71` = `--min-line-pct`) | `.NET: full regression (SQL)` | Exit **1** if root `line-rate` × 100 is below the floor. |
 | Merged **branch** | **50%** | same (`--min-branch-pct 50`) | same | Exit **1** if root `branch-rate` × 100 is below the floor. |
 | Per-product **line** | **60%** | same (`--min-package-line-pct 60`; script default **60**) | same | Exit **1** if any gated package is below the floor or has coverable lines but missing `line-rate`. |
 

@@ -71,6 +71,19 @@ When **`GET /v1/explain/runs/{runId}/aggregate`** builds a **`RunExplanationSumm
 
 Do not change the `ExplainabilityTrace` property names or types on persisted findings without a schema migration.
 
+## Future: embedding-based faithfulness (design note, not V1)
+
+Today’s **aggregate** faithfulness signal is **token overlap** between explanation text and flattened finding trace strings (`ExplanationFaithfulnessChecker`). A stronger signal would use **embedding cosine similarity** between (a) chunked explanation sentences and (b) a corpus built from trace fields.
+
+| Topic | Proposal |
+|--------|-----------|
+| **Model** | Azure OpenAI **`text-embedding-3-small`** (or equivalent) via existing `IOpenAiEmbeddingClient` to avoid a new vendor. |
+| **Cost** | One batch embed per aggregate request when findings exist — bounded by chunk count; monitor with existing LLM token / call metrics. |
+| **Where to compute** | Async post-step after `ExplainRunAsync` **or** background advisory job — avoid blocking the hot HTTP path until latency budgets allow. |
+| **Fallback** | Keep token overlap as a cheap default; use embeddings only when `ArchLucid:Explanation:Aggregate:EmbeddingFaithfulnessEnabled` (hypothetical) is true. |
+
+This is **V2+** scope: requires caching, PII review (embeddings of customer text), and SLO validation against latency.
+
 ## UI: provenance graph
 
 The operator UI (`archlucid-ui`) renders coordinator provenance with `ProvenanceGraphDiagram`: layered SVG (snapshots → findings → decisions → manifest → artifacts), click-to-scroll to the nodes table, and a type/color legend. No extra npm dependencies.

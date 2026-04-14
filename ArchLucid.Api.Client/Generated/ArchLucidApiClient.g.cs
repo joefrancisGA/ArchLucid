@@ -25131,6 +25131,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("detailedNarrative")]
         public string DetailedNarrative { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("findingTraceConfidences")]
+        public System.Collections.Generic.ICollection<FindingTraceConfidenceDto> FindingTraceConfidences { get; set; }
+
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -25489,6 +25492,33 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("completenessRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double CompletenessRatio { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class FindingTraceConfidenceDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string FindingId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("traceCompletenessRatio")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double TraceCompletenessRatio { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("traceConfidenceLabel")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string TraceConfidenceLabel { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
@@ -29402,6 +29432,19 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("complianceGapCount")]
         public int ComplianceGapCount { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("faithfulnessSupportRatio")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? FaithfulnessSupportRatio { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("usedDeterministicFallback")]
+        public bool UsedDeterministicFallback { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("faithfulnessWarning")]
+        public string FaithfulnessWarning { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingTraceConfidences")]
+        public System.Collections.Generic.ICollection<FindingTraceConfidenceDto> FindingTraceConfidences { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 

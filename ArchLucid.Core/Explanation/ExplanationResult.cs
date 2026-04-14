@@ -35,6 +35,9 @@ public class ExplanationResult
 
     /// <summary>Multi-paragraph narrative (LLM or deterministic fallback).</summary>
     public string DetailedNarrative { get; set; } = string.Empty;
+
+    /// <summary>Per-finding explainability trace completeness when the API attaches snapshot context (see granular explain endpoint).</summary>
+    public List<FindingTraceConfidenceDto>? FindingTraceConfidences { get; set; }
 }
 
 /// <summary>

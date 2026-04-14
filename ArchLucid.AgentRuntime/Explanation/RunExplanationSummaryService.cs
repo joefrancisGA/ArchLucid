@@ -35,13 +35,20 @@ public sealed class RunExplanationSummaryService(
         DecisionProvenanceGraph? graph = await TryLoadProvenanceGraphAsync(scope, runId, ct);
         ExplanationResult explanation = await explanationService.ExplainRunAsync(manifest, graph, ct);
 
+        double? faithfulnessSupportRatio = null;
+        bool usedDeterministicFallback = false;
+        ExplanationFaithfulnessReport? lastFaithReport = null;
+
         if (detail.FindingsSnapshot is { Findings.Count: > 0 })
         {
             ExplanationFaithfulnessReport faithReport =
                 explanationFaithfulnessChecker.CheckFaithfulness(explanation, detail.FindingsSnapshot);
 
+            lastFaithReport = faithReport;
+
             if (faithReport.ClaimsChecked > 0)
             {
+                faithfulnessSupportRatio = faithReport.SupportRatio;
                 ArchLucidInstrumentation.RecordExplanationFaithfulnessRatio(faithReport.SupportRatio);
             }
 
@@ -66,6 +73,7 @@ public sealed class RunExplanationSummaryService(
 
                 explanation.Provenance = null;
                 explanation.Confidence = null;
+                usedDeterministicFallback = true;
                 ArchLucidInstrumentation.ExplanationAggregateFaithfulnessFallbacksTotal.Add(1);
 
                 logger.LogInformation(
@@ -75,6 +83,10 @@ public sealed class RunExplanationSummaryService(
                     aggOpts.MinSupportRatioToTrustLlmNarrative);
             }
         }
+
+        string? faithfulnessWarning = BuildFaithfulnessWarning(lastFaithReport, usedDeterministicFallback);
+        IReadOnlyList<FindingTraceConfidenceDto> findingConfidences =
+            FindingTraceConfidenceMapper.FromSnapshot(detail.FindingsSnapshot);
 
         List<string> themeSummaries = BuildThemeSummaries(explanation.KeyDrivers);
         string riskPosture = AuthorityManifestRiskPosture.Derive(manifest);
@@ -91,7 +103,31 @@ public sealed class RunExplanationSummaryService(
             DecisionCount = manifest.Decisions.Count,
             UnresolvedIssueCount = manifest.UnresolvedIssues.Items.Count,
             ComplianceGapCount = manifest.Compliance.Gaps.Count,
+            FaithfulnessSupportRatio = faithfulnessSupportRatio,
+            UsedDeterministicFallback = usedDeterministicFallback,
+            FaithfulnessWarning = faithfulnessWarning,
+            FindingTraceConfidences = findingConfidences.Count > 0 ? findingConfidences : null,
         };
+    }
+
+    private static string? BuildFaithfulnessWarning(
+        ExplanationFaithfulnessReport? faithReport,
+        bool usedDeterministicFallback)
+    {
+        if (faithReport is null || faithReport.ClaimsChecked <= 0)
+            return null;
+
+        if (usedDeterministicFallback)
+        {
+            return "The aggregate narrative was replaced with deterministic manifest text because AI-generated text did not sufficiently match underlying finding traces.";
+        }
+
+        if (faithReport.SupportRatio < 0.5 - 1e-9)
+        {
+            return "Explanation may not fully reflect the underlying findings; review finding traces and the provenance graph.";
+        }
+
+        return null;
     }
 
     private async Task<DecisionProvenanceGraph?> TryLoadProvenanceGraphAsync(

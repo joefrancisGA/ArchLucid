@@ -7,7 +7,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:75 -->
+<!-- audit-core-const-count:76 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs` to the number in this comment. Update the comment whenever Core constants change, and extend the appendix table below.
 
@@ -87,6 +87,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Coordinator run execution started (dual-write) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.CoordinatorRunExecuteStarted` | RunId | `{ runId }` |
 | Coordinator run execution succeeded (dual-write) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.CoordinatorRunExecuteSucceeded` | RunId | `{ runId, resultCount }` |
 | Coordinator run commit completed (dual-write) | `ArchitectureRunCommitOrchestrator` | `AuditEventTypes.CoordinatorRunCommitCompleted` | RunId | `{ runId, manifestVersion, systemName }` |
+| Coordinator run failed (dual-write) | `ArchitectureRunCreateOrchestrator`, `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator` | `AuditEventTypes.CoordinatorRunFailed` | RunId when parseable | `{ runId, reason }` (after baseline `Architecture.RunFailed`) |
 
 ---
 
@@ -115,7 +116,7 @@ No open gaps are tracked here for the areas previously listed. Notes:
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` `public const string` rows** | 75 (see CI marker above; includes nested `Baseline`) |
+| **Core `AuditEventTypes` `public const string` rows** | 76 (see CI marker above; includes nested `Baseline`) |
 | **`await *auditService.LogAsync` production call sites** | ~43 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
@@ -145,6 +146,7 @@ No open gaps are tracked here for the areas previously listed. Notes:
 | `CoordinatorRunExecuteStarted` | `CoordinatorRunExecuteStarted` | `ArchitectureRunExecuteOrchestrator` (dual-write with baseline) |
 | `CoordinatorRunExecuteSucceeded` | `CoordinatorRunExecuteSucceeded` | `ArchitectureRunExecuteOrchestrator` (dual-write with baseline) |
 | `CoordinatorRunCommitCompleted` | `CoordinatorRunCommitCompleted` | `ArchitectureRunCommitOrchestrator` (dual-write with baseline) |
+| `CoordinatorRunFailed` | `CoordinatorRunFailed` | `ArchitectureRunCreateOrchestrator`, `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator` (dual-write with baseline `RunFailed`) |
 | `RecommendationGenerated` | `RecommendationGenerated` | `AdvisoryController` |
 | `RecommendationAccepted` | `RecommendationAccepted` | `AdvisoryController` |
 | `RecommendationRejected` | `RecommendationRejected` | `AdvisoryController` |

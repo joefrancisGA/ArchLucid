@@ -27,6 +27,13 @@ export type StructuredExplanation = {
   caveats?: string[] | null;
 };
 
+/** Per-finding explainability trace completeness from the API. */
+export type FindingTraceConfidenceDto = {
+  findingId: string;
+  traceCompletenessRatio: number;
+  traceConfidenceLabel: string;
+};
+
 /** Full explanation payload returned inside `RunExplanationSummary`. */
 export type ExplanationResult = {
   rawText: string;
@@ -39,6 +46,8 @@ export type ExplanationResult = {
   costImplications: string[];
   complianceImplications: string[];
   detailedNarrative: string;
+  /** Present on `GET /v1/explain/runs/{runId}/explain` when a findings snapshot exists. */
+  findingTraceConfidences?: FindingTraceConfidenceDto[] | null;
 };
 
 /** Aggregate executive view for a run (themes, posture, counts + nested explanation). */
@@ -51,6 +60,12 @@ export type RunExplanationSummary = {
   decisionCount: number;
   unresolvedIssueCount: number;
   complianceGapCount: number;
+  /** Set when faithfulness checker had claims to evaluate (0–1 support ratio). */
+  faithfulnessSupportRatio?: number | null;
+  /** Absent on older API responses; treat as false. */
+  usedDeterministicFallback?: boolean;
+  faithfulnessWarning?: string | null;
+  findingTraceConfidences?: FindingTraceConfidenceDto[] | null;
 };
 
 /** AI-generated narrative explaining the differences between two runs. */

@@ -17,6 +17,9 @@ public static class AuditEventTypes
     /// <summary>Coordinator-level: architecture run commit completed (coordinator commit orchestrator).</summary>
     public const string CoordinatorRunCommitCompleted = "CoordinatorRunCommitCompleted";
 
+    /// <summary>Coordinator-level: architecture run failed after baseline <c>Architecture.RunFailed</c> (create, execute, or commit path).</summary>
+    public const string CoordinatorRunFailed = "CoordinatorRunFailed";
+
     public const string ManifestGenerated = "ManifestGenerated";
     public const string ArtifactsGenerated = "ArtifactsGenerated";
     public const string ReplayExecuted = "ReplayExecuted";

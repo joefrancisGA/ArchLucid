@@ -72,7 +72,7 @@ If a list view looks stale immediately after a write, wait briefly and refresh. 
 
 **Operator expectation:** after bulk archival, some read paths may still resolve historical snapshot ids until TTL or explicit invalidation; prefer **run list** and **authority detail** APIs that honor **`ArchivedUtc`** over ad-hoc SQL.
 
-**Transaction pattern:** **`TransactionScope`** is **not** used in product Application code today; **`IArchLucidUnitOfWork`** is the standard for mutating authority SQL in one transaction. Prefer UoW for new writes.
+**Transaction pattern:** **`IArchLucidUnitOfWork`** / **`IArchLucidUnitOfWorkFactory`** are the standard for mutating authority SQL in one transaction. A repo-wide search shows **no** `TransactionScope` usage in product `.cs` sources (as of 2026-04-14); coordinator orchestrators use the same UoW pattern for create/commit persistence. Prefer UoW for new writes.
 
 ## Operational consistency signals
 
