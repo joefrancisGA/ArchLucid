@@ -114,6 +114,8 @@ public sealed class CircuitBreakerAuditBridgeTests
             });
 
         Mock<ILogger<CircuitBreakerAuditBridge>> logger = new();
+        // Moq returns default(bool)=false for IsEnabled unless configured; the bridge guards LogWarning with IsEnabled.
+        logger.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
         Mock<IAuditRetryQueue> auditRetry = new();
         auditRetry.Setup(q => q.TryEnqueue(It.IsAny<AuditEvent>())).Returns(false);
 

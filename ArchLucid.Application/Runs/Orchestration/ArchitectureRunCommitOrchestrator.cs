@@ -437,10 +437,10 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         if (storedGaps.Count > 0)
         {
-            _logger.LogWarning(
+            _logger.LogWarningWithTwoSanitizedUserStrings(
                 "Committed run {RunId} has manifest/trace linkage gaps (data drift or legacy row): {Gaps}",
-                LogSanitizer.Sanitize(runId),
-                LogSanitizer.Sanitize(string.Join("; ", storedGaps)));
+                runId,
+                string.Join("; ", storedGaps));
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
@@ -591,10 +591,10 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         if (storedGaps.Count > 0)
         {
-            _logger.LogWarning(
+            _logger.LogWarningWithTwoSanitizedUserStrings(
                 "Committed run {RunId} has manifest/trace linkage gaps (data drift or legacy row): {Gaps}",
-                LogSanitizer.Sanitize(runId),
-                LogSanitizer.Sanitize(string.Join("; ", storedGaps)));
+                runId,
+                string.Join("; ", storedGaps));
         }
 
         string committedVersion = string.IsNullOrWhiteSpace(existingManifest.Metadata?.ManifestVersion)
