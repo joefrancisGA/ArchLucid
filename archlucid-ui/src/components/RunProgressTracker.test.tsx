@@ -175,8 +175,7 @@ describe("RunProgressTracker", () => {
       await vi.runOnlyPendingTimersAsync();
     });
 
-    expect(
-      screen.getByText("Pipeline still in progress. Refresh manually to check."),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Pipeline may still be running server-side/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /retry polling/i })).toBeInTheDocument();
   });
 });

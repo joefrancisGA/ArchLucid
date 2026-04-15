@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { getRunSummary } from "@/lib/api";
@@ -40,6 +41,8 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
   const [phase, setPhase] = useState<"polling" | "complete" | "timeout">(() =>
     allStagesReady(initialSummary) ? "complete" : "polling",
   );
+  /** Increments when the user retries after a poll timeout — restarts the ~2 minute polling window. */
+  const [pollSession, setPollSession] = useState(0);
 
   useEffect(() => {
     setSummary(initialSummary);
@@ -103,7 +106,7 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
       cancelled = true;
       stopInterval();
     };
-  }, [runId, pollEnabled]);
+  }, [runId, pollEnabled, pollSession]);
 
   const ctx = stageDone(summary?.hasContextSnapshot);
   const graph = stageDone(summary?.hasGraphSnapshot);
@@ -119,11 +122,11 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
     }
 
     if (phase === "timeout") {
-      return "Pipeline still in progress. Refresh manually to check.";
+      return `Pipeline may still be running server-side (run ${runId}). Use Retry to poll again for up to ~2 minutes, refresh this page, or check GET /health/ready on the API.`;
     }
 
     return `${completedStages} of 4 authority pipeline stages complete.`;
-  }, [phase, completedStages]);
+  }, [phase, completedStages, runId]);
 
   if (!pollEnabled) {
     return null;
@@ -145,6 +148,22 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
       <div aria-live="polite" aria-atomic="true" className="mt-3 text-sm text-neutral-800 dark:text-neutral-200">
         {liveStatus}
       </div>
+
+      {phase === "timeout" ? (
+        <div className="mt-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setPhase("polling");
+              setPollSession((s) => s + 1);
+            }}
+          >
+            Retry polling
+          </Button>
+        </div>
+      ) : null}
 
       <div className="mt-4 space-y-2">
         <div className="flex justify-between text-xs text-neutral-500">

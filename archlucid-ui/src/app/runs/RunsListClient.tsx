@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Label } from "@/components/ui/label";
+import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -105,24 +107,40 @@ export function RunsListClient({
           <thead>
             <tr className="border-b border-neutral-300 dark:border-neutral-600">
               <th className="p-2 text-left font-semibold">Run ID</th>
+              <th className="p-2 text-left font-semibold">Status</th>
               <th className="p-2 text-left font-semibold">Description</th>
               <th className="p-2 text-left font-semibold">Created</th>
               <th className="p-2 text-left font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredSorted.map((run) => (
-              <tr key={run.runId} className="border-b border-neutral-200 dark:border-neutral-700">
-                <td className="p-2 font-mono text-xs">{run.runId}</td>
-                <td className="p-2">{run.description ?? ""}</td>
-                <td className="p-2">{new Date(run.createdUtc).toLocaleString()}</td>
-                <td className="p-2">
-                  <Link href={`/runs/${run.runId}`} className="font-medium text-teal-800 underline dark:text-teal-300">
-                    Open run
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {filteredSorted.map((run) => {
+              const created = new Date(run.createdUtc);
+              const createdLabel = created.toLocaleString();
+
+              return (
+                <tr key={run.runId} className="border-b border-neutral-200 dark:border-neutral-700">
+                  <td className="max-w-[11rem] p-2 align-top">
+                    <code className="block break-all font-mono text-[11px] leading-snug text-neutral-800 dark:text-neutral-200">
+                      {run.runId}
+                    </code>
+                  </td>
+                  <td className="p-2 align-middle">
+                    <RunStatusBadge run={run} />
+                  </td>
+                  <td className="p-2 align-top text-neutral-800 dark:text-neutral-200">{run.description ?? ""}</td>
+                  <td className="p-2 align-top text-sm text-neutral-700 dark:text-neutral-300" title={createdLabel}>
+                    <span className="block">{formatRelativeTime(run.createdUtc)}</span>
+                    <span className="mt-0.5 block text-xs text-neutral-500 dark:text-neutral-500">{createdLabel}</span>
+                  </td>
+                  <td className="p-2 align-top">
+                    <Link href={`/runs/${run.runId}`} className="font-medium text-teal-800 underline dark:text-teal-300">
+                      Open run
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

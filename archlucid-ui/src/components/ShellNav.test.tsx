@@ -1,7 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ShellNav } from "./ShellNav";
+
+vi.mock("next/navigation", () => ({
+  usePathname: (): string => "/",
+}));
 
 vi.mock("next/link", () => ({
   default: ({
@@ -31,7 +35,9 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     const nav = screen.getByRole("navigation", { name: "Runs & review" });
     expect(nav).toBeInTheDocument();
 
-    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+    const homeLink = screen.getByRole("link", { name: "Home" });
+    expect(homeLink).toHaveAttribute("href", "/");
+    expect(homeLink).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "New run" })).toHaveAttribute("href", "/runs/new");
     expect(screen.getByRole("link", { name: "New run" })).toHaveAttribute(
       "title",
@@ -62,6 +68,9 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     render(<ShellNav />);
 
     expect(screen.getByRole("navigation", { name: "Q&A & advisory" })).toBeInTheDocument();
+
+    // Alerts group defaults collapsed for new sessions — expand to expose its <nav>.
+    fireEvent.click(screen.getByRole("button", { name: "Alerts & governance" }));
     expect(screen.getByRole("navigation", { name: "Alerts & governance" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
