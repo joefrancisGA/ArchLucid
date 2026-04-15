@@ -85,6 +85,18 @@ groups:
             Oldest actionable integration outbox row over 1h
             (`archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds`).
 
+      - alert: ArchLucidIntegrationEventOutboxConvergenceSlow
+        expr: |
+          archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds > 60
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Integration outbox publish latency exceeding tight convergence target
+          description: >-
+            Oldest actionable integration outbox row over 60s for 5m. Tune in noisy environments;
+            see docs/API_SLOS.md § Outbox convergence. Severe backlog: ArchLucidIntegrationEventOutboxPublishStale (1h).
+
       - alert: ArchLucidIntegrationEventOutboxDeadLetter
         expr: |
           archlucid_integration_event_outbox_dead_letter > 0

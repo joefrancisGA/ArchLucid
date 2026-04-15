@@ -17,6 +17,7 @@ The repo includes **`stryker-config.json`** at the solution root for **Persisten
 - **`stryker-config.agentruntime.json`** — `ArchLucid.AgentRuntime` + `ArchLucid.AgentRuntime.Tests`
 - **`stryker-config.coordinator.json`** — `ArchLucid.Coordinator` + `ArchLucid.Coordinator.Tests`
 - **`stryker-config.decisioning.json`** — `ArchLucid.Decisioning` + `ArchLucid.Decisioning.Tests`
+- **`stryker-config.persistence-coordination.json`** — `ArchLucid.Persistence.Coordination` + `ArchLucid.Persistence.Tests` (scheduled workflow label **PersistenceCoordination**)
 
 Each config enables **`json`** alongside `progress` and `html` so CI can parse **`mutation-report.json`** (mutation-testing-elements schema).
 
@@ -54,6 +55,7 @@ dotnet dotnet-stryker -f stryker-config.application.json -s ArchLucid.sln
 dotnet dotnet-stryker -f stryker-config.agentruntime.json -s ArchLucid.sln
 dotnet dotnet-stryker -f stryker-config.coordinator.json -s ArchLucid.sln
 dotnet dotnet-stryker -f stryker-config.decisioning.json -s ArchLucid.sln
+dotnet dotnet-stryker -f stryker-config.persistence-coordination.json -s ArchLucid.sln
 ```
 
 ## Scheduled CI

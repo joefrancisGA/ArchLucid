@@ -110,6 +110,7 @@ Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config
 | `stryker-config.agentruntime.json` | `ArchLucid.AgentRuntime` | `ArchLucid.AgentRuntime.Tests` |
 | `stryker-config.coordinator.json` | `ArchLucid.Coordinator` | `ArchLucid.Coordinator.Tests` |
 | `stryker-config.decisioning.json` | `ArchLucid.Decisioning` | `ArchLucid.Decisioning.Tests` |
+| `stryker-config.persistence-coordination.json` | `ArchLucid.Persistence.Coordination` | `ArchLucid.Persistence.Tests` |
 
 ### k6 performance smoke (Tier 2c — CI automated)
 

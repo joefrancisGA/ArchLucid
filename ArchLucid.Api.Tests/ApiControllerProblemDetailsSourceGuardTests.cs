@@ -41,7 +41,9 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
         files.Length.Should().BeGreaterThan(0);
 
         Regex bareNotFound = new(@"\breturn\s+NotFound\s*\(\s*\)\s*;", RegexOptions.CultureInvariant);
+        Regex bareConflict = new(@"\breturn\s+Conflict\s*\(\s*\)\s*;", RegexOptions.CultureInvariant);
         Regex bareConflictObject = new(@"\breturn\s+Conflict\s*\(\s*[^P]", RegexOptions.CultureInvariant);
+        Regex bareBadRequest = new(@"\breturn\s+BadRequest\s*\(\s*\)\s*;", RegexOptions.CultureInvariant);
         List<string> violations = [];
 
         foreach (string file in files)
@@ -53,9 +55,19 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
                 violations.Add($"{file}: bare NotFound()");
             }
 
+            if (bareConflict.IsMatch(text))
+            {
+                violations.Add($"{file}: bare Conflict() — use ConflictProblem per RFC 9457");
+            }
+
             if (bareConflictObject.IsMatch(text))
             {
                 violations.Add($"{file}: Conflict(...) without Problem factory — verify RFC 9457 shape");
+            }
+
+            if (bareBadRequest.IsMatch(text))
+            {
+                violations.Add($"{file}: bare BadRequest() — use BadRequestProblem per RFC 9457");
             }
         }
 

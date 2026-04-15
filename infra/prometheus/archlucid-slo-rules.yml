@@ -193,6 +193,15 @@ groups:
             Simple error-rate guardrail complementing multi-window burn alerts. Adjust 0.02 and duration for your SLO;
             see docs/runbooks/SLO_PROMETHEUS_GRAFANA.md.
 
+  - name: archlucid-slo-outbox-convergence
+    interval: 30s
+    rules:
+      # Mirrors OTel gauge for dashboards / recording consistency (integration event publish path).
+      - record: archlucid:slo:integration_event_outbox_oldest_age_seconds
+        expr: archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds
+        labels:
+          component: worker
+
   - name: archlucid-slo-outbox-depth
     interval: 30s
     rules:

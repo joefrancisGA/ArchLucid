@@ -1,6 +1,6 @@
 # Data consistency matrix
 
-**Last reviewed:** 2026-04-14 (archival cascade + transaction pattern notes)
+**Last reviewed:** 2026-04-15 (run archival cascades GoldenManifests / FindingsSnapshots ArchivedUtc)
 
 This document states **what consistency guarantees callers should assume** for major aggregates. It complements `docs/SQL_DDL_DISCIPLINE.md` and `docs/API_CONTRACTS.md`.
 
@@ -66,11 +66,11 @@ If a list view looks stale immediately after a write, wait briefly and refresh. 
 | Area | Behavior today | Notes |
 |------|----------------|--------|
 | **`dbo.Runs`** | **`ArchivedUtc`** soft-archive on bulk archival | Primary visibility gate for run lists that respect archival |
-| **Child snapshots / manifest rows** | **Not** always cascaded in the same SQL statement | Downstream rows may remain until a dedicated cleanup job or future migration adds cascade / orphan policy |
+| **`dbo.GoldenManifests` / `dbo.FindingsSnapshots`** | **`ArchivedUtc`** set in the **same transaction** as parent **`dbo.Runs`** bulk / by-id archival | Migration **`066_GoldenManifestsFindingsSnapshots_ArchivedUtc.sql`**; **`SqlRunRepository`** batch. Other child tables (e.g. graph/context snapshots) are unchanged — extend similarly if operators need uniform soft-archive columns |
 | **Coordinator artifacts** | Application-enforced consistency | Treat archived authority runs as **logically** inactive; do not assume every child FK is nulled automatically |
 | **Hot-path cache** | **`ArchiveRunsCreatedBeforeAsync`** removes per-run keys via **`OUTPUT`** scope columns | See matrix row **Hot-path read cache** |
 
-**Operator expectation:** after bulk archival, some read paths may still resolve historical snapshot ids until TTL or explicit invalidation; prefer **run list** and **authority detail** APIs that honor **`ArchivedUtc`** over ad-hoc SQL.
+**Operator expectation:** golden manifest and findings snapshot rows for an archived run now carry **`ArchivedUtc`** alongside the run; list/detail APIs that filter on run archival should treat matching child **`ArchivedUtc`** as aligned. Other snapshot families may still need TTL or explicit invalidation until cascaded the same way.
 
 **Transaction pattern:** **`IArchLucidUnitOfWork`** / **`IArchLucidUnitOfWorkFactory`** are the standard for mutating authority SQL in one transaction. A repo-wide search shows **no** `TransactionScope` usage in product `.cs` sources (as of 2026-04-14); coordinator orchestrators use the same UoW pattern for create/commit persistence. Prefer UoW for new writes.
 

@@ -3,5 +3,6 @@
   "Application": { "mutationScore": 65.0 },
   "AgentRuntime": { "mutationScore": 65.0 },
   "Coordinator": { "mutationScore": 65.0 },
-  "Decisioning": { "mutationScore": 65.0 }
+  "Decisioning": { "mutationScore": 65.0 },
+  "PersistenceCoordination": { "mutationScore": 65.0 }
 }

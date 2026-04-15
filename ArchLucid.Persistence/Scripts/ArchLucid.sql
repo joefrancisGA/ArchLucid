@@ -758,6 +758,12 @@ BEGIN
 END;
 GO
 
+/* Brownfield: soft-archive on dbo.FindingsSnapshots (DbUp 066 parity; cascaded when dbo.Runs bulk-archive). */
+IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.FindingsSnapshots', N'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.FindingsSnapshots ADD ArchivedUtc DATETIME2 NULL;
+GO
+
 -- Relational findings (dual-write with FindingsJson; typed payload only in FindingRecords.PayloadJson).
 IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NULL
 BEGIN
@@ -986,6 +992,12 @@ GO
 IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.GoldenManifests', N'RowVersionStamp') IS NULL
     ALTER TABLE dbo.GoldenManifests ADD RowVersionStamp ROWVERSION;
+GO
+
+/* Brownfield: soft-archive on dbo.GoldenManifests (DbUp 066 parity; cascaded when dbo.Runs bulk-archive). */
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.GoldenManifests ADD ArchivedUtc DATETIME2 NULL;
 GO
 
 -- Phase-1 relational slices for GoldenManifest (dual-write; other sections remain JSON on dbo.GoldenManifests).

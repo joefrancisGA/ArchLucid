@@ -27,6 +27,8 @@ jobs:
             config: stryker-config.coordinator.json
           - label: Decisioning
             config: stryker-config.decisioning.json
+          - label: PersistenceCoordination
+            config: stryker-config.persistence-coordination.json
     steps:
       - uses: actions/checkout@v5
 

@@ -168,35 +168,31 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 $"RequestId={request.RequestId}; Environment={request.Environment}",
                 cancellationToken);
 
-        try
-        {
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            Guid? runGuid = Guid.TryParse(coordination.Run.RunId, out Guid rid) ? rid : null;
+        ScopeContext auditScope = _scopeContextProvider.GetCurrentScope();
+        Guid? auditRunGuid = Guid.TryParse(coordination.Run.RunId, out Guid parsedRun) ? parsedRun : null;
+        string sanitizedRunIdForLabel = LogSanitizer.Sanitize(coordination.Run.RunId);
 
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.CoordinatorRunCreated,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    RunId = runGuid,
-                    DataJson = System.Text.Json.JsonSerializer.Serialize(new { requestId = request.RequestId, systemName = request.SystemName }),
-                },
-                cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
+        await DurableAuditLogRetry.TryLogAsync(
+            async ct =>
             {
-                _logger.LogWarning(
-                    ex,
-                    "Durable audit for CoordinatorRunCreated failed for RunId={RunId}",
-                    LogSanitizer.Sanitize(coordination.Run.RunId));
-            }
-        }
+                await _auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.CoordinatorRunCreated,
+                        ActorUserId = actor,
+                        ActorUserName = actor,
+                        TenantId = auditScope.TenantId,
+                        WorkspaceId = auditScope.WorkspaceId,
+                        ProjectId = auditScope.ProjectId,
+                        RunId = auditRunGuid,
+                        DataJson = System.Text.Json.JsonSerializer.Serialize(
+                            new { requestId = request.RequestId, systemName = request.SystemName }),
+                    },
+                    ct);
+            },
+            _logger,
+            $"CoordinatorRunCreated:{sanitizedRunIdForLabel}",
+            cancellationToken);
 
         if (_logger.IsEnabled(LogLevel.Information))
         {

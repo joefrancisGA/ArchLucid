@@ -65,6 +65,15 @@ This document defines **customer-visible** HTTP objectives for the ArchLucid API
 
 **Note:** The **latency SLO** row is a **starting guardrail**; product owners should align it with pilot SLAs. Prometheus already records **p99** with `ArchLucidSloHttpP99High` at 5s as a **warning**—adjust thresholds to match the table once agreed.
 
+### Outbox convergence (integration event publish)
+
+| SLO | Target | Measurement | Where measured |
+|-----|--------|-------------|----------------|
+| **Oldest actionable integration outbox row** | **p99 processing within 30 s** under steady state (aspirational) | Gauge `archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds` (OTel meter **ArchLucid**) | Prometheus scrape; recording rule `archlucid:slo:integration_event_outbox_oldest_age_seconds` in `infra/prometheus/archlucid-slo-rules.yml` |
+| **Early warning** | Age **> 60 s** for **5 minutes** | Same gauge | `ArchLucidIntegrationEventOutboxConvergenceSlow` in `infra/prometheus/archlucid-alerts.yml` |
+
+**Notes:** The **1 h** stale alert (`ArchLucidIntegrationEventOutboxPublishStale`) remains the **severe** signal; the **60 s** rule is a **tighter** guardrail for environments where publish latency must stay low. Tune or silence in noisy stacks.
+
 ### Rolling up synthetic results
 
 To convert “every 15 minutes” into a monthly SLO, either:

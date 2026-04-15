@@ -13,6 +13,61 @@ namespace ArchLucid.Persistence.Tests;
 public sealed class IntegrationEventOutboxProcessorTests
 {
     [Fact]
+    public async Task ProcessPendingBatchAsync_processes_multiple_entries_in_one_batch()
+    {
+        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        Guid id1 = Guid.NewGuid();
+        Guid id2 = Guid.NewGuid();
+
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new IntegrationEventOutboxEntry
+                {
+                    OutboxId = id1,
+                    RunId = Guid.NewGuid(),
+                    EventType = "t1",
+                    MessageId = null,
+                    PayloadUtf8 = [1],
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow,
+                    RetryCount = 0
+                },
+                new IntegrationEventOutboxEntry
+                {
+                    OutboxId = id2,
+                    RunId = Guid.NewGuid(),
+                    EventType = "t2",
+                    MessageId = null,
+                    PayloadUtf8 = [2],
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow,
+                    RetryCount = 0
+                }
+            ]);
+
+        IntegrationEventOutboxProcessor sut = CreateProcessor(outbox.Object, publisher.Object);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(o => o.MarkProcessedAsync(id1, It.IsAny<CancellationToken>()), Times.Once);
+        outbox.Verify(o => o.MarkProcessedAsync(id2, It.IsAny<CancellationToken>()), Times.Once);
+        publisher.Verify(
+            p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
+    [Fact]
     public async Task ProcessPendingBatchAsync_on_success_marks_processed()
     {
         Mock<IIntegrationEventPublisher> publisher = new();

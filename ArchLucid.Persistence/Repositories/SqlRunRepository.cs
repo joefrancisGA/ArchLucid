@@ -332,22 +332,62 @@ public sealed class SqlRunRepository(
     public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
     {
         const string sql = """
+            DECLARE @Archived TABLE (
+                RunId UNIQUEIDENTIFIER NOT NULL,
+                TenantId UNIQUEIDENTIFIER NOT NULL,
+                WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+                ScopeProjectId UNIQUEIDENTIFIER NOT NULL
+            );
+
             UPDATE dbo.Runs
             SET ArchivedUtc = SYSUTCDATETIME()
             OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
+            INTO @Archived
             WHERE ArchivedUtc IS NULL AND CreatedUtc < @Cutoff;
+
+            IF COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.GoldenManifests
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            IF COL_LENGTH(N'dbo.FindingsSnapshots', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.FindingsSnapshots
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @Archived;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        List<ArchivedRunScopeRow> rows = (await connection.QueryAsync<ArchivedRunScopeRow>(
-                new CommandDefinition(sql, new { Cutoff = cutoffUtc.UtcDateTime }, cancellationToken: ct)))
-            .ToList();
+        await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
 
-        return new RunArchiveBatchResult
+        try
         {
-            UpdatedCount = rows.Count,
-            ArchivedRuns = rows
-        };
+            List<ArchivedRunScopeRow> rows = (await connection.QueryAsync<ArchivedRunScopeRow>(
+                    new CommandDefinition(
+                        sql,
+                        new { Cutoff = cutoffUtc.UtcDateTime },
+                        transaction: tran,
+                        cancellationToken: ct)))
+                .ToList();
+
+            await tran.CommitAsync(ct);
+
+            return new RunArchiveBatchResult
+            {
+                UpdatedCount = rows.Count,
+                ArchivedRuns = rows
+            };
+        }
+        catch
+        {
+            await tran.RollbackAsync(ct);
+            throw;
+        }
     }
 
     /// <inheritdoc />
@@ -412,15 +452,53 @@ public sealed class SqlRunRepository(
         }
 
         const string updateSql = """
+            DECLARE @Archived TABLE (
+                RunId UNIQUEIDENTIFIER NOT NULL,
+                TenantId UNIQUEIDENTIFIER NOT NULL,
+                WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+                ScopeProjectId UNIQUEIDENTIFIER NOT NULL
+            );
+
             UPDATE dbo.Runs
             SET ArchivedUtc = SYSUTCDATETIME()
             OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
+            INTO @Archived
             WHERE RunId IN @ToArchive AND ArchivedUtc IS NULL;
+
+            IF COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.GoldenManifests
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            IF COL_LENGTH(N'dbo.FindingsSnapshots', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.FindingsSnapshots
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @Archived;
             """;
 
-        List<ArchivedRunScopeRow> archived = (await connection.QueryAsync<ArchivedRunScopeRow>(
-                new CommandDefinition(updateSql, new { ToArchive = toArchive }, cancellationToken: ct)))
-            .ToList();
+        await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
+
+        List<ArchivedRunScopeRow> archived;
+
+        try
+        {
+            archived = (await connection.QueryAsync<ArchivedRunScopeRow>(
+                    new CommandDefinition(updateSql, new { ToArchive = toArchive }, transaction: tran, cancellationToken: ct)))
+                .ToList();
+
+            await tran.CommitAsync(ct);
+        }
+        catch
+        {
+            await tran.RollbackAsync(ct);
+            throw;
+        }
 
         HashSet<Guid> succeededSet = archived.Select(static r => r.RunId).ToHashSet();
 

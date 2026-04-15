@@ -80,17 +80,16 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         string runId = Guid.NewGuid().ToString("N");
         Guid runGuid = Guid.ParseExact(runId, "N");
         string requestId = "archival-orphan-req-" + runId;
+        Guid manifestId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsSnapId = Guid.NewGuid();
+        Guid decisionTraceId = Guid.NewGuid();
 
         await using (SqlConnection setup = new(fixture.ConnectionString))
         {
             await setup.OpenAsync(CancellationToken.None);
             await ArchitectureCommitTestSeed.InsertRequestAndRunAsync(setup, requestId, runId, CancellationToken.None);
-
-            Guid manifestId = Guid.NewGuid();
-            Guid contextId = Guid.NewGuid();
-            Guid graphId = Guid.NewGuid();
-            Guid findingsSnapId = Guid.NewGuid();
-            Guid decisionTraceId = Guid.NewGuid();
 
             const string insertManifest = """
                 IF NOT EXISTS (SELECT 1 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId)
@@ -197,6 +196,22 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
                 cancellationToken: CancellationToken.None));
 
         archivedUtc.Should().NotBeNull();
+
+        DateTime? manifestArchivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
+            new CommandDefinition(
+                "SELECT ArchivedUtc FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;",
+                new { ManifestId = manifestId },
+                cancellationToken: CancellationToken.None));
+
+        manifestArchivedUtc.Should().NotBeNull(because: "bulk run archival cascades ArchivedUtc to dbo.GoldenManifests");
+
+        DateTime? findingsArchivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
+            new CommandDefinition(
+                "SELECT ArchivedUtc FROM dbo.FindingsSnapshots WHERE FindingsSnapshotId = @FindingsSnapshotId;",
+                new { FindingsSnapshotId = findingsSnapId },
+                cancellationToken: CancellationToken.None));
+
+        findingsArchivedUtc.Should().NotBeNull(because: "bulk run archival cascades ArchivedUtc to dbo.FindingsSnapshots");
 
         long leftOrphans = await ScalarCountAsync(verify, ComparisonRecordsLeftRunId, CancellationToken.None);
         long rightOrphans = await ScalarCountAsync(verify, ComparisonRecordsRightRunId, CancellationToken.None);
