@@ -17,6 +17,10 @@ Other layers (authentication, RLS, rate limiting, CORS, security headers) are de
 
 **System-wide STRIDE summary (product boundary):** [docs/security/SYSTEM_THREAT_MODEL.md](security/SYSTEM_THREAT_MODEL.md).
 
+## OpenAPI-driven fuzzing (Schemathesis, PR + schedule)
+
+Merge-blocking **Schemathesis light** runs on every PR after full .NET regression: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) job **`api-schemathesis-light`** builds the API image, starts the container, and runs **`--phases=examples`** against **`/openapi/v1.json`** with **`--checks=all`** (response schema and status conformance). Full fuzzing and stateful phases run weekly — see **[docs/API_FUZZ_TESTING.md](API_FUZZ_TESTING.md)**.
+
 ## DevelopmentBypass production guard
 
 `ArchLucidAuth:Mode=DevelopmentBypass` is for **local and non-production** integration only. The API calls **`AuthSafetyGuard.GuardDevelopmentBypassInProduction`** during startup **before** authentication services are registered. It throws **`InvalidOperationException`** when the effective auth mode is DevelopmentBypass **and** any of the following is true:
