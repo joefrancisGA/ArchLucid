@@ -8,7 +8,7 @@
 
 **Warnings-only period:** legacy **`ArchiForge*`** configuration keys (connection string name, product section, auth section) are detected at API/Worker startup and logged; values are **ignored**.
 
-**Earliest hard enforcement:** not before **`2027-07-01`** (UTC calendar date). That date is also **`ArchLucidLegacyConfigurationWarnings.LegacyConfigurationKeysHardEnforcementNoEarlierThan`** in code so operators see the same target in logs. Turning warnings into **startup failure** requires an explicit product decision and checklist update — do not treat the date as automatic without release notes.
+**Earliest hard enforcement:** not before **`2027-07-01`** (UTC calendar date). That date is also **`ArchLucidLegacyConfigurationWarnings.LegacyConfigurationKeysHardEnforcementNoEarlierThan`** in code so operators see the same target in logs. CI runs **`scripts/ci/assert_legacy_config_sunset_not_passed.py`** so merges fail if that constant is ever set to a **past** date without removing legacy handling. Turning warnings into **startup failure** requires an explicit product decision and checklist update — do not treat the date as automatic without release notes.
 
 ## Operator impact
 

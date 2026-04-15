@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
 
 using Microsoft.AspNetCore.RateLimiting;
@@ -22,6 +23,9 @@ internal static class InfrastructureExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.Configure<RateLimitingRoleMultiplierOptions>(
+            configuration.GetSection(RateLimitingRoleMultiplierOptions.SectionPath));
+
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
@@ -30,23 +34,27 @@ internal static class InfrastructureExtensions
             int fixedWindowMinutes = configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
             int fixedQueueLimit = configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
 
-            options.AddFixedWindowLimiter("fixed", config =>
-            {
-                config.Window = TimeSpan.FromMinutes(fixedWindowMinutes);
-                config.PermitLimit = fixedPermitLimit;
-                config.QueueLimit = fixedQueueLimit;
-            });
+            options.AddPolicy(
+                "fixed",
+                httpContext => RateLimitingRolePartitionBuilder.CreateFixedWindow(
+                    httpContext,
+                    fixedPermitLimit,
+                    fixedWindowMinutes,
+                    fixedQueueLimit,
+                    "fixed"));
 
             int expensivePermitLimit = configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
             int expensiveWindowMinutes = configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
             int expensiveQueueLimit = configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);
 
-            options.AddFixedWindowLimiter("expensive", config =>
-            {
-                config.Window = TimeSpan.FromMinutes(expensiveWindowMinutes);
-                config.PermitLimit = expensivePermitLimit;
-                config.QueueLimit = expensiveQueueLimit;
-            });
+            options.AddPolicy(
+                "expensive",
+                httpContext => RateLimitingRolePartitionBuilder.CreateFixedWindow(
+                    httpContext,
+                    expensivePermitLimit,
+                    expensiveWindowMinutes,
+                    expensiveQueueLimit,
+                    "expensive"));
 
             int replayLightPermitLimit = configuration.GetValue("RateLimiting:Replay:Light:PermitLimit", 60);
             int replayLightWindowMinutes = configuration.GetValue("RateLimiting:Replay:Light:WindowMinutes", 1);

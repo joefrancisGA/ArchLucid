@@ -77,4 +77,50 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
         text.Should().Contain("Alternative paths considered");
         text.Should().Contain(ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote);
     }
+
+    [Fact]
+    public void Build_with_node_labels_shows_label_and_id_for_resolved_nodes()
+    {
+        ExplainabilityTrace trace = new()
+        {
+            GraphNodeIdsExamined = ["n-1"],
+        };
+
+        Dictionary<string, string> labels = new() { ["n-1"] = "Subnet A" };
+
+        string text = FindingExplainabilityNarrativeBuilder.Build("f1", "T", "e", trace, 1.0, labels);
+
+        text.Should().Contain("Graph nodes examined");
+        text.Should().Contain("- Subnet A (n-1)");
+    }
+
+    [Fact]
+    public void Build_with_partial_node_labels_mixed_lines()
+    {
+        ExplainabilityTrace trace = new()
+        {
+            GraphNodeIdsExamined = ["a", "b"],
+        };
+
+        Dictionary<string, string> labels = new() { ["a"] = "L1" };
+
+        string text = FindingExplainabilityNarrativeBuilder.Build("x", "T", "e", trace, 0.5, labels);
+
+        text.Should().Contain("- L1 (a)");
+        text.Should().Contain("- b");
+    }
+
+    [Fact]
+    public void Build_with_null_node_labels_matches_overload_without_labels()
+    {
+        ExplainabilityTrace trace = new()
+        {
+            GraphNodeIdsExamined = ["n1"],
+        };
+
+        string without = FindingExplainabilityNarrativeBuilder.Build("f", "T", "e", trace, 0.5);
+        string withNull = FindingExplainabilityNarrativeBuilder.Build("f", "T", "e", trace, 0.5, null);
+
+        withNull.Should().Be(without);
+    }
 }

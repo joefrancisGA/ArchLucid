@@ -7,6 +7,8 @@ import re
 import sys
 from pathlib import Path
 
+LATEST_MIGRATION_COUNT = 10
+
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -45,12 +47,15 @@ def main() -> int:
 
     migrations = _migration_numbers_and_names(migrations_dir)
 
-    if len(migrations) < 5:
-        print(f"ERROR: expected at least 5 numbered migrations, found {len(migrations)}", file=sys.stderr)
+    if len(migrations) < LATEST_MIGRATION_COUNT:
+        print(
+            f"ERROR: expected at least {LATEST_MIGRATION_COUNT} numbered migrations, found {len(migrations)}",
+            file=sys.stderr,
+        )
         return 1
 
     migrations.sort(key=lambda t: t[0], reverse=True)
-    top = migrations[:5]
+    top = migrations[:LATEST_MIGRATION_COUNT]
     errors: list[str] = []
 
     for num, forward_name in top:

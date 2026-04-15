@@ -42,6 +42,24 @@ public sealed class DataConsistencyOrphanProbeHostedService(
               WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId));
         """;
 
+    private const string GoldenManifestOrphanSql = """
+        SELECT COUNT_BIG(1)
+        FROM dbo.GoldenManifests g
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM dbo.Runs r
+            WHERE r.RunId = g.RunId);
+        """;
+
+    private const string FindingsSnapshotOrphanSql = """
+        SELECT COUNT_BIG(1)
+        FROM dbo.FindingsSnapshots f
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM dbo.Runs r
+            WHERE r.RunId = f.RunId);
+        """;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.Value.StorageProvider))
@@ -103,13 +121,16 @@ public sealed class DataConsistencyOrphanProbeHostedService(
         await using DbConnection _ = connection;
         await connection.OpenAsync(ct);
 
-        await LogAndCountOrphansAsync(connection, LeftOrphanSql, "LeftRunId", ct).ConfigureAwait(false);
-        await LogAndCountOrphansAsync(connection, RightOrphanSql, "RightRunId", ct).ConfigureAwait(false);
+        await LogAndCountOrphansAsync(connection, LeftOrphanSql, "ComparisonRecords", "LeftRunId", ct).ConfigureAwait(false);
+        await LogAndCountOrphansAsync(connection, RightOrphanSql, "ComparisonRecords", "RightRunId", ct).ConfigureAwait(false);
+        await LogAndCountOrphansAsync(connection, GoldenManifestOrphanSql, "GoldenManifests", "RunId", ct).ConfigureAwait(false);
+        await LogAndCountOrphansAsync(connection, FindingsSnapshotOrphanSql, "FindingsSnapshots", "RunId", ct).ConfigureAwait(false);
     }
 
     private async Task LogAndCountOrphansAsync(
         DbConnection connection,
         string sql,
+        string tableMetricLabel,
         string columnLabel,
         CancellationToken ct)
     {
@@ -124,13 +145,14 @@ public sealed class DataConsistencyOrphanProbeHostedService(
         }
 
         logger.LogWarning(
-            "Data consistency: {Count} comparison record(s) reference a missing authority RunId ({Column}).",
+            "Data consistency: {Count} row(s) in {Table} reference a missing authority RunId ({Column}).",
             count,
+            tableMetricLabel,
             columnLabel);
 
         ArchLucidInstrumentation.DataConsistencyOrphansDetected.Add(
             count,
-            new KeyValuePair<string, object?>("table", "ComparisonRecords"),
+            new KeyValuePair<string, object?>("table", tableMetricLabel),
             new KeyValuePair<string, object?>("column", columnLabel));
     }
 }

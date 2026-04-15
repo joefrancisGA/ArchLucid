@@ -158,8 +158,11 @@ jobs:
           fi
           echo "Audit Core constants: $CONST_COUNT (matrix marker OK)."
 
-      - name: Guard — migration rollback scripts (latest five)
+      - name: Guard — migration rollback scripts (latest ten)
         run: python3 scripts/ci/assert_rollback_scripts_exist.py
+
+      - name: Guard — legacy configuration sunset date
+        run: python3 scripts/ci/assert_legacy_config_sunset_not_passed.py
 
       - name: Guard — unexpected archiforge string literals in C# (case-insensitive)
         run: |

@@ -31,7 +31,7 @@
 
 | Concern | Implementation | Operator / SRE evidence |
 |--------|----------------|-------------------------|
-| **Detection** | `ArchLucid.Host.Core.Hosted.DataConsistencyOrphanProbeHostedService` | Logs + counter **`archlucid_data_consistency_orphans_detected_total`** (labels **`table`**, **`column`**) |
+| **Detection** | `ArchLucid.Host.Core.Hosted.DataConsistencyOrphanProbeHostedService` | Logs + counter **`archlucid_data_consistency_orphans_detected_total`** (labels **`table`**: **`ComparisonRecords`**, **`GoldenManifests`**, **`FindingsSnapshots`**; **`column`**: **`LeftRunId`** / **`RightRunId`** / **`RunId`**) |
 | **Alerting** | [`infra/prometheus/archlucid-alerts.yml`](../infra/prometheus/archlucid-alerts.yml) § `archlucid-data-consistency` | Tune `for:` / thresholds per environment |
 | **Remediation** | Not automatic (by design) | [`runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md`](runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md) |
 

@@ -5,12 +5,14 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Resilience;
+using ArchLucid.Core.Safety;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Resilience;
@@ -33,6 +35,19 @@ public static partial class ServiceCollectionExtensions
 {
     private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<ContentSafetyOptions>(configuration.GetSection(ContentSafetyOptions.SectionPath));
+        services.AddSingleton<IContentSafetyGuard>(static sp =>
+        {
+            IOptions<ContentSafetyOptions> opts = sp.GetRequiredService<IOptions<ContentSafetyOptions>>();
+
+            if (!opts.Value.Enabled)
+            {
+                return new NullContentSafetyGuard();
+            }
+
+            return new ContentSafetyEnabledButUnconfiguredGuard();
+        });
+
         services.Configure<AgentPromptCatalogOptions>(
             configuration.GetSection(AgentPromptCatalogOptions.SectionName));
         services.AddSingleton<IAgentSystemPromptCatalog, CachedAgentSystemPromptCatalog>();

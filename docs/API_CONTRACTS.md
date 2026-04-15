@@ -178,7 +178,7 @@ Compliance filtering in API requests follows **`IScopeContextProvider`**. For **
 |--------|------|--------|
 | `GET` | `/v1/governance-resolution` | Returns **`EffectiveGovernanceResolutionResult`**: **`effectiveContent`**, per-item **`decisions`** (winner pack, scope level, reason), **`conflicts`** (duplicate definitions / value conflicts), and **`notes`**. Emits audit **`GovernanceResolutionExecuted`**; **`GovernanceConflictDetected`** when **`conflicts`** is non-empty. Requires **ReadAuthority**. |
 
-**Rate limiting:** Governance and alert **`/v1/...`** controllers use the **`fixed`** window unless noted elsewhere (e.g. **expensive** / **replay** on architecture flows). See **README.md** (Rate limiting table) and **`RateLimiting:*`** configuration keys.
+**Rate limiting:** Governance and alert **`/v1/...`** controllers use the **`fixed`** window unless noted elsewhere (e.g. **expensive** / **replay** on architecture flows). **`fixed`** and **`expensive`** policies apply **per role segment × client IP**; base limits come from **`RateLimiting:FixedWindow:*`** / **`RateLimiting:Expensive:*`**, with optional multipliers under **`RateLimiting:RoleMultipliers`**. See **README.md** (Rate limiting table) and **`docs/SECURITY.md`** (role-aware limits).
 
 Scope defaults for dev/tests: **`ScopeIds`** (**`x-tenant-id`**, **`x-workspace-id`**, **`x-project-id`** optional).
 

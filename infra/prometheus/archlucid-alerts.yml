@@ -106,11 +106,12 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: Orphan coordinator rows detected vs authority Runs
+          summary: Orphan rows detected vs authority Runs
           description: >-
             `DataConsistencyOrphanProbeHostedService` incremented `archlucid_data_consistency_orphans_detected_total`
-            (labels `table`, `column` = LeftRunId or RightRunId). Investigate `dbo.ComparisonRecords` vs `dbo.Runs`;
-            see `docs/runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md`. Probe is detection-only.
+            (labels `table` = ComparisonRecords, GoldenManifests, or FindingsSnapshots; `column` = LeftRunId, RightRunId, or RunId).
+            Investigate missing `dbo.Runs` keys; for comparison rows see `docs/runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md`.
+            Probe is detection-only.
 
   - name: archlucid-explainability
     rules:

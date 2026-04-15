@@ -2,7 +2,7 @@
 
 **File:** [`workspace.dsl`](workspace.dsl)
 
-**Purpose:** Machine-readable C4 views (system context + containers) that stay aligned with [`docs/ARCHITECTURE_CONTAINERS.md`](../ARCHITECTURE_CONTAINERS.md) and [`docs/START_HERE.md`](../START_HERE.md).
+**Purpose:** Machine-readable C4 views (system context + containers + **API component** breakdown) that stay aligned with [`docs/ARCHITECTURE_CONTAINERS.md`](../ARCHITECTURE_CONTAINERS.md) and [`docs/START_HERE.md`](../START_HERE.md). Open the **`ApiComponents`** view in Structurizr for the HTTP surface split inside the API container.
 
 ## Render locally
 

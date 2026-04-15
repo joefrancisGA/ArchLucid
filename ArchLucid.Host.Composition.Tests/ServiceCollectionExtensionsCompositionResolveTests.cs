@@ -1,5 +1,7 @@
 using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Safety;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosting;
 
@@ -64,6 +66,43 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
 
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("*ArchLucid:FallbackLlm*");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_resolves_NullContentSafetyGuard_when_safety_disabled_by_default()
+    {
+        IConfiguration configuration = CreateRealAzureCompositionConfiguration(fallbackLlmEnabled: false);
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        IContentSafetyGuard guard = provider.GetRequiredService<IContentSafetyGuard>();
+
+        guard.Should().BeOfType<NullContentSafetyGuard>();
+    }
+
+    [Fact]
+    public async Task AddArchLucidApplicationServices_resolves_stub_content_safety_guard_when_enabled()
+    {
+        Dictionary<string, string?> data = CreateRealAzureCompositionDictionary(fallbackLlmEnabled: false);
+        data["ArchLucid:ContentSafety:Enabled"] = "true";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        IContentSafetyGuard guard = provider.GetRequiredService<IContentSafetyGuard>();
+
+        guard.Should().BeOfType<ContentSafetyEnabledButUnconfiguredGuard>();
+
+        Func<Task> act = async () =>
+            await guard.CheckInputAsync("hello", CancellationToken.None).ConfigureAwait(false);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*ArchLucid:ContentSafety*");
     }
 
     private static ServiceCollection CreateCoreServices(IConfiguration configuration)

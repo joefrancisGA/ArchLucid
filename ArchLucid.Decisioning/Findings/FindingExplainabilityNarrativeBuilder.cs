@@ -20,13 +20,28 @@ public static class FindingExplainabilityNarrativeBuilder
         ExplainabilityTrace trace,
         double traceCompletenessRatio)
     {
+        return Build(findingId, title, engineType, trace, traceCompletenessRatio, graphNodeLabels: null);
+    }
+
+    /// <summary>
+    /// Same as <see cref="Build(string,string,string,ExplainabilityTrace,double)"/>, but resolves graph node ids to
+    /// <c>Label (id)</c> when <paramref name="graphNodeLabels"/> contains a non-empty entry for the id.
+    /// </summary>
+    public static string Build(
+        string findingId,
+        string title,
+        string engineType,
+        ExplainabilityTrace trace,
+        double traceCompletenessRatio,
+        IReadOnlyDictionary<string, string>? graphNodeLabels)
+    {
         ArgumentNullException.ThrowIfNull(trace);
 
         StringBuilder sb = new();
 
         AppendHeader(sb, findingId, title, engineType, traceCompletenessRatio);
         AppendOptionalLine(sb, "Source agent execution trace id", trace.SourceAgentExecutionTraceId);
-        AppendBulletSection(sb, "Graph nodes examined", trace.GraphNodeIdsExamined);
+        AppendGraphNodeBulletSection(sb, trace.GraphNodeIdsExamined, graphNodeLabels);
         AppendBulletSection(sb, "Rules applied", trace.RulesApplied);
         AppendBulletSection(sb, "Decisions taken", trace.DecisionsTaken);
         AppendBulletSection(sb, "Alternative paths considered", trace.AlternativePathsConsidered);
@@ -72,6 +87,48 @@ public static class FindingExplainabilityNarrativeBuilder
         sb.Append(label);
         sb.Append(": ");
         sb.Append(value);
+        sb.AppendLine();
+    }
+
+    private static void AppendGraphNodeBulletSection(
+        StringBuilder sb,
+        IReadOnlyList<string>? nodeIds,
+        IReadOnlyDictionary<string, string>? labelsById)
+    {
+        if (nodeIds is null || nodeIds.Count == 0)
+        {
+            return;
+        }
+
+        List<string> nonEmpty = nodeIds
+            .Where(static s => !string.IsNullOrWhiteSpace(s))
+            .Select(static s => s.Trim())
+            .ToList();
+
+        if (nonEmpty.Count == 0)
+        {
+            return;
+        }
+
+        sb.Append("Graph nodes examined");
+        sb.AppendLine();
+
+        foreach (string id in nonEmpty)
+        {
+            string line = id;
+
+            if (labelsById is not null
+                && labelsById.TryGetValue(id, out string? label)
+                && !string.IsNullOrWhiteSpace(label))
+            {
+                line = $"{label.Trim()} ({id})";
+            }
+
+            sb.Append("- ");
+            sb.Append(line);
+            sb.AppendLine();
+        }
+
         sb.AppendLine();
     }
 

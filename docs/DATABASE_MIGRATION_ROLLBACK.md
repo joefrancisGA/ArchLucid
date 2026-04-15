@@ -6,7 +6,7 @@ Forward schema changes ship via DbUp under `ArchLucid.Persistence/Migrations/`. 
 
 ## Guard
 
-CI enforces that the **five most recent** numbered forward migrations each have at least one matching `Rollback/RNNN_*.sql` file (`scripts/ci/assert_rollback_scripts_exist.py`).
+CI enforces that the **ten most recent** numbered forward migrations each have at least one matching `Rollback/RNNN_*.sql` file (`scripts/ci/assert_rollback_scripts_exist.py`).
 
 ## Risk
 

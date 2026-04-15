@@ -45,6 +45,14 @@ JWT **`roles`** / **`ClaimTypes.Role`** and DevelopmentBypass **`ArchLucidAuth:D
 
 Fine-grained **`permission`** claims (for example **`commit:run`**, **`export:consulting-docx`**) are still issued by **`ArchLucidRoleClaimsTransformation`** so existing permission policies remain meaningful for JWT and DevelopmentBypass. **ApiKey** mode maps keys to **Admin** or **Reader** roles only; use JWT with an **Auditor** app role when audit export is required for a principal.
 
+## HTTP rate limiting (role-aware)
+
+**`fixed`** and **`expensive`** ASP.NET rate-limit policies partition buckets by **resolved role segment + client IP**. Base permit counts come from **`RateLimiting:FixedWindow:*`** and **`RateLimiting:Expensive:*`**; optional multipliers are in **`RateLimiting:RoleMultipliers`** (**`Admin`**, **`Operator`**, **`Reader`**, **`Anonymous`**), clamped in code to a safe range. **ApiKey** and JWT principals inherit the same **`IsInRole`** checks, so automation keys mapped to **Admin** receive a higher budget than anonymous traffic.
+
+## LLM content safety (optional)
+
+**`ArchLucid:ContentSafety:Enabled`** toggles **`IContentSafetyGuard`** registration. When **disabled** (default), a pass-through guard accepts all text. When **enabled**, the host registers a **stub** that throws until an Azure AI Content Safety (or compatible) implementation is added—use this flag only when you are ready to wire a real client.
+
 ## Log injection (CWE-117)
 
 ArchLucid uses **Serilog** with **structured logging**: message templates use named placeholders (`{RunId}`, `{Path}`, etc.), and sinks such as JSON formatters emit parameters as **separate fields**. That layout reduces the impact of delimiter injection in **JSON** and similar structured sinks.
