@@ -4,6 +4,8 @@
 
 This is a **marketability** assessment — not a technical quality assessment (see `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`, 68.5%). Marketability measures whether the solution can attract buyers, win competitive evaluations, retain customers, and grow revenue in the enterprise architecture tooling market.
 
+**SaaS-only variant (no self-hosted path):** `docs/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` — rebalance weights toward platform, trust, and commercial rails; weighted **~34.8%** under that assumption.
+
 **Prior versions:** `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md` (post-M2, 39.9%), `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` (post-M1, 37.6%).
 
 **What changed since last assessment:** Improvement M3 (ROI model and pilot success scorecard) delivered two documents into `docs/go-to-market/`:
@@ -558,6 +560,7 @@ Keep JwtBearer mode as-is. New mode is additive.
 | `docs/go-to-market/ROI_MODEL.md` | ROI calculator and business case template (M3) |
 | `docs/go-to-market/PILOT_SUCCESS_SCORECARD.md` | Pilot measurement framework (M3) |
 | `docs/go-to-market/DEMO_QUICKSTART.md` | Docker-only demo (`docker-compose.demo.yml`, `scripts/demo-start.*`) (M4) |
+| `docs/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | SaaS-only posture; weights on platform, trust, GTM (~34.8% weighted) |
 | `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md` | Technical quality assessment (68.5%) |
 | `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md` | Prior assessment (39.9%) |
 | `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` | Prior assessment (37.6%) |
