@@ -588,65 +588,45 @@ in tests. Each new test class in its own file.
 
 **Why this is the best improvement #2:** Security has weight 6 and a weighted gap of 180. The DevelopmentBypass risk is the single most dangerous gap in the codebase — a misconfiguration could expose the entire API without authentication.
 
-**Approach:**
-1. Add an environment-aware startup guard that throws on `DevelopmentBypass` when `ASPNETCORE_ENVIRONMENT=Production`.
-2. Add a quick Schemathesis subset to the per-PR CI pipeline (30-second fuzzing against health + version + CRUD endpoints).
-3. Define `AuthorizationPolicy` definitions for ReadOnly, Operator, Admin, Auditor roles.
+**Status (implemented):** As of 2026-04-14 the three approach items are in the tree:
 
-**Cursor Prompts:**
+1. **`AuthSafetyGuard.GuardDevelopmentBypassInProduction`** — `ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`; invoked from **`ArchLucid.Api/Program.cs`** before **`AddArchLucidAuth`** (see also **docs/SECURITY.md** § DevelopmentBypass production guard).
+2. **Per-PR Schemathesis** — **`.github/workflows/ci.yml`** job **`api-schemathesis-light`** (`--phases=examples`, OpenAPI checks); full fuzz remains on the weekly workflow (see **docs/API_FUZZ_TESTING.md**).
+3. **RBAC** — **`ArchLucid.Core/Authorization/ArchLucidRoles.cs`**, **`ArchLucidPolicies.cs`**, **`AddArchLucidAuthorizationPolicies`** in **`ArchLucid.Host.Core/Startup/ArchLucidAuthorizationPoliciesExtensions.cs`**; API controllers use **`[Authorize(Policy = …)]`**; registration tests in **`ArchLucid.Host.Composition.Tests`**.
+
+**Verification (re-run anytime):** `dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release` — expect **`AuthSafetyGuardTests`** and **`ArchLucidAuthorizationPoliciesRegistrationTests`** green (18 tests as of 2026-04-15).
+
+**Cursor prompts** (paste-ready; use for regression checks or future hardening):
 
 ```
-Prompt 2a — DevelopmentBypass production guard:
+Improvement 2 — Prompt `dev-bypass-production-guard`
 
-In the ArchLucid.Api startup pipeline, add a fail-fast guard that prevents the application
-from starting when ALL of the following conditions are true:
-1. The configured auth mode is DevelopmentBypass (ArchLucidAuth:Mode == "DevelopmentBypass")
-2. The ASP.NET Core environment is "Production" OR the environment variable
-   ARCHLUCID_ENVIRONMENT is "Production"
+Verify the DevelopmentBypass production guard is still correct:
 
-Implementation:
-- Add a new static method `GuardDevelopmentBypassInProduction` in
-  ArchLucid.Host.Core/Startup/AuthExtensions.cs (or a new file
-  ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs).
-- The method should throw InvalidOperationException with a clear message:
-  "DevelopmentBypass auth mode is not permitted in Production environments.
-   Set ArchLucidAuth:Mode to JwtBearer or ApiKey."
-- Call this method early in the startup pipeline (before auth middleware registration).
-- Add unit tests in ArchLucid.Host.Composition.Tests that verify:
-  (a) Production + DevelopmentBypass throws.
-  (b) Development + DevelopmentBypass does NOT throw.
-  (c) Production + JwtBearer does NOT throw.
-  (d) Production + ApiKey does NOT throw.
-- Add [Trait("Suite", "Core")] to the test class.
-- Update docs/SECURITY.md with a section about this guard.
-- Do not use ConfigureAwait(false) in tests.
+1. Open ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs — GuardDevelopmentBypassInProduction
+   must throw InvalidOperationException when mode is DevelopmentBypass and either
+   IHostEnvironment.IsProduction() or ARCHLUCID_ENVIRONMENT (config or process env) is Production.
+2. Open ArchLucid.Api/Program.cs — the guard must run before AddArchLucidAuth.
+3. Run: dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release --filter "FullyQualifiedName~AuthSafetyGuardTests"
+4. Confirm docs/SECURITY.md still documents the guard.
+
+If any check fails, fix code or docs in the same change set.
 ```
 
 ```
-Prompt 2b — RBAC role definitions:
+Improvement 2 — Prompt `rbac-policies-and-sensitive-controllers`
 
-Define four authorization roles for the ArchLucid API:
-1. ReadOnly — can read runs, manifests, audit, provenance, governance status
-2. Operator — ReadOnly + can create runs, replay, compare, export, manage alerts
-3. Admin — Operator + can manage policy packs, advisory schedules, system config, archival
-4. Auditor — ReadOnly + full audit search/export access
+Verify RBAC wiring and sensitive surfaces:
 
-Implementation:
-- Create ArchLucid.Core/Authorization/ArchLucidRoles.cs with string constants for
-  each role name.
-- Create ArchLucid.Core/Authorization/ArchLucidPolicies.cs with policy name constants
-  (e.g., "RequireReadOnly", "RequireOperator", "RequireAdmin", "RequireAuditor").
-- In ArchLucid.Host.Core/Startup/AuthExtensions.cs (or a new file), add a method
-  AddArchLucidAuthorizationPolicies(IServiceCollection) that registers each policy
-  using RequireRole or RequireClaim as appropriate.
-- Add [Authorize(Policy = "...")] attributes to the top 10 most security-sensitive
-  controllers (GovernanceController, AdminController, PolicyPacksController,
-  AdvisorySchedulingController, AuditController, etc.) — use the most restrictive
-  appropriate policy.
-- Add unit tests verifying policy registration.
-- Document the RBAC model in docs/SECURITY.md with a table of roles → permitted operations.
-- Do not break existing DevelopmentBypass or ApiKey auth modes — the policies should
-  be additive and only enforced when the auth mode supports role claims.
+1. Run: dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release --filter "FullyQualifiedName~ArchLucidAuthorizationPoliciesRegistrationTests"
+2. Spot-check that high-risk controllers still declare explicit policies — at minimum:
+   GovernanceController, AdminController, PolicyPacksController, AdvisorySchedulingController,
+   AuditController (export → RequireAuditor where applicable).
+3. Confirm docs/SECURITY.md § Role-based access control (RBAC) matches ArchLucidRoles /
+   ArchLucidPolicies and AddArchLucidAuthorizationPolicies.
+
+When adding new mutating or export endpoints, apply the strictest appropriate policy and
+extend registration tests if you add a new policy name.
 ```
 
 ---
@@ -685,4 +665,4 @@ Implementation:
 
 ## Cursor prompts for Improvements 1 and 2
 
-Improvement 1 uses three slugs: **`coverage-gap-report`**, **`lowest-assembly-tests`**, **`governance-workflow-fscheck`** (see that section above). Improvement 2 uses **Prompt 2a** and **Prompt 2b** in its section above.
+Improvement 1 uses **`coverage-gap-report`**, **`lowest-assembly-tests`**, **`governance-workflow-fscheck`**. Improvement 2 uses **`dev-bypass-production-guard`** and **`rbac-policies-and-sensitive-controllers`** (implementation complete; prompts are verification/regression checklists).
