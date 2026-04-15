@@ -91,6 +91,19 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
             await setup.OpenAsync(CancellationToken.None);
             await ArchitectureCommitTestSeed.InsertRequestAndRunAsync(setup, requestId, runId, CancellationToken.None);
 
+            await AuthorityRunChainTestSeed.SeedSnapshotChainForExistingRunAsync(
+                setup,
+                SeedTenantId,
+                SeedWorkspaceId,
+                SeedScopeProjectId,
+                runGuid,
+                contextId,
+                graphId,
+                findingsSnapId,
+                decisionTraceId,
+                projectSlug: "ContractSeed",
+                CancellationToken.None);
+
             const string insertManifest = """
                 IF NOT EXISTS (SELECT 1 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId)
                 INSERT INTO dbo.GoldenManifests
@@ -117,29 +130,6 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
                         GraphSnapshotId = graphId,
                         FindingsSnapshotId = findingsSnapId,
                         DecisionTraceId = decisionTraceId,
-                        TenantId = SeedTenantId,
-                        WorkspaceId = SeedWorkspaceId,
-                        ScopeProjectId = SeedScopeProjectId,
-                    },
-                    cancellationToken: CancellationToken.None));
-
-            const string insertFindings = """
-                IF NOT EXISTS (SELECT 1 FROM dbo.FindingsSnapshots WHERE FindingsSnapshotId = @FindingsSnapshotId)
-                INSERT INTO dbo.FindingsSnapshots
-                (FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, TenantId, WorkspaceId, ProjectId, CreatedUtc, SchemaVersion, FindingsJson)
-                VALUES
-                (@FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @TenantId, @WorkspaceId, @ScopeProjectId, SYSUTCDATETIME(), 1, NULL);
-                """;
-
-            await setup.ExecuteAsync(
-                new CommandDefinition(
-                    insertFindings,
-                    new
-                    {
-                        FindingsSnapshotId = findingsSnapId,
-                        RunId = runGuid,
-                        ContextSnapshotId = contextId,
-                        GraphSnapshotId = graphId,
                         TenantId = SeedTenantId,
                         WorkspaceId = SeedWorkspaceId,
                         ScopeProjectId = SeedScopeProjectId,

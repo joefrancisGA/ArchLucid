@@ -109,6 +109,38 @@ public static class AuthorityRunChainTestSeed
     {
         await InsertRunAsync(connection, tenantId, workspaceId, projectId, runId, projectSlug, ct);
 
+        await SeedSnapshotChainForExistingRunAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            projectId,
+            runId,
+            contextSnapshotId,
+            graphSnapshotId,
+            findingsSnapshotId,
+            decisionTraceId,
+            projectSlug,
+            ct);
+    }
+
+    /// <summary>
+    /// Inserts <c>dbo.ContextSnapshots</c>, <c>dbo.GraphSnapshots</c>, <c>dbo.FindingsSnapshots</c>, and
+    /// <c>dbo.DecisioningTraces</c> for a <paramref name="runId"/> that already exists in <c>dbo.Runs</c>
+    /// (e.g. after <see cref="ArchitectureCommitTestSeed.InsertRequestAndRunAsync"/>).
+    /// </summary>
+    public static async Task SeedSnapshotChainForExistingRunAsync(
+        SqlConnection connection,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid scopeProjectId,
+        Guid runId,
+        Guid contextSnapshotId,
+        Guid graphSnapshotId,
+        Guid findingsSnapshotId,
+        Guid decisionTraceId,
+        string projectSlug,
+        CancellationToken ct)
+    {
         string emptyCanonical = JsonEntitySerializer.Serialize(new List<CanonicalObject>());
         string emptyList = JsonEntitySerializer.Serialize(new List<string>());
 
@@ -177,13 +209,13 @@ public static class AuthorityRunChainTestSeed
         const string insertFindings = """
             INSERT INTO dbo.FindingsSnapshots
             (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
+                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, TenantId, WorkspaceId, ProjectId,
+                CreatedUtc, SchemaVersion, FindingsJson
             )
             VALUES
             (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
-                @SchemaVersion, @FindingsJson
+                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @TenantId, @WorkspaceId, @ScopeProjectId,
+                @CreatedUtc, @SchemaVersion, @FindingsJson
             );
             """;
 
@@ -196,6 +228,9 @@ public static class AuthorityRunChainTestSeed
                     RunId = runId,
                     ContextSnapshotId = contextSnapshotId,
                     GraphSnapshotId = graphSnapshotId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ScopeProjectId = scopeProjectId,
                     CreatedUtc = DateTime.UtcNow,
                     SchemaVersion = 1,
                     FindingsJson = JsonEntitySerializer.Serialize(new FindingsSnapshot
@@ -244,7 +279,7 @@ public static class AuthorityRunChainTestSeed
                     NotesJson = emptyList,
                     TenantId = tenantId,
                     WorkspaceId = workspaceId,
-                    ProjectId = projectId,
+                    ProjectId = scopeProjectId,
                 },
                 cancellationToken: ct));
     }
