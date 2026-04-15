@@ -39,4 +39,9 @@ public interface IAdminDiagnosticsService
     Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
         DateTimeOffset createdBeforeUtc,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Soft-archives specific runs by id (see <see cref="IRunRepository.ArchiveRunsByIdsAsync"/>).</summary>
+    Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(
+        IReadOnlyList<Guid> runIds,
+        CancellationToken cancellationToken = default);
 }

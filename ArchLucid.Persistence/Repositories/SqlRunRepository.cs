@@ -349,4 +349,94 @@ public sealed class SqlRunRepository(
             ArchivedRuns = rows
         };
     }
+
+    /// <inheritdoc />
+    public async Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct)
+    {
+        if (runIds.Count == 0)
+        {
+            return new RunArchiveByIdsResult();
+        }
+
+        List<Guid> distinctOrdered = [];
+        HashSet<Guid> seen = [];
+
+        foreach (Guid id in runIds)
+        {
+            if (seen.Add(id))
+            {
+                distinctOrdered.Add(id);
+            }
+        }
+
+        const string selectSql = """
+            SELECT RunId, ArchivedUtc
+            FROM dbo.Runs
+            WHERE RunId IN @RunIds;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<(Guid RunId, DateTime? ArchivedUtc)> existingRows = await connection.QueryAsync<(Guid RunId, DateTime? ArchivedUtc)>(
+            new CommandDefinition(selectSql, new { RunIds = distinctOrdered }, cancellationToken: ct));
+
+        Dictionary<Guid, DateTime?> stateById = existingRows.ToDictionary(static r => r.RunId, static r => r.ArchivedUtc);
+
+        List<Guid> toArchive = [];
+        List<RunArchiveByIdFailure> failed = [];
+
+        foreach (Guid id in distinctOrdered)
+        {
+            if (!stateById.TryGetValue(id, out DateTime? archivedUtc))
+            {
+                failed.Add(new RunArchiveByIdFailure(id, "Run not found."));
+                continue;
+            }
+
+            if (archivedUtc.HasValue)
+            {
+                failed.Add(new RunArchiveByIdFailure(id, "Run already archived."));
+                continue;
+            }
+
+            toArchive.Add(id);
+        }
+
+        if (toArchive.Count == 0)
+        {
+            return new RunArchiveByIdsResult
+            {
+                SucceededRunIds = [],
+                ArchivedRuns = [],
+                Failed = failed,
+            };
+        }
+
+        const string updateSql = """
+            UPDATE dbo.Runs
+            SET ArchivedUtc = SYSUTCDATETIME()
+            OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
+            WHERE RunId IN @ToArchive AND ArchivedUtc IS NULL;
+            """;
+
+        List<ArchivedRunScopeRow> archived = (await connection.QueryAsync<ArchivedRunScopeRow>(
+                new CommandDefinition(updateSql, new { ToArchive = toArchive }, cancellationToken: ct)))
+            .ToList();
+
+        HashSet<Guid> succeededSet = archived.Select(static r => r.RunId).ToHashSet();
+
+        foreach (Guid id in toArchive)
+        {
+            if (!succeededSet.Contains(id))
+            {
+                failed.Add(new RunArchiveByIdFailure(id, "Run could not be archived (concurrent update or missing row)."));
+            }
+        }
+
+        return new RunArchiveByIdsResult
+        {
+            SucceededRunIds = archived.Select(static r => r.RunId).ToList(),
+            ArchivedRuns = archived,
+            Failed = failed,
+        };
+    }
 }

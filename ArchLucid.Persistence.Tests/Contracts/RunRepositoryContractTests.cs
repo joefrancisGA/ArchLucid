@@ -22,6 +22,12 @@ public abstract class RunRepositoryContractTests
     /// </summary>
     protected virtual bool IncludeArchiveRunsCreatedBeforeContractTest => true;
 
+    /// <summary>
+    /// <see cref="IRunRepository.ArchiveRunsByIdsAsync"/> touches global <c>dbo.Runs</c> in SQL; only the in-memory
+    /// implementation runs this case against the shared container.
+    /// </summary>
+    protected virtual bool IncludeArchiveRunsByIdsContractTest => true;
+
     protected abstract IRunRepository CreateRepository();
 
     private static ScopeContext NewScope() =>
@@ -207,5 +213,41 @@ public abstract class RunRepositoryContractTests
         RunRecord? after = await repo.GetByIdAsync(scope, oldRun.RunId, CancellationToken.None);
 
         after.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task ArchiveRunsByIds_async_archives_only_requested_rows_and_classifies_failures()
+    {
+        Skip.IfNot(
+            IncludeArchiveRunsByIdsContractTest,
+            "Shared SQL: ArchiveRunsByIdsAsync is not isolated per test on dbo.Runs.");
+
+        SkipIfSqlServerUnavailable();
+        IRunRepository repo = CreateRepository();
+        ScopeContext scope = NewScope();
+        RunRecord a = NewRun(scope, "proj_ids", DateTime.UtcNow);
+        RunRecord b = NewRun(scope, "proj_ids", DateTime.UtcNow);
+        Guid missing = Guid.NewGuid();
+
+        await repo.SaveAsync(a, CancellationToken.None);
+        await repo.SaveAsync(b, CancellationToken.None);
+
+        RunArchiveByIdsResult first = await repo.ArchiveRunsByIdsAsync([a.RunId, missing, a.RunId], CancellationToken.None);
+
+        first.SucceededRunIds.Should().ContainSingle().Which.Should().Be(a.RunId);
+        first.Failed.Should().HaveCount(1);
+        first.Failed[0].RunId.Should().Be(missing);
+        first.Failed[0].Reason.Should().Be("Run not found.");
+
+        RunRecord? aAfter = await repo.GetByIdAsync(scope, a.RunId, CancellationToken.None);
+
+        aAfter.Should().BeNull();
+
+        RunArchiveByIdsResult second = await repo.ArchiveRunsByIdsAsync([a.RunId, b.RunId], CancellationToken.None);
+
+        second.SucceededRunIds.Should().ContainSingle().Which.Should().Be(b.RunId);
+        second.Failed.Should().ContainSingle();
+        second.Failed[0].RunId.Should().Be(a.RunId);
+        second.Failed[0].Reason.Should().Be("Run already archived.");
     }
 }

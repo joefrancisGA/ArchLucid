@@ -60,6 +60,18 @@ Several list endpoints support **two response shapes** so existing clients keep 
 
 The operator UI **Runs** page uses **`page`** + **`pageSize`** (legacy **`take`** in the query string is still read as **`pageSize`** when **`pageSize`** is omitted). **Alerts** uses **`page`** + **`pageSize`** from the client.
 
+## Bulk operator endpoints (partial success)
+
+These return **200** with a JSON body that lists **per-id outcomes** (succeeded vs failed). Failed rows include a **reason** or **message**; they do not fail the entire request.
+
+| Method | Path | Policy | Cap | Notes |
+|--------|------|--------|-----|--------|
+| `POST` | **`/v1/admin/runs/archive-by-ids`** | **AdminAuthority** | 100 run ids | Body: **`{ "runIds": ["…"] }`**. Response: **`RunArchiveByIdsResult`** (`succeededRunIds`, `failed[]`). |
+| `POST` | **`/v1/governance/approval-requests/batch-review`** | **ExecuteAuthority** | 50 ids | Body: **`decision`** `approve` \| `reject`, **`approvalRequestIds`**, optional **`reviewComment`** / **`reviewedBy`**. Response: **`GovernanceBatchReviewResponse`**. |
+| `POST` | **`/v1/alerts/acknowledge-batch`** | **ExecuteAuthority** | 100 alert ids | Body: **`{ "alertIds": ["…"], "comment": "…" }`**. Scope must match each alert. Response: **`AlertsAcknowledgeBatchResponse`**. |
+
+See also **`docs/CONTROLLER_AREA_MAP.md`**. Existing **`POST /v1/admin/runs/archive-batch`** (cutoff by **`createdBeforeUtc`**) remains available.
+
 ## Correlation ID
 
 - Optional request header **`X-Correlation-ID`**: if present, the API echoes it on the response and uses it for logging/tracing context; if absent, a value is generated (e.g. from the ASP.NET Core trace identifier).

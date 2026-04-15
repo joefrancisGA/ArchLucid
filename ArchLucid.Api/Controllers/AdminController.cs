@@ -129,6 +129,36 @@ public sealed class AdminController(
         return Ok(result);
     }
 
+    /// <summary>Soft-archives specific runs by id (partial success: per-id failures returned in the body).</summary>
+    [HttpPost("runs/archive-by-ids")]
+    [EnableRateLimiting("expensive")]
+    [ProducesResponseType(typeof(RunArchiveByIdsResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ArchiveRunsByIds(
+        [FromBody] AdminArchiveRunsByIdsRequest? body,
+        CancellationToken cancellationToken = default)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (body.RunIds is null || body.RunIds.Count == 0)
+        {
+            return this.BadRequestProblem("RunIds must contain at least one id.", ProblemTypes.ValidationFailed);
+        }
+
+        if (body.RunIds.Count > 100)
+        {
+            return this.BadRequestProblem("At most 100 run ids are allowed per request.", ProblemTypes.ValidationFailed);
+        }
+
+        RunArchiveByIdsResult result =
+            await _diagnostics.ArchiveRunsByIdsAsync(body.RunIds, cancellationToken);
+
+        return Ok(result);
+    }
+
     /// <summary>Clears dead-letter state for one outbox row so the worker will publish again.</summary>
     [HttpPost("integration-outbox/dead-letters/{outboxId:guid}/retry")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

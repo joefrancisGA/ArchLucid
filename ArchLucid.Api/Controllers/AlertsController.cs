@@ -124,6 +124,89 @@ public sealed class AlertsController(
         return Ok(updated);
     }
 
+    /// <summary>Acknowledges many alerts in the current scope; each id is processed independently (partial success).</summary>
+    [HttpPost("acknowledge-batch")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(AlertsAcknowledgeBatchResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AcknowledgeBatch(
+        [FromBody] AlertsAcknowledgeBatchRequest? body,
+        CancellationToken ct = default)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        }
+
+        if (body.AlertIds is null || body.AlertIds.Count == 0)
+        {
+            return this.BadRequestProblem("AlertIds must contain at least one id.", ProblemTypes.ValidationFailed);
+        }
+
+        if (body.AlertIds.Count > 100)
+        {
+            return this.BadRequestProblem("At most 100 alert ids are allowed per request.", ProblemTypes.ValidationFailed);
+        }
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+        string userName = User.Identity?.Name ?? "unknown";
+
+        AlertActionRequest action = new()
+        {
+            Action = AlertActionType.Acknowledge,
+            Comment = body.Comment,
+        };
+
+        List<AlertsAcknowledgeBatchItemResult> results = [];
+        HashSet<Guid> seen = [];
+
+        foreach (Guid alertId in body.AlertIds)
+        {
+            if (!seen.Add(alertId))
+            {
+                continue;
+            }
+
+            AlertRecord? existing = await alertRepository.GetByIdAsync(alertId, ct);
+
+            if (existing is null || !MatchesScope(existing, scope))
+            {
+                results.Add(
+                    new AlertsAcknowledgeBatchItemResult
+                    {
+                        AlertId = alertId,
+                        Succeeded = false,
+                        Message = "Alert not found in the current scope.",
+                    });
+                continue;
+            }
+
+            AlertRecord? updated = await alertService.ApplyActionAsync(alertId, userId, userName, action, ct);
+
+            if (updated is null)
+            {
+                results.Add(
+                    new AlertsAcknowledgeBatchItemResult
+                    {
+                        AlertId = alertId,
+                        Succeeded = false,
+                        Message = "Alert could not be acknowledged.",
+                    });
+                continue;
+            }
+
+            results.Add(
+                new AlertsAcknowledgeBatchItemResult
+                {
+                    AlertId = alertId,
+                    Succeeded = true,
+                });
+        }
+
+        return Ok(new AlertsAcknowledgeBatchResponse { Results = results });
+    }
+
     private static bool MatchesScope(AlertRecord alert, ScopeContext scope) =>
         alert.TenantId == scope.TenantId &&
         alert.WorkspaceId == scope.WorkspaceId &&

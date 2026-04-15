@@ -267,6 +267,9 @@ jobs:
       - name: V1 traceability matrix (docs vs repo paths)
         run: python3 scripts/ci/assert_traceability_coverage.py
 
+      - name: Agent prompt regression baseline (JSON shape)
+        run: python3 scripts/ci/assert_prompt_regression.py
+
       # Includes OpenApiContractSnapshotTests (Suite=Core): drift vs Contracts/openapi-v1.contract.snapshot.json fails the job.
       # ArchLucid.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.

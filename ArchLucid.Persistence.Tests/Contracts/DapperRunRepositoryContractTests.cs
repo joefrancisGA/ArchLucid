@@ -12,6 +12,8 @@ public sealed class DapperRunRepositoryContractTests(SqlServerPersistenceFixture
 {
     protected override bool IncludeArchiveRunsCreatedBeforeContractTest => false;
 
+    protected override bool IncludeArchiveRunsByIdsContractTest => false;
+
     protected override void SkipIfSqlServerUnavailable()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

@@ -10,6 +10,8 @@
   - `docs/V1_DEFERRED.md`
 - **Start here (new contributors)** — canonical front door: layered overview, pick-your-role, key concepts, quick commands  
   - `docs/START_HERE.md`
+- **First five documents (architecture + API starter path)** — ordered table with time estimates  
+  - `docs/FIRST_5_DOCS.md`
 - **Golden path (environments: zero → local → prod-like → Azure)** — role lanes, one diagram, phased checklists, advanced appendix  
   - `docs/GOLDEN_PATH.md`
 - **Week-one role tickets (dev / SRE / security)** — 3–5 checkboxes each  

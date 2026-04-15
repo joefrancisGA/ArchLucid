@@ -198,6 +198,12 @@ public sealed class AdminDiagnosticsService(
         CancellationToken cancellationToken = default) =>
         _runRepository.ArchiveRunsCreatedBeforeAsync(createdBeforeUtc, cancellationToken);
 
+    /// <inheritdoc />
+    public Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(
+        IReadOnlyList<Guid> runIds,
+        CancellationToken cancellationToken = default) =>
+        _runRepository.ArchiveRunsByIdsAsync(runIds, cancellationToken);
+
     private static async Task<long> ExecuteCountAsync(
         DbConnection connection,
         string sql,

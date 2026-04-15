@@ -1,22 +1,23 @@
 # API controller area map
 
-**Purpose:** Navigate **`ArchLucid.Api/Controllers`** without moving 50+ files on disk. Each controller stays in the flat folder; this table is the **logical** grouping for reviews and onboarding.
+`ArchLucid.Api/Controllers/` groups endpoints by **functional area** for navigation. Types remain in namespace `ArchLucid.Api.Controllers` (flat folder today; this map is the logical grouping).
 
 | Area | Controllers |
 |------|-------------|
-| **Authority / runs** | `RunsController`, `AuthorityQueryController`, `AuthorityReplayController`, `AuthorityCompareController`, `ManifestsController`, `GraphController`, `ExplanationController` |
-| **Compare / export** | `ComparisonController`, `ComparisonsController`, `RunComparisonController`, `ExportsController`, `ArtifactExportController`, `DocxExportController`, `AnalysisReportsController` |
-| **Governance** | `GovernanceController`, `GovernancePreviewController`, `GovernanceResolutionController`, `PolicyPacksController` |
-| **Advisory / learning** | `AdvisoryController`, `AdvisorySchedulingController`, `DigestSubscriptionsController`, `LearningController`, `RecommendationLearningController`, `ProductLearningController`, `EvolutionController` |
-| **Alerts** | `AlertsController`, `AlertRulesController`, `CompositeAlertRulesController`, `AlertRoutingSubscriptionsController`, `AlertSimulationController`, `AlertTuningController` |
-| **Retrieval / Ask** | `RetrievalController`, `AskController`, `ConversationController` |
-| **Provenance / audit** | `ProvenanceController`, `ProvenanceQueryController`, `AuditController` |
-| **Admin / jobs / demo** | `AdminController`, `JobsController`, `DiagnosticsController`, `DemoController`, `ScopeDebugController` |
-| **Auth / docs / version** | `AuthDebugController`, `DocsController`, `VersionController` |
+| **Admin & diagnostics** | `AdminController`, `DiagnosticsController`, `JobsController`, `VersionController`, `DemoController`, `ScopeDebugController`, `AuthDebugController`, `DocsController` |
+| **Authority & runs** | `RunsController`, `AuthorityQueryController`, `AuthorityReplayController`, `AuthorityCompareController`, `RunComparisonController`, `AnalysisReportsController`, `ExportsController` |
+| **Governance** | `GovernanceController`, `GovernancePreviewController`, `GovernanceResolutionController`, `PolicyPacksController`, `ManifestsController` |
+| **Alerts** | `AlertsController`, `AlertRulesController`, `AlertRoutingSubscriptionsController`, `AlertSimulationController`, `AlertTuningController`, `CompositeAlertRulesController` |
+| **Advisory & learning** | `AdvisoryController`, `AdvisorySchedulingController`, `LearningController`, `RecommendationLearningController`, `ProductLearningController` |
+| **Explainability & provenance** | `ExplanationController`, `ProvenanceController`, `ProvenanceQueryController`, `GraphController` |
+| **Comparison & replay** | `ComparisonController`, `ComparisonsController`, `RetrievalController` |
+| **Evolution** | `EvolutionController` |
+| **Conversation & ask** | `AskController`, `ConversationController` |
+| **Digests** | `DigestSubscriptionsController` |
+| **Artifacts & export** | `ArtifactExportController`, `DocxExportController`, `AuditController` |
 
-**DTOs** in the same folder (`AssignPolicyPackRequest`, `CreatePolicyPackRequest`, …) are not controllers; they sit beside controllers for historical layout.
+**Bulk operator APIs (2026-04-15):**
 
-## Related
-
-- **`docs/API_VERSIONING.md`** — `v1` routing and `[ApiVersion]` conventions.
-- **`docs/CODE_MAP.md`** — broader file index.
+- `POST /v1/admin/runs/archive-by-ids` — partial-success archival by run id (max 100).
+- `POST /v1/governance/approval-requests/batch-review` — approve or reject many requests (max 50, partial success).
+- `POST /v1/alerts/acknowledge-batch` — acknowledge many alerts in scope (max 100, partial success).

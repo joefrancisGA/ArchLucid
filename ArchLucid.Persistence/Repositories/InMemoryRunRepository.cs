@@ -192,4 +192,63 @@ public sealed class InMemoryRunRepository : IRunRepository
             ArchivedRuns = archived
         });
     }
+
+    /// <inheritdoc />
+    public Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        if (runIds.Count == 0)
+        {
+            return Task.FromResult(new RunArchiveByIdsResult());
+        }
+
+        List<Guid> distinctOrdered = [];
+        HashSet<Guid> seen = [];
+
+        foreach (Guid id in runIds)
+        {
+            if (seen.Add(id))
+            {
+                distinctOrdered.Add(id);
+            }
+        }
+
+        DateTime stamp = DateTime.UtcNow;
+        List<ArchivedRunScopeRow> archived = [];
+        List<RunArchiveByIdFailure> failed = [];
+
+        foreach (Guid id in distinctOrdered)
+        {
+            if (!_store.TryGetValue(id, out RunRecord? run))
+            {
+                failed.Add(new RunArchiveByIdFailure(id, "Run not found."));
+                continue;
+            }
+
+            if (run.ArchivedUtc.HasValue)
+            {
+                failed.Add(new RunArchiveByIdFailure(id, "Run already archived."));
+                continue;
+            }
+
+            archived.Add(new ArchivedRunScopeRow
+            {
+                RunId = run.RunId,
+                TenantId = run.TenantId,
+                WorkspaceId = run.WorkspaceId,
+                ScopeProjectId = run.ScopeProjectId,
+            });
+
+            run.ArchivedUtc = stamp;
+            _store[id] = run;
+        }
+
+        return Task.FromResult(new RunArchiveByIdsResult
+        {
+            SucceededRunIds = archived.Select(static r => r.RunId).ToList(),
+            ArchivedRuns = archived,
+            Failed = failed,
+        });
+    }
 }

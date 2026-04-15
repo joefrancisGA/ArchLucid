@@ -91,4 +91,10 @@ public interface IRunRepository
     /// that are not yet archived. Returns the count and scope keys for each archived row (for cache eviction).
     /// </summary>
     Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct);
+
+    /// <summary>
+    /// Soft-archives up to 100 runs by primary key. Missing or already-archived ids are reported in
+    /// <see cref="RunArchiveByIdsResult.Failed"/> without failing the whole operation.
+    /// </summary>
+    Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct);
 }

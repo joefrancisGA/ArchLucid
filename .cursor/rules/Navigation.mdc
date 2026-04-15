@@ -7,6 +7,7 @@ alwaysApply: false
 
 ## Read first
 
+- **First five docs (curated reading order)**: `docs/FIRST_5_DOCS.md`
 - **Contributor decision tree (what folder to open first)**: `docs/START_HERE.md` → section **What to open first (contributor decision tree)** (Mermaid flowchart + table by change type).
 - **System flows (Mermaid)**: `docs/SYSTEM_MAP.md`
 - **Component detail**: `docs/ARCHITECTURE_COMPONENTS.md`

@@ -95,6 +95,26 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         return batch;
     }
 
+    /// <inheritdoc />
+    public async Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct)
+    {
+        RunArchiveByIdsResult result = await _inner.ArchiveRunsByIdsAsync(runIds, ct);
+
+        foreach (ArchivedRunScopeRow row in result.ArchivedRuns)
+        {
+            ScopeContext scope = new()
+            {
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ScopeProjectId,
+            };
+
+            await _hotPathReadCache.RemoveAsync(HotPathCacheKeys.Run(scope, row.RunId), ct);
+        }
+
+        return result;
+    }
+
     private static ScopeContext ScopeForRun(RunRecord run) => new()
     {
         TenantId = run.TenantId,

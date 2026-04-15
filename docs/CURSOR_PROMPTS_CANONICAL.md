@@ -2,6 +2,18 @@
 
 Use this file as a **stable entry point** for paste-ready improvement prompts. Detailed assessment: **[QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md)** § *Six Best Improvements*.
 
+## All prompt packs (single index)
+
+| Pack | Purpose |
+|------|---------|
+| **This file** | Index + cross-links; start here. |
+| **[QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md)** § *Cursor prompts for Improvements 1–6* | Improvements **1–2** (coverage, governance FsCheck, security guards, RBAC) — inline fenced blocks. |
+| **[CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md](CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md)** | Rename, single `.sln`, legacy sunset, archive quality docs. |
+| **[CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md](CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md)** | Rename verify bundle, traceability, orphan probe, finding narrative, wizard parity, RFC 9457 / Problem Details sweep. |
+| **[CURSOR_PROMPTS_SIX_QUALITY_IMPROVEMENTS.md](CURSOR_PROMPTS_SIX_QUALITY_IMPROVEMENTS.md)** | Six-quality execution prompts (historical bundle). |
+| **[CURSOR_PROMPTS_QUALITY_IMPROVEMENT_3.md](CURSOR_PROMPTS_QUALITY_IMPROVEMENT_3.md)** | k6 / performance CI prompts. |
+| **[QUALITY_IMPROVEMENT_PROMPTS.md](QUALITY_IMPROVEMENT_PROMPTS.md)** | Older quality prompt inventory (superseded in part by weighted doc). |
+
 | Area | Document |
 |------|----------|
 | Improvements **1–2** (coverage, governance FsCheck, security guards, RBAC) | Inline fenced blocks in **[QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md)** § *Cursor prompts for Improvements 1–6* |
@@ -12,3 +24,4 @@ Use this file as a **stable entry point** for paste-ready improvement prompts. D
 
 - **[DATABASE_MIGRATION_ROLLBACK.md](DATABASE_MIGRATION_ROLLBACK.md)** — manual SQL rollbacks (`sql/rollbacks/`).
 - **[API_ERROR_CONTRACT.md](API_ERROR_CONTRACT.md)** — Problem+JSON expectations for clients.
+- **[CONTROLLER_AREA_MAP.md](CONTROLLER_AREA_MAP.md)** — logical API controller grouping + bulk endpoints.

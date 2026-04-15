@@ -201,6 +201,134 @@ public sealed class GovernanceController(
         }
     }
 
+    /// <summary>Applies approve or reject to many approval requests; each id is evaluated independently (partial success).</summary>
+    [HttpPost("approval-requests/batch-review")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(GovernanceBatchReviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> BatchReviewApprovalRequests(
+        [FromBody] GovernanceApprovalBatchReviewRequest? body,
+        CancellationToken cancellationToken = default)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        }
+
+        if (body.ApprovalRequestIds is null || body.ApprovalRequestIds.Count == 0)
+        {
+            return this.BadRequestProblem("ApprovalRequestIds must contain at least one id.", ProblemTypes.ValidationFailed);
+        }
+
+        if (body.ApprovalRequestIds.Count > 50)
+        {
+            return this.BadRequestProblem("At most 50 approval request ids are allowed per request.", ProblemTypes.ValidationFailed);
+        }
+
+        string decision = (body.Decision ?? string.Empty).Trim();
+
+        if (decision.Length == 0)
+        {
+            return this.BadRequestProblem("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);
+        }
+
+        bool approve = string.Equals(decision, "approve", StringComparison.OrdinalIgnoreCase);
+        bool reject = string.Equals(decision, "reject", StringComparison.OrdinalIgnoreCase);
+
+        if (!approve && !reject)
+        {
+            return this.BadRequestProblem("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
+        }
+
+        string reviewedBy = string.IsNullOrWhiteSpace(body.ReviewedBy)
+            ? actorContext.GetActor()
+            : body.ReviewedBy;
+
+        List<GovernanceBatchReviewItemResult> results = [];
+        List<string> distinctIds = body.ApprovalRequestIds
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Select(static id => id.Trim())
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        foreach (string approvalRequestId in distinctIds)
+        {
+            try
+            {
+                if (approve)
+                {
+                    _ = await workflowService.ApproveAsync(
+                        approvalRequestId,
+                        reviewedBy,
+                        body.ReviewComment,
+                        cancellationToken);
+                }
+                else
+                {
+                    _ = await workflowService.RejectAsync(
+                        approvalRequestId,
+                        reviewedBy,
+                        body.ReviewComment,
+                        cancellationToken);
+                }
+
+                results.Add(
+                    new GovernanceBatchReviewItemResult
+                    {
+                        ApprovalRequestId = approvalRequestId,
+                        Succeeded = true,
+                    });
+            }
+            catch (GovernanceSelfApprovalException ex)
+            {
+                logger.LogWarningWithSanitizedUserArg(
+                    ex,
+                    "Batch review blocked: segregation of duties for approval request '{ApprovalRequestId}'.",
+                    approvalRequestId);
+                results.Add(
+                    new GovernanceBatchReviewItemResult
+                    {
+                        ApprovalRequestId = approvalRequestId,
+                        Succeeded = false,
+                        ErrorCode = ProblemTypes.GovernanceSelfApproval,
+                        Message = ex.Message,
+                    });
+            }
+            catch (GovernanceApprovalReviewConflictException ex)
+            {
+                logger.LogWarningWithSanitizedUserArg(
+                    ex,
+                    "Batch review conflict: approval request '{ApprovalRequestId}'.",
+                    approvalRequestId);
+                results.Add(
+                    new GovernanceBatchReviewItemResult
+                    {
+                        ApprovalRequestId = approvalRequestId,
+                        Succeeded = false,
+                        ErrorCode = ProblemTypes.Conflict,
+                        Message = ex.Message,
+                    });
+            }
+            catch (InvalidOperationException ex)
+            {
+                logger.LogWarningWithSanitizedUserArg(
+                    ex,
+                    "Batch review failed for approval request '{ApprovalRequestId}'.",
+                    approvalRequestId);
+                results.Add(
+                    new GovernanceBatchReviewItemResult
+                    {
+                        ApprovalRequestId = approvalRequestId,
+                        Succeeded = false,
+                        ErrorCode = ProblemTypes.BadRequest,
+                        Message = ex.Message,
+                    });
+            }
+        }
+
+        return Ok(new GovernanceBatchReviewResponse { Results = results });
+    }
+
     [HttpPost("promotions")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernancePromotionRecord), StatusCodes.Status200OK)]

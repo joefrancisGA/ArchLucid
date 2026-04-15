@@ -4,6 +4,8 @@
 
 Use **this page** as the single front door. It orients you in a few minutes, then points to role-specific checklists and deeper architecture docs.
 
+**Curated “first five” (table + time estimates):** **[FIRST_5_DOCS.md](FIRST_5_DOCS.md)**.
+
 **Local vs committed output:** See **[REPO_HYGIENE.md](REPO_HYGIENE.md)** for `artifacts/`, the checked-in API client `Generated/` file, and paths that should stay out of git.
 
 ## First five documents (read these first)
@@ -13,6 +15,8 @@ Use **this page** as the single front door. It orients you in a few minutes, the
 3. **[ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)** — run lifecycle and major HTTP/SQL flows.
 4. **[SECURITY.md](SECURITY.md)** — auth modes, RBAC, DevelopmentBypass production guard, scanning.
 5. **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** — CI tiers, traits, and how to run tests locally.
+
+Alternate starter path (architecture + API focus): see **[FIRST_5_DOCS.md](FIRST_5_DOCS.md)**.
 
 **After the first five — by role**
 
