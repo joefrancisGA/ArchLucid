@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using ArchLucid.Application.Common;
 
 using FluentAssertions;
@@ -19,9 +21,9 @@ public sealed class ActorContextTests
     public void GetActor_WhenIdentityNamePresent_ReturnsTrimmedName()
     {
         Mock<IHttpContextAccessor> accessor = new();
-        DefaultHttpContext httpContext = new() { User = new System.Security.Claims.ClaimsPrincipal(
-            new System.Security.Claims.ClaimsIdentity(
-                [new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, "  domain\\alice  ")],
+        DefaultHttpContext httpContext = new() { User = new ClaimsPrincipal(
+            new ClaimsIdentity(
+                [new Claim(ClaimTypes.Name, "  domain\\alice  ")],
                 authenticationType: "test"))
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
@@ -46,8 +48,8 @@ public sealed class ActorContextTests
     public void GetActor_WhenIdentityNameEmpty_ReturnsApiUserFallback()
     {
         Mock<IHttpContextAccessor> accessor = new();
-        DefaultHttpContext httpContext = new() { User = new System.Security.Claims.ClaimsPrincipal(
-            new System.Security.Claims.ClaimsIdentity(authenticationType: "test"))
+        DefaultHttpContext httpContext = new() { User = new ClaimsPrincipal(
+            new ClaimsIdentity(authenticationType: "test"))
         };
         accessor.Setup(a => a.HttpContext).Returns(httpContext);
 
@@ -57,5 +59,23 @@ public sealed class ActorContextTests
 
         actor.Should().Be("api-user");
         actor.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void GetActor_WhenOnlyShortJwtNameClaim_ReturnsClaimValue()
+    {
+        Mock<IHttpContextAccessor> accessor = new();
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [new Claim("name", "  JwtE2eAdmin  ")],
+                    authenticationType: "test")),
+        };
+        accessor.Setup(a => a.HttpContext).Returns(httpContext);
+
+        ActorContext sut = new(accessor.Object);
+
+        sut.GetActor().Should().Be("JwtE2eAdmin");
     }
 }

@@ -123,9 +123,14 @@ public static class AuthServiceCollectionExtensions
                 "ArchLucidAuth:JwtLocalIssuer and ArchLucidAuth:JwtLocalAudience are required when JwtSigningPublicKeyPemPath is set.");
         }
 
-        string nameClaimType = string.IsNullOrWhiteSpace(authOptions.NameClaimType)
-            ? ClaimTypes.Name
-            : authOptions.NameClaimType.Trim();
+        // MapInboundClaims=false keeps short JWT claim types ("name", "roles"). NameClaimType must use the same
+        // string as the token payload. Options default is ClaimTypes.Name (long URI), which never matches inbound "name".
+        string configuredNameClaimType = authOptions.NameClaimType?.Trim() ?? string.Empty;
+        string nameClaimType =
+            string.IsNullOrEmpty(configuredNameClaimType)
+            || string.Equals(configuredNameClaimType, ClaimTypes.Name, StringComparison.Ordinal)
+                ? "name"
+                : configuredNameClaimType;
 
         options.RequireHttpsMetadata = false;
         // Keep JWT short claim names (e.g. "roles") so TokenValidationParameters.RoleClaimType matches Entra-style CI tokens.

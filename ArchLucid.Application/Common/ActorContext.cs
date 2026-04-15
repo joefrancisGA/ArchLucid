@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using Microsoft.AspNetCore.Http;
 
 namespace ArchLucid.Application.Common;
@@ -13,8 +15,22 @@ public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IAc
     public string GetActor()
     {
         HttpContext? httpContext = httpContextAccessor.HttpContext;
-        string? name = httpContext?.User.Identity?.Name;
+        ClaimsPrincipal? user = httpContext?.User;
+        string? name = user?.Identity?.Name;
 
-        return !string.IsNullOrWhiteSpace(name) ? name.Trim() : FallbackActor;
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            return name.Trim();
+        }
+
+        // JwtBearer with MapInboundClaims=false (local PEM CI tokens) emits short claim type "name", not ClaimTypes.Name.
+        string? jwtName = user?.FindFirst("name")?.Value;
+
+        if (!string.IsNullOrWhiteSpace(jwtName))
+        {
+            return jwtName.Trim();
+        }
+
+        return FallbackActor;
     }
 }
