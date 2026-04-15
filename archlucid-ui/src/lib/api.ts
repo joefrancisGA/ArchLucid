@@ -278,6 +278,11 @@ export async function createArchitectureRun(
   return apiPostJson<CreateArchitectureRunResponsePayload>("/v1/architecture/request", body);
 }
 
+/** Commits agent results into a golden manifest (POST /v1/architecture/run/{runId}/commit). */
+export async function commitArchitectureRun(runId: string): Promise<unknown> {
+  return apiPostJson<unknown>(`/v1/architecture/run/${encodeURIComponent(runId)}/commit`, {});
+}
+
 /** Linkage graph + trace timeline for a coordinator architecture run. */
 export async function getArchitectureRunProvenance(
   runId: string,

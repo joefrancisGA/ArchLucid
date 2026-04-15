@@ -37,8 +37,31 @@ public sealed class ArchLucidConfigTests
         config.Inputs.Should().NotBeNull();
         config.Inputs.Brief.Should().Be("inputs/brief.md");
         config.Outputs.LocalCacheDir.Should().Be("outputs");
-        config.Plugins.LockFile.Should().Be("plugins/plugin-lock.json");
-        config.Infra.Terraform.Should().NotBeNull();
+        config.Plugins!.LockFile.Should().Be("plugins/plugin-lock.json");
+        config.Infra!.Terraform.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void LoadConfig_when_plugins_and_infra_omitted_validates_brief_and_outputs_only()
+    {
+        using TempDirectory temp = new();
+        string minimalJson = """
+                             {
+                               "schemaVersion": "1.0",
+                               "projectName": "Minimal",
+                               "inputs": { "brief": "inputs/brief.md" },
+                               "outputs": { "localCacheDir": "outputs" }
+                             }
+                             """;
+        File.WriteAllText(Path.Combine(temp.Path, ArchLucidProjectScaffolder.CliManifestFileName), minimalJson);
+        Directory.CreateDirectory(Path.Combine(temp.Path, "inputs"));
+        File.WriteAllText(Path.Combine(temp.Path, "inputs", "brief.md"), "# Brief long enough for validation elsewhere");
+
+        ArchLucidProjectScaffolder.ArchLucidCliConfig config = ArchLucidProjectScaffolder.LoadConfig(temp.Path);
+
+        config.Plugins.Should().BeNull();
+        config.Infra.Should().BeNull();
+        config.ProjectName.Should().Be("Minimal");
     }
 
     [Fact]

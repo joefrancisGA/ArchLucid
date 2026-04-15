@@ -2,9 +2,13 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-const storageKey = "archlucid_operator_workflow_guide_v1";
+const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
+
+function stepDoneStorageKey(index: number): string {
+  return `archlucid_onboarding_step_${index}_done`;
+}
 
 type WorkflowStep = {
   title: string;
@@ -43,12 +47,12 @@ const steps: WorkflowStep[] = [
   },
   {
     title: "Commit the golden manifest",
-    body: "Until commit, there is no manifest link or artifact exports. Commit through the API or CLI when the run is ready.",
+    body: "Until commit, there is no manifest link or artifact exports. On run detail, use Commit run when the run is ready, or commit through the API or CLI.",
     primaryHref: "/runs?projectId=default",
     primaryLabel: "Choose run → open detail",
     secondary: (
       <>
-        See <code>docs/OPERATOR_QUICKSTART.md</code> in the repo for commit examples.
+        CLI/API: <code>docs/OPERATOR_QUICKSTART.md</code> in the repo.
       </>
     ),
   },
@@ -94,24 +98,63 @@ const steps: WorkflowStep[] = [
 export function OperatorFirstRunWorkflowPanel() {
   const [hydrated, setHydrated] = useState(false);
   const [minimized, setMinimized] = useState(false);
+  const [doneByIndex, setDoneByIndex] = useState<boolean[]>(() => steps.map(() => false));
 
   useEffect(() => {
+    const nextDone: boolean[] = [];
+
+    for (let i = 0; i < steps.length; i++) {
+      try {
+        if (typeof window !== "undefined" && window.localStorage.getItem(stepDoneStorageKey(i)) === "1") {
+          nextDone.push(true);
+        } else {
+          nextDone.push(false);
+        }
+      } catch {
+        nextDone.push(false);
+      }
+    }
+
+    setDoneByIndex(nextDone);
+
     try {
-      if (typeof window !== "undefined" && window.localStorage.getItem(storageKey) === "1") {
+      if (typeof window !== "undefined" && window.localStorage.getItem(minimizedStorageKey) === "1") {
         setMinimized(true);
       }
     } catch {
-      /* private mode / SSR guard */
+      /* private mode */
     }
 
     setHydrated(true);
+  }, []);
+
+  const doneCount = useMemo(() => doneByIndex.filter(Boolean).length, [doneByIndex]);
+  const allDone = doneCount === steps.length;
+
+  const toggleStep = useCallback((index: number) => {
+    setDoneByIndex((prev) => {
+      const next = [...prev];
+      next[index] = !next[index];
+
+      try {
+        if (next[index]) {
+          window.localStorage.setItem(stepDoneStorageKey(index), "1");
+        } else {
+          window.localStorage.removeItem(stepDoneStorageKey(index));
+        }
+      } catch {
+        /* ignore */
+      }
+
+      return next;
+    });
   }, []);
 
   function minimize() {
     setMinimized(true);
 
     try {
-      window.localStorage.setItem(storageKey, "1");
+      window.localStorage.setItem(minimizedStorageKey, "1");
     } catch {
       /* ignore */
     }
@@ -121,7 +164,7 @@ export function OperatorFirstRunWorkflowPanel() {
     setMinimized(false);
 
     try {
-      window.localStorage.removeItem(storageKey);
+      window.localStorage.removeItem(minimizedStorageKey);
     } catch {
       /* ignore */
     }
@@ -167,6 +210,14 @@ export function OperatorFirstRunWorkflowPanel() {
           Hide checklist
         </button>
       </div>
+      <p className="m-0 mb-2 text-sm font-medium text-sky-900 dark:text-sky-100" aria-live="polite">
+        Progress: {doneCount} of {steps.length} steps marked done
+      </p>
+      {allDone ? (
+        <p className="m-0 mb-4 rounded-md border border-teal-200 bg-teal-50 px-3 py-2 text-sm text-teal-900 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-100">
+          You have checked off every step — hide the checklist when you no longer need it, or reset individual steps with the checkboxes.
+        </p>
+      ) : null}
       <p className="m-0 mb-4 max-w-[760px] text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         Follow these steps once to go from an empty tenant to a reviewed, exportable architecture run. Your next
         action is highlighted on each step.
@@ -174,9 +225,21 @@ export function OperatorFirstRunWorkflowPanel() {
       <ol className="m-0 list-decimal pl-6 leading-normal text-neutral-800 dark:text-neutral-200">
         {steps.map((step, index) => (
           <li key={step.title} className="mb-[22px]">
-            <strong className="mb-1.5 block">
-              {index + 1}. {step.title}
-            </strong>
+            <div className="mb-1.5 flex flex-wrap items-start gap-2">
+              <input
+                id={`workflow-step-done-${index}`}
+                type="checkbox"
+                className="auth-panel-focus mt-1 h-4 w-4 shrink-0 rounded border-neutral-300 text-teal-700 focus:ring-teal-700 dark:border-neutral-600 dark:bg-neutral-900"
+                checked={doneByIndex[index] === true}
+                onChange={() => {
+                  toggleStep(index);
+                }}
+                aria-label={`Mark step ${index + 1} done: ${step.title}`}
+              />
+              <strong className="block flex-1">
+                {index + 1}. {step.title}
+              </strong>
+            </div>
             <span className="text-sm text-neutral-600 dark:text-neutral-400">{step.body}</span>
             <div>
               <Link

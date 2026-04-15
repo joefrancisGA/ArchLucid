@@ -178,11 +178,13 @@ public static class ArchLucidProjectScaffolder
         [JsonPropertyName("outputs")]
         public OutputsSection Outputs { get; set; } = new();
 
+        /// <summary>Optional — when omitted, CLI skips plugin lock validation (no plugin directory required).</summary>
         [JsonPropertyName("plugins")]
-        public PluginsSection Plugins { get; set; } = new();
+        public PluginsSection? Plugins { get; set; }
 
+        /// <summary>Optional — when omitted, Terraform path checks are skipped (treated as disabled).</summary>
         [JsonPropertyName("infra")]
-        public InfraSection Infra { get; set; } = new();
+        public InfraSection? Infra { get; set; }
 
         [JsonPropertyName("architecture")]
         public ArchitectureSection? Architecture { get; set; }
@@ -335,31 +337,37 @@ public static class ArchLucidProjectScaffolder
             throw new InvalidDataException(CliManifestFileName + ": inputs.brief is required.");
         if (config.Outputs is null || string.IsNullOrWhiteSpace(config.Outputs.LocalCacheDir))
             throw new InvalidDataException(CliManifestFileName + ": outputs.localCacheDir is required.");
-        if (config.Plugins is null || string.IsNullOrWhiteSpace(config.Plugins.LockFile))
-            throw new InvalidDataException(CliManifestFileName + ": plugins.lockFile is required.");
-        if (config.Infra is null || config.Infra.Terraform is null)
-            throw new InvalidDataException(CliManifestFileName + ": infra.terraform section is required.");
 
         EnsureRelativePathOrThrow(config.Inputs.Brief, "inputs.brief");
         EnsureRelativePathOrThrow(config.Outputs.LocalCacheDir, "outputs.localCacheDir");
-        EnsureRelativePathOrThrow(config.Plugins.LockFile, "plugins.lockFile");
-        EnsureRelativePathOrThrow(config.Infra.Terraform.Path, "infra.terraform.path");
 
         string briefPath = Path.Combine(projectRoot, config.Inputs.Brief);
         if (!File.Exists(briefPath))
             throw new FileNotFoundException($"Brief file not found at '{config.Inputs.Brief}'.", briefPath);
-        string lockPath = Path.Combine(projectRoot, config.Plugins.LockFile);
 
-        if (!File.Exists(lockPath))
-            throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
+        if (config.Plugins is not null && !string.IsNullOrWhiteSpace(config.Plugins.LockFile))
+        {
+            EnsureRelativePathOrThrow(config.Plugins.LockFile, "plugins.lockFile");
+            string lockPath = Path.Combine(projectRoot, config.Plugins.LockFile);
 
-        if (!config.Infra.Terraform.Enabled)
+            if (!File.Exists(lockPath))
+                throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
+        }
+
+        InfraSection infra = config.Infra ?? new InfraSection();
+        TerraformSection tf = infra.Terraform ?? new TerraformSection { Enabled = false, Path = "infra/terraform" };
+
+        if (!tf.Enabled)
             return;
 
-        string tfDir = Path.Combine(projectRoot, config.Infra.Terraform.Path);
+        if (string.IsNullOrWhiteSpace(tf.Path))
+            throw new InvalidDataException(CliManifestFileName + ": infra.terraform.path is required when infra.terraform.enabled is true.");
+
+        EnsureRelativePathOrThrow(tf.Path, "infra.terraform.path");
+        string tfDir = Path.Combine(projectRoot, tf.Path);
 
         if (!Directory.Exists(tfDir))
-            throw new DirectoryNotFoundException($"Terraform directory not found at '{config.Infra.Terraform.Path}'.");
+            throw new DirectoryNotFoundException($"Terraform directory not found at '{tf.Path}'.");
     }
 
     private static void EnsureRelativePathOrThrow(string path, string fieldName)

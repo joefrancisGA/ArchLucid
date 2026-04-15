@@ -185,9 +185,9 @@ public static class SupportBundleCollector
             ApiBaseUrlRedacted = SupportBundleRedactor.RedactHttpUrl(resolved),
             InputsBriefPath = config.Inputs.Brief,
             OutputsLocalCacheDir = config.Outputs.LocalCacheDir,
-            PluginsLockFile = config.Plugins.LockFile,
-            TerraformEnabled = config.Infra.Terraform.Enabled,
-            TerraformPath = config.Infra.Terraform.Path,
+            PluginsLockFile = config.Plugins?.LockFile,
+            TerraformEnabled = config.Infra?.Terraform?.Enabled,
+            TerraformPath = config.Infra?.Terraform?.Path,
             Architecture = config.Architecture,
         };
     }

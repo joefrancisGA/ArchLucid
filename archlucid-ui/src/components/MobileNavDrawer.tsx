@@ -2,6 +2,7 @@
 
 import { Menu } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,12 +13,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
+import { cn } from "@/lib/utils";
 
 /**
  * Hamburger + full-height drawer for small screens (sidebar is hidden below `lg`).
  */
 export function MobileNavDrawer() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   return (
@@ -46,22 +50,34 @@ export function MobileNavDrawer() {
                   {group.label}
                 </div>
                 <nav className="flex flex-col gap-0.5" aria-label={group.label}>
-                  {group.links.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="shell-nav-link rounded-md px-2 py-1.5 text-sm text-neutral-800 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
-                      title={link.title}
-                      aria-keyshortcuts={
-                        link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
-                      }
-                      onClick={() => {
-                        setOpen(false);
-                      }}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
+                  {group.links.map((link) => {
+                    const active = isNavLinkActive(pathname, link.href);
+                    const Icon = link.icon;
+
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className={cn(
+                          "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                          active
+                            ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                            : "text-neutral-800 dark:text-neutral-200",
+                        )}
+                        title={link.title}
+                        aria-current={active ? "page" : undefined}
+                        aria-keyshortcuts={
+                          link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
+                        }
+                        onClick={() => {
+                          setOpen(false);
+                        }}
+                      >
+                        {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
+                        {link.label}
+                      </Link>
+                    );
+                  })}
                 </nav>
               </div>
             ))}

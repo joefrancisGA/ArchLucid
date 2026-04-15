@@ -18,6 +18,8 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
+import { CommitRunButton } from "@/components/CommitRunButton";
+import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import {
   type ApiResponseWithTrace,
@@ -228,10 +230,13 @@ export default async function RunDetailPage({
           was created outside the authority pipeline.
         </p>
         {pipelineTimelineFailure ? (
-          <AuthorityPipelineTimeline
-            items={null}
-            loadErrorMessage={pipelineTimelineFailure.message}
-          />
+          <>
+            <AuthorityPipelineTimeline
+              items={null}
+              loadErrorMessage={pipelineTimelineFailure.message}
+            />
+            <OperatorSectionRetryButton label="Retry loading timeline" />
+          </>
         ) : (
           <AuthorityPipelineTimeline items={pipelineTimeline} />
         )}
@@ -287,6 +292,7 @@ export default async function RunDetailPage({
           <p style={{ margin: "8px 0 0", fontSize: 14 }}>
             This is a failed request (HTTP / transport / 404), not a malformed JSON body.
           </p>
+          <OperatorSectionRetryButton label="Retry loading manifest summary" />
         </>
       )}
 
@@ -339,6 +345,7 @@ export default async function RunDetailPage({
               <p style={{ margin: "8px 0 0", fontSize: 14 }}>
                 The run and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
               </p>
+              <OperatorSectionRetryButton label="Retry loading explanation" />
             </>
           )}
           {!explanationFailure && (
@@ -364,6 +371,7 @@ export default async function RunDetailPage({
                 The artifacts request failed (network, 404, or server error)—distinct from an empty
                 list or malformed JSON.
               </p>
+              <OperatorSectionRetryButton label="Retry loading artifacts" />
             </>
           )}
 
@@ -401,6 +409,10 @@ export default async function RunDetailPage({
 
       <section style={{ marginBottom: 24 }}>
         <h3>Actions</h3>
+        <div className="mb-4 max-w-xl">
+          <p className="m-0 mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">Commit</p>
+          <CommitRunButton runId={runId} disabled={Boolean(manifestId)} />
+        </div>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
             Compare two runs (base = this run)

@@ -2,19 +2,31 @@
 
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
 
 const STORAGE_PREFIX = "archlucid_sidebar_group_";
 
+/** Alerts & governance is collapsed by default until the user explicitly opens it (localStorage "1"). */
+function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean {
+  if (groupId === "alerts-governance") {
+    return raw === "1";
+  }
+
+  return raw !== "0";
+}
+
 /**
  * Collapsible grouped sidebar navigation (desktop). Group open state persists in localStorage.
  */
 export function SidebarNav() {
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [openByGroup, setOpenByGroup] = useState<Record<string, boolean>>({});
 
@@ -25,12 +37,12 @@ export function SidebarNav() {
       try {
         if (typeof window !== "undefined") {
           const raw = window.localStorage.getItem(STORAGE_PREFIX + group.id);
-          next[group.id] = raw !== "0";
+          next[group.id] = readGroupOpenFromStorage(group.id, raw);
         } else {
-          next[group.id] = true;
+          next[group.id] = group.id !== "alerts-governance";
         }
       } catch {
-        next[group.id] = true;
+        next[group.id] = group.id !== "alerts-governance";
       }
     }
 
@@ -76,19 +88,31 @@ export function SidebarNav() {
                 className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
                 aria-label={group.label}
               >
-                {group.links.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="shell-nav-link rounded-md px-2 py-1 text-sm text-neutral-800 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
-                    title={link.title}
-                    aria-keyshortcuts={
-                      link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
-                    }
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {group.links.map((link) => {
+                  const active = isNavLinkActive(pathname, link.href);
+                  const Icon = link.icon;
+
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={cn(
+                        "shell-nav-link flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800",
+                        active
+                          ? "bg-teal-50 font-semibold text-teal-900 dark:bg-teal-900/30 dark:text-teal-200"
+                          : "text-neutral-800 dark:text-neutral-200",
+                      )}
+                      title={link.title}
+                      aria-current={active ? "page" : undefined}
+                      aria-keyshortcuts={
+                        link.keyShortcut ? registryKeyToAriaKeyShortcuts(link.keyShortcut) : undefined
+                      }
+                    >
+                      {Icon ? <Icon className="h-4 w-4 shrink-0 opacity-90" aria-hidden /> : null}
+                      {link.label}
+                    </Link>
+                  );
+                })}
               </nav>
             </CollapsibleContent>
           </Collapsible>

@@ -57,6 +57,32 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 | `comparisons drift <comparisonRecordId>` | Run drift analysis for a saved comparison record. |
 | `comparisons diagnostics` | Show recent replay activity (requires replay diagnostics permission). |
 | `comparisons tag <comparisonRecordId>` | Update label and tags on a comparison record. |
+| `completions bash` \| `zsh` \| `powershell` | Print a shell completion script to stdout (source from your profile). |
+
+---
+
+## Shell completion
+
+Install once per machine (examples):
+
+```bash
+# Bash — append to ~/.bashrc
+dotnet run --project ArchLucid.Cli -- completions bash >> ~/.bash_completion_archlucid
+echo 'source ~/.bash_completion_archlucid' >> ~/.bashrc
+```
+
+```bash
+# zsh — save under a path on your fpath or source directly
+dotnet run --project ArchLucid.Cli -- completions zsh > ~/.archlucid-completions.zsh
+echo 'source ~/.archlucid-completions.zsh' >> ~/.zshrc
+```
+
+```powershell
+# PowerShell — add to your profile
+dotnet run --project ArchLucid.Cli -- completions powershell | Out-File -Encoding utf8 $PROFILE.CurrentUserAllHosts -Append
+```
+
+After `dotnet tool install -g ArchLucid.Cli`, use `archlucid completions …` instead of `dotnet run --project …`.
 
 ---
 
@@ -162,11 +188,22 @@ Single source of truth for project configuration. Required for `run`, `status`, 
 | `apiUrl` | Optional. Overrides default API base URL. |
 | `inputs.brief` | Path to brief file (e.g. `"inputs/brief.md"`). Required; file must exist. |
 | `outputs.localCacheDir` | Local cache directory for artifacts (e.g. `"outputs"`). Required. |
-| `plugins.lockFile` | Path to plugin lock file (e.g. `"plugins/plugin-lock.json"`). Required; file must exist. |
-| `infra.terraform` | Object with `enabled` and `path`. Required. If `enabled` is true, `path` must point to an existing directory. |
+| `plugins.lockFile` | Optional. When set, the file must exist. When `plugins` is omitted, plugin lock validation is skipped. |
+| `infra.terraform` | Optional. When omitted, Terraform is treated as disabled. If `enabled` is true, `path` must point to an existing directory. |
 | `architecture` | Optional. `environment`, `cloudProvider`, `constraints`, `requiredCapabilities`, `assumptions`, `priorManifestVersion`. |
 
-Example (minimal valid):
+Example (minimal valid — no plugins / infra):
+
+```json
+{
+  "schemaVersion": "1.0",
+  "projectName": "MyApp",
+  "inputs": { "brief": "inputs/brief.md" },
+  "outputs": { "localCacheDir": "outputs" }
+}
+```
+
+Example (with plugin lock and Terraform path, common for `archlucid new`):
 
 ```json
 {

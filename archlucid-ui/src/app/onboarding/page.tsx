@@ -12,6 +12,17 @@ export const metadata: Metadata = {
 export default function OnboardingPage() {
   return (
     <main>
+      <p className="mb-4 text-sm">
+        <strong>Start with the checklist on </strong>
+        <Link href="/" title="Home with first-run workflow">
+          Home
+        </Link>{" "}
+        or{" "}
+        <Link href="/getting-started" title="Getting started — same checklist">
+          Getting started
+        </Link>
+        — then use the links below for deeper areas.
+      </p>
       <h1 style={{ marginBottom: 8 }}>Operator onboarding</h1>
       <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55, marginBottom: 24 }}>
         Follow these steps once per environment. Each item opens the matching area in the app or documentation.
