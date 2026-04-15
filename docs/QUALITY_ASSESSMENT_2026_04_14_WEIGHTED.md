@@ -522,47 +522,62 @@ These are the improvements that would deliver the most value per unit of effort,
 3. Add property-based tests (FsCheck) for governance state machine transitions and alert deduplication.
 4. Raise CI gates in `ci.yml` as coverage improves.
 
-**Cursor Prompts:**
+**Cursor prompts** (paste-ready; stable slugs for bookmarks and checklist cross-refs):
 
 ```
-Prompt 1a — Coverage gap analysis:
+Improvement 1 — Prompt `coverage-gap-report`
 
-Run the full test suite with code coverage collection against the ArchLucid.sln solution.
-Identify the 5 production assemblies (exclude test projects, benchmarks, and TestSupport)
-with the lowest line coverage percentage. For each assembly, list the 3 classes or files
-with the most uncovered lines. Output the results as a markdown table with columns:
-Assembly, Line Coverage %, Lowest File 1, Lowest File 2, Lowest File 3. Do not modify
-any code — this is analysis only. Save the results to docs/COVERAGE_GAP_ANALYSIS.md.
+Regenerate docs/COVERAGE_GAP_ANALYSIS.md from a merged Cobertura file (do not hand-edit
+the tables). Preferred path:
+
+1. From repo root, run a full Release test pass with Coverlet and merge to one Cobertura
+   (see "How to refresh" inside docs/COVERAGE_GAP_ANALYSIS.md and docs/CODE_COVERAGE.md).
+2. Place the merged Cobertura at coverage-gap-1a/merged/Cobertura.xml (or adjust
+   scripts/ci/coverage_gap_analysis.py to accept a CLI path if you use a different folder,
+   then run the script once and commit only the doc + any script argv support).
+3. Run: python scripts/ci/coverage_gap_analysis.py
+4. Commit the updated docs/COVERAGE_GAP_ANALYSIS.md if values changed.
+
+This is analysis-only unless you add argv support to the script; no production code changes
+required for a simple refresh.
 ```
 
 ```
-Prompt 1b — Write tests for lowest-coverage assemblies:
+Improvement 1 — Prompt `lowest-assembly-tests`
 
 Read docs/COVERAGE_GAP_ANALYSIS.md. For the #1 lowest-covered production assembly,
-examine the 3 files with the most uncovered lines. For each file:
-1. Read the source code and identify all public methods lacking test coverage.
-2. Write comprehensive xUnit tests covering: happy path, null/empty inputs, boundary
-   conditions, and error paths. Use FluentAssertions. Use concrete types (not var).
-   Follow existing test patterns in the corresponding .Tests project.
-3. Add [Trait("Suite", "Core")] and [Trait("Category", "Unit")] to each test class.
-4. Ensure tests compile and pass by building the test project.
-Target: bring the assembly's line coverage above 80%. Do not use ConfigureAwait(false)
-in tests. Each test class must be in its own file.
+work the three files listed with the most uncovered lines. For each file:
+
+1. Read the source and list public surface area that lacks meaningful tests.
+2. Add tests in the matching *.Tests project. For Dapper relational readers under
+   ArchLucid.Persistence, prefer SQL Server integration tests (existing patterns:
+   SqlServerContainer / ArchLucid.Persistence.Tests) over heavy mocking of ADO.NET,
+   unless the file is already fully unit-testable.
+3. Cover happy path, null/empty inputs, boundaries, and error paths. Use FluentAssertions
+   and concrete types (not var). Follow sibling tests in the same test project.
+4. Add [Trait("Suite", "Core")] and [Trait("Category", "Unit")] (or Integration where
+   appropriate) on each test class.
+5. Build and run the affected test project.
+
+Target: materially raise line coverage for that assembly. Do not use ConfigureAwait(false)
+in tests. Each test class in its own file.
 ```
 
 ```
-Prompt 1c — Property-based tests for governance state machine:
+Improvement 1 — Prompt `governance-workflow-fscheck`
 
-Add FsCheck property-based tests to ArchLucid.Decisioning.Tests for the governance
-approval workflow state machine in GovernanceWorkflowService. Test these invariants:
-1. A submitted approval request always starts in Pending state.
-2. Self-approval is always blocked (RequestedBy == reviewedBy → GovernanceSelfApprovalException).
-3. An approved request cannot be approved again.
-4. A rejected request cannot be approved or rejected again.
-5. Production promotion requires an approved approval request matching the run/manifest/environment.
-Use the existing GovernanceWorkflowService and its dependencies (mock repositories with
-NSubstitute or the existing test doubles in TestSupport). Add [Trait("Suite", "Core")]
-and [Trait("Category", "Unit")]. Do not use ConfigureAwait(false) in tests.
+Extend property-based coverage in ArchLucid.Decisioning.Tests (see existing
+Governance/GovernanceWorkflowSegregationAndPromotionPropertyTests.cs) for the governance
+approval workflow around GovernanceWorkflowService. Assert invariants such as:
+
+1. Submitted approval requests start in the expected pending/reviewable state.
+2. Self-approval is blocked (ordinal case-insensitive) with GovernanceSelfApprovalException.
+3. Terminal states (approved/rejected) reject duplicate approve/reject transitions.
+4. Production promotion requires a matching approved request for run/manifest/environment.
+
+Use NSubstitute (or TestSupport doubles) for repositories and services. Add
+[Trait("Suite", "Core")] and [Trait("Category", "Unit")]. Do not use ConfigureAwait(false)
+in tests. Each new test class in its own file.
 ```
 
 ---
@@ -668,6 +683,6 @@ Implementation:
 
 ---
 
-## Cursor Prompts for Improvements 1 and 2
+## Cursor prompts for Improvements 1 and 2
 
-See the detailed prompts embedded in the Improvement 1 and Improvement 2 sections above (three prompts for Improvement 1, two prompts for Improvement 2).
+Improvement 1 uses three slugs: **`coverage-gap-report`**, **`lowest-assembly-tests`**, **`governance-workflow-fscheck`** (see that section above). Improvement 2 uses **Prompt 2a** and **Prompt 2b** in its section above.
