@@ -20,7 +20,7 @@ public sealed class DataConsistencyOrphanProbeHostedService(
     IOptions<ArchLucidOptions> archLucidOptions,
     ILogger<DataConsistencyOrphanProbeHostedService> logger) : BackgroundService
 {
-    private const string SqlText = """
+    private const string LeftOrphanSql = """
         SELECT COUNT_BIG(1)
         FROM dbo.ComparisonRecords c
         WHERE c.LeftRunId IS NOT NULL
@@ -29,6 +29,17 @@ public sealed class DataConsistencyOrphanProbeHostedService(
               SELECT 1
               FROM dbo.Runs r
               WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId));
+        """;
+
+    private const string RightOrphanSql = """
+        SELECT COUNT_BIG(1)
+        FROM dbo.ComparisonRecords c
+        WHERE c.RightRunId IS NOT NULL
+          AND TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId) IS NOT NULL
+          AND NOT EXISTS (
+              SELECT 1
+              FROM dbo.Runs r
+              WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId));
         """;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -92,20 +103,34 @@ public sealed class DataConsistencyOrphanProbeHostedService(
         await using DbConnection _ = connection;
         await connection.OpenAsync(ct);
 
+        await LogAndCountOrphansAsync(connection, LeftOrphanSql, "LeftRunId", ct).ConfigureAwait(false);
+        await LogAndCountOrphansAsync(connection, RightOrphanSql, "RightRunId", ct).ConfigureAwait(false);
+    }
+
+    private async Task LogAndCountOrphansAsync(
+        DbConnection connection,
+        string sql,
+        string columnLabel,
+        CancellationToken ct)
+    {
         await using DbCommand command = connection.CreateCommand();
-        command.CommandText = SqlText;
-        object? scalar = await command.ExecuteScalarAsync(ct);
+        command.CommandText = sql;
+        object? scalar = await command.ExecuteScalarAsync(ct).ConfigureAwait(false);
         long count = scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, System.Globalization.CultureInfo.InvariantCulture);
 
-        if (count > 0)
+        if (count <= 0)
         {
-            logger.LogWarning(
-                "Data consistency: {Count} comparison record(s) reference a missing authority RunId (LeftRunId).",
-                count);
-
-            ArchLucidInstrumentation.DataConsistencyOrphansDetected.Add(
-                count,
-                new KeyValuePair<string, object?>("table", "ComparisonRecords"));
+            return;
         }
+
+        logger.LogWarning(
+            "Data consistency: {Count} comparison record(s) reference a missing authority RunId ({Column}).",
+            count,
+            columnLabel);
+
+        ArchLucidInstrumentation.DataConsistencyOrphansDetected.Add(
+            count,
+            new KeyValuePair<string, object?>("table", "ComparisonRecords"),
+            new KeyValuePair<string, object?>("column", columnLabel));
     }
 }

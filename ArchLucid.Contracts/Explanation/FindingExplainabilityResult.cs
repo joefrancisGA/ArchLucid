@@ -24,4 +24,7 @@ public sealed class FindingExplainabilityResult
     public List<string> AlternativePathsConsidered { get; set; } = [];
 
     public List<string> Notes { get; set; } = [];
+
+    /// <summary>Deterministic plain-text narrative composed from explainability trace fields (server-side).</summary>
+    public string NarrativeText { get; set; } = string.Empty;
 }

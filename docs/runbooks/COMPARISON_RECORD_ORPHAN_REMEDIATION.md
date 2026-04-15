@@ -1,0 +1,96 @@
+# Runbook: Comparison record orphans (missing authority run)
+
+## Objective
+
+Remove or inspect **`dbo.ComparisonRecords`** rows whose **`LeftRunId`** or **`RightRunId`** parses as a **GUID** but **no** matching **`dbo.Runs.RunId`** exists. This state is **inconsistent** with the authority run model and is **detection-only** in the product (`DataConsistencyOrphanProbeHostedService`).
+
+## Assumptions
+
+- You use **SQL Server** persistence (not InMemory).
+- You have permission to run diagnostics **`SELECT`** and, if approved, **`DELETE`** in the target database.
+- **RLS** or tenant scoping: if enabled, use a **maintainer / admin** connection or **`EXECUTE AS`** pattern approved by your security team.
+
+## Constraints
+
+- Do **not** delete rows merely because **`Runs.ArchivedUtc`** is set — archived runs still exist.
+- Run **`DELETE`** only after **preview** counts match expectations and change control approves.
+- Prefer fixing **upstream** lifecycle bugs if orphans recur.
+
+## Architecture overview
+
+```mermaid
+flowchart LR
+  subgraph detection
+    P[DataConsistencyOrphanProbeHostedService]
+    M[archlucid_data_consistency_orphans_detected_total]
+  end
+  subgraph data
+    C[dbo.ComparisonRecords]
+    R[dbo.Runs]
+  end
+  P -->|counts missing RunId| C
+  C -.->|expected FK by GUID| R
+  P --> M
+```
+
+## Preview (read-only)
+
+**Left side references missing run:**
+
+```sql
+SELECT c.ComparisonRecordId, c.LeftRunId, c.CreatedUtc
+FROM dbo.ComparisonRecords c
+WHERE c.LeftRunId IS NOT NULL
+  AND TRY_CONVERT(uniqueidentifier, c.LeftRunId) IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1
+      FROM dbo.Runs r
+      WHERE r.RunId = TRY_CONVERT(uniqueidentifier, c.LeftRunId));
+```
+
+**Right side references missing run:**
+
+```sql
+SELECT c.ComparisonRecordId, c.RightRunId, c.CreatedUtc
+FROM dbo.ComparisonRecords c
+WHERE c.RightRunId IS NOT NULL
+  AND TRY_CONVERT(uniqueidentifier, c.RightRunId) IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1
+      FROM dbo.Runs r
+      WHERE r.RunId = TRY_CONVERT(uniqueidentifier, c.RightRunId));
+```
+
+## Remediation (destructive)
+
+**Idempotent delete** of rows with **either** side orphaned (adjust **`WHERE`** if you only fix one side):
+
+```sql
+DELETE c
+FROM dbo.ComparisonRecords c
+WHERE (
+    c.LeftRunId IS NOT NULL
+    AND TRY_CONVERT(uniqueidentifier, c.LeftRunId) IS NOT NULL
+    AND NOT EXISTS (
+        SELECT 1 FROM dbo.Runs r
+        WHERE r.RunId = TRY_CONVERT(uniqueidentifier, c.LeftRunId))
+)
+OR (
+    c.RightRunId IS NOT NULL
+    AND TRY_CONVERT(uniqueidentifier, c.RightRunId) IS NOT NULL
+    AND NOT EXISTS (
+        SELECT 1 FROM dbo.Runs r
+        WHERE r.RunId = TRY_CONVERT(uniqueidentifier, c.RightRunId)));
+```
+
+Run inside a transaction in **maintenance window**; verify **`@@ROWCOUNT`** against preview.
+
+## Security model
+
+- Least privilege: diagnostics role for **preview**; separate **break-glass** principal for **delete**.
+- Log **who** ran remediation and **ticket** reference.
+
+## Operational considerations
+
+- After remediation, confirm **`archlucid_data_consistency_orphans_detected_total`** stops incrementing (see Prometheus alert **`ArchLucidDataConsistencyOrphansDetected`**).
+- If orphans **reappear**, capture API/worker logs around run deletion or comparison creation and open a defect.

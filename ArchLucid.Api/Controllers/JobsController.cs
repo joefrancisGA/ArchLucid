@@ -51,7 +51,7 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(BackgroundJobInfo), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadJobFile([FromRoute] string jobId, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(jobId))
@@ -62,11 +62,20 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
             return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
 
         if (info.State != BackgroundJobState.Succeeded)
-            return Conflict(info);
+        {
+            return this.ConflictProblem(
+                $"Job '{jobId}' has not completed successfully (state: {info.State}).",
+                ProblemTypes.Conflict);
+        }
 
         BackgroundJobFile? file = await jobs.GetFileAsync(jobId, cancellationToken);
+
         if (file is null)
-            return Conflict(info);
+        {
+            return this.ConflictProblem(
+                $"Job '{jobId}' succeeded but no result file is available.",
+                ProblemTypes.Conflict);
+        }
 
         return File(file.Bytes, file.ContentType, file.FileName);
     }

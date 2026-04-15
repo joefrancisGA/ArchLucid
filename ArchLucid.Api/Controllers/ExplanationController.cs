@@ -135,7 +135,7 @@ public sealed class ExplanationController(
         }
 
         TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(match);
-        ExplainabilityTrace t = match.Trace;
+        ExplainabilityTrace t = match.Trace ?? new ExplainabilityTrace();
 
         FindingExplainabilityResult body = new()
         {
@@ -149,6 +149,12 @@ public sealed class ExplanationController(
             DecisionsTaken = t.DecisionsTaken,
             AlternativePathsConsidered = t.AlternativePathsConsidered,
             Notes = t.Notes,
+            NarrativeText = FindingExplainabilityNarrativeBuilder.Build(
+                match.FindingId,
+                match.Title,
+                match.EngineType,
+                t,
+                score.CompletenessRatio),
         };
 
         return Ok(body);

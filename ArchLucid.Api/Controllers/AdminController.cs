@@ -1,4 +1,5 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence;
@@ -75,7 +76,7 @@ public sealed class AdminController(
     /// <summary>Clears dead-letter state for one outbox row so the worker will publish again.</summary>
     [HttpPost("integration-outbox/dead-letters/{outboxId:guid}/retry")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RetryIntegrationOutboxDeadLetter(
         Guid outboxId,
         CancellationToken cancellationToken = default)
@@ -84,7 +85,9 @@ public sealed class AdminController(
 
         if (!ok)
         {
-            return NotFound();
+            return this.NotFoundProblem(
+                $"Integration outbox dead-letter row '{outboxId:D}' was not found.",
+                ProblemTypes.ResourceNotFound);
         }
 
         return NoContent();

@@ -125,13 +125,27 @@ test.describe("live-api-journey", () => {
 
     await manifestLink.click();
 
-    await expect(page.getByRole("heading", { name: "Manifest", level: 2 })).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText("Manifest ID:", { exact: false })).toBeVisible();
-    await expect(page.getByText(goldenManifestId)).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Artifacts", level: 3 })).toBeVisible();
-    await expect(page.getByRole("table")).toBeVisible();
-    await expect(page.getByRole("columnheader", { name: "Artifact" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Download bundle (ZIP)" })).toBeVisible();
+    const manifestMain = page.locator("main");
+
+    // RSC: `h2` can stream before the summary `<p>`; default 5s is flaky in CI. Loading.tsx has no `h2`, so wait
+    // for the loading notice to detach first, then allow up to 60s for success markup (or surface summary API errors).
+    await expect(manifestMain.getByText(/Fetching manifest summary and artifacts/)).toHaveCount(0, {
+      timeout: 60_000,
+    });
+
+    await expect(manifestMain.getByRole("heading", { name: "Manifest", level: 2 })).toBeVisible({ timeout: 60_000 });
+
+    // Success path uses <strong>Manifest ID:</strong>; error/malformed/empty-summary branches omit it.
+    await expect(
+      manifestMain.locator("strong", { hasText: "Manifest ID:" }),
+      "Manifest summary success UI missing — check GET /v1/authority/manifests/{id}/summary, proxy scope, and operator-response-guards.",
+    ).toBeVisible({ timeout: 60_000 });
+
+    await expect(manifestMain.getByText(goldenManifestId)).toBeVisible({ timeout: 60_000 });
+    await expect(manifestMain.getByRole("heading", { name: "Artifacts", level: 3 })).toBeVisible({ timeout: 60_000 });
+    await expect(manifestMain.getByRole("table")).toBeVisible({ timeout: 60_000 });
+    await expect(manifestMain.getByRole("columnheader", { name: "Artifact" })).toBeVisible({ timeout: 60_000 });
+    await expect(manifestMain.getByRole("link", { name: "Download bundle (ZIP)" })).toBeVisible({ timeout: 60_000 });
 
     const exportRes = await getRunExportZip(request, runId);
 

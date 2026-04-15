@@ -2,6 +2,8 @@
 
 Improvement 3 in **`docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`** targets **cognitive load** and **evolvability**: one product solution file, no orphan rename debris, aligned legacy-config sunset messaging, and **no competing quality-assessment documents** in `docs/` root.
 
+**Improvements 4–6** (and a session **verification bundle** for Improvement 3): see **[`CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`](CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md)**.
+
 > **Note:** **`docs/CURSOR_PROMPTS_QUALITY_IMPROVEMENT_3.md`** is a different topic (k6 / CI load gates). Use this file for **rename + doc consolidation** prompts only.
 
 ---

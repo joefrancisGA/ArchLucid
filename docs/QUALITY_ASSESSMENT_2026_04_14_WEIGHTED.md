@@ -649,6 +649,8 @@ extend registration tests if you add a new policy name.
 
 **Why:** Traceability has weight 7 and a 196 weighted gap. The provenance infrastructure is strong but lacks the "last mile" of requirements → implementation → test linkage.
 
+**Status (2026-04-15):** **Partially implemented.** Traceability matrix: **`docs/V1_REQUIREMENTS_TEST_TRACEABILITY.md`**. Orphan **detection** extended: **`DataConsistencyOrphanProbeHostedService`** now probes **`LeftRunId`** and **`RightRunId`**; counter labels **`table`** + **`column`**. Operator **remediation** runbook: **`docs/runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md`**. Paste-ready prompts: **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`** (`v1-requirements-traceability-matrix`, `comparison-orphan-probe-and-remediation`).
+
 ---
 
 ### Improvement 5: Add Individual Finding Explanations (Explainability, Weight 6)
@@ -656,6 +658,8 @@ extend registration tests if you add a new policy name.
 **Target:** Build a user-facing narrative for individual findings that composes `ExplainabilityTrace` fields into readable text, and enable faithfulness trend alerting.
 
 **Why:** Explainability has weight 6 and a 162 weighted gap. The infrastructure exists (trace fields, completeness analyzer) but the user-facing narrative is missing.
+
+**Status (2026-04-15):** **Partially implemented.** **`FindingExplainabilityNarrativeBuilder`** + **`FindingExplainabilityResult.NarrativeText`** on **`GET .../findings/{id}/explainability`**. Unit tests: **`FindingExplainabilityNarrativeBuilderTests`**. Prometheus: **`archlucid-explainability`** group with **`ArchLucidExplanationFaithfulnessFallbackTrend`** in **`infra/prometheus/archlucid-alerts.yml`**. Prompts: **`finding-explainability-narrative`** in **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`**.
 
 ---
 
@@ -665,11 +669,15 @@ extend registration tests if you add a new policy name.
 
 **Why:** Usability has weight 4 and a 144 weighted gap. The first-run wizard design already exists — this is pure implementation. Consistent error formatting is a quick win that improves every API consumer's experience.
 
+**Status (2026-04-15):** **Partially implemented.** First-run wizard already ships at **`archlucid-ui`** **`/runs/new`** (wizard schema + presets); full parity sweep remains (**`first-run-wizard-parity`** prompt). RFC 7807: **`AdminController`**, **`JobsController`**, **`DemoController`** now return Problem+JSON for the remaining bare **`NotFound()`** / **`Conflict(info)`** paths. Broader controller sweep: **`rfc7807-controller-sweep`** in **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`**.
+
 ---
 
-## Cursor prompts for Improvements 1–3
+## Cursor prompts for Improvements 1–6
 
-Improvement 1 uses **`coverage-gap-report`**, **`lowest-assembly-tests`**, **`governance-workflow-fscheck`**. Improvement 2 uses **`dev-bypass-production-guard`** and **`rbac-policies-and-sensitive-controllers`** (implementation complete; prompts are verification/regression checklists). Improvement 3 also has a consolidated copy (including **`archive-superseded-quality-assessments`**) in **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md`** — prefer that file for bookmarks. The fenced blocks below duplicate **`rename-artifacts-single-sln`**, **`rename-artifacts-no-stub-archiforge-src`**, and **`legacy-config-sunset-constant`** for inline reading.
+Improvement 1 uses **`coverage-gap-report`**, **`lowest-assembly-tests`**, **`governance-workflow-fscheck`**. Improvement 2 uses **`dev-bypass-production-guard`** and **`rbac-policies-and-sensitive-controllers`**. Improvement 3: **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md`** (rename, single `.sln`, legacy sunset, archive quality docs). **Improvements 3–6** (verification bundle + 4–6 prompts): **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`**.
+
+The fenced blocks below duplicate Improvement 3 prompts **`rename-artifacts-single-sln`**, **`rename-artifacts-no-stub-archiforge-src`**, and **`legacy-config-sunset-constant`** for inline reading only.
 
 ```
 Improvement 3 — Prompt `rename-artifacts-single-sln`
