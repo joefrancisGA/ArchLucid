@@ -6,6 +6,12 @@ namespace ArchLucid.Host.Core.Configuration;
 /// </summary>
 public static class ArchLucidLegacyConfigurationWarnings
 {
+    /// <summary>
+    /// Earliest calendar date (ISO 8601) after which startup may fail if legacy keys are still present.
+    /// Until then behavior is log-warning only; confirm with <c>docs/CONFIG_BRIDGE_SUNSET.md</c> before enforcing.
+    /// </summary>
+    public const string LegacyConfigurationKeysHardEnforcementNoEarlierThan = "2027-07-01";
+
     private static readonly string LegacyConnectionStringName = "Archi" + "Forge";
 
     private static readonly string LegacyProductSection = "Archi" + "Forge";
@@ -43,7 +49,8 @@ public static class ArchLucidLegacyConfigurationWarnings
         }
 
         logger.LogWarning(
-            "Legacy configuration keys are present but ignored: {LegacyKeys}. Use ConnectionStrings:ArchLucid, ArchLucid:*, and ArchLucidAuth:* only.",
-            string.Join(", ", found));
+            "Legacy configuration keys are present but ignored: {LegacyKeys}. Use ConnectionStrings:ArchLucid, ArchLucid:*, and ArchLucidAuth:* only. Hard enforcement is not scheduled before {SunsetDate}; see docs/CONFIG_BRIDGE_SUNSET.md.",
+            string.Join(", ", found),
+            LegacyConfigurationKeysHardEnforcementNoEarlierThan);
     }
 }

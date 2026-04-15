@@ -4,6 +4,12 @@
 
 **Phase 7 (2026-04-08):** Dual-read configuration bridges that merged **historic** keys (see **`BREAKING_CHANGES.md`**) have been **removed** from application code. Only **`ArchLucid*`**, **`ArchLucidAuth*`**, **`ConnectionStrings:ArchLucid`**, **`ARCHLUCID_*`**, and **`NEXT_PUBLIC_ARCHLUCID_*`** are read; obsolete keys/env names surface **warnings** only.
 
+## Sunset timeline
+
+**Warnings-only period:** legacy **`ArchiForge*`** configuration keys (connection string name, product section, auth section) are detected at API/Worker startup and logged; values are **ignored**.
+
+**Earliest hard enforcement:** not before **`2027-07-01`** (UTC calendar date). That date is also **`ArchLucidLegacyConfigurationWarnings.LegacyConfigurationKeysHardEnforcementNoEarlierThan`** in code so operators see the same target in logs. Turning warnings into **startup failure** requires an explicit product decision and checklist update — do not treat the date as automatic without release notes.
+
 ## Operator impact
 
 - **API / Worker:** Only **`ConnectionStrings:ArchLucid`**, **`ArchLucid:*`**, and **`ArchLucidAuth:*`** are honored. If legacy keys are still present in configuration (for example Key Vault secret names mapped to old keys), **`ArchLucidLegacyConfigurationWarnings`** logs a **single warning** at startup listing which legacy keys were detected; those values are **not** applied.

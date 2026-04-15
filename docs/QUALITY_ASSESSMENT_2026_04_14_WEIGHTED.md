@@ -65,7 +65,7 @@
 - `IArchLucidUnitOfWork` pattern with Dapper for transactional consistency — well-structured, no Entity Framework.
 - Integration event publishing is architecturally guarded: a source-scan test prevents direct `PublishAsync` calls outside authorized wrappers.
 - `Contracts.Abstractions` split separates service ports from DTOs.
-- **Gaps:** Dual solution files (`ArchiForge.sln` + `ArchLucid.sln`) create confusion. Legacy `ArchiForge.*` directory stubs remain alongside `ArchLucid.*` — 40+ stale directories that could mislead contributors. `Host.Composition` has only `GlobalUsings.cs` visible (DI registration logic may be spread). The rename leaves Terraform resource addresses as `archiforge` (deferred 7.5). Architecture on a Page is solid but the C4 diagram is a simple flowchart, not a formal C4 model.
+- **Gaps:** ~~Dual solution files and orphan `ArchiForge/` trees~~ — **addressed 2026-04-15** (Improvement 3): repo root keeps **`ArchLucid.sln` only**; stray **`ArchiForge/`** stub sources removed; VS Code/REST **`ArchLucid.Api.http`**. `Host.Composition` has only `GlobalUsings.cs` visible (DI registration logic may be spread). The rename leaves Terraform resource addresses as `archiforge` (deferred 7.5). Architecture on a Page is solid but the C4 diagram is a simple flowchart, not a formal C4 model.
 
 **Tradeoffs:** The rename is incremental by design (one batch per session). Removing legacy directories risks breaking ongoing branches. Formal C4 requires tooling adoption.
 
@@ -633,9 +633,11 @@ extend registration tests if you add a new policy name.
 
 ### Improvement 3: Clean Up Rename Artifacts to Reduce Cognitive Load (Cognitive Load, Weight 4 + Evolvability, Weight 6)
 
-**Target:** Remove 40+ stale `ArchiForge.*` directories, consolidate to single `.sln`, set bridge sunset date.
+**Target:** Remove stale `ArchiForge.*` tree artifacts, consolidate to a single `.sln`, and publish a calendar target for legacy configuration key handling.
 
-**Why:** This improvement addresses both Cognitive Load (weighted gap 140) and Evolvability (weighted gap 192) simultaneously. The dual-directory structure is the single largest contributor to newcomer confusion and evolution friction.
+**Status (2026-04-15):** **Implemented** for in-repo rename debris: removed duplicate **`ArchiForge.sln`**, deleted orphan **`ArchiForge/`** stub sources (duplicates of `ArchLucid.*` files), renamed **`ArchLucid.Api/ArchiForge.Api.http`** → **`ArchLucid.Api.http`**, aligned **`docs/CONFIG_BRIDGE_SUNSET.md`** with **`ArchLucidLegacyConfigurationWarnings.LegacyConfigurationKeysHardEnforcementNoEarlierThan`** (`2027-07-01`) and extended the startup warning text. Terraform resource addresses and workspace path remain deferred per checklist **7.5–7.8**.
+
+**Why:** This improvement addresses both Cognitive Load (weighted gap 140) and Evolvability (weighted gap 192) simultaneously. Leftover rename paths mislead contributors and tooling.
 
 ---
 
@@ -663,6 +665,45 @@ extend registration tests if you add a new policy name.
 
 ---
 
-## Cursor prompts for Improvements 1 and 2
+## Cursor prompts for Improvements 1–3
 
-Improvement 1 uses **`coverage-gap-report`**, **`lowest-assembly-tests`**, **`governance-workflow-fscheck`**. Improvement 2 uses **`dev-bypass-production-guard`** and **`rbac-policies-and-sensitive-controllers`** (implementation complete; prompts are verification/regression checklists).
+Improvement 1 uses **`coverage-gap-report`**, **`lowest-assembly-tests`**, **`governance-workflow-fscheck`**. Improvement 2 uses **`dev-bypass-production-guard`** and **`rbac-policies-and-sensitive-controllers`** (implementation complete; prompts are verification/regression checklists). Improvement 3 uses **`rename-artifacts-single-sln`**, **`rename-artifacts-no-stub-archiforge-src`**, and **`legacy-config-sunset-constant`** below.
+
+```
+Improvement 3 — Prompt `rename-artifacts-single-sln`
+
+Keep a single solution entry point:
+
+1. Repo root must contain exactly one product solution: ArchLucid.sln (no ArchiForge.sln).
+2. CI/scripts/docs that reference a solution must use ArchLucid.sln — grep for ".sln" if a duplicate appears.
+3. Run: dotnet build ArchLucid.sln -c Release --nologo
+
+If a second .sln reappears, delete the duplicate or merge project entries, then re-run the build.
+```
+
+```
+Improvement 3 — Prompt `rename-artifacts-no-stub-archiforge-src`
+
+Remove contributor confusion from orphan product paths:
+
+1. There must be no ArchiForge/ directory tree holding .cs sources under the repo root (stale copies of ArchLucid.*).
+2. API REST client scratch file should be ArchLucid.Api/ArchLucid.Api.http (not ArchiForge.Api.http).
+3. Expected intentional literals: scripts/ci/archiforge-rename-allowlist*.txt, historical docs, Terraform addresses (*.archiforge), RLS SQL object names — do not delete those.
+
+If orphan sources exist, delete them after confirming equivalent types/tests live under ArchLucid.*; run dotnet build ArchLucid.sln -c Release.
+```
+
+```
+Improvement 3 — Prompt `legacy-config-sunset-constant`
+
+Align legacy key warnings with a published sunset target:
+
+1. Open ArchLucid.Host.Core/Configuration/ArchLucidLegacyConfigurationWarnings.cs — confirm
+   LegacyConfigurationKeysHardEnforcementNoEarlierThan and the warning template reference docs/CONFIG_BRIDGE_SUNSET.md.
+2. Open docs/CONFIG_BRIDGE_SUNSET.md — § Sunset timeline must match the same calendar date as the code constant.
+3. When changing the date, update both files in one change set and add release-note intent if enforcement is planned.
+
+Optional: grep ArchLucid.Api/Program.cs and ArchLucid.Worker/Program.cs for LogIfLegacyKeysPresent to ensure warnings still run after host build.
+```
+
+---
