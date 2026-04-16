@@ -11,7 +11,7 @@
 # SDK image tags use the SDK band (e.g. 10.0.201-alpine3.23). The aspnet *runtime* image uses the ASP.NET Core
 # runtime patch (e.g. 10.0.5-alpine3.23) — never reuse the SDK patch on mcr.microsoft.com/dotnet/aspnet.
 # Pin SDK patch + Alpine; bump SDK tag when you change global.json / CI SDK.
-FROM mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23 AS restore
+FROM mcr.microsoft.com/dotnet/sdk:10.0.202-alpine3.23 AS restore
 
 WORKDIR /src
 
