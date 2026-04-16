@@ -5391,6 +5391,52 @@
         }
       }
     },
+    "/v1/authority/runs/{runId}/events": {
+      "get": {
+        "tags": [
+          "AuthorityRunEvents"
+        ],
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/event-stream": {}
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/compare": {
       "get": {
         "tags": [
@@ -26933,6 +26979,9 @@
     },
     {
       "name": "AuthorityReplay"
+    },
+    {
+      "name": "AuthorityRunEvents"
     },
     {
       "name": "Comparison"
