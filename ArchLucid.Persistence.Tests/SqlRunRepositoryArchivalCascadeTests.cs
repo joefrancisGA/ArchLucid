@@ -138,6 +138,101 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
         findingsArchived.Should().NotBeNull();
     }
 
+    [SkippableFact]
+    public async Task ArchiveRunsByIdsAsync_cascades_ArchivedUtc_to_golden_manifest_row()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        await using SqlConnection probe = new(fixture.ConnectionString);
+        await probe.OpenAsync(CancellationToken.None);
+
+        Skip.IfNot(
+            await GoldenManifestArchivedUtcExistsAsync(probe, CancellationToken.None),
+            "dbo.GoldenManifests.ArchivedUtc (066) is required.");
+
+        TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
+        TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);
+        SqlRunRepository repo = new(sqlFactory, listFactory);
+
+        ScopeContext scope = NewScope();
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        string slug = "gm_cascade_" + Guid.NewGuid().ToString("N");
+
+        RunRecord run = NewRun(scope, runId, slug, DateTime.UtcNow);
+        await repo.SaveAsync(run, CancellationToken.None);
+
+        await using SqlConnection seed = new(fixture.ConnectionString);
+        await seed.OpenAsync(CancellationToken.None);
+
+        await AuthorityRunChainTestSeed.SeedSnapshotChainForExistingRunAsync(
+            seed,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            slug,
+            CancellationToken.None);
+
+        const string insertManifest = """
+            IF NOT EXISTS (SELECT 1 FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId)
+            INSERT INTO dbo.GoldenManifests
+            (ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+             CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+             MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+             ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson, WarningsJson, ProvenanceJson,
+             TenantId, WorkspaceId, ProjectId)
+            VALUES
+            (@ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+             SYSUTCDATETIME(), N'h', N'rs', N'1', N'rh', N'{}', N'{}', N'{}', N'{}', N'{}', N'{}',
+             N'{}', N'{}', N'[]', N'[]', N'[]', N'{}',
+             @TenantId, @WorkspaceId, @ScopeProjectId);
+            """;
+
+        await seed.ExecuteAsync(
+            new CommandDefinition(
+                insertManifest,
+                new
+                {
+                    ManifestId = manifestId,
+                    RunId = runId,
+                    ContextSnapshotId = contextId,
+                    GraphSnapshotId = graphId,
+                    FindingsSnapshotId = findingsId,
+                    DecisionTraceId = traceId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                },
+                cancellationToken: CancellationToken.None));
+
+        RunArchiveByIdsResult result = await repo.ArchiveRunsByIdsAsync([runId], CancellationToken.None);
+
+        result.SucceededRunIds.Should().ContainSingle().Which.Should().Be(runId);
+
+        DateTime? manifestArchived = await ReadArchivedUtcAsync(seed, "dbo.GoldenManifests", "ManifestId", manifestId, CancellationToken.None);
+        manifestArchived.Should().NotBeNull("GoldenManifests.ArchivedUtc should be set in the same batch as dbo.Runs.");
+    }
+
+    private static async Task<bool> GoldenManifestArchivedUtcExistsAsync(SqlConnection connection, CancellationToken ct)
+    {
+        const string sql = """
+            SELECT CASE WHEN COL_LENGTH(N'dbo.GoldenManifests', N'ArchivedUtc') IS NOT NULL THEN 1 ELSE 0 END;
+            """;
+
+        int flag = await connection.QuerySingleAsync<int>(new CommandDefinition(sql, cancellationToken: ct));
+
+        return flag == 1;
+    }
+
     private static ScopeContext NewScope() =>
         new()
         {

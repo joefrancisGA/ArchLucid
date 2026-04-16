@@ -8,6 +8,8 @@ Forward schema changes ship via DbUp under `ArchLucid.Persistence/Migrations/`. 
 
 CI enforces that the **ten most recent** numbered forward migrations each have at least one matching `Rollback/RNNN_*.sql` file (`scripts/ci/assert_rollback_scripts_exist.py`).
 
+Older migrations (for example **055** audit-event indexes) may still carry a paired `R055_*.sql` rollback for manual recovery even when they are outside the “latest ten” CI window.
+
 ## Risk
 
 Rollback scripts that `DROP TABLE` or `DROP COLUMN` **destroy data**. Use only with backups and an approved runbook.
