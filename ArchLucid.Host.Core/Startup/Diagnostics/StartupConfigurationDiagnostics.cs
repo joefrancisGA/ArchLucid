@@ -14,9 +14,7 @@ public static class StartupConfigurationDiagnostics
         Assembly hostAssembly)
     {
         if (!configuration.GetValue("Hosting:LogStartupConfigurationSummary", true))
-        
             return;
-        
 
         StartupConfigurationFacts facts = StartupConfigurationFactsReader.FromConfiguration(
             configuration,
@@ -24,7 +22,7 @@ public static class StartupConfigurationDiagnostics
             hostAssembly);
 
         logger.LogInformation(
-            "Pilot/support configuration snapshot: BuildInformationalVersion={BuildInformationalVersion}, BuildAssemblyVersion={BuildAssemblyVersion}, BuildFileVersion={BuildFileVersion}, BuildCommitSha={BuildCommitSha}, RuntimeFramework={RuntimeFramework}, Environment={Environment}, ContentRoot={ContentRoot}, SqlConnectionConfigured={SqlConnectionConfigured}, ArchLucidStorageProvider={StorageProvider}, RetrievalVectorIndex={RetrievalVectorIndex}, AgentExecutionMode={AgentMode}, ArchLucidAuthMode={AuthMode}, ApiKeyAuthEnabled={ApiKeyEnabled}, ApiKeyAdminConfigured={ApiKeyAdminConfigured}, ApiKeyReadOnlyConfigured={ApiKeyReadOnlyConfigured}, CorsOriginCount={CorsCount}, RateLimitPermitLimitWindow={RateLimit}, PrometheusEnabled={Prometheus}, DemoEnabled={DemoEnabled}, DemoSeedOnStartup={DemoSeed}, SchemaValidationDetailedErrors={SchemaDetailed}",
+            "Pilot/support configuration snapshot: BuildInformationalVersion={BuildInformationalVersion}, BuildAssemblyVersion={BuildAssemblyVersion}, BuildFileVersion={BuildFileVersion}, BuildCommitSha={BuildCommitSha}, RuntimeFramework={RuntimeFramework}, Environment={Environment}, ContentRoot={ContentRoot}, SqlConnectionConfigured={SqlConnectionConfigured}, ArchLucidStorageProvider={StorageProvider}, RetrievalVectorIndex={RetrievalVectorIndex}, AgentExecutionMode={AgentMode}, ArchLucidAuthMode={AuthMode}, ApiKeyAuthEnabled={ApiKeyEnabled}, ApiKeyAdminConfigured={ApiKeyAdminConfigured}, ApiKeyReadOnlyConfigured={ApiKeyReadOnlyConfigured}, CorsOriginCount={CorsCount}, RateLimitPermitLimitWindow={RateLimit}, PrometheusEnabled={Prometheus}, DemoEnabled={DemoEnabled}, DemoSeedOnStartup={DemoSeed}, SchemaValidationDetailedErrors={SchemaDetailed}, CosmosDbPolyglotAnyFeatureEnabled={CosmosPolyglotAny}, CosmosDbConnectivitySummary={CosmosSummary}",
             facts.BuildInformationalVersion,
             facts.BuildAssemblyVersion,
             facts.BuildFileVersion ?? "(none)",
@@ -45,6 +43,8 @@ public static class StartupConfigurationDiagnostics
             facts.ObservabilityPrometheusEnabled,
             facts.DemoEnabled,
             facts.DemoSeedOnStartup,
-            facts.SchemaValidationEnableDetailedErrors);
+            facts.SchemaValidationEnableDetailedErrors,
+            facts.CosmosDbPolyglotAnyFeatureEnabled,
+            facts.CosmosDbConnectivitySummary);
     }
 }

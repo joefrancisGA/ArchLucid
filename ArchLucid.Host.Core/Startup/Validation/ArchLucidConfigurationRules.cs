@@ -21,6 +21,7 @@ public static class ArchLucidConfigurationRules
         ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         StorageRules.Collect(configuration, archLucidOptions, errors);
+        CosmosPolyglotRules.Collect(configuration, environment, errors);
         AuthenticationRules.CollectApiKeyWhenEnabled(configuration, errors);
         AuthenticationRules.CollectJwtBearerLocalSigningKey(configuration, errors);
         AgentExecutionRules.Collect(configuration, errors);

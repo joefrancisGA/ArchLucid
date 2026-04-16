@@ -2,6 +2,7 @@ using System.Reflection;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Persistence.Cosmos;
 
 namespace ArchLucid.Host.Core.Startup.Diagnostics;
 
@@ -26,6 +27,8 @@ public sealed record StartupConfigurationFacts(
     bool DemoEnabled,
     bool DemoSeedOnStartup,
     bool SchemaValidationEnableDetailedErrors,
+    bool CosmosDbPolyglotAnyFeatureEnabled,
+    string CosmosDbConnectivitySummary,
     string BuildInformationalVersion,
     string BuildAssemblyVersion,
     string? BuildFileVersion,
@@ -48,6 +51,11 @@ internal static class StartupConfigurationFactsReader
 
         BuildProvenance build = BuildProvenance.FromAssembly(hostAssembly);
 
+        CosmosDbOptions cosmosDb =
+            configuration.GetSection(CosmosDbOptions.SectionName).Get<CosmosDbOptions>() ?? new CosmosDbOptions();
+
+        string cosmosSummary = SummarizeCosmosConnectivity(cosmosDb);
+
         return new StartupConfigurationFacts(
             environment.EnvironmentName,
             environment.ContentRootPath,
@@ -65,10 +73,29 @@ internal static class StartupConfigurationFactsReader
             configuration.GetValue("Demo:Enabled", false),
             configuration.GetValue("Demo:SeedOnStartup", false),
             configuration.GetValue("SchemaValidation:EnableDetailedErrors", false),
+            cosmosDb.AnyCosmosFeatureEnabled,
+            cosmosSummary,
             build.InformationalVersion,
             build.AssemblyVersion,
             build.FileVersion,
             build.CommitSha,
             build.RuntimeFrameworkDescription);
+    }
+
+    private static string SummarizeCosmosConnectivity(CosmosDbOptions cosmosDb)
+    {
+        if (!cosmosDb.AnyCosmosFeatureEnabled)
+            return "disabled";
+
+        if (string.IsNullOrWhiteSpace(cosmosDb.ConnectionString))
+            return "missing";
+
+        string conn = cosmosDb.ConnectionString.Trim();
+
+        if (conn.Contains("localhost:8081", StringComparison.OrdinalIgnoreCase)
+            || conn.Contains("127.0.0.1:8081", StringComparison.OrdinalIgnoreCase))
+            return "emulator";
+
+        return "configured";
     }
 }

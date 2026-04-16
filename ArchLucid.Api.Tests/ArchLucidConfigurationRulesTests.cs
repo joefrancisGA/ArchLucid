@@ -1459,4 +1459,50 @@ public sealed class ArchLucidConfigurationRulesTests
 
         errors.Should().NotContain(e => e.Contains("LlmTokenQuota", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void CollectErrors_WhenCosmosFeatureEnabledWithoutConnectionString_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["CosmosDb:GraphSnapshotsEnabled"] = "true",
+            ["CosmosDb:ConnectionString"] = "",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("CosmosDb:ConnectionString", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionApiAndCosmosEmulatorEndpoint_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["CosmosDb:AgentTracesEnabled"] = "true",
+            ["CosmosDb:ConnectionString"] = "AccountEndpoint=https://localhost:8081/;AccountKey=dummy",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("Cosmos Emulator", StringComparison.OrdinalIgnoreCase));
+    }
 }
