@@ -14,6 +14,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
+using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration.Pipeline;
@@ -21,6 +22,7 @@ using ArchLucid.Persistence.Orchestration.Pipeline;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -449,6 +451,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IOptionsMonitor<CosmosDbOptions>> cosmosDb = new();
+        cosmosDb.SetupGet(m => m.CurrentValue).Returns(new CosmosDbOptions());
+
         return new AuthorityPipelineStagesExecutor(
             runRepo.Object,
             ingest.Object,
@@ -464,6 +469,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
             synth.Object,
             bundleRepo.Object,
             audit.Object,
+            cosmosDb.Object,
             NullLogger<AuthorityPipelineStagesExecutor>.Instance);
     }
 

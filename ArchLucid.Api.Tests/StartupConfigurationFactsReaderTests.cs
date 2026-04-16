@@ -70,6 +70,8 @@ public sealed class StartupConfigurationFactsReaderTests
         facts.DemoEnabled.Should().BeTrue();
         facts.DemoSeedOnStartup.Should().BeFalse();
         facts.SchemaValidationEnableDetailedErrors.Should().BeTrue();
+        facts.CosmosDbPolyglotAnyFeatureEnabled.Should().BeFalse();
+        facts.CosmosDbConnectivitySummary.Should().Be("disabled");
     }
 
     [Fact]
@@ -92,5 +94,7 @@ public sealed class StartupConfigurationFactsReaderTests
         facts.ArchLucidStorageProvider.Should().Be("(missing)");
         facts.AuthenticationApiKeyEnabled.Should().BeFalse();
         facts.CorsAllowedOriginCount.Should().Be(0);
+        facts.CosmosDbPolyglotAnyFeatureEnabled.Should().BeFalse();
+        facts.CosmosDbConnectivitySummary.Should().Be("disabled");
     }
 }

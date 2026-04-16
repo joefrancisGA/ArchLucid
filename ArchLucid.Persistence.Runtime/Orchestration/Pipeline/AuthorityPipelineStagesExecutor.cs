@@ -15,12 +15,14 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Services;
+using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Core.Transactions;
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Persistence.Orchestration.Pipeline;
 
@@ -43,6 +45,7 @@ public sealed class AuthorityPipelineStagesExecutor(
     IArtifactSynthesisService artifactSynthesisService,
     IArtifactBundleRepository artifactBundleRepository,
     IAuditService auditService,
+    IOptionsMonitor<CosmosDbOptions> cosmosDbOptionsMonitor,
     ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
 {
     private readonly IRunRepository _runRepository =
@@ -86,6 +89,9 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IOptionsMonitor<CosmosDbOptions> _cosmosDbOptionsMonitor =
+        cosmosDbOptionsMonitor ?? throw new ArgumentNullException(nameof(cosmosDbOptionsMonitor));
 
     private readonly ILogger<AuthorityPipelineStagesExecutor> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -294,6 +300,13 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private async Task SaveGraphAsync(GraphSnapshot snapshot, IArchLucidUnitOfWork uow, CancellationToken ct)
     {
+        // Cosmos graph snapshots are committed outside the SQL authority transaction; SQL graph stays enlisted.
+        if (_cosmosDbOptionsMonitor.CurrentValue.GraphSnapshotsEnabled)
+        {
+            await _graphSnapshotRepository.SaveAsync(snapshot, ct);
+            return;
+        }
+
         if (uow.SupportsExternalTransaction)
             await _graphSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
         else

@@ -9,6 +9,7 @@ using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Interfaces;
@@ -34,6 +35,8 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
         services.Configure<SqlOpenResilienceOptions>(configuration.GetSection(SqlOpenResilienceOptions.SectionName));
         services.PostConfigure<SqlOpenResilienceOptions>(static o => o.Normalize());
+
+        services.Configure<CosmosDbOptions>(configuration.GetSection(CosmosDbOptions.SectionName));
 
         services.Configure<AuthorityPipelineOptions>(configuration.GetSection(AuthorityPipelineOptions.SectionName));
 

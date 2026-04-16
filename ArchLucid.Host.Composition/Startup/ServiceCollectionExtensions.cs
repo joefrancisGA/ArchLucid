@@ -51,6 +51,7 @@ public static partial class ServiceCollectionExtensions
         RegisterIntegrationEventConsumer(services, hostingRole);
         RegisterDataArchivalHostedService(services, hostingRole);
         RegisterArchLucidHealthChecks(services, configuration, hostingRole);
+        RegisterCosmosPolyglotPersistence(services, configuration);
 
         return services;
     }
