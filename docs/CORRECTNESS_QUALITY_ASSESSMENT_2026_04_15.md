@@ -181,7 +181,7 @@
 - Architecture constraint tests prevent dependency violations.
 - CI rename guard prevents accidental reintroduction of `ArchiForge` strings.
 - `assert_rollback_scripts_exist.py` for migration rollback coverage.
-- `assert_prompt_regression.py` for agent prompt shape checks.
+- `assert_prompt_regression.py` for baseline JSON shape + Topology floor policy; `PromptRegressionBaselineContractTests` for merge-blocking golden scores.
 - **Gaps:** Stryker is scheduled-only (not per-PR) — mutation regressions can merge before the next scheduled run catches them. k6 soak test is `continue-on-error`. Live E2E JWT is `continue-on-error`. The CI pipeline has ~15 jobs but no dependency DAG visualization — it's unclear if all paths are correctly ordered. No CI job validates that Terraform `plan` succeeds (only docs reference Terraform).
 
 **Justification for score:** The CI pipeline is comprehensive by industry standards. The gap is in making all quality gates merge-blocking rather than informational.
@@ -211,7 +211,7 @@
 **Evidence:**
 - 243+ markdown files — extensive and well-structured with architecture index, glossary, onboarding, runbooks.
 - CI guards for specific doc assertions (audit count anchors, rename allowlists, traceability matrix).
-- `FIRST_5_DOCS.md`, `START_HERE.md`, `CODE_MAP.md` for navigation.
+- `FIRST_5_DOCS.md` (alias `FIRST_FIVE_DOCS.md`), `PROJECT_MAP.md`, `START_HERE.md`, `CODE_MAP.md` for navigation.
 - ADRs with numbered decisions.
 - **Gaps:** No automated broken-link checker for internal markdown references. Some docs reference the prior weighted assessment as canonical but the checklist log references ongoing changes — temporal alignment between docs and code is manually maintained. 193+ docs risk staleness — no "last reviewed" dates on operational runbooks. Multiple overlapping docs on the same topic (3 quality assessments, 2 test structure docs, multiple cursor prompt docs).
 
