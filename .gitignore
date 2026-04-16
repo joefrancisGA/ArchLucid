@@ -159,6 +159,9 @@ coverage*.json
 coverage*.xml
 coverage*.info
 
+# Local merged Cobertura scratch (reportgenerator + assert script probes)
+_cov_merge/
+
 # Visual Studio code coverage results
 *.coverage
 *.coveragexml

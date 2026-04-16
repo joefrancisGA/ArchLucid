@@ -24,7 +24,7 @@
 
 **Justification:**
 - The solution compiles and CI enforces full regression (Tier 2) with SQL Server, xUnit, and chaos tests (Tier 2b). OpenAPI contract snapshot tests catch accidental API drift.
-- Line coverage gate is **71%** with branch coverage at **50%** — below the project's own stated aspiration of 100%.
+- Line coverage gate is **74%** with branch coverage at **57%** — below the project's own stated aspiration of 100%.
 - Stryker mutation score baseline is **65%** with a target ratchet to 72%, meaning ~35% of mutations survive — a significant fraction of logical paths lack meaningful correctness assertions.
 - Idempotency on run creation is described as "best-effort under extreme duplicate-key races" (Data Consistency Matrix), signaling known correctness gaps under concurrency.
 - Some coordinator artifact cascades are application-enforced with acknowledged gaps: "downstream rows may remain until a dedicated cleanup job or future migration."
@@ -300,7 +300,7 @@
 - 815 test files across 17+ test projects. Property-based tests (FsCheck). Architecture constraint tests (NetArchTest).
 - Live E2E tests against real API + SQL (DevelopmentBypass, ApiKey, JWT modes). k6 performance smoke (merge-blocking).
 - `TestSupport` project with reusable test doubles.
-- **Gaps:** 71% line coverage / 50% branch coverage is below the 100% aspiration. Stryker at 65% baseline. No contract tests for integration boundaries (Pact or similar). No visual regression testing for UI. Live E2E JWT mode is `continue-on-error` (not merge-blocking). Test data builders or object mothers are not consistently used across test projects.
+- **Gaps:** 74% line coverage / 57% branch coverage is below the 100% aspiration. Stryker at 65% baseline. No contract tests for integration boundaries (Pact or similar). No visual regression testing for UI. Live E2E JWT mode is `continue-on-error` (not merge-blocking). Test data builders or object mothers are not consistently used across test projects.
 
 **Improvement Recommendations:**
 1. Introduce contract testing (Pact) for API client / API boundary.
@@ -512,7 +512,7 @@ These are the improvements that would deliver the most value per unit of effort,
 
 ### Improvement 1: Raise Test Coverage and Mutation Score (Correctness, Weight 8)
 
-**Target:** Move line coverage from 71% → 80%, branch coverage 50% → 65%, Stryker from 65% → 75%.
+**Target:** Move line coverage from 74% → 82%, branch coverage 57% → 65%, Stryker from 65% → 75%.
 
 **Why this is the best improvement:** Correctness carries the highest weight (8) and has the largest weighted gap (256). Every percentage point of coverage gained here has 8x the impact of a weight-1 improvement. The infrastructure (Coverlet, Stryker, CI gates) already exists — this is about writing tests, not building frameworks.
 

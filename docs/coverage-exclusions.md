@@ -8,15 +8,15 @@ After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cob
 
 | Metric | Threshold | Script | CI job | Failure behavior |
 |--------|-----------|--------|--------|------------------|
-| Merged **line** | **71%** | [`scripts/ci/assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py) (positional `71` = `--min-line-pct`) | `.NET: full regression (SQL)` | Exit **1** if root `line-rate` × 100 is below the floor. |
-| Merged **branch** | **50%** | same (`--min-branch-pct 50`) | same | Exit **1** if root `branch-rate` × 100 is below the floor. |
+| Merged **line** | **74%** | [`scripts/ci/assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py) (positional `74` = `--min-line-pct`) | `.NET: full regression (SQL)` | Exit **1** if root `line-rate` × 100 is below the floor. |
+| Merged **branch** | **57%** | same (`--min-branch-pct 57`) | same | Exit **1** if root `branch-rate` × 100 is below the floor. |
 | Per-product **line** | **60%** | same (`--min-package-line-pct 60`; script default **60**) | same | Exit **1** if any gated package is below the floor or has coverable lines but missing `line-rate`. |
 
 **Advisory per-package band (non-blocking):** When **`--warn-below-package-line-pct`** (default **70**) is greater than **`--min-package-line-pct`**, packages that **pass** the merge floor but sit **below** the advisory ceiling get plain-text lines written to **`--annotations-file`** (e.g. **`coverage-annotations-assert.txt`** in the **`coverage-metrics`** artifact). The **`coverage-pr-comment`** job appends that file to **`coverage-annotations.txt`** and emits each line as a GitHub **`::warning::`** for visibility. This does **not** fail the build.
 
 **Exit 2** (script-wide): merged file missing/unparseable, or root **`line-rate`** or **`branch-rate`** missing so gates cannot be evaluated without silently passing.
 
-**Rationale:** **70%** merged line is the solution-wide bar (per-assembly Coverlet thresholds are not used—they do not match tree-wide coverage). **50%** merged branch adds conditional coverage without demanding perfect branches on generated or thin code. **60%** per product package raises the per-assembly floor so thin or effectively untested production projects surface in CI before merge.
+**Rationale:** **74%** merged line is the current solution-wide bar (per-assembly Coverlet thresholds are not used—they do not match tree-wide coverage). **57%** merged branch tightens conditional coverage toward the improvement target without matching every branch on generated code. **60%** per product package raises the per-assembly floor so thin or effectively untested production projects surface in CI before merge.
 
 **PR comment:** **`scripts/ci/build_coverage_pr_comment.py`** lists any product **`ArchLucid.*`** package under **60%** line as the **same CI gate** as [`assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py) on merged Cobertura (not a separate “warning” threshold).
 
