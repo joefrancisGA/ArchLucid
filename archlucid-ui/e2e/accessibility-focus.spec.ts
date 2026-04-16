@@ -8,8 +8,7 @@ test.describe("route focus and announcements", () => {
     await page.keyboard.press("Tab");
     await page.getByRole("link", { name: "Skip to main content" }).press("Enter");
 
-    const focusedId = await page.evaluate(() => document.activeElement?.id);
-    expect(focusedId).toBe("main-content");
+    await expect(page.locator("#main-content")).toBeFocused({ timeout: 10_000 });
   });
 
   test("client navigation moves focus to main content", async ({ page }) => {
@@ -20,8 +19,8 @@ test.describe("route focus and announcements", () => {
 
     await page.waitForURL("**/runs**", { timeout: 60_000 });
 
-    const focusedId = await page.evaluate(() => document.activeElement?.id);
-    expect(focusedId).toBe("main-content");
+    // `waitForURL` can resolve before React's `useLayoutEffect` (route-change focus) runs; poll until the landmark is focused.
+    await expect(page.locator("#main-content")).toBeFocused({ timeout: 10_000 });
   });
 
   test("route announcer updates after navigation", async ({ page }) => {
