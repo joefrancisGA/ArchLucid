@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Advisory;
 
 /// <summary>
 /// Advisory workflow HTTP surface: improvement plans from authority runs, persisted recommendations, and operator actions (accept/defer/etc.).

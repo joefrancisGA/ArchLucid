@@ -59,7 +59,7 @@ ArchLucid is an API for orchestrating AI-driven architecture design. It coordina
 
 - **Health:** `GET /health/live` (liveness), `GET /health/ready` (readiness: DB when using Sql storage, schema files, compliance rule pack, temp dir), `GET /health` (all checks). See [docs/BUILD.md](docs/BUILD.md) for startup vs migration failure behavior.
 - **Versioned API:** Routes are under `/v1/...`. Send optional **`X-Correlation-ID`** on requests for support correlation (see [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md)).
-- **Auth:** Configure **`ArchLucidAuth`** (`DevelopmentBypass` locally, `JwtBearer` in production). Policies map to `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` (see **API authentication** below).
+- **Auth:** Configure **`ArchLucidAuth`**: shipped **`appsettings.json`** defaults to **`ApiKey`** mode with API keys **disabled** (fail closed) until you enable keys; **`appsettings.Development.json`** switches to **`DevelopmentBypass`** when `ASPNETCORE_ENVIRONMENT=Development`. Production samples use **`JwtBearer`**. Policies map to `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` (see **API authentication** below).
 - **SMB / storage:** Do not expose file shares (SMB, port 445) on the public internet; use private endpoints and controlled boundaries for any Azure storage or hybrid file access.
 
 ### Integration events (optional Azure Service Bus)
@@ -88,9 +88,9 @@ Configure in `appsettings.*` under **`ArchLucidAuth`**:
 
 | Mode | Purpose |
 |------|---------|
-| **`DevelopmentBypass`** (default) | Local/dev: every request is authenticated as a configurable dev user with role `DevRole` (`Admin` by default). |
-| **`JwtBearer`** | Production-style JWT validation using `Authority` and optional `Audience`. Map app roles to `Admin` / `Operator` / `Reader` in your IdP. |
-| **`ApiKey`** | Header-based API keys via **`Authentication:ApiKey`** (`Enabled`, `AdminKey` / `ReadOnlyKey`). Use when you need a simple service-to-service gate; production rules also require keys when this mode is selected (see startup validation). |
+| **`ApiKey`** | **Shipped base JSON:** scheme is registered with **`Enabled=false`** / **`DevelopmentBypassAll=false`** so callers are **rejected** until operators enable keys (**`Authentication:ApiKey:Enabled=true`** plus **`AdminKey`** / **`ReadOnlyKey`** or env). **Operational:** header **`X-Api-Key`** validates against configured keys. |
+| **`DevelopmentBypass`** | **`appsettings.Development.json`** when **`ASPNETCORE_ENVIRONMENT=Development`**: every request is authenticated as **`DevUserId`** with **`DevRole`**. |
+| **`JwtBearer`** | Production-style JWT validation using **`Authority`** and optional **`Audience`**. Map app roles to **`Admin`** / **`Operator`** / **`Reader`** in your IdP. |
 
 Role claims are mapped to legacy **`permission`** claims via `ArchLucidRoleClaimsTransformation` so existing policies (`CanCommitRuns`, etc.) keep working. Policies: **`ReadAuthority`** (Reader+), **`ExecuteAuthority`** (Operator+), **`AdminAuthority`** (Admin only). Debug principal: **`GET /api/auth/me`**.
 

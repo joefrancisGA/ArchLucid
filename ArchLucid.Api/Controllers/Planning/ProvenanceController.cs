@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
 /// Provenance graph queries for UI (alias of authority graph endpoints under <c>/api/provenance</c>).

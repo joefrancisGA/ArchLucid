@@ -1,13 +1,13 @@
 {
-  "_comment": "Placeholder baseline; replace with measured AgentRuntime test metrics when enabling the assert script in CI.",
+  "_comment": "Topology floors are merge-blocking via PromptRegressionBaselineContractTests + assert_prompt_regression.py. Cost/Compliance/Critic remain 0 until golden fixtures exist per agent.",
   "minStructuralCompletenessByAgentType": {
-    "Topology": 0.0,
+    "Topology": 0.95,
     "Cost": 0.0,
     "Compliance": 0.0,
     "Critic": 0.0
   },
   "minSemanticScoreByAgentType": {
-    "Topology": 0.0,
+    "Topology": 0.85,
     "Cost": 0.0,
     "Compliance": 0.0,
     "Critic": 0.0

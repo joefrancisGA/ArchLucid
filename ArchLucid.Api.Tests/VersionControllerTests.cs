@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-using ArchLucid.Api.Controllers;
+using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Core.Diagnostics;
 
 using FluentAssertions;

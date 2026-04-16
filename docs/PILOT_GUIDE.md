@@ -81,7 +81,7 @@ Prints local CLI build info, **`GET /version`** from the API, then **`/health/li
 ### Option A — Swagger (good for learning)
 
 1. Open **`http://localhost:5128/swagger`** (Development).
-2. Authorize if your environment requires it (default **DevelopmentBypass** usually does not need extra headers).
+2. Authorize if your environment requires it (local **`Development`** profile uses **DevelopmentBypass** from `appsettings.Development.json`; production-like hosts use **ApiKey** or **JwtBearer** and require headers or bearer tokens per [SECURITY.md](SECURITY.md)).
 3. Call **`POST /v1/architecture/request`** with a JSON body (example below).
 4. Copy **`runId`** from the response.
 5. **`POST /v1/architecture/run/{runId}/execute`**

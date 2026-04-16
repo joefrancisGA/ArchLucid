@@ -4,7 +4,7 @@ using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Api.Services.Admin;
 
-/// <summary>Aggregates SQL-backed operational counters for <see cref="Controllers.AdminController"/>.</summary>
+/// <summary>Aggregates SQL-backed operational counters for <see cref="ArchLucid.Api.Controllers.Admin.AdminController"/>.</summary>
 public interface IAdminDiagnosticsService
 {
     /// <summary>Pending rows in authority pipeline work and retrieval indexing outboxes.</summary>

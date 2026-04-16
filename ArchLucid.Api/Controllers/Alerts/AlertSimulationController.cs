@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
 /// HTTP API for alert rule what-if simulation and A/B comparison over the caller’s scope (read authority).

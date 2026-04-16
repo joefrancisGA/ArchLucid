@@ -1,4 +1,4 @@
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>Per-item outcome for governance batch review.</summary>
 public sealed class GovernanceBatchReviewItemResult

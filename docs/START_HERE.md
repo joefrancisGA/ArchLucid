@@ -156,7 +156,7 @@ flowchart TD
 
 | Change type | Start here | Also touch | Test project | Key doc |
 |-------------|------------|------------|--------------|---------|
-| New API endpoint | `ArchLucid.Api/Controllers/` | `ArchLucid.Contracts` (DTOs), `ArchLucid.Host.Composition` (DI), OpenAPI snapshot | `ArchLucid.Api.Tests` | [API_CONTRACTS.md](API_CONTRACTS.md) |
+| New API endpoint | `ArchLucid.Api/Controllers/{Area}/` (see [CONTROLLER_AREA_MAP.md](CONTROLLER_AREA_MAP.md)) | `ArchLucid.Contracts` (DTOs), `ArchLucid.Host.Composition` (DI), OpenAPI snapshot | `ArchLucid.Api.Tests` | [API_CONTRACTS.md](API_CONTRACTS.md) |
 | New finding engine | `templates/archlucid-finding-engine/` | `ArchLucid.Decisioning/Findings/`, `Host.Composition` | `ArchLucid.Decisioning.Tests` | [DECISIONING_TYPED_FINDINGS.md](DECISIONING_TYPED_FINDINGS.md) |
 | SQL schema change | `ArchLucid.Persistence/Migrations/` | `Scripts/ArchLucid.sql`, Dapper + in-memory repos | `ArchLucid.Persistence.Tests` | [SQL_SCRIPTS.md](SQL_SCRIPTS.md), [SQL_DDL_DISCIPLINE.md](SQL_DDL_DISCIPLINE.md) |
 | Agent / LLM behavior | `ArchLucid.AgentRuntime/` | `Host.Composition`, `ArchLucid.Contracts` (trace models) | `ArchLucid.AgentRuntime.Tests` | [AGENT_TRACE_FORENSICS.md](AGENT_TRACE_FORENSICS.md) |

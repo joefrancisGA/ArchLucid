@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers;
+using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.Compare;
 

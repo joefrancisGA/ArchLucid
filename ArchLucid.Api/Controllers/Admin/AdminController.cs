@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.FeatureManagement;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Operator diagnostics (outbox depth, leader leases, feature flags).</summary>
 [ApiController]

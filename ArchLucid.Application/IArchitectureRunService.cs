@@ -7,7 +7,7 @@ namespace ArchLucid.Application;
 /// Application-layer workflow for an architecture authority run: persist a new run after coordination, execute agent tasks, then merge and commit a golden manifest with decision traces.
 /// </summary>
 /// <remarks>
-/// Implementation: <see cref="ArchitectureRunService"/> (scoped DI). HTTP surface: <c>ArchLucid.Api.Controllers.RunsController</c> (create via <c>architecture/request</c>, execute/commit via <c>architecture/run/{runId}/execute</c> and <c>architecture/run/{runId}/commit</c>).
+/// Implementation: <see cref="ArchitectureRunService"/> (scoped DI). HTTP surface: <c>ArchLucid.Api.Controllers.Authority.RunsController</c> (create via <c>architecture/request</c>, execute/commit via <c>architecture/run/{runId}/execute</c> and <c>architecture/run/{runId}/commit</c>).
 /// </remarks>
 public interface IArchitectureRunService
 {

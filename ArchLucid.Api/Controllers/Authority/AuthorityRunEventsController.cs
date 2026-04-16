@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
 /// Server-sent events stream for run summary polling (operator UI). Sends periodic <c>status</c> events and a terminal <c>complete</c> event.

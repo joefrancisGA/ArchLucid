@@ -3,7 +3,7 @@ using ArchLucid.Contracts.Agents;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class RunsController
 {

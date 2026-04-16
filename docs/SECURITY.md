@@ -21,6 +21,12 @@ Other layers (authentication, RLS, rate limiting, CORS, security headers) are de
 
 Merge-blocking **Schemathesis light** runs on every PR after full .NET regression: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) job **`api-schemathesis-light`** builds the API image, starts the container, and runs **`--phases=examples`** against **`/openapi/v1.json`** with **`--checks=all`** (response schema and status conformance). Full fuzzing and stateful phases run weekly — see **[docs/API_FUZZ_TESTING.md](API_FUZZ_TESTING.md)**.
 
+## Shipped auth defaults (`appsettings.json` / `appsettings.Development.json`)
+
+- **`ArchLucid.Api/appsettings.json`** (all environments unless overridden): **`ArchLucidAuth:Mode`** is **`ApiKey`**, with **`Authentication:ApiKey:Enabled`** **`false`** and **`DevelopmentBypassAll`** **`false`**. In that combination the API uses the API key authentication scheme but **rejects unauthenticated requests** until operators set **`Authentication:ApiKey:Enabled=true`** and configure **`AdminKey`** / **`ReadOnlyKey`** (or supply equivalent environment variables / Key Vault). This is **fail-closed** for accidental deployments that only ship base JSON.
+- **`ArchLucid.Api/appsettings.Development.json`** (merged when **`ASPNETCORE_ENVIRONMENT=Development`**, including CI and local **`dotnet run`**): sets **`ArchLucidAuth:Mode`** back to **`DevelopmentBypass`** for frictionless local and test factories. **`Authentication:ApiKey:DevelopmentBypassAll`** stays **`false`** so the “open API key path” bypass is not the default even in Development.
+- **`appsettings.Production.json`** / **`appsettings.Staging.json`** continue to set **`JwtBearer`** with Entra-style placeholders; **`docker-compose.yml`** still sets **`ArchLucidAuth__Mode=DevelopmentBypass`** explicitly for the compose dev stack.
+
 ## DevelopmentBypass production guard
 
 `ArchLucidAuth:Mode=DevelopmentBypass` and **`Authentication:ApiKey:DevelopmentBypassAll=true`** are for **local and non-production** integration only. The API calls **`AuthSafetyGuard.GuardAllDevelopmentBypasses`** during startup **before** authentication services are registered. It throws **`InvalidOperationException`** when the host is treated as Production (**`IHostEnvironment`** is Production / `ASPNETCORE_ENVIRONMENT=Production`, or **`ARCHLUCID_ENVIRONMENT=Production`**) **and** any of the following is true:
@@ -51,7 +57,14 @@ Fine-grained **`permission`** claims (for example **`commit:run`**, **`export:co
 
 ## LLM content safety (optional)
 
-**`ArchLucid:ContentSafety:Enabled`** toggles **`IContentSafetyGuard`** registration. When **disabled** (default), a pass-through guard accepts all text. When **enabled**, the host registers a **stub** that throws until an Azure AI Content Safety (or compatible) implementation is added—use this flag only when you are ready to wire a real client.
+**`ArchLucid:ContentSafety:Enabled`** toggles **`IContentSafetyGuard`** registration (see also **`ContentSafetyOptions`** / **`appsettings.Advanced.json`** for an explicit **`false`** sample). This path is **configuration-driven** (not a **`FeatureManagement`** flag today).
+
+| State | Behavior |
+|--------|----------|
+| **Disabled** (default) | **`NullContentSafetyGuard`** — pass-through; no outbound calls. |
+| **Enabled** | **`ContentSafetyEnabledButUnconfiguredGuard`** — **throws** on **`CheckInputAsync`** / **`CheckOutputAsync`** until a real **`IContentSafetyGuard`** implementation is registered in composition. |
+
+**Product status:** there is **no** checked-in **Azure AI Content Safety** SDK client or REST wrapper yet (repository uses **Azure.AI.OpenAI** for completions/embeddings). A production implementation would typically use **`Azure.AI.ContentSafety`** or a small **`HttpClient`** against the [Content Safety REST API](https://learn.microsoft.com/azure/ai-services/content-safety/), bound from **`ContentSafetyOptions.Endpoint`** / **`ApiKey`**, and replace the stub via DI. Until then, keep **`Enabled: false`** outside controlled experiments.
 
 ## Log injection (CWE-117)
 

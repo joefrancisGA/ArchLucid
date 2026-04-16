@@ -10,7 +10,7 @@ using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// HTTP coverage for <see cref="Controllers.AdvisoryController"/> improvements path
+/// HTTP coverage for <see cref="ArchLucid.Api.Controllers.Advisory.AdvisoryController"/> improvements path
 /// (<c>GET /v1/advisory/runs/{runId}/improvements</c>) — lowest-covered API surface per coverage gap analysis.
 /// </summary>
 [Trait("Category", "Integration")]

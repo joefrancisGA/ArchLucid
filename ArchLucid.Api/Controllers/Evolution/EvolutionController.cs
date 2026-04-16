@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Evolution;
 
 /// <summary>
 /// 60R controlled evolution: candidate change sets from 59R plans and read-only shadow evaluation (simulation only).

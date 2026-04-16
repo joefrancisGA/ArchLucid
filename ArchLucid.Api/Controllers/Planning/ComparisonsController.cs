@@ -25,7 +25,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 using ApiReplayComparisonRequest = ArchLucid.Api.Models.ReplayComparisonRequest;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
 /// HTTP API for managing architectural run comparison records, drift analysis, and comparison replay.

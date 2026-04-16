@@ -1,4 +1,4 @@
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Body for <c>POST /v1/admin/runs/archive-batch</c>.</summary>
 public sealed class AdminArchiveRunsBatchRequest

@@ -6,7 +6,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
 /// Diagnostic endpoint for inspecting the caller's authenticated identity and claims.

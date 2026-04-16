@@ -1,4 +1,4 @@
-using ArchLucid.Api.Controllers;
+using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;

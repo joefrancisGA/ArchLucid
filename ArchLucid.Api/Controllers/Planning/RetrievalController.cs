@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
 /// HTTP semantic search over retrieval chunks scoped to the caller’s tenant/workspace/project.

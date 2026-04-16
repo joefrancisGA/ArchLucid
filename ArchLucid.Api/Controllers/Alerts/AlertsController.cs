@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
 /// Lists alerts and applies lifecycle actions (acknowledge / resolve / suppress) for the caller’s tenant/workspace/project scope.

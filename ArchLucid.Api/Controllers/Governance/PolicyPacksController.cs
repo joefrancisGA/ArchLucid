@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>
 /// Versioned policy pack CRUD, publish, assign, and effective-governance reads for the ambient tenant/workspace/project.

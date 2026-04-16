@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Planning;
 
 /// <summary>
 /// LLM explanations for a single run (with optional provenance) and for manifest deltas between two runs.

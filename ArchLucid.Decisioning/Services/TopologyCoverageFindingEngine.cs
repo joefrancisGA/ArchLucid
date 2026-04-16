@@ -1,4 +1,5 @@
 using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -50,6 +51,12 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     [
                         "No TopologyResource nodes found in graph — emitted coverage warning."
                     ],
+                    AlternativePathsConsidered =
+                    [
+                        "Ingest or regenerate graph snapshots until TopologyResource nodes exist for expected categories.",
+                        "Verify the graph projection maps infrastructure types into TopologyResource (not only generic service/datastore nodes).",
+                        "Treat empty topology as intentional and record scope or policy rationale instead of expanding coverage.",
+                    ],
                     Notes = ["Expected categories: network, compute, storage, data"]
                 }
             });
@@ -58,7 +65,6 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
         }
 
         if (result.MissingCategories.Count > 0)
-        
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -86,6 +92,12 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     DecisionsTaken =
                     [
                         "Compared present topology categories to expected coverage categories."
+                    ],
+                    AlternativePathsConsidered =
+                    [
+                        "Add topology-backed resources for missing categories on the next architecture iteration.",
+                        "Narrow expected categories when the workload legitimately omits a pillar (document in manifest notes).",
+                        "Split mixed workloads into separate runs so each graph can meet category expectations independently.",
                     ],
                     Notes =
                     [

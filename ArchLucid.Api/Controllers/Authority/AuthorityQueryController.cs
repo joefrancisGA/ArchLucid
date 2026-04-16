@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
 /// Read-only HTTP surface for authority runs and golden-manifest summaries scoped to the caller’s tenant/workspace/project.

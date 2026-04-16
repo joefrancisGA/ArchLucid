@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
 /// API to create and list <see cref="CompositeAlertRule"/> definitions (multi-metric AND/OR rules) for the caller’s scope.

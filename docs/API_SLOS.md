@@ -38,7 +38,7 @@ This document defines **customer-visible** HTTP objectives for the ArchLucid API
 | **Synthetic probe** | `.github/workflows/api-synthetic-probe.yml` | Periodic external `GET /health/live` + `GET /version`, latency check |
 | **k6 soak (optional)** | `.github/workflows/k6-soak-scheduled.yml` + `tests/load/soak.js` | Weekly / manual low-rate read mix against **`ARCHLUCID_SOAK_BASE_URL`** — informational, not an SLO gate |
 | Live/ready/detailed health maps | `ArchLucid.Api/Startup/PipelineExtensions.cs` | Anonymous: `/health/live` (minimal), `/health/ready` (summary JSON). `/health` is detailed JSON and requires `ReadAuthority`. |
-| Version (anonymous) | `ArchLucid.Api/Controllers/VersionController.cs` | `GET /version` for build identity |
+| Version (anonymous) | `ArchLucid.Api/Controllers/Admin/VersionController.cs` | `GET /version` for build identity |
 
 ## 6. Data flow
 

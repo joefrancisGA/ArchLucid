@@ -229,7 +229,7 @@
 - Agent execution traces with full prompt/response blob persistence + SQL inline fallback.
 - Four agent types: Topology, Cost, Compliance, Critic — with per-agent-type metrics.
 - Agent simulator for testing without real LLM calls.
-- **Gaps:** No agent memory or conversation context across runs (each run is stateless). No prompt A/B testing framework. No automated prompt regression detection (manual prompt change → check metrics). No agent guardrails/safety layer (content filtering, output validation beyond structural completeness). No multi-turn agent capabilities. Quality gate is off by default (`ArchLucid:AgentOutput:QualityGate:Enabled` must be explicitly set). No model performance comparison tooling.
+- **Gaps:** No agent memory or conversation context across runs (each run is stateless). No prompt A/B testing framework. Prompt regression is **partially** automated (**Topology** golden floors in **`prompt_regression_baseline.json`** + **`PromptRegressionBaselineContractTests`** + **`assert_prompt_regression.py`**); Cost/Compliance/Critic baselines remain **0.0** until fixtures land. **IContentSafetyGuard** scaffolding exists; **no** Azure Content Safety client is wired yet (stub fails closed when **`Enabled: true`**). No multi-turn agent capabilities. No model performance comparison tooling.
 
 **Tradeoffs:** Stateless agents are simpler to reason about and scale. Guardrails add latency. A/B testing requires traffic splitting infrastructure.
 

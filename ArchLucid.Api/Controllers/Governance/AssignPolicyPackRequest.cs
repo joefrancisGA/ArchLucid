@@ -1,4 +1,4 @@
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>Body for <c>POST …/policy-packs/{id}/assign</c>.</summary>
 /// <remarks>

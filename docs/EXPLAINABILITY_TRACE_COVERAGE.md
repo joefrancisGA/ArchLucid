@@ -6,22 +6,22 @@
 
 ## Trace field coverage matrix (rule-based engines)
 
-Target: **3/5** or **4/5** per finding (`AlternativePathsConsidered` stays empty — reserved for LLM-style engines).
+Target: **3/5** or **4/5** per finding, or **5/5** when `AlternativePathsConsidered` lists concrete remediation branches (rule engines may still populate short strings; LLM engines may add richer branches).
 
 | Engine | GraphNodeIdsExamined | RulesApplied | DecisionsTaken | AlternativePathsConsidered | Notes | Typical ratio |
 |--------|----------------------|-------------|----------------|---------------------------|-------|---------------|
 | RequirementFindingEngine | yes | yes (`requirement-surface`) | yes | — | yes (related count, text length) | 4/5 |
-| ComplianceFindingEngine | yes | yes (rule id) | yes | — | yes (rule pack) | 4/5 |
+| ComplianceFindingEngine | yes | yes (rule id) | yes | sentinel (`ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote`) | yes (rule pack) | 5/5 |
 | SecurityBaselineFindingEngine | yes | yes (`security-baseline-coverage`) | yes | — | yes (PROTECTS count) | 4/5 |
 | CostConstraintFindingEngine | yes | yes (`cost-constraint-surface`) | yes | — | yes (budget cap) | 4/5 |
-| TopologyCoverageFindingEngine | empty when no topology; else all topology node ids | yes (`topology-coverage-presence` / `topology-coverage-categories`) | yes | — | yes (expected categories / present+missing) | 3/5 (no nodes) or 4/5 |
-| SecurityCoverageFindingEngine | yes (unprotected resource ids from analyzer) | yes (`security-coverage-protection`) | yes | — | yes (counts) | 4/5 |
+| TopologyCoverageFindingEngine | empty when no topology; else all topology node ids | yes (`topology-coverage-presence` / `topology-coverage-categories`) | yes | yes (three concrete ingest / projection / scope alternatives per branch) | yes (expected categories / present+missing) | 5/5 when emitted |
+| SecurityCoverageFindingEngine | yes (unprotected resource ids from analyzer) | yes (`security-coverage-protection`) | yes | yes (three concrete baseline / scope / compensating-control strings when unprotected resources exist) | yes (counts) | 5/5 when emitted |
 | PolicyApplicabilityFindingEngine | via `FindingFactory` | yes (`policy-applicability-mapping` / `policy-applicability-gap`) | yes | — | yes (target count / policy label) | 4/5 |
 | PolicyCoverageFindingEngine | when uncovered | yes (`policy-coverage-presence` / `policy-coverage-applicability`) | yes | — | yes (counts) | 3/5 (no policies) or 4/5 |
 | RequirementCoverageFindingEngine | when uncovered | yes (`requirement-coverage-relation`) | yes | — | yes (totals) | 4/5 |
 | Topology gap findings (`FindingFactory.CreateTopologyGapFinding`) | yes | yes (`topology-gap-{gapCode}`) | yes | — | — | 3/5 |
 
-`AlternativePathsConsidered` is intentionally not required for rule-based engines in v1; analyzers report it as empty until LLM-style engines can justify branches.
+`AlternativePathsConsidered` is optional: many rule engines leave it empty. **Compliance** records a deterministic single-path sentinel; **topology coverage** and **security coverage** populate short, operator-facing remediation branches when the finding fires. Analyzers treat a list as populated when it contains at least one non-whitespace string (`ExplainabilityTraceCompletenessAnalyzer`).
 
 ## ExplainabilityTraceCompletenessAnalyzer
 
@@ -71,7 +71,7 @@ When **`GET /v1/explain/runs/{runId}/aggregate`** builds a **`RunExplanationSumm
 2. **`GraphNodeIdsExamined`:** List graph node ids that drove the finding when applicable.
 3. **`RulesApplied`:** Use stable logical rule ids for implicit or explicit rules (e.g. `requirement-surface`, or compliance `ruleId`).
 4. **`Notes`:** Optional structured hints (counts, caps, pack versions) that help operators and downstream LLMs.
-5. **`AlternativePathsConsidered`:** Reserve for engines that evaluate multiple branches; omit rather than invent placeholder text.
+5. **`AlternativePathsConsidered`:** Use either (a) concrete remediation branches when multiple credible resolutions exist, or (b) the shared deterministic sentinel when the engine is strictly single-path; omit empty lists rather than filler text.
 
 Do not change the `ExplainabilityTrace` property names or types on persisted findings without a schema migration.
 

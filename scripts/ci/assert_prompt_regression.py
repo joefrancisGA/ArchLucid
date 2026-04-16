@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
-Placeholder regression gate for agent output quality metrics.
+Regression gate for committed agent-output score floors (Topology golden fixture).
 
-Extend this script to:
-  1) Run dotnet test on ArchLucid.AgentRuntime.Tests with a fixed trait/filter, or
-  2) Read a JSON metrics file produced by tests,
+1) Validates scripts/ci/prompt_regression_baseline.json shape.
+2) Enforces non-placeholder Topology minimums so the file cannot silently revert to all zeros.
 
-then compare against scripts/ci/prompt_regression_baseline.json.
-
-Today: validates baseline JSON shape only (always exits 0) so CI can adopt the file without a merge-blocking hook.
+Merge-blocking structural/semantic checks run in ArchLucid.AgentRuntime.Tests
+(PromptRegressionBaselineContractTests) using the same JSON copied to test output.
 """
 
 from __future__ import annotations
@@ -16,6 +14,12 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+
+
+def _topology_mins(raw: dict) -> tuple[float, float]:
+    struct = float(raw["minStructuralCompletenessByAgentType"]["Topology"])
+    sem = float(raw["minSemanticScoreByAgentType"]["Topology"])
+    return struct, sem
 
 
 def main() -> int:
@@ -35,7 +39,27 @@ def main() -> int:
             if not isinstance(v, (int, float)):
                 print(f"Invalid baseline: {key}.{agent} must be numeric", file=sys.stderr)
                 return 2
-    print("prompt_regression_baseline.json: OK (shape check only; no metrics asserted).")
+
+    topology_struct, topology_sem = _topology_mins(raw)
+    if topology_struct < 0.9:
+        print(
+            "Invalid baseline: minStructuralCompletenessByAgentType.Topology must be >= 0.9 "
+            "(merge-blocking contract tests depend on non-placeholder Topology floors).",
+            file=sys.stderr,
+        )
+        return 2
+    if topology_sem < 0.5:
+        print(
+            "Invalid baseline: minSemanticScoreByAgentType.Topology must be >= 0.5 "
+            "(merge-blocking contract tests depend on non-placeholder Topology floors).",
+            file=sys.stderr,
+        )
+        return 2
+
+    print(
+        "prompt_regression_baseline.json: OK (shape + Topology floor policy). "
+        "Scores are asserted in ArchLucid.AgentRuntime.Tests.PromptRegressionBaselineContractTests."
+    )
     return 0
 
 
