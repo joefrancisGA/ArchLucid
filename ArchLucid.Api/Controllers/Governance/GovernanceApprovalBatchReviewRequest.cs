@@ -1,4 +1,4 @@
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>Body for <c>POST /v1/governance/approval-requests/batch-review</c>.</summary>
 public sealed class GovernanceApprovalBatchReviewRequest

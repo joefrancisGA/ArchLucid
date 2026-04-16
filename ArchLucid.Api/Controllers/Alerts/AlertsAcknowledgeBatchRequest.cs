@@ -1,4 +1,4 @@
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>Body for <c>POST /v1/alerts/acknowledge-batch</c>.</summary>
 public sealed class AlertsAcknowledgeBatchRequest

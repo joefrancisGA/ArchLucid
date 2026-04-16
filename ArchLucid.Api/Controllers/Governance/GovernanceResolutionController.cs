@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>
 /// HTTP surface for <strong>full governance resolution</strong>: effective merged content, per-item decisions, and conflict records for the current scope.

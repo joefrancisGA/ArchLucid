@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>Run-to-run comparison endpoints (agents, end-to-end replay compare).</summary>
 [ApiController]

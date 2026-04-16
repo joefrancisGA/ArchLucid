@@ -1,20 +1,16 @@
 # API controller area map
 
-`ArchLucid.Api/Controllers/` groups endpoints by **functional area** for navigation. Types remain in namespace `ArchLucid.Api.Controllers` (flat folder today; this map is the logical grouping).
+`ArchLucid.Api/Controllers/` groups endpoints by **bounded context** using **physical area folders** and matching namespaces `ArchLucid.Api.Controllers.{Area}`.
 
-| Area | Controllers |
-|------|-------------|
-| **Admin & diagnostics** | `AdminController`, `DiagnosticsController`, `JobsController`, `VersionController`, `DemoController`, `ScopeDebugController`, `AuthDebugController`, `DocsController` |
-| **Authority & runs** | `RunsController`, `AuthorityQueryController`, `AuthorityReplayController`, `AuthorityCompareController`, `RunComparisonController`, `AnalysisReportsController`, `ExportsController` |
-| **Governance** | `GovernanceController`, `GovernancePreviewController`, `GovernanceResolutionController`, `PolicyPacksController`, `ManifestsController` |
-| **Alerts** | `AlertsController`, `AlertRulesController`, `AlertRoutingSubscriptionsController`, `AlertSimulationController`, `AlertTuningController`, `CompositeAlertRulesController` |
-| **Advisory & learning** | `AdvisoryController`, `AdvisorySchedulingController`, `LearningController`, `RecommendationLearningController`, `ProductLearningController` |
-| **Explainability & provenance** | `ExplanationController`, `ProvenanceController`, `ProvenanceQueryController`, `GraphController` |
-| **Comparison & replay** | `ComparisonController`, `ComparisonsController`, `RetrievalController` |
-| **Evolution** | `EvolutionController` |
-| **Conversation & ask** | `AskController`, `ConversationController` |
-| **Digests** | `DigestSubscriptionsController` |
-| **Artifacts & export** | `ArtifactExportController`, `DocxExportController`, `AuditController` |
+| Area folder | Namespace | Controllers |
+|-------------|-----------|-------------|
+| **`Authority/`** | `ArchLucid.Api.Controllers.Authority` | `RunsController` (+ `RunsController.Logging`, `RunsController.AgentEvaluation`), `AuthorityQueryController`, `AuthorityReplayController`, `AuthorityCompareController`, `AuthorityRunEventsController`, `RunComparisonController`, `AnalysisReportsController`, `ExportsController`, `ArtifactExportController`, `DocxExportController` |
+| **`Governance/`** | `ArchLucid.Api.Controllers.Governance` | `GovernanceController`, `GovernancePreviewController`, `GovernanceResolutionController`, `PolicyPacksController`, `ManifestsController` — plus request DTOs: `AssignPolicyPackRequest`, `CreatePolicyPackRequest`, `PublishPolicyPackVersionRequest`, `GovernanceApprovalBatchReviewRequest`, `GovernanceBatchReviewResponse` |
+| **`Alerts/`** | `ArchLucid.Api.Controllers.Alerts` | `AlertsController`, `AlertRulesController`, `AlertRoutingSubscriptionsController`, `AlertSimulationController`, `AlertTuningController`, `CompositeAlertRulesController`, `AlertsAcknowledgeBatchRequest`, `AlertsAcknowledgeBatchResponse` |
+| **`Admin/`** | `ArchLucid.Api.Controllers.Admin` | `AdminController`, `DiagnosticsController`, `JobsController`, `VersionController`, `DemoController`, `ScopeDebugController`, `AuthDebugController`, `DocsController`, `AuditController` — plus `AdminArchiveRunsByIdsRequest`, `AdminArchiveRunsBatchRequest` |
+| **`Advisory/`** | `ArchLucid.Api.Controllers.Advisory` | `AdvisoryController`, `AdvisorySchedulingController`, `LearningController`, `RecommendationLearningController`, `ProductLearningController`, `DigestSubscriptionsController` |
+| **`Evolution/`** | `ArchLucid.Api.Controllers.Evolution` | `EvolutionController` |
+| **`Planning/`** | `ArchLucid.Api.Controllers.Planning` | `GraphController`, `ProvenanceController`, `ProvenanceQueryController`, `ComparisonController`, `ComparisonsController`, `RetrievalController`, `AskController`, `ConversationController`, `ExplanationController` |
 
 **Bulk operator APIs (2026-04-15):**
 

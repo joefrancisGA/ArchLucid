@@ -415,7 +415,7 @@ RFC 9457 Problem Details — full controller sweep
 Goal: every non-2xx response from every controller must return
 application/problem+json with correlationId, detail, and instance.
 
-1. Read ArchLucid.Api/Controllers/ — all 57 files.
+1. Read `ArchLucid.Api/Controllers/**` — all area-grouped controller sources (see [CONTROLLER_AREA_MAP.md](CONTROLLER_AREA_MAP.md)).
 
 2. Search for patterns that return bare ActionResult without Problem Details:
    - return NotFound();

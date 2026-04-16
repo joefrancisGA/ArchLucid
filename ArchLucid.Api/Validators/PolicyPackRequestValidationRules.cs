@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-using ArchLucid.Api.Controllers;
+using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Api.Validators;

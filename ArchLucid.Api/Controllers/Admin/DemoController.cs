@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>Development-only endpoints for deterministic trusted-baseline demo data (Corrected 50R / 49R pass 2).</summary>
 [ApiController]

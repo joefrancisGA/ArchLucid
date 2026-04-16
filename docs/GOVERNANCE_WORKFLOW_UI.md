@@ -53,4 +53,4 @@ The page uses the same **`api.ts`** helpers as the rest of the shell: browser re
 ## Related
 
 - Types and API wrappers: `archlucid-ui/src/types/governance-workflow.ts`, `archlucid-ui/src/types/governance-dashboard.ts`, `archlucid-ui/src/lib/api.ts` (functions under `v1/governance`, including `getGovernanceDashboard`).
-- Backend: `ArchLucid.Api/Controllers/GovernanceController.cs`, `GovernanceWorkflowService`.
+- Backend: `ArchLucid.Api/Controllers/Governance/GovernanceController.cs`, `GovernanceWorkflowService`.

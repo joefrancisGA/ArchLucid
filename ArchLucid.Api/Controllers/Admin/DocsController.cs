@@ -3,7 +3,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
 /// Serves static developer-facing HTML documentation pages (excluded from OpenAPI/Swagger).

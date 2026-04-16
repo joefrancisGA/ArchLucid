@@ -2,7 +2,8 @@ using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Explanation;
-using ArchLucid.Api.Controllers;
+using ArchLucid.Api.Controllers.Admin;
+using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Models;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;

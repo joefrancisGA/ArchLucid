@@ -1,4 +1,4 @@
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>Source-generated structured log methods for <see cref="RunsController"/>.</summary>
 public sealed partial class RunsController

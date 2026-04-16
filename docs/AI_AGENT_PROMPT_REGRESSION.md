@@ -1,4 +1,4 @@
-# Agent prompt regression guard (scaffolding)
+# Agent prompt regression guard
 
 ## Objective
 
@@ -6,21 +6,29 @@ Provide a **repeatable** local/CI hook that fails when simulator-mode agent outp
 
 ## Current state
 
-- **`scripts/ci/assert_prompt_regression.py`** — compares **`ArchLucid.AgentRuntime.Tests`** structural/semantic score summaries against **`scripts/ci/prompt_regression_baseline.json`** when that file is present.
-- Baseline values are **placeholders** until you capture a green run on your machine and commit updated numbers (see script header).
+| Layer | Role |
+|--------|------|
+| **`scripts/ci/assert_prompt_regression.py`** | Validates **`prompt_regression_baseline.json`** shape and enforces **Topology** minimum floors in the file (≥ **0.9** structural, ≥ **0.5** semantic) so the baseline cannot silently revert to all zeros. |
+| **`ArchLucid.AgentRuntime.Tests/Evaluation/PromptRegressionBaselineContractTests`** | Loads the same JSON (linked into **`Fixtures/Regression/`** at build) and asserts **`golden-agent-result-valid.json`** meets the committed **Topology** mins under **`AgentOutputEvaluator`** / **`AgentOutputSemanticEvaluator`**. |
+| **`scripts/ci/assert_agent_reference_baselines.py`** | Golden JSON fixture presence + parse guard (separate CI step). |
+
+**Cost / Compliance / Critic** rows in the baseline remain **0.0** until dedicated golden fixtures and tests exist; only **Topology** is merge-blocking today.
 
 ## Usage
 
-From repo root (after `dotnet` tests have produced the log artifact path expected by the script, or after extending the script to run `dotnet test` itself):
+From repo root:
 
 ```bash
 python scripts/ci/assert_prompt_regression.py
+dotnet test ArchLucid.AgentRuntime.Tests -c Release --filter "FullyQualifiedName~PromptRegressionBaselineContractTests"
 ```
+
+CI runs the Python step and the full test suite (including the contract test).
 
 ## Evolution
 
-- Wire the script into **`.github/workflows/ci.yml`** as a separate job after full regression when baseline discipline is agreed.
-- Prefer parsing **structured test output** or a dedicated **metrics JSON** emitted by a small test helper over scraping free-text logs.
+- Add per-agent golden JSON + raise **`min*ByAgentType`** for **Cost**, **Compliance**, and **Critic** when ready.
+- Optional: emit **`artifacts/prompt_regression_metrics.json`** from tests and extend the Python script to diff across commits (heavier than evaluator-in-test).
 
 ## Related
 

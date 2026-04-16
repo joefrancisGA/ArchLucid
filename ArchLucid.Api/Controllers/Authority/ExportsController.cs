@@ -21,7 +21,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using ApiReplayExportRequest = ArchLucid.Api.Models.ReplayExportRequest;
 using AppReplayExportRequest = ArchLucid.Application.Analysis.ReplayExportRequest;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
 /// Query and trigger run exports (history, diff, replay export) and audit comparisons tied to export records.

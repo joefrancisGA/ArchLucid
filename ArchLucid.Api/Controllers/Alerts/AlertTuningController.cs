@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
 /// HTTP API for threshold recommendation (simulation + noise scoring) scoped to the caller’s tenant/workspace/project.

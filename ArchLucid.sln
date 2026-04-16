@@ -55,11 +55,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Cli.Tests", "Arch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.AgentRuntime.Tests", "ArchLucid.AgentRuntime.Tests\ArchLucid.AgentRuntime.Tests.csproj", "{A9B8C7D6-E5F4-3210-9876-543210FEDCBA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F391F1CE-53C6-475C-9C9C-7B7F859408ED}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\Users\jafra\OneDrive\ArchiForge\archiforge_design.md = ..\..\Users\jafra\OneDrive\ArchiForge\archiforge_design.md
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.ContextIngestion", "ArchLucid.ContextIngestion\ArchLucid.ContextIngestion.csproj", "{8FA568F0-9212-8B8C-05C8-7DB8CC48E7E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.ContextIngestion.Tests", "ArchLucid.ContextIngestion.Tests\ArchLucid.ContextIngestion.Tests.csproj", "{E1F2A3B4-C5D6-4789-ABCD-EF0123456789}"

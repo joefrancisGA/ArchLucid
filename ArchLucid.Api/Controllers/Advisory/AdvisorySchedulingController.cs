@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Advisory;
 
 /// <summary>
 /// CRON-style advisory scan schedules, on-demand runs, execution history, and persisted architecture digests for the caller’s scope.

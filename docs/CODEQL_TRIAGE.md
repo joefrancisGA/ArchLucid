@@ -51,7 +51,7 @@ Treat as a **false positive** when the logged parameter is a **value type** boun
 
 | Location | What is logged | Parameter type in code |
 | -------- | -------------- | ------------------------ |
-| **`ArchLucid.Api/Controllers/ExplanationController.cs`** | **`runId`** in provenance / explanation warnings | **`Guid`** with route template **`{runId:guid}`** |
+| **`ArchLucid.Api/Controllers/Planning/ExplanationController.cs`** | **`runId`** in provenance / explanation warnings | **`Guid`** with route template **`{runId:guid}`** |
 
 Dismiss with: *False positive — value type cannot contain control characters* (or your org’s equivalent).
 
@@ -61,9 +61,9 @@ Several endpoints bind identifiers as **`[FromRoute] string`** (not **`Guid`**) 
 
 | Location | What is logged | Parameter type in code |
 | -------- | -------------- | ------------------------ |
-| **`ArchLucid.Api/Controllers/RunsController.cs`** | **`runId`** in execute / replay / determinism / commit / detail paths | **`[FromRoute] string runId`** |
-| **`ArchLucid.Api/Controllers/AnalysisReportsController.cs`** | **`runId`** in analysis / export logs | **`[FromRoute] string runId`** |
-| **`ArchLucid.Api/Controllers/GovernanceController.cs`** | **`approvalRequestId`** in approve / reject logs | **`[FromRoute] string approvalRequestId`** |
+| **`ArchLucid.Api/Controllers/Authority/RunsController.cs`** | **`runId`** in execute / replay / determinism / commit / detail paths | **`[FromRoute] string runId`** |
+| **`ArchLucid.Api/Controllers/Authority/AnalysisReportsController.cs`** | **`runId`** in analysis / export logs | **`[FromRoute] string runId`** |
+| **`ArchLucid.Api/Controllers/Governance/GovernanceController.cs`** | **`approvalRequestId`** in approve / reject logs | **`[FromRoute] string approvalRequestId`** |
 
 If CodeQL still flags a line after **`LogSanitizer.Sanitize`**, verify the extension pack is loaded (see workflow **`config-file`**), route **`LogWarning`** + user string through **`LogWarningWithSanitizedUserArg`** (see § boxing above), or refactor to **`Guid`** + **`{param:guid}`** and dismiss value-type cases per above.
 

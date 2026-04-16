@@ -1,4 +1,4 @@
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>Per-alert outcome for batch acknowledge.</summary>
 public sealed class AlertsAcknowledgeBatchItemResult

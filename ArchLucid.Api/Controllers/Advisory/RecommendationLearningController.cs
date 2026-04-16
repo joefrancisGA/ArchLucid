@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Advisory;
 
 /// <summary>
 /// Reads and rebuilds <see cref="RecommendationLearningProfile"/> aggregates for the caller’s scope (acceptance/rejection patterns by category, urgency, etc.).

@@ -24,7 +24,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
 /// HTTP API for architecture runs: submit <see cref="ArchitectureRequest"/>, execute agents, replay, commit manifests, and query evidence, traces, and decisions.

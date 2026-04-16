@@ -27,11 +27,23 @@
 
 ---
 
+## Non-functional traceability (implicit V1 gates)
+
+V1_SCOPE emphasizes functional clauses **2.1–2.10**; the rows below map **cross-cutting** NFR themes to **existing** docs and tests so reliability/security/performance are not only implied by **2.7–2.9**.
+
+| NFR theme | Primary docs | Representative tests / automation | Notes |
+|-----------|----------------|-------------------------------------|--------|
+| **Reliability** | [`RESILIENCE_CONFIGURATION.md`](RESILIENCE_CONFIGURATION.md), [`DEGRADED_MODE.md`](DEGRADED_MODE.md), [`OBSERVABILITY.md`](OBSERVABILITY.md) | `Suite=Core` persistence + outbox tests; `FullyQualifiedName~CircuitBreaker`; `FullyQualifiedName~IntegrationEventOutbox`; `FullyQualifiedName~DualPersistenceRowReconciliation` | Circuit breakers, SQL open retries, outbox convergence, dual-write reconciliation — not a formal SRE error budget in V1 RTM. |
+| **Security** | [`SECURITY.md`](SECURITY.md), [`SYSTEM_THREAT_MODEL.md`](SYSTEM_THREAT_MODEL.md), [`MULTI_TENANT_RLS.md`](MULTI_TENANT_RLS.md) | `ArchLucid.Host.Composition.Tests` (`AuthSafetyGuardTests`, `ArchLucidAuthorizationPoliciesRegistrationTests`); `FullyQualifiedName~RlsArchLucidScope` | Auth defaults, RBAC, RLS — pilot auth modes in **2.9** overlap but do not replace threat-model review. |
+| **Performance / capacity** | [`PERFORMANCE_TESTING.md`](PERFORMANCE_TESTING.md), [`LOAD_TEST_BASELINE.md`](LOAD_TEST_BASELINE.md), [`CAPACITY_AND_COST_PLAYBOOK.md`](CAPACITY_AND_COST_PLAYBOOK.md) | `.github/workflows/ci.yml` (`k6-smoke-api`, `k6-ci-smoke`); `tests/load/*.js` | Merge-blocking k6 thresholds are environment-tuned; V1_SCOPE does not mandate universal perf benchmarks. |
+
+---
+
 ## Data consistency: comparison orphans (archival / missing runs)
 
 | Concern | Implementation | Operator / SRE evidence |
 |--------|----------------|-------------------------|
-| **Detection** | `ArchLucid.Host.Core.Hosted.DataConsistencyOrphanProbeHostedService` | Logs + counter **`archlucid_data_consistency_orphans_detected_total`** (labels **`table`**: **`ComparisonRecords`**, **`GoldenManifests`**, **`FindingsSnapshots`**; **`column`**: **`LeftRunId`** / **`RightRunId`** / **`RunId`**) |
+| **Detection** | `ArchLucid.Host.Core.Hosted.DataConsistencyOrphanProbeHostedService` | Logs + counter **`archlucid_data_consistency_orphans_detected_total`** (labels **`table`**: **`ComparisonRecords`**, **`GoldenManifests`**, **`FindingsSnapshots`**; **`column`**: **`LeftRunId`** / **`RightRunId`** / **`RunId`**). Optional **`DataConsistency:OrphanProbeRemediationDryRunLogMaxRows`** (1–500): same **`SELECT`** as admin dry-run, **Information** log of sample ids only — no **`DELETE`**. |
 | **Alerting** | [`infra/prometheus/archlucid-alerts.yml`](../infra/prometheus/archlucid-alerts.yml) § `archlucid-data-consistency` | Tune `for:` / thresholds per environment |
 | **Remediation** | Admin API: `POST .../orphan-comparison-records`, `POST .../orphan-golden-manifests`, `POST .../orphan-findings-snapshots` — each supports `dryRun=true` first, then `dryRun=false` (cap 500 rows) + durable audit | [`runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md`](runbooks/COMPARISON_RECORD_ORPHAN_REMEDIATION.md) (comparison); golden-manifest remediation deletes `dbo.ArtifactBundles` first. |
 

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Alerts;
 
 /// <summary>
 /// Manages <see cref="AlertRoutingSubscription"/> rows for the caller’s scope and exposes recent <see cref="AlertDeliveryAttempt"/> history per subscription.

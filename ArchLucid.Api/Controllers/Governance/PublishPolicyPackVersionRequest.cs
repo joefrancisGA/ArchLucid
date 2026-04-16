@@ -1,4 +1,4 @@
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Governance;
 
 /// <summary>Body for <c>POST …/policy-packs/{id}/publish</c>.</summary>
 /// <remarks><see cref="Version"/> must satisfy SemVer rules enforced by validator.</remarks>

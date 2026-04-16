@@ -26,7 +26,7 @@ using AppConsultingDocxExportProfileSelector =
 using AppConsultingDocxProfileRecommendationRequest =
     ArchLucid.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
 
-namespace ArchLucid.Api.Controllers;
+namespace ArchLucid.Api.Controllers.Authority;
 
 /// <summary>
 /// Builds and exports consolidated analysis reports for a committed run (markdown, DOCX, consulting templates, async jobs).

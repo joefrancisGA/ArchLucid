@@ -1,5 +1,7 @@
 using System.Reflection;
 
+using ArchLucid.Api.Controllers.Admin;
+
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Authorization;
@@ -17,8 +19,8 @@ public sealed class ApiControllerAuthorizationGuardTests
 {
     private static readonly HashSet<string> AllowAnonymousControllerNames =
     [
-        nameof(Controllers.VersionController),
-        nameof(Controllers.DocsController),
+        nameof(VersionController),
+        nameof(DocsController),
     ];
 
     [Fact]

@@ -7,7 +7,7 @@ public class ArchLucidAuthOptions
     public const string SectionName = "ArchLucidAuth";
 
     /// <summary>DevelopmentBypass | JwtBearer | ApiKey</summary>
-    public string Mode { get; set; } = "DevelopmentBypass";
+    public string Mode { get; set; } = "ApiKey";
     public string Authority { get; set; } = string.Empty;
     public string Audience { get; set; } = string.Empty;
 
