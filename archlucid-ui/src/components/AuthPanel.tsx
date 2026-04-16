@@ -44,17 +44,13 @@ export function AuthPanel() {
       <div
         role="region"
         aria-label="Authentication status"
-        style={{
-          padding: 12,
-          border: "1px solid #cbd5e1",
-          borderRadius: 8,
-          marginBottom: 16,
-          background: "#fff",
-        }}
+        className="mb-4 rounded-lg border border-neutral-300 bg-white p-3 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
       >
         <strong>Auth mode:</strong> Development bypass (API auto-authenticates; no UI sign-in). Set{" "}
-        <code style={{ fontSize: 13 }}>NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt</code> and OIDC env vars
-        for Entra / OIDC.
+        <code className="text-[13px] text-neutral-800 dark:text-neutral-200">
+          NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt
+        </code>{" "}
+        and OIDC env vars for Entra / OIDC.
       </div>
     );
   }
@@ -63,18 +59,7 @@ export function AuthPanel() {
     <div
       role="region"
       aria-label="Authentication status"
-      style={{
-        padding: 12,
-        border: "1px solid #cbd5e1",
-        borderRadius: 8,
-        marginBottom: 16,
-        background: "#fff",
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        gap: 12,
-        justifyContent: "space-between",
-      }}
+      className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-300 bg-white p-3 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
     >
       <div>
         <strong>Auth:</strong> OIDC (JWT bearer to API via <code>/api/proxy</code>)
@@ -109,17 +94,9 @@ export function AuthPanel() {
         ) : (
           <button
             type="button"
-            className="auth-panel-focus"
+            className="auth-panel-focus rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-900 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100"
             aria-label="Sign out and return to the operator home page"
             onClick={() => void signOutAndRedirectHome()}
-            style={{
-              padding: "6px 12px",
-              background: "#fff",
-              border: "1px solid #cbd5e1",
-              borderRadius: 6,
-              cursor: "pointer",
-              fontSize: 14,
-            }}
           >
             Sign out
           </button>

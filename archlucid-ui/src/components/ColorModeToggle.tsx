@@ -1,7 +1,8 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useCallback, useEffect, useState } from "react";
+
+import { cn } from "@/lib/utils";
 
 const storageKey = "archlucid_color_mode";
 
@@ -102,50 +103,31 @@ export function ColorModeToggle() {
     );
   }
 
-  const buttonBase: CSSProperties = {
-    fontSize: 12,
-    padding: "6px 10px",
-    borderRadius: 6,
-    border: "1px solid #cbd5e1",
-    background: "#fff",
-    cursor: "pointer",
-    fontWeight: 600,
-  };
-
-  const active: CSSProperties = {
-    ...buttonBase,
-    background: "#0f766e",
-    color: "#fff",
-    borderColor: "#0f766e",
-  };
+  const segmentInactive =
+    "rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-900 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100";
+  const segmentActive =
+    "rounded-md border border-teal-700 bg-teal-700 px-2.5 py-1.5 text-xs font-semibold text-white dark:border-teal-800 dark:bg-teal-800 dark:text-white";
 
   return (
-    <div
-      style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}
-      role="group"
-      aria-label="Color mode"
-    >
-      <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Theme</span>
+    <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Color mode">
+      <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Theme</span>
       <button
         type="button"
-        style={preference === "light" ? active : buttonBase}
-        className="auth-panel-focus"
+        className={cn("auth-panel-focus", preference === "light" ? segmentActive : segmentInactive)}
         onClick={() => setAndPersist("light")}
       >
         Light
       </button>
       <button
         type="button"
-        style={preference === "dark" ? active : buttonBase}
-        className="auth-panel-focus"
+        className={cn("auth-panel-focus", preference === "dark" ? segmentActive : segmentInactive)}
         onClick={() => setAndPersist("dark")}
       >
         Dark
       </button>
       <button
         type="button"
-        style={preference === "system" ? active : buttonBase}
-        className="auth-panel-focus"
+        className={cn("auth-panel-focus", preference === "system" ? segmentActive : segmentInactive)}
         onClick={() => setAndPersist("system")}
       >
         System

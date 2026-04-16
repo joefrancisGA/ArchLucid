@@ -82,14 +82,19 @@ public sealed class LlmCallRetrySimmyTests
     }
 
     [Fact]
-    public async Task ChaosLatency_InnerTimeout_RetryThenTimeoutRejected()
+    public async Task InnerTimeout_slowDelegate_RetryThenTimeoutRejected()
     {
-        // Compose timeout+chaos as an inner pipeline (same shape as ChaosLatency_inner_timeout_outer_fails_fast),
-        // then wrap with retry. A flat AddRetry→AddTimeout→AddChaos chain has been observed to complete without
-        // TimeoutRejected on some Linux CI hosts (ordering/composition), while this layout stays deterministic.
-        ResiliencePipeline timeoutAndChaos = new ResiliencePipelineBuilder()
-            .AddTimeout(TimeSpan.FromMilliseconds(80))
-            .AddChaosLatency(1.0, TimeSpan.FromMilliseconds(200))
+        // Retry wraps an inner timeout pipeline (same nesting shape as LLM call resilience).
+        //
+        // Simmy chaos latency here was dropped: on some Linux CI hosts, chaos latency + nested AddPipeline
+        // occasionally completed without TimeoutRejectedException (no exception at all). A delegate-bound
+        // delay longer than the inner timeout keeps the behavior deterministic while still proving
+        // TimeoutRejectedException propagates after retries are exhausted.
+        TimeSpan innerBudget = TimeSpan.FromMilliseconds(50);
+        TimeSpan workDuration = TimeSpan.FromMilliseconds(500);
+
+        ResiliencePipeline innerTimeout = new ResiliencePipelineBuilder()
+            .AddTimeout(innerBudget)
             .Build();
 
         ResiliencePipeline pipeline = new ResiliencePipelineBuilder()
@@ -100,11 +105,14 @@ public sealed class LlmCallRetrySimmyTests
                     Delay = TimeSpan.FromMilliseconds(1),
                     ShouldHandle = new PredicateBuilder().Handle<TimeoutRejectedException>(),
                 })
-            .AddPipeline(timeoutAndChaos)
+            .AddPipeline(innerTimeout)
             .Build();
 
         Func<Task> act = () => pipeline.ExecuteAsync(
-                static async _ => await Task.CompletedTask,
+                async (CancellationToken ct) =>
+                {
+                    await Task.Delay(workDuration, ct);
+                },
                 CancellationToken.None)
             .AsTask();
 

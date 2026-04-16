@@ -745,7 +745,8 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         loaded.ContextSnapshotId.Should().Be(contextId);
         loaded.GraphSnapshotId.Should().Be(graphId);
         loaded.CreatedUtc.Should().Be(createdUtc);
-        loaded.SchemaVersion.Should().Be(schemaVersion);
+        // Relational header may store a legacy version; JSON hydrate path runs FindingsSnapshotMigrator (same as production reads).
+        loaded.SchemaVersion.Should().Be(FindingsSchema.CurrentSnapshotVersion);
     }
 
     [SkippableFact]

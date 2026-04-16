@@ -243,7 +243,7 @@ export function OperatorFirstRunWorkflowPanel() {
             <span className="text-sm text-neutral-600 dark:text-neutral-400">{step.body}</span>
             <div>
               <Link
-                className="workflow-primary-action mt-2.5 inline-block rounded-lg bg-teal-700 px-[18px] py-2.5 text-sm font-semibold text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+                className="workflow-primary-action mt-2.5 inline-block rounded-lg bg-teal-700 px-[18px] py-2.5 text-sm font-semibold text-white no-underline hover:bg-teal-800 dark:bg-teal-800 dark:text-white dark:hover:bg-teal-700"
                 href={step.primaryHref}
               >
                 {step.primaryLabel}
