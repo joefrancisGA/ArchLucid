@@ -44,6 +44,8 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
         Regex bareConflict = new(@"\breturn\s+Conflict\s*\(\s*\)\s*;", RegexOptions.CultureInvariant);
         Regex bareConflictObject = new(@"\breturn\s+Conflict\s*\(\s*[^P]", RegexOptions.CultureInvariant);
         Regex bareBadRequest = new(@"\breturn\s+BadRequest\s*\(\s*\)\s*;", RegexOptions.CultureInvariant);
+        Regex bareStatusCode = new(@"\breturn\s+StatusCode\s*\(\s*\d+\s*\)\s*;", RegexOptions.CultureInvariant);
+        Regex objectResultWithStatus = new(@"new\s+ObjectResult\s*\([^)]*\)\s*\{[^}]*StatusCode\s*=", RegexOptions.CultureInvariant);
         List<string> violations = [];
 
         foreach (string file in files)
@@ -68,6 +70,16 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
             if (bareBadRequest.IsMatch(text))
             {
                 violations.Add($"{file}: bare BadRequest() — use BadRequestProblem per RFC 9457");
+            }
+
+            if (bareStatusCode.IsMatch(text))
+            {
+                violations.Add($"{file}: bare StatusCode(nnn) — use Problem/IActionResult factory per docs/API_ERROR_CONTRACT.md");
+            }
+
+            if (objectResultWithStatus.IsMatch(text))
+            {
+                violations.Add($"{file}: ObjectResult with StatusCode property — prefer typed Problem() helpers");
             }
         }
 

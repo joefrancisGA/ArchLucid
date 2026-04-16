@@ -245,6 +245,67 @@ public sealed class PolicyPacksIntegrationTests
     }
 
     [Fact]
+    public async Task PublishSameVersion_EightParallelPosts_YieldsSinglePublishedRow()
+    {
+        await WithIsolatedFactory(async client =>
+        {
+            HttpResponseMessage createResponse = await client.PostAsync(
+                "/v1/policy-packs",
+                JsonContent(
+                    new
+                    {
+                        name = "Parallel publish pack",
+                        description = "",
+                        packType = "ProjectCustom",
+                        initialContentJson = "{}",
+                    }));
+            createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            PolicyPackResponse? created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            Guid packId = created!.PolicyPackId;
+
+            object body = new
+            {
+                version = "2.0.0",
+                contentJson = """{"metadata":{"k":"parallel"}}""",
+            };
+
+            const int parallel = 8;
+            Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
+
+            for (int i = 0; i < parallel; i++)
+            {
+                tasks[i] = client.PostAsync($"/v1/policy-packs/{packId}/publish", JsonContent(body));
+            }
+
+            HttpResponseMessage[] responses = await Task.WhenAll(tasks);
+
+            Guid? versionId = null;
+
+            foreach (HttpResponseMessage response in responses)
+            {
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+                PolicyPackVersionResponse? row = await response.Content.ReadFromJsonAsync<PolicyPackVersionResponse>(JsonOptions);
+                row.Should().NotBeNull();
+
+                if (versionId is null)
+                {
+                    versionId = row!.PolicyPackVersionId;
+                }
+                else
+                {
+                    row!.PolicyPackVersionId.Should().Be(versionId.Value);
+                }
+            }
+
+            HttpResponseMessage list = await client.GetAsync($"/v1/policy-packs/{packId}/versions");
+            list.StatusCode.Should().Be(HttpStatusCode.OK);
+            List<PolicyPackVersionResponse>? versions = await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
+            versions.Should().NotBeNull();
+            versions!.Count(v => v.Version == "2.0.0").Should().Be(1);
+        });
+    }
+
+    [Fact]
     public async Task PublishSameVersionTwice_IsIdempotent_SingleVersionRow()
     {
         await WithIsolatedFactory(async client =>
