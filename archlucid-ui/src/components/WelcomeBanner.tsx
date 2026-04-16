@@ -64,7 +64,10 @@ export function WelcomeBanner() {
         on the run detail page. When you are ready, compare runs or explore governance from the sidebar.
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
-        <Button asChild className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500">
+        <Button
+          asChild
+          className="bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-800 dark:text-white dark:hover:bg-teal-700"
+        >
           <Link href="/runs/new">Create your first run</Link>
         </Button>
         <Button asChild variant="outline">
