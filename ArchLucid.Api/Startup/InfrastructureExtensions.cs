@@ -43,6 +43,26 @@ internal static class InfrastructureExtensions
                     fixedQueueLimit,
                     "fixed"));
 
+            int registrationPermitLimit = configuration.GetValue("RateLimiting:Registration:PermitLimit", 5);
+            int registrationWindowMinutes = configuration.GetValue("RateLimiting:Registration:WindowMinutes", 60);
+            int registrationQueueLimit = configuration.GetValue("RateLimiting:Registration:QueueLimit", 0);
+
+            options.AddPolicy(
+                "registration",
+                httpContext =>
+                {
+                    string ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+
+                    return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+                        $"registration:{ip}",
+                        _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = registrationPermitLimit,
+                            Window = TimeSpan.FromMinutes(registrationWindowMinutes),
+                            QueueLimit = registrationQueueLimit,
+                        });
+                });
+
             int expensivePermitLimit = configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
             int expensiveWindowMinutes = configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
             int expensiveQueueLimit = configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);

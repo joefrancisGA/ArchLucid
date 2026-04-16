@@ -1,29 +1,36 @@
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Middleware;
 
 /// <summary>Records one <see cref="UsageMeterKind.ApiRequest"/> per completed versioned API call when metering is enabled.</summary>
+/// <remarks>
+/// Implements <see cref="IMiddleware"/> so <see cref="IUsageMeteringService"/> (scoped) is resolved per request, not at pipeline build time.
+/// </remarks>
 public sealed class ApiRequestMeteringMiddleware(
-    RequestDelegate next,
     IScopeContextProvider scopeProvider,
     IUsageMeteringService usageMetering,
     IOptionsMonitor<MeteringOptions> meteringOptions,
-    ILogger<ApiRequestMeteringMiddleware> logger)
+    ILogger<ApiRequestMeteringMiddleware> logger) : IMiddleware
 {
-    private readonly RequestDelegate _next = next ?? throw new ArgumentNullException(nameof(next));
-    private readonly IScopeContextProvider _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
-    private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
+    private readonly IScopeContextProvider _scopeProvider =
+        scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IUsageMeteringService _usageMetering =
+        usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
+
     private readonly IOptionsMonitor<MeteringOptions> _meteringOptions =
         meteringOptions ?? throw new ArgumentNullException(nameof(meteringOptions));
 
-    private readonly ILogger<ApiRequestMeteringMiddleware> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly ILogger<ApiRequestMeteringMiddleware> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        await _next(context);
+        await next(context);
 
         if (!_meteringOptions.CurrentValue.Enabled)
             return;

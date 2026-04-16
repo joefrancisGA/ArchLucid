@@ -141,6 +141,9 @@ public static class AuditEventTypes
     /// <summary>SaaS tenant registry: new tenant + default workspace identifiers created (or idempotent replay).</summary>
     public const string TenantProvisioned = "TenantProvisioned";
 
+    /// <summary>Public self-service registration completed (audit complements <see cref="TenantProvisioned"/> on the same flow).</summary>
+    public const string TenantSelfRegistered = "TenantSelfRegistered";
+
     /// <summary>
     /// Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured <c>ILogger</c> only).
     /// They are <b>not</b> written to <c>dbo.AuditEvents</c>.

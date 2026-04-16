@@ -339,3 +339,112 @@ variable "ui_revision_mode" {
     error_message = "ui_revision_mode must be Single or Multiple."
   }
 }
+
+variable "secondary_region_stack_enabled" {
+  type        = bool
+  description = "When true (and enable_container_apps), deploy a mirrored Container Apps stack in secondary_location for active-secondary / DR. Requires a separate resource group in that Azure region."
+  default     = false
+}
+
+variable "secondary_create_resource_group" {
+  type        = bool
+  description = "When true with secondary_region_stack_enabled, create secondary_resource_group_name in secondary_location."
+  default     = false
+}
+
+variable "secondary_resource_group_name" {
+  type        = string
+  description = "Resource group name in the secondary Azure region (must not be the primary resource group)."
+  default     = ""
+}
+
+variable "secondary_location" {
+  type        = string
+  description = "Azure region for the secondary stack (paired region recommended)."
+  default     = ""
+}
+
+variable "secondary_log_analytics_workspace_name" {
+  type        = string
+  description = "Log Analytics workspace name for the secondary Container Apps environment."
+  default     = "law-archlucid-secondary"
+}
+
+variable "secondary_container_app_environment_name" {
+  type        = string
+  description = "Managed environment name for secondary region."
+  default     = "cae-archlucid-secondary"
+}
+
+variable "secondary_container_apps_subnet_id" {
+  type        = string
+  description = "Optional subnet in the secondary region for VNet-integrated secondary CAE."
+  default     = ""
+}
+
+variable "secondary_container_apps_internal_load_balancer" {
+  type        = bool
+  description = "When true and secondary_container_apps_subnet_id is set, internal LB for secondary CAE."
+  default     = false
+}
+
+variable "secondary_api_container_app_name" {
+  type        = string
+  description = "Secondary region API container app name."
+  default     = "archlucid-api-secondary"
+}
+
+variable "secondary_worker_container_app_name" {
+  type        = string
+  description = "Secondary region worker container app name."
+  default     = "archlucid-worker-secondary"
+}
+
+variable "secondary_ui_container_app_name" {
+  type        = string
+  description = "Secondary region UI container app name."
+  default     = "archlucid-ui-secondary"
+}
+
+variable "secondary_api_min_replicas" {
+  type        = number
+  description = "Minimum API replicas in the secondary region."
+  default     = 1
+}
+
+variable "secondary_api_max_replicas" {
+  type        = number
+  description = "Maximum API replicas in the secondary region."
+  default     = 5
+}
+
+variable "secondary_worker_min_replicas" {
+  type        = number
+  description = "Minimum worker replicas in the secondary region."
+  default     = 1
+}
+
+variable "secondary_worker_max_replicas" {
+  type        = number
+  description = "Maximum worker replicas in the secondary region."
+  default     = 10
+}
+
+variable "secondary_ui_min_replicas" {
+  type        = number
+  description = "Minimum UI replicas in the secondary region."
+  default     = 1
+}
+
+variable "secondary_ui_max_replicas" {
+  type        = number
+  description = "Maximum UI replicas in the secondary region."
+  default     = 3
+}
+
+variable "secondary_read_replica_connection_string" {
+  type        = string
+  description = "Optional SQL read-only connection string for secondary API (e.g. failover group read listener). Prefer Key Vault references at deploy time; value is sensitive in Terraform state."
+  default     = ""
+  sensitive   = true
+}

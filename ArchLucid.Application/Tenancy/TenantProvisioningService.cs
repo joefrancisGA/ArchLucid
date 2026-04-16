@@ -62,7 +62,13 @@ public sealed class TenantProvisioningService(
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
 
-        await _tenantRepository.InsertTenantAsync(tenantId, request.Name.Trim(), slug, request.Tier, ct);
+        await _tenantRepository.InsertTenantAsync(
+            tenantId,
+            request.Name.Trim(),
+            slug,
+            request.Tier,
+            request.EntraTenantId,
+            ct);
 
         try
         {
@@ -86,7 +92,9 @@ public sealed class TenantProvisioningService(
             throw;
         }
 
-        string actor = _actorContext.GetActor();
+        string actor = string.IsNullOrWhiteSpace(request.AuditActorOverride)
+            ? _actorContext.GetActor()
+            : request.AuditActorOverride.Trim();
 
         await _auditService.LogAsync(
             new AuditEvent

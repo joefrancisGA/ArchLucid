@@ -39,6 +39,11 @@ public static class ArchLucidConfigurationRules
         ObservabilityRules.CollectPrometheus(configuration, errors);
         LlmTokenQuotaRules.Collect(configuration, errors);
 
+        if (environment.IsStaging())
+        {
+            ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
+        }
+
         if (!environment.IsProduction())
         {
             return errors;

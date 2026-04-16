@@ -13,6 +13,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
     private readonly ConcurrentDictionary<Guid, List<TenantWorkspaceRow>> _workspacesByTenant = new();
 
+    private readonly ConcurrentDictionary<Guid, Guid> _entraTenantIdToTenantId = new();
+
     public Task<TenantRecord?> GetByIdAsync(Guid tenantId, CancellationToken ct)
     {
         _ = ct;
@@ -33,6 +35,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         return GetByIdAsync(id, ct);
     }
 
+    public Task<TenantRecord?> GetByEntraTenantIdAsync(Guid entraTenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid tenantId))
+            return Task.FromResult<TenantRecord?>(null);
+
+        return GetByIdAsync(tenantId, ct);
+    }
+
     public Task<IReadOnlyList<TenantRecord>> ListAsync(CancellationToken ct)
     {
         _ = ct;
@@ -47,6 +59,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         string name,
         string slug,
         TenantTier tier,
+        Guid? entraTenantId,
         CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -61,6 +74,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             Name = name,
             Slug = slugKey,
             Tier = tier,
+            EntraTenantId = entraTenantId,
             CreatedUtc = DateTimeOffset.UtcNow,
             SuspendedUtc = null,
         };
@@ -72,6 +86,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         {
             _byId.TryRemove(tenantId, out _);
             throw new InvalidOperationException($"Tenant slug '{slugKey}' already exists.");
+        }
+
+        if (entraTenantId.HasValue)
+        {
+            if (!_entraTenantIdToTenantId.TryAdd(entraTenantId.Value, tenantId))
+            {
+                _slugToId.TryRemove(slugKey, out _);
+                _byId.TryRemove(tenantId, out _);
+                throw new InvalidOperationException($"Entra tenant id '{entraTenantId.Value:D}' is already linked.");
+            }
         }
 
         _workspacesByTenant.TryAdd(tenantId, new List<TenantWorkspaceRow>());
@@ -120,6 +144,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             Name = existing.Name,
             Slug = existing.Slug,
             Tier = existing.Tier,
+            EntraTenantId = existing.EntraTenantId,
             CreatedUtc = existing.CreatedUtc,
             SuspendedUtc = DateTimeOffset.UtcNow,
         };

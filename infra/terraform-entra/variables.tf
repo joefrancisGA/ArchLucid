@@ -21,3 +21,17 @@ variable "expose_roles_in_tokens" {
   description = "Emit optional id/access token claims for app roles (recommended)."
   default     = true
 }
+
+variable "sign_in_audience" {
+  type        = string
+  description = "Entra sign-in audience. Use AzureADMultipleOrgs for multi-tenant SaaS (any organizational directory). AzureADMyOrg restricts to the home tenant only."
+  default     = "AzureADMultipleOrgs"
+
+  validation {
+    condition = contains(
+      ["AzureADMyOrg", "AzureADMultipleOrgs", "AzureADandPersonalMicrosoftAccount", "PersonalMicrosoftAccount"],
+      var.sign_in_audience
+    )
+    error_message = "sign_in_audience must be a supported Azure AD signInAudience value."
+  }
+}

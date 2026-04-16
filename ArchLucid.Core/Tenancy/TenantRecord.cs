@@ -11,6 +11,9 @@ public sealed class TenantRecord
 
     public TenantTier Tier { get; init; }
 
+    /// <summary>Azure AD / Entra directory tenant id when the row is linked for multi-org auth.</summary>
+    public Guid? EntraTenantId { get; init; }
+
     public DateTimeOffset CreatedUtc { get; init; }
 
     public DateTimeOffset? SuspendedUtc { get; init; }

@@ -7,6 +7,9 @@ public interface ITenantRepository
 
     Task<TenantRecord?> GetBySlugAsync(string slug, CancellationToken ct);
 
+    /// <summary>Lookup by Entra directory tenant id (<c>tid</c> claim) when linked.</summary>
+    Task<TenantRecord?> GetByEntraTenantIdAsync(Guid entraTenantId, CancellationToken ct);
+
     Task<IReadOnlyList<TenantRecord>> ListAsync(CancellationToken ct);
 
     Task InsertTenantAsync(
@@ -14,6 +17,7 @@ public interface ITenantRepository
         string name,
         string slug,
         TenantTier tier,
+        Guid? entraTenantId,
         CancellationToken ct);
 
     Task InsertWorkspaceAsync(

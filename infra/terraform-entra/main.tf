@@ -20,7 +20,7 @@ resource "azuread_application" "api" {
   count = local.entra_enabled ? 1 : 0
 
   display_name     = var.api_application_display_name
-  sign_in_audience = "AzureADMyOrg"
+  sign_in_audience = var.sign_in_audience
 
   identifier_uris = [var.api_identifier_uri]
 
