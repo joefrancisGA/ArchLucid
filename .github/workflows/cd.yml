@@ -13,6 +13,9 @@
 #   SMOKE_TEST_BASE_URL — optional; post-deploy validation (see scripts/ci/cd-post-deploy-verify.sh)
 #   SMOKE_SYNTHETIC_PATH — optional extra path after /version (default /version); must return HTTP 200 if not /version
 #   CD_POST_DEPLOY_MAX_ATTEMPTS / CD_POST_DEPLOY_RETRY_WAIT_SECONDS — optional repo vars for retry loop (cold start)
+#   CD_CANARY_ENABLED — optional repo var "true" to split API traffic after deploy (requires api_revision_mode=Multiple in Terraform)
+#   CD_CANARY_INITIAL_PERCENT — optional repo var (default 10) initial weight on the new revision
+#   CD_CANARY_BAKE_MINUTES — optional repo var; sleep minutes between split and smoke (0 skips)
 #   CD_NOTIFY_WEBHOOK_URL — optional Slack-compatible JSON webhook
 #
 # Rollback: set repository variable CD_ROLLBACK_ON_SMOKE_FAILURE=true to deactivate the new API revision when smoke fails.
@@ -346,13 +349,6 @@ jobs:
             az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE"
           fi
 
-      # Canary / blue-green: set api_revision_mode = Multiple in Terraform, then use
-      # `az containerapp ingress traffic set` to split traffic between revisions; see docs/runbooks/CANARY_DEPLOYMENT.md.
-      - name: Canary traffic split (placeholder — enable when operating canary)
-        if: false
-        run: |
-          echo "Skipped. See docs/runbooks/CANARY_DEPLOYMENT.md for az containerapp ingress traffic set."
-
       - name: Record API revision after update
         id: api_rev_after
         env:
@@ -379,6 +375,51 @@ jobs:
           REV=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --query "properties.latestRevisionName" -o tsv)
           echo "revision=$REV" >> "$GITHUB_OUTPUT"
 
+      # Canary: requires api_revision_mode = Multiple on the API Container App (Terraform). See docs/runbooks/CANARY_DEPLOYMENT.md.
+      - name: Canary API traffic split (optional)
+        if: success()
+        env:
+          CD_CANARY_ENABLED: ${{ vars.CD_CANARY_ENABLED }}
+          CD_CANARY_INITIAL_PERCENT: ${{ vars.CD_CANARY_INITIAL_PERCENT }}
+          CD_CANARY_BAKE_MINUTES: ${{ vars.CD_CANARY_BAKE_MINUTES }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+        run: |
+          set -e
+          if [ "${CD_CANARY_ENABLED:-}" != "true" ]; then
+            echo "CD_CANARY_ENABLED is not true — skipping canary traffic split."
+            exit 0
+          fi
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
+            echo "Missing AZURE_RESOURCE_GROUP or CONTAINER_APP_API_NAME — skipping canary."
+            exit 0
+          fi
+          BEFORE="${{ steps.api_rev_before.outputs.revision }}"
+          AFTER="${{ steps.api_rev_after.outputs.revision }}"
+          SKIP="${{ steps.api_rev_before.outputs.skip }}"
+          if [ "$SKIP" = "true" ] || [ -z "$BEFORE" ] || [ -z "$AFTER" ] || [ "$BEFORE" = "$AFTER" ]; then
+            echo "No distinct revision pair — skipping canary split."
+            exit 0
+          fi
+          PCT="${CD_CANARY_INITIAL_PERCENT:-10}"
+          case "$PCT" in ''|*[!0-9]*) PCT=10 ;; esac
+          if [ "$PCT" -lt 1 ] || [ "$PCT" -gt 99 ]; then
+            echo "CD_CANARY_INITIAL_PERCENT must be 1-99; got $PCT — using 10."
+            PCT=10
+          fi
+          OLDWT=$((100 - PCT))
+          echo "Splitting API traffic: revision $BEFORE=${OLDWT}%, revision $AFTER=${PCT}%"
+          az containerapp ingress traffic set \
+            -g "$AZURE_RESOURCE_GROUP" \
+            -n "$CONTAINER_APP_API_NAME" \
+            --revision-weight "${BEFORE}=${OLDWT}" "${AFTER}=${PCT}"
+          BAKE="${CD_CANARY_BAKE_MINUTES:-0}"
+          case "$BAKE" in ''|*[!0-9]*) BAKE=0 ;; esac
+          if [ "$BAKE" -gt 0 ]; then
+            echo "Canary bake: sleeping ${BAKE} minute(s) before smoke job."
+            sleep $((BAKE * 60))
+          fi
+
   smoke-test:
     name: Post-deploy validation (${{ github.event.inputs.target }})
     needs: deploy-container-apps
@@ -386,6 +427,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target }}
     steps:
+      - name: Azure login (OIDC) for canary promotion
+        if: vars.CD_CANARY_ENABLED == 'true'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       - name: Post-deploy validation (health, readiness, OpenAPI, version)
         id: smoke_api
         env:
@@ -400,6 +449,32 @@ jobs:
           fi
           chmod +x scripts/ci/cd-post-deploy-verify.sh
           bash scripts/ci/cd-post-deploy-verify.sh "${SMOKE_TEST_BASE_URL}" "${SMOKE_SYNTHETIC_PATH:-/version}"
+
+      - name: Promote canary API traffic to new revision (optional)
+        if: success()
+        env:
+          CD_CANARY_ENABLED: ${{ vars.CD_CANARY_ENABLED }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+        run: |
+          set -e
+          if [ "${CD_CANARY_ENABLED:-}" != "true" ]; then
+            echo "CD_CANARY_ENABLED is not true — skipping canary promotion."
+            exit 0
+          fi
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
+            exit 0
+          fi
+          AFTER="${{ needs.deploy-container-apps.outputs.revision_after }}"
+          if [ -z "$AFTER" ]; then
+            echo "No revision_after output — skipping promotion."
+            exit 0
+          fi
+          echo "Promoting API traffic to revision $AFTER=100%"
+          az containerapp ingress traffic set \
+            -g "$AZURE_RESOURCE_GROUP" \
+            -n "$CONTAINER_APP_API_NAME" \
+            --revision-weight "${AFTER}=100"
 
   rollback:
     name: Roll back API/worker after failed smoke (optional)

@@ -1,3 +1,4 @@
+using ArchLucid.Api.Middleware;
 using ArchLucid.Api.Services;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Api.Services.Evolution;
@@ -31,6 +32,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         }
 
         services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
+        services.AddScoped<ApiRequestMeteringMiddleware>();
 
         return services;
     }

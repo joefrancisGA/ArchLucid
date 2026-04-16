@@ -17,7 +17,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT Id, Name, Slug, Tier, CreatedUtc, SuspendedUtc
+                             SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc
                              FROM dbo.Tenants
                              WHERE Id = @Id;
                              """;
@@ -35,7 +35,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT Id, Name, Slug, Tier, CreatedUtc, SuspendedUtc
+                             SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc
                              FROM dbo.Tenants
                              WHERE Slug = @Slug;
                              """;
@@ -46,12 +46,28 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         return row is null ? null : row.ToRecord();
     }
 
+    public async Task<TenantRecord?> GetByEntraTenantIdAsync(Guid entraTenantId, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                             SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc
+                             FROM dbo.Tenants
+                             WHERE EntraTenantId = @EntraTenantId;
+                             """;
+
+        TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
+            new CommandDefinition(sql, new { EntraTenantId = entraTenantId }, cancellationToken: ct));
+
+        return row is null ? null : row.ToRecord();
+    }
+
     public async Task<IReadOnlyList<TenantRecord>> ListAsync(CancellationToken ct)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             SELECT Id, Name, Slug, Tier, CreatedUtc, SuspendedUtc
+                             SELECT Id, Name, Slug, Tier, EntraTenantId, CreatedUtc, SuspendedUtc
                              FROM dbo.Tenants
                              ORDER BY CreatedUtc DESC;
                              """;
@@ -66,13 +82,14 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         string name,
         string slug,
         TenantTier tier,
+        Guid? entraTenantId,
         CancellationToken ct)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
-                             INSERT INTO dbo.Tenants (Id, Name, Slug, Tier)
-                             VALUES (@Id, @Name, @Slug, @Tier);
+                             INSERT INTO dbo.Tenants (Id, Name, Slug, Tier, EntraTenantId)
+                             VALUES (@Id, @Name, @Slug, @Tier, @EntraTenantId);
                              """;
 
         await connection.ExecuteAsync(
@@ -84,6 +101,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                     Name = name,
                     Slug = slug,
                     Tier = TenantTierSql.ToTierString(tier),
+                    EntraTenantId = entraTenantId,
                 },
                 cancellationToken: ct));
     }
@@ -169,6 +187,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
 
         public string Tier { get; init; } = string.Empty;
 
+        public Guid? EntraTenantId { get; init; }
+
         public DateTimeOffset CreatedUtc { get; init; }
 
         public DateTimeOffset? SuspendedUtc { get; init; }
@@ -180,6 +200,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 Name = Name,
                 Slug = Slug,
                 Tier = TenantTierSql.ParseTier(Tier),
+                EntraTenantId = EntraTenantId,
                 CreatedUtc = CreatedUtc,
                 SuspendedUtc = SuspendedUtc,
             };

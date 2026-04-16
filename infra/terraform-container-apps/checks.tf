@@ -92,3 +92,23 @@ check "container_apps_consumption_budget_contact_channel" {
     error_message = "With enable_container_apps_consumption_budget = true, set container_apps_consumption_budget_contact_emails and/or a non-empty container_apps_consumption_budget_contact_roles list."
   }
 }
+
+check "secondary_region_requires_inputs" {
+  assert {
+    condition = !var.enable_container_apps || !var.secondary_region_stack_enabled || (
+      length(trimspace(var.secondary_resource_group_name)) > 0 &&
+      length(trimspace(var.secondary_location)) > 0 &&
+      (length(trimspace(var.location)) == 0 || var.secondary_location != var.location)
+    )
+    error_message = "secondary_region_stack_enabled requires secondary_resource_group_name and secondary_location. When primary location is set, secondary_location must be a different Azure region."
+  }
+}
+
+check "secondary_internal_lb_requires_subnet" {
+  assert {
+    condition = !var.enable_container_apps || !var.secondary_region_stack_enabled || !var.secondary_container_apps_internal_load_balancer || (
+      length(trimspace(var.secondary_container_apps_subnet_id)) > 0
+    )
+    error_message = "secondary_container_apps_internal_load_balancer = true requires secondary_container_apps_subnet_id."
+  }
+}

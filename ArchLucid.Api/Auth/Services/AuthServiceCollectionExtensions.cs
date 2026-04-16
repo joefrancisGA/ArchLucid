@@ -87,6 +87,8 @@ public static class AuthServiceCollectionExtensions
             RoleClaimType = "roles",
             NameClaimType = nameClaimType,
         };
+
+        EntraMultiTenantJwtBearerConfigurator.ApplyIfEnabled(options, authOptions);
     }
 
     private static void ConfigureJwtBearerWithLocalPublicKey(
