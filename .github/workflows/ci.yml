@@ -464,15 +464,15 @@ jobs:
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
 
-      - name: Enforce merged coverage gates (line 71%, branch 50%, product packages 60% line)
+      - name: Enforce merged coverage gates (line 74%, branch 57%, product packages 60% line)
         if: success()
         run: |
           set -e
           ART_DIR="${{ runner.temp }}/coverage-metrics-artifact"
           mkdir -p "${ART_DIR}"
           python3 scripts/ci/assert_merged_line_coverage_min.py \
-            "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 71 \
-            --min-branch-pct 50 \
+            "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 74 \
+            --min-branch-pct 57 \
             --min-package-line-pct 60 \
             --warn-below-package-line-pct 70 \
             --annotations-file "${ART_DIR}/coverage-annotations-assert.txt"

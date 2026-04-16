@@ -61,6 +61,8 @@
 - **Merged line coverage:** 77.82%
 - **Merged branch coverage:** 63.38%
 
+**CI merge-blocking gates (ratchet):** as of **2026-04-16**, **`.github/workflows/ci.yml`** full regression enforces **74%** merged line and **57%** merged branch (plus **60%** per product `ArchLucid.*` package with coverable lines). Local merges without SQL-backed tests can show **ArchLucid.Persistence** below **60%**; the Linux **SQL** job is authoritative.
+
 ## Recent targeted tests (correctness improvement track)
 
 - **2026-04-15 — Improvement 1 (Persistence branch / JSON fallbacks):** **`GoldenManifestPhase1RelationalReadWhitespaceJsonFallbackDirectSqlIntegrationTests`**, **`GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlIntegrationTests`**, **`FindingsSnapshotRelationalReadMinimalChildrenDirectSqlIntegrationTests`** — see **`docs/COVERAGE_GAP_ANALYSIS_RECENT.md`** for full bullet.

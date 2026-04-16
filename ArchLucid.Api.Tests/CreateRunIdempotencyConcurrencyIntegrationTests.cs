@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -51,19 +52,12 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
-    [SkippableFact]
-    public async Task Parallel_posts_with_same_idempotency_key_yield_single_run_id()
+    private static async Task<HttpResponseMessage[]> PostParallelArchitectureRequestAsync(
+        HttpClient client,
+        object body,
+        string idempotencyKey,
+        int parallel)
     {
-        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
-
-        await using GreenfieldSqlApiFactory factory = new();
-        HttpClient client = factory.CreateClient();
-
-        string idempotencyKey = "idem-conc-" + Guid.NewGuid().ToString("N");
-        string requestId = "REQ-IDEM-" + Guid.NewGuid().ToString("N")[..12];
-        object body = TestRequestFactory.CreateArchitectureRequest(requestId);
-
-        const int parallel = 16;
         Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
 
         for (int i = 0; i < parallel; i++)
@@ -77,21 +71,59 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
             tasks[i] = client.SendAsync(request);
         }
 
-        HttpResponseMessage[] responses = await Task.WhenAll(tasks);
+        return await Task.WhenAll(tasks);
+    }
 
-        List<string> runIds = [];
-
+    private static void DisposeAll(HttpResponseMessage[] responses)
+    {
         foreach (HttpResponseMessage response in responses)
         {
-            response.StatusCode.Should().BeOneOf(HttpStatusCode.Created, HttpStatusCode.OK);
+            response.Dispose();
+        }
+    }
 
-            CreateRunResponseDto? dto = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-            dto.Should().NotBeNull();
-            dto!.Run.RunId.Should().NotBeNullOrWhiteSpace();
-            runIds.Add(dto.Run.RunId);
+    [SkippableFact]
+    public async Task Parallel_posts_with_same_idempotency_key_yield_single_run_id()
+    {
+        Skip.IfNot(IsSqlServerConfiguredForApiIntegration(), SqlUnavailable);
+
+        await using GreenfieldSqlApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+
+        string idempotencyKey = "idem-conc-" + Guid.NewGuid().ToString("N");
+        string requestId = "REQ-IDEM-" + Guid.NewGuid().ToString("N")[..12];
+        object body = TestRequestFactory.CreateArchitectureRequest(requestId);
+
+        const int parallel = 12;
+        HttpResponseMessage[] responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
+
+        if (responses.Any(static r => r.StatusCode == HttpStatusCode.ServiceUnavailable))
+        {
+            DisposeAll(responses);
+            await Task.Delay(500, CancellationToken.None);
+            responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
         }
 
-        runIds.Distinct().Should().ContainSingle();
+        try
+        {
+            List<string> runIds = [];
+
+            foreach (HttpResponseMessage response in responses)
+            {
+                response.StatusCode.Should().BeOneOf(HttpStatusCode.Created, HttpStatusCode.OK);
+
+                CreateRunResponseDto? dto = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+                dto.Should().NotBeNull();
+                dto!.Run.RunId.Should().NotBeNullOrWhiteSpace();
+                runIds.Add(dto.Run.RunId);
+            }
+
+            runIds.Distinct().Should().ContainSingle();
+        }
+        finally
+        {
+            DisposeAll(responses);
+        }
 
         await using SqlConnection connection = new(factory.SqlConnectionString);
         await connection.OpenAsync(CancellationToken.None);

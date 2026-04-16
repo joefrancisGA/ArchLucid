@@ -175,7 +175,7 @@
 
 **Evidence:**
 - Multi-tier CI: fast core → greenfield SQL boot → full regression → k6 smoke → Schemathesis → ZAP → UI E2E (mock + live).
-- Coverage gate at 71% merged line (CI-enforced via `assert_merged_line_coverage_min.py`).
+- Coverage gate at 74% merged line / 57% merged branch (CI-enforced via `assert_merged_line_coverage_min.py`).
 - Stryker mutation testing (scheduled, not per-PR) with baseline ratchet.
 - OpenAPI snapshot test prevents API contract drift.
 - Architecture constraint tests prevent dependency violations.
