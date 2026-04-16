@@ -2,7 +2,7 @@
 
 ## Objective
 
-Name the main **domain boundaries**, what each owns, and how they integrate — complementing **`docs/c4/workspace.dsl`** and **`docs/ARCHITECTURE_COMPONENTS.md`**.
+Name the main **domain boundaries**, what each owns, and how they integrate — complementing **`docs/c4/workspace.dsl`**, **`docs/ARCHITECTURE_COMPONENTS.md`**, and **`docs/PROJECT_MAP.md`** (solution projects).
 
 ## Contexts
 

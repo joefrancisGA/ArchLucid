@@ -11,7 +11,7 @@
 - **Start here (new contributors)** — canonical front door: layered overview, pick-your-role, key concepts, quick commands  
   - `docs/START_HERE.md`
 - **First five documents (architecture + API starter path)** — ordered table with time estimates  
-  - `docs/FIRST_5_DOCS.md`
+  - `docs/FIRST_5_DOCS.md` (canonical); `docs/FIRST_FIVE_DOCS.md` (filename alias)
 - **Golden path (environments: zero → local → prod-like → Azure)** — role lanes, one diagram, phased checklists, advanced appendix  
   - `docs/GOLDEN_PATH.md`
 - **Week-one role tickets (dev / SRE / security)** — 3–5 checkboxes each  
@@ -28,8 +28,10 @@
   - `docs/ARCHITECTURE_ON_A_PAGE.md`
 - **Bounded context map (domain boundaries + Mermaid)**  
   - `docs/bounded-context-map.md`
+- **Solution project map (`ArchLucid.*` ↔ contexts)**  
+  - `docs/PROJECT_MAP.md`
 - **API controller area map (logical grouping without folder churn)**  
-  - `docs/CONTROLLER_AREA_MAP.md`
+  - `docs/CONTROLLER_AREA_MAP.md` (canonical); `docs/API_CONTROLLER_MAP.md` (filename alias)
 - **API versioning (`Asp.Versioning`, v1 routes, v2 guidance)**  
   - `docs/API_VERSIONING.md`
 - **Code map (where to open first)**  

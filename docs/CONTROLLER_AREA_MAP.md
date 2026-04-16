@@ -1,5 +1,7 @@
 # API controller area map
 
+**Search / links:** some docs use **[API_CONTROLLER_MAP.md](API_CONTROLLER_MAP.md)** — that file is an **alias** to this page.
+
 `ArchLucid.Api/Controllers/` groups endpoints by **bounded context** using **physical area folders** and matching namespaces `ArchLucid.Api.Controllers.{Area}`.
 
 | Area folder | Namespace | Controllers |

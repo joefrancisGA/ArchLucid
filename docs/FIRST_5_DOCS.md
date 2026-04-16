@@ -13,3 +13,5 @@ Read these in order when you are new to the ArchLucid codebase. They balance **s
 **After the first five:** use [ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md) and role paths in [START_HERE.md](START_HERE.md) (developer / SRE / security / pilot).
 
 **Cursor prompt packs:** [CURSOR_PROMPTS_CANONICAL.md](CURSOR_PROMPTS_CANONICAL.md).
+
+**Alternate filename:** [FIRST_FIVE_DOCS.md](FIRST_FIVE_DOCS.md) (alias only — same content pointer).

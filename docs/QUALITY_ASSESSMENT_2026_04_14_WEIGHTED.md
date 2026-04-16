@@ -234,9 +234,9 @@
 **Tradeoffs:** Stateless agents are simpler to reason about and scale. Guardrails add latency. A/B testing requires traffic splitting infrastructure.
 
 **Improvement Recommendations:**
-1. Enable quality gates by default and make opt-out explicit.
-2. Add automated prompt regression detection (compare semantic scores across git commits).
-3. Add content safety guardrails (Azure AI Content Safety or equivalent).
+1. ~~Enable quality gates by default~~ **Done (2026-04-15):** base **`appsettings.json`** **`QualityGate:Enabled`** **true**; **`appsettings.Development.json`** opts out.
+2. ~~Add automated prompt regression detection~~ **Partially done:** Topology golden floors + CI script policy + **`PromptRegressionBaselineContractTests`**; extend to Cost/Compliance/Critic when golden fixtures exist.
+3. Add content safety guardrails (**Azure AI Content Safety** or equivalent client wired into **`IContentSafetyGuard`** — scaffolding only today).
 4. Design multi-turn agent capability for iterative architecture refinement.
 
 ---
