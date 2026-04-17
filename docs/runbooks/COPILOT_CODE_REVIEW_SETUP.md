@@ -63,17 +63,32 @@ flowchart LR
 2. Confirm **Copilot in pull requests** (or **Copilot code review**) is set to **Enabled**.
 3. If your account uses repository-scoped allow lists, ensure `joefrancisGA/ArchiForge` is included.
 
-### Step 3 — Turn on automatic review for this repo
+### Step 3 — Turn on automatic review for this repo (Rulesets — current path)
 
-This is the actual "auto-request Copilot on every PR" toggle.
+GitHub’s documented path for **per-repository** automatic Copilot review is a **branch ruleset**, not a lone toggle under a sidebar heading named “Code & automation.” If you only see a top tab called **Code** (next to **Issues**, **Pull requests**), that is the **file browser** — you are not in **Settings** yet.
 
-1. Open <https://github.com/joefrancisGA/ArchiForge/settings>.
-2. In the left nav, expand **Code & automation** → click **Copilot**.
-   - If you do not see **Copilot** under **Code & automation**, scroll the left nav for a top-level **Copilot** section. GitHub has moved this between releases.
-3. Find **Code review** (or **Automatic Copilot review**, depending on UI version).
-4. Toggle **Automatically request Copilot review on new pull requests** to **On**.
-5. Optional: enable **Re-request review when the PR is updated** so Copilot re-reviews after pushes. Recommended — without it, Copilot only reviews the first push.
-6. Click **Save**.
+**Primary path (repository):**
+
+1. Open the repo: <https://github.com/joefrancisGA/ArchiForge>.
+2. Click **Settings** (gear). If you do not see **Settings**, you are not an admin on the repo — ask an owner to grant **Admin** or apply the ruleset for you.
+3. In the **left sidebar**, open **Rules** → **Rulesets** (GitHub docs group this under *“Code and automation”* in prose; your UI may show **Rules** without that exact group title, or use a different section name — look for **Rulesets**, not the **Code** tab).
+4. Click **New ruleset** → **New branch ruleset**.
+5. **Ruleset name:** e.g. `Auto-request Copilot code review`.
+6. **Enforcement status:** **Active**.
+7. **Target branches:** **Add target** → e.g. **Include default branch** (or explicitly `main` / `master`).
+8. Under **Branch rules**, enable **Automatically request Copilot code review** (this is a **standalone** rule — you do **not** need “Require a pull request before merging” for Copilot to run).
+9. Optionally enable:
+   - **Review new pushes** — Copilot re-reviews after new commits (recommended).
+   - **Review draft pull requests** — reviews while PR is still draft.
+10. Click **Create** (or **Save**).
+
+Official reference: [Configuring automatic code review by GitHub Copilot](https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/configure-automatic-review).
+
+**Alternate — account-wide (your own PRs only, Copilot Pro):**
+
+Profile picture → **Copilot settings** → enable **Automatic Copilot code review** for pull requests you open. That does **not** replace the repo ruleset if you want *every* contributor’s PRs reviewed.
+
+**Legacy UI:** Some accounts still see repo **Settings → Copilot** with a direct toggle; if yours does, you can use it, but **Rulesets** is what GitHub documents for repositories as of this runbook’s last review.
 
 ### Step 4 — Verify the instructions file is being picked up
 
@@ -85,17 +100,14 @@ This is the actual "auto-request Copilot on every PR" toggle.
    - File is on the PR's **base branch** (Copilot reads from the base, not the PR head).
    - File size is under GitHub's documented limit (search docs for "copilot-instructions.md size").
 
-### Step 5 — (Optional) Add a repository ruleset for reproducibility
+### Step 5 — (Optional) Export the ruleset for traceability
 
-The toggle in Step 3 is per-repo and not in Terraform. If you want it captured as code:
+Step 3 already creates the ruleset in the GitHub UI. To keep a copy in git:
 
-1. Settings → **Rules** → **Rulesets** → **New branch ruleset**.
-2. Name: `Auto-request Copilot review`.
-3. Target: `main`, `master`.
-4. Enable: **Require pull request before merging** → **Automatically request review from Copilot**.
-5. Save. Export the ruleset JSON via `gh api repos/joefrancisGA/ArchiForge/rulesets/<id>` and commit it under `.github/rulesets/` for IaC traceability.
+1. After **Create**, open **Settings** → **Rules** → **Rulesets** and note the ruleset ID from the URL, or list via API.
+2. Export: `gh api repos/joefrancisGA/ArchiForge/rulesets/<id>` and commit the JSON under `.github/rulesets/` if your team wants a paper trail (optional; GitHub remains source of truth).
 
-> Caveat: GitHub's Terraform provider (`integrations/github`) supports rulesets via `github_repository_ruleset`, but the **Copilot review** sub-option may not be exposed yet. Check the provider changelog before adding it to Terraform.
+> Caveat: GitHub's Terraform provider (`integrations/github`) supports rulesets via `github_repository_ruleset`, but the **Copilot review** branch rule may lag the web UI. Check the provider schema before encoding this in Terraform.
 
 ## Data flow — what Copilot sees
 
