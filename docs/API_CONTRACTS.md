@@ -85,6 +85,32 @@ See also **`docs/CONTROLLER_AREA_MAP.md`**. Existing **`POST /v1/admin/runs/arch
 - **`extensions.errorCode`**: stable uppercase code for clients and automation.
 - **`extensions.supportHint`** (56R): optional, concise **next step** for operators; complements **`detail`**. No stack traces or secrets — use logs with **`X-Correlation-ID`** / **`correlationId`** in the body / **`RunId`** for deep diagnosis. See **`docs/TROUBLESHOOTING.md`**.
 
+## Trial exhausted or over quota (**402 Payment Required**)
+
+When the tenant is on an **Active** trial that has **expired**, or **run** / **seat** limits are reached, **mutating** routes under **ExecuteAuthority** / **AdminAuthority** return **402** with **`Content-Type: application/problem+json`** and:
+
+- **`type`:** `https://archlucid.dev/problem/trial-expired`
+- **`title`:** human-readable summary (e.g. trial limit reached)
+- **`status`:** **402**
+- **`extensions.traceCompleteness`**, **`extensions.correlationId`**, **`extensions.trialReason`** (`Expired` \| `RunsExceeded` \| `SeatsExceeded`), **`extensions.daysRemaining`**
+
+**Example (trimmed):**
+
+```json
+{
+  "type": "https://archlucid.dev/problem/trial-expired",
+  "title": "Trial limit reached",
+  "status": 402,
+  "detail": "The tenant trial does not allow this write.",
+  "traceCompleteness": "Full",
+  "correlationId": "00-abc123-01",
+  "trialReason": "Expired",
+  "daysRemaining": 0
+}
+```
+
+**Reads** under **ReadAuthority** (e.g. explain, GET run detail) are **not** blocked by this rule so operators can still inspect existing work. **Conversion** uses **`POST /v1/tenant/convert`** (annotated to skip the trial write gate). See **`docs/security/TRIAL_LIMITS.md`** and **ADR [0014](adr/0014-trial-enforcement-boundary.md)**.
+
 ## Comparison replay — verify mode
 
 `POST /v1/architecture/comparisons/{comparisonRecordId}/replay` with `replayMode: verify` regenerates the comparison and compares it to the stored payload.

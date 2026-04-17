@@ -38,7 +38,7 @@ public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersis
 
         TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
         TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);
-        SqlRunRepository repo = new(sqlFactory, listFactory);
+        SqlRunRepository repo = SqlRunRepositoryTestFactory.Create(sqlFactory, listFactory);
 
         ScopeContext scope = NewScope();
         Guid runId = Guid.NewGuid();

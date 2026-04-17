@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Data;
 
 using ArchLucid.Core.Tenancy;
 
@@ -14,6 +15,10 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     private readonly ConcurrentDictionary<Guid, List<TenantWorkspaceRow>> _workspacesByTenant = new();
 
     private readonly ConcurrentDictionary<Guid, Guid> _entraTenantIdToTenantId = new();
+
+    private readonly ConcurrentDictionary<(Guid TenantId, string PrincipalKey), byte> _trialSeatOccupants = new();
+
+    private readonly object _trialGate = new();
 
     public Task<TenantRecord?> GetByIdAsync(Guid tenantId, CancellationToken ct)
     {
@@ -242,6 +247,128 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         _byId[tenantId] = updated;
 
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task TryIncrementActiveTrialRunAsync(
+        Guid tenantId,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        _ = connection;
+        _ = transaction;
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
+                return Task.CompletedTask;
+
+            if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+                t.TrialRunsLimit is null)
+            {
+                return Task.CompletedTask;
+            }
+
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
+            if (t.TrialExpiresUtc is { } exp && exp <= now)
+            {
+                throw new TrialLimitExceededException(
+                    TrialLimitReason.Expired,
+                    ComputeDaysRemaining(t.TrialExpiresUtc));
+            }
+
+            if (t.TrialRunsUsed >= t.TrialRunsLimit.Value)
+            {
+                throw new TrialLimitExceededException(
+                    TrialLimitReason.RunsExceeded,
+                    ComputeDaysRemaining(t.TrialExpiresUtc));
+            }
+
+            _byId[tenantId] = CopyTenant(t, trialRunsUsed: t.TrialRunsUsed + 1);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(principalKey);
+        _ = ct;
+
+        string key = principalKey.Trim();
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
+                return Task.CompletedTask;
+
+            if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+                t.TrialSeatsLimit is null)
+            {
+                return Task.CompletedTask;
+            }
+
+            if (t.TrialExpiresUtc is { } exp && exp <= DateTimeOffset.UtcNow)
+            {
+                throw new TrialLimitExceededException(
+                    TrialLimitReason.Expired,
+                    ComputeDaysRemaining(t.TrialExpiresUtc));
+            }
+
+            if (_trialSeatOccupants.ContainsKey((tenantId, key)))
+                return Task.CompletedTask;
+
+            if (t.TrialSeatsUsed >= t.TrialSeatsLimit.Value)
+            {
+                throw new TrialLimitExceededException(
+                    TrialLimitReason.SeatsExceeded,
+                    ComputeDaysRemaining(t.TrialExpiresUtc));
+            }
+
+            _trialSeatOccupants[(tenantId, key)] = 1;
+
+            _byId[tenantId] = CopyTenant(t, trialSeatsUsed: t.TrialSeatsUsed + 1);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static TenantRecord CopyTenant(
+        TenantRecord source,
+        int? trialRunsUsed = null,
+        int? trialSeatsUsed = null) =>
+        new()
+        {
+            Id = source.Id,
+            Name = source.Name,
+            Slug = source.Slug,
+            Tier = source.Tier,
+            EntraTenantId = source.EntraTenantId,
+            CreatedUtc = source.CreatedUtc,
+            SuspendedUtc = source.SuspendedUtc,
+            TrialStartUtc = source.TrialStartUtc,
+            TrialExpiresUtc = source.TrialExpiresUtc,
+            TrialRunsLimit = source.TrialRunsLimit,
+            TrialRunsUsed = trialRunsUsed ?? source.TrialRunsUsed,
+            TrialSeatsLimit = source.TrialSeatsLimit,
+            TrialSeatsUsed = trialSeatsUsed ?? source.TrialSeatsUsed,
+            TrialStatus = source.TrialStatus,
+            TrialSampleRunId = source.TrialSampleRunId,
+        };
+
+    private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
+    {
+        if (trialExpiresUtc is null)
+            return 0;
+
+        double totalDays = (trialExpiresUtc.Value - DateTimeOffset.UtcNow).TotalDays;
+        int days = (int)Math.Floor(totalDays);
+
+        return days < 0 ? 0 : days;
     }
 
     public Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct)

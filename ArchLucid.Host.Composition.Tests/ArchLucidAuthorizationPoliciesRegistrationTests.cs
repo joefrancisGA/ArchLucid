@@ -1,4 +1,5 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Host.Core.Authorization;
 using ArchLucid.Host.Core.Startup;
 
 using FluentAssertions;
@@ -28,6 +29,16 @@ public sealed class ArchLucidAuthorizationPoliciesRegistrationTests
         authorizationOptions.GetPolicy(ArchLucidPolicies.RequireOperator).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.RequireAdmin).Should().NotBeNull();
         authorizationOptions.GetPolicy(ArchLucidPolicies.CanCommitRuns).Should().NotBeNull();
+
+        authorizationOptions.GetPolicy(ArchLucidPolicies.ExecuteAuthority)!.Requirements
+            .OfType<TrialActiveRequirement>()
+            .Should()
+            .ContainSingle();
+
+        authorizationOptions.GetPolicy(ArchLucidPolicies.AdminAuthority)!.Requirements
+            .OfType<TrialActiveRequirement>()
+            .Should()
+            .ContainSingle();
     }
 
     [Fact]

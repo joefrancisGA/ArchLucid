@@ -13,6 +13,7 @@ namespace ArchLucid.Api.Tests;
 /// </remarks>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
+[Collection("ArchLucidEnvMutation")]
 public sealed class RegistrationControllerTests : IClassFixture<GreenfieldSqlApiFactory>
 {
     private readonly GreenfieldSqlApiFactory _fixture;

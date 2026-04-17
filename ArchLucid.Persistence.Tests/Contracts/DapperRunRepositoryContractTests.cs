@@ -1,5 +1,6 @@
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Tests.Support;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -24,6 +25,6 @@ public sealed class DapperRunRepositoryContractTests(SqlServerPersistenceFixture
         TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
         TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);
 
-        return new SqlRunRepository(sqlFactory, listFactory);
+        return SqlRunRepositoryTestFactory.Create(sqlFactory, listFactory);
     }
 }

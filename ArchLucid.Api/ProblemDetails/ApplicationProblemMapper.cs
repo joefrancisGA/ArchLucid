@@ -4,6 +4,7 @@ using ArchLucid.AgentRuntime;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Core.Resilience;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Repositories;
 
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,13 @@ public static class ApplicationProblemMapper
     {
         result = null;
         string? instance = httpContext.Request.Path.Value;
+
+        if (ex is TrialLimitExceededException tlex)
+        {
+            result = TrialLimitProblemResponse.CreateResult(tlex, instance, httpContext);
+
+            return true;
+        }
 
         if (ex is ComparisonVerificationFailedException cvf)
         {

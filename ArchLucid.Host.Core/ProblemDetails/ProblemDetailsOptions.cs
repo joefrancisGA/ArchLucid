@@ -57,4 +57,7 @@ public static class ProblemTypes
 
     /// <summary>Batch comparison replay had no successful replays for any requested record ID.</summary>
     public const string BatchReplayAllFailed = Base + "#batch-replay-all-failed";
+
+    /// <summary>Tenant self-service trial expired or trial quota (runs/seats) exhausted; mutating authority operations are blocked.</summary>
+    public const string TrialExpired = "https://archlucid.dev/problem/trial-expired";
 }

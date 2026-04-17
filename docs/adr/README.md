@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADR)
 
-**Last reviewed:** 2026-04-14
+**Last reviewed:** 2026-04-17
 
 Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history.
 
@@ -19,6 +19,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0011](0011-inmemory-vs-sql-storage-provider.md) | `ArchLucid:StorageProvider` — InMemory vs Sql |
 | [0012](0012-runs-authority-convergence-write-freeze.md) | Runs convergence — legacy table removal (**Completed** 2026-04-12) |
 | [0013](0013-api-versioning-and-json-schema-versioning.md) | API versioning (Asp.Versioning) + JSON **`schemaVersion`** on aggregates |
+| [0014](0014-trial-enforcement-boundary.md) | Trial enforcement — server-side gate, run UoW increment, idempotent seats |
 
 **When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.
 

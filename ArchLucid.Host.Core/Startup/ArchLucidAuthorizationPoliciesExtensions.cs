@@ -1,4 +1,5 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Host.Core.Authorization;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,11 +35,13 @@ public static class ArchLucidAuthorizationPoliciesExtensions
                 policy.RequireRole(
                     ArchLucidRoles.Operator,
                     ArchLucidRoles.Admin);
+                policy.Requirements.Add(new TrialActiveRequirement());
             })
             .AddPolicy(ArchLucidPolicies.AdminAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole(ArchLucidRoles.Admin);
+                policy.Requirements.Add(new TrialActiveRequirement());
             })
             .AddPolicy(ArchLucidPolicies.RequireAuditor, policy =>
             {
