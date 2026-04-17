@@ -215,7 +215,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     }
 
     /// <inheritdoc />
-    public Task MarkTrialConvertedAsync(Guid tenantId, CancellationToken ct)
+    public Task MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
     {
         _ = ct;
 
@@ -225,12 +225,14 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         if (!string.Equals(existing.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
             return Task.CompletedTask;
 
+        TenantTier tier = newCommercialTier ?? existing.Tier;
+
         TenantRecord updated = new()
         {
             Id = existing.Id,
             Name = existing.Name,
             Slug = existing.Slug,
-            Tier = existing.Tier,
+            Tier = tier,
             EntraTenantId = existing.EntraTenantId,
             CreatedUtc = existing.CreatedUtc,
             SuspendedUtc = existing.SuspendedUtc,

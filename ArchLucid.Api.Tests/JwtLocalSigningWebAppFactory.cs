@@ -65,6 +65,7 @@ public sealed class JwtLocalSigningWebAppFactory : WebApplicationFactory<Program
                     ["ArchLucidAuth:JwtLocalIssuer"] = "https://test.archlucid.local",
                     ["ArchLucidAuth:JwtLocalAudience"] = "api://archlucid-jwt-local-test",
                     ["Authentication:ApiKey:DevelopmentBypassAll"] = "false",
+                    ["Billing:Provider"] = "Noop",
                 });
         });
     }

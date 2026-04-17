@@ -69,7 +69,8 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
                 ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
                 ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
                 ["RateLimiting:Registration:PermitLimit"] = "100000",
-                ["RateLimiting:Registration:WindowMinutes"] = "1"
+                ["RateLimiting:Registration:WindowMinutes"] = "1",
+                ["Billing:Provider"] = "Noop",
             });
         });
     }

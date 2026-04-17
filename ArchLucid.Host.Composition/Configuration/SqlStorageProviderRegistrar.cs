@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Billing;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Transactions;
@@ -28,6 +29,7 @@ using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Repositories;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Archival;
+using ArchLucid.Persistence.Billing;
 using ArchLucid.Application.Audit;
 using ArchLucid.Core.Identity;
 using ArchLucid.Persistence.Audit;
@@ -187,6 +189,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPolicyPackChangeLogRepository, DapperPolicyPackChangeLogRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddScoped<ITenantRepository, DapperTenantRepository>();
+        services.AddScoped<IBillingLedger, SqlBillingLedger>();
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
 

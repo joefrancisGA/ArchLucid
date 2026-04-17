@@ -42,8 +42,9 @@ public interface ITenantRepository
         Guid sampleRunId,
         CancellationToken ct);
 
-    /// <summary>Marks an active self-service trial as converted (billing handoff stub).</summary>
-    Task MarkTrialConvertedAsync(Guid tenantId, CancellationToken ct);
+    /// <summary>Marks an active self-service trial as converted after billing activation.</summary>
+    /// <param name="newCommercialTier">When set, updates <c>dbo.Tenants.Tier</c> alongside conversion.</param>
+    Task MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct);
 
     /// <summary>
     /// When the tenant is on an active trial with a run limit, increments <see cref="TenantRecord.TrialRunsUsed"/> once

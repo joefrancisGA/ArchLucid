@@ -3055,3 +3055,49 @@ BEGIN
         ON dbo.SentEmails (TenantId, TemplateId);
 END;
 GO
+
+/* 078: Billing subscriptions + webhook idempotency (see Migrations/078_BillingSubscriptions.sql). */
+IF OBJECT_ID(N'dbo.BillingSubscriptions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.BillingSubscriptions
+    (
+        TenantId               UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_BillingSubscriptions2 PRIMARY KEY,
+        WorkspaceId            UNIQUEIDENTIFIER NOT NULL,
+        ProjectId              UNIQUEIDENTIFIER NOT NULL,
+        Provider               NVARCHAR(64)     NOT NULL,
+        ProviderSubscriptionId NVARCHAR(256)    NOT NULL CONSTRAINT DF_BillingSubscriptions_ProviderSubscriptionId2 DEFAULT N'',
+        Tier                   NVARCHAR(32)     NOT NULL,
+        SeatsPurchased         INT              NOT NULL CONSTRAINT DF_BillingSubscriptions_SeatsPurchased2 DEFAULT (0),
+        WorkspacesPurchased    INT              NOT NULL CONSTRAINT DF_BillingSubscriptions_WorkspacesPurchased2 DEFAULT (0),
+        Status                 NVARCHAR(32)     NOT NULL,
+        ActivatedUtc           DATETIMEOFFSET   NULL,
+        CanceledUtc            DATETIMEOFFSET   NULL,
+        RawWebhookJson         NVARCHAR(MAX)    NULL,
+        CreatedUtc             DATETIMEOFFSET   NOT NULL CONSTRAINT DF_BillingSubscriptions_CreatedUtc2 DEFAULT (SYSUTCDATETIME()),
+        UpdatedUtc             DATETIMEOFFSET   NOT NULL CONSTRAINT DF_BillingSubscriptions_UpdatedUtc2 DEFAULT (SYSUTCDATETIME()),
+        CONSTRAINT FK_BillingSubscriptions_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id),
+        CONSTRAINT CK_BillingSubscriptions_Status2 CHECK (Status IN (N'Pending', N'Active', N'Suspended', N'Canceled'))
+    );
+
+    CREATE NONCLUSTERED INDEX IX_BillingSubscriptions_ProviderSession2
+        ON dbo.BillingSubscriptions (Provider, ProviderSubscriptionId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.BillingWebhookEvents', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.BillingWebhookEvents
+    (
+        EventId      NVARCHAR(128)  NOT NULL CONSTRAINT PK_BillingWebhookEvents2 PRIMARY KEY,
+        Provider     NVARCHAR(64)    NOT NULL,
+        EventType    NVARCHAR(128)   NOT NULL,
+        PayloadJson  NVARCHAR(MAX)   NOT NULL,
+        ReceivedUtc  DATETIMEOFFSET  NOT NULL CONSTRAINT DF_BillingWebhookEvents_ReceivedUtc2 DEFAULT (SYSUTCDATETIME()),
+        ProcessedUtc DATETIMEOFFSET  NULL,
+        ResultStatus NVARCHAR(64)    NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_BillingWebhookEvents_ProviderReceived2
+        ON dbo.BillingWebhookEvents (Provider, ReceivedUtc);
+END;
+GO
