@@ -61,7 +61,9 @@ public sealed class JwtLocalSigningIntegrationTests : IClassFixture<JwtLocalSign
         using RSA rsa = RSA.Create();
 
         rsa.ImportFromPem(privatePkcs8Pem);
-        SigningCredentials creds = new(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256);
+        RSAParameters keyMaterial = rsa.ExportParameters(includePrivateParameters: true);
+        RsaSecurityKey signingKey = new(keyMaterial);
+        SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
 
         List<Claim> claims = [new Claim(JwtRegisteredClaimNames.Sub, "test-sub"), new Claim("name", name)];
 

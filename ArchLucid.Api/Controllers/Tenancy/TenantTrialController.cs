@@ -4,6 +4,7 @@ using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Billing;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -22,7 +23,8 @@ namespace ArchLucid.Api.Controllers.Tenancy;
 public sealed class TenantTrialController(
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeProvider,
-    IAuditService auditService) : ControllerBase
+    IAuditService auditService,
+    IBillingTrialConversionGate billingTrialConversionGate) : ControllerBase
 {
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
@@ -31,6 +33,9 @@ public sealed class TenantTrialController(
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IBillingTrialConversionGate _billingTrialConversionGate =
+        billingTrialConversionGate ?? throw new ArgumentNullException(nameof(billingTrialConversionGate));
 
     /// <summary>Returns trial window metadata when the tenant row was provisioned via self-service bootstrap.</summary>
     [HttpGet("trial-status")]
@@ -81,7 +86,7 @@ public sealed class TenantTrialController(
             });
     }
 
-    /// <summary>Marks an active trial as converted (billing bridge placeholder).</summary>
+    /// <summary>Marks an active trial as converted after billing rules pass (paid row or Noop provider).</summary>
     [HttpPost("convert")]
     [SkipTrialWriteLimit]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
@@ -99,7 +104,18 @@ public sealed class TenantTrialController(
         if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
             return this.ConflictProblem("Tenant is not on an active self-service trial.", ProblemTypes.Conflict);
 
-        await _tenantRepository.MarkTrialConvertedAsync(tenant.Id, cancellationToken);
+        try
+        {
+            await _billingTrialConversionGate.EnsureManualConversionAllowedAsync(tenant.Id, cancellationToken);
+        }
+        catch (BillingConversionBlockedException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
+        TenantTier? tier = MapRequestTier(body?.TargetTier);
+
+        await _tenantRepository.MarkTrialConvertedAsync(tenant.Id, tier, cancellationToken);
 
         string actor = User.Identity?.Name ?? "admin";
 
@@ -123,12 +139,15 @@ public sealed class TenantTrialController(
         return NoContent();
     }
 
-    /// <summary>Starts a hosted checkout session (Stripe or marketplace) — placeholder until B2 billing is wired.</summary>
-    [HttpPost("billing/checkout")]
-    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
-    [ProducesResponseType(typeof(TenantBillingCheckoutResponse), StatusCodes.Status200OK)]
-    public IActionResult StartBillingCheckout()
+    private static TenantTier? MapRequestTier(string? label)
     {
-        return Ok(new TenantBillingCheckoutResponse { Status = "not_configured" });
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            return null;
+        }
+
+        return string.Equals(label.Trim(), nameof(TenantTier.Enterprise), StringComparison.OrdinalIgnoreCase)
+            ? TenantTier.Enterprise
+            : TenantTier.Standard;
     }
 }

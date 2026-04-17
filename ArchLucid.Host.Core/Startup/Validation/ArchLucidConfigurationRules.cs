@@ -62,6 +62,7 @@ public static class ArchLucidConfigurationRules
             ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
             ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
             ProductionSafetyRules.CollectTransactionalEmailAcs(configuration, errors);
+            ProductionSafetyRules.CollectBillingStripeSecret(configuration, errors);
 
             return errors;
         }
@@ -71,6 +72,7 @@ public static class ArchLucidConfigurationRules
         ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
         ProductionSafetyRules.CollectTrialAuthExternalId(configuration, errors);
         ProductionSafetyRules.CollectTransactionalEmailAcs(configuration, errors);
+        ProductionSafetyRules.CollectBillingStripeSecret(configuration, errors);
         AuthenticationRules.CollectProductionAuthModes(configuration, errors);
 
         return errors;

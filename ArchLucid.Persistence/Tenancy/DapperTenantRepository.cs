@@ -129,13 +129,14 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
     }
 
     /// <inheritdoc />
-    public async Task MarkTrialConvertedAsync(Guid tenantId, CancellationToken ct)
+    public async Task MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct)
     {
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
         const string sql = """
                              UPDATE dbo.Tenants
-                             SET TrialStatus = @Converted
+                             SET TrialStatus = @Converted,
+                                 Tier = CASE WHEN @NewTier IS NULL THEN Tier ELSE @NewTier END
                              WHERE Id = @Id AND TrialStatus = @Active;
                              """;
 
@@ -147,6 +148,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                     Id = tenantId,
                     Active = TrialLifecycleStatus.Active,
                     Converted = TrialLifecycleStatus.Converted,
+                    NewTier = newCommercialTier is null ? null : newCommercialTier.Value.ToString(),
                 },
                 cancellationToken: ct));
     }

@@ -8,6 +8,26 @@ namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class ProductionSafetyRules
 {
+    /// <summary>Stripe billing requires a configured secret API key in Production when selected as the provider.</summary>
+    public static void CollectBillingStripeSecret(IConfiguration configuration, List<string> errors)
+    {
+        BillingOptions billing =
+            configuration.GetSection(BillingOptions.SectionName).Get<BillingOptions>() ?? new BillingOptions();
+
+        if (!string.Equals(billing.Provider?.Trim(), BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(billing.Stripe.SecretKey?.Trim()))
+        {
+            return;
+        }
+
+        errors.Add(
+            "Billing:Provider is Stripe; configure Billing:Stripe:SecretKey (Key Vault secret reference in production).");
+    }
+
     /// <summary>ACS email requires an explicit endpoint URL in Production when selected as the provider.</summary>
     public static void CollectTransactionalEmailAcs(IConfiguration configuration, List<string> errors)
     {

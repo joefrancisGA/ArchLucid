@@ -220,35 +220,6 @@
         }
       }
     },
-    "/v1/tenant/billing/checkout": {
-      "post": {
-        "tags": [
-          "TenantTrial"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantBillingCheckoutResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantBillingCheckoutResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TenantBillingCheckoutResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/ask": {
       "post": {
         "tags": [
@@ -6932,6 +6903,99 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/tenant/billing/checkout": {
+      "post": {
+        "tags": [
+          "BillingCheckout"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BillingCheckoutPostRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BillingCheckoutPostRequest"
+                  }
+                ]
+              }
+            },
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BillingCheckoutPostRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingCheckoutResponseDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingCheckoutResponseDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingCheckoutResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/billing/webhooks/marketplace": {
+      "post": {
+        "tags": [
+          "BillingMarketplaceWebhook"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/billing/webhooks/stripe": {
+      "post": {
+        "tags": [
+          "BillingStripeWebhook"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -20048,6 +20112,65 @@
           }
         }
       },
+      "BillingCheckoutPostRequest": {
+        "type": "object",
+        "properties": {
+          "targetTier": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "seats": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "workspaces": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "billingEmail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "returnUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cancelUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "BillingCheckoutResponseDto": {
+        "required": [
+          "checkoutUrl",
+          "providerSessionId"
+        ],
+        "type": "object",
+        "properties": {
+          "checkoutUrl": {
+            "type": "string"
+          },
+          "providerSessionId": {
+            "type": "string"
+          },
+          "expiresUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
       "BuildInfoResponse": {
         "type": "object",
         "properties": {
@@ -27517,14 +27640,6 @@
           }
         }
       },
-      "TenantBillingCheckoutResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          }
-        }
-      },
       "TenantProvisionAdminRequest": {
         "type": "object",
         "properties": {
@@ -28134,6 +28249,15 @@
     },
     {
       "name": "Evolution"
+    },
+    {
+      "name": "BillingCheckout"
+    },
+    {
+      "name": "BillingMarketplaceWebhook"
+    },
+    {
+      "name": "BillingStripeWebhook"
     },
     {
       "name": "TrialLocalIdentityAuth"

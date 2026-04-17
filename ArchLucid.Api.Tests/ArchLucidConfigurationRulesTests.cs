@@ -1667,4 +1667,71 @@ public sealed class ArchLucidConfigurationRulesTests
         errors.Should()
             .NotContain(e => e.Contains("Email:AzureCommunicationServicesEndpoint", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void CollectErrors_WhenProductionApiAndStripeBillingWithoutSecretKey_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["Billing:Provider"] = BillingProviderNames.Stripe,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("Billing:Stripe:SecretKey", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionWorkerAndStripeBillingWithoutSecretKey_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["Hosting:Role"] = "Worker",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["Billing:Provider"] = BillingProviderNames.Stripe,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("Billing:Stripe:SecretKey", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionApiAndStripeBillingWithSecretKey_has_no_billing_secret_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["Billing:Provider"] = BillingProviderNames.Stripe,
+            ["Billing:Stripe:SecretKey"] = "sk_test_12345678901234567890123456789012",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("Billing:Stripe:SecretKey", StringComparison.Ordinal));
+    }
 }

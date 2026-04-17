@@ -51,6 +51,7 @@ flowchart LR
 | `dbo.GoldenManifests` | NOT NULL | NOT NULL | `ProjectId` (UNIQUEIDENTIFIER) | Denormalized scope for manifest queries. |
 | `dbo.AuditEvents` | NOT NULL | NOT NULL | `ProjectId` (UNIQUEIDENTIFIER) | Immutable audit trail. |
 | `dbo.IntegrationEventOutbox` | NOT NULL | NOT NULL | `ProjectId` (UNIQUEIDENTIFIER) | Durable integration fan-out. |
+| `dbo.BillingSubscriptions` | NOT NULL | NOT NULL | `ProjectId` (UNIQUEIDENTIFIER) | Commercial subscription state for trial conversion; RLS + stored-procedure-only DML for `ArchLucidApp`. |
 | `dbo.ContextSnapshots` | nullable (brownfield) | nullable | `ScopeProjectId` nullable | Backfilled scope columns; see brownfield blocks in `ArchLucid.sql`. |
 
 **Run-scoped without tenant triple on row** (examples): `dbo.GraphSnapshots` — scope is implied via `RunId` → `dbo.Runs`.
