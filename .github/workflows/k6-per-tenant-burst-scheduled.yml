@@ -1,0 +1,98 @@
+# Weekly per-tenant burst load (10 tenant scopes × operator path @ 5 RPS each, Simulator-friendly).
+name: "Performance: k6 per-tenant burst (scheduled)"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 6 * * 1"
+
+concurrency:
+  group: k6-per-tenant-burst-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  k6-per-tenant-burst:
+    name: k6 per-tenant burst (operator path)
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Install k6
+        shell: bash
+        run: bash scripts/ci/install_k6_apt.sh
+
+      - name: Create catalog + start API (Simulator)
+        run: bash scripts/ci/start_api_for_k6.sh ArchLucidK6PerTenantBurst "${RUNNER_TEMP}/k6-burst-api.log" "${RUNNER_TEMP}/k6-burst-api.pid"
+
+      - name: Run k6 per-tenant burst
+        env:
+          ARCHLUCID_BASE_URL: http://127.0.0.1:5128
+          K6_BURST_DURATION: "5m"
+          K6_SUMMARY_PATH: ${{ runner.temp }}/k6-per-tenant-burst-summary.json
+        run: |
+          set -euo pipefail
+          k6 run "${GITHUB_WORKSPACE}/tests/load/per-tenant-burst.js"
+
+      - name: Assert k6 burst thresholds
+        run: |
+          python3 scripts/ci/assert_k6_ci_smoke_summary.py \
+            "${{ runner.temp }}/k6-per-tenant-burst-summary.json" \
+            --max-failed-rate 0.05 \
+            --max-p95-ms 3000
+
+      - name: k6 burst summary (job log)
+        if: always()
+        run: python3 scripts/ci/print_k6_summary_metrics.py "${{ runner.temp }}/k6-per-tenant-burst-summary.json"
+
+      - name: Upload k6 per-tenant burst summary
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: k6-per-tenant-burst-summary
+          path: ${{ runner.temp }}/k6-per-tenant-burst-summary.json
+          if-no-files-found: warn
+
+      - name: Upload k6 burst API log
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: k6-per-tenant-burst-api-log
+          path: ${{ runner.temp }}/k6-burst-api.log
+          if-no-files-found: warn
+
+      - name: Stop ArchLucid.Api (background)
+        if: always()
+        run: |
+          if [ -f "${RUNNER_TEMP}/k6-burst-api.pid" ]; then
+            kill "$(cat "${RUNNER_TEMP}/k6-burst-api.pid")" 2>/dev/null || true
+          fi

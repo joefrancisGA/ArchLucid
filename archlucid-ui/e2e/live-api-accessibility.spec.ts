@@ -3,6 +3,9 @@ import { expect, test } from "@playwright/test";
 import { formatViolations, runAxe } from "./helpers/axe-helper";
 import { FIXTURE_MANIFEST_ID, FIXTURE_RUN_ID } from "./fixtures/ids";
 
+/**
+ * Live API + SQL axe sweep (merge-blocking via `ui-e2e-live` / default `playwright.config.ts`).
+ */
 const PAGES = [
   { name: "Home", path: "/" },
   { name: "Getting started", path: "/getting-started" },

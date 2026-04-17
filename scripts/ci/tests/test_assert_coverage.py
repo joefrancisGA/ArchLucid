@@ -113,5 +113,5 @@ def test_main_positional_min_line_backward_compatible(tmp_path: Path) -> None:
         branch_rate="0.60",
         packages=[("ArchLucid.Core", "0.90", "0.80", 1)],
     )
-    assert merged._main([str(p), "76"]) == 1
+    assert merged._main([str(p), "79"]) == 1
     assert merged._main([str(p), "70"]) == 0

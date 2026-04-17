@@ -6,50 +6,23 @@ ArchLucid is an API for orchestrating AI-driven architecture design. It coordina
 
 ## Getting started
 
-**New contributors:** read **[docs/START_HERE.md](docs/START_HERE.md)** first — short architecture overview, pick-your-role links (developer / SRE / security), key concepts, and quick commands. Then use [docs/GOLDEN_PATH.md](docs/GOLDEN_PATH.md) for environment setup order and [docs/ONBOARDING_HAPPY_PATH.md](docs/ONBOARDING_HAPPY_PATH.md) for one HTTP request’s path through the system.
+**Pick your persona (canonical Day-1):** **[docs/onboarding/day-one-developer.md](docs/onboarding/day-one-developer.md)** (engineering), **[docs/onboarding/day-one-sre.md](docs/onboarding/day-one-sre.md)** (platform), **[docs/onboarding/day-one-security.md](docs/onboarding/day-one-security.md)** (security), **[docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md)** (copy-paste commands). A short redirect hub lives at **[docs/START_HERE.md](docs/START_HERE.md)**. Deeper maps: **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)**.
 
 ## Key documentation
 
 | Doc | Purpose |
 |-----|---------|
-| **[docs/START_HERE.md](docs/START_HERE.md)** | **Single entry point for new contributors:** 5-minute architecture, role links, key concepts, quick commands |
-| **[docs/GOLDEN_PATH.md](docs/GOLDEN_PATH.md)** | **Environment setup order:** role-based entry (developer / SRE / security), one diagram (**zero → local → prod-like dev → Azure**), phased checklists, **advanced appendix** for optional paths |
-| [docs/onboarding/README.md](docs/onboarding/README.md) | **Week-one tickets:** 3–5 checkboxes per role (dev, SRE, security) |
-| [docs/diagrams/c4/README.md](docs/diagrams/c4/README.md) | **C4 PNG set** (context, container, API components) for exec/security + `.mmd` sources |
-| [docs/BUILD.md](docs/BUILD.md) | Build, CPM, project references, decisioning / merge pipeline (`ArchLucid.Decisioning`) |
-| [docs/REPO_HYGIENE.md](docs/REPO_HYGIENE.md) | **Clone hygiene:** committed vs generated output, `artifacts/`, API client `Generated/` |
-| [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md) | **56R:** Release build, package API to `artifacts/release/`, readiness script, pilot run instructions |
-| [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) | **56R:** Pilot onboarding — what ArchLucid does, first run, artifacts, logs, tests |
-| [docs/V1_SCOPE.md](docs/V1_SCOPE.md) | **V1 scope contract:** in/out of scope, operator happy path, minimum release criteria |
-| [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md) | **V1 release checklist:** actionable gates (deploy, health, operator flow, exports, recovery) |
-| [docs/V1_RC_DRILL.md](docs/V1_RC_DRILL.md) | **V1 RC drill:** ordered E2E validation (deploy → runs → artifacts → compare → replay → export → bundle); **`v1-rc-drill.ps1`** |
-| [docs/V1_READINESS_SUMMARY.md](docs/V1_READINESS_SUMMARY.md) | **V1 readiness:** what is done, deferred, risky, pilot-good-enough, first after V1 |
-| [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) | **56R:** Copy-paste command list for operators |
-| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | **56R:** Common failures, health/auth/SQL/UI proxy, triage hints |
-| [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md) | **56R + 57R:** `release-smoke` — API+CLI+artifact gate; optional **`-RunPlaywright`** for mock-backed UI operator journeys (see doc) |
-| [docs/GLOSSARY.md](docs/GLOSSARY.md) | **Domain glossary:** 20 terms (authority run, golden manifest, finding engine, policy pack, scope, outbox …) |
-| [docs/CHANGELOG.md](docs/CHANGELOG.md) | **Release summaries** (55R → latest); full design-session logs archived in `docs/archive/` |
-| [docs/PRODUCT_LEARNING.md](docs/PRODUCT_LEARNING.md) | **58R:** Pilot feedback — dashboard, triage, export (operators & product owners) |
-| [docs/FORMATTING.md](docs/FORMATTING.md) | C# layout / blank lines (`dotnet format`, `.editorconfig`) |
-| [docs/METHOD_DOCUMENTATION.md](docs/METHOD_DOCUMENTATION.md) | XML doc conventions; piece-by-piece API commentary |
-| [docs/ALERTS.md](docs/ALERTS.md) | Alerts, routing, simulation/tuning, advisory schedules (links to API contracts & doc tracker) |
-| [docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md) | **54R:** Core / fast core / integration / slow / full regression, SQL-first notes, UI Vitest + Playwright |
-| [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md) | HTTP behaviors (422 verify, 404 run-not-found, 409 commit, validation, **policy packs** / effective governance) |
-| [docs/CLI_USAGE.md](docs/CLI_USAGE.md) | CLI reference |
-| [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md) | Comparison replay concepts |
-| [docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md) | Architecture overview and cross-links |
-| [docs/operator-shell.md](docs/operator-shell.md) | **55R:** Operator shell workflow, artifact review, graph vs compare/replay, UI smoke tests, API expectations |
-| [docs/KNOWLEDGE_GRAPH.md](docs/KNOWLEDGE_GRAPH.md) | Typed graph from `ContextSnapshot`, edge inference, validation, manifest hooks |
-| [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Persisted tables & domains (migrations + authority DDL overview) |
-| [docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md) | **SQL reference:** DbUp migrations, consolidated scripts, bootstrap paths, troubleshooting, change checklist |
-| [docs/demo-quickstart.md](docs/demo-quickstart.md) | **Corrected 50R demo:** DbUp + Contoso trusted-baseline seed, `Demo:*` config, `POST /v1.0/demo/seed`, verification endpoints |
-| [docs/TRUSTED_BASELINE.md](docs/TRUSTED_BASELINE.md) | **49R pass 2 boundary + Corrected 51R:** baseline-trusted surface, optional features, centralized actor (`IActorContext`), log-only baseline mutation audit (`IBaselineMutationAuditService`) vs SQL audit |
-| [docs/CONTAINERIZATION.md](docs/CONTAINERIZATION.md) | Dockerfiles, `docker compose --profile full-stack`, image security, WAF alignment |
-| [docs/go-to-market/DEMO_QUICKSTART.md](docs/go-to-market/DEMO_QUICKSTART.md) | **Docker-only demo:** `scripts/demo-start.ps1` / `docker-compose.demo.yml`, Contoso seed, simulator agents |
+| **[docs/onboarding/day-one-developer.md](docs/onboarding/day-one-developer.md)** | **Developer Day-1:** toolchain, local API + SQL, Core tests, one small PR |
+| **[docs/onboarding/day-one-sre.md](docs/onboarding/day-one-sre.md)** | **SRE / Platform Day-1:** health model, deploy order, Terraform validate, migrations posture |
+| **[docs/onboarding/day-one-security.md](docs/onboarding/day-one-security.md)** | **Security Day-1:** trust boundaries, authZ, RLS, supply chain |
+| **[docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md)** | **Operator Day-1:** health, curl, CLI, smoke/tests (commands only) |
+| **[docs/archive/README.md](docs/archive/README.md)** | **Archive index** — historical write-ups (including superseded long-form onboarding bodies) |
+
+Everything else (architecture index, V1 scope, SQL reference, runbooks, etc.) is linked from **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)** and the Day-1 docs above.
 
 ## Pilot onboarding (56R)
 
-**Product boundary (V1):** [docs/V1_SCOPE.md](docs/V1_SCOPE.md). **Pre-handoff checklist:** [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md). **Start here:** [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) (narrative), [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) (commands). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
+**Product boundary (V1):** [docs/V1_SCOPE.md](docs/V1_SCOPE.md). **Pre-handoff checklist:** [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md). **Commands:** [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md). **Narrative (archived):** [docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
 
 **Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHLUCID_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
 
@@ -113,7 +86,7 @@ Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=ArchLucid_Dev_Pass1
 ## Database Setup
 
 1. Create a database (for example `ArchLucid`, or a pilot-specific name), or use `archlucid dev up` to run SQL Server in Docker.
-2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchLucid.Persistence/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchLucid.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
+2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchLucid.Persistence/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. **Greenfield** empty catalogs replay **`001`–`050`** once (then stamp `SchemaVersions` so DbUp continues at **`051`**); see **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** §4.0. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchLucid.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
 
 ### Optional: Contoso trusted-baseline demo (Corrected 50R)
 
@@ -160,7 +133,7 @@ In Development:
 
 | Policy     | Use case              | Default limit (per client/window) | Config keys |
 |-----------|------------------------|-----------------------------------|-------------|
-| `fixed`   | General endpoints     | 100/min                           | `RateLimiting:FixedWindow:PermitLimit`, `WindowMinutes`, `QueueLimit` |
+| `fixed`   | General endpoints     | 60/min (default)                  | `RateLimiting:FixedWindow:PermitLimit`, `WindowMinutes`, `QueueLimit` |
 | `expensive` | Execute, commit, replay | 20/min                         | `RateLimiting:Expensive:*` |
 | `replay`  | Comparison replay     | Light (markdown/html) 60/min; heavy (docx/pdf) 15/min | `RateLimiting:Replay:Light:*`, `RateLimiting:Replay:Heavy:*` |
 

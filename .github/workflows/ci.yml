@@ -9,7 +9,7 @@
 #   Tier 3b — Operator UI e2e (Playwright; browser-heavy)
 #
 # Re-run failed jobs from the Actions tab. Local equivalents: test-fast-core.*, test-full.*,
-# archlucid-ui: npm test / npm run test:e2e.
+# archlucid-ui: npm test / npm run test:axe-components / Playwright (default live config; mock via playwright.mock.config.ts).
 #
 # .NET coverage: each test job writes a collapsible report to the job summary; download
 # coverage-report-*-html artifacts for browsable index.html (ReportGenerator).
@@ -284,7 +284,10 @@ jobs:
         run: python3 scripts/ci/assert_rtm_test_filters_resolve.py
 
       - name: Agent eval dataset manifest (shape)
-        run: python3 scripts/ci/eval_agent_quality.py
+        run: python3 scripts/ci/eval_agent_quality.py --manifest-only
+
+      - name: Prompt injection eval datasets (shape)
+        run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only
 
       - name: Agent prompt regression baseline (JSON shape)
         run: python3 scripts/ci/assert_prompt_regression.py
@@ -477,16 +480,16 @@ jobs:
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
 
-      - name: Enforce merged coverage gates (line 76%, branch 60%, product packages 60% line)
+      - name: Enforce merged coverage gates (line 79%, branch 63%, product packages 63% line)
         if: success()
         run: |
           set -e
           ART_DIR="${{ runner.temp }}/coverage-metrics-artifact"
           mkdir -p "${ART_DIR}"
           python3 scripts/ci/assert_merged_line_coverage_min.py \
-            "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 76 \
-            --min-branch-pct 60 \
-            --min-package-line-pct 60 \
+            "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 79 \
+            --min-branch-pct 63 \
+            --min-package-line-pct 63 \
             --warn-below-package-line-pct 70 \
             --annotations-file "${ART_DIR}/coverage-annotations-assert.txt"
           cp "${{ runner.temp }}/coverage-metrics.txt" "${ART_DIR}/coverage-metrics.txt"
@@ -815,8 +818,8 @@ jobs:
           name: sbom-npm
           path: archlucid-ui/sbom-npm.json
 
-  ui-e2e-smoke:
-    name: "Operator UI: e2e smoke (Playwright)"
+  ui-axe-components:
+    name: "Operator UI: Vitest axe (components)"
     needs: gitleaks
     runs-on: ubuntu-latest
     steps:
@@ -829,16 +832,13 @@ jobs:
           cache: npm
           cache-dependency-path: archlucid-ui/package-lock.json
 
-      - name: Install dependencies & run Playwright smoke
+      - name: Install dependencies & run component axe suite
         working-directory: archlucid-ui
         env:
           CI: true
-          # Next.js production build in webServer can OOM on default ubuntu-latest Node heap.
-          NODE_OPTIONS: --max-old-space-size=6144
         run: |
           npm ci
-          npx playwright install --with-deps chromium
-          npx playwright test
+          npm run test:axe-components
 
   # Live API + Sql + Next.js (no mock). Gating — failures block merge.
   ui-e2e-live:
@@ -941,7 +941,7 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready
-          npx playwright test -c playwright.live.config.ts
+          npx playwright test
 
       - name: Upload live API log
         if: always()
@@ -1061,7 +1061,7 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready
-          npx playwright test -c playwright.live.config.ts \
+          npx playwright test \
             live-api-apikey-auth.spec.ts \
             live-api-journey.spec.ts \
             live-api-negative-paths.spec.ts
@@ -1205,7 +1205,7 @@ jobs:
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
           npx playwright install --with-deps chromium
           curl -fsS http://127.0.0.1:5128/health/ready
-          npx playwright test -c playwright.live.config.ts \
+          npx playwright test \
             live-api-jwt-auth.spec.ts \
             live-api-journey.spec.ts \
             live-api-negative-paths.spec.ts

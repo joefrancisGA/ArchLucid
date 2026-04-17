@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Models;
 
@@ -9,6 +10,57 @@ namespace ArchLucid.Decisioning.Tests.Findings;
 [Trait("Category", "Unit")]
 public sealed class FindingExplainabilityNarrativeBuilderTests
 {
+    [Fact]
+    public void BuildEvidence_null_finding_throws()
+    {
+        Action act = () => FindingExplainabilityNarrativeBuilder.BuildEvidence(null!);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void BuildEvidence_collects_graph_related_and_agent_refs_rule_and_conclusion()
+    {
+        Finding finding = new()
+        {
+            FindingId = "abc",
+            Rationale = "Cost exceeds cap for the selected tier.",
+            RelatedNodeIds = ["rel-1"],
+            Trace = new ExplainabilityTrace
+            {
+                GraphNodeIdsExamined = ["g1", "g1", "rel-1"],
+                RulesApplied = ["cost-rule-a", "cost-rule-b"],
+                AlternativePathsConsidered = [" alt-x ", ""],
+                SourceAgentExecutionTraceId = "a1b2c3d4e5f6789012345678abcdef01",
+            },
+        };
+
+        FindingExplainabilityEvidence evidence = FindingExplainabilityNarrativeBuilder.BuildEvidence(finding);
+
+        evidence.Conclusion.Should().Be(finding.Rationale);
+        evidence.RuleId.Should().Be("cost-rule-a;cost-rule-b");
+        evidence.AlternativePathsConsidered.Should().Equal("alt-x");
+        evidence.EvidenceRefs.Should().Equal(
+            "g1",
+            "rel-1",
+            "agentExecutionTrace:a1b2c3d4e5f6789012345678abcdef01");
+    }
+
+    [Fact]
+    public void BuildEvidence_when_no_rules_uses_unspecified_rule_id()
+    {
+        Finding finding = new()
+        {
+            Rationale = "x",
+            Trace = new ExplainabilityTrace(),
+        };
+
+        FindingExplainabilityEvidence evidence = FindingExplainabilityNarrativeBuilder.BuildEvidence(finding);
+
+        evidence.RuleId.Should().Be("unspecified");
+        evidence.EvidenceRefs.Should().BeEmpty();
+    }
+
     [Fact]
     public void Build_empty_trace_and_no_heading_returns_empty_string()
     {

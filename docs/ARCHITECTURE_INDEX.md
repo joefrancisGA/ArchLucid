@@ -8,14 +8,20 @@
   - `docs/V1_RELEASE_CHECKLIST.md`
 - **V1 deferred / exploratory (doc inventory for intentional scope)** — audit gaps, 59R deferrals, Phase 7 rename, infra polish, `NEXT_REFACTORINGS` boundary  
   - `docs/V1_DEFERRED.md`
-- **Start here (new contributors)** — canonical front door: layered overview, pick-your-role, key concepts, quick commands  
+- **Start here (redirect hub)** — points to canonical Day-1 docs per persona  
   - `docs/START_HERE.md`
 - **First five documents (architecture + API starter path)** — ordered table with time estimates  
   - `docs/FIRST_5_DOCS.md` (canonical); `docs/FIRST_FIVE_DOCS.md` (filename alias)
-- **Golden path (environments: zero → local → prod-like → Azure)** — role lanes, one diagram, phased checklists, advanced appendix  
-  - `docs/GOLDEN_PATH.md`
-- **Golden change path (minimum file touch list: controller → app → persistence → audit → tests)** — contributor checklist per change type  
-  - `docs/GOLDEN_CHANGE_PATH.md`
+- **Developer Day-1 (week one)** — toolchain, local API + SQL, Core tests, small PR  
+  - `docs/onboarding/day-one-developer.md`
+- **SRE / Platform Day-1** — health, deploy order, Terraform validate, migrations posture  
+  - `docs/onboarding/day-one-sre.md`
+- **Security Day-1** — trust boundaries, authZ, RLS, supply chain  
+  - `docs/onboarding/day-one-security.md`
+- **Operator quickstart (commands)** — health, curl, CLI, smoke/tests  
+  - `docs/OPERATOR_QUICKSTART.md`
+- **Superseded long-form golden paths (archived 2026-04-17)**  
+  - `docs/archive/ONBOARDING_GOLDEN_PATH_2026_04_17.md`, `docs/archive/ONBOARDING_GOLDEN_CHANGE_PATH_2026_04_17.md`
 - **Reference SaaS Terraform apply order (Azure roots)**  
   - `docs/REFERENCE_SAAS_STACK_ORDER.md`
 - **Week-one role tickets (dev / SRE / security)** — 3–5 checkboxes each  
@@ -24,8 +30,8 @@
   - `docs/diagrams/c4/README.md`
 - **C4 model (Structurizr DSL — system context + containers)**  
   - `docs/c4/README.md`, `docs/c4/workspace.dsl`
-- **Request happy path (client → API → SQL → agents)**  
-  - `docs/ONBOARDING_HAPPY_PATH.md`
+- **Request happy path (client → API → SQL → agents)** — stub → developer Day-1 + `API_CONTRACTS`; archived walkthrough  
+  - `docs/ONBOARDING_HAPPY_PATH.md`, `docs/archive/ONBOARDING_HAPPY_PATH_2026_04_17.md`
 - **System map (Mermaid flows + entry points)**  
   - `docs/SYSTEM_MAP.md`
 - **One-page system view (nodes/edges/ops)**  
@@ -106,8 +112,8 @@
   - `docs/CHANGELOG.md`
 - **ADRs** – 11 numbered decisions; no shared prefix IDs  
   - `docs/adr/README.md`
-- **Contributor onboarding** – build, test filters (see **START_HERE** for entry point)  
-  - `docs/CONTRIBUTOR_ONBOARDING.md`
+- **Contributor onboarding** – stub → `docs/onboarding/day-one-developer.md`; archived checklist  
+  - `docs/CONTRIBUTOR_ONBOARDING.md`, `docs/archive/ONBOARDING_CONTRIBUTOR_ONBOARDING_2026_04_17.md`
 
 ### API and contracts
 

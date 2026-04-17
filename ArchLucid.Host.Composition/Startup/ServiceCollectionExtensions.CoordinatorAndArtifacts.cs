@@ -53,6 +53,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ExplanationServiceOptions.SectionPath));
         services.Configure<RunExplanationAggregateOptions>(
             configuration.GetSection(RunExplanationAggregateOptions.SectionPath));
+        // Binds AgentExecution:LlmCostEstimation; option type defaults keep cost visibility on when the section is absent.
         services.Configure<LlmCostEstimationOptions>(
             configuration.GetSection(LlmCostEstimationOptions.SectionPath));
         services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();

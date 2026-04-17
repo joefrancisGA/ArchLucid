@@ -55,19 +55,26 @@ Fine-grained **`permission`** claims (for example **`commit:run`**, **`export:co
 
 ## HTTP rate limiting (role-aware)
 
-**`fixed`** and **`expensive`** ASP.NET rate-limit policies partition buckets by **resolved role segment + client IP**. Base permit counts come from **`RateLimiting:FixedWindow:*`** and **`RateLimiting:Expensive:*`**; optional multipliers are in **`RateLimiting:RoleMultipliers`** (**`Admin`**, **`Operator`**, **`Reader`**, **`Anonymous`**), clamped in code to a safe range. **ApiKey** and JWT principals inherit the same **`IsInRole`** checks, so automation keys mapped to **Admin** receive a higher budget than anonymous traffic.
+**`fixed`** and **`expensive`** ASP.NET rate-limit policies partition buckets by **resolved role segment + client IP** (`RateLimitingRolePartitionBuilder`). Base permit counts come from **`RateLimiting:FixedWindow:*`** and **`RateLimiting:Expensive:*`**; the shipped default for **`fixed`** is **60 requests per minute** per partition when **`RateLimiting:FixedWindow:PermitLimit`** is not overridden. Optional multipliers are in **`RateLimiting:RoleMultipliers`** (**`Admin`**, **`Operator`**, **`Reader`**, **`Anonymous`**), clamped in code to a safe range. **ApiKey** and JWT principals inherit the same **`IsInRole`** checks, so automation keys mapped to **Admin** receive a higher budget than anonymous traffic.
 
-## LLM content safety (optional)
+## LLM content safety (optional; fail-closed in production-like hosts)
 
-**`ArchLucid:ContentSafety:Enabled`** toggles **`IContentSafetyGuard`** registration (see also **`ContentSafetyOptions`** / **`appsettings.Advanced.json`** for an explicit **`false`** sample). This path is **configuration-driven** (not a **`FeatureManagement`** flag today).
+**`ArchLucid:ContentSafety:Enabled`** toggles **`IContentSafetyGuard`** registration for **non-production-like** hosts (see **`ContentSafetyOptions`** / **`appsettings.Advanced.json`**). This path is **configuration-driven** (not a **`FeatureManagement`** flag today).
+
+When the host is **Production**, **Staging**, or **`ARCHLUCID_ENVIRONMENT`** is **`Production`** / **`Staging`**, ArchLucid **always** registers **`AzureContentSafetyGuard`** and **startup validation** requires **`ArchLucid:ContentSafety:Endpoint`** and **`ArchLucid:ContentSafety:ApiKey`**. **`FailClosedOnSdkError`** is forced **true** in those environments so SDK/network failures block rather than allow traffic.
 
 | State | Behavior |
 |--------|----------|
-| **Disabled** (default) | **`NullContentSafetyGuard`** — pass-through; no outbound calls. |
-| **Enabled** without **`Endpoint`** or **`ApiKey`** | **`ContentSafetyEnabledButUnconfiguredGuard`** — **throws** on **`CheckInputAsync`** / **`CheckOutputAsync`** (fail-fast misconfiguration). |
-| **Enabled** with absolute **`Endpoint`** and **`ApiKey`** | **`AzureContentSafetyGuard`** — calls **Azure AI Content Safety** text analysis (four severity levels). **`BlockSeverityThreshold`** (default **4**) blocks when any category severity is **≥** threshold. **`FailClosedOnSdkError`** (default **false**) allows traffic if the SDK call fails (logged); set **true** to block on SDK errors. |
+| **Production-like host** | **`AzureContentSafetyGuard`** mandatory when SQL-backed agents run; missing **`Endpoint`**/**`ApiKey`** fails **`ArchLucidConfigurationRules`** at startup. |
+| **Non-production-like, disabled** (default) | **`NullContentSafetyGuard`** — pass-through; no outbound calls, gated by **`ArchLucid:ContentSafety:AllowNullGuardInDevelopment`** (default **true**). |
+| **Non-production-like, enabled** without **`Endpoint`** or **`ApiKey`** | **`ContentSafetyEnabledButUnconfiguredGuard`** — **throws** on **`CheckInputAsync`** / **`CheckOutputAsync`** (fail-fast misconfiguration). |
+| **Non-production-like, enabled** with absolute **`Endpoint`** and **`ApiKey`** | **`AzureContentSafetyGuard`** — calls **Azure AI Content Safety** text analysis (four severity levels). **`BlockSeverityThreshold`** (default **4**) blocks when any category severity is **≥** threshold. |
 
-**Product status:** **`Azure.AI.ContentSafety`** is wired in **`ArchLucid.AgentRuntime.Safety.AzureContentSafetyGuard`** and registered from **`ArchLucid.Host.Composition`** when **`ArchLucid:ContentSafety:Enabled`** is **true** and **`Endpoint`** / **`ApiKey`** are set. For experiments without Azure, keep **`Enabled: false`**. See also **`docs/AI_AGENT_PROMPT_REGRESSION.md`** and **`appsettings.Advanced.json`**.
+**Product status:** **`Azure.AI.ContentSafety`** is wired in **`ArchLucid.AgentRuntime.Safety.AzureContentSafetyGuard`** and registered from **`ArchLucid.Host.Composition`**. Offline **prompt-injection** fixture shape is validated in CI via **`scripts/ci/eval_agent_quality.py --prompt-injection-only`**. See **`docs/AI_AGENT_PROMPT_REGRESSION.md`**.
+
+## SQL RLS break-glass bypass
+
+**`SqlRowLevelSecurityBypassAmbient.Enter()`** is only permitted when **`SqlServer:RowLevelSecurity:ApplySessionContext`** is **true** **and** both **`ARCHLUCID_ALLOW_RLS_BYPASS=true`** and **`ArchLucid:Persistence:AllowRlsBypass=true`** are set. This replaces env-only bypass. When enabled on a **production-like** host, Prometheus records **`archlucid_rls_bypass_enabled_info{scope="production_like"}==1`** and alert **`ArchLucidRlsBypassEnabledInProduction`** may fire; see **`infra/prometheus/archlucid-alerts.yml`**.
 
 ## Log injection (CWE-117)
 

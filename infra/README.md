@@ -2,7 +2,7 @@
 
 ArchLucid splits Azure infrastructure into **optional Terraform roots** so local and laptop workflows stay default-off. Each root has its own `README.md`, `terraform.tfvars.example`, and `.terraform.lock.hcl`.
 
-**First-time path:** **`docs/GOLDEN_PATH.md`** (Phase 3 Azure + **advanced appendix** for optional roots like edge, failover group, APIM).
+**First-time path:** **`docs/onboarding/day-one-sre.md`** (Terraform + Azure) and **`docs/START_HERE.md`** hub.
 
 **Ordered validate / apply (no merged state):** **`scripts/provision-landing-zone.ps1`** / **`scripts/provision-landing-zone.sh`** and **`docs/LANDING_ZONE_PROVISIONING.md`**. Example tfvars sketches: **`infra/environments/`**.
 

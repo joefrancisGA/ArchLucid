@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Models;
 
@@ -18,6 +19,7 @@ public static class FindingTraceConfidenceMapper
         foreach (Finding f in list)
         {
             TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f);
+            FindingExplainabilityEvidence evidence = FindingExplainabilityNarrativeBuilder.BuildEvidence(f);
 
             rows.Add(
                 new FindingTraceConfidenceDto
@@ -25,6 +27,8 @@ public static class FindingTraceConfidenceMapper
                     FindingId = f.FindingId,
                     TraceCompletenessRatio = score.CompletenessRatio,
                     TraceConfidenceLabel = TraceConfidenceLabels.FromCompletenessRatio(score.CompletenessRatio),
+                    RuleId = evidence.RuleId,
+                    EvidenceRefCount = evidence.EvidenceRefs.Count,
                 });
         }
 

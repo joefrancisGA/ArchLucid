@@ -18,6 +18,12 @@ describe("FindingExplainabilityDialog", () => {
       decisionsTaken: ["d1"],
       alternativePathsConsidered: [],
       notes: [],
+      evidence: {
+        evidenceRefs: ["n1"],
+        conclusion: "Policy breach on node n1.",
+        alternativePathsConsidered: [],
+        ruleId: "r1",
+      },
       narrativeText: "Narrative body.",
     };
 
@@ -32,6 +38,8 @@ describe("FindingExplainabilityDialog", () => {
     });
 
     expect(screen.getByText("Narrative body.")).toBeInTheDocument();
+    expect(screen.getByText("Structured evidence (deterministic)")).toBeInTheDocument();
+    expect(screen.getByText("Policy breach on node n1.")).toBeInTheDocument();
     expect(spy).toHaveBeenCalledWith("run-a", "f-1");
     spy.mockRestore();
   });

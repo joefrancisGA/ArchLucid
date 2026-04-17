@@ -1,8 +1,8 @@
 # Live E2E — operator shell vs real API + SQL (Playwright)
 
-**Purpose:** Document every **`live-api-*.spec.ts`** file run in CI against a **real** `ArchLucid.Api` and **SQL Server**, not the mock API server used by default `playwright.config.ts`.
+**Purpose:** Document every **`live-api-*.spec.ts`** file run in CI against a **real** `ArchLucid.Api` and **SQL Server**. Mock journeys use **`playwright.mock.config.ts`** (`npm run test:e2e`).
 
-**Discovery:** `archlucid-ui/playwright.live.config.ts` uses **`testMatch: ["live-api-*.spec.ts"]`** so new live specs are picked up automatically when the filename matches the convention.
+**Discovery:** default **`archlucid-ui/playwright.config.ts`** uses **`testMatch: ["live-api-*.spec.ts"]`** (and re-exported as **`playwright.live.config.ts`** for back-compat) so new live specs are picked up when the filename matches the convention.
 
 **Specs (same Playwright live config):**
 
@@ -25,8 +25,10 @@
 | `archlucid-ui/e2e/live-api-digest-webhook.spec.ts` | `live-api-digest-webhook` | **`POST/GET /v1/digest-subscriptions`**, toggle, audit **`DigestSubscriptionCreated`** / **`DigestSubscriptionToggled`**; skipped placeholder for webhook dry-run (no HTTP surface). |
 | `archlucid-ui/e2e/live-api-concurrency.spec.ts` | `live-api-concurrency` | Parallel **`commitRunRaw`** (no **5xx**; run ends **Committed**); parallel governance approve (**exactly one** **2xx**, partner **4xx**; single new **`GovernanceApprovalApproved`** audit). |
 | `archlucid-ui/e2e/live-api-archival.spec.ts` | `live-api-archival` | Skipped note: archival is **worker**-driven (no API trigger); smoke test that **two** committed runs stay visible on **`GET /v1/architecture/runs`**. |
+| `archlucid-ui/e2e/live-api-accessibility.spec.ts` | `accessibility baseline` | **Axe** sweep across primary operator routes (critical/serious = **0**). |
+| `archlucid-ui/e2e/live-api-accessibility-focus.spec.ts` | `route focus and announcements` | Skip link, route-change focus, announcer text, **axe** in dark mode. |
 
-**Config:** `archlucid-ui/playwright.live.config.ts`  
+**Config:** `archlucid-ui/playwright.config.ts` (default live); **`playwright.live.config.ts`** re-exports the same object.  
 **HTTP helpers:** `archlucid-ui/e2e/helpers/live-api-client.ts`  
 **CI jobs:** `.github/workflows/ci.yml` → **`ui-e2e-live`** (full suite, DevelopmentBypass) and **`ui-e2e-live-apikey`** (ApiKey API + subset: apikey-auth + journey + negative-paths) — both **merge-blocking**; **`ui-e2e-live-jwt`** (JwtBearer + local PEM + subset: jwt-auth + journey + negative-paths) — **`continue-on-error: true`** (signal-only until stable). **Nightly:** `.github/workflows/live-e2e-nightly.yml` runs the **full** `live-api-*.spec.ts` suite under DevelopmentBypass, ApiKey, and JwtBearer (separate DBs). Parity matrix: **`docs/LIVE_E2E_AUTH_PARITY.md`**; JWT env: **`docs/LIVE_E2E_JWT_SETUP.md`**.
 
@@ -115,7 +117,7 @@ Shared helpers: **`commitRunRaw`**, **`waitForReadyForCommit`** (exported from *
 
 - **No real LLM** in CI — semantic quality of outputs is not under test; **`POST /v1/ask`** may be non-**2xx** without failing the graph/search spec.
 - **DevelopmentBypass** — not a production auth configuration; do not equate this gate with Entra/API-key hardening.
-- **`ui-e2e-smoke`** (default **`playwright.config.ts`**) stays **mock-backed** for speed; **live** coverage is **`playwright.live.config.ts`** only (**merge-blocking** in **`ui-e2e-live`**).
+- **`ui-axe-components`** runs **Vitest + jest-axe** on **`src/accessibility/**`** (fast component gate). **`ui-e2e-live`** is the **only** merge-blocking **browser** operator journey gate (**default `playwright.config.ts`**, live API + SQL). **Mock** Playwright: **`playwright.mock.config.ts`** / **`npm run test:e2e`**.
 - **Run archival** is not invocable over **`ArchLucid.Api`** HTTP in DevelopmentBypass; see **`live-api-archival.spec.ts`** skip rationale and **`docs/runbooks/DATA_ARCHIVAL_HEALTH.md`**.
 
 ---
@@ -125,6 +127,6 @@ Shared helpers: **`commitRunRaw`**, **`waitForReadyForCommit`** (exported from *
 1. Start SQL and **`ArchLucid.Api`** with Sql + DevelopmentBypass + Simulator (mirror **`ui-e2e-live`** env in `ci.yml`).
 2. From **`archlucid-ui`:** `npm ci` && `npm run build` (first time or after dependency changes).
 3. `npx playwright install chromium` (if needed).
-4. `npx playwright test -c playwright.live.config.ts`
+4. `npx playwright test`
 
 See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) and [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md).

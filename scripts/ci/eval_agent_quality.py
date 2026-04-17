@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Validate offline agent eval dataset layout under tests/eval-datasets/.
+"""Validate offline agent eval datasets and prompt-injection regression fixtures.
 
-Designed for future CI integration: currently shape-only (no live LLM or simulator runs).
-Wire as a required check once deterministic eval execution is implemented.
+Shape-only checks (no live LLM or simulator runs). CI uses selective flags to keep
+failures localized to the dataset family under test.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -20,7 +21,7 @@ def _load_json(path: Path) -> object:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def main() -> int:
+def validate_manifest() -> int:
     root = _repo_root()
     base = root / "tests" / "eval-datasets"
     manifest_path = base / "manifest.json"
@@ -102,6 +103,90 @@ def main() -> int:
                 return 1
 
     print(f"Eval dataset manifest OK: {len(datasets)} dataset(s).")
+    return 0
+
+
+def validate_prompt_injection_datasets() -> int:
+    root = _repo_root()
+    folder = root / "tests" / "eval-datasets" / "prompt-injection"
+
+    if not folder.is_dir():
+        print(f"::error::Missing directory {folder}")
+        return 1
+
+    allowed_categories = {"direct_override", "exfiltration", "tool_abuse"}
+    paths = sorted(folder.glob("*.json"))
+
+    if not paths:
+        print(f"::error::No JSON files under {folder}")
+        return 1
+
+    for path in paths:
+        data = _load_json(path)
+
+        if not isinstance(data, list) or not data:
+            print(f"::error::{path.name} must be a non-empty JSON array")
+            return 1
+
+        for i, case in enumerate(data):
+            if not isinstance(case, dict):
+                print(f"::error::{path.name}[{i}] must be an object")
+                return 1
+
+            cid = case.get("id")
+            if not isinstance(cid, str) or not cid.strip():
+                print(f"::error::{path.name}[{i}].id must be a non-empty string")
+                return 1
+
+            cat = case.get("category")
+            if not isinstance(cat, str) or cat.strip() not in allowed_categories:
+                print(
+                    f"::error::{path.name}[{i}].category must be one of "
+                    f"{sorted(allowed_categories)}"
+                )
+                return 1
+
+            prompt = case.get("userPrompt")
+            if not isinstance(prompt, str) or len(prompt.strip()) < 8:
+                print(f"::error::{path.name}[{i}].userPrompt must be a substantive string")
+                return 1
+
+    print(f"Prompt injection eval datasets OK: {len(paths)} file(s).")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Offline eval dataset validation.")
+    parser.add_argument(
+        "--manifest-only",
+        action="store_true",
+        help="Validate only tests/eval-datasets/manifest.json agent datasets.",
+    )
+    parser.add_argument(
+        "--prompt-injection-only",
+        action="store_true",
+        help="Validate only tests/eval-datasets/prompt-injection/*.json fixtures.",
+    )
+    args = parser.parse_args()
+
+    if args.manifest_only and args.prompt_injection_only:
+        print("::error::Choose at most one of --manifest-only and --prompt-injection-only")
+        return 1
+
+    if args.prompt_injection_only:
+        return validate_prompt_injection_datasets()
+
+    if args.manifest_only:
+        return validate_manifest()
+
+    m = validate_manifest()
+    if m != 0:
+        return m
+
+    p = validate_prompt_injection_datasets()
+    if p != 0:
+        return p
+
     return 0
 
 

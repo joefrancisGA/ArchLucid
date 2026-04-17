@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { runAxe } from "./helpers/axe-helper";
 
+/** Live API + SQL focus/announcer checks (merge-blocking via `ui-e2e-live`). */
 test.describe("route focus and announcements", () => {
   test("skip link moves focus to main content", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });

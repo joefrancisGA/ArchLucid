@@ -105,7 +105,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           npx playwright install --with-deps chromium
-          npx playwright test -c playwright.live.config.ts
+          npx playwright test
 
       - uses: actions/upload-artifact@v6
         if: failure()
@@ -212,7 +212,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           npx playwright install --with-deps chromium
-          npx playwright test -c playwright.live.config.ts
+          npx playwright test
 
       - uses: actions/upload-artifact@v6
         if: failure()
@@ -340,7 +340,7 @@ jobs:
           export LIVE_JWT_TOKEN="${TOKEN}"
           export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
           npx playwright install --with-deps chromium
-          npx playwright test -c playwright.live.config.ts
+          npx playwright test
 
       - uses: actions/upload-artifact@v6
         if: failure()

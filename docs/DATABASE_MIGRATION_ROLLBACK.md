@@ -2,6 +2,8 @@
 
 Forward schema changes ship via DbUp under `ArchLucid.Persistence/Migrations/`. **DbUp does not run rollback scripts.**
 
+**Greenfield baseline:** `Migrations/Baseline/000_Baseline_2026_04_17.sql` is a **one-shot** cumulative script for **empty** catalogs only (see `docs/SQL_SCRIPTS.md` §4.0). There is **no** paired `Rollback/R000_*.sql`; recovery for a failed baseline attempt is **restore from backup** or drop/recreate the database — treat it like a failed initial provision.
+
 **Rollback scripts** live in `ArchLucid.Persistence/Migrations/Rollback/` as `RNNN_Description.sql`, paired with the forward script `NNN_Description.sql`. They are **operator-only**: run manually with `sqlcmd` or SSMS during a controlled recovery when a deployment must be reversed.
 
 ## Guard

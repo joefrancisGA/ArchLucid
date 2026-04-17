@@ -2,7 +2,7 @@
 
 This document ties together how **ArchLucid** (product; repository and assemblies still use `ArchLucid.*` until rename Phase 5–6) is released, how database changes roll forward, and where to find deeper procedures. It is aimed at operators and release managers, not at local `docker compose`-only workflows (see **`docs/BUILD.md`** and **`docs/CONTAINERIZATION.md`**).
 
-**New to the repo?** Phased checklist from laptop to Azure: **`docs/GOLDEN_PATH.md`**.
+**New to the repo?** Phased checklist from laptop to Azure: **`docs/onboarding/day-one-sre.md`** (and **`docs/START_HERE.md`** hub).
 
 ## Objectives
 

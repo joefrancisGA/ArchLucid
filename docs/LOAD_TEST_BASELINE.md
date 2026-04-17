@@ -35,6 +35,8 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 | k6 script (CI smoke, read + write) | `tests/load/ci-smoke.js` |
 | k6 script (CI smoke, read-only) | `tests/load/smoke.js` |
 | k6 script (CI after full regression, operator path) | `tests/load/k6-api-smoke.js` |
+| k6 script (weekly scheduled, per-tenant burst operator path) | `tests/load/per-tenant-burst.js` |
+| GitHub workflow (weekly per-tenant burst) | `.github/workflows/k6-per-tenant-burst-scheduled.yml` |
 | Local runbook | `scripts/load/README.md` |
 | Manual CI workflow | `.github/workflows/load-test.yml` |
 | Summary → Markdown | `scripts/ci/print_k6_summary_metrics.py` |

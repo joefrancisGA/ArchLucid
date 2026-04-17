@@ -20,7 +20,7 @@ Thin Next.js App Router UI for runs, manifest summary, **artifact review**, **gr
 
 | Document | What it covers |
 |----------|---------------|
-| [Pilot guide (56R)](../docs/PILOT_GUIDE.md) | **Pilots / design partners:** first run, artifacts, logs, readiness checks. |
+| [Operator quickstart](../docs/OPERATOR_QUICKSTART.md) | **Pilots / operators:** commands, health, first run. |
 | [Operator quickstart (56R)](../docs/OPERATOR_QUICKSTART.md) | Copy-paste commands (API, CLI, UI, tests). |
 | [Product learning (58R)](../docs/PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export. |
 | [Troubleshooting (56R)](../docs/TROUBLESHOOTING.md) | Common failures (health, auth, SQL, proxy). |
@@ -81,7 +81,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 - **All unit/component tests:** `npm test` (or `npm run test:watch`). Pattern: `src/**/*.test.{ts,tsx}`.
 - **55R / review workflow smoke:** see commands in [docs/TESTING_AND_TROUBLESHOOTING.md](docs/TESTING_AND_TROUBLESHOOTING.md#3-55r--review-workflow-smoke-tests-change-set-55r).
-- **57R / operator-journey E2E (Playwright):** six specs in **`e2e/`** — home smoke, run→manifest→back, manifest empty artifact list, compare prefill + review order, compare stale-input warning, compare + AI explain (all **mock-backed**; no live C# API). Run: `npx playwright install --with-deps chromium` then **`npm run test:e2e`**. Full contract: [docs/TESTING_AND_TROUBLESHOOTING.md](docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright).
+- **Vitest axe (components):** **`npm run test:axe-components`** — **`src/accessibility/**`** + **jest-axe** (CI job **`ui-axe-components`**).
+- **57R / operator-journey E2E (Playwright, mock):** six specs in **`e2e/`** (non-`live-api-*`) — home smoke, run→manifest→back, compare flows, etc. (**`playwright.mock.config.ts`** via **`npm run test:e2e`**). **Live** API + SQL: default **`playwright.config.ts`** / **`npx playwright test`** — see [docs/LIVE_E2E_HAPPY_PATH.md](../docs/LIVE_E2E_HAPPY_PATH.md). Run mock: `npx playwright install --with-deps chromium` then **`npm run test:e2e`**. Full contract: [docs/TESTING_AND_TROUBLESHOOTING.md](docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright).
 - **Repo root:** `test-ui-unit.cmd` / `test-ui-smoke.cmd` (or `.ps1` for Playwright + `npm ci`). Optional after full product smoke: **`.\release-smoke.ps1 -RunPlaywright`** (see repo [docs/RELEASE_SMOKE.md](../docs/RELEASE_SMOKE.md)).
 
 ## Routes

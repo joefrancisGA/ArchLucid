@@ -70,6 +70,17 @@ groups:
         labels:
           component: api
 
+  - name: archlucid-slo-explanation-faithfulness
+    interval: 30s
+    rules:
+      # Maximum sustained aggregate explanation faithfulness fallback rate (events per second), expressed as a
+      # 1h rolling average: rate(counter[1h]) ≈ (increments in last hour) / 3600s. Default 3/3600 matches the
+      # heuristic used by ArchLucidExplanationFaithfulnessFallbackTrend (>3 increases per hour).
+      - record: archlucid:slo:explanation_faithfulness_fallback_budget
+        expr: vector(0.0008333333333333334)
+        labels:
+          component: api
+
   - name: archlucid-slo-http-burn-alerts
     interval: 30s
     rules:

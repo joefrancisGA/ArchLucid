@@ -22272,6 +22272,35 @@
           }
         }
       },
+      "FindingExplainabilityEvidence": {
+        "required": [
+          "evidenceRefs",
+          "conclusion",
+          "alternativePathsConsidered",
+          "ruleId"
+        ],
+        "type": "object",
+        "properties": {
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "conclusion": {
+            "type": "string"
+          },
+          "alternativePathsConsidered": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ruleId": {
+            "type": "string"
+          }
+        }
+      },
       "FindingExplainabilityResult": {
         "type": "object",
         "properties": {
@@ -22324,6 +22353,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/FindingExplainabilityEvidence"
           },
           "narrativeText": {
             "type": "string"
@@ -22477,6 +22509,13 @@
           },
           "traceConfidenceLabel": {
             "type": "string"
+          },
+          "ruleId": {
+            "type": "string"
+          },
+          "evidenceRefCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

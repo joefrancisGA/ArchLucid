@@ -1,6 +1,6 @@
 /**
  * Requires a running ArchLucid.Api (Sql + DevelopmentBypass by default in CI).
- * Run: npx playwright test -c playwright.live.config.ts
+ * Run: npx playwright test
  */
 import { expect, test, type APIResponse } from "@playwright/test";
 

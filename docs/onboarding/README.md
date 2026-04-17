@@ -12,4 +12,4 @@ Short **ticket-style** checklists for onboarding to **ArchLucid**: each page lis
 
 **Exec / security reviews (non-Mermaid):** static **C4 PNGs** and source `.mmd` files live under **[../diagrams/c4/README.md](../diagrams/c4/README.md)**.
 
-**Full environment path:** [GOLDEN_PATH.md](../GOLDEN_PATH.md).
+**Full environment path:** [day-one-sre.md](day-one-sre.md) (platform) · [day-one-developer.md](day-one-developer.md) (local stack) · [START_HERE.md](../START_HERE.md) (redirect hub).

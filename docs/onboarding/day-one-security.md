@@ -24,4 +24,4 @@
 | Managed identity + SQL/blob | [security/MANAGED_IDENTITY_SQL_BLOB.md](../security/MANAGED_IDENTITY_SQL_BLOB.md) |
 | SMB / storage exposure | Workspace rule: no public **445**; [infra/terraform-private/README.md](../../infra/terraform-private/README.md) |
 
-**Last reviewed:** 2026-04-04
+**Last reviewed:** 2026-04-17

@@ -25,7 +25,7 @@
 | SQL / migrations | [SQL_SCRIPTS.md](../SQL_SCRIPTS.md) |
 | Auth locally | Root [README.md](../../README.md#api-authentication-archlucidauth) |
 
-**Last reviewed:** 2026-04-04
+**Last reviewed:** 2026-04-17
 
 ---
 

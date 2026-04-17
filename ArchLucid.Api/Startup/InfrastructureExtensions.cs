@@ -1,4 +1,5 @@
 using ArchLucid.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
 
 using Microsoft.AspNetCore.RateLimiting;
@@ -30,7 +31,9 @@ internal static class InfrastructureExtensions
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            int fixedPermitLimit = configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
+            int fixedPermitLimit = configuration.GetValue(
+                "RateLimiting:FixedWindow:PermitLimit",
+                RateLimitingDefaults.FixedWindowPermitLimit);
             int fixedWindowMinutes = configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
             int fixedQueueLimit = configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
 

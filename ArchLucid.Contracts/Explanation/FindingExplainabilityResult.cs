@@ -25,6 +25,16 @@ public sealed class FindingExplainabilityResult
 
     public List<string> Notes { get; set; } = [];
 
-    /// <summary>Deterministic plain-text narrative composed from explainability trace fields (server-side).</summary>
+    /// <summary>
+    /// Structured factual explainability (trace + finding rationale); always populated by the API from persisted data.
+    /// </summary>
+    public FindingExplainabilityEvidence Evidence { get; set; } =
+        new FindingExplainabilityEvidence(
+            Array.Empty<string>(),
+            string.Empty,
+            Array.Empty<string>(),
+            "unspecified");
+
+    /// <summary>Deterministic plain-text narrative composed from explainability trace fields (presentation only).</summary>
     public string NarrativeText { get; set; } = string.Empty;
 }

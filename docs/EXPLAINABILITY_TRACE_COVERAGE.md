@@ -55,6 +55,19 @@ When **`GET /v1/explain/runs/{runId}/aggregate`** builds a **`RunExplanationSumm
 
 - **Implementation:** `ArchLucid.Decisioning.Findings.ExplanationFaithfulnessChecker`, `IExplanationFaithfulnessChecker` (registered in host **Decisioning** DI).
 - **OpenTelemetry:** `archlucid_explanation_faithfulness_ratio` (histogram 0.0–1.0), recorded when at least one token was checked (**`ClaimsChecked` > 0**). See **`docs/OBSERVABILITY.md`**.
+- **Fallback counter:** `archlucid_explanation_aggregate_faithfulness_fallback_total` increments when the aggregate run explanation substitutes deterministic narrative for LLM output after a low faithfulness score (`RunExplanationSummaryService`).
+
+### Aggregate faithfulness fallback — SLO budget (Prometheus)
+
+- **Recording rule:** `archlucid:slo:explanation_faithfulness_fallback_budget` in **`infra/prometheus/archlucid-slo-rules.yml`** (group **`archlucid-slo-explanation-faithfulness`**). The value is a maximum sustained **rate** over a **`1h`** range window: `rate(counter[1h]) ≈ (increments in the last hour) / 3600`. The shipped default is **`3 / 3600`** events per second, aligning with the count-based **`ArchLucidExplanationFaithfulnessFallbackTrend`** guard (`increase(...[1h]) > 3`).
+- **Budget alert:** **`ArchLucidExplanationFaithfulnessFallbackBudgetExceeded`** in **`infra/prometheus/archlucid-alerts.yml`** fires when `rate(archlucid_explanation_aggregate_faithfulness_fallback_total[1h])` exceeds that recording rule for **`30m`**. Tune the recording rule per environment if you intentionally rely on deterministic aggregate text more often.
+
+## Structured per-finding explainability (`FindingExplainabilityEvidence`)
+
+**`GET /v1/explain/runs/{runId}/findings/{findingId}/explainability`** returns **`FindingExplainabilityResult`**, including:
+
+- **`evidence`:** deterministic **`FindingExplainabilityEvidence`** (`evidenceRefs`, `conclusion` from persisted finding rationale, `alternativePathsConsidered`, `ruleId` from trace rule ids). This object is always produced server-side from stored findings + trace; it is never sourced from LLM output.
+- **`narrativeText`:** presentation-only plain text composed from the same trace fields (still no live LLM call on this route).
 
 ## OpenTelemetry metric
 

@@ -66,7 +66,15 @@ test-ui-unit.cmd
 .\test-ui-unit.ps1
 ```
 
-### E2E tests (Playwright)
+### Component accessibility (Vitest + jest-axe)
+
+```powershell
+cd archlucid-ui
+npm ci
+npm run test:axe-components
+```
+
+### E2E tests — mock Playwright (`playwright.mock.config.ts`)
 
 ```powershell
 cd archlucid-ui
@@ -74,11 +82,11 @@ cd archlucid-ui
 # Install browser (one-time):
 npx playwright install --with-deps chromium
 
-# Run E2E (Playwright starts Next + mock API — no separate dev server or C# API):
+# Mock-backed E2E (Playwright starts Next + loopback mock API — no separate dev server or C# API):
 npm run test:e2e
 ```
 
-From the repo root: **`test-ui-smoke.cmd`** or **`test-ui-smoke.ps1`**. **What is covered, mocks, and limits:** [section 8 — E2E tests (Playwright)](#8-e2e-tests-playwright).
+From the repo root: **`test-ui-smoke.cmd`** or **`test-ui-smoke.ps1`**. **What is covered, mocks, and limits:** [section 8 — E2E tests (Playwright)](#8-e2e-tests-playwright). **Live** API + SQL browser journeys: **`npx playwright test`** with default **`playwright.config.ts`** (see **`docs/LIVE_E2E_HAPPY_PATH.md`**).
 
 ---
 
@@ -381,11 +389,11 @@ The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey**
 | **`e2e/compare-stale-input-warning.spec.ts`** | After a successful compare, changing a run ID shows the stale-input warning; restoring the prior left ID clears it. |
 | **`e2e/compare-proxy-mock.spec.ts`** | Client compare + **Explain changes (AI)** with mocked proxy responses (legacy + structured + explanation). |
 
-**Out of scope for this suite:** auth flows, real CLI/API integration, multi-project runs lists, graph interactions, downloads/ZIP bytes, performance, accessibility audits, and cross-browser matrices unless explicitly added later.
+**Out of scope for mock suite:** auth flows, real CLI/API integration, multi-project runs lists, graph interactions, downloads/ZIP bytes, performance, and cross-browser matrices unless explicitly added later. **Live** journeys and **route-level axe** live under **`live-api-*.spec.ts`** and run with **default `playwright.config.ts`** when the API + SQL are up (see **`docs/LIVE_E2E_HAPPY_PATH.md`**).
 
 ### How to run (checked-in E2E only)
 
-Playwright **`webServer`** runs **`npm run build`** and the mock launcher (see **`playwright.config.ts`**). You do **not** start **`npm run dev`** or **`dotnet run`** for the default suite.
+**Mock** Playwright **`webServer`** runs **`npm run build`** and the mock launcher (**`playwright.mock.config.ts`** — `npm run test:e2e`). You do **not** start **`npm run dev`** or **`dotnet run`** for that path.
 
 ```powershell
 cd archlucid-ui
@@ -417,7 +425,7 @@ test("home page has ArchLucid heading", async ({ page }) => {
 });
 ```
 
-Tests live in **`e2e/`** as **`*.spec.ts`** (see **`playwright.config.ts`** **`testDir`**).
+Tests live in **`e2e/`** as **`*.spec.ts`**. **`playwright.mock.config.ts`** sets **`testDir`** to **`e2e/`** and ignores **`live-api-*.spec.ts`**; default **`playwright.config.ts`** is **live-only** (`testMatch: ["live-api-*.spec.ts"]`).
 
 ---
 

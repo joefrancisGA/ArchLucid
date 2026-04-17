@@ -10,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:run": "vitest run",
-    "test:e2e": "playwright test",
+    "test:axe-components": "vitest run src/accessibility",
+    "test:e2e": "playwright test -c playwright.mock.config.ts",
+    "test:e2e:live": "playwright test",
     "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json"
   },
   "dependencies": {
@@ -44,6 +46,7 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@types/jest-axe": "^3.5.9",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
@@ -51,6 +54,7 @@
     "autoprefixer": "^10.4.20",
     "eslint": "9.39.4",
     "eslint-config-next": "^15.5.15",
+    "jest-axe": "^10.0.0",
     "jsdom": "^29.0.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",

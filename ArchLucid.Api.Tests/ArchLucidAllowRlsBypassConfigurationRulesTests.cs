@@ -25,6 +25,7 @@ public sealed class ArchLucidAllowRlsBypassConfigurationRulesTests
             Dictionary<string, string?> data = new()
             {
                 ["ArchLucid:StorageProvider"] = "Sql",
+                ["ArchLucid:Persistence:AllowRlsBypass"] = "true",
                 ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
                 ["ConnectionStrings:ArchLucid"] =
                     "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
@@ -59,6 +60,7 @@ public sealed class ArchLucidAllowRlsBypassConfigurationRulesTests
             Dictionary<string, string?> data = new()
             {
                 ["ArchLucid:StorageProvider"] = "Sql",
+                ["ArchLucid:Persistence:AllowRlsBypass"] = "true",
                 ["ArchLucidAuth:Mode"] = "JwtBearer",
                 ["ArchLucidAuth:Authority"] = "https://login.example.com",
                 ["ConnectionStrings:ArchLucid"] =

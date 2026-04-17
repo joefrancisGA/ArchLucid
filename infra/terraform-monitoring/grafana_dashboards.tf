@@ -37,3 +37,10 @@ resource "grafana_dashboard" "container_apps_overview" {
   folder      = grafana_folder.archlucid[0].id
   config_json = file("${path.module}/../grafana/dashboards/archlucid-container-apps-overview.json")
 }
+
+resource "grafana_dashboard" "cost" {
+  count = local.grafana_dashboards_enabled ? 1 : 0
+
+  folder      = grafana_folder.archlucid[0].id
+  config_json = file("${path.module}/grafana_dashboards/archlucid-cost.json")
+}
