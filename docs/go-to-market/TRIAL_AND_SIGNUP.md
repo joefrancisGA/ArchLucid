@@ -2,7 +2,9 @@
 
 **Audience:** Product and engineering teams planning the self-serve trial path.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-04-17
+
+**Pricing:** Trial parameters (seats, runs, duration) are governed by the free trial row in [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) §4. Prices for conversion are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md) — do not restate numbers here.
 
 ---
 

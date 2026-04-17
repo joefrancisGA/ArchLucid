@@ -2,9 +2,11 @@
 
 **Audience:** Product leadership, sales, and finance — internal alignment before external pricing publication.
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-04-17
 
 **Grounding:** Pricing anchors to the ROI model in [ROI_MODEL.md](ROI_MODEL.md) (break-even at ~180 architect-hours/year) and buyer personas in [BUYER_PERSONAS.md](BUYER_PERSONAS.md).
+
+**Single source of truth:** All price figures live **only** in this file, [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md), [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md), and [docs/CHANGELOG.md](../CHANGELOG.md). Every other doc must **link here** rather than restate numbers; the CI check `scripts/ci/check_pricing_single_source.py` enforces this on every pull request.
 
 ---
 
@@ -22,7 +24,7 @@
 ## 2. Pricing model evaluation
 
 | Model | Pros | Cons | Fit for ArchLucid |
-|-------|------|------|--------------------|
+|-------|------|------|-------------------|
 | **Per-seat (architect)** | Simple, predictable, easy to quote | Caps adoption — customers may limit seats to control cost; penalizes broader team usage | **Good base** — aligns with buyer's architect headcount; simple to explain |
 | **Per-run (usage)** | Aligns with value delivered; high-volume users pay more | Unpredictable costs; discourages experimentation; complex metering needed | **Poor as primary** — buyers dislike variable cost; good as an overage mechanism |
 | **Platform fee + consumption** | Predictable base with usage upside; expansion-friendly | More complex to explain; requires metering infrastructure | **Best hybrid** — predictable base per workspace/team, with run allowances per tier |
@@ -36,12 +38,15 @@
 ### Tier overview
 
 | | **Team** | **Professional** | **Enterprise** |
-|--|----------|-------------------|-----------------|
+|--|----------|-----------------|----------------|
 | **Target buyer** | Small architecture team exploring AI-assisted review | Established architecture practice with governance needs | Large organization with compliance, audit, and multi-team requirements |
 | **Target persona** | Persona 3 (CTO/VP Eng) | Persona 1 (Enterprise Architect) | Persona 1 + Persona 2 (Platform Eng Lead) |
+| **Platform fee** | $199 / workspace / month | $899 / workspace / month (up to 5 workspaces) | Included in annual contract |
 | **Seats included** | Up to 5 architects | Up to 20 architects | Unlimited (named) |
+| **Seat price** | $79 / architect / month | $179 / architect / month | Included in annual contract |
 | **Workspaces** | 1 | Up to 5 | Unlimited |
-| **Runs / month** | 20 | 100 | Custom |
+| **Runs / month** | 20 included; $10 / run overage | 100 included; $8 / run overage | Unlimited (2,000 run/mo fair-use soft cap) |
+| **Annual prepay** | 2 months free | 2 months free | Custom |
 | **Finding engines** | All 10 | All 10 | All 10 + custom engine support |
 | **Governance** | Basic (pre-commit gate) | Full (approval workflows, policy packs, segregation of duties) | Full + custom policy packs |
 | **Comparison / drift** | Included | Included | Included |
@@ -49,9 +54,12 @@
 | **Authentication** | Entra ID | Entra ID | Entra ID + generic OIDC (roadmap) |
 | **Support** | Community / email | Business hours email + onboarding call | Dedicated CSM, priority response |
 | **SLA** | Shared SLO targets | Shared SLO targets | Custom SLA with credits |
-| **Price range** | $X–$Y / seat / month | $X–$Y / seat / month | Custom quote |
 
-**Note:** Price placeholders ($X–$Y) are intentional. Final pricing requires competitive benchmarking and cost modeling. Suggested approach: set Team tier at a price point accessible for a small team's discretionary budget (< $500/month total), Professional at a level requiring manager approval ($2K–$5K/month), Enterprise at $10K+/month requiring VP/CTO approval.
+**Example monthly invoice — Team, 3 seats, 1 workspace:**
+Platform fee $199 + (3 × $79) = **$436 / month** (within the < $500 discretionary budget guardrail).
+
+**Example monthly invoice — Professional, 8 seats, 1 workspace:**
+Platform fee $899 + (8 × $179) = **$2,331 / month** (within the $2K–$5K manager-approval range).
 
 ### Feature gates
 
@@ -75,13 +83,73 @@
 
 | Scenario | Pricing | Duration | Conversion path |
 |----------|---------|----------|-----------------|
-| **Self-serve trial** | Free | 14 days | Auto-upgrade prompt; see [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md) |
-| **Guided pilot** | Free or discounted Professional tier | 6 weeks (per [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)) | Scorecard review → commercial proposal |
+| **Self-serve trial** | Free | 14 days | Auto-upgrade prompt; see [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md). Team-tier features, simulator agents, 10 runs, 3 seats, sample seeded. |
+| **Guided pilot** | $15,000 flat, fully credited on conversion to Professional or Enterprise | 6 weeks (per [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)) | Scorecard review → commercial proposal |
+| **Design partner** | 50% off Professional list price for 12 months; **capped at first 3 customers** | Contract term | In exchange for: published case study + quarterly reference call |
 | **Enterprise evaluation** | Custom | Negotiated | Champion + executive sponsor path |
+
+**Guided pilot credit:** The $15,000 pilot fee is fully credited against the first annual invoice on conversion, making it zero net cost to the buyer who converts.
+
+**Design partner eligibility:** Must be within the first 3 signed design-partner agreements. Sales must confirm the slot before quoting. Commitment deliverables (case study + reference call) are contractual.
 
 ---
 
-## 5. Expansion levers
+## 5. Locked list prices (2026)
+
+> **Effective date:** 2026-04-17.
+> **Valid for:** 12 months, or until a re-rate gate below triggers an explicit re-rate decision.
+> **Change control:** Any revision to the numbers in this section requires a product leadership decision and an update to this file + CHANGELOG.md before becoming effective.
+
+### 5.1 Derivation (50%-of-fair-value basis)
+
+| Input | Value | Source |
+|-------|-------|--------|
+| Annual value delivered (6-architect team) | ~$294,000 / year | [ROI_MODEL.md](ROI_MODEL.md) §5 |
+| Value per architect per year | ~$49,000 | $294K ÷ 6 |
+| Capture target (10–20% of value) | $4,900–$9,800 / architect / year | Industry benchmark for B2B SaaS |
+| "Fair value" seat price | $408–$817 / seat / month | Divide by 12 |
+| **Current price multiplier** | **~50% of fair value** | See discount stack below |
+
+**Discount stack applied to arrive at locked prices:**
+
+| Discount | Reason | Magnitude |
+|----------|--------|-----------|
+| Trust discount | SOC 2 Type II not yet attested; no published pen-test report | −25% |
+| Reference discount | No named reference customer logo or published case study | −15% |
+| Self-serve discount | Trial/billing loop not fully in production at lock date | −10% |
+| **Total discount** | | **−50%** |
+
+### 5.2 Locked price table (do not edit without re-rate gate decision)
+
+| Item | Price |
+|------|-------|
+| Team platform fee | $199 / workspace / month |
+| Team seat | $79 / architect / month |
+| Team run overage | $10 / run |
+| Professional platform fee | $899 / workspace / month |
+| Professional seat | $179 / architect / month |
+| Professional run overage | $8 / run |
+| Enterprise annual floor | $60,000 / year |
+| Enterprise land range | $60,000–$250,000 / year |
+| Enterprise run model | Unlimited in fair-use (2,000 / month soft cap) |
+| Guided pilot | $15,000 flat (fully credited on conversion) |
+| Design partner discount | 50% off Professional list, 12 months, first 3 customers only |
+
+### 5.3 Re-rate plan
+
+Each gate below removes its associated discount from the stack. Trigger a **product leadership pricing review** (not an automatic price change) when any gate clears. Existing customers receive **price-lock for the remainder of their current term plus one renewal** before any increase applies.
+
+| Gate | Discount removed | Expected list price increase |
+|------|-----------------|------------------------------|
+| SOC 2 Type II report available under NDA | −25% trust discount | Raise list ~25% |
+| Two named, referenceable customers (case study or logo + quote) | −15% reference discount | Raise list ~15% |
+| Self-serve signup → tenant → billing loop in production | −10% self-serve discount | Raise list ~10% |
+
+**All three gates cleared:** fair-value pricing (~$408–$817 / seat / month) becomes defensible. Re-rate to Professional seat ~$299 / seat / month as a full-discount-cleared target.
+
+---
+
+## 6. Expansion levers
 
 | Lever | Trigger |
 |-------|---------|
@@ -93,11 +161,26 @@
 
 ---
 
-## 6. What is NOT included
+## 7. Sensitivity playbook
+
+Use this when first deals produce signal about price tolerance. Do not change list prices without a product leadership decision — use discounting within deal economics until patterns emerge.
+
+| Signal | Recommended response |
+|--------|---------------------|
+| Deals stalling at Pro; price is the stated objection | Offer Pro seat at **$129 / seat / month** as a first-year promotional price (document separately; do not change list) |
+| First 5 Pro deals close in < 30 days without discount | Raise Pro seat to **$229 / seat / month** at next quarterly re-rate |
+| Azure Marketplace is the primary buying motion | Collapse to flat tiers: Team **$499 / month** (up to 5 seats); Pro **$2,499 / month** (up to 15 seats); Enterprise: talk to sales |
+| Run overage causes friction (> 3 deals cite it) | Move Pro/Enterprise to **unlimited runs in fair-use**; keep overage only at Team tier |
+| Buyers ignore platform fee / only count per-seat | Roll platform fee into higher seat price: Team **$119 / seat**; Pro **$249 / seat** (equivalent monthly at typical seat counts) |
+
+---
+
+## 8. What is NOT included
 
 - **Professional services:** Custom connector development, bespoke policy packs, training workshops — priced separately.
 - **Custom infrastructure:** Dedicated compute, customer-managed keys (BYOK), air-gapped deployment — not available in V1 SaaS.
 - **Data migration:** Importing architecture data from other tools — roadmap connector (see [INTEGRATION_CATALOG.md](INTEGRATION_CATALOG.md)).
+- **Adds priced separately at Enterprise:** Custom policy pack authoring engagement, SCIM provisioning (when shipped), Azure Service Bus integration setup.
 
 ---
 
@@ -105,8 +188,12 @@
 
 | Doc | Use |
 |-----|-----|
-| [ROI_MODEL.md](ROI_MODEL.md) | Value model and break-even analysis |
+| [ROI_MODEL.md](ROI_MODEL.md) | Value model, break-even analysis, and payback math |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Who buys and their budget authority |
 | [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) | Competitor pricing context |
-| [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md) | Self-serve trial design |
-| [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) | Subscription order template |
+| [TRIAL_AND_SIGNUP.md](TRIAL_AND_SIGNUP.md) | Self-serve trial design and trial parameters |
+| [ORDER_FORM_TEMPLATE.md](ORDER_FORM_TEMPLATE.md) | Subscription order template (prices link back here) |
+| [CUSTOMER_ONBOARDING_PLAYBOOK.md](CUSTOMER_ONBOARDING_PLAYBOOK.md) | Post-conversion onboarding (6-week pilot) |
+| [POSITIONING.md](POSITIONING.md) | Positioning narrative and proof points |
+| [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md) | Guided pilot success criteria |
+| [../CHANGELOG.md](../CHANGELOG.md) | Release history including pricing freeze entry |

@@ -8,6 +8,41 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-17 — Order form + ROI model alignment (pricing freeze follow-on)
+
+**Updated:** [docs/go-to-market/ORDER_FORM_TEMPLATE.md](go-to-market/ORDER_FORM_TEMPLATE.md) to replace placeholder pricing with links to [PRICING_PHILOSOPHY.md §5](go-to-market/PRICING_PHILOSOPHY.md). Added:
+- Three concrete worked pricing examples: Team 3-seat, Professional 8-seat, Enterprise 50-seat / 3-workspace.
+- Run overage line item section with a 150%-of-allowance worked example for Professional tier ($8/run overage; 50 overage runs = $400).
+- Annual prepay addendum (Addendum A).
+- Design partner agreement addendum (Addendum B): 50% off Professional list for 12 months, capped at 3 customers, in exchange for published case study + quarterly reference calls.
+
+**Updated:** [docs/go-to-market/ROI_MODEL.md](go-to-market/ROI_MODEL.md). Added:
+- §8: Subscription cost and payback analysis at locked Professional list price for 6-architect baseline. Full-list payback ≈ 2 months; design partner payback ≈ 1.5 months (6 weeks).
+- §9: Three-year TCO comparison vs. LeanIX and Ardoq using publicly observed price ranges from COMPETITIVE_LANDSCAPE.md. Includes sensitivity analysis at 50% of benchmark savings (payback still < 4 months).
+- Updated §10 (was §8) "How to present" to reference new sections.
+
+---
+
+## 2026-04-17 — Pricing freeze (locked list prices 2026)
+
+**Added:** Locked list prices in [docs/go-to-market/PRICING_PHILOSOPHY.md](go-to-market/PRICING_PHILOSOPHY.md) §5. Prices are effective 2026-04-17 and valid for 12 months unless a re-rate gate triggers an explicit product leadership review.
+
+**Team:** $199 / workspace / month platform fee + $79 / architect / month (up to 5 seats), 20 runs/month included, $10/run overage, 2 months free on annual prepay.
+
+**Professional:** $899 / workspace / month platform fee + $179 / architect / month (up to 20 seats), 100 runs/month included, $8/run overage, 2 months free on annual prepay.
+
+**Enterprise:** $60,000–$250,000 / year; unlimited runs (2,000 run/mo fair-use soft cap); unlimited seats and workspaces; custom policy packs, retention, SLA, and dedicated CSM.
+
+**Pilot / design partner:** Self-serve trial free (14 days, 10 runs, 3 seats, sample seeded); guided pilot $15,000 flat (credited on conversion); design partner 50% off Pro list for 12 months (first 3 customers only, in exchange for published case study + quarterly reference call).
+
+**Re-rate gates documented:** SOC 2 Type II (+25%), two named reference customers (+15%), self-serve billing loop in production (+10%). Existing customers price-locked for remainder of term + one renewal before any increase applies.
+
+**CI guard added:** `scripts/ci/check_pricing_single_source.py` — fails the build if any price figure appears outside the allowed source files (PRICING_PHILOSOPHY.md, ORDER_FORM_TEMPLATE.md, TRIAL_AND_SIGNUP.md, CHANGELOG.md). Wired into `doc-markdown-links` CI job.
+
+**Cross-links:** POSITIONING.md, TRIAL_AND_SIGNUP.md, ROI_MODEL.md, ORDER_FORM_TEMPLATE.md, CUSTOMER_ONBOARDING_PLAYBOOK.md updated to link to the single price source rather than restating numbers.
+
+---
+
 ## 2026-04-14 — Configurable severity thresholds + approval SLA with escalation
 
 **Added:** Configurable **`BlockCommitMinimumSeverity`** on `PolicyPackAssignment` (SQL **`057`**) — allows blocking commits at any `FindingSeverity` level, not just Critical. When null with `BlockCommitOnCritical=true`, behavior is unchanged.
