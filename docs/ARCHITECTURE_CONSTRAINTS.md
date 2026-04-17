@@ -80,6 +80,8 @@ Fast core (excludes slow/integration-tagged tests elsewhere; architecture tests 
 dotnet test ArchLucid.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
 ```
 
+**NetArchTest quirk (string field constants):** For `ShouldNot().HaveDependencyOnAny(...)`, the library scans **compile-time string constants on fields** and treats **`:`** like **`.`** as a namespace separator (see `NamespaceTree` in NetArchTest). A `public const string` such as `"ArchLucid:Persistence"` is therefore parsed as **`ArchLucid.Persistence`** and can fail **`Core_must_not_depend_on_any_solution_project`** even though Core has no real reference to the persistence assembly. Prefer a **`static` property** that builds the path with `string.Concat` (or keep the literal only in a host layer), as in **`ArchLucidPersistenceOptions.SectionPath`**.
+
 **Adding a rule:** Prefer a new **`[Fact]`** with `Suite=Core` (and `Category=Unit` unless you have a reason not to). Reuse `ArchitectureConstraintNamespaces` for Tier 1–style prefix sets. For “must not reference assembly X”, prefer **`GetReferencedAssemblies()`** when namespace-prefix checks would false-positive.
 
 **CI:** The same `Suite=Core` filter used by the “fast core” job picks up this project once it is in **`ArchLucid.sln`**.
