@@ -19,6 +19,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Resilience;
 using ArchLucid.Host.Core.Services;
+using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Embedding;
@@ -37,31 +38,62 @@ public static partial class ServiceCollectionExtensions
 {
     private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<ArchLucidPersistenceOptions>(
+            configuration.GetSection(ArchLucidPersistenceOptions.SectionPath));
         services.Configure<ContentSafetyOptions>(configuration.GetSection(ContentSafetyOptions.SectionPath));
-        services.AddSingleton<IContentSafetyGuard>(static sp =>
+        services.AddSingleton<IPostConfigureOptions<ContentSafetyOptions>, ContentSafetyProductionLikePostConfigure>();
+        services.AddSingleton<IContentSafetyGuard>(sp =>
         {
+            IHostEnvironment env = sp.GetRequiredService<IHostEnvironment>();
+            IConfiguration cfg = sp.GetRequiredService<IConfiguration>();
             IOptionsMonitor<ContentSafetyOptions> monitor = sp.GetRequiredService<IOptionsMonitor<ContentSafetyOptions>>();
             ContentSafetyOptions opts = monitor.CurrentValue;
+            bool prodLike = HostEnvironmentClassification.IsProductionOrStagingLike(env, cfg);
+
+            if (prodLike)
+            {
+                if (string.IsNullOrWhiteSpace(opts.Endpoint) || string.IsNullOrWhiteSpace(opts.ApiKey))
+                {
+                    throw new InvalidOperationException(
+                        "ArchLucid:ContentSafety:Endpoint and ArchLucid:ContentSafety:ApiKey are required in Production or Staging "
+                        + "(or when ARCHLUCID_ENVIRONMENT is Production or Staging).");
+                }
+
+                if (!Uri.TryCreate(opts.Endpoint, UriKind.Absolute, out Uri? endpoint))
+                {
+                    throw new InvalidOperationException(
+                        "ArchLucid:ContentSafety:Endpoint must be an absolute URI when content safety is mandatory for this host.");
+                }
+
+                ILogger<AzureContentSafetyGuard> logger = sp.GetRequiredService<ILogger<AzureContentSafetyGuard>>();
+
+                return new AzureContentSafetyGuard(endpoint, opts.ApiKey!, monitor, logger);
+            }
 
             if (!opts.Enabled)
             {
+                if (!opts.AllowNullGuardInDevelopment)
+                {
+                    throw new InvalidOperationException(
+                        "ArchLucid:ContentSafety:Enabled is false but AllowNullGuardInDevelopment is false. "
+                        + "Enable content safety or set AllowNullGuardInDevelopment=true for development.");
+                }
+
                 return new NullContentSafetyGuard();
             }
 
             if (string.IsNullOrWhiteSpace(opts.Endpoint) || string.IsNullOrWhiteSpace(opts.ApiKey))
-            {
                 return new ContentSafetyEnabledButUnconfiguredGuard();
-            }
 
-            if (!Uri.TryCreate(opts.Endpoint, UriKind.Absolute, out Uri? endpoint))
+            if (!Uri.TryCreate(opts.Endpoint, UriKind.Absolute, out Uri? endpointDev))
             {
                 throw new InvalidOperationException(
                     "ArchLucid:ContentSafety:Endpoint must be an absolute URI when ArchLucid:ContentSafety:Enabled is true.");
             }
 
-            ILogger<AzureContentSafetyGuard> logger = sp.GetRequiredService<ILogger<AzureContentSafetyGuard>>();
+            ILogger<AzureContentSafetyGuard> devLogger = sp.GetRequiredService<ILogger<AzureContentSafetyGuard>>();
 
-            return new AzureContentSafetyGuard(endpoint, opts.ApiKey, monitor, logger);
+            return new AzureContentSafetyGuard(endpointDev, opts.ApiKey!, monitor, devLogger);
         });
 
         services.Configure<AgentPromptCatalogOptions>(

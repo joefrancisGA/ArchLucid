@@ -8,8 +8,14 @@ public sealed class ContentSafetyOptions
 {
     public const string SectionPath = "ArchLucid:ContentSafety";
 
-    /// <summary>When false, a pass-through <c>NullContentSafetyGuard</c> is used.</summary>
+    /// <summary>When false, a pass-through <c>NullContentSafetyGuard</c> is used (non-production-like hosts only).</summary>
     public bool Enabled { get; set; }
+
+    /// <summary>
+    /// When true (default), non-production-like hosts may use <c>NullContentSafetyGuard</c> while <see cref="Enabled"/> is false.
+    /// Set false to force explicit enablement in development.
+    /// </summary>
+    public bool AllowNullGuardInDevelopment { get; set; } = true;
 
     /// <summary>Optional endpoint URI when a concrete guard is added (not read by the null/stub guards).</summary>
     public string? Endpoint { get; set; }

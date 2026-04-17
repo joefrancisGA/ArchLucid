@@ -208,6 +208,10 @@ export function RunExplanationSection({ summary, loading, error }: RunExplanatio
               <li key={row.findingId}>
                 <code style={{ fontSize: 12 }}>{row.findingId}</code> — {row.traceConfidenceLabel} (
                 {Math.round(row.traceCompletenessRatio * 100)}% trace fields)
+                {row.ruleId && row.ruleId.trim().length > 0 ? `; rule ${row.ruleId}` : ""}
+                {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
+                  ? `; ${row.evidenceRefCount} evidence ref(s)`
+                  : ""}
               </li>
             ))}
           </ul>

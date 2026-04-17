@@ -15,6 +15,8 @@ public static class ArchLucidPersistenceStartup
 {
     public static void RunSchemaBootstrapMigrationsAndOptionalDemoSeed(WebApplication app)
     {
+        RlsBypassPolicyBootstrap.Apply(app.Configuration, app.Environment, app.Logger);
+
         ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(app.Configuration);
         bool storageIsSql = ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider);
 

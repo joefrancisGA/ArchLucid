@@ -32,6 +32,10 @@ export type FindingTraceConfidenceDto = {
   findingId: string;
   traceCompletenessRatio: number;
   traceConfidenceLabel: string;
+  /** Logical rule id(s) from the explainability trace (`;`-joined when multiple), or `unspecified` when present. */
+  ruleId?: string | null;
+  /** Count of deterministic evidence references backing the finding. */
+  evidenceRefCount?: number | null;
 };
 
 /** Full explanation payload returned inside `RunExplanationSummary`. */
@@ -68,6 +72,14 @@ export type RunExplanationSummary = {
   findingTraceConfidences?: FindingTraceConfidenceDto[] | null;
 };
 
+/** Deterministic factual explainability for one finding (never LLM-derived). */
+export type FindingExplainabilityEvidence = {
+  evidenceRefs: string[];
+  conclusion: string;
+  alternativePathsConsidered: string[];
+  ruleId: string;
+};
+
 /** Deterministic explainability payload for one finding (`GET /v1/explain/runs/.../findings/.../explainability`). */
 export type FindingExplainability = {
   findingId: string;
@@ -80,6 +92,8 @@ export type FindingExplainability = {
   decisionsTaken: string[];
   alternativePathsConsidered: string[];
   notes: string[];
+  /** Structured factual explainability; absent on older API responses. */
+  evidence?: FindingExplainabilityEvidence | null;
   narrativeText: string;
 };
 

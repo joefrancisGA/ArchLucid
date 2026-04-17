@@ -9,6 +9,7 @@ using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace ArchLucid.Host.Composition.Tests;
 
@@ -66,6 +67,7 @@ public sealed class StorageProviderDiGraphValidationTests
 
         ServiceCollection services = new();
         services.AddSingleton(typeof(IConfiguration), configuration);
+        services.AddSingleton<IHostEnvironment>(new CompositionTestHostEnvironment(Environments.Development));
         services.AddLogging();
         services.AddSingleton<IScopeContextProvider, FixedCompositionScopeContextProvider>();
 

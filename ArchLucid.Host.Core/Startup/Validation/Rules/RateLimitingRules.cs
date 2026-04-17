@@ -1,3 +1,5 @@
+using ArchLucid.Host.Core.Configuration;
+
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class RateLimitingRules
@@ -8,7 +10,9 @@ internal static class RateLimitingRules
 
         if (fixedSection.Exists())
         {
-            int permit = configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
+            int permit = configuration.GetValue(
+                "RateLimiting:FixedWindow:PermitLimit",
+                RateLimitingDefaults.FixedWindowPermitLimit);
             int window = configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
             int queue = configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
             AddIfInvalid(errors, "RateLimiting:FixedWindow", permit, window, queue);

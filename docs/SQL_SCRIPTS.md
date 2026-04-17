@@ -12,7 +12,7 @@ ArchLucid uses **two** mechanisms for SQL Server schema (by design):
 
 | Pathway | When it runs | Engine | Script source | Purpose |
 |--------|----------------|--------|----------------|--------|
-| **DbUp migrations** | API startup when **`ConnectionStrings:ArchLucid`** is set | SQL Server | `ArchLucid.Persistence/Migrations/*.sql` embedded in **ArchLucid.Persistence** | **Authoritative upgrades** for deployed and test databases; ordered, transactional, logged. |
+| **DbUp migrations** | API startup when **`ConnectionStrings:ArchLucid`** is set | SQL Server | `ArchLucid.Persistence/Migrations/*.sql` (+ optional **`Migrations/Baseline/`**) embedded in **ArchLucid.Persistence** | **Authoritative upgrades** for deployed and test databases; ordered, transactional, logged. |
 | **Persistence schema bootstrap** | First use of Dapper SQL persistence (same DB as API typically) | SQL Server | `ArchLucid.Persistence/Scripts/ArchLucid.sql` copied to **ArchLucid.Persistence** output as `Scripts/ArchLucid.sql` | Ensures **authority + decisioning** objects exist; runs **full** consolidated DDL in `GO` batches (see §3). |
 
 **Important:**
@@ -93,10 +93,17 @@ Read the file top-down; major comment banners include:
 
 ## 4. DbUp migrations (`ArchLucid.Persistence/Migrations/`)
 
+### 4.0 Greenfield baseline (`Migrations/Baseline/`)
+
+- **`Migrations/Baseline/000_Baseline_2026_04_17.sql`** is a **single forward script** that replays the cumulative effect of migrations **`001`–`050`** (mechanical union of those files; regenerate if that band changes).
+- **`GreenfieldBaselineMigrationRunner`** (called from **`DatabaseMigrator.Run`** before DbUp) runs **only** when **`dbo.SchemaVersions`** does **not** yet record **`001_InitialSchema`** (brand-new empty catalog). It **replays embedded migrations `001`–`050` in order** (same batches as DbUp would), then **stamps** those script names into **`SchemaVersions`** so DbUp continues at **`051`** onward. The checked-in **`000_Baseline_*.sql`** file is a **documentation / audit union** of those scripts (regenerate with the repo script when `001`–`050` change); runtime does **not** split that mega-file on `GO` (comment-safe).
+- **Brownfield / existing databases** that already ran **`001`** keep the normal incremental path; the baseline file is **not** executed.
+- Baseline scripts are **not** part of the “latest ten rollback” CI guard (only root **`NNN_*.sql`** forward files are).
+
 ### 4.1 Mechanics
 
-- Scripts are **`EmbeddedResource`** in **ArchLucid.Persistence** (`Migrations\*.sql` only — consolidated `Scripts\ArchLucid.sql` is never picked up by DbUp).
-- **DbUp** (`DatabaseMigrator.Run`) selects only embedded names that contain **`.Migrations.`** and end with **`.sql`**, so only `ArchLucid.Persistence/Migrations/*.sql` run.
+- Scripts are **`EmbeddedResource`** in **ArchLucid.Persistence** (`Migrations\*.sql` plus `Migrations\Baseline\*.sql` — consolidated `Scripts\ArchLucid.sql` is never picked up by DbUp).
+- **DbUp** (`DatabaseMigrator.Run`) selects embedded names that contain **`.Migrations.`** and end with **`.sql`**, but **excludes** **`.Migrations.Baseline.`** (baseline is applied by **`GreenfieldBaselineMigrationRunner`**, not DbUp’s script provider).
 - Ordering is **lexicographic by embedded resource name** — keep the filename prefix pattern **`001_`**, **`002_`**, … (see `DatabaseMigrationScriptTests`).
 
 ### 4.2 Catalog (one file = one version step)

@@ -25,7 +25,7 @@
 | **axe-core** via `@axe-core/playwright`   | Automated WCAG scan  | Playwright e2e suite  |
 | **eslint-plugin-jsx-a11y**                | Static JSX linting   | ESLint (via Next.js)  |
 
-CI enforcement: the `ui-e2e-smoke` job in `.github/workflows/ci.yml` fails on any critical or serious axe violation reported for the routes in `archlucid-ui/e2e/accessibility.spec.ts`.
+CI enforcement: merge-blocking **`ui-e2e-live`** runs **`live-api-accessibility*.spec.ts`** (Playwright + **`@axe-core/playwright`**) against **live API + SQL**; critical/serious violations fail the job. Fast component-level checks run in **`ui-axe-components`** via Vitest + **jest-axe** on **`archlucid-ui/src/accessibility/**`**.
 
 ## Existing accessibility controls
 
@@ -51,7 +51,7 @@ To add accessibility checks for a new page:
 
 1. Add an entry to the `PAGES` array in `archlucid-ui/e2e/accessibility.spec.ts`.
 2. Ensure the mock API server (`e2e/mock-archlucid-api-server.ts`) returns fixture data for that route when needed.
-3. Run `npm run test:e2e` locally to verify zero critical/serious violations before pushing.
+3. For route-level axe against a live API, run `npx playwright test` from **`archlucid-ui/`** with **`ArchLucid.Api`** up (see **`docs/LIVE_E2E_HAPPY_PATH.md`**). For component axe only: **`npm run test:axe-components`**.
 
 ## Manual testing guidance
 

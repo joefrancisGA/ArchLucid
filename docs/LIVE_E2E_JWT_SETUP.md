@@ -35,7 +35,7 @@ Run Playwright **`live-api-*.spec.ts`** against **`ArchLucidAuth:Mode=JwtBearer`
 
 1. Generate keys and mint a token (see **`scripts/ci/mint_ci_jwt.py --help`**).
 2. Point the API at the **public** PEM and set issuer/audience to match mint args.
-3. Export **`LIVE_JWT_TOKEN`** and **`ARCHLUCID_PROXY_BEARER_TOKEN`** (same string) before **`npx playwright test -c playwright.live.config.ts`**.
+3. Export **`LIVE_JWT_TOKEN`** and **`ARCHLUCID_PROXY_BEARER_TOKEN`** (same string) before **`npx playwright test`** (default live config).
 
 ## Related links
 

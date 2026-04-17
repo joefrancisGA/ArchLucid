@@ -28,7 +28,7 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
         Per-finding explainability
       </h3>
       <p className="mb-3 text-xs text-neutral-600 dark:text-neutral-400">
-        Open the trace captured for each finding (rules, graph nodes, narrative). Uses{" "}
+        Open the trace captured for each finding (structured evidence, rules, graph nodes, narrative). Uses{" "}
         <code className="rounded bg-neutral-200 px-1 text-[0.7rem] dark:bg-neutral-800">GET /v1/explain/runs/…/findings/…/explainability</code>.
       </p>
       <div className="overflow-x-auto">
@@ -36,6 +36,8 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
           <thead>
             <tr className="border-b border-neutral-200 dark:border-neutral-700">
               <th className="py-2 pr-3 font-semibold text-neutral-800 dark:text-neutral-200">Finding</th>
+              <th className="py-2 pr-3 font-semibold text-neutral-800 dark:text-neutral-200">Rule id</th>
+              <th className="py-2 pr-3 font-semibold text-neutral-800 dark:text-neutral-200">Evidence refs</th>
               <th className="py-2 pr-3 font-semibold text-neutral-800 dark:text-neutral-200">Trace label</th>
               <th className="py-2 pr-3 font-semibold text-neutral-800 dark:text-neutral-200">Completeness</th>
               <th className="py-2 font-semibold text-neutral-800 dark:text-neutral-200">Action</th>
@@ -54,6 +56,14 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
                   className="border-b border-neutral-100 last:border-0 dark:border-neutral-800"
                 >
                   <td className="py-2 pr-3 font-mono text-xs text-neutral-800 dark:text-neutral-200">{row.findingId}</td>
+                  <td className="py-2 pr-3 text-xs text-neutral-700 dark:text-neutral-300">
+                    {row.ruleId && row.ruleId.trim().length > 0 ? row.ruleId : "—"}
+                  </td>
+                  <td className="py-2 pr-3 tabular-nums text-neutral-700 dark:text-neutral-300">
+                    {typeof row.evidenceRefCount === "number" && Number.isFinite(row.evidenceRefCount)
+                      ? row.evidenceRefCount
+                      : "—"}
+                  </td>
                   <td className="py-2 pr-3 text-neutral-700 dark:text-neutral-300">{row.traceConfidenceLabel}</td>
                   <td className="py-2 pr-3 tabular-nums text-neutral-700 dark:text-neutral-300">{pct}%</td>
                   <td className="py-2">

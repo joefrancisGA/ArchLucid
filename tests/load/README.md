@@ -10,6 +10,7 @@ All scripts accept **`ARCHLUCID_BASE_URL`** (preferred) or **`BASE_URL`** (alias
 | **`ci-smoke.js`** | — | — | `k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json` | `--summary-export` arg |
 | **`smoke.js`** | — | — | `k6 run tests/load/smoke.js --out json=k6-results.json` | `--out` / `--summary-export` |
 | **`soak.js`** | — | `SOAK_VUS` (`3`), `SOAK_DURATION` (`4m`) | `k6 run tests/load/soak.js --summary-export /tmp/k6-soak.json` | `--summary-export` arg |
+| **`per-tenant-burst.js`** | — | `K6_BURST_DURATION` (`5m`), `ARCHLUCID_API_KEY`, `K6_SUMMARY_PATH` | `K6_BURST_DURATION=30s k6 run tests/load/per-tenant-burst.js --summary-export /tmp/k6-burst.json` | **`handleSummary`** default under `tests/load/results/` |
 
 > **Tip:** CI sets **`RateLimiting__FixedWindow__PermitLimit=200000`** on the API process to avoid mass **`429`** from rate limiting. Do the same locally when running k6 at higher VU counts.
 

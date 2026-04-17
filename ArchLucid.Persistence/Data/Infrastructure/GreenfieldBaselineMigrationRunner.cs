@@ -28,17 +28,6 @@ public static partial class GreenfieldBaselineMigrationRunner
             .ToList();
     }
 
-    /// <summary>Resource name for the greenfield baseline script, or <c>null</c> if not embedded.</summary>
-    public static string? GetBaselineMigrationResourceName()
-    {
-        Assembly assembly = Assembly.GetExecutingAssembly();
-
-        return assembly.GetManifestResourceNames()
-            .FirstOrDefault(static n =>
-                n.Contains(BaselineResourceSubstring, StringComparison.OrdinalIgnoreCase) &&
-                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase));
-    }
-
     /// <summary>
     /// When the catalog has no <c>001_InitialSchema</c> journal row, applies baseline SQL and stamps 001–050 in
     /// <c>dbo.SchemaVersions</c>. No-op when incremental history is already present.
@@ -51,39 +40,40 @@ public static partial class GreenfieldBaselineMigrationRunner
         if (!ShouldApplyBaseline(connectionString))
             return;
 
-        string? baselineName = GetBaselineMigrationResourceName();
-        if (baselineName is null)
-            throw new InvalidOperationException("Greenfield baseline script is not embedded (expected Migrations/Baseline/*.sql).");
-
         Assembly assembly = Assembly.GetExecutingAssembly();
-        string baselineSql = ReadEmbeddedScript(assembly, baselineName);
-        IReadOnlyList<string> batches = SplitGoBatches(baselineSql);
 
+        // Replay 001–050 from embedded incremental scripts (same SQL as `Migrations/Baseline/000_Baseline_2026_04_17.sql`,
+        // which is kept for human review / optional tooling). We execute **per migration file** so `GO` lines inside
+        // block comments in a concatenated mega-file cannot be mistaken for batch separators.
         using SqlConnection connection = new(connectionString);
         connection.Open();
 
-        using SqlTransaction tx = connection.BeginTransaction();
-        try
+        foreach (string resourceName in GetOrderedIncrementalMigrationResourceNames())
         {
+            Match match = MigrationNumberRegex().Match(resourceName);
+            if (!match.Success)
+                continue;
+
+            int n = int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+            if (n < 1 || n > 50)
+                continue;
+
+            string sql = ReadEmbeddedScript(assembly, resourceName);
+            IReadOnlyList<string> batches = SplitGoBatches(sql);
+
             foreach (string batch in batches)
             {
                 if (string.IsNullOrWhiteSpace(batch))
                     continue;
 
-                using SqlCommand batchCommand = new(batch, connection, tx);
+                using SqlCommand batchCommand = new(batch, connection);
                 batchCommand.CommandTimeout = 0;
                 batchCommand.ExecuteNonQuery();
             }
+        }
 
-            EnsureSchemaVersionsTable(connection, tx);
-            StampIncrementalScriptsThrough050(connection, tx);
-            tx.Commit();
-        }
-        catch
-        {
-            tx.Rollback();
-            throw;
-        }
+        EnsureSchemaVersionsTable(connection, null);
+        StampIncrementalScriptsThrough050(connection, null);
     }
 
     private static bool ShouldApplyBaseline(string connectionString)
@@ -113,7 +103,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         return Convert.ToBoolean(scalar, System.Globalization.CultureInfo.InvariantCulture);
     }
 
-    private static void EnsureSchemaVersionsTable(SqlConnection connection, SqlTransaction tx)
+    private static void EnsureSchemaVersionsTable(SqlConnection connection, SqlTransaction? tx)
     {
         const string ddl = """
 IF OBJECT_ID(N'dbo.SchemaVersions', N'U') IS NULL
@@ -130,7 +120,7 @@ END
         command.ExecuteNonQuery();
     }
 
-    private static void StampIncrementalScriptsThrough050(SqlConnection connection, SqlTransaction tx)
+    private static void StampIncrementalScriptsThrough050(SqlConnection connection, SqlTransaction? tx)
     {
         IReadOnlyList<string> incremental = GetOrderedIncrementalMigrationResourceNames();
         Regex numberRegex = MigrationNumberRegex();

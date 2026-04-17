@@ -40,6 +40,8 @@ public static class ArchLucidInstrumentation
 
     private static Func<long>? _auditRetryQueuePendingReader;
 
+    private static long _rlsBypassProductionLikeEnabled;
+
     /// <summary>Latest outbox depths for <see cref="EnsureOutboxDepthObservableGaugesRegistered"/>.</summary>
     public static OutboxDepthGaugeState OutboxDepthGauges { get; } = new();
 
@@ -48,6 +50,10 @@ public static class ArchLucidInstrumentation
     /// </summary>
     public static void SetAuditRetryQueuePendingReader(Func<long>? reader) =>
         Volatile.Write(ref _auditRetryQueuePendingReader, reader);
+
+    /// <summary>Sets the observable gauge backing <c>archlucid_rls_bypass_enabled_info</c> (1 when break-glass is on in a production-like host).</summary>
+    public static void SetRlsBypassProductionLikeEnabled(long zeroOrOne) =>
+        Volatile.Write(ref _rlsBypassProductionLikeEnabled, zeroOrOne != 0 ? 1 : 0);
 
     /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureOutboxDepthObservableGaugesRegistered()
@@ -101,6 +107,14 @@ public static class ArchLucidInstrumentation
             "archlucid_audit_retry_queue_pending",
             () => new Measurement<long>(_auditRetryQueuePendingReader?.Invoke() ?? 0),
             description: "Approximate audit events waiting in memory for durable write after hot-path failure.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_rls_bypass_enabled_info",
+            () => new Measurement<long>(
+                Volatile.Read(ref _rlsBypassProductionLikeEnabled),
+                new KeyValuePair<string, object?>("scope", "production_like")),
+            description:
+            "1 when SQL RLS break-glass bypass is enabled (env + ArchLucid:Persistence:AllowRlsBypass) on a Production/Staging-classified host.");
     }
 
     /// <summary>Scheduled advisory scan pipeline (<c>AdvisoryScanRunner</c>).</summary>
@@ -373,10 +387,14 @@ public static class ArchLucidInstrumentation
             description: "Cumulative completion tokens reported by Azure OpenAI completions.");
 
     /// <summary>
-    /// Records LLM token counters. When <paramref name="recordPerTenant"/> is true, also emits tagged series with
-    /// <c>tenant_id</c> (increases Prometheus cardinality — use only for bounded tenant counts).
-    /// Optional <paramref name="llmProviderId"/> and <paramref name="llmDeploymentLabel"/> add low-cardinality series for FinOps dashboards.
+    /// Estimated LLM spend (USD) from configured per-million token rates on recorded traces (label <c>tenant</c>).
     /// </summary>
+    public static readonly Counter<double> LlmCostUsdTotal =
+        AppMeter.CreateCounter<double>(
+            "archlucid_llm_cost_usd_total",
+            unit: "USD",
+            description: "Estimated LLM USD from token counts × AgentExecution:LlmCostEstimation rates (label tenant).");
+
     /// <summary>
     /// Associates <paramref name="accumulator"/> with the current async flow so the agent host&apos;s completion client
     /// can count remote completions toward <see cref="LlmCallsPerRun"/>. Dispose to detach.
@@ -444,6 +462,25 @@ public static class ArchLucidInstrumentation
         ExplanationFaithfulnessRatio.Record(clamped);
     }
 
+    /// <summary>Adds <paramref name="estimatedCostUsd"/> to <see cref="LlmCostUsdTotal"/> when positive.</summary>
+    public static void RecordLlmCostUsd(decimal estimatedCostUsd, string? tenantLabel)
+    {
+        if (estimatedCostUsd <= 0m)
+        {
+            return;
+        }
+
+        string tenant = string.IsNullOrWhiteSpace(tenantLabel) ? "unknown" : tenantLabel.Trim();
+        TagList tags = new() { { "tenant", tenant } };
+
+        LlmCostUsdTotal.Add((double)estimatedCostUsd, tags);
+    }
+
+    /// <summary>
+    /// Records LLM token counters. When <paramref name="recordPerTenant"/> is true, also emits tagged series with
+    /// <c>tenant_id</c> (increases Prometheus cardinality — use only for bounded tenant counts).
+    /// Optional <paramref name="llmProviderId"/> and <paramref name="llmDeploymentLabel"/> add low-cardinality series for FinOps dashboards.
+    /// </summary>
     public static void RecordLlmTokenUsage(
         long promptTokens,
         long completionTokens,

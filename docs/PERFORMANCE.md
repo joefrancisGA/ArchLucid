@@ -28,6 +28,14 @@
 
 **Local:** See **[`tests/load/README.md`](../tests/load/README.md)**. Full hot-path baselines and Compose **`full-stack`**: **[LOAD_TEST_BASELINE.md](LOAD_TEST_BASELINE.md)**.
 
+## k6 per-tenant burst (weekly)
+
+**What:** **[`tests/load/per-tenant-burst.js`](../tests/load/per-tenant-burst.js)** runs **10** fixed tenant scopes (HTTP **`x-tenant-id`** / workspace / project GUIDs), each at **5** iterations/s for **5 minutes** (override with **`K6_BURST_DURATION`**). Each iteration executes the operator path: **`POST /v1/architecture/request`** → **`POST …/seed-fake-results`** → **`POST …/commit`** → **`GET /v1/artifacts/manifests/{manifestId}`**.
+
+**Job:** **`.github/workflows/k6-per-tenant-burst-scheduled.yml`** (weekly **Monday 06:15 UTC** + **`workflow_dispatch`**). Thresholds: **`scripts/ci/assert_k6_ci_smoke_summary.py`** with **`--max-p95-ms 3000`** and failed-rate cap **5%** (burstier than merge-blocking smokes). Summary artifact: **`k6-per-tenant-burst-summary`**.
+
+**Why:** Exercises **per-tenant burst** against **Simulator** mode (same pattern as **`start_api_for_k6.sh`**) without live LLM spend.
+
 ---
 
 ## Related documents

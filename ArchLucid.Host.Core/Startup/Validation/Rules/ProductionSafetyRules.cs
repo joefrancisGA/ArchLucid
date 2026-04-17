@@ -1,6 +1,8 @@
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Connections;
 
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class ProductionSafetyRules
@@ -16,12 +18,8 @@ internal static class ProductionSafetyRules
             return;
         }
 
-        string? bypass = Environment.GetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS");
-
-        if (string.Equals(bypass, "true", StringComparison.OrdinalIgnoreCase))
-        {
+        if (RlsBreakGlass.IsEnabled(configuration))
             return;
-        }
 
         SqlServerOptions sql =
             configuration.GetSection(SqlServerOptions.SectionName).Get<SqlServerOptions>() ?? new SqlServerOptions();
@@ -32,7 +30,8 @@ internal static class ProductionSafetyRules
         }
 
         errors.Add(
-            "Production or Staging with ArchLucid:StorageProvider=Sql requires SqlServer:RowLevelSecurity:ApplySessionContext=true so tenant/workspace/project SESSION_CONTEXT keys are applied (defense in depth with SQL RLS). Set ARCHLUCID_ALLOW_RLS_BYPASS=true only for coordinated break-glass.");
+            "Production or Staging with ArchLucid:StorageProvider=Sql requires SqlServer:RowLevelSecurity:ApplySessionContext=true so tenant/workspace/project SESSION_CONTEXT keys are applied (defense in depth with SQL RLS). "
+            + "Coordinated break-glass requires both ARCHLUCID_ALLOW_RLS_BYPASS=true and ArchLucid:Persistence:AllowRlsBypass=true.");
     }
 
     /// <summary>Fail-fast CORS checks in Production for API-facing hosts only.</summary>

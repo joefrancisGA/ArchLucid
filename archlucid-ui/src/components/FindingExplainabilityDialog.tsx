@@ -105,6 +105,51 @@ export function FindingExplainabilityDialog({
               <span className="text-neutral-500 dark:text-neutral-400">{data.engineType}</span>
             </div>
             <p className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">{data.title}</p>
+            {data.evidence ? (
+              <section aria-labelledby="finding-evidence-heading" className="rounded-md border border-sky-200 bg-sky-50/80 p-3 dark:border-sky-900 dark:bg-sky-950/30">
+                <h3 id="finding-evidence-heading" className="mb-2 text-sm font-semibold text-sky-950 dark:text-sky-100">
+                  Structured evidence (deterministic)
+                </h3>
+                <dl className="m-0 space-y-2 text-xs text-sky-950 dark:text-sky-50">
+                  <div>
+                    <dt className="font-semibold text-sky-900 dark:text-sky-200">Rule id</dt>
+                    <dd className="m-0 font-mono">{data.evidence.ruleId}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold text-sky-900 dark:text-sky-200">Conclusion (from finding rationale)</dt>
+                    <dd className="m-0 whitespace-pre-wrap leading-relaxed">{data.evidence.conclusion}</dd>
+                  </div>
+                  <div>
+                    <dt className="font-semibold text-sky-900 dark:text-sky-200">Evidence refs</dt>
+                    <dd className="m-0">
+                      {data.evidence.evidenceRefs.length === 0 ? (
+                        <span className="text-sky-800/80 dark:text-sky-200/80">None recorded</span>
+                      ) : (
+                        <ul className="m-0 list-disc space-y-0.5 pl-5">
+                          {data.evidence.evidenceRefs.map((ref, i) => (
+                            <li key={`${ref}-${i}`} className="font-mono">
+                              {ref}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </dd>
+                  </div>
+                  {data.evidence.alternativePathsConsidered.length > 0 ? (
+                    <div>
+                      <dt className="font-semibold text-sky-900 dark:text-sky-200">Alternative paths (structured)</dt>
+                      <dd className="m-0">
+                        <ul className="m-0 list-disc space-y-0.5 pl-5">
+                          {data.evidence.alternativePathsConsidered.map((a, i) => (
+                            <li key={`${a}-${i}`}>{a}</li>
+                          ))}
+                        </ul>
+                      </dd>
+                    </div>
+                  ) : null}
+                </dl>
+              </section>
+            ) : null}
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-2 text-xs text-neutral-600 dark:text-neutral-400">
                 <span>Trace completeness</span>
@@ -115,7 +160,7 @@ export function FindingExplainabilityDialog({
             {data.narrativeText.trim().length > 0 ? (
               <section aria-labelledby="finding-narrative-heading">
                 <h3 id="finding-narrative-heading" className="mb-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                  Narrative
+                  Narrative (presentation)
                 </h3>
                 <p className="m-0 whitespace-pre-wrap leading-relaxed text-neutral-700 dark:text-neutral-300">
                   {data.narrativeText}

@@ -148,17 +148,24 @@ npm run test:watch       # local loop
 
 **Repo root:** `test-ui-unit.cmd` / `test-ui-unit.ps1`
 
-### 7. Operator shell e2e smoke (Next.js + Playwright)
+### 7. Operator shell — Vitest axe (components) and mock Playwright (on demand)
 
-**Meaning:** A **minimal** browser check that the **archlucid-ui** app builds and the home route renders expected headings. Slower than Vitest; not a replacement for manual UX review.
+**Meaning:** **Tier 3b** (`ui-axe-components`) runs **Vitest + jest-axe** on a small **`src/accessibility/**`** suite (fast, no browser install). **Mock** Playwright journeys (compare/manifest smoke, etc.) use **`playwright.mock.config.ts`** via **`npm run test:e2e`** when you need them locally or in **`test-ui-smoke`**.
 
 | Mechanism | Location |
 |-----------|----------|
-| Runner | **Playwright** (`@playwright/test`) |
-| Config | `archlucid-ui/playwright.config.ts` |
-| Specs | `archlucid-ui/e2e/*.spec.ts` |
+| Component axe | **Vitest** + **jest-axe** — `archlucid-ui/src/accessibility/*.test.tsx` |
+| Mock browser | **Playwright** — `archlucid-ui/playwright.mock.config.ts`, specs under **`e2e/`** except **`live-api-*.spec.ts`** |
+| Live browser (default config) | **Playwright** — `archlucid-ui/playwright.config.ts` — **`live-api-*.spec.ts`** only (see **§ merge gates** below) |
 
-**Run (from `archlucid-ui/`):**
+**Run Vitest axe (from `archlucid-ui/`):**
+
+```bash
+npm ci
+npm run test:axe-components
+```
+
+**Run mock Playwright (from `archlucid-ui/`):**
 
 ```bash
 npm ci
@@ -166,9 +173,9 @@ npx playwright install --with-deps chromium
 npm run test:e2e
 ```
 
-**Repo root:** `test-ui-smoke.cmd` / `test-ui-smoke.ps1` (same Chromium install flags as CI).
+**Repo root:** `test-ui-smoke.cmd` / `test-ui-smoke.ps1` (Chromium install + **`npm run test:e2e`**, mock config).
 
-The config’s `webServer` runs `npm run build && npm run start` (production server on port 3000) unless `CI` is unset and a server is already running (`reuseExistingServer`).
+Mock **`webServer`** runs **`npm run build`** and **`e2e/start-e2e-with-mock.ts`** (production Next on port **3000**).
 
 ---
 
@@ -194,13 +201,13 @@ Workflow: `.github/workflows/ci.yml` — **tiered jobs** for clarity and fail-fa
 | **2** | **`dotnet-full-regression`** | Runs **after** Tier **1** and **`api-greenfield-boot`**. Restore, build, SQL Server service container, `dotnet test ArchLucid.sln` with `ARCHLUCID_SQL_TEST` (entire solution). |
 | **2b** | **`chaos-tests`** | Runs **after** Tier 2 passes. **Resilience: Simmy chaos tests** — `ArchLucid.AgentRuntime.Tests` and `ArchLucid.Persistence.Tests` filtered to Simmy/Chaos FQNs. **CI-blocking** (failures block the PR). See [CHAOS_TESTING.md](CHAOS_TESTING.md). |
 | **3a** | **`ui-unit`** | `archlucid-ui`: `npm ci`, `npm run test` (Vitest / jsdom), **CycloneDX** npm SBOM (artifact **`sbom-npm`**). |
-| **3b** | **`ui-e2e-smoke`** | `archlucid-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). Browser-heavy. |
-| **3c** | **`ui-e2e-live`** | After **`dotnet-full-regression`**. SQL service + **`docker run … sqlcmd`** creates empty **`ArchLucidLiveE2e`**. Then **ArchLucid.Api** (DevelopmentBypass) + Playwright **`playwright.live.config.ts`**: **full** `live-api-*.spec.ts` suite. Job **`timeout-minutes: 35`**. **Merge-blocking.** See **[LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)**. |
+| **3b** | **`ui-axe-components`** | `archlucid-ui`: `npm ci`, **`npm run test:axe-components`** (Vitest + jest-axe on **`src/accessibility/**`**). Fast; no Playwright browsers. |
+| **3c** | **`ui-e2e-live`** | After **`dotnet-full-regression`**. SQL service + **`docker run … sqlcmd`** creates empty **`ArchLucidLiveE2e`**. Then **ArchLucid.Api** (DevelopmentBypass) + Playwright **default `playwright.config.ts`**: **full** `live-api-*.spec.ts` suite (operator journeys + live axe). Job **`timeout-minutes: 35`**. **Merge-blocking.** See **[LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)**. |
 | **3c′** | **`ui-e2e-live-apikey`** | After **`dotnet-full-regression`**. Separate SQL catalog **`ArchLucidLiveE2eApiKey`**, API with **`ArchLucidAuth:Mode=ApiKey`** + **`Authentication:ApiKey:*`**, env **`LIVE_API_KEY`** / **`LIVE_API_KEY_READONLY`**. Playwright subset: **`live-api-apikey-auth`**, **`live-api-journey`**, **`live-api-negative-paths`**. **`timeout-minutes: 25`**. **Merge-blocking.** See **[LIVE_E2E_AUTH_PARITY.md](LIVE_E2E_AUTH_PARITY.md)**. |
 | **3c″** | **`ui-e2e-live-jwt`** | After **`dotnet-full-regression`**. Catalog **`ArchLucidLiveE2eJwt`**, API **`JwtBearer`** + **`JwtSigningPublicKeyPemPath`** + local issuer/audience; OpenSSL + **`mint_ci_jwt.py`**; Playwright env **`LIVE_JWT_TOKEN`** and **`ARCHLUCID_PROXY_BEARER_TOKEN`**. Same subset as **3c′** plus **`live-api-jwt-auth`**. **`continue-on-error: true`** (not a merge gate). See **[LIVE_E2E_JWT_SETUP.md](LIVE_E2E_JWT_SETUP.md)**. |
 | **3d** | **`Performance: k6 API smoke (operator path)`** | After **`dotnet-full-regression`**. Create **`ArchLucidK6Smoke`**, start API, **native k6** `tests/load/k6-api-smoke.js` (5 VUs ~60s: ready + version + create run + authority runs list), **`assert_k6_ci_smoke_summary.py`** (p95 ≤ 2000 ms, failed rate ≤ 1%), artifact **`k6-smoke-results`** (summary JSON). Rate limits raised for this job. **Merge-blocking.** See **[PERFORMANCE.md](PERFORMANCE.md)** § k6 operator-path smoke, **[PERFORMANCE_TESTING.md](PERFORMANCE_TESTING.md)**. |
 
-PRs must pass the **blocking** merge gates (Tier **0–3b**, **2b**, **3c**, **3c′**, and **3d** as wired in `ci.yml`). Tier **3c″** (JWT live subset) runs for signal only. Tier 2 (and 2b) are skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up, full-suite time, and chaos runs on obvious breaks.
+PRs must pass the **blocking** merge gates (Tier **0–3b**, **2b**, **3c**, **3c′**, and **3d** as wired in `ci.yml`). Tier **3c″** (JWT live subset) runs for signal only. Tier **3c** is the **only** merge-blocking operator **browser** journey gate against **live API + SQL**. Tier 2 (and 2b) are skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up, full-suite time, and chaos runs on obvious breaks.
 
 ### Tier 4 — scheduled security testing (not per-PR)
 
@@ -210,7 +217,7 @@ These workflows run on a **weekly** cron (**Monday 06:00 UTC**) and **`workflow_
 |------|----------|-----------|
 | **4a** | **[`zap-baseline-strict-scheduled.yml`](../.github/workflows/zap-baseline-strict-scheduled.yml)** (**Security: ZAP baseline (scheduled, strict visibility)**) | OWASP ZAP **baseline** scan against the API container; strict rules. See [security/ZAP_BASELINE_RULES.md](security/ZAP_BASELINE_RULES.md). |
 | **4b** | **[`schemathesis-scheduled.yml`](../.github/workflows/schemathesis-scheduled.yml)** (**Security: Schemathesis API fuzz (scheduled)**) | **Schemathesis** property-based fuzzing from **`/openapi/v1.json`**; JUnit artifact. See [API_FUZZ_TESTING.md](API_FUZZ_TESTING.md). |
-| **4c** | **[`stryker-scheduled.yml`](../.github/workflows/stryker-scheduled.yml)** (**Stryker mutation testing (scheduled)**) | **Stryker.NET** per module; asserts score vs **`scripts/ci/stryker-baselines.json`** (**65.0** baseline per label, **0.10** pp tolerance). See [MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md). |
+| **4c** | **[`stryker-scheduled.yml`](../.github/workflows/stryker-scheduled.yml)** (**Stryker mutation testing (scheduled)**) | **Stryker.NET** per module; asserts score vs **`scripts/ci/stryker-baselines.json`** (**70.0** baseline per label after the latest ratchet, **0.10** pp tolerance). See [MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md). |
 | **4d** | **[`k6-soak-scheduled.yml`](../.github/workflows/k6-soak-scheduled.yml)** (**Performance: k6 soak (scheduled)**) | **k6** `tests/load/soak.js` against **`ARCHLUCID_SOAK_BASE_URL`** (no-op when unset). **Not** a merge gate (`continue-on-error`). See [PERFORMANCE_TESTING.md](PERFORMANCE_TESTING.md). |
 | **4e** | **[`live-e2e-nightly.yml`](../.github/workflows/live-e2e-nightly.yml)** (**Live E2E nightly**) | **03:30 UTC** (and `workflow_dispatch`): three jobs run the **full** `live-api-*.spec.ts` suite — DevelopmentBypass, ApiKey, and JwtBearer + local PEM (forks skipped). **Not** a per-PR merge gate. See [LIVE_E2E_AUTH_PARITY.md](LIVE_E2E_AUTH_PARITY.md). |
 
@@ -235,7 +242,7 @@ Optional **local** sequence before a PR:
 |------|--------|
 | **Expand Playwright** coverage (navigation, critical flows, a11y) | Add specs under `archlucid-ui/e2e/`. |
 | **Pin Node dependency graph further** (e.g. `npm audit fix`, Renovate) | `package-lock.json` is committed for `npm ci` in CI. |
-| **Split .NET CI jobs** (parallel `build` vs `test` matrix) | Done: `gitleaks` + `dotnet-fast-core` + `dotnet-full-regression` + `chaos-tests` + `ui-unit` + `ui-e2e-smoke`. |
+| **Split .NET CI jobs** (parallel `build` vs `test` matrix) | Done: `gitleaks` + `dotnet-fast-core` + `dotnet-full-regression` + `chaos-tests` + `ui-unit` + `ui-axe-components`. |
 
 ---
 

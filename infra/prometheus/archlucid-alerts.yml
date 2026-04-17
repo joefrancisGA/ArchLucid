@@ -142,6 +142,35 @@ groups:
             Operator context: docs/EXPLAINABILITY_TRACE_COVERAGE.md; API narrative field: OpenAPI
             `FindingExplainabilityResult.narrativeText` (see docs/API_ERROR_CONTRACT.md for error shape elsewhere).
 
+      - alert: ArchLucidExplanationFaithfulnessFallbackBudgetExceeded
+        expr: |
+          rate(archlucid_explanation_aggregate_faithfulness_fallback_total[1h])
+          >
+          archlucid:slo:explanation_faithfulness_fallback_budget
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: Aggregate explanation faithfulness fallback rate exceeds SLO budget
+          description: >-
+            `rate(archlucid_explanation_aggregate_faithfulness_fallback_total[1h])` exceeded the recording rule
+            `archlucid:slo:explanation_faithfulness_fallback_budget` (see infra/prometheus/archlucid-slo-rules.yml,
+            group `archlucid-slo-explanation-faithfulness`) for 30m. Treat as sustained substitution of deterministic
+            narrative for LLM aggregate text; see docs/EXPLAINABILITY_TRACE_COVERAGE.md.
+
+      - alert: ArchLucidRlsBypassEnabledInProduction
+        expr: archlucid_rls_bypass_enabled_info{scope="production_like"} == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: SQL RLS break-glass bypass is enabled on a production-like host
+          description: >-
+            Gauge `archlucid_rls_bypass_enabled_info{scope="production_like"}` is 1: both `ARCHLUCID_ALLOW_RLS_BYPASS=true`
+            and `ArchLucid:Persistence:AllowRlsBypass=true` are set while the process is classified as Production/Staging.
+            This is coordinated break-glass only; confirm intent and timeline to disable. See docs/SECURITY.md and
+            docs/security/MULTI_TENANT_RLS.md.
+
       - alert: ArchLucidExplainabilityTraceCompletenessP10Low
         expr: |
           histogram_quantile(

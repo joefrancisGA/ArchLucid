@@ -60,4 +60,26 @@ public sealed class SqlRowLevelSecurityBypassAmbientTests
 
         SqlRowLevelSecurityBypassAmbient.IsActive.Should().BeFalse();
     }
+
+    [Fact]
+    public void Enter_When_strict_bypass_required_without_break_glass_throws()
+    {
+        try
+        {
+            SqlRowLevelSecurityBypassAmbient.ConfigureBypassPolicy(
+                breakGlassEnabled: () => false,
+                strictBypassRequired: () => true);
+
+            Action act = () => _ = SqlRowLevelSecurityBypassAmbient.Enter();
+
+            act.Should().Throw<InvalidOperationException>()
+                .WithMessage("*AllowRlsBypass*");
+        }
+        finally
+        {
+            SqlRowLevelSecurityBypassAmbient.ConfigureBypassPolicy(
+                breakGlassEnabled: () => true,
+                strictBypassRequired: () => false);
+        }
+    }
 }

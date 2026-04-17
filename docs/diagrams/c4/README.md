@@ -34,7 +34,7 @@ On **Windows PowerShell**, quote the package name so `@` is not treated as splat
 
 ## Related narrative docs
 
-- [GOLDEN_PATH.md](../../GOLDEN_PATH.md) — environment path.
+- [day-one-sre.md](../../onboarding/day-one-sre.md) — platform / environment path.
 - [ARCHITECTURE_CONTEXT.md](../../ARCHITECTURE_CONTEXT.md), [ARCHITECTURE_CONTAINERS.md](../../ARCHITECTURE_CONTAINERS.md) — prose + Mermaid in markdown.
 
 **Last reviewed:** 2026-04-04

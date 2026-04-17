@@ -19,13 +19,13 @@
 
 ## 2. Compliance narrative: durable audit vs other stores
 
-Some mutating flows persist data but **do not** always emit a row in **`dbo.AuditEvents`** (operator **Audit** UI). That is a **known documentation gap**, not a hidden feature.
+The [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) **Known gaps** section currently tracks **zero** open durable-audit omissions for the previously listed mutating areas (analysis reports, export/comparison paths, conversations read-only note, governance via **`GovernanceWorkflowService`**). New routes should extend the matrix when **`AuditEventTypes`** grows.
 
 | Area | Doc source |
 |------|------------|
-| Analysis reports, some export/comparison paths, conversations, DOCX export surface, extra **GovernanceController** routes | [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) — **Known gaps** table |
+| Authority + coordinator + governance + exports + analysis + advisory + alerts + … | [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) — durable audit table + **Known gaps** notes |
 
-**V1 stance:** Governance workflow **does** dual-write to durable audit (see matrix). Other areas may use **separate tables/services**; closing the gap is **incremental hardening**, not a V1 blocker unless your compliance program says otherwise.
+**V1 stance:** Governance workflow **does** dual-write to durable audit (see matrix). Baseline mutation logging remains log-only for some orchestration paths; operators rely on **`IAuditService`** rows in **Audit** UI for the durable channel.
 
 ---
 

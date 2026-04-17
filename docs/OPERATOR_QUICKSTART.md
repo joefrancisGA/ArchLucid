@@ -2,6 +2,10 @@
 
 Copy-paste from the **repository root** unless noted. **Windows:** use `.cmd`; **PowerShell:** use `.ps1` where listed.
 
+## What ArchLucid does (one paragraph)
+
+ArchLucid is an **HTTP API** (and optional **operator UI**) that turns a structured **architecture request** into a **run**, **agent results** (after **execute**), and a versioned **golden manifest** plus **artifacts** (after **commit**). Local pilots often use **`AgentExecution:Mode=Simulator`** so you do not need cloud AI keys to complete a flow. **V1 scope and gates:** [V1_SCOPE.md](V1_SCOPE.md).
+
 ---
 
 ## Environment
@@ -173,7 +177,7 @@ Also creates **`artifacts/release/PACKAGE-HANDOFF.txt`**, **`metadata.json`**, *
 
 | Doc | Use |
 |-----|-----|
-| [PILOT_GUIDE.md](PILOT_GUIDE.md) | Context, first run, where logs live |
+| [archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md) | Archived pilot narrative (first run, logs, issue template) |
 | [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export (58R) |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common failures |
 | [operator-shell.md](operator-shell.md) | UI workflow detail |

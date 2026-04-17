@@ -24,4 +24,4 @@
 | Observability | [BUILD.md](../BUILD.md) (OpenTelemetry meter), [runbooks/SLO_PROMETHEUS_GRAFANA.md](../runbooks/SLO_PROMETHEUS_GRAFANA.md) |
 | Operator commands | [OPERATOR_QUICKSTART.md](../OPERATOR_QUICKSTART.md) |
 
-**Last reviewed:** 2026-04-04
+**Last reviewed:** 2026-04-17

@@ -1,0 +1,109 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Sum of estimated LLM USD (trace-level `archlucid_llm_cost_usd_total` increases) over 24h by `tenant` label. True $/architecture-run needs tenant-scoped run counters (deferred); use this as spend intensity per tenant.",
+      "fieldConfig": { "defaults": { "unit": "currencyUSD", "decimals": 4 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "sum by (tenant) (increase(archlucid_llm_cost_usd_total[24h]))",
+          "legendFormat": "{{tenant}}",
+          "refId": "A"
+        }
+      ],
+      "title": "$/run by tenant (last 24h) — LLM USD increase (trace-estimated)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "30-day window of estimated LLM spend by tenant (Prometheus `increase(...[30d])`).",
+      "fieldConfig": { "defaults": { "unit": "currencyUSD", "decimals": 4 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "sum by (tenant) (increase(archlucid_llm_cost_usd_total[30d]))",
+          "legendFormat": "{{tenant}}",
+          "refId": "A"
+        }
+      ],
+      "title": "$/tenant (last 30d) — LLM USD increase",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Requires `LlmTelemetry:RecordPerTenantTokens=true` for `tenant_id` labels on token counters.",
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (tenant_id) ((rate(archlucid_llm_prompt_tokens_total[1m]) + rate(archlucid_llm_completion_tokens_total[1m])) * 60))",
+          "legendFormat": "{{tenant_id}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 10 tenants — LLM tokens/min",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Aggregate explanation deterministic fallback rate; correlate upward moves with LLM spend spikes on the cost panel.",
+      "fieldConfig": { "defaults": { "unit": "ops", "decimals": 4 }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "options": { "legend": { "displayMode": "list", "placement": "bottom" }, "tooltip": { "mode": "single" } },
+      "targets": [
+        {
+          "expr": "sum(rate(archlucid_explanation_aggregate_faithfulness_fallback_total[5m]))",
+          "legendFormat": "fallback/s",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(archlucid_llm_cost_usd_total[5m]))",
+          "legendFormat": "est. USD/s (all tenants)",
+          "refId": "B"
+        }
+      ],
+      "title": "Explanation fallback rate vs LLM cost velocity",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["archlucid", "finops", "cost"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": false, "text": "Prometheus", "value": "prometheus" },
+        "hide": 0,
+        "label": "Datasource",
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": { "from": "now-24h", "to": "now" },
+  "timezone": "browser",
+  "title": "ArchLucid — Cost & LLM FinOps",
+  "uid": "archlucid-cost",
+  "version": 1,
+  "weekStart": ""
+}

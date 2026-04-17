@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Safety;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Safety;
 using ArchLucid.Host.Composition.Startup;
@@ -9,7 +10,9 @@ using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Composition.Tests;
 
@@ -98,8 +101,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
 
         guard.Should().BeOfType<ContentSafetyEnabledButUnconfiguredGuard>();
 
-        Func<Task> act = async () =>
-            await guard.CheckInputAsync("hello", CancellationToken.None).ConfigureAwait(false);
+        Func<Task> act = async () => await guard.CheckInputAsync("hello", CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*ArchLucid:ContentSafety*");
@@ -124,12 +126,93 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         guard.Should().BeOfType<AzureContentSafetyGuard>();
     }
 
+    [Fact]
+    public void AddArchLucidApplicationServices_production_host_throws_when_content_safety_credentials_missing()
+    {
+        Dictionary<string, string?> data = CreateSimulatorCompositionDictionary();
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration, Environments.Production);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        Action act = () => _ = provider.GetRequiredService<IContentSafetyGuard>();
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*ArchLucid:ContentSafety:Endpoint*ArchLucid:ContentSafety:ApiKey*");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_production_host_sets_FailClosedOnSdkError_for_content_safety_options()
+    {
+        Dictionary<string, string?> data = CreateSimulatorCompositionDictionary();
+        data["ArchLucid:ContentSafety:Endpoint"] = "https://unit-test.cognitiveservices.azure.com/";
+        data["ArchLucid:ContentSafety:ApiKey"] = "placeholder-key-not-used-in_this_test";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration, Environments.Production);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        IOptionsMonitor<ContentSafetyOptions> monitor =
+            provider.GetRequiredService<IOptionsMonitor<ContentSafetyOptions>>();
+
+        monitor.CurrentValue.FailClosedOnSdkError.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_development_host_throws_when_null_guard_disallowed_and_safety_disabled()
+    {
+        Dictionary<string, string?> data = CreateSimulatorCompositionDictionary();
+        data["ArchLucid:ContentSafety:Enabled"] = "false";
+        data["ArchLucid:ContentSafety:AllowNullGuardInDevelopment"] = "false";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration, Environments.Development);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        Action act = () => _ = provider.GetRequiredService<IContentSafetyGuard>();
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*AllowNullGuardInDevelopment*");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_archlucid_environment_production_throws_when_content_safety_credentials_missing()
+    {
+        Dictionary<string, string?> data = CreateSimulatorCompositionDictionary();
+        data["ARCHLUCID_ENVIRONMENT"] = "Production";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration, Environments.Development);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        Action act = () => _ = provider.GetRequiredService<IContentSafetyGuard>();
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*ArchLucid:ContentSafety:Endpoint*");
+    }
+
     private static ServiceCollection CreateCoreServices(IConfiguration configuration)
+    {
+        return CreateCoreServices(configuration, Environments.Development);
+    }
+
+    private static ServiceCollection CreateCoreServices(IConfiguration configuration, string hostEnvironmentName)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
         ServiceCollection services = new();
         services.AddSingleton(typeof(IConfiguration), configuration);
+        services.AddSingleton<IHostEnvironment>(new CompositionTestHostEnvironment(hostEnvironmentName));
         services.AddLogging(static b => b.AddDebug());
         services.AddSingleton<IScopeContextProvider, FixedCompositionScopeContextProvider>();
 
@@ -173,6 +256,28 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         }
 
         return data;
+    }
+
+    private static Dictionary<string, string?> CreateSimulatorCompositionDictionary()
+    {
+        return new Dictionary<string, string?>
+        {
+            ["Hosting:Role"] = "Api",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ConnectionStrings:ArchLucid"] = "",
+            ["AgentExecution:Mode"] = "Simulator",
+            ["AzureOpenAI:Endpoint"] = "",
+            ["AzureOpenAI:ApiKey"] = "",
+            ["AzureOpenAI:DeploymentName"] = "",
+            ["AzureOpenAI:EmbeddingDeploymentName"] = "",
+            ["FeatureManagement:FeatureFlags:AsyncAuthorityPipeline"] = "false",
+            ["RateLimiting:FixedWindow:PermitLimit"] = "100000",
+            ["RateLimiting:FixedWindow:WindowMinutes"] = "1",
+            ["RateLimiting:Expensive:PermitLimit"] = "100000",
+            ["RateLimiting:Expensive:WindowMinutes"] = "1",
+            ["LlmCompletionCache:Enabled"] = "false",
+            ["HotPathCache:Enabled"] = "false",
+        };
     }
 
     private sealed class FixedCompositionScopeContextProvider : IScopeContextProvider

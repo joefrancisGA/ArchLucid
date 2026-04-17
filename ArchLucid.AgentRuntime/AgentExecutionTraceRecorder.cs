@@ -94,6 +94,17 @@ public sealed class AgentExecutionTraceRecorder(
             estimated = _costEstimator.EstimateUsd(inTok, outTok);
         }
 
+        if (estimated is decimal estUsd && estUsd > 0m)
+        {
+            ScopeContext costScope = _scopeContextProvider.GetCurrentScope();
+
+            string tenantLabel = costScope.TenantId == Guid.Empty
+                ? "unknown"
+                : costScope.TenantId.ToString("N");
+
+            ArchLucidInstrumentation.RecordLlmCostUsd(estUsd, tenantLabel);
+        }
+
         string resolvedDeployment = string.IsNullOrWhiteSpace(modelDeploymentName)
             ? AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName
             : modelDeploymentName.Trim();

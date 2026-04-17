@@ -167,52 +167,124 @@ export async function postArchitectureRequestRaw(
   });
 }
 
+/** Mutating architecture POSTs share one API with many live specs — retry fixed-window 429 and brief 5xx. */
+const maxArchitectureMutationAttempts = 8;
+
 /** POST `/v1/architecture/request` — create a new architecture run. */
 export async function createRun(
   request: APIRequestContext,
   body: Record<string, unknown>,
 ): Promise<{ runId: string }> {
-  const res = await postArchitectureRequestRaw(request, body);
+  for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
+    const res = await postArchitectureRequestRaw(request, body);
 
-  await throwIfNotOk(res, "POST /v1/architecture/request");
+    if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+      await delayAfterRateLimitedResponse(res);
 
-  const created = (await res.json()) as { run?: { runId?: string } };
-  const runId = created.run?.runId;
+      continue;
+    }
 
-  if (!runId) {
-    throw new Error("Create run response missing run.runId");
+    if (res.status() >= 500 && res.status() < 600 && attempt < maxArchitectureMutationAttempts - 1) {
+      await new Promise((r) => setTimeout(r, 500));
+
+      continue;
+    }
+
+    await throwIfNotOk(res, "POST /v1/architecture/request");
+
+    const created = (await res.json()) as { run?: { runId?: string } };
+    const runId = created.run?.runId;
+
+    if (!runId) {
+      throw new Error("Create run response missing run.runId");
+    }
+
+    return { runId };
   }
 
-  return { runId };
+  throw new Error("createRun: retry loop exhausted");
 }
 
 /** POST `/v1/architecture/run/{runId}/execute` — run agents (Simulator in CI). */
 export async function executeRun(request: APIRequestContext, runId: string): Promise<unknown> {
-  const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/execute`, {
-    headers: liveAcceptHeaders(),
-  });
+  for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
+    const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/execute`, {
+      headers: liveAcceptHeaders(),
+    });
 
-  await throwIfNotOk(res, "POST /v1/architecture/run/.../execute");
+    if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+      await delayAfterRateLimitedResponse(res);
 
-  return res.json();
+      continue;
+    }
+
+    if (res.status() >= 500 && res.status() < 600 && attempt < maxArchitectureMutationAttempts - 1) {
+      await new Promise((r) => setTimeout(r, 500));
+
+      continue;
+    }
+
+    await throwIfNotOk(res, "POST /v1/architecture/run/.../execute");
+
+    return res.json();
+  }
+
+  throw new Error("executeRun: retry loop exhausted");
 }
 
 /** POST `/v1/architecture/run/{runId}/commit` — merge and persist golden manifest. */
 export async function commitRun(request: APIRequestContext, runId: string): Promise<CommitRunResponseJson> {
-  const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
-    headers: liveAcceptHeaders(),
-  });
+  for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
+    const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
+      headers: liveAcceptHeaders(),
+    });
 
-  await throwIfNotOk(res, "POST /v1/architecture/run/.../commit");
+    if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+      await delayAfterRateLimitedResponse(res);
 
-  return res.json() as Promise<CommitRunResponseJson>;
+      continue;
+    }
+
+    if (res.status() >= 500 && res.status() < 600 && attempt < maxArchitectureMutationAttempts - 1) {
+      await new Promise((r) => setTimeout(r, 500));
+
+      continue;
+    }
+
+    await throwIfNotOk(res, "POST /v1/architecture/run/.../commit");
+
+    return res.json() as Promise<CommitRunResponseJson>;
+  }
+
+  throw new Error("commitRun: retry loop exhausted");
 }
 
-/** Same as {@link commitRun} but returns the raw response for negative-path assertions (409, 404, …). */
+/**
+ * Same as {@link commitRun} but returns the raw response for negative-path assertions (409, 404, …).
+ * Retries **429** / transient **5xx** only so callers still see the first definitive 4xx (e.g. 404) body.
+ */
 export async function commitRunRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
-  return request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
-    headers: liveAcceptHeaders(),
-  });
+  for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
+    const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
+      headers: liveAcceptHeaders(),
+    });
+
+    if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
+      await delayAfterRateLimitedResponse(res);
+
+      continue;
+    }
+
+    if (res.status() >= 500 && res.status() < 600 && attempt < maxArchitectureMutationAttempts - 1) {
+      await new Promise((r) => setTimeout(r, 500));
+
+      continue;
+    }
+
+    return res;
+  }
+
+  throw new Error("commitRunRaw: retry loop exhausted");
 }
 
 /** Minimal commit response shape for E2E (camelCase JSON). */

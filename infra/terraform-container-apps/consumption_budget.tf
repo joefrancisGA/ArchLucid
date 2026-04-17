@@ -31,7 +31,25 @@ resource "azurerm_consumption_budget_resource_group" "container_apps" {
 
   notification {
     enabled        = true
-    threshold      = 80.0
+    threshold      = 50.0
+    operator       = "GreaterThan"
+    threshold_type = "Actual"
+    contact_emails = length(var.container_apps_consumption_budget_contact_emails) > 0 ? var.container_apps_consumption_budget_contact_emails : null
+    contact_roles  = length(var.container_apps_consumption_budget_contact_emails) > 0 ? null : var.container_apps_consumption_budget_contact_roles
+  }
+
+  notification {
+    enabled        = true
+    threshold      = 75.0
+    operator       = "GreaterThan"
+    threshold_type = "Actual"
+    contact_emails = length(var.container_apps_consumption_budget_contact_emails) > 0 ? var.container_apps_consumption_budget_contact_emails : null
+    contact_roles  = length(var.container_apps_consumption_budget_contact_emails) > 0 ? null : var.container_apps_consumption_budget_contact_roles
+  }
+
+  notification {
+    enabled        = true
+    threshold      = 90.0
     operator       = "GreaterThan"
     threshold_type = "Actual"
     contact_emails = length(var.container_apps_consumption_budget_contact_emails) > 0 ? var.container_apps_consumption_budget_contact_emails : null

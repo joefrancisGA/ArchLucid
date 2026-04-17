@@ -1,6 +1,6 @@
 /**
  * Negative-path API checks (live ArchLucid.Api + Sql). Run:
- *   npx playwright test -c playwright.live.config.ts
+ *   npx playwright test
  */
 import { expect, test } from "@playwright/test";
 

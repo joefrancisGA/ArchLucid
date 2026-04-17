@@ -34,6 +34,7 @@ public static class ArchLucidConfigurationRules
         RetrievalRules.CollectEmbeddingCaps(configuration, errors);
         RetrievalRules.CollectVectorIndex(configuration, errors);
         RateLimitingRules.Collect(configuration, errors);
+        ContentSafetyRules.Collect(configuration, environment, errors);
         HotPathCacheRules.Collect(configuration, environment, errors);
         BackgroundJobsRules.Collect(configuration, errors);
         ObservabilityRules.CollectOtlp(configuration, errors);

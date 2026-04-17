@@ -22,6 +22,6 @@ Use this file as a **stable entry point** for paste-ready improvement prompts. D
 
 **Related runbooks**
 
-- **[DATABASE_MIGRATION_ROLLBACK.md](DATABASE_MIGRATION_ROLLBACK.md)** — manual SQL rollbacks (`sql/rollbacks/`).
+- **[DATABASE_MIGRATION_ROLLBACK.md](DATABASE_MIGRATION_ROLLBACK.md)** — manual SQL rollbacks (`ArchLucid.Persistence/Migrations/Rollback/`), greenfield baseline notes.
 - **[API_ERROR_CONTRACT.md](API_ERROR_CONTRACT.md)** — Problem+JSON expectations for clients.
 - **[CONTROLLER_AREA_MAP.md](CONTROLLER_AREA_MAP.md)** — logical API controller grouping + bulk endpoints.
