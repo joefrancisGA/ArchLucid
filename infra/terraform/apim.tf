@@ -1,5 +1,5 @@
-# NOTE: Resource addresses in this file use the historical `archiforge` token to avoid Terraform state disruption.
-# Rename via `terraform state mv` during a planned maintenance window.
+# APIM Terraform addresses use `archlucid`; `moved` blocks in moved_archlucid_apim.tf migrate existing state.
+# The APIM API **name** in Azure remains `archiforge-api` until an operator-driven rename (would replace the API).
 # Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
 
 locals {
@@ -20,7 +20,7 @@ locals {
   backend_url_normalized = local.apim_enabled ? trimsuffix(var.archlucid_api_backend_url, "/") : ""
 }
 
-resource "azurerm_api_management" "archiforge" {
+resource "azurerm_api_management" "archlucid" {
   count = local.apim_enabled ? 1 : 0
 
   name                = var.apim_name
@@ -36,11 +36,11 @@ resource "azurerm_api_management" "archiforge" {
   }
 }
 
-resource "azurerm_api_management_api" "archiforge" {
+resource "azurerm_api_management_api" "archlucid" {
   count = local.apim_enabled ? 1 : 0
 
   name                = "archiforge-api"
-  api_management_name = azurerm_api_management.archiforge[0].name
+  api_management_name = azurerm_api_management.archlucid[0].name
   resource_group_name = local.apim_resource_group_name
   revision            = "1"
   display_name        = "ArchLucid API"
@@ -54,5 +54,5 @@ resource "azurerm_api_management_api" "archiforge" {
     content_value  = local.apim_import_block.content_value
   }
 
-  depends_on = [azurerm_api_management.archiforge]
+  depends_on = [azurerm_api_management.archlucid]
 }

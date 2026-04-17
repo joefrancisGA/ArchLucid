@@ -8,8 +8,8 @@ Describe how **line/branch coverage** is collected in CI and how to reproduce re
 
 The **full regression** job in **`.github/workflows/ci.yml`** merges Cobertura output and enforces:
 
-- **Line coverage ≥ 74%** (merged product assemblies)
-- **Branch coverage ≥ 57%**
+- **Line coverage ≥ 76%** (merged product assemblies)
+- **Branch coverage ≥ 60%**
 - Per-package line floors (see **`scripts/ci/assert_merged_line_coverage_min.py`** invocation in the workflow)
 
 Raising the global line gate further (e.g. toward **82%**) requires a deliberate effort: run a local or CI **`coverage-report-full`** artifact, identify low assemblies, add tests, then bump the positional line argument and **`--min-branch-pct`** in **`ci.yml`** in the same change.
