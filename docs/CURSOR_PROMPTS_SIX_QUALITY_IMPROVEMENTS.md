@@ -207,3 +207,9 @@ You are working in the ArchLucid repo.
 | 6 | #2 (model metadata + golden-set) | Touches schema/contracts; deserves focused review. |
 
 You can parallelize #4 + #6 if two agents are available; the table order is safe for a single contributor.
+
+---
+
+## Follow-up prompts (second wave)
+
+After the six prompts above land or stabilize, use **[`CURSOR_PROMPTS_SIX_QUALITY_IMPROVEMENTS_FOLLOWUPS.md`](CURSOR_PROMPTS_SIX_QUALITY_IMPROVEMENTS_FOLLOWUPS.md)** for paste-ready **Follow-up 1–7** prompts (k6 regression signals, golden catalog governance, audit export parity, Phase 7.5 dry-run inventory, coverage hotspots + FsCheck budgets, RLS/key drills, and live E2E ↔ k6 coherence).
