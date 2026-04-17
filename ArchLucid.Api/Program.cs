@@ -6,7 +6,6 @@ using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Configuration;
 using ArchLucid.Api.Startup;
 using ArchLucid.Application.Governance.Preview;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
@@ -52,8 +51,6 @@ public partial class Program
         builder.Services.AddHttpContextAccessor();
         // Singleton: resolves scope from IHttpContextAccessor (or ambient overrides). IAgentCompletionClient is scoped; handlers receive per-request instances while this provider stays stateless.
         builder.Services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
-        builder.Services.AddScoped<IAuditService, AuditService>();
-
         builder.Services.AddArchLucidAuth(builder.Configuration);
         builder.Services.AddArchLucidAuthorization();
 

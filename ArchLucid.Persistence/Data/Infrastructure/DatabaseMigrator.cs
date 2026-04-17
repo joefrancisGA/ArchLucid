@@ -32,15 +32,16 @@ public static class DatabaseMigrator
     /// <exception cref="InvalidOperationException">When DbUp reports a failed upgrade (inner exception has provider details).</exception>
     public static void RunExcludingTrailingScripts(string connectionString, int trailingScriptCountToSkip)
     {
-        GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
         IReadOnlyList<string> ordered = GetOrderedMigrationResourceNames();
 
         if (trailingScriptCountToSkip <= 0 || trailingScriptCountToSkip >= ordered.Count)
-        
+        {
             throw new ArgumentOutOfRangeException(
                 nameof(trailingScriptCountToSkip),
                 "Must be at least 1 and less than the total migration script count.");
-        
+        }
+
+        GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
 
         HashSet<string> allowed = ordered.Take(ordered.Count - trailingScriptCountToSkip).ToHashSet(StringComparer.Ordinal);
         RunWithScriptFilter(connectionString, allowed.Contains);

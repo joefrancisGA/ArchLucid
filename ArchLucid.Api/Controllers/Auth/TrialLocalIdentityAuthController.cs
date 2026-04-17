@@ -41,7 +41,9 @@ public sealed class TrialLocalIdentityAuthController(
         CancellationToken cancellationToken)
     {
         if (!IsLocalIdentityEnabled())
-            return NotFound();
+            return this.NotFoundProblem(
+                "Trial local identity is not enabled for this environment.",
+                ProblemTypes.ResourceNotFound);
 
         if (body?.Email is null || body.Password is null)
             return this.BadRequestProblem("Email and password are required.", ProblemTypes.ValidationFailed);
@@ -74,7 +76,9 @@ public sealed class TrialLocalIdentityAuthController(
         CancellationToken cancellationToken)
     {
         if (!IsLocalIdentityEnabled())
-            return NotFound();
+            return this.NotFoundProblem(
+                "Trial local identity is not enabled for this environment.",
+                ProblemTypes.ResourceNotFound);
 
         if (body?.Email is null || body.Token is null)
             return this.BadRequestProblem("Email and token are required.", ProblemTypes.ValidationFailed);
@@ -96,7 +100,9 @@ public sealed class TrialLocalIdentityAuthController(
         CancellationToken cancellationToken)
     {
         if (!IsLocalIdentityEnabled())
-            return NotFound();
+            return this.NotFoundProblem(
+                "Trial local identity is not enabled for this environment.",
+                ProblemTypes.ResourceNotFound);
 
         if (body?.Email is null || body.Password is null)
             return this.BadRequestProblem("Email and password are required.", ProblemTypes.ValidationFailed);

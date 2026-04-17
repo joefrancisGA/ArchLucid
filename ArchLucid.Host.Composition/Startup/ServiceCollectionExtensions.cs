@@ -32,8 +32,10 @@ public static partial class ServiceCollectionExtensions
         services.AddArchLucidStorage(configuration);
         RegisterTenancyMeteringAndSecrets(services, configuration);
         RegisterAdvisoryScheduling(services, hostingRole);
+        RegisterTrialLifecycleEmailHostedServices(services, hostingRole);
         RegisterDigestDelivery(services, configuration);
         RegisterIntegrationEventPublishing(services, configuration);
+        RegisterTrialLifecycleAuditEmailPublishing(services);
         RegisterAlerts(services);
         RegisterDataInfrastructure(services, configuration);
         RegisterBackgroundJobs(services, configuration, hostingRole);

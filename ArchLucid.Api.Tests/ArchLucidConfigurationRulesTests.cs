@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Startup.Validation;
 
 using FluentAssertions;
@@ -1595,5 +1596,75 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().NotContain(e => e.Contains("ExternalIdTenantId", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionApiAndAcsEmailWithoutEndpoint_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["Email:Provider"] = EmailProviderNames.AzureCommunicationServices,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .Contain(e => e.Contains("Email:AzureCommunicationServicesEndpoint", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionWorkerAndAcsEmailWithoutEndpoint_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["Hosting:Role"] = "Worker",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["Email:Provider"] = EmailProviderNames.AzureCommunicationServices,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .Contain(e => e.Contains("Email:AzureCommunicationServicesEndpoint", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionApiAndAcsEmailWithConfiguredEndpoint_does_not_add_acs_endpoint_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["Email:Provider"] = EmailProviderNames.AzureCommunicationServices,
+            ["Email:AzureCommunicationServicesEndpoint"] = "https://contoso.communication.azure.com/",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .NotContain(e => e.Contains("Email:AzureCommunicationServicesEndpoint", StringComparison.Ordinal));
     }
 }

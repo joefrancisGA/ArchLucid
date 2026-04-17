@@ -16,6 +16,9 @@ public static class IntegrationEventTypes
 
     public const string AdvisoryScanCompletedV1 = "com.archlucid.advisory.scan.completed";
 
+    /// <summary>Trial / lifecycle transactional email dispatch (worker consumes JSON payload).</summary>
+    public const string TrialLifecycleEmailV1 = "com.archlucid.notifications.trial-lifecycle-email.v1";
+
     /// <summary>Wildcard handler: receives every event type after no specific handler matched.</summary>
     public const string WildcardEventType = "*";
 

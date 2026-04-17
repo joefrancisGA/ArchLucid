@@ -17,7 +17,8 @@ public sealed class DatabaseMigratorTests
         List<string> expected = asm.GetManifestResourceNames()
             .Where(static n =>
                 n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
-                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase))
+                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase) &&
+                !n.Contains(".Migrations.Baseline.", StringComparison.OrdinalIgnoreCase))
             .OrderBy(static n => n, StringComparer.OrdinalIgnoreCase)
             .ToList();
 

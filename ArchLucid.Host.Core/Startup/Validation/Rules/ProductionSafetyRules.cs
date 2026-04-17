@@ -8,6 +8,27 @@ namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class ProductionSafetyRules
 {
+    /// <summary>ACS email requires an explicit endpoint URL in Production when selected as the provider.</summary>
+    public static void CollectTransactionalEmailAcs(IConfiguration configuration, List<string> errors)
+    {
+        EmailNotificationOptions email =
+            configuration.GetSection(EmailNotificationOptions.SectionName).Get<EmailNotificationOptions>()
+            ?? new EmailNotificationOptions();
+
+        if (!string.Equals(email.Provider?.Trim(), EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(email.AzureCommunicationServicesEndpoint?.Trim()))
+        {
+            return;
+        }
+
+        errors.Add(
+            "Email:Provider is AzureCommunicationServices; configure Email:AzureCommunicationServicesEndpoint with the ACS Email resource endpoint (HTTPS).");
+    }
+
     /// <summary>External ID (CIAM) trial mode requires an explicit directory tenant id in Production.</summary>
     public static void CollectTrialAuthExternalId(IConfiguration configuration, List<string> errors)
     {
