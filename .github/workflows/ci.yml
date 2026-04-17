@@ -63,6 +63,9 @@ jobs:
       - name: Tenant inventory tables vs master DDL
         run: python scripts/ci/assert_tenant_inventory_tables_in_archlucid_sql.py
 
+      - name: Pricing single-source-of-truth guard
+        run: python scripts/ci/check_pricing_single_source.py
+
   terraform-validate-private:
     name: "Terraform: validate private stack (no backend)"
     needs:

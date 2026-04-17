@@ -181,6 +181,7 @@ This category sits between traditional **Enterprise Architecture Management** (w
 |-----|-----|
 | [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) | Competitor-by-competitor analysis and differentiation |
 | [BUYER_PERSONAS.md](BUYER_PERSONAS.md) | Who buys, why, and how to demo to them |
+| [PRICING_PHILOSOPHY.md](PRICING_PHILOSOPHY.md) | **Locked list prices (2026)**, pilot pricing, re-rate gates, and sensitivity playbook — single source of truth for all price numbers |
 | [../V1_SCOPE.md](../V1_SCOPE.md) | What V1 actually ships (grounding for all claims) |
 | [../GLOSSARY.md](../GLOSSARY.md) | Domain terminology for consistent messaging |
 | [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability quality assessment |
