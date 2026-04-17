@@ -3,8 +3,10 @@ using System.Data;
 using System.Globalization;
 
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Persistence.Repositories;
 
@@ -14,15 +16,17 @@ namespace ArchLucid.Persistence.Repositories;
 /// evicted on each new insert to prevent unbounded growth.
 /// All reads are filtered to the caller's tenant, workspace, and project scope.
 /// </summary>
-public sealed class InMemoryRunRepository : IRunRepository
+public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = null) : IRunRepository
 {
     private const int MaxEntries = 2_000;
+
+    private readonly ITenantRepository _tenantRepository = tenantRepository ?? new InMemoryTenantRepository();
 
     private readonly ConcurrentDictionary<Guid, RunRecord> _store = new();
 
     private long _fakeRowVersion;
 
-    public Task SaveAsync(
+    public async Task SaveAsync(
         RunRecord run,
         CancellationToken ct,
         IDbConnection? connection = null,
@@ -33,6 +37,8 @@ public sealed class InMemoryRunRepository : IRunRepository
         _ = connection;
         _ = transaction;
 
+        await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction);
+
         if (_store.Count >= MaxEntries && !_store.ContainsKey(run.RunId))
         {
             RunRecord? oldest = _store.Values.OrderBy(r => r.CreatedUtc).FirstOrDefault();
@@ -42,7 +48,6 @@ public sealed class InMemoryRunRepository : IRunRepository
 
         run.RowVersion = NextFakeRowVersion();
         _store[run.RunId] = run;
-        return Task.CompletedTask;
     }
 
     public Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)

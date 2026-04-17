@@ -13,6 +13,18 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 {
+    private const string ArchLucidPersistenceAllowRlsBypassEnvKey = "ArchLucid__Persistence__AllowRlsBypass";
+
+    private static readonly object RlsBreakGlassEnvLock = new();
+
+    private static int _rlsBreakGlassEnvRefCount;
+
+    private static string? _savedArchLucidAllowRlsBypassEnv;
+
+    private static string? _savedArchLucidPersistenceAllowRlsBypassEnv;
+
+    private bool _rlsBreakGlassEnvLease;
+
     private readonly string _connectionString;
 
     /// <summary>Creates the factory and ensures the catalog exists without applying migrations (host does that on boot).</summary>
@@ -31,6 +43,7 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 
             _connectionString = builder.ConnectionString;
             SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
+            AcquireRlsBreakGlassEnvLease();
         }
         catch (Exception ex)
         {
@@ -56,6 +69,7 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 
         builder.UseSetting("ConnectionStrings:ArchLucid", _connectionString);
         builder.UseSetting("ArchLucid:StorageProvider", "Sql");
+        builder.UseSetting("ArchLucid:Persistence:AllowRlsBypass", "true");
         builder.UseSetting("ArchLucidAuth:Mode", "DevelopmentBypass");
         builder.UseSetting("Authentication:ApiKey:DevelopmentBypassAll", "true");
 
@@ -65,6 +79,7 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
             {
                 ["ArchLucid:StorageProvider"] = "Sql",
                 ["ConnectionStrings:ArchLucid"] = _connectionString,
+                ["ArchLucid:Persistence:AllowRlsBypass"] = "true",
                 ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
                 ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
                 ["AgentExecution:Mode"] = "Simulator",
@@ -92,6 +107,8 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
         if (!disposing)
             return;
 
+        ReleaseRlsBreakGlassEnvLease();
+
         try
         {
             SqlServerTestCatalogCommands.DropCatalogIfExists(_connectionString);
@@ -99,6 +116,52 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
         catch
         {
             // Best-effort cleanup (SQL Server may be unavailable on teardown).
+        }
+    }
+
+    private void AcquireRlsBreakGlassEnvLease()
+    {
+        if (_rlsBreakGlassEnvLease)
+            return;
+
+        lock (RlsBreakGlassEnvLock)
+        {
+            if (_rlsBreakGlassEnvRefCount++ == 0)
+            {
+                _savedArchLucidAllowRlsBypassEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS");
+                _savedArchLucidPersistenceAllowRlsBypassEnv = Environment.GetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey);
+                Environment.SetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS", "true");
+                Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey, "true");
+            }
+
+            _rlsBreakGlassEnvLease = true;
+        }
+    }
+
+    private void ReleaseRlsBreakGlassEnvLease()
+    {
+        if (!_rlsBreakGlassEnvLease)
+            return;
+
+        lock (RlsBreakGlassEnvLock)
+        {
+            _rlsBreakGlassEnvLease = false;
+
+            if (--_rlsBreakGlassEnvRefCount != 0)
+                return;
+
+            if (_savedArchLucidAllowRlsBypassEnv is null)
+                Environment.SetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS", null);
+            else
+                Environment.SetEnvironmentVariable("ARCHLUCID_ALLOW_RLS_BYPASS", _savedArchLucidAllowRlsBypassEnv);
+
+            if (_savedArchLucidPersistenceAllowRlsBypassEnv is null)
+                Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey, null);
+            else
+                Environment.SetEnvironmentVariable(ArchLucidPersistenceAllowRlsBypassEnvKey, _savedArchLucidPersistenceAllowRlsBypassEnv);
+
+            _savedArchLucidAllowRlsBypassEnv = null;
+            _savedArchLucidPersistenceAllowRlsBypassEnv = null;
         }
     }
 }

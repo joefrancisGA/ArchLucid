@@ -108,6 +108,7 @@ internal static class PipelineExtensions
         app.UseCors("ArchLucid");
         app.UseRateLimiter();
         app.UseAuthentication();
+        app.UseMiddleware<TrialSeatReservationMiddleware>();
         app.UseAuthorization();
         app.UseMiddleware<ApiRequestMeteringMiddleware>();
         app.MapHealthChecks("/health/live", new HealthCheckOptions

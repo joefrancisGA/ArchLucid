@@ -49,6 +49,8 @@ public static class ProblemErrorCodes
 
     public const string BatchReplayAllFailed = "BATCH_REPLAY_ALL_FAILED";
 
+    public const string TrialLimitExceeded = "TRIAL_LIMIT_EXCEEDED";
+
     /// <summary>Maps a <see cref="ProblemTypes"/> URI to <see cref="ProblemErrorCodes"/>; returns <see cref="Unspecified"/> when unknown.</summary>
     public static string ResolveFromProblemType(string? problemTypeUri)
     {
@@ -115,7 +117,13 @@ public static class ProblemErrorCodes
         if (problemTypeUri == ProblemTypes.CircuitBreakerOpen)
             return CircuitBreakerOpen;
 
-        return problemTypeUri == ProblemTypes.LlmTokenQuotaExceeded ? LlmTokenQuotaExceeded : Unspecified;
+        if (problemTypeUri == ProblemTypes.LlmTokenQuotaExceeded)
+            return LlmTokenQuotaExceeded;
+
+        if (problemTypeUri == ProblemTypes.TrialExpired)
+            return TrialLimitExceeded;
+
+        return Unspecified;
     }
 
     /// <summary>Attaches <c>extensions.errorCode</c> derived from <paramref name="problemTypeUri"/>.</summary>

@@ -2960,6 +2960,22 @@ BEGIN
 END;
 GO
 
+IF OBJECT_ID(N'dbo.TenantTrialSeatOccupants', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantTrialSeatOccupants
+    (
+        TenantId       UNIQUEIDENTIFIER NOT NULL,
+        PrincipalKey   NVARCHAR(450)    NOT NULL,
+        CreatedUtc     DATETIMEOFFSET   NOT NULL CONSTRAINT DF_TenantTrialSeatOccupants_CreatedUtc2 DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT PK_TenantTrialSeatOccupants2 PRIMARY KEY (TenantId, PrincipalKey),
+        CONSTRAINT FK_TenantTrialSeatOccupants_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_TenantTrialSeatOccupants_TenantId2
+        ON dbo.TenantTrialSeatOccupants (TenantId);
+END;
+GO
+
 IF OBJECT_ID(N'dbo.TenantWorkspaces', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantWorkspaces

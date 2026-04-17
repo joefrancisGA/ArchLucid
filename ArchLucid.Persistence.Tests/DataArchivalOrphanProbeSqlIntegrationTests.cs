@@ -161,7 +161,7 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
 
         TestSqlConnectionFactory sqlFactory = new(fixture.ConnectionString);
         TestAuthorityRunListConnectionFactory listFactory = new(sqlFactory);
-        SqlRunRepository runRepo = new(sqlFactory, listFactory);
+        SqlRunRepository runRepo = SqlRunRepositoryTestFactory.Create(sqlFactory, listFactory);
         DataArchivalCoordinator coordinator = new(
             runRepo,
             new InMemoryArchitectureDigestRepository(),

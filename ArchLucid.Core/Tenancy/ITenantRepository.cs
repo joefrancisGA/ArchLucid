@@ -44,4 +44,24 @@ public interface ITenantRepository
 
     /// <summary>Marks an active self-service trial as converted (billing handoff stub).</summary>
     Task MarkTrialConvertedAsync(Guid tenantId, CancellationToken ct);
+
+    /// <summary>
+    /// When the tenant is on an active trial with a run limit, increments <see cref="TenantRecord.TrialRunsUsed"/> once
+    /// under <see cref="TenantRecord.TrialRunsLimit"/> and before <see cref="TenantRecord.TrialExpiresUtc"/>.
+    /// No-op when the tenant row is missing or not on a metered active trial. Must run in the same SQL transaction as
+    /// inserting the authority run row when <paramref name="connection"/> is supplied.
+    /// </summary>
+    /// <exception cref="TrialLimitExceededException">Trial expired or run allowance exhausted.</exception>
+    Task TryIncrementActiveTrialRunAsync(
+        Guid tenantId,
+        CancellationToken ct,
+        System.Data.IDbConnection? connection = null,
+        System.Data.IDbTransaction? transaction = null);
+
+    /// <summary>
+    /// Reserves one trial seat for <paramref name="principalKey"/> when the tenant is on an active trial with a seat limit.
+    /// Idempotent per (<paramref name="tenantId"/>, <paramref name="principalKey"/>).
+    /// </summary>
+    /// <exception cref="TrialLimitExceededException">Seat allowance exhausted for a new principal.</exception>
+    Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct);
 }

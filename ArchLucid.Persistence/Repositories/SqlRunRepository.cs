@@ -2,6 +2,7 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -20,8 +21,12 @@ namespace ArchLucid.Persistence.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlRunRepository(
     ISqlConnectionFactory connectionFactory,
-    IAuthorityRunListConnectionFactory authorityRunListConnectionFactory) : IRunRepository
+    IAuthorityRunListConnectionFactory authorityRunListConnectionFactory,
+    ITenantRepository tenantRepository) : IRunRepository
 {
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
+
     public async Task SaveAsync(
         RunRecord run,
         CancellationToken ct,
@@ -50,6 +55,8 @@ public sealed class SqlRunRepository(
 
         if (connection is not null)
         {
+            await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, connection, transaction);
+
             byte[] stamp = await connection.QuerySingleAsync<byte[]>(
                 new CommandDefinition(sql, run, transaction, cancellationToken: ct));
             run.RowVersion = stamp;
@@ -58,8 +65,21 @@ public sealed class SqlRunRepository(
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        byte[] ownedStamp = await owned.QuerySingleAsync<byte[]>(new CommandDefinition(sql, run, cancellationToken: ct));
-        run.RowVersion = ownedStamp;
+        await using SqlTransaction tran = (SqlTransaction)await owned.BeginTransactionAsync(ct);
+
+        try
+        {
+            await _tenantRepository.TryIncrementActiveTrialRunAsync(run.TenantId, ct, owned, tran);
+
+            byte[] ownedStamp = await owned.QuerySingleAsync<byte[]>(new CommandDefinition(sql, run, tran, cancellationToken: ct));
+            run.RowVersion = ownedStamp;
+            await tran.CommitAsync(ct);
+        }
+        catch
+        {
+            await tran.RollbackAsync(ct);
+            throw;
+        }
     }
 
     public async Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)

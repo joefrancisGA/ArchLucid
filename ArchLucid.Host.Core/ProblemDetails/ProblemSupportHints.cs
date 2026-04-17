@@ -107,6 +107,10 @@ public static class ProblemSupportHints
             return "Retry once. If it persists, capture correlation ID and check API logs for the same RunId or export id.";
         
 
+        if (typeUri == ProblemTypes.TrialExpired)
+
+            return "Convert the tenant trial (POST /v1/tenant/convert) or purchase a subscription to lift trial limits; see docs/security/TRIAL_LIMITS.md.";
+
         return typeUri == ProblemTypes.InternalError ? "Retry once. If it persists, provide traceId (and X-Correlation-ID if available) to support; do not paste secrets." : null;
     }
 }

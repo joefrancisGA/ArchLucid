@@ -83,6 +83,7 @@ public sealed class TenantTrialController(
 
     /// <summary>Marks an active trial as converted (billing bridge placeholder).</summary>
     [HttpPost("convert")]
+    [SkipTrialWriteLimit]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ConvertTrialAsync(

@@ -13,6 +13,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
+[Collection("ArchLucidEnvMutation")]
 public sealed class StorageProviderPublicSurfaceParityIntegrationTests
 {
     private const string SqlUnavailable =

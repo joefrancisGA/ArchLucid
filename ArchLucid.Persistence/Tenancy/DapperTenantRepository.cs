@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
@@ -240,6 +242,235 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
             WorkspaceId = row.WorkspaceId,
             DefaultProjectId = row.DefaultProjectId,
         };
+    }
+
+    /// <inheritdoc />
+    public async Task TryIncrementActiveTrialRunAsync(
+        Guid tenantId,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        const string selectSql = """
+                                 SELECT TrialStatus, TrialExpiresUtc, TrialRunsLimit, TrialRunsUsed
+                                 FROM dbo.Tenants WITH (UPDLOCK, ROWLOCK)
+                                 WHERE Id = @Id;
+                                 """;
+
+        const string updateSql = """
+                                 UPDATE dbo.Tenants
+                                 SET TrialRunsUsed = TrialRunsUsed + 1
+                                 WHERE Id = @Id
+                                   AND TrialStatus = @Active
+                                   AND TrialRunsLimit IS NOT NULL
+                                   AND TrialExpiresUtc > SYSUTCDATETIME()
+                                   AND TrialRunsUsed < TrialRunsLimit;
+                                 """;
+
+        if (connection is not null)
+        {
+            await ApplyTrialRunIncrementAsync(connection, transaction, tenantId, selectSql, updateSql, ct);
+
+            return;
+        }
+
+        await using SqlConnection owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlTransaction tran = (SqlTransaction)await owned.BeginTransactionAsync(ct);
+
+        try
+        {
+            await ApplyTrialRunIncrementAsync(owned, tran, tenantId, selectSql, updateSql, ct);
+            await tran.CommitAsync(ct);
+        }
+        catch
+        {
+            await tran.RollbackAsync(ct);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(principalKey);
+
+        string key = principalKey.Trim();
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
+
+        const string tenantSql = """
+                                   SELECT TrialStatus, TrialSeatsLimit, TrialSeatsUsed, TrialExpiresUtc
+                                   FROM dbo.Tenants WITH (UPDLOCK, ROWLOCK)
+                                   WHERE Id = @Id;
+                                   """;
+
+        TenantSeatRow? t = await connection.QuerySingleOrDefaultAsync<TenantSeatRow>(
+            new CommandDefinition(tenantSql, new { Id = tenantId }, transaction: tran, cancellationToken: ct));
+
+        if (t is null)
+        {
+            await tran.CommitAsync(ct);
+
+            return;
+        }
+
+        if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+            t.TrialSeatsLimit is null)
+        {
+            await tran.CommitAsync(ct);
+
+            return;
+        }
+
+        if (t.TrialExpiresUtc is { } exp && exp <= DateTimeOffset.UtcNow)
+        {
+            await tran.RollbackAsync(ct);
+
+            throw new TrialLimitExceededException(
+                TrialLimitReason.Expired,
+                ComputeDaysRemaining(t.TrialExpiresUtc));
+        }
+
+        const string insertSql = """
+                                   INSERT INTO dbo.TenantTrialSeatOccupants (TenantId, PrincipalKey, CreatedUtc)
+                                   VALUES (@TenantId, @PrincipalKey, SYSUTCDATETIME());
+                                   """;
+
+        try
+        {
+            await connection.ExecuteAsync(
+                new CommandDefinition(insertSql, new { TenantId = tenantId, PrincipalKey = key }, transaction: tran, cancellationToken: ct));
+        }
+        catch (SqlException ex) when (ex.Number == 2627)
+        {
+            await tran.CommitAsync(ct);
+
+            return;
+        }
+
+        const string bumpSql = """
+                                 UPDATE dbo.Tenants
+                                 SET TrialSeatsUsed = TrialSeatsUsed + 1
+                                 WHERE Id = @Id
+                                   AND TrialStatus = @Active
+                                   AND TrialSeatsUsed < @SeatLimit;
+                                 """;
+
+        int bumped = await connection.ExecuteAsync(
+            new CommandDefinition(
+                bumpSql,
+                new
+                {
+                    Id = tenantId,
+                    Active = TrialLifecycleStatus.Active,
+                    SeatLimit = t.TrialSeatsLimit.Value,
+                },
+                transaction: tran,
+                cancellationToken: ct));
+
+        if (bumped == 0)
+        {
+            await connection.ExecuteAsync(
+                new CommandDefinition(
+                    """
+                    DELETE FROM dbo.TenantTrialSeatOccupants
+                    WHERE TenantId = @TenantId AND PrincipalKey = @PrincipalKey;
+                    """,
+                    new { TenantId = tenantId, PrincipalKey = key },
+                    transaction: tran,
+                    cancellationToken: ct));
+
+            await tran.RollbackAsync(ct);
+
+            throw new TrialLimitExceededException(
+                TrialLimitReason.SeatsExceeded,
+                ComputeDaysRemaining(t.TrialExpiresUtc));
+        }
+
+        await tran.CommitAsync(ct);
+    }
+
+    private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
+    {
+        if (trialExpiresUtc is null)
+            return 0;
+
+        double totalDays = (trialExpiresUtc.Value - DateTimeOffset.UtcNow).TotalDays;
+        int days = (int)Math.Floor(totalDays);
+
+        return days < 0 ? 0 : days;
+    }
+
+    private static async Task ApplyTrialRunIncrementAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        Guid tenantId,
+        string selectSql,
+        string updateSql,
+        CancellationToken ct)
+    {
+        TrialRunGateRow? row = await connection.QuerySingleOrDefaultAsync<TrialRunGateRow>(
+            new CommandDefinition(selectSql, new { Id = tenantId }, transaction: transaction, cancellationToken: ct));
+
+        if (row is null)
+            return;
+
+        if (!string.Equals(row.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
+            row.TrialRunsLimit is null)
+        {
+            return;
+        }
+
+        if (row.TrialExpiresUtc is { } exp && exp <= DateTimeOffset.UtcNow)
+        {
+            throw new TrialLimitExceededException(
+                TrialLimitReason.Expired,
+                ComputeDaysRemaining(row.TrialExpiresUtc));
+        }
+
+        if (row.TrialRunsUsed >= row.TrialRunsLimit.Value)
+        {
+            throw new TrialLimitExceededException(
+                TrialLimitReason.RunsExceeded,
+                ComputeDaysRemaining(row.TrialExpiresUtc));
+        }
+
+        int updated = await connection.ExecuteAsync(
+            new CommandDefinition(
+                updateSql,
+                new { Id = tenantId, Active = TrialLifecycleStatus.Active },
+                transaction: transaction,
+                cancellationToken: ct));
+
+        if (updated == 0)
+        {
+            throw new TrialLimitExceededException(
+                TrialLimitReason.RunsExceeded,
+                ComputeDaysRemaining(row.TrialExpiresUtc));
+        }
+    }
+
+    private sealed class TrialRunGateRow
+    {
+        public string? TrialStatus { get; init; }
+
+        public DateTimeOffset? TrialExpiresUtc { get; init; }
+
+        public int? TrialRunsLimit { get; init; }
+
+        public int TrialRunsUsed { get; init; }
+    }
+
+    private sealed class TenantSeatRow
+    {
+        public string? TrialStatus { get; init; }
+
+        public int? TrialSeatsLimit { get; init; }
+
+        public int TrialSeatsUsed { get; init; }
+
+        public DateTimeOffset? TrialExpiresUtc { get; init; }
     }
 
     private sealed class WorkspaceRow

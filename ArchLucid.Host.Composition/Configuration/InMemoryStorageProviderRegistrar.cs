@@ -60,7 +60,9 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IDecisionTraceRepository, InMemoryDecisionTraceRepository>();
         services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
-        services.AddSingleton<IRunRepository, InMemoryRunRepository>();
+        services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
+        services.AddSingleton<IRunRepository>(sp =>
+            new InMemoryRunRepository(sp.GetRequiredService<ITenantRepository>()));
         services.AddSingleton<IAuthorityQueryService, InMemoryAuthorityQueryService>();
         services.AddSingleton<IArtifactQueryService, InMemoryArtifactQueryService>();
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
@@ -110,7 +112,6 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IAuthorityPipelineStagesExecutor, AuthorityPipelineStagesExecutor>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
-        services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);

@@ -1,5 +1,6 @@
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Persistence.Tests.Contracts;
 
@@ -11,6 +12,6 @@ public sealed class InMemoryRunRepositoryContractTests : RunRepositoryContractTe
 {
     protected override IRunRepository CreateRepository()
     {
-        return new InMemoryRunRepository();
+        return new InMemoryRunRepository(new InMemoryTenantRepository());
     }
 }

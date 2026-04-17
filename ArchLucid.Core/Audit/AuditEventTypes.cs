@@ -150,6 +150,9 @@ public static class AuditEventTypes
     /// <summary>Trial marked converted (billing integration stub).</summary>
     public const string TenantTrialConverted = "TenantTrialConverted";
 
+    /// <summary>Emitted when a mutating request is blocked because the tenant trial expired or exceeded runs/seats (HTTP 402).</summary>
+    public const string TrialLimitExceeded = "TrialLimitExceeded";
+
     /// <summary>
     /// Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured <c>ILogger</c> only).
     /// They are <b>not</b> written to <c>dbo.AuditEvents</c>.

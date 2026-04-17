@@ -20,6 +20,7 @@ namespace ArchLucid.Api.Tests;
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
 [Trait("Category", "Slow")]
+[Collection("ArchLucidEnvMutation")]
 public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 {
     private const string SqlUnavailable =

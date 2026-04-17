@@ -15,6 +15,7 @@ namespace ArchLucid.Api.Tests;
 /// </summary>
 [Trait("Category", "Integration")]
 [Trait("Suite", "Core")]
+[Collection("ArchLucidEnvMutation")]
 public sealed class GreenfieldSqlBootIntegrationTests
 {
     private const string SqlUnavailable =

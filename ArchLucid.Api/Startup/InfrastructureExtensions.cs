@@ -1,7 +1,10 @@
+using ArchLucid.Api.Filters;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Startup;
@@ -17,7 +20,11 @@ internal static class InfrastructureExtensions
     /// </remarks>
     public static IServiceCollection AddArchLucidAuthorization(this IServiceCollection services)
     {
-        return services.AddArchLucidAuthorizationPolicies();
+        services.AddArchLucidAuthorizationPolicies();
+        services.AddScoped<IAuthorizationHandler, TrialLimitAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationMiddlewareResultHandler, TrialLimitAuthorizationResultHandler>();
+
+        return services;
     }
 
     public static IServiceCollection AddArchLucidRateLimiting(
