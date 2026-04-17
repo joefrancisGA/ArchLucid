@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
 export const metadata: Metadata = {
   title: "New run",
 };
+
+function NewRunWizardFallback() {
+  return <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading wizard…</p>;
+}
 
 export default function NewRunPage() {
   return (
@@ -23,7 +28,9 @@ export default function NewRunPage() {
           Home
         </Link>
       </p>
-      <NewRunWizardClient />
+      <Suspense fallback={<NewRunWizardFallback />}>
+        <NewRunWizardClient />
+      </Suspense>
     </main>
   );
 }

@@ -7,7 +7,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AuditEvent } from "@/lib/api";
 import { downloadAuditExportCsv, getAuditEventTypes, searchAuditEvents } from "@/lib/api";
-import { canExportAuditCsv, formatAuditSummaryHeading } from "@/app/audit/audit-ui-helpers";
+import { canExportAuditCsv, formatAuditSummaryHeading } from "@/app/(operator)/audit/audit-ui-helpers";
 
 function formatUtc(iso: string): string {
   try {

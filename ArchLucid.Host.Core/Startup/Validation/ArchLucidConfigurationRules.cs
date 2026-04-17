@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Startup.Validation.Rules;
@@ -67,6 +68,7 @@ public static class ArchLucidConfigurationRules
         ProductionSafetyRules.CollectCors(configuration, errors);
         ProductionSafetyRules.CollectWebhookSecrets(configuration, errors);
         ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
+        ProductionSafetyRules.CollectTrialAuthExternalId(configuration, errors);
         AuthenticationRules.CollectProductionAuthModes(configuration, errors);
 
         return errors;

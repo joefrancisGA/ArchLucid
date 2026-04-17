@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import { AppShellClient } from "@/components/AppShellClient";
-
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +12,7 @@ export const metadata: Metadata = {
     "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance.",
 };
 
-/** Root layout: shell chrome (sidebar, header, auth) delegates to `AppShellClient`. */
+/** Root layout: global styles only. Route groups supply operator shell (`(operator)/layout`) or marketing chrome (`(marketing)/layout`). */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -27,7 +25,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="min-h-screen font-sans">
-        <AppShellClient>{children}</AppShellClient>
+        {children}
       </body>
     </html>
   );

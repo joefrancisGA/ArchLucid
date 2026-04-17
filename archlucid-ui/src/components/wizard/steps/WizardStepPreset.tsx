@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useFormContext } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -11,13 +12,15 @@ import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-sc
 export type WizardStepPresetProps = {
   /** Optional hook for analytics/tests when a named preset is applied (not fired for “Use defaults”). */
   onPresetSelect?: (presetId: string) => void;
+  /** Trial onboarding: highlight the seeded demo run created for this tenant. */
+  featuredSampleRunId?: string | null;
 };
 
 /**
  * Step 1: pick a preset or start from scratch (`reset` with defaults).
  */
 export function WizardStepPreset(props: WizardStepPresetProps = {}) {
-  const { onPresetSelect } = props;
+  const { onPresetSelect, featuredSampleRunId } = props;
   const { reset } = useFormContext<WizardFormValues>();
 
   const selectPreset = (presetId: string, values: Partial<WizardFormValues>) => {
@@ -35,6 +38,24 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
       title="Choose a starting point"
       description="Pick a template to pre-fill common fields, or start from scratch with validated defaults."
     >
+      {featuredSampleRunId !== null && featuredSampleRunId !== undefined && featuredSampleRunId.length > 0 ? (
+        <Card className="mb-4 border-teal-200 bg-teal-50/80 dark:border-teal-900 dark:bg-teal-950/40">
+          <CardHeader>
+            <CardTitle className="text-base text-teal-950 dark:text-teal-50">Trial sample run (pre-seeded)</CardTitle>
+            <CardDescription className="text-teal-900/90 dark:text-teal-100/90">
+              Open the governed demo pipeline we created for your workspace, or continue below to author a brand-new
+              architecture request.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Button asChild type="button" className="w-full sm:w-auto">
+              <Link href={`/runs/${featuredSampleRunId}`} data-testid="wizard-open-trial-sample-run">
+                Open sample run
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-2">
         {wizardPresets.map((preset) => (
           <Card key={preset.id} className="flex flex-col">

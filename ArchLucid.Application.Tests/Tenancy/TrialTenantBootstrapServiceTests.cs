@@ -1,4 +1,5 @@
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Identity;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
@@ -21,11 +22,15 @@ public sealed class TrialTenantBootstrapServiceTests
         Mock<IDemoSeedService> demo = new();
         Mock<ITenantRepository> repo = new();
         Mock<IAuditService> audit = new();
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new();
+        email.Setup(e => e.CanProvisionTrialForRegisteredEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         TrialTenantBootstrapService sut = new(
             demo.Object,
             repo.Object,
             audit.Object,
+            email.Object,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         TenantProvisioningResult result = new()
@@ -71,11 +76,15 @@ public sealed class TrialTenantBootstrapServiceTests
 
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new();
+        email.Setup(e => e.CanProvisionTrialForRegisteredEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
         TrialTenantBootstrapService sut = new(
             demo.Object,
             repo.Object,
             audit.Object,
+            email.Object,
             NullLogger<TrialTenantBootstrapService>.Instance);
 
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
@@ -106,5 +115,38 @@ public sealed class TrialTenantBootstrapServiceTests
         audit.Verify(
             a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialProvisioned), It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task TryBootstrapAfterSelfRegistrationAsync_skips_when_email_verification_policy_blocks()
+    {
+        Mock<IDemoSeedService> demo = new();
+        Mock<ITenantRepository> repo = new();
+        Mock<IAuditService> audit = new();
+        Mock<ITrialBootstrapEmailVerificationPolicy> email = new();
+        email.Setup(e => e.CanProvisionTrialForRegisteredEmailAsync("x@y.com", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        TrialTenantBootstrapService sut = new(
+            demo.Object,
+            repo.Object,
+            audit.Object,
+            email.Object,
+            NullLogger<TrialTenantBootstrapService>.Instance);
+
+        TenantProvisioningResult result = new()
+        {
+            TenantId = Guid.NewGuid(),
+            DefaultWorkspaceId = Guid.NewGuid(),
+            DefaultProjectId = Guid.NewGuid(),
+            WasAlreadyProvisioned = false,
+        };
+
+        await sut.TryBootstrapAfterSelfRegistrationAsync(result, "x@y.com", CancellationToken.None);
+
+        demo.Verify(s => s.SeedAsync(It.IsAny<CancellationToken>()), Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialProvisioned), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

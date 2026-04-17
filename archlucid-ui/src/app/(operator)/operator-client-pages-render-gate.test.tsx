@@ -23,6 +23,7 @@ import CompositeAlertRulesPage from "./composite-alert-rules/page";
 import DigestSubscriptionsPage from "./digest-subscriptions/page";
 import DigestsPage from "./digests/page";
 import GovernanceResolutionPage from "./governance-resolution/page";
+import OnboardingStartPage from "./onboarding/start/page";
 import PolicyPacksPage from "./policy-packs/page";
 import EvolutionReviewPage from "./evolution-review/page";
 import PlanningPage from "./planning/page";
@@ -123,5 +124,10 @@ describe("operator client pages — render gate", () => {
   it("AskPage renders primary heading", () => {
     render(<AskPage />);
     expect(screen.getByRole("heading", { level: 2, name: "Ask ArchLucid" })).toBeInTheDocument();
+  });
+
+  it("OnboardingStartPage renders primary heading", () => {
+    render(<OnboardingStartPage />);
+    expect(screen.getByRole("heading", { level: 2, name: "Onboarding" })).toBeInTheDocument();
   });
 });

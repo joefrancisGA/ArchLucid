@@ -29,6 +29,7 @@ using ArchLucid.KnowledgeGraph.Repositories;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Application.Audit;
+using ArchLucid.Core.Identity;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Conversation;
@@ -41,6 +42,7 @@ using ArchLucid.Persistence.Concurrency;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Orchestration.Pipeline;
@@ -185,6 +187,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPolicyPackChangeLogRepository, DapperPolicyPackChangeLogRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddScoped<ITenantRepository, DapperTenantRepository>();
+        services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
 
         services.AddSingleton<Persistence.Data.Infrastructure.IDbConnectionFactory>(p =>

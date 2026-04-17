@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Connections;
 
@@ -7,6 +8,22 @@ namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class ProductionSafetyRules
 {
+    /// <summary>External ID (CIAM) trial mode requires an explicit directory tenant id in Production.</summary>
+    public static void CollectTrialAuthExternalId(IConfiguration configuration, List<string> errors)
+    {
+        TrialAuthOptions trial =
+            configuration.GetSection(TrialAuthOptions.SectionPath).Get<TrialAuthOptions>() ?? new TrialAuthOptions();
+
+        if (!TrialAuthModeConstants.HasMode(trial.Modes, TrialAuthModeConstants.MsaExternalId))
+            return;
+
+        if (!string.IsNullOrWhiteSpace(trial.ExternalIdTenantId?.Trim()))
+            return;
+
+        errors.Add(
+            "Auth:Trial:Modes includes \"MsaExternalId\"; configure Auth:Trial:ExternalIdTenantId with the Entra External ID tenant (directory) id.");
+    }
+
     /// <summary>Require RLS session context when using SQL in Production (API and Worker).</summary>
     public static void CollectSqlRowLevelSecurity(
         IConfiguration configuration,

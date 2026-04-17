@@ -1,3 +1,4 @@
+using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.Services;
 using ArchLucid.Api.Services.Admin;
@@ -33,6 +34,7 @@ public static class ApiWebLayerServiceCollectionExtensions
 
         services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
         services.AddScoped<ApiRequestMeteringMiddleware>();
+        services.AddSingleton<ILocalTrialJwtIssuer, LocalTrialJwtIssuer>();
 
         return services;
     }

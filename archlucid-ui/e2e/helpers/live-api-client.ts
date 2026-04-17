@@ -594,7 +594,15 @@ export async function postGovernanceRejectRaw(
 /** GET `/v1/audit/search` — filtered audit events (optional `runId`, `correlationId`, `eventType`). */
 export async function searchAudit(
   request: APIRequestContext,
-  params: { runId?: string; correlationId?: string; eventType?: string; take?: string },
+  params: {
+    runId?: string;
+    correlationId?: string;
+    eventType?: string;
+    take?: string;
+    tenantId?: string;
+    workspaceId?: string;
+    projectId?: string;
+  },
 ): Promise<AuditEventJson[]> {
   if (!params.runId && !params.correlationId && !params.eventType) {
     throw new Error("searchAudit: provide runId, correlationId, and/or eventType");
@@ -614,12 +622,27 @@ export async function searchAudit(
     query.eventType = params.eventType;
   }
 
+  const scopeHeaders: Record<string, string> = {};
+
+  if (
+    params.tenantId !== undefined &&
+    params.tenantId.trim().length > 0 &&
+    params.workspaceId !== undefined &&
+    params.workspaceId.trim().length > 0 &&
+    params.projectId !== undefined &&
+    params.projectId.trim().length > 0
+  ) {
+    scopeHeaders["x-tenant-id"] = params.tenantId.trim();
+    scopeHeaders["x-workspace-id"] = params.workspaceId.trim();
+    scopeHeaders["x-project-id"] = params.projectId.trim();
+  }
+
   const maxAuditSearchAttempts = 8;
 
   for (let attempt = 0; attempt < maxAuditSearchAttempts; attempt++) {
     const res = await request.get(`${liveApiBase}/v1/audit/search`, {
       params: query,
-      headers: liveAcceptHeaders(),
+      headers: { ...liveAcceptHeaders(), ...scopeHeaders },
     });
 
     if (res.status() === 429 && attempt < maxAuditSearchAttempts - 1) {

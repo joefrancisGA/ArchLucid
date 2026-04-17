@@ -13,6 +13,7 @@ import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider"
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SidebarNav } from "@/components/SidebarNav";
+import { TrialBanner } from "@/components/TrialBanner";
 import { Button } from "@/components/ui/button";
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 
@@ -79,6 +80,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
           </aside>
           <div className="min-w-0 flex-1 px-4 py-4 lg:px-6 lg:py-6">
             <AuthPanel />
+            <TrialBanner />
             <KeyboardShortcutProvider
               onHelpRequested={() => {
                 setHelpOpen(true);

@@ -22,6 +22,10 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/lib/api", () => ({
   createArchitectureRun: (...args: unknown[]) => createArchitectureRunMock(...args),
   getRunSummary: (...args: unknown[]) => getRunSummaryMock(...args),

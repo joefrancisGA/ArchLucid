@@ -35,3 +35,15 @@ variable "sign_in_audience" {
     error_message = "sign_in_audience must be a supported Azure AD signInAudience value."
   }
 }
+
+variable "enable_external_id" {
+  type        = bool
+  description = "When true, validate and emit External ID (CIAM) wiring outputs for ArchLucid trial `Auth:Trial:MsaExternalId` mode."
+  default     = false
+}
+
+variable "external_id_directory_tenant_id" {
+  type        = string
+  description = "Directory (tenant) GUID of the Entra External ID tenant — bind to `Auth:Trial:ExternalIdTenantId` in ArchLucid.Api."
+  default     = ""
+}
