@@ -1,0 +1,58 @@
+# GitHub CODEOWNERS for ArchLucid (repo: joefrancisGA/ArchiForge)
+#
+# Purpose
+#   - Auto-assigns reviewers when a PR touches matching paths.
+#   - When combined with branch-protection "Require review from Code Owners",
+#     listed owners must approve before merge.
+#   - GitHub Copilot code review (auto-request) runs *in addition to* the humans
+#     listed here; CODEOWNERS does not control Copilot. See
+#     docs/runbooks/COPILOT_CODE_REVIEW_SETUP.md for the Copilot side.
+#
+# Syntax
+#   <pattern>  <owner1> <owner2> ...
+#   - Patterns follow .gitignore-style globbing.
+#   - Later patterns override earlier patterns for the same path.
+#   - Owners are GitHub usernames (@user) or teams (@org/team-name).
+#
+# Add teammates by appending their handle to the relevant line.
+# Today this repo has a single maintainer, so @joefrancisGA is the default
+# owner everywhere. Do NOT remove the catch-all `*` entry below — without it,
+# files not matched by any other pattern would have no owner.
+
+# Default owner for everything not matched below.
+*                                       @joefrancisGA
+
+# --- Security-sensitive areas (require maintainer review) ---------------------
+
+# Anything in .github/ controls CI, security scanning, branch protection docs,
+# Copilot review configuration, and CodeQL. Touch with care.
+/.github/                               @joefrancisGA
+
+# Terraform — infra changes can affect public exposure, identity, and cost.
+# Per workspace rules: SMB/445 must never be public; storage uses private endpoints.
+/infra/                                 @joefrancisGA
+
+# Master SQL DDL — single-file-per-database rule means changes here ripple.
+ArchLucid.sql                           @joefrancisGA
+**/ArchLucid.sql                        @joefrancisGA
+
+# Historical migrations 001–028 are immutable per rename guardrails. Owner
+# review is a backstop in case someone tries to edit them.
+/migrations/                            @joefrancisGA
+
+# Authentication, authorization, RLS, and tenant scope.
+**/Authority/                           @joefrancisGA
+**/Auth/                                @joefrancisGA
+**/Rls/                                 @joefrancisGA
+**/MultiTenant*                         @joefrancisGA
+
+# CodeQL custom queries (log-sanitizer barrier — guards against secret leaks).
+/.github/codeql/                        @joefrancisGA
+
+# Rename checklist + runbooks (operational guardrails).
+/docs/ARCHLUCID_RENAME_CHECKLIST.md     @joefrancisGA
+/docs/runbooks/                         @joefrancisGA
+
+# Cursor rules — these shape AI behavior across the team.
+/.cursor/rules/                         @joefrancisGA
+/.github/copilot-instructions.md        @joefrancisGA
