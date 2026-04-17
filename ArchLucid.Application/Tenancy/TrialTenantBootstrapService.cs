@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -14,6 +15,7 @@ public sealed class TrialTenantBootstrapService(
     IDemoSeedService demoSeedService,
     ITenantRepository tenantRepository,
     IAuditService auditService,
+    ITrialBootstrapEmailVerificationPolicy emailVerificationPolicy,
     ILogger<TrialTenantBootstrapService> logger) : ITrialTenantBootstrapService
 {
     private readonly IDemoSeedService _demoSeedService =
@@ -23,6 +25,9 @@ public sealed class TrialTenantBootstrapService(
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly ITrialBootstrapEmailVerificationPolicy _emailVerificationPolicy =
+        emailVerificationPolicy ?? throw new ArgumentNullException(nameof(emailVerificationPolicy));
 
     private readonly ILogger<TrialTenantBootstrapService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -40,6 +45,19 @@ public sealed class TrialTenantBootstrapService(
 
         if (result.WasAlreadyProvisioned)
             return;
+
+        if (!await _emailVerificationPolicy.CanProvisionTrialForRegisteredEmailAsync(auditActorEmail, cancellationToken))
+        {
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "Skipping trial bootstrap for tenant {TenantId}: email verification policy blocked provisioning for {Email}.",
+                    result.TenantId,
+                    auditActorEmail);
+            }
+
+            return;
+        }
 
         ContosoRetailDemoIds demoIds = ContosoRetailDemoIds.ForTenant(result.TenantId);
 

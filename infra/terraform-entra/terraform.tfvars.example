@@ -5,3 +5,7 @@ api_application_display_name = "ArchLucid API (Production)"
 api_identifier_uri = "api://archlucid-api-contoso-prod"
 
 expose_roles_in_tokens = true
+
+# Optional: Entra External ID (CIAM) directory id for ArchLucid trial MSA/Google flows (`Auth:Trial:MsaExternalId`).
+# enable_external_id = true
+# external_id_directory_tenant_id = "00000000-0000-0000-0000-000000000000"

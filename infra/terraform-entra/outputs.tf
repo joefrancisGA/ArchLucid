@@ -22,3 +22,13 @@ output "api_service_principal_object_id" {
   value       = var.enable_entra_api_app ? azuread_service_principal.api[0].object_id : null
   description = "Enterprise application object id (for role assignments)."
 }
+
+output "external_id_wiring_enabled" {
+  value       = local.external_id_wiring_enabled
+  description = "Mirrors enable_external_id — documents that External ID outputs below are intentional."
+}
+
+output "external_id_directory_tenant_id" {
+  value       = var.enable_external_id ? trim(var.external_id_directory_tenant_id) : null
+  description = "Set ArchLucid `Auth:Trial:ExternalIdTenantId` to this value when `MsaExternalId` is listed under `Auth:Trial:Modes`."
+}

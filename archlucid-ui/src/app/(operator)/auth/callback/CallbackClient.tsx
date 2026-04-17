@@ -15,6 +15,7 @@ import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import { exchangeAuthorizationCode } from "@/lib/oidc/token-client";
 import { decodeJwtPayload, readNonceFromPayload } from "@/lib/oidc/jwt-payload";
 import { consumePkceState, persistTokenResponse } from "@/lib/oidc/session";
+import { clearLastRegistrationPayload } from "@/lib/registration-session";
 
 /**
  * OAuth2 authorization-code callback: exchanges ?code= for tokens (PKCE, public client).
@@ -102,6 +103,7 @@ export function CallbackClient() {
           }
         }
 
+        clearLastRegistrationPayload();
         persistTokenResponse(tokens);
         window.location.replace("/");
       } catch (e) {

@@ -2976,6 +2976,31 @@ BEGIN
 END;
 GO
 
+-- 077: Trial local identity users (email/password; see docs/security/TRIAL_AUTH.md).
+IF OBJECT_ID(N'dbo.IdentityUsers', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.IdentityUsers
+    (
+        Id                            UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_IdentityUsers2 PRIMARY KEY DEFAULT NEWSEQUENTIALID(),
+        NormalizedEmail               NVARCHAR(256)    NOT NULL,
+        Email                         NVARCHAR(256)    NOT NULL,
+        PasswordHash                  NVARCHAR(500)    NOT NULL,
+        SecurityStamp                 NVARCHAR(256)    NOT NULL,
+        ConcurrencyStamp              NVARCHAR(256)    NOT NULL,
+        EmailConfirmed                BIT              NOT NULL CONSTRAINT DF_IdentityUsers_EmailConfirmed2 DEFAULT (0),
+        EmailVerifiedUtc              DATETIMEOFFSET   NULL,
+        LockoutEnd                    DATETIMEOFFSET   NULL,
+        LockoutEnabled                BIT              NOT NULL CONSTRAINT DF_IdentityUsers_LockoutEnabled2 DEFAULT (1),
+        AccessFailedCount             INT              NOT NULL CONSTRAINT DF_IdentityUsers_AccessFailedCount2 DEFAULT (0),
+        EmailConfirmationTokenHash    NVARCHAR(128)    NULL,
+        EmailConfirmationExpiresUtc   DATETIMEOFFSET   NULL,
+        CreatedUtc                    DATETIMEOFFSET   NOT NULL CONSTRAINT DF_IdentityUsers_CreatedUtc2 DEFAULT (SYSUTCDATETIME())
+    );
+
+    CREATE UNIQUE INDEX UX_IdentityUsers_NormalizedEmail2 ON dbo.IdentityUsers (NormalizedEmail);
+END;
+GO
+
 IF OBJECT_ID(N'dbo.TenantWorkspaces', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantWorkspaces
@@ -3010,5 +3035,23 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_UsageEvents_TenantRecorded2 ON dbo.UsageEvents (TenantId, RecordedUtc);
     CREATE NONCLUSTERED INDEX IX_UsageEvents_KindRecorded2 ON dbo.UsageEvents (Kind, RecordedUtc);
+END;
+GO
+
+/* 076: SentEmails idempotency ledger (transactional email). */
+IF OBJECT_ID(N'dbo.SentEmails', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.SentEmails
+    (
+        IdempotencyKey     NVARCHAR(450)    NOT NULL CONSTRAINT PK_SentEmails2 PRIMARY KEY,
+        TenantId           UNIQUEIDENTIFIER NOT NULL,
+        TemplateId         NVARCHAR(128)    NOT NULL,
+        SentUtc            DATETIMEOFFSET   NOT NULL CONSTRAINT DF_SentEmails_SentUtc2 DEFAULT SYSUTCDATETIME(),
+        Provider           NVARCHAR(64)     NOT NULL,
+        ProviderMessageId  NVARCHAR(256)    NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_SentEmails_TenantTemplate2
+        ON dbo.SentEmails (TenantId, TemplateId);
 END;
 GO

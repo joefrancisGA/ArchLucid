@@ -1,4 +1,5 @@
 using ArchLucid.Application.Audit;
+using ArchLucid.Core.Identity;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Repositories;
 using ArchLucid.Contracts.Evolution;
@@ -35,6 +36,7 @@ using ArchLucid.Persistence.Coordination.ProductLearning;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Orchestration.Pipeline;
@@ -61,6 +63,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
+        services.AddSingleton<ITrialIdentityUserRepository, InMemoryNoTrialIdentityUserRepository>();
         services.AddSingleton<IRunRepository>(sp =>
             new InMemoryRunRepository(sp.GetRequiredService<ITenantRepository>()));
         services.AddSingleton<IAuthorityQueryService, InMemoryAuthorityQueryService>();

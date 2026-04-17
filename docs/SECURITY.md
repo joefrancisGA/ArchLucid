@@ -44,6 +44,8 @@ This is in addition to **`ArchLucidConfigurationRules.CollectErrors`**, which st
 
 JWT **`roles`** / **`ClaimTypes.Role`** and DevelopmentBypass **`ArchLucidAuth:DevRole`** use the names in **`ArchLucid.Core.Authorization.ArchLucidRoles`**. Authorization policies are registered in **`ArchLucid.Host.Core.Startup.ArchLucidAuthorizationPoliciesExtensions.AddArchLucidAuthorizationPolicies`** and referenced from controllers via **`ArchLucid.Core.Authorization.ArchLucidPolicies`**.
 
+**Trial-tier auth:** optional **`Auth:Trial:Modes`** enables **Entra External ID (CIAM)** consumer sign-in and/or **local email/password** backed by SQL; minted trial JWTs still carry **`ArchLucidRoles`** so **`ReadAuthority`** / **`ExecuteAuthority`** behave the same as workforce Entra tokens. See **`docs/security/TRIAL_AUTH.md`** and **ADR 0015**.
+
 | Role (`ArchLucidRoles`) | Claim value | Typical access |
 |-------------------------|-------------|----------------|
 | **ReadOnly** / **Reader** | `Reader` | Read runs, manifests, governance reads, audit list/search, provenance, retrieval (policy **`ReadAuthority`** / **`RequireReadOnly`**). |

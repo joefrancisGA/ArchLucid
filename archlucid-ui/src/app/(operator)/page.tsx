@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
+import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 /** Landing page: optional welcome banner, first-run workflow panel, and quick links. */
 export default function HomePage() {
   return (
+    <OperatorHomeGate>
     <main>
       <h2 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Operator home</h2>
       <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
@@ -72,5 +74,6 @@ export default function HomePage() {
         </ul>
       </section>
     </main>
+    </OperatorHomeGate>
   );
 }

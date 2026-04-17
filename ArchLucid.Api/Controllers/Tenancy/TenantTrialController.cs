@@ -122,4 +122,13 @@ public sealed class TenantTrialController(
 
         return NoContent();
     }
+
+    /// <summary>Starts a hosted checkout session (Stripe or marketplace) — placeholder until B2 billing is wired.</summary>
+    [HttpPost("billing/checkout")]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+    [ProducesResponseType(typeof(TenantBillingCheckoutResponse), StatusCodes.Status200OK)]
+    public IActionResult StartBillingCheckout()
+    {
+        return Ok(new TenantBillingCheckoutResponse { Status = "not_configured" });
+    }
 }

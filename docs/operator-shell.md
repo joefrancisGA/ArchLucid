@@ -23,6 +23,12 @@ Breadcrumb links on key pages tie **Home · Runs · Graph · Compare** together.
 
 ---
 
+## Trial banner (self-service workspaces)
+
+When `GET /v1/tenant/trial-status` reports **Active**, **Expired**, or **ReadOnly**, the operator shell shows **`TrialBanner`** (see `archlucid-ui/docs/TRIAL_SIGNUP_UI.md`): remaining calendar days, **Convert to paid** (`POST /v1/tenant/billing/checkout`), checklist link to **`/onboarding/start`**, and a dismiss control that hides the strip for **24 hours** then re-evaluates on the next visit.
+
+---
+
 ## Keyboard and accessibility (V1 polish)
 
 - **Skip link:** Press **Tab** once on any page to reach **Skip to main content**; **Enter** moves focus into the page body (`#main-content`) so you can bypass the header nav and auth strip.

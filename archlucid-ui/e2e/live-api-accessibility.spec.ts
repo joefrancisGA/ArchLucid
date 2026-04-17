@@ -8,6 +8,9 @@ import { FIXTURE_MANIFEST_ID, FIXTURE_RUN_ID } from "./fixtures/ids";
  */
 const PAGES = [
   { name: "Home", path: "/" },
+  { name: "Welcome marketing", path: "/welcome" },
+  { name: "Trial signup", path: "/signup" },
+  { name: "Trial onboarding start", path: "/onboarding/start" },
   { name: "Getting started", path: "/getting-started" },
   { name: "Onboarding", path: "/onboarding" },
   { name: "New run wizard", path: "/runs/new" },

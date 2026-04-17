@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { FieldErrors } from "react-hook-form";
 import { FormProvider, useForm } from "react-hook-form";
 
@@ -32,6 +33,29 @@ const WIZARD_STEP_DEFINITIONS = [
 ] as const;
 
 const STEP_INDEX_MAX = WIZARD_STEP_DEFINITIONS.length - 1;
+
+const SAMPLE_RUN_GUID_RE =
+  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$|^[0-9a-fA-F]{32}$/;
+
+function tryParseSampleRunQuery(raw: string | null): string | null {
+  if (raw === null) {
+    return null;
+  }
+
+  const trimmed = raw.trim();
+
+  if (trimmed.length === 0 || !SAMPLE_RUN_GUID_RE.test(trimmed)) {
+    return null;
+  }
+
+  if (trimmed.includes("-")) {
+    return trimmed;
+  }
+
+  const n = trimmed.toLowerCase();
+
+  return `${n.slice(0, 8)}-${n.slice(8, 12)}-${n.slice(12, 16)}-${n.slice(16, 20)}-${n.slice(20, 32)}`;
+}
 
 /** Fields validated before leaving each step (0 = preset, no validation). */
 const STEP_TRIGGER_FIELDS: Record<number, (keyof WizardFormValues)[] | null> = {
@@ -64,6 +88,12 @@ function stepHasBlockingErrors(stepIndex: number, errors: FieldErrors<WizardForm
 
 /** Seven-step client wizard: react-hook-form + zod, create run, poll summary with live region + toast. */
 export function NewRunWizardClient() {
+  const searchParams = useSearchParams();
+  const featuredSampleRunId = useMemo(() => {
+    const raw = searchParams?.get("sampleRunId") ?? null;
+
+    return tryParseSampleRunQuery(raw);
+  }, [searchParams]);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
@@ -188,7 +218,7 @@ export function NewRunWizardClient() {
             completedSteps={completedSteps}
           />
 
-          {stepIndex === 0 ? <WizardStepPreset /> : null}
+          {stepIndex === 0 ? <WizardStepPreset featuredSampleRunId={featuredSampleRunId} /> : null}
           {stepIndex === 1 ? <WizardStepIdentity /> : null}
           {stepIndex === 2 ? <WizardStepDescription /> : null}
           {stepIndex === 3 ? <WizardStepConstraints /> : null}

@@ -121,6 +121,46 @@ Platform fee $899 + (8 × $179) = **$2,331 / month** (within the $2K–$5K manag
 
 ### 5.2 Locked price table (do not edit without re-rate gate decision)
 
+The fenced JSON block below is the **machine-readable** source for `archlucid-ui/public/pricing.json` (generated in CI via `scripts/ci/generate_pricing_json.py`). Do not remove the **locked-prices** fence (three backticks + the token `locked-prices` on its own line).
+
+```locked-prices
+{
+  "schemaVersion": 1,
+  "effectiveDate": "2026-04-17",
+  "currency": "USD",
+  "packages": [
+    {
+      "id": "team",
+      "title": "Team",
+      "summary": "Small architecture team exploring AI-assisted review",
+      "workspaceMonthlyUsd": 199,
+      "includedArchitectSeats": 5,
+      "seatMonthlyUsd": 79,
+      "includedRunsPerMonth": 20,
+      "overageRunUsd": 10
+    },
+    {
+      "id": "professional",
+      "title": "Professional",
+      "summary": "Established practice with governance and audit needs",
+      "workspaceMonthlyUsd": 899,
+      "maxWorkspaces": 5,
+      "includedArchitectSeats": 20,
+      "seatMonthlyUsd": 179,
+      "includedRunsPerMonth": 100,
+      "overageRunUsd": 8
+    },
+    {
+      "id": "enterprise",
+      "title": "Enterprise",
+      "summary": "Large organization — annual contract",
+      "annualFloorUsd": 60000,
+      "annualCeilingUsd": 250000
+    }
+  ]
+}
+```
+
 | Item | Price |
 |------|-------|
 | Team platform fee | $199 / workspace / month |

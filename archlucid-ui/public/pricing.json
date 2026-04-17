@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "effectiveDate": "2026-04-17",
+  "currency": "USD",
+  "packages": [
+    {
+      "id": "team",
+      "title": "Team",
+      "summary": "Small architecture team exploring AI-assisted review",
+      "workspaceMonthlyUsd": 199,
+      "includedArchitectSeats": 5,
+      "seatMonthlyUsd": 79,
+      "includedRunsPerMonth": 20,
+      "overageRunUsd": 10
+    },
+    {
+      "id": "professional",
+      "title": "Professional",
+      "summary": "Established practice with governance and audit needs",
+      "workspaceMonthlyUsd": 899,
+      "maxWorkspaces": 5,
+      "includedArchitectSeats": 20,
+      "seatMonthlyUsd": 179,
+      "includedRunsPerMonth": 100,
+      "overageRunUsd": 8
+    },
+    {
+      "id": "enterprise",
+      "title": "Enterprise",
+      "summary": "Large organization \u2014 annual contract",
+      "annualFloorUsd": 60000,
+      "annualCeilingUsd": 250000
+    }
+  ]
+}

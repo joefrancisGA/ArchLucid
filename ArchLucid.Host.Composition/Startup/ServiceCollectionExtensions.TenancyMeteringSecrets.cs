@@ -1,10 +1,13 @@
+using ArchLucid.Application.Identity;
 using ArchLucid.Application.Tenancy;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Secrets;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Configuration.Secrets;
 using ArchLucid.Persistence.Metering;
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,8 +19,21 @@ public static partial class ServiceCollectionExtensions
 {
     private static void RegisterTenancyMeteringAndSecrets(IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<MeteringOptions>(configuration.GetSection(MeteringOptions.SectionName));
+        services.Configure<ArchLucid.Core.Metering.MeteringOptions>(
+            configuration.GetSection(ArchLucid.Core.Metering.MeteringOptions.SectionName));
         services.Configure<ArchLucidSecretOptions>(configuration.GetSection(ArchLucidSecretOptions.SectionName));
+        services.Configure<TrialAuthOptions>(configuration.GetSection(TrialAuthOptions.SectionPath));
+
+        services.AddScoped<ITrialBootstrapEmailVerificationPolicy, TrialBootstrapEmailVerificationPolicy>();
+        services.AddSingleton<PasswordHasher<TrialIdentityHasherUser>>();
+        services.AddSingleton<TrialPasswordPolicyValidator>();
+        services.AddHttpClient<PwnedPasswordRangeClient>(
+            client =>
+            {
+                client.BaseAddress = new Uri("https://api.pwnedpasswords.com/");
+                client.DefaultRequestHeaders.TryAddWithoutValidation("Add-Padding", "true");
+            });
+        services.AddScoped<ITrialLocalIdentityService, TrialLocalIdentityService>();
 
         services.AddScoped<IUsageMeteringService, UsageMeteringService>();
         services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();

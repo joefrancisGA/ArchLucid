@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Authentication;
 using ArchLucid.Api.Configuration;
+using ArchLucid.Core.Configuration;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -33,7 +34,7 @@ public static class AuthServiceCollectionExtensions
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(options => ConfigureJwtBearer(options, authOptions));
+                .AddJwtBearer(options => ConfigureJwtBearer(options, authOptions, configuration));
 
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
 
@@ -65,7 +66,7 @@ public static class AuthServiceCollectionExtensions
         return services;
     }
 
-    private static void ConfigureJwtBearer(JwtBearerOptions options, ArchLucidAuthOptions authOptions)
+    private static void ConfigureJwtBearer(JwtBearerOptions options, ArchLucidAuthOptions authOptions, IConfiguration configuration)
     {
         string? pemPath = authOptions.JwtSigningPublicKeyPemPath?.Trim();
 
@@ -89,6 +90,13 @@ public static class AuthServiceCollectionExtensions
         };
 
         EntraMultiTenantJwtBearerConfigurator.ApplyIfEnabled(options, authOptions);
+
+        TrialAuthOptions trial =
+            configuration.GetSection(TrialAuthOptions.SectionPath).Get<TrialAuthOptions>() ?? new TrialAuthOptions();
+
+        bool trialExternalId = TrialAuthModeConstants.HasMode(trial.Modes, TrialAuthModeConstants.MsaExternalId);
+
+        TrialExternalIdJwtBearerSupport.TryAllowConsumerIdentityIssuers(options, trialExternalId);
     }
 
     private static void ConfigureJwtBearerWithLocalPublicKey(
