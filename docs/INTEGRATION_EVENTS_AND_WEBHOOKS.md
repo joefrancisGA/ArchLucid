@@ -46,6 +46,7 @@ Events using the outbox today:
 | `com.archlucid.governance.promotion.activated` | Same transaction as environment activation when `SupportsExternalTransaction`; otherwise standalone enqueue after commit |
 | `com.archlucid.alert.fired` / `com.archlucid.alert.resolved` | After alert row write (standalone enqueue) |
 | `com.archlucid.advisory.scan.completed` | After scan execution completes (standalone enqueue) |
+| `com.archlucid.notifications.trial-lifecycle-email.v1` | After durable audit append (`TrialProvisioned`, `CoordinatorRunCommitCompleted`, `TenantTrialConverted`) or scheduled trial scan (standalone enqueue) |
 
 When `TransactionalOutboxEnabled` is **false**, the same call sites use **best-effort** `IIntegrationEventPublisher.PublishAsync` (failures are logged; domain commits are not rolled back).
 
@@ -77,6 +78,7 @@ Individual event payload schemas are published as [JSON Schema Draft 2020-12](ht
 | `alert-fired.v1.schema.json` | `com.archlucid.alert.fired` |
 | `alert-resolved.v1.schema.json` | `com.archlucid.alert.resolved` |
 | `advisory-scan-completed.v1.schema.json` | `com.archlucid.advisory.scan.completed` |
+| `trial-lifecycle-email.v1.schema.json` | `com.archlucid.notifications.trial-lifecycle-email.v1` |
 
 External consumers can validate inbound Service Bus message bodies against these schemas. Each schema sets `additionalProperties: true` so new fields may appear in payloads without a schema-version bump (same additive contract as `IntegrationEventPayloadContractTests`).
 
@@ -90,6 +92,7 @@ Payloads use `IntegrationEventJson` (camelCase, omit nulls). See **`docs/contrac
 4. **`com.archlucid.alert.fired`** — `schemaVersion`, scope ids, `alertId`, optional `runId` / `comparedToRunId`, `ruleId`, `category`, `severity`, `title`, `deduplicationKey`
 5. **`com.archlucid.alert.resolved`** — `schemaVersion`, scope ids, `alertId`, optional `runId`, `resolvedByUserId`, optional `comment`
 6. **`com.archlucid.advisory.scan.completed`** — `schemaVersion`, scope ids, `scheduleId`, `executionId`, `hasRuns`, optional run/digest ids, `completedUtc`
+7. **`com.archlucid.notifications.trial-lifecycle-email.v1`** — `schemaVersion`, `trigger`, scope ids, optional `runId`, optional `targetTier` (see `docs/EMAIL_NOTIFICATIONS.md`)
 
 When no usable Service Bus configuration is present, a **no-op** publisher is registered.
 

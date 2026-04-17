@@ -1,4 +1,3 @@
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Startup;
@@ -27,9 +26,6 @@ public sealed class StorageProviderDiGraphValidationTests
         IConfiguration configuration = CreateOpenApiLikeInMemoryConfiguration();
         ServiceCollection services = CreateCompositionServices(configuration);
         services.AddHttpContextAccessor();
-        // IAuditService is registered in Api Program.cs, not in composition; provide a no-op so ValidateOnBuild
-        // exercises the same graph the API builds after storage + application services.
-        services.AddScoped<IAuditService, NoOpCompositionAuditService>();
         _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
 
         ServiceProviderOptions options = new() { ValidateOnBuild = true, ValidateScopes = true };
@@ -137,17 +133,6 @@ public sealed class StorageProviderDiGraphValidationTests
                 WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                 ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
             };
-        }
-    }
-
-    /// <summary>
-    /// Minimal stand-in for host <see cref="IAuditService"/> so composition tests can run without ASP.NET Core wiring.
-    /// </summary>
-    private sealed class NoOpCompositionAuditService : IAuditService
-    {
-        public Task LogAsync(AuditEvent auditEvent, CancellationToken ct)
-        {
-            return Task.CompletedTask;
         }
     }
 }

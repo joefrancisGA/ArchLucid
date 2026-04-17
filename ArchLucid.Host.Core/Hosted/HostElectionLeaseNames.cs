@@ -14,4 +14,6 @@ public static class HostElectionLeaseNames
     public const string IntegrationEventOutbox = "hosted:integration-event-outbox";
 
     public const string AuthorityPipelineWorkOutbox = "hosted:authority-pipeline-work-outbox";
+
+    public const string TrialLifecycleEmailPolling = "hosted:trial-lifecycle-email-polling";
 }

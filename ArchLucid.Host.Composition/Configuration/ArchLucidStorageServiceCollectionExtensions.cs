@@ -1,8 +1,13 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Notifications;
+using ArchLucid.Core.Notifications.Email;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.BlobStore;
@@ -11,16 +16,21 @@ using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Notifications;
+using ArchLucid.Persistence.Notifications.Email;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Tenancy;
 
 using Azure.Core;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Composition.Configuration;
@@ -56,8 +66,52 @@ public static class ArchLucidStorageServiceCollectionExtensions
             : new SqlStorageProviderRegistrar();
 
         registrar.Register(services, configuration);
+        RegisterTransactionalEmailServices(services, configuration, options);
 
         return services;
+    }
+
+    internal static void RegisterTransactionalEmailServices(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidOptions archLucidOptions)
+    {
+        services.Configure<EmailNotificationOptions>(configuration.GetSection(EmailNotificationOptions.SectionName));
+
+        if (ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider))
+        {
+            services.TryAddScoped<ISentEmailLedger, DapperSentEmailLedger>();
+            services.TryAddScoped<ITenantTrialEmailContactLookup, DapperTenantTrialEmailContactLookup>();
+        }
+        else
+        {
+            services.TryAddSingleton<ISentEmailLedger, InMemorySentEmailLedger>();
+            services.TryAddSingleton<ITenantTrialEmailContactLookup, NullTenantTrialEmailContactLookup>();
+        }
+
+        services.TryAddSingleton<IEmailTemplateRenderer, RazorLightEmailTemplateRenderer>();
+        services.TryAddScoped<ITrialLifecycleEmailDispatcher, TrialLifecycleEmailDispatcher>();
+        services.TryAddScoped<TrialScheduledLifecycleEmailScanner>();
+        services.TryAddSingleton<IAzureCommunicationEmailApi, AzureCommunicationEmailApi>();
+
+        services.AddSingleton<IEmailProvider>(static sp =>
+        {
+            IOptionsMonitor<EmailNotificationOptions> monitor = sp.GetRequiredService<IOptionsMonitor<EmailNotificationOptions>>();
+            EmailNotificationOptions opts = monitor.CurrentValue;
+            string provider = opts.Provider?.Trim() ?? EmailProviderNames.Noop;
+
+            if (string.Equals(provider, EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase))
+            {
+                return ActivatorUtilities.CreateInstance<AzureCommunicationServicesEmailProvider>(sp);
+            }
+
+            if (string.Equals(provider, EmailProviderNames.Smtp, StringComparison.OrdinalIgnoreCase))
+            {
+                return ActivatorUtilities.CreateInstance<SmtpEmailProvider>(sp);
+            }
+
+            return new NoopEmailProvider();
+        });
     }
 
     /// <summary>

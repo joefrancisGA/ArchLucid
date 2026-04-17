@@ -1,4 +1,3 @@
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Auth.Services;
@@ -24,8 +23,6 @@ public static class Program
         builder.Services.AddHttpContextAccessor();
         // Singleton: matches Api registration; LLM completion cache (singleton) resolves partition scope per call.
         builder.Services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
-        builder.Services.AddScoped<IAuditService, AuditService>();
-
         builder.Services.AddArchLucidOpenTelemetry(
             builder.Configuration,
             builder.Environment,

@@ -65,6 +65,7 @@ public static partial class ServiceCollectionExtensions
             return;
         }
 
+        services.AddSingleton<IIntegrationEventHandler, TrialLifecycleEmailIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, LoggingIntegrationEventHandler>();
         services.AddHostedService<AzureServiceBusIntegrationEventConsumer>();
     }
