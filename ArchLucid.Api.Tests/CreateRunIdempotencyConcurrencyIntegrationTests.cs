@@ -122,7 +122,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         string requestId = "REQ-IDEM-" + Guid.NewGuid().ToString("N")[..12];
         object body = TestRequestFactory.CreateArchitectureRequest(requestId);
 
-        const int parallel = 8;
+        const int parallel = 64;
         HttpResponseMessage[] responses = await PostParallelArchitectureRequestWithTransientRetryAsync(
             client,
             body,

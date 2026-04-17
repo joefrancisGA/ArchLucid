@@ -1,6 +1,8 @@
+using System.Collections.Concurrent;
 using System.Data;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
@@ -198,7 +200,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             TimeProvider.System,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
-        const int parallel = 8;
+        const int parallel = 64;
         Task<CreateRunResult>[] tasks = Enumerable
             .Range(0, parallel)
             .Select(_ => sut.CreateRunAsync(request, idempotency, CancellationToken.None))
@@ -212,5 +214,127 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         results.Should().HaveCount(parallel);
         results.Select(r => r.Run.RunId).Distinct().Should().ContainSingle().Which.Should().Be(runId);
         results.Count(r => r.IdempotentReplay).Should().Be(parallel - 1);
+    }
+
+    /// <summary>
+    /// Distinct idempotency keys must not collapse: each parallel create should invoke coordination once.
+    /// </summary>
+    [Fact]
+    public async Task Parallel_create_with_distinct_idempotency_keys_invokes_coordinator_each_time()
+    {
+        Guid tenantId = TestScope.TenantId;
+        Guid workspaceId = TestScope.WorkspaceId;
+        Guid projectId = TestScope.ProjectId;
+        byte[] fingerprint = new byte[32];
+        Array.Fill(fingerprint, (byte)44);
+
+        int coordinatorInvocations = 0;
+        Mock<ICoordinatorService> coordinator = new();
+        coordinator
+            .Setup(c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (ArchitectureRequest req, CancellationToken cancellationToken) =>
+                {
+                    Interlocked.Increment(ref coordinatorInvocations);
+
+                    if (cancellationToken.IsCancellationRequested)
+                        throw new OperationCanceledException(cancellationToken);
+                    string runId = Guid.NewGuid().ToString("N");
+
+                    return new CoordinationResult
+                    {
+                        Run = new ArchitectureRun
+                        {
+                            RunId = runId,
+                            RequestId = req.RequestId,
+                            Status = ArchitectureRunStatus.TasksGenerated,
+                            CreatedUtc = DateTime.UtcNow,
+                        },
+                        EvidenceBundle = new EvidenceBundle { EvidenceBundleId = "eb-" + runId },
+                        Tasks = [],
+                    };
+                });
+
+        Mock<IArchitectureRunIdempotencyRepository> idempotencyRepository = new();
+        idempotencyRepository
+            .Setup(x => x.TryGetAsync(tenantId, workspaceId, projectId, It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunIdempotencyLookup?)null);
+
+        idempotencyRepository
+            .Setup(x => x.TryInsertAsync(
+                tenantId,
+                workspaceId,
+                projectId,
+                It.IsAny<byte[]>(),
+                fingerprint,
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection>(),
+                It.IsAny<IDbTransaction>()))
+            .ReturnsAsync(true);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IRunRepository> runRepo = new();
+        Mock<IAgentTaskRepository> taskRepository = new();
+        Mock<IEvidenceBundleRepository> evidenceBundleRepository = new();
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("test-actor");
+
+        Mock<IArchitectureRequestRepository> requestRepository = new();
+        requestRepository
+            .Setup(r => r.CreateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        evidenceBundleRepository
+            .Setup(e => e.CreateAsync(It.IsAny<EvidenceBundle>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        ArchitectureRunCreateOrchestrator sut = new(
+            coordinator.Object,
+            requestRepository.Object,
+            runRepo.Object,
+            scopeProvider.Object,
+            evidenceBundleRepository.Object,
+            taskRepository.Object,
+            idempotencyRepository.Object,
+            actor.Object,
+            Mock.Of<IBaselineMutationAuditService>(),
+            Mock.Of<IAuditService>(),
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
+            Mock.Of<IUsageMeteringService>(),
+            new NoOpDistributedCreateRunIdempotencyLock(),
+            TimeProvider.System,
+            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+
+        const int parallel = 64;
+        ConcurrentBag<string> runIds = new();
+
+        await Parallel.ForEachAsync(
+            Enumerable.Range(0, parallel),
+            new ParallelOptions { MaxDegreeOfParallelism = parallel },
+            async (int i, CancellationToken ct) =>
+            {
+                byte[] keyHash = new byte[32];
+                keyHash[0] = (byte)i;
+                keyHash[1] = (byte)(i >> 8);
+                CreateRunIdempotencyState idempotency = new(tenantId, workspaceId, projectId, keyHash, fingerprint);
+
+                ArchitectureRequest request = new()
+                {
+                    RequestId = "req-dist-" + i.ToString("x8"),
+                    SystemName = "DistSys",
+                    Environment = "dev",
+                    CloudProvider = CloudProvider.Azure,
+                };
+
+                CreateRunResult result = await sut.CreateRunAsync(request, idempotency, ct);
+                runIds.Add(result.Run.RunId);
+            });
+
+        coordinatorInvocations.Should().Be(parallel);
+        runIds.Should().HaveCount(parallel);
+        runIds.Distinct().Should().HaveCount(parallel);
     }
 }

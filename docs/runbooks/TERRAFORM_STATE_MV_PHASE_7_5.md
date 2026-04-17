@@ -4,7 +4,7 @@
 
 ## Objective
 
-Rename **Terraform resource addresses** that still contain the historical token **`archiforge`** to **`archlucid`** (or another chosen label) **without** destroying cloud objects — using **`terraform state mv`**.
+Rename **Terraform resource addresses** that still contain the historical token **`archiforge`** to **`archlucid`** (or another chosen label) **without** destroying cloud objects — using **`terraform state mv`** **or** Terraform **`moved`** blocks (root **`infra/terraform`** APIM resources: see **`moved_archlucid_apim.tf`**).
 
 ## Preconditions
 
