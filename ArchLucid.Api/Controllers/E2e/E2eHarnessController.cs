@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Api.Models.E2e;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Configuration;
@@ -49,12 +50,16 @@ public sealed class E2eHarnessController(
     {
         if (!IsHarnessAuthorized())
         {
-            return NotFound();
+            return this.NotFoundProblem(
+                "E2E harness is not available or the request is not authorized.",
+                ProblemTypes.ResourceNotFound);
         }
 
         if (body is null || body.TenantId == Guid.Empty)
         {
-            return NotFound();
+            return this.NotFoundProblem(
+                "Invalid or missing request body for E2E harness endpoint.",
+                ProblemTypes.ResourceNotFound);
         }
 
         await _tenantRepository.E2eHarnessSetTrialExpiresUtcAsync(body.TenantId, body.ExpiresUtc, cancellationToken);
@@ -70,7 +75,9 @@ public sealed class E2eHarnessController(
     {
         if (!IsHarnessAuthorized())
         {
-            return NotFound();
+            return this.NotFoundProblem(
+                "E2E harness is not available or the request is not authorized.",
+                ProblemTypes.ResourceNotFound);
         }
 
         if (body is null ||
@@ -79,7 +86,9 @@ public sealed class E2eHarnessController(
             body.ProjectId == Guid.Empty ||
             string.IsNullOrWhiteSpace(body.ProviderSubscriptionId))
         {
-            return NotFound();
+            return this.NotFoundProblem(
+                "Invalid or missing request body for E2E harness endpoint.",
+                ProblemTypes.ResourceNotFound);
         }
 
         if (!Enum.TryParse(body.CheckoutTier.Trim(), ignoreCase: true, out BillingCheckoutTier tier))
