@@ -52,11 +52,21 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
   return `${baseTitle} (${aria})`;
 }
 
-/** Canonical operator shell navigation — sidebar, command palette, and mobile drawer. */
+/**
+ * Canonical operator shell navigation — sidebar, command palette, and mobile drawer.
+ *
+ * Nav groups map to product packaging layers (see docs/PRODUCT_PACKAGING.md):
+ *   runs-review    → Core Pilot        (request · run · commit · review)
+ *   qa-advisory    → Advanced Analysis (compare, replay, graph, provenance, advisory)
+ *   alerts-governance → Enterprise Controls (governance, audit, policy, compliance)
+ *
+ * Group IDs are intentionally stable (used as localStorage keys); only labels are user-visible.
+ */
 export const NAV_GROUPS: NavGroupConfig[] = [
   {
     id: "runs-review",
-    label: "Runs & review",
+    // Product layer: Core Pilot
+    label: "Core Pilot",
     links: [
       {
         href: "/",
@@ -122,7 +132,8 @@ export const NAV_GROUPS: NavGroupConfig[] = [
   },
   {
     id: "qa-advisory",
-    label: "Q&A & advisory",
+    // Product layer: Advanced Analysis
+    label: "Advanced Analysis",
     links: [
       {
         href: "/ask",
@@ -163,7 +174,8 @@ export const NAV_GROUPS: NavGroupConfig[] = [
   },
   {
     id: "alerts-governance",
-    label: "Alerts & governance",
+    // Product layer: Enterprise Controls
+    label: "Enterprise Controls",
     links: [
       {
         href: "/alerts",

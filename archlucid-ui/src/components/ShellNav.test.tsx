@@ -38,7 +38,8 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     () => {
       render(<ShellNav />);
 
-      const nav = screen.getByRole("navigation", { name: "Runs & review" });
+      // nav group is now labelled with the product layer name "Core Pilot"
+      const nav = screen.getByRole("navigation", { name: "Core Pilot" });
       expect(nav).toBeInTheDocument();
 
       const homeLink = screen.getByRole("link", { name: "Home" });
@@ -84,10 +85,11 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     15_000,
   );
 
-  it("exposes Q&A and alerts group navigations when sections are expanded", () => {
+  it("exposes Advanced Analysis and Enterprise Controls group navigations when sections are expanded", () => {
     render(<ShellNav />);
 
-    expect(screen.getByRole("navigation", { name: "Q&A & advisory" })).toBeInTheDocument();
+    // "Q&A & advisory" is now labelled "Advanced Analysis" (product layer name)
+    expect(screen.getByRole("navigation", { name: "Advanced Analysis" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
 
     const showMore = screen.queryByRole("button", { name: "Show more links" });
@@ -95,13 +97,13 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       fireEvent.click(showMore);
     }
 
-    // Dashboard is tier "extended" under Alerts & governance — expand the group so the link is in the a11y tree.
-    fireEvent.click(screen.getByRole("button", { name: "Alerts & governance" }));
+    // "Alerts & governance" is now labelled "Enterprise Controls" — expand the group so the link is in the a11y tree.
+    fireEvent.click(screen.getByRole("button", { name: "Enterprise Controls" }));
 
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/governance/dashboard");
 
-    // Alerts group: ensure <nav> is present now that the section is open.
-    expect(screen.getByRole("navigation", { name: "Alerts & governance" })).toBeInTheDocument();
+    // Enterprise Controls group: ensure <nav> is present now that the section is open.
+    expect(screen.getByRole("navigation", { name: "Enterprise Controls" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
 
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();

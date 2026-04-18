@@ -1,6 +1,6 @@
 # ArchLucid UI (operator shell)
 
-Thin Next.js App Router UI for runs, manifest summary, **artifact review**, compare, replay, graphs, and ZIP downloads.
+Thin Next.js App Router UI organized around three product layers: **Core Pilot** (runs, commit, manifests, artifacts), **Advanced Analysis** (compare, replay, graph, advisory), and **Enterprise Controls** (governance, audit, alerts, policy).
 
 ## Core Pilot path (start here)
 
@@ -10,7 +10,7 @@ The default experience is the **Core Pilot path** — four steps from an empty w
 New run (wizard) → pipeline runs → Commit → Artifacts
 ```
 
-**First-time operators:** open **Home** (`/`) and use the collapsible **Core Pilot checklist** panel (step-by-step links: new run wizard → runs list → commit → artifacts). **Hide checklist** stores preference in `localStorage`. The sidebar **Runs & review** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default; **Show more links** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard).
+**First-time operators:** open **Home** (`/`) and use the collapsible **Core Pilot checklist** panel (step-by-step links: new run wizard → runs list → commit → artifacts). **Hide checklist** stores preference in `localStorage`. The sidebar **Core Pilot** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default; **Show more links** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard).
 
 **End-to-end path:** Home → **New run** or **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** → preview + download → optional **Compare two runs** / **Replay a run** / **Graph** (enable via **Show more links**).
 
@@ -18,12 +18,24 @@ New run (wizard) → pipeline runs → Commit → Artifacts
 - **Graph:** One run ID, multiple graph modes — for **visual** provenance/architecture, not two-run diff.
 - **Compare / replay:** Two-run diff vs single-run authority replay — see [docs/operator-shell.md](../docs/operator-shell.md) in the repo root.
 
-## Extended features (available once you have a committed run)
+## Advanced Analysis (available once you have a committed run)
 
-- **Graph** (`/graph`) — provenance or architecture graph for one run ID. Enable via **Show more links**.
-- **Compare** (`/compare`) — structured manifest diff between two runs. Enable via **Show more links**.
-- **Replay** (`/replay`) — re-validate the authority chain for a run. Enable via **Show more links**.
+Enable via **Show more links** in the sidebar. These are **Advanced Analysis** layer features.
+
+- **Graph** (`/graph`) — provenance or architecture graph for one run ID.
+- **Compare** (`/compare`) — structured manifest diff between two runs.
+- **Replay** (`/replay`) — re-validate the authority chain for a run.
 - **Export** — bundle ZIP and run-export ZIP from run detail → Artifacts.
+- **Ask / Advisory / Pilot feedback** — Q&A, advisory scans, and pilot signal collection.
+
+## Enterprise Controls (governance, audit, compliance)
+
+Enable extended and advanced links in the sidebar. These are **Enterprise Controls** layer features.
+
+- **Governance dashboard / Policy packs / Governance resolution** — approval workflows, segregation of duties, effective policy. Enable **Show more links**.
+- **Alerts** — open and acknowledged alerts (essential tier by default); rules, routing, and tuning via **Show advanced links**.
+- **Audit log** — append-only event search and CSV export. Enable **Show advanced links**.
+- **Governance workflow** — full approval, promotion, and activation surface. Enable **Show advanced links**.
 
 ## Pilot feedback (58R)
 

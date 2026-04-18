@@ -10,8 +10,16 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+from urllib.parse import unquote
 
-LINK_RE = re.compile(r"(?<!\!)\[[^\]]*\]\(([^)]+)\)")
+# Matches markdown inline links.  The URL capture group allows one level of
+# balanced inner parentheses so that Next.js route-group segments such as
+# `(operator)` or `(marketing)` in a path do not prematurely terminate the
+# match.  Pattern breakdown:
+#   [^()]*          — characters that are not parens (before/between/after groups)
+#   (?:\([^()]*\))* — zero or more balanced (inner) paren pairs, non-capturing
+#   [^()]*          — trailing characters after the last inner pair
+LINK_RE = re.compile(r"(?<!\!)\[[^\]]*\]\(([^()]*(?:\([^()]*\))*[^()]*)\)")
 
 
 def repo_root() -> Path:
@@ -53,6 +61,9 @@ def resolve_target(md_file: Path, target: str) -> Path | None:
     if should_skip_target(t):
         return None
 
+    # Decode percent-encoding (e.g. %28operator%29 → (operator)) so that
+    # Next.js route-group directory names resolve correctly on disk.
+    t = unquote(t)
     base = md_file.parent
     resolved = (base / t).resolve()
 

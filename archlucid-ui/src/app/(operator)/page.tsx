@@ -17,8 +17,10 @@ export default function HomePage() {
     <main>
       <h2 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Operator home</h2>
       <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Start with the <strong>Core Pilot path</strong>: create a run, commit the manifest, and review artifacts.
-        Compare, replay, graph, and advanced features are available once you have a committed run.
+        ArchLucid has three product layers. Start with <strong>Core Pilot</strong>: create a run, commit the
+        manifest, and review artifacts. Once you have a committed run, explore{" "}
+        <strong>Advanced Analysis</strong> (compare, replay, graph) and{" "}
+        <strong>Enterprise Controls</strong> (governance, audit, policy).
       </p>
 
       <WelcomeBanner />
@@ -58,11 +60,14 @@ export default function HomePage() {
         </ul>
       </section>
 
-      {/* Secondary — available once the Core Pilot path is complete. Graph requires "Show more links" in the sidebar. */}
-      <section className="mt-6" aria-labelledby="explore-further-heading">
-        <h3 id="explore-further-heading" className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-          Explore further (once you have a committed run)
+      {/* Advanced Analysis — deep exploration once you have a committed run. Enable via "Show more links". */}
+      <section className="mt-6" aria-labelledby="advanced-analysis-heading">
+        <h3 id="advanced-analysis-heading" className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          Advanced Analysis
         </h3>
+        <p className="mb-2 max-w-3xl text-xs text-neutral-500 dark:text-neutral-400">
+          Available once you have a committed run. Enable via <em>Show more links</em> in the sidebar.
+        </p>
         <ul className="m-0 max-w-3xl list-disc space-y-1 pl-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           <li>
             <Link href="/compare" className="text-teal-800 underline dark:text-teal-300">
@@ -72,20 +77,64 @@ export default function HomePage() {
             <Link href="/replay" className="text-teal-800 underline dark:text-teal-300">
               Replay a run
             </Link>{" "}
-            — structured diff and authority-chain validation.
+            — structured manifest diff and authority-chain re-validation.
           </li>
           <li>
             <Link href="/graph" className="text-teal-800 underline dark:text-teal-300">
               Graph
             </Link>{" "}
-            — provenance or architecture graph for a run ID (enable via <em>Show more links</em> in the sidebar).
+            — visual provenance or architecture graph for a run ID.
           </li>
           <li>
-            Ask, search, advisory,{" "}
-            <Link href="/planning" className="text-teal-800 underline dark:text-teal-300">
-              planning
+            <Link href="/ask" className="text-teal-800 underline dark:text-teal-300">
+              Ask
             </Link>
-            , pilot feedback, alerts, and policy tools — use the sidebar groups.
+            {" · "}
+            <Link href="/advisory" className="text-teal-800 underline dark:text-teal-300">
+              Advisory
+            </Link>
+            {" · "}
+            <Link href="/product-learning" className="text-teal-800 underline dark:text-teal-300">
+              Pilot feedback
+            </Link>{" "}
+            — natural-language Q&amp;A, advisory scans, and product signal collection.
+          </li>
+        </ul>
+      </section>
+
+      {/* Enterprise Controls — governance, audit, and compliance surfaces. */}
+      <section className="mt-5" aria-labelledby="enterprise-controls-heading">
+        <h3 id="enterprise-controls-heading" className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          Enterprise Controls
+        </h3>
+        <p className="mb-2 max-w-3xl text-xs text-neutral-500 dark:text-neutral-400">
+          Governance, audit, and compliance tooling. Enable extended and advanced links in the sidebar to expose the full
+          surface.
+        </p>
+        <ul className="m-0 max-w-3xl list-disc space-y-1 pl-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+          <li>
+            <Link href="/governance/dashboard" className="text-teal-800 underline dark:text-teal-300">
+              Governance dashboard
+            </Link>
+            {" · "}
+            <Link href="/policy-packs" className="text-teal-800 underline dark:text-teal-300">
+              Policy packs
+            </Link>
+            {" · "}
+            <Link href="/governance-resolution" className="text-teal-800 underline dark:text-teal-300">
+              Governance resolution
+            </Link>{" "}
+            — approval workflows, segregation of duties, and effective policy.
+          </li>
+          <li>
+            <Link href="/alerts" className="text-teal-800 underline dark:text-teal-300">
+              Alerts
+            </Link>
+            {" · "}
+            <Link href="/audit" className="text-teal-800 underline dark:text-teal-300">
+              Audit log
+            </Link>{" "}
+            — compliance alerts and append-only audit trail export.
           </li>
         </ul>
       </section>

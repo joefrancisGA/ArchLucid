@@ -20,6 +20,18 @@ ArchLucid is an API for orchestrating AI-driven architecture design. It coordina
 
 Everything else (architecture index, V1 scope, SQL reference, runbooks, etc.) is linked from **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)** and the Day-1 docs above.
 
+## Product layers
+
+ArchLucid ships as three distinct capability layers. Start with **Core Pilot**; the other two are available immediately but are not required for a first pilot to succeed.
+
+| Layer | What it covers | How to reach it |
+|-------|---------------|-----------------|
+| **Core Pilot** | Create run → execute → commit → review manifest and artifacts | Default sidebar and home page |
+| **Advanced Analysis** | Compare runs, replay authority chains, explore provenance graphs, Ask Q&A, advisory scans, pilot feedback | **Show more links** in the sidebar |
+| **Enterprise Controls** | Governance approvals, policy packs, audit log, compliance drift, alerts and rules | Extended and advanced sidebar links; requires operator/admin role |
+
+Full capability inventory: **[docs/PRODUCT_PACKAGING.md](docs/PRODUCT_PACKAGING.md)**. First-pilot walkthrough: **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)**.
+
 ## Pilot onboarding (56R)
 
 **Product boundary (V1):** [docs/V1_SCOPE.md](docs/V1_SCOPE.md). **Pre-handoff checklist:** [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md). **Commands:** [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md). **Narrative (archived):** [docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
@@ -53,7 +65,7 @@ lifecycle hooks (run completion, governance, alerts, advisory scans).
 
 ## Operator UI (`archlucid-ui`)
 
-A thin Next.js shell for runs, manifest summary, artifacts, compare, replay, graphs, and ZIP downloads. **Operator workflow and 55R contract notes:** [docs/operator-shell.md](docs/operator-shell.md). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright). Setup and doc index: [archlucid-ui/README.md](archlucid-ui/README.md).
+A thin Next.js shell organized around the three product layers: **Core Pilot** (runs, commit, manifest, artifacts) visible by default; **Advanced Analysis** (compare, replay, graph, advisory) and **Enterprise Controls** (governance, audit, alerts, policy) via progressive disclosure. **Operator workflow:** [docs/operator-shell.md](docs/operator-shell.md). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright). Setup and doc index: [archlucid-ui/README.md](archlucid-ui/README.md).
 
 ## API authentication (`ArchLucidAuth`)
 
