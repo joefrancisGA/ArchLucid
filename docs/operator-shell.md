@@ -12,14 +12,23 @@ A read-focused **operator shell**: inspect runs, manifests, and synthesized arti
 
 ## Main workflow
 
-1. **Start** — Open the app root (`/`). First-time users: expand **First-run workflow** on Home for a guided V1 checklist (create run → pipeline → commit → artifacts → compare/replay → export); **Hide checklist** collapses it (preference in browser `localStorage`). The header row **Start here · runs & review** mirrors that path: **Home**, **Onboarding**, **New run**, **Runs**, **Graph**, **Compare two runs**, **Replay a run**. **New run** opens the seven-step wizard at **`/runs/new`** (same **`POST /v1/architecture/request`** body shape as the API — see **`docs/FIRST_RUN_WIZARD.md`**).
+### Core Pilot path (steps 1–4 — start here)
+
+These four steps cover the complete first-pilot journey. They map directly to the **Core Pilot checklist** on the Home page.
+
+1. **Start** — Open the app root (`/`). First-time users: use the **Core Pilot checklist** on Home for step-by-step links (create run → pipeline → commit → review artifacts); **Hide checklist** collapses it (preference in browser `localStorage`). The sidebar **Runs & review** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default. **New run** opens the seven-step wizard at **`/runs/new`** (same **`POST /v1/architecture/request`** body shape as the API — see **`docs/FIRST_RUN_WIZARD.md`**).
 2. **Runs** — `Runs` → pick a project (default `default`) → **Open run** on a row (empty list shows **Create your first run (wizard)**).
-3. **Run detail** — **Pipeline timeline** lists run-scoped audit events (oldest first) from **`GET /v1/authority/runs/{runId}/pipeline-timeline`**. After commit, you see manifest summary, **Artifacts** (table with **Review** / **Download**), and shortcuts to **Compare two runs** (base = this run) and **Replay this run**.
+3. **Run detail** — **Pipeline timeline** lists run-scoped audit events (oldest first) from **`GET /v1/authority/runs/{runId}/pipeline-timeline`**. After commit, you see manifest summary, **Artifacts** (table with **Review** / **Download**).
 4. **Manifest / artifact** — From the golden manifest link or **Review**, you land on manifest-scoped or artifact review pages: metadata, in-shell preview (when available), raw disclosure, sibling artifact list.
+
+### Extended operations (available once you have a committed run)
+
+Enable these by clicking **Show more links** in the sidebar footer.
+
 5. **Compare / replay** — **Compare runs**: enter base (left) and target (right) run IDs; structured manifest deltas first, then legacy flat diff; optional AI explanation. **Replay run**: pick mode and read validation flags/notes.
 6. **Graph** — Enter a **run ID** (from Runs or run detail), choose a view (full provenance, decision subgraph, neighborhood, architecture), **Load graph**. Use this when you need a **visual** graph, not the tabular compare flow.
 
-Breadcrumb links on key pages tie **Home · Runs · Graph · Compare** together.
+Breadcrumb links on key pages tie **Home · Runs · Compare · Graph** together.
 
 ---
 

@@ -98,7 +98,9 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         title: navTitleWithShortcut("Provenance or architecture graph for one run ID", "alt+y"),
         keyShortcut: "alt+y",
         icon: GitGraph,
-        tier: "essential",
+        // Graph is a useful inspection tool but is not part of the Core Pilot path
+        // (create → run → commit → review). It surfaces under "Show more links".
+        tier: "extended",
       },
       {
         href: "/compare",

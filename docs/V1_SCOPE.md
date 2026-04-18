@@ -100,15 +100,27 @@ These exist in the repo and may be turned on per environment; they are **not** p
 
 ## 4. Core operator happy path (V1)
 
-This is the shortest **human** journey the product is designed to support end-to-end:
+### 4.1 Core Pilot path — start here
+
+The **Core Pilot path** is the minimum journey every pilot must complete. It maps 1:1 to the **Core Pilot checklist** on the operator UI Home page and to the four steps in [CORE_PILOT.md](CORE_PILOT.md):
 
 1. **Configure** storage (typically **Sql**), connection string, and auth for the environment ([PILOT_GUIDE.md](PILOT_GUIDE.md)).
 2. **Start** the API; confirm **live/ready** and note **version** for any ticket.
-3. **Create a run** from a structured request (`POST /v1/architecture/request`).
-4. **Execute** the run (`POST /v1/architecture/run/{runId}/execute`) and wait until the run is ready to commit (per API status and [API_CONTRACTS.md](API_CONTRACTS.md)).
+3. **Create a run** from a structured request (`POST /v1/architecture/request`) — use the seven-step wizard in the operator UI or the CLI.
+4. **Execute** the run and wait until it is ready to commit (coordinator-driven; watch the pipeline timeline in the UI or poll the API).
 5. **Commit** (`POST /v1/architecture/run/{runId}/commit`) to produce a **golden manifest** and **artifacts**.
-6. **Review** artifacts in the **operator UI** or via **API/CLI** ([operator-shell.md](operator-shell.md)).
-7. As needed: **compare** two runs, **replay** a comparison or authority chain, **explore the graph** for one run, and **export** or download packages.
+6. **Review** the manifest and artifacts in the operator UI (run detail → Artifacts table) or via API/CLI ([operator-shell.md](operator-shell.md)).
+
+This is the complete first-pilot deliverable. Nothing beyond step 6 is required to call a pilot successful.
+
+### 4.2 Extended operations (available but not required for the Core Pilot)
+
+Enable these once you have at least one committed run. In the operator UI, click **Show more links** in the sidebar to surface Graph, Compare, and Replay.
+
+- **Compare** two runs (`/compare`) — structured manifest deltas + legacy diff.
+- **Replay** a run (`/replay`) — re-validate the authority chain and surface drift flags.
+- **Graph** (`/graph`) — visual provenance or architecture graph for a single run ID.
+- **Export** — download bundle ZIP and run-export ZIP from run detail → Artifacts.
 
 Optional: run **readiness** or **release-smoke** before a demo ([PILOT_GUIDE.md](PILOT_GUIDE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
 
