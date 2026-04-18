@@ -53,7 +53,12 @@ export function MobileNavDrawer() {
               return (
               <div key={group.id}>
                 <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                  {group.label}
+                  <span className="block">{group.label}</span>
+                  {group.caption ? (
+                    <span className="mt-0.5 block text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-500 dark:text-neutral-400">
+                      {group.caption}
+                    </span>
+                  ) : null}
                 </div>
                 <nav className="flex flex-col gap-0.5" aria-label={group.label}>
                   {visibleLinks.map((link) => {

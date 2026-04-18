@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { LayerHeader } from "@/components/LayerHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
@@ -105,6 +106,7 @@ export default function GraphPage() {
 
   return (
     <main>
+      <LayerHeader pageKey="graph" />
       <h2>Graph</h2>
       <p style={{ marginTop: 4, fontSize: 14 }}>
         <Link href="/">Home</Link>

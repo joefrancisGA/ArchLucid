@@ -2,6 +2,8 @@
 
 Thin Next.js App Router UI organized around three product layers: **Core Pilot** (runs, commit, manifests, artifacts), **Advanced Analysis** (compare, replay, graph, advisory), and **Enterprise Controls** (governance, audit, alerts, policy).
 
+**In-product guidance:** sidebar group **captions** summarize each layer; key Advanced Analysis / Enterprise routes render a **`LayerHeader`** strip (what question the page answers); **Home** shows a post-checklist nudge when all Core Pilot boxes are checked; **run detail** shows an optional Advanced Analysis strip after commit. Full routing logic stays in **`docs/OPERATOR_DECISION_GUIDE.md`** (repo root).
+
 ## Core Pilot path (start here)
 
 The default experience is the **Core Pilot path** — four steps from an empty workspace to a reviewed, exportable run:

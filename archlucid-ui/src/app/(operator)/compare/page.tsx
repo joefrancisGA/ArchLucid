@@ -20,6 +20,7 @@ import {
   coerceGoldenManifestComparison,
   coerceRunComparison,
 } from "@/lib/operator-response-guards";
+import { LayerHeader } from "@/components/LayerHeader";
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
@@ -217,6 +218,7 @@ function CompareForm() {
 
   return (
     <main>
+      <LayerHeader pageKey="compare" />
       <h2 className="flex flex-wrap items-baseline gap-2">
         Compare runs
         <ShortcutHint shortcut="Alt+C" className="align-middle text-[0.75rem] text-neutral-500" />

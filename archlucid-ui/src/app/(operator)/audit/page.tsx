@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -200,6 +201,7 @@ export default function AuditPage() {
 
   return (
     <main style={{ maxWidth: 900 }}>
+      <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
       <p style={{ color: "#444", fontSize: 14 }}>
         Search durable audit events for the current tenant, workspace, and project. Results are newest first (up to{" "}

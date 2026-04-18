@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { ShortcutHint } from "@/components/ShortcutHint";
@@ -26,6 +27,8 @@ export default function HomePage() {
       <WelcomeBanner />
 
       <OperatorFirstRunWorkflowPanel />
+
+      <AfterCorePilotChecklistHint />
 
       {/* Core Pilot quick links — the four steps every pilot needs. */}
       <section className="mt-2" aria-labelledby="core-pilot-heading">
