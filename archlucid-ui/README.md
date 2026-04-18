@@ -1,16 +1,29 @@
 # ArchLucid UI (operator shell)
 
-Thin Next.js App Router UI for runs, manifest summary, **artifact review**, **graphs**, compare, replay, and ZIP downloads.
+Thin Next.js App Router UI for runs, manifest summary, **artifact review**, compare, replay, graphs, and ZIP downloads.
 
-## Change Set 55R (operator workflow)
+## Core Pilot path (start here)
 
-**First-time operators:** open **Home** (`/`) — the page title is **Operator home** — and use the collapsible **First-run workflow (V1 checklist)** panel (step-by-step links: new run wizard → runs list → commit → artifacts → compare/replay → export). **Hide checklist** stores preference in `localStorage` (`archlucid_operator_workflow_guide_v1`). The header row **Start here · runs & review** includes **New run**, **Runs**, **Graph**, **Compare two runs**, and **Replay a run**. Use **Tab** first for **Skip to main content** (keyboard).
+The default experience is the **Core Pilot path** — four steps from an empty workspace to a reviewed, exportable run:
 
-**End-to-end path:** Home → **New run** or **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** (or manifest page) → preview + download → optional **Compare two runs** / **Replay a run** / **Graph** from breadcrumbs or run actions.
+```
+New run (wizard) → pipeline runs → Commit → Artifacts
+```
+
+**First-time operators:** open **Home** (`/`) and use the collapsible **Core Pilot checklist** panel (step-by-step links: new run wizard → runs list → commit → artifacts). **Hide checklist** stores preference in `localStorage`. The sidebar **Runs & review** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default; **Show more links** reveals Graph, Compare, and Replay. Use **Tab** first for **Skip to main content** (keyboard).
+
+**End-to-end path:** Home → **New run** or **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** → preview + download → optional **Compare two runs** / **Replay a run** / **Graph** (enable via **Show more links**).
 
 - **Artifact review:** List (`[]` when empty), descriptor metadata, in-shell preview with raw disclosure, stable table order (name, then id — aligned with API).
 - **Graph:** One run ID, multiple graph modes — for **visual** provenance/architecture, not two-run diff.
 - **Compare / replay:** Two-run diff vs single-run authority replay — see [docs/operator-shell.md](../docs/operator-shell.md) in the repo root.
+
+## Extended features (available once you have a committed run)
+
+- **Graph** (`/graph`) — provenance or architecture graph for one run ID. Enable via **Show more links**.
+- **Compare** (`/compare`) — structured manifest diff between two runs. Enable via **Show more links**.
+- **Replay** (`/replay`) — re-validate the authority chain for a run. Enable via **Show more links**.
+- **Export** — bundle ZIP and run-export ZIP from run detail → Artifacts.
 
 ## Pilot feedback (58R)
 

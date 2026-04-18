@@ -33,14 +33,18 @@ export default function OnboardingPage() {
         Follow these steps once per environment. Each item opens the matching area in the app or documentation.
       </p>
 
-      <ol style={{ maxWidth: 720, lineHeight: 1.8, color: "#1e293b", paddingLeft: 22 }}>
+      {/* Core Pilot steps — complete these first. */}
+      <p style={{ maxWidth: 720, fontSize: 13, fontWeight: 600, color: "#0369a1", marginBottom: 6 }}>
+        Core Pilot path — complete these first:
+      </p>
+      <ol style={{ maxWidth: 720, lineHeight: 1.8, color: "#1e293b", paddingLeft: 22, marginBottom: 24 }}>
         <li style={{ marginBottom: 14 }}>
           <strong>Walk the in-app checklist.</strong> On{" "}
-          <Link href="/" title="Home with first-run workflow">
+          <Link href="/" title="Home with Core Pilot checklist">
             Home
           </Link>
-          , expand <strong>First-run workflow</strong> (V1 checklist) for step-by-step links (create run → commit →
-          artifacts → compare/replay → export).
+          , the <strong>Core Pilot checklist</strong> has four steps: create run → pipeline → commit → review
+          artifacts.
         </li>
         <li style={{ marginBottom: 14 }}>
           <strong>Confirm API reachability.</strong> Ensure the UI proxy can reach the API (see{" "}
@@ -62,12 +66,19 @@ export default function OnboardingPage() {
           . The seven-step wizard covers the full lifecycle from description and requirements through submit and live
           pipeline tracking; after commit, review manifest and artifacts from run detail.
         </li>
+      </ol>
+
+      {/* Explore further — not required for the core pilot but available once you have a committed run. */}
+      <p style={{ maxWidth: 720, fontSize: 13, fontWeight: 600, color: "#475569", marginBottom: 6 }}>
+        Explore further — once you have a committed run:
+      </p>
+      <ol style={{ maxWidth: 720, lineHeight: 1.8, color: "#334155", paddingLeft: 22 }}>
         <li style={{ marginBottom: 14 }}>
           <strong>Trace provenance.</strong> From a known run ID, use{" "}
           <Link href="/graph" title="Load architecture or provenance graph for a run">
             Graph
           </Link>{" "}
-          to validate the graph matches expectations.
+          to validate the graph matches expectations. Enable via <em>Show more links</em> in the sidebar.
         </li>
         <li style={{ marginBottom: 14 }}>
           <strong>Compare or replay.</strong> Use{" "}
@@ -78,7 +89,7 @@ export default function OnboardingPage() {
           <Link href="/replay" title="Replay authority chain for a run">
             Replay a run
           </Link>{" "}
-          for regression analysis.
+          for regression analysis. Enable via <em>Show more links</em>.
         </li>
         <li style={{ marginBottom: 14 }}>
           <strong>Alerts and governance.</strong> When ready, configure{" "}
@@ -99,7 +110,7 @@ export default function OnboardingPage() {
 
       <p style={{ marginTop: 28, fontSize: 14, color: "#64748b", maxWidth: 720 }}>
         Deeper reading: <code>docs/PILOT_GUIDE.md</code> and <code>docs/OPERATOR_QUICKSTART.md</code> in the
-        repository checkout.
+        repository checkout. Full reference: <code>docs/CORE_PILOT.md</code>.
       </p>
     </main>
   );

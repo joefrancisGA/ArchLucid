@@ -34,7 +34,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
   });
 
   it(
-    "exposes essential runs-and-review workflow links with expected routes",
+    "shows only Core Pilot essential links by default — Graph, Compare, and Replay require Show more links",
     () => {
       render(<ShellNav />);
 
@@ -50,20 +50,25 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
         "Guided first-run wizard — system identity through pipeline tracking (Alt+N)",
       );
       expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute("href", "/runs?projectId=default");
-      expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
-      expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute(
-        "title",
-        "Provenance or architecture graph for one run ID (Alt+Y)",
-      );
       expect(screen.getByRole("link", { name: "Onboarding" })).toHaveAttribute("href", "/onboarding");
+
+      // Graph is now tier="extended" — Core Pilot path does not require graph exploration.
+      // It must NOT be visible in the default (no extended) sidebar.
+      expect(screen.queryByRole("link", { name: "Graph" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Compare two runs" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Replay a run" })).toBeNull();
 
+      // After enabling extended links, all three become visible.
       const showMore = screen.queryByRole("button", { name: "Show more links" });
       if (showMore) {
         fireEvent.click(showMore);
       }
 
+      expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
+      expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute(
+        "title",
+        "Provenance or architecture graph for one run ID (Alt+Y)",
+      );
       expect(screen.getByRole("link", { name: "Compare two runs" })).toHaveAttribute("href", "/compare");
       expect(screen.getByRole("link", { name: "Replay a run" })).toHaveAttribute("href", "/replay");
 

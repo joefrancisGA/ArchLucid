@@ -18,7 +18,11 @@ type WorkflowStep = {
   secondary?: ReactNode;
 };
 
-const steps: WorkflowStep[] = [
+/**
+ * Core Pilot path — the four steps every first pilot must complete.
+ * Steps 5-6 (compare/replay/export) are listed separately below as optional.
+ */
+const corePilotSteps: WorkflowStep[] = [
   {
     title: "Create an architecture request",
     body: "The guided wizard walks you through system identity, requirements, constraints, and advanced inputs — then submits the run and tracks the pipeline in real time.",
@@ -36,12 +40,12 @@ const steps: WorkflowStep[] = [
   },
   {
     title: "Let the pipeline run, then open the run",
-    body: "After creation, the coordinator fills snapshots and authority steps. Watch progress on the wizard’s last step or open run detail anytime.",
+    body: "After creation, the coordinator fills snapshots and authority steps. Watch progress on the wizard's last step or open run detail anytime.",
     primaryHref: "/runs?projectId=default",
     primaryLabel: "Open runs list",
     secondary: (
       <>
-        Tip: from the wizard’s final step, use <strong>Open run detail</strong> for the new ID.
+        Tip: from the wizard&apos;s final step, use <strong>Open run detail</strong> for the new ID.
       </>
     ),
   },
@@ -67,33 +71,14 @@ const steps: WorkflowStep[] = [
       </>
     ),
   },
-  {
-    title: "Compare or replay",
-    body: "Diff two runs structurally, or replay authority validation for one run. Run detail has shortcuts prefilled for this run.",
-    primaryHref: "/compare",
-    primaryLabel: "Compare two runs",
-    secondary: (
-      <>
-        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/replay">
-          Replay a run
-        </Link>{" "}
-        ·{" "}
-        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/graph">
-          Graph (visual)
-        </Link>
-      </>
-    ),
-  },
-  {
-    title: "Export a package",
-    body: "On run detail (with a manifest), use Download bundle (ZIP) and Download run export (ZIP) under Artifacts.",
-    primaryHref: "/runs?projectId=default",
-    primaryLabel: "Runs: open run → Artifacts",
-  },
 ];
 
+// Alias kept for localStorage key stability (step indices 0–3 map to corePilotSteps).
+const steps = corePilotSteps;
+
 /**
- * Collapsible first-run checklist on Home. Persists “minimized” in localStorage so returning operators can hide it.
+ * Collapsible Core Pilot checklist on Home. Persists "minimized" in localStorage so returning operators can hide it.
+ * Advanced operations (compare, replay, graph, export) are surfaced as optional links below the core steps.
  */
 export function OperatorFirstRunWorkflowPanel() {
   const [hydrated, setHydrated] = useState(false);
@@ -184,7 +169,7 @@ export function OperatorFirstRunWorkflowPanel() {
           aria-controls="first-run-workflow-panel"
           className="auth-panel-focus cursor-pointer rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
         >
-          Show V1 workflow checklist
+          Show Core Pilot checklist
         </button>
       </div>
     );
@@ -197,9 +182,14 @@ export function OperatorFirstRunWorkflowPanel() {
       aria-labelledby="first-run-workflow-heading"
     >
       <div className="mb-3.5 flex flex-wrap items-start justify-between gap-3">
-        <h2 id="first-run-workflow-heading" className="m-0 text-lg font-semibold text-sky-900 dark:text-sky-100">
-          First-run workflow (V1 checklist)
-        </h2>
+        <div>
+          <h2 id="first-run-workflow-heading" className="m-0 text-lg font-semibold text-sky-900 dark:text-sky-100">
+            Core Pilot checklist
+          </h2>
+          <p className="m-0 mt-0.5 text-xs text-sky-700 dark:text-sky-300">
+            4 steps — create · run · commit · review
+          </p>
+        </div>
         <button
           type="button"
           onClick={minimize}
@@ -215,12 +205,12 @@ export function OperatorFirstRunWorkflowPanel() {
       </p>
       {allDone ? (
         <p className="m-0 mb-4 rounded-md border border-teal-200 bg-teal-50 px-3 py-2 text-sm text-teal-900 dark:border-teal-800 dark:bg-teal-950/50 dark:text-teal-100">
-          You have checked off every step — hide the checklist when you no longer need it, or reset individual steps with the checkboxes.
+          Core Pilot complete — hide the checklist when you no longer need it, or reset individual steps with the
+          checkboxes.
         </p>
       ) : null}
       <p className="m-0 mb-4 max-w-[760px] text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-        Follow these steps once to go from an empty tenant to a reviewed, exportable architecture run. Your next
-        action is highlighted on each step.
+        Complete these four steps to go from an empty workspace to a reviewed, exportable architecture run.
       </p>
       <ol className="m-0 list-decimal pl-6 leading-normal text-neutral-800 dark:text-neutral-200">
         {steps.map((step, index) => (
@@ -257,6 +247,39 @@ export function OperatorFirstRunWorkflowPanel() {
           </li>
         ))}
       </ol>
+
+      {/* Optional next steps — not required for the Core Pilot but available once you have a committed run. */}
+      <div className="mt-3 rounded-md border border-neutral-200 bg-white px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900">
+        <p className="m-0 mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+          Optional — explore further once you have a committed run
+        </p>
+        <ul className="m-0 list-none space-y-1 pl-0 text-[13px] text-neutral-600 dark:text-neutral-400">
+          <li>
+            <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/compare">
+              Compare two runs
+            </Link>
+            {" — "}structured manifest diff between a base run and a target run.
+          </li>
+          <li>
+            <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/replay">
+              Replay a run
+            </Link>
+            {" — "}re-validate the authority chain and surface validation results.
+          </li>
+          <li>
+            <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/graph">
+              Graph (visual)
+            </Link>
+            {" — "}provenance or architecture graph for a run ID. Enable via{" "}
+            <em>Show more links</em> in the sidebar.
+          </li>
+          <li>
+            <strong>Export a package</strong> — on run detail (committed), use{" "}
+            <em>Download bundle (ZIP)</em> and <em>Download run export (ZIP)</em> under Artifacts.
+          </li>
+        </ul>
+      </div>
+
       <p className="mt-[18px] text-[13px] text-neutral-700 dark:text-neutral-300">
         More orientation:{" "}
         <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/onboarding">
