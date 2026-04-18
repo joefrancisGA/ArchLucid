@@ -60,6 +60,7 @@ import {
   governanceWorkflowPromotionsEmptyReaderHint,
   governanceWorkflowQueryCardDescriptionOperator,
   governanceWorkflowQueryCardDescriptionReader,
+  governanceWorkflowSubmitCardDescriptionReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { cn } from "@/lib/utils";
@@ -439,8 +440,14 @@ function GovernanceWorkflowPageInner() {
           <CardHeader>
             <CardTitle>Submit approval request</CardTitle>
             <CardDescription>
-              Creates a workflow row for promoting a run manifest from a source environment to a target (API:{" "}
-              <code className="text-xs">POST /v1/governance/approval-requests</code>).
+              {canMutateWorkflow ? (
+                <>
+                  Creates a workflow row for promoting a run manifest from a source environment to a target (API:{" "}
+                  <code className="text-xs">POST /v1/governance/approval-requests</code>).
+                </>
+              ) : (
+                governanceWorkflowSubmitCardDescriptionReader
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">

@@ -27,6 +27,9 @@ import {
   enterprisePolicyPacksOperatorPlusLine,
   policyPacksEmptyScopeOperatorLine,
   policyPacksEmptyScopeReaderLine,
+  policyPacksLifecycleLeadReaderLine,
+  policyPacksPublishedVersionsEmptyOperatorLine,
+  policyPacksPublishedVersionsEmptyReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
 import type {
@@ -269,6 +272,7 @@ export default function PolicyPacksPage() {
         </div>
       ) : null}
 
+      <div className={cn("flex flex-col gap-8", !canMutatePacks && "flex-col-reverse")}>
       <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-current-heading">
         <h3 id="policy-packs-current-heading">Current policy packs</h3>
         {packs.length === 0 ? (
@@ -337,7 +341,11 @@ export default function PolicyPacksPage() {
         <h4 style={{ marginTop: 0, marginBottom: 8 }}>Published versions</h4>
         {packVersions.length === 0 ? (
           <p style={{ color: "#666", fontSize: 14 }}>
-            {selectedPackId ? "No published versions loaded for this pack yet." : "Select a pack to load versions."}
+            {selectedPackId
+              ? canMutatePacks
+                ? policyPacksPublishedVersionsEmptyOperatorLine
+                : policyPacksPublishedVersionsEmptyReaderLine
+              : "Select a pack to load versions."}
           </p>
         ) : (
           <ul style={{ fontSize: 14, lineHeight: 1.6 }}>
@@ -413,9 +421,15 @@ export default function PolicyPacksPage() {
           <p style={{ color: "#b91c1c" }}>Selected versions are no longer in the list; refresh and try again.</p>
         ) : null}
       </section>
+      </div>
 
       <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-lifecycle-heading">
         <h3 id="policy-packs-lifecycle-heading">Lifecycle actions</h3>
+        {canMutatePacks ? null : (
+          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "48rem", marginTop: 4, marginBottom: 8 }}>
+            {policyPacksLifecycleLeadReaderLine}
+          </p>
+        )}
         <div className={cn(!canMutatePacks && "opacity-90")}>
           <section style={{ marginBottom: 32 }}>
             <h4 style={{ marginTop: 0, marginBottom: 8 }}>Create pack</h4>

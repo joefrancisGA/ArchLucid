@@ -8,7 +8,11 @@ import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation
 import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  compositeRulesDefinedListEmptyOperatorLine,
+  compositeRulesDefinedListEmptyReaderLine,
+  enterpriseMutationControlDisabledTitle,
+} from "@/lib/enterprise-controls-context-copy";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const METRICS = [
@@ -135,7 +139,9 @@ export default function CompositeAlertRulesPage() {
           </button>
           <div style={{ display: "grid", gap: 14 }}>
             {items.length === 0 ? (
-              <p style={{ color: "#666" }}>None yet.</p>
+              <p style={{ color: "#666", maxWidth: "40rem", fontSize: 14 }}>
+                {canMutateComposite ? compositeRulesDefinedListEmptyOperatorLine : compositeRulesDefinedListEmptyReaderLine}
+              </p>
             ) : (
               items.map((r) => (
                 <div
