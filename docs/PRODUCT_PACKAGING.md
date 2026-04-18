@@ -62,6 +62,8 @@ Keep **docs**, **`nav-config.ts`**, and **controller policies** aligned when rou
 | **Advanced Analysis** | `qa-advisory` | Every link sets `requiredAuthority`; composed by `filterNavLinksForOperatorShell` (`nav-shell-visibility.ts`) |
 | **Enterprise Controls** | `alerts-governance` | Every link sets `requiredAuthority`; rank from `current-principal.ts`; **Execute-tier** in-page mutations also use `enterprise-mutation-capability.ts` / `useEnterpriseMutationCapability` |
 
+**Read vs Execute in the UI (numeric):** `AUTHORITY_RANK.ExecuteAuthority` (value **2**) is the shared threshold — **`callerRank < 2`** ⇒ **read tier** (nav may still show `ReadAuthority` destinations; `useEnterpriseMutationCapability()` is **false**). **`callerRank >= 2`** ⇒ **Execute+** for mutation soft-enable and operator-oriented rank cues. Example: **`/governance`** is **`ExecuteAuthority`** in `nav-config.ts` so Readers do not see it in nav; the API remains authoritative if they deep-link.
+
 Shell composition order: **tier first, then authority** (`filterNavLinksForOperatorShell`). **Hardening sequence:** [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) Stage 1 describes what shipped without entitlements.
 
 #### Contributor drift guard (operator UI — keep packaging, nav, and API aligned)
@@ -76,7 +78,7 @@ When you **add or move** an operator route, touch these in order (skip only what
 4. **Enterprise write affordances** — if the page shows POST/toggle UI, keep **`useEnterpriseMutationCapability()`** (Execute+ rank) aligned with the same policies as the buttons (see **`enterprise-mutation-capability.ts`**).
 5. **This document** — update capability / navigation rows in § Layer inventories when behavior is buyer-visible.
 
-**Light regression tests** (Vitest, not snapshots): `nav-authority.test.ts`, `nav-shell-visibility.test.ts`, `current-principal.test.ts`, `enterprise-mutation-capability.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `LayerHeader.test.tsx` — extend when you change rank or filtering rules.
+**Light regression tests** (Vitest, not snapshots): `nav-authority.test.ts`, `nav-shell-visibility.test.ts`, `current-principal.test.ts`, `enterprise-mutation-capability.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `LayerHeader.test.tsx`, **`authority-seam-regression.test.ts`** (cross-module `/me` rank vs nav vs mutation), **`EnterpriseControlsReadRankHints.test.tsx`** (read-tier Enterprise hint copy when caller rank is below Execute) — extend when you change rank or filtering rules.
 
 This is the operational-usage model.
 

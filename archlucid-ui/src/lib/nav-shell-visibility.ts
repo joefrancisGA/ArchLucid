@@ -23,6 +23,8 @@ export type NavGroupWithVisibleLinks = {
  *
  * **Not authorization:** visible links do not guarantee successful HTTP calls — **ArchLucid.Api** policies return 401/403.
  * **Packaging:** **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* + *Contributor drift guard*).
+ *
+ * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank.
  */
 export function filterNavLinksForOperatorShell(
   links: ReadonlyArray<NavLinkItem>,

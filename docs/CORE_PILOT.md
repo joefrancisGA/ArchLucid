@@ -35,6 +35,8 @@ The **operator Home page**, **sidebar progressive disclosure**, and route-level 
 
 **Anti-creep rule:** if a feature does not help an operator complete these four steps more clearly or more quickly, it should not become part of the default mental model for a first pilot.
 
+**Operator UI note:** the shell may **surface** Advanced Analysis and Enterprise Controls for discovery (sidebar disclosure, **LayerHeader** on deeper routes). That is **packaging and progressive disclosure**, not a requirement to use those layers in the first session. UI visibility and soft-disabled controls follow **`docs/PRODUCT_PACKAGING.md`** §3 and **`GET /api/auth/me`** — **not** a substitute for API authorization.
+
 ---
 
 ## 2. Why this boundary exists

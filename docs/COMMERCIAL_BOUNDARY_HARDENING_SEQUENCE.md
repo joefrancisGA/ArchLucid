@@ -66,6 +66,8 @@ Reduce ambiguity and dependency on documentation alone.
 
 **Shipped in `archlucid-ui` (first wave, not commercial gating):** tier + `requiredAuthority` nav shaping (`nav-config.ts`, `nav-authority.ts`, `nav-shell-visibility.ts`, `OperatorNavAuthorityProvider.tsx`, `current-principal.ts`), plus short Enterprise context copy (`enterprise-controls-context-copy.ts`, `EnterpriseControlsContextHints.tsx`, `layer-guidance.ts` `enterpriseFootnote`) and route-level **`LayerHeader.tsx`** (keys in `layer-guidance.ts`). **Execute-tier** in-page write affordances use `enterprise-mutation-capability.ts` / `useEnterpriseMutationCapability` so **button enablement** tracks the **same numeric rank** as **nav link visibility** (both derive from `/me` claims; API responses remain authoritative). **Core Pilot** remains the default path; **Enterprise Controls** are the primary place for stricter shaping. This does **not** implement billing, entitlements, or plan-based feature flags—see **Stage 2** for stronger role-enforced boundaries as a separate step.
 
+**Read vs Execute (same threshold, two surfaces):** **`navLinkVisibleForCallerRank`** only controls **whether a link appears** after tier filtering. **`useEnterpriseMutationCapability()`** uses **`rank >= AUTHORITY_RANK.ExecuteAuthority`** for **soft-disabled controls** on mutation-heavy pages — not a second policy matrix; keep both aligned with **C#** `[Authorize(Policy = …)]` when routes move.
+
 **Maintenance map:** which TypeScript files correspond to which packaging layer is summarized in **PRODUCT_PACKAGING.md** §3 *Code seams (operator UI — maintenance map)*—update that table when you add groups or change the shaping pipeline.
 
 ### Why this comes first

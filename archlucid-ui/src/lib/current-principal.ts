@@ -38,6 +38,9 @@
  * **Alignment:** `authorityRank` / `maxAuthority` must stay consistent with **`nav-config.ts`** `requiredAuthority` on
  * each link (same policy names as `ArchLucidPolicies`). Contributor checklist: **docs/PRODUCT_PACKAGING.md** §3
  * *Contributor drift guard*.
+ *
+ * **Cross-module tests:** `authority-seam-regression.test.ts` exercises `normalizeAuthMeResponse` together with
+ * nav visibility and mutation rank; unit coverage remains in `current-principal.test.ts`.
  */
 
 import {
