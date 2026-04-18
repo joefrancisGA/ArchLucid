@@ -30,26 +30,35 @@ public static partial class GreenfieldBaselineMigrationRunner
     }
 
     /// <summary>
-    /// When the catalog has no <c>001_InitialSchema</c> journal row, applies baseline SQL and stamps 001–050 in
-    /// <c>dbo.SchemaVersions</c>. No-op when incremental history is already present.
+    /// When <c>dbo.SchemaVersions</c> does not yet record <c>001_InitialSchema</c>, applies baseline SQL and stamps
+    /// 001–050 so DbUp continues at 051+. No-op once that journal row exists.
     /// </summary>
-/// <remarks>
-/// Shared CI catalogs (or a prior failed run) can leave <c>dbo.SchemaVersions</c> empty while <c>001_InitialSchema</c>
-/// objects already exist. Replaying 001 would raise "already an object named …". In that case we only stamp
-/// 001–050 so DbUp continues without re-executing DDL — but only when <c>dbo.AuditEvents</c> already exists (migration
-/// <c>035</c>). Otherwise we replay <c>035</c>–<c>050</c> first so later DbUp scripts (e.g. <c>060</c> indexes on
-/// <c>dbo.AuditEvents</c>) do not run against a missing table.
-/// </remarks>
-public static void TryApplyBaselineAndStampThrough050(string connectionString)
+    /// <remarks>
+    /// <para>
+    /// Shared CI catalogs (or a prior failed run) can leave <c>dbo.SchemaVersions</c> empty while <c>001_InitialSchema</c>
+    /// objects already exist. Replaying 001 would raise "already an object named …". In that case we only stamp
+    /// 001–050 so DbUp continues without re-executing DDL — but only when <c>dbo.AuditEvents</c> already exists (migration
+    /// <c>035</c>). Otherwise we replay <c>035</c>–<c>050</c> first so later DbUp scripts (e.g. <c>060</c> indexes on
+    /// <c>dbo.AuditEvents</c>) do not run against a missing table.
+    /// </para>
+    /// <para>
+    /// A catalog can also have <b>non-empty</b> <c>dbo.SchemaVersions</c> (e.g. 051+ applied) <b>without</b> a
+    /// <c>001_InitialSchema</c> row while physical <c>001</c> tables still exist (manual repair, forked CI, or journal
+    /// drift). The legacy gate treated that as "no baseline" and skipped this runner entirely, letting DbUp re-run
+    /// <c>001</c> and collide. We always enter here when <c>001</c> is missing from the journal, then branch on whether
+    /// tenant tables already exist.
+    /// </para>
+    /// </remarks>
+    public static void TryApplyBaselineAndStampThrough050(string connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentException("Connection string is required.", nameof(connectionString));
 
-        if (!ShouldApplyBaseline(connectionString))
-            return;
-
         using SqlConnection connection = new(connectionString);
         connection.Open();
+
+        if (SchemaVersionsJournalRecordsInitialSchema001(connection))
+            return;
 
         Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -128,23 +137,30 @@ public static void TryApplyBaselineAndStampThrough050(string connectionString)
     }
 
     /// <summary>
-    /// True when <c>001_InitialSchema</c> already created its primary tenant table — journal may be missing or empty
-    /// on a reused test catalog.
+    /// True when <c>001_InitialSchema</c> already created its primary tenant table — journal may be missing, empty, or
+    /// inconsistent on a reused test catalog.
     /// </summary>
     /// <remarks>
     /// <c>001_InitialSchema.sql</c> uses <c>CREATE TABLE ArchitectureRequests</c> without a schema prefix, so the table
-    /// may land in the login default schema rather than <c>dbo</c>. <c>OBJECT_ID(N'dbo.ArchitectureRequests', …)</c>
-    /// would miss that and we would wrongly replay 001.
+    /// may land in the login default schema rather than <c>dbo</c>. We use <c>sys.objects</c> (user table type
+    /// <c>U</c>) across schemas, plus an explicit <c>dbo</c> probe, instead of <c>OBJECT_ID</c> on
+    /// <c>dbo</c> only.
     /// </remarks>
     private static bool TenantCoreTablesFromInitialMigrationExist(SqlConnection connection)
     {
         const string sql = """
-            SELECT CASE WHEN EXISTS (
-                SELECT 1
-                FROM sys.tables AS t
-                INNER JOIN sys.schemas AS s ON t.schema_id = s.schema_id
-                WHERE t.name = N'ArchitectureRequests' AND t.type = N'U'
-            ) THEN 1 ELSE 0 END;
+            SELECT CASE
+                WHEN OBJECT_ID(N'dbo.ArchitectureRequests', N'U') IS NOT NULL THEN 1
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM sys.objects AS o
+                    INNER JOIN sys.schemas AS s ON o.schema_id = s.schema_id
+                    WHERE o.name = N'ArchitectureRequests'
+                      AND o.type = N'U'
+                      AND o.is_ms_shipped = 0
+                ) THEN 1
+                ELSE 0
+            END;
             """;
 
         using SqlCommand command = new(sql, connection);
@@ -159,31 +175,27 @@ public static void TryApplyBaselineAndStampThrough050(string connectionString)
         return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
 
-    private static bool ShouldApplyBaseline(string connectionString)
+    /// <summary>True when <c>dbo.SchemaVersions</c> exists and records <c>001_InitialSchema</c> (DbUp script name).</summary>
+    private static bool SchemaVersionsJournalRecordsInitialSchema001(SqlConnection connection)
     {
-        using SqlConnection connection = new(connectionString);
-        connection.Open();
-
-        using SqlCommand command = new(
-            """
+        const string sql = """
             IF OBJECT_ID(N'dbo.SchemaVersions', N'U') IS NULL
-                SELECT CAST(1 AS bit) AS ShouldBaseline;
+                SELECT CAST(0 AS bit);
             ELSE IF EXISTS (
-                SELECT 1 FROM dbo.SchemaVersions
+                SELECT 1
+                FROM dbo.SchemaVersions
                 WHERE ScriptName LIKE N'%001_InitialSchema%')
-                SELECT CAST(0 AS bit) AS ShouldBaseline;
-            ELSE IF NOT EXISTS (SELECT 1 FROM dbo.SchemaVersions)
-                SELECT CAST(1 AS bit) AS ShouldBaseline;
+                SELECT CAST(1 AS bit);
             ELSE
-                SELECT CAST(0 AS bit) AS ShouldBaseline;
-            """,
-            connection);
+                SELECT CAST(0 AS bit);
+            """;
 
+        using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
         if (scalar is null || scalar is DBNull)
             return false;
 
-        return Convert.ToBoolean(scalar, System.Globalization.CultureInfo.InvariantCulture);
+        return Convert.ToBoolean(scalar, CultureInfo.InvariantCulture);
     }
 
     private static void EnsureSchemaVersionsTable(SqlConnection connection, SqlTransaction? tx)
