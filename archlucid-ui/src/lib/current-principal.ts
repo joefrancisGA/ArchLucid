@@ -91,6 +91,36 @@ function createSyntheticPrincipal(reason: CurrentPrincipalSyntheticReason): Curr
   };
 }
 
+/**
+ * Read-tier placeholder before the operator shell’s first `loadCurrentPrincipal` settles.
+ * Matches initial `callerAuthorityRank` in `OperatorNavAuthorityProvider` (conservative, Core Pilot–safe).
+ */
+export const shellBootstrapReadPrincipal: Readonly<CurrentPrincipal> = Object.freeze({
+  provenance: "synthetic",
+  syntheticReason: undefined,
+  name: null,
+  roleClaimValues: [],
+  primaryAppRole: null,
+  maxAuthority: "ReadAuthority",
+  authorityRank: AUTHORITY_RANK.ReadAuthority,
+  hasEnterpriseOperatorSurfaces: false,
+});
+
+/**
+ * Principal returned when nav hooks run outside `OperatorNavAuthorityProvider` (e.g. isolated Vitest).
+ * **Admin** rank keeps links visible; not a real session.
+ */
+export const operatorNavOutsideProviderPrincipal: Readonly<CurrentPrincipal> = Object.freeze({
+  provenance: "synthetic",
+  syntheticReason: undefined,
+  name: null,
+  roleClaimValues: ["Admin"],
+  primaryAppRole: "Admin",
+  maxAuthority: "AdminAuthority",
+  authorityRank: AUTHORITY_RANK.AdminAuthority,
+  hasEnterpriseOperatorSurfaces: true,
+});
+
 function primaryAppRoleFromRank(rank: number, roleClaimValues: readonly string[]): ArchLucidAppRole | null {
   if (rank >= AUTHORITY_RANK.AdminAuthority) {
     return "Admin";

@@ -3,12 +3,22 @@
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { loadCurrentPrincipal } from "@/lib/current-principal";
+import {
+  loadCurrentPrincipal,
+  operatorNavOutsideProviderPrincipal,
+  shellBootstrapReadPrincipal,
+  type CurrentPrincipal,
+} from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 
 export type OperatorNavAuthorityContextValue = {
+  /**
+   * Full read-model from the same `loadCurrentPrincipal()` pass as `callerAuthorityRank`.
+   * Prefer this in shell code over ad-hoc `/me` fetches.
+   */
+  currentPrincipal: CurrentPrincipal;
   /** Monotonic 1=Read, 2=Execute, 3=Admin — use with `@/lib/nav-authority` helpers. */
   callerAuthorityRank: number;
   /** True while the first in-flight `/api/auth/me` attempt has not settled for this refresh cycle. */
@@ -30,6 +40,7 @@ const DEFAULT_RANK_FULL_ACCESS = AUTHORITY_RANK.AdminAuthority;
 export function OperatorNavAuthorityProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [callerAuthorityRank, setCallerAuthorityRank] = useState(AUTHORITY_RANK.ReadAuthority);
+  const [currentPrincipal, setCurrentPrincipal] = useState<CurrentPrincipal>(shellBootstrapReadPrincipal);
   const [isAuthorityLoading, setIsAuthorityLoading] = useState(true);
 
   const refreshCallerAuthority = useCallback(async (): Promise<void> => {
@@ -39,8 +50,10 @@ export function OperatorNavAuthorityProvider({ children }: { children: ReactNode
       const principal = await loadCurrentPrincipal();
 
       setCallerAuthorityRank(principal.authorityRank);
+      setCurrentPrincipal(principal);
     } catch {
       setCallerAuthorityRank(AUTHORITY_RANK.ReadAuthority);
+      setCurrentPrincipal(shellBootstrapReadPrincipal);
     } finally {
       setIsAuthorityLoading(false);
     }
@@ -63,8 +76,8 @@ export function OperatorNavAuthorityProvider({ children }: { children: ReactNode
   }, [refreshCallerAuthority]);
 
   const value = useMemo<OperatorNavAuthorityContextValue>(
-    () => ({ callerAuthorityRank, isAuthorityLoading }),
-    [callerAuthorityRank, isAuthorityLoading],
+    () => ({ currentPrincipal, callerAuthorityRank, isAuthorityLoading }),
+    [currentPrincipal, callerAuthorityRank, isAuthorityLoading],
   );
 
   return <OperatorNavAuthorityContext.Provider value={value}>{children}</OperatorNavAuthorityContext.Provider>;
@@ -79,6 +92,7 @@ export function useOperatorNavAuthority(): OperatorNavAuthorityContextValue {
 
   if (ctx === undefined) {
     return {
+      currentPrincipal: operatorNavOutsideProviderPrincipal,
       callerAuthorityRank: DEFAULT_RANK_FULL_ACCESS,
       isAuthorityLoading: false,
     };
