@@ -4,6 +4,8 @@ ArchLucid shortens the path from an architecture request to a reviewable, defens
 
 At the product level, ArchLucid is an AI-assisted architecture workflow system: it coordinates topology, cost, and compliance analysis to produce manifests, artifacts, and evidence that architects, reviewers, and governance stakeholders can actually use.
 
+**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with **[docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)**. The rest of this repository should stay aligned with that summary rather than competing with it.
+
 **Repository layout:** Source lives under **`ArchLucid.*`** projects, **`archlucid-ui/`**, and **`docs/`**. Local packaging writes to **`artifacts/`** (gitignored). See **[docs/REPO_HYGIENE.md](docs/REPO_HYGIENE.md)** for what to commit vs regenerate.
 
 ## Getting started
@@ -21,10 +23,6 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 | **[docs/onboarding/day-one-developer.md](docs/onboarding/day-one-developer.md)** | **Developer Day-1:** toolchain, local API + SQL, Core tests, one small PR |
 | **[docs/onboarding/day-one-sre.md](docs/onboarding/day-one-sre.md)** | **SRE / Platform Day-1:** health model, deploy order, Terraform validate, migrations posture |
 | **[docs/onboarding/day-one-security.md](docs/onboarding/day-one-security.md)** | **Security Day-1:** trust boundaries, authZ, RLS, supply chain |
-| **[docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md)** | **Operator Day-1:** health, curl, CLI, smoke/tests (commands only) |
-| **[docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md)** | **Pilot ROI model:** what to measure, what success looks like, and how sponsors can justify a pilot |
-| **[docs/OPERATOR_DECISION_GUIDE.md](docs/OPERATOR_DECISION_GUIDE.md)** | **Layer decision guide:** when to stay in Core Pilot and when Advanced Analysis or Enterprise Controls are worth using |
-| **[docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)** | **Executive sponsor brief:** what ArchLucid does, what a pilot proves, and why expansion matters |
 | **[docs/FUTURE_PACKAGING_ENFORCEMENT.md](docs/FUTURE_PACKAGING_ENFORCEMENT.md)** | **Future packaging map:** how today’s layer model could evolve into stronger commercial boundaries later |
 | **[docs/archive/README.md](docs/archive/README.md)** | **Archive index** — historical write-ups (including superseded long-form onboarding bodies) |
 
@@ -32,7 +30,9 @@ Everything else (architecture index, V1 scope, SQL reference, runbooks, etc.) is
 
 ## Product layers
 
-ArchLucid ships as three distinct capability layers. Start with **Core Pilot** so a team can go from request to committed manifest and reviewable artifacts quickly; then expand into deeper analysis or governance controls as needed.
+ArchLucid ships as three distinct capability layers.
+
+**Default buying motion:** start with **Core Pilot** so a team can move from request to committed manifest and reviewable artifacts quickly. Only then expand into **Advanced Analysis** or **Enterprise Controls** when a real analytical or governance question requires them.
 
 | Layer | What it covers | Why it matters | How to reach it |
 |-------|---------------|----------------|-----------------|
