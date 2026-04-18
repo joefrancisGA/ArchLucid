@@ -303,7 +303,7 @@ export default function GovernanceDashboardPage() {
       <LayerHeader pageKey="governance-dashboard" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-        Cross-run queue (auto-refresh ~30s). Open a row for per-run workflow; stay here for breadth, not artifact review.
+        Cross-run queue (~30s refresh). Open a row for that run’s workflow; stay here for breadth.
       </p>
       <GovernanceDashboardReaderActionCue />
       <EnterpriseExecutePlusPageCue message={governanceDashboardOperatorPlusLine} />
@@ -422,7 +422,7 @@ export default function GovernanceDashboardPage() {
                 <Button
                   type="button"
                   size="sm"
-                  variant="secondary"
+                  variant={canMutateGovernance ? "secondary" : "outline"}
                   disabled={!canMutateGovernance}
                   title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
                   onClick={() => {
@@ -520,7 +520,7 @@ export default function GovernanceDashboardPage() {
                           <Button
                             type="button"
                             size="sm"
-                            variant="secondary"
+                            variant={canMutateGovernance ? "secondary" : "outline"}
                             disabled={!canMutateGovernance}
                             title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
                             onClick={() =>

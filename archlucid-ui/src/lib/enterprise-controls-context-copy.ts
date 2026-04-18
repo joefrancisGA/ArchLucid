@@ -56,6 +56,13 @@ export const governanceDashboardReaderActionLine =
 export const enterpriseGovernanceWorkflowOperatorPlusLine =
   "Submit, approve/reject, promote, activate—API enforces who may write.";
 
+/**
+ * Governance workflow — inline review card when rank is below Execute (defense if UI state still shows the form;
+ * Approve/Reject entry points are normally disabled for Reader).
+ */
+export const governanceWorkflowPendingReviewReaderNote =
+  "Read-only preview at this rank in the shell; submit still requires operator-level access (API gate).";
+
 /** Policy packs — operator+ reminder (Readers see write hint via `EnterpriseControlsExecutePageHint`). */
 export const enterprisePolicyPacksOperatorPlusLine =
   "Compare and read first; lifecycle writes are API-enforced.";
@@ -77,6 +84,10 @@ export const alertsInboxRankReaderLine =
 export const alertsInboxRankOperatorLine =
   "Operator/admin surface for triage; writes API-enforced by role.";
 
+/** Alerts triage confirmation dialog — extra copy when rank is below Execute (`alerts/page.tsx`). */
+export const alertsTriageDialogReaderNote =
+  "Confirm requires operator-level access in this shell; the API enforces every write.";
+
 /** Audit log — readers vs operators (see `AuditLogRankCue`). */
 export const auditLogRankReaderLine =
   "Read-focused evidence surface; CSV export is operator/admin surface (API policy for your role).";
@@ -90,11 +101,11 @@ export const governanceDashboardOperatorPlusLine =
 
 /** Extra line under the pending-approvals empty state when rank is below Execute (batch/review CTAs are disabled). */
 export const governanceDashboardPendingClearReaderSupplement =
-  "Read-focused: approve, reject, and batch actions stay disabled here until operator-level access applies. API is authoritative.";
+  "Read-focused: batch and row actions stay disabled until operator-level access applies (API authoritative).";
 
 /** Governance workflow — “Approval requests for a run” card description by rank. */
 export const governanceWorkflowQueryCardDescriptionReader =
-  "Load one run for read-focused inspection; approve, reject, promote, and activate are operator/admin surface (API policy).";
+  "Load one run to inspect; approve, reject, promote, and activate need operator/admin on the API.";
 
 export const governanceWorkflowQueryCardDescriptionOperator =
   "Load rows for one run, then approve, reject, or promote according to status.";
@@ -114,7 +125,7 @@ export const policyPacksEmptyScopeOperatorLine = "No packs yet.";
 
 /** Policy packs — “Published versions” empty when a pack is selected but no rows returned. */
 export const policyPacksPublishedVersionsEmptyReaderLine =
-  "No published versions for this pack in the response yet. Read-focused inspection; publish flows are operator/admin surface (API policy).";
+  "No published versions in the response yet. Inspect here; publish is operator/admin on the API.";
 
 export const policyPacksPublishedVersionsEmptyOperatorLine =
   "No published versions loaded for this pack yet.";
@@ -164,7 +175,7 @@ export const governanceWorkflowActivationsEmptyOperatorHint =
 
 /** Alerts inbox — filtered empty state (Reader: deemphasize triage/configure as primary path). */
 export const alertsFilteredEmptyDescriptionReader =
-  "Nothing in this inbox matches the status filter and page above. Read-focused view: adjust filters or refresh—state-changing triage needs operator-level access in this shell (API still authoritative).";
+  "Nothing matches this filter and page. Adjust filters or refresh; triage writes need operator-level access here (API authoritative).";
 
 export const alertsFilteredEmptyDescriptionOperator =
   "Nothing in this inbox matches the status filter and page above. Try All or another status, refresh, or adjust paging—an empty list here means no rows matched, not a silent scan failure.";
@@ -177,7 +188,7 @@ export const auditSearchNoResultsOperatorLine = "No audit events match your filt
 
 /** Audit log — under “Search audit events” for read tier (Execute floor; CSV export still Auditor/Admin on API). */
 export const auditSearchSectionLeadReaderLine =
-  "Filters below are read-focused; export stays last and reuses the same From/To window (CSV download is Auditor/Admin on the API).";
+  "Search below is inspect; export is last and reuses From/To (CSV: Auditor or Admin on the API).";
 
 /** Alert rules — under “Change configuration” for read tier. */
 export const alertRulesChangeConfigurationLeadReaderLine =

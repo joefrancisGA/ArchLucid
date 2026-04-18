@@ -31,6 +31,7 @@ import { ALERTS_EMPTY_FILTERED } from "@/lib/empty-state-presets";
 import {
   alertsFilteredEmptyDescriptionOperator,
   alertsFilteredEmptyDescriptionReader,
+  alertsTriageDialogReaderNote,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
@@ -192,7 +193,7 @@ export default function AlertsPage() {
       <LayerHeader pageKey="alerts" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-        Filter and read first; triage only to change state on a row. Alt+ shortcuts mirror the triage buttons below.
+        Inbox: filter first; triage changes row state. Shortcuts match the row actions below.
       </p>
       <AlertsInboxRankCue />
 
@@ -393,6 +394,11 @@ export default function AlertsPage() {
               {pendingAction === null
                 ? ""
                 : `Optional comment is sent with the ${pendingAction.action} request for alert ${pendingAction.alertId}.`}
+              {pendingAction !== null && !canMutateAlertInbox ? (
+                <span className="mt-2 block text-xs text-neutral-600 dark:text-neutral-400">
+                  {alertsTriageDialogReaderNote}
+                </span>
+              ) : null}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-2 py-2">
@@ -403,6 +409,8 @@ export default function AlertsPage() {
               value={actionComment}
               onChange={(e) => setActionComment(e.target.value)}
               placeholder="Context for auditors (optional)"
+              readOnly={!canMutateAlertInbox}
+              title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
             />
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
