@@ -161,4 +161,5 @@ Downloads use **`/api/proxy/...`** so the browser receives files without attachi
 
 - **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE`**: `development-bypass` (default) matches the API’s development-bypass auth mode (no real sign-in; API authenticates a dev principal).
 - For **`JwtBearer`** API mode, set `ARCHLUCID_API_KEY` only if you still use a gateway key; otherwise forward **`Authorization: Bearer`** from the browser (proxy passes it through) and implement `getBearerToken()` in `src/lib/api.ts`.
-- Verify the API principal: `GET /api/auth/me` (requires Reader+).
+- Verify the API principal: `GET /api/auth/me` (requires Reader+), proxied as **`GET /api/proxy/api/auth/me`**.
+- **UI read-model:** use **`src/lib/current-principal.ts`** (`loadCurrentPrincipal` / `getCurrentAuthority`) for name, roles, `maxAuthority` (`ReadAuthority` \| `ExecuteAuthority` \| `AdminAuthority`), and `hasEnterpriseOperatorSurfaces` — same source as `OperatorNavAuthorityProvider`; do not re-scatter ad-hoc `/me` fetches.

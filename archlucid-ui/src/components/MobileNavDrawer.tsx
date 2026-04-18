@@ -15,8 +15,7 @@ import {
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS, type NavLinkItem } from "@/lib/nav-config";
-import { filterNavLinksByAuthority } from "@/lib/nav-authority";
-import { filterNavLinksByTier } from "@/lib/nav-tier";
+import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
@@ -51,10 +50,16 @@ export function MobileNavDrawer() {
           </DialogHeader>
           <div className="flex flex-col gap-4 px-3 py-3">
             {NAV_GROUPS.map((group) => {
-              const visibleLinks: NavLinkItem[] = filterNavLinksByAuthority(
-                filterNavLinksByTier(group.links, showExtended, showAdvanced),
+              const visibleLinks: NavLinkItem[] = filterNavLinksForOperatorShell(
+                group.links,
+                showExtended,
+                showAdvanced,
                 callerAuthorityRank,
               );
+
+              if (visibleLinks.length === 0) {
+                return null;
+              }
 
               return (
               <div key={group.id}>

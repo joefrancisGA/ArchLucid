@@ -15,8 +15,9 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { filterNavLinksByAuthority } from "@/lib/nav-authority";
+import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
 import { SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -49,6 +50,7 @@ function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
   const callerAuthorityRank = useNavCallerAuthorityRank();
 
   useEffect(() => {

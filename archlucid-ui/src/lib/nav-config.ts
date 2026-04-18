@@ -69,7 +69,9 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   alerts-governance → Enterprise Controls (governance, audit, policy, compliance)
  *
  * **Authority:** optional `requiredAuthority` aligns with API `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`
- * (see `README.md` and `@/lib/nav-authority`). Omitted entries stay visible for every resolved principal rank.
+ * (see `README.md` and `@/lib/nav-authority`). Omitted on Core Pilot essentials so the default path stays visible;
+ * Advanced Analysis and Enterprise Controls use it to trim operator/admin surfaces for lower ranks (composed in
+ * `@/lib/nav-shell-visibility`).
  *
  * Group IDs are intentionally stable (used as localStorage keys); only labels are user-visible.
  */
@@ -105,7 +107,6 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+n",
         icon: Rocket,
         tier: "essential",
-        requiredAuthority: "ExecuteAuthority",
       },
       {
         href: "/runs?projectId=default",
@@ -114,7 +115,6 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+r",
         icon: ListOrdered,
         tier: "essential",
-        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/graph",
@@ -125,7 +125,6 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         // Graph is a useful inspection tool but is not part of the Core Pilot path
         // (create → run → commit → review). It surfaces under "Show more links".
         tier: "extended",
-        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/compare",
@@ -134,7 +133,6 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+c",
         icon: GitCompare,
         tier: "extended",
-        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/replay",

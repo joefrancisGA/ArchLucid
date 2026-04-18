@@ -1,3 +1,8 @@
+/**
+ * Typed JSON access to `/v1/...` plus proxy/binary helpers.
+ * For a compact **current principal** read-model (`GET /api/proxy/api/auth/me`), use `@/lib/current-principal`
+ * instead of adding ad-hoc identity fetches here.
+ */
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";

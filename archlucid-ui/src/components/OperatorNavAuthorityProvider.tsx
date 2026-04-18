@@ -3,14 +3,10 @@
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { AUTHORITY_RANK, maxAuthorityRankFromMeClaims } from "@/lib/nav-authority";
+import { loadCurrentPrincipal } from "@/lib/current-principal";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { isJwtAuthMode } from "@/lib/oidc/config";
-import { ensureAccessTokenFresh, getAccessTokenForApi, isLikelySignedIn } from "@/lib/oidc/session";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-
-type MeClaimsPayload = {
-  claims?: ReadonlyArray<{ type: string; value: string }>;
-};
+import { isLikelySignedIn } from "@/lib/oidc/session";
 
 export type OperatorNavAuthorityContextValue = {
   /** Monotonic 1=Read, 2=Execute, 3=Admin — use with `@/lib/nav-authority` helpers. */
@@ -37,42 +33,12 @@ export function OperatorNavAuthorityProvider({ children }: { children: ReactNode
   const [isAuthorityLoading, setIsAuthorityLoading] = useState(true);
 
   const refreshCallerAuthority = useCallback(async (): Promise<void> => {
-    if (isJwtAuthMode() && !isLikelySignedIn()) {
-      setCallerAuthorityRank(AUTHORITY_RANK.ReadAuthority);
-      setIsAuthorityLoading(false);
-
-      return;
-    }
-
     setIsAuthorityLoading(true);
 
     try {
-      await ensureAccessTokenFresh();
+      const principal = await loadCurrentPrincipal();
 
-      const headers = new Headers({ Accept: "application/json" });
-      const bearer = getAccessTokenForApi();
-
-      if (bearer !== undefined && bearer !== null && bearer.trim().length > 0) {
-        headers.set("Authorization", `Bearer ${bearer}`);
-      }
-
-      const init = mergeRegistrationScopeForProxy({
-        cache: "no-store",
-        credentials: "same-origin",
-        headers,
-      });
-      const response = await fetch("/api/proxy/api/auth/me", init);
-
-      if (!response.ok) {
-        setCallerAuthorityRank(AUTHORITY_RANK.ReadAuthority);
-
-        return;
-      }
-
-      const body = (await response.json()) as MeClaimsPayload;
-      const rank = maxAuthorityRankFromMeClaims(body.claims ?? []);
-
-      setCallerAuthorityRank(rank);
+      setCallerAuthorityRank(principal.authorityRank);
     } catch {
       setCallerAuthorityRank(AUTHORITY_RANK.ReadAuthority);
     } finally {
