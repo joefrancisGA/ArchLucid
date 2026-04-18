@@ -269,8 +269,8 @@ export default function PolicyPacksPage() {
         </div>
       ) : null}
 
-      <section style={{ marginBottom: 32 }}>
-        <h3>Packs in scope</h3>
+      <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-current-heading">
+        <h3 id="policy-packs-current-heading">Current policy packs</h3>
         {packs.length === 0 ? (
           <p style={{ color: "#666", maxWidth: "42rem", fontSize: 14 }}>
             {canMutatePacks ? policyPacksEmptyScopeOperatorLine : policyPacksEmptyScopeReaderLine}
@@ -288,7 +288,7 @@ export default function PolicyPacksPage() {
         )}
 
         <label style={{ display: "block", marginTop: 12 }}>
-          Selected pack (publish / assign)
+          Selected pack (inspect versions and lifecycle)
           <select
             value={selectedPackId}
             onChange={(e) => setSelectedPackId(e.target.value)}
@@ -304,117 +304,37 @@ export default function PolicyPacksPage() {
         </label>
       </section>
 
-      <div className={cn("flex flex-col", !canMutatePacks && "flex-col-reverse")}>
-        <div className={cn(!canMutatePacks && "opacity-90")}>
-      <p
-        style={{
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: "0.04em",
-          textTransform: "uppercase",
-          color: "#64748b",
-          marginBottom: 6,
-          marginTop: 8,
-        }}
-      >
-        Change packs
-      </p>
-      <section style={{ marginBottom: 32 }}>
-        <h3>Create pack</h3>
-        <div style={{ display: "grid", gap: 10, maxWidth: 720 }}>
-          <label>
-            Name
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              readOnly={!canMutatePacks}
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <label>
-            Description
-            <input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              readOnly={!canMutatePacks}
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <label>
-            Pack type
-            <select
-              value={packType}
-              onChange={(e) => setPackType(e.target.value)}
-              disabled={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-            >
-              {PACK_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Initial content (JSON)
-            <textarea
-              value={createJson}
-              onChange={(e) => setCreateJson(e.target.value)}
-              readOnly={!canMutatePacks}
-              rows={12}
-              style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
-            />
-          </label>
-          <button
-            type="button"
-            onClick={() => void onCreate()}
-            disabled={loading || !canMutatePacks}
-            title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-          >
-            Create pack
-          </button>
-        </div>
-      </section>
+      <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-content-heading">
+        <h3 id="policy-packs-content-heading">Pack content</h3>
+        <h4 style={{ marginTop: 8, marginBottom: 8 }}>Effective resolved packs</h4>
+        <pre
+          style={{
+            background: "#f5f5f5",
+            padding: 12,
+            overflow: "auto",
+            fontSize: 12,
+            maxHeight: 360,
+            marginBottom: 20,
+          }}
+        >
+          {effective ? JSON.stringify(effective, null, 2) : "—"}
+        </pre>
 
-      <section style={{ marginBottom: 32 }}>
-        <h3>Publish version</h3>
-        <p style={{ fontSize: 14, color: "#555" }}>
-          Creates a published version row and marks the pack Active. Use a new semantic version when content changes.
-        </p>
-        <div style={{ display: "grid", gap: 10, maxWidth: 720 }}>
-          <label>
-            Version label
-            <input
-              value={publishVersion}
-              onChange={(e) => setPublishVersion(e.target.value)}
-              readOnly={!canMutatePacks}
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <label>
-            Content (JSON)
-            <textarea
-              value={publishJson}
-              onChange={(e) => setPublishJson(e.target.value)}
-              readOnly={!canMutatePacks}
-              rows={12}
-              style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
-            />
-          </label>
-          <button
-            type="button"
-            onClick={() => void onPublish()}
-            disabled={loading || !selectedPackId || !canMutatePacks}
-            title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-          >
-            Publish
-          </button>
-        </div>
-      </section>
+        <h4 style={{ marginTop: 0, marginBottom: 8 }}>Resolved effective content</h4>
+        <pre
+          style={{
+            background: "#f5f5f5",
+            padding: 12,
+            overflow: "auto",
+            fontSize: 12,
+            maxHeight: 360,
+            marginBottom: 24,
+          }}
+        >
+          {effectiveContent ? JSON.stringify(effectiveContent, null, 2) : "—"}
+        </pre>
 
-      <section style={{ marginBottom: 32 }}>
-        <h3>Published versions</h3>
+        <h4 style={{ marginTop: 0, marginBottom: 8 }}>Published versions</h4>
         {packVersions.length === 0 ? (
           <p style={{ color: "#666", fontSize: 14 }}>
             {selectedPackId ? "No published versions loaded for this pack yet." : "Select a pack to load versions."}
@@ -494,89 +414,154 @@ export default function PolicyPacksPage() {
         ) : null}
       </section>
 
-      <section style={{ marginBottom: 32 }}>
-        <h3>Assign to current scope</h3>
-        <p style={{ fontSize: 14, color: "#555" }}>
-          Assignment must reference an existing version string for that pack (e.g. the one you published).
-        </p>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
-          <label>
-            Version
-            <input
-              value={assignVersion}
-              onChange={(e) => setAssignVersion(e.target.value)}
-              readOnly={!canMutatePacks}
-              style={{ display: "block", padding: 8, marginTop: 4, width: 160 }}
-            />
-          </label>
-          <label>
-            Scope level
-            <select
-              value={assignScopeLevel}
-              onChange={(e) => setAssignScopeLevel(e.target.value)}
-              disabled={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-              style={{ display: "block", padding: 8, marginTop: 4, minWidth: 140 }}
-            >
-              <option value="Tenant">Tenant</option>
-              <option value="Workspace">Workspace</option>
-              <option value="Project">Project</option>
-            </select>
-          </label>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <input
-              type="checkbox"
-              checked={assignPinned}
-              disabled={!canMutatePacks}
-              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-              onChange={(e) => setAssignPinned(e.target.checked)}
-            />
-            Pinned
-          </label>
-          <button
-            type="button"
-            onClick={() => void onAssign()}
-            disabled={loading || !selectedPackId || !canMutatePacks}
-            title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
-          >
-            Assign
-          </button>
-        </div>
-      </section>
+      <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-lifecycle-heading">
+        <h3 id="policy-packs-lifecycle-heading">Lifecycle actions</h3>
+        <div className={cn(!canMutatePacks && "opacity-90")}>
+          <section style={{ marginBottom: 32 }}>
+            <h4 style={{ marginTop: 0, marginBottom: 8 }}>Create pack</h4>
+            <div style={{ display: "grid", gap: 10, maxWidth: 720 }}>
+              <label>
+                Name
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  readOnly={!canMutatePacks}
+                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                />
+              </label>
+              <label>
+                Description
+                <input
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  readOnly={!canMutatePacks}
+                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                />
+              </label>
+              <label>
+                Pack type
+                <select
+                  value={packType}
+                  onChange={(e) => setPackType(e.target.value)}
+                  disabled={!canMutatePacks}
+                  title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                >
+                  {PACK_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Initial content (JSON)
+                <textarea
+                  value={createJson}
+                  onChange={(e) => setCreateJson(e.target.value)}
+                  readOnly={!canMutatePacks}
+                  rows={12}
+                  style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => void onCreate()}
+                disabled={loading || !canMutatePacks}
+                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              >
+                Create pack
+              </button>
+            </div>
+          </section>
 
-        </div>
-        <div>
-      <section style={{ marginBottom: 32 }}>
-        <h3>Effective resolved packs</h3>
-        <pre
-          style={{
-            background: "#f5f5f5",
-            padding: 12,
-            overflow: "auto",
-            fontSize: 12,
-            maxHeight: 360,
-          }}
-        >
-          {effective ? JSON.stringify(effective, null, 2) : "—"}
-        </pre>
-      </section>
+          <section style={{ marginBottom: 32 }}>
+            <h4 style={{ marginTop: 0, marginBottom: 8 }}>Publish version</h4>
+            <p style={{ fontSize: 14, color: "#555" }}>
+              Creates a published version row and marks the pack Active. Use a new semantic version when content changes.
+            </p>
+            <div style={{ display: "grid", gap: 10, maxWidth: 720 }}>
+              <label>
+                Version label
+                <input
+                  value={publishVersion}
+                  onChange={(e) => setPublishVersion(e.target.value)}
+                  readOnly={!canMutatePacks}
+                  style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+                />
+              </label>
+              <label>
+                Content (JSON)
+                <textarea
+                  value={publishJson}
+                  onChange={(e) => setPublishJson(e.target.value)}
+                  readOnly={!canMutatePacks}
+                  rows={12}
+                  style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => void onPublish()}
+                disabled={loading || !selectedPackId || !canMutatePacks}
+                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              >
+                Publish
+              </button>
+            </div>
+          </section>
 
-      <section>
-        <h3>Resolved effective content</h3>
-        <pre
-          style={{
-            background: "#f5f5f5",
-            padding: 12,
-            overflow: "auto",
-            fontSize: 12,
-            maxHeight: 360,
-          }}
-        >
-          {effectiveContent ? JSON.stringify(effectiveContent, null, 2) : "—"}
-        </pre>
-      </section>
+          <section style={{ marginBottom: 0 }}>
+            <h4 style={{ marginTop: 0, marginBottom: 8 }}>Assign to current scope</h4>
+            <p style={{ fontSize: 14, color: "#555" }}>
+              Assignment must reference an existing version string for that pack (e.g. the one you published).
+            </p>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
+              <label>
+                Version
+                <input
+                  value={assignVersion}
+                  onChange={(e) => setAssignVersion(e.target.value)}
+                  readOnly={!canMutatePacks}
+                  style={{ display: "block", padding: 8, marginTop: 4, width: 160 }}
+                />
+              </label>
+              <label>
+                Scope level
+                <select
+                  value={assignScopeLevel}
+                  onChange={(e) => setAssignScopeLevel(e.target.value)}
+                  disabled={!canMutatePacks}
+                  title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                  style={{ display: "block", padding: 8, marginTop: 4, minWidth: 140 }}
+                >
+                  <option value="Tenant">Tenant</option>
+                  <option value="Workspace">Workspace</option>
+                  <option value="Project">Project</option>
+                </select>
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                <input
+                  type="checkbox"
+                  checked={assignPinned}
+                  disabled={!canMutatePacks}
+                  title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                  onChange={(e) => setAssignPinned(e.target.checked)}
+                />
+                Pinned
+              </label>
+              <button
+                type="button"
+                onClick={() => void onAssign()}
+                disabled={loading || !selectedPackId || !canMutatePacks}
+                title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              >
+                Assign
+              </button>
+            </div>
+          </section>
         </div>
-      </div>
+      </section>
     </main>
   );
 }
