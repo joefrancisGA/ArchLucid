@@ -36,24 +36,10 @@ export default function GovernanceResolutionPage() {
       <LayerHeader pageKey="governance-resolution" />
       <h2 style={{ marginTop: 0 }}>Governance resolution</h2>
       <p style={{ color: "#334155", fontSize: 14, fontWeight: 600, maxWidth: "42rem", marginBottom: 8 }}>
-        Effective pack stack for this scope—inspect before you change assignments or ordering.
+        This page shows the effective policy currently in force for the selected scope. It is primarily a read and
+        evidence surface; changing assignments or pack ordering happens in policy pack tooling.
       </p>
       <GovernanceResolutionRankCue />
-      <details style={{ marginBottom: 12, maxWidth: "52rem" }}>
-        <summary style={{ cursor: "pointer", color: "#444", fontSize: 14, fontWeight: 600 }}>
-          How resolution orders packs (overrides, pins, ties, conflicts)
-        </summary>
-        <p style={{ color: "#444", fontSize: 14, marginTop: 8 }}>
-          For the current scope: <strong>Project</strong> overrides <strong>Workspace</strong> overrides{" "}
-          <strong>Tenant</strong>. Pinned assignments rank above unpinned within the same tier; newer assignments break
-          ties. Conflicts are flagged when multiple packs define the same item or disagree on a value.
-        </p>
-      </details>
-      <p>
-        <button type="button" onClick={() => void load()} disabled={loading}>
-          {loading ? "Loading…" : "Refresh"}
-        </button>
-      </p>
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
@@ -64,8 +50,9 @@ export default function GovernanceResolutionPage() {
         </div>
       ) : null}
 
-      <section style={{ marginBottom: 28 }}>
-        <h3>Summary notes</h3>
+      <section style={{ marginBottom: 28 }} aria-labelledby="governance-effective-heading">
+        <h3 id="governance-effective-heading">Effective policy</h3>
+        <h4 style={{ marginTop: 8, marginBottom: 8, fontSize: "1rem" }}>Summary notes</h4>
         <ul style={{ fontSize: 14 }}>
           {(data?.notes ?? []).length === 0 ? (
             <li style={{ color: "#666" }}>—</li>
@@ -73,10 +60,33 @@ export default function GovernanceResolutionPage() {
             data!.notes.map((n) => <li key={n}>{n}</li>)
           )}
         </ul>
+        <h4 style={{ marginTop: 20, marginBottom: 8, fontSize: "1rem" }}>Effective content</h4>
+        <pre
+          style={{
+            background: "#f5f5f5",
+            padding: 12,
+            overflow: "auto",
+            fontSize: 12,
+            maxHeight: 400,
+          }}
+        >
+          {data ? JSON.stringify(data.effectiveContent, null, 2) : "—"}
+        </pre>
+        <details style={{ marginTop: 20, marginBottom: 0, maxWidth: "52rem" }}>
+          <summary style={{ cursor: "pointer", color: "#444", fontSize: 14, fontWeight: 600 }}>
+            How resolution orders packs (overrides, pins, ties, conflicts)
+          </summary>
+          <p style={{ color: "#444", fontSize: 14, marginTop: 8 }}>
+            For the current scope: <strong>Project</strong> overrides <strong>Workspace</strong> overrides{" "}
+            <strong>Tenant</strong>. Pinned assignments rank above unpinned within the same tier; newer assignments break
+            ties. Conflicts are flagged when multiple packs define the same item or disagree on a value.
+          </p>
+        </details>
       </section>
 
-      <section style={{ marginBottom: 28 }}>
-        <h3>Conflicts ({data?.conflicts.length ?? 0})</h3>
+      <section style={{ marginBottom: 28 }} aria-labelledby="governance-resolution-details-heading">
+        <h3 id="governance-resolution-details-heading">Resolution details</h3>
+        <h4 style={{ marginTop: 0, marginBottom: 8, fontSize: "1rem" }}>Conflicts ({data?.conflicts.length ?? 0})</h4>
         {(data?.conflicts ?? []).length === 0 ? (
           <p style={{ color: "#666", fontSize: 14 }}>No conflicts detected.</p>
         ) : (
@@ -98,10 +108,7 @@ export default function GovernanceResolutionPage() {
             ))}
           </ul>
         )}
-      </section>
-
-      <section style={{ marginBottom: 28 }}>
-        <h3>Resolution decisions ({data?.decisions.length ?? 0})</h3>
+        <h4 style={{ marginTop: 24, marginBottom: 8, fontSize: "1rem" }}>Resolution decisions ({data?.decisions.length ?? 0})</h4>
         <div style={{ display: "grid", gap: 10 }}>
           {(data?.decisions ?? []).map((d, i) => (
             <article
@@ -125,19 +132,17 @@ export default function GovernanceResolutionPage() {
         </div>
       </section>
 
-      <section>
-        <h3>Effective content</h3>
-        <pre
-          style={{
-            background: "#f5f5f5",
-            padding: 12,
-            overflow: "auto",
-            fontSize: 12,
-            maxHeight: 400,
-          }}
-        >
-          {data ? JSON.stringify(data.effectiveContent, null, 2) : "—"}
-        </pre>
+      <section aria-labelledby="governance-change-controls-heading">
+        <h3 id="governance-change-controls-heading">Change related controls</h3>
+        <p style={{ color: "#64748b", fontSize: 13, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
+          Refresh reloads the effective policy snapshot for this shell. Scope and assignments are changed in policy pack
+          pages, not here.
+        </p>
+        <p style={{ marginBottom: 0 }}>
+          <button type="button" onClick={() => void load()} disabled={loading}>
+            {loading ? "Loading…" : "Refresh"}
+          </button>
+        </p>
       </section>
     </main>
   );

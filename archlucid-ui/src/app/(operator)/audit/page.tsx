@@ -214,11 +214,8 @@ export default function AuditPage() {
       <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
       <p style={{ color: "#1e293b", fontSize: 14, maxWidth: "40rem", fontWeight: 600, marginBottom: 6 }}>
-        Search tenant-scoped events for evidence; export is optional follow-on when you need a bounded extract.
-      </p>
-      <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0 }}>
-        Newest first, {AUDIT_PAGE_SIZE} rows per request. Export CSV needs from/to and Auditor or Admin on the API.
-        Load more pages older rows.
+        This page is for searching audit events and exporting audit evidence when you need a bounded extract. It is not
+        part of Core Pilot by default.
       </p>
       <AuditLogRankCue />
 
@@ -233,6 +230,7 @@ export default function AuditPage() {
       ) : null}
 
       <section
+        aria-labelledby="audit-search-heading"
         style={{
           border: "1px solid #ddd",
           borderRadius: 8,
@@ -241,6 +239,9 @@ export default function AuditPage() {
           background: "#fff",
         }}
       >
+        <h3 id="audit-search-heading" style={{ marginTop: 0, marginBottom: 12, fontSize: "1rem" }}>
+          Search audit events
+        </h3>
         <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
           <label>
             Event type{" "}
@@ -308,28 +309,19 @@ export default function AuditPage() {
           <button type="button" onClick={() => void clearFiltersAndSearch()} disabled={searching}>
             Clear filters
           </button>
-          <button
-            type="button"
-            onClick={() => void onExportCsv()}
-            disabled={!csvExportUiAllowed || exporting || searching}
-            title={
-              !exportDateRangeReady
-                ? "Set From and To to enable export"
-                : !exportRoleOk
-                  ? auditExportControlDisabledTitle
-                  : "Download CSV for the current date range"
-            }
-          >
-            {exporting ? "Exporting…" : "Export CSV"}
-          </button>
         </div>
       </section>
 
-      <p role="status" aria-live="polite" aria-atomic="true" style={{ color: "#555", fontSize: 14 }}>
-        {formatAuditSummaryHeading(events.length, hasMoreResults)}
-      </p>
+      <section aria-labelledby="audit-results-heading">
+        <h3 id="audit-results-heading" style={{ marginTop: 0, marginBottom: 8, fontSize: "1rem" }}>
+          Audit results
+        </h3>
+        <p role="status" aria-live="polite" aria-atomic="true" style={{ color: "#555", fontSize: 14, marginTop: 0 }}>
+          {formatAuditSummaryHeading(events.length, hasMoreResults)}. Newest first, {AUDIT_PAGE_SIZE} rows per request; use
+          Load more for older rows.
+        </p>
 
-      <div style={{ display: "grid", gap: 12 }}>
+        <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
         {events.length === 0 ? (
           <p style={{ color: "#666" }}>No audit events match your filters.</p>
         ) : (
@@ -404,15 +396,49 @@ export default function AuditPage() {
             </div>
           ))
         )}
-      </div>
-
-      {events.length > 0 && hasMoreResults ? (
-        <div style={{ marginTop: 16 }}>
-          <button type="button" onClick={() => void loadMore()} disabled={loadingMore || searching}>
-            {loadingMore ? "Loading…" : "Load more"}
-          </button>
         </div>
-      ) : null}
+
+        {events.length > 0 && hasMoreResults ? (
+          <div style={{ marginTop: 16 }}>
+            <button type="button" onClick={() => void loadMore()} disabled={loadingMore || searching}>
+              {loadingMore ? "Loading…" : "Load more"}
+            </button>
+          </div>
+        ) : null}
+      </section>
+
+      <section
+        aria-labelledby="audit-export-heading"
+        style={{
+          border: "1px solid #ddd",
+          borderRadius: 8,
+          padding: 12,
+          marginTop: 20,
+          background: "#fafafa",
+        }}
+      >
+        <h3 id="audit-export-heading" style={{ marginTop: 0, marginBottom: 8, fontSize: "1rem" }}>
+          Export
+        </h3>
+        <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 12 }}>
+          CSV export uses the From and To values from Search audit events above. Auditor or Admin on the API is required
+          for download.
+        </p>
+        <button
+          type="button"
+          onClick={() => void onExportCsv()}
+          disabled={!csvExportUiAllowed || exporting || searching}
+          title={
+            !exportDateRangeReady
+              ? "Set From and To to enable export"
+              : !exportRoleOk
+                ? auditExportControlDisabledTitle
+                : "Download CSV for the current date range"
+          }
+        >
+          {exporting ? "Exporting…" : "Export CSV"}
+        </button>
+      </section>
     </main>
   );
 }
