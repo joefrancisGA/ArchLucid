@@ -229,13 +229,15 @@ export default function PolicyPacksPage() {
     <main style={{ maxWidth: 960 }}>
       <LayerHeader pageKey="policy-packs" />
       <h2 style={{ marginTop: 0 }}>Policy packs</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: "52rem" }}>
-        <strong>Inspect</strong> packs and resolved JSON for this scope. One readout of what applies:{" "}
+      <p style={{ color: "#1e293b", fontSize: 14, maxWidth: "52rem", fontWeight: 600, marginBottom: 6 }}>
+        Read what applies: packs in scope, effective JSON, and{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
-          Governance resolution
-        </Link>
-        . <strong>Change</strong> packs with create, publish, and assign in the sections below—only when pack lifecycle
-        work is in scope (not first-pilot essentials).
+          governance resolution
+        </Link>{" "}
+        for ordering.
+      </p>
+      <p style={{ color: "#64748b", fontSize: 12, maxWidth: "52rem", marginTop: 0 }}>
+        Create, publish, and assign are below—only when pack lifecycle is in scope (not Core Pilot).
       </p>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterprisePolicyPacksOperatorPlusLine} />
@@ -291,6 +293,19 @@ export default function PolicyPacksPage() {
         </label>
       </section>
 
+      <p
+        style={{
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+          color: "#64748b",
+          marginBottom: 6,
+          marginTop: 8,
+        }}
+      >
+        Change packs
+      </p>
       <section style={{ marginBottom: 32 }}>
         <h3>Create pack</h3>
         <div style={{ display: "grid", gap: 10, maxWidth: 720 }}>

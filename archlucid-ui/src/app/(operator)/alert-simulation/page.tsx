@@ -288,8 +288,8 @@ export default function AlertSimulationPage() {
       <LayerHeader pageKey="alert-simulation" />
       <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
-        <strong>What-if</strong> against recent runs (or one run ID): same evaluators and suppression as production;{" "}
-        <strong>no</strong> alerts persisted or delivered.
+        <strong>What-if</strong> on recent runs or one run ID—production evaluators and suppression; nothing persisted or
+        delivered.
       </p>
       <AlertOperatorToolingRankCue />
 

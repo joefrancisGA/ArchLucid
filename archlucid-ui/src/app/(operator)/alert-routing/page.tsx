@@ -8,6 +8,7 @@ import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import { cn } from "@/lib/utils";
 import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
@@ -90,9 +91,11 @@ export default function AlertRoutingPage() {
     <main style={{ maxWidth: 800 }}>
       <LayerHeader pageKey="alert-routing" />
       <h2 style={{ marginTop: 0 }}>Alert routing</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
-        <strong>Real-time delivery</strong> when a new alert fires (not digest email). Only destinations at or above{" "}
-        <strong>minimum severity</strong> receive it. Dev stacks log to fake channels.
+      <p style={{ color: "#1e293b", fontSize: 14, maxWidth: "40rem", fontWeight: 600, marginBottom: 6 }}>
+        Where fired alerts go in real time (not digest mail)—minimum severity filters destinations.
+      </p>
+      <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0 }}>
+        Dev stacks log to fake channels. Review existing routes first when you are read-only.
       </p>
       <AlertOperatorToolingRankCue />
 
@@ -106,10 +109,12 @@ export default function AlertRoutingPage() {
         </div>
       ) : null}
 
+      <div className={cn("flex flex-col", !canMutateRouting && "flex-col-reverse")}>
+      <div className="min-w-0">
       <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
         {canMutateRouting ? "Add subscription" : "Add subscription (operator access)"}
       </h3>
-      <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 24 }}>
+      <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 16 }}>
         <label>
           Name
           <input
@@ -170,12 +175,14 @@ export default function AlertRoutingPage() {
           Create alert routing subscription
         </button>
       </div>
+      </div>
 
-      <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 16 }}>
+      <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
         {loading ? "Loading…" : "Refresh"}
       </button>
 
-      <h3 style={{ fontSize: "1rem", marginTop: 8 }}>Active subscriptions</h3>
+      <div className="min-w-0">
+      <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>Active subscriptions</h3>
       <div style={{ display: "grid", gap: 12 }}>
         {items.length === 0 ? (
           <p style={{ color: "#666" }}>None yet.</p>
@@ -227,6 +234,8 @@ export default function AlertRoutingPage() {
             </div>
           ))
         )}
+      </div>
+      </div>
       </div>
     </main>
   );

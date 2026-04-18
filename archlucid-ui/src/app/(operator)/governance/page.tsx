@@ -395,9 +395,11 @@ function GovernanceWorkflowPageInner() {
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance workflow</h2>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseGovernanceWorkflowOperatorPlusLine} />
-      <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        <strong>Run-scoped workflow:</strong> submit, approve or reject, promote, then activate per environment—all in
-        context of one run ID. Auth matches the rest of the shell (proxy API key or browser JWT).
+      <p className="max-w-prose text-sm font-medium leading-snug text-neutral-800 dark:text-neutral-200">
+        One run ID: submit → approve/reject → promote → activate per environment.
+      </p>
+      <p className="mt-1 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
+        Auth matches the rest of the shell (proxy API key or browser JWT).
       </p>
 
       {toast ? (

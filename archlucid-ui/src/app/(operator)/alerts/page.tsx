@@ -170,9 +170,11 @@ export default function AlertsPage() {
     <main className="mx-auto max-w-3xl">
       <LayerHeader pageKey="alerts" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
-      <p className="max-w-prose text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-        <strong>Inbox:</strong> triage open signals from advisory scans. Filters and paging below; same-key triggers dedupe
-        across open and acknowledged rows.
+      <p className="max-w-prose text-sm font-medium leading-snug text-neutral-800 dark:text-neutral-200">
+        Inbox for advisory scan signals—filter, page, then triage when your role allows.
+      </p>
+      <p className="mt-1 max-w-prose text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+        Dedupe rules apply across statuses; keyboard shortcuts follow the same mutation gate as buttons.
       </p>
       <AlertsInboxRankCue />
 

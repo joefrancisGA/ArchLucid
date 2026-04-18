@@ -111,8 +111,8 @@ export default function CompositeAlertRulesPage() {
       <LayerHeader pageKey="composite-alert-rules" />
       <h2 style={{ marginTop: 0 }}>Composite alert rules</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
-        <strong>AND/OR metrics</strong> with cooldown and suppression so routing is not spammed. A new firing after
-        suppression still respects dedupe against prior open or acknowledged rows for the same key.
+        <strong>Multi-metric AND/OR</strong> with cooldown and suppression—use when one threshold is not enough. Dedupe
+        still applies to prior open or acknowledged rows for the same key.
       </p>
       <AlertOperatorToolingRankCue />
 

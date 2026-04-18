@@ -203,8 +203,8 @@ export default function AlertTuningPage() {
       <LayerHeader pageKey="alert-tuning" />
       <h2 style={{ marginTop: 0 }}>Alert tuning</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
-        <strong>Suggest thresholds</strong> from simulated candidates (same evaluators as production), balancing noise vs
-        coverage for a target alert band.
+        <strong>Suggest thresholds</strong> from simulation-backed candidates (production evaluators), targeting a band of
+        fired-alert counts.
       </p>
       <AlertOperatorToolingRankCue />
 

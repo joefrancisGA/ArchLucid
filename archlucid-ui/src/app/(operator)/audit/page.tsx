@@ -204,9 +204,11 @@ export default function AuditPage() {
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
-        <strong>Search</strong> scoped events (newest first, {AUDIT_PAGE_SIZE} rows per request).{" "}
-        <strong>Export CSV</strong> needs both from and to dates. <strong>Load more</strong> pages older rows.
+      <p style={{ color: "#1e293b", fontSize: 14, maxWidth: "40rem", fontWeight: 600, marginBottom: 6 }}>
+        Search tenant-scoped events for evidence; export is optional follow-on when you need a bounded extract.
+      </p>
+      <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0 }}>
+        Newest first, {AUDIT_PAGE_SIZE} rows per request. Export CSV requires from and to. Load more pages older rows.
       </p>
       <AuditLogRankCue />
 
