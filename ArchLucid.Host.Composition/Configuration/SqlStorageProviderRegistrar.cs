@@ -203,7 +203,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<Persistence.Data.Repositories.IHostLeaderLeaseRepository, Persistence.Data.Repositories.SqlHostLeaderLeaseRepository>();
 
-        services.AddSingleton<ITrialFunnelOperationalMetricsReader, DapperTrialFunnelOperationalMetricsReader>();
+        // Scoped: DapperTrialFunnelOperationalMetricsReader takes ISqlConnectionFactory (scoped); hosted service resolves it per scope.
+        services.AddScoped<ITrialFunnelOperationalMetricsReader, DapperTrialFunnelOperationalMetricsReader>();
         services.AddScoped<ITrialFunnelCommitHook, SqlTrialFunnelCommitHook>();
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
