@@ -9,6 +9,13 @@
 export const enterpriseMutationControlDisabledTitle =
   "Requires operator-level access in this shell; the API still enforces every write.";
 
+/**
+ * Audit CSV export uses **`RequireAuditor`** on the API (Auditor **or** Admin)—stricter than Execute-tier pack
+ * mutations; align the Export button with **`/me` role claims**, not `useEnterpriseMutationCapability`.
+ */
+export const auditExportControlDisabledTitle =
+  "CSV export requires Auditor or Admin on the API for this tenant; search above still works for your role.";
+
 /** Sidebar / mobile: reader sees fewer links in this group */
 export const enterpriseNavHintReaderRank =
   "Some operator/admin destinations stay out of your list for this role. Not required for Core Pilot.";

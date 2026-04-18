@@ -372,8 +372,9 @@ export default function GovernanceDashboardPage() {
 
       {!initialLoad && summary !== null ? (
         <>
+          <div className={cn("flex flex-col", !canMutateGovernance && "flex-col-reverse")}>
           <section
-            className="mb-10"
+            className={cn("mb-10", !canMutateGovernance && "mt-10")}
             aria-labelledby="gov-dash-pending-heading"
           >
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -568,6 +569,7 @@ export default function GovernanceDashboardPage() {
             )}
           </section>
 
+          <div className="flex flex-col">
           <Separator className="mb-10" />
 
           <section className="mb-10" aria-labelledby="gov-dash-decisions-heading">
@@ -661,6 +663,8 @@ export default function GovernanceDashboardPage() {
               </div>
             )}
           </section>
+          </div>
+          </div>
         </>
       ) : null}
     </main>

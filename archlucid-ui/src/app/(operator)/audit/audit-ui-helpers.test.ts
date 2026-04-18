@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canExportAuditCsv, formatAuditSummaryHeading } from "./audit-ui-helpers";
+import { canExportAuditCsv, formatAuditSummaryHeading, principalRolesAllowAuditCsvExport } from "./audit-ui-helpers";
 
 describe("formatAuditSummaryHeading", () => {
   it("formats zero", () => {
@@ -24,5 +24,19 @@ describe("canExportAuditCsv", () => {
 
   it("is true when both bounds are non-empty", () => {
     expect(canExportAuditCsv("2024-01-01T00:00", "2024-01-02T00:00")).toBe(true);
+  });
+});
+
+describe("principalRolesAllowAuditCsvExport", () => {
+  it("is true for Auditor or Admin (case-insensitive)", () => {
+    expect(principalRolesAllowAuditCsvExport(["Auditor"])).toBe(true);
+    expect(principalRolesAllowAuditCsvExport(["Reader", "Admin"])).toBe(true);
+    expect(principalRolesAllowAuditCsvExport(["auditor"])).toBe(true);
+  });
+
+  it("is false for Reader or Operator alone", () => {
+    expect(principalRolesAllowAuditCsvExport(["Reader"])).toBe(false);
+    expect(principalRolesAllowAuditCsvExport(["Operator"])).toBe(false);
+    expect(principalRolesAllowAuditCsvExport([])).toBe(false);
   });
 });
