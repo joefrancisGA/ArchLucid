@@ -1,6 +1,12 @@
 /**
  * Progressive disclosure tier for operator shell navigation (sidebar + mobile drawer).
- * Composed with optional `requiredAuthority` on `NavLinkItem` (`@/lib/nav-config` + `@/lib/nav-authority`).
+ *
+ * **Product packaging:** tiers express **how much surface** to show within a nav group before the user opts in—aligned
+ * with **Core Pilot** (essential-first), then **Advanced Analysis** / **Enterprise Controls** extended and advanced
+ * links (`docs/PRODUCT_PACKAGING.md` §2 UI progressive disclosure). Composed **after** group membership and **before**
+ * authority filtering in `filterNavLinksForOperatorShell` (`nav-shell-visibility.ts`).
+ *
+ * Composed with optional `requiredAuthority` on `NavLinkItem` (`nav-config` + `nav-authority`).
  */
 export type NavTier = "essential" | "extended" | "advanced";
 

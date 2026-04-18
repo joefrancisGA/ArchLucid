@@ -252,7 +252,11 @@ export function OperatorFirstRunWorkflowPanel() {
       {/* Optional next steps — not required for the Core Pilot but available once you have a committed run. */}
       <div className="mt-3 rounded-md border border-neutral-200 bg-white px-4 py-3 dark:border-neutral-700 dark:bg-neutral-900">
         <p className="m-0 mb-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-          Optional — explore further once you have a committed run
+          Later maturity — not first pilot
+        </p>
+        <p className="m-0 mb-2 text-[12px] leading-snug text-neutral-500 dark:text-neutral-400">
+          Explore only after commit (or when you explicitly expand scope). Does not change what “done” means for Core
+          Pilot.
         </p>
         <ul className="m-0 list-none space-y-1 pl-0 text-[13px] text-neutral-600 dark:text-neutral-400">
           <li>

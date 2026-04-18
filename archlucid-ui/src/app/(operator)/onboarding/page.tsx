@@ -14,18 +14,18 @@ export const metadata: Metadata = {
 export default function OnboardingPage() {
   return (
     <main>
-      <p className="mb-4 text-sm">
-        <strong>Start with the checklist on </strong>
+      <p className="mb-4 max-w-3xl text-sm leading-relaxed">
+        <strong>Finish Core Pilot on </strong>
         <Link href="/" title="Home with first-run workflow">
           Home
         </Link>{" "}
         or{" "}
         <Link href="/getting-started" title="Getting started — same checklist">
           Getting started
-        </Link>
-        — then use the links below for deeper areas. The sidebar names three product layers (Core Pilot, Advanced
-        Analysis, Enterprise Controls); short &quot;what this is for&quot; captions sit under each group. For full
-        when-to-use tables, see <code>docs/OPERATOR_DECISION_GUIDE.md</code> in the repo.
+        </Link>{" "}
+        before treating Advanced Analysis or Enterprise Controls as in-scope. The sidebar lists three layers with
+        short captions; <strong>only Core Pilot</strong> is the default wedge—see{" "}
+        <code className="text-[0.85em]">docs/OPERATOR_DECISION_GUIDE.md</code> for when to expand.
       </p>
       <div className="mb-10">
         <OnboardingWizardClient />

@@ -63,6 +63,8 @@ Use **Core Pilot** when the question is:
 
 If you are still trying to prove the first pilot, staying in Core Pilot is usually the right choice.
 
+The **Home** checklist, **onboarding** entry text, and **sidebar defaults** are biased the same way: Advanced Analysis and Enterprise Controls appear for discovery but are labeled **not first-pilot requirements** so time-to-value does not drift.
+
 ---
 
 ## 4. Advanced Analysis — use this when the next question is analytical
@@ -109,7 +111,7 @@ Enterprise Controls are valuable, but they are not required to prove the first C
 
 If you have not yet shown that ArchLucid improves speed, packaging effort, or evidence quality, start there first.
 
-The operator shell adds **short in-product lines** on Enterprise entry points (nav, governance dashboard, alerts, audit, and operator-heavy alert tooling) so “optional vs Core Pilot” stays visible without replacing this document.
+The operator shell adds **short in-product lines** on Enterprise entry points (nav, governance dashboard, alerts, audit, and operator-heavy alert tooling) so “optional vs Core Pilot” stays visible without replacing this document. **LayerHeader** plus compact page intros on those routes also separate **read/inspect** framing from **configure/manage** blocks so Enterprise stays purposeful, not a flat wall of forms.
 
 ---
 

@@ -38,12 +38,16 @@ export default function GovernanceResolutionPage() {
         {governanceResolutionContextLine}
       </p>
       <GovernanceResolutionRankCue />
-      <p style={{ color: "#444", fontSize: 14 }}>
-        Hierarchical policy resolution for the current scope: <strong>Project</strong> overrides{" "}
-        <strong>Workspace</strong> overrides <strong>Tenant</strong>; pinned assignments rank above unpinned within the
-        same tier; newer assignments break ties. Conflicts are flagged when multiple packs define the same item or
-        disagree on a value.
-      </p>
+      <details style={{ marginBottom: 12, maxWidth: 52rem }}>
+        <summary style={{ cursor: "pointer", color: "#444", fontSize: 14, fontWeight: 600 }}>
+          How resolution orders packs (overrides, pins, ties, conflicts)
+        </summary>
+        <p style={{ color: "#444", fontSize: 14, marginTop: 8 }}>
+          For the current scope: <strong>Project</strong> overrides <strong>Workspace</strong> overrides{" "}
+          <strong>Tenant</strong>. Pinned assignments rank above unpinned within the same tier; newer assignments break
+          ties. Conflicts are flagged when multiple packs define the same item or disagree on a value.
+        </p>
+      </details>
       <p>
         <button type="button" onClick={() => void load()} disabled={loading}>
           {loading ? "Loading…" : "Refresh"}

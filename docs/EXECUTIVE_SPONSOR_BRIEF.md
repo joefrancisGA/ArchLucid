@@ -4,7 +4,9 @@
 
 **Status:** Sponsor-facing V1 summary. This brief is grounded in what the current product supports today. It is not a pricing sheet and it does not claim enterprise-wide transformation.
 
-**Related:** [README.md](../README.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [CORE_PILOT.md](CORE_PILOT.md)
+**Canonical buyer narrative:** This file is the **outward sponsor story of record**—why a pilot matters, what success should look like in plain language, and what not to over-claim. Other entry docs, UI-facing intros, and go-to-market pages should **align with this brief or defer here** rather than growing a second, looser buyer story.
+
+**Related:** [README.md](../README.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [CORE_PILOT.md](CORE_PILOT.md) · [go-to-market/POSITIONING.md](go-to-market/POSITIONING.md) (short positioning; must stay consistent with this brief)
 
 ---
 

@@ -6,6 +6,8 @@
 
 **Grounding rule:** Every claim maps to a shipped V1 capability. See [V1_SCOPE.md](../V1_SCOPE.md) and [COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md) for evidence.
 
+**Relationship to the sponsor brief:** [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) is the **dominant outward-facing buyer narrative**. This page supports **short explanations and proof-backed pillars** for conversations and datasheets; it must **not contradict** the brief. If wording here drifts broader than the brief, **tighten here** or promote a deliberate product change into the brief first, then realign.
+
 ---
 
 ## 1. Positioning statement

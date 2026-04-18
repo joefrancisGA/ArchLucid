@@ -18,7 +18,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { GovernanceDashboardReaderActionCue } from "@/components/EnterpriseControlsContextHints";
+import {
+  EnterpriseExecutePlusPageCue,
+  GovernanceDashboardReaderActionCue,
+} from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -30,6 +33,10 @@ import {
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import {
+  enterpriseMutationControlDisabledTitle,
+  governanceDashboardOperatorPlusLine,
+} from "@/lib/enterprise-controls-context-copy";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
@@ -39,6 +46,7 @@ import type {
 } from "@/types/governance-dashboard";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { governanceStatusBadgeClass } from "./governance-status-badge-class";
 
 const EMPTY_PENDING_APPROVALS: GovernanceApprovalRequest[] = [];
@@ -76,6 +84,7 @@ function navigateToWorkflowReview(router: ReturnType<typeof useRouter>, runId: s
 
 export default function GovernanceDashboardPage() {
   const router = useRouter();
+  const canMutateGovernance = useEnterpriseMutationCapability();
   const [summary, setSummary] = useState<GovernanceDashboardSummary | null>(null);
   const [trendPoints, setTrendPoints] = useState<ComplianceDriftTrendPoint[]>([]);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -126,6 +135,16 @@ export default function GovernanceDashboardPage() {
 
     return () => window.clearInterval(intervalId);
   }, [loadDashboard]);
+
+  useEffect(() => {
+    if (canMutateGovernance) {
+      return;
+    }
+
+    setSelectedApprovalIds(new Set());
+    setReviewDialog(null);
+    setBatchDialog(null);
+  }, [canMutateGovernance]);
 
   const pending = useMemo(
     () => summary?.pendingApprovals ?? EMPTY_PENDING_APPROVALS,
@@ -185,6 +204,10 @@ export default function GovernanceDashboardPage() {
       return;
     }
 
+    if (!canMutateGovernance) {
+      return;
+    }
+
     setReviewBusy(true);
 
     try {
@@ -213,6 +236,10 @@ export default function GovernanceDashboardPage() {
 
   async function onConfirmBatchReview(): Promise<void> {
     if (batchDialog === null) {
+      return;
+    }
+
+    if (!canMutateGovernance) {
       return;
     }
 
@@ -274,11 +301,13 @@ export default function GovernanceDashboardPage() {
     <main className="mx-auto max-w-4xl px-1 sm:px-0">
       <LayerHeader pageKey="governance-dashboard" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        Cross-run view of pending approvals, recent decisions, and policy pack changes for the current tenant scope.
-        Refreshes every 30 seconds. Use <strong>Review</strong> to open the run-scoped workflow.
+      <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        <strong>Cross-run readout:</strong> pending approvals, recent decisions, and policy changes (refreshes about every
+        30s). <strong>Review</strong> opens run-scoped workflow for one run; use this page to scan what needs attention
+        across runs.
       </p>
       <GovernanceDashboardReaderActionCue />
+      <EnterpriseExecutePlusPageCue message={governanceDashboardOperatorPlusLine} />
 
       {failure !== null ? (
         <div className="mb-6" role="alert">
@@ -359,7 +388,12 @@ export default function GovernanceDashboardPage() {
                   </Badge>
                 ) : null}
                 {selectablePending.length > 0 ? (
-                  <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+                  <label
+                    className={`flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300 ${
+                      canMutateGovernance ? "cursor-pointer" : "cursor-not-allowed opacity-70"
+                    }`}
+                    title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
+                  >
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-neutral-300 dark:border-neutral-600"
@@ -367,6 +401,7 @@ export default function GovernanceDashboardPage() {
                       onChange={() => {
                         toggleSelectAll();
                       }}
+                      disabled={!canMutateGovernance}
                       aria-label="Select all pending requests that can be approved or rejected"
                     />
                     Select all ({selectablePending.length})
@@ -388,6 +423,8 @@ export default function GovernanceDashboardPage() {
                   type="button"
                   size="sm"
                   variant="secondary"
+                  disabled={!canMutateGovernance}
+                  title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
                   onClick={() => {
                     setBatchDialog({ mode: "approve" });
                   }}
@@ -398,6 +435,8 @@ export default function GovernanceDashboardPage() {
                   type="button"
                   size="sm"
                   variant="destructive"
+                  disabled={!canMutateGovernance}
+                  title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
                   onClick={() => {
                     setBatchDialog({ mode: "reject" });
                   }}
@@ -435,6 +474,8 @@ export default function GovernanceDashboardPage() {
                             onChange={() => {
                               toggleOne(row.approvalRequestId);
                             }}
+                            disabled={!canMutateGovernance}
+                            title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
                             aria-label={`Select approval request for run ${row.runId}`}
                           />
                         ) : null}
@@ -475,6 +516,8 @@ export default function GovernanceDashboardPage() {
                             type="button"
                             size="sm"
                             variant="secondary"
+                            disabled={!canMutateGovernance}
+                            title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
                             onClick={() =>
                               setReviewDialog({
                                 mode: "approve",
@@ -489,6 +532,8 @@ export default function GovernanceDashboardPage() {
                             type="button"
                             size="sm"
                             variant="destructive"
+                            disabled={!canMutateGovernance}
+                            title={canMutateGovernance ? undefined : enterpriseMutationControlDisabledTitle}
                             onClick={() =>
                               setReviewDialog({
                                 mode: "reject",

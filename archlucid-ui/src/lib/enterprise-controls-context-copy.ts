@@ -5,6 +5,10 @@
  * Keep wording responsibility-based, not permission-jargon.
  */
 
+/** `title` on mutation controls the UI soft-disables for Reader-tier principals (API remains authoritative). */
+export const enterpriseMutationControlDisabledTitle =
+  "Requires operator-level access in this shell; the API still enforces every write.";
+
 /** Sidebar / mobile: reader sees fewer links in this group */
 export const enterpriseNavHintReaderRank =
   "Some destinations need operator or admin access and stay out of the list for your role—not required for Core Pilot.";
@@ -43,3 +47,21 @@ export const enterprisePolicyPacksOperatorPlusLine =
 /** Alert rules, routing, tuning, simulation, composite rules — operator+ reminder */
 export const enterpriseOperatorConfigSurfaceOperatorPlusLine =
   "Operator configuration surface—writes remain API-enforced by role. Not required for Core Pilot.";
+
+/** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
+export const alertsInboxRankReaderLine =
+  "Reader-oriented inbox view—acknowledge, resolve, and suppress still follow operator-level API policy where your tenant expects it—not required for Core Pilot.";
+
+export const alertsInboxRankOperatorLine =
+  "Operational triage surface—inbox actions remain API-enforced by role. Not required for Core Pilot.";
+
+/** Audit log — readers vs operators (see `AuditLogRankCue`). */
+export const auditLogRankReaderLine =
+  "Reader-oriented evidence search; export and deeper fields follow API policy for your role—not required for Core Pilot.";
+
+export const auditLogRankOperatorLine =
+  "Audit investigation surface—search and export remain API-enforced by role. Not required for Core Pilot.";
+
+/** Governance dashboard — operator+ when `GovernanceDashboardReaderActionCue` is hidden */
+export const governanceDashboardOperatorPlusLine =
+  "Operator oversight—approve, reject, batch, and promote controls are API-enforced (including segregation of duties where configured). Not required for Core Pilot.";

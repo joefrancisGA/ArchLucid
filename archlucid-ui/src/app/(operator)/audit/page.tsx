@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -203,10 +204,11 @@ export default function AuditPage() {
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
-      <p style={{ color: "#444", fontSize: 14 }}>
-        Search durable audit events for the current tenant, workspace, and project. Results are newest first (up to{" "}
-        {AUDIT_PAGE_SIZE} rows per request). Use <strong>Load more</strong> to page older events via a time cursor.
+      <p style={{ color: "#444", fontSize: 14, maxWidth: 40rem }}>
+        <strong>Search</strong> scoped events (newest first, {AUDIT_PAGE_SIZE} rows per request).{" "}
+        <strong>Export CSV</strong> needs both from and to dates. <strong>Load more</strong> pages older rows.
       </p>
+      <AuditLogRankCue />
 
       {failure !== null ? (
         <div role="alert">

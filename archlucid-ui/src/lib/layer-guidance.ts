@@ -49,24 +49,24 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "governance-dashboard": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what approvals, policy, and compliance signals need attention across runs?",
-    useWhen: "Use when segregation of duties, promotions, or cross-run governance is in scope.",
-    firstPilotNote: "Usually not required to judge first-pilot value from Core Pilot alone.",
+    useWhen: "Use when you need a cross-run readout—not a substitute for run-scoped workflow.",
+    firstPilotNote: "Skip until cross-run approvals or policy signals are part of the pilot.",
     enterpriseFootnote:
       "Cross-run readout—typically governance or platform operators. Not required for Core Pilot.",
   },
   alerts: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what risk or compliance signals fired and need triage?",
-    useWhen: "Use when alert routing, acknowledgment, or investigation is part of your operating model.",
-    firstPilotNote: "Inbox is available early; deep rule tuning can wait until governance needs it.",
+    useWhen: "Use when triage or routing is part of how you operate on scan findings.",
+    firstPilotNote: "Inbox for triage anytime; rules and routing depth can follow later.",
     enterpriseFootnote:
       "Deeper routing, rules, and tuning are operator/admin surfaces when you need them—not required for Core Pilot.",
   },
   audit: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: who did what, when, with which correlation id, for audit evidence?",
-    useWhen: "Use when you need exportable evidence or investigations beyond run-scoped timeline.",
-    firstPilotNote: "Not required until sponsors or compliance ask for durable audit trails.",
+    useWhen: "Use when you need tenant-scoped search or CSV export beyond a single run timeline.",
+    firstPilotNote: "Defer until audit evidence is in scope for the pilot.",
     enterpriseFootnote: "Evidence for sponsors and audit—still not required for Core Pilot.",
   },
 };

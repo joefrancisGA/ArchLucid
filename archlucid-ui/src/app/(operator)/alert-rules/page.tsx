@@ -69,9 +69,9 @@ export default function AlertRulesPage() {
   return (
     <main style={{ maxWidth: 800 }}>
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
-      <p style={{ color: "#444", fontSize: 14 }}>
-        Typed, deterministic rules evaluated on each scheduled advisory scan. Threshold meaning depends on rule type
-        (count, percent, or days).
+      <p style={{ color: "#444", fontSize: 14, maxWidth: 40rem }}>
+        <strong>Thresholds</strong> evaluated on each advisory scan (meaning depends on rule type: count, percent, or
+        days). Define below; browse what already exists under <strong>Defined rules</strong>.
       </p>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
@@ -86,6 +86,7 @@ export default function AlertRulesPage() {
         </div>
       ) : null}
 
+      <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>Configure new rule</h3>
       <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 24 }}>
         <label>
           Name
@@ -142,7 +143,7 @@ export default function AlertRulesPage() {
         {loading ? "Loading…" : "Refresh"}
       </button>
 
-      <h3>Rules in scope</h3>
+      <h3 style={{ fontSize: "1rem", marginTop: 8 }}>Defined rules</h3>
       <div style={{ display: "grid", gap: 12 }}>
         {items.length === 0 ? (
           <p style={{ color: "#666" }}>None yet.</p>

@@ -105,10 +105,9 @@ export default function CompositeAlertRulesPage() {
   return (
     <main style={{ maxWidth: 900 }}>
       <h2 style={{ marginTop: 0 }}>Composite alert rules</h2>
-      <p style={{ color: "#444", fontSize: 14 }}>
-        Combine metrics with AND/OR, then apply cooldown and suppression windows so matching rules do not spam routing
-        channels. After the suppression window, a new alert is only created once prior open/acknowledged alerts for the
-        same dedupe key are cleared.
+      <p style={{ color: "#444", fontSize: 14, maxWidth: 42rem }}>
+        <strong>AND/OR metrics</strong> with cooldown and suppression so routing is not spammed. A new firing after
+        suppression still respects dedupe against prior open or acknowledged rows for the same key.
       </p>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
@@ -123,7 +122,7 @@ export default function CompositeAlertRulesPage() {
         </div>
       ) : null}
 
-      <h3>Create rule (2 conditions)</h3>
+      <h3 style={{ fontSize: "1rem" }}>Configure new composite (2 conditions)</h3>
       <div style={{ display: "grid", gap: 12, maxWidth: 720, marginBottom: 28 }}>
         <label>
           Name
@@ -302,7 +301,7 @@ export default function CompositeAlertRulesPage() {
         {loading ? "Loading…" : "Refresh"}
       </button>
 
-      <h3>Rules in scope</h3>
+      <h3 style={{ fontSize: "1rem", marginTop: 8 }}>Defined composites</h3>
       <div style={{ display: "grid", gap: 14 }}>
         {items.length === 0 ? (
           <p style={{ color: "#666" }}>None yet.</p>

@@ -18,10 +18,11 @@ export default function HomePage() {
     <main>
       <h2 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Operator home</h2>
       <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
-        ArchLucid has three product layers. Start with <strong>Core Pilot</strong>: create a run, commit the
-        manifest, and review artifacts. Once you have a committed run, explore{" "}
-        <strong>Advanced Analysis</strong> (compare, replay, graph) and{" "}
-        <strong>Enterprise Controls</strong> (governance, audit, policy).
+        ArchLucid groups capabilities into <strong>three product layers</strong>. <strong>First-pilot success is Core Pilot
+        only</strong>—new run, pipeline, commit, review artifacts (follow the checklist below).{" "}
+        <strong>Advanced Analysis</strong> and <strong>Enterprise Controls</strong> are <strong>optional maturity</strong>
+        : skip them until those four steps are done or sponsors explicitly expand scope (
+        <code className="text-[0.85em]">docs/OPERATOR_DECISION_GUIDE.md</code>).
       </p>
 
       <WelcomeBanner />
@@ -63,13 +64,14 @@ export default function HomePage() {
         </ul>
       </section>
 
-      {/* Advanced Analysis — deep exploration once you have a committed run. Enable via "Show more links". */}
+      {/* Advanced Analysis — optional maturity; not first-pilot requirements */}
       <section className="mt-6" aria-labelledby="advanced-analysis-heading">
         <h3 id="advanced-analysis-heading" className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
           Advanced Analysis
         </h3>
-        <p className="mb-2 max-w-3xl text-xs text-neutral-500 dark:text-neutral-400">
-          Available once you have a committed run. Enable via <em>Show more links</em> in the sidebar.
+        <p className="mb-2 max-w-3xl text-xs font-medium text-neutral-600 dark:text-neutral-400">
+          Not required for first-pilot proof. Use when you have a committed run <em>and</em> a concrete analytical question.
+          Sidebar: <em>Show more links</em>.
         </p>
         <ul className="m-0 max-w-3xl list-disc space-y-1 pl-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           <li>
@@ -105,14 +107,14 @@ export default function HomePage() {
         </ul>
       </section>
 
-      {/* Enterprise Controls — governance, audit, and compliance surfaces. */}
+      {/* Enterprise Controls — optional maturity; not first-pilot requirements */}
       <section className="mt-5" aria-labelledby="enterprise-controls-heading">
         <h3 id="enterprise-controls-heading" className="mb-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
           Enterprise Controls
         </h3>
-        <p className="mb-2 max-w-3xl text-xs text-neutral-500 dark:text-neutral-400">
-          Governance, audit, and compliance tooling. Enable extended and advanced links in the sidebar to expose the full
-          surface.
+        <p className="mb-2 max-w-3xl text-xs font-medium text-neutral-600 dark:text-neutral-400">
+          Not required for first-pilot proof. Governance, audit, and alerts when your operating model or sponsors need
+          them. Sidebar: extended and advanced links.
         </p>
         <ul className="m-0 max-w-3xl list-disc space-y-1 pl-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           <li>

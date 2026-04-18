@@ -64,7 +64,9 @@ Reduce ambiguity and dependency on documentation alone.
 - shape advanced surfaces more explicitly by context,
 - clarify where operator/admin responsibility changes the expected experience.
 
-**Shipped in `archlucid-ui` (first wave, not commercial gating):** tier + `requiredAuthority` nav shaping (`nav-config.ts`, `nav-authority.ts`, `nav-shell-visibility.ts`, `OperatorNavAuthorityProvider.tsx`, `current-principal.ts`), plus short Enterprise context copy (`enterprise-controls-context-copy.ts`, `EnterpriseControlsContextHints.tsx`, `layer-guidance.ts` `enterpriseFootnote`). **Core Pilot** remains the default path; **Enterprise Controls** are the primary place for stricter shaping. This does **not** implement billing, entitlements, or plan-based feature flags—see **Stage 2** for stronger role-enforced boundaries as a separate step.
+**Shipped in `archlucid-ui` (first wave, not commercial gating):** tier + `requiredAuthority` nav shaping (`nav-config.ts`, `nav-authority.ts`, `nav-shell-visibility.ts`, `OperatorNavAuthorityProvider.tsx`, `current-principal.ts`), plus short Enterprise context copy (`enterprise-controls-context-copy.ts`, `EnterpriseControlsContextHints.tsx`, `layer-guidance.ts` `enterpriseFootnote`). **Execute-tier** in-page write affordances use `enterprise-mutation-capability.ts` / `useEnterpriseMutationCapability` so buttons track the same rank as nav. **Core Pilot** remains the default path; **Enterprise Controls** are the primary place for stricter shaping. This does **not** implement billing, entitlements, or plan-based feature flags—see **Stage 2** for stronger role-enforced boundaries as a separate step.
+
+**Maintenance map:** which TypeScript files correspond to which packaging layer is summarized in **PRODUCT_PACKAGING.md** §3 *Code seams (operator UI — maintenance map)*—update that table when you add groups or change the shaping pipeline.
 
 ### Why this comes first
 
