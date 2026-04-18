@@ -1,0 +1,74 @@
+/**
+ * Cross-module authority seams: `/me` read-model, nav policy filtering, and Enterprise mutation capability must stay
+ * aligned (same rank numerics and policy names as `nav-authority.ts`). These are narrow regression guards — not a
+ * second authZ engine; the API remains authoritative.
+ */
+import { describe, expect, it } from "vitest";
+
+import { normalizeAuthMeResponse, operatorNavOutsideProviderPrincipal, shellBootstrapReadPrincipal } from "@/lib/current-principal";
+import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
+import { NAV_GROUPS } from "@/lib/nav-config";
+import {
+  AUTHORITY_RANK,
+  filterNavLinksByAuthority,
+  maxAuthorityRankFromMeClaims,
+} from "@/lib/nav-authority";
+
+describe("authority seam regression", () => {
+  const enterpriseLinks = NAV_GROUPS.find((g) => g.id === "alerts-governance")?.links;
+
+  it("defines Enterprise Controls links so Reader authority filter still exposes inbox but drops Execute-only workflow", () => {
+    expect(enterpriseLinks).toBeDefined();
+
+    const readerVisible = filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.ReadAuthority);
+    const hrefsRead = new Set(readerVisible.map((l) => l.href));
+
+    expect(hrefsRead.has("/alerts")).toBe(true);
+    expect(hrefsRead.has("/governance")).toBe(false);
+
+    const executeVisible = filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.ExecuteAuthority);
+    const hrefsExec = new Set(executeVisible.map((l) => l.href));
+
+    expect(hrefsExec.has("/governance")).toBe(true);
+  });
+
+  it("keeps maxAuthorityRankFromMeClaims aligned with normalizeAuthMeResponse.authorityRank for representative /me claims", () => {
+    const cases: { claims: { type: string; value: string }[]; label: string }[] = [
+      { label: "Reader", claims: [{ type: "roles", value: "Reader" }] },
+      { label: "Operator", claims: [{ type: "roles", value: "Operator" }] },
+      { label: "Admin", claims: [{ type: "roles", value: "Admin" }] },
+      { label: "Auditor", claims: [{ type: "roles", value: "Auditor" }] },
+      { label: "empty", claims: [] },
+    ];
+
+    for (const { claims, label } of cases) {
+      const fromClaims = maxAuthorityRankFromMeClaims(claims);
+      const fromPrincipal = normalizeAuthMeResponse({ claims }).authorityRank;
+
+      expect(fromPrincipal, label).toBe(fromClaims);
+    }
+  });
+
+  it("ties enterpriseMutationCapabilityFromRank to normalized principal rank (same threshold as nav Execute tier)", () => {
+    const table: { claims: { type: string; value: string }[]; expectMutate: boolean }[] = [
+      { claims: [{ type: "roles", value: "Reader" }], expectMutate: false },
+      { claims: [{ type: "roles", value: "Auditor" }], expectMutate: false },
+      { claims: [{ type: "roles", value: "Operator" }], expectMutate: true },
+      { claims: [{ type: "roles", value: "Admin" }], expectMutate: true },
+    ];
+
+    for (const row of table) {
+      const principal = normalizeAuthMeResponse({ claims: row.claims });
+
+      expect(enterpriseMutationCapabilityFromRank(principal.authorityRank)).toBe(row.expectMutate);
+    }
+  });
+
+  it("documents synthetic shell principals used before /me settles (bootstrap vs test outside-provider)", () => {
+    expect(shellBootstrapReadPrincipal.authorityRank).toBe(AUTHORITY_RANK.ReadAuthority);
+    expect(enterpriseMutationCapabilityFromRank(shellBootstrapReadPrincipal.authorityRank)).toBe(false);
+
+    expect(operatorNavOutsideProviderPrincipal.authorityRank).toBe(AUTHORITY_RANK.AdminAuthority);
+    expect(enterpriseMutationCapabilityFromRank(operatorNavOutsideProviderPrincipal.authorityRank)).toBe(true);
+  });
+});
