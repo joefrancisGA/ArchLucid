@@ -84,7 +84,7 @@ What is still missing is the only thing that actually proves PMF: **closed pilot
 
 **Justification.** This dimension has moved further than any other since 04-15. The product now has:
 
-- **Real, structured pricing** in `archlucid-ui/public/pricing.json` (schema-versioned, three tiers, discrete numbers — not "contact us"). Team $199/workspace + $79/seat, Professional $899 + $179, Enterprise $60K–$250K annual.
+- **Real, structured pricing** in `archlucid-ui/public/pricing.json` (schema-versioned, three tiers, discrete numbers — not "contact us"). Current tier rates: see [docs/go-to-market/PRICING_PHILOSOPHY.md §5](go-to-market/PRICING_PHILOSOPHY.md).
 - **Marketing pages** under `archlucid-ui/src/app/(marketing)/` (`/welcome`, `/signup`, `/signup/verify`) consuming the §3 30-second pitch and §2 pillar copy from `POSITIONING.md`.
 - **Hardened order-form template** (`ORDER_FORM_TEMPLATE.md`) — usable as a real commercial document, no longer a placeholder.
 - **Pricing single-source CI guard** preventing price drift across docs.
