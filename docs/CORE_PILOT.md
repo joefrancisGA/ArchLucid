@@ -4,11 +4,14 @@
 
 **Purpose:** Define the default, minimal journey from an empty tenant to a reviewed, exportable architecture run — without requiring any advanced features.
 
+**Canonical buyer narrative:** For sponsor-facing summary and outward buyer messaging, start with **[docs/EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)**. This document is the operator-facing first-pilot path, not a second buyer summary.
+
 **Related docs:**
 - [docs/V1_SCOPE.md](V1_SCOPE.md) §4 — authoritative V1 boundary and extended-operation inventory.
 - [docs/operator-shell.md](operator-shell.md) — operator UI workflow and API contract expectations.
 - [docs/PILOT_GUIDE.md](PILOT_GUIDE.md) — full pilot onboarding narrative.
 - [docs/OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) — copy-paste CLI and API commands.
+- [docs/PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) — measurement companion for pilot success.
 
 ---
 
@@ -28,7 +31,9 @@ The Core Pilot path is **four steps**. Completing them produces a committed gold
 
 Everything in ArchLucid beyond these four steps — graph, compare, replay, advisory, alerts, governance, export packages, DOCX — is **available but secondary**. Pilots do not need to touch any of it to demonstrate value.
 
-The **operator Home page** and **sidebar progressive disclosure** list other layers for discovery, but copy and ordering treat them as **maturity paths**, not co-equal prerequisites to the four steps above.
+The **operator Home page**, **sidebar progressive disclosure**, and route-level layer guidance may surface those deeper layers for discovery, but copy and ordering treat them as **maturity paths**, not co-equal prerequisites to the four steps above.
+
+**Anti-creep rule:** if a feature does not help an operator complete these four steps more clearly or more quickly, it should not become part of the default mental model for a first pilot.
 
 ---
 
@@ -92,6 +97,8 @@ At this point, the Core Pilot deliverable is complete.
 
 These are available once you have a committed run. In the operator UI sidebar, click **Show more links** to surface Graph, Compare, and Replay.
 
+**These are follow-on maturity paths, not first-pilot proof.** Use them only when a real question requires them.
+
 | Operation | Where | When to use |
 |-----------|-------|-------------|
 | **Compare two runs** | `/compare` | Diff two manifests structurally — useful for "before vs after" analysis. |
@@ -121,6 +128,8 @@ The sidebar progressive disclosure system exposes three tiers: `essential`, `ext
 | Alerts & governance | Policy packs, Governance resolution, Governance dashboard |
 
 **Navigation settings** (gear icon, sidebar footer) also exposes `advanced` links (audit, alert tuning, schedules, etc.).
+
+The default expectation remains the same: **Core Pilot first, deeper layers later and only when needed**.
 
 ---
 
@@ -194,3 +203,5 @@ Once the Core Pilot is validated, the following areas are available for deeper e
 | Integration events (Azure Service Bus) | [docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md) |
 | DOCX and PDF export for stakeholders | Run detail → Artifacts → DOCX export |
 | Multi-tenant isolation and OIDC auth | [docs/security/MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md) |
+
+These are valuable, but they should remain **follow-on layers** after the first four-step proof path is already successful.
