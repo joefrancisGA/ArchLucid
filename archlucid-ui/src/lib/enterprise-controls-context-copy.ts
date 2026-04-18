@@ -112,6 +112,27 @@ export const policyPacksEmptyScopeReaderLine =
 
 export const policyPacksEmptyScopeOperatorLine = "No packs yet.";
 
+/** Policy packs — “Published versions” empty when a pack is selected but no rows returned. */
+export const policyPacksPublishedVersionsEmptyReaderLine =
+  "No published versions for this pack in the response yet. Read-focused inspection; publish flows are operator/admin surface (API policy).";
+
+export const policyPacksPublishedVersionsEmptyOperatorLine =
+  "No published versions loaded for this pack yet.";
+
+/** Policy packs — one line under Lifecycle heading for read tier (forms below stay soft-disabled). */
+export const policyPacksLifecycleLeadReaderLine =
+  "Create, publish, and assign below stay operator/admin surface at your rank; API still enforces writes.";
+
+/** Governance workflow — Submit card description for read tier (operator copy stays inline on the page with API path). */
+export const governanceWorkflowSubmitCardDescriptionReader =
+  "Same API contract as operators; submit stays disabled at your rank in this shell until Execute-level access applies.";
+
+/** Composite alert rules — empty “Current composite rules” list. */
+export const compositeRulesDefinedListEmptyReaderLine =
+  "No composite rules in this scope yet. Read-focused AND/OR review; writes are operator/admin surface (API policy).";
+
+export const compositeRulesDefinedListEmptyOperatorLine = "None yet.";
+
 /** Alert rules — empty “Defined rules” list. */
 export const alertRulesDefinedListEmptyReaderLine =
   "No rules in this scope yet. Read-focused threshold review; writes are operator/admin surface (API policy).";
