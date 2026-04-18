@@ -11,7 +11,7 @@ export const enterpriseMutationControlDisabledTitle =
 
 /** Sidebar / mobile: reader sees fewer links in this group */
 export const enterpriseNavHintReaderRank =
-  "Some destinations need operator or admin access and stay out of the list for your role—not required for Core Pilot.";
+  "Some operator/admin destinations stay out of the list for your role. Not required for Core Pilot.";
 
 /** Sidebar / mobile: operator+ still reminded this layer is optional vs Core Pilot */
 export const enterpriseNavHintOperatorRank =
@@ -19,7 +19,7 @@ export const enterpriseNavHintOperatorRank =
 
 /** Deep execute tooling: only when resolved rank is below Execute (e.g. Reader deep-linked) */
 export const enterpriseExecutePageHintReaderRank =
-  "Operator/admin surface. The API still enforces writes—not required for Core Pilot.";
+  "Operator/admin surface. Not required for Core Pilot; the API still enforces writes.";
 
 /** Governance resolution (no LayerHeader page key): read-only effective policy view */
 export const governanceResolutionContextLine =
@@ -27,41 +27,41 @@ export const governanceResolutionContextLine =
 
 /** Second line on governance resolution — readers vs operators (see `GovernanceResolutionRankCue`). */
 export const governanceResolutionRankReaderLine =
-  "Reader-oriented evidence of what is in effect for this scope—not required for Core Pilot.";
+  "Read-focused evidence of what is currently in effect for this scope.";
 
 export const governanceResolutionRankOperatorLine =
-  "Changing assignments uses policy packs or governance workflow; this page stays read-focused. Not required for Core Pilot.";
+  "Read-focused view; use policy packs or governance workflow when you need to change assignments.";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
 export const governanceDashboardReaderActionLine =
-  "Reader-oriented signals here; approve, reject, batch, and promote actions require operator-level API access where your tenant expects it—not required for Core Pilot.";
+  "Read-focused dashboard. Approval and promotion actions follow operator-level API policy where configured.";
 
 /** Governance workflow page — shown when resolved rank is operator+ (Reader already gets `EnterpriseControlsExecutePageHint`). */
 export const enterpriseGovernanceWorkflowOperatorPlusLine =
-  "Operator/admin workflow surface—the API enforces who may approve, promote, and activate. Not required for Core Pilot.";
+  "Workflow surface for approvals, promotions, and activation. The API enforces who may write.";
 
 /** Policy packs — operator+ reminder (Readers see write hint via `EnterpriseControlsExecutePageHint`). */
 export const enterprisePolicyPacksOperatorPlusLine =
-  "Pack lifecycle mixes reads with publish, assign, and create; stricter steps require admin on the API. Not required for Core Pilot.";
+  "Read, compare, and review pack content here; stricter lifecycle actions remain API-enforced.";
 
 /** Alert rules, routing, tuning, simulation, composite rules — operator+ reminder */
 export const enterpriseOperatorConfigSurfaceOperatorPlusLine =
-  "Operator configuration surface—writes remain API-enforced by role. Not required for Core Pilot.";
+  "Operator configuration surface; writes remain API-enforced by role.";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
 export const alertsInboxRankReaderLine =
-  "Reader-oriented inbox view—acknowledge, resolve, and suppress still follow operator-level API policy where your tenant expects it—not required for Core Pilot.";
+  "Read-focused inbox view; triage actions follow operator-level API policy where configured.";
 
 export const alertsInboxRankOperatorLine =
-  "Operational triage surface—inbox actions remain API-enforced by role. Not required for Core Pilot.";
+  "Operational inbox for triage and follow-up; actions remain API-enforced by role.";
 
 /** Audit log — readers vs operators (see `AuditLogRankCue`). */
 export const auditLogRankReaderLine =
-  "Reader-oriented evidence search; export and deeper fields follow API policy for your role—not required for Core Pilot.";
+  "Read-focused evidence search; export and deeper fields follow API policy for your role.";
 
 export const auditLogRankOperatorLine =
-  "Audit investigation surface—search and export remain API-enforced by role. Not required for Core Pilot.";
+  "Investigation surface for search and export; actions remain API-enforced by role.";
 
 /** Governance dashboard — operator+ when `GovernanceDashboardReaderActionCue` is hidden */
 export const governanceDashboardOperatorPlusLine =
-  "Operator oversight—approve, reject, batch, and promote controls are API-enforced (including segregation of duties where configured). Not required for Core Pilot.";
+  "Cross-run oversight for approvals, decisions, and policy signals; write actions remain API-enforced.";
