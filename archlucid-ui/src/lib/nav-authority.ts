@@ -17,6 +17,8 @@
  * is additionally used for **soft-enabled POST/toggle controls** via `useEnterpriseMutationCapability()` — same numeric
  * scale, different surface. Packaging narrative: **docs/PRODUCT_PACKAGING.md** §3; Stage 1 framing:
  * **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
+ *
+ * @see `authority-seam-regression.test.ts` — `/me` claims → rank vs Enterprise nav vs mutation capability.
  */
 
 /** Same strings as server `ArchLucidPolicies` — smallest durable contract for nav links. */

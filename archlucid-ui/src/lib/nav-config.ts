@@ -71,6 +71,8 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  * **Drift guard:** When adding or moving a route, follow the **ordered checklist** in **docs/PRODUCT_PACKAGING.md** §3
  *   *Contributor drift guard* (API policy → this file → `layer-guidance` / `LayerHeader` → Enterprise mutation hook →
  *   packaging doc). Verify **C#** `[Authorize(Policy = …)]` still matches each link’s **`requiredAuthority`** string.
+ *   **Cross-module Vitest:** `authority-seam-regression.test.ts` — e.g. **`/governance`** must stay **`ExecuteAuthority`**
+ *   so Reader-ranked callers do not see it under Enterprise nav (deep-link still hits API policy).
  *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *
