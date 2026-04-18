@@ -16,6 +16,17 @@ A read-focused **operator shell** for the three ArchLucid product layers:
 
 It is not a replacement for Swagger or the CLI. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full capability inventory.
 
+### In-product layer hints (UI)
+
+The shell surfaces the three-layer model without duplicating [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md):
+
+- **Sidebar** — each nav group shows a one-line caption under the layer name (what that group is for).
+- **LayerHeader** — Compare, Replay, Graph, Governance dashboard, Alerts, and Audit pages open with a short “what question this answers” strip and a first-pilot reminder where relevant.
+- **Home** — after every Core Pilot checklist box is checked, a compact strip suggests Advanced Analysis next steps (still optional).
+- **Run detail** — after a golden manifest exists, an optional strip links Compare / Replay / Graph for this run.
+
+Long-form “when to expand” tables remain in **OPERATOR_DECISION_GUIDE.md**; the UI carries only minimal affordances.
+
 ---
 
 ## Main workflow
@@ -24,7 +35,7 @@ It is not a replacement for Swagger or the CLI. See [PRODUCT_PACKAGING.md](PRODU
 
 These four steps cover the complete first-pilot journey. They map directly to the **Core Pilot checklist** on the Home page.
 
-1. **Start** — Open the app root (`/`). First-time users: use the **Core Pilot checklist** on Home for step-by-step links (create run → pipeline → commit → review artifacts); **Hide checklist** collapses it (preference in browser `localStorage`). The sidebar **Runs & review** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default. **New run** opens the seven-step wizard at **`/runs/new`** (same **`POST /v1/architecture/request`** body shape as the API — see **`docs/FIRST_RUN_WIZARD.md`**).
+1. **Start** — Open the app root (`/`). First-time users: use the **Core Pilot checklist** on Home for step-by-step links (create run → pipeline → commit → review artifacts); **Hide checklist** collapses it (preference in browser `localStorage`). The sidebar **Core Pilot** group shows **Home**, **Onboarding**, **New run**, and **Runs** by default. **New run** opens the seven-step wizard at **`/runs/new`** (same **`POST /v1/architecture/request`** body shape as the API — see **`docs/FIRST_RUN_WIZARD.md`**).
 2. **Runs** — `Runs` → pick a project (default `default`) → **Open run** on a row (empty list shows **Create your first run (wizard)**).
 3. **Run detail** — **Pipeline timeline** lists run-scoped audit events (oldest first) from **`GET /v1/authority/runs/{runId}/pipeline-timeline`**. After commit, you see manifest summary, **Artifacts** (table with **Review** / **Download**).
 4. **Manifest / artifact** — From the golden manifest link or **Review**, you land on manifest-scoped or artifact review pages: metadata, in-shell preview (when available), raw disclosure, sibling artifact list.

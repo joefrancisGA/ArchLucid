@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { LayerHeader } from "@/components/LayerHeader";
 import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import {
@@ -270,6 +271,7 @@ export default function GovernanceDashboardPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-1 sm:px-0">
+      <LayerHeader pageKey="governance-dashboard" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         Cross-run view of pending approvals, recent decisions, and policy pack changes for the current tenant scope.

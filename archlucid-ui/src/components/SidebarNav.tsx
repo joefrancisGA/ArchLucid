@@ -89,12 +89,20 @@ export function SidebarNav() {
             }}
           >
             <CollapsibleTrigger
-              className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+              aria-label={group.label}
+              className="flex w-full items-start justify-between gap-2 rounded-md px-2 py-1.5 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
               type="button"
             >
-              <span>{group.label}</span>
+              <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
+                <span>{group.label}</span>
+                {group.caption ? (
+                  <span className="max-w-[14rem] text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-500 dark:text-neutral-400">
+                    {group.caption}
+                  </span>
+                ) : null}
+              </span>
               <ChevronDown
-                className={cn("h-4 w-4 shrink-0 transition-transform", isOpen ? "rotate-0" : "-rotate-90")}
+                className={cn("mt-0.5 h-4 w-4 shrink-0 transition-transform", isOpen ? "rotate-0" : "-rotate-90")}
                 aria-hidden
               />
             </CollapsibleTrigger>

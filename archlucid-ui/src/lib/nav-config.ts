@@ -43,6 +43,8 @@ export type NavLinkItem = {
 export type NavGroupConfig = {
   id: string;
   label: string;
+  /** One line under the group title — what this layer is for (see docs/OPERATOR_DECISION_GUIDE.md). */
+  caption?: string;
   links: NavLinkItem[];
 };
 
@@ -67,6 +69,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
     id: "runs-review",
     // Product layer: Core Pilot
     label: "Core Pilot",
+    caption: "Default path — request through commit and artifact review.",
     links: [
       {
         href: "/",
@@ -134,6 +137,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
     id: "qa-advisory",
     // Product layer: Advanced Analysis
     label: "Advanced Analysis",
+    caption: "When Core Pilot cannot answer your question (diff, replay, graph, Q&A).",
     links: [
       {
         href: "/ask",
@@ -176,6 +180,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
     id: "alerts-governance",
     // Product layer: Enterprise Controls
     label: "Enterprise Controls",
+    caption: "Approvals, policy, audit evidence, and alert operations.",
     links: [
       {
         href: "/alerts",

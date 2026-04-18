@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { LayerHeader } from "@/components/LayerHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice, OperatorTryNext } from "@/components/OperatorShellMessage";
@@ -145,6 +146,7 @@ export default function AlertsPage() {
 
   return (
     <main className="mx-auto max-w-3xl">
+      <LayerHeader pageKey="alerts" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
       <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
         Architecture risk alerts from scheduled scans. Open + acknowledged rows dedupe new triggers with the same key.

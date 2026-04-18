@@ -12,6 +12,7 @@ import {
 } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { LayerHeader } from "@/components/LayerHeader";
 import { RunIdPicker } from "@/components/RunIdPicker";
 import { coerceReplayResponse } from "@/lib/operator-response-guards";
 import { replayRun } from "@/lib/api";
@@ -66,6 +67,7 @@ function ReplayForm() {
 
   return (
     <main>
+      <LayerHeader pageKey="replay" />
       <h2>Replay run</h2>
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         <Link href="/">Home</Link>

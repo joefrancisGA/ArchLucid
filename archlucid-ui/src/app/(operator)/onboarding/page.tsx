@@ -23,7 +23,9 @@ export default function OnboardingPage() {
         <Link href="/getting-started" title="Getting started — same checklist">
           Getting started
         </Link>
-        — then use the links below for deeper areas.
+        — then use the links below for deeper areas. The sidebar names three product layers (Core Pilot, Advanced
+        Analysis, Enterprise Controls); short &quot;what this is for&quot; captions sit under each group. For full
+        when-to-use tables, see <code>docs/OPERATOR_DECISION_GUIDE.md</code> in the repo.
       </p>
       <div className="mb-10">
         <OnboardingWizardClient />

@@ -1,0 +1,56 @@
+---
+alwaysApply: true
+---
+
+# Do the work yourself
+
+Do not delegate the user's task to subagents (Task tool with
+`subagent_type=generalPurpose`, `explore`, `shell`, or
+`best-of-n-runner`).
+
+## What this rule means
+
+- Read, search, edit, and verify code yourself using the standard tools
+  (Read, Grep, Glob, StrReplace, Write, Shell, ReadLints, etc.).
+- Do not invoke the Task tool to hand the work to a subprocess.
+- Do not split the user's request across multiple background subagents
+  to "parallelize" it.
+
+## When subagents ARE acceptable
+
+The following narrow exceptions still apply unless the user says
+otherwise in the same turn:
+
+- **Read-only exploration of an unfamiliar area** — if the codebase
+  region is genuinely unknown and a quick `explore` subagent would be
+  faster than several Grep/Glob calls. Even then, prefer doing one or
+  two direct searches first.
+- **The user explicitly asks for a subagent or for parallel work**
+  ("run these in parallel", "use a subagent to investigate X").
+- **A skill (`SKILL.md`) explicitly directs use of a subagent.**
+
+## When subagents are NOT acceptable
+
+- Implementing the change.
+- Editing files.
+- Running tests, linters, or build commands as part of completing the
+  user's request.
+- Drafting commit messages or PRs.
+- Anything where the user expects to see your reasoning and the
+  intermediate tool calls inline.
+
+## Why
+
+- Subagent output is opaque to the user — they cannot see the
+  intermediate reasoning, tool calls, or file diffs as they happen.
+- Delegated work tends to lose context the parent agent has already
+  built up in this session (open files, recent edits, prior decisions).
+- The user has explicitly chosen this assistant to do the work; using
+  subagents silently substitutes a different model/context for parts of
+  the answer.
+
+## If the task is large
+
+Split it yourself into a TodoWrite list and work through it sequentially
+in this conversation. Do not spawn subagents to "do batches in
+parallel".

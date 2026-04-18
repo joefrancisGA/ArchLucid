@@ -198,6 +198,8 @@ Advanced-tier links: Alert rules · Alert routing · Composite rules · Alert si
 | **Show more links** | + Graph · Compare · Replay · Advisory · Recommendation learning · Pilot feedback · Policy packs · Governance resolution · Governance dashboard |
 | **Show more + Show advanced links** | + Search · Planning · Evolution candidates · Schedules · Digests · Alert rules · Routing · Composite rules · Simulation · Tuning · Governance workflow · Audit log |
 
+The operator UI also adds **lightweight in-product hints** (sidebar captions under each group, a `LayerHeader` strip on key Advanced Analysis / Enterprise routes, a post-checklist nudge on Home, and an optional post-commit strip on run detail) so operators can route by layer without re-reading this doc. See [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) for the full decision matrix.
+
 ---
 
 ## Packaging boundaries — what this document is NOT saying

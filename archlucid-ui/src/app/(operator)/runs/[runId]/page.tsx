@@ -21,6 +21,7 @@ import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDeta
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { CommitRunButton } from "@/components/CommitRunButton";
+import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import {
@@ -343,6 +344,8 @@ export default async function RunDetailPage({
           </p>
         </section>
       )}
+
+      {manifestId ? <PostCommitAdvancedAnalysisHint runId={runId} /> : null}
 
       {manifestId && (
         <section id="run-explanation" className="scroll-mt-20">

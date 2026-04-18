@@ -4,11 +4,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
+import { corePilotStepDoneStorageKey, emitCorePilotChecklistChanged } from "@/lib/core-pilot-checklist-storage";
 
-function stepDoneStorageKey(index: number): string {
-  return `archlucid_onboarding_step_${index}_done`;
-}
+const minimizedStorageKey = "archlucid_operator_workflow_guide_v1";
 
 type WorkflowStep = {
   title: string;
@@ -90,7 +88,7 @@ export function OperatorFirstRunWorkflowPanel() {
 
     for (let i = 0; i < steps.length; i++) {
       try {
-        if (typeof window !== "undefined" && window.localStorage.getItem(stepDoneStorageKey(i)) === "1") {
+        if (typeof window !== "undefined" && window.localStorage.getItem(corePilotStepDoneStorageKey(i)) === "1") {
           nextDone.push(true);
         } else {
           nextDone.push(false);
@@ -111,6 +109,7 @@ export function OperatorFirstRunWorkflowPanel() {
     }
 
     setHydrated(true);
+    emitCorePilotChecklistChanged();
   }, []);
 
   const doneCount = useMemo(() => doneByIndex.filter(Boolean).length, [doneByIndex]);
@@ -123,13 +122,15 @@ export function OperatorFirstRunWorkflowPanel() {
 
       try {
         if (next[index]) {
-          window.localStorage.setItem(stepDoneStorageKey(index), "1");
+          window.localStorage.setItem(corePilotStepDoneStorageKey(index), "1");
         } else {
-          window.localStorage.removeItem(stepDoneStorageKey(index));
+          window.localStorage.removeItem(corePilotStepDoneStorageKey(index));
         }
       } catch {
         /* ignore */
       }
+
+      emitCorePilotChecklistChanged();
 
       return next;
     });
