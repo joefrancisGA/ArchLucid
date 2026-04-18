@@ -1,0 +1,195 @@
+# ArchLucid Pilot ROI Model
+
+**Audience:** executive sponsors, chief architects, architecture review leads, pilot operators, and sales engineers who need a credible way to judge whether an ArchLucid pilot created business value.
+
+**Status:** Practical V1 pilot-evaluation guidance. This document explains **how to measure pilot success using capabilities ArchLucid supports today**. It is not a pricing model and it is not a guaranteed ROI calculator.
+
+**Related:** [README.md](../README.md) · [CORE_PILOT.md](CORE_PILOT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
+
+---
+
+## 1. What this model is for
+
+An ArchLucid pilot should answer one business question clearly:
+
+> **Does ArchLucid reduce the time, ambiguity, and manual effort required to move from an architecture request to a reviewable, defensible architecture package?**
+
+For most pilots, the goal is **not** to prove enterprise-wide transformation. The goal is to prove that a real team can:
+
+- produce a committed manifest more quickly,
+- produce reviewable artifacts with less manual assembly,
+- improve traceability and governance evidence,
+- and shorten the path to architecture discussion or approval.
+
+---
+
+## 2. The simplest sponsor-level value story
+
+A successful pilot should let a sponsor say:
+
+- **We got from request to reviewable architecture output faster.**
+- **We reduced manual preparation of architecture artifacts.**
+- **We improved visibility into what was decided, why, and what changed.**
+- **We created a stronger evidence trail for governance and review.**
+
+That is a credible V1 value story.
+
+---
+
+## 3. What to measure before the pilot
+
+Capture a small baseline before using ArchLucid.
+
+### 3.1 Baseline questions
+
+For one representative architecture workflow, record:
+
+1. **How long does it currently take** to go from architecture request / brief to a reviewable package?
+2. **How much manual effort is required** to assemble the architecture narrative, manifest-like content, diagrams, and supporting evidence?
+3. **How hard is it to explain what changed** between two versions of a design?
+4. **How much governance evidence is missing or manually reconstructed** during review?
+5. **How much architect time is spent on packaging and review preparation rather than on design quality?**
+
+### 3.2 Keep the baseline light
+
+Do not create a giant measurement program. For most pilots, a simple baseline is enough:
+
+- One representative architecture use case
+- One team or one architect group
+- One or two current-state cycle-time estimates
+- One rough estimate of manual prep effort
+- One qualitative assessment of governance friction
+
+---
+
+## 4. What to measure during the pilot
+
+Use the Core Pilot path as the default evaluation lane:
+
+**Create request → Execute run → Commit → Review artifacts**
+
+### 4.1 Primary pilot metrics
+
+These are the most useful V1 measures.
+
+| Metric | Why it matters | How to judge |
+|--------|----------------|--------------|
+| **Time to committed manifest** | Measures speed from request to durable architecture output | Faster than current-state workflow, or meaningfully more predictable |
+| **Time to reviewable artifact package** | Measures how quickly stakeholders can review something concrete | Faster package preparation with less manual assembly |
+| **Manual preparation effort reduced** | Measures architect/admin time saved | Fewer hand-built documents, fewer manual stitching steps |
+| **Decision traceability completeness** | Measures whether decisions and evidence are easier to explain | More complete, easier-to-follow review narrative |
+| **Change visibility between runs** | Measures whether review of revisions is clearer | Stakeholders can see what changed and why more quickly |
+| **Governance evidence readiness** | Measures whether approvals/reviews have better support material | Less reconstruction during review or approval prep |
+
+### 4.2 Secondary pilot metrics
+
+These matter, but should not dominate a first pilot.
+
+| Metric | Why it matters |
+|--------|----------------|
+| **Operator onboarding time** | Shows whether first use is practical |
+| **Support incidents / blockers** | Shows whether self-sufficiency is real enough |
+| **Export usefulness** | Shows whether artifacts are usable outside the tool |
+| **Reviewer confidence** | Shows whether the outputs are trusted, not just produced |
+
+---
+
+## 5. What a successful pilot should demonstrate
+
+A successful pilot does **not** require every layer of the product.
+
+For V1, success usually looks like this:
+
+### 5.1 Minimum success bar
+
+- A real architecture request was created and executed.
+- The run produced a committed manifest.
+- Stakeholders reviewed artifacts generated from that run.
+- The team judged the output materially easier to review or package than the current-state approach.
+
+### 5.2 Strong success bar
+
+- The pilot reduced time from request to reviewable package.
+- The pilot reduced manual artifact-preparation effort.
+- Reviewers had clearer visibility into decisions, evidence, and changes.
+- The team could explain why ArchLucid should be used again for similar architecture work.
+
+### 5.3 Exceptional success bar
+
+- The pilot created visible sponsor confidence.
+- The team wants to expand into Advanced Analysis or Enterprise Controls.
+- Governance, audit, or architecture review stakeholders actively prefer the ArchLucid flow.
+
+---
+
+## 6. Suggested pilot scorecard
+
+Use a simple 1–5 rating for each item.
+
+| Area | Question | Score 1–5 |
+|------|----------|-----------|
+| **Speed** | Did we get to a committed manifest faster or more predictably? | |
+| **Artifact readiness** | Did we get to a reviewable package with less manual assembly? | |
+| **Traceability** | Were decisions and evidence easier to explain? | |
+| **Change clarity** | Was it easier to understand what changed between runs? | |
+| **Governance readiness** | Did the pilot improve review or approval readiness? | |
+| **Operator usability** | Could operators complete the Core Pilot path without excessive friction? | |
+| **Stakeholder confidence** | Did reviewers trust the outputs enough to use them seriously? | |
+| **Repeatability** | Would we use this again for a similar architecture request? | |
+
+### Reading the scorecard
+
+- **32–40** = strong pilot result
+- **24–31** = promising, but more hardening or scope narrowing may be needed
+- **Below 24** = pilot likely proved interest but not enough operational or business value yet
+
+---
+
+## 7. How sponsors can describe the result internally
+
+Here is the kind of internal summary a sponsor should be able to use after a good pilot:
+
+> ArchLucid shortened the path from architecture request to reviewable output, reduced manual packaging effort, and gave us a clearer evidence trail for review and governance. The pilot suggests that the product can improve architecture throughput and decision defensibility without requiring us to jump immediately into the full advanced feature set.
+
+That is a credible V1 outcome statement.
+
+---
+
+## 8. What not to over-claim
+
+Do **not** over-claim these from an early pilot unless you have direct evidence:
+
+- enterprise-wide cost savings,
+- broad productivity transformation,
+- full governance automation,
+- universal architecture standardization,
+- reduced infrastructure spend,
+- reduced headcount.
+
+A strong V1 pilot should prove **workflow improvement and decision support**, not magic.
+
+---
+
+## 9. Best practice for pilot scope
+
+For the cleanest ROI story:
+
+- Use **one clear architecture use case**.
+- Stay on the **Core Pilot** path first.
+- Measure speed, packaging effort, and evidence quality.
+- Only then expand into **Advanced Analysis** or **Enterprise Controls**.
+
+This keeps the pilot honest and makes sponsor judgment easier.
+
+---
+
+## 10. Summary
+
+The most defensible ArchLucid pilot ROI story is simple:
+
+- faster movement from request to committed manifest,
+- less manual effort assembling reviewable architecture outputs,
+- clearer visibility into decisions and changes,
+- and better evidence for governance or architecture review.
+
+If a pilot proves those four things, it is commercially meaningful.
