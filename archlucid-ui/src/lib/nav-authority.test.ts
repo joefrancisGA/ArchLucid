@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   AUTHORITY_RANK,
+  collectArchLucidRoleClaimValues,
   filterNavLinksByAuthority,
   maxAuthorityRankFromMeClaims,
   navLinkVisibleForCallerRank,
+  requiredAuthorityFromRank,
   requiredAuthorityRank,
 } from "@/lib/nav-authority";
 
@@ -50,5 +52,21 @@ describe("nav-authority", () => {
 
   it("defaults to Read rank when no known roles are present", () => {
     expect(maxAuthorityRankFromMeClaims([{ type: "sub", value: "x" }])).toBe(AUTHORITY_RANK.ReadAuthority);
+  });
+
+  it("collectArchLucidRoleClaimValues dedupes case-insensitively", () => {
+    expect(
+      collectArchLucidRoleClaimValues([
+        { type: "roles", value: "Reader" },
+        { type: "roles", value: "reader" },
+        { type: "sub", value: "x" },
+      ]),
+    ).toEqual(["Reader"]);
+  });
+
+  it("requiredAuthorityFromRank maps ranks to policy names", () => {
+    expect(requiredAuthorityFromRank(1)).toBe("ReadAuthority");
+    expect(requiredAuthorityFromRank(2)).toBe("ExecuteAuthority");
+    expect(requiredAuthorityFromRank(3)).toBe("AdminAuthority");
   });
 });

@@ -58,7 +58,7 @@ export function maxAuthorityRankFromMeClaims(claims: ReadonlyArray<{ type: strin
   let rank = 0;
 
   for (const claim of claims) {
-    if (!isRoleClaimType(claim.type)) {
+    if (!isArchLucidRoleClaimType(claim.type)) {
       continue;
     }
 
@@ -78,7 +78,7 @@ export function maxAuthorityRankFromMeClaims(claims: ReadonlyArray<{ type: strin
   return rank;
 }
 
-function isRoleClaimType(type: string): boolean {
+export function isArchLucidRoleClaimType(type: string): boolean {
   if (type === "roles") {
     return true;
   }
@@ -88,6 +88,53 @@ function isRoleClaimType(type: string): boolean {
   }
 
   return type.endsWith(ROLE_URI_SUFFIX);
+}
+
+/**
+ * Raw role claim values from `/api/auth/me` (deduped case-insensitively, order preserved).
+ * Used by {@link loadCurrentPrincipal}; not a security boundary — server still enforces policies.
+ */
+export function collectArchLucidRoleClaimValues(
+  claims: ReadonlyArray<{ type: string; value: string }>,
+): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+
+  for (const claim of claims) {
+    if (!isArchLucidRoleClaimType(claim.type)) {
+      continue;
+    }
+
+    const value = claim.value.trim();
+
+    if (value.length === 0) {
+      continue;
+    }
+
+    const key = value.toLowerCase();
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    out.push(value);
+  }
+
+  return out;
+}
+
+/** Maps a resolved rank (from {@link maxAuthorityRankFromMeClaims}) back to a policy label. */
+export function requiredAuthorityFromRank(rank: number): RequiredAuthority {
+  if (rank >= AUTHORITY_RANK.AdminAuthority) {
+    return "AdminAuthority";
+  }
+
+  if (rank >= AUTHORITY_RANK.ExecuteAuthority) {
+    return "ExecuteAuthority";
+  }
+
+  return "ReadAuthority";
 }
 
 function rankForRoleValue(value: string): number {
