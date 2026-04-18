@@ -9,10 +9,12 @@ import { createAlertRule, listAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  alertRulesChangeConfigurationLeadReaderLine,
   alertRulesDefinedListEmptyOperatorLine,
   alertRulesDefinedListEmptyReaderLine,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { cn } from "@/lib/utils";
 import type { AlertRule } from "@/types/alerts";
 
 const RULE_TYPES = [
@@ -131,10 +133,18 @@ export default function AlertRulesPage() {
           </div>
         </section>
 
-        <section className="min-w-0" aria-labelledby="alert-rules-change-heading">
+        <section
+          className={cn("min-w-0", !canMutateAlertRules && "opacity-90")}
+          aria-labelledby="alert-rules-change-heading"
+        >
           <h3 id="alert-rules-change-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
             {canMutateAlertRules ? "Change configuration" : "Change configuration (operator access)"}
           </h3>
+          {canMutateAlertRules ? null : (
+            <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 8 }}>
+              {alertRulesChangeConfigurationLeadReaderLine}
+            </p>
+          )}
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 10 }}>
             Configuration surface. Not required for Core Pilot.
           </p>

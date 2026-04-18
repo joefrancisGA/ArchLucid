@@ -8,10 +8,12 @@ import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  alertRoutingChangeConfigurationLeadReaderLine,
   alertRoutingSubscriptionsEmptyOperatorLine,
   alertRoutingSubscriptionsEmptyReaderLine,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { cn } from "@/lib/utils";
 import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
@@ -173,10 +175,18 @@ export default function AlertRoutingPage() {
           </div>
         </section>
 
-        <section className="min-w-0" aria-labelledby="alert-routing-change-heading">
+        <section
+          className={cn("min-w-0", !canMutateRouting && "opacity-90")}
+          aria-labelledby="alert-routing-change-heading"
+        >
           <h3 id="alert-routing-change-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
             {canMutateRouting ? "Change configuration" : "Change configuration (operator access)"}
           </h3>
+          {canMutateRouting ? null : (
+            <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 8 }}>
+              {alertRoutingChangeConfigurationLeadReaderLine}
+            </p>
+          )}
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 10 }}>
             Configuration surface. Not required for Core Pilot.
           </p>
