@@ -43,14 +43,14 @@ export const enterpriseExecutePageHintReaderRank =
 
 /** Second line on governance resolution — readers vs operators (see `GovernanceResolutionRankCue`). */
 export const governanceResolutionRankReaderLine =
-  "Read-only here; pack and assignment changes use policy packs or workflow (API policy).";
+  "Pack and assignment changes stay in policy packs or workflow (API policy).";
 
 export const governanceResolutionRankOperatorLine =
   "Ordering and assignments live in policy packs or governance workflow—not this page.";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
 export const governanceDashboardReaderActionLine =
-  "Read-focused evidence surface; approvals and promotions are operator/admin surface (API policy).";
+  "Read-focused queue; approvals and promotions need Execute+ on the API.";
 
 /** Governance workflow page — shown when resolved rank is operator+ (Reader already gets `EnterpriseControlsExecutePageHint`). */
 export const enterpriseGovernanceWorkflowOperatorPlusLine =
@@ -132,6 +132,10 @@ export const compositeRulesDefinedListEmptyReaderLine =
   "No composite rules in this scope yet. Read-focused AND/OR review; writes are operator/admin surface (API policy).";
 
 export const compositeRulesDefinedListEmptyOperatorLine = "None yet.";
+
+/** Composite rules — under “Change configuration” for read tier. */
+export const compositeRulesChangeConfigurationLeadReaderLine =
+  "AND/OR form below stays operator/admin at your rank; API enforces writes.";
 
 /** Alert rules — empty “Defined rules” list. */
 export const alertRulesDefinedListEmptyReaderLine =

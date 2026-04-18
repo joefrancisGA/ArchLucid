@@ -35,8 +35,8 @@ export default function GovernanceResolutionPage() {
     <main style={{ maxWidth: 1100 }}>
       <LayerHeader pageKey="governance-resolution" />
       <h2 style={{ marginTop: 0 }}>Governance resolution</h2>
-      <p className="mb-2 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-        Effective policy stack for this scope (JSON below). Read-only on this page.
+      <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Effective policy for this scope — JSON below (read-only here).
       </p>
       <GovernanceResolutionRankCue />
       {failure !== null ? (

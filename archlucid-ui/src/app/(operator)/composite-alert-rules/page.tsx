@@ -9,10 +9,12 @@ import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  compositeRulesChangeConfigurationLeadReaderLine,
   compositeRulesDefinedListEmptyOperatorLine,
   compositeRulesDefinedListEmptyReaderLine,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
+import { cn } from "@/lib/utils";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const METRICS = [
@@ -171,11 +173,19 @@ export default function CompositeAlertRulesPage() {
           </div>
         </section>
 
-        <section className="min-w-0" aria-labelledby="composite-rules-change-heading">
+        <section
+          className={cn("min-w-0", !canMutateComposite && "opacity-90")}
+          aria-labelledby="composite-rules-change-heading"
+        >
           <h3 id="composite-rules-change-heading" style={{ fontSize: "1rem" }}>
             {canMutateComposite ? "Change configuration" : "Change configuration (operator access)"}
           </h3>
-          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 4, marginBottom: 10 }}>
+          {canMutateComposite ? null : (
+            <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 4, marginBottom: 8 }}>
+              {compositeRulesChangeConfigurationLeadReaderLine}
+            </p>
+          )}
+          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
             Configuration surface. Not required for Core Pilot.
           </p>
       <fieldset

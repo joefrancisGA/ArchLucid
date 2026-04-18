@@ -245,9 +245,8 @@ export default function PolicyPacksPage() {
     <main style={{ maxWidth: 960 }}>
       <LayerHeader pageKey="policy-packs" />
       <h2 style={{ marginTop: 0 }}>Policy packs</h2>
-      <p className="mb-2 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
-        Below: effective JSON, versions, and diffs (inspect). Create, publish, and assign stay at the bottom (configure).
-        Stack ordering:{" "}
+      <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Inspect: effective JSON, versions, diff below; configure lifecycle last. Pack stack:{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
           governance resolution
         </Link>

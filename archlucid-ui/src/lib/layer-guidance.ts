@@ -78,7 +78,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   audit: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: tenant audit trail—who did what, when?",
-    useWhen: "Filter in scope, read rows here; export needs a bounded From/To window.",
+    useWhen: "Scoped filters and rows here; export needs From/To.",
     firstPilotNote: "Skip until audit evidence is a pilot requirement.",
     enterpriseFootnote: "Evidence search and bounded export. Not required for Core Pilot.",
   },
@@ -101,7 +101,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "policy-packs": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what packs exist, what is published, and what applies in this scope?",
-    useWhen: "Effective JSON and inventory before lifecycle work—only when packs are your remit.",
+    useWhen: "Effective JSON and inventory before lifecycle—when packs are your remit.",
     firstPilotNote: "Skip until policy control is explicit.",
     enterpriseFootnote:
       "Read/compare first; create, publish, assign are configuration (API-enforced). Not required for Core Pilot.",
@@ -117,7 +117,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "alert-routing": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: where should fired alerts be delivered when severity thresholds are met?",
-    useWhen: "Live delivery targets when alerts fire—not digest mail.",
+    useWhen: "Live delivery for fired alerts—not digest mail.",
     firstPilotNote: "Skip until real-time routing matters.",
     enterpriseFootnote:
       "Configuration surface for alert delivery. Not required for Core Pilot.",
@@ -141,7 +141,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "composite-alert-rules": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: how do we combine multiple scan metrics with AND/OR before firing an alert?",
-    useWhen: "AND/OR with cooldown when a single threshold is not enough.",
+    useWhen: "AND/OR plus cooldown when one threshold is not enough.",
     firstPilotNote: "Defer until composite firing logic is in scope.",
     enterpriseFootnote:
       "Configuration surface for composite alert rules. Not required for Core Pilot.",
