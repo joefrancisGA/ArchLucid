@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AlertsInboxRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
@@ -28,7 +28,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ALERTS_EMPTY_FILTERED } from "@/lib/empty-state-presets";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { applyAlertAction, listAlertsPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -66,6 +68,7 @@ function severityBadgeClass(severity: string): string {
 }
 
 export default function AlertsPage() {
+  const canMutateAlertInbox = useEnterpriseMutationCapability();
   const [alerts, setAlerts] = useState<AlertRecord[]>([]);
   const [status, setStatus] = useState<string>("Open");
   const [page, setPage] = useState(1);
@@ -103,6 +106,20 @@ export default function AlertsPage() {
     void load();
   }, [load]);
 
+  const emptyFilteredProps = useMemo(() => {
+    if (canMutateAlertInbox) {
+      return ALERTS_EMPTY_FILTERED;
+    }
+
+    return {
+      ...ALERTS_EMPTY_FILTERED,
+      actions: [
+        { label: "Browse alert rules", href: "/alert-rules" },
+        { label: "View runs list", href: "/runs?projectId=default", variant: "outline" as const },
+      ],
+    };
+  }, [canMutateAlertInbox]);
+
   const act = useCallback(
     async (alertId: string, action: AlertActionKind, comment: string) => {
       setFailure(null);
@@ -119,18 +136,22 @@ export default function AlertsPage() {
 
   const onAlertShortcutAction = useCallback(
     (alertId: string, action: string) => {
+      if (!canMutateAlertInbox) {
+        return;
+      }
+
       if (action === "Acknowledge" || action === "Resolve" || action === "Suppress") {
         setPendingAction({ alertId, action });
         setActionComment("");
       }
     },
-    [],
+    [canMutateAlertInbox],
   );
 
-  useAlertCardShortcuts({ onAction: onAlertShortcutAction });
+  useAlertCardShortcuts({ onAction: onAlertShortcutAction, mutationsEnabled: canMutateAlertInbox });
 
   async function onConfirmActionDialog(): Promise<void> {
-    if (pendingAction === null) {
+    if (pendingAction === null || !canMutateAlertInbox) {
       return;
     }
 
@@ -201,7 +222,8 @@ export default function AlertsPage() {
       </div>
 
       <span className="mb-4 mt-1 block text-xs text-neutral-700 dark:text-neutral-300">
-        Alt+J/K navigate · Alt+1 ack · Alt+2 resolve · Alt+3 suppress
+        Alt+J/K navigate
+        {canMutateAlertInbox ? " · Alt+1 ack · Alt+2 resolve · Alt+3 suppress" : ""}
       </span>
 
       <div className="grid gap-3">
@@ -215,7 +237,7 @@ export default function AlertsPage() {
           </OperatorLoadingNotice>
         ) : null}
 
-        {!loading && failure === null && alerts.length === 0 ? <EmptyState {...ALERTS_EMPTY_FILTERED} /> : null}
+        {!loading && failure === null && alerts.length === 0 ? <EmptyState {...emptyFilteredProps} /> : null}
 
         {alerts.length > 0
           ? alerts.map((alert) => (
@@ -248,6 +270,8 @@ export default function AlertsPage() {
                     type="button"
                     size="sm"
                     variant="secondary"
+                    disabled={!canMutateAlertInbox}
+                    title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
                     onClick={() => {
                       setPendingAction({ alertId: alert.alertId, action: "Acknowledge" });
                       setActionComment("");
@@ -259,6 +283,8 @@ export default function AlertsPage() {
                     type="button"
                     size="sm"
                     variant="secondary"
+                    disabled={!canMutateAlertInbox}
+                    title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
                     onClick={() => {
                       setPendingAction({ alertId: alert.alertId, action: "Resolve" });
                       setActionComment("");
@@ -271,6 +297,8 @@ export default function AlertsPage() {
                     size="sm"
                     variant="outline"
                     className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
+                    disabled={!canMutateAlertInbox}
+                    title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
                     onClick={() => {
                       setPendingAction({ alertId: alert.alertId, action: "Suppress" });
                       setActionComment("");
@@ -351,7 +379,12 @@ export default function AlertsPage() {
             >
               Cancel
             </Button>
-            <Button type="button" onClick={() => void onConfirmActionDialog()} disabled={actionBusy || pendingAction === null}>
+            <Button
+              type="button"
+              onClick={() => void onConfirmActionDialog()}
+              disabled={actionBusy || pendingAction === null || !canMutateAlertInbox}
+              title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
+            >
               {actionBusy ? "Saving…" : "Confirm"}
             </Button>
           </DialogFooter>

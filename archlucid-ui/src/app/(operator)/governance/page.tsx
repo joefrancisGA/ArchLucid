@@ -8,7 +8,7 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
-import { GOVERNANCE_WORKFLOW_IDLE } from "@/lib/empty-state-presets";
+import { GOVERNANCE_WORKFLOW_IDLE, GOVERNANCE_WORKFLOW_IDLE_READER } from "@/lib/empty-state-presets";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -422,7 +422,7 @@ function GovernanceWorkflowPageInner() {
 
       {activeRunId === null && !listsLoading && listFailure === null ? (
         <div className="mb-6">
-          <EmptyState {...GOVERNANCE_WORKFLOW_IDLE} />
+          <EmptyState {...(canMutateWorkflow ? GOVERNANCE_WORKFLOW_IDLE : GOVERNANCE_WORKFLOW_IDLE_READER)} />
         </div>
       ) : null}
 

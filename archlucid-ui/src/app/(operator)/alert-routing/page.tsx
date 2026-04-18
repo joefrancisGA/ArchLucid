@@ -4,8 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
@@ -15,6 +17,7 @@ import {
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 
 export default function AlertRoutingPage() {
+  const canMutateRouting = useEnterpriseMutationCapability();
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
   const [attemptsBySub, setAttemptsBySub] = useState<Record<string, AlertRoutingDeliveryAttempt[]>>({});
   const [loading, setLoading] = useState(false);
@@ -43,7 +46,7 @@ export default function AlertRoutingPage() {
   }, [load]);
 
   async function onCreate() {
-    if (!destination.trim()) return;
+    if (!canMutateRouting || !destination.trim()) return;
     setFailure(null);
     try {
       await createAlertRoutingSubscription({
@@ -61,6 +64,10 @@ export default function AlertRoutingPage() {
   }
 
   async function onToggle(id: string) {
+    if (!canMutateRouting) {
+      return;
+    }
+
     setFailure(null);
     try {
       await toggleAlertRoutingSubscription(id);
@@ -99,13 +106,17 @@ export default function AlertRoutingPage() {
         </div>
       ) : null}
 
-      <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>Add subscription</h3>
+      <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
+        {canMutateRouting ? "Add subscription" : "Add subscription (operator access)"}
+      </h3>
       <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 24 }}>
         <label>
           Name
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
+            disabled={!canMutateRouting}
+            title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
             style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
           />
         </label>
@@ -114,6 +125,8 @@ export default function AlertRoutingPage() {
           <select
             value={channelType}
             onChange={(e) => setChannelType(e.target.value)}
+            disabled={!canMutateRouting}
+            title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
             style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
           >
             <option value="Email">Email</option>
@@ -128,6 +141,8 @@ export default function AlertRoutingPage() {
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
             placeholder="Email or webhook URL"
+            disabled={!canMutateRouting}
+            title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
             style={{ display: "block", width: "100%", padding: 8, marginTop: 4, fontFamily: "monospace" }}
           />
         </label>
@@ -136,6 +151,8 @@ export default function AlertRoutingPage() {
           <select
             value={minimumSeverity}
             onChange={(e) => setMinimumSeverity(e.target.value)}
+            disabled={!canMutateRouting}
+            title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
             style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
           >
             <option value="Info">Info</option>
@@ -144,7 +161,12 @@ export default function AlertRoutingPage() {
             <option value="Critical">Critical</option>
           </select>
         </label>
-        <button type="button" onClick={() => void onCreate()} disabled={!destination.trim() || loading}>
+        <button
+          type="button"
+          onClick={() => void onCreate()}
+          disabled={!destination.trim() || loading || !canMutateRouting}
+          title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
+        >
           Create alert routing subscription
         </button>
       </div>
@@ -179,7 +201,12 @@ export default function AlertRoutingPage() {
                 </div>
               </div>
               <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <button type="button" onClick={() => void onToggle(item.routingSubscriptionId)}>
+                <button
+                  type="button"
+                  onClick={() => void onToggle(item.routingSubscriptionId)}
+                  disabled={!canMutateRouting}
+                  title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
+                >
                   {item.isEnabled ? "Disable" : "Enable"}
                 </button>
                 <button type="button" onClick={() => void loadAttempts(item.routingSubscriptionId)}>

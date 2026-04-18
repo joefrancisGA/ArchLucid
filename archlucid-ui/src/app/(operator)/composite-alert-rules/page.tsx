@@ -4,9 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const METRICS = [
@@ -40,6 +42,7 @@ const DEDUPE = [
 ];
 
 export default function CompositeAlertRulesPage() {
+  const canMutateComposite = useEnterpriseMutationCapability();
   const [items, setItems] = useState<CompositeAlertRule[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -78,6 +81,10 @@ export default function CompositeAlertRulesPage() {
   }, [load]);
 
   async function onCreate() {
+    if (!canMutateComposite) {
+      return;
+    }
+
     setFailure(null);
     try {
       await createCompositeAlertRule({
@@ -119,7 +126,15 @@ export default function CompositeAlertRulesPage() {
         </div>
       ) : null}
 
-      <h3 style={{ fontSize: "1rem" }}>Configure new composite (2 conditions)</h3>
+      <h3 style={{ fontSize: "1rem" }}>
+        {canMutateComposite ? "Configure new composite (2 conditions)" : "Configure new composite (operator access)"}
+      </h3>
+      <fieldset
+        disabled={!canMutateComposite}
+        title={canMutateComposite ? undefined : enterpriseMutationControlDisabledTitle}
+        aria-label="New composite rule form"
+        style={{ border: "none", margin: 0, padding: 0 }}
+      >
       <div style={{ display: "grid", gap: 12, maxWidth: 720, marginBottom: 28 }}>
         <label>
           Name
@@ -289,10 +304,11 @@ export default function CompositeAlertRulesPage() {
           </select>
         </label>
 
-        <button type="button" onClick={() => void onCreate()} disabled={loading}>
+        <button type="button" onClick={() => void onCreate()} disabled={loading || !canMutateComposite}>
           Create composite rule
         </button>
       </div>
+      </fieldset>
 
       <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 16 }}>
         {loading ? "Loading…" : "Refresh"}
