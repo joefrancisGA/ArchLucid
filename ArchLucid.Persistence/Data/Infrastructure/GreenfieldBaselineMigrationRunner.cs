@@ -94,15 +94,30 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// True when <c>001_InitialSchema</c> already created its primary tenant table — journal may be missing or empty
     /// on a reused test catalog.
     /// </summary>
+    /// <remarks>
+    /// <c>001_InitialSchema.sql</c> uses <c>CREATE TABLE ArchitectureRequests</c> without a schema prefix, so the table
+    /// may land in the login default schema rather than <c>dbo</c>. <c>OBJECT_ID(N'dbo.ArchitectureRequests', …)</c>
+    /// would miss that and we would wrongly replay 001.
+    /// </remarks>
     private static bool TenantCoreTablesFromInitialMigrationExist(SqlConnection connection)
     {
-        using SqlCommand command = new(
-            "SELECT CASE WHEN OBJECT_ID(N'dbo.ArchitectureRequests', N'U') IS NOT NULL THEN 1 ELSE 0 END;",
-            connection);
+        const string sql = """
+            SELECT CASE WHEN EXISTS (
+                SELECT 1
+                FROM sys.tables AS t
+                INNER JOIN sys.schemas AS s ON t.schema_id = s.schema_id
+                WHERE t.name = N'ArchitectureRequests' AND t.type = N'U'
+            ) THEN 1 ELSE 0 END;
+            """;
+
+        using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
 
         if (scalar is null || scalar is DBNull)
             return false;
+
+        if (scalar is bool asBool)
+            return asBool;
 
         return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
