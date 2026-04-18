@@ -14,14 +14,14 @@ The shell **already** shapes nav and light copy by **principal + policy tier nam
 |---------|----------------|
 | Link metadata + product grouping | `src/lib/nav-config.ts` |
 | Policy tier names + rank helpers | `src/lib/nav-authority.ts` |
-| `GET /api/auth/me` read-model | `src/lib/current-principal.ts` |
+| `GET /api/auth/me` read-model | `src/lib/current-principal.ts` (`loadCurrentPrincipal`, `getCurrentPrincipal`, `getCurrentAuthority`, `getCurrentAuthorityRank`) |
 | Tier + authority composition (sidebar, mobile, palette) | `src/lib/nav-shell-visibility.ts` |
-| React context + refresh | `src/components/OperatorNavAuthorityProvider.tsx` |
+| React context + refresh + shared `currentPrincipal` | `src/components/OperatorNavAuthorityProvider.tsx` |
 | Enterprise one-liners | `src/lib/enterprise-controls-context-copy.ts`, `src/components/EnterpriseControlsContextHints.tsx`, `src/lib/layer-guidance.ts` (`enterpriseFootnote`) |
 
 **Do not:** add parallel `/me` clients, re-implement policy matrices in TypeScript, or treat UI hiding as authZ. **Do:** keep `requiredAuthority` sparse on Core Pilot essentials; extend Enterprise first when product asks for clearer accountability.
 
-**Nav authority:** `NavLinkItem` may declare optional **`requiredAuthority`**. `OperatorNavAuthorityProvider` + `GET /api/auth/me` supply a caller rank; **`nav-shell-visibility.ts`** composes **tier + authority** for the sidebar, mobile drawer, and command palette (empty groups omitted). Not a substitute for server-side 401/403.
+**Nav authority:** `NavLinkItem` may declare optional **`requiredAuthority`**. `OperatorNavAuthorityProvider` loads **`GET /api/proxy/api/auth/me`** once per refresh (via `loadCurrentPrincipal`) and exposes **`currentPrincipal`** plus **`callerAuthorityRank`**; `useNavCallerAuthorityRank()` applies a conservative Read rank while JWT `/me` is in flight for a signed-in session. **`nav-shell-visibility.ts`** composes **tier + authority** for the sidebar, mobile drawer, and command palette (empty groups omitted). Not a substitute for server-side 401/403.
 
 **Enterprise context copy:** `enterprise-controls-context-copy.ts` + `EnterpriseControlsNavGroupHint` / `EnterpriseControlsExecutePageHint` add short, rank-aware lines; **`LayerHeader`** adds optional **`enterpriseFootnote`** on governance dashboard, alerts, and audit (`layer-guidance.ts`).
 
@@ -199,4 +199,4 @@ Downloads use **`/api/proxy/...`** so the browser receives files without attachi
 - **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE`**: `development-bypass` (default) matches the API’s development-bypass auth mode (no real sign-in; API authenticates a dev principal).
 - For **`JwtBearer`** API mode, set `ARCHLUCID_API_KEY` only if you still use a gateway key; otherwise forward **`Authorization: Bearer`** from the browser (proxy passes it through) and implement `getBearerToken()` in `src/lib/api.ts`.
 - Verify the API principal: `GET /api/auth/me` (requires Reader+), proxied as **`GET /api/proxy/api/auth/me`**.
-- **UI read-model:** use **`src/lib/current-principal.ts`** (`loadCurrentPrincipal` / `getCurrentAuthority`) for name, roles, `maxAuthority` (`ReadAuthority` \| `ExecuteAuthority` \| `AdminAuthority`), and `hasEnterpriseOperatorSurfaces` — same source as `OperatorNavAuthorityProvider`; do not re-scatter ad-hoc `/me` fetches.
+- **UI read-model:** use **`src/lib/current-principal.ts`** (`loadCurrentPrincipal` / `getCurrentPrincipal` / `getCurrentAuthority` / `getCurrentAuthorityRank`) for name, roles, `maxAuthority` (`ReadAuthority` \| `ExecuteAuthority` \| `AdminAuthority`), `authorityRank`, and `hasEnterpriseOperatorSurfaces`. In the App Router shell, prefer **`useOperatorNavAuthority().currentPrincipal`** so identity stays aligned with nav filtering; do not re-scatter ad-hoc `/me` fetches.

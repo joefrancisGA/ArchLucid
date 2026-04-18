@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getCurrentAuthority, normalizeAuthMeResponse, type AuthMeResponse } from "@/lib/current-principal";
+import {
+  getCurrentAuthority,
+  getCurrentAuthorityRank,
+  normalizeAuthMeResponse,
+  type AuthMeResponse,
+} from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 describe("current-principal", () => {
@@ -63,5 +68,27 @@ describe("current-principal", () => {
     });
 
     expect(auth).toBe("ExecuteAuthority");
+  });
+
+  it("getCurrentAuthorityRank returns numeric rank from loadCurrentPrincipal", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () =>
+            Promise.resolve({
+              name: "op",
+              claims: [{ type: "roles", value: "Operator" }],
+            } satisfies AuthMeResponse),
+        } as Response),
+      ),
+    );
+
+    const rank = await getCurrentAuthorityRank({
+      init: { headers: new Headers({ Accept: "application/json" }) },
+    });
+
+    expect(rank).toBe(AUTHORITY_RANK.ExecuteAuthority);
   });
 });
