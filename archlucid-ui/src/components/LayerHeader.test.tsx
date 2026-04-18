@@ -15,7 +15,9 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(
-      screen.getByText(/Evidence for sponsors and audit—still not required for Core Pilot\./i),
+      screen.getByText(
+        /Evidence and export surface—use when governance or audit requires it, not for Core Pilot by default\./i,
+      ),
     ).toBeInTheDocument();
   });
 
