@@ -29,10 +29,11 @@ on:
 # setup-buildx-action@v4 + build-push-action@v7 (Node 24 runtimes; runner ≥ v2.327.1). Other third-party
 # actions may still declare node20 until republished. Tier-0 secret scan uses
 # gacts/gitleaks (node24-native) instead of gitleaks/gitleaks-action to avoid Node 20 deprecation noise.
-# aquasecurity/trivy-action@v0.35.0 pins actions/cache (node20); set `cache: false` on each Trivy step
-# below to skip that nested action and avoid "Node.js 20 is deprecated" warnings until Trivy updates.
-# Pin `version` on each step: the action's default (v0.69.3) may no longer resolve after upstream tag changes;
-# v0.70.0 is a current release with Linux amd64 assets (see aquasecurity/trivy releases).
+# Trivy: pin `aquasecurity/trivy-action` to a **commit** (not tag `v0.35.0`) so the composite bundles
+# `setup-trivy@v0.2.6` (install.sh `-c setup-trivy`). Tag v0.35.0 still references setup-trivy@e6c2c5e, whose
+# install path fails for Trivy v0.70.x right after "found version … Linux/64bit". Ref: trivy-action master
+# action.yaml vs tag v0.35.0. Set `cache: false` on each step to skip nested actions/cache noise where needed.
+# Pin `version` on each step: explicit Trivy release (v0.70.0) for scanner behavior parity.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -94,7 +95,7 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Trivy IaC (Terraform misconfigurations)
-        uses: aquasecurity/trivy-action@v0.35.0
+        uses: aquasecurity/trivy-action@876cf04c63f65e9799bcf1043b584e72469c7143 # embeds setup-trivy@v0.2.6; tag v0.35.0 does not
         with:
           version: v0.70.0
           scan-type: config
@@ -132,7 +133,7 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Trivy IaC (Terraform misconfigurations)
-        uses: aquasecurity/trivy-action@v0.35.0
+        uses: aquasecurity/trivy-action@876cf04c63f65e9799bcf1043b584e72469c7143 # embeds setup-trivy@v0.2.6; tag v0.35.0 does not
         with:
           version: v0.70.0
           scan-type: config
@@ -784,7 +785,7 @@ jobs:
           cache-from: type=gha,scope=ui-docker-smoke
 
       - name: Trivy scan API image (CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@v0.35.0
+        uses: aquasecurity/trivy-action@876cf04c63f65e9799bcf1043b584e72469c7143 # embeds setup-trivy@v0.2.6; tag v0.35.0 does not
         with:
           version: v0.70.0
           scan-type: image
@@ -794,7 +795,7 @@ jobs:
           cache: false
 
       - name: Trivy scan Operator UI image (CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@v0.35.0
+        uses: aquasecurity/trivy-action@876cf04c63f65e9799bcf1043b584e72469c7143 # embeds setup-trivy@v0.2.6; tag v0.35.0 does not
         with:
           version: v0.70.0
           scan-type: image
