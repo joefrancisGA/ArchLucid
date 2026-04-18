@@ -72,9 +72,12 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   *Contributor drift guard* (API policy → this file → `layer-guidance` / `LayerHeader` → Enterprise mutation hook →
  *   packaging doc). Verify **C#** `[Authorize(Policy = …)]` still matches each link’s **`requiredAuthority`** string.
  *   **Cross-module Vitest:** `authority-seam-regression.test.ts` — e.g. **`/governance`** must stay **`ExecuteAuthority`**
- *   so Reader-ranked callers do not see it under Enterprise nav (deep-link still hits API policy); Core Pilot essential
- *   hrefs stay visible for Reader with default tier toggles. **`EnterpriseControlsContextHints.authority.test.tsx`** —
- *   rank-gated Enterprise sidebar/page cues share the same **`ExecuteAuthority`** numeric floor as mutation hooks.
+ *   so Reader-ranked callers do not see it under Enterprise nav (deep-link still hits API policy); every **`ExecuteAuthority`**
+ *   row under **`qa-advisory`** and **`alerts-governance`** stays absent from Read-tier filtered nav; Core Pilot essential
+ *   hrefs stay visible for Reader with default tier toggles. **`OperatorNavAuthorityProvider.test.tsx`** —
+ *   **`useNavCallerAuthorityRank`** stays Read during JWT **`/me`** refetch so stale Execute rank does not flash in nav or hooks.
+ *   **`EnterpriseControlsContextHints.authority.test.tsx`** — rank-gated Enterprise sidebar/page cues share the same
+ *   **`ExecuteAuthority`** numeric floor as mutation hooks.
  *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *

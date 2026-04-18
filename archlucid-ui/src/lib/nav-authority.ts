@@ -18,8 +18,9 @@
  * scale, different surface. Packaging narrative: **docs/PRODUCT_PACKAGING.md** §3; Stage 1 framing:
  * **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
- * @see `authority-seam-regression.test.ts` — `/me` claims → rank vs Enterprise nav vs mutation capability.
+ * @see `authority-seam-regression.test.ts` — `/me` claims → rank vs Enterprise nav vs mutation capability; config-wide Execute rows vs Read.
  * @see `nav-authority.test.ts` — `navLinkVisibleForCallerRank` Execute floor; `EnterpriseControlsContextHints.authority.test.tsx` — cue components.
+ * @see `OperatorNavAuthorityProvider.test.tsx` — rank fed into consumers of this module during JWT `/me` refetch.
  */
 
 /** Same strings as server `ArchLucidPolicies` — smallest durable contract for nav links. */

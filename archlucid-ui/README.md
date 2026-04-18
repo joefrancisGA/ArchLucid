@@ -18,7 +18,7 @@ The shell **already** shapes nav and light copy by **principal + policy tier nam
 | Policy tier names + rank helpers | `src/lib/nav-authority.ts` |
 | `GET /api/auth/me` read-model | `src/lib/current-principal.ts` (`loadCurrentPrincipal`, `getCurrentPrincipal`, `getCurrentAuthority`, `getCurrentAuthorityRank`) |
 | Tier + authority composition (sidebar, mobile, palette) | `src/lib/nav-shell-visibility.ts` |
-| React context + refresh + shared `currentPrincipal` | `src/components/OperatorNavAuthorityProvider.tsx` |
+| React context + refresh + shared `currentPrincipal` / conservative nav rank | `src/components/OperatorNavAuthorityProvider.tsx` |
 | Enterprise one-liners | `src/lib/enterprise-controls-context-copy.ts`, `src/components/EnterpriseControlsContextHints.tsx`, `src/lib/layer-guidance.ts` (`enterpriseFootnote`) |
 | Route strip (layer / when / Enterprise footnote) | `src/components/LayerHeader.tsx` + keys in `src/lib/layer-guidance.ts` |
 
@@ -34,7 +34,7 @@ When you change who can use a route or which product layer it belongs to, update
 4. **Enterprise mutations** — keep `useEnterpriseMutationCapability()` in sync with Execute+ server write policies; **audit CSV export** uses **`/me` roles** (Auditor/Admin) to match **`RequireAuditor`**, not that hook.
 5. **Docs** — `PRODUCT_PACKAGING.md` capability / nav rows if the change is buyer-visible.
 
-Vitest regression anchors: `nav-authority.test.ts` (Execute visibility floor), `nav-shell-visibility.test.ts`, `current-principal.test.ts`, `enterprise-mutation-capability.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `LayerHeader.test.tsx` (rank cue + footnotes), **`authority-seam-regression.test.ts`**, **`EnterpriseControlsReadRankHints.test.tsx`**, **`EnterpriseControlsContextHints.authority.test.tsx`** (Enterprise context hints vs `ExecuteAuthority` threshold).
+Vitest regression anchors: `nav-authority.test.ts` (Execute visibility floor), `nav-shell-visibility.test.ts`, `current-principal.test.ts`, `enterprise-mutation-capability.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `LayerHeader.test.tsx` (rank cue + footnotes), **`authority-seam-regression.test.ts`**, **`OperatorNavAuthorityProvider.test.tsx`** (JWT `/me` in-flight rank), **`EnterpriseControlsReadRankHints.test.tsx`**, **`EnterpriseControlsContextHints.authority.test.tsx`** (Enterprise context hints vs `ExecuteAuthority` threshold). Canonical index: [../docs/PRODUCT_PACKAGING.md](../docs/PRODUCT_PACKAGING.md) §3 *Contributor drift guard*.
 
 **Read tier vs Execute+ (one threshold):** numeric **`AUTHORITY_RANK.ExecuteAuthority`** is the floor for **`useEnterpriseMutationCapability()`** and for operator-oriented **Enterprise** rank cues. **`requiredAuthority`** on each **`NavLinkItem`** controls **nav visibility** after tier filters — same policy names as **`ArchLucidPolicies`** on the API. **`LayerHeader`** and page intros are **cognitive** packaging only.
 

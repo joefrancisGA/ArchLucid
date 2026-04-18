@@ -1,19 +1,19 @@
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 /**
- * True when the numeric authority rank is expected to satisfy **Execute**-class mutations in the operator UI
- * for **Enterprise Controls** and operator-heavy **alerts-governance** pages (governance workflow, dashboard writes,
- * policy pack lifecycle, alert rule/routing/composite creates, alerts inbox acknowledge/resolve/suppress, governance
- * dashboard empty-state copy, policy packs empty-scope copy, alert rules inspect-first layout + empty list copy, etc.). Matches
- * the Reader vs Operator framing of `EnterpriseControlsExecutePageHint` /
- * `EnterpriseExecutePlusPageCue` in `EnterpriseControlsContextHints.tsx`—not a second authZ engine; the API still
- * returns 401/403. See **docs/PRODUCT_PACKAGING.md** (§3, code seams + contributor drift guard) and
- * **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** Stage 1.
+ * Whether the caller’s numeric rank should **soft-enable** Execute-class POST/toggle controls on Enterprise-heavy
+ * operator pages (governance workflow, policy lifecycle, alert tooling writes, inbox triage, etc.).
  *
- * **Same rank source as nav:** uses the numeric rank from **`current-principal.ts`** / **`useNavCallerAuthorityRank()`**;
- * Reader-tier users should not see Execute-only **nav links** *and* should see **soft-disabled** mutation controls where this hook is wired.
+ * **UI shaping only — API authoritative:** `true` does **not** guarantee the HTTP call succeeds; **ArchLucid.Api**
+ * `[Authorize(Policy = …)]` still returns **401/403**. This hook exists so buttons and shortcuts match the same story as nav.
  *
- * @see `authority-seam-regression.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `enterprise-mutation-capability.test.ts`
+ * **Single threshold with nav:** `rank >= AUTHORITY_RANK.ExecuteAuthority` — the same numeric floor used for
+ * **`requiredAuthority: "ExecuteAuthority"`** link visibility after **`filterNavLinksByAuthority`** (see **docs/PRODUCT_PACKAGING.md**
+ * §3 *Read vs Execute* and **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4). Rank comes from **`current-principal.ts`** /
+ * **`useNavCallerAuthorityRank()`** (conservative **Read** while JWT **`/me`** refetches — **`OperatorNavAuthorityProvider`**).
+ *
+ * @see `authority-seam-regression.test.ts`, `use-enterprise-mutation-capability.test.tsx`,
+ *   `OperatorNavAuthorityProvider.test.tsx`, `enterprise-mutation-capability.test.ts`
  */
 export function enterpriseMutationCapabilityFromRank(rank: number): boolean {
   return rank >= AUTHORITY_RANK.ExecuteAuthority;

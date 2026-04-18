@@ -22,10 +22,12 @@ export type NavGroupWithVisibleLinks = {
  * rendering a group when this returns an empty array to avoid empty headings.
  *
  * **Not authorization:** visible links do not guarantee successful HTTP calls — **ArchLucid.Api** policies return 401/403.
- * **Packaging:** **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* + *Contributor drift guard*).
+ * **Packaging:** **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* + *Contributor drift guard*). Pass the same rank source as
+ * **`OperatorNavAuthorityProvider`** (**`useNavCallerAuthorityRank()`**), not a stale or ad-hoc rank.
  *
  * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (includes Core Pilot invariants).
- * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority.
+ * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip.
+ * @see `OperatorNavAuthorityProvider.test.tsx` — conservative rank during JWT `/me` refetch (feeds this module indirectly).
  */
 export function filterNavLinksForOperatorShell(
   links: ReadonlyArray<NavLinkItem>,
