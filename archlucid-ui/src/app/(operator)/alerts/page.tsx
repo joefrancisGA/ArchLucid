@@ -191,13 +191,8 @@ export default function AlertsPage() {
     <main className="mx-auto max-w-3xl">
       <LayerHeader pageKey="alerts" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
-      <p className="max-w-prose text-sm font-medium leading-snug text-neutral-800 dark:text-neutral-200">
-        Inbox: filter and read signals first; triage only when a row needs a state change. Rules, routing, and tuning are
-        off this page.
-      </p>
-      <p className="mt-1 max-w-prose text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-        First pilot: skip if alerts are not in scope. Dedupe spans statuses; shortcuts use the same gate as triage
-        buttons below.
+      <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+        Filter and read first; triage only to change state on a row. Alt+ shortcuts mirror the triage buttons below.
       </p>
       <AlertsInboxRankCue />
 

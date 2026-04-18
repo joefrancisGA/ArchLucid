@@ -94,8 +94,8 @@ export default function AlertRoutingPage() {
     <main style={{ maxWidth: 800 }}>
       <LayerHeader pageKey="alert-routing" />
       <h2 style={{ marginTop: 0 }}>Alert routing</h2>
-      <p style={{ color: "#1e293b", fontSize: 14, maxWidth: "40rem", fontWeight: 600, marginBottom: 6 }}>
-        Inspect current delivery targets first; create or toggle subscriptions in the section below.
+      <p className="mb-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Subscriptions and delivery history first; add or toggle below.
       </p>
       <AlertOperatorToolingRankCue />
 

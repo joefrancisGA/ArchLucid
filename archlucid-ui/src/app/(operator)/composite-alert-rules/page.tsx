@@ -114,8 +114,8 @@ export default function CompositeAlertRulesPage() {
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="composite-alert-rules" />
       <h2 style={{ marginTop: 0 }}>Composite alert rules</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
-        Inspect defined composites above; add or edit using the form below.
+      <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Defined composites first; create with the form below.
       </p>
       <AlertOperatorToolingRankCue />
 

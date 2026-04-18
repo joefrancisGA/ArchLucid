@@ -78,8 +78,8 @@ export default function AlertRulesPage() {
     <main style={{ maxWidth: 800 }}>
       <LayerHeader pageKey="alert-rules" />
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
-        Inspect current rules above; define new thresholds in the change section below.
+      <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Current rules first; new thresholds in the section below.
       </p>
       <AlertOperatorToolingRankCue />
 

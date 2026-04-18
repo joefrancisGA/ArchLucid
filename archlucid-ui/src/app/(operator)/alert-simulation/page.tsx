@@ -287,9 +287,8 @@ export default function AlertSimulationPage() {
     <main style={{ maxWidth: 1100 }}>
       <LayerHeader pageKey="alert-simulation" />
       <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem", marginBottom: 12 }}>
-        Dry-run simple, composite, or threshold-compare tabs against recent runs before changing production rules. Live
-        triage stays on Alerts.
+      <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Dry-run tabs on recent runs before changing production rules. Live triage stays on Alerts.
       </p>
       <AlertOperatorToolingRankCue />
 
