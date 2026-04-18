@@ -1,4 +1,8 @@
+"use client";
+
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { LAYER_PAGE_GUIDANCE, type LayerGuidancePageKey } from "@/lib/layer-guidance";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 export type LayerHeaderProps = {
   pageKey: LayerGuidancePageKey;
@@ -8,9 +12,20 @@ export type LayerHeaderProps = {
 /**
  * Compact route-level reminder of which product layer the page belongs to and
  * when to use it. Keeps copy short per docs/OPERATOR_DECISION_GUIDE.md.
+ *
+ * For Enterprise Controls pages, this header also adds a small rank-aware cue so
+ * reader-tier visitors get an explicit read/evidence framing while operator+
+ * visitors get a concise operational framing. API enforcement remains authoritative.
  */
 export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
   const block = LAYER_PAGE_GUIDANCE[pageKey];
+  const callerAuthorityRank = useNavCallerAuthorityRank();
+  const enterpriseRankCue =
+    block.layerBadge === "Enterprise Controls"
+      ? callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+        ? "Read-focused surface in this shell; deeper change and triage controls follow operator-level access where configured."
+        : "Operator-oriented surface in this shell; write paths remain API-enforced by role."
+      : null;
 
   return (
     <aside
@@ -31,6 +46,11 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
       {block.enterpriseFootnote ? (
         <p className="m-0 mt-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
           {block.enterpriseFootnote}
+        </p>
+      ) : null}
+      {enterpriseRankCue ? (
+        <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400" role="note">
+          {enterpriseRankCue}
         </p>
       ) : null}
     </aside>
