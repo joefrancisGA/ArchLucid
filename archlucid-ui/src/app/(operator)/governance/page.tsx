@@ -398,11 +398,11 @@ function GovernanceWorkflowPageInner() {
     <main className="mx-auto max-w-4xl">
       <LayerHeader pageKey="governance-workflow" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance workflow</h2>
-      <EnterpriseControlsExecutePageHint />
-      <EnterpriseExecutePlusPageCue message={enterpriseGovernanceWorkflowOperatorPlusLine} />
-      <p className="max-w-prose text-sm font-medium leading-snug text-neutral-800 dark:text-neutral-200">
+      <p className="max-w-prose text-sm leading-snug text-neutral-700 dark:text-neutral-300">
         One run: load rows below, then submit → approve/reject → promote → activate (per environment).
       </p>
+      <EnterpriseControlsExecutePageHint />
+      <EnterpriseExecutePlusPageCue message={enterpriseGovernanceWorkflowOperatorPlusLine} />
 
       {toast ? (
         <div

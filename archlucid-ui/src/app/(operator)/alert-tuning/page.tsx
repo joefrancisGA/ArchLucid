@@ -202,8 +202,8 @@ export default function AlertTuningPage() {
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="alert-tuning" />
       <h2 style={{ marginTop: 0 }}>Alert tuning</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
-        Nudge thresholds from scored simulation output—apply only when noise or coverage is measurable.
+      <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Apply scored simulation output only when noise or coverage is measurable.
       </p>
       <AlertOperatorToolingRankCue />
 

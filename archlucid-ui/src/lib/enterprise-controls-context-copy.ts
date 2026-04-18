@@ -43,10 +43,10 @@ export const enterpriseExecutePageHintReaderRank =
 
 /** Second line on governance resolution — readers vs operators (see `GovernanceResolutionRankCue`). */
 export const governanceResolutionRankReaderLine =
-  "Read-focused evidence surface for effective policy in this scope.";
+  "Read-only here; pack and assignment changes use policy packs or workflow (API policy).";
 
 export const governanceResolutionRankOperatorLine =
-  "Read-focused evidence surface; change assignments via policy packs or governance workflow.";
+  "Ordering and assignments live in policy packs or governance workflow—not this page.";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
 export const governanceDashboardReaderActionLine =
@@ -54,21 +54,21 @@ export const governanceDashboardReaderActionLine =
 
 /** Governance workflow page — shown when resolved rank is operator+ (Reader already gets `EnterpriseControlsExecutePageHint`). */
 export const enterpriseGovernanceWorkflowOperatorPlusLine =
-  "Operator/admin surface for approvals, promotions, and activation. The API enforces who may write.";
+  "Submit, approve/reject, promote, activate—API enforces who may write.";
 
 /** Policy packs — operator+ reminder (Readers see write hint via `EnterpriseControlsExecutePageHint`). */
 export const enterprisePolicyPacksOperatorPlusLine =
-  "Read/compare first; lifecycle (create, publish, assign) is configuration—API-enforced.";
+  "Compare and read first; lifecycle writes are API-enforced.";
 
 /**
  * Alert rules / routing / simulation / tuning / composite — single rank-aware cue (`AlertOperatorToolingRankCue`).
  * Stacked Execute hint + operator line were consolidated into this pair.
  */
 export const alertOperatorToolingReaderRankLine =
-  "Read-focused inspection and simulation; rule and routing changes are operator/admin surface (API policy). Not required for Core Pilot.";
+  "Inspect and simulate first; writes stay operator/admin (API). Not required for Core Pilot.";
 
 export const alertOperatorToolingOperatorRankLine =
-  "Operator/admin configuration surface; writes API-enforced by role. Not required for Core Pilot.";
+  "Operator/admin writes; API-enforced by role. Not required for Core Pilot.";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
 export const alertsInboxRankReaderLine =

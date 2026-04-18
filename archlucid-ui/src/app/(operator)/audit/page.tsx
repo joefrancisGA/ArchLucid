@@ -226,9 +226,8 @@ export default function AuditPage() {
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
-      <p style={{ color: "#1e293b", fontSize: 14, maxWidth: "40rem", fontWeight: 600, marginBottom: 6 }}>
-        Search events below; bounded CSV export is at the end (From/To + Auditor/Admin on the API). Not Core Pilot by
-        default.
+      <p className="mb-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        Filters and results below; CSV export is last and needs From/To plus Auditor or Admin on the API.
       </p>
       <AuditLogRankCue />
 

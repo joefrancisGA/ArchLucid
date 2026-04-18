@@ -15,7 +15,7 @@ describe("EnterpriseControlsContextHints (page-level rank cues)", () => {
     render(<GovernanceResolutionRankCue />);
 
     expect(
-      screen.getByText(/Read-focused evidence surface; change assignments via policy packs or governance workflow/i),
+      screen.getByText(/Ordering and assignments live in policy packs or governance workflow—not this page/i),
     ).toBeInTheDocument();
   });
 
@@ -50,6 +50,6 @@ describe("EnterpriseControlsContextHints (page-level rank cues)", () => {
   it("AlertOperatorToolingRankCue renders operator line outside shell provider (default Admin rank)", () => {
     render(<AlertOperatorToolingRankCue />);
 
-    expect(screen.getByText(/Operator\/admin configuration surface; writes API-enforced by role/i)).toBeInTheDocument();
+    expect(screen.getByText(/Operator\/admin writes; API-enforced by role/i)).toBeInTheDocument();
   });
 });

@@ -60,7 +60,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "governance-dashboard": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which cross-run approvals and governance signals need attention?",
-    useWhen: "Queue with refresh—not run-by-run artifact review.",
+    useWhen: "Cross-run breadth with refresh; per-run artifacts and workflow stay on their own routes.",
     firstPilotNote: "Skip until cross-run signals are in scope.",
     enterpriseFootnote:
       "Cross-run evidence; writes are operator/admin. Not required for Core Pilot.",
@@ -68,14 +68,14 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   alerts: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what risk or compliance signals fired and need triage?",
-    useWhen: "Read and filter the inbox first; changing how signals fire is a different surface.",
+    useWhen: "Page and filter the inbox; thresholds, routing, and tuning live under Alert tooling.",
     firstPilotNote: "Defer deeper config until alerts are a pilot requirement.",
     enterpriseFootnote: "Inbox first; rules, routing, tuning are follow-on depth.",
   },
   audit: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: tenant audit trail—who did what, when?",
-    useWhen: "Search in scope; export needs a bounded From/To window.",
+    useWhen: "Filter in scope, read rows here; export needs a bounded From/To window.",
     firstPilotNote: "Skip until audit evidence is a pilot requirement.",
     enterpriseFootnote: "Evidence search and bounded export. Not required for Core Pilot.",
   },
@@ -90,7 +90,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "governance-workflow": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: run-scoped submit, approve/reject, promote, and activate?",
-    useWhen: "One run at a time—not day-one artifact review.",
+    useWhen: "One run: workflow rows at a time; first pilot value stays request → commit → artifacts.",
     firstPilotNote: "Skip until promotions and segregation of duties apply.",
     enterpriseFootnote:
       "Operator/admin surface for approvals and activation. API enforces writes. Not required for Core Pilot.",
@@ -98,7 +98,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "policy-packs": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what packs exist, what is published, and what applies in this scope?",
-    useWhen: "Inspect inventory and effective JSON first; lifecycle when governance owns changes.",
+    useWhen: "Effective JSON and inventory before lifecycle work—only when packs are your remit.",
     firstPilotNote: "Skip until policy control is explicit.",
     enterpriseFootnote:
       "Read/compare first; create, publish, assign are configuration (API-enforced). Not required for Core Pilot.",
