@@ -1,13 +1,39 @@
 /**
  * UI read-model for the authenticated operator principal.
  *
- * **Source of truth:** `GET /api/auth/me` on the C# API (`ArchLucid.Api.Controllers.Admin.AuthDebugController`),
- * same contract as `CallerIdentityResponse` / `CallerClaimResponse` (name + claims[]).
- * The browser reaches it via same-origin **`/api/proxy/api/auth/me`** (see `src/app/api/proxy/[...path]/route.ts`).
+ * ## Endpoint and JSON shape
  *
- * This module is intentionally narrow: one fetch shape, one normalization path, no token lifecycle beyond
- * what `@/lib/oidc/session` already provides. **Do not duplicate backend authorization** — use this only for
- * UX shaping (nav, banners, copy). The API remains authoritative for 401/403.
+ * - **Upstream API:** `GET /api/auth/me` (`ArchLucid.Api.Controllers.Admin.AuthDebugController`), same body as
+ *   **`CallerIdentityResponse`**: `{ "name": string | null, "claims": [ { "type", "value" }, ... ] }`.
+ * - **Browser (same-origin):** `GET /api/proxy/api/auth/me` — forwards bearer / API key + scope headers; see
+ *   `src/app/api/proxy/[...path]/route.ts`.
+ *
+ * ## Public API (use these; do not add parallel `/me` clients)
+ *
+ * - **`loadCurrentPrincipal` / `getCurrentPrincipal`** — full **`CurrentPrincipal`** (name, roles, rank, flags).
+ * - **`getCurrentAuthority`** — `ReadAuthority` | `ExecuteAuthority` | `AdminAuthority` only.
+ * - **`getCurrentAuthorityRank`** — numeric rank (see **`AUTHORITY_RANK`** in `nav-authority.ts`).
+ * - **`normalizeAuthMeResponse`** — pure parse for tests or callers that already have JSON.
+ * - **`buildAuthMeProxyRequestInit`** — shared `RequestInit` (bearer + registration scope) for `/me` or diagnostics.
+ *
+ * ## Role → policy normalization (UX only; server enforces policies)
+ *
+ * App roles are read from Entra-style **`roles`** and **`ClaimTypes.Role`** claims (`nav-authority.ts`).
+ * Highest role wins; unknown roles contribute nothing (then Reader default rank applies in **`maxAuthorityRankFromMeClaims`**).
+ *
+ * | App role (claim) | `maxAuthority`        | `authorityRank` | `hasEnterpriseOperatorSurfaces` |
+ * |------------------|----------------------|-----------------|-----------------------------------|
+ * | Reader, Auditor  | `ReadAuthority`      | 1               | false                             |
+ * | Operator         | `ExecuteAuthority`   | 2               | true                              |
+ * | Admin            | `AdminAuthority`     | 3               | true                              |
+ *
+ * ## Resilience (no full auth client)
+ *
+ * Synthetic **`CurrentPrincipal`** (conservative **Read**) when: non-browser SSR, JWT unsigned session, `/me` non-OK,
+ * or network error — see **`CurrentPrincipalSyntheticReason`**. **`OperatorNavAuthorityProvider`** mirrors this for nav;
+ * prefer **`useOperatorNavAuthority().currentPrincipal`** in the shell so shaping stays aligned.
+ *
+ * **Do not duplicate backend authorization** — use this only for UX shaping. The API remains authoritative for 401/403.
  */
 
 import {
