@@ -56,6 +56,25 @@ Use this layer when the next question is governance or trust:
 - alerts,
 - or operational control.
 
+### First-wave role-native hardening
+
+The first hardening pass now treats the most operational Enterprise Controls surfaces as explicitly **operator/admin-oriented** in the navigation and link descriptions rather than as neutral feature links.
+
+This first wave is intentionally narrow and currently covers:
+
+- **Alert rules**
+- **Alert routing**
+- **Composite rules**
+- **Alert simulation**
+- **Alert tuning**
+- **Policy packs**
+- **Governance resolution**
+- **Governance dashboard**
+- **Governance workflow**
+- **Audit log**
+
+This is a boundary-hardening step for clarity and operational accountability. It is **not** licensing, billing, or plan gating.
+
 - **Governance dashboard / Policy packs / Governance resolution** — approval workflows, segregation of duties, effective policy. Enable **Show more links**.
 - **Alerts** — open and acknowledged alerts (essential tier by default); rules, routing, and tuning via **Show advanced links**.
 - **Audit log** — append-only event search and CSV export. Enable **Show advanced links**.
@@ -72,6 +91,7 @@ Use this layer when the next question is governance or trust:
 | [Executive sponsor brief](../docs/EXECUTIVE_SPONSOR_BRIEF.md) | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters. |
 | [Pilot ROI model](../docs/PILOT_ROI_MODEL.md) | **How to judge pilot success:** measures, scorecard, sponsor-ready outcome language. |
 | [Operator decision guide](../docs/OPERATOR_DECISION_GUIDE.md) | **Which layer to use next:** stay narrow unless a real question requires expansion. |
+| [Commercial boundary hardening sequence](../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) | **What should harden first:** UI shaping → role-native boundaries → selective future commercialization. |
 | [Operator quickstart](../docs/OPERATOR_QUICKSTART.md) | **Pilots / operators:** commands, health, first run. |
 | [Product learning (58R)](../docs/PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export. |
 | [Troubleshooting (56R)](../docs/TROUBLESHOOTING.md) | Common failures (health, auth, SQL, proxy). |
