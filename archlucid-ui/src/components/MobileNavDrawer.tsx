@@ -15,8 +15,8 @@ import {
 import { EnterpriseControlsNavGroupHint } from "@/components/EnterpriseControlsContextHints";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
-import { NAV_GROUPS, type NavLinkItem } from "@/lib/nav-config";
-import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
+import { NAV_GROUPS } from "@/lib/nav-config";
+import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
@@ -50,19 +50,12 @@ export function MobileNavDrawer() {
             <DialogTitle className="text-base">Operator navigation</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 px-3 py-3">
-            {NAV_GROUPS.map((group) => {
-              const visibleLinks: NavLinkItem[] = filterNavLinksForOperatorShell(
-                group.links,
-                showExtended,
-                showAdvanced,
-                callerAuthorityRank,
-              );
-
-              if (visibleLinks.length === 0) {
-                return null;
-              }
-
-              return (
+            {listNavGroupsVisibleInOperatorShell(
+              NAV_GROUPS,
+              showExtended,
+              showAdvanced,
+              callerAuthorityRank,
+            ).map(({ group, visibleLinks }) => (
               <div key={group.id}>
                 <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                   <span className="block">{group.label}</span>
@@ -104,8 +97,7 @@ export function MobileNavDrawer() {
                   })}
                 </nav>
               </div>
-            );
-            })}
+            ))}
             <p className="text-xs text-neutral-600 dark:text-neutral-400" aria-keyshortcuts="Shift+?">
               Press Shift+? for help and keyboard shortcuts
             </p>

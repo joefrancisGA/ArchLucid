@@ -18,8 +18,8 @@ import { Label } from "@/components/ui/label";
 import { EnterpriseControlsNavGroupHint } from "@/components/EnterpriseControlsContextHints";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
-import { NAV_GROUPS, type NavLinkItem } from "@/lib/nav-config";
-import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
+import { NAV_GROUPS } from "@/lib/nav-config";
+import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
@@ -79,18 +79,13 @@ export function SidebarNav() {
 
   return (
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
-      {NAV_GROUPS.map((group) => {
+      {listNavGroupsVisibleInOperatorShell(
+        NAV_GROUPS,
+        showExtended,
+        showAdvanced,
+        callerAuthorityRank,
+      ).map(({ group, visibleLinks }) => {
         const isOpen = !mounted || openByGroup[group.id] !== false;
-        const visibleLinks: NavLinkItem[] = filterNavLinksForOperatorShell(
-          group.links,
-          showExtended,
-          showAdvanced,
-          callerAuthorityRank,
-        );
-
-        if (visibleLinks.length === 0) {
-          return null;
-        }
 
         return (
           <Collapsible
