@@ -174,7 +174,9 @@ export function SidebarNav() {
               <div className="space-y-0.5">
                 <Label htmlFor="nav-extended">Show extended links</Label>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  Compare, replay, Ask, policy tools, and similar.
+                  <strong>Advanced Analysis:</strong> compare, replay, graph, advisory, pilot feedback,
+                  recommendation learning.{" "}
+                  <strong>Enterprise Controls:</strong> policy packs, governance dashboard, governance resolution.
                 </p>
               </div>
               <input
@@ -191,7 +193,8 @@ export function SidebarNav() {
               <div className="space-y-0.5">
                 <Label htmlFor="nav-advanced">Show advanced links</Label>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                  Alert tuning, audit, schedules, and other infrequent pages. Requires extended links.
+                  <strong>Enterprise Controls:</strong> audit log, alert rules, alert routing, alert tuning,
+                  governance workflow, schedules. Requires extended links to be on.
                 </p>
               </div>
               <input

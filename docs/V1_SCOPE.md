@@ -1,6 +1,6 @@
 # ArchLucid V1 — scope contract
 
-**Audience:** product, engineering, pilots, and operators who need a single, decisive boundary for what “V1” means in **this repository**.
+**Audience:** product, engineering, pilots, and operators who need a single, decisive boundary for what "V1" means in **this repository**.
 
 **Status:** Contract for the current codebase and docs. It describes what is **implemented and supportable today**, not a roadmap of net-new capabilities.
 
@@ -20,68 +20,102 @@ For deeper flow detail, use [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md)
 
 ---
 
-## 2. In scope for V1
+## 2. In scope for V1 — organized by product layer
 
-### 2.1 Run lifecycle: request → run → execute → commit
+V1 capabilities map to three product layers. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full inventory and [CORE_PILOT.md](CORE_PILOT.md) for the first-pilot walkthrough.
+
+---
+
+### Layer 1 — Core Pilot
+
+The minimum set every pilot must complete. Delivered by default; no additional configuration beyond API + SQL.
+
+#### 2.1 Run lifecycle: request → execute → commit
 
 - Create a **run** from a structured **architecture request** (`POST /v1/architecture/request`).
-- Drive the run through **execution** (e.g. `POST /v1/architecture/run/{runId}/execute`) so agent work completes under the configured **simulator or real** execution mode.
-- **Commit** a **golden manifest** when the run is ready (`POST /v1/architecture/run/{runId}/commit`), with documented state and conflict behavior ([API_CONTRACTS.md](API_CONTRACTS.md)).
-- The product supports both the **coordinator string-run** path and the **authority ingestion** path; both converge on **manifests, artifacts, and review** ([DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md)). V1 does not require pilots to master both internals—only to complete an end-to-end outcome they care about (committed manifest + artifacts).
+- Drive the run through **execution** so agent work completes under the configured **simulator or real** execution mode.
+- **Commit** a **golden manifest** (`POST /v1/architecture/run/{runId}/commit`), with documented state and conflict behavior ([API_CONTRACTS.md](API_CONTRACTS.md)).
+- Both the **coordinator string-run** path and the **authority ingestion** path converge on manifests, artifacts, and review ([DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md)).
 
-### 2.2 Manifest and artifact review
+#### 2.2 Manifest and artifact review
 
-- **API:** list and download manifest-scoped artifacts; export-related endpoints as documented in OpenAPI/Swagger.
-- **CLI:** inspect runs and artifacts (e.g. `artifacts`, `status`) per [CLI_USAGE.md](CLI_USAGE.md).
-- **Operator UI (`archlucid-ui`):** runs list, run detail, manifest summary, **artifact list, review, and download** ([operator-shell.md](operator-shell.md)).
+- **API:** list and download manifest-scoped artifacts; export-related endpoints per OpenAPI/Swagger.
+- **CLI:** `artifacts`, `status` per [CLI_USAGE.md](CLI_USAGE.md).
+- **Operator UI:** runs list, run detail, manifest summary, artifact review, and download ([operator-shell.md](operator-shell.md)).
 
-### 2.3 Compare
+#### 2.3 Export and package generation
 
-- **Two-run** comparison (structured golden-manifest deltas and legacy diff surfaces) and persistence/replay of comparison records where the API supports it ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md), [COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
+- **Markdown/DOCX** exports and **replay** from persisted export records ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)).
+- **ZIP** downloads (bundle and run-export) from run detail.
+
+#### 2.4 Deployability and supportability
+
+- **Container images** and **docker compose** profiles ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
+- **SQL Server** persistence via DbUp migrations; automatic on startup ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)).
+- **Health:** `/health/live`, `/health/ready`, `/health`; `GET /version` for support attribution.
+- **Correlation IDs**, **CLI diagnostics** (`doctor`, `support-bundle`), and **Troubleshooting** runbooks.
+- **Authentication modes:** development bypass, JWT bearer, API key ([README.md](../README.md)).
+- **Infrastructure-as-code** examples (Terraform modules under `infra/`).
+
+---
+
+### Layer 2 — Advanced Analysis
+
+Deeper investigation and comparison tools. Available once you have at least one committed run. In the operator UI, enable via **Show more links** in the sidebar.
+
+#### 2.5 Compare
+
+- **Two-run** comparison: structured golden-manifest deltas + legacy diff + optional AI explanation ([COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)).
 - Operator UI: **Compare runs** workflow ([operator-shell.md](operator-shell.md)).
 
-### 2.4 Replay
+#### 2.6 Replay
 
-- **Comparison replay** (artifact vs regenerate vs verify modes) for persisted comparison records ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)).
-- **Run replay** (authority chain replay with validation surfaced in the operator shell) ([operator-shell.md](operator-shell.md)).
+- **Comparison replay** (artifact vs regenerate vs verify modes) for persisted comparison records.
+- **Run replay** (authority chain re-validation) with validation flags surfaced in the operator shell.
 
-### 2.5 Graph
+#### 2.7 Graph
 
-- **Knowledge / provenance / architecture graph** exploration for a **single run** in the operator UI ([operator-shell.md](operator-shell.md), [KNOWLEDGE_GRAPH.md](KNOWLEDGE_GRAPH.md)).
+- **Knowledge / provenance / architecture graph** for a single run in the operator UI ([KNOWLEDGE_GRAPH.md](KNOWLEDGE_GRAPH.md)).
 
-### 2.6 Export and package generation
+#### 2.8 Advisory, Q&A, and pilot signals
 
-- Build **exports** (e.g. Markdown/DOCX and related formats as implemented) and **replay** from persisted export records ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)).
-- **ZIP** downloads where the API and UI expose bundles ([operator-shell.md](operator-shell.md)).
+- **Ask** — natural-language queries against architecture context.
+- **Advisory scans** — architecture digests and scheduled scans.
+- **Pilot feedback** — rollup and triage of product learning signals.
+- **Recommendation learning** — learning profiles per run.
+- **Integration events** (optional Azure Service Bus, CloudEvents envelope, webhooks) ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
 
-### 2.7 Deployability
+---
 
-- **Container images** and **docker compose** profiles documented ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
-- **SQL Server** persistence via **DbUp** migrations on startup when using Sql storage ([SQL_SCRIPTS.md](SQL_SCRIPTS.md), [BUILD.md](BUILD.md)).
-- **Health:** liveness and readiness endpoints; readiness reflects configured dependencies (e.g. SQL when not InMemory) ([README.md](../README.md)).
-- **Version identity:** `GET /version` (and related health JSON) for support and release attribution.
-- **Infrastructure-as-code** examples exist for Azure-oriented deployment (Terraform modules under `infra/`); exact production topology remains the customer’s responsibility within documented variables and runbooks.
+### Layer 3 — Enterprise Controls
 
-### 2.8 Supportability
+Governance, auditability, and compliance tooling. Configuration-driven; most features require explicit enablement per environment. Full surface visible after enabling extended/advanced links in the sidebar.
 
-- **Correlation:** `X-Correlation-ID` (and related guidance) for log alignment ([API_CONTRACTS.md](API_CONTRACTS.md)).
-- **CLI diagnostics:** `doctor`, **support bundle** (review before sharing) ([PILOT_GUIDE.md](PILOT_GUIDE.md), [CLI_USAGE.md](CLI_USAGE.md)).
-- **Troubleshooting** and **runbooks** linked from [ARCHITECTURE_INDEX.md](ARCHITECTURE_INDEX.md) (e.g. [TROUBLESHOOTING.md](TROUBLESHOOTING.md)).
+#### 2.9 Governance workflows
 
-### 2.9 Pilot readiness
+- **Approval workflow** with segregation of duties (self-approval blocked), SLA tracking, and webhook escalation on breach.
+- **Pre-commit governance gate** — `ArchLucid:Governance:PreCommitGateEnabled` blocks manifest commit when findings exceed configured severity thresholds ([PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md)).
+- **Policy packs** — versioned rule sets with scope assignments and effective governance resolution.
+- **Governance dashboard** — cross-run pending approvals and policy change summary.
 
-- Documented **minimum setup**, **first successful run** (Swagger or CLI), and **readiness scripts** ([PILOT_GUIDE.md](PILOT_GUIDE.md), [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
-- **Authentication modes** suitable for dev and production-style pilots: development bypass, JWT bearer, API key ([README.md](../README.md)).
+#### 2.10 Audit and compliance
 
-### 2.10 Optional but real (still V1, not required for every pilot)
+- **78 typed audit events** in an append-only SQL store with CSV export ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md)).
+- **Audit log** — filter by event type, actor, run ID, correlation ID, time window.
+- **Row-level security (RLS)** — SQL `SESSION_CONTEXT` tenant isolation ([security/MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md)).
+- **Compliance drift trend** — tracking and operator UI chart.
 
-These exist in the repo and may be turned on per environment; they are **not** prerequisites for the core operator happy path:
+#### 2.11 Alerts
 
-- **Integration events** (optional Azure Service Bus, transactional outbox, worker consumer with logging handler) ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
-- **Webhooks** / digest delivery with CloudEvents envelope options (same doc).
-- **Governance workflow** tables and APIs where enabled ([DATA_MODEL.md](DATA_MODEL.md), SQL migration history).
-- **Alerts**, **advisory scans**, **retrieval indexing**, **Ask** threads — operational features documented elsewhere ([ALERTS.md](ALERTS.md), [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md)).
-- **Pre-commit governance gate** — optional **`ArchLucid:Governance:PreCommitGateEnabled`** blocks manifest commit when **Critical** findings exist under a **`BlockCommitOnCritical`** assignment ([PRE_COMMIT_GOVERNANCE_GATE.md](PRE_COMMIT_GOVERNANCE_GATE.md)).
+- **Alert rules, routing, composite rules, tuning** — configurable alert pipeline.
+- **Alert inbox** — open and acknowledged alerts with correlation to runs and manifests.
+- **Alert simulation** — evaluate rules against synthetic payloads.
+
+#### 2.12 Trust and access
+
+- **Entra ID / JWT bearer, API key, RBAC roles** (Admin / Operator / Reader / Auditor).
+- **Private endpoints** and WAF Terraform modules; no SMB/445 public exposure.
+- **DPA template, subprocessors register, SOC 2 roadmap** ([go-to-market/TRUST_CENTER.md](go-to-market/TRUST_CENTER.md)).
 
 ---
 
@@ -90,7 +124,7 @@ These exist in the repo and may be turned on per environment; they are **not** p
 | Area | Rationale |
 |------|-----------|
 | **Advanced autonomous planning** | Agents are **orchestrated** with explicit tasks and execution modes; V1 does not promise open-ended self-directed multi-step planning beyond what the implemented pipelines already do. |
-| **Broad event-bus integrations** | Optional publish/consume paths exist; V1 does **not** include a guaranteed catalog of enterprise integrations, mapping tools, or “any message bus” adapters. Custom consumers are customer-owned. |
+| **Broad event-bus integrations** | Optional publish/consume paths exist; V1 does **not** include a guaranteed catalog of enterprise integrations, mapping tools, or "any message bus" adapters. Custom consumers are customer-owned. |
 | **VS Code (or IDE) shell integration** | No committed product surface for a VS Code–native operator experience; CLI and HTTP remain the primary integration points outside the web UI. |
 | **Multi-region active/active product guarantees** | Documentation may describe **tier targets** and failover runbooks ([RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md)); V1 does not promise a fully specified multi-region SaaS topology out of the box. |
 | **Speculative ecosystem** | Marketplace plugins, third-party agent stores, and similar ecosystem features are **not** V1 commitments. |
@@ -113,14 +147,22 @@ The **Core Pilot path** is the minimum journey every pilot must complete. It map
 
 This is the complete first-pilot deliverable. Nothing beyond step 6 is required to call a pilot successful.
 
-### 4.2 Extended operations (available but not required for the Core Pilot)
+### 4.2 Advanced Analysis (available but not required for the Core Pilot)
 
-Enable these once you have at least one committed run. In the operator UI, click **Show more links** in the sidebar to surface Graph, Compare, and Replay.
+Enable these once you have at least one committed run. In the operator UI, click **Show more links** in the sidebar.
 
 - **Compare** two runs (`/compare`) — structured manifest deltas + legacy diff.
 - **Replay** a run (`/replay`) — re-validate the authority chain and surface drift flags.
 - **Graph** (`/graph`) — visual provenance or architecture graph for a single run ID.
 - **Export** — download bundle ZIP and run-export ZIP from run detail → Artifacts.
+
+### 4.3 Enterprise Controls (available but not required for the Core Pilot)
+
+Enable extended and advanced links in the sidebar to surface the full Enterprise Controls surface.
+
+- **Governance** — approval workflows, policy packs, pre-commit gate, governance dashboard.
+- **Audit** — append-only audit log, CSV export, compliance drift tracking.
+- **Alerts** — rules, routing, composite rules, simulation, tuning.
 
 Optional: run **readiness** or **release-smoke** before a demo ([PILOT_GUIDE.md](PILOT_GUIDE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
 
@@ -147,6 +189,8 @@ These are **practical gates** already encoded or described in-repo—not an exha
 
 | Doc | Use |
 |-----|-----|
+| [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) | **Three-layer capability inventory:** Core Pilot · Advanced Analysis · Enterprise Controls |
+| [CORE_PILOT.md](CORE_PILOT.md) | First-pilot walkthrough (4 steps) |
 | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | Actionable pre-handoff checklist (scope freeze, deploy, health, operator flow, exports, recovery) |
 | [V1_DEFERRED.md](V1_DEFERRED.md) | Doc inventory: V1.1+ candidates, audit gaps, Phase 7 rename, infra polish, maintainer backlog |
 | [PILOT_GUIDE.md](PILOT_GUIDE.md) | Pilot onboarding narrative |

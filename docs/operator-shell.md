@@ -6,7 +6,15 @@
 
 ## What it is
 
-A read-focused **operator shell**: inspect runs, manifests, and synthesized artifacts; compare runs; replay authority chains; explore provenance/architecture graphs; download ZIPs. It is not a replacement for Swagger or the CLI.
+A read-focused **operator shell** for the three ArchLucid product layers:
+
+| Layer | What you do here |
+|-------|-----------------|
+| **Core Pilot** | Create runs, track execution, commit manifests, review and download artifacts |
+| **Advanced Analysis** | Compare runs, replay authority chains, explore provenance graphs, run Q&A and advisory scans |
+| **Enterprise Controls** | Governance approvals, policy packs, audit log, alerts, compliance drift |
+
+It is not a replacement for Swagger or the CLI. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full capability inventory.
 
 ---
 
@@ -21,14 +29,25 @@ These four steps cover the complete first-pilot journey. They map directly to th
 3. **Run detail** — **Pipeline timeline** lists run-scoped audit events (oldest first) from **`GET /v1/authority/runs/{runId}/pipeline-timeline`**. After commit, you see manifest summary, **Artifacts** (table with **Review** / **Download**).
 4. **Manifest / artifact** — From the golden manifest link or **Review**, you land on manifest-scoped or artifact review pages: metadata, in-shell preview (when available), raw disclosure, sibling artifact list.
 
-### Extended operations (available once you have a committed run)
+### Advanced Analysis (available once you have a committed run)
 
-Enable these by clicking **Show more links** in the sidebar footer.
+Enable these by clicking **Show more links** in the sidebar footer. These are **Advanced Analysis** layer features.
 
 5. **Compare / replay** — **Compare runs**: enter base (left) and target (right) run IDs; structured manifest deltas first, then legacy flat diff; optional AI explanation. **Replay run**: pick mode and read validation flags/notes.
 6. **Graph** — Enter a **run ID** (from Runs or run detail), choose a view (full provenance, decision subgraph, neighborhood, architecture), **Load graph**. Use this when you need a **visual** graph, not the tabular compare flow.
+7. **Ask / Advisory / Pilot feedback** — natural-language queries against architecture context; advisory scan results and digests; pilot feedback rollups.
 
 Breadcrumb links on key pages tie **Home · Runs · Compare · Graph** together.
+
+### Enterprise Controls (require extended or advanced links)
+
+These are **Enterprise Controls** layer features. Most require an operator or admin role and may require explicit configuration per environment (see `docs/PRE_COMMIT_GOVERNANCE_GATE.md`, `docs/ALERTS.md`).
+
+- **Governance dashboard** — cross-run pending approvals and policy changes. Enable **Show more links**.
+- **Policy packs / Governance resolution** — versioned rule sets and effective policy view. Enable **Show more links**.
+- **Audit log** — append-only search, filter, and CSV export. Enable **Show advanced links**.
+- **Alerts / Alert rules / Routing / Tuning** — configurable alert pipeline. Alerts (inbox) are **essential** tier; rules, routing, and tuning require **Show advanced links**.
+- **Governance workflow** — full approval, promotion, and activation surface. Enable **Show advanced links**.
 
 ---
 

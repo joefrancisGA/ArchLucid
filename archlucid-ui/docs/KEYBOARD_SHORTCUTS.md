@@ -34,7 +34,7 @@ Registry: [`src/lib/shortcut-registry.ts`](../src/lib/shortcut-registry.ts) (`SH
 
 ## Page-specific: Alerts (`/alerts`)
 
-Focus an alert card (`role="article"`, `tabIndex={0}`, `data-alert-id`) or a control inside it. Implemented in [`useAlertCardShortcuts`](../src/hooks/useAlertCardShortcuts.ts) on [`alerts/page.tsx`](../src/app/alerts/page.tsx).
+Focus an alert card (`role="article"`, `tabIndex={0}`, `data-alert-id`) or a control inside it. Implemented in [`useAlertCardShortcuts`](../src/hooks/useAlertCardShortcuts.ts) on [`alerts/page.tsx`](../src/app/%28operator%29/alerts/page.tsx).
 
 | Combo | Action |
 |-------|--------|
