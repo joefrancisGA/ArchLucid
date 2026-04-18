@@ -204,7 +204,7 @@ export default function AlertTuningPage() {
   return (
     <main style={{ maxWidth: 900 }}>
       <h2 style={{ marginTop: 0 }}>Alert tuning</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: 42rem }}>
+      <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
         <strong>Suggest thresholds</strong> from simulated candidates (same evaluators as production), balancing noise vs
         coverage for a target alert band.
       </p>

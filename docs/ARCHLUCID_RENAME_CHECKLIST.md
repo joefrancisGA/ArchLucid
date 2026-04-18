@@ -114,6 +114,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 
 | Date | Batch | Notes |
 |------|-------|-------|
+| 2026-04-18 | **`archlucid-ui`** — inline style `rem` values quoted for SWC/Next build | Operator pages: **`maxWidth: "40rem"`** / **`"42rem"`** / **`"52rem"`** on intro `<p>` / `<details>` styles (invalid JS **`40rem`** token broke webpack). Phase **7.5–7.8** unchanged (deferred). |
 | 2026-04-18 | Operator UI — Enterprise mutation controls vs authority rank | **`useEnterpriseMutationCapability`**, **`enterprise-mutation-capability.ts`**, soft-disable governance dashboard/workflow + policy pack write buttons for read-tier principals; **`enterpriseMutationControlDisabledTitle`**; Vitest + **`archlucid-ui/README.md`** + **`nav-authority`** doc touch. Phase **7.5–7.8** unchanged (deferred). |
 | 2026-04-18 | Operator UI — Enterprise page-level authority cues (wave 2) | **`AlertsInboxRankCue`**, **`AuditLogRankCue`**, governance dashboard **`EnterpriseExecutePlusPageCue`** + copy in **`enterprise-controls-context-copy.ts`**; Vitest + **`archlucid-ui/README.md`**. Phase **7.5–7.8** unchanged (deferred). |
 | 2026-04-18 | Operator UI — runtime principal in shell context | **`OperatorNavAuthorityProvider`** exposes **`currentPrincipal`** (same fetch as rank); **`current-principal.ts`** adds **`shellBootstrapReadPrincipal`** / **`operatorNavOutsideProviderPrincipal`**; **`getCurrentAuthorityRank`** test; README + **`archlucid-ui/docs/ARCHITECTURE.md`** + **`nav-shell-visibility`** doc touch. Phase **7.5–7.8** unchanged (deferred). |

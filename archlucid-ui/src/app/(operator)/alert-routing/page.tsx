@@ -85,7 +85,7 @@ export default function AlertRoutingPage() {
   return (
     <main style={{ maxWidth: 800 }}>
       <h2 style={{ marginTop: 0 }}>Alert routing</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: 40rem }}>
+      <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
         <strong>Real-time delivery</strong> when a new alert fires (not digest email). Only destinations at or above{" "}
         <strong>minimum severity</strong> receive it. Dev stacks log to fake channels.
       </p>
