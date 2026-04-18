@@ -19,6 +19,14 @@ The shell **already** shapes nav and light copy by **principal + policy tier nam
 | React context + refresh + shared `currentPrincipal` | `src/components/OperatorNavAuthorityProvider.tsx` |
 | Enterprise one-liners | `src/lib/enterprise-controls-context-copy.ts`, `src/components/EnterpriseControlsContextHints.tsx`, `src/lib/layer-guidance.ts` (`enterpriseFootnote`) |
 
+### Current principal utility (`src/lib/current-principal.ts`)
+
+Single module for **who** the operator is and **which policy tier** the UI should assume for shaping (not for authZ).
+
+- **JSON body** (upstream `GET /api/auth/me`, proxied as `GET /api/proxy/api/auth/me`): `{ "name": string | null, "claims": [ { "type": string, "value": string } ] }` — mirrors **`CallerIdentityResponse`** on the API.
+- **Call from client code:** `loadCurrentPrincipal()` or `getCurrentPrincipal()` → **`CurrentPrincipal`** (`name`, `roleClaimValues`, `primaryAppRole`, `maxAuthority`, `authorityRank`, `hasEnterpriseOperatorSurfaces`, `provenance`, optional `syntheticReason`). Narrow helpers: `getCurrentAuthority()`, `getCurrentAuthorityRank()`.
+- **In the `(operator)` shell:** prefer **`useOperatorNavAuthority().currentPrincipal`** (same fetch as nav rank) instead of ad-hoc fetches.
+
 **Do not:** add parallel `/me` clients, re-implement policy matrices in TypeScript, or treat UI hiding as authZ. **Do:** keep `requiredAuthority` omitted only on Core Pilot essentials; set it on every Enterprise Controls link (and on selected Advanced links) so behavior matches `nav-config` comments.
 
 **Nav authority:** `NavLinkItem.requiredAuthority` is **set on every Advanced and Enterprise link** in `nav-config.ts` and **omitted only on Core Pilot essentials**. Stable **`NAV_GROUPS[].id`** keys map to **docs/PRODUCT_PACKAGING.md** layers: `runs-review` (**Core Pilot**), `qa-advisory` (**Advanced Analysis**), `alerts-governance` (**Enterprise Controls**). `OperatorNavAuthorityProvider` loads **`GET /api/proxy/api/auth/me`** once per refresh (via `loadCurrentPrincipal`) and exposes **`currentPrincipal`** plus **`callerAuthorityRank`**; `useNavCallerAuthorityRank()` applies a conservative Read rank while JWT `/me` is in flight for a signed-in session. **`nav-shell-visibility.ts`** composes **tier → authority** for the sidebar, mobile drawer, and command palette (empty groups omitted). Not a substitute for server-side 401/403.
