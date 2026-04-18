@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { NAV_GROUPS } from "@/lib/nav-config";
+import { NAV_GROUPS, type NavGroupConfig } from "@/lib/nav-config";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
+import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 
 describe("filterNavLinksForOperatorShell", () => {
   const enterprise = NAV_GROUPS.find((g) => g.id === "alerts-governance");
@@ -59,5 +59,84 @@ describe("filterNavLinksForOperatorShell", () => {
 
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
     expect(visible.some((l) => l.href === "/governance/dashboard")).toBe(true);
+  });
+});
+
+describe("listNavGroupsVisibleInOperatorShell", () => {
+  const syntheticExtendedOnly: NavGroupConfig[] = [
+    {
+      id: "synthetic-extended-only",
+      label: "Synthetic",
+      links: [
+        {
+          href: "/synthetic-extended",
+          label: "Extended only",
+          title: "Test",
+          tier: "extended",
+          requiredAuthority: "ReadAuthority",
+        },
+      ],
+    },
+  ];
+
+  it("never returns a group with zero visible links", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      true,
+      AUTHORITY_RANK.ReadAuthority,
+    );
+
+    expect(rows.length).toBeGreaterThan(0);
+
+    for (const row of rows) {
+      expect(row.visibleLinks.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("omits a group when tier filtering removes every link", () => {
+    const rowsOff = listNavGroupsVisibleInOperatorShell(
+      syntheticExtendedOnly,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+    );
+
+    expect(rowsOff).toEqual([]);
+
+    const rowsOn = listNavGroupsVisibleInOperatorShell(
+      syntheticExtendedOnly,
+      true,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+    );
+
+    expect(rowsOn).toHaveLength(1);
+    expect(rowsOn[0]!.group.id).toBe("synthetic-extended-only");
+    expect(rowsOn[0]!.visibleLinks.some((l) => l.href === "/synthetic-extended")).toBe(true);
+  });
+
+  it("matches filterNavLinksForOperatorShell for the Enterprise group when extended is on", () => {
+    const enterprise = NAV_GROUPS.find((g) => g.id === "alerts-governance");
+
+    expect(enterprise).toBeDefined();
+
+    const fromList = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      true,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+    ).find((r) => r.group.id === "alerts-governance");
+
+    expect(fromList).toBeDefined();
+
+    const fromFilter = filterNavLinksForOperatorShell(
+      enterprise!.links,
+      true,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+    );
+
+    expect(fromList!.visibleLinks.map((l) => l.href)).toEqual(fromFilter.map((l) => l.href));
   });
 });

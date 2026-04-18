@@ -1,6 +1,12 @@
-import type { NavLinkItem } from "@/lib/nav-config";
+import type { NavGroupConfig, NavLinkItem } from "@/lib/nav-config";
 import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
+
+/** One nav group after **tier → authority** filtering, only emitted when at least one link remains. */
+export type NavGroupWithVisibleLinks = {
+  group: NavGroupConfig;
+  visibleLinks: NavLinkItem[];
+};
 
 /**
  * Single composition point for operator shell navigation (sidebar, mobile drawer, command palette).
@@ -25,4 +31,34 @@ export function filterNavLinksForOperatorShell(
     filterNavLinksByTier(links, showExtended, showAdvanced),
     callerAuthorityRank,
   );
+}
+
+/**
+ * Applies **`filterNavLinksForOperatorShell`** to every configured group and **omits groups with no visible links**.
+ * Sidebar, mobile drawer, and command palette should iterate this result so tier + authority + empty-group rules stay aligned.
+ */
+export function listNavGroupsVisibleInOperatorShell(
+  groups: ReadonlyArray<NavGroupConfig>,
+  showExtended: boolean,
+  showAdvanced: boolean,
+  callerAuthorityRank: number,
+): NavGroupWithVisibleLinks[] {
+  const out: NavGroupWithVisibleLinks[] = [];
+
+  for (const group of groups) {
+    const visibleLinks = filterNavLinksForOperatorShell(
+      group.links,
+      showExtended,
+      showAdvanced,
+      callerAuthorityRank,
+    );
+
+    if (visibleLinks.length === 0) {
+      continue;
+    }
+
+    out.push({ group, visibleLinks });
+  }
+
+  return out;
 }

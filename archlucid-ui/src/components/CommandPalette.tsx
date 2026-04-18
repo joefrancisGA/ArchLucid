@@ -17,7 +17,7 @@ import {
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
-import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
+import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -46,7 +46,7 @@ function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) 
 
 /**
  * Ctrl+K / ⌘K command palette: jump to operator pages surfaced in nav config.
- * Uses the same **tier + authority** composition as the sidebar (`filterNavLinksForOperatorShell`); empty groups are omitted.
+ * Uses **`listNavGroupsVisibleInOperatorShell`** (tier → authority, omit empty groups) — same as sidebar and mobile drawer.
  * Optional run UUID quick-open is unchanged.
  */
 export function CommandPalette() {
@@ -97,34 +97,26 @@ export function CommandPalette() {
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} />
           <CommandEmpty>No matching pages. Try another search or paste a run UUID.</CommandEmpty>
-          {NAV_GROUPS.map((group) => {
-            const visibleLinks = filterNavLinksForOperatorShell(
-              group.links,
-              showExtended,
-              showAdvanced,
-              callerAuthorityRank,
-            );
-
-            if (visibleLinks.length === 0) {
-              return null;
-            }
-
-            return (
-              <CommandGroup key={group.id} heading={group.label}>
-                {visibleLinks.map((link) => (
-                  <CommandItem
-                    key={link.href}
-                    value={`${link.label} ${link.href}`}
-                    onSelect={() => {
-                      navigate(link.href);
-                    }}
-                  >
-                    {link.label}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            );
-          })}
+          {listNavGroupsVisibleInOperatorShell(
+            NAV_GROUPS,
+            showExtended,
+            showAdvanced,
+            callerAuthorityRank,
+          ).map(({ group, visibleLinks }) => (
+            <CommandGroup key={group.id} heading={group.label}>
+              {visibleLinks.map((link) => (
+                <CommandItem
+                  key={link.href}
+                  value={`${link.label} ${link.href}`}
+                  onSelect={() => {
+                    navigate(link.href);
+                  }}
+                >
+                  {link.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))}
           <CommandSeparator />
           <CommandGroup heading="Keyboard shortcuts (navigation)">
             {SHORTCUTS.filter((entry) => entry.route !== undefined && entry.route !== "").map((entry) => (

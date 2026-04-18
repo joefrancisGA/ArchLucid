@@ -357,7 +357,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
 
 /**
  * Flat list of configured nav links (sidebar + palette source of truth).
- * Callers such as the command palette still apply **tier + authority** filters (`filterNavLinksForOperatorShell`) like the sidebar.
+ * Shell UIs use **`listNavGroupsVisibleInOperatorShell`** (tier → authority, omit empty groups); per-link filtering is **`filterNavLinksForOperatorShell`**.
  */
 export function flattenNavLinks(): NavLinkItem[] {
   return NAV_GROUPS.flatMap((g) => g.links);
