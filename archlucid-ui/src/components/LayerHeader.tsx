@@ -7,6 +7,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import { LAYER_PAGE_GUIDANCE, type LayerGuidancePageKey } from "@/lib/layer-guidance";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { cn } from "@/lib/utils";
 
 export type LayerHeaderProps = {
   pageKey: LayerGuidancePageKey;
@@ -31,6 +32,8 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
         : layerHeaderEnterpriseOperatorRankLine
       : null;
 
+  const isEnterpriseControls = block.enterpriseFootnote !== null && block.enterpriseFootnote !== undefined;
+
   return (
     <aside
       className={
@@ -43,7 +46,16 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
         {block.layerBadge}
       </p>
       <p className="m-0 mt-0.5 text-sm font-medium text-neutral-900 dark:text-neutral-100">{block.headline}</p>
-      <p className="m-0 mt-1 text-sm leading-snug text-neutral-600 dark:text-neutral-400">{block.useWhen}</p>
+      <p
+        className={cn(
+          "m-0 mt-1 leading-snug",
+          isEnterpriseControls
+            ? "text-xs text-neutral-500 dark:text-neutral-400"
+            : "text-sm text-neutral-600 dark:text-neutral-400",
+        )}
+      >
+        {block.useWhen}
+      </p>
       {block.firstPilotNote ? (
         <p className="m-0 mt-1.5 text-xs text-neutral-500 dark:text-neutral-500">{block.firstPilotNote}</p>
       ) : null}

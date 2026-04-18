@@ -35,6 +35,9 @@ export default function GovernanceResolutionPage() {
     <main style={{ maxWidth: 1100 }}>
       <LayerHeader pageKey="governance-resolution" />
       <h2 style={{ marginTop: 0 }}>Governance resolution</h2>
+      <p style={{ color: "#334155", fontSize: 14, fontWeight: 600, maxWidth: "42rem", marginBottom: 8 }}>
+        Effective pack stack for this scope—inspect before you change assignments or ordering.
+      </p>
       <GovernanceResolutionRankCue />
       <details style={{ marginBottom: 12, maxWidth: "52rem" }}>
         <summary style={{ cursor: "pointer", color: "#444", fontSize: 14, fontWeight: 600 }}>
