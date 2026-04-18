@@ -687,7 +687,7 @@ function GovernanceWorkflowPageInner() {
                     <Button
                       type="button"
                       size="sm"
-                      variant="default"
+                      variant={canMutateWorkflow ? "default" : "outline"}
                       disabled={!canMutateWorkflow}
                       title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                       onClick={() => {
@@ -719,7 +719,12 @@ function GovernanceWorkflowPageInner() {
                   <Button
                     type="button"
                     size="sm"
-                    className="bg-violet-600 text-white hover:bg-violet-600/90"
+                    variant={canMutateWorkflow ? "default" : "outline"}
+                    className={
+                      canMutateWorkflow
+                        ? "bg-violet-600 text-white hover:bg-violet-600/90 dark:bg-violet-600 dark:hover:bg-violet-600/90"
+                        : undefined
+                    }
                     disabled={pendingPromote !== null || !canMutateWorkflow}
                     title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                     onClick={() => {

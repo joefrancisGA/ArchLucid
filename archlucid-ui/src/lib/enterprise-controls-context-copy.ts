@@ -170,3 +170,15 @@ export const auditSearchNoResultsReaderLine =
   "No audit events match these filters. Read-focused evidence search above; CSV export stays Auditor/Admin-gated on the API.";
 
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
+
+/** Audit log — under “Search audit events” for read tier (Execute floor; CSV export still Auditor/Admin on API). */
+export const auditSearchSectionLeadReaderLine =
+  "Filters below are read-focused; export stays last and reuses the same From/To window (CSV download is Auditor/Admin on the API).";
+
+/** Alert rules — under “Change configuration” for read tier. */
+export const alertRulesChangeConfigurationLeadReaderLine =
+  "Thresholds and Create below stay operator/admin at your rank; API enforces writes.";
+
+/** Alert routing — under “Change configuration” for read tier. */
+export const alertRoutingChangeConfigurationLeadReaderLine =
+  "New subscriptions and toggles below stay operator/admin at your rank; API enforces writes.";

@@ -288,7 +288,10 @@ export default function AlertsPage() {
                 </div>
 
                 <section
-                  className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-700"
+                  className={cn(
+                    "mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-700",
+                    !canMutateAlertInbox && "opacity-90",
+                  )}
                   aria-label="Triage actions"
                 >
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">

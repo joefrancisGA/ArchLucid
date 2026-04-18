@@ -22,8 +22,10 @@ import {
   auditExportControlDisabledTitle,
   auditSearchNoResultsOperatorLine,
   auditSearchNoResultsReaderLine,
+  auditSearchSectionLeadReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { cn } from "@/lib/utils";
 
 function formatUtc(iso: string): string {
   try {
@@ -254,6 +256,9 @@ export default function AuditPage() {
         <h3 id="audit-search-heading" style={{ marginTop: 0, marginBottom: 12, fontSize: "1rem" }}>
           Search audit events
         </h3>
+        {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority ? (
+          <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">{auditSearchSectionLeadReaderLine}</p>
+        ) : null}
         <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
           <label>
             Event type{" "}
@@ -421,6 +426,7 @@ export default function AuditPage() {
 
       <section
         aria-labelledby="audit-export-heading"
+        className={cn(callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority && "opacity-90")}
         style={{
           border: "1px solid #ddd",
           borderRadius: 8,
