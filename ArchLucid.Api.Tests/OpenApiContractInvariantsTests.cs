@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Small semantic checks on <c>/openapi/v1.json</c> that should hold even when the full snapshot is regenerated.
-/// Complements <see cref="OpenApiContractSnapshotTests"/> (byte-for-byte equality).
+/// Complements <see cref="OpenApiContractSnapshotTests"/> (canonical JSON equality after <see cref="OpenApiJsonCanonicalizer"/>).
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory factory)

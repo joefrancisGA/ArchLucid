@@ -38,7 +38,7 @@ dotnet test ArchLucid.sln --filter "Suite=Core"
 - **GitHub Actions** job **“.NET: fast core (corset)”** runs the same filter as the Fast core subset below (`Suite=Core&Category!=Slow&Category!=Integration`), which **includes** `OpenApiContractSnapshotTests` — any OpenAPI drift fails CI until the snapshot is regenerated.
 - Not every test in the solution is (or should be) in Core. Adding `Suite=Core` is a deliberate choice.
 - Some Core classes are also tagged `Category=Integration` or `Category=Slow`; they still run in the full Core filter.
-- **OpenAPI contract snapshot:** `OpenApiContractSnapshotTests` (`ArchLucid.Api.Tests`, `Suite=Core`) compares live `GET /openapi/v1.json` (Microsoft `MapOpenApi` document) to `Contracts/openapi-v1.contract.snapshot.json`. **Regenerate after intentional API surface changes:** `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test ArchLucid.Api.Tests --filter OpenApiContractSnapshotTests` (from repo root), then commit the updated JSON. Operator-oriented narrative: [OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md).
+- **OpenAPI contract snapshot:** `OpenApiContractSnapshotTests` (`ArchLucid.Api.Tests`, `Suite=Core`) compares live `GET /openapi/v1.json` (Microsoft `MapOpenApi` document) to `Contracts/openapi-v1.contract.snapshot.json` after `OpenApiJsonCanonicalizer` (stable across Windows/Linux). **Regenerate after intentional API surface changes:** `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test ArchLucid.Api.Tests --filter OpenApiContractSnapshotTests` (from repo root), then commit the updated JSON. Operator-oriented narrative: [OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md).
 
 ---
 

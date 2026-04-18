@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -6,7 +5,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) drifts from the committed snapshot.
+/// Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) drifts from the committed snapshot
+/// after <see cref="OpenApiJsonCanonicalizer"/> (stable across Windows/Linux reflection ordering).
 /// Swashbuckle <c>/swagger/v1/swagger.json</c> is covered by generation smoke tests; this snapshot uses the Microsoft OpenAPI document for stable contract diffing.
 /// Regenerate: <c>ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo root.
 /// </summary>
@@ -38,9 +38,8 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
             string path = ResolveSourceSnapshotPath();
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
-            string normalized = JsonSerializer.Serialize(
-                actualNode,
-                new JsonSerializerOptions { WriteIndented = true });
+            JsonNode canonical = OpenApiJsonCanonicalizer.Canonicalize(actualNode);
+            string normalized = OpenApiJsonCanonicalizer.SerializeIndented(canonical);
 
             await File.WriteAllTextAsync(path, normalized);
             return;
@@ -55,7 +54,10 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         JsonNode? expectedNode = JsonNode.Parse(expectedJson);
         Assert.NotNull(expectedNode);
 
-        if (!JsonNode.DeepEquals(actualNode, expectedNode))
+        JsonNode canonicalActual = OpenApiJsonCanonicalizer.Canonicalize(actualNode);
+        JsonNode canonicalExpected = OpenApiJsonCanonicalizer.Canonicalize(expectedNode);
+
+        if (!JsonNode.DeepEquals(canonicalActual, canonicalExpected))
         {
             Assert.Fail(
                 $"OpenAPI document drifted from Contracts/{SnapshotFileName}. " +
