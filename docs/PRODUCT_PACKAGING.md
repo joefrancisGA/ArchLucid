@@ -4,7 +4,7 @@
 
 **Status:** V1 capability inventory. This document describes what is **implemented and supportable today** — not a roadmap.
 
-**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](CORE_PILOT.md) (first-pilot walkthrough) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) (which layer to use next) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) (canonical buyer narrative) · [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) (future packaging map) · [operator-shell.md](operator-shell.md) (UI reference) · [archlucid-ui/README.md](../archlucid-ui/README.md#role-aware-shaping-first-wave) (implemented role-aware shaping)
+**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](CORE_PILOT.md) (first-pilot walkthrough) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) (which layer to use next) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) (sponsor-ready summary) · [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) (future packaging map) · [operator-shell.md](operator-shell.md) (UI reference) · [archlucid-ui/README.md](../archlucid-ui/README.md#role-aware-shaping-first-wave) (implemented role-aware shaping)
 
 ---
 
@@ -84,6 +84,8 @@ For the future-state map, see **[FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGI
 
 Every pilot starts here. The operator UI presents this layer by default with no progressive disclosure required. **Home**, **onboarding**, and **run detail** copy keep **Advanced Analysis** and **Enterprise Controls** explicitly **optional to first-pilot proof** so deeper shaping does not widen the default mental model.
 
+**Anti-creep rule:** Core Pilot is the default wedge and first buying motion. Advanced Analysis and Enterprise Controls should only be introduced when the next analytical or governance question actually requires them.
+
 ### Capability inventory
 
 | Capability | API surface | UI surface | CLI surface |
@@ -130,6 +132,8 @@ Use **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** for the scorecard and suggested
 
 Available immediately after a first committed run. Enabled by clicking **Show more links** in the operator UI sidebar.
 
+**Not required for first-pilot success:** this layer exists to answer deeper analytical questions after Core Pilot proves value.
+
 ### Capability inventory
 
 | Capability | API surface | UI surface |
@@ -169,6 +173,8 @@ Advanced-tier links: Search · Planning · Evolution candidates · Schedules · 
 > "Governance, auditability, compliance, and trust for architecture decisions at scale."
 
 Available immediately but requiring extended/advanced sidebar disclosure and typically operator/admin role. Most governance features require explicit enablement per environment.
+
+**Not required for first-pilot success:** this layer exists for governance, audit, policy, and operational trust questions after the Core Pilot wedge is already clear.
 
 ### Capability inventory
 
