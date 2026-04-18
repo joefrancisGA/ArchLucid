@@ -18,7 +18,7 @@ Prevent accidental HTTP surface changes: the committed OpenAPI document for **v1
 
 **Nodes:** `ArchLucid.Api` host, `OpenApiContractSnapshotTests`, committed snapshot file.
 
-**Edges:** Test issues `GET /openapi/v1.json` → compares normalized JSON to `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`.
+**Edges:** Test issues `GET /openapi/v1.json` → compares **canonicalized** JSON (sorted object keys; stable `tags` ordering) to `ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json` so Linux CI and Windows dev machines agree.
 
 **Flow:** Drift → test fails → developer regenerates snapshot only after intentional API change → commit snapshot + code together.
 
@@ -34,7 +34,7 @@ Prevent accidental HTTP surface changes: the committed OpenAPI document for **v1
 
 1. WebApplicationFactory starts the API with test configuration.
 2. Client requests `/openapi/v1.json`.
-3. Response is parsed and compared (with normalization where the test applies it) to the snapshot.
+3. Response is parsed and compared to the snapshot using `OpenApiJsonCanonicalizer` (object key order + `tags` array normalization; not a semantic OpenAPI diff engine).
 4. Mismatch fails the build.
 
 ## 7. Security model
