@@ -3,7 +3,14 @@
  * Mirrors server `ArchLucidPolicies` (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` in `ArchLucid.Core`)
  * so nav shaping can align with API RBAC without duplicating a full authZ engine.
  *
+ * **Packaging alignment:** `ReadAuthority` on a `NavLinkItem` marks **read-mostly** destinations (typical Advanced
+ * Analysis inspection and many **Enterprise Controls** evidence or inbox views). `ExecuteAuthority` marks workflows
+ * whose primary API verbs are Execute-class (replay, governance workflow, selected alert configuration). **`AdminAuthority`**
+ * is reserved for nav only when a whole area is admin-scoped; many admin-only POSTs stay gated on the server while
+ * the list page stays `ReadAuthority`—see comments in `nav-config.ts`.
+ *
  * This is **not** enforcement: routes still 401/403 from the API. It is structural metadata for progressive disclosure + role-aware nav.
+ * Enterprise **in-page** mutation affordances reuse the same **Execute+** rank threshold as `enterpriseMutationCapabilityFromRank` in `enterprise-mutation-capability.ts`.
  */
 
 /** Same strings as server `ArchLucidPolicies` — smallest durable contract for nav links. */

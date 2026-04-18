@@ -10,7 +10,8 @@ import {
 
 /**
  * On Home, after the operator marks all Core Pilot checklist steps done, nudge
- * toward Advanced Analysis without showing this before the wedge is complete.
+ * toward Advanced Analysis without showing this before the wedge is complete. Enterprise stays demoted—sidebar only,
+ * not a next mandatory step.
  */
 export function AfterCorePilotChecklistHint() {
   const [allDone, setAllDone] = useState(false);
@@ -59,7 +60,8 @@ export function AfterCorePilotChecklistHint() {
         <Link href="/graph" className="font-medium text-teal-900 underline dark:text-teal-200">
           Graph
         </Link>
-        . Enterprise Controls stay in the sidebar for approvals, audit, and alerts when sponsors require them.
+        . <strong>Enterprise Controls</strong> (governance, audit, alerts) stay in the sidebar until sponsors or policy
+        need them—not part of first-pilot success criteria.
       </p>
     </section>
   );

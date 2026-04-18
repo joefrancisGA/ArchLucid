@@ -289,9 +289,9 @@ export default function AlertSimulationPage() {
   return (
     <main style={{ maxWidth: 1100 }}>
       <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: 800 }}>
-        Side-effect-free dry runs against recent authority runs (or a specific run). Uses the same evaluators and
-        composite suppression policy as production; no alerts are persisted or delivered.
+      <p style={{ color: "#444", fontSize: 14, maxWidth: 42rem }}>
+        <strong>What-if</strong> against recent runs (or one run ID): same evaluators and suppression as production;{" "}
+        <strong>no</strong> alerts persisted or delivered.
       </p>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />

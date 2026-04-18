@@ -48,7 +48,11 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
-import { enterpriseGovernanceWorkflowOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
+import {
+  enterpriseGovernanceWorkflowOperatorPlusLine,
+  enterpriseMutationControlDisabledTitle,
+} from "@/lib/enterprise-controls-context-copy";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { cn } from "@/lib/utils";
 import type {
   GovernanceApprovalRequest,
@@ -95,6 +99,7 @@ function GovernanceStatusBadge({ status }: { status: string }) {
 
 function GovernanceWorkflowPageInner() {
   const searchParams = useSearchParams();
+  const canMutateWorkflow = useEnterpriseMutationCapability();
   const [toast, setToast] = useState<ToastState>(null);
 
   const [submitRunId, setSubmitRunId] = useState("");
@@ -144,6 +149,18 @@ function GovernanceWorkflowPageInner() {
 
     return () => window.clearTimeout(handle);
   }, [toast]);
+
+  useEffect(() => {
+    if (canMutateWorkflow) {
+      return;
+    }
+
+    setPendingReview(null);
+    setPendingPromote(null);
+    pendingPromoteRequestRef.current = null;
+    setPendingActivate(null);
+    pendingActivatePromotionRef.current = null;
+  }, [canMutateWorkflow]);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId");
@@ -204,6 +221,10 @@ function GovernanceWorkflowPageInner() {
   }, [activeRunId, loadLists]);
 
   async function onSubmitApproval() {
+    if (!canMutateWorkflow) {
+      return;
+    }
+
     const runId = submitRunId.trim();
 
     if (!runId || !submitManifestVersion.trim()) {
@@ -238,6 +259,10 @@ function GovernanceWorkflowPageInner() {
 
   async function onConfirmReview() {
     if (pendingReview === null) {
+      return;
+    }
+
+    if (!canMutateWorkflow) {
       return;
     }
 
@@ -283,6 +308,10 @@ function GovernanceWorkflowPageInner() {
       return;
     }
 
+    if (!canMutateWorkflow) {
+      return;
+    }
+
     const by = workflowActor.trim();
 
     if (!by) {
@@ -321,6 +350,10 @@ function GovernanceWorkflowPageInner() {
       return;
     }
 
+    if (!canMutateWorkflow) {
+      return;
+    }
+
     const by = workflowActor.trim();
 
     if (!by) {
@@ -356,9 +389,9 @@ function GovernanceWorkflowPageInner() {
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance workflow</h2>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseGovernanceWorkflowOperatorPlusLine} />
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        Submit manifest promotion requests, review them, record promotions, and activate baselines per environment.
-        Uses the same API auth as the rest of the shell (API key via proxy or JWT in the browser).
+      <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        <strong>Run-scoped workflow:</strong> submit, approve or reject, promote, then activate per environment—all in
+        context of one run ID. Auth matches the rest of the shell (proxy API key or browser JWT).
       </p>
 
       {toast ? (
@@ -465,7 +498,12 @@ function GovernanceWorkflowPageInner() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="button" onClick={() => void onSubmitApproval()} disabled={submitBusy}>
+            <Button
+              type="button"
+              onClick={() => void onSubmitApproval()}
+              disabled={submitBusy || !canMutateWorkflow}
+              title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+            >
               {submitBusy ? "Submitting…" : "Submit for approval"}
             </Button>
           </CardFooter>
@@ -590,7 +628,13 @@ function GovernanceWorkflowPageInner() {
                         />
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <Button type="button" size="sm" onClick={() => void onConfirmReview()} disabled={reviewBusy}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => void onConfirmReview()}
+                          disabled={reviewBusy || !canMutateWorkflow}
+                          title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                        >
                           {reviewBusy ? "Saving…" : "Submit"}
                         </Button>
                         <Button
@@ -619,6 +663,8 @@ function GovernanceWorkflowPageInner() {
                       type="button"
                       size="sm"
                       variant="default"
+                      disabled={!canMutateWorkflow}
+                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                       onClick={() => {
                         setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "approve" });
                         setPendingPromote(null);
@@ -632,6 +678,8 @@ function GovernanceWorkflowPageInner() {
                       size="sm"
                       variant="outline"
                       className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
+                      disabled={!canMutateWorkflow}
+                      title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                       onClick={() => {
                         setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "reject" });
                         setPendingPromote(null);
@@ -647,7 +695,8 @@ function GovernanceWorkflowPageInner() {
                     type="button"
                     size="sm"
                     className="bg-violet-600 text-white hover:bg-violet-600/90"
-                    disabled={pendingPromote !== null}
+                    disabled={pendingPromote !== null || !canMutateWorkflow}
+                    title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                     onClick={() => {
                       pendingPromoteRequestRef.current = row;
                       setPendingPromote({
@@ -707,8 +756,10 @@ function GovernanceWorkflowPageInner() {
                         disabled={
                           pendingActivate !== null ||
                           activateBusyId === p.promotionRecordId ||
-                          !workflowActor.trim()
+                          !workflowActor.trim() ||
+                          !canMutateWorkflow
                         }
+                        title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                         onClick={() => {
                           pendingActivatePromotionRef.current = p;
                           setPendingActivate({
@@ -722,9 +773,11 @@ function GovernanceWorkflowPageInner() {
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-xs">
-                    {!workflowActor.trim()
-                      ? "Set Acting as (for promote & activate) to enable activation."
-                      : "POST activation for this manifest on the promotion’s target environment."}
+                    {!canMutateWorkflow
+                      ? enterpriseMutationControlDisabledTitle
+                      : !workflowActor.trim()
+                        ? "Set Acting as (for promote & activate) to enable activation."
+                        : "POST activation for this manifest on the promotion’s target environment."}
                   </TooltipContent>
                 </Tooltip>
               </CardFooter>

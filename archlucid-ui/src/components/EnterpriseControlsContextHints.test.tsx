@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import {
+  AlertsInboxRankCue,
+  AuditLogRankCue,
   EnterpriseExecutePlusPageCue,
   GovernanceDashboardReaderActionCue,
   GovernanceResolutionRankCue,
@@ -26,5 +28,17 @@ describe("EnterpriseControlsContextHints (page-level rank cues)", () => {
     render(<EnterpriseExecutePlusPageCue message="Operator-only test line." />);
 
     expect(screen.getByText("Operator-only test line.")).toBeInTheDocument();
+  });
+
+  it("AlertsInboxRankCue renders operator triage line outside shell provider (default Admin rank)", () => {
+    render(<AlertsInboxRankCue />);
+
+    expect(screen.getByText(/Operational triage surface/i)).toBeInTheDocument();
+  });
+
+  it("AuditLogRankCue renders investigation line outside shell provider (default Admin rank)", () => {
+    render(<AuditLogRankCue />);
+
+    expect(screen.getByText(/Audit investigation surface/i)).toBeInTheDocument();
   });
 });

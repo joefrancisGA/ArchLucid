@@ -68,6 +68,10 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   qa-advisory    → Advanced Analysis (compare, replay, graph, provenance, advisory)
  *   alerts-governance → Enterprise Controls (governance, audit, policy, compliance)
  *
+ * **Drift guard:** When adding or moving a route, update **`requiredAuthority`** and **tier** here, verify the **C#
+ *   controller policy** (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`) still matches, and reflect capability
+ *   changes in **docs/PRODUCT_PACKAGING.md** so the inventory and sidebar stay one story.
+ *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *
  * - **Omit** on Core Pilot *essentials* (home, onboarding, new run, runs) so Reader-signed-in pilots keep the default path.

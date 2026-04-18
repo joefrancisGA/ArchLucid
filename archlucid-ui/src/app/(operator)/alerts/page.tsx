@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { AlertsInboxRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
@@ -148,9 +149,11 @@ export default function AlertsPage() {
     <main className="mx-auto max-w-3xl">
       <LayerHeader pageKey="alerts" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
-      <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-        Architecture risk alerts from scheduled scans. Open + acknowledged rows dedupe new triggers with the same key.
+      <p className="max-w-prose text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+        <strong>Inbox:</strong> triage open signals from advisory scans. Filters and paging below; same-key triggers dedupe
+        across open and acknowledged rows.
       </p>
+      <AlertsInboxRankCue />
 
       {failure !== null ? (
         <div className="mb-4" role="alert">

@@ -4,7 +4,7 @@
 
 **Status:** V1 capability inventory. This document describes what is **implemented and supportable today** — not a roadmap.
 
-**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](CORE_PILOT.md) (first-pilot walkthrough) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) (which layer to use next) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) (sponsor-ready summary) · [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) (future packaging map) · [operator-shell.md](operator-shell.md) (UI reference) · [archlucid-ui/README.md](../archlucid-ui/README.md#role-aware-shaping-first-wave) (implemented role-aware shaping)
+**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](CORE_PILOT.md) (first-pilot walkthrough) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) (which layer to use next) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) (canonical buyer narrative) · [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) (future packaging map) · [operator-shell.md](operator-shell.md) (UI reference) · [archlucid-ui/README.md](../archlucid-ui/README.md#role-aware-shaping-first-wave) (implemented role-aware shaping)
 
 ---
 
@@ -14,7 +14,7 @@
 2. **Time-to-value.** The Core Pilot layer is deliberately narrow so a pilot operator can go from zero to a committed manifest in a single session with no additional configuration.
 3. **Packaging clarity.** Advanced Analysis and Enterprise Controls have distinct buyers (architects/analysts vs compliance/security/audit teams). Naming them separately makes that obvious.
 
-For a pilot-success model tied to these layers, see **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)**. For guidance on when to move between layers, see **[OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md)**. For the sponsor-facing summary, see **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)**.
+For a pilot-success model tied to these layers, see **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)**. For guidance on when to move between layers, see **[OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md)**. For the **canonical buyer narrative**, see **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)**.
 
 ---
 
@@ -30,7 +30,7 @@ The three layers explain **how to understand the product**:
 - **Advanced Analysis** = deeper investigation and comparison
 - **Enterprise Controls** = governance, auditability, compliance, and trust operations
 
-This is the buyer-facing story.
+This section names and sequences layers for buyers. **Sponsor-level narrative** (why a pilot matters, what success sounds like, what not to claim) lives in **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)**; this document stays the **capability inventory**—what ships where—so packaging detail does not replace the brief.
 
 ### 2. UI progressive disclosure
 
@@ -50,6 +50,20 @@ That means some surfaces are shaped not just by navigation tier but also by who 
 
 **Implemented in the operator UI (first wave):** `archlucid-ui` composes **tier** (`nav-tier` / progressive disclosure) with per-link **`requiredAuthority`** on **Advanced Analysis** and **Enterprise Controls** entries in `nav-config.ts`, resolved from **`GET /api/auth/me`** via `current-principal.ts` and `nav-shell-visibility.ts` (see `archlucid-ui/README.md` § *Role-aware shaping*). **Core Pilot** essentials omit `requiredAuthority` so the default path stays visible; extended Core links (graph, compare, replay) set Read or Execute to match API policies. Short rank-aware copy also appears on key Enterprise pages (`EnterpriseControlsContextHints.tsx`). This is **operational accountability** in the shell—**not** the entitlement or pricing model in §4.
 
+**Cognitive framing (V1):** Enterprise routes pair **LayerHeader** (`layer-guidance.ts`) with **short page leads**—often **inspect vs configure** language and first-pilot deferral—so read-heavy summaries are not visually equal to mutation forms. See `archlucid-ui/README.md` (*In-product guidance*).
+
+#### Code seams (operator UI — maintenance map)
+
+Keep **docs**, **`nav-config.ts`**, and **controller policies** aligned when routes move between layers or policy tiers:
+
+| Product packaging layer | `NAV_GROUPS[].id` (`archlucid-ui/src/lib/nav-config.ts`) | Primary modules |
+|-------------------------|----------------------------------------------------------|-----------------|
+| **Core Pilot** | `runs-review` | `nav-tier.ts`; `requiredAuthority` **omitted** only on essentials; extended links set Read/Execute to match API |
+| **Advanced Analysis** | `qa-advisory` | Every link sets `requiredAuthority`; composed by `filterNavLinksForOperatorShell` (`nav-shell-visibility.ts`) |
+| **Enterprise Controls** | `alerts-governance` | Every link sets `requiredAuthority`; rank from `current-principal.ts`; **Execute-tier** in-page mutations also use `enterprise-mutation-capability.ts` / `useEnterpriseMutationCapability` |
+
+Shell composition order: **tier first, then authority** (`filterNavLinksForOperatorShell`). **Hardening sequence:** [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) Stage 1 describes what shipped without entitlements.
+
 This is the operational-usage model.
 
 ### 4. Future entitlement or pricing boundaries
@@ -68,7 +82,7 @@ For the future-state map, see **[FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGI
 
 > "AI-driven architecture request through committed manifest — visible, auditable, downloadable."
 
-Every pilot starts here. The operator UI presents this layer by default with no progressive disclosure required.
+Every pilot starts here. The operator UI presents this layer by default with no progressive disclosure required. **Home**, **onboarding**, and **run detail** copy keep **Advanced Analysis** and **Enterprise Controls** explicitly **optional to first-pilot proof** so deeper shaping does not widen the default mental model.
 
 ### Capability inventory
 

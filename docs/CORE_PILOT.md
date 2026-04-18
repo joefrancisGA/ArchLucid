@@ -28,6 +28,8 @@ The Core Pilot path is **four steps**. Completing them produces a committed gold
 
 Everything in ArchLucid beyond these four steps — graph, compare, replay, advisory, alerts, governance, export packages, DOCX — is **available but secondary**. Pilots do not need to touch any of it to demonstrate value.
 
+The **operator Home page** and **sidebar progressive disclosure** list other layers for discovery, but copy and ordering treat them as **maturity paths**, not co-equal prerequisites to the four steps above.
+
 ---
 
 ## 2. Why this boundary exists

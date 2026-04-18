@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import {
   EnterpriseControlsExecutePageHint,
   EnterpriseExecutePlusPageCue,
@@ -18,7 +21,10 @@ import {
   listPolicyPacks,
   publishPolicyPackVersion,
 } from "@/lib/api";
-import { enterprisePolicyPacksOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
+import {
+  enterpriseMutationControlDisabledTitle,
+  enterprisePolicyPacksOperatorPlusLine,
+} from "@/lib/enterprise-controls-context-copy";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,
@@ -43,6 +49,7 @@ const DEFAULT_CONTENT = `{
 }`;
 
 export default function PolicyPacksPage() {
+  const canMutatePacks = useEnterpriseMutationCapability();
   const [packs, setPacks] = useState<PolicyPack[]>([]);
   const [effective, setEffective] = useState<EffectivePolicyPackSet | null>(null);
   const [effectiveContent, setEffectiveContent] = useState<PolicyPackContentDocument | null>(null);
@@ -218,11 +225,13 @@ export default function PolicyPacksPage() {
   return (
     <main style={{ maxWidth: 960 }}>
       <h2 style={{ marginTop: 0 }}>Policy packs</h2>
-      <p style={{ color: "#444", fontSize: 14 }}>
-        Versioned governance bundles (compliance / alert / composite rule IDs + advisory defaults). Assign with a{" "}
-        <strong>scope level</strong> (tenant baseline, workspace, or project); effective content is{" "}
-        <strong>hierarchically resolved</strong> (see Governance resolution). Alert evaluators use resolved{" "}
-        <code>alertRuleIds</code> / <code>compositeAlertRuleIds</code> when non-empty.
+      <p style={{ color: "#444", fontSize: 14, maxWidth: 52rem }}>
+        <strong>Inspect</strong> packs and resolved JSON for this scope. One readout of what applies:{" "}
+        <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
+          Governance resolution
+        </Link>
+        . <strong>Change</strong> packs with create, publish, and assign in the sections below—only when pack lifecycle
+        work is in scope (not first-pilot essentials).
       </p>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterprisePolicyPacksOperatorPlusLine} />
@@ -318,7 +327,12 @@ export default function PolicyPacksPage() {
               style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
             />
           </label>
-          <button type="button" onClick={() => void onCreate()} disabled={loading}>
+          <button
+            type="button"
+            onClick={() => void onCreate()}
+            disabled={loading || !canMutatePacks}
+            title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+          >
             Create pack
           </button>
         </div>
@@ -347,7 +361,12 @@ export default function PolicyPacksPage() {
               style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
             />
           </label>
-          <button type="button" onClick={() => void onPublish()} disabled={loading || !selectedPackId}>
+          <button
+            type="button"
+            onClick={() => void onPublish()}
+            disabled={loading || !selectedPackId || !canMutatePacks}
+            title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+          >
             Publish
           </button>
         </div>
@@ -464,7 +483,12 @@ export default function PolicyPacksPage() {
             <input type="checkbox" checked={assignPinned} onChange={(e) => setAssignPinned(e.target.checked)} />
             Pinned
           </label>
-          <button type="button" onClick={() => void onAssign()} disabled={loading || !selectedPackId}>
+          <button
+            type="button"
+            onClick={() => void onAssign()}
+            disabled={loading || !selectedPackId || !canMutatePacks}
+            title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+          >
             Assign
           </button>
         </div>

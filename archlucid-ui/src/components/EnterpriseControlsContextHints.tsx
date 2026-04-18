@@ -4,6 +4,10 @@ import type { ReactNode } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import {
+  alertsInboxRankOperatorLine,
+  alertsInboxRankReaderLine,
+  auditLogRankOperatorLine,
+  auditLogRankReaderLine,
   enterpriseExecutePageHintReaderRank,
   enterpriseNavHintOperatorRank,
   enterpriseNavHintReaderRank,
@@ -66,6 +70,28 @@ export function GovernanceResolutionRankCue({ className }: { className?: string 
 
   const text =
     rank < AUTHORITY_RANK.ExecuteAuthority ? governanceResolutionRankReaderLine : governanceResolutionRankOperatorLine;
+
+  return <p className={cn(pageCueClassName, className)} role="note">{text}</p>;
+}
+
+/**
+ * Alerts inbox: reader view vs operator triage (mutations still API-gated).
+ */
+export function AlertsInboxRankCue({ className }: { className?: string }): ReactNode {
+  const rank = useNavCallerAuthorityRank();
+
+  const text = rank < AUTHORITY_RANK.ExecuteAuthority ? alertsInboxRankReaderLine : alertsInboxRankOperatorLine;
+
+  return <p className={cn(pageCueClassName, className)} role="note">{text}</p>;
+}
+
+/**
+ * Audit log: reader evidence framing vs operator investigation framing.
+ */
+export function AuditLogRankCue({ className }: { className?: string }): ReactNode {
+  const rank = useNavCallerAuthorityRank();
+
+  const text = rank < AUTHORITY_RANK.ExecuteAuthority ? auditLogRankReaderLine : auditLogRankOperatorLine;
 
   return <p className={cn(pageCueClassName, className)} role="note">{text}</p>;
 }

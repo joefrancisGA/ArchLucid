@@ -85,9 +85,9 @@ export default function AlertRoutingPage() {
   return (
     <main style={{ maxWidth: 800 }}>
       <h2 style={{ marginTop: 0 }}>Alert routing</h2>
-      <p style={{ color: "#444", fontSize: 14 }}>
-        Immediate delivery when a new alert is created (separate from digest subscriptions). Only subscriptions whose{" "}
-        <strong>minimum severity</strong> is met receive the alert. Dev uses fake email/webhook loggers.
+      <p style={{ color: "#444", fontSize: 14, maxWidth: 40rem }}>
+        <strong>Real-time delivery</strong> when a new alert fires (not digest email). Only destinations at or above{" "}
+        <strong>minimum severity</strong> receive it. Dev stacks log to fake channels.
       </p>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
@@ -102,6 +102,7 @@ export default function AlertRoutingPage() {
         </div>
       ) : null}
 
+      <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>Add subscription</h3>
       <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 24 }}>
         <label>
           Name
@@ -155,7 +156,7 @@ export default function AlertRoutingPage() {
         {loading ? "Loading…" : "Refresh"}
       </button>
 
-      <h3>Subscriptions</h3>
+      <h3 style={{ fontSize: "1rem", marginTop: 8 }}>Active subscriptions</h3>
       <div style={{ display: "grid", gap: 12 }}>
         {items.length === 0 ? (
           <p style={{ color: "#666" }}>None yet.</p>
