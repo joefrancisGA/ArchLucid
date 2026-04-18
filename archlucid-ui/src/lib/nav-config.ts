@@ -37,7 +37,7 @@ export type NavLinkItem = {
   tier: NavTier;
   /**
    * Optional minimum API policy tier this destination assumes (see `ArchLucidPolicies` on the server).
-   * Omitted for Core Pilot breadth and for pages that are intentionally not role-gated in nav yet.
+   * See the **Authority** section in the `NAV_GROUPS` module docstring for the first-pass assignment map.
    */
   requiredAuthority?: RequiredAuthority;
   /** Registry combo for `aria-keyshortcuts`, e.g. `alt+n` */
@@ -68,10 +68,21 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   qa-advisory    → Advanced Analysis (compare, replay, graph, provenance, advisory)
  *   alerts-governance → Enterprise Controls (governance, audit, policy, compliance)
  *
- * **Authority:** optional `requiredAuthority` aligns with API `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`
- * (see `README.md` and `@/lib/nav-authority`). Omitted on Core Pilot essentials so the default path stays visible;
- * Advanced Analysis and Enterprise Controls use it to trim operator/admin surfaces for lower ranks (composed in
- * `@/lib/nav-shell-visibility`).
+ * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
+ *
+ * - **Omit** on Core Pilot *essentials* (home, onboarding, new run, runs) so Reader-signed-in pilots keep the default path.
+ * - **Core Pilot · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`,
+ *   `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`**
+ *   (`AuthorityReplayController`).
+ * - **Advanced Analysis:** read/analytics pages → **`ReadAuthority`** unless the backing API is Execute-class for the
+ *   primary workflow (planning, evolution candidates, advisory **schedules**, digest **subscriptions** → **`ExecuteAuthority`**).
+ * - **Enterprise Controls:** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers
+ *   are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
+ *   Do not use **`AdminAuthority`** on nav entries: Admin-only actions (e.g. policy pack create) are enforced on POST;
+ *   the UI page is still reachable at Read for list/effective views.
+ *
+ * Omitting `requiredAuthority` means “show for every signed-in rank” — reserve that for Core Pilot breadth, not for
+ * hiding mistakes in Enterprise. Composed with tiers in `@/lib/nav-shell-visibility`.
  *
  * Group IDs are intentionally stable (used as localStorage keys); only labels are user-visible.
  */
@@ -125,6 +136,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         // Graph is a useful inspection tool but is not part of the Core Pilot path
         // (create → run → commit → review). It surfaces under "Show more links".
         tier: "extended",
+        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/compare",
@@ -133,6 +145,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+c",
         icon: GitCompare,
         tier: "extended",
+        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/replay",
@@ -249,12 +262,54 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "essential",
         requiredAuthority: "ReadAuthority",
       },
-      { href: "/alert-rules", label: "Alert rules", title: "Configure alert rules", icon: Tags, tier: "advanced" },
-      { href: "/alert-routing", label: "Alert routing", title: "Alert routing subscriptions", icon: Mail, tier: "advanced" },
-      { href: "/composite-alert-rules", label: "Composite rules", title: "Composite alert rules", icon: Tags, tier: "advanced" },
-      { href: "/alert-simulation", label: "Alert simulation", title: "Simulate alert evaluation", icon: Activity, tier: "advanced" },
-      { href: "/alert-tuning", label: "Alert tuning", title: "Alert noise and threshold tuning", icon: Wrench, tier: "advanced" },
-      { href: "/policy-packs", label: "Policy packs", title: "Policy packs and versions", icon: Shield, tier: "extended" },
+      {
+        href: "/alert-rules",
+        label: "Alert rules",
+        title: "Configure alert rules",
+        icon: Tags,
+        tier: "advanced",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/alert-routing",
+        label: "Alert routing",
+        title: "Alert routing subscriptions",
+        icon: Mail,
+        tier: "advanced",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/composite-alert-rules",
+        label: "Composite rules",
+        title: "Composite alert rules",
+        icon: Tags,
+        tier: "advanced",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/alert-simulation",
+        label: "Alert simulation",
+        title: "Simulate alert evaluation",
+        icon: Activity,
+        tier: "advanced",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/alert-tuning",
+        label: "Alert tuning",
+        title: "Alert noise and threshold tuning",
+        icon: Wrench,
+        tier: "advanced",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/policy-packs",
+        label: "Policy packs",
+        title: "Policy packs and versions",
+        icon: Shield,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
       {
         href: "/governance-resolution",
         label: "Governance resolution",
@@ -291,7 +346,6 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "advanced",
         requiredAuthority: "ReadAuthority",
       },
-      { href: "/audit", label: "Audit log", title: "Search and filter audit events", icon: FileSearch, tier: "advanced" },
     ],
   },
 ];
