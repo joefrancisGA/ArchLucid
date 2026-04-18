@@ -17,8 +17,9 @@ export type LayerHeaderProps = {
 /**
  * Compact route-level reminder of which **product packaging layer** the page belongs to and when to use it.
  * Copy lives in **`layer-guidance.ts`** (`LayerGuidancePageKey` per route family); keep keys in sync when adding pages.
- * Buyer-facing layer model: **docs/PRODUCT_PACKAGING.md** §1–3; **§3 *Contributor drift guard*** ties this strip to
- * `nav-config` + API policies; operator “when to use” narrative: **docs/OPERATOR_DECISION_GUIDE.md**.
+ * Buyer-facing layer model: **docs/PRODUCT_PACKAGING.md** §1–3; **§3 *Code seams*** maps `NAV_GROUPS[].id` to this UI;
+ * **§3 *Contributor drift guard*** ties this strip to `nav-config` + API policies; operator “when to use” narrative:
+ * **docs/OPERATOR_DECISION_GUIDE.md**.
  *
  * **Enterprise Controls** (`layerBadge === "Enterprise Controls"`): adds a **rank-aware** line under the footnote
  * (read tier vs Execute+ framing) using `useNavCallerAuthorityRank()` — **cognitive / UI shaping only**; same threshold

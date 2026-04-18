@@ -33,6 +33,10 @@ const DEFAULT_RANK_FULL_ACCESS = AUTHORITY_RANK.AdminAuthority;
  * Resolves the operator principal via `GET /api/proxy/api/auth/me` (and on route changes + window focus)
  * so sidebar, mobile nav, and command palette share one structural authority rank.
  *
+ * **UI shaping only — API authoritative:** rank and principal drive **nav** (`nav-shell-visibility.ts`) and **soft**
+ * affordances (`useNavCallerAuthorityRank` consumers); they do not replace **ArchLucid.Api** policies. Packaging map:
+ * **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* + *Contributor drift guard*).
+ *
  * - **development-bypass:** uses the proxy’s server-side API key; `/me` reflects `DevelopmentBypass` dev role.
  * - **JWT + not signed in:** conservative **Read** rank without calling `/me`.
  * - **JWT + signed in:** bearer + `/me` for role claims.
