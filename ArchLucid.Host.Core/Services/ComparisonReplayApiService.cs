@@ -100,13 +100,13 @@ public sealed class ComparisonReplayApiService(
             });
 
             bool notFound = ex is RunNotFoundException;
-            logger.LogWarning(
+
+            logger.LogWarningComparisonReplayFailed(
                 ex,
-                "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, NotFound={NotFound}, MetadataOnly={MetadataOnly}, Error={Error}",
-                LogSanitizer.Sanitize(request.ComparisonRecordId),
+                request.ComparisonRecordId,
                 notFound,
                 metadataOnly,
-                LogSanitizer.Sanitize(ex.Message));
+                ex.Message);
 
             throw;
         }
