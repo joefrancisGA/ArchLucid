@@ -28,7 +28,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
     expect(screen.queryByRole("heading", { name: "Core Pilot checklist" })).not.toBeInTheDocument();
     expect(localStorage.getItem("archlucid_operator_workflow_guide_v1")).toBe("1");
 
-    fireEvent.click(screen.getByRole("button", { name: "Show V1 workflow checklist" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show Core Pilot checklist" }));
 
     expect(screen.getByRole("heading", { name: "Core Pilot checklist" })).toBeInTheDocument();
     expect(localStorage.getItem("archlucid_operator_workflow_guide_v1")).toBeNull();
