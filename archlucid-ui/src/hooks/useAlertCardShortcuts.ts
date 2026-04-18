@@ -7,6 +7,11 @@ import { useKeyboardShortcuts, type KeyboardShortcutsMap } from "./useKeyboardSh
 export type UseAlertCardShortcutsOptions = {
   /** Invoked with the same action names the alerts API expects: Acknowledge, Resolve, Suppress. */
   onAction: (alertId: string, action: string) => void;
+  /**
+   * When false, Alt+1/2/3 are not registered (read-tier principals still use J/K to move between cards).
+   * Aligns with `useEnterpriseMutationCapability` / API Execute-class alert actions.
+   */
+  mutationsEnabled?: boolean;
 };
 
 function getAlertCardFromActiveElement(): HTMLElement | null {
@@ -67,8 +72,28 @@ function focusAdjacentAlertCard(delta: number): void {
  */
 export function useAlertCardShortcuts(options: UseAlertCardShortcutsOptions): void {
   const onAction = options.onAction;
+  const mutationsEnabled = options.mutationsEnabled !== false;
 
   const map = useMemo((): KeyboardShortcutsMap => {
+    const navigation: KeyboardShortcutsMap = {
+      "alt+j": {
+        description: "Focus next alert card",
+        handler: () => {
+          focusAdjacentAlertCard(1);
+        },
+      },
+      "alt+k": {
+        description: "Focus previous alert card",
+        handler: () => {
+          focusAdjacentAlertCard(-1);
+        },
+      },
+    };
+
+    if (!mutationsEnabled) {
+      return navigation;
+    }
+
     return {
       "alt+1": {
         description: "Acknowledge focused alert",
@@ -100,20 +125,9 @@ export function useAlertCardShortcuts(options: UseAlertCardShortcutsOptions): vo
           }
         },
       },
-      "alt+j": {
-        description: "Focus next alert card",
-        handler: () => {
-          focusAdjacentAlertCard(1);
-        },
-      },
-      "alt+k": {
-        description: "Focus previous alert card",
-        handler: () => {
-          focusAdjacentAlertCard(-1);
-        },
-      },
+      ...navigation,
     };
-  }, [onAction]);
+  }, [onAction, mutationsEnabled]);
 
   useKeyboardShortcuts(map);
 }

@@ -19,6 +19,19 @@ describe("useAlertCardShortcuts", () => {
     return div;
   }
 
+  it("does not call onAction for Alt+1 when mutationsEnabled is false", () => {
+    const onAction = vi.fn();
+
+    renderHook(() => useAlertCardShortcuts({ onAction, mutationsEnabled: false }));
+
+    const card = appendAlertCard("abc");
+    card.focus();
+
+    fireEvent.keyDown(window, { key: "1", altKey: true });
+
+    expect(onAction).not.toHaveBeenCalled();
+  });
+
   it("calls onAction with Acknowledge when Alt+1 is pressed and a card with data-alert-id is focused", () => {
     const onAction = vi.fn();
 

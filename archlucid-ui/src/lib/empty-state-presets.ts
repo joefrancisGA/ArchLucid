@@ -61,3 +61,16 @@ export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
   ],
   helpTopicPath: "governance",
 };
+
+/** Idle state when the principal is below Execute: inspection-first copy (mutations stay API-gated). */
+export const GOVERNANCE_WORKFLOW_IDLE_READER: EmptyStateProps = {
+  icon: Shield,
+  title: "Inspect run-scoped workflow",
+  description:
+    "Enter a run ID under Approval requests for a run and click Load to review approvals, promotions, and activations. Submitting, reviewing, promoting, or activating still requires operator-level API access where your tenant expects it.",
+  actions: [
+    { label: "Governance dashboard", href: "/governance/dashboard", variant: "outline" },
+    { label: "View runs list", href: "/runs?projectId=default", variant: "outline" },
+  ],
+  helpTopicPath: "governance",
+};

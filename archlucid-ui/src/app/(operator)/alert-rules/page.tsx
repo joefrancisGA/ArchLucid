@@ -4,9 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { createAlertRule, listAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import type { AlertRule } from "@/types/alerts";
 
 const RULE_TYPES = [
@@ -21,6 +23,7 @@ const RULE_TYPES = [
 const SEVERITIES = ["Info", "Warning", "High", "Critical"];
 
 export default function AlertRulesPage() {
+  const canMutateAlertRules = useEnterpriseMutationCapability();
   const [items, setItems] = useState<AlertRule[]>([]);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -48,6 +51,10 @@ export default function AlertRulesPage() {
   }, [load]);
 
   async function onCreate() {
+    if (!canMutateAlertRules) {
+      return;
+    }
+
     setFailure(null);
     try {
       await createAlertRule({
@@ -83,13 +90,17 @@ export default function AlertRulesPage() {
         </div>
       ) : null}
 
-      <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>Configure new rule</h3>
+      <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
+        {canMutateAlertRules ? "Configure new rule" : "Configure new rule (operator access)"}
+      </h3>
       <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 24 }}>
         <label>
           Name
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
+            disabled={!canMutateAlertRules}
+            title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
             style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
           />
         </label>
@@ -98,6 +109,8 @@ export default function AlertRulesPage() {
           <select
             value={ruleType}
             onChange={(e) => setRuleType(e.target.value)}
+            disabled={!canMutateAlertRules}
+            title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
             style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
           >
             {RULE_TYPES.map((r) => (
@@ -112,6 +125,8 @@ export default function AlertRulesPage() {
           <select
             value={severity}
             onChange={(e) => setSeverity(e.target.value)}
+            disabled={!canMutateAlertRules}
+            title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
             style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
           >
             {SEVERITIES.map((s) => (
@@ -128,10 +143,17 @@ export default function AlertRulesPage() {
             step="any"
             value={threshold}
             onChange={(e) => setThreshold(Number(e.target.value))}
+            disabled={!canMutateAlertRules}
+            title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
             style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
           />
         </label>
-        <button type="button" onClick={() => void onCreate()} disabled={loading}>
+        <button
+          type="button"
+          onClick={() => void onCreate()}
+          disabled={loading || !canMutateAlertRules}
+          title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
+        >
           Create rule
         </button>
       </div>
