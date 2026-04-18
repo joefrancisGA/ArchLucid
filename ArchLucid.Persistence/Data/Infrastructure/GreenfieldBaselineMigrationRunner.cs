@@ -48,6 +48,11 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// <c>001</c> and collide. We always enter here when <c>001</c> is missing from the journal, then branch on whether
     /// tenant tables already exist.
     /// </para>
+    /// <para>
+    /// If pre-flight detection still misses, replaying <c>001</c> can raise a duplicate-object error for
+    /// <c>ArchitectureRequests</c>; that case is caught and repaired with the same stamp / optional <c>035</c>–<c>050</c>
+    /// replay as the tenant-exists branch.
+    /// </para>
     /// </remarks>
     public static void TryApplyBaselineAndStampThrough050(string connectionString)
     {
@@ -64,14 +69,7 @@ public static partial class GreenfieldBaselineMigrationRunner
 
         if (TenantCoreTablesFromInitialMigrationExist(connection))
         {
-            if (!DboAuditEventsTableExists(connection))
-            {
-                // Partial catalog: stamp-only would record 001–050 as applied without creating 035 targets (AuditEvents, …).
-                ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 35, 50);
-            }
-
-            EnsureSchemaVersionsTable(connection, null);
-            StampIncrementalScriptsThrough050(connection, null);
+            StampThrough050OrReplay035IfAuditMissingThenStamp(connection, assembly);
 
             return;
         }
@@ -79,10 +77,50 @@ public static partial class GreenfieldBaselineMigrationRunner
         // Replay 001–050 from embedded incremental scripts (same SQL as `Migrations/Baseline/000_Baseline_2026_04_17.sql`,
         // which is kept for human review / optional tooling). We execute **per migration file** so `GO` lines inside
         // block comments in a concatenated mega-file cannot be mistaken for batch separators.
-        ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 1, 50);
+        try
+        {
+            ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 1, 50);
+        }
+        catch (SqlException ex) when (IsDuplicateArchitectureRequestsCreateFailure(ex))
+        {
+            StampThrough050OrReplay035IfAuditMissingThenStamp(connection, assembly);
+
+            return;
+        }
 
         EnsureSchemaVersionsTable(connection, null);
         StampIncrementalScriptsThrough050(connection, null);
+    }
+
+    /// <summary>
+    /// Stamps 001–050 into <c>dbo.SchemaVersions</c> and replays <c>035</c>–<c>050</c> when <c>dbo.AuditEvents</c> is missing
+    /// (partial catalog repair).
+    /// </summary>
+    private static void StampThrough050OrReplay035IfAuditMissingThenStamp(SqlConnection connection, Assembly assembly)
+    {
+        if (!DboAuditEventsTableExists(connection))
+        {
+            // Partial catalog: stamp-only would record 001–050 as applied without creating 035 targets (AuditEvents, …).
+            ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 35, 50);
+        }
+
+        EnsureSchemaVersionsTable(connection, null);
+        StampIncrementalScriptsThrough050(connection, null);
+    }
+
+    /// <summary>
+    /// SQL Server duplicate-object on <c>CREATE TABLE ArchitectureRequests</c> (e.g. error 2714) or equivalent message text.
+    /// </summary>
+    private static bool IsDuplicateArchitectureRequestsCreateFailure(SqlException ex)
+    {
+        if (!ex.Message.Contains("ArchitectureRequests", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (ex.Message.Contains("already an object named", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // SQL Server: "There is already an object named '…' in the database."
+        return ex.Number == 2714;
     }
 
     /// <summary>Runs embedded incremental migrations whose script number is in <paramref name="minInclusive"/>–<paramref name="maxInclusive"/> (inclusive).</summary>

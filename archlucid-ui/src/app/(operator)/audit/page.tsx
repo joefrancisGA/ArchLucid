@@ -229,7 +229,7 @@ export default function AuditPage() {
       <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
       <p className="mb-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Filters and results below; CSV export is last and needs From/To plus Auditor or Admin on the API.
+        Search first; export last (same From/To; Auditor or Admin on the API).
       </p>
       <AuditLogRankCue />
 

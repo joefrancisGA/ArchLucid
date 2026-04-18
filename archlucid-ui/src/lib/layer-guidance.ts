@@ -63,46 +63,46 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "governance-dashboard": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which cross-run approvals and governance signals need attention?",
-    useWhen: "Cross-run breadth with refresh; per-run artifacts and workflow stay on their own routes.",
-    firstPilotNote: "Skip until cross-run signals are in scope.",
+    useWhen: "Breadth + periodic refresh; per-run workflow stays on its route.",
+    firstPilotNote: "Defer until cross-run signals matter; one run uses the workflow page.",
     enterpriseFootnote:
       "Cross-run evidence; writes are operator/admin. Not required for Core Pilot.",
   },
   alerts: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what risk or compliance signals fired and need triage?",
-    useWhen: "Page and filter the inbox; thresholds, routing, and tuning live under Alert tooling.",
-    firstPilotNote: "Defer deeper config until alerts are a pilot requirement.",
+    useWhen: "Inbox first; thresholds, routing, and tuning live under Alert tooling.",
+    firstPilotNote: "Defer Alert tooling until thresholds are in scope.",
     enterpriseFootnote: "Inbox first; rules, routing, tuning are follow-on depth.",
   },
   audit: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: tenant audit trail—who did what, when?",
-    useWhen: "Scoped filters and rows here; export needs From/To.",
-    firstPilotNote: "Skip until audit evidence is a pilot requirement.",
+    useWhen: "Rows here; CSV export needs From/To plus Auditor or Admin on the API.",
+    firstPilotNote: "Defer export until the evidence window is settled.",
     enterpriseFootnote: "Evidence search and bounded export. Not required for Core Pilot.",
   },
   "governance-resolution": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which policy content is in effect for this scope after pack ordering?",
-    useWhen: "Inspect the effective stack before changing assignments or ordering elsewhere.",
-    firstPilotNote: "Skip until cross-pack ordering matters to the pilot.",
+    useWhen: "Inspect effective stack before changing packs or workflow elsewhere.",
+    firstPilotNote: "Defer until cross-pack ordering matters.",
     enterpriseFootnote:
       "Effective policy here; changes live in policy packs or workflow. Not required for Core Pilot.",
   },
   "governance-workflow": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: run-scoped submit, approve/reject, promote, and activate?",
-    useWhen: "One run: workflow rows at a time; first pilot value stays request → commit → artifacts.",
-    firstPilotNote: "Skip until promotions and segregation of duties apply.",
+    useWhen: "One run at a time; first pilot: request → commit → artifacts.",
+    firstPilotNote: "Defer until promotions and segregation of duties apply.",
     enterpriseFootnote:
       "Operator/admin surface for approvals and activation. API enforces writes. Not required for Core Pilot.",
   },
   "policy-packs": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what packs exist, what is published, and what applies in this scope?",
-    useWhen: "Effective JSON and inventory before lifecycle—when packs are your remit.",
-    firstPilotNote: "Skip until policy control is explicit.",
+    useWhen: "Effective stack and published inventory before lifecycle actions.",
+    firstPilotNote: "Defer until policy control is explicit.",
     enterpriseFootnote:
       "Read/compare first; create, publish, assign are configuration (API-enforced). Not required for Core Pilot.",
   },
@@ -117,8 +117,8 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "alert-routing": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: where should fired alerts be delivered when severity thresholds are met?",
-    useWhen: "Live delivery for fired alerts—not digest mail.",
-    firstPilotNote: "Skip until real-time routing matters.",
+    useWhen: "Delivery for fired alerts—not digest mail.",
+    firstPilotNote: "Defer until real-time routing matters.",
     enterpriseFootnote:
       "Configuration surface for alert delivery. Not required for Core Pilot.",
   },
@@ -141,7 +141,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "composite-alert-rules": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: how do we combine multiple scan metrics with AND/OR before firing an alert?",
-    useWhen: "AND/OR plus cooldown when one threshold is not enough.",
+    useWhen: "AND/OR and cooldown when a single threshold is not enough.",
     firstPilotNote: "Defer until composite firing logic is in scope.",
     enterpriseFootnote:
       "Configuration surface for composite alert rules. Not required for Core Pilot.",

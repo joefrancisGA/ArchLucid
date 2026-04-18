@@ -60,6 +60,7 @@ import {
   governanceWorkflowPromotionsEmptyReaderHint,
   governanceWorkflowQueryCardDescriptionOperator,
   governanceWorkflowQueryCardDescriptionReader,
+  governanceWorkflowPendingReviewReaderNote,
   governanceWorkflowSubmitCardDescriptionReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
@@ -399,7 +400,7 @@ function GovernanceWorkflowPageInner() {
       <LayerHeader pageKey="governance-workflow" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance workflow</h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-        One run: load below, then submit → approve/reject → promote → activate (per environment).
+        One run: load below, then submit → approve/reject → promote → activate per environment.
       </p>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseGovernanceWorkflowOperatorPlusLine} />
@@ -633,6 +634,11 @@ function GovernanceWorkflowPageInner() {
                     <p className="mb-3 text-sm font-medium">
                       {pendingReview.mode === "approve" ? "Approve request" : "Reject request"}
                     </p>
+                    {!canMutateWorkflow ? (
+                      <p className="mb-3 text-xs text-neutral-600 dark:text-neutral-400" role="note">
+                        {governanceWorkflowPendingReviewReaderNote}
+                      </p>
+                    ) : null}
                     <div className="grid gap-3">
                       <div className="grid gap-2">
                         <Label htmlFor={`review-by-${row.approvalRequestId}`}>Reviewed by</Label>
@@ -641,6 +647,8 @@ function GovernanceWorkflowPageInner() {
                           value={reviewedBy}
                           onChange={(e) => setReviewedBy(e.target.value)}
                           autoComplete="username"
+                          readOnly={!canMutateWorkflow}
+                          title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                         />
                       </div>
                       <div className="grid gap-2">
@@ -650,6 +658,8 @@ function GovernanceWorkflowPageInner() {
                           value={reviewComment}
                           onChange={(e) => setReviewComment(e.target.value)}
                           rows={2}
+                          readOnly={!canMutateWorkflow}
+                          title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                         />
                       </div>
                       <div className="flex flex-wrap gap-2">
