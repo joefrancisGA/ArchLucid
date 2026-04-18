@@ -38,7 +38,7 @@ export default function GovernanceResolutionPage() {
         {governanceResolutionContextLine}
       </p>
       <GovernanceResolutionRankCue />
-      <details style={{ marginBottom: 12, maxWidth: 52rem }}>
+      <details style={{ marginBottom: 12, maxWidth: "52rem" }}>
         <summary style={{ cursor: "pointer", color: "#444", fontSize: 14, fontWeight: 600 }}>
           How resolution orders packs (overrides, pins, ties, conflicts)
         </summary>

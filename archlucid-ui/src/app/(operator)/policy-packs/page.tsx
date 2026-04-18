@@ -225,7 +225,7 @@ export default function PolicyPacksPage() {
   return (
     <main style={{ maxWidth: 960 }}>
       <h2 style={{ marginTop: 0 }}>Policy packs</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: 52rem }}>
+      <p style={{ color: "#444", fontSize: 14, maxWidth: "52rem" }}>
         <strong>Inspect</strong> packs and resolved JSON for this scope. One readout of what applies:{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
           Governance resolution

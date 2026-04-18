@@ -204,7 +204,7 @@ export default function AuditPage() {
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: 40rem }}>
+      <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
         <strong>Search</strong> scoped events (newest first, {AUDIT_PAGE_SIZE} rows per request).{" "}
         <strong>Export CSV</strong> needs both from and to dates. <strong>Load more</strong> pages older rows.
       </p>

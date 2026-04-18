@@ -69,7 +69,7 @@ export default function AlertRulesPage() {
   return (
     <main style={{ maxWidth: 800 }}>
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: 40rem }}>
+      <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
         <strong>Thresholds</strong> evaluated on each advisory scan (meaning depends on rule type: count, percent, or
         days). Define below; browse what already exists under <strong>Defined rules</strong>.
       </p>
