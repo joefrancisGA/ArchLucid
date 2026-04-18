@@ -28,6 +28,7 @@ import {
   policyPacksEmptyScopeOperatorLine,
   policyPacksEmptyScopeReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
+import { cn } from "@/lib/utils";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,
@@ -150,6 +151,10 @@ export default function PolicyPacksPage() {
   }, [selectedPackId]);
 
   async function onCreate() {
+    if (!canMutatePacks) {
+      return;
+    }
+
     setFailure(null);
     try {
       JSON.parse(createJson);
@@ -176,6 +181,10 @@ export default function PolicyPacksPage() {
   }
 
   async function onPublish() {
+    if (!canMutatePacks) {
+      return;
+    }
+
     if (!selectedPackId) {
       setFailure(uiFailureFromMessage("Select a pack to publish."));
       return;
@@ -202,6 +211,10 @@ export default function PolicyPacksPage() {
   }
 
   async function onAssign() {
+    if (!canMutatePacks) {
+      return;
+    }
+
     if (!selectedPackId) {
       setFailure(uiFailureFromMessage("Select a pack to assign."));
       return;
@@ -293,6 +306,8 @@ export default function PolicyPacksPage() {
         </label>
       </section>
 
+      <div className={cn("flex flex-col", !canMutatePacks && "flex-col-reverse")}>
+        <div className={cn(!canMutatePacks && "opacity-90")}>
       <p
         style={{
           fontSize: 11,
@@ -314,6 +329,7 @@ export default function PolicyPacksPage() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
+              readOnly={!canMutatePacks}
               style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
             />
           </label>
@@ -322,6 +338,7 @@ export default function PolicyPacksPage() {
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              readOnly={!canMutatePacks}
               style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
             />
           </label>
@@ -330,6 +347,8 @@ export default function PolicyPacksPage() {
             <select
               value={packType}
               onChange={(e) => setPackType(e.target.value)}
+              disabled={!canMutatePacks}
+              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
               style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
             >
               {PACK_TYPES.map((t) => (
@@ -344,6 +363,7 @@ export default function PolicyPacksPage() {
             <textarea
               value={createJson}
               onChange={(e) => setCreateJson(e.target.value)}
+              readOnly={!canMutatePacks}
               rows={12}
               style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
             />
@@ -370,6 +390,7 @@ export default function PolicyPacksPage() {
             <input
               value={publishVersion}
               onChange={(e) => setPublishVersion(e.target.value)}
+              readOnly={!canMutatePacks}
               style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
             />
           </label>
@@ -378,6 +399,7 @@ export default function PolicyPacksPage() {
             <textarea
               value={publishJson}
               onChange={(e) => setPublishJson(e.target.value)}
+              readOnly={!canMutatePacks}
               rows={12}
               style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
             />
@@ -485,6 +507,7 @@ export default function PolicyPacksPage() {
             <input
               value={assignVersion}
               onChange={(e) => setAssignVersion(e.target.value)}
+              readOnly={!canMutatePacks}
               style={{ display: "block", padding: 8, marginTop: 4, width: 160 }}
             />
           </label>
@@ -493,6 +516,8 @@ export default function PolicyPacksPage() {
             <select
               value={assignScopeLevel}
               onChange={(e) => setAssignScopeLevel(e.target.value)}
+              disabled={!canMutatePacks}
+              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
               style={{ display: "block", padding: 8, marginTop: 4, minWidth: 140 }}
             >
               <option value="Tenant">Tenant</option>
@@ -501,7 +526,13 @@ export default function PolicyPacksPage() {
             </select>
           </label>
           <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <input type="checkbox" checked={assignPinned} onChange={(e) => setAssignPinned(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={assignPinned}
+              disabled={!canMutatePacks}
+              title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+              onChange={(e) => setAssignPinned(e.target.checked)}
+            />
             Pinned
           </label>
           <button
@@ -515,6 +546,8 @@ export default function PolicyPacksPage() {
         </div>
       </section>
 
+        </div>
+        <div>
       <section style={{ marginBottom: 32 }}>
         <h3>Effective resolved packs</h3>
         <pre
@@ -544,6 +577,8 @@ export default function PolicyPacksPage() {
           {effectiveContent ? JSON.stringify(effectiveContent, null, 2) : "—"}
         </pre>
       </section>
+        </div>
+      </div>
     </main>
   );
 }

@@ -5,11 +5,17 @@ import { useCallback, useEffect, useState } from "react";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AuditEvent } from "@/lib/api";
 import { downloadAuditExportCsv, getAuditEventTypes, searchAuditEvents } from "@/lib/api";
-import { canExportAuditCsv, formatAuditSummaryHeading } from "@/app/(operator)/audit/audit-ui-helpers";
+import {
+  canExportAuditCsv,
+  formatAuditSummaryHeading,
+  principalRolesAllowAuditCsvExport,
+} from "@/app/(operator)/audit/audit-ui-helpers";
+import { auditExportControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
 function formatUtc(iso: string): string {
   try {
@@ -43,6 +49,7 @@ interface AuditFilterFields {
 }
 
 export default function AuditPage() {
+  const { currentPrincipal } = useOperatorNavAuthority();
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventType, setEventType] = useState<string>("");
   const [fromUtc, setFromUtc] = useState<string>("");
@@ -179,7 +186,7 @@ export default function AuditPage() {
   }, [currentFilters, events, executeSearch]);
 
   const onExportCsv = useCallback(async () => {
-    if (!canExportAuditCsv(fromUtc, toUtc)) {
+    if (!canExportAuditCsv(fromUtc, toUtc) || !principalRolesAllowAuditCsvExport(currentPrincipal.roleClaimValues)) {
       return;
     }
 
@@ -196,9 +203,11 @@ export default function AuditPage() {
     } finally {
       setExporting(false);
     }
-  }, [fromUtc, toUtc]);
+  }, [currentPrincipal.roleClaimValues, fromUtc, toUtc]);
 
-  const exportEnabled = canExportAuditCsv(fromUtc, toUtc);
+  const exportDateRangeReady = canExportAuditCsv(fromUtc, toUtc);
+  const exportRoleOk = principalRolesAllowAuditCsvExport(currentPrincipal.roleClaimValues);
+  const csvExportUiAllowed = exportDateRangeReady && exportRoleOk;
 
   return (
     <main style={{ maxWidth: 900 }}>
@@ -208,7 +217,8 @@ export default function AuditPage() {
         Search tenant-scoped events for evidence; export is optional follow-on when you need a bounded extract.
       </p>
       <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0 }}>
-        Newest first, {AUDIT_PAGE_SIZE} rows per request. Export CSV requires from and to. Load more pages older rows.
+        Newest first, {AUDIT_PAGE_SIZE} rows per request. Export CSV needs from/to and Auditor or Admin on the API.
+        Load more pages older rows.
       </p>
       <AuditLogRankCue />
 
@@ -301,8 +311,14 @@ export default function AuditPage() {
           <button
             type="button"
             onClick={() => void onExportCsv()}
-            disabled={!exportEnabled || exporting || searching}
-            title={exportEnabled ? "Download CSV for the current date range" : "Set a date range to enable export"}
+            disabled={!csvExportUiAllowed || exporting || searching}
+            title={
+              !exportDateRangeReady
+                ? "Set From and To to enable export"
+                : !exportRoleOk
+                  ? auditExportControlDisabledTitle
+                  : "Download CSV for the current date range"
+            }
           >
             {exporting ? "Exporting…" : "Export CSV"}
           </button>
