@@ -7,7 +7,7 @@ public sealed class DelegatingLlmCompletionProviderTests
     [Fact]
     public async Task Forwards_completion_and_exposes_labels()
     {
-        Uri baseUri = new Uri("https://example.openai.azure.com/");
+        Uri baseUri = new("https://example.openai.azure.com/");
         IAgentCompletionClient inner = new FakeAgentCompletionClient(
             (_, _) => """{"ok":true}""",
             LlmProviderDescriptor.ForAzureOpenAi(baseUri, "inner-model"));

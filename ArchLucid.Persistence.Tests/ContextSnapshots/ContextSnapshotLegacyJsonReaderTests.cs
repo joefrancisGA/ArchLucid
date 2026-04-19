@@ -37,7 +37,7 @@ public sealed class ContextSnapshotLegacyJsonReaderTests
     {
         List<CanonicalObject> canonical =
         [
-            new CanonicalObject
+            new()
             {
                 ObjectId = "legacy-obj",
                 ObjectType = "Type",
@@ -50,7 +50,10 @@ public sealed class ContextSnapshotLegacyJsonReaderTests
 
         List<string> warnings = ["jw"];
 
-        Dictionary<string, string> hashes = new(StringComparer.Ordinal) { ["a.cs"] = "h1" };
+        Dictionary<string, string> hashes = new(StringComparer.Ordinal)
+        {
+            ["a.cs"] = "h1"
+        };
 
         List<CanonicalObject> c2 = ContextSnapshotLegacyJsonReader.DeserializeCanonicalObjects(
             JsonEntitySerializer.Serialize(canonical));

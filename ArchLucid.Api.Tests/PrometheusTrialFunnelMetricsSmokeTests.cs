@@ -15,7 +15,7 @@ public sealed class PrometheusTrialFunnelMetricsSmokeTests
     [Fact]
     public async Task Metrics_endpoint_lists_trial_funnel_series_after_emissions()
     {
-        await using PrometheusEnabledArchLucidApiFactory factory = new PrometheusEnabledArchLucidApiFactory();
+        await using PrometheusEnabledArchLucidApiFactory factory = new();
 
         HttpClient client = factory.CreateClient();
         _ = await client.GetAsync(new Uri("/health/ready", UriKind.Relative));

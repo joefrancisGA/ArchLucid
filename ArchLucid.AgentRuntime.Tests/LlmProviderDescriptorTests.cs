@@ -8,7 +8,7 @@ public sealed class LlmProviderDescriptorTests
     [Fact]
     public void ForAzureOpenAi_sets_kind_api_key_and_uri()
     {
-        Uri uri = new Uri("https://res.openai.azure.com/");
+        Uri uri = new("https://res.openai.azure.com/");
 
         LlmProviderDescriptor d = LlmProviderDescriptor.ForAzureOpenAi(uri, "my-deployment");
 
@@ -21,7 +21,7 @@ public sealed class LlmProviderDescriptorTests
     [Fact]
     public void ForAnthropic_and_ForBedrock_set_expected_auth()
     {
-        Uri u = new Uri("https://api.anthropic.com/");
+        Uri u = new("https://api.anthropic.com/");
 
         LlmProviderDescriptor a = LlmProviderDescriptor.ForAnthropic(u, "claude-3");
         a.AuthScheme.Should().Be(LlmProviderAuthScheme.ApiKey);

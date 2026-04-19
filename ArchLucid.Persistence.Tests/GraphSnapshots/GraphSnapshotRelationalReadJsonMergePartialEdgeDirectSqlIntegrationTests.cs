@@ -50,7 +50,7 @@ public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlInte
 
         List<GraphEdge> jsonEdges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "e-in-both",
                 FromNodeId = "a",

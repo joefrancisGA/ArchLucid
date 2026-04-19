@@ -351,7 +351,7 @@ public sealed class AuthorityPipelineStagesExecutor(
 
         foreach (IGrouping<FindingSeverity, Finding> group in snapshot.Findings.GroupBy(static f => f.Severity))
         {
-            TagList tags = new TagList { { "severity", group.Key.ToString() } };
+            TagList tags = new() { { "severity", group.Key.ToString() } };
 
             ArchLucidInstrumentation.FindingsProducedTotal.Add(group.Count(), tags);
         }

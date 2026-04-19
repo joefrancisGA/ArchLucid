@@ -50,7 +50,7 @@ public sealed class GraphSnapshotRelationalReadNoEdgesDirectSqlIntegrationTests(
 
         List<GraphNode> jsonNodes =
         [
-            new GraphNode
+            new()
             {
                 NodeId = "json-only",
                 NodeType = "Ignored",

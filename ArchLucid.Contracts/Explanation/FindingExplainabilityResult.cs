@@ -13,7 +13,10 @@ public sealed class FindingExplainabilityResult
 
     public string Severity { get; set; } = string.Empty;
 
-    public double TraceCompletenessRatio { get; set; }
+    public double TraceCompletenessRatio
+    {
+        get; set;
+    }
 
     public List<string> GraphNodeIdsExamined { get; set; } = [];
 
@@ -28,8 +31,11 @@ public sealed class FindingExplainabilityResult
     /// <summary>
     /// Structured factual explainability (trace + finding rationale); always populated by the API from persisted data.
     /// </summary>
-    public FindingExplainabilityEvidence Evidence { get; set; } =
-        new FindingExplainabilityEvidence(
+    public FindingExplainabilityEvidence Evidence
+    {
+        get; set;
+    } =
+        new(
             Array.Empty<string>(),
             string.Empty,
             Array.Empty<string>(),

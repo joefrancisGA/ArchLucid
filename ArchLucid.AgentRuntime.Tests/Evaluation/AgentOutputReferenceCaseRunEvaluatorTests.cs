@@ -34,7 +34,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluatorTests
 
         IReadOnlyList<AgentOutputReferenceCaseDefinition> cases =
         [
-            new AgentOutputReferenceCaseDefinition
+            new()
             {
                 CaseId = "case-a",
                 AgentType = AgentType.Topology,

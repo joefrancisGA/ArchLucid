@@ -31,7 +31,7 @@ public sealed class BusinessMetricsTests
 
         using BusinessMeasurementCapture capture = BusinessMeasurementCapture.Start();
 
-        TagList tags = new TagList { { "severity", "Critical" } };
+        TagList tags = new() { { "severity", "Critical" } };
 
         ArchLucidInstrumentation.FindingsProducedTotal.Add(2, tags);
 

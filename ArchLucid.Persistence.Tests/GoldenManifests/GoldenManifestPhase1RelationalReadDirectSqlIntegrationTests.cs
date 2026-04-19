@@ -529,7 +529,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         List<ResolvedArchitectureDecision> jsonDecisions =
         [
-            new ResolvedArchitectureDecision
+            new()
             {
                 DecisionId = "json-should-not-win",
                 Category = "x",
@@ -768,7 +768,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
 
         List<ResolvedArchitectureDecision> jsonDecisions =
         [
-            new ResolvedArchitectureDecision
+            new()
             {
                 DecisionId = "json-should-not-win",
                 Category = "x",

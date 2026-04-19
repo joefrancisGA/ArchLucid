@@ -88,7 +88,7 @@ public sealed class CircuitBreakerGateOptionsMonitorTests
 
         private sealed class NoopDisposable : IDisposable
         {
-            internal static readonly NoopDisposable Instance = new NoopDisposable();
+            internal static readonly NoopDisposable Instance = new();
 
             public void Dispose()
             {

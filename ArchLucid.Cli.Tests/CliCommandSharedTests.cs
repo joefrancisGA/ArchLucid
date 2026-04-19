@@ -53,7 +53,10 @@ public sealed class CliCommandSharedTests
     [Fact]
     public void BuildArchitectureRequest_without_architecture_uses_prod_defaults()
     {
-        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new() { ProjectName = "P" };
+        ArchLucidProjectScaffolder.ArchLucidCliConfig config = new()
+        {
+            ProjectName = "P"
+        };
 
         ArchitectureRequest request = CliCommandShared.BuildArchitectureRequest(config, "x");
 
@@ -74,7 +77,7 @@ public sealed class CliCommandSharedTests
         {
             List<ArchLucidApiClient.AgentTaskInfo> tasks =
             [
-                new ArchLucidApiClient.AgentTaskInfo
+                new()
                 {
                     TaskId = "t1",
                     Objective = "obj",
@@ -129,7 +132,10 @@ public sealed class CliCommandSharedTests
 
     private sealed class TempDirectory : IDisposable
     {
-        public string Path { get; } =
+        public string Path
+        {
+            get;
+        } =
             System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ArchLucid.Cli.Tests." + Guid.NewGuid().ToString("N")[..8]);
 
         public TempDirectory()

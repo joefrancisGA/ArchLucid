@@ -50,7 +50,7 @@ public sealed class AuditEventCsvFormatterTests
         DateTime occurred = new(2026, 3, 15, 14, 30, 45, 123, DateTimeKind.Utc);
         List<AuditEvent> events =
         [
-            new AuditEvent
+            new()
             {
                 EventType = "T",
                 ActorUserId = "u",

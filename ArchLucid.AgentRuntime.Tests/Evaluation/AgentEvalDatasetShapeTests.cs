@@ -13,7 +13,7 @@ public sealed class AgentEvalDatasetShapeTests
 {
     private static string EvalDatasetsDirectory()
     {
-        DirectoryInfo? dir = new DirectoryInfo(AppContext.BaseDirectory);
+        DirectoryInfo? dir = new(AppContext.BaseDirectory);
 
         while (dir is not null)
         {

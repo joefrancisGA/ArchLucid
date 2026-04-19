@@ -21,7 +21,7 @@ public sealed class ArtifactBundleArtifactsJsonReaderTests
     {
         List<SynthesizedArtifact> original =
         [
-            new SynthesizedArtifact
+            new()
             {
                 ArtifactId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                 RunId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
