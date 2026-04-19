@@ -1,11 +1,8 @@
 using System.Security.Claims;
 
-using ArchLucid.Api.Middleware;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Host.Core.Auth.Services;
-using ArchLucid.Persistence;
 
 using FluentAssertions;
 

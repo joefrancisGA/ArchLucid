@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Data;
 
 using ArchLucid.Core.Integration;
@@ -260,6 +259,9 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
 
     private sealed class CyclePayload
     {
-        public CyclePayload? Self { get; set; }
+        public CyclePayload? Self
+        {
+            get; set;
+        }
     }
 }

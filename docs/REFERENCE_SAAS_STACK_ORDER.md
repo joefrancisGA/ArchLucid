@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-04-19
 
-**Note:** Resource **addresses** in state may still use legacy names until Phase **7.5** (`terraform state mv`) — see [runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md](runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md) and [ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md).
+**Note:** Greenfield IaC uses **`archlucid`** resource labels and example names; CI rejects the substring `archiforge` in any `infra/**/*.tf` file. First deploy: [FIRST_AZURE_DEPLOYMENT.md](FIRST_AZURE_DEPLOYMENT.md). Brownfield **state mv** (legacy state only): [archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md](archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md).
 
 ---
 

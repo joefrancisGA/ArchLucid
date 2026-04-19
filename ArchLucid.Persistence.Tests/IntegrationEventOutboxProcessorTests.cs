@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 using ArchLucid.Core.Integration;
 
 using Microsoft.Extensions.DependencyInjection;

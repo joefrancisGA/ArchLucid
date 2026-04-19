@@ -1,4 +1,4 @@
-# NOTE: Resource addresses in this module may still use the historical `archiforge` token to avoid Terraform state disruption.
+# Container Apps (API / Worker / UI) — Terraform resource labels use `archlucid` naming (greenfield IaC).
 # Rename via `terraform state mv` during a planned maintenance window.
 # Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
 
