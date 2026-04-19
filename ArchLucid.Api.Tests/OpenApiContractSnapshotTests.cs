@@ -70,7 +70,7 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         string assemblyFile = typeof(OpenApiContractSnapshotTests).Assembly.Location;
         string? dir = Path.GetDirectoryName(assemblyFile);
 
-        for (int i = 0; i < 12 && dir != null; i++)
+        for (int i = 0; i < 12 && dir is not null; i++)
         {
             string lucidCsproj = Path.Combine(dir, "ArchLucid.Api.Tests.csproj");
             string legacyCsproj = Path.Combine(dir, "ArchLucid.Api.Tests.csproj");
