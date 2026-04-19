@@ -255,7 +255,7 @@ export default function AlertsPage() {
           <OperatorLoadingNotice>
             <strong>Loading alerts.</strong>
             <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-              {ALERTS_PAGE_SIZE} per page. Empty after load means no match for this filter.
+              {ALERTS_PAGE_SIZE} per page; empty means no rows for this filter.
             </p>
           </OperatorLoadingNotice>
         ) : null}

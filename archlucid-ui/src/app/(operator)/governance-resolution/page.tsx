@@ -8,7 +8,6 @@ import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation
 import {
   governanceResolutionChangeRelatedControlsLead,
   governanceResolutionChangeRelatedControlsReaderSupplement,
-  governanceResolutionPageSubline,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
 import { getGovernanceResolution } from "@/lib/api";
@@ -44,9 +43,6 @@ export default function GovernanceResolutionPage() {
     <main style={{ maxWidth: 1100 }}>
       <LayerHeader pageKey="governance-resolution" />
       <h2 style={{ marginTop: 0 }}>Governance resolution</h2>
-      <p className="mb-1 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
-        {governanceResolutionPageSubline}
-      </p>
       <GovernanceResolutionRankCue className="mb-3" />
       {failure !== null ? (
         <div role="alert">
@@ -82,12 +78,11 @@ export default function GovernanceResolutionPage() {
         </pre>
         <details style={{ marginTop: 20, marginBottom: 0, maxWidth: "52rem" }}>
           <summary style={{ cursor: "pointer", color: "#444", fontSize: 14, fontWeight: 600 }}>
-            How resolution orders packs (overrides, pins, ties, conflicts)
+            How packs are ordered (scope, pins, ties)
           </summary>
           <p style={{ color: "#444", fontSize: 14, marginTop: 8 }}>
-            For the current scope: <strong>Project</strong> overrides <strong>Workspace</strong> overrides{" "}
-            <strong>Tenant</strong>. Pinned assignments rank above unpinned within the same tier; newer assignments break
-            ties. Conflicts are flagged when multiple packs define the same item or disagree on a value.
+            <strong>Project</strong> wins over <strong>Workspace</strong> over <strong>Tenant</strong>. Pinned beats
+            unpinned at the same tier; newest assignment breaks ties. Conflicts surface when definitions disagree.
           </p>
         </details>
       </section>
