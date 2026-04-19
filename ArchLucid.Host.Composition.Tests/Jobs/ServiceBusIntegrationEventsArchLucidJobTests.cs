@@ -21,7 +21,7 @@ public sealed class ServiceBusIntegrationEventsArchLucidJobTests
         options.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions { ConsumerEnabled = false });
 
         ServiceBusIntegrationEventsArchLucidJob job = new(
-            Array.Empty<IIntegrationEventHandler>(),
+            [],
             options.Object,
             NullLogger<ServiceBusIntegrationEventsArchLucidJob>.Instance);
 
@@ -35,7 +35,7 @@ public sealed class ServiceBusIntegrationEventsArchLucidJobTests
         options.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions { ConsumerEnabled = false });
 
         ServiceBusIntegrationEventsArchLucidJob job = new(
-            Array.Empty<IIntegrationEventHandler>(),
+            [],
             options.Object,
             NullLogger<ServiceBusIntegrationEventsArchLucidJob>.Instance);
 
@@ -58,7 +58,7 @@ public sealed class ServiceBusIntegrationEventsArchLucidJobTests
             });
 
         ServiceBusIntegrationEventsArchLucidJob job = new(
-            Array.Empty<IIntegrationEventHandler>(),
+            [],
             options.Object,
             NullLogger<ServiceBusIntegrationEventsArchLucidJob>.Instance);
 
@@ -81,7 +81,7 @@ public sealed class ServiceBusIntegrationEventsArchLucidJobTests
             });
 
         ServiceBusIntegrationEventsArchLucidJob job = new(
-            Array.Empty<IIntegrationEventHandler>(),
+            [],
             options.Object,
             NullLogger<ServiceBusIntegrationEventsArchLucidJob>.Instance);
 
@@ -105,7 +105,7 @@ public sealed class ServiceBusIntegrationEventsArchLucidJobTests
             });
 
         ServiceBusIntegrationEventsArchLucidJob job = new(
-            Array.Empty<IIntegrationEventHandler>(),
+            [],
             options.Object,
             NullLogger<ServiceBusIntegrationEventsArchLucidJob>.Instance);
 

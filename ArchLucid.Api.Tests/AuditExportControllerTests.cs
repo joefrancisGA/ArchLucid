@@ -48,7 +48,7 @@ public sealed class AuditExportControllerTests
                 It.IsAny<DateTime>(),
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new[] { evt });
+            .ReturnsAsync([evt]);
 
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -93,7 +93,7 @@ public sealed class AuditExportControllerTests
                 It.IsAny<DateTime>(),
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new[] { evt });
+            .ReturnsAsync([evt]);
 
         client.DefaultRequestHeaders.Accept.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/csv"));

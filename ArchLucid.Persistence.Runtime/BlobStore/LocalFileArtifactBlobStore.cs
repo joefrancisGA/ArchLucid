@@ -50,7 +50,7 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
 
         string relative = Path.GetRelativePath(root, full);
         string[] segments = relative.Split(
-            new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+            [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
             StringSplitOptions.RemoveEmptyEntries);
 
         if (segments.Length < 2)
@@ -97,7 +97,7 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
     {
         blobName = blobName.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
 
-        List<string> parts = new();
+        List<string> parts = [];
 
         foreach (string part in blobName.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries))
         {

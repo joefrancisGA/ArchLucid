@@ -51,7 +51,7 @@ internal static class OpenApiJsonCanonicalizer
         if (string.Equals(parentPropertyName, "tags", StringComparison.Ordinal) && items.Count > 0)
             SortTagsArray(items);
 
-        JsonArray result = new();
+        JsonArray result = [];
 
         foreach (JsonNode? item in items)
             result.Add(item);

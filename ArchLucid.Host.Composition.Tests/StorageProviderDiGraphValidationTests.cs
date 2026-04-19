@@ -51,7 +51,7 @@ public sealed class StorageProviderDiGraphValidationTests
     public void Sql_storage_AddArchLucidStorage_registers_sql_connection_abstractions()
     {
         IConfiguration configuration = CreateSqlCompositionConfiguration();
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton(typeof(IConfiguration), configuration);
         services.AddLogging();
         _ = services.AddArchLucidStorage(configuration);
@@ -65,7 +65,7 @@ public sealed class StorageProviderDiGraphValidationTests
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton(typeof(IConfiguration), configuration);
         services.AddSingleton<IHostEnvironment>(new CompositionTestHostEnvironment(Environments.Development));
         services.AddLogging();

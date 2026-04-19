@@ -76,7 +76,7 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
     private static ServiceCollection CreateCoreServices(IConfiguration configuration)
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton(typeof(IConfiguration), configuration);
         services.AddSingleton<IHostEnvironment>(new CompositionTestHostEnvironment(Environments.Development));
         services.AddLogging(static b => b.AddDebug());

@@ -569,7 +569,7 @@ public sealed class PreCommitGovernanceGateTests
         PreCommitGateResult r = await sut.EvaluateAsync(runId, CancellationToken.None);
 
         r.Blocked.Should().BeTrue();
-        r.BlockingFindingIds.Should().BeEquivalentTo(["f-1", "f-2", "f-3"]);
+        r.BlockingFindingIds.Should().BeEquivalentTo("f-1", "f-2", "f-3");
         r.Reason.Should().Contain("3 Critical+");
     }
 

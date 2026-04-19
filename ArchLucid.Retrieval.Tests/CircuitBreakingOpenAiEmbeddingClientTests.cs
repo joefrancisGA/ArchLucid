@@ -26,7 +26,11 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
         float[] vector = [0.1f, 0.2f];
         inner.Setup(c => c.EmbedAsync("x", It.IsAny<CancellationToken>())).ReturnsAsync(vector);
 
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 60
+        };
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
@@ -49,7 +53,11 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
         inner.Setup(c => c.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("API error"));
 
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 60
+        };
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerGate gate = new("test-gate", options, clock.ToFunc());
 
@@ -89,7 +97,11 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
                     return Task.FromResult(vector);
                 });
 
-        CircuitBreakerOptions options = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 5,
+            DurationOfBreakSeconds = 60
+        };
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerGate gate = new("embed-retry", options, clock.ToFunc());
         ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
@@ -113,7 +125,7 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
     {
         int calls = 0;
         Mock<IOpenAiEmbeddingClient> inner = new();
-        IReadOnlyList<float[]> batch = [new[] { 0.1f }];
+        IReadOnlyList<float[]> batch = [[0.1f]];
         inner.Setup(c => c.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
             .Returns(
                 (IReadOnlyList<string> _, CancellationToken _) =>
@@ -128,7 +140,11 @@ public sealed class CircuitBreakingOpenAiEmbeddingClientTests
                     return Task.FromResult(batch);
                 });
 
-        CircuitBreakerOptions options = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 5,
+            DurationOfBreakSeconds = 60
+        };
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
         CircuitBreakerGate gate = new("embed-batch-retry", options, clock.ToFunc());
         ResiliencePipeline retry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(

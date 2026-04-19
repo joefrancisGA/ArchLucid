@@ -42,7 +42,7 @@ public sealed class TrialLifecycleArchLucidJobTests
     [Fact]
     public async Task RunOnceAsync_returns_job_failure_when_tenant_repository_resolution_throws()
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped<ITenantRepository>(_ => throw new InvalidOperationException("simulated DI failure"));
 
         await using ServiceProvider provider = services.BuildServiceProvider();
@@ -57,12 +57,12 @@ public sealed class TrialLifecycleArchLucidJobTests
     {
         Mock<ITenantRepository> tenantRepo = new();
         tenantRepo.Setup(r => r.ListTrialLifecycleAutomationTenantIdsAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<Guid>());
+            .ReturnsAsync([]);
 
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> lifecycleOptions = new();
         lifecycleOptions.Setup(m => m.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped<ITenantRepository>(_ => tenantRepo.Object);
         services.AddScoped<ITenantHardPurgeService>(_ => Mock.Of<ITenantHardPurgeService>());
         services.AddScoped<IAuditService>(_ => Mock.Of<IAuditService>());

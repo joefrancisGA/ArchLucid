@@ -237,7 +237,7 @@ public sealed class AzureMarketplaceBillingProvider(
 
             TokenCredential credential = new DefaultAzureCredential();
             AccessToken token = await credential.GetTokenAsync(
-                new TokenRequestContext(new[] { "https://marketplaceapi.microsoft.com/.default" }),
+                new TokenRequestContext(["https://marketplaceapi.microsoft.com/.default"]),
                 cancellationToken);
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);

@@ -1,8 +1,8 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Safety;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Safety;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosting;
 
@@ -210,7 +210,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton(typeof(IConfiguration), configuration);
         services.AddSingleton<IHostEnvironment>(new CompositionTestHostEnvironment(hostEnvironmentName));
         services.AddLogging(static b => b.AddDebug());

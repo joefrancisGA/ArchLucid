@@ -62,10 +62,10 @@ public sealed class StripeBillingProvider(
                 ["seats"] = Math.Max(1, request.Seats).ToString(CultureInfo.InvariantCulture),
                 ["workspaces"] = Math.Max(1, request.Workspaces).ToString(CultureInfo.InvariantCulture),
             },
-            LineItems = new List<SessionLineItemOptions>
-            {
-                new() { Price = priceId, Quantity = 1 },
-            },
+            LineItems =
+            [
+                new() { Price = priceId, Quantity = 1 }
+            ],
         };
 
         if (!string.IsNullOrWhiteSpace(request.BillingEmail))

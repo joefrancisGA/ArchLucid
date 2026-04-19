@@ -113,7 +113,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             }
         }
 
-        _workspacesByTenant.TryAdd(tenantId, new List<TenantWorkspaceRow>());
+        _workspacesByTenant.TryAdd(tenantId, []);
 
         return Task.CompletedTask;
     }
@@ -128,7 +128,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         _ = ct;
 
-        List<TenantWorkspaceRow> list = _workspacesByTenant.GetOrAdd(tenantId, static _ => new List<TenantWorkspaceRow>());
+        List<TenantWorkspaceRow> list = _workspacesByTenant.GetOrAdd(tenantId, static _ => []);
 
         lock (list)
         {
@@ -511,14 +511,26 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
     private sealed record TenantWorkspaceRow
     {
-        public Guid Id { get; init; }
+        public Guid Id
+        {
+            get; init;
+        }
 
-        public Guid TenantId { get; init; }
+        public Guid TenantId
+        {
+            get; init;
+        }
 
         public string Name { get; init; } = string.Empty;
 
-        public Guid DefaultProjectId { get; init; }
+        public Guid DefaultProjectId
+        {
+            get; init;
+        }
 
-        public DateTimeOffset CreatedUtc { get; init; }
+        public DateTimeOffset CreatedUtc
+        {
+            get; init;
+        }
     }
 }

@@ -213,7 +213,7 @@ public sealed class ApiKeyAuthenticationHandlerTests
         IHostEnvironment environment)
     {
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(configData).Build();
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddOptions();
         services.Configure<ApiKeyAuthenticationOptions>(configuration.GetSection(ApiKeyAuthenticationOptions.SectionPath));
         using ServiceProvider sp = services.BuildServiceProvider();

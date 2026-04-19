@@ -28,15 +28,17 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
         ExpectedImpact impact = BuildExpectedImpact(plan, theme);
         DateTime createdUtc = plan.CreatedUtc;
 
-        List<CandidateChangeSet> results = [];
+        List<CandidateChangeSet> results =
+        [
 
-        results.Add(
             BuildAggregateChangeSet(
                 plan,
                 orderedSteps,
                 components,
                 impact,
-                createdUtc));
+                createdUtc)
+
+        ];
 
         if (orderedSteps.Count > 1)
         {

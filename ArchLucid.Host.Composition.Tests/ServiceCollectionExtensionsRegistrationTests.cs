@@ -24,7 +24,7 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
     public void AddArchLucidApplicationServices_does_not_throw_for_hosting_role(ArchLucidHostingRole role)
     {
         IConfiguration configuration = CreateCompositionTestConfiguration(role);
-        ServiceCollection services = new();
+        ServiceCollection services = [];
 
         Action act = () => _ = services.AddArchLucidApplicationServices(configuration, role);
 

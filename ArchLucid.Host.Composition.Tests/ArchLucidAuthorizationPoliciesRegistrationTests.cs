@@ -66,7 +66,7 @@ public sealed class ArchLucidAuthorizationPoliciesRegistrationTests
 
     private static AuthorizationOptions BuildAuthorizationOptions()
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         _ = services.AddArchLucidAuthorizationPolicies();
         using ServiceProvider provider = services.BuildServiceProvider();
         IOptions<AuthorizationOptions> options = provider.GetRequiredService<IOptions<AuthorizationOptions>>();

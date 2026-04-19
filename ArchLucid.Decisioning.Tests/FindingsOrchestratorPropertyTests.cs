@@ -37,7 +37,7 @@ public sealed class FindingsOrchestratorPropertyTests
             string label = $"e{i}";
             engine.Setup(x => x.EngineType).Returns(label);
             engine.Setup(x => x.Category).Returns("Security");
-            engine.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Finding>());
+            engine.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>())).ReturnsAsync([]);
             engines.Add(engine);
         }
 
