@@ -16,6 +16,8 @@ import {
   alertRulesDefinedListEmptyReaderLine,
   alertRulesPageLeadOperator,
   alertRulesPageLeadReader,
+  alertToolingChangeConfigurationHeadingOperator,
+  alertToolingChangeConfigurationHeadingReader,
   alertToolingConfigureSectionSubline,
   alertToolingListRefreshButtonTitleOperator,
   alertToolingListRefreshButtonTitleReader,
@@ -158,7 +160,9 @@ export default function AlertRulesPage() {
           aria-labelledby="alert-rules-change-heading"
         >
           <h3 id="alert-rules-change-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
-            {canMutateAlertRules ? "Change configuration" : "Change configuration (operator access)"}
+            {canMutateAlertRules
+              ? alertToolingChangeConfigurationHeadingOperator
+              : alertToolingChangeConfigurationHeadingReader}
           </h3>
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 10 }}>
             {alertToolingConfigureSectionSubline}

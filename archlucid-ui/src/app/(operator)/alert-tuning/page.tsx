@@ -4,11 +4,15 @@ import { useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import {
+  alertToolingChangeConfigurationHeadingOperator,
   alertToolingConfigureSectionSubline,
+  alertTuningCurrentTuningHeadingOperator,
+  alertTuningCurrentTuningHeadingReader,
   alertTuningPageLead,
   alertTuningRecommendButtonTitle,
 } from "@/lib/enterprise-controls-context-copy";
@@ -87,6 +91,7 @@ function CandidateCard({
 }
 
 export default function AlertTuningPage() {
+  const canMutateEnterpriseShell = useEnterpriseMutationCapability();
   const [ruleKind, setRuleKind] = useState<"Simple" | "Composite">("Simple");
   const [ruleType, setRuleType] = useState("CostIncreasePercent");
   const [tunedMetricComposite, setTunedMetricComposite] = useState("CostIncreasePercent");
@@ -223,7 +228,9 @@ export default function AlertTuningPage() {
       <div className="flex flex-col gap-10">
         <section className="min-w-0" aria-labelledby="alert-tuning-current-heading">
           <h3 id="alert-tuning-current-heading" style={{ fontSize: "1rem", marginTop: 0, marginBottom: 8 }}>
-            Current tuning
+            {canMutateEnterpriseShell
+              ? alertTuningCurrentTuningHeadingOperator
+              : alertTuningCurrentTuningHeadingReader}
           </h3>
           {result ? (
             <>
@@ -263,7 +270,7 @@ export default function AlertTuningPage() {
 
         <section className="min-w-0" aria-labelledby="alert-tuning-change-heading">
           <h3 id="alert-tuning-change-heading" style={{ fontSize: "1rem", marginTop: 0, marginBottom: 8 }}>
-            Change configuration
+            {alertToolingChangeConfigurationHeadingOperator}
           </h3>
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
             {alertToolingConfigureSectionSubline}

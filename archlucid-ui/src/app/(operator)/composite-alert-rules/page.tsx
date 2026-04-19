@@ -10,6 +10,8 @@ import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  alertToolingChangeConfigurationHeadingOperator,
+  alertToolingChangeConfigurationHeadingReader,
   alertToolingConfigureSectionSubline,
   alertToolingListRefreshButtonTitleOperator,
   alertToolingListRefreshButtonTitleReader,
@@ -208,7 +210,9 @@ export default function CompositeAlertRulesPage() {
           aria-labelledby="composite-rules-change-heading"
         >
           <h3 id="composite-rules-change-heading" style={{ fontSize: "1rem" }}>
-            {canMutateComposite ? "Change configuration" : "Change configuration (operator access)"}
+            {canMutateComposite
+              ? alertToolingChangeConfigurationHeadingOperator
+              : alertToolingChangeConfigurationHeadingReader}
           </h3>
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
             {alertToolingConfigureSectionSubline}

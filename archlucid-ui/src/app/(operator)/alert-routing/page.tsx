@@ -18,6 +18,8 @@ import {
   alertRoutingSubscriptionsEmptyReaderLine,
   alertRoutingToggleToDisabledReaderRank,
   alertRoutingToggleToEnabledReaderRank,
+  alertToolingChangeConfigurationHeadingOperator,
+  alertToolingChangeConfigurationHeadingReader,
   alertToolingConfigureSectionSubline,
   alertToolingListRefreshButtonTitleOperator,
   alertToolingListRefreshButtonTitleReader,
@@ -211,7 +213,9 @@ export default function AlertRoutingPage() {
           aria-labelledby="alert-routing-change-heading"
         >
           <h3 id="alert-routing-change-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
-            {canMutateRouting ? "Change configuration" : "Change configuration (operator access)"}
+            {canMutateRouting
+              ? alertToolingChangeConfigurationHeadingOperator
+              : alertToolingChangeConfigurationHeadingReader}
           </h3>
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 10 }}>
             {alertToolingConfigureSectionSubline}

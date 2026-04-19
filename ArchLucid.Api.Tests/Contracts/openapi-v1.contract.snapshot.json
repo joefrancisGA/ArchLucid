@@ -9721,6 +9721,35 @@
         },
         "type": "object"
       },
+      "TenantNotificationChannelPreferencesResponse": {
+        "properties": {
+          "emailCustomerNotificationsEnabled": {
+            "type": "boolean"
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "outboundWebhookCustomerNotificationsEnabled": {
+            "type": "boolean"
+          },
+          "schemaVersion": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "teamsCustomerNotificationsEnabled": {
+            "type": "boolean"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "TenantProvisionAdminRequest": {
         "properties": {
           "adminEmail": {
@@ -26558,6 +26587,75 @@
         ]
       }
     },
+    "/v1/notifications/customer-channel-preferences": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantNotificationChannelPreferencesResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantNotificationChannelPreferencesResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantNotificationChannelPreferencesResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "CustomerNotificationChannelPreferences"
+        ]
+      }
+    },
     "/v1/policy-packs": {
       "get": {
         "responses": {
@@ -28276,6 +28374,9 @@
     },
     {
       "name": "Conversation"
+    },
+    {
+      "name": "CustomerNotificationChannelPreferences"
     },
     {
       "name": "Demo"

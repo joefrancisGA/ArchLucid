@@ -68,6 +68,7 @@ vi.mock("next/link", () => ({
 
 import {
   alertToolingListRefreshButtonTitleReader,
+  alertTuningCurrentTuningHeadingReader,
   alertsInboxRefreshButtonTitleReader,
   alertsTriageDialogConfirmButtonLabelReaderRank,
   governanceResolutionChangeRelatedControlsReaderSupplement,
@@ -83,6 +84,7 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 
 import AlertRulesPage from "./alert-rules/page";
+import AlertTuningPage from "./alert-tuning/page";
 import CompositeAlertRulesPage from "./composite-alert-rules/page";
 import AlertsPage from "./alerts/page";
 import GovernanceResolutionPage from "./governance-resolution/page";
@@ -225,6 +227,13 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
 
     expect(screen.getAllByRole("note")).toHaveLength(1);
+  });
+
+  it("Alert tuning: Current tuning heading uses inspect framing when mutation capability is false", () => {
+    mutateCapability.current = false;
+    render(<AlertTuningPage />);
+
+    expect(screen.getByRole("heading", { name: alertTuningCurrentTuningHeadingReader })).toBeInTheDocument();
   });
 
   it("Alert rules: Create rule stays disabled when mutation capability is false", async () => {

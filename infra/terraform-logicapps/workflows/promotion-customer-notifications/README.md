@@ -4,4 +4,6 @@
 
 **Service Bus:** enable `enable_logic_app_promotion_prod_customer_subscription` in `infra/terraform-servicebus/`. The API and outbox processor set **`promotion_environment`** on the message from the JSON `environment` field so SQL filters work without parsing the body.
 
-**Still out of repo:** internal channel-preferences API client, `workflow.json`, and HMAC signing steps with `secureInput` / `secureOutput`.
+**Channel preferences (API):** `GET /v1/notifications/customer-channel-preferences` — see `CustomerNotificationChannelPreferencesController` and contract `TenantNotificationChannelPreferencesResponse`. **.NET client:** `ArchLucidApiClient.CustomerChannelPreferencesAsync()` (regenerate via `dotnet build` on `ArchLucid.Api.Client` after OpenAPI snapshot updates).
+
+**Still out of repo:** `workflow.json` and HMAC signing steps with `secureInput` / `secureOutput` (design in Portal / your CD pipeline).

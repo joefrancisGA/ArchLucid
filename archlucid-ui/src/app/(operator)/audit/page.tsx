@@ -26,7 +26,13 @@ import {
   auditExportExecuteRankAuditorRoleNote,
   auditExportSectionSupportingLine,
   auditClearFiltersButtonLabelReaderRank,
+  auditLoadMoreButtonTitleOperator,
+  auditLoadMoreButtonTitleReader,
+  auditResultsSectionHeadingOperator,
+  auditResultsSectionHeadingReader,
   auditSearchEventsButtonLabelReaderRank,
+  auditSearchEventsButtonTitleOperator,
+  auditSearchEventsButtonTitleReader,
   auditSearchEventsSectionHeadingOperator,
   auditSearchEventsSectionHeadingReader,
   auditSearchNoResultsOperatorLine,
@@ -335,7 +341,16 @@ export default function AuditPage() {
           </label>
         </div>
         <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button type="button" onClick={() => void runSearch()} disabled={searching || loadingTypes}>
+          <button
+            type="button"
+            onClick={() => void runSearch()}
+            disabled={searching || loadingTypes}
+            title={
+              callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+                ? auditSearchEventsButtonTitleReader
+                : auditSearchEventsButtonTitleOperator
+            }
+          >
             {searching ? "Searching…" : canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}
           </button>
           <button
@@ -355,7 +370,9 @@ export default function AuditPage() {
 
       <section aria-labelledby="audit-results-heading">
         <h3 id="audit-results-heading" style={{ marginTop: 0, marginBottom: 8, fontSize: "1rem" }}>
-          Audit results
+          {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+            ? auditResultsSectionHeadingReader
+            : auditResultsSectionHeadingOperator}
         </h3>
         <p role="status" aria-live="polite" aria-atomic="true" style={{ color: "#555", fontSize: 14, marginTop: 0 }}>
           {formatAuditSummaryHeading(events.length, hasMoreResults)}. Newest first, {AUDIT_PAGE_SIZE} rows per request; use
@@ -441,7 +458,16 @@ export default function AuditPage() {
 
         {events.length > 0 && hasMoreResults ? (
           <div style={{ marginTop: 16 }}>
-            <button type="button" onClick={() => void loadMore()} disabled={loadingMore || searching}>
+            <button
+              type="button"
+              onClick={() => void loadMore()}
+              disabled={loadingMore || searching}
+              title={
+                callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+                  ? auditLoadMoreButtonTitleReader
+                  : auditLoadMoreButtonTitleOperator
+              }
+            >
               {loadingMore ? "Loading…" : "Load more"}
             </button>
           </div>
