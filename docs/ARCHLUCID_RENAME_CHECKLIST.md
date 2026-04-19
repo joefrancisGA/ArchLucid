@@ -1,7 +1,8 @@
 # ArchiForge → ArchLucid Rename Checklist
 
-Incremental rename plan. One batch is folded into each working session.
-See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
+**Status — initiative closed (2026-04-19):** Product, code, CI, Terraform (greenfield), GitHub repo (`joefrancisGA/ArchLucid`), and docs align with **ArchLucid**. **Phase 7.8** (local workspace folder path) is **waived** — keeping `c:\ArchiForge\ArchiForge` (or any existing path) is acceptable; it does not affect builds or remotes.
+
+Historical batches below document what was done. See `.cursor/rules/ArchLucid-Rename.mdc` for current agent guidance (maintenance mode).
 
 > **Rule**: keep the build green after every batch. Never break CI.
 
@@ -50,7 +51,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 - [x] 4.2 `infra/terraform-storage/` — **2026-04-07** (no product literals requiring change)
 - [x] 4.3 `infra/terraform-edge/` — **2026-04-07** (no product literals requiring change)
 - [x] 4.4 `infra/terraform-container-apps/` — **2026-04-07**
-  - [x] Worker `command` → `ArchLucid.Worker.dll` (2026-04-06). Defaults **`archlucid-api`**, **`archlucid-ui`**, **`archlucid-worker`**; template container names updated. **2026-04-08:** Terraform **variable defaults** for LAW/CAE/budget/VNet/Grafana prefixes → **`archlucid-*`** (greenfield); **resource addresses** (e.g. `azurerm_api_management.archiforge`) still **`archiforge`** until **7.5** `state mv`.
+  - [x] Worker `command` → `ArchLucid.Worker.dll` (2026-04-06). Defaults **`archlucid-api`**, **`archlucid-ui`**, **`archlucid-worker`**; template container names updated. **2026-04-08:** Terraform **variable defaults** for LAW/CAE/budget/VNet/Grafana prefixes → **`archlucid-*`** (greenfield). **2026-04-19:** Phase **7.5** — all **`infra/**/*.tf`** use **`archlucid`** resource labels; no legacy **`archiforge`** in Terraform sources.
 - [x] 4.5 `infra/terraform-sql-failover/` — **2026-04-07** (defaults unchanged for state)
 - [x] 4.6 `infra/terraform-openai/` — **2026-04-07**
 - [x] 4.7 `infra/terraform-entra/` — **2026-04-07** (consent strings + default display **ArchLucid API**)
@@ -105,8 +106,8 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 - [x] 7.5 Terraform IaC rename (greenfield — no Azure deployment yet) — **2026-04-19**: removed `moved_archlucid_*.tf`; Consumption APIM API Azure name **`archlucid-api`**; all `infra/**/*.tf` free of **`archiforge`**; examples updated; **CI** fails if `archiforge` appears in any Terraform **`.tf`** under `infra/`. First deploy: [`docs/FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md). Runbook stub: [`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`](runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md). Brownfield **state mv** archive: [`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`](archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md).
 - [x] 7.6 Rename GitHub repository — **2026-04-19** — `joefrancisGA/ArchiForge` → **`joefrancisGA/ArchLucid`** (`gh repo rename`). Local `git remote set-url` + doc updates (e.g. `.github/CODEOWNERS`, `docs/runbooks/COPILOT_CODE_REVIEW_SETUP.md`).
 - [x] 7.7 Entra ID app registrations (redirect URIs, display names) — **2026-04-19**: **greenfield** — IaC in `infra/terraform-entra/` defines **ArchLucid** strings; first **`terraform apply`** creates tenant registrations. No brownfield app objects to migrate.
-- [ ] 7.8 Rename workspace root directory (`c:\ArchiForge\ArchiForge` → `c:\ArchLucid\ArchLucid`) — **deferred** — see [RENAME_DEFERRED_RATIONALE.md](RENAME_DEFERRED_RATIONALE.md) (2026-04-14)
-- [x] 7.9 Final grep for any remaining `ArchiForge` / `archiforge` in **product-facing** docs and infra **identifiers** — **2026-04-10** sweep complete (see progress log). **Still expected by design:** this checklist title/history; **`BREAKING_CHANGES.md`** rows documenting **removed** legacy key spellings; **`MULTI_TENANT_RLS.md`** committed SQL **object** names (`rls.ArchiforgeTenantScope`, `rls.archiforge_scope_predicate`, migration filename **`036_RlsArchiforgeTenantScope.sql`**); **CI** rejects any **`archiforge`** substring in product **`.cs`** / **`.ts`** / **`.tsx`** (allowlists removed **2026-04-17**); **CI** rejects **`archiforge`** in **`infra/**/*.tf`** (**2026-04-19**); `.gitleaks.toml` allowlisted dev password literals. **Deferred:** 7.6, 7.8.
+- [x] 7.8 Rename workspace root directory (`c:\ArchiForge\ArchiForge` → `c:\ArchLucid\ArchLucid`) — **waived 2026-04-19** — owner chose not to rename local folders; optional cosmetic only. Rename initiative considered complete without this step.
+- [x] 7.9 Final grep for any remaining `ArchiForge` / `archiforge` in **product-facing** docs and infra **identifiers** — **2026-04-10** sweep complete (see progress log). **Still expected by design:** this checklist title/history; **`BREAKING_CHANGES.md`** rows documenting **removed** legacy key spellings; **`MULTI_TENANT_RLS.md`** committed SQL **object** names (`rls.ArchiforgeTenantScope`, `rls.archiforge_scope_predicate`, migration filename **`036_RlsArchiforgeTenantScope.sql`**); **CI** rejects any **`archiforge`** substring in product **`.cs`** / **`.ts`** / **`.tsx`** (allowlists removed **2026-04-17**); **CI** rejects **`archiforge`** in **`infra/**/*.tf`** (**2026-04-19**); `.gitleaks.toml` allowlisted dev password literals. **Phase 7 rename initiative closed 2026-04-19** (7.8 waived).
 
 ## Phase 8 — Azure Logic Apps Standard (edge orchestration)
 
@@ -125,6 +126,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 
 | Date | Batch | Notes |
 |------|-------|-------|
+| 2026-04-19 | **Rename initiative CLOSED** | **7.8 waived** — local workspace path unchanged by owner decision. Header + **7.9** note: Phase **7** complete. **`RENAME_DEFERRED_RATIONALE.md`**, **`NEXT_REFACTORINGS.md`**, **`.cursor/rules/ArchLucid-Rename.mdc`** → maintenance mode. |
 | 2026-04-19 | **Phase 7.6 GitHub repo rename** | **`joefrancisGA/ArchiForge` → `joefrancisGA/ArchLucid`**. **`.github/CODEOWNERS`**, **`docs/runbooks/COPILOT_CODE_REVIEW_SETUP.md`** URLs. Checklist **7.6** checked. **Deferred:** **7.8** (local workspace path). |
 | 2026-04-19 | **Phase 7.5 / 7.7 greenfield Terraform + Entra** | Removed **`infra/terraform/moved_archlucid_apim.tf`**, **`infra/terraform-monitoring/moved_archlucid_monitoring.tf`**. APIM API Azure name **`archlucid-api`**. All **`infra/**/*.tf`** + **`terraform.tfvars.example`** free of **`archiforge`**. **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`** → stub; archive **`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`**. **`docs/FIRST_AZURE_DEPLOYMENT.md`**, **`RENAME_DEFERRED_RATIONALE.md`**, **`REFERENCE_SAAS_STACK_ORDER.md`**, **`DEPLOYMENT_TERRAFORM.md`**, **`.github/copilot-instructions.md`**. **CI:** job **`terraform-assert-no-archiforge-in-tf`**. Checklist **7.5**, **7.7** checked. **Deferred:** **7.8** (local path). |
 | 2026-04-19 | **CI — coverage gates strict 79 / 63 / 63** | **`.github/workflows/ci.yml`**: merged line **79%**, branch **63%**, per-package line **63%**; removed **`--skip-package-line-gate ArchLucid.Jobs.Cli`**. **`scripts/ci/build_coverage_pr_comment.py`**: **`PER_PROJECT_LINE_WARN_PCT`** **63**; empty skip set for PR table. **`docs/CODE_COVERAGE.md`**, **`docs/coverage-exclusions.md`**, **`assert_merged_line_coverage_min.py`** docstring, **`CURSOR_PROMPTS_SIX_QUALITY_IMPROVEMENTS.md`**. Phase **7.5–7.8** unchanged (deferred). |

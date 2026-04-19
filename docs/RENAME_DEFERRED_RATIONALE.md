@@ -1,26 +1,16 @@
-# ArchForge → ArchLucid — remaining deferred item (7.8)
+# ArchForge → ArchLucid — deferred rationale (historical)
 
-## Objective
+**Status (2026-04-19):** The **rename initiative is closed.** This file is retained as a short historical note. Current state: GitHub **`joefrancisGA/ArchLucid`**, greenfield Terraform uses **`archlucid`** naming, **7.8** (local folder path) **waived** by owner.
 
-Record why **Phase 7.8** in `docs/ARCHLUCID_RENAME_CHECKLIST.md` may remain open. **Phase 7.6** (GitHub repo rename to `joefrancisGA/ArchLucid`) is **done (2026-04-19)**. **Phase 7.5** / **7.7** — see checklist and [`FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md).
+## What was deferred and how it resolved
 
-## Items
+| Item | Resolution |
+|------|------------|
+| **7.5** Terraform | **Done** — greenfield IaC; see [`FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md), [`archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`](archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md) for brownfield only. |
+| **7.6** GitHub repo | **Done** — `joefrancisGA/ArchLucid`. |
+| **7.7** Entra | **N/A greenfield** — first `terraform apply` under `infra/terraform-entra/`. |
+| **7.8** Local workspace path | **Waived** — optional; local path may remain `ArchiForge`-named; does not affect product. |
 
-| Item | Work | Owner / trigger |
-|------|------|-----------------|
-| ~~**7.5** Terraform rename~~ | **Done (2026-04-19):** removed `moved {}` blocks; APIM API Azure name `archlucid-api`; zero `archiforge` in `infra/**/*.tf`; CI guard. | — |
-| ~~**7.6** GitHub repository rename~~ | **Done (2026-04-19):** `joefrancisGA/ArchiForge` → `joefrancisGA/ArchLucid`. | — |
-| ~~**7.7** Entra app registrations~~ | **N/A for first tenant:** `infra/terraform-entra/` defines **ArchLucid** display strings; first `terraform apply` creates app registrations. | — |
-| **7.8** Developer workspace path rename | Local folder path (`c:\ArchiForge\ArchiForge` → e.g. `c:\ArchLucid\ArchLucid`); optional; IDE/session paths. | You, when convenient. |
+## Brownfield Terraform (rare)
 
-## Risk of deferring 7.8
-
-**Low for correctness:** only affects local paths and muscle memory. GitHub remote already points at `ArchLucid`.
-
-## When to revisit 7.8
-
-During a machine refresh or when the `ArchiForge` folder name becomes confusing for onboarding.
-
-## Brownfield Terraform note
-
-If you **already** have remote Terraform state with historical `*.archiforge` addresses, see [`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`](archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md). Greenfield subscriptions skip this.
+If remote state still used historical `*.archiforge` addresses, see [`docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`](archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md). New subscriptions skip this.
