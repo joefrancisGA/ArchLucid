@@ -11,6 +11,7 @@ import {
   alertRoutingCreateSubscriptionButtonLabelReaderRank,
   alertRoutingCurrentRoutingHeadingOperator,
   alertRoutingCurrentRoutingHeadingReader,
+  alertRoutingDeliveryAttemptsButtonLabelReaderRank,
   alertRoutingToggleToDisabledReaderRank,
   alertRoutingToggleToEnabledReaderRank,
   alertRoutingSubscriptionsEmptyOperatorLine,
@@ -152,7 +153,7 @@ export default function AlertRoutingPage() {
                   </div>
                   <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <button type="button" onClick={() => void loadAttempts(item.routingSubscriptionId)}>
-                      Show delivery attempts
+                      {canMutateRouting ? "Show delivery attempts" : alertRoutingDeliveryAttemptsButtonLabelReaderRank}
                     </button>
                     <button
                       type="button"

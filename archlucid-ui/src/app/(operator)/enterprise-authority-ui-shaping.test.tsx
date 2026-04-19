@@ -65,6 +65,7 @@ vi.mock("next/link", () => ({
 }));
 
 import {
+  alertsTriageDialogConfirmButtonLabelReaderRank,
   governanceResolutionChangeRelatedControlsReaderSupplement,
   policyPacksCreatePackButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
@@ -160,7 +161,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     screen.getByRole("button", { name: /Acknowledge/ }).click();
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Confirm" })).toBeDisabled();
+      expect(screen.getByRole("button", { name: alertsTriageDialogConfirmButtonLabelReaderRank })).toBeDisabled();
     });
   });
 

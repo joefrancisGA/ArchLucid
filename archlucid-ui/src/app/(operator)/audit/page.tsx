@@ -9,6 +9,7 @@ import {
   useNavCallerAuthorityRank,
   useOperatorNavAuthority,
 } from "@/components/OperatorNavAuthorityProvider";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AuditEvent } from "@/lib/api";
@@ -24,6 +25,7 @@ import {
   auditExportCsvButtonLabelWindowIncomplete,
   auditExportExecuteRankAuditorRoleNote,
   auditExportSectionSupportingLine,
+  auditSearchEventsButtonLabelReaderRank,
   auditSearchNoResultsOperatorLine,
   auditSearchNoResultsReaderLine,
   auditSearchSectionLeadReaderLine,
@@ -65,6 +67,7 @@ interface AuditFilterFields {
 export default function AuditPage() {
   const { currentPrincipal } = useOperatorNavAuthority();
   const callerAuthorityRank = useNavCallerAuthorityRank();
+  const canMutateEnterpriseShell = useEnterpriseMutationCapability();
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventType, setEventType] = useState<string>("");
   const [fromUtc, setFromUtc] = useState<string>("");
@@ -328,7 +331,7 @@ export default function AuditPage() {
         </div>
         <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button type="button" onClick={() => void runSearch()} disabled={searching || loadingTypes}>
-            {searching ? "Searching…" : "Search"}
+            {searching ? "Searching…" : canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}
           </button>
           <button type="button" onClick={() => void clearFiltersAndSearch()} disabled={searching}>
             Clear filters

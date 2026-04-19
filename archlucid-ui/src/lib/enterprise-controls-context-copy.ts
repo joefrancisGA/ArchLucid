@@ -70,6 +70,24 @@ export const governanceWorkflowPageLeadOperator = "Load a run; work top to botto
 /** Governance workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
 export const governanceWorkflowPageLeadReader = "Load a run to inspect.";
 
+/** Governance workflow — reload lists for the active run (`GET`); shown next to **Load** after a run is selected. */
+export const governanceWorkflowRefreshRunDataTitle =
+  "Reload approval requests, promotions, and activations for the loaded run (GET).";
+
+export const governanceWorkflowRefreshRunDataButtonLabel = "Refresh data";
+
+/** Alerts triage dialog — primary control when **Confirm** is disabled at read rank (preview-only path). */
+export const alertsTriageDialogConfirmButtonLabelReaderRank = "Apply triage (Execute+)";
+
+/** Audit log — search is always **GET**; label nudges read-tier callers away from export expectations. */
+export const auditSearchEventsButtonLabelReaderRank = "Search audit log";
+
+/** Alert routing — delivery history fetch is **GET**; reader label clarifies inspect vs toggle writes. */
+export const alertRoutingDeliveryAttemptsButtonLabelReaderRank = "Delivery attempts (inspect)";
+
+/** Policy packs — compare action stays inspection-only at read rank (lifecycle writes below). */
+export const policyPacksShowDiffButtonLabelReaderRank = "Show diff (inspect)";
+
 /**
  * Governance workflow — inline review card when rank is below Execute (defense if UI state still shows the form;
  * Approve/Reject entry points are normally disabled for Reader).
