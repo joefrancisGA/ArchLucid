@@ -3,7 +3,7 @@
 **Priority:** P3 — Reference (one-time setup, not an incident response)
 **Owner:** Repo maintainer
 **Last reviewed:** 2026-04-17
-**Applies to:** `joefrancisGA/ArchiForge` (will become `joefrancisGA/ArchLucid` per rename Phase 7.6)
+**Applies to:** `joefrancisGA/ArchLucid`
 
 ## Objective
 
@@ -12,7 +12,7 @@ Turn on **GitHub Copilot code review** so that Copilot is automatically requeste
 ## Assumptions
 
 - You have an active **Copilot Pro** subscription (verify at <https://github.com/settings/copilot>).
-- You are the repo admin on `joefrancisGA/ArchiForge`.
+- You are the repo admin on `joefrancisGA/ArchLucid`.
 - Branch protection / rulesets for `main` already exist (see [`.github/BRANCH_PROTECTION.md`](../../.github/BRANCH_PROTECTION.md)). This runbook does **not** modify them.
 
 ## Constraints
@@ -61,7 +61,7 @@ flowchart LR
 
 1. Go to <https://github.com/settings/copilot/features> (Account-level Copilot policies).
 2. Confirm **Copilot in pull requests** (or **Copilot code review**) is set to **Enabled**.
-3. If your account uses repository-scoped allow lists, ensure `joefrancisGA/ArchiForge` is included.
+3. If your account uses repository-scoped allow lists, ensure `joefrancisGA/ArchLucid` is included.
 
 ### Step 3 — Turn on automatic review for this repo (Rulesets — current path)
 
@@ -69,7 +69,7 @@ GitHub’s documented path for **per-repository** automatic Copilot review is a 
 
 **Primary path (repository):**
 
-1. Open the repo: <https://github.com/joefrancisGA/ArchiForge>.
+1. Open the repo: <https://github.com/joefrancisGA/ArchLucid>.
 2. Click **Settings** (gear). If you do not see **Settings**, you are not an admin on the repo — ask an owner to grant **Admin** or apply the ruleset for you.
 3. In the **left sidebar**, open **Rules** → **Rulesets** (GitHub docs group this under *“Code and automation”* in prose; your UI may show **Rules** without that exact group title, or use a different section name — look for **Rulesets**, not the **Code** tab).
 4. Click **New ruleset** → **New branch ruleset**.
@@ -105,7 +105,7 @@ Profile picture → **Copilot settings** → enable **Automatic Copilot code rev
 Step 3 already creates the ruleset in the GitHub UI. To keep a copy in git:
 
 1. After **Create**, open **Settings** → **Rules** → **Rulesets** and note the ruleset ID from the URL, or list via API.
-2. Export: `gh api repos/joefrancisGA/ArchiForge/rulesets/<id>` and commit the JSON under `.github/rulesets/` if your team wants a paper trail (optional; GitHub remains source of truth).
+2. Export: `gh api repos/joefrancisGA/ArchLucid/rulesets/<id>` and commit the JSON under `.github/rulesets/` if your team wants a paper trail (optional; GitHub remains source of truth).
 
 > Caveat: GitHub's Terraform provider (`integrations/github`) supports rulesets via `github_repository_ruleset`, but the **Copilot review** branch rule may lag the web UI. Check the provider schema before encoding this in Terraform.
 

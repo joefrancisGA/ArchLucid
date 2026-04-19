@@ -1,26 +1,25 @@
-# ArchForge → ArchLucid — remaining deferred items (7.6, 7.8)
+# ArchForge → ArchLucid — remaining deferred item (7.8)
 
 ## Objective
 
-Record why **Phase 7.6** and **7.8** in `docs/ARCHLUCID_RENAME_CHECKLIST.md` remain open without blocking product delivery. **Phase 7.5** (Terraform IaC rename) and **7.7** (Entra app registrations) are **complete for greenfield** — see checklist and [`FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md).
+Record why **Phase 7.8** in `docs/ARCHLUCID_RENAME_CHECKLIST.md` may remain open. **Phase 7.6** (GitHub repo rename to `joefrancisGA/ArchLucid`) is **done (2026-04-19)**. **Phase 7.5** / **7.7** — see checklist and [`FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md).
 
 ## Items
 
 | Item | Work | Owner / trigger |
 |------|------|-----------------|
 | ~~**7.5** Terraform rename~~ | **Done (2026-04-19):** removed `moved {}` blocks; APIM API Azure name `archlucid-api`; zero `archiforge` in `infra/**/*.tf`; CI guard. | — |
+| ~~**7.6** GitHub repository rename~~ | **Done (2026-04-19):** `joefrancisGA/ArchiForge` → `joefrancisGA/ArchLucid`. | — |
 | ~~**7.7** Entra app registrations~~ | **N/A for first tenant:** `infra/terraform-entra/` defines **ArchLucid** display strings; first `terraform apply` creates app registrations. | — |
-| **7.6** GitHub repository rename | Updates remotes, badges, fork URLs, integration webhooks. | Org admin + comms plan. |
-| **7.8** Developer workspace path rename | Local clones and IDE workspace path (`c:\ArchiForge\ArchiForge` → chosen path); high churn for little runtime gain until team agrees. | Team agreement + doc refresh. |
+| **7.8** Developer workspace path rename | Local folder path (`c:\ArchiForge\ArchiForge` → e.g. `c:\ArchLucid\ArchLucid`); optional; IDE/session paths. | You, when convenient. |
 
-## Risk of deferral (7.6 / 7.8 only)
+## Risk of deferring 7.8
 
-**Low for correctness:** application behavior uses ArchLucid assemblies and config keys. Residual `ArchiForge` in **folder paths** or **GitHub org/repo URL** is cosmetic for contributors until renamed.
+**Low for correctness:** only affects local paths and muscle memory. GitHub remote already points at `ArchLucid`.
 
-## When to revisit
+## When to revisit 7.8
 
-- **7.6:** Before public launch or when fork/clone URLs must read “ArchLucid” consistently.
-- **7.8:** During a planned developer-machine refresh or monorepo layout change.
+During a machine refresh or when the `ArchiForge` folder name becomes confusing for onboarding.
 
 ## Brownfield Terraform note
 
