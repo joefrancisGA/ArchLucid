@@ -37,9 +37,10 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
             await setup.OpenAsync();
 
             // RLS BLOCK predicates on UsageEvents / AuditEvents (migrations 068 + 070) reject inserts that do not
-            // match the session's tenant/workspace/project scope. Tests in other xUnit collections toggle the
-            // rls.ArchiforgeTenantScope policy STATE = ON in parallel, so set the same bypass key the production
-            // SqlTenantHardPurgeService uses; this keeps setup deterministic regardless of current policy state.
+            // match the session's tenant/workspace/project scope. Tests in other xUnit collections may toggle the
+            // consolidated tenant RLS security policy in schema rls (DbUp 036) STATE = ON in parallel, so set the
+            // same bypass key the production SqlTenantHardPurgeService uses; this keeps setup deterministic
+            // regardless of current policy state.
             await EnableRlsBypassAsync(setup);
 
             await using SqlCommand tenantCmd = setup.CreateCommand();
@@ -115,8 +116,9 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
     }
 
     /// <summary>
-    /// Sets <c>SESSION_CONTEXT(N'af_rls_bypass') = 1</c> so writes pass the BLOCK predicates on
-    /// <c>rls.ArchiforgeTenantScope</c>. Mirrors <c>SqlTenantHardPurgeService.ApplyBypassSessionAsync</c>.
+    /// Sets <c>SESSION_CONTEXT(N'af_rls_bypass') = 1</c> so writes pass the BLOCK predicates on scope-keyed tables
+    /// covered by the tenant RLS rollout (DbUp 036; see <c>docs/security/MULTI_TENANT_RLS.md</c>).
+    /// Mirrors <c>SqlTenantHardPurgeService.ApplyBypassSessionAsync</c>.
     /// </summary>
     private static async Task EnableRlsBypassAsync(SqlConnection connection)
     {
