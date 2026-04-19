@@ -47,8 +47,9 @@ export const governanceResolutionRankReaderLine = "Edits: policy packs or workfl
 
 export const governanceResolutionRankOperatorLine = "Ordering lives in packs or workflow—not here.";
 
-/** Governance resolution — one line under the page title (LayerHeader carries when-to-use). */
-export const governanceResolutionPageSubline = "Read-only route.";
+/** Governance resolution — one line under the page title (replaces a second rank cue; LayerHeader carries when-to-use). */
+export const governanceResolutionPageSubline =
+  "This route is read-only — change packs or workflow on those pages (API).";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
 export const governanceDashboardReaderActionLine =
@@ -56,11 +57,10 @@ export const governanceDashboardReaderActionLine =
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator =
-  "One run: load ID → submit → approve/reject → promote → activate.";
+  "One run: load ID, then submit → approve/reject → promote → activate.";
 
 /** Governance workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
-export const governanceWorkflowPageLeadReader =
-  "Load a run ID to inspect workflow rows.";
+export const governanceWorkflowPageLeadReader = "Load a run ID to inspect rows.";
 
 /**
  * Governance workflow — inline review card when rank is below Execute (defense if UI state still shows the form;
@@ -69,13 +69,9 @@ export const governanceWorkflowPageLeadReader =
 export const governanceWorkflowPendingReviewReaderNote =
   "Read-only preview at this rank in the shell; submit still requires operator-level access (API gate).";
 
-/** Policy packs — operator+ reminder (Readers see write hint via `EnterpriseControlsExecutePageHint`). */
-export const enterprisePolicyPacksOperatorPlusLine =
-  "Compare before publish; lifecycle writes API-enforced.";
-
 /**
- * Alert rules / routing / simulation / tuning / composite — single rank-aware cue (`AlertOperatorToolingRankCue`).
- * Stacked Execute hint + operator line were consolidated into this pair.
+ * Alert rules / routing / simulation / tuning / composite — rank-aware cue (`AlertOperatorToolingRankCue`) for tests
+ * or routes that mount a second strip below **`LayerHeader`**.
  */
 export const alertOperatorToolingReaderRankLine =
   "Inspect list and history above; configuration below needs Execute+ (API).";
@@ -86,9 +82,8 @@ export const alertOperatorToolingOperatorRankLine = "Writes below are API-enforc
 export const alertsPageLeadOperator =
   "Filter, then triage. Shortcuts: Alt+1 ack · Alt+2 resolve · Alt+3 suppress.";
 
-/** Alerts inbox — lead paragraph under page title (read tier). */
-export const alertsPageLeadReader =
-  "Filter and refresh the inbox. Buttons or Alt+1–3 open a triage preview; Confirm needs Execute+ (API).";
+/** Alerts inbox — lead paragraph under page title (read tier). Rank cue carries triage / Confirm detail. */
+export const alertsPageLeadReader = "Filter and refresh the inbox.";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
 export const alertsInboxRankReaderLine =
@@ -109,9 +104,6 @@ export const auditLogRankReaderLine = "CSV export: Auditor or Admin on the API (
 
 export const auditLogRankOperatorLine = "Export is role-gated on the API.";
 
-/** Governance dashboard — operator+ when `GovernanceDashboardReaderActionCue` is hidden */
-export const governanceDashboardOperatorPlusLine = "Cross-run actions are API-enforced.";
-
 /** Extra line under the pending-approvals empty state when rank is below Execute (batch/review CTAs are disabled). */
 export const governanceDashboardPendingClearReaderSupplement =
   "Read-focused: batch and row actions stay disabled until operator-level access applies (API authoritative).";
@@ -129,6 +121,14 @@ export const governanceWorkflowNoApprovalsReaderHint =
 
 export const governanceWorkflowNoApprovalsOperatorHint =
   "Submit a request above or pick another run ID.";
+
+/** Policy packs — lead under title (Execute+); governance resolution link follows in page markup. */
+export const policyPacksPageLeadOperator =
+  "Inspect inventory, effective JSON, and compare before lifecycle.";
+
+/** Policy packs — lead under title (read tier). */
+export const policyPacksPageLeadReader =
+  "Inspect inventory and JSON; lifecycle needs Execute+ (API).";
 
 /** Policy packs — empty list under “Packs in scope”. */
 export const policyPacksEmptyScopeReaderLine =

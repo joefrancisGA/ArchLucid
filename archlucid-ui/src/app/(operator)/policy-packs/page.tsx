@@ -4,10 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
-import {
-  EnterpriseControlsExecutePageHint,
-  EnterpriseExecutePlusPageCue,
-} from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -24,11 +20,12 @@ import {
 } from "@/lib/api";
 import {
   enterpriseMutationControlDisabledTitle,
-  enterprisePolicyPacksOperatorPlusLine,
   policyPacksCompareVersionsReaderSubline,
   policyPacksEmptyScopeOperatorLine,
   policyPacksEmptyScopeReaderLine,
   policyPacksLifecycleLeadReaderLine,
+  policyPacksPageLeadOperator,
+  policyPacksPageLeadReader,
   policyPacksPublishedVersionsEmptyOperatorLine,
   policyPacksPublishedVersionsEmptyReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
@@ -247,14 +244,12 @@ export default function PolicyPacksPage() {
       <LayerHeader pageKey="policy-packs" />
       <h2 style={{ marginTop: 0 }}>Policy packs</h2>
       <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Inspect and compare first; lifecycle last. Effective ordering:{" "}
+        {canMutatePacks ? policyPacksPageLeadOperator : policyPacksPageLeadReader}{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
-          governance resolution
-        </Link>
-        .
+          Governance resolution
+        </Link>{" "}
+        shows stack ordering for this scope.
       </p>
-      <EnterpriseControlsExecutePageHint />
-      <EnterpriseExecutePlusPageCue message={enterprisePolicyPacksOperatorPlusLine} />
 
       <p>
         <button type="button" onClick={() => void load()} disabled={loading}>

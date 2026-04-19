@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
@@ -229,9 +228,8 @@ export default function AuditPage() {
       <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
       <p className="mb-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Search, then scan results. Export last and reuses the same From/To window.
+        Search and scan results first; export last (same From/To; Auditor/Admin on the API).
       </p>
-      <AuditLogRankCue />
 
       {failure !== null ? (
         <div role="alert">
