@@ -35,6 +35,8 @@ const apiHoisted = vi.hoisted(() => ({
   listPromotions: vi.fn(),
   listActivations: vi.fn(),
   getGovernanceResolution: vi.fn(),
+  listDigestSubscriptions: vi.fn(),
+  listAdvisorySchedules: vi.fn(),
 }));
 
 vi.mock("@/lib/api", async (importOriginal) => {
@@ -53,6 +55,8 @@ vi.mock("@/lib/api", async (importOriginal) => {
     listPromotions: apiHoisted.listPromotions,
     listActivations: apiHoisted.listActivations,
     getGovernanceResolution: apiHoisted.getGovernanceResolution,
+    listDigestSubscriptions: apiHoisted.listDigestSubscriptions,
+    listAdvisorySchedules: apiHoisted.listAdvisorySchedules,
   };
 });
 
@@ -75,7 +79,9 @@ import {
   governanceResolutionChangeRelatedControlsReaderSupplement,
   governanceResolutionEffectivePolicyHeadingReader,
   governanceResolutionResolutionDetailsHeadingReader,
+  advisorySchedulesCreateScheduleButtonLabelReaderRank,
   compositeRulesCreateButtonLabelReaderRank,
+  digestSubscriptionsCreateSubscriptionButtonLabelReaderRank,
   governanceWorkflowApprovalRequestsCardTitleReader,
   governanceWorkflowPromotionsActivationsHeadingReader,
   governanceWorkflowSubmitCardTitleReader,
@@ -84,7 +90,9 @@ import {
   policyPacksPackContentHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 
+import AdvisorySchedulingPage from "./advisory-scheduling/page";
 import AlertRulesPage from "./alert-rules/page";
+import DigestSubscriptionsPage from "./digest-subscriptions/page";
 import AlertSimulationPage from "./alert-simulation/page";
 import AlertTuningPage from "./alert-tuning/page";
 import CompositeAlertRulesPage from "./composite-alert-rules/page";
@@ -148,6 +156,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     apiHoisted.listPromotions.mockResolvedValue([]);
     apiHoisted.listActivations.mockResolvedValue([]);
     apiHoisted.getGovernanceResolution.mockResolvedValue(emptyGovernanceResolutionPayload);
+    apiHoisted.listDigestSubscriptions.mockResolvedValue([]);
+    apiHoisted.listAdvisorySchedules.mockResolvedValue([]);
   });
 
   it("Policy packs: Create pack stays disabled when mutation capability is false", async () => {
@@ -229,6 +239,32 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
 
     expect(screen.getAllByRole("note")).toHaveLength(1);
+  });
+
+  it("Digest subscriptions: Create subscription stays disabled when mutation capability is false", async () => {
+    mutateCapability.current = false;
+    render(<DigestSubscriptionsPage />);
+
+    await waitFor(() => {
+      expect(apiHoisted.listDigestSubscriptions).toHaveBeenCalled();
+    });
+
+    expect(
+      screen.getByRole("button", { name: digestSubscriptionsCreateSubscriptionButtonLabelReaderRank }),
+    ).toBeDisabled();
+  });
+
+  it("Advisory schedules: Create schedule submit stays disabled when mutation capability is false", async () => {
+    mutateCapability.current = false;
+    render(<AdvisorySchedulingPage />);
+
+    await waitFor(() => {
+      expect(apiHoisted.listAdvisorySchedules).toHaveBeenCalled();
+    });
+
+    expect(
+      screen.getByRole("button", { name: advisorySchedulesCreateScheduleButtonLabelReaderRank }),
+    ).toBeDisabled();
   });
 
   it("Alert tuning: Current tuning heading uses inspect framing when mutation capability is false", () => {
