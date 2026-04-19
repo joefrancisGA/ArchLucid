@@ -127,6 +127,8 @@ Use this order unless you have a strong reason to change it:
 
 This is the safest path for most pilots.
 
+Do not treat this as a feature-tour sequence. Stay in **Core Pilot** until a real analytical or governance question justifies leaving it.
+
 ---
 
 ## 7. Fast decision rules
