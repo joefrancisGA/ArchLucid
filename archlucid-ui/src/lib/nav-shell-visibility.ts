@@ -48,6 +48,7 @@ export type NavGroupWithVisibleLinks = {
  *   stays hidden until **Show more** even at Admin rank.
  * @see `OperatorNavAuthorityProvider.test.tsx` — conservative rank during JWT `/me` refetch (feeds this module indirectly).
  * @see `enterprise-authority-ui-shaping.test.tsx` — **`useEnterpriseMutationCapability`** → **`disabled`** / **`readOnly`** on representative Enterprise pages (incl. governance submit fields).
+ * @see `authority-shaped-layout-regression.test.tsx` — read-tier **layout** (inspect-first columns, triage deemphasis); complements this module’s **link set** only.
  */
 export function filterNavLinksForOperatorShell(
   links: ReadonlyArray<NavLinkItem>,

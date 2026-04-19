@@ -40,6 +40,7 @@ export type LayerHeaderProps = {
  * @see `authority-seam-regression.test.ts` — **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`** contract (packaging ↔ this component).
  * @see `authority-execute-floor-regression.test.ts` — **`AUTHORITY_RANK.ExecuteAuthority`** used the same way for **nav** and **mutation** booleans; this component’s rank cue shares that numeric line (**UI only**).
  * @see `enterprise-authority-ui-shaping.test.tsx` — mutation hook → Enterprise **`disabled`** / governance submit **`readOnly`** (same story as rank cue; API still **`[Authorize]`**).
+ * @see `authority-shaped-layout-regression.test.tsx` — read-tier **page** column order / hierarchy (this strip does not control layout).
  */
 export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
   const block = LAYER_PAGE_GUIDANCE[pageKey];

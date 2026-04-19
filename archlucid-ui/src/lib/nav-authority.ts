@@ -41,6 +41,7 @@
  * @see `current-principal.test.ts` — **`normalizeAuthMeResponse`**: **`maxAuthority`** must track **`requiredAuthorityFromRank(authorityRank)`**.
  * @see `OperatorNavAuthorityProvider.test.tsx` — rank fed into consumers of this module during JWT `/me` refetch.
  * @see `enterprise-authority-ui-shaping.test.tsx` — **`useEnterpriseMutationCapability`** gates **`disabled`** / submit **`readOnly`** on representative Enterprise pages (**UI only**; API **`[Authorize]`**).
+ * @see `authority-shaped-layout-regression.test.tsx` — inspect-first columns / action order when mutation is off (**UI hierarchy**; still not authZ).
  */
 
 /** Same strings as server `ArchLucidPolicies` — smallest durable contract for nav links. */

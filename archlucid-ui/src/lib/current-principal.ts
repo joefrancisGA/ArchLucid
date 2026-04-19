@@ -20,7 +20,9 @@
  *
  * **`OperatorNavAuthorityProvider`** exposes the same rank to **`useNavCallerAuthorityRank()`**, which feeds
  * **`filterNavLinksForOperatorShell`** / **`listNavGroupsVisibleInOperatorShell`** (`nav-shell-visibility.ts`) and
- * **`useEnterpriseMutationCapability()`** (Execute+ floor in **`enterprise-mutation-capability.ts`**). **`LayerHeader`**
+ * **`useEnterpriseMutationCapability()`** (Execute+ floor in **`enterprise-mutation-capability.ts`**). Page-level **layout**
+ * (inspect-first columns when mutation is off) also keys off that hook on some routes — see **`authority-shaped-layout-regression.test.tsx`**.
+ * **`LayerHeader`**
  * Enterprise rank cue uses the **same numeric Execute boundary** for in-strip copy (**not** tier disclosure — that stays in
  * **`nav-shell-visibility.ts`**). Some routes also read **`useEnterpriseMutationCapability()`** for paragraphs that are not
  * the rank cue (e.g. governance resolution **Change related controls** supplement — same policies story, **second hook**;
