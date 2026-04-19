@@ -4,10 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { Button } from "@/components/ui/button";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import {
   governanceResolutionChangeRelatedControlsLead,
   governanceResolutionChangeRelatedControlsReaderSupplement,
+  governanceResolutionPageLeadOperator,
+  governanceResolutionPageLeadReader,
+  governanceResolutionRefreshButtonTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
 import { getGovernanceResolution } from "@/lib/api";
@@ -43,6 +47,9 @@ export default function GovernanceResolutionPage() {
     <main style={{ maxWidth: 1100 }}>
       <LayerHeader pageKey="governance-resolution" />
       <h2 style={{ marginTop: 0 }}>Governance resolution</h2>
+      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+        {canMutateEnterprisePolicySurfaces ? governanceResolutionPageLeadOperator : governanceResolutionPageLeadReader}
+      </p>
       <GovernanceResolutionRankCue className="mb-3" />
       {failure !== null ? (
         <div role="alert">
@@ -151,11 +158,18 @@ export default function GovernanceResolutionPage() {
             {governanceResolutionChangeRelatedControlsReaderSupplement}
           </p>
         ) : null}
-        <p style={{ marginBottom: 0 }}>
-          <button type="button" onClick={() => void load()} disabled={loading}>
+        <div className="mb-0">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            title={governanceResolutionRefreshButtonTitle}
+            onClick={() => void load()}
+            disabled={loading}
+          >
             {loading ? "Loading…" : "Refresh"}
-          </button>
-        </p>
+          </Button>
+        </div>
       </section>
     </main>
   );

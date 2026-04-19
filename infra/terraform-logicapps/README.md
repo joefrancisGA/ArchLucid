@@ -39,3 +39,4 @@ Workflow JSON and in-app connections are **not** defined here; export from the d
 - `docs/CURSOR_PROMPTS_LOGIC_APPS.md` — implementation prompts for governance, trial email, marketplace, ChatOps, and customer notifications.
 - `docs/adr/0019-logic-apps-standard-edge-orchestration.md` — architecture decision.
 - `docs/runbooks/LOGIC_APPS_STANDARD.md` — operator notes.
+- `docs/runbooks/LOGIC_APPS_INCIDENT_CHATOPS.md` — alert fired/resolved Service Bus user properties and callback routes.

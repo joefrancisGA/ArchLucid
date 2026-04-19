@@ -32,7 +32,11 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   enterpriseMutationControlDisabledTitle,
+  governanceDashboardApproveSelectedButtonLabelReaderRank,
   governanceDashboardPendingClearReaderSupplement,
+  governanceDashboardRejectSelectedButtonLabelReaderRank,
+  governanceWorkflowApproveButtonLabelReaderRank,
+  governanceWorkflowRejectButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { showError, showSuccess } from "@/lib/toast";
@@ -421,7 +425,7 @@ export default function GovernanceDashboardPage() {
                     setBatchDialog({ mode: "approve" });
                   }}
                 >
-                  Approve selected
+                  {canMutateGovernance ? "Approve selected" : governanceDashboardApproveSelectedButtonLabelReaderRank}
                 </Button>
                 <Button
                   type="button"
@@ -433,7 +437,7 @@ export default function GovernanceDashboardPage() {
                     setBatchDialog({ mode: "reject" });
                   }}
                 >
-                  Reject selected
+                  {canMutateGovernance ? "Reject selected" : governanceDashboardRejectSelectedButtonLabelReaderRank}
                 </Button>
                 <Button
                   type="button"
@@ -523,7 +527,7 @@ export default function GovernanceDashboardPage() {
                               })
                             }
                           >
-                            Approve
+                            {canMutateGovernance ? "Approve" : governanceWorkflowApproveButtonLabelReaderRank}
                           </Button>
                           <Button
                             type="button"
@@ -539,7 +543,7 @@ export default function GovernanceDashboardPage() {
                               })
                             }
                           >
-                            Reject
+                            {canMutateGovernance ? "Reject" : governanceWorkflowRejectButtonLabelReaderRank}
                           </Button>
                         </>
                       )}
