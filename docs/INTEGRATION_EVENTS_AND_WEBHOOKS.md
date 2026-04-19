@@ -35,6 +35,10 @@ When `WebhookDelivery:UseCloudEventsEnvelope` is **true**, digest and alert webh
 
 **Logic App (governance) subscription:** when `enable_logic_app_governance_approval_subscription` is true in `infra/terraform-servicebus/`, a third subscription is created whose default rule is a SQL filter on **`event_type`** so only `com.archlucid.governance.approval.submitted` is delivered — use that subscription name as the Service Bus trigger in the **`governance-approval-routing`** workflow (see `infra/terraform-logicapps/workflows/governance-approval-routing/README.md`).
 
+**Additional optional Logic App subscriptions (same module):** trial lifecycle email (`com.archlucid.notifications.trial-lifecycle-email.v1`), incident ChatOps (`alert.fired` **or** `alert.resolved`), and prod-only promotion customer notify (`event_type` + user property **`promotion_environment` = `prod`**). The API/worker sets `promotion_environment` on Service Bus messages for `com.archlucid.governance.promotion.activated` so SQL filters can target production without parsing the JSON body.
+
+**Trial lifecycle scan ownership:** set `ArchLucid:Notifications:TrialLifecycle:Owner` to **`LogicApp`** to skip the in-process `TrialLifecycleEmailScanHostedService` / job scan (recurrence moves to Logic App); keep **`Hosted`** (default) until the external workflow is live.
+
 ### Transactional outbox (`dbo.IntegrationEventOutbox`)
 
 When `TransactionalOutboxEnabled` is **true** and storage is **Sql**, integration events are written to `dbo.IntegrationEventOutbox` and published asynchronously by the **leader-elected** `IntegrationEventOutboxHostedService` (same retry/dead-letter behavior for all event types that use the outbox path).

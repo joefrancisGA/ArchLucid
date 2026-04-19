@@ -12,7 +12,7 @@
 | `Startup/ServiceCollectionExtensions.FeatureManagement.cs` | `AddArchLucidFeatureManagement` — **`IFeatureFlags`** → **`FeatureManagementFeatureFlags`** |
 | `Configuration/ArchLucidStorageServiceCollectionExtensions.cs` | `AddArchLucidStorage` |
 | `Startup/ServiceCollectionExtensions.SchedulingAndAlerts.cs` | Advisory schedules, digests, integration event publisher, alerts, retrieval/authority pipeline workers, integration-event outbox, archival host |
-| `Startup/ServiceCollectionExtensions.DataHealthAndJobs.cs` | In-memory `IDbConnectionFactory`, health checks, background jobs |
+| `Startup/ServiceCollectionExtensions.DataHealthAndJobs.cs` | Health checks, background jobs (`IDbConnectionFactory` is owned by **`AddArchLucidStorage`** — InMemory → **`UnsupportedRelationalDbConnectionFactory`**, Sql → **`SqlScopedResolutionDbConnectionFactory`**) |
 | `Startup/ServiceCollectionExtensions.ApplicationPipeline.cs` | Run export, analysis, replay/drift, **core run pipeline** (`IArchitectureRunService`, …), context ingestion + knowledge graph |
 | `Startup/ServiceCollectionExtensions.Decisioning.cs` | Finding engines, decision engine, manifest builders/validators |
 | `Startup/ServiceCollectionExtensions.CoordinatorAndArtifacts.cs` | Coordinator, decision engine services, **`ArchLucid.Persistence.Data.Repositories`** for runs/tasks/manifests, artifact synthesis |
@@ -32,24 +32,23 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 5. **`RegisterDigestDelivery`** → `WebhookDelivery` (+ HTTP client named **`ArchLucidWebhooks`**)
 6. **`RegisterIntegrationEventPublishing`** → `IntegrationEvents` / Service Bus publisher (or null publisher when unset)
 7. **`RegisterAlerts`** — evaluators, channels, dispatcher, `IAlertService`
-8. **`RegisterDataInfrastructure`** — only when **`ArchLucid:StorageProvider=InMemory`**: registers `IDbConnectionFactory` → `SqlConnectionFactory` (test/local SQL helpers)
-9. **`RegisterBackgroundJobs`** → **`BackgroundJobs`** (`Mode`: `Durable` vs in-memory); **role** gates queue processor vs API queue sender — see below
-10. **`RegisterRunExportAndArchitectureAnalysis`** — gated **`IRunExportRecordRepository`** by `StorageProvider`
-11. **`RegisterComparisonReplayAndDrift`** → `ReplayDiagnostics`
-12. **`RegisterRunReplayManifestAndDiffs`** — `IArchitectureRunService`, replay, diffs, exports, `IActorContext`, audit
-13. **`RegisterContextIngestionAndKnowledgeGraph`** — connectors, parsers, `IContextIngestionService`, graph builder/service
-14. **`RegisterDecisioningEngines`** — findings orchestrator, rule engine, manifest services, compliance pack loader
-15. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**; **`IRunExplanationSummaryService`** — see **`CachingRunExplanationSummaryService`** below
-16. **`RegisterArtifactSynthesis`**
-17. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, **`ArchLucid:FallbackLlm`** (optional), `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
-18. **`RegisterRetrieval`** → `Retrieval:VectorIndex` (`AzureSearch` vs in-memory), `AzureOpenAI:Embedding*`, `AzureOpenAI:CircuitBreaker`
-19. **`RegisterGovernance`** → **`ArchLucid:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
-20. **`RegisterRetrievalIndexingOutbox`** — **role:** `Combined` \| `Worker` → hosted outbox + authority pipeline work processors
-21. **`RegisterIntegrationEventOutbox`** — **role:** `Combined` \| `Worker` → `IntegrationEventOutboxHostedService`
-22. **`RegisterIntegrationEventConsumer`** — **role:** `Worker` only — **`AzureServiceBusIntegrationEventConsumer`** + **`LoggingIntegrationEventHandler`** when Service Bus consumption is enabled (**`ServiceCollectionExtensions.SchedulingAndAlerts.cs`**)
-23. **`RegisterDataArchivalHostedService`** — **role:** `Combined` \| `Worker`
-24. **`RegisterArchLucidHealthChecks`** — SQL, schema, compliance pack, blob, temp dir; archival check when worker/combined
-25. **`RegisterCosmosPolyglotPersistence`** — optional Cosmos overrides when **`CosmosDb:*`** features enabled (**`ServiceCollectionExtensions.CosmosPolyglotPersistence.cs`**); invoked **after** health checks so last registration wins for overlapping repository ports
+8. **`RegisterBackgroundJobs`** → **`BackgroundJobs`** (`Mode`: `Durable` vs in-memory); **role** gates queue processor vs API queue sender — see below
+9. **`RegisterRunExportAndArchitectureAnalysis`** — gated **`IRunExportRecordRepository`** by `StorageProvider`
+10. **`RegisterComparisonReplayAndDrift`** → `ReplayDiagnostics`
+11. **`RegisterRunReplayManifestAndDiffs`** — `IArchitectureRunService`, replay, diffs, exports, `IActorContext`, audit
+12. **`RegisterContextIngestionAndKnowledgeGraph`** — connectors, parsers, `IContextIngestionService`, graph builder/service
+13. **`RegisterDecisioningEngines`** — findings orchestrator, rule engine, manifest services, compliance pack loader
+14. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**; **`IRunExplanationSummaryService`** — see **`CachingRunExplanationSummaryService`** below
+15. **`RegisterArtifactSynthesis`**
+16. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, **`ArchLucid:FallbackLlm`** (optional), `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
+17. **`RegisterRetrieval`** → `Retrieval:VectorIndex` (`AzureSearch` vs in-memory), `AzureOpenAI:Embedding*`, `AzureOpenAI:CircuitBreaker`
+18. **`RegisterGovernance`** → **`ArchLucid:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
+19. **`RegisterRetrievalIndexingOutbox`** — **role:** `Combined` \| `Worker` → hosted outbox + authority pipeline work processors
+20. **`RegisterIntegrationEventOutbox`** — **role:** `Combined` \| `Worker` → `IntegrationEventOutboxHostedService`
+21. **`RegisterIntegrationEventConsumer`** — **role:** `Worker` only — **`AzureServiceBusIntegrationEventConsumer`** + **`LoggingIntegrationEventHandler`** when Service Bus consumption is enabled (**`ServiceCollectionExtensions.SchedulingAndAlerts.cs`**)
+22. **`RegisterDataArchivalHostedService`** — **role:** `Combined` \| `Worker`
+23. **`RegisterArchLucidHealthChecks`** — SQL, schema, compliance pack, blob, temp dir; archival check when worker/combined
+24. **`RegisterCosmosPolyglotPersistence`** — optional Cosmos overrides when **`CosmosDb:*`** features enabled (**`ServiceCollectionExtensions.CosmosPolyglotPersistence.cs`**); invoked **after** health checks so last registration wins for overlapping repository ports
 
 ---
 

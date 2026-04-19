@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Data;
 
 using ArchLucid.Core.Integration;
@@ -63,7 +64,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             Times.Once);
 
         publisher.Verify(
-            p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -109,7 +110,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             Times.Once);
 
         publisher.Verify(
-            p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -119,7 +120,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
         Mock<IIntegrationEventOutboxRepository> outbox = new();
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         IntegrationEventsOptions options = new()
         {
@@ -162,6 +163,7 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
                 IntegrationEventTypes.AdvisoryScanCompletedV1,
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 "z",
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

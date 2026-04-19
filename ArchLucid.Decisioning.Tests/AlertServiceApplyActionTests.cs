@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
@@ -44,6 +46,7 @@ public sealed class AlertServiceApplyActionTests
                     It.IsAny<string>(),
                     It.IsAny<ReadOnlyMemory<byte>>(),
                     It.IsAny<string?>(),
+                    It.IsAny<IReadOnlyDictionary<string, object>?>(),
                     It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

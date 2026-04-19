@@ -14,6 +14,8 @@ import {
   alertRulesCurrentRulesHeadingReader,
   alertRulesDefinedListEmptyOperatorLine,
   alertRulesDefinedListEmptyReaderLine,
+  alertRulesPageLeadOperator,
+  alertRulesPageLeadReader,
   alertToolingConfigureSectionSubline,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
@@ -83,6 +85,9 @@ export default function AlertRulesPage() {
     <main style={{ maxWidth: 800 }}>
       <LayerHeader pageKey="alert-rules" />
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
+      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+        {canMutateAlertRules ? alertRulesPageLeadOperator : alertRulesPageLeadReader}
+      </p>
       <AlertOperatorToolingRankCue />
 
       {failure !== null ? (

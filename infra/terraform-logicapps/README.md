@@ -8,6 +8,14 @@ Set **`enable_governance_approval_logic_app = true`** to deploy a **second** Log
 
 Workflow JSON and connections are still authored in Portal or CI; placeholder notes live under [`workflows/governance-approval-routing/README.md`](workflows/governance-approval-routing/README.md).
 
+## Other documented workflows (Portal / export)
+
+- [`workflows/trial-lifecycle-email/README.md`](workflows/trial-lifecycle-email/README.md) — scheduled trial email; pair with `ArchLucid:Notifications:TrialLifecycle:Owner=LogicApp` when the API scan is off.
+- [`workflows/incident-chatops/README.md`](workflows/incident-chatops/README.md) — alert fired / resolved to Teams or PagerDuty.
+- [`workflows/promotion-customer-notifications/README.md`](workflows/promotion-customer-notifications/README.md) — prod-only promotion fan-out.
+
+Additional Logic App Standard **hosts** for these are not yet duplicated in Terraform (mirror the governance host pattern when you want isolation per workload).
+
 ## When to enable
 
 Set `enable_logic_apps = true` only after:

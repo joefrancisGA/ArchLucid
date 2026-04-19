@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
@@ -30,7 +31,7 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
 
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Guid outboxId = Guid.NewGuid();
@@ -88,7 +89,7 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
 
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Guid outboxId = Guid.NewGuid();

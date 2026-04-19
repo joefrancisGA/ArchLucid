@@ -39,7 +39,6 @@ public static partial class ServiceCollectionExtensions
         RegisterIntegrationEventPublishing(services, configuration);
         RegisterTrialLifecycleAuditEmailPublishing(services);
         RegisterAlerts(services);
-        RegisterDataInfrastructure(services, configuration);
         RegisterBackgroundJobs(services, configuration, hostingRole);
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
         RegisterComparisonReplayAndDrift(services, configuration);

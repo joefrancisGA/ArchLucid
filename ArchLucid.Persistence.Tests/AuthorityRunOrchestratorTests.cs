@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Data;
 using System.Text.Json;
 
@@ -142,6 +143,7 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<string>(),
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -205,6 +207,7 @@ public sealed class AuthorityRunOrchestratorTests
                 IntegrationEventTypes.AuthorityRunCompletedV1,
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 $"{result.RunId:D}:{IntegrationEventTypes.AuthorityRunCompletedV1}",
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
         audit.Verify(
@@ -337,6 +340,7 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<string>(),
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -386,6 +390,7 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<string>(),
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -446,6 +451,7 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<string>(),
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -627,6 +633,7 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<string>(),
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -726,6 +733,7 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<string>(),
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 

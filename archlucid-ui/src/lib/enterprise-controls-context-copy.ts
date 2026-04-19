@@ -79,6 +79,9 @@ export const alertsTriageDialogConfirmButtonLabelReaderRank = "Apply triage (Exe
 /** Audit log — search is always **GET**; label nudges read-tier callers away from export expectations. */
 export const auditSearchEventsButtonLabelReaderRank = "Search audit log";
 
+/** Audit log — **Clear filters** when rank cannot mutate in the shell (still GET-only; clarifies re-run vs export). */
+export const auditClearFiltersButtonLabelReaderRank = "Clear filters & search";
+
 /** Alert routing — delivery history fetch is **GET**; reader label clarifies inspect vs toggle writes. */
 export const alertRoutingDeliveryAttemptsButtonLabelReaderRank = "Delivery attempts (inspect)";
 
@@ -105,6 +108,9 @@ export const alertsPageLeadOperator = "Filter, page, then triage per card.";
 
 /** Alerts inbox — lead under title (read tier); `AlertsInboxRankCue` carries write boundary. */
 export const alertsPageLeadReader = "Filter and page.";
+
+/** Alerts inbox — pagination controls when triage writes are off (`alerts/page.tsx`). */
+export const alertsPaginationNavTitleReaderRank = "Page results (read-only in this shell; API authoritative).";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
 export const alertsInboxRankReaderLine = "Preview only here; Confirm needs Execute+ (API).";
@@ -178,6 +184,10 @@ export const policyPacksPageLeadOperator = "Inventory and diff first; lifecycle 
 /** Policy packs — lead under title (read tier). */
 export const policyPacksPageLeadReader = "Inspect first; lifecycle Execute+ (API).";
 
+/** Policy packs — reader assist next to **Refresh** (`policy-packs/page.tsx`); reload is GET-only. */
+export const policyPacksRefreshAssistReaderLine =
+  "Refresh reloads inventory and effective policy (GET only; no lifecycle writes).";
+
 /** Policy packs — empty list under “Packs in scope”. */
 export const policyPacksEmptyScopeReaderLine =
   "None in scope yet. Inspect when data exists; create and lifecycle need operator on the API.";
@@ -216,6 +226,18 @@ export const alertRulesDefinedListEmptyReaderLine =
   "No rules yet. Inspect thresholds; writes need operator on the API.";
 
 export const alertRulesDefinedListEmptyOperatorLine = "None yet.";
+
+/** Alert rules — lead under page title (`alert-rules/page.tsx`); rank cue stays in `AlertOperatorToolingRankCue`. */
+export const alertRulesPageLeadOperator = "Scan current thresholds, then add or adjust rules below.";
+
+export const alertRulesPageLeadReader =
+  "Inspect thresholds above; the Change configuration block is Execute+ on the API at this rank.";
+
+/** Alert routing — lead under page title (`alert-routing/page.tsx`). */
+export const alertRoutingPageLeadOperator = "Review destinations and delivery health; subscriptions below.";
+
+export const alertRoutingPageLeadReader =
+  "Inspect subscriptions first; create, enable, and disable need Execute+ on the API at this rank.";
 
 /** Alert rules — list block above **Change configuration** (read tier: inspect-first label). */
 export const alertRulesCurrentRulesHeadingOperator = "Current rules";

@@ -82,7 +82,6 @@ public sealed class StorageProviderDiGraphValidationTests
                 {
                     ["Hosting:Role"] = "Api",
                     ["ArchLucid:StorageProvider"] = "InMemory",
-                    ["ConnectionStrings:ArchLucid"] = "",
                     ["AgentExecution:Mode"] = "Simulator",
                     ["AzureOpenAI:Endpoint"] = "",
                     ["AzureOpenAI:ApiKey"] = "",

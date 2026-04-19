@@ -23,6 +23,21 @@ output "logic_app_governance_approval_subscription_name" {
   description = "Dedicated subscription for governance approval Logic Apps (null when enable_logic_app_governance_approval_subscription is false)."
 }
 
+output "logic_app_trial_lifecycle_email_subscription_name" {
+  value       = try(azurerm_servicebus_subscription.logic_app_trial_lifecycle_email[0].name, null)
+  description = "Dedicated subscription for trial lifecycle email Logic Apps (null when disabled)."
+}
+
+output "logic_app_incident_chatops_subscription_name" {
+  value       = try(azurerm_servicebus_subscription.logic_app_incident_chatops[0].name, null)
+  description = "Dedicated subscription for incident ChatOps Logic Apps (null when disabled)."
+}
+
+output "logic_app_promotion_prod_customer_subscription_name" {
+  value       = try(azurerm_servicebus_subscription.logic_app_promotion_prod_customer[0].name, null)
+  description = "Dedicated subscription for prod promotion customer notifications (null when disabled)."
+}
+
 output "primary_connection_string" {
   value       = azurerm_servicebus_namespace.integration.default_primary_connection_string
   sensitive   = true

@@ -66,10 +66,21 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
     }
 
     /// <inheritdoc />
+    public Task PublishAsync(
+        string eventType,
+        ReadOnlyMemory<byte> utf8JsonPayload,
+        string? messageId,
+        CancellationToken cancellationToken)
+    {
+        return PublishAsync(eventType, utf8JsonPayload, messageId, null, cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task PublishAsync(
         string eventType,
         ReadOnlyMemory<byte> utf8JsonPayload,
         string? messageId,
+        IReadOnlyDictionary<string, object>? applicationProperties,
         CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(eventType);
@@ -83,6 +94,24 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
                 ["event_type"] = eventType,
             },
         };
+
+        if (applicationProperties is not null)
+        {
+            foreach (KeyValuePair<string, object> pair in applicationProperties)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Key))
+                {
+                    continue;
+                }
+
+                if (string.Equals(pair.Key, "event_type", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                message.ApplicationProperties[pair.Key] = pair.Value;
+            }
+        }
 
         if (!string.IsNullOrEmpty(messageId))
         {

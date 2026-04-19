@@ -25,6 +25,7 @@ import {
   auditExportCsvButtonLabelWindowIncomplete,
   auditExportExecuteRankAuditorRoleNote,
   auditExportSectionSupportingLine,
+  auditClearFiltersButtonLabelReaderRank,
   auditSearchEventsButtonLabelReaderRank,
   auditSearchNoResultsOperatorLine,
   auditSearchNoResultsReaderLine,
@@ -333,8 +334,17 @@ export default function AuditPage() {
           <button type="button" onClick={() => void runSearch()} disabled={searching || loadingTypes}>
             {searching ? "Searching…" : canMutateEnterpriseShell ? "Search" : auditSearchEventsButtonLabelReaderRank}
           </button>
-          <button type="button" onClick={() => void clearFiltersAndSearch()} disabled={searching}>
-            Clear filters
+          <button
+            type="button"
+            onClick={() => void clearFiltersAndSearch()}
+            disabled={searching}
+            title={
+              canMutateEnterpriseShell
+                ? "Clear filter fields and run search with empty criteria"
+                : "Clear fields and re-run search (GET only; export rules unchanged)"
+            }
+          >
+            {canMutateEnterpriseShell ? "Clear filters" : auditClearFiltersButtonLabelReaderRank}
           </button>
         </div>
       </section>

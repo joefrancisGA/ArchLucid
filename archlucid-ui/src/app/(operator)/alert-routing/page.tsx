@@ -12,10 +12,12 @@ import {
   alertRoutingCurrentRoutingHeadingOperator,
   alertRoutingCurrentRoutingHeadingReader,
   alertRoutingDeliveryAttemptsButtonLabelReaderRank,
-  alertRoutingToggleToDisabledReaderRank,
-  alertRoutingToggleToEnabledReaderRank,
+  alertRoutingPageLeadOperator,
+  alertRoutingPageLeadReader,
   alertRoutingSubscriptionsEmptyOperatorLine,
   alertRoutingSubscriptionsEmptyReaderLine,
+  alertRoutingToggleToDisabledReaderRank,
+  alertRoutingToggleToEnabledReaderRank,
   alertToolingConfigureSectionSubline,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
@@ -102,6 +104,9 @@ export default function AlertRoutingPage() {
     <main style={{ maxWidth: 800 }}>
       <LayerHeader pageKey="alert-routing" />
       <h2 style={{ marginTop: 0 }}>Alert routing</h2>
+      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+        {canMutateRouting ? alertRoutingPageLeadOperator : alertRoutingPageLeadReader}
+      </p>
       <AlertOperatorToolingRankCue />
 
       {failure !== null ? (

@@ -26,7 +26,10 @@ public static class IntegrationEventPublishing
         {
             byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(payload, IntegrationEventJson.Options);
 
-            await publisher.PublishAsync(eventType, utf8, messageId, cancellationToken);
+            IReadOnlyDictionary<string, object>? applicationProperties =
+                IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(eventType, utf8);
+
+            await publisher.PublishAsync(eventType, utf8, messageId, applicationProperties, cancellationToken);
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested
                                    && ex is not OutOfMemoryException
