@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.Json;
 
@@ -58,8 +58,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
     {
         AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
 
-        if (trace is null)
-            return;
+        if (trace is null) return;
 
         trace.FullSystemPromptBlobKey = fullSystemPromptBlobKey ?? trace.FullSystemPromptBlobKey;
         trace.FullUserPromptBlobKey = fullUserPromptBlobKey ?? trace.FullUserPromptBlobKey;
@@ -72,8 +71,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
     {
         AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
 
-        if (trace is null)
-            return;
+        if (trace is null) return;
 
         trace.BlobUploadFailed = failed ? true : null;
         await ReplaceTraceAsync(trace, cancellationToken);
@@ -89,8 +87,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
     {
         AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
 
-        if (trace is null)
-            return;
+        if (trace is null) return;
 
         if (fullSystemPromptInline is not null)
             trace.FullSystemPromptInline = fullSystemPromptInline;
@@ -109,8 +106,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
     {
         AgentExecutionTrace? trace = await LoadTraceAsync(traceId, cancellationToken);
 
-        if (trace is null)
-            return;
+        if (trace is null) return;
 
         trace.InlineFallbackFailed = failed ? true : null;
         await ReplaceTraceAsync(trace, cancellationToken);
@@ -165,9 +161,9 @@ public sealed class CosmosAgentExecutionTraceRepository(
             FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(cancellationToken);
 
             foreach (AgentTraceDocument doc in page)
-            {
+
                 list.Add(Deserialize(doc));
-            }
+
         }
 
         return list;
@@ -219,9 +215,9 @@ public sealed class CosmosAgentExecutionTraceRepository(
             FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(ct);
 
             foreach (AgentTraceDocument doc in page)
-            {
+
                 traces.Add(Deserialize(doc));
-            }
+
         }
 
         return (traces, total);
@@ -265,8 +261,7 @@ public sealed class CosmosAgentExecutionTraceRepository(
             FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(ct);
             AgentTraceDocument? doc = page.Resource.FirstOrDefault();
 
-            if (doc is not null)
-                return doc;
+            if (doc is not null) return doc;
         }
 
         return null;

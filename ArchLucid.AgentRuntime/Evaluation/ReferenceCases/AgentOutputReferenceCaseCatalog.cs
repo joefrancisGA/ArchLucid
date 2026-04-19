@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Core.Diagnostics;
@@ -43,17 +43,13 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
     {
         get
         {
-            if (_loadAttempted && field is not null)
-            {
-                return field;
-            }
+            if (_loadAttempted && field is not null) return field;
+
 
             lock (_loadGate)
             {
-                if (field is not null)
-                {
-                    return field;
-                }
+                if (field is not null) return field;
+
 
                 field = LoadCasesLocked();
                 _loadAttempted = true;
@@ -67,10 +63,8 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
     {
         AgentExecutionReferenceEvaluationOptions opts = _options.CurrentValue;
 
-        if (!opts.Enabled)
-        {
-            return [];
-        }
+        if (!opts.Enabled) return [];
+
 
         if (string.IsNullOrWhiteSpace(opts.ReferenceCasesPath))
         {
@@ -99,10 +93,8 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
             List<AgentOutputReferenceCaseDefinition>? list =
                 JsonSerializer.Deserialize<List<AgentOutputReferenceCaseDefinition>>(json, JsonOptions);
 
-            if (list is null || list.Count == 0)
-            {
-                return [];
-            }
+            if (list is null || list.Count == 0) return [];
+
 
             List<AgentOutputReferenceCaseDefinition> valid = [];
 

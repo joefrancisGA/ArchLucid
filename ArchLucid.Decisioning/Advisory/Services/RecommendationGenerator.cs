@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Advisory.Learning;
+﻿using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Models;
 
 namespace ArchLucid.Decisioning.Advisory.Services;
@@ -21,22 +21,22 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
 
         List<ImprovementRecommendation> recommendations = [];
         recommendations.AddRange(from signal in signals
-        let baseScore = ComputePriority(signal)
-        let urgency = MapUrgency(signal.Severity)
-        
-        let scoring = adaptiveScorer.Score(new AdaptiveScoringInput { Category = signal.Category, Urgency = urgency, SignalType = signal.SignalType, BasePriorityScore = baseScore }, profile)
-        select new ImprovementRecommendation
-        {
-            Title = BuildTitle(signal),
-            Category = signal.Category,
-            Rationale = signal.Description,
-            SuggestedAction = BuildSuggestedAction(signal),
-            Urgency = urgency,
-            ExpectedImpact = BuildImpact(signal),
-            SupportingFindingIds = signal.FindingIds.ToList(),
-            SupportingDecisionIds = signal.DecisionIds.ToList(),
-            PriorityScore = scoring.AdaptedPriorityScore
-        });
+                                 let baseScore = ComputePriority(signal)
+                                 let urgency = MapUrgency(signal.Severity)
+
+                                 let scoring = adaptiveScorer.Score(new AdaptiveScoringInput { Category = signal.Category, Urgency = urgency, SignalType = signal.SignalType, BasePriorityScore = baseScore }, profile)
+                                 select new ImprovementRecommendation
+                                 {
+                                     Title = BuildTitle(signal),
+                                     Category = signal.Category,
+                                     Rationale = signal.Description,
+                                     SuggestedAction = BuildSuggestedAction(signal),
+                                     Urgency = urgency,
+                                     ExpectedImpact = BuildImpact(signal),
+                                     SupportingFindingIds = signal.FindingIds.ToList(),
+                                     SupportingDecisionIds = signal.DecisionIds.ToList(),
+                                     PriorityScore = scoring.AdaptedPriorityScore
+                                 });
 
         return recommendations
             .OrderByDescending(x => x.PriorityScore)
@@ -125,14 +125,11 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
 
     private static int SeverityBonus(string severity)
     {
-        if (string.IsNullOrWhiteSpace(severity))
-            return 0;
+        if (string.IsNullOrWhiteSpace(severity)) return 0;
 
-        if (string.Equals(severity, ImprovementSignalSeverities.Critical, StringComparison.OrdinalIgnoreCase))
-            return 20;
+        if (string.Equals(severity, ImprovementSignalSeverities.Critical, StringComparison.OrdinalIgnoreCase)) return 20;
 
-        if (string.Equals(severity, ImprovementSignalSeverities.High, StringComparison.OrdinalIgnoreCase))
-            return 10;
+        if (string.Equals(severity, ImprovementSignalSeverities.High, StringComparison.OrdinalIgnoreCase)) return 10;
 
         return string.Equals(severity, ImprovementSignalSeverities.Medium, StringComparison.OrdinalIgnoreCase) ? 5 : 0;
     }

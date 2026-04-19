@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
@@ -29,8 +29,7 @@ public sealed class TenantProvisioningService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (string.IsNullOrWhiteSpace(request.Name))
-            throw new ArgumentException("Tenant name is required.", nameof(request));
+        if (string.IsNullOrWhiteSpace(request.Name)) throw new ArgumentException("Tenant name is required.", nameof(request));
 
         if (string.IsNullOrWhiteSpace(request.AdminEmail) || !request.AdminEmail.Contains('@', StringComparison.Ordinal))
             throw new ArgumentException("Admin email is required.", nameof(request));
@@ -44,10 +43,10 @@ public sealed class TenantProvisioningService(
             TenantWorkspaceLink? link = await _tenantRepository.GetFirstWorkspaceAsync(existing.Id, ct);
 
             if (link is null)
-            {
+
                 throw new InvalidOperationException(
                     $"Tenant '{existing.Id:D}' exists without a workspace row; data is inconsistent.");
-            }
+
 
             return new TenantProvisioningResult
             {
@@ -82,12 +81,12 @@ public sealed class TenantProvisioningService(
         catch (Exception ex)
         {
             if (_logger.IsEnabled(LogLevel.Critical))
-            {
+
                 _logger.LogCritical(
                     ex,
                     "Tenant {TenantId} inserted but default workspace insert failed; manual cleanup may be required.",
                     tenantId);
-            }
+
 
             throw;
         }

@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Governance.Resolution;
+﻿using ArchLucid.Decisioning.Governance.Resolution;
 
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
@@ -40,15 +40,13 @@ public sealed class PolicyPackResolver(
         foreach (PolicyPackAssignment assignment in assignments.Where(x => x.IsEnabled))
         {
             PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct);
-            if (pack is null)
-                continue;
+            if (pack is null) continue;
 
             PolicyPackVersion? version = await versionRepository
                 .GetByPackAndVersionAsync(assignment.PolicyPackId, assignment.PolicyPackVersion, ct)
                 ;
 
-            if (version is null)
-                continue;
+            if (version is null) continue;
 
             result.Packs.Add(
                 new ResolvedPolicyPack

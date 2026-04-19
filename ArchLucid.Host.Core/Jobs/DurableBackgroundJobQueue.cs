@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Application.Jobs;
 
 using ArchLucid.Persistence.Data.Repositories;
@@ -56,8 +56,7 @@ public sealed class DurableBackgroundJobQueue(
 
     public async Task<BackgroundJobInfo?> GetInfoAsync(string jobId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(jobId))
-            return null;
+        if (string.IsNullOrWhiteSpace(jobId)) return null;
 
         BackgroundJobRow? row = await repository.GetAsync(jobId, cancellationToken);
 
@@ -66,8 +65,7 @@ public sealed class DurableBackgroundJobQueue(
 
     public async Task<BackgroundJobFile?> GetFileAsync(string jobId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(jobId))
-            return null;
+        if (string.IsNullOrWhiteSpace(jobId)) return null;
 
         BackgroundJobRow? row = await repository.GetAsync(jobId, cancellationToken);
 

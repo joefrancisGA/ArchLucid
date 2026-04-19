@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
@@ -78,8 +78,7 @@ public sealed class CompositeAlertService(
             {
                 bool matched = ruleEvaluator.Evaluate(rule, snapshot);
 
-                if (!matched)
-                    continue;
+                if (!matched) continue;
 
                 AlertSuppressionDecision suppression = await suppressionPolicy
                     .DecideAsync(rule, context, snapshot, ct)

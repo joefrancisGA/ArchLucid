@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Metadata;
 
@@ -21,8 +21,7 @@ public static class AnalysisExportRequestRehydrator
     {
         ArgumentNullException.ThrowIfNull(record);
 
-        if (string.IsNullOrWhiteSpace(record.AnalysisRequestJson))
-            return null;
+        if (string.IsNullOrWhiteSpace(record.AnalysisRequestJson)) return null;
 
         try
         {

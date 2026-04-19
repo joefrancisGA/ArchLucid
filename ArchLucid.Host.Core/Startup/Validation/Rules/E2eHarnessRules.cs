@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -8,10 +8,8 @@ internal static class E2EHarnessRules
     {
         E2EHarnessOptions o = configuration.GetSection(E2EHarnessOptions.SectionName).Get<E2EHarnessOptions>() ?? new E2EHarnessOptions();
 
-        if (!o.Enabled)
-        {
-            return;
-        }
+        if (!o.Enabled) return;
+
 
         if (environment.IsProduction())
         {
@@ -21,8 +19,8 @@ internal static class E2EHarnessRules
         }
 
         if (string.IsNullOrWhiteSpace(o.SharedSecret) || o.SharedSecret.Trim().Length < 16)
-        {
+
             errors.Add("ArchLucid:E2eHarness:SharedSecret must be set to a strong value (>= 16 chars) when E2eHarness is enabled.");
-        }
+
     }
 }

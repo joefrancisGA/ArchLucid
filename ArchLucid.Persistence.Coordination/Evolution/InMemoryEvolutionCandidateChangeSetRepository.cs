@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
@@ -15,9 +15,9 @@ public sealed class InMemoryEvolutionCandidateChangeSetRepository : IEvolutionCa
         cancellationToken.ThrowIfCancellationRequested();
 
         if (!_byId.TryAdd(record.CandidateChangeSetId, record))
-        {
+
             throw new InvalidOperationException($"Candidate change set '{record.CandidateChangeSetId}' already exists.");
-        }
+
 
         return Task.CompletedTask;
     }
@@ -29,17 +29,15 @@ public sealed class InMemoryEvolutionCandidateChangeSetRepository : IEvolutionCa
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row))
-        {
-            return Task.FromResult<EvolutionCandidateChangeSetRecord?>(null);
-        }
+        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row)) return Task.FromResult<EvolutionCandidateChangeSetRecord?>(null);
+
 
         if (row.TenantId != scope.TenantId ||
             row.WorkspaceId != scope.WorkspaceId ||
             row.ProjectId != scope.ProjectId)
-        {
+
             return Task.FromResult<EvolutionCandidateChangeSetRecord?>(null);
-        }
+
 
         return Task.FromResult<EvolutionCandidateChangeSetRecord?>(row);
     }
@@ -74,17 +72,15 @@ public sealed class InMemoryEvolutionCandidateChangeSetRepository : IEvolutionCa
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row))
-        {
-            return Task.CompletedTask;
-        }
+        if (!_byId.TryGetValue(candidateChangeSetId, out EvolutionCandidateChangeSetRecord? row)) return Task.CompletedTask;
+
 
         if (row.TenantId != scope.TenantId ||
             row.WorkspaceId != scope.WorkspaceId ||
             row.ProjectId != scope.ProjectId)
-        {
+
             return Task.CompletedTask;
-        }
+
 
         EvolutionCandidateChangeSetRecord updated = new()
         {

@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
 
@@ -27,8 +27,7 @@ public sealed class RlsSessionContextApplicator(
 
         SqlServerOptions opts = _optionsMonitor.CurrentValue;
 
-        if (!opts.RowLevelSecurity.ApplySessionContext)
-            return;
+        if (!opts.RowLevelSecurity.ApplySessionContext) return;
 
         if (SqlRowLevelSecurityBypassAmbient.IsActive)
         {

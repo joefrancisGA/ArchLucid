@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Findings.Factories;
+﻿using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
@@ -42,8 +42,7 @@ public class PolicyApplicabilityFindingEngine : IFindingEngine
                 continue;
             }
 
-            if (targets.Count == 0)
-                continue;
+            if (targets.Count == 0) continue;
 
             List<string> targetIds = targets.Select(t => t.NodeId).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             List<string> examined = [policy.NodeId];

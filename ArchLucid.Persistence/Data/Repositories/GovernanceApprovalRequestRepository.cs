@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
@@ -262,10 +262,8 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         int maxRows = 50,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxRows));
-        }
+        if (maxRows <= 0) throw new ArgumentOutOfRangeException(nameof(maxRows));
+
 
         const string sql = """
             SELECT TOP (@MaxRows)
@@ -307,10 +305,8 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         int maxRows = 50,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxRows));
-        }
+        if (maxRows <= 0) throw new ArgumentOutOfRangeException(nameof(maxRows));
+
 
         const string sql = """
             SELECT TOP (@MaxRows)

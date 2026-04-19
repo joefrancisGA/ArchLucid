@@ -1,4 +1,4 @@
-using System.ClientModel;
+﻿using System.ClientModel;
 using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
@@ -29,10 +29,8 @@ public static class LlmCallResilienceDefaults
         TimeSpan? maxDelay = null,
         string? gateName = null)
     {
-        if (maxRetryAttempts <= 0)
-        {
-            return ResiliencePipeline.Empty;
-        }
+        if (maxRetryAttempts <= 0) return ResiliencePipeline.Empty;
+
 
         TimeSpan delay = baseDelay ?? TimeSpan.FromMilliseconds(500);
         TimeSpan cap = maxDelay ?? TimeSpan.FromSeconds(10);
@@ -51,9 +49,9 @@ public static class LlmCallResilienceDefaults
                     TagList metricTags = [];
 
                     if (!string.IsNullOrEmpty(gateName))
-                    {
+
                         metricTags.Add("gate", gateName);
-                    }
+
 
                     metricTags.Add("attempt", args.AttemptNumber);
                     metricTags.Add(
@@ -63,14 +61,14 @@ public static class LlmCallResilienceDefaults
                     ArchLucidInstrumentation.LlmCallRetries.Add(1, metricTags);
 
                     if (logger is not null && args.Outcome.Exception is { } ex)
-                    {
+
                         logger.LogWarning(
                             ex,
                             "Transient LLM error; retry {AttemptNumber}/{MaxRetryAttempts} after {RetryDelay}.",
                             args.AttemptNumber,
                             maxRetryAttempts,
                             args.RetryDelay);
-                    }
+
 
                     return ValueTask.CompletedTask;
                 },
@@ -81,30 +79,21 @@ public static class LlmCallResilienceDefaults
     /// <summary>Used by chaos/retry composition tests (Simmy) aligned with the same classification rules.</summary>
     internal static bool ShouldRetryLlmException(Exception ex)
     {
-        if (ex is OperationCanceledException { CancellationToken.IsCancellationRequested: true })
-        {
-            return false;
-        }
+        if (ex is OperationCanceledException { CancellationToken.IsCancellationRequested: true }) return false;
 
-        if (ex is CircuitBreakerOpenException)
-        {
-            return false;
-        }
 
-        if (ex is InvalidOperationException)
-        {
-            return false;
-        }
+        if (ex is CircuitBreakerOpenException) return false;
 
-        if (ex is TaskCanceledException { CancellationToken.IsCancellationRequested: false })
-        {
-            return true;
-        }
+
+        if (ex is InvalidOperationException) return false;
+
+
+        if (ex is TaskCanceledException { CancellationToken.IsCancellationRequested: false }) return true;
+
 
         if (ex is HttpRequestException hre)
         {
-            if (hre.StatusCode is not { } sc)
-                return true;
+            if (hre.StatusCode is not { } sc) return true;
 
             int code = (int)sc;
 
@@ -112,8 +101,7 @@ public static class LlmCallResilienceDefaults
 
         }
 
-        if (ex is not ClientResultException cre)
-            return false;
+        if (ex is not ClientResultException cre) return false;
 
         int status = cre.Status;
 

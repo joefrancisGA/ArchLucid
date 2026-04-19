@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
@@ -94,7 +94,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
         string actor = _actorContext.GetActor();
 
         for (int attempt = 1; attempt <= CommitRunTransientMaxAttempts; attempt++)
-        {
+
             try
             {
                 return await CommitRunCoreAsync(runId, actor, cancellationToken);
@@ -128,24 +128,23 @@ public sealed class ArchitectureRunCommitOrchestrator(
             {
                 CommitRunResult? reconciled = await TryReconcileAfterConcurrentCommitAsync(runId, cancellationToken);
 
-                if (reconciled is not null)
-                    return reconciled;
+                if (reconciled is not null) return reconciled;
 
                 if (_logger.IsEnabled(LogLevel.Warning))
-                {
+
                     _logger.LogWarning(
                         ex,
                         "CommitRunAsync unique-key violation without reconcilable manifest (attempt {Attempt}/{Max}) for RunId={RunId}.",
                         attempt,
                         CommitRunTransientMaxAttempts,
                         LogSanitizer.Sanitize(runId));
-                }
+
 
                 if (attempt >= CommitRunTransientMaxAttempts)
-                {
+
                     throw new ConflictException(
                         $"Commit for run '{runId}' raced with another commit. The manifest could not be loaded yet; retry the request.");
-                }
+
 
                 await Task.Delay(
                     TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt),
@@ -154,20 +153,20 @@ public sealed class ArchitectureRunCommitOrchestrator(
             catch (Exception ex) when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
-                {
+
                     _logger.LogWarning(
                         ex,
                         "CommitRunAsync transient database error (attempt {Attempt}/{Max}) for RunId={RunId}; retrying.",
                         attempt,
                         CommitRunTransientMaxAttempts,
                         LogSanitizer.Sanitize(runId));
-                }
+
 
                 await Task.Delay(
                     TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt),
                     cancellationToken);
             }
-        }
+
 
         throw new InvalidOperationException("CommitRunAsync exhausted transient retries without returning.");
     }
@@ -184,13 +183,11 @@ public sealed class ArchitectureRunCommitOrchestrator(
             runId,
             cancellationToken);
 
-        if (runAgain is null)
-            return null;
+        if (runAgain is null) return null;
 
         CommitRunResult? committed = await TryReturnCommittedManifestAsync(runAgain, runId, cancellationToken);
 
-        if (committed is not null)
-            return committed;
+        if (committed is not null) return committed;
 
         return await TryReturnPersistedCommitIfExistsAsync(runAgain, runId, cancellationToken);
     }
@@ -201,12 +198,12 @@ public sealed class ArchitectureRunCommitOrchestrator(
         CancellationToken cancellationToken)
     {
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             // Barrier is not tracked through params object?[] boxing on LogInformation; value is sanitized (docs/CODEQL_TRIAGE.md).
             _logger.LogInformation(
                 "Committing architecture run: RunId={RunId}",
                 LogSanitizer.Sanitize(runId)); // codeql[cs/log-forging]
-        }
+
 
         ArchitectureRun? run = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
             _runRepository,
@@ -215,20 +212,16 @@ public sealed class ArchitectureRunCommitOrchestrator(
             runId,
             cancellationToken);
 
-        if (run is null)
-        {
-            throw new RunNotFoundException(runId);
-        }
+        if (run is null) throw new RunNotFoundException(runId);
+
 
         CommitRunResult? idempotent = await TryReturnCommittedManifestAsync(run, runId, cancellationToken);
 
-        if (idempotent is not null)
-            return idempotent;
+        if (idempotent is not null) return idempotent;
 
         idempotent = await TryReturnPersistedCommitIfExistsAsync(run, runId, cancellationToken);
 
-        if (idempotent is not null)
-            return idempotent;
+        if (idempotent is not null) return idempotent;
 
         await EvaluatePreCommitGovernanceGateOrThrowAsync(runId, actor, cancellationToken);
 
@@ -271,10 +264,10 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 await _resultRepository.GetByRunIdAsync(runId, cancellationToken) ?? [];
 
             if (results.Count == 0)
-            {
+
                 throw new ConflictException(
                     $"No agent results found for run '{runId}'. Execute the run before committing.");
-            }
+
 
             await EnsureCommitPrerequisitesAsync(runId, cancellationToken);
 
@@ -395,12 +388,12 @@ public sealed class ArchitectureRunCommitOrchestrator(
         catch (Exception ex)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     ex,
                     "Durable audit for CoordinatorRunCommitCompleted failed for RunId={RunId}",
                     LogSanitizer.Sanitize(runId));
-            }
+
         }
 
         DateTimeOffset committedUtc = DateTimeOffset.UtcNow;
@@ -410,12 +403,12 @@ public sealed class ArchitectureRunCommitOrchestrator(
             .ConfigureAwait(false);
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformationArchitectureRunCommitted(
                 runId,
                 merge.Manifest.Metadata.ManifestVersion,
                 merge.Warnings.Count);
-        }
+
 
         return new CommitRunResult
         {
@@ -433,15 +426,14 @@ public sealed class ArchitectureRunCommitOrchestrator(
         string runId,
         CancellationToken cancellationToken)
     {
-        if (run.Status is not ArchitectureRunStatus.Committed)
-            return null;
+        if (run.Status is not ArchitectureRunStatus.Committed) return null;
 
         if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-        {
+
             throw new ConflictException(
                 $"Run '{runId}' is already committed but no manifest version was recorded. " +
                 "The run record may be corrupt; check storage integrity.");
-        }
+
 
         GoldenManifest existingManifest = await _manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken) ?? throw new ConflictException(
                 $"Run '{runId}' is already committed (manifest version '{run.CurrentManifestVersion}') " +
@@ -453,20 +445,20 @@ public sealed class ArchitectureRunCommitOrchestrator(
         IReadOnlyList<string> storedGaps = CommittedManifestTraceabilityRules.GetLinkageGaps(existingManifest, existingTraces);
 
         if (storedGaps.Count > 0)
-        {
+
             _logger.LogWarningWithTwoSanitizedUserStrings(
                 "Committed run {RunId} has manifest/trace linkage gaps (data drift or legacy row): {Gaps}",
                 runId,
                 string.Join("; ", storedGaps));
-        }
+
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformationCommitRunIdempotentReturn(
                 runId,
                 run.CurrentManifestVersion ?? string.Empty,
                 existingTraces.Count);
-        }
+
 
         return new CommitRunResult
         {
@@ -478,15 +470,12 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
     private static void EnforceCommitAllowedForStatus(ArchitectureRun run, string runId)
     {
-        if (run.Status == ArchitectureRunStatus.ReadyForCommit)
-            return;
+        if (run.Status == ArchitectureRunStatus.ReadyForCommit) return;
 
         // Execute orchestrator no longer promotes legacy status to ReadyForCommit (ADR-0012); agent outputs still gate commit below.
-        if (run.Status == ArchitectureRunStatus.TasksGenerated)
-            return;
+        if (run.Status == ArchitectureRunStatus.TasksGenerated) return;
 
-        if (run.Status == ArchitectureRunStatus.Failed)
-            throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
+        if (run.Status == ArchitectureRunStatus.Failed) throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
 
         throw new ConflictException(
             $"Run '{runId}' cannot be committed in status '{run.Status}'. Execute the run until it reaches ReadyForCommit.");
@@ -578,37 +567,33 @@ public sealed class ArchitectureRunCommitOrchestrator(
         string runId,
         CancellationToken cancellationToken)
     {
-        if (run.Status is not ArchitectureRunStatus.ReadyForCommit and not ArchitectureRunStatus.TasksGenerated)
-            return null;
+        if (run.Status is not ArchitectureRunStatus.ReadyForCommit and not ArchitectureRunStatus.TasksGenerated) return null;
 
         string manifestVersion = BuildManifestVersionForCommit(run, runId);
         GoldenManifest? existingManifest = await _manifestRepository.GetByVersionAsync(manifestVersion, cancellationToken);
 
-        if (existingManifest is null)
-            return null;
+        if (existingManifest is null) return null;
 
-        if (!string.Equals(existingManifest.RunId, runId, StringComparison.Ordinal))
-            return null;
+        if (!string.Equals(existingManifest.RunId, runId, StringComparison.Ordinal)) return null;
 
         IReadOnlyList<DecisionTrace> existingTraces = await _decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
-        if (existingTraces.Count == 0)
-            return null;
+        if (existingTraces.Count == 0) return null;
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformationCommitRunIdempotentReturn(runId, manifestVersion, existingTraces.Count);
-        }
+
 
         IReadOnlyList<string> storedGaps = CommittedManifestTraceabilityRules.GetLinkageGaps(existingManifest, existingTraces);
 
         if (storedGaps.Count > 0)
-        {
+
             _logger.LogWarningWithTwoSanitizedUserStrings(
                 "Committed run {RunId} has manifest/trace linkage gaps (data drift or legacy row): {Gaps}",
                 runId,
                 string.Join("; ", storedGaps));
-        }
+
 
         string committedVersion = string.IsNullOrWhiteSpace(existingManifest.Metadata?.ManifestVersion)
             ? manifestVersion
@@ -633,14 +618,12 @@ public sealed class ArchitectureRunCommitOrchestrator(
         string manifestVersion,
         CancellationToken cancellationToken)
     {
-        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
-            return;
+        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid)) return;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
-        if (header is null)
-            return;
+        if (header is null) return;
 
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
 
@@ -661,10 +644,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
         string actor,
         CancellationToken cancellationToken)
     {
-        if (!_preCommitGovernanceGateOptions.Value.PreCommitGateEnabled)
-        {
-            return;
-        }
+        if (!_preCommitGovernanceGateOptions.Value.PreCommitGateEnabled) return;
+
 
         PreCommitGateResult gateResult = await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken);
 
@@ -674,10 +655,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
             return;
         }
 
-        if (!gateResult.Blocked)
-        {
-            return;
-        }
+        if (!gateResult.Blocked) return;
+
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid? runGuid = Guid.TryParse(runId, out Guid rid) ? rid : null;
@@ -741,11 +720,11 @@ public sealed class ArchitectureRunCommitOrchestrator(
             cancellationToken);
 
         if (_logger.IsEnabled(LogLevel.Warning))
-        {
+
             _logger.LogWarning(
                 "Pre-commit governance gate warned (not blocked): RunId={RunId}, Reason={Reason}",
                 LogSanitizer.Sanitize(runId),
                 LogSanitizer.Sanitize(gateResult.Reason ?? string.Empty));
-        }
+
     }
 }

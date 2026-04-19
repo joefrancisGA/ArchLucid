@@ -1,4 +1,4 @@
-using System.Threading.Channels;
+﻿using System.Threading.Channels;
 
 using ArchLucid.Core.Diagnostics;
 
@@ -24,8 +24,7 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
     /// <param name="capacity">Maximum queued events before <see cref="TryEnqueue"/> fails.</param>
     public InMemoryAuditRetryQueue(int capacity)
     {
-        if (capacity < 1)
-            throw new ArgumentOutOfRangeException(nameof(capacity));
+        if (capacity < 1) throw new ArgumentOutOfRangeException(nameof(capacity));
 
         BoundedChannelOptions options = new(capacity)
         {
@@ -77,10 +76,8 @@ public sealed class InMemoryAuditRetryQueue : IAuditRetryQueue
 
         AuditEvent copy = CopyAuditEvent(auditEvent);
 
-        if (_channel.Writer.TryWrite(copy))
-        {
-            return true;
-        }
+        if (_channel.Writer.TryWrite(copy)) return true;
+
 
         ArchLucidInstrumentation.AuditRetryEnqueueDroppedTotal.Add(1);
 

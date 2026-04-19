@@ -1,4 +1,4 @@
-namespace ArchLucid.Host.Core.Jobs;
+﻿namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>Resolves <see cref="IArchLucidJob"/> by slug and runs it with telemetry.</summary>
 public sealed class ArchLucidJobRunner(
@@ -22,8 +22,7 @@ public sealed class ArchLucidJobRunner(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(jobName);
 
-        if (_jobsByName.TryGetValue(jobName, out IArchLucidJob? job))
-            return _telemetry.RunWithTelemetryAsync(jobName, ct => job.RunOnceAsync(ct), cancellationToken);
+        if (_jobsByName.TryGetValue(jobName, out IArchLucidJob? job)) return _telemetry.RunWithTelemetryAsync(jobName, ct => job.RunOnceAsync(ct), cancellationToken);
         _logger.LogError("Unknown job name: {JobName}", jobName);
 
         return Task.FromResult(ArchLucidJobExitCodes.UnknownJob);

@@ -1,4 +1,4 @@
-using ArchLucid.Core.Integration;
+﻿using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Decisioning.Alerts;
@@ -36,15 +36,13 @@ public static partial class ServiceCollectionExtensions
         // archival loop but still composes IArchLucidJob implementations — DI must resolve this singleton.
         services.AddSingleton<DataArchivalHostHealthState>();
 
-        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
-        {
-            return;
-        }
+        if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker) return;
+
 
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.DataArchival))
-        {
+
             services.AddHostedService<DataArchivalHostedService>();
-        }
+
     }
 
     private static void RegisterRetrievalIndexingOutbox(IServiceCollection services, ArchLucidHostingRole hostingRole)
@@ -52,8 +50,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IRetrievalIndexingOutboxProcessor, RetrievalIndexingOutboxProcessor>();
         services.AddSingleton<IAuthorityPipelineWorkProcessor, AuthorityPipelineWorkProcessor>();
 
-        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))
-            return;
+        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)) return;
 
         services.AddHostedService<RetrievalIndexingOutboxHostedService>();
         services.AddHostedService<AuthorityPipelineWorkHostedService>();
@@ -64,9 +61,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IIntegrationEventOutboxProcessor, IntegrationEventOutboxProcessor>();
 
         if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
-        {
+
             services.AddHostedService<IntegrationEventOutboxHostedService>();
-        }
+
     }
 
     private static void RegisterIntegrationEventConsumer(
@@ -74,18 +71,16 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
-        if (hostingRole is not ArchLucidHostingRole.Worker)
-        {
-            return;
-        }
+        if (hostingRole is not ArchLucidHostingRole.Worker) return;
+
 
         services.AddSingleton<IIntegrationEventHandler, TrialLifecycleEmailIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, LoggingIntegrationEventHandler>();
 
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.ServiceBusIntegrationEvents))
-        {
+
             services.AddHostedService<AzureServiceBusIntegrationEventConsumer>();
-        }
+
     }
 
     private static void RegisterAdvisoryScheduling(
@@ -98,13 +93,12 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAdvisoryScanRunner, AdvisoryScanRunner>();
         services.AddScoped<AdvisoryDueScheduleProcessor>();
 
-        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))
-            return;
+        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)) return;
 
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.AdvisoryScan))
-        {
+
             services.AddHostedService<AdvisoryScanHostedService>();
-        }
+
     }
 
     private static void RegisterDigestDelivery(IServiceCollection services, IConfiguration configuration)
@@ -176,27 +170,23 @@ public static partial class ServiceCollectionExtensions
             string? connectionString = options.ServiceBusConnectionString?.Trim();
             string? managedIdentityClientId = options.ServiceBusManagedIdentityClientId?.Trim();
 
-            if (string.IsNullOrEmpty(queueOrTopic))
-            {
-                return NullIntegrationEventPublisher.Instance;
-            }
+            if (string.IsNullOrEmpty(queueOrTopic)) return NullIntegrationEventPublisher.Instance;
+
 
             ILogger<AzureServiceBusIntegrationEventPublisher> logger =
                 sp.GetRequiredService<ILogger<AzureServiceBusIntegrationEventPublisher>>();
 
             if (!string.IsNullOrEmpty(fullyQualifiedNamespace))
-            {
+
                 return new AzureServiceBusIntegrationEventPublisher(
                     fullyQualifiedNamespace,
                     queueOrTopic,
                     string.IsNullOrEmpty(managedIdentityClientId) ? null : managedIdentityClientId,
                     logger);
-            }
 
-            if (!string.IsNullOrEmpty(connectionString))
-            {
-                return new AzureServiceBusIntegrationEventPublisher(connectionString, queueOrTopic, logger);
-            }
+
+            if (!string.IsNullOrEmpty(connectionString)) return new AzureServiceBusIntegrationEventPublisher(connectionString, queueOrTopic, logger);
+
 
             return NullIntegrationEventPublisher.Instance;
         });

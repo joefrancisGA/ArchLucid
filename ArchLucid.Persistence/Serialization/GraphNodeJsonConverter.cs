@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.KnowledgeGraph.Models;
@@ -15,8 +15,7 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
     {
         using JsonDocument doc = JsonDocument.ParseValue(ref reader);
         JsonElement root = doc.RootElement;
-        if (root.ValueKind != JsonValueKind.Object)
-            throw new JsonException("Expected JSON object for GraphNode.");
+        if (root.ValueKind != JsonValueKind.Object) throw new JsonException("Expected JSON object for GraphNode.");
 
         return new GraphNode
         {
@@ -78,10 +77,9 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
     private static string? ReadFirstString(JsonElement root, params string[] names)
     {
         foreach (string name in names)
-        
-            if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
-                return el.GetString();
-        
+
+            if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String) return el.GetString();
+
 
         return null;
     }

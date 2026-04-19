@@ -1,4 +1,4 @@
-using ArchLucid.Application.Runs.Mapping;
+﻿using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
@@ -28,19 +28,15 @@ public static class ArchitectureRunAuthorityReader
         ArgumentNullException.ThrowIfNull(taskRepository);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        if (!TryParseRunGuid(runId, out Guid runGuid))
-        {
-            return null;
-        }
+        if (!TryParseRunGuid(runId, out Guid runGuid)) return null;
+
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
         RunRecord? record = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
-        if (record is null)
-        {
-            return null;
-        }
+        if (record is null) return null;
+
 
         IReadOnlyList<AgentTask>? tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
 
@@ -53,10 +49,8 @@ public static class ArchitectureRunAuthorityReader
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid))
-        {
-            return true;
-        }
+        if (Guid.TryParseExact(runId, "N", out runGuid)) return true;
+
 
         return Guid.TryParse(runId, out runGuid);
     }

@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Analysis;
+﻿using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Findings;
@@ -61,8 +61,8 @@ public static partial class ServiceCollectionExtensions
         ILogger logger = NullLoggerFactory.Instance.CreateLogger("FindingEnginePlugins");
 
         foreach (Type engineType in FindingEnginePluginDiscovery.Discover(pluginDirectory, logger))
-        {
+
             services.TryAddEnumerable(ServiceDescriptor.Scoped(typeof(Di.IFindingEngine), engineType));
-        }
+
     }
 }

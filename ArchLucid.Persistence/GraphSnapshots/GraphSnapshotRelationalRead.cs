@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.RelationalRead;
@@ -88,8 +88,7 @@ internal static class GraphSnapshotRelationalRead
 
         List<GraphEdge>? edgesOverride = null;
 
-        if (edgesCount <= 0)
-            return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
+        if (edgesCount <= 0) return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
 
         bool mergeEdgeMetadataFromJson = edgePropsCount == 0 && edgesCount > 0;
         edgesOverride = await LoadEdgesRelationalAsync(connection, transaction, row, mergeEdgeMetadataFromJson, ct);
@@ -140,8 +139,7 @@ internal static class GraphSnapshotRelationalRead
                 transaction,
                 cancellationToken: ct))).ToList();
 
-        if (nodeRows.Count == 0)
-            return [];
+        if (nodeRows.Count == 0) return [];
 
         List<Guid> rowIds = nodeRows.Select(r => r.GraphNodeRowId).ToList();
 
@@ -220,8 +218,7 @@ internal static class GraphSnapshotRelationalRead
                 transaction,
                 cancellationToken: ct))).ToList();
 
-        if (edgeRows.Count == 0)
-            return [];
+        if (edgeRows.Count == 0) return [];
 
         List<EdgePropertyRow> propertyRows = (await connection.QueryAsync<EdgePropertyRow>(
             new CommandDefinition(
@@ -265,15 +262,15 @@ internal static class GraphSnapshotRelationalRead
             Dictionary<string, string> props = new(StringComparer.Ordinal);
 
             if (propsByEdge.TryGetValue(er.EdgeId, out List<EdgePropertyRow>? rowsForEdge))
-            {
+
                 foreach (EdgePropertyRow pr in rowsForEdge.OrderBy(x => x.PropertySortOrder))
-                {
+
                     if (string.Equals(pr.PropertyKey, GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey, StringComparison.Ordinal))
                         label = pr.PropertyValue;
                     else
                         props[pr.PropertyKey] = pr.PropertyValue;
-                }
-            }
+
+
 
             GraphEdge edge = new()
             {

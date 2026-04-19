@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
@@ -40,14 +40,12 @@ public static class FindingPayloadConverter
     {
         ArgumentNullException.ThrowIfNull(finding);
 
-        if (finding.Payload is null)
-            return default;
+        if (finding.Payload is null) return default;
 
-        if (finding.Payload is T typed)
-            return typed;
+        if (finding.Payload is T typed) return typed;
 
         if (finding.Payload is JsonElement jsonElement)
-        
+
             try
             {
                 return jsonElement.Deserialize<T>(CaseInsensitiveOptions);
@@ -57,7 +55,7 @@ public static class FindingPayloadConverter
                 throw new InvalidOperationException(
                     $"Finding payload cannot be deserialized as {typeof(T).Name} (FindingId={finding.FindingId}).", ex);
             }
-        
+
 
         try
         {

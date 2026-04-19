@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Requests;
+﻿using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 
@@ -27,7 +27,7 @@ internal static class ReplayAuthorityRunRecordFactory
         DateTime createdUtc = DateTime.UtcNow;
 
         if (sourceAuthorityRun is not null)
-        {
+
             return new RunRecord
             {
                 TenantId = sourceAuthorityRun.TenantId,
@@ -41,7 +41,7 @@ internal static class ReplayAuthorityRunRecordFactory
                 CreatedUtc = createdUtc,
                 ArchitectureRequestId = request.RequestId,
             };
-        }
+
 
         return new RunRecord
         {

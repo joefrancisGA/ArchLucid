@@ -1,4 +1,4 @@
-namespace ArchLucid.Core.Diagnostics;
+﻿namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>Thread-safe holder for the latest outbox gauge snapshot (read on Prometheus scrape).</summary>
 public sealed class OutboxDepthGaugeState
@@ -11,17 +11,17 @@ public sealed class OutboxDepthGaugeState
         get
         {
             lock (_gate)
-            {
+
                 return _current;
-            }
+
         }
     }
 
     public void Publish(in OutboxDepthGaugeValues values)
     {
         lock (_gate)
-        {
+
             _current = values;
-        }
+
     }
 }

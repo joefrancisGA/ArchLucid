@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 using ArchLucid.Host.Core.Configuration;
 
@@ -47,7 +47,7 @@ public static class ObservabilityTraceSamplingConfigurator
 
 
         if (!string.IsNullOrEmpty(samplingRatioRaw))
-        {
+
             if (!double.TryParse(
                     samplingRatioRaw,
                     NumberStyles.Float,
@@ -55,19 +55,19 @@ public static class ObservabilityTraceSamplingConfigurator
                     out double parsed) ||
                 double.IsNaN(parsed) ||
                 double.IsInfinity(parsed))
-            {
+
                 samplingRatio = 1.0;
-            }
+
             else
-            {
+
                 samplingRatio = Math.Clamp(parsed, 0.0, 1.0);
-            }
-        }
+
+
 
 
         if (samplingRatio < 1.0)
-        {
+
             tracing.SetSampler(new ParentBasedSampler(new TraceIdRatioBasedSampler(samplingRatio)));
-        }
+
     }
 }

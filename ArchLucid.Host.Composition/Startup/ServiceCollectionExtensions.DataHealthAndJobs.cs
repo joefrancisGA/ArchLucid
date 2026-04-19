@@ -1,4 +1,4 @@
-using ArchLucid.Application.Jobs;
+﻿using ArchLucid.Application.Jobs;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosting;
@@ -46,12 +46,12 @@ public static partial class ServiceCollectionExtensions
                 tags: []);
 
         if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
-        {
+
             builder.AddCheck<DataArchivalHostHealthCheck>(
                 "data_archival",
                 failureStatus: HealthStatus.Degraded,
                 tags: [ReadinessTags.Ready]);
-        }
+
     }
 
     private static void RegisterBackgroundJobs(
@@ -71,8 +71,7 @@ public static partial class ServiceCollectionExtensions
 
         if (hostingRole == ArchLucidHostingRole.Worker)
         {
-            if (!durable)
-                return;
+            if (!durable) return;
 
             RegisterDurableBackgroundJobInfrastructure(services);
             services.AddHostedService<BackgroundJobQueueProcessorHostedService>();
@@ -80,10 +79,8 @@ public static partial class ServiceCollectionExtensions
             return;
         }
 
-        if (hostingRole is not (ArchLucidHostingRole.Api or ArchLucidHostingRole.Combined))
-        {
-            return;
-        }
+        if (hostingRole is not (ArchLucidHostingRole.Api or ArchLucidHostingRole.Combined)) return;
+
 
         if (durable)
         {
@@ -118,15 +115,15 @@ public static partial class ServiceCollectionExtensions
         Uri? queueUri = BackgroundJobQueueAddress.ResolveQueueServiceUri(jobsOptions, largePayload);
 
         if (queueUri is null)
-        {
+
             throw new InvalidOperationException(
                 "BackgroundJobs:QueueServiceUri is missing and could not be derived from ArtifactLargePayload:AzureBlobServiceUri. Configure a queue endpoint for durable jobs.");
-        }
+
 
         if (string.IsNullOrWhiteSpace(jobsOptions.QueueName))
-        {
+
             throw new InvalidOperationException("BackgroundJobs:QueueName is required when BackgroundJobs:Mode is Durable.");
-        }
+
 
         QueueServiceClient serviceClient = new(queueUri, credential);
 

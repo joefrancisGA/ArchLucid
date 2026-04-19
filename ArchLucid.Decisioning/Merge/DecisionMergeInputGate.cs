@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Decisioning.Validation;
 
 namespace ArchLucid.Decisioning.Merge;
@@ -32,8 +32,7 @@ public sealed class DecisionMergeInputGate(ISchemaValidationService schemaValida
             return false;
         }
 
-        if (results.Count != 0)
-            return true;
+        if (results.Count != 0) return true;
 
         output.Errors.Add("At least one agent result is required.");
         return false;
@@ -75,8 +74,7 @@ public sealed class DecisionMergeInputGate(ISchemaValidationService schemaValida
             string resultJson = SchemaValidationSerializer.Serialize(result);
             SchemaValidationResult schemaValidation = _schemaValidationService.ValidateAgentResultJson(resultJson);
 
-            if (schemaValidation.IsValid)
-                continue;
+            if (schemaValidation.IsValid) continue;
 
             foreach (string error in schemaValidation.Errors)
                 output.Errors.Add($"AgentResult {result.ResultId}: {error}");

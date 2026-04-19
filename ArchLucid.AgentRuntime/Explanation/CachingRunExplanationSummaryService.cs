@@ -1,4 +1,4 @@
-using ArchLucid.Core.Diagnostics;
+﻿using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Caching;
@@ -37,11 +37,9 @@ public sealed class CachingRunExplanationSummaryService(
 
         RunDetailDto? detail = await _authorityQuery.GetRunDetailAsync(scope, runId, ct);
 
-        if (detail is null)
-            return null;
+        if (detail is null) return null;
 
-        if (detail.GoldenManifest is null)
-            return null;
+        if (detail.GoldenManifest is null) return null;
 
         byte[]? rowVersion = detail.Run.RowVersion;
 

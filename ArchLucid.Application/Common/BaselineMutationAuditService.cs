@@ -1,4 +1,4 @@
-using ArchLucid.Core.Diagnostics;
+﻿using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 
@@ -25,27 +25,25 @@ public sealed class BaselineMutationAuditService(ILogger<BaselineMutationAuditSe
         string safeDetails = TruncateDetails(details);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+
             logger.LogInformation(
                 "BaselineMutation {EventType} Actor={Actor} EntityId={EntityId} Details={Details}",
                 LogSanitizer.Sanitize(eventType),
                 LogSanitizer.Sanitize(actor),
                 LogSanitizer.Sanitize(entityId),
                 LogSanitizer.Sanitize(safeDetails));
-        }
+
 
         return Task.CompletedTask;
     }
 
     private static string TruncateDetails(string? details)
     {
-        if (string.IsNullOrEmpty(details))
-            return string.Empty;
+        if (string.IsNullOrEmpty(details)) return string.Empty;
 
         string trimmed = details.Trim();
 
-        if (trimmed.Length <= MaxDetailsLength)
-            return trimmed;
+        if (trimmed.Length <= MaxDetailsLength) return trimmed;
 
         return trimmed[..MaxDetailsLength] + "…";
     }

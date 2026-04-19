@@ -1,4 +1,4 @@
-namespace ArchLucid.Host.Core.Configuration;
+﻿namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
 /// Resolves ArchLucid-first configuration (connection string, product section, auth section).
@@ -32,9 +32,9 @@ public static class ArchLucidConfigurationBridge
         string? lucidStorage = configuration[$"{ArchLucidSectionName}:StorageProvider"]?.Trim();
 
         if (!string.IsNullOrEmpty(lucidStorage))
-        {
+
             options.StorageProvider = lucidStorage;
-        }
+
 
         return options;
     }

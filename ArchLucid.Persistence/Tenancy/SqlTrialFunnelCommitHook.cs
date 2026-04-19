@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
@@ -24,20 +24,16 @@ public sealed class SqlTrialFunnelCommitHook(ITenantRepository tenantRepository,
             await _tenantRepository.TryMarkTrialFirstManifestCommittedAsync(tenantId, committedUtc, cancellationToken)
                 .ConfigureAwait(false);
 
-        if (outcome is null)
-        {
-            return;
-        }
+        if (outcome is null) return;
+
 
         ArchLucidInstrumentation.RecordTrialFirstRunLatencySeconds(outcome.SignupToCommitSeconds);
         ArchLucidInstrumentation.RecordTrialRunsUsedRatio(outcome.TrialRunUsageRatio);
 
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
-        if (tenant is null)
-        {
-            return;
-        }
+        if (tenant is null) return;
+
 
         TenantWorkspaceLink? workspace = await _tenantRepository
             .GetFirstWorkspaceAsync(tenantId, cancellationToken)

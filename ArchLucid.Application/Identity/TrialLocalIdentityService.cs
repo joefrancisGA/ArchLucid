@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Configuration;
@@ -42,13 +42,11 @@ public sealed class TrialLocalIdentityService(
         string normalized = TrialEmailNormalizer.Normalize(email);
         TrialIdentityUserRecord? existing = await _repository.GetByNormalizedEmailAsync(normalized, cancellationToken);
 
-        if (existing is not null)
-            throw new InvalidOperationException("An account with this email already exists.");
+        if (existing is not null) throw new InvalidOperationException("An account with this email already exists.");
 
         TrialPasswordValidationResult policy = _passwordPolicy.Validate(password);
 
-        if (!policy.Ok)
-            throw new ArgumentException(policy.ErrorMessage ?? "Invalid password.", nameof(password));
+        if (!policy.Ok) throw new ArgumentException(policy.ErrorMessage ?? "Invalid password.", nameof(password));
 
         if (await _pwnedClient.IsPasswordPwnedAsync(password, cancellationToken))
             throw new ArgumentException("This password appears in public breach datasets; choose another.");
@@ -81,8 +79,7 @@ public sealed class TrialLocalIdentityService(
     {
         EnsureLocalIdentityEnabled();
 
-        if (string.IsNullOrWhiteSpace(rawToken))
-            return false;
+        if (string.IsNullOrWhiteSpace(rawToken)) return false;
 
         string normalized = TrialEmailNormalizer.Normalize(email);
         string tokenHash = TrialEmailVerificationTokenHasher.Hash(rawToken);
@@ -98,11 +95,9 @@ public sealed class TrialLocalIdentityService(
         string normalized = TrialEmailNormalizer.Normalize(email);
         TrialIdentityUserRecord? row = await _repository.GetByNormalizedEmailAsync(normalized, cancellationToken);
 
-        if (row is null)
-            return null;
+        if (row is null) return null;
 
-        if (row is { LockoutEnabled: true, LockoutEnd: { } le } && le > DateTimeOffset.UtcNow)
-            return null;
+        if (row is { LockoutEnabled: true, LockoutEnd: { } le } && le > DateTimeOffset.UtcNow) return null;
 
         PasswordVerificationResult verify = _passwordHasher.VerifyHashedPassword(new TrialIdentityHasherUser(), row.PasswordHash, password);
 
@@ -112,9 +107,9 @@ public sealed class TrialLocalIdentityService(
             DateTimeOffset? lockoutEnd = null;
 
             if (fails >= _trial.LocalIdentity.MaxFailedAccessAttemptsBeforeLockout)
-            {
+
                 lockoutEnd = DateTimeOffset.UtcNow.AddMinutes(_trial.LocalIdentity.LockoutMinutes);
-            }
+
 
             await _repository.RecordAccessFailedAsync(normalized, fails, lockoutEnd, cancellationToken);
 
@@ -123,8 +118,7 @@ public sealed class TrialLocalIdentityService(
 
         await _repository.ResetAccessFailedAsync(normalized, cancellationToken);
 
-        if (row.EmailVerifiedUtc is null)
-            return null;
+        if (row.EmailVerifiedUtc is null) return null;
 
         return new TrialLocalAuthResult
         {

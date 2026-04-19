@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Models;
+﻿using ArchLucid.Decisioning.Models;
 
 using Dapper;
 
@@ -180,8 +180,7 @@ internal static class FindingsSnapshotRelationalRead
     {
         Dictionary<Guid, List<string>> result = new();
 
-        if (recordIds.Count == 0)
-            return result;
+        if (recordIds.Count == 0) return result;
 
         IEnumerable<FindingChildStringRow> rows = await connection.QueryAsync<FindingChildStringRow>(
             new CommandDefinition(
@@ -213,8 +212,7 @@ internal static class FindingsSnapshotRelationalRead
     {
         Dictionary<Guid, Dictionary<string, string>> result = new();
 
-        if (recordIds.Count == 0)
-            return result;
+        if (recordIds.Count == 0) return result;
 
         const string sql = """
             SELECT FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue

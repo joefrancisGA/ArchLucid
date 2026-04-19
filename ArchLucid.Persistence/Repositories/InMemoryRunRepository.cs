@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
 
@@ -54,10 +54,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
 
-        if (!_store.TryGetValue(runId, out RunRecord? r) || !MatchesScope(r, scope) || r.ArchivedUtc.HasValue)
-        
-            return Task.FromResult<RunRecord?>(null);
-        
+        if (!_store.TryGetValue(runId, out RunRecord? r) || !MatchesScope(r, scope) || r.ArchivedUtc.HasValue) return Task.FromResult<RunRecord?>(null);
+
 
         return Task.FromResult<RunRecord?>(r);
     }
@@ -137,18 +135,18 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         _ = transaction;
 
         if (!_store.ContainsKey(run.RunId))
-        {
+
             throw new InvalidOperationException(
                 string.Format(CultureInfo.InvariantCulture, "Run '{0:D}' was not found for update.", run.RunId));
-        }
+
 
         if (run.RowVersion is not null &&
             _store.TryGetValue(run.RunId, out RunRecord? existing) &&
             existing.RowVersion is not null &&
             !existing.RowVersion.AsSpan().SequenceEqual(run.RowVersion))
-        {
+
             throw new RunConcurrencyConflictException(run.RunId);
-        }
+
 
         run.RowVersion = NextFakeRowVersion();
         _store[run.RunId] = run;
@@ -174,10 +172,8 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         {
             RunRecord r = kv.Value;
 
-            if (r.ArchivedUtc.HasValue || r.CreatedUtc >= cutoff)
-            {
-                continue;
-            }
+            if (r.ArchivedUtc.HasValue || r.CreatedUtc >= cutoff) continue;
+
 
             archived.Add(new ArchivedRunScopeRow
             {
@@ -203,21 +199,19 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     {
         ct.ThrowIfCancellationRequested();
 
-        if (runIds.Count == 0)
-        {
-            return Task.FromResult(new RunArchiveByIdsResult());
-        }
+        if (runIds.Count == 0) return Task.FromResult(new RunArchiveByIdsResult());
+
 
         List<Guid> distinctOrdered = [];
         HashSet<Guid> seen = [];
 
         foreach (Guid id in runIds)
-        {
+
             if (seen.Add(id))
-            {
+
                 distinctOrdered.Add(id);
-            }
-        }
+
+
 
         DateTime stamp = DateTime.UtcNow;
         List<ArchivedRunScopeRow> archived = [];

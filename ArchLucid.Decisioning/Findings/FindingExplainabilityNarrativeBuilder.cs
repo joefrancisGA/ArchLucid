@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
 using ArchLucid.Contracts.Explanation;
@@ -90,19 +90,16 @@ public static class FindingExplainabilityNarrativeBuilder
 
     private static void AppendDistinctNonEmpty(List<string> refs, IEnumerable<string>? candidates)
     {
-        if (candidates is null)
-            return;
+        if (candidates is null) return;
 
 
         foreach (string raw in candidates)
         {
-            if (string.IsNullOrWhiteSpace(raw))
-                continue;
+            if (string.IsNullOrWhiteSpace(raw)) continue;
 
             string trimmed = raw.Trim();
 
-            if (refs.Contains(trimmed, StringComparer.Ordinal))
-                continue;
+            if (refs.Contains(trimmed, StringComparer.Ordinal)) continue;
 
             refs.Add(trimmed);
         }
@@ -110,8 +107,7 @@ public static class FindingExplainabilityNarrativeBuilder
 
     private static List<string> CollectNonEmptyTrimmed(IEnumerable<string>? items)
     {
-        if (items is null)
-            return [];
+        if (items is null) return [];
 
         return items
             .Where(static s => !string.IsNullOrWhiteSpace(s))
@@ -123,11 +119,9 @@ public static class FindingExplainabilityNarrativeBuilder
     {
         List<string> rules = CollectNonEmptyTrimmed(trace.RulesApplied);
 
-        if (rules.Count == 0)
-            return "unspecified";
+        if (rules.Count == 0) return "unspecified";
 
-        if (rules.Count == 1)
-            return rules[0];
+        if (rules.Count == 1) return rules[0];
 
         return string.Join(";", rules);
     }
@@ -139,10 +133,8 @@ public static class FindingExplainabilityNarrativeBuilder
         string engineType,
         double traceCompletenessRatio)
     {
-        if (string.IsNullOrWhiteSpace(findingId) && string.IsNullOrWhiteSpace(title))
-        {
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(findingId) && string.IsNullOrWhiteSpace(title)) return;
+
 
         string idPart = string.IsNullOrWhiteSpace(findingId) ? "Finding" : $"Finding {findingId}";
         string titlePart = string.IsNullOrWhiteSpace(title) ? string.Empty : $": {title}";
@@ -161,10 +153,8 @@ public static class FindingExplainabilityNarrativeBuilder
 
     private static void AppendOptionalLine(StringBuilder sb, string label, string? value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(value)) return;
+
 
         sb.Append(label);
         sb.Append(": ");
@@ -177,20 +167,16 @@ public static class FindingExplainabilityNarrativeBuilder
         IReadOnlyList<string>? nodeIds,
         IReadOnlyDictionary<string, string>? labelsById)
     {
-        if (nodeIds is null || nodeIds.Count == 0)
-        {
-            return;
-        }
+        if (nodeIds is null || nodeIds.Count == 0) return;
+
 
         List<string> nonEmpty = nodeIds
             .Where(static s => !string.IsNullOrWhiteSpace(s))
             .Select(static s => s.Trim())
             .ToList();
 
-        if (nonEmpty.Count == 0)
-        {
-            return;
-        }
+        if (nonEmpty.Count == 0) return;
+
 
         sb.Append("Graph nodes examined");
         sb.AppendLine();
@@ -202,9 +188,9 @@ public static class FindingExplainabilityNarrativeBuilder
             if (labelsById is not null
                 && labelsById.TryGetValue(id, out string? label)
                 && !string.IsNullOrWhiteSpace(label))
-            {
+
                 line = $"{label.Trim()} ({id})";
-            }
+
 
             sb.Append("- ");
             sb.Append(line);
@@ -216,20 +202,16 @@ public static class FindingExplainabilityNarrativeBuilder
 
     private static void AppendBulletSection(StringBuilder sb, string heading, IReadOnlyList<string>? items)
     {
-        if (items is null || items.Count == 0)
-        {
-            return;
-        }
+        if (items is null || items.Count == 0) return;
+
 
         List<string> nonEmpty = items
             .Where(static s => !string.IsNullOrWhiteSpace(s))
             .Select(static s => s.Trim())
             .ToList();
 
-        if (nonEmpty.Count == 0)
-        {
-            return;
-        }
+        if (nonEmpty.Count == 0) return;
+
 
         sb.Append(heading);
         sb.AppendLine();

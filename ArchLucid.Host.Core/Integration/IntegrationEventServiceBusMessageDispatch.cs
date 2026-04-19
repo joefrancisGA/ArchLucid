@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
@@ -67,13 +67,13 @@ internal static class IntegrationEventServiceBusMessageDispatch
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             if (logger.IsEnabled(LogLevel.Warning))
-            {
+
                 logger.LogWarning(
                     ex,
                     "Integration event handler failed; abandoning for redelivery. EventType={EventType}, deliveryCount={DeliveryCount}",
                     LogSanitizer.Sanitize(eventType),
                     message.DeliveryCount);
-            }
+
 
             await settlement.AbandonAsync(message, cancellationToken).ConfigureAwait(false);
         }
@@ -84,9 +84,9 @@ internal static class IntegrationEventServiceBusMessageDispatch
         if (message.ApplicationProperties.TryGetValue("event_type", out object? value)
             && value is string s
             && !string.IsNullOrWhiteSpace(s))
-        {
+
             return s.Trim();
-        }
+
 
         string? subject = message.Subject;
 

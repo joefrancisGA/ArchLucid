@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.DecisionTraces;
@@ -28,11 +28,9 @@ public sealed class ArchitectureRunProvenanceService(
         ArchitectureRunDetail? detail = await runDetailQueryService
             .GetRunDetailAsync(runId, cancellationToken);
 
-        if (detail is null)
-            return null;
+        if (detail is null) return null;
 
-        if (detail.HasBrokenManifestReference)
-            return null;
+        if (detail.HasBrokenManifestReference) return null;
 
         ArchitectureRequest? request = await requestRepository
             .GetByIdAsync(detail.Run.RequestId, cancellationToken);
@@ -54,8 +52,7 @@ public sealed class ArchitectureRunProvenanceService(
             .Select(t => t.EvidenceBundleRef)
             .FirstOrDefault(r => !string.IsNullOrWhiteSpace(r));
 
-        if (string.IsNullOrWhiteSpace(bundleRef))
-            return null;
+        if (string.IsNullOrWhiteSpace(bundleRef)) return null;
 
         return await bundles.GetByIdAsync(bundleRef, cancellationToken);
     }
@@ -450,8 +447,7 @@ public sealed class ArchitectureRunProvenanceService(
             addEdge(ArchitectureLinkageKinds.Edges.RunReferencesSnapshot, runNodeId, id, null);
         }
 
-        if (run.ArtifactBundleId is not { } artifactBundleId)
-            return;
+        if (run.ArtifactBundleId is not { } artifactBundleId) return;
         {
             string id = $"artifactBundle:{artifactBundleId:N}";
             addNode(

@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Text;
@@ -74,8 +74,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
             {
                 list.Add(ToEvent(doc));
 
-                if (list.Count >= clamped)
-                    break;
+                if (list.Count >= clamped) break;
             }
         }
 
@@ -114,8 +113,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
             {
                 list.Add(ToEvent(doc));
 
-                if (list.Count >= take)
-                    break;
+                if (list.Count >= take) break;
             }
         }
 
@@ -166,8 +164,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
             {
                 list.Add(ToEvent(doc));
 
-                if (list.Count >= take)
-                    break;
+                if (list.Count >= take) break;
             }
         }
 

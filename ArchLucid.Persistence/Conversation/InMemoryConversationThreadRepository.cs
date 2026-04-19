@@ -1,4 +1,4 @@
-using ArchLucid.Core.Conversation;
+﻿using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Pagination;
 
 namespace ArchLucid.Persistence.Conversation;
@@ -97,9 +97,9 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         {
             ConversationThread? thread = _threads.FirstOrDefault(x => x.ThreadId == threadId);
             if (thread is { ArchivedUtc: null })
-            
+
                 thread.LastUpdatedUtc = updatedUtc;
-            
+
         }
 
         return Task.CompletedTask;
@@ -113,18 +113,16 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         DateTime stamp = DateTime.UtcNow;
         int count = 0;
         lock (_gate)
-        
+
             foreach (ConversationThread t in _threads)
             {
-                if (t.ArchivedUtc.HasValue || t.LastUpdatedUtc >= cutoff)
-                
-                    continue;
-                
+                if (t.ArchivedUtc.HasValue || t.LastUpdatedUtc >= cutoff) continue;
+
 
                 t.ArchivedUtc = stamp;
                 count++;
             }
-        
+
 
         return Task.FromResult(count);
     }

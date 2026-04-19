@@ -1,4 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Models;
+﻿using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.RelationalRead;
 
@@ -146,8 +146,7 @@ internal static class ArtifactBundleRelationalRead
                 },
                 cancellationToken: ct))).ToList();
 
-        if (artifactRows.Count == 0)
-            return [];
+        if (artifactRows.Count == 0) return [];
 
         const string metaSql = """
             SELECT ArtifactSortOrder, MetaSortOrder, MetaKey, MetaValue

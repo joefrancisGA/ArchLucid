@@ -1,4 +1,4 @@
-using ArchLucid.Core.Diagnostics;
+﻿using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Core.Configuration;
 
@@ -106,7 +106,7 @@ public static class ObservabilityExtensions
                     tracing.AddConsoleExporter();
 
                 if (otlpEndpointUri is not null)
-                {
+
                     tracing.AddOtlpExporter(o =>
                     {
                         o.Endpoint = otlpEndpointUri;
@@ -115,13 +115,13 @@ public static class ObservabilityExtensions
                         if (!string.IsNullOrEmpty(otlpHeaders))
                             o.Headers = otlpHeaders;
                     });
-                }
+
 
                 if (useAzureMonitorExporter)
-                {
+
                     tracing.AddAzureMonitorTraceExporter(o =>
                         o.ConnectionString = applicationInsightsConnectionString);
-                }
+
             })
             .WithMetrics(metrics =>
             {
@@ -139,7 +139,7 @@ public static class ObservabilityExtensions
                 metrics.AddPrometheusExporter();
 
                 if (otlpEndpointUri is not null)
-                {
+
                     metrics.AddOtlpExporter(o =>
                     {
                         o.Endpoint = otlpEndpointUri;
@@ -148,13 +148,13 @@ public static class ObservabilityExtensions
                         if (!string.IsNullOrEmpty(otlpHeaders))
                             o.Headers = otlpHeaders;
                     });
-                }
+
 
                 if (useAzureMonitorExporter)
-                {
+
                     metrics.AddAzureMonitorMetricExporter(o =>
                         o.ConnectionString = applicationInsightsConnectionString);
-                }
+
             });
 
         return services;

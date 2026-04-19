@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 using Azure;
 using Azure.Communication.Email;
@@ -63,10 +63,8 @@ public sealed class AzureCommunicationEmailApi : IAzureCommunicationEmailApi
     {
         int idx = key.LastIndexOf('|');
 
-        if (idx < 0)
-        {
-            return (key, null);
-        }
+        if (idx < 0) return (key, null);
+
 
         string endpoint = key[..idx];
         string mi = key[(idx + 1)..];

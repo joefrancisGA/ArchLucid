@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -38,30 +38,26 @@ internal sealed class RunCreateIdempotencyGateCache
 
     public void TryEvictAfterRelease(string releasedKey)
     {
-        if (_entries.Count <= _capacity)
-            return;
+        if (_entries.Count <= _capacity) return;
 
         long nowTicks = Environment.TickCount64;
         long ttlMs = (long)_idleTtl.TotalMilliseconds;
 
         foreach (KeyValuePair<string, Entry> pair in _entries)
         {
-            if (_entries.Count <= _capacity)
-                break;
+            if (_entries.Count <= _capacity) break;
 
             Entry e = pair.Value;
 
-            if (pair.Key == releasedKey)
-                continue;
+            if (pair.Key == releasedKey) continue;
 
-            if (e.Gate.CurrentCount == 0)
-                continue;
+            if (e.Gate.CurrentCount == 0) continue;
 
             if (nowTicks - e.LastUsedTicks > ttlMs
                 && _entries.TryRemove(pair.Key, out Entry? removed))
-            {
+
                 removed.Gate.Dispose();
-            }
+
         }
     }
 

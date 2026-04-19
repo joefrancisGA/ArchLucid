@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
@@ -337,10 +337,8 @@ public sealed class SqlRunRepository(
 
         if (newStamp is null)
         {
-            if (run.RowVersion is not null)
-            {
-                throw new RunConcurrencyConflictException(run.RunId);
-            }
+            if (run.RowVersion is not null) throw new RunConcurrencyConflictException(run.RunId);
+
 
             throw new InvalidOperationException($"Run '{run.RunId:D}' was not found for update.");
         }
@@ -459,21 +457,19 @@ public sealed class SqlRunRepository(
     /// <inheritdoc />
     public async Task<RunArchiveByIdsResult> ArchiveRunsByIdsAsync(IReadOnlyList<Guid> runIds, CancellationToken ct)
     {
-        if (runIds.Count == 0)
-        {
-            return new RunArchiveByIdsResult();
-        }
+        if (runIds.Count == 0) return new RunArchiveByIdsResult();
+
 
         List<Guid> distinctOrdered = [];
         HashSet<Guid> seen = [];
 
         foreach (Guid id in runIds)
-        {
+
             if (seen.Add(id))
-            {
+
                 distinctOrdered.Add(id);
-            }
-        }
+
+
 
         const string selectSql = """
             SELECT RunId, ArchivedUtc
@@ -508,14 +504,14 @@ public sealed class SqlRunRepository(
         }
 
         if (toArchive.Count == 0)
-        {
+
             return new RunArchiveByIdsResult
             {
                 SucceededRunIds = [],
                 ArchivedRuns = [],
                 Failed = failed,
             };
-        }
+
 
         const string updateSql = """
             DECLARE @Archived TABLE (
@@ -615,12 +611,12 @@ public sealed class SqlRunRepository(
         HashSet<Guid> succeededSet = archived.Select(static r => r.RunId).ToHashSet();
 
         foreach (Guid id in toArchive)
-        {
+
             if (!succeededSet.Contains(id))
-            {
+
                 failed.Add(new RunArchiveByIdFailure(id, "Run could not be archived (concurrent update or missing row)."));
-            }
-        }
+
+
 
         return new RunArchiveByIdsResult
         {

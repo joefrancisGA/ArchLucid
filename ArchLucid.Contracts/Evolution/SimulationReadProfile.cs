@@ -1,4 +1,4 @@
-namespace ArchLucid.Contracts.Evolution;
+﻿namespace ArchLucid.Contracts.Evolution;
 
 /// <summary>
 /// Read-only architecture analysis flags for a simulation pass. Does not enable determinism checks or replay (those mutate or spawn runs).
@@ -29,15 +29,11 @@ public sealed class SimulationReadProfile : IEquatable<SimulationReadProfile>
     /// <inheritdoc />
     public bool Equals(SimulationReadProfile? other)
     {
-        if (other is null)
-        {
-            return false;
-        }
+        if (other is null) return false;
 
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
+
+        if (ReferenceEquals(this, other)) return true;
+
 
         return IncludeEvidence == other.IncludeEvidence &&
                IncludeExecutionTraces == other.IncludeExecutionTraces &&

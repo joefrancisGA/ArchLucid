@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -90,9 +90,9 @@ public sealed class AgentExecutionTraceRecorder(
         decimal? estimated = null;
 
         if (_costOptions.Value.Enabled && (inTok > 0 || outTok > 0))
-        {
+
             estimated = _costEstimator.EstimateUsd(inTok, outTok);
-        }
+
 
         if (estimated is { } estUsd and > 0m)
         {
@@ -139,10 +139,8 @@ public sealed class AgentExecutionTraceRecorder(
 
         await _repository.CreateAsync(trace, cancellationToken);
 
-        if (isSimulatorExecution)
-        {
-            return;
-        }
+        if (isSimulatorExecution) return;
+
 
         await PersistFullPromptsAsync(
             trace.TraceId,
@@ -219,10 +217,8 @@ public sealed class AgentExecutionTraceRecorder(
         }
         catch (OperationCanceledException)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                throw;
-            }
+            if (cancellationToken.IsCancellationRequested) throw;
+
 
             timedOut = true;
         }
@@ -400,7 +396,7 @@ public sealed class AgentExecutionTraceRecorder(
         if (!ForensicPartStored(systemPrompt, row.FullSystemPromptBlobKey, row.FullSystemPromptInline)
             || !ForensicPartStored(userPrompt, row.FullUserPromptBlobKey, row.FullUserPromptInline)
             || !ForensicPartStored(rawResponse, row.FullResponseBlobKey, row.FullResponseInline))
-        {
+
             await MarkInlineForensicFailureAsync(
                 traceId,
                 runId,
@@ -408,7 +404,7 @@ public sealed class AgentExecutionTraceRecorder(
                 "mandatory_full_text_incomplete",
                 null,
                 cancellationToken);
-        }
+
     }
 
     private async Task MarkInlineForensicFailureAsync(
@@ -496,24 +492,22 @@ public sealed class AgentExecutionTraceRecorder(
         string? responseInline = responseKey is null ? rawResponse : null;
 
         if (systemInline is not null)
-        {
+
             RecordPromptInlineFallback(agentType, "system_prompt");
-        }
+
 
         if (userInline is not null)
-        {
+
             RecordPromptInlineFallback(agentType, "user_prompt");
-        }
+
 
         if (responseInline is not null)
-        {
-            RecordPromptInlineFallback(agentType, "response");
-        }
 
-        if (systemInline is null && userInline is null && responseInline is null)
-        {
-            return Task.CompletedTask;
-        }
+            RecordPromptInlineFallback(agentType, "response");
+
+
+        if (systemInline is null && userInline is null && responseInline is null) return Task.CompletedTask;
+
 
         return _repository.PatchInlinePromptFallbackAsync(
             traceId,
@@ -601,7 +595,7 @@ public sealed class AgentExecutionTraceRecorder(
         TagList tags = new() { { "agent_type", agentLabel }, { "blob_type", blobType } };
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
-        {
+
             try
             {
                 return await _blobStore.WriteAsync(containerName, blobPath, content, cancellationToken);
@@ -617,11 +611,11 @@ public sealed class AgentExecutionTraceRecorder(
                     LogSanitizer.Sanitize(traceId));
 
                 if (attempt < maxAttempts)
-                {
+
                     await Task.Delay(retryDelayMs, cancellationToken);
-                }
+
             }
-        }
+
 
         ArchLucidInstrumentation.AgentTraceBlobUploadFailuresTotal.Add(1, tags);
 
@@ -633,19 +627,19 @@ public sealed class AgentExecutionTraceRecorder(
         List<string> failed = [];
 
         if (systemKey is null)
-        {
+
             failed.Add("system_prompt");
-        }
+
 
         if (userKey is null)
-        {
+
             failed.Add("user_prompt");
-        }
+
 
         if (responseKey is null)
-        {
+
             failed.Add("response");
-        }
+
 
         return failed;
     }

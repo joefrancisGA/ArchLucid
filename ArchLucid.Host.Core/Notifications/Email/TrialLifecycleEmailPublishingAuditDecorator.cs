@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Audit;
@@ -51,12 +51,12 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     ex,
                     "Trial lifecycle email integration publish failed after audit append for event {EventId}.",
                     auditEvent.EventId);
-            }
+
         }
     }
 
@@ -64,10 +64,8 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
     {
         TrialLifecycleEmailIntegrationEnvelope? envelope = TryMap(auditEvent);
 
-        if (envelope is null)
-        {
-            return;
-        }
+        if (envelope is null) return;
+
 
         IntegrationEventsOptions options = _integrationEventsOptions.CurrentValue;
         string messageId = $"trial-email-audit|{auditEvent.EventId:N}";
@@ -87,7 +85,7 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
     private static TrialLifecycleEmailIntegrationEnvelope? TryMap(AuditEvent auditEvent)
     {
         if (string.Equals(auditEvent.EventType, AuditEventTypes.TrialProvisioned, StringComparison.Ordinal))
-        {
+
             return new TrialLifecycleEmailIntegrationEnvelope
             {
                 SchemaVersion = 1,
@@ -97,10 +95,10 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
                 ProjectId = auditEvent.ProjectId,
                 RunId = auditEvent.RunId,
             };
-        }
+
 
         if (string.Equals(auditEvent.EventType, AuditEventTypes.CoordinatorRunCommitCompleted, StringComparison.Ordinal))
-        {
+
             return new TrialLifecycleEmailIntegrationEnvelope
             {
                 SchemaVersion = 1,
@@ -110,10 +108,9 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
                 ProjectId = auditEvent.ProjectId,
                 RunId = auditEvent.RunId,
             };
-        }
 
-        if (!string.Equals(auditEvent.EventType, AuditEventTypes.TenantTrialConverted, StringComparison.Ordinal))
-            return null;
+
+        if (!string.Equals(auditEvent.EventType, AuditEventTypes.TenantTrialConverted, StringComparison.Ordinal)) return null;
 
         string? targetTier = TryReadTargetTier(auditEvent.DataJson);
 
@@ -132,19 +129,15 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
 
     private static string? TryReadTargetTier(string? dataJson)
     {
-        if (string.IsNullOrWhiteSpace(dataJson))
-        {
-            return null;
-        }
+        if (string.IsNullOrWhiteSpace(dataJson)) return null;
+
 
         try
         {
             using JsonDocument doc = JsonDocument.Parse(dataJson);
 
-            if (doc.RootElement.TryGetProperty("targetTier", out JsonElement tier))
-            {
-                return tier.ValueKind == JsonValueKind.String ? tier.GetString() : null;
-            }
+            if (doc.RootElement.TryGetProperty("targetTier", out JsonElement tier)) return tier.ValueKind == JsonValueKind.String ? tier.GetString() : null;
+
         }
         catch (JsonException)
         {

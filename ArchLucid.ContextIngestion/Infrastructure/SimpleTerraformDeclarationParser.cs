@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 using ArchLucid.ContextIngestion.Models;
 
@@ -28,8 +28,7 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
             string terraformType = match.Groups["type"].Value;
             string name = match.Groups["name"].Value;
 
-            if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
-                continue;
+            if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name)) continue;
 
             string objectType = ResolveObjectType(terraformType);
 
@@ -56,9 +55,9 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
         if (normalized.Contains("key_vault", StringComparison.Ordinal) ||
             normalized.Contains("firewall", StringComparison.Ordinal) ||
             normalized.Contains("network_security_group", StringComparison.Ordinal))
-        
+
             return "SecurityBaseline";
-        
+
 
         return normalized.Contains("policy", StringComparison.Ordinal) ? "PolicyControl" : "TopologyResource";
     }

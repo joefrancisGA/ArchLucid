@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentSimulator.Services;
@@ -53,10 +53,8 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
 
     private static AgentType ResolveAgentType(string systemPrompt)
     {
-        if (systemPrompt.Contains("Compliance Agent", StringComparison.Ordinal))
-        {
-            return AgentType.Compliance;
-        }
+        if (systemPrompt.Contains("Compliance Agent", StringComparison.Ordinal)) return AgentType.Compliance;
+
 
         return systemPrompt.Contains("Critic Agent", StringComparison.Ordinal) ? AgentType.Critic : AgentType.Topology;
     }
@@ -81,13 +79,13 @@ public sealed class EchoAgentCompletionClient : IAgentCompletionClient
             ReadOnlySpan<char> span = line.AsSpan().Trim();
 
             if (span.StartsWith("RunId:", StringComparison.OrdinalIgnoreCase))
-            {
+
                 runId = span.Length > 6 ? span[6..].Trim().ToString() : runId;
-            }
+
             else if (span.StartsWith("TaskId:", StringComparison.OrdinalIgnoreCase))
-            {
+
                 taskId = span.Length > 7 ? span[7..].Trim().ToString() : taskId;
-            }
+
         }
 
         return (runId, taskId);

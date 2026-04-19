@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Agents;
@@ -66,13 +66,13 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
         try
         {
             if (transaction is not null)
-            {
+
                 await conn.ExecuteAsync(new CommandDefinition(
                     sql,
                     rows,
                     transaction: transaction,
                     cancellationToken: cancellationToken));
-            }
+
             else
             {
                 using IDbTransaction tx = conn.BeginTransaction();

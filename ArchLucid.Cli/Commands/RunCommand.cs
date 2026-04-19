@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -49,10 +49,8 @@ internal static class RunCommand
 
         ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl, config);
 
-        if (connection != ApiConnectionOutcome.Connected)
-        {
-            return CliCommandShared.ExitCodeForFailedConnection(connection);
-        }
+        if (connection != ApiConnectionOutcome.Connected) return CliCommandShared.ExitCodeForFailedConnection(connection);
+
 
         ArchLucidApiClient client = new(baseUrl, config);
 

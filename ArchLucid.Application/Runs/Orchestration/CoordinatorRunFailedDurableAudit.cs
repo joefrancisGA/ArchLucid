@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
@@ -44,12 +44,12 @@ internal static class CoordinatorRunFailedDurableAudit
         catch (Exception ex)
         {
             if (logger.IsEnabled(LogLevel.Warning))
-            {
+
                 logger.LogWarning(
                     ex,
                     "Durable audit for CoordinatorRunFailed failed for RunId={RunId}",
                     LogSanitizer.Sanitize(correlationRunId));
-            }
+
         }
     }
 }

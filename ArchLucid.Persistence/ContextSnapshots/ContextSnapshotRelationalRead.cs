@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.RelationalRead;
@@ -180,8 +180,7 @@ internal static class ContextSnapshotRelationalRead
                 transaction,
                 cancellationToken: ct))).ToList();
 
-        if (objectRows.Count == 0)
-            return [];
+        if (objectRows.Count == 0) return [];
 
         List<Guid> rowIds = objectRows.Select(r => r.CanonicalObjectRowId).ToList();
 

@@ -1,4 +1,4 @@
-using ArchLucid.ContextIngestion.Models;
+﻿using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -34,7 +34,7 @@ public sealed class AuthorityPipelineWorkProcessor(
             await workOutbox.DequeuePendingAsync(25, cancellationToken);
 
         foreach (AuthorityPipelineWorkOutboxEntry entry in batch)
-        {
+
             try
             {
                 await ProcessEntryAsync(scope, entry, workOutbox, cancellationToken);
@@ -47,7 +47,7 @@ public sealed class AuthorityPipelineWorkProcessor(
                     LogSanitizer.Sanitize(entry.OutboxId.ToString()),
                     LogSanitizer.Sanitize(entry.RunId.ToString("N")));
             }
-        }
+
     }
 
     private async Task ProcessEntryAsync(
@@ -143,9 +143,9 @@ public sealed class AuthorityPipelineWorkProcessor(
             await taskRepository.GetByRunIdAsync(runIdN, cancellationToken);
 
         if (existingTasks.Count == 0)
-        {
+
             await taskRepository.CreateManyAsync(starterTasks, cancellationToken);
-        }
+
 
         RunRecord? statusPatch = await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken);
 

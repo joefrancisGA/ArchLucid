@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Integration;
@@ -34,22 +34,20 @@ public sealed class TrialLifecycleEmailIntegrationEventHandler(
             throw new FormatException("Trial lifecycle email payload was not valid JSON.", ex);
         }
 
-        if (envelope is null)
-        {
-            throw new FormatException("Trial lifecycle email payload deserialized to null.");
-        }
+        if (envelope is null) throw new FormatException("Trial lifecycle email payload deserialized to null.");
+
 
         using IServiceScope scope = _scopeFactory.CreateScope();
         ITrialLifecycleEmailDispatcher dispatcher =
             scope.ServiceProvider.GetRequiredService<ITrialLifecycleEmailDispatcher>();
 
         if (_logger.IsEnabled(LogLevel.Debug))
-        {
+
             _logger.LogDebug(
                 "Dispatching trial lifecycle email trigger {Trigger} for tenant {TenantId}.",
                 envelope.Trigger,
                 envelope.TenantId);
-        }
+
 
         await dispatcher.DispatchAsync(envelope, cancellationToken).ConfigureAwait(false);
     }

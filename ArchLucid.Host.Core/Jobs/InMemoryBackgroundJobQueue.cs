@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading.Channels;
 
 using ArchLucid.Application.Jobs;
@@ -57,8 +57,7 @@ public sealed class InMemoryBackgroundJobQueue(
                 $"The background job queue is at capacity ({InMemoryBackgroundJobQueueLimits.MaxPendingJobs} pending jobs). Try again later.");
         }
 
-        if (_queue.Writer.TryWrite(new WorkItem(id, workUnit, safeMaxRetries)))
-            return id;
+        if (_queue.Writer.TryWrite(new WorkItem(id, workUnit, safeMaxRetries))) return id;
 
         _pendingJobs.Release();
         _info.TryRemove(id, out _);
@@ -82,8 +81,7 @@ public sealed class InMemoryBackgroundJobQueue(
         {
             _pendingJobs.Release();
 
-            if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? current))
-                continue;
+            if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? current)) continue;
 
             _info[item.JobId] = current with
             {
@@ -191,8 +189,7 @@ public sealed class InMemoryBackgroundJobQueue(
             .OrderBy(j => j.CompletedUtc)
             .ToList();
 
-        if (terminal.Count <= InMemoryBackgroundJobQueueLimits.MaxRetainedTerminalJobs)
-            return;
+        if (terminal.Count <= InMemoryBackgroundJobQueueLimits.MaxRetainedTerminalJobs) return;
 
         foreach (BackgroundJobInfo old in terminal.Take(terminal.Count - InMemoryBackgroundJobQueueLimits.MaxRetainedTerminalJobs))
         {

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text;
 
 using ArchLucid.Application.Diffs;
@@ -43,18 +43,16 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine(summaryFormatter.FormatMarkdown(report).Trim());
         sb.AppendLine();
 
-        if (EndToEndComparisonExportProfile.IsShort(p))
-        
-            return sb.ToString();
-        
+        if (EndToEndComparisonExportProfile.IsShort(p)) return sb.ToString();
+
 
         sb.AppendLine("---");
         sb.AppendLine();
 
         if (EndToEndComparisonExportProfile.IsExecutive(p))
-        
+
             AppendMarkdownExecutiveSummary(sb, report);
-        
+
         else
         {
             AppendMarkdownRunMetadataDiff(sb, report);
@@ -101,9 +99,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         {
             sb.AppendLine("<hr/>");
             if (EndToEndComparisonExportProfile.IsExecutive(p))
-            {
+
                 AppendHtmlExecutiveSummary(sb, report);
-            }
+
             else
             {
                 AppendHtmlRunMetadataDiff(sb, report);
@@ -346,8 +344,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendMarkdownAgentResultDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.AgentResultDiff is null)
-            return;
+        if (report.AgentResultDiff is null) return;
         sb.AppendLine("## Agent Result Diff");
         sb.AppendLine();
         foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
@@ -372,8 +369,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendMarkdownManifestDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ManifestDiff is null)
-            return;
+        if (report.ManifestDiff is null) return;
         sb.AppendLine("## Manifest Diff");
         sb.AppendLine();
         AppendList(sb, "Added Services", report.ManifestDiff.AddedServices);
@@ -382,7 +378,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         AppendList(sb, "Removed Datastores", report.ManifestDiff.RemovedDatastores);
         AppendList(sb, "Added Required Controls", report.ManifestDiff.AddedRequiredControls);
         AppendList(sb, "Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
-        
+
         if (report.ManifestDiff.AddedRelationships.Count > 0)
         {
             sb.AppendLine("### Added Relationships");
@@ -403,8 +399,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendMarkdownExportDiffs(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ExportDiffs.Count == 0)
-            return;
+        if (report.ExportDiffs.Count == 0) return;
         sb.AppendLine("## Export Diffs");
         sb.AppendLine();
         foreach (ExportRecordDiffResult diff in report.ExportDiffs)
@@ -422,8 +417,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static string MarkdownToSimpleHtml(string markdown)
     {
-        if (string.IsNullOrEmpty(markdown))
-            return "";
+        if (string.IsNullOrEmpty(markdown)) return "";
         StringBuilder sb = new();
         foreach (string line in markdown.Split('\n'))
         {
@@ -473,8 +467,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendHtmlAgentResultDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.AgentResultDiff is null)
-            return;
+        if (report.AgentResultDiff is null) return;
         sb.AppendLine("<h2>Agent Result Diff</h2>");
         foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
         {
@@ -495,8 +488,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendHtmlManifestDiff(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ManifestDiff is null)
-            return;
+        if (report.ManifestDiff is null) return;
         sb.AppendLine("<h2>Manifest Diff</h2><ul>");
         foreach (string s in report.ManifestDiff.AddedServices)
             sb.AppendLine("<li>Added service: " + EscapeHtml(s) + "</li>");
@@ -511,8 +503,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendHtmlExportDiffs(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        if (report.ExportDiffs.Count == 0)
-            return;
+        if (report.ExportDiffs.Count == 0) return;
         sb.AppendLine("<h2>Export Diffs</h2>");
         foreach (ExportRecordDiffResult diff in report.ExportDiffs)
         {
@@ -567,9 +558,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         }
 
         foreach (string item in items)
-        
+
             sb.AppendLine($"- {item}");
-        
+
 
         sb.AppendLine();
     }
@@ -587,9 +578,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         Run run = new(new Text(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
-        
+
             run.RunProperties = new RunProperties(new Bold());
-        
+
 
         body.AppendChild(new Paragraph(run));
     }
@@ -616,9 +607,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         }
 
         foreach (string item in items)
-        
+
             AddBullet(body, item);
-        
+
     }
 }
 

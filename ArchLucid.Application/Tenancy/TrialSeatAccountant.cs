@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Application.Tenancy;
@@ -18,11 +18,9 @@ public sealed class TrialSeatAccountant(ITenantRepository tenantRepository)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
-        if (scope.TenantId == Guid.Empty)
-            return Task.CompletedTask;
+        if (scope.TenantId == Guid.Empty) return Task.CompletedTask;
 
-        if (string.IsNullOrWhiteSpace(principalKey))
-            return Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(principalKey)) return Task.CompletedTask;
 
         return _tenantRepository.TryClaimTrialSeatAsync(scope.TenantId, principalKey, cancellationToken);
     }

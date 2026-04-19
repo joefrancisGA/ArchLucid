@@ -1,4 +1,4 @@
-using ArchLucid.Retrieval.Models;
+﻿using ArchLucid.Retrieval.Models;
 
 namespace ArchLucid.Retrieval.Indexing;
 
@@ -66,8 +66,7 @@ public sealed class InMemoryVectorIndex : IVectorIndex
 
     private static double Cosine(float[] a, float[] b)
     {
-        if (a.Length != b.Length || a.Length == 0)
-            return 0;
+        if (a.Length != b.Length || a.Length == 0) return 0;
 
         double dot = 0;
         double magA = 0;
@@ -80,8 +79,7 @@ public sealed class InMemoryVectorIndex : IVectorIndex
             magB += b[i] * b[i];
         }
 
-        if (magA == 0 || magB == 0)
-            return 0;
+        if (magA == 0 || magB == 0) return 0;
 
         return dot / (Math.Sqrt(magA) * Math.Sqrt(magB));
     }

@@ -1,4 +1,4 @@
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -32,9 +32,9 @@ public sealed class PrometheusScrapeAuthMiddleware
         string path = string.IsNullOrWhiteSpace(o.ScrapePath) ? "/metrics" : o.ScrapePath.Trim();
 
         if (!path.StartsWith('/'))
-        {
+
             path = "/" + path;
-        }
+
 
         _scrapePath = new PathString(path);
         _prometheus = o;
@@ -71,7 +71,7 @@ public sealed class PrometheusScrapeAuthMiddleware
         }
 
         if (expectedUser is not null && expectedPassword is not null)
-        {
+
             if (!TryValidateBasicAuth(context.Request.Headers.Authorization, expectedUser, expectedPassword))
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -79,7 +79,7 @@ public sealed class PrometheusScrapeAuthMiddleware
 
                 return;
             }
-        }
+
 
         await _next(context);
     }
@@ -92,9 +92,9 @@ public sealed class PrometheusScrapeAuthMiddleware
         if (!AuthenticationHeaderValue.TryParse(authorizationHeader.ToString(), out AuthenticationHeaderValue? header) ||
             !string.Equals(header.Scheme, "Basic", StringComparison.OrdinalIgnoreCase) ||
             string.IsNullOrEmpty(header.Parameter))
-        {
+
             return false;
-        }
+
 
         string decoded;
         try
@@ -109,10 +109,8 @@ public sealed class PrometheusScrapeAuthMiddleware
 
         int colon = decoded.IndexOf(':');
 
-        if (colon < 0)
-        {
-            return false;
-        }
+        if (colon < 0) return false;
+
 
         string user = decoded[..colon];
         string password = decoded[(colon + 1)..];

@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 
 namespace ArchLucid.Cli.Support;
@@ -57,22 +57,20 @@ public static class SupportBundleArchiveWriter
         ArgumentException.ThrowIfNullOrWhiteSpace(bundleDirectory);
         ArgumentException.ThrowIfNullOrWhiteSpace(zipPath);
 
-        if (!Directory.Exists(bundleDirectory))
-        
-            throw new DirectoryNotFoundException(bundleDirectory);
-        
+        if (!Directory.Exists(bundleDirectory)) throw new DirectoryNotFoundException(bundleDirectory);
+
 
         string? parent = Path.GetDirectoryName(Path.GetFullPath(zipPath));
 
         if (!string.IsNullOrEmpty(parent))
-        
+
             Directory.CreateDirectory(parent);
-        
+
 
         if (File.Exists(zipPath))
-        
+
             File.Delete(zipPath);
-        
+
 
         using FileStream fs = new(zipPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
         using ZipArchive zip = new(fs, ZipArchiveMode.Create);

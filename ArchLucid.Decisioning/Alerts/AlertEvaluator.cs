@@ -1,4 +1,4 @@
-using ArchLucid.Core.Comparison;
+﻿using ArchLucid.Core.Comparison;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Workflow;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -25,7 +25,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         List<AlertRecord> alerts = [];
 
         foreach (AlertRule rule in rules.Where(x => x.IsEnabled))
-        
+
             switch (rule.RuleType)
             {
                 case AlertRuleType.CriticalRecommendationCount:
@@ -52,7 +52,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
                     EvaluateAcceptanceRateDrop(rule, context, alerts);
                     break;
             }
-        
+
 
         return alerts;
     }
@@ -67,7 +67,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
             string.Equals(x.Urgency, AlertUrgencies.High, StringComparison.OrdinalIgnoreCase)) ?? 0;
 
         if (count >= rule.ThresholdValue)
-        
+
             alerts.Add(BuildAlert(
                 rule,
                 context,
@@ -77,7 +77,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
                 description: $"The current improvement plan contains {count} critical or high-priority recommendations.",
                 recommendationId: null,
                 dedupeSuffix: $"critical-rec-count:{count}"));
-        
+
     }
 
     private static void EvaluateNewComplianceGapCount(
@@ -88,7 +88,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         int count = context.ComparisonResult?.SecurityChanges.Count ?? 0;
 
         if (count >= rule.ThresholdValue)
-        
+
             alerts.Add(BuildAlert(
                 rule,
                 context,
@@ -98,7 +98,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
                 description: $"The latest comparison produced {count} relevant compliance/security deltas.",
                 recommendationId: null,
                 dedupeSuffix: $"comp-gap-count:{count}"));
-        
+
     }
 
     private static void EvaluateCostIncreasePercent(
@@ -108,13 +108,12 @@ public sealed class AlertEvaluator : IAlertEvaluator
     {
         CostDelta? delta = context.ComparisonResult?.CostChanges.FirstOrDefault();
 
-        if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0)
-            return;
+        if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0) return;
 
         decimal increasePct = (delta.TargetCost.Value - delta.BaseCost.Value) / delta.BaseCost.Value * 100m;
 
         if (increasePct >= rule.ThresholdValue)
-        
+
             alerts.Add(BuildAlert(
                 rule,
                 context,
@@ -124,7 +123,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
                 description: $"Projected cost increased by {increasePct:0.##}% compared to the baseline run.",
                 recommendationId: null,
                 dedupeSuffix: $"cost-increase:{Math.Round(increasePct, 0)}"));
-        
+
     }
 
     private static void EvaluateDeferredHighPriorityAge(
@@ -179,8 +178,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
     {
         RecommendationLearningProfile? profile = context.LearningProfile;
 
-        if (profile is null)
-            return;
+        if (profile is null) return;
 
         int proposed = profile.CategoryStats.Sum(x => x.ProposedCount);
         double overall = proposed == 0
@@ -190,7 +188,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         double pct = overall * 100d;
 
         if (pct <= (double)rule.ThresholdValue)
-        
+
             alerts.Add(BuildAlert(
                 rule,
                 context,
@@ -200,7 +198,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
                 description: $"Overall recommendation acceptance rate is {pct:0.##}%, below the configured threshold.",
                 recommendationId: null,
                 dedupeSuffix: $"accept-rate:{Math.Round(pct, 0)}"));
-        
+
     }
 
     private static AlertRecord BuildAlert(

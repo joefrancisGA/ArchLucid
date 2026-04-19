@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Agents;
@@ -67,11 +67,11 @@ public sealed class RealAgentExecutor : IAgentExecutor
             .ToArray();
 
         if (duplicateKeys.Length > 0)
-        {
+
             throw new ArgumentException(
                 $"Duplicate IAgentHandler registrations for keys: {string.Join(", ", duplicateKeys)}",
                 nameof(handlers));
-        }
+
 
         _handlers = list.ToDictionary(h => h.AgentTypeKey, StringComparer.OrdinalIgnoreCase);
     }
@@ -93,10 +93,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
             .OrderBy(AgentTypeKeys.ResolveDispatchKey, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
-        if (orderedTasks.Length == 0)
-        {
-            return [];
-        }
+        if (orderedTasks.Length == 0) return [];
+
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
@@ -124,9 +122,9 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 AgentResult[] finished = await Task.WhenAll(work).ConfigureAwait(false);
 
                 if (_logger.IsEnabled(LogLevel.Information))
-                {
+
                     _logger.LogInformationAgentExecutionBatchCompleted(runId, finished.Length);
-                }
+
 
                 return finished;
             }
@@ -154,10 +152,10 @@ public sealed class RealAgentExecutor : IAgentExecutor
         string dispatchKey = AgentTypeKeys.ResolveDispatchKey(task);
 
         if (!_handlers.TryGetValue(dispatchKey, out IAgentHandler? handler))
-        {
+
             throw new InvalidOperationException(
                 $"No handler is registered for agent type key '{dispatchKey}'.");
-        }
+
 
         Stopwatch sw = Stopwatch.StartNew();
 
@@ -214,9 +212,9 @@ public sealed class RealAgentExecutor : IAgentExecutor
         sw.Stop();
 
         if (_logger.IsEnabled(LogLevel.Debug))
-        {
+
             _logger.LogDebugAgentTaskFinished(runId, task.TaskId, dispatchKey, sw.ElapsedMilliseconds);
-        }
+
 
         return result;
     }
@@ -225,10 +223,8 @@ public sealed class RealAgentExecutor : IAgentExecutor
     {
         AgentPromptCatalogOptions current = _promptCatalog.CurrentValue;
 
-        if (current.Versions.TryGetValue(agentTypeKey, out string? v) && !string.IsNullOrWhiteSpace(v))
-        {
-            return v.Trim();
-        }
+        if (current.Versions.TryGetValue(agentTypeKey, out string? v) && !string.IsNullOrWhiteSpace(v)) return v.Trim();
+
 
         return "default";
     }

@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 using ArchLucid.Core.Configuration;
 
@@ -16,15 +16,11 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
     {
         LlmTokenQuotaOptions opts = optionsMonitor.CurrentValue;
 
-        if (!opts.Enabled || tenantId == Guid.Empty)
-        {
-            return;
-        }
+        if (!opts.Enabled || tenantId == Guid.Empty) return;
 
-        if (opts is { MaxPromptTokensPerTenantPerWindow: < 1, MaxCompletionTokensPerTenantPerWindow: < 1 })
-        {
-            return;
-        }
+
+        if (opts is { MaxPromptTokensPerTenantPerWindow: < 1, MaxCompletionTokensPerTenantPerWindow: < 1 }) return;
+
 
         TenantWindow window = _windows.GetOrAdd(tenantId, _ => new TenantWindow());
         DateTime utcNow = DateTime.UtcNow;
@@ -39,17 +35,17 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
 
             if (opts.MaxPromptTokensPerTenantPerWindow > 0 &&
                 promptSum + opts.AssumedMaxPromptTokensPerRequest > opts.MaxPromptTokensPerTenantPerWindow)
-            {
+
                 throw new LlmTokenQuotaExceededException(
                     $"LLM prompt token quota exceeded for tenant (window {opts.WindowMinutes}m, limit {opts.MaxPromptTokensPerTenantPerWindow}).");
-            }
+
 
             if (opts.MaxCompletionTokensPerTenantPerWindow > 0 &&
                 completionSum + opts.AssumedMaxCompletionTokensPerRequest > opts.MaxCompletionTokensPerTenantPerWindow)
-            {
+
                 throw new LlmTokenQuotaExceededException(
                     $"LLM completion token quota exceeded for tenant (window {opts.WindowMinutes}m, limit {opts.MaxCompletionTokensPerTenantPerWindow}).");
-            }
+
         }
     }
 
@@ -58,15 +54,11 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
     {
         LlmTokenQuotaOptions opts = optionsMonitor.CurrentValue;
 
-        if (!opts.Enabled || tenantId == Guid.Empty)
-        {
-            return;
-        }
+        if (!opts.Enabled || tenantId == Guid.Empty) return;
 
-        if (promptTokens < 1 && completionTokens < 1)
-        {
-            return;
-        }
+
+        if (promptTokens < 1 && completionTokens < 1) return;
+
 
         TenantWindow window = _windows.GetOrAdd(tenantId, _ => new TenantWindow());
         DateTime utcNow = DateTime.UtcNow;
@@ -84,12 +76,12 @@ public sealed class LlmTokenQuotaWindowTracker(IOptionsMonitor<LlmTokenQuotaOpti
         DateTime cutoff = utcNow - windowLength;
 
         for (int i = window.Events.Count - 1; i >= 0; i--)
-        {
+
             if (window.Events[i].Utc < cutoff)
-            {
+
                 window.Events.RemoveAt(i);
-            }
-        }
+
+
     }
 
     private static long SumPromptLocked(TenantWindow window) =>

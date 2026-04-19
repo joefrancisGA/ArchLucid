@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Workflow;
@@ -75,8 +75,7 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
         ArgumentNullException.ThrowIfNull(request);
 
         RecommendationRecord? recommendation = await repository.GetByIdAsync(recommendationId, ct);
-        if (recommendation is null)
-            return null;
+        if (recommendation is null) return null;
 
         recommendation.Status = request.Action switch
         {

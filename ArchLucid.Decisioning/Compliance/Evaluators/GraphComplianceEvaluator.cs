@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Compliance.Models;
+﻿using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
 
@@ -25,8 +25,7 @@ public class GraphComplianceEvaluator : IComplianceEvaluator
                     StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-            if (resourcesInScope.Count == 0)
-                continue;
+            if (resourcesInScope.Count == 0) continue;
 
             List<GraphNode> requiredNodes = graphSnapshot.Nodes
                 .Where(x => string.Equals(
@@ -54,7 +53,7 @@ public class GraphComplianceEvaluator : IComplianceEvaluator
                 .ToList();
 
             if (requiredNodes.Count == 0 || uncoveredResources.Count > 0)
-            
+
                 result.Violations.Add(new ComplianceViolation
                 {
                     RuleId = rule.RuleId,
@@ -66,7 +65,7 @@ public class GraphComplianceEvaluator : IComplianceEvaluator
                     AffectedNodeIds = uncoveredResources.Select(x => x.NodeId).ToList(),
                     AffectedResources = uncoveredResources.Select(x => x.Label).ToList()
                 });
-            
+
         }
 
         return result;

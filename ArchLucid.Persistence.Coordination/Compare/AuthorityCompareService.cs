@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
@@ -28,8 +28,7 @@ public sealed class AuthorityCompareService(
         GoldenManifest? left = await manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
         GoldenManifest? right = await manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
 
-        if (left is null || right is null)
-            return null;
+        if (left is null || right is null) return null;
 
         if (left.TenantId != right.TenantId ||
             left.WorkspaceId != right.WorkspaceId ||
@@ -69,8 +68,7 @@ public sealed class AuthorityCompareService(
         RunSummaryDto? leftRun = await queryService.GetRunSummaryAsync(scope, leftRunId, ct);
         RunSummaryDto? rightRun = await queryService.GetRunSummaryAsync(scope, rightRunId, ct);
 
-        if (leftRun is null || rightRun is null)
-            return null;
+        if (leftRun is null || rightRun is null) return null;
 
         RunComparisonResult result = new()
         {
@@ -90,13 +88,13 @@ public sealed class AuthorityCompareService(
             rightRun.GoldenManifestId?.ToString());
 
         if (leftRun.GoldenManifestId.HasValue && rightRun.GoldenManifestId.HasValue)
-        
+
             result.ManifestComparison = await CompareManifestsAsync(
                 scope,
                 leftRun.GoldenManifestId.Value,
                 rightRun.GoldenManifestId.Value,
                 ct);
-        
+
 
         return result;
     }
@@ -231,7 +229,7 @@ public sealed class AuthorityCompareService(
         HashSet<string> rightSet = new(right ?? [], StringComparer.OrdinalIgnoreCase);
 
         foreach (string item in leftSet.Except(rightSet, StringComparer.OrdinalIgnoreCase))
-        
+
             result.Diffs.Add(new DiffItem
             {
                 Section = section,
@@ -239,10 +237,10 @@ public sealed class AuthorityCompareService(
                 DiffKind = DiffKind.Removed,
                 BeforeValue = item
             });
-        
+
 
         foreach (string item in rightSet.Except(leftSet, StringComparer.OrdinalIgnoreCase))
-        
+
             result.Diffs.Add(new DiffItem
             {
                 Section = section,
@@ -250,7 +248,7 @@ public sealed class AuthorityCompareService(
                 DiffKind = DiffKind.Added,
                 AfterValue = item
             });
-        
+
     }
 
     private static void CompareKeyedSets<T>(
@@ -264,7 +262,7 @@ public sealed class AuthorityCompareService(
         Func<T, string?> notesRight)
     {
         foreach (string key in left.Keys.Except(right.Keys, StringComparer.OrdinalIgnoreCase))
-        
+
             result.Diffs.Add(new DiffItem
             {
                 Section = section,
@@ -273,10 +271,10 @@ public sealed class AuthorityCompareService(
                 BeforeValue = primaryLeft(left[key]),
                 Notes = notesLeft(left[key])
             });
-        
+
 
         foreach (string key in right.Keys.Except(left.Keys, StringComparer.OrdinalIgnoreCase))
-        
+
             result.Diffs.Add(new DiffItem
             {
                 Section = section,
@@ -285,7 +283,7 @@ public sealed class AuthorityCompareService(
                 AfterValue = primaryRight(right[key]),
                 Notes = notesRight(right[key])
             });
-        
+
 
         foreach (string key in left.Keys.Intersect(right.Keys, StringComparer.OrdinalIgnoreCase))
         {
@@ -296,7 +294,7 @@ public sealed class AuthorityCompareService(
 
             if (!string.Equals(leftValue, rightValue, StringComparison.OrdinalIgnoreCase) ||
                 !string.Equals(leftNotes, rightNotes, StringComparison.Ordinal))
-            
+
                 result.Diffs.Add(new DiffItem
                 {
                     Section = section,
@@ -306,7 +304,7 @@ public sealed class AuthorityCompareService(
                     AfterValue = rightValue,
                     Notes = $"Before: {leftNotes} | After: {rightNotes}"
                 });
-            
+
         }
     }
 
@@ -318,7 +316,7 @@ public sealed class AuthorityCompareService(
         string? afterValue)
     {
         if (!string.Equals(beforeValue, afterValue, StringComparison.Ordinal))
-        
+
             result.Diffs.Add(new DiffItem
             {
                 Section = section,
@@ -327,7 +325,7 @@ public sealed class AuthorityCompareService(
                 BeforeValue = beforeValue,
                 AfterValue = afterValue
             });
-        
+
     }
 
     /// <summary>
@@ -350,7 +348,7 @@ public sealed class AuthorityCompareService(
         string? afterValue)
     {
         if (!string.Equals(beforeValue, afterValue, StringComparison.Ordinal))
-        
+
             diffs.Add(new DiffItem
             {
                 Section = section,
@@ -359,6 +357,6 @@ public sealed class AuthorityCompareService(
                 BeforeValue = beforeValue,
                 AfterValue = afterValue
             });
-        
+
     }
 }

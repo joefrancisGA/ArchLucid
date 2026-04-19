@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -49,16 +49,16 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         ArchitectureAnalysisReport simulatedReport;
 
         if (singlePass)
-        {
+
             simulatedReport = baselineReport;
-        }
+
         else
-        {
+
             simulatedReport =
                 await analysisService.BuildAsync(
                     ToAnalysisRequest(request.BaselineArchitectureRunId, simulatedProfile),
                     cancellationToken);
-        }
+
 
         SimulationArtifactsSnapshot artifacts = BuildArtifacts(baselineReport, simulatedReport);
         SimulationDiff diff = BuildDiff(
@@ -123,10 +123,8 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
 
     private static string? TruncatePreview(string? text)
     {
-        if (string.IsNullOrEmpty(text))
-        {
-            return null;
-        }
+        if (string.IsNullOrEmpty(text)) return null;
+
 
         return text.Length <= SummaryPreviewMaxChars ? text : text.Substring(0, SummaryPreviewMaxChars);
     }
@@ -172,13 +170,13 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         ManifestDiffResult? manifestDiff)
     {
         if (singlePass)
-        {
+
             return string.Format(
                 CultureInfo.InvariantCulture,
                 "Single read-only pass: warnings={0}, summary length={1}.",
                 baseline.Warnings.Count,
                 baseline.Summary?.Length ?? 0);
-        }
+
 
         string manifestLine = manifestDiff is null
             ? "No manifest diff in simulated pass."
@@ -223,10 +221,8 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         int baselineWarnings = baseline.Warnings.Count;
         int simulatedWarnings = simulated.Warnings.Count;
 
-        if (singlePass)
-        {
-            return Math.Max(0, 1.0 - Math.Min(1.0, baselineWarnings / 20.0));
-        }
+        if (singlePass) return Math.Max(0, 1.0 - Math.Min(1.0, baselineWarnings / 20.0));
+
 
         int delta = baselineWarnings - simulatedWarnings;
 
@@ -235,10 +231,8 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
 
     private static double? ComputeRegressionRiskScore(ManifestDiffResult? diff)
     {
-        if (diff is null)
-        {
-            return null;
-        }
+        if (diff is null) return null;
+
 
         int removals =
             diff.RemovedServices.Count +
@@ -246,10 +240,8 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
             diff.RemovedRelationships.Count +
             diff.RemovedRequiredControls.Count;
 
-        if (removals == 0)
-        {
-            return 0;
-        }
+        if (removals == 0) return 0;
+
 
         return Math.Min(1.0, removals / 10.0);
     }
@@ -259,22 +251,20 @@ public sealed class SimulationEngine(IArchitectureAnalysisService analysisServic
         ArchitectureAnalysisReport baseline,
         ArchitectureAnalysisReport simulated)
     {
-        if (singlePass)
-        {
-            return [.. baseline.Warnings];
-        }
+        if (singlePass) return [.. baseline.Warnings];
+
 
         List<string> merged = [];
 
         foreach (string w in baseline.Warnings)
-        {
+
             merged.Add(string.Concat("Baseline: ", w));
-        }
+
 
         foreach (string w in simulated.Warnings)
-        {
+
             merged.Add(string.Concat("Simulated: ", w));
-        }
+
 
         return merged;
     }

@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Models;
@@ -167,8 +167,7 @@ public sealed class SqlRelationalBackfillService(
             try
             {
                 FindingsSnapshot? snapshot = await findingsSnapshotRepository.GetByIdAsync(findingsSnapshotId, ct);
-                if (snapshot is null)
-                    continue;
+                if (snapshot is null) continue;
 
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
                 await using SqlTransaction tx = conn.BeginTransaction();
@@ -240,8 +239,7 @@ public sealed class SqlRelationalBackfillService(
                 };
 
                 GoldenManifest? manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);
-                if (manifest is null)
-                    continue;
+                if (manifest is null) continue;
 
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
                 await using SqlTransaction tx = conn.BeginTransaction();
@@ -285,8 +283,7 @@ public sealed class SqlRelationalBackfillService(
             try
             {
                 ArtifactBundle? bundle = await artifactBundleRepository.GetByBundleIdAsync(bundleId, ct);
-                if (bundle is null)
-                    continue;
+                if (bundle is null) continue;
 
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
                 await using SqlTransaction tx = conn.BeginTransaction();

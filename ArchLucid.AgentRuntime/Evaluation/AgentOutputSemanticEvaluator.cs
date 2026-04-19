@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -17,19 +17,15 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
     {
         ArgumentException.ThrowIfNullOrEmpty(traceId);
 
-        if (string.IsNullOrWhiteSpace(parsedResultJson))
-        {
-            return BuildZeroScore(traceId, agentType);
-        }
+        if (string.IsNullOrWhiteSpace(parsedResultJson)) return BuildZeroScore(traceId, agentType);
+
 
         try
         {
             using JsonDocument doc = JsonDocument.Parse(parsedResultJson);
 
-            if (doc.RootElement.ValueKind != JsonValueKind.Object)
-            {
-                return BuildZeroScore(traceId, agentType);
-            }
+            if (doc.RootElement.ValueKind != JsonValueKind.Object) return BuildZeroScore(traceId, agentType);
+
 
             (double claimsRatio, int emptyClaims) = EvaluateClaims(doc.RootElement);
             (double findingsRatio, int incompleteFindings) = EvaluateFindings(doc.RootElement);
@@ -55,10 +51,8 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
 
     private static (double ratio, int emptyCount) EvaluateClaims(JsonElement root)
     {
-        if (!root.TryGetProperty("claims", out JsonElement claimsElement) || claimsElement.ValueKind != JsonValueKind.Array)
-        {
-            return (0.0, 0);
-        }
+        if (!root.TryGetProperty("claims", out JsonElement claimsElement) || claimsElement.ValueKind != JsonValueKind.Array) return (0.0, 0);
+
 
         int total = 0;
         int withEvidence = 0;
@@ -67,10 +61,8 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
         {
             total++;
 
-            if (claim.ValueKind != JsonValueKind.Object)
-            {
-                continue;
-            }
+            if (claim.ValueKind != JsonValueKind.Object) continue;
+
 
             bool hasEvidenceRefs = claim.TryGetProperty("evidenceRefs", out JsonElement refs)
                                    && refs.ValueKind == JsonValueKind.Array
@@ -81,9 +73,9 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
                                && ev.GetString()?.Length > 0;
 
             if (hasEvidenceRefs || hasEvidence)
-            {
+
                 withEvidence++;
-            }
+
         }
 
         return total == 0 ? (0.0, 0) : ((double)withEvidence / total, total - withEvidence);
@@ -91,10 +83,8 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
 
     private static (double ratio, int incompleteCount) EvaluateFindings(JsonElement root)
     {
-        if (!root.TryGetProperty("findings", out JsonElement findingsElement) || findingsElement.ValueKind != JsonValueKind.Array)
-        {
-            return (0.0, 0);
-        }
+        if (!root.TryGetProperty("findings", out JsonElement findingsElement) || findingsElement.ValueKind != JsonValueKind.Array) return (0.0, 0);
+
 
         int total = 0;
         int complete = 0;
@@ -103,10 +93,8 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
         {
             total++;
 
-            if (finding.ValueKind != JsonValueKind.Object)
-            {
-                continue;
-            }
+            if (finding.ValueKind != JsonValueKind.Object) continue;
+
 
             bool hasSeverity = finding.TryGetProperty("severity", out JsonElement sev)
                                && sev.ValueKind == JsonValueKind.String
@@ -121,9 +109,9 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
                                      && (rec.GetString()?.Length ?? 0) > MinRecommendationLength;
 
             if (hasSeverity && hasDescription && hasRecommendation)
-            {
+
                 complete++;
-            }
+
         }
 
         return total == 0 ? (0.0, 0) : ((double)complete / total, total - complete);
@@ -139,20 +127,14 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
                            && f.ValueKind == JsonValueKind.Array
                            && f.GetArrayLength() > 0;
 
-        if (!hasClaims && !hasFindings)
-        {
-            return 0.0;
-        }
+        if (!hasClaims && !hasFindings) return 0.0;
 
-        if (hasClaims && !hasFindings)
-        {
-            return claimsRatio;
-        }
 
-        if (!hasClaims && hasFindings)
-        {
-            return findingsRatio;
-        }
+        if (hasClaims && !hasFindings) return claimsRatio;
+
+
+        if (!hasClaims && hasFindings) return findingsRatio;
+
 
         return (claimsRatio * 0.4) + (findingsRatio * 0.6);
     }

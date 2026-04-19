@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Coordination.Caching;
@@ -37,13 +37,12 @@ public sealed class DistributedHotPathReadCache(
         byte[]? bytes = await _distributedCache.GetAsync(key, ct);
 
         if (bytes is { Length: > 0 })
-        {
+
             try
             {
                 T? fromRedis = JsonSerializer.Deserialize<T>(bytes, JsonEntitySerializer.EntityJsonOptions);
 
-                if (fromRedis is not null)
-                    return fromRedis;
+                if (fromRedis is not null) return fromRedis;
             }
             catch (JsonException ex)
             {
@@ -52,12 +51,11 @@ public sealed class DistributedHotPathReadCache(
                     "HotPath distributed cache entry for key {CacheKey} is corrupt; refreshing.",
                     LogSanitizer.Sanitize(key));
             }
-        }
+
 
         T? created = await factory(ct);
 
-        if (created is null)
-            return null;
+        if (created is null) return null;
 
         byte[] payload = JsonSerializer.SerializeToUtf8Bytes(created, JsonEntitySerializer.EntityJsonOptions);
         DistributedCacheEntryOptions entryOptions = new()

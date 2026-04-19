@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Common;
 
@@ -13,10 +13,8 @@ internal static class StatusCommand
 
         ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl);
 
-        if (connection != ApiConnectionOutcome.Connected)
-        {
-            return CliCommandShared.ExitCodeForFailedConnection(connection);
-        }
+        if (connection != ApiConnectionOutcome.Connected) return CliCommandShared.ExitCodeForFailedConnection(connection);
+
 
         ArchLucidApiClient client = new(baseUrl);
 
@@ -36,14 +34,14 @@ internal static class StatusCommand
         Console.WriteLine($"Created: {r.CreatedUtc:O}");
 
         if (r.CompletedUtc.HasValue)
-        {
+
             Console.WriteLine($"Completed: {r.CompletedUtc:O}");
-        }
+
 
         if (!string.IsNullOrEmpty(r.CurrentManifestVersion))
-        {
+
             Console.WriteLine($"Manifest version: {r.CurrentManifestVersion}");
-        }
+
 
         Console.WriteLine();
         Console.WriteLine("Tasks:");

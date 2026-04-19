@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Data;
 
 using ArchLucid.Core.Tenancy;
@@ -36,8 +36,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         string key = slug.Trim().ToLowerInvariant();
 
-        if (!_slugToId.TryGetValue(key, out Guid id))
-            return Task.FromResult<TenantRecord?>(null);
+        if (!_slugToId.TryGetValue(key, out Guid id)) return Task.FromResult<TenantRecord?>(null);
 
         return GetByIdAsync(id, ct);
     }
@@ -46,8 +45,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid tenantId))
-            return Task.FromResult<TenantRecord?>(null);
+        if (!_entraTenantIdToTenantId.TryGetValue(entraTenantId, out Guid tenantId)) return Task.FromResult<TenantRecord?>(null);
 
         return GetByIdAsync(tenantId, ct);
     }
@@ -94,8 +92,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             TrialSampleRunId = null,
         };
 
-        if (!_byId.TryAdd(tenantId, record))
-            throw new InvalidOperationException($"Tenant id '{tenantId:D}' already exists.");
+        if (!_byId.TryAdd(tenantId, record)) throw new InvalidOperationException($"Tenant id '{tenantId:D}' already exists.");
 
         if (!_slugToId.TryAdd(slugKey, tenantId))
         {
@@ -104,14 +101,14 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         }
 
         if (entraTenantId.HasValue)
-        {
+
             if (!_entraTenantIdToTenantId.TryAdd(entraTenantId.Value, tenantId))
             {
                 _slugToId.TryRemove(slugKey, out _);
                 _byId.TryRemove(tenantId, out _);
                 throw new InvalidOperationException($"Entra tenant id '{entraTenantId.Value:D}' is already linked.");
             }
-        }
+
 
         _workspacesByTenant.TryAdd(tenantId, []);
 
@@ -131,7 +128,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         List<TenantWorkspaceRow> list = _workspacesByTenant.GetOrAdd(tenantId, static _ => []);
 
         lock (list)
-        {
+
             list.Add(
                 new TenantWorkspaceRow
                 {
@@ -141,7 +138,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
                     DefaultProjectId = defaultProjectId,
                     CreatedUtc = DateTimeOffset.UtcNow,
                 });
-        }
+
 
         return Task.CompletedTask;
     }
@@ -150,8 +147,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-            return Task.CompletedTask;
+        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing)) return Task.CompletedTask;
 
         TenantRecord updated = new()
         {
@@ -189,8 +185,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-            return Task.CompletedTask;
+        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing)) return Task.CompletedTask;
 
         TenantRecord updated = new()
         {
@@ -221,11 +216,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-            return Task.CompletedTask;
+        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing)) return Task.CompletedTask;
 
-        if (!string.Equals(existing.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
-            return Task.CompletedTask;
+        if (!string.Equals(existing.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal)) return Task.CompletedTask;
 
         TenantTier tier = newCommercialTier ?? existing.Tier;
 
@@ -266,30 +259,29 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
-                return Task.CompletedTask;
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t)) return Task.CompletedTask;
 
             if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
                 t.TrialRunsLimit is null)
-            {
+
                 return Task.CompletedTask;
-            }
+
 
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
             if (t.TrialExpiresUtc is { } exp && exp <= now)
-            {
+
                 throw new TrialLimitExceededException(
                     TrialLimitReason.Expired,
                     ComputeDaysRemaining(t.TrialExpiresUtc));
-            }
+
 
             if (t.TrialRunsUsed >= t.TrialRunsLimit.Value)
-            {
+
                 throw new TrialLimitExceededException(
                     TrialLimitReason.RunsExceeded,
                     ComputeDaysRemaining(t.TrialExpiresUtc));
-            }
+
 
             _byId[tenantId] = CopyTenant(t, trialRunsUsed: t.TrialRunsUsed + 1);
         }
@@ -307,31 +299,29 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
-                return Task.CompletedTask;
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t)) return Task.CompletedTask;
 
             if (!string.Equals(t.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
                 t.TrialSeatsLimit is null)
-            {
+
                 return Task.CompletedTask;
-            }
+
 
             if (t.TrialExpiresUtc is { } exp && exp <= DateTimeOffset.UtcNow)
-            {
+
                 throw new TrialLimitExceededException(
                     TrialLimitReason.Expired,
                     ComputeDaysRemaining(t.TrialExpiresUtc));
-            }
 
-            if (_trialSeatOccupants.ContainsKey((tenantId, key)))
-                return Task.CompletedTask;
+
+            if (_trialSeatOccupants.ContainsKey((tenantId, key))) return Task.CompletedTask;
 
             if (t.TrialSeatsUsed >= t.TrialSeatsLimit.Value)
-            {
+
                 throw new TrialLimitExceededException(
                     TrialLimitReason.SeatsExceeded,
                     ComputeDaysRemaining(t.TrialExpiresUtc));
-            }
+
 
             _trialSeatOccupants[(tenantId, key)] = 1;
 
@@ -370,15 +360,11 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
-            {
-                return Task.FromResult(false);
-            }
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing)) return Task.FromResult(false);
 
-            if (!string.Equals(existing.TrialStatus, expectedCurrentStatus, StringComparison.Ordinal))
-            {
-                return Task.FromResult(false);
-            }
+
+            if (!string.Equals(existing.TrialStatus, expectedCurrentStatus, StringComparison.Ordinal)) return Task.FromResult(false);
+
 
             _byId[tenantId] = CopyTenant(existing, trialStatus: nextStatus);
 
@@ -396,20 +382,14 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
-            {
-                return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
-            }
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t)) return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
 
-            if (t.TrialExpiresUtc is null)
-            {
-                return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
-            }
 
-            if (!_trialFirstManifestCommitted.TryAdd(tenantId, 0))
-            {
-                return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
-            }
+            if (t.TrialExpiresUtc is null) return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
+
+
+            if (!_trialFirstManifestCommitted.TryAdd(tenantId, 0)) return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
+
 
             DateTimeOffset anchor = t.TrialStartUtc ?? t.CreatedUtc;
             double seconds = (committedUtc - anchor).TotalSeconds;
@@ -417,9 +397,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             double ratio = 0;
 
             if (t.TrialRunsLimit is { } lim and > 0)
-            {
+
                 ratio = (double)t.TrialRunsUsed / lim;
-            }
+
 
             return Task.FromResult<TrialFirstManifestCommitOutcome?>(
                 new TrialFirstManifestCommitOutcome
@@ -437,10 +417,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
         lock (_trialGate)
         {
-            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
-            {
-                return Task.CompletedTask;
-            }
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t)) return Task.CompletedTask;
+
 
             _byId[tenantId] = CopyTenant(t, trialExpiresUtc: expiresUtc);
         }
@@ -475,8 +453,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
     {
-        if (trialExpiresUtc is null)
-            return 0;
+        if (trialExpiresUtc is null) return 0;
 
         double totalDays = (trialExpiresUtc.Value - DateTimeOffset.UtcNow).TotalDays;
         int days = (int)Math.Floor(totalDays);
@@ -488,18 +465,16 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     {
         _ = ct;
 
-        if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list))
-            return Task.FromResult<TenantWorkspaceLink?>(null);
+        if (!_workspacesByTenant.TryGetValue(tenantId, out List<TenantWorkspaceRow>? list)) return Task.FromResult<TenantWorkspaceLink?>(null);
 
         TenantWorkspaceRow? row;
 
         lock (list)
-        {
-            row = list.OrderBy(static w => w.CreatedUtc).FirstOrDefault();
-        }
 
-        if (row is null)
-            return Task.FromResult<TenantWorkspaceLink?>(null);
+            row = list.OrderBy(static w => w.CreatedUtc).FirstOrDefault();
+
+
+        if (row is null) return Task.FromResult<TenantWorkspaceLink?>(null);
 
         return Task.FromResult<TenantWorkspaceLink?>(
             new TenantWorkspaceLink

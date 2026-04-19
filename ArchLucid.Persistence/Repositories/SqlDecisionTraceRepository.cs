@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.DecisionTraces;
@@ -100,8 +100,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
                 },
                 cancellationToken: ct));
 
-        if (row is null)
-            return null;
+        if (row is null) return null;
 
         return RuleAuditTrace.From(new RuleAuditTracePayload
         {

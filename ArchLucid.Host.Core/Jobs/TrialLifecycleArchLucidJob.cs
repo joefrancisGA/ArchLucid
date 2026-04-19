@@ -1,4 +1,4 @@
-using ArchLucid.Application.Tenancy;
+﻿using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Host.Core.Jobs;
@@ -32,9 +32,9 @@ public sealed class TrialLifecycleArchLucidJob(
                     .ConfigureAwait(false);
 
             foreach (Guid tenantId in tenantIds)
-            {
+
                 await engine.TryAdvanceTenantAsync(tenantId, cancellationToken).ConfigureAwait(false);
-            }
+
         }
         catch (OperationCanceledException)
         {

@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Models;
+﻿using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Findings;
 
@@ -23,29 +23,29 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         int populated = 0;
 
         if (hasGraph)
-        {
+
             populated++;
-        }
+
 
         if (hasRules)
-        {
+
             populated++;
-        }
+
 
         if (hasDecisions)
-        {
+
             populated++;
-        }
+
 
         if (hasAlt)
-        {
+
             populated++;
-        }
+
 
         if (hasNotes)
-        {
+
             populated++;
-        }
+
 
         return new TraceCompletenessScore
         {
@@ -69,14 +69,14 @@ public static class ExplainabilityTraceCompletenessAnalyzer
         List<Finding> findings = snapshot.Findings ?? [];
 
         if (findings.Count == 0)
-        {
+
             return new TraceCompletenessSummary
             {
                 TotalFindings = 0,
                 OverallCompletenessRatio = 0.0,
                 ByEngine = [],
             };
-        }
+
 
         List<TraceCompletenessScore> scores = findings.Select(AnalyzeFinding).ToList();
 
@@ -113,10 +113,8 @@ public static class ExplainabilityTraceCompletenessAnalyzer
 
     private static bool ListHasMeaningfulContent(IReadOnlyList<string>? list)
     {
-        if (list is null || list.Count == 0)
-        {
-            return false;
-        }
+        if (list is null || list.Count == 0) return false;
+
 
         return list.Any(s => !string.IsNullOrWhiteSpace(s));
     }

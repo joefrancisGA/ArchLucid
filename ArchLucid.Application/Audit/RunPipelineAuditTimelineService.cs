@@ -1,4 +1,4 @@
-using ArchLucid.Core.Audit;
+﻿using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Queries;
@@ -24,10 +24,8 @@ public sealed class RunPipelineAuditTimelineService(
     {
         RunSummaryDto? run = await _authorityQuery.GetRunSummaryAsync(scope, runId, cancellationToken);
 
-        if (run is null)
-        {
-            return null;
-        }
+        if (run is null) return null;
+
 
         AuditEventFilter filter = new()
         {

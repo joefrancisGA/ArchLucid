@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Metadata;
+﻿using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -150,9 +150,9 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
         string orderColumn = ResolveOrderColumn(sortBy);
 
         if (!string.Equals(orderColumn, "CreatedUtc", StringComparison.OrdinalIgnoreCase))
-        
+
             throw new InvalidOperationException("Cursor paging currently supports sortBy=createdUtc only.");
-        
+
 
         int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
         bool sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
@@ -173,7 +173,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                 tags);
 
             if (cursorCreatedUtc is not null && !string.IsNullOrWhiteSpace(cursorComparisonRecordId))
-            
+
                 query = query.Where(r =>
                     sortDescending
                         ? r.CreatedUtc < cursorCreatedUtc.Value ||
@@ -182,7 +182,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
                         : r.CreatedUtc > cursorCreatedUtc.Value ||
                           (r.CreatedUtc == cursorCreatedUtc.Value &&
                            string.Compare(r.ComparisonRecordId, cursorComparisonRecordId, StringComparison.Ordinal) > 0));
-            
+
 
             query = ApplyOrdering(query, sortBy, sortDir);
             List<ComparisonRecord> page = query.Take(safeLimit).ToList();
@@ -206,14 +206,13 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             int i = _items.FindIndex(r =>
                 string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
 
-            if (i < 0)
-                return Task.FromResult(false);
+            if (i < 0) return Task.FromResult(false);
 
             if (label is not null)
                 _items[i].Label = label;
 
             if (tags is not null)
-                _items[i].Tags = [..tags];
+                _items[i].Tags = [.. tags];
 
             return Task.FromResult(true);
         }
@@ -258,17 +257,16 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             q = q.Where(r => string.Equals(r.Label, label, StringComparison.Ordinal));
 
         if (tags is { Count: > 0 })
-        
+
             foreach (string t in tags)
             {
-                if (string.IsNullOrWhiteSpace(t))
-                    continue;
+                if (string.IsNullOrWhiteSpace(t)) continue;
 
                 string needle = t;
 
                 q = q.Where(r => r.Tags.Any(x => string.Equals(x, needle, StringComparison.Ordinal)));
             }
-        
+
 
         return q;
     }
@@ -331,8 +329,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             ComparisonRecord? row = _items.FirstOrDefault(r =>
                 string.Equals(r.ComparisonRecordId, comparisonRecordId, StringComparison.Ordinal));
 
-            if (row is null)
-                throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
+            if (row is null) throw new InvalidOperationException($"Comparison record '{comparisonRecordId}' was not found.");
 
             row.PayloadJson = payloadJson;
         }
@@ -356,7 +353,7 @@ public sealed class InMemoryComparisonRecordRepository : IComparisonRecordReposi
             Notes = r.Notes,
             CreatedUtc = r.CreatedUtc,
             Label = r.Label,
-            Tags = r.Tags is null ? [] : [..r.Tags]
+            Tags = r.Tags is null ? [] : [.. r.Tags]
         };
     }
 }

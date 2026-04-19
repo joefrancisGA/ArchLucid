@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Core.Scoping;
 
@@ -25,8 +25,7 @@ public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAcc
     public ScopeContext GetCurrentScope()
     {
         ScopeContext? ambient = AmbientScopeContext.CurrentOverride;
-        if (ambient is not null)
-            return ambient;
+        if (ambient is not null) return ambient;
 
         HttpContext? http = httpContextAccessor.HttpContext;
         ClaimsPrincipal? user = http?.User;
@@ -52,16 +51,13 @@ public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAcc
     {
         string? claimValue = user?.FindFirst(claimType)?.Value;
 
-        if (!string.IsNullOrWhiteSpace(claimValue) && Guid.TryParse(claimValue, out Guid fromClaim))
-            return fromClaim;
+        if (!string.IsNullOrWhiteSpace(claimValue) && Guid.TryParse(claimValue, out Guid fromClaim)) return fromClaim;
 
-        if (headers is null || !headers.TryGetValue(headerName, out StringValues headerRaw))
-            return defaultId;
+        if (headers is null || !headers.TryGetValue(headerName, out StringValues headerRaw)) return defaultId;
 
         string headerText = headerRaw.ToString();
 
-        if (string.IsNullOrWhiteSpace(headerText) || !Guid.TryParse(headerText, out Guid fromHeader))
-            return defaultId;
+        if (string.IsNullOrWhiteSpace(headerText) || !Guid.TryParse(headerText, out Guid fromHeader)) return defaultId;
 
         return fromHeader;
     }

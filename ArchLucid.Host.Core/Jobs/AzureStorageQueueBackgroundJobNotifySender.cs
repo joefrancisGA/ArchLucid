@@ -1,4 +1,4 @@
-using Azure.Storage.Queues;
+﻿using Azure.Storage.Queues;
 
 namespace ArchLucid.Host.Core.Jobs;
 
@@ -6,8 +6,7 @@ public sealed class AzureStorageQueueBackgroundJobNotifySender(QueueClient queue
 {
     public async Task SendJobIdAsync(string jobId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(jobId))
-            throw new ArgumentException("Job id is required.", nameof(jobId));
+        if (string.IsNullOrWhiteSpace(jobId)) throw new ArgumentException("Job id is required.", nameof(jobId));
 
         await queueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
         await queueClient.SendMessageAsync(jobId, cancellationToken);

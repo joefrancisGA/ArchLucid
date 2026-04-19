@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Architecture;
+﻿using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Contracts.Manifest;
@@ -26,10 +26,8 @@ public sealed class GovernancePreviewService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        if (string.IsNullOrWhiteSpace(request.RunId))
-            throw new ArgumentException("RunId is required.", nameof(request));
-        if (string.IsNullOrWhiteSpace(request.ManifestVersion))
-            throw new ArgumentException("ManifestVersion is required.", nameof(request));
+        if (string.IsNullOrWhiteSpace(request.RunId)) throw new ArgumentException("RunId is required.", nameof(request));
+        if (string.IsNullOrWhiteSpace(request.ManifestVersion)) throw new ArgumentException("ManifestVersion is required.", nameof(request));
 
         string environment = NormalizeAndValidateEnvironment(request.Environment, nameof(request.Environment));
 
@@ -50,10 +48,10 @@ public sealed class GovernancePreviewService(
                 "Ensure the manifest version belongs to this run and has been committed.");
 
         if (!string.Equals(candidateManifest.RunId, request.RunId, StringComparison.Ordinal))
-        
+
             throw new InvalidOperationException(
                 $"Manifest version '{request.ManifestVersion}' belongs to run '{candidateManifest.RunId}', not '{request.RunId}'.");
-        
+
 
         IReadOnlyList<GovernanceEnvironmentActivation> activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
         GovernanceEnvironmentActivation? active = activationRows.FirstOrDefault(a => a.IsActive);
@@ -74,10 +72,10 @@ public sealed class GovernancePreviewService(
             notes.Add(
                 $"Compared current run '{active.RunId}' (manifest '{active.ManifestVersion}') to preview run '{request.RunId}' (manifest '{request.ManifestVersion}').");
             if (currentManifest is null)
-            
+
                 notes.Add(
                     $"Could not load GoldenManifest for current activation manifest version '{active.ManifestVersion}'.");
-            
+
         }
 
         List<GovernanceDiffItem> differences = GovernanceManifestComparer.Compare(
@@ -106,11 +104,11 @@ public sealed class GovernancePreviewService(
         string target = NormalizeAndValidateEnvironment(request.TargetEnvironment, nameof(request.TargetEnvironment));
 
         if (string.Equals(source, target, StringComparison.Ordinal))
-        
+
             throw new ArgumentException(
                 "SourceEnvironment and TargetEnvironment must be different.",
                 nameof(request));
-        
+
 
         List<string> notes = [DiffOnlyNote];
 
@@ -132,16 +130,16 @@ public sealed class GovernancePreviewService(
             : null;
 
         if (sourceActive is not null && sourceManifest is null)
-        
+
             notes.Add(
                 $"Could not load GoldenManifest for source manifest version '{sourceActive.ManifestVersion}'.");
-        
+
 
         if (targetActive is not null && targetManifest is null)
-        
+
             notes.Add(
                 $"Could not load GoldenManifest for target manifest version '{targetActive.ManifestVersion}'.");
-        
+
 
         if (sourceActive is not null && targetActive is not null && sourceManifest is not null && targetManifest is not null)
             notes.Add($"Compared active governance states for environments '{source}' and '{target}'.");
@@ -161,15 +159,14 @@ public sealed class GovernancePreviewService(
 
     private static string NormalizeAndValidateEnvironment(string environment, string paramName)
     {
-        if (string.IsNullOrWhiteSpace(environment))
-            throw new ArgumentException("Environment is required.", paramName);
+        if (string.IsNullOrWhiteSpace(environment)) throw new ArgumentException("Environment is required.", paramName);
 
         if (!IsKnownEnvironment(environment))
-        
+
             throw new ArgumentException(
                 "Environment must be one of: dev, test, prod.",
                 paramName);
-        
+
 
         return environment.Trim().ToLowerInvariant();
     }

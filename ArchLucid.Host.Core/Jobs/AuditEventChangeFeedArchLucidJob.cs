@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Cosmos;
+﻿using ArchLucid.Persistence.Cosmos;
 
 using Microsoft.Extensions.Options;
 
@@ -27,10 +27,8 @@ public sealed class AuditEventChangeFeedArchLucidJob(
     /// <inheritdoc />
     public async Task<int> RunOnceAsync(CancellationToken cancellationToken)
     {
-        if (!_cosmosOptions.CurrentValue.AuditEventsEnabled)
-        {
-            return ArchLucidJobExitCodes.Success;
-        }
+        if (!_cosmosOptions.CurrentValue.AuditEventsEnabled) return ArchLucidJobExitCodes.Success;
+
 
         try
         {

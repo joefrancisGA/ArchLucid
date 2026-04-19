@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Core.Scoping;
@@ -34,8 +34,7 @@ public readonly record struct ContosoRetailDemoIds(
     /// <summary>Builds stable per-tenant keys and deterministic run GUIDs for idempotent re-seeding.</summary>
     public static ContosoRetailDemoIds ForTenant(Guid tenantId)
     {
-        if (tenantId == ScopeIds.DefaultTenant)
-            return CanonicalSingleCatalog();
+        if (tenantId == ScopeIds.DefaultTenant) return CanonicalSingleCatalog();
 
         string t = tenantId.ToString("N");
         string suffix = t.Length >= 12 ? t[..12] : t;

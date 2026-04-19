@@ -1,4 +1,4 @@
-using ArchLucid.Application.Audit;
+﻿using ArchLucid.Application.Audit;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Repositories;
 using ArchLucid.ContextIngestion.Interfaces;
@@ -145,8 +145,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IArchLucidJob, OrphanProbeArchLucidJob>();
 
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.OrphanProbe))
-        {
+
             services.AddHostedService<DataConsistencyOrphanProbeHostedService>();
-        }
+
     }
 }

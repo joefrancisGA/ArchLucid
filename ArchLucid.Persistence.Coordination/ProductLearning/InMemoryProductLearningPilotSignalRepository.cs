@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
@@ -13,15 +13,11 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
     {
         ArgumentNullException.ThrowIfNull(record);
 
-        if (string.IsNullOrWhiteSpace(record.SubjectType))
-        
-            throw new ArgumentException("SubjectType is required.", nameof(record));
-        
+        if (string.IsNullOrWhiteSpace(record.SubjectType)) throw new ArgumentException("SubjectType is required.", nameof(record));
 
-        if (string.IsNullOrWhiteSpace(record.Disposition))
-        
-            throw new ArgumentException("Disposition is required.", nameof(record));
-        
+
+        if (string.IsNullOrWhiteSpace(record.Disposition)) throw new ArgumentException("Disposition is required.", nameof(record));
+
 
         Guid signalId = record.SignalId == Guid.Empty ? Guid.NewGuid() : record.SignalId;
         DateTime recordedUtc = record.RecordedUtc == default ? DateTime.UtcNow : record.RecordedUtc;
@@ -37,9 +33,9 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         };
 
         lock (_sync)
-        
+
             _rows.Add(stored);
-        
+
 
         return Task.CompletedTask;
     }
@@ -56,7 +52,7 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
         List<ProductLearningPilotSignalRecord> list;
 
         lock (_sync)
-        
+
             list = _rows
                 .Where(r =>
                     r.TenantId == tenantId &&
@@ -67,7 +63,7 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
                 .Take(capped)
                 .Select(static r => r with { })
                 .ToList();
-        
+
 
         return Task.FromResult<IReadOnlyList<ProductLearningPilotSignalRecord>>(list);
     }
@@ -187,9 +183,9 @@ public sealed class InMemoryProductLearningPilotSignalRepository : IProductLearn
     private IReadOnlyList<ProductLearningPilotSignalRecord> SnapshotRows()
     {
         lock (_sync)
-        
+
             return _rows.Select(static r => r with { }).ToList();
-        
+
     }
 
     public Task<int> CountSignalsInScopeAsync(

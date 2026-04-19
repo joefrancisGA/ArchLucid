@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using System.Data;
@@ -55,9 +55,7 @@ public sealed class InMemoryCoordinatorDecisionTraceRepository : ICoordinatorDec
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            if (!_byRunId.TryGetValue(runId, out List<DecisionTrace>? list))
-
-                return Task.FromResult<IReadOnlyList<DecisionTrace>>([]);
+            if (!_byRunId.TryGetValue(runId, out List<DecisionTrace>? list)) return Task.FromResult<IReadOnlyList<DecisionTrace>>([]);
 
 
             List<DecisionTrace> ordered = list

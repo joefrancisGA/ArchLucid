@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -156,11 +156,11 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             }
 
             if (record is null)
-            
+
                 throw new InvalidOperationException(
                     $"A RunExportRecord row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
-            
+
 
             records.Add(record);
         }
@@ -188,8 +188,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             },
             cancellationToken: cancellationToken));
 
-        if (json is null)
-            return null;
+        if (json is null) return null;
 
         RunExportRecord? record;
         try

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
@@ -19,23 +19,17 @@ public sealed class AgentOutputQualityGate(IOptions<AgentOutputQualityGateOption
         ArgumentNullException.ThrowIfNull(structuralScore);
         ArgumentNullException.ThrowIfNull(semanticScore);
 
-        if (!_options.Enabled)
-        {
-            return AgentOutputQualityGateOutcome.Accepted;
-        }
+        if (!_options.Enabled) return AgentOutputQualityGateOutcome.Accepted;
+
 
         double structural = structuralScore.StructuralCompletenessRatio;
         double semantic = semanticScore.OverallSemanticScore;
 
-        if (structural < _options.StructuralRejectBelow || semantic < _options.SemanticRejectBelow)
-        {
-            return AgentOutputQualityGateOutcome.Rejected;
-        }
+        if (structural < _options.StructuralRejectBelow || semantic < _options.SemanticRejectBelow) return AgentOutputQualityGateOutcome.Rejected;
 
-        if (structural < _options.StructuralWarnBelow || semantic < _options.SemanticWarnBelow)
-        {
-            return AgentOutputQualityGateOutcome.Warned;
-        }
+
+        if (structural < _options.StructuralWarnBelow || semantic < _options.SemanticWarnBelow) return AgentOutputQualityGateOutcome.Warned;
+
 
         return AgentOutputQualityGateOutcome.Accepted;
     }

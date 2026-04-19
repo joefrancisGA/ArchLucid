@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace ArchLucid.Cli;
 
@@ -37,14 +37,14 @@ public sealed class CliResilienceOptions
         }
 
         if (section.MaxRetryAttempts is { } maxRetries)
-        {
+
             result.MaxRetryAttempts = maxRetries;
-        }
+
 
         if (section.InitialDelaySeconds is { } delaySec)
-        {
+
             result.InitialDelaySeconds = delaySec;
-        }
+
 
         result.Normalize();
 

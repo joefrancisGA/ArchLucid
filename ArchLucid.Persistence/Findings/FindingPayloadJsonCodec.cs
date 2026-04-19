@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Serialization;
@@ -16,24 +16,20 @@ public static class FindingPayloadJsonCodec
 
     public static string? SerializePayload(object? payload)
     {
-        if (payload is null)
-            return null;
+        if (payload is null) return null;
 
-        if (payload is JsonElement element)
-            return element.GetRawText();
+        if (payload is JsonElement element) return element.GetRawText();
 
         return JsonSerializer.Serialize(payload, payload.GetType(), Options);
     }
 
     public static object? DeserializePayload(string? json, string? payloadType)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return null;
+        if (string.IsNullOrWhiteSpace(json)) return null;
 
         Type? resolved = FindingPayloadRegistry.ResolvePayloadType(payloadType);
 
-        if (resolved is not null)
-            return JsonSerializer.Deserialize(json, resolved, Options);
+        if (resolved is not null) return JsonSerializer.Deserialize(json, resolved, Options);
 
         using JsonDocument document = JsonDocument.Parse(json);
         return document.RootElement.Clone();
@@ -50,8 +46,7 @@ public static class FindingPayloadJsonCodec
 
         foreach (Finding finding in findings)
         {
-            if (finding.Payload is not JsonElement element)
-                continue;
+            if (finding.Payload is not JsonElement element) continue;
 
             finding.Payload = DeserializePayload(element.GetRawText(), finding.PayloadType);
         }

@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Agents;
@@ -78,8 +78,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         {
             CreateRunResult? replay = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
 
-            if (replay is not null)
-                return replay;
+            if (replay is not null) return replay;
 
             string gateKey = BuildIdempotencyGateKey(idempotency);
 
@@ -89,8 +88,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
             {
                 CreateRunResult? replayUnderDistributed = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
 
-                if (replayUnderDistributed is not null)
-                    return replayUnderDistributed;
+                if (replayUnderDistributed is not null) return replayUnderDistributed;
 
                 SemaphoreSlim gate = IdempotencyGates.GetOrAddGate(gateKey);
 
@@ -99,8 +97,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 {
                     CreateRunResult? replayUnderLock = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
 
-                    if (replayUnderLock is not null)
-                        return replayUnderLock;
+                    if (replayUnderLock is not null) return replayUnderLock;
 
                     return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
                 }
@@ -150,14 +147,14 @@ public sealed class ArchitectureRunCreateOrchestrator(
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformation(
                 "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
                 LogSanitizer.Sanitize(coordination.Run.RunId),
                 LogSanitizer.Sanitize(request.RequestId),
                 LogSanitizer.Sanitize(request.SystemName),
                 LogSanitizer.Sanitize(request.Environment));
-        }
+
 
         bool inserted;
 
@@ -209,8 +206,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         {
             CreateRunResult? winner = await ResolveIdempotencyRaceAsync(idempotency, cancellationToken);
 
-            if (winner is not null)
-                return winner;
+            if (winner is not null) return winner;
 
             throw new InvalidOperationException(
                 "Idempotency insert failed but no winning row was found; retry the request.");
@@ -255,12 +251,12 @@ public sealed class ArchitectureRunCreateOrchestrator(
             cancellationToken);
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformation(
                 "Architecture run created: RunId={RunId}, TaskCount={TaskCount}",
                 LogSanitizer.Sanitize(coordination.Run.RunId),
                 coordination.Tasks.Count);
-        }
+
 
         await TryRecordArchitectureRunMeteringAsync(
             _scopeContextProvider.GetCurrentScope(),
@@ -280,8 +276,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         ArgumentNullException.ThrowIfNull(idempotency);
 
         byte[] hash = idempotency.IdempotencyKeyHash;
-        if (hash is null || hash.Length == 0)
-            throw new ArgumentException("Idempotency key hash must be non-empty.", nameof(idempotency));
+        if (hash is null || hash.Length == 0) throw new ArgumentException("Idempotency key hash must be non-empty.", nameof(idempotency));
 
         return string.Concat(
             idempotency.TenantId.ToString("N"),
@@ -298,8 +293,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         string runId,
         CancellationToken cancellationToken)
     {
-        if (scope.TenantId == Guid.Empty)
-            return;
+        if (scope.TenantId == Guid.Empty) return;
 
         try
         {
@@ -321,12 +315,12 @@ public sealed class ArchitectureRunCreateOrchestrator(
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     ex,
                     "Usage metering failed for architecture run (tenant {TenantId}).",
                     scope.TenantId);
-            }
+
         }
     }
 
@@ -354,8 +348,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
         }
 
-        if (idempotency is null)
-            return false;
+        if (idempotency is null) return false;
 
         bool inserted = uow.SupportsExternalTransaction
             ? await _architectureRunIdempotencyRepository
@@ -380,14 +373,14 @@ public sealed class ArchitectureRunCreateOrchestrator(
                     cancellationToken);
 
         if (!inserted)
-        {
+
             if (_logger.IsEnabled(LogLevel.Information))
-            {
+
                 _logger.LogInformation(
                     "Idempotency insert did not win race for RunId={RunId}; unit of work will roll back when not committed.",
                     LogSanitizer.Sanitize(coordination.Run.RunId));
-            }
-        }
+
+
 
         return inserted;
     }
@@ -404,14 +397,13 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 idempotency.IdempotencyKeyHash,
                 cancellationToken);
 
-        if (existing is null)
-            return null;
+        if (existing is null) return null;
 
         if (!CryptographicOperations.FixedTimeEquals(existing.RequestFingerprint, idempotency.RequestFingerprint))
-        {
+
             throw new ConflictException(
                 "The Idempotency-Key was already used with a different request body.");
-        }
+
 
         return await RehydrateCreateRunResultAsync(existing.RunId, cancellationToken);
     }
@@ -428,14 +420,13 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 idempotency.IdempotencyKeyHash,
                 cancellationToken);
 
-        if (winner is null)
-            return null;
+        if (winner is null) return null;
 
         if (!CryptographicOperations.FixedTimeEquals(winner.RequestFingerprint, idempotency.RequestFingerprint))
-        {
+
             throw new ConflictException(
                 "The Idempotency-Key was already used with a different request body.");
-        }
+
 
         return await RehydrateCreateRunResultAsync(winner.RunId, cancellationToken);
     }
@@ -451,31 +442,27 @@ public sealed class ArchitectureRunCreateOrchestrator(
             runId,
             cancellationToken);
 
-        if (run is null)
-        {
-            throw new InvalidOperationException($"Run '{runId}' from idempotency store was not found.");
-        }
+        if (run is null) throw new InvalidOperationException($"Run '{runId}' from idempotency store was not found.");
+
 
         IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
 
-        if (tasks.Count == 0)
-            throw new InvalidOperationException($"Idempotent run '{runId}' has no tasks.");
+        if (tasks.Count == 0) throw new InvalidOperationException($"Idempotent run '{runId}' has no tasks.");
 
         string? bundleRef = tasks[0].EvidenceBundleRef;
 
-        if (string.IsNullOrWhiteSpace(bundleRef))
-            throw new InvalidOperationException($"Idempotent run '{runId}' is missing EvidenceBundleRef on the first task.");
+        if (string.IsNullOrWhiteSpace(bundleRef)) throw new InvalidOperationException($"Idempotent run '{runId}' is missing EvidenceBundleRef on the first task.");
 
         EvidenceBundle bundle = await _evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken)
                                 ?? throw new InvalidOperationException($"Evidence bundle '{bundleRef}' for idempotent run was not found.");
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformation(
                 "CreateRun idempotent replay: RunId={RunId}, TaskCount={TaskCount}",
                 LogSanitizer.Sanitize(runId),
                 tasks.Count);
-        }
+
 
         return new CreateRunResult
         {

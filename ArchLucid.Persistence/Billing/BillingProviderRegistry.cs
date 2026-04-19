@@ -1,4 +1,4 @@
-using ArchLucid.Core.Billing;
+﻿using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Persistence.Billing.AzureMarketplace;
 using ArchLucid.Persistence.Billing.Stripe;
@@ -27,15 +27,11 @@ public sealed class BillingProviderRegistry(
     {
         string name = _billingOptions.CurrentValue.Provider?.Trim() ?? string.Empty;
 
-        if (string.Equals(name, BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase))
-        {
-            return _stripe;
-        }
+        if (string.Equals(name, BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase)) return _stripe;
 
-        if (string.Equals(name, BillingProviderNames.AzureMarketplace, StringComparison.OrdinalIgnoreCase))
-        {
-            return _azureMarketplace;
-        }
+
+        if (string.Equals(name, BillingProviderNames.AzureMarketplace, StringComparison.OrdinalIgnoreCase)) return _azureMarketplace;
+
 
         return _noop;
     }

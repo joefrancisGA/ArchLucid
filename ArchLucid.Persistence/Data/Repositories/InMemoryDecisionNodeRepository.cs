@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using System.Data;
@@ -25,13 +25,11 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
         ArgumentNullException.ThrowIfNull(decisions);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (decisions.Count == 0)
-        
-            return Task.CompletedTask;
-        
+        if (decisions.Count == 0) return Task.CompletedTask;
+
 
         lock (_gate)
-        
+
             foreach (DecisionNode decision in decisions)
             {
                 if (!_byRunId.TryGetValue(decision.RunId, out List<DecisionNode>? list))
@@ -42,7 +40,7 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
 
                 list.Add(Clone(decision));
             }
-        
+
 
         return Task.CompletedTask;
     }
@@ -55,10 +53,8 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            if (!_byRunId.TryGetValue(runId, out List<DecisionNode>? list))
-            
-                return Task.FromResult<IReadOnlyList<DecisionNode>>([]);
-            
+            if (!_byRunId.TryGetValue(runId, out List<DecisionNode>? list)) return Task.FromResult<IReadOnlyList<DecisionNode>>([]);
+
 
             List<DecisionNode> ordered = list
                 .OrderBy(d => d.CreatedUtc)

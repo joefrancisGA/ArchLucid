@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
 using ArchLucid.Contracts.ProductLearning.Planning;
@@ -39,7 +39,7 @@ public static class LearningPlanningReportMarkdownFormatter
             sb.AppendLine();
         }
         else
-        {
+
             for (int i = 0; i < document.Themes.Count; i++)
             {
                 LearningPlanningReportThemeEntry t = document.Themes[i];
@@ -53,17 +53,17 @@ public static class LearningPlanningReportMarkdownFormatter
                 sb.AppendLine($"- Summary: {OneLine(t.Summary)}");
                 sb.AppendLine();
             }
-        }
+
 
         sb.AppendLine("## Prioritized improvement plans");
         sb.AppendLine();
 
         if (document.Plans.Count == 0)
-        {
+
             sb.AppendLine("_No plans in scope._");
-        }
+
         else
-        {
+
             for (int i = 0; i < document.Plans.Count; i++)
             {
                 LearningPlanningReportPlanEntry p = document.Plans[i];
@@ -72,9 +72,9 @@ public static class LearningPlanningReportMarkdownFormatter
                 sb.AppendLine($"- Priority score: {p.PriorityScore.ToString(inv)}");
 
                 if (!string.IsNullOrWhiteSpace(p.PriorityExplanation))
-                {
+
                     sb.AppendLine($"- Priority note: {OneLine(p.PriorityExplanation)}");
-                }
+
 
                 sb.AppendLine($"- Status: {EscapeInline(p.Status)}");
                 sb.AppendLine($"- Created (UTC): {p.CreatedUtc:O}");
@@ -101,7 +101,7 @@ public static class LearningPlanningReportMarkdownFormatter
                 AppendBulletList(sb, ev.ArchitectureRunIds.Select(r => $"`{EscapeInline(r)}`"));
                 sb.AppendLine();
             }
-        }
+
 
         return sb.ToString().TrimEnd() + Environment.NewLine;
     }
@@ -139,9 +139,9 @@ public static class LearningPlanningReportMarkdownFormatter
         }
 
         foreach (string line in materialized)
-        {
+
             sb.AppendLine($"- {line}");
-        }
+
     }
 
     private static string OneLine(string value) => value

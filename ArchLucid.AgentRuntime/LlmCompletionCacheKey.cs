@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Core.Scoping;
@@ -28,10 +28,10 @@ public static class LlmCompletionCacheKey
         string scopePart = string.Empty;
 
         if (partitionByScope)
-        {
+
             scopePart =
                 $"{scope.TenantId:N}|{scope.WorkspaceId:N}|{scope.ProjectId:N}|";
-        }
+
 
         string payload =
             scopePart

@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 using ArchLucid.Contracts.Evolution;
 
@@ -13,10 +13,8 @@ public sealed class InMemoryEvolutionSimulationRunRepository : IEvolutionSimulat
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!_byId.TryAdd(record.SimulationRunId, record))
-        {
-            throw new InvalidOperationException($"Simulation run '{record.SimulationRunId}' already exists.");
-        }
+        if (!_byId.TryAdd(record.SimulationRunId, record)) throw new InvalidOperationException($"Simulation run '{record.SimulationRunId}' already exists.");
+
 
         return Task.CompletedTask;
     }
@@ -46,9 +44,9 @@ public sealed class InMemoryEvolutionSimulationRunRepository : IEvolutionSimulat
             .ToList();
 
         foreach (Guid id in removeIds)
-        {
+
             _byId.TryRemove(id, out _);
-        }
+
 
         return Task.CompletedTask;
     }

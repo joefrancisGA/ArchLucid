@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
 
@@ -62,8 +62,7 @@ public sealed class CachingAgentCompletionClient : IAgentCompletionClient
         string userPrompt,
         CancellationToken cancellationToken = default)
     {
-        if (!_enabled)
-            return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
+        if (!_enabled) return await _inner.CompleteJsonAsync(systemPrompt, userPrompt, cancellationToken);
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
@@ -81,9 +80,9 @@ public sealed class CachingAgentCompletionClient : IAgentCompletionClient
         if (cached is { Length: > 0 })
         {
             if (_logger.IsEnabled(LogLevel.Debug))
-            {
+
                 _logger.LogDebug("LLM completion cache hit (key prefix {KeyPrefix}).", key[..Math.Min(24, key.Length)]);
-            }
+
 
             return cached;
         }

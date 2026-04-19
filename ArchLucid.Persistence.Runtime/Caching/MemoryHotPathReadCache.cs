@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Coordination.Caching;
+﻿using ArchLucid.Persistence.Coordination.Caching;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -24,8 +24,7 @@ public sealed class MemoryHotPathReadCache(
     {
         ArgumentNullException.ThrowIfNull(factory);
 
-        if (_memoryCache.TryGetValue(key, out object? boxed) && boxed is T typed)
-            return Task.FromResult<T?>(typed);
+        if (_memoryCache.TryGetValue(key, out object? boxed) && boxed is T typed) return Task.FromResult<T?>(typed);
 
         return MaterializeAsync(key, factory, ct);
     }
@@ -38,8 +37,7 @@ public sealed class MemoryHotPathReadCache(
     {
         T? created = await factory(ct);
 
-        if (created is null)
-            return null;
+        if (created is null) return null;
 
         TimeSpan ttl = ResolveTtl();
 

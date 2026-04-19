@@ -1,4 +1,4 @@
-namespace ArchLucid.Core.Scoping;
+﻿namespace ArchLucid.Core.Scoping;
 
 /// <summary>
 /// Optional ambient scope for non-HTTP pipelines (e.g. advisory background scans) so scoped services
@@ -26,8 +26,7 @@ public static class AmbientScopeContext
 
         public void Dispose()
         {
-            if (_disposed)
-                return;
+            if (_disposed) return;
             _disposed = true;
             Override.Value = previous;
         }

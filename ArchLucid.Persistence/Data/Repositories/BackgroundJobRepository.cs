@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -55,8 +55,7 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
 
     public async Task<BackgroundJobRow?> GetAsync(string jobId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(jobId))
-            return null;
+        if (string.IsNullOrWhiteSpace(jobId)) return null;
 
         const string sql = """
             SELECT
@@ -84,8 +83,7 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
 
     public async Task<int> TryMarkRunningAsync(string jobId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(jobId))
-            return 0;
+        if (string.IsNullOrWhiteSpace(jobId)) return 0;
 
         const string sql = """
             UPDATE dbo.BackgroundJobs
@@ -106,10 +104,8 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
         string jobId,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(jobId))
-        {
-            return new QueuedBackgroundJobPrepareResult(false, true, false, null);
-        }
+        if (string.IsNullOrWhiteSpace(jobId)) return new QueuedBackgroundJobPrepareResult(false, true, false, null);
+
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
@@ -221,15 +217,11 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
 
     private static bool IsTerminalJobState(string state)
     {
-        if (string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
+        if (string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase)) return true;
 
-        if (string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
+
+        if (string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase)) return true;
+
 
         return false;
     }

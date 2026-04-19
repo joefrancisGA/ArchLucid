@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.ProductLearning;
+﻿using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
 
@@ -51,7 +51,7 @@ public static class ProductLearningTriageReportBuilder
         List<ProductLearningTriageReportArtifactRow> rows = new(ordered.Count);
 
         foreach (ArtifactOutcomeTrend t in ordered)
-        
+
             rows.Add(
                 new ProductLearningTriageReportArtifactRow
                 {
@@ -63,7 +63,7 @@ public static class ProductLearningTriageReportBuilder
                     Runs = t.DistinctRunCount,
                     ThemeHint = TrimHint(t.RepeatedThemeIndicator, 120),
                 });
-        
+
 
         return rows;
     }
@@ -83,34 +83,26 @@ public static class ProductLearningTriageReportBuilder
 
         foreach (FeedbackAggregate a in aggOrdered)
         {
-            if (lines.Count >= maxLines)
-            
-                break;
-            
+            if (lines.Count >= maxLines) break;
+
 
             string line = FormatAggregateProblemLine(a);
 
-            if (line.Length == 0 || !seen.Add(line))
-            
-                continue;
-            
+            if (line.Length == 0 || !seen.Add(line)) continue;
+
 
             lines.Add(Truncate(line, 200));
         }
 
         foreach (ImprovementOpportunity o in summary.Opportunities.OrderBy(static o => o.PriorityRank).ThenBy(static o => o.Title, StringComparer.Ordinal))
         {
-            if (lines.Count >= maxLines)
-            
-                break;
-            
+            if (lines.Count >= maxLines) break;
+
 
             string line = Truncate((o.Title ?? string.Empty).Trim(), 200);
 
-            if (line.Length == 0 || !seen.Add(line))
-            
-                continue;
-            
+            if (line.Length == 0 || !seen.Add(line)) continue;
+
 
             lines.Add(line);
         }
@@ -123,9 +115,9 @@ public static class ProductLearningTriageReportBuilder
         string area = (a.SubjectTypeOrWorkflowArea ?? string.Empty).Trim();
 
         if (area.Length == 0)
-        
+
             area = "Feedback";
-        
+
 
         string? pattern = string.IsNullOrWhiteSpace(a.PatternKey) ? null : a.PatternKey.Trim();
         string baseLine = pattern is null ? area : area + " — pattern `" + pattern + "`";
@@ -135,9 +127,9 @@ public static class ProductLearningTriageReportBuilder
             string? hint = TrimHint(a.DominantThemeHint, 80);
 
             if (hint is not null)
-            
+
                 baseLine += " (" + hint + ")";
-            
+
         }
 
         return baseLine;
@@ -191,20 +183,16 @@ public static class ProductLearningTriageReportBuilder
 
     private static string? TrimHint(string? value, int maxLen)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        
-            return null;
-        
+        if (string.IsNullOrWhiteSpace(value)) return null;
+
 
         return Truncate(value.Trim(), maxLen);
     }
 
     private static string Truncate(string value, int maxLen)
     {
-        if (value.Length <= maxLen)
-        
-            return value;
-        
+        if (value.Length <= maxLen) return value;
+
 
         return value[..(maxLen - 1)] + "…";
     }

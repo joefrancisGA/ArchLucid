@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -27,9 +27,9 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
         cancellationToken.ThrowIfCancellationRequested();
         string k = Key(tenantId, workspaceId, projectId, idempotencyKeyHash);
         lock (_gate)
-        
+
             return Task.FromResult(_rows.TryGetValue(k, out ArchitectureRunIdempotencyLookup? v) ? v : null);
-        
+
     }
 
     /// <inheritdoc />
@@ -51,10 +51,8 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
         string k = Key(tenantId, workspaceId, projectId, idempotencyKeyHash);
         lock (_gate)
         {
-            if (_rows.ContainsKey(k))
-            
-                return Task.FromResult(false);
-            
+            if (_rows.ContainsKey(k)) return Task.FromResult(false);
+
 
             _rows[k] = new ArchitectureRunIdempotencyLookup
             {

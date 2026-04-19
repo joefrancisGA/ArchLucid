@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using Polly;
 using Polly.Retry;
@@ -15,8 +15,7 @@ public static class SqlOpenResilienceDefaults
         TimeSpan? baseDelay = null)
     {
         // Polly.Retry.RetryStrategyOptions.MaxRetryAttempts must be >= 1; callers use 0 to mean "no retries".
-        if (maxRetryAttempts <= 0)
-            return new ResiliencePipelineBuilder().Build();
+        if (maxRetryAttempts <= 0) return new ResiliencePipelineBuilder().Build();
 
         TimeSpan delay = baseDelay ?? TimeSpan.FromMilliseconds(200);
 
@@ -31,13 +30,13 @@ public static class SqlOpenResilienceDefaults
                 OnRetry = args =>
                 {
                     if (logger is not null && args.Outcome.Exception is { } ex)
-                    {
+
                         logger.LogWarning(
                             ex,
                             "Transient SQL error on connection open; retry {AttemptNumber} (max {MaxRetryAttempts}).",
                             args.AttemptNumber,
                             maxRetryAttempts);
-                    }
+
 
                     return ValueTask.CompletedTask;
                 },

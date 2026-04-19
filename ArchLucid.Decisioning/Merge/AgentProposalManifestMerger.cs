@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Findings;
@@ -205,8 +205,7 @@ public sealed class AgentProposalManifestMerger
                 r.TargetId.Equals(relationship.TargetId, StringComparison.OrdinalIgnoreCase) &&
                 r.RelationshipType == relationship.RelationshipType);
 
-            if (duplicate)
-                continue;
+            if (duplicate) continue;
 
             manifest.Relationships.Add(CloneRelationship(relationship));
 
@@ -233,12 +232,10 @@ public sealed class AgentProposalManifestMerger
     {
         foreach (string control in controls)
         {
-            if (string.IsNullOrWhiteSpace(control))
-                continue;
+            if (string.IsNullOrWhiteSpace(control)) continue;
 
             if (manifest.Governance.RequiredControls.Any(c =>
-                    c.Equals(control, StringComparison.OrdinalIgnoreCase)))
-                continue;
+                    c.Equals(control, StringComparison.OrdinalIgnoreCase))) continue;
 
             manifest.Governance.RequiredControls.Add(control);
 
@@ -262,8 +259,7 @@ public sealed class AgentProposalManifestMerger
     {
         foreach (string warning in warnings)
         {
-            if (string.IsNullOrWhiteSpace(warning))
-                continue;
+            if (string.IsNullOrWhiteSpace(warning)) continue;
 
             output.Warnings.Add($"{agentType}: {warning}");
         }
@@ -278,10 +274,10 @@ public sealed class AgentProposalManifestMerger
         {
             if (string.Equals(finding.Category, "Compliance", StringComparison.OrdinalIgnoreCase) &&
                 !string.IsNullOrWhiteSpace(finding.Message))
-            {
+
                 if (!manifest.Governance.ComplianceTags.Contains(finding.Message, StringComparer.OrdinalIgnoreCase))
                     manifest.Governance.ComplianceTags.Add(finding.Message);
-            }
+
 
             DecisionMergeTraceRecorder.AddTrace(
                 output,

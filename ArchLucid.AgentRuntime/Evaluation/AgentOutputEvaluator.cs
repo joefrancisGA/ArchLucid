@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -35,7 +35,7 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
         string[] expected = GetExpectedKeys(agentType);
 
         if (string.IsNullOrWhiteSpace(parsedResultJson))
-        {
+
             return new AgentOutputEvaluationScore
             {
                 TraceId = traceId,
@@ -44,16 +44,14 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
                 IsJsonParseFailure = false,
                 MissingKeys = expected,
             };
-        }
+
 
         try
         {
             using JsonDocument doc = JsonDocument.Parse(parsedResultJson);
 
-            if (doc.RootElement.ValueKind != JsonValueKind.Object)
-            {
-                return BuildScore(traceId, agentType, 0.0, true, expected);
-            }
+            if (doc.RootElement.ValueKind != JsonValueKind.Object) return BuildScore(traceId, agentType, 0.0, true, expected);
+
 
             HashSet<string> present = CollectPropertyNames(doc.RootElement);
             List<string> missing = expected.Where(k => !present.Contains(k)).ToList();
@@ -97,9 +95,9 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
         HashSet<string> names = new(StringComparer.Ordinal);
 
         foreach (JsonProperty p in root.EnumerateObject())
-        {
+
             _ = names.Add(p.Name);
-        }
+
 
         return names;
     }

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -20,17 +20,15 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         ArgumentNullException.ThrowIfNull(item);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(item.ApprovalRequestId))
-        
-            throw new ArgumentException("ApprovalRequestId is required.", nameof(item));
-        
+        if (string.IsNullOrWhiteSpace(item.ApprovalRequestId)) throw new ArgumentException("ApprovalRequestId is required.", nameof(item));
+
 
         GovernanceApprovalRequest stored = Clone(item);
 
         lock (_gate)
-        
+
             _byId[stored.ApprovalRequestId] = stored;
-        
+
 
         return Task.CompletedTask;
     }
@@ -51,18 +49,14 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
 
         lock (_gate)
         {
-            if (!_byId.TryGetValue(approvalRequestId, out GovernanceApprovalRequest? row))
-            {
-                return Task.FromResult(false);
-            }
+            if (!_byId.TryGetValue(approvalRequestId, out GovernanceApprovalRequest? row)) return Task.FromResult(false);
+
 
             bool reviewable = string.Equals(row.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
                               || string.Equals(row.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal);
 
-            if (!reviewable)
-            {
-                return Task.FromResult(false);
-            }
+            if (!reviewable) return Task.FromResult(false);
+
 
             row.Status = newStatus;
             row.ReviewedBy = reviewedBy;
@@ -81,10 +75,8 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
 
         lock (_gate)
         {
-            if (!_byId.ContainsKey(item.ApprovalRequestId))
-            
-                return Task.CompletedTask;
-            
+            if (!_byId.ContainsKey(item.ApprovalRequestId)) return Task.CompletedTask;
+
 
             _byId[item.ApprovalRequestId] = Clone(item);
         }
@@ -100,10 +92,10 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
-        
+
             return Task.FromResult(
                 _byId.TryGetValue(approvalRequestId, out GovernanceApprovalRequest? row) ? Clone(row) : null);
-        
+
     }
 
     /// <inheritdoc />
@@ -131,10 +123,8 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         int maxRows = 50,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxRows));
-        }
+        if (maxRows <= 0) throw new ArgumentOutOfRangeException(nameof(maxRows));
+
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -158,10 +148,8 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         int maxRows = 50,
         CancellationToken cancellationToken = default)
     {
-        if (maxRows <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxRows));
-        }
+        if (maxRows <= 0) throw new ArgumentOutOfRangeException(nameof(maxRows));
+
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -216,12 +204,12 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
-        {
+
             if (_byId.TryGetValue(approvalRequestId, out GovernanceApprovalRequest? row))
-            {
+
                 row.SlaBreachNotifiedUtc = slaBreachNotifiedUtc;
-            }
-        }
+
+
 
         return Task.CompletedTask;
     }

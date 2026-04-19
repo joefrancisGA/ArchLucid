@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Explanation;
+﻿using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Models;
 
@@ -11,8 +11,7 @@ public static class FindingTraceConfidenceMapper
 {
     public static List<FindingTraceConfidenceDto> FromSnapshot(FindingsSnapshot? snapshot)
     {
-        if (snapshot?.Findings is not { Count: > 0 } list)
-            return [];
+        if (snapshot?.Findings is not { Count: > 0 } list) return [];
 
         List<FindingTraceConfidenceDto> rows = new(capacity: list.Count);
 

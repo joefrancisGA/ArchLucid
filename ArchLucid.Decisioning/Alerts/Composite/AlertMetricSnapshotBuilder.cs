@@ -1,4 +1,4 @@
-using ArchLucid.Core.Comparison;
+﻿using ArchLucid.Core.Comparison;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Workflow;
 
@@ -46,8 +46,7 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
     private static decimal BuildCostIncreasePercent(AlertEvaluationContext context)
     {
         CostDelta? delta = context.ComparisonResult?.CostChanges.FirstOrDefault();
-        if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0)
-            return 0;
+        if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0) return 0;
 
         return (delta.TargetCost.Value - delta.BaseCost.Value) / delta.BaseCost.Value * 100m;
     }
@@ -56,12 +55,10 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
     private static decimal BuildAcceptanceRatePercent(AlertEvaluationContext context)
     {
         RecommendationLearningProfile? profile = context.LearningProfile;
-        if (profile is null)
-            return 0;
+        if (profile is null) return 0;
 
         int proposed = profile.CategoryStats.Sum(x => x.ProposedCount);
-        if (proposed == 0)
-            return 0;
+        if (proposed == 0) return 0;
 
         int accepted = profile.CategoryStats.Sum(x => x.AcceptedCount);
         return (decimal)accepted / proposed * 100m;

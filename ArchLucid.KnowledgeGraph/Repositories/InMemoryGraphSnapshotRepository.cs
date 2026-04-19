@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
@@ -23,9 +23,9 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
         lock (_lock)
         {
             _store[snapshot.GraphSnapshotId] = snapshot;
-            
+
             if (_store.Count <= MaxEntries) return Task.CompletedTask;
-            
+
             Guid oldest = _store.Keys.First();
             _store.Remove(oldest);
         }
@@ -62,8 +62,7 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
         ct.ThrowIfCancellationRequested();
         lock (_lock)
         {
-            if (!_store.TryGetValue(graphSnapshotId, out GraphSnapshot? snapshot))
-                return Task.FromResult<IReadOnlyList<GraphSnapshotIndexedEdge>>([]);
+            if (!_store.TryGetValue(graphSnapshotId, out GraphSnapshot? snapshot)) return Task.FromResult<IReadOnlyList<GraphSnapshotIndexedEdge>>([]);
 
             IReadOnlyList<GraphSnapshotIndexedEdge> edges = snapshot.Edges
                 .Select(e => new GraphSnapshotIndexedEdge(e.EdgeId, e.FromNodeId, e.ToNodeId, e.EdgeType, e.Weight))

@@ -1,4 +1,4 @@
-using ArchLucid.Core.Audit;
+﻿using ArchLucid.Core.Audit;
 
 namespace ArchLucid.Persistence.Audit;
 
@@ -42,7 +42,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         int n = Math.Clamp(take <= 0 ? 100 : take, 1, 500);
         List<AuditEvent> result;
         lock (_gate)
-        
+
             result = _events
                 .Where(x =>
                     x.TenantId == tenantId &&
@@ -51,7 +51,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 .OrderByDescending(x => x.OccurredUtc)
                 .Take(n)
                 .ToList();
-        
+
 
         return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
     }
@@ -77,36 +77,36 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                     && x.ProjectId == projectId);
 
             if (!string.IsNullOrWhiteSpace(filter.EventType))
-            {
+
                 query = query.Where(x => string.Equals(x.EventType, filter.EventType, StringComparison.Ordinal));
-            }
+
 
             if (filter.FromUtc.HasValue)
-            {
+
                 query = query.Where(x => x.OccurredUtc >= filter.FromUtc.Value);
-            }
+
 
             if (filter.ToUtc.HasValue)
-            {
+
                 query = query.Where(x => x.OccurredUtc <= filter.ToUtc.Value);
-            }
+
 
             if (!string.IsNullOrWhiteSpace(filter.CorrelationId))
-            {
+
                 query = query.Where(
                     x => string.Equals(x.CorrelationId, filter.CorrelationId, StringComparison.Ordinal));
-            }
+
 
             if (!string.IsNullOrWhiteSpace(filter.ActorUserId))
-            {
+
                 query = query.Where(
                     x => string.Equals(x.ActorUserId, filter.ActorUserId, StringComparison.Ordinal));
-            }
+
 
             if (filter.RunId.HasValue)
-            {
+
                 query = query.Where(x => x.RunId == filter.RunId.Value);
-            }
+
 
             snapshot = query
                 .OrderByDescending(x => x.OccurredUtc)
@@ -132,7 +132,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
 
 
         lock (_gate)
-        {
+
             result = _events
                 .Where(
                     x =>
@@ -144,7 +144,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
                 .OrderBy(x => x.OccurredUtc)
                 .Take(take)
                 .ToList();
-        }
+
 
         return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
     }

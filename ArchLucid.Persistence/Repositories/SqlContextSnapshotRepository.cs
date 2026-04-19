@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.ContextIngestion.Interfaces;
@@ -54,8 +54,7 @@ public sealed class SqlContextSnapshotRepository(
                 ProjectId = projectId
             }, cancellationToken: ct));
 
-        if (row is null)
-            return null;
+        if (row is null) return null;
 
         return await ContextSnapshotRelationalRead.HydrateAsync(connection, transaction: null, row, ct);
     }
@@ -96,8 +95,7 @@ public sealed class SqlContextSnapshotRepository(
                 SnapshotId = snapshotId
             }, transaction, cancellationToken: ct));
 
-        if (row is null)
-            return null;
+        if (row is null) return null;
 
         return await ContextSnapshotRelationalRead.HydrateAsync(connection, transaction, row, ct);
     }
@@ -269,7 +267,7 @@ public sealed class SqlContextSnapshotRepository(
             """;
 
         for (int w = 0; w < snapshot.Warnings.Count; w++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertWarningSql,
@@ -281,7 +279,7 @@ public sealed class SqlContextSnapshotRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
     }
 
     private static async Task InsertContextErrorsRelationalAsync(
@@ -296,7 +294,7 @@ public sealed class SqlContextSnapshotRepository(
             """;
 
         for (int e = 0; e < snapshot.Errors.Count; e++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertErrorSql,
@@ -308,7 +306,7 @@ public sealed class SqlContextSnapshotRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
     }
 
     private static async Task InsertContextSourceHashesRelationalAsync(

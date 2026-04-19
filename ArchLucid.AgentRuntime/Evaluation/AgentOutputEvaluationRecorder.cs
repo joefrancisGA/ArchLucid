@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
@@ -40,10 +40,8 @@ public sealed class AgentOutputEvaluationRecorder(
 
         foreach (AgentExecutionTrace trace in traces)
         {
-            if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
-            {
-                continue;
-            }
+            if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson)) continue;
+
 
             string agentLabel = trace.AgentType.ToString();
             TagList tags = new() { { "agent_type", agentLabel } };
@@ -59,7 +57,7 @@ public sealed class AgentOutputEvaluationRecorder(
             ArchLucidInstrumentation.AgentOutputStructuralCompletenessRatio.Record(score.StructuralCompletenessRatio, tags);
 
             if (score.StructuralCompletenessRatio < LowStructuralScoreThreshold)
-            {
+
                 logger.LogWarning(
                     "Agent output structural score {Score:F2} below threshold for run {RunId} trace {TraceId} agent {AgentType}; missing key count {MissingCount}.",
                     score.StructuralCompletenessRatio,
@@ -67,7 +65,7 @@ public sealed class AgentOutputEvaluationRecorder(
                     LogSanitizer.Sanitize(trace.TraceId),
                     LogSanitizer.Sanitize(agentLabel),
                     score.MissingKeys.Count);
-            }
+
 
             AgentOutputSemanticScore semanticScore = semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
 
@@ -83,7 +81,7 @@ public sealed class AgentOutputEvaluationRecorder(
             ArchLucidInstrumentation.AgentOutputQualityGateTotal.Add(1, gateTags);
 
             if (gateOutcome == AgentOutputQualityGateOutcome.Rejected)
-            {
+
                 logger.LogWarning(
                     "Agent output quality gate rejected run {RunId} trace {TraceId} agent {AgentType} (structural {Structural:F2}, semantic {Semantic:F2}).",
                     LogSanitizer.Sanitize(runId),
@@ -91,9 +89,9 @@ public sealed class AgentOutputEvaluationRecorder(
                     LogSanitizer.Sanitize(agentLabel),
                     score.StructuralCompletenessRatio,
                     semanticScore.OverallSemanticScore);
-            }
+
             else if (gateOutcome == AgentOutputQualityGateOutcome.Warned)
-            {
+
                 logger.LogWarning(
                     "Agent output quality gate warned for run {RunId} trace {TraceId} agent {AgentType} (structural {Structural:F2}, semantic {Semantic:F2}).",
                     LogSanitizer.Sanitize(runId),
@@ -101,10 +99,10 @@ public sealed class AgentOutputEvaluationRecorder(
                     LogSanitizer.Sanitize(agentLabel),
                     score.StructuralCompletenessRatio,
                     semanticScore.OverallSemanticScore);
-            }
+
 
             if (semanticScore.OverallSemanticScore < LowSemanticScoreThreshold)
-            {
+
                 logger.LogWarning(
                     "Agent output semantic score {Score:F2} below threshold for run {RunId} trace {TraceId} agent {AgentType}; empty claims {EmptyClaims}, incomplete findings {IncompleteFindings}.",
                     semanticScore.OverallSemanticScore,
@@ -113,7 +111,7 @@ public sealed class AgentOutputEvaluationRecorder(
                     LogSanitizer.Sanitize(agentLabel),
                     semanticScore.EmptyClaimCount,
                     semanticScore.IncompleteFindingCount);
-            }
+
 
             await _referenceCaseRunEvaluator.EvaluateTraceAsync(trace, runId, cancellationToken);
         }

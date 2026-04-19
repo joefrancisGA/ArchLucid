@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.ProductLearning.Planning;
 
@@ -23,23 +23,17 @@ internal static class ProductLearningPlanningJsonSerializer
 
     internal static IReadOnlyList<ProductLearningImprovementPlanActionStep> DeserializeActionSteps(string json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-        
-            throw new InvalidOperationException("BoundedActionsJson is missing or empty.");
-        
+        if (string.IsNullOrWhiteSpace(json)) throw new InvalidOperationException("BoundedActionsJson is missing or empty.");
+
 
         List<ProductLearningImprovementPlanActionStep>? list =
             JsonSerializer.Deserialize<List<ProductLearningImprovementPlanActionStep>>(json, Options);
 
-        if (list is null)
-        
-            throw new InvalidOperationException("BoundedActionsJson did not deserialize to action steps.");
-        
+        if (list is null) throw new InvalidOperationException("BoundedActionsJson did not deserialize to action steps.");
 
-        if (list.Count == 0)
-        
-            throw new InvalidOperationException("BoundedActionsJson did not deserialize to action steps.");
-        
+
+        if (list.Count == 0) throw new InvalidOperationException("BoundedActionsJson did not deserialize to action steps.");
+
 
         return list;
     }

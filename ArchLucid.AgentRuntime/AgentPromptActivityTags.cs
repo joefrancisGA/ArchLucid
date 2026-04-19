@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.AgentRuntime.Prompts;
 
@@ -13,18 +13,16 @@ public static class AgentPromptActivityTags
         ArgumentNullException.ThrowIfNull(resolved);
         Activity? activity = Activity.Current;
 
-        if (activity is null)
-        {
-            return;
-        }
+        if (activity is null) return;
+
 
         activity.SetTag("archlucid.agent.prompt_template_id", resolved.TemplateId);
         activity.SetTag("archlucid.agent.prompt_template_version", resolved.TemplateVersion);
         activity.SetTag("archlucid.agent.prompt_content_sha256", resolved.ContentSha256Hex);
 
         if (!string.IsNullOrWhiteSpace(resolved.ReleaseLabel))
-        {
+
             activity.SetTag("archlucid.agent.prompt_release_label", resolved.ReleaseLabel);
-        }
+
     }
 }

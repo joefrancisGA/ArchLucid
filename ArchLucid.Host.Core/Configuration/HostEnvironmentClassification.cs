@@ -1,4 +1,4 @@
-namespace ArchLucid.Host.Core.Configuration;
+﻿namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
 /// Shared classification for environments that should use production-style security defaults
@@ -15,16 +15,14 @@ public static class HostEnvironmentClassification
         ArgumentNullException.ThrowIfNull(hostEnvironment);
         ArgumentNullException.ThrowIfNull(configuration);
 
-        if (hostEnvironment.IsProduction() || hostEnvironment.IsStaging())
-            return true;
+        if (hostEnvironment.IsProduction() || hostEnvironment.IsStaging()) return true;
 
         string? archLucidEnv = configuration["ARCHLUCID_ENVIRONMENT"];
 
         if (string.IsNullOrWhiteSpace(archLucidEnv))
             archLucidEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
 
-        if (string.IsNullOrWhiteSpace(archLucidEnv))
-            return false;
+        if (string.IsNullOrWhiteSpace(archLucidEnv)) return false;
 
         string trimmed = archLucidEnv.Trim();
 

@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Globalization;
 
 using ArchLucid.Host.Core.Configuration;
@@ -35,10 +35,10 @@ public sealed class RunGoldenManifestConsistencyHealthCheck(
         CancellationToken cancellationToken = default)
     {
         if (ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.Value.StorageProvider))
-        {
+
             return HealthCheckResult.Healthy(
                 "Run/manifest consistency check skipped: InMemory storage.");
-        }
+
 
         try
         {
@@ -52,10 +52,10 @@ public sealed class RunGoldenManifestConsistencyHealthCheck(
             long mismatchCount = scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, CultureInfo.InvariantCulture);
 
             if (mismatchCount > 0)
-            {
+
                 return HealthCheckResult.Degraded(
                     $"Detected {mismatchCount} non-archived run(s) with GoldenManifestId not matching dbo.GoldenManifests.");
-            }
+
 
             return HealthCheckResult.Healthy("Run golden manifest references are consistent for sampled invariant.");
         }

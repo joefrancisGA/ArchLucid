@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 namespace ArchLucid.Host.Core.Services.Delivery;
@@ -11,10 +11,8 @@ public static class WebhookSignature
 
     public static string ComputeSha256Hex(string sharedSecret, byte[] utf8Body)
     {
-        if (string.IsNullOrEmpty(sharedSecret))
-        
-            throw new ArgumentException("Shared secret is required.", nameof(sharedSecret));
-        
+        if (string.IsNullOrEmpty(sharedSecret)) throw new ArgumentException("Shared secret is required.", nameof(sharedSecret));
+
 
         ArgumentNullException.ThrowIfNull(utf8Body);
 

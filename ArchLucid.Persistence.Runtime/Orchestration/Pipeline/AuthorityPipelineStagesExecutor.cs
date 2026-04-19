@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
@@ -130,13 +130,13 @@ public sealed class AuthorityPipelineStagesExecutor(
             ctx.GraphSnapshot = graphSnapshot;
 
             if (_logger.IsEnabled(LogLevel.Information))
-            {
+
                 _logger.LogInformation(
                     "Authority pipeline graph resolved: RunId={RunId}, GraphResolutionMode={GraphResolutionMode}, GraphSnapshotId={GraphSnapshotId}",
                     run.RunId,
                     graphResolution.ResolutionMode,
                     graphSnapshot.GraphSnapshotId);
-            }
+
 
             await SaveGraphAsync(graphSnapshot, uow, token);
 
@@ -206,14 +206,14 @@ public sealed class AuthorityPipelineStagesExecutor(
             ArtifactBundle artifactBundle = await _artifactSynthesisService.SynthesizeAsync(ctx.Manifest!, token);
 
             if (_logger.IsEnabled(LogLevel.Information))
-            {
+
                 _logger.LogInformation(
                     "Authority pipeline artifacts synthesized: RunId={RunId}, BundleId={BundleId}, ArtifactCount={ArtifactCount}, SynthesisTraceId={SynthesisTraceId}",
                     run.RunId,
                     artifactBundle.BundleId,
                     artifactBundle.Artifacts.Count,
                     artifactBundle.Trace.TraceId);
-            }
+
 
             await SaveArtifactBundleAsync(artifactBundle, uow, token);
 
@@ -346,8 +346,7 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private static void RecordFindingsProducedForMetrics(FindingsSnapshot snapshot)
     {
-        if (snapshot.Findings is null || snapshot.Findings.Count == 0)
-            return;
+        if (snapshot.Findings is null || snapshot.Findings.Count == 0) return;
 
         foreach (IGrouping<FindingSeverity, Finding> group in snapshot.Findings.GroupBy(static f => f.Severity))
         {

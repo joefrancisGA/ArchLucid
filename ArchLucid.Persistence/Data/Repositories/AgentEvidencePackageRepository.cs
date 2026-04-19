@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -160,8 +160,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 
     private static AgentEvidencePackage? DeserializePackage(string? json, string context)
     {
-        if (json is null)
-            return null;
+        if (json is null) return null;
 
         AgentEvidencePackage? package;
         try

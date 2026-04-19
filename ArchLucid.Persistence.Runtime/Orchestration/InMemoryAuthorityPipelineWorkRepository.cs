@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence.Orchestration;
+﻿namespace ArchLucid.Persistence.Orchestration;
 
 /// <summary>In-memory outbox for tests and <c>StorageProvider=InMemory</c>.</summary>
 public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipelineWorkRepository
@@ -30,9 +30,9 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
         };
 
         lock (_sync)
-        {
+
             _pending.Add(entry);
-        }
+
 
         return Task.CompletedTask;
     }
@@ -57,9 +57,9 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
     public Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken)
     {
         lock (_sync)
-        {
+
             _pending.RemoveAll(x => x.OutboxId == outboxId);
-        }
+
 
         return Task.CompletedTask;
     }
@@ -68,8 +68,8 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
     public Task<long> CountPendingAsync(CancellationToken cancellationToken = default)
     {
         lock (_sync)
-        {
+
             return Task.FromResult((long)_pending.Count);
-        }
+
     }
 }

@@ -1,4 +1,4 @@
-namespace ArchLucid.Provenance.Services;
+﻿namespace ArchLucid.Provenance.Services;
 
 /// <summary>Subgraph and neighborhood extraction over <see cref="DecisionProvenanceGraph"/>.</summary>
 public static class ProvenanceGraphAlgorithms
@@ -10,8 +10,7 @@ public static class ProvenanceGraphAlgorithms
     {
         decisionInternalNodeId = Guid.Empty;
         string key = decisionKey?.Trim() ?? string.Empty;
-        if (key.Length == 0)
-            return false;
+        if (key.Length == 0) return false;
 
         if (Guid.TryParse(key, out Guid parsedGuid))
         {
@@ -37,8 +36,7 @@ public static class ProvenanceGraphAlgorithms
         ProvenanceNode? byRef = graph.Nodes.FirstOrDefault(n =>
             n.Type == ProvenanceNodeType.Decision &&
             string.Equals(n.ReferenceId, key, StringComparison.OrdinalIgnoreCase));
-        if (byRef is null)
-            return false;
+        if (byRef is null) return false;
 
         decisionInternalNodeId = byRef.Id;
         return true;
@@ -47,7 +45,7 @@ public static class ProvenanceGraphAlgorithms
     public static DecisionProvenanceGraph ExtractDecisionSubgraph(DecisionProvenanceGraph full, Guid decisionInternalNodeId)
     {
         if (full.Nodes.All(n => n.Id != decisionInternalNodeId))
-        
+
             return new DecisionProvenanceGraph
             {
                 Id = full.Id,
@@ -55,11 +53,11 @@ public static class ProvenanceGraphAlgorithms
                 Nodes = [],
                 Edges = []
             };
-        
+
 
         HashSet<Guid> includedNodes = [decisionInternalNodeId];
         List<ProvenanceEdge> includedEdges = [];
-        
+
         foreach (ProvenanceEdge edge in full.Edges.Where(edge => edge.FromNodeId == decisionInternalNodeId || edge.ToNodeId == decisionInternalNodeId))
         {
             includedEdges.Add(edge);
@@ -84,7 +82,7 @@ public static class ProvenanceGraphAlgorithms
         depth = Math.Clamp(depth, 0, 10);
 
         if (full.Nodes.All(n => n.Id != startNodeId))
-        
+
             return new DecisionProvenanceGraph
             {
                 Id = full.Id,
@@ -92,7 +90,7 @@ public static class ProvenanceGraphAlgorithms
                 Nodes = [],
                 Edges = []
             };
-        
+
 
         HashSet<Guid> visited = [startNodeId];
         HashSet<Guid> frontier = [startNodeId];

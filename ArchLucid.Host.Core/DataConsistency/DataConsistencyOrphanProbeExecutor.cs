@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
@@ -32,17 +32,13 @@ public sealed class DataConsistencyOrphanProbeExecutor(
     /// <summary>When storage is in-memory, returns immediately without opening SQL.</summary>
     public async Task RunOnceAsync(CancellationToken cancellationToken)
     {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-        {
-            return;
-        }
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider)) return;
+
 
         DataConsistencyProbeOptions snapshot = _optionsMonitor.CurrentValue;
 
-        if (!snapshot.OrphanProbeEnabled)
-        {
-            return;
-        }
+        if (!snapshot.OrphanProbeEnabled) return;
+
 
         int sampleCap = Math.Clamp(snapshot.OrphanProbeRemediationDryRunLogMaxRows, 0, 500);
 
@@ -79,17 +75,13 @@ public sealed class DataConsistencyOrphanProbeExecutor(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        if (sampleCap <= 0)
-        {
-            return;
-        }
+        if (sampleCap <= 0) return;
+
 
         bool anyOrphans = leftCount > 0 || rightCount > 0 || goldenCount > 0 || findingsCount > 0;
 
-        if (!anyOrphans)
-        {
-            return;
-        }
+        if (!anyOrphans) return;
+
 
         await LogRemediationDryRunSamplesAsync(connection, sampleCap, leftCount, rightCount, goldenCount, findingsCount, cancellationToken)
             .ConfigureAwait(false);
@@ -109,12 +101,12 @@ public sealed class DataConsistencyOrphanProbeExecutor(
             IReadOnlyList<string> ids = await ReadTopOrphanComparisonRecordIdsAsync(connection, maxRows, ct).ConfigureAwait(false);
 
             if (ids.Count > 0)
-            {
+
                 _logger.LogInformation(
                     "Data consistency orphan remediation dry-run (probe, no delete): ComparisonRecords sample (top {MaxRows}): {Ids}",
                     maxRows,
                     string.Join(", ", ids));
-            }
+
         }
 
         if (goldenCount > 0)
@@ -122,12 +114,12 @@ public sealed class DataConsistencyOrphanProbeExecutor(
             IReadOnlyList<string> ids = await ReadTopOrphanGoldenManifestIdsAsync(connection, maxRows, ct).ConfigureAwait(false);
 
             if (ids.Count > 0)
-            {
+
                 _logger.LogInformation(
                     "Data consistency orphan remediation dry-run (probe, no delete): GoldenManifests sample (top {MaxRows}): {Ids}",
                     maxRows,
                     string.Join(", ", ids));
-            }
+
         }
 
         if (findingsCount > 0)
@@ -135,12 +127,12 @@ public sealed class DataConsistencyOrphanProbeExecutor(
             IReadOnlyList<string> ids = await ReadTopOrphanFindingsSnapshotIdsAsync(connection, maxRows, ct).ConfigureAwait(false);
 
             if (ids.Count > 0)
-            {
+
                 _logger.LogInformation(
                     "Data consistency orphan remediation dry-run (probe, no delete): FindingsSnapshots sample (top {MaxRows}): {Ids}",
                     maxRows,
                     string.Join(", ", ids));
-            }
+
         }
     }
 
@@ -161,9 +153,9 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         await using DbDataReader reader = await command.ExecuteReaderAsync(ct).ConfigureAwait(false);
 
         while (await reader.ReadAsync(ct).ConfigureAwait(false))
-        {
+
             ids.Add(reader.GetString(0));
-        }
+
 
         return ids;
     }
@@ -185,9 +177,9 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         await using DbDataReader reader = await command.ExecuteReaderAsync(ct).ConfigureAwait(false);
 
         while (await reader.ReadAsync(ct).ConfigureAwait(false))
-        {
+
             ids.Add(reader.GetGuid(0).ToString("D", System.Globalization.CultureInfo.InvariantCulture));
-        }
+
 
         return ids;
     }
@@ -209,9 +201,9 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         await using DbDataReader reader = await command.ExecuteReaderAsync(ct).ConfigureAwait(false);
 
         while (await reader.ReadAsync(ct).ConfigureAwait(false))
-        {
+
             ids.Add(reader.GetGuid(0).ToString("D", System.Globalization.CultureInfo.InvariantCulture));
-        }
+
 
         return ids;
     }
@@ -228,10 +220,8 @@ public sealed class DataConsistencyOrphanProbeExecutor(
         object? scalar = await command.ExecuteScalarAsync(ct).ConfigureAwait(false);
         long count = scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, System.Globalization.CultureInfo.InvariantCulture);
 
-        if (count <= 0)
-        {
-            return count;
-        }
+        if (count <= 0) return count;
+
 
         _logger.LogWarning(
             "Data consistency: {Count} row(s) in {Table} reference a missing authority RunId ({Column}).",

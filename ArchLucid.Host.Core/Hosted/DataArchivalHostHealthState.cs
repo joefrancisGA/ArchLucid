@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchLucid.Host.Core.Hosted;
 
@@ -60,15 +60,11 @@ public sealed class DataArchivalHostHealthState
     {
         lock (_gate)
         {
-            if (!archivalEnabled)
-                return (HealthStatus.Healthy, "Data archival is disabled.");
+            if (!archivalEnabled) return (HealthStatus.Healthy, "Data archival is disabled.");
 
-            if (!_hasAttempted)
-                return (HealthStatus.Healthy, "Data archival enabled; no iteration has run yet.");
+            if (!_hasAttempted) return (HealthStatus.Healthy, "Data archival enabled; no iteration has run yet.");
 
-            if (_lastSucceeded)
-
-                return (HealthStatus.Healthy, $"Last archival iteration succeeded at {_lastAttemptUtc:O}.");
+            if (_lastSucceeded) return (HealthStatus.Healthy, $"Last archival iteration succeeded at {_lastAttemptUtc:O}.");
 
 
             return (

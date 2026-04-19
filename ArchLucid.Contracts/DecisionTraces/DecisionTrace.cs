@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace ArchLucid.Contracts.DecisionTraces;
 
@@ -15,9 +15,7 @@ public abstract class DecisionTrace
     /// <summary>Requires a coordinator merge/agent step trace.</summary>
     public RunEventTracePayload RequireRunEvent()
     {
-        if (this is RunEventTrace runEvent)
-
-            return runEvent.RunEvent;
+        if (this is RunEventTrace runEvent) return runEvent.RunEvent;
 
         throw new InvalidOperationException("Expected a RunEvent trace (coordinator pipeline).");
     }
@@ -25,9 +23,7 @@ public abstract class DecisionTrace
     /// <summary>Requires an authority rule-audit trace.</summary>
     public RuleAuditTracePayload RequireRuleAudit()
     {
-        if (this is RuleAuditTrace ruleAudit)
-
-            return ruleAudit.RuleAudit;
+        if (this is RuleAuditTrace ruleAudit) return ruleAudit.RuleAudit;
 
         throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
     }

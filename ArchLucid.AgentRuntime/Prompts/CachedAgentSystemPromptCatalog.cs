@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Common;
+﻿using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
@@ -20,19 +20,19 @@ public sealed class CachedAgentSystemPromptCatalog(IOptionsMonitor<AgentPromptCa
     public ResolvedSystemPrompt Resolve(AgentType agentType)
     {
         if (!Templates.TryGetValue(agentType, out PromptTemplateCore? core))
-        {
+
             throw new InvalidOperationException(
                 $"No system prompt template is registered for agent type '{agentType}'.");
-        }
+
 
         string dispatchKey = AgentTypeKeys.FromEnum(agentType);
         string? release = null;
         AgentPromptCatalogOptions opts = _optionsMonitor.CurrentValue;
 
         if (opts.Versions.TryGetValue(dispatchKey, out string? configured) && !string.IsNullOrWhiteSpace(configured))
-        {
+
             release = configured.Trim();
-        }
+
 
         return new ResolvedSystemPrompt(core.Text, core.TemplateId, core.TemplateVersion, core.ContentSha256Hex, release);
     }

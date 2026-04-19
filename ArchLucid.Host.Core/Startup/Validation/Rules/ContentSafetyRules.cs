@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -16,11 +16,11 @@ internal static class ContentSafetyRules
             string? key = configuration["ArchLucid:ContentSafety:ApiKey"];
 
             if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(key))
-            {
+
                 errors.Add(
                     "ArchLucid:ContentSafety:Endpoint and ArchLucid:ContentSafety:ApiKey are required when the host is Production or Staging "
                     + "(or when ARCHLUCID_ENVIRONMENT is Production or Staging).");
-            }
+
 
             return;
         }
@@ -29,10 +29,10 @@ internal static class ContentSafetyRules
         bool allowNull = configuration.GetValue("ArchLucid:ContentSafety:AllowNullGuardInDevelopment", true);
 
         if (!enabled && !allowNull)
-        {
+
             errors.Add(
                 "ArchLucid:ContentSafety:AllowNullGuardInDevelopment is false while ArchLucid:ContentSafety:Enabled is false. "
                 + "Enable content safety or set AllowNullGuardInDevelopment=true for development.");
-        }
+
     }
 }

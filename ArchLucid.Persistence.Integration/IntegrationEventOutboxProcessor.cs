@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
@@ -51,9 +51,9 @@ public sealed class IntegrationEventOutboxProcessor(
             activity?.SetTag("archlucid.event_type", entry.EventType);
 
             if (entry.RunId.HasValue)
-            {
+
                 activity?.SetTag("archlucid.run_id", entry.RunId.Value.ToString("D"));
-            }
+
 
             using IDisposable _ = LogContext.PushProperty("CorrelationId", correlationId);
 
@@ -79,9 +79,9 @@ public sealed class IntegrationEventOutboxProcessor(
                 string err = ex.Message;
 
                 if (err.Length > 2048)
-                {
+
                     err = err[..2048];
-                }
+
 
                 if (newRetryCount >= maxAttempts)
                 {

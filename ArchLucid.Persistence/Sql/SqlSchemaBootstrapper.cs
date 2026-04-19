@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Connections;
 
@@ -20,8 +20,7 @@ public sealed class SqlSchemaBootstrapper(
     [ExcludeFromCodeCoverage(Justification = "Reads file and executes SQL batches; requires live SQL Server. SplitGoBatches is tested separately.")]
     public async Task EnsureSchemaAsync(CancellationToken ct)
     {
-        if (!File.Exists(scriptPath))
-            throw new FileNotFoundException($"Schema script not found: {scriptPath}");
+        if (!File.Exists(scriptPath)) throw new FileNotFoundException($"Schema script not found: {scriptPath}");
 
         string script = await File.ReadAllTextAsync(scriptPath, ct);
         IReadOnlyList<string> batches = SplitGoBatches(script);
@@ -29,12 +28,12 @@ public sealed class SqlSchemaBootstrapper(
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         foreach (string batch in batches)
-        
+
             if (!string.IsNullOrWhiteSpace(batch))
-            
+
                 await connection.ExecuteAsync(new CommandDefinition(batch, cancellationToken: ct));
-            
-        
+
+
     }
 
     public IReadOnlyList<string> SplitGoBatches(string script)
@@ -44,22 +43,22 @@ public sealed class SqlSchemaBootstrapper(
         List<string> current = [];
 
         foreach (string line in lines)
-        
+
             if (line.Trim().Equals("GO", StringComparison.OrdinalIgnoreCase))
             {
                 batches.Add(string.Join(Environment.NewLine, current));
                 current.Clear();
             }
             else
-            
+
                 current.Add(line);
-            
-        
+
+
 
         if (current.Count > 0)
-        
+
             batches.Add(string.Join(Environment.NewLine, current));
-        
+
 
         return batches;
     }

@@ -1,4 +1,4 @@
-using ArchLucid.Core.Resilience;
+﻿using ArchLucid.Core.Resilience;
 using ArchLucid.Host.Core.Resilience;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -41,21 +41,21 @@ public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) 
             new Dictionary<string, object> { ["gates"] = gateRows };
 
         if (gateRows.Count == 0)
-        {
+
             return Task.FromResult(
                 HealthCheckResult.Healthy("OpenAI circuit breakers not registered.", data));
-        }
+
 
         foreach (string state in gateRows.Select(row => (string)row["state"]))
-        {
+
             if (state is "Open" or "HalfOpen")
-            {
+
                 return Task.FromResult(
                     HealthCheckResult.Degraded(
                         "One or more OpenAI circuits are open or probing.",
                         data: data));
-            }
-        }
+
+
 
         return Task.FromResult(
             HealthCheckResult.Healthy("All OpenAI circuit breakers closed.", data));

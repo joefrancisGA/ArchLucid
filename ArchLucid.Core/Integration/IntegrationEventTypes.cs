@@ -1,4 +1,4 @@
-namespace ArchLucid.Core.Integration;
+﻿namespace ArchLucid.Core.Integration;
 
 /// <summary>Logical integration event type strings published to Service Bus (<see cref="IIntegrationEventPublisher"/>).</summary>
 /// <remarks>Canonical strings use <c>com.archlucid.*</c>.</remarks>
@@ -28,10 +28,8 @@ public static class IntegrationEventTypes
     /// <summary>Returns <paramref name="eventType"/> trimmed (no legacy alias mapping).</summary>
     public static string MapToCanonical(string eventType)
     {
-        if (string.IsNullOrWhiteSpace(eventType))
-        {
-            return string.Empty;
-        }
+        if (string.IsNullOrWhiteSpace(eventType)) return string.Empty;
+
 
         return eventType.Trim();
     }
@@ -39,10 +37,8 @@ public static class IntegrationEventTypes
     /// <summary>True when trimmed type strings match ordinally.</summary>
     public static bool AreEquivalent(string a, string b)
     {
-        if (string.IsNullOrWhiteSpace(a) || string.IsNullOrWhiteSpace(b))
-        {
-            return false;
-        }
+        if (string.IsNullOrWhiteSpace(a) || string.IsNullOrWhiteSpace(b)) return false;
+
 
         return string.Equals(a.Trim(), b.Trim(), StringComparison.Ordinal);
     }

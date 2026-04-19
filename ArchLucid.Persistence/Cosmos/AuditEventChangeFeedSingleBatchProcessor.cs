@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Audit;
 
@@ -39,10 +39,8 @@ public sealed class AuditEventChangeFeedSingleBatchProcessor : IAuditEventChange
     {
         CosmosDbOptions opts = _optionsMonitor.CurrentValue;
 
-        if (!opts.AuditEventsEnabled)
-        {
-            return;
-        }
+        if (!opts.AuditEventsEnabled) return;
+
 
         string instanceName = $"job-{Guid.NewGuid():N}";
 
@@ -59,10 +57,8 @@ public sealed class AuditEventChangeFeedSingleBatchProcessor : IAuditEventChange
                 {
                     _ = context;
 
-                    if (changes.Count == 0)
-                    {
-                        return;
-                    }
+                    if (changes.Count == 0) return;
+
 
                     List<AuditEventDocument> batch = changes.ToList();
 
@@ -89,9 +85,9 @@ public sealed class AuditEventChangeFeedSingleBatchProcessor : IAuditEventChange
             Task winner = await Task.WhenAny(batchGate.Task, idle).ConfigureAwait(false);
 
             if (winner == batchGate.Task)
-            {
+
                 await batchGate.Task.ConfigureAwait(false);
-            }
+
         }
         finally
         {
@@ -99,10 +95,10 @@ public sealed class AuditEventChangeFeedSingleBatchProcessor : IAuditEventChange
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformation(
                 "Cosmos audit change feed single-batch processor stopped: InstanceName={InstanceName}",
                 instanceName);
-        }
+
     }
 }

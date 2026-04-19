@@ -1,4 +1,4 @@
-using ArchLucid.Application.Tenancy;
+﻿using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 
@@ -46,9 +46,9 @@ public sealed class TrialLifecycleSchedulerHostedService(
                         .ConfigureAwait(false);
 
                 foreach (Guid tenantId in tenantIds)
-                {
+
                     await engine.TryAdvanceTenantAsync(tenantId, leaderToken).ConfigureAwait(false);
-                }
+
             }
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {

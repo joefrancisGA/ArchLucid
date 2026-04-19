@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 
 using Azure.Core;
 using Azure.Storage.Blobs;
@@ -37,8 +37,7 @@ public sealed class AzureBlobArtifactBlobStore(
 
     public async Task<string?> ReadAsync(string blobUri, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(blobUri))
-            return null;
+        if (string.IsNullOrWhiteSpace(blobUri)) return null;
 
         BlobClient blob = new(new Uri(blobUri, UriKind.Absolute), _credential);
         ArtifactBlobTenantPaths.EnsureReadBlobNameMatchesTenant(_scopeProvider, blob.Name);

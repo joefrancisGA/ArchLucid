@@ -1,4 +1,4 @@
-namespace ArchLucid.Host.Core.Configuration;
+﻿namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
 /// Logs when configuration still uses the pre-rename product section or connection-string name
@@ -29,24 +29,22 @@ public static class ArchLucidLegacyConfigurationWarnings
         List<string> found = [];
 
         if (!string.IsNullOrWhiteSpace(configuration.GetConnectionString(LegacyConnectionStringName)))
-        {
+
             found.Add("ConnectionStrings:" + LegacyConnectionStringName);
-        }
+
 
         if (configuration.GetSection(LegacyProductSection).GetChildren().Any())
-        {
+
             found.Add(LegacyProductSection + ":*");
-        }
+
 
         if (configuration.GetSection(LegacyAuthSection).GetChildren().Any())
-        {
-            found.Add(LegacyAuthSection + ":*");
-        }
 
-        if (found.Count == 0)
-        {
-            return;
-        }
+            found.Add(LegacyAuthSection + ":*");
+
+
+        if (found.Count == 0) return;
+
 
         logger.LogWarning(
             "Legacy configuration keys are present but ignored: {LegacyKeys}. Use ConnectionStrings:ArchLucid, ArchLucid:*, and ArchLucidAuth:* only. Hard enforcement is not scheduled before {SunsetDate}; see docs/CONFIG_BRIDGE_SUNSET.md.",

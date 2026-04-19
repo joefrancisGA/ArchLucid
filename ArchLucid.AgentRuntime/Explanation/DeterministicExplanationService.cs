@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
@@ -142,7 +142,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
         List<string> list = [];
 
         foreach (DecisionDelta d in c.DecisionChanges)
-        {
+
             if (d.ChangeType == "Modified")
 
                 list.Add(
@@ -155,7 +155,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
             else if (d.ChangeType == "Removed")
 
                 list.Add($"Decision '{d.DecisionKey}' removed (was '{d.BaseValue ?? "—"}').");
-        }
+
 
         list.AddRange(c.RequirementChanges.Take(30).Select(r => $"Requirement '{r.RequirementName}': {r.ChangeType}."));
 
@@ -201,8 +201,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
         if (m.Compliance.Gaps.Count > 0)
             list.Add($"{m.Compliance.Gaps.Count} compliance gap(s).");
 
-        if (g is null)
-            return list;
+        if (g is null) return list;
 
         Dictionary<ProvenanceNodeType, int> byType = g.Nodes.GroupBy(n => n.Type).ToDictionary(x => x.Key, x => x.Count());
         list.Add(
@@ -259,8 +258,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
 
     private T? TryDeserialize<T>(string? json) where T : class
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return null;
+        if (string.IsNullOrWhiteSpace(json)) return null;
 
         try
         {
@@ -297,8 +295,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
     {
         string r = reasoning.Trim();
 
-        if (r.Length == 0)
-            return heuristicSummary;
+        if (r.Length == 0) return heuristicSummary;
 
         int idx = r.IndexOf("\n\n", StringComparison.Ordinal);
 
@@ -306,8 +303,7 @@ public sealed class DeterministicExplanationService(ILogger<DeterministicExplana
 
         const int maxLen = 500;
 
-        if (first.Length > maxLen)
-            return first[..maxLen].TrimEnd() + "…";
+        if (first.Length > maxLen) return first[..maxLen].TrimEnd() + "…";
 
         return first;
     }

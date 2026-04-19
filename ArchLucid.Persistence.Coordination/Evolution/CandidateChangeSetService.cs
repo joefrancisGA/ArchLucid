@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Evolution;
@@ -18,10 +18,8 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
     {
         ArgumentNullException.ThrowIfNull(plan);
 
-        if (plan.ActionSteps is null)
-        {
-            throw new ArgumentException("ActionSteps cannot be null.", nameof(plan));
-        }
+        if (plan.ActionSteps is null) throw new ArgumentException("ActionSteps cannot be null.", nameof(plan));
+
 
         IReadOnlyList<CandidateChangeSetStep> orderedSteps = OrderSteps(plan.ActionSteps);
         IReadOnlyList<ChangeSetAffectedComponent> components = BuildAffectedComponents(plan, theme);
@@ -41,9 +39,9 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
         ];
 
         if (orderedSteps.Count > 1)
-        {
+
             foreach (CandidateChangeSetStep step in orderedSteps)
-            {
+
                 results.Add(
                     BuildStepSliceChangeSet(
                         plan,
@@ -51,8 +49,8 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
                         components,
                         impact,
                         createdUtc));
-            }
-        }
+
+
 
         return results;
     }
@@ -148,13 +146,13 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
         ProductLearningImprovementThemeRecord? theme)
     {
         if (theme is null)
-        {
+
             return string.Format(
                 CultureInfo.InvariantCulture,
                 "PriorityScore={0}; PlanStatus={1}",
                 plan.PriorityScore,
                 plan.Status);
-        }
+
 
         return string.Format(
             CultureInfo.InvariantCulture,
@@ -218,10 +216,8 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
 
     private static string BuildAggregateDescription(ProductLearningImprovementPlanRecord plan)
     {
-        if (!string.IsNullOrWhiteSpace(plan.Summary))
-        {
-            return plan.Summary.Trim();
-        }
+        if (!string.IsNullOrWhiteSpace(plan.Summary)) return plan.Summary.Trim();
+
 
         return plan.Title.Trim();
     }

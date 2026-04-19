@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
@@ -43,9 +43,9 @@ public sealed class LlmCompletionAccountingClient(
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         if (_quotaOptions.CurrentValue.Enabled)
-        {
+
             _quotaTracker.EnsureWithinQuotaBeforeCall(scope.TenantId);
-        }
+
 
         try
         {
@@ -81,8 +81,7 @@ public sealed class LlmCompletionAccountingClient(
         int completionTok,
         CancellationToken cancellationToken)
     {
-        if (scope.TenantId == Guid.Empty)
-            return;
+        if (scope.TenantId == Guid.Empty) return;
 
         DateTimeOffset recordedUtc = DateTimeOffset.UtcNow;
         string? correlationId = System.Diagnostics.Activity.Current?.Id;
@@ -90,7 +89,7 @@ public sealed class LlmCompletionAccountingClient(
         try
         {
             if (promptTok > 0)
-            {
+
                 await _usageMetering
                     .RecordAsync(
                         new UsageEvent
@@ -105,10 +104,10 @@ public sealed class LlmCompletionAccountingClient(
                         },
                         cancellationToken)
                     .ConfigureAwait(false);
-            }
+
 
             if (completionTok > 0)
-            {
+
                 await _usageMetering
                     .RecordAsync(
                         new UsageEvent
@@ -123,18 +122,18 @@ public sealed class LlmCompletionAccountingClient(
                         },
                         cancellationToken)
                     .ConfigureAwait(false);
-            }
+
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
 
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     ex,
                     "Usage metering failed for tenant {TenantId} (LLM tokens).",
                     scope.TenantId);
-            }
+
         }
     }
 }

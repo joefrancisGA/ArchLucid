@@ -1,4 +1,4 @@
-using ArchLucid.Core.Diagnostics;
+﻿using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -70,9 +70,9 @@ public sealed class HostLeaderElectionCoordinator(
             if (!acquired)
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
-                {
+
                     _logger.LogDebug("Host leader lease not held for {LeaseName}; follower wait {Ms} ms.", LogSanitizer.Sanitize(leaseName), followerMs);
-                }
+
 
                 try
                 {
@@ -87,9 +87,9 @@ public sealed class HostLeaderElectionCoordinator(
             }
 
             if (_logger.IsEnabled(LogLevel.Information))
-            {
+
                 _logger.LogInformation("Acquired host leader lease {LeaseName} for instance {InstanceId}.", LogSanitizer.Sanitize(leaseName), LogSanitizer.Sanitize(id));
-            }
+
 
             using CancellationTokenSource leaderCts = CancellationTokenSource.CreateLinkedTokenSource(applicationStoppingToken);
             CancellationToken leaderToken = leaderCts.Token;
@@ -104,9 +104,9 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 // Linked to application shutdown as well as explicit leaderCts cancel after renewal failure.
                 if (!applicationStoppingToken.IsCancellationRequested && _logger.IsEnabled(LogLevel.Information))
-                {
+
                     _logger.LogInformation("Leader work for {LeaseName} stopped after lease loss or handoff.", LogSanitizer.Sanitize(leaseName));
-                }
+
             }
             finally
             {
@@ -123,10 +123,8 @@ public sealed class HostLeaderElectionCoordinator(
                 await _leaseRepository.TryReleaseAsync(leaseName, id, applicationStoppingToken);
             }
 
-            if (applicationStoppingToken.IsCancellationRequested)
-            {
-                return;
-            }
+            if (applicationStoppingToken.IsCancellationRequested) return;
+
 
             // Lost lease while app still running: re-enter outer loop to compete again.
         }
@@ -146,10 +144,8 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 await Task.Delay(TimeSpan.FromSeconds(renewIntervalSeconds), applicationStoppingToken);
 
-                if (applicationStoppingToken.IsCancellationRequested || leaderCts.IsCancellationRequested)
-                {
-                    return;
-                }
+                if (applicationStoppingToken.IsCancellationRequested || leaderCts.IsCancellationRequested) return;
+
 
                 bool renewed = await _leaseRepository.TryAcquireOrRenewAsync(
                     leaseName,
@@ -157,16 +153,15 @@ public sealed class HostLeaderElectionCoordinator(
                     leaseDurationSeconds,
                     applicationStoppingToken);
 
-                if (renewed)
-                    continue;
+                if (renewed) continue;
 
                 if (_logger.IsEnabled(LogLevel.Warning))
-                {
+
                     _logger.LogWarning(
                         "Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.",
                         LogSanitizer.Sanitize(leaseName),
                         LogSanitizer.Sanitize(id));
-                }
+
 
                 await leaderCts.CancelAsync();
 

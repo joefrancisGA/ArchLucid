@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 namespace ArchLucid.Persistence.Data.Infrastructure;
 
@@ -14,8 +14,7 @@ internal static class ExternalDbConnection
     {
         ArgumentNullException.ThrowIfNull(connectionFactory);
 
-        if (connection is not null)
-            return (connection, false);
+        if (connection is not null) return (connection, false);
 
         IDbConnection opened = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 

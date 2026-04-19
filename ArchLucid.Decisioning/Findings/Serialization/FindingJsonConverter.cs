@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Decisioning.Models;
@@ -34,8 +34,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
 
         finding.Trace = ReadTrace(root, options, finding);
 
-        if (!root.TryGetProperty("payload", out JsonElement payloadEl) || payloadEl.ValueKind == JsonValueKind.Null)
-            return finding;
+        if (!root.TryGetProperty("payload", out JsonElement payloadEl) || payloadEl.ValueKind == JsonValueKind.Null) return finding;
 
         string? typeName = finding.PayloadType;
         Type? payloadType = FindingPayloadRegistry.ResolvePayloadType(typeName);
@@ -93,8 +92,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
     /// </summary>
     private static ExplainabilityTrace ReadTrace(JsonElement root, JsonSerializerOptions options, Finding finding)
     {
-        if (!root.TryGetProperty("trace", out JsonElement tr))
-            return new ExplainabilityTrace();
+        if (!root.TryGetProperty("trace", out JsonElement tr)) return new ExplainabilityTrace();
         try
         {
             return JsonSerializer.Deserialize<ExplainabilityTrace>(tr.GetRawText(), options) ?? new ExplainabilityTrace();
@@ -109,15 +107,13 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
 
     private static List<string> ReadStringList(JsonElement root, string name)
     {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Array)
-            return [];
+        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Array) return [];
         return el.EnumerateArray().Select(e => e.GetString() ?? "").Where(s => s.Length > 0).ToList();
     }
 
     private static Dictionary<string, string> ReadStringDict(JsonElement root, string name)
     {
-        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Object)
-            return new Dictionary<string, string>();
+        if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Object) return new Dictionary<string, string>();
         Dictionary<string, string> d = new(StringComparer.OrdinalIgnoreCase);
         foreach (JsonProperty p in el.EnumerateObject())
             d[p.Name] = p.Value.GetString() ?? "";

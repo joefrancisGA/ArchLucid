@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 
 using ArchLucid.Persistence.BlobStore;
 
@@ -13,16 +13,13 @@ public static class BackgroundJobQueueAddress
 
         string? direct = jobs.QueueServiceUri?.Trim();
 
-        if (!string.IsNullOrWhiteSpace(direct))
-            return new Uri(direct, UriKind.Absolute);
+        if (!string.IsNullOrWhiteSpace(direct)) return new Uri(direct, UriKind.Absolute);
 
         string? blobUri = largePayload?.AzureBlobServiceUri.Trim();
 
-        if (string.IsNullOrWhiteSpace(blobUri))
-            return null;
+        if (string.IsNullOrWhiteSpace(blobUri)) return null;
 
-        if (!blobUri.Contains(".blob.", StringComparison.OrdinalIgnoreCase))
-            return null;
+        if (!blobUri.Contains(".blob.", StringComparison.OrdinalIgnoreCase)) return null;
 
         string queueUri = blobUri.Replace(".blob.", ".queue.", StringComparison.OrdinalIgnoreCase);
 

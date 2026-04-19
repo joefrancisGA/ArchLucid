@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
@@ -38,9 +38,9 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
-                {
+
                     _logger.LogWarning(ex, "Service Bus integration event processor stop failed.");
-                }
+
             }
 
             await _processor.DisposeAsync();
@@ -64,9 +64,9 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
         if (!o.ConsumerEnabled)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
-            {
+
                 _logger.LogDebug("Integration event Service Bus consumer is disabled (IntegrationEvents:ConsumerEnabled=false).");
-            }
+
 
             return;
         }
@@ -77,10 +77,10 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
         if (string.IsNullOrEmpty(topic) || string.IsNullOrEmpty(subscription))
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     "Integration event consumer enabled but QueueOrTopicName or SubscriptionName is missing; consumer not started.");
-            }
+
 
             return;
         }
@@ -92,10 +92,10 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
         if (string.IsNullOrEmpty(fullyQualifiedNamespace) && string.IsNullOrEmpty(connectionString))
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     "Integration event consumer enabled but neither ServiceBusFullyQualifiedNamespace nor ServiceBusConnectionString is set.");
-            }
+
 
             return;
         }
@@ -107,9 +107,9 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
         catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Error))
-            {
+
                 _logger.LogError(ex, "Failed to create Service Bus client for integration event consumer.");
-            }
+
 
             return;
         }
@@ -131,13 +131,13 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
         await _processor.StartProcessingAsync(stoppingToken);
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformation(
                 "Integration event Service Bus consumer started: topic={Topic}, subscription={Subscription}, maxConcurrentCalls={MaxConcurrentCalls}.",
                 LogSanitizer.Sanitize(topic),
                 LogSanitizer.Sanitize(subscription),
                 concurrent);
-        }
+
 
         try
         {
@@ -152,13 +152,13 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
     private Task OnProcessErrorAsync(ProcessErrorEventArgs args)
     {
         if (_logger.IsEnabled(LogLevel.Error))
-        {
+
             _logger.LogError(
                 args.Exception,
                 "Service Bus processor error: {ErrorSource}, entity={EntityPath}",
                 LogSanitizer.Sanitize(args.ErrorSource.ToString()),
                 LogSanitizer.Sanitize(args.EntityPath));
-        }
+
 
         return Task.CompletedTask;
     }
@@ -195,9 +195,9 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
         DefaultAzureCredentialOptions credentialOptions = new();
 
         if (!string.IsNullOrWhiteSpace(managedIdentityClientId))
-        {
+
             credentialOptions.ManagedIdentityClientId = managedIdentityClientId.Trim();
-        }
+
 
         return new DefaultAzureCredential(credentialOptions);
     }
