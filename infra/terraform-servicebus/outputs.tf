@@ -38,6 +38,11 @@ output "logic_app_promotion_prod_customer_subscription_name" {
   description = "Dedicated subscription for prod promotion customer notifications (null when disabled)."
 }
 
+output "logic_app_marketplace_fulfillment_subscription_name" {
+  value       = try(azurerm_servicebus_subscription.logic_app_marketplace_fulfillment[0].name, null)
+  description = "Dedicated subscription for Marketplace webhook-received fulfillment Logic Apps (null when disabled)."
+}
+
 output "primary_connection_string" {
   value       = azurerm_servicebus_namespace.integration.default_primary_connection_string
   sensitive   = true

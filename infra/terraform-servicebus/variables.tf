@@ -157,3 +157,21 @@ variable "promotion_customer_notify_logic_app_managed_identity_principal_id" {
   description = "Optional Entra principal id for the promotion customer-notify Logic App — Azure Service Bus Data Receiver when the promotion prod subscription is enabled."
   default     = ""
 }
+
+variable "enable_logic_app_marketplace_fulfillment_subscription" {
+  type        = bool
+  description = "When true, create a topic subscription filtered to com.archlucid.billing.marketplace.webhook.received.v1 for Marketplace fulfillment / sales hand-off Logic Apps (post-API processing only)."
+  default     = false
+}
+
+variable "logic_app_marketplace_fulfillment_subscription_name" {
+  type        = string
+  description = "Subscription name for Marketplace webhook-received Logic Apps."
+  default     = "archlucid-logicapp-marketplace-fulfillment"
+}
+
+variable "marketplace_fulfillment_logic_app_managed_identity_principal_id" {
+  type        = string
+  description = "Optional Entra principal id for the Marketplace fulfillment Logic App — Azure Service Bus Data Receiver when the marketplace fulfillment subscription is enabled."
+  default     = ""
+}

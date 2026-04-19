@@ -222,7 +222,7 @@ See [EXPLAINABILITY_TRACE_COVERAGE.md](EXPLAINABILITY_TRACE_COVERAGE.md).
 
 ## Azure Logic Apps (optional)
 
-When **`infra/terraform-logicapps/`** hosts are enabled, attach **Application Insights** to each `azurerm_logic_app_standard` site (Azure Portal → Diagnostic settings, or ARM/Bicep in your fork). Correlate Logic App run IDs with Service Bus **message** `messageId` / body **`approvalRequestId`** for governance approvals (`com.archlucid.governance.approval.submitted` on the dedicated subscription from `infra/terraform-servicebus` when `enable_logic_app_governance_approval_subscription` is true). See [runbooks/LOGIC_APPS_STANDARD.md](runbooks/LOGIC_APPS_STANDARD.md) and [CURSOR_PROMPTS_LOGIC_APPS.md](CURSOR_PROMPTS_LOGIC_APPS.md).
+When **`infra/terraform-logicapps/`** hosts are enabled, attach **Application Insights** to each `azurerm_logic_app_standard` site (Azure Portal → Diagnostic settings, or ARM/Bicep in your fork). Correlate Logic App run IDs with Service Bus **message** `messageId` / body **`approvalRequestId`** for governance approvals (`com.archlucid.governance.approval.submitted` on the dedicated subscription from `infra/terraform-servicebus` when `enable_logic_app_governance_approval_subscription` is true), and with body **`providerDedupeKey`** / **`subscriptionId`** for Marketplace fulfillment (`com.archlucid.billing.marketplace.webhook.received.v1` when `enable_logic_app_marketplace_fulfillment_subscription` is true). See [runbooks/LOGIC_APPS_STANDARD.md](runbooks/LOGIC_APPS_STANDARD.md) and [CURSOR_PROMPTS_LOGIC_APPS.md](CURSOR_PROMPTS_LOGIC_APPS.md).
 
 ---
 

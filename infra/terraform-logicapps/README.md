@@ -13,6 +13,7 @@ Workflow JSON and connections are still authored in Portal or CI; placeholder no
 - [`workflows/trial-lifecycle-email/README.md`](workflows/trial-lifecycle-email/README.md) — scheduled trial email; pair with `ArchLucid:Notifications:TrialLifecycle:Owner=LogicApp` when the API scan is off.
 - [`workflows/incident-chatops/README.md`](workflows/incident-chatops/README.md) — alert fired / resolved to Teams or PagerDuty.
 - [`workflows/promotion-customer-notifications/README.md`](workflows/promotion-customer-notifications/README.md) — prod-only promotion fan-out.
+- [`workflows/marketplace-fulfillment-handoff/README.md`](workflows/marketplace-fulfillment-handoff/README.md) — **`com.archlucid.billing.marketplace.webhook.received.v1`** after API success (sales / CRM / Teams).
 
 Additional Logic App Standard **hosts** for these are not yet duplicated in Terraform (mirror the governance host pattern when you want isolation per workload).
 

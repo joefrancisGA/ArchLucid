@@ -4,8 +4,14 @@ import { useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
-import { alertSimulationPageLead, alertSimulationRunControlTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  alertSimulationCurrentBehaviorHeadingOperator,
+  alertSimulationCurrentBehaviorHeadingReader,
+  alertSimulationPageLead,
+  alertSimulationRunControlTitle,
+} from "@/lib/enterprise-controls-context-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type {
@@ -126,6 +132,7 @@ function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
 }
 
 export default function AlertSimulationPage() {
+  const canMutateEnterpriseShell = useEnterpriseMutationCapability();
   const [tab, setTab] = useState<Tab>("simple");
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -432,7 +439,9 @@ export default function AlertSimulationPage() {
           </section>
           <section aria-labelledby="sim-simple-behavior-heading" style={{ marginTop: 24 }}>
             <h3 id="sim-simple-behavior-heading" style={{ marginTop: 0 }}>
-              Current behavior
+              {canMutateEnterpriseShell
+                ? alertSimulationCurrentBehaviorHeadingOperator
+                : alertSimulationCurrentBehaviorHeadingReader}
             </h3>
             {simpleResult ? (
               <SummaryBlock result={simpleResult} />
@@ -583,7 +592,9 @@ export default function AlertSimulationPage() {
           </section>
           <section aria-labelledby="sim-composite-behavior-heading" style={{ marginTop: 24 }}>
             <h3 id="sim-composite-behavior-heading" style={{ marginTop: 0 }}>
-              Current behavior
+              {canMutateEnterpriseShell
+                ? alertSimulationCurrentBehaviorHeadingOperator
+                : alertSimulationCurrentBehaviorHeadingReader}
             </h3>
             {compositeResult ? (
               <SummaryBlock result={compositeResult} />
@@ -690,7 +701,9 @@ export default function AlertSimulationPage() {
           </section>
           <section aria-labelledby="sim-compare-behavior-heading" style={{ marginTop: 24 }}>
             <h3 id="sim-compare-behavior-heading" style={{ marginTop: 0 }}>
-              Current behavior
+              {canMutateEnterpriseShell
+                ? alertSimulationCurrentBehaviorHeadingOperator
+                : alertSimulationCurrentBehaviorHeadingReader}
             </h3>
             {compareResult ? (
               <div style={{ marginTop: 8 }}>
