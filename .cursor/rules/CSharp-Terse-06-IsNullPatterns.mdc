@@ -37,3 +37,4 @@ if (tenant != null) Apply(tenant);
 
 - Applies everywhere: assignments, conditions, ternaries, LINQ predicates, switch arms.
 - Combine with the same-line guard rule (**`CSharp-Terse-01-GuardClausesSameLine.mdc`**) for one-line null guards.
+- **Exception — expression trees:** lambdas passed to APIs that compile to `Expression<TDelegate>` (Moq `It.Is`, some EF Core queries) **cannot** contain `is` / `is not` (**CS8122**). Use `== null` / `!= null` in those lambdas only, with a short comment citing CS8122. See **`docs/CSHARP_HOUSE_STYLE.md`** § “When to break the rules”.

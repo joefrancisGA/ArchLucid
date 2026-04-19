@@ -196,6 +196,7 @@ What changed and which rule pulled the lever:
 Every rule lists a **Scope** section that calls out exemptions. The recurring themes:
 
 - **Block bodies stay** when there are multiple statements, locals, `try` / `catch`, or in-method comments that need to live with the code.
+- **Expression trees** (Moq `It.Is<T>(e => …)`, EF Core predicates compiled to SQL, etc.): C# disallows `is` / `is not` / other pattern forms inside expression trees (**CS8122**). Keep `== null` / `!= null` there and add a one-line comment pointing at CS8122 so reviewers know it is intentional.
 - **`switch` statements stay** when arms need awaits or side effects.
 - **`foreach` stays** when awaiting per element, writing to multiple sinks, or a measured allocation matters (call out the reason in a comment).
 - **Explicit constructors stay** when you need overload chaining, capacity, comparer, or other ctor arguments.

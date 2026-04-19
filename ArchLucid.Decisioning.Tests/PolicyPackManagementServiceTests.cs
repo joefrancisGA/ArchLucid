@@ -74,6 +74,7 @@ public sealed class PolicyPackManagementServiceTests
                     e =>
                         e.ChangeType == PolicyPackChangeTypes.Created
                         && e.ChangedBy == "system"
+                        // Moq: expression trees cannot use `is` / `is not` (CS8122).
                         && e.SummaryText != null
                         && e.SummaryText.Contains("MyPack", StringComparison.Ordinal)
                         && e.NewValue != null
@@ -210,6 +211,7 @@ public sealed class PolicyPackManagementServiceTests
                     e =>
                         e.ChangeType == PolicyPackChangeTypes.VersionPublished
                         && e.ChangedBy == "system"
+                        // Moq: expression trees cannot use `is` / `is not` (CS8122).
                         && e.SummaryText != null
                         && e.SummaryText.Contains("2.0.0", StringComparison.Ordinal)
                         && e.NewValue != null
@@ -297,6 +299,7 @@ public sealed class PolicyPackManagementServiceTests
                 It.Is<PolicyPackChangeLogEntry>(
                     e =>
                         e.PreviousValue == """{"old":true}"""
+                        // Moq: expression trees cannot use `is` / `is not` (CS8122).
                         && e.NewValue != null
                         && e.NewValue.Contains("\"new\":true", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>(),
@@ -347,6 +350,7 @@ public sealed class PolicyPackManagementServiceTests
                     e =>
                         e.ChangeType == PolicyPackChangeTypes.Assigned
                         && e.ChangedBy == "system"
+                        // Moq: expression trees cannot use `is` / `is not` (CS8122).
                         && e.SummaryText != null
                         && e.SummaryText.Contains("Project", StringComparison.Ordinal)
                         && e.NewValue != null
@@ -407,6 +411,7 @@ public sealed class PolicyPackManagementServiceTests
                 It.Is<PolicyPackChangeLogEntry>(
                     e =>
                         e.ChangeType == PolicyPackChangeTypes.AssignmentArchived
+                        // Moq: expression trees cannot use `is` / `is not` (CS8122).
                         && e.SummaryText != null
                         && e.SummaryText.Contains(assignmentId.ToString(), StringComparison.OrdinalIgnoreCase)),
                 It.IsAny<CancellationToken>(),

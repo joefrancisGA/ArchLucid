@@ -447,6 +447,7 @@ public sealed class GovernanceWorkflowServiceTests
                 It.Is<AuditEvent>(
                     e =>
                         e.EventType == CoreAuditEventTypes.GovernanceSelfApprovalBlocked
+                        // Moq: expression trees cannot use `is` / `is not` (CS8122).
                         && e.DataJson != null
                         && e.DataJson.Contains("\"approvalRequestId\":\"apr-sod\"", StringComparison.Ordinal)
                         && e.DataJson.Contains("\"requestedBy\":\"bob\"", StringComparison.Ordinal)
