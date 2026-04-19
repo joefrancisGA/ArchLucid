@@ -9,7 +9,7 @@ public sealed class ProblemDetailsResponsesOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        if (operation.Responses == null)
+        if (operation.Responses is null)
             return;
 
         string path = (context.ApiDescription.RelativePath ?? "").ToLowerInvariant();

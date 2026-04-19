@@ -13,7 +13,7 @@ public sealed class BatchReplayComparisonRequestValidator : AbstractValidator<Ba
     {
         RuleFor(x => x.ComparisonRecordIds)
             .NotEmpty().WithMessage("At least one comparison record ID is required.")
-            .Must(ids => ids == null || ids.All(id => !string.IsNullOrWhiteSpace(id)))
+            .Must(ids => ids is null || ids.All(id => !string.IsNullOrWhiteSpace(id)))
                 .WithMessage("comparisonRecordIds must not contain blank or whitespace-only entries.")
             .Must(ids => ids is null || ids.Count <= batchOptions.CurrentValue.MaxComparisonRecordIds)
                 .WithMessage(_ =>

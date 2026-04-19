@@ -285,8 +285,8 @@ public static class ArchLucidProjectScaffolder
 
     public static ArchLucidCliConfig LoadConfig(string? projectRoot)
     {
-        string lucidPath = projectRoot != null ? Path.Combine(projectRoot, CliManifestFileName) : CliManifestFileName;
-        string legacyPath = projectRoot != null ? Path.Combine(projectRoot, "archi" + "forge.json") : "archi" + "forge.json";
+        string lucidPath = projectRoot is not null ? Path.Combine(projectRoot, CliManifestFileName) : CliManifestFileName;
+        string legacyPath = projectRoot is not null ? Path.Combine(projectRoot, "archi" + "forge.json") : "archi" + "forge.json";
 
         string manifestPath;
         if (File.Exists(lucidPath))
@@ -322,7 +322,7 @@ public static class ArchLucidProjectScaffolder
         }
         if (config is null)
             throw new InvalidDataException($"Unable to parse {manifestPath} into ArchLucidCliConfig.");
-        if (projectRoot != null)
+        if (projectRoot is not null)
             ValidateConfigOrThrow(config, projectRoot);
         return config;
     }

@@ -57,7 +57,7 @@ public sealed class MicrosoftMarketplaceJwtVerifier(IOptionsMonitor<BillingOptio
         TokenValidationParameters validationParameters = new()
         {
             ValidateIssuer = true,
-            ValidIssuers = configuration.Issuer != null ? new[] { configuration.Issuer } : null,
+            ValidIssuers = configuration.Issuer is not null ? [configuration.Issuer] : null,
             ValidateAudience = true,
             ValidAudiences = audiences,
             ValidateLifetime = true,
