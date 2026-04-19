@@ -4,14 +4,21 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { Button } from "@/components/ui/button";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertToolingConfigureSectionSubline,
+  compositeRulesCreateButtonLabelReaderRank,
+  compositeRulesCurrentRulesHeadingOperator,
+  compositeRulesCurrentRulesHeadingReader,
   compositeRulesDefinedListEmptyOperatorLine,
   compositeRulesDefinedListEmptyReaderLine,
+  compositeRulesPageLeadOperator,
+  compositeRulesPageLeadReader,
+  compositeRulesRefreshAssistReaderLine,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
@@ -116,6 +123,9 @@ export default function CompositeAlertRulesPage() {
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="composite-alert-rules" />
       <h2 style={{ marginTop: 0 }}>Composite alert rules</h2>
+      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+        {canMutateComposite ? compositeRulesPageLeadOperator : compositeRulesPageLeadReader}
+      </p>
       <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
@@ -134,11 +144,18 @@ export default function CompositeAlertRulesPage() {
           aria-labelledby="composite-rules-current-heading"
         >
           <h3 id="composite-rules-current-heading" style={{ fontSize: "1rem", marginTop: 8 }}>
-            Current composite rules
+            {canMutateComposite ? compositeRulesCurrentRulesHeadingOperator : compositeRulesCurrentRulesHeadingReader}
           </h3>
-          <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 16 }}>
-            {loading ? "Loading…" : "Refresh"}
-          </button>
+          <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+            <Button type="button" variant="secondary" size="sm" onClick={() => void load()} disabled={loading}>
+              {loading ? "Loading…" : "Refresh"}
+            </Button>
+            {!canMutateComposite ? (
+              <span className="max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
+                {compositeRulesRefreshAssistReaderLine}
+              </span>
+            ) : null}
+          </div>
           <div style={{ display: "grid", gap: 14 }}>
             {items.length === 0 ? (
               <p style={{ color: "#666", maxWidth: "40rem", fontSize: 14 }}>
@@ -368,7 +385,7 @@ export default function CompositeAlertRulesPage() {
               "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
           )}
         >
-          Create composite rule
+          {canMutateComposite ? "Create composite rule" : compositeRulesCreateButtonLabelReaderRank}
         </button>
       </div>
       </fieldset>

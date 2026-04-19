@@ -82,6 +82,7 @@ internal static class AlertIntegrationEventPublishing
             projectId = alert.ProjectId,
             alertId = alert.AlertId,
             runId = alert.RunId,
+            deduplicationKey = alert.DeduplicationKey,
             resolvedByUserId = userId,
             comment,
         };

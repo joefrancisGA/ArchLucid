@@ -221,6 +221,25 @@ export const compositeRulesDefinedListEmptyReaderLine =
 
 export const compositeRulesDefinedListEmptyOperatorLine = "None yet.";
 
+/** Composite alert rules — lead under page title (`composite-alert-rules/page.tsx`). */
+export const compositeRulesPageLeadOperator =
+  "Review compound conditions in the list, then author a new composite rule below.";
+
+export const compositeRulesPageLeadReader =
+  "Inspect definitions above; new composite rules need Execute+ on the API at this rank.";
+
+/** Composite — current list heading (mirrors simple alert rules pattern). */
+export const compositeRulesCurrentRulesHeadingOperator = "Current composite rules";
+
+export const compositeRulesCurrentRulesHeadingReader = "Current composite rules (inspect)";
+
+/** Composite — reader assist next to **Refresh** (GET list only). */
+export const compositeRulesRefreshAssistReaderLine =
+  "Refresh reloads the rule list (GET only; does not create or change rules).";
+
+/** Composite — primary create button when mutation capability is false. */
+export const compositeRulesCreateButtonLabelReaderRank = "Create composite rule (Execute+)";
+
 /** Alert rules — empty “Defined rules” list. */
 export const alertRulesDefinedListEmptyReaderLine =
   "No rules yet. Inspect thresholds; writes need operator on the API.";

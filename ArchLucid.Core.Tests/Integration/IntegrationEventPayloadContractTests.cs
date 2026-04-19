@@ -100,6 +100,7 @@ public sealed class IntegrationEventPayloadContractTests
             projectId = Guid.NewGuid(),
             alertId = Guid.NewGuid(),
             runId = (Guid?)null,
+            deduplicationKey = "composite:rule:scope",
             resolvedByUserId = "u",
             comment = (string?)null,
         };

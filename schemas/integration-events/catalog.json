@@ -38,7 +38,7 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/alert-fired.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when an alert is raised for a scope (run/comparison context)."
+      "description": "Emitted when an alert is raised for a scope (run/comparison context). Service Bus user properties: severity, deduplication_key (see INTEGRATION_EVENTS_AND_WEBHOOKS.md)."
     },
     {
       "eventType": "com.archlucid.alert.resolved",
@@ -47,7 +47,7 @@
       "schemaUri": "https://archlucid.dev/schemas/integration-events/alert-resolved.v1.schema.json",
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
-      "description": "Emitted when an alert is resolved."
+      "description": "Emitted when an alert is resolved. Service Bus user property deduplication_key when payload includes deduplicationKey (ChatOps card correlation)."
     },
     {
       "eventType": "com.archlucid.advisory.scan.completed",
