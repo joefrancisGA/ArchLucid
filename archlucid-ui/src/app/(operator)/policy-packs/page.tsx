@@ -29,6 +29,7 @@ import {
   policyPacksCurrentPacksHeadingOperator,
   policyPacksCurrentPacksHeadingReader,
   policyPacksCreatePackButtonLabelReaderRank,
+  policyPacksHideDiffButtonTitle,
   policyPacksEmptyScopeOperatorLine,
   policyPacksEmptyScopeReaderLine,
   policyPacksLifecycleLeadReaderLine,
@@ -435,7 +436,7 @@ export default function PolicyPacksPage() {
             {canMutatePacks ? "Show diff" : policyPacksShowDiffButtonLabelReaderRank}
           </button>
           {showVersionDiff ? (
-            <button type="button" onClick={() => setShowVersionDiff(false)}>
+            <button type="button" onClick={() => setShowVersionDiff(false)} title={policyPacksHideDiffButtonTitle}>
               Hide diff
             </button>
           ) : null}

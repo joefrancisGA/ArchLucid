@@ -93,6 +93,8 @@ What landed in this repository for the **marketplace / ADR 0016 hand-off** slice
 
 **2026-04-19 (promotion customer notification channel preferences — read API):** **`GET /v1/notifications/customer-channel-preferences`** (`CustomerNotificationChannelPreferencesController`, Read authority); **`TenantNotificationChannelPreferencesResponse`**; migration **`082_TenantNotificationChannelPreferences`**, Dapper + InMemory repos; **`CustomerNotificationChannelPreferencesIntegrationTests`** + OpenAPI snapshot; NSwag **`CustomerChannelPreferencesAsync`** on **`ArchLucidApiClient`**; docs: **`CONTROLLER_AREA_MAP`**, **`INTEGRATION_EVENTS_AND_WEBHOOKS`**, this file, **`workflows/promotion-customer-notifications/README.md`**.
 
+**2026-04-19 (Marketplace fulfillment — Service Bus + workflow doc parity):** **`enable_logic_app_marketplace_fulfillment_subscription`** + **`$Default`** SQL filter on **`com.archlucid.billing.marketplace.webhook.received.v1`**; output **`logic_app_marketplace_fulfillment_subscription_name`**; IAM **`marketplace_fulfillment_logic_app_managed_identity_principal_id`**; **`workflows/marketplace-fulfillment-handoff/README.md`**; **`terraform-servicebus`** README / **`terraform.tfvars.example`**; cross-links **`INTEGRATION_EVENTS_AND_WEBHOOKS`**, **`LOGIC_APPS_STANDARD`**, **`infra/terraform-logicapps/README.md`**.
+
 **Still intentionally out of repo:** concrete `workflow.json` assets and in-app connection bundles — design in Azure Portal or your CD pipeline, then freeze per change control.
 
 ---

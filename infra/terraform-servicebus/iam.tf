@@ -53,3 +53,11 @@ resource "azurerm_role_assignment" "promotion_customer_notify_logic_app_serviceb
   role_definition_name = "Azure Service Bus Data Receiver"
   principal_id         = var.promotion_customer_notify_logic_app_managed_identity_principal_id
 }
+
+resource "azurerm_role_assignment" "marketplace_fulfillment_logic_app_servicebus_receiver" {
+  count = var.enable_logic_app_marketplace_fulfillment_subscription && trimspace(var.marketplace_fulfillment_logic_app_managed_identity_principal_id) != "" ? 1 : 0
+
+  scope                = azurerm_servicebus_namespace.integration.id
+  role_definition_name = "Azure Service Bus Data Receiver"
+  principal_id         = var.marketplace_fulfillment_logic_app_managed_identity_principal_id
+}

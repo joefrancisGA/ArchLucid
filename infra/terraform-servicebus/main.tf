@@ -117,6 +117,26 @@ resource "azurerm_servicebus_subscription_rule" "logic_app_promotion_prod_custom
   sql_filter      = "event_type = 'com.archlucid.governance.promotion.activated' AND promotion_environment = 'prod'"
 }
 
+resource "azurerm_servicebus_subscription" "logic_app_marketplace_fulfillment" {
+  count = var.enable_logic_app_marketplace_fulfillment_subscription ? 1 : 0
+
+  name     = var.logic_app_marketplace_fulfillment_subscription_name
+  topic_id = azurerm_servicebus_topic.integration_events.id
+
+  max_delivery_count = var.max_delivery_count
+
+  dead_lettering_on_message_expiration = true
+}
+
+resource "azurerm_servicebus_subscription_rule" "logic_app_marketplace_fulfillment_default" {
+  count = var.enable_logic_app_marketplace_fulfillment_subscription ? 1 : 0
+
+  name            = "$Default"
+  subscription_id = azurerm_servicebus_subscription.logic_app_marketplace_fulfillment[0].id
+  filter_type     = "SqlFilter"
+  sql_filter      = "event_type = 'com.archlucid.billing.marketplace.webhook.received.v1'"
+}
+
 resource "azurerm_private_endpoint" "servicebus" {
   count = local.pe_enabled ? 1 : 0
 

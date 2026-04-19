@@ -185,6 +185,13 @@ export const auditClearFiltersButtonLabelReaderRank = "Clear filters & search";
 /** Alert routing — delivery history fetch is **GET**; reader label clarifies inspect vs toggle writes. */
 export const alertRoutingDeliveryAttemptsButtonLabelReaderRank = "Delivery attempts (inspect)";
 
+/** Alert routing — **`title`** on **Show delivery attempts** (`alert-routing/page.tsx`). */
+export const alertRoutingDeliveryAttemptsButtonTitleOperator =
+  "Load recent delivery attempts for this subscription (GET).";
+
+export const alertRoutingDeliveryAttemptsButtonTitleReader =
+  "Load delivery attempts (GET). Enable/Disable subscription needs Execute+ on the API.";
+
 /** Policy packs — compare action stays inspection-only at read rank (lifecycle writes below). */
 export const policyPacksShowDiffButtonLabelReaderRank = "Show diff (inspect)";
 
@@ -238,6 +245,11 @@ export const alertTuningCurrentTuningHeadingReader = "Current tuning (inspect)";
 /** Alert simulation — **Simulate** / **Compare candidates** controls (`alert-simulation/page.tsx`). */
 export const alertSimulationRunControlTitle =
   "Run what-if (ReadAuthority on API; no live rule or subscription changes from this page).";
+
+/** Alert simulation — outcome column **`h3`** (`alert-simulation/page.tsx`); inputs stay neutral (ReadAuthority POST). */
+export const alertSimulationCurrentBehaviorHeadingOperator = "Current behavior";
+
+export const alertSimulationCurrentBehaviorHeadingReader = "Current behavior (inspect)";
 
 /** Alerts inbox — lead under title (Execute+); rank cue hidden — see `LayerHeader`. */
 export const alertsPageLeadOperator = "Filter, page, then triage per card.";
@@ -476,6 +488,20 @@ export const policyPacksCompareVersionsReaderSubline =
 /** Policy packs — title on “Show diff” when rank cannot mutate (diff stays inspection-only; lifecycle on API). */
 export const policyPacksShowDiffButtonReaderTitle =
   "Read-only diff between versions; publish and assign need Execute+ in Lifecycle (API).";
+
+/** Policy packs — **Hide diff** (`policy-packs/page.tsx`); collapses client-side diff only. */
+export const policyPacksHideDiffButtonTitle = "Close diff view (client only; no API write).";
+
+/** Architecture digests — history sidebar **`h3`** (`digests/page.tsx`). */
+export const digestsHistoryHeadingOperator = "History";
+
+export const digestsHistoryHeadingReader = "History (inspect)";
+
+/** Architecture digests — list **Refresh** (`GET`). */
+export const digestsListRefreshButtonTitleOperator = "Reload digest list from the API (GET).";
+
+export const digestsListRefreshButtonTitleReader =
+  "Reload digest list (GET). Email subscriptions are configured under Subscriptions (Execute+).";
 
 /** Policy packs — pack selector when lifecycle writes are soft-disabled at read rank in the shell. */
 export const policyPacksPackSelectReaderTitle =

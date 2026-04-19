@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import {
+  digestsHistoryHeadingOperator,
+  digestsHistoryHeadingReader,
+  digestsListRefreshButtonTitleOperator,
+  digestsListRefreshButtonTitleReader,
+} from "@/lib/enterprise-controls-context-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -13,6 +20,7 @@ import type { ArchitectureDigest } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt } from "@/types/digest-subscriptions";
 
 export default function DigestsPage() {
+  const canMutateEnterpriseShell = useEnterpriseMutationCapability();
   const [digests, setDigests] = useState<ArchitectureDigest[]>([]);
   const [selected, setSelected] = useState<ArchitectureDigest | null>(null);
   const [deliveryAttempts, setDeliveryAttempts] = useState<DigestDeliveryAttempt[]>([]);
@@ -57,7 +65,16 @@ export default function DigestsPage() {
       </p>
 
       <div style={{ marginBottom: 16 }}>
-        <button type="button" onClick={() => void loadDigests()} disabled={loading}>
+        <button
+          type="button"
+          onClick={() => void loadDigests()}
+          disabled={loading}
+          title={
+            canMutateEnterpriseShell
+              ? digestsListRefreshButtonTitleOperator
+              : digestsListRefreshButtonTitleReader
+          }
+        >
           {loading ? "Loading…" : "Refresh"}
         </button>
       </div>
@@ -74,7 +91,9 @@ export default function DigestsPage() {
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(280px, 320px) 1fr", gap: 16 }}>
         <aside style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, background: "#fff" }}>
-          <h3 style={{ marginTop: 0, fontSize: 16 }}>History</h3>
+          <h3 style={{ marginTop: 0, fontSize: 16 }}>
+            {canMutateEnterpriseShell ? digestsHistoryHeadingOperator : digestsHistoryHeadingReader}
+          </h3>
           {digests.length === 0 ? (
             <p style={{ color: "#666", fontSize: 14 }}>No digests yet.</p>
           ) : (

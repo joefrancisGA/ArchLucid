@@ -36,3 +36,8 @@ tags = {
 # incident_chatops_logic_app_managed_identity_principal_id = ""
 # enable_logic_app_promotion_prod_customer_subscription = false
 # promotion_customer_notify_logic_app_managed_identity_principal_id = ""
+
+# Optional: Marketplace webhook-received → Logic App fulfillment hand-off (Teams / CRM fan-out)
+# enable_logic_app_marketplace_fulfillment_subscription = false
+# logic_app_marketplace_fulfillment_subscription_name   = "archlucid-logicapp-marketplace-fulfillment"
+# marketplace_fulfillment_logic_app_managed_identity_principal_id = ""

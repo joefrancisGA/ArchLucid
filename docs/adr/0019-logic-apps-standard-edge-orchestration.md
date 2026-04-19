@@ -14,7 +14,7 @@ Azure **Functions** and **Container Apps Jobs** (ADR 0018) remain the default fo
 
 - Use **Azure Logic Apps (Standard, single-tenant)** only for **edge orchestration** that consumes Service Bus integration events or schedules, then calls back into ArchLucid via **APIM + managed identity** (or posts human actions to existing REST routes).
 - Keep **JWT verification**, **SQL idempotency**, and **billing ledger** authority inside .NET (ADR 0016). Logic Apps **must not** sit in front of anonymous Marketplace webhooks; they consume **`com.archlucid.billing.marketplace.webhook.received.v1`** published **after** successful provider handling.
-- Provision hosts with Terraform under **`infra/terraform-logicapps/`** (disabled by default via `enable_logic_apps`) with **system-assigned managed identity**, **ZRS** storage, and **WS1** plans until workload isolation requires splitting.
+- Provision hosts with Terraform under **`infra/terraform-logicapps/`** (disabled by default via `enable_logic_apps`) with **system-assigned managed identity**, **ZRS** storage, and **WS1** plans until workload isolation requires splitting. Pair **`infra/terraform-servicebus/`** optional filtered topic subscriptions (governance, trial email, ChatOps, prod promotion, **Marketplace webhook-received**) so each Logic App trigger receives a minimal event slice without sharing the worker subscription.
 - Operational prompts and workflow intent live in **`docs/CURSOR_PROMPTS_LOGIC_APPS.md`**; operators extend workflows via designer or CI-deployed `workflow.json` on the file share (not checked into this repo until a workflow is frozen).
 
 ## Consequences

@@ -4,7 +4,7 @@ Provisions a **namespace**, **topic** (duplicate detection enabled), and **two d
 
 Optionally, enable **`enable_logic_app_governance_approval_subscription`** to add a **third** subscription whose **`$Default`** rule is a SQL filter on user property **`event_type`** so only `com.archlucid.governance.approval.submitted` is delivered — the intended trigger for the **`logic-app-governance-approval-routing`** Logic App (see `docs/CURSOR_PROMPTS_LOGIC_APPS.md` and `infra/terraform-logicapps/`).
 
-Further optional subscriptions (same topic; all off by default) cover **`logic-app-trial-lifecycle-email`** (`com.archlucid.notifications.trial-lifecycle-email.v1`), **`logic-app-incident-chatops`** (`alert.fired` **OR** `alert.resolved`), and **`logic-app-promotion-prod-customer`** (`promotion.activated` **and** user property **`promotion_environment` = `prod`**). Each pair has an optional managed identity principal id variable for **Data Receiver** at namespace scope.
+Further optional subscriptions (same topic; all off by default) cover **`logic-app-trial-lifecycle-email`** (`com.archlucid.notifications.trial-lifecycle-email.v1`), **`logic-app-incident-chatops`** (`alert.fired` **OR** `alert.resolved`), **`logic-app-promotion-prod-customer`** (`promotion.activated` **and** user property **`promotion_environment` = `prod`**), and **`logic-app-marketplace-fulfillment`** (`com.archlucid.billing.marketplace.webhook.received.v1` — post-API processing only). Each has an optional managed identity principal id variable for **Data Receiver** at namespace scope.
 
 ## Security and networking
 
