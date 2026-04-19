@@ -9,6 +9,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRulesChangeConfigurationLeadReaderLine,
+  alertRulesCreateButtonLabelReaderRank,
   alertRulesCurrentRulesSectionReaderSubline,
   alertRulesDefinedListEmptyOperatorLine,
   alertRulesDefinedListEmptyReaderLine,
@@ -221,7 +222,7 @@ export default function AlertRulesPage() {
                   "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
               )}
             >
-              Create rule
+              {canMutateAlertRules ? "Create rule" : alertRulesCreateButtonLabelReaderRank}
             </button>
           </div>
         </section>

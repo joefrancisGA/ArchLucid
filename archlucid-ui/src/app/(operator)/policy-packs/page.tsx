@@ -28,6 +28,7 @@ import {
   policyPacksPageLeadReader,
   policyPacksPublishedVersionsEmptyOperatorLine,
   policyPacksPublishedVersionsEmptyReaderLine,
+  policyPacksShowDiffButtonReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
 import type {
@@ -405,6 +406,7 @@ export default function PolicyPacksPage() {
             type="button"
             onClick={() => setShowVersionDiff(true)}
             disabled={!compareLeftId || !compareRightId || compareLeftId === compareRightId}
+            title={canMutatePacks ? undefined : policyPacksShowDiffButtonReaderTitle}
           >
             Show diff
           </button>

@@ -214,6 +214,21 @@ export const alertRoutingCurrentSubscriptionsReaderSubline =
 export const policyPacksCompareVersionsReaderSubline =
   "Version diff is read-only; publish, assign, and create are in Lifecycle (Execute+).";
 
+/** Policy packs — title on “Show diff” when rank cannot mutate (diff stays inspection-only; lifecycle on API). */
+export const policyPacksShowDiffButtonReaderTitle =
+  "Read-only diff between versions; publish and assign need Execute+ in Lifecycle (API).";
+
+/** Audit — Execute+ caller without Auditor/Admin claims (CSV export remains API-role-gated). */
+export const auditExportExecuteRankAuditorRoleNote =
+  "CSV export still needs Auditor or Admin on the API — Execute rank alone is not enough for bulk export.";
+
+/** Alert rules — Create button label when mutation capability is false (same Execute+ floor as the hook). */
+export const alertRulesCreateButtonLabelReaderRank = "Create rule (Execute+)";
+
+/** Alert routing — Create subscription button label when mutation capability is false. */
+export const alertRoutingCreateSubscriptionButtonLabelReaderRank =
+  "Create alert routing subscription (Execute+)";
+
 /** Alerts triage dialog — appended to title when Confirm is disabled at read rank. */
 export const alertsTriageDialogTitleReaderSuffix = " (read-only)";
 
