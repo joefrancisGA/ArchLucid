@@ -1,0 +1,64 @@
+---
+description: Prefer C# 12 primary constructors for DI services and value-shaped types; keep null guards explicit.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# Primary constructors
+
+Use **C# 12 primary constructors** for classes whose constructor only **captures dependencies / values** to private state. Prefer `record` primary constructors for value-shaped types.
+
+## Preferred — DI service
+
+```csharp
+public sealed class TrialSeatReservationService(
+    ITrialSeatRepository repository,
+    IClock clock,
+    ILogger<TrialSeatReservationService> logger)
+    : ITrialSeatReservationService
+{
+    public async Task<TrialSeatReservation> ReserveAsync(Guid tenantId, CancellationToken ct)
+    {
+        if (repository is null) throw new ArgumentNullException(nameof(repository));
+        if (clock is null)      throw new ArgumentNullException(nameof(clock));
+
+        DateTime now = clock.UtcNow;
+        return await repository.ReserveAsync(tenantId, now, ct);
+    }
+}
+```
+
+## Preferred — value type
+
+```csharp
+public sealed record AlertEnvelope(Guid AlertId, AlertSeverity Severity, DateTime RaisedAt);
+```
+
+## Avoid
+
+```csharp
+// Avoid: hand-written ctor that just assigns parameters to fields, when a primary ctor would do
+public sealed class TrialSeatReservationService : ITrialSeatReservationService
+{
+    private readonly ITrialSeatRepository _repository;
+    private readonly IClock _clock;
+    private readonly ILogger<TrialSeatReservationService> _logger;
+
+    public TrialSeatReservationService(
+        ITrialSeatRepository repository,
+        IClock clock,
+        ILogger<TrialSeatReservationService> logger)
+    {
+        _repository = repository;
+        _clock = clock;
+        _logger = logger;
+    }
+}
+```
+
+## Scope and guardrails
+
+- **Null checks stay explicit** — primary constructors do not throw on null. Validate in the first member that uses each parameter (or once in a `Validate` helper) using **`CSharp-Terse-01-GuardClausesSameLine.mdc`**.
+- Use primary ctors when the captured parameters become **read-only state**; avoid them when you also need overload chaining or significant constructor logic.
+- Each class still goes in **its own file** per the project rule.
+- For DTOs / value-shaped types, prefer `record` primary ctors with `init` accessors — they compose well with **`CSharp-Terse-04-CollectionExpressions.mdc`** and **`CSharp-SimpleProperties-OneLine.mdc`**.

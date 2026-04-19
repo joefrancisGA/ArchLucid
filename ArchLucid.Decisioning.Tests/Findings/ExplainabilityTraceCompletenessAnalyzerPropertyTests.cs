@@ -20,8 +20,7 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
             double expected = score.PopulatedFieldCount / 5.0;
 
             return score.CompletenessRatio == expected
-                   && score.PopulatedFieldCount >= 0
-                   && score.PopulatedFieldCount <= 5;
+                   && score.PopulatedFieldCount is >= 0 and <= 5;
         });
     }
 
@@ -33,14 +32,15 @@ public sealed class ExplainabilityTraceCompletenessAnalyzerPropertyTests
 
         return Prop.ForAll(findingsArb, findings =>
         {
-            FindingsSnapshot snapshot = new() { Findings = findings };
+            FindingsSnapshot snapshot = new()
+            {
+                Findings = findings
+            };
             TraceCompletenessSummary summary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(snapshot);
 
             if (findings.Count == 0)
             {
-                return summary.TotalFindings == 0
-                       && summary.OverallCompletenessRatio == 0.0
-                       && summary.ByEngine.Count == 0;
+                return summary is { TotalFindings: 0, OverallCompletenessRatio: 0.0, ByEngine.Count: 0 };
             }
 
             double manualAverage = findings

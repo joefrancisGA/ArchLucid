@@ -86,12 +86,7 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
             }
         }
 
-        if (total == 0)
-        {
-            return (0.0, 0);
-        }
-
-        return ((double)withEvidence / total, total - withEvidence);
+        return total == 0 ? (0.0, 0) : ((double)withEvidence / total, total - withEvidence);
     }
 
     private static (double ratio, int incompleteCount) EvaluateFindings(JsonElement root)
@@ -131,12 +126,7 @@ public sealed class AgentOutputSemanticEvaluator : IAgentOutputSemanticEvaluator
             }
         }
 
-        if (total == 0)
-        {
-            return (0.0, 0);
-        }
-
-        return ((double)complete / total, total - complete);
+        return total == 0 ? (0.0, 0) : ((double)complete / total, total - complete);
     }
 
     private static double ComputeOverallScore(double claimsRatio, double findingsRatio, JsonElement root)

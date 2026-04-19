@@ -416,7 +416,7 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
             double ratio = 0;
 
-            if (t.TrialRunsLimit is { } lim && lim > 0)
+            if (t.TrialRunsLimit is { } lim and > 0)
             {
                 ratio = (double)t.TrialRunsUsed / lim;
             }

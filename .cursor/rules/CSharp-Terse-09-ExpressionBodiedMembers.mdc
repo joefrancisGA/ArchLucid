@@ -1,0 +1,54 @@
+---
+description: Prefer expression-bodied members (=>) for trivial methods, properties, ctors, and operators.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# Expression-bodied members
+
+When a method, property, indexer, constructor, finalizer, or operator is a **single expression**, use the **expression-bodied** form (`=>`).
+
+## Preferred
+
+```csharp
+public string FullName => $"{First} {Last}";
+
+public bool IsExpired() => Clock.UtcNow >= ExpiresAt;
+
+public Task<Tenant> GetAsync(Guid id) => _repo.LoadAsync(id);
+
+public override string ToString() => $"Tenant({Id})";
+
+public static AlertSeverity From(int score) => score switch
+{
+    >= 90 => AlertSeverity.Critical,
+    >= 70 => AlertSeverity.High,
+    >= 40 => AlertSeverity.Medium,
+    _     => AlertSeverity.Low
+};
+```
+
+## Avoid
+
+```csharp
+// Avoid
+public string FullName
+{
+    get
+    {
+        return $"{First} {Last}";
+    }
+}
+
+public bool IsExpired()
+{
+    return Clock.UtcNow >= ExpiresAt;
+}
+```
+
+## Scope
+
+- Use `=>` only when the body is **one** expression (a `switch` expression counts).
+- Stay with a block body when there are multiple statements, local variables, `try`/`catch`, or in-method comments needed.
+- Each member still goes in **its own file** per the project rule.
+- Consistent with **`CSharp-SimpleProperties-OneLine.mdc`** for the auto-property case.

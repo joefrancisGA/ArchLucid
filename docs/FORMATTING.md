@@ -1,5 +1,7 @@
 # C# formatting (blank lines & layout)
 
+> **See also:** [`docs/CSHARP_HOUSE_STYLE.md`](CSHARP_HOUSE_STYLE.md) is the human-readable index of every always-on Cursor rule (guard clauses, pattern matching, switch expressions, collection expressions, primary constructors, etc.). This page covers only the **mechanical** side — what `dotnet format` and the small Roslyn fixers under `scripts/` actually do.
+
 The ArchLucid .NET codebase uses **EditorConfig** (repo root `.editorconfig`) so Visual Studio, Rider, and `dotnet format` share the same rules.
 
 Notable choices for **readability**:

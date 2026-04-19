@@ -25,8 +25,6 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 
     private bool _rlsBreakGlassEnvLease;
 
-    private readonly string _connectionString;
-
     /// <summary>Creates the factory and ensures the catalog exists without applying migrations (host does that on boot).</summary>
     public GreenfieldSqlApiFactory()
     {
@@ -41,8 +39,8 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
                 ConnectTimeout = 120,
             };
 
-            _connectionString = builder.ConnectionString;
-            SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
+            SqlConnectionString = builder.ConnectionString;
+            SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
             AcquireRlsBreakGlassEnvLease();
         }
         catch (Exception ex)
@@ -60,14 +58,17 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
     }
 
     /// <summary>ADO.NET connection string for the empty catalog the API migrates on startup.</summary>
-    public string SqlConnectionString => _connectionString;
+    public string SqlConnectionString
+    {
+        get;
+    }
 
     /// <inheritdoc />
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
 
-        builder.UseSetting("ConnectionStrings:ArchLucid", _connectionString);
+        builder.UseSetting("ConnectionStrings:ArchLucid", SqlConnectionString);
         builder.UseSetting("ArchLucid:StorageProvider", "Sql");
         builder.UseSetting("ArchLucid:Persistence:AllowRlsBypass", "true");
         builder.UseSetting("ArchLucidAuth:Mode", "DevelopmentBypass");
@@ -78,7 +79,7 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ArchLucid:StorageProvider"] = "Sql",
-                ["ConnectionStrings:ArchLucid"] = _connectionString,
+                ["ConnectionStrings:ArchLucid"] = SqlConnectionString,
                 ["ArchLucid:Persistence:AllowRlsBypass"] = "true",
                 ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
                 ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
@@ -111,7 +112,7 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 
         try
         {
-            SqlServerTestCatalogCommands.DropCatalogIfExists(_connectionString);
+            SqlServerTestCatalogCommands.DropCatalogIfExists(SqlConnectionString);
         }
         catch
         {

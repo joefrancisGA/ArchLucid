@@ -109,10 +109,6 @@ public sealed class AgentOutputEvaluator : IAgentOutputEvaluator
         // Same contract shape for every agent; kept as a switch for future per-type expectations.
         return agentType switch
         {
-            AgentType.Topology => SharedAgentResultKeys,
-            AgentType.Cost => SharedAgentResultKeys,
-            AgentType.Compliance => SharedAgentResultKeys,
-            AgentType.Critic => SharedAgentResultKeys,
             _ => SharedAgentResultKeys,
         };
     }

@@ -18,10 +18,10 @@ public static class ProductLearningOpportunityScoring
             aggregate.NeedsFollowUpCount * 3 +
             aggregate.RevisedCount * 2;
 
-        if (aggregate.TotalSignalCount >= 2 && aggregate.TrustedCount == 0)
-        
+        if (aggregate is { TotalSignalCount: >= 2, TrustedCount: 0 })
+
             score += 2;
-        
+
 
         return score;
     }
@@ -95,9 +95,9 @@ public static class ProductLearningOpportunityScoring
     private static string Truncate(string value, int maxChars)
     {
         if (value.Length <= maxChars)
-        
+
             return value;
-        
+
 
         return value[..maxChars];
     }

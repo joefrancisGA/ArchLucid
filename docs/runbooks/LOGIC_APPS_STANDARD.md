@@ -1,7 +1,7 @@
 # Runbook — Azure Logic Apps (Standard) for ArchLucid
 
 **Priority:** P3 — Reference  
-**Last reviewed:** 2026-04-19 (Marketplace fulfillment optional Logic App host in `terraform-logicapps`)
+**Last reviewed:** 2026-04-19 (trial / ChatOps / promotion optional dedicated Logic App hosts in `terraform-logicapps`)
 
 ## Objective
 
@@ -9,9 +9,12 @@ Operate optional **Logic App (Standard)** hosts that consume ArchLucid **Service
 
 ## When this applies
 
-- You enabled `enable_logic_apps`, **`enable_governance_approval_logic_app`**, and/or **`enable_marketplace_fulfillment_logic_app`** in `infra/terraform-logicapps/`, and deployed workflows for governance approvals, trial email fan-out, Marketplace fulfillment hand-off (`com.archlucid.billing.marketplace.webhook.received.v1` — optional dedicated subscription in `infra/terraform-servicebus/`), incident ChatOps, or customer promotion notices (see `docs/CURSOR_PROMPTS_LOGIC_APPS.md`).
+- You enabled any combination of **`enable_logic_apps`**, **`enable_governance_approval_logic_app`**, **`enable_marketplace_fulfillment_logic_app`**, **`enable_trial_lifecycle_logic_app`**, **`enable_incident_chatops_logic_app`**, and **`enable_promotion_customer_notify_logic_app`** in `infra/terraform-logicapps/`, and deployed workflows for governance, trial email, Marketplace fulfillment, incident ChatOps, or prod promotion customer notices (see `docs/CURSOR_PROMPTS_LOGIC_APPS.md`).
 - **Governance approval routing:** enable **`enable_logic_app_governance_approval_subscription`** in `infra/terraform-servicebus/` so a dedicated topic subscription receives only `com.archlucid.governance.approval.submitted` (user property **`event_type`**, matching `AzureServiceBusIntegrationEventPublisher`). After deploying the governance Logic App, set **`governance_logic_app_managed_identity_principal_id`** in Service Bus Terraform to the output **`governance_logic_app_principal_id`** from `terraform-logicapps`, then re-apply Service Bus for **Data Receiver** on the namespace.
 - **Marketplace fulfillment hand-off:** enable **`enable_logic_app_marketplace_fulfillment_subscription`** in `infra/terraform-servicebus/` and set **`marketplace_fulfillment_logic_app_managed_identity_principal_id`** to **`marketplace_fulfillment_logic_app_principal_id`** from `terraform-logicapps` after deploying **`enable_marketplace_fulfillment_logic_app`** (same two-step apply as governance). Trigger on output **`logic_app_marketplace_fulfillment_subscription_name`**.
+- **Trial lifecycle email:** **`enable_logic_app_trial_lifecycle_email_subscription`** + **`trial_lifecycle_logic_app_managed_identity_principal_id`** ← **`trial_lifecycle_logic_app_principal_id`** after **`enable_trial_lifecycle_logic_app`**. Trigger on **`logic_app_trial_lifecycle_email_subscription_name`**.
+- **Incident ChatOps:** **`enable_logic_app_incident_chatops_subscription`** + **`incident_chatops_logic_app_managed_identity_principal_id`** ← **`incident_chatops_logic_app_principal_id`** after **`enable_incident_chatops_logic_app`**. Trigger on **`logic_app_incident_chatops_subscription_name`**.
+- **Promotion customer notify (prod):** **`enable_logic_app_promotion_prod_customer_subscription`** + **`promotion_customer_notify_logic_app_managed_identity_principal_id`** ← **`promotion_customer_notify_logic_app_principal_id`** after **`enable_promotion_customer_notify_logic_app`**. Trigger on **`logic_app_promotion_prod_customer_subscription_name`**.
 
 ## Assumptions
 

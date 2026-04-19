@@ -1,0 +1,37 @@
+---
+description: Prefer target-typed new() when the variable, parameter, return type, or field already names the type.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# Target-typed `new()`
+
+When the type appears on the **left** of an assignment, on a **parameter**, on a **return type**, or on a **field/property**, use **target-typed `new()`** instead of repeating the type on the right.
+
+## Preferred
+
+```csharp
+private readonly Dictionary<string, AgentSession> _sessions = new();
+
+public AlertEnvelope BuildEmpty() => new();
+
+return new HealthReport(status, checks: []);
+
+DoWork(new(retries: 3, timeout: TimeSpan.FromSeconds(5)));
+```
+
+## Avoid
+
+```csharp
+// Avoid
+private readonly Dictionary<string, AgentSession> _sessions =
+    new Dictionary<string, AgentSession>();
+
+return new HealthReport(status, checks: Array.Empty<HealthCheck>());
+```
+
+## Scope
+
+- Concrete-type rule still applies: keep the **type on the left** explicit; only the **right side** collapses to `new(...)`.
+- Combine with **`CSharp-Terse-04-CollectionExpressions.mdc`** when the right side is a collection literal — prefer `[]` over `new()`.
+- Avoid target-typed `new()` when it would obscure which overload is picked, or when the inferred type is genuinely unclear at the call site.

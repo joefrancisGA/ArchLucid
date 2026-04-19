@@ -1,0 +1,37 @@
+---
+description: Prefer C# 12 collection expressions [] over new T[]{}, new List<T>{}, and Array.Empty<T>().
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# Collection expressions
+
+Use **C# 12 collection expressions** (`[]`, `[a, b, c]`, `[..src, extra]`) when constructing arrays, spans, lists, or any collection target type the compiler can infer.
+
+## Preferred
+
+```csharp
+string[] roles = ["admin", "operator", "viewer"];
+ImmutableArray<int> ids = [1, 2, 3];
+List<Tag> tags = [];
+ReadOnlySpan<byte> header = [0x01, 0x02, 0x03];
+
+string[] all = [..defaults, ..overrides];
+```
+
+## Avoid
+
+```csharp
+// Avoid
+string[] roles = new string[] { "admin", "operator", "viewer" };
+List<Tag> tags = new List<Tag>();
+string[] empty = Array.Empty<string>();
+string[] all = defaults.Concat(overrides).ToArray();
+```
+
+## Scope
+
+- Use `[]` for empty literals; the compiler picks the best target representation.
+- Use spread `..` for concatenation and prepend/append patterns.
+- Concrete-type rule still applies on the **left**: `List<Tag> tags = [];`, **not** `var tags = new List<Tag>();`.
+- Stay with explicit constructors only when you need a specific capacity, comparer, or other ctor argument.

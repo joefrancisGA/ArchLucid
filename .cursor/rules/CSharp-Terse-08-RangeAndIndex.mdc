@@ -1,0 +1,36 @@
+---
+description: Prefer range and index operators (^, ..) for slicing and tail/head access.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# Range `..` and index `^` operators
+
+Use range and index operators for slicing arrays, strings, spans, and any indexable collection — instead of arithmetic on `Length` / `Count` or `Substring(...)`.
+
+## Preferred
+
+```csharp
+char last = name[^1];
+string withoutLastTwo = name[..^2];
+string suffix = path[(path.LastIndexOf('/') + 1)..];
+
+ReadOnlySpan<byte> body = packet[HeaderSize..];
+ReadOnlySpan<byte> head = packet[..HeaderSize];
+```
+
+## Avoid
+
+```csharp
+// Avoid
+char last = name[name.Length - 1];
+string withoutLastTwo = name.Substring(0, name.Length - 2);
+ReadOnlySpan<byte> body = packet.Slice(HeaderSize);
+```
+
+## Scope
+
+- Use `^n` for "from the end" instead of `Length - n`.
+- Use `a..b`, `..b`, `a..` for slices instead of `Substring`, `.Take`, `.Skip`, or `.Slice`.
+- Watch for off-by-one: `..^2` drops the last **two** elements; `..^0` is the whole sequence.
+- For `IEnumerable<T>` (no indexer), continue to use LINQ — these operators are for indexable types.

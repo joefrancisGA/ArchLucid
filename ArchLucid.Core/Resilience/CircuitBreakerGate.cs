@@ -17,8 +17,6 @@ namespace ArchLucid.Core.Resilience;
 /// </remarks>
 public sealed class CircuitBreakerGate
 {
-    private readonly string _gateName;
-
     private readonly CircuitBreakerOptions? _options;
 
     private readonly IOptionsMonitor<CircuitBreakerOptions>? _optionsMonitor;
@@ -52,7 +50,7 @@ public sealed class CircuitBreakerGate
         ArgumentException.ThrowIfNullOrWhiteSpace(gateName);
         ArgumentNullException.ThrowIfNull(options);
         options.ApplyDefaults();
-        _gateName = gateName;
+        GateName = gateName;
         _options = options;
         _optionsMonitor = null;
         _timeProvider = timeProvider ?? TimeProvider.System;
@@ -68,7 +66,7 @@ public sealed class CircuitBreakerGate
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(gateName);
         ArgumentNullException.ThrowIfNull(optionsMonitor);
-        _gateName = gateName;
+        GateName = gateName;
         _options = null;
         _optionsMonitor = optionsMonitor;
         _timeProvider = timeProvider ?? TimeProvider.System;
@@ -116,7 +114,10 @@ public sealed class CircuitBreakerGate
     }
 
     /// <summary>Stable low-cardinality gate label (e.g. keyed DI name).</summary>
-    public string GateName => _gateName;
+    public string GateName
+    {
+        get;
+    }
 
     /// <summary>Thread-safe snapshot of the internal state (<c>Closed</c>, <c>Open</c>, or <c>HalfOpen</c>).</summary>
     public string CurrentState
@@ -300,7 +301,7 @@ public sealed class CircuitBreakerGate
 
     private void EmitRejection()
     {
-        TagList tags = new() { { "gate", _gateName } };
+        TagList tags = new() { { "gate", GateName } };
         ArchLucidInstrumentation.CircuitBreakerRejections.Add(1, tags);
         string state = _state.ToString();
 
@@ -313,7 +314,7 @@ public sealed class CircuitBreakerGate
 
         TagList tags = new()
         {
-            { "gate", _gateName },
+            { "gate", GateName },
             { "from_state", fromState },
             { "to_state", toState },
         };
@@ -324,7 +325,7 @@ public sealed class CircuitBreakerGate
 
     private void EmitProbeOutcome(string outcome)
     {
-        TagList tags = new() { { "gate", _gateName }, { "outcome", outcome } };
+        TagList tags = new() { { "gate", GateName }, { "outcome", outcome } };
         ArchLucidInstrumentation.CircuitBreakerProbeOutcomes.Add(1, tags);
         string state = _state.ToString();
 
@@ -342,7 +343,7 @@ public sealed class CircuitBreakerGate
         {
             _onAuditEntry.Invoke(
                 new CircuitBreakerAuditEntry(
-                    _gateName,
+                    GateName,
                     transitionType,
                     fromState,
                     toState,
@@ -359,7 +360,7 @@ public sealed class CircuitBreakerGate
     {
         if (_optionsMonitor is not null)
         {
-            CircuitBreakerOptions resolved = _optionsMonitor.Get(_gateName);
+            CircuitBreakerOptions resolved = _optionsMonitor.Get(GateName);
             resolved.ApplyDefaults();
 
             return resolved;

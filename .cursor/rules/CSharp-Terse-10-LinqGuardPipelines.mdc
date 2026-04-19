@@ -1,0 +1,50 @@
+---
+description: Prefer LINQ pipelines (Where / Select / Any / All / FirstOrDefault) with null-safety over manual foreach + accumulator loops.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# LINQ guard pipelines over manual loops
+
+When transforming, filtering, or aggregating a sequence, prefer a **LINQ pipeline** with explicit null-safety, instead of `foreach` + a mutable accumulator.
+
+## Preferred
+
+```csharp
+List<TenantSummary> active = tenants
+    .Where(t => t is { IsActive: true })
+    .Select(t => new TenantSummary(t.Id, t.Name))
+    .ToList();
+
+bool anyFaulted = runs.Any(r => r.Status is RunStatus.Faulted);
+
+AgentSession? session = sessions.FirstOrDefault(s => s.AgentId == agentId);
+if (session is null) return NotFound();
+
+string joined = string.Join(", ", roles ?? []);
+```
+
+## Avoid
+
+```csharp
+// Avoid
+List<TenantSummary> active = new();
+foreach (Tenant t in tenants)
+{
+    if (t == null) continue;
+    if (!t.IsActive) continue;
+    active.Add(new TenantSummary(t.Id, t.Name));
+}
+```
+
+## When `foreach` still wins
+
+- Awaiting per element (`await foreach`, or per-item `await` when not using `Parallel.ForEachAsync`).
+- Writing to multiple sinks per element.
+- Hot-path code where a measured allocation cost matters — call it out in a comment.
+
+## Scope
+
+- Pair LINQ filters with `is` patterns for null and shape checks (**`CSharp-Terse-02-PatternMatching.mdc`**).
+- Materialize once with `.ToList()` / `.ToArray()` when the source is enumerated more than once.
+- Reinforces the existing project rule "prefer LINQ over `foreach` unless it would degrade performance".

@@ -74,7 +74,7 @@ public sealed class BillingMarketplaceWebhookController(
         BillingWebhookHandleResult result =
             await _marketplaceBillingProvider.HandleWebhookAsync(inbound, cancellationToken);
 
-        if (result.Succeeded && !result.DuplicateIgnored && result.MarketplaceWebhookReceived is not null)
+        if (result is { Succeeded: true, DuplicateIgnored: false, MarketplaceWebhookReceived: not null })
         {
             await MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync(
                 _integrationEventOutbox,

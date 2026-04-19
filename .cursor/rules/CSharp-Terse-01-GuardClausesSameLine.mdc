@@ -1,0 +1,38 @@
+---
+description: Prefer same-line guard clauses for throw / return / continue when the body is a single statement.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# Same-line guard clauses
+
+When an `if` body is a single guard statement (`throw …;`, `return;`, `return value;`, `continue;`, `break;`), put it on the **same line** as the `if`, with no braces.
+
+## Preferred
+
+```csharp
+if (key is null) throw new ArgumentNullException(nameof(key));
+if (string.IsNullOrWhiteSpace(key)) return;
+if (string.IsNullOrWhiteSpace(key)) continue;
+if (cancellationToken.IsCancellationRequested) return Task.CompletedTask;
+```
+
+## Avoid
+
+```csharp
+// Avoid
+if (key is null)
+{
+    throw new ArgumentNullException(nameof(key));
+}
+
+if (string.IsNullOrWhiteSpace(key))
+    return;
+```
+
+## Scope
+
+- Body must be **one** statement and must be a guard (early exit) — `throw`, `return`, `continue`, `break`, `goto`.
+- Keep the **blank line before** the `if` per the project blank-line rule, **except** when the guard is the very first statement of the member or block.
+- Keeps the eye on the **happy path** below the guards.
+- Companion to **`SingleLineThrowNoBraces.mdc`**, **`SingleLineContinueNoBraces.mdc`**, and **`CSharp-EmbeddedStatements-NoBraces.mdc`**.

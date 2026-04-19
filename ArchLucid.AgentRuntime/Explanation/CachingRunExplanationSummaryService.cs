@@ -43,7 +43,7 @@ public sealed class CachingRunExplanationSummaryService(
         if (detail.GoldenManifest is null)
             return null;
 
-        byte[]? rowVersion = detail.Run?.RowVersion;
+        byte[]? rowVersion = detail.Run.RowVersion;
 
         if (rowVersion is null || rowVersion.Length == 0)
         {

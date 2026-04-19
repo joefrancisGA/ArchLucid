@@ -46,11 +46,12 @@ public sealed class StripeBillingProviderWebhookTests
     private sealed class TestMonitor<T>(T value) : IOptionsMonitor<T>
         where T : class
     {
-        private readonly T _value = value;
+        public T CurrentValue
+        {
+            get;
+        } = value;
 
-        public T CurrentValue => _value;
-
-        public T Get(string? name) => _value;
+        public T Get(string? name) => CurrentValue;
 
         public IDisposable? OnChange(Action<T, string?> listener) => null;
     }

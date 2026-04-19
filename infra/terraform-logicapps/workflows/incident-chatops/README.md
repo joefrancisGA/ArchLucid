@@ -2,6 +2,10 @@
 
 **Objective:** Route **`com.archlucid.alert.fired`** and **`com.archlucid.alert.resolved`** to Teams or PagerDuty; adaptive card actions call **existing** ArchLucid alert APIs only (no new alert events from the workflow).
 
+## Logic App host (Terraform)
+
+Optional dedicated site: **`enable_incident_chatops_logic_app`** + **`incident_chatops_storage_account_name`** in **`infra/terraform-logicapps/`**. Use output **`incident_chatops_logic_app_principal_id`** as **`incident_chatops_logic_app_managed_identity_principal_id`** in Service Bus when enabling the subscription below.
+
 ## Service Bus
 
 1. In **`infra/terraform-servicebus/`**, set **`enable_logic_app_incident_chatops_subscription = true`** and wire **`incident_chatops_logic_app_managed_identity_principal_id`** after the Logic App exists (namespace **Data Receiver**).
