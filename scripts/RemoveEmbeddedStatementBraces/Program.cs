@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,6 +12,8 @@ namespace RemoveEmbeddedStatementBraces;
 /// <summary>
 /// Removes braces around a single embedded statement for if/else/while/for/foreach/lock/using,
 /// do/while, and switch sections (IDE0011 with <c>csharp_prefer_braces = false</c>).
+/// Optionally collapses single-line <c>if</c> guard clauses (<c>return</c>/<c>throw</c>/<c>continue</c>/<c>break</c>/<c>goto</c>)
+/// per <c>CSharp-Terse-01-GuardClausesSameLine</c> when the collapsed line is short enough and has no comments between <c>)</c> and the body.
 /// Skips try/catch/finally bodies, local declarations, local functions, and multi-statement blocks.
 /// </summary>
 internal static class Program
@@ -211,7 +214,7 @@ internal sealed class EmbeddedStatementBraceRewriter : CSharpSyntaxRewriter
             }
         }
 
-        return n;
+        return TryCollapseSameLineIfGuard(n);
     }
 
     public override SyntaxNode? VisitWhileStatement(WhileStatementSyntax node)
@@ -389,5 +392,116 @@ internal sealed class EmbeddedStatementBraceRewriter : CSharpSyntaxRewriter
             .AddRange(close.TrailingTrivia);
 
         return inner.WithLeadingTrivia(leading).WithTrailingTrivia(trailing);
+    }
+
+    /// <summary>Maximum length of the synthesized <c>if (…) guard;</c> line before skipping collapse.</summary>
+    private const int SameLineGuardMaxChars = 160;
+
+    private static IfStatementSyntax TryCollapseSameLineIfGuard(IfStatementSyntax n)
+    {
+        if (n.Statement is BlockSyntax)
+        {
+            return n;
+        }
+
+        if (!IsSameLineGuardBody(n.Statement))
+        {
+            return n;
+        }
+
+        if (!HasNewLineBetweenCloseParenAndStatement(n))
+        {
+            return n;
+        }
+
+        if (HasCommentBetweenCloseParenAndStatement(n))
+        {
+            return n;
+        }
+
+        SyntaxTree tree = n.SyntaxTree;
+        FileLinePositionSpan stmtSpan = tree.GetLineSpan(n.Statement.Span);
+
+        if (stmtSpan.StartLinePosition.Line != stmtSpan.EndLinePosition.Line)
+        {
+            return n;
+        }
+
+        if (EstimateCollapsedIfGuardLineLength(n) > SameLineGuardMaxChars)
+        {
+            return n;
+        }
+
+        SyntaxToken newCloseParen = n.CloseParenToken.WithTrailingTrivia(SyntaxFactory.TriviaList(SyntaxFactory.Whitespace(" ")));
+        StatementSyntax newStatement = n.Statement.WithLeadingTrivia(SyntaxTriviaList.Empty);
+
+        return n.WithCloseParenToken(newCloseParen).WithStatement(newStatement);
+    }
+
+    private static bool IsSameLineGuardBody(StatementSyntax statement) => statement switch
+    {
+        ReturnStatementSyntax => true,
+        ThrowStatementSyntax => true,
+        ContinueStatementSyntax => true,
+        BreakStatementSyntax => true,
+        GotoStatementSyntax => true,
+        _ => false,
+    };
+
+    private static bool HasNewLineBetweenCloseParenAndStatement(IfStatementSyntax n)
+    {
+        foreach (SyntaxTrivia t in n.CloseParenToken.TrailingTrivia)
+        {
+            if (t.IsKind(SyntaxKind.EndOfLineTrivia))
+            {
+                return true;
+            }
+        }
+
+        foreach (SyntaxTrivia t in n.Statement.GetLeadingTrivia())
+        {
+            if (t.IsKind(SyntaxKind.EndOfLineTrivia))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool HasCommentBetweenCloseParenAndStatement(IfStatementSyntax n)
+    {
+        foreach (SyntaxTrivia t in n.CloseParenToken.TrailingTrivia)
+        {
+            if (t.IsKind(SyntaxKind.SingleLineCommentTrivia)
+                || t.IsKind(SyntaxKind.MultiLineCommentTrivia)
+                || t.IsKind(SyntaxKind.DocumentationCommentExteriorTrivia))
+            {
+                return true;
+            }
+        }
+
+        foreach (SyntaxTrivia t in n.Statement.GetLeadingTrivia())
+        {
+            if (t.IsKind(SyntaxKind.SingleLineCommentTrivia)
+                || t.IsKind(SyntaxKind.MultiLineCommentTrivia)
+                || t.IsKind(SyntaxKind.DocumentationCommentExteriorTrivia))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static int EstimateCollapsedIfGuardLineLength(IfStatementSyntax n)
+    {
+        StringBuilder sb = new();
+        sb.Append("if (");
+        sb.Append(n.Condition.ToString());
+        sb.Append(") ");
+        sb.Append(Regex.Replace(n.Statement.ToString(), @"\s+", " ").Trim());
+
+        return sb.Length;
     }
 }

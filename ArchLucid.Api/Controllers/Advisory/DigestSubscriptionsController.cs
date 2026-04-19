@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
@@ -48,8 +48,7 @@ public sealed class DigestSubscriptionsController(
         [FromBody] DigestSubscription? subscription,
         CancellationToken ct = default)
     {
-        if (subscription is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (subscription is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -105,8 +104,7 @@ public sealed class DigestSubscriptionsController(
         CancellationToken ct = default)
     {
         DigestSubscription? subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
-        if (subscription is null)
-            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (subscription is null) return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
@@ -140,8 +138,7 @@ public sealed class DigestSubscriptionsController(
         CancellationToken ct = default)
     {
         DigestSubscription? subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
-        if (subscription is null)
-            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (subscription is null) return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
@@ -161,8 +158,7 @@ public sealed class DigestSubscriptionsController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         ArchitectureDigest? digest = await digestRepository.GetByIdAsync(digestId, ct);
-        if (digest is null)
-            return this.NotFoundProblem($"Digest '{digestId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (digest is null) return this.NotFoundProblem($"Digest '{digestId}' was not found.", ProblemTypes.ResourceNotFound);
         if (digest.TenantId != scope.TenantId ||
             digest.WorkspaceId != scope.WorkspaceId ||
             digest.ProjectId != scope.ProjectId)

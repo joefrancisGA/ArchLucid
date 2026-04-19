@@ -1,4 +1,4 @@
-using Microsoft.OpenApi;
+﻿using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -45,8 +45,7 @@ public sealed class ArchitectureRequestExamplesOperationFilter : IOperationFilte
 
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        if (!string.Equals(context.MethodInfo?.Name, "CreateRun", StringComparison.Ordinal))
-            return;
+        if (!string.Equals(context.MethodInfo?.Name, "CreateRun", StringComparison.Ordinal)) return;
 
         string extra =
             "**Context ingestion (optional):** "

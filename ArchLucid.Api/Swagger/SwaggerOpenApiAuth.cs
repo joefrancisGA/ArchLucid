@@ -14,12 +14,10 @@ internal static class SwaggerOpenApiAuth
     {
         string? mode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
 
-        if (string.IsNullOrWhiteSpace(mode))
-            return null;
+        if (string.IsNullOrWhiteSpace(mode)) return null;
 
 
-        if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
-            return BearerSchemeId;
+        if (string.Equals(mode, "JwtBearer", StringComparison.OrdinalIgnoreCase)) return BearerSchemeId;
 
 
         return string.Equals(mode, "ApiKey", StringComparison.OrdinalIgnoreCase) ? ApiKeySchemeId : null;

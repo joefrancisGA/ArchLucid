@@ -113,8 +113,7 @@ public class ApiKeyAuthenticationHandler(
     /// </summary>
     private static bool MatchesAnyCommaSeparatedKey(string provided, string? raw)
     {
-        if (string.IsNullOrWhiteSpace(raw))
-            return false;
+        if (string.IsNullOrWhiteSpace(raw)) return false;
 
 
         ReadOnlySpan<char> span = raw.AsSpan();
@@ -130,8 +129,7 @@ public class ApiKeyAuthenticationHandler(
                 {
                     string expected = segment.ToString();
 
-                    if (ConstantTimeKeyEquals(provided, expected))
-                        return true;
+                    if (ConstantTimeKeyEquals(provided, expected)) return true;
 
                 }
 
@@ -147,8 +145,7 @@ public class ApiKeyAuthenticationHandler(
     /// </summary>
     private static bool ConstantTimeKeyEquals(string provided, string expected)
     {
-        if (string.IsNullOrEmpty(provided) || string.IsNullOrEmpty(expected))
-            return false;
+        if (string.IsNullOrEmpty(provided) || string.IsNullOrEmpty(expected)) return false;
 
 
         ReadOnlySpan<byte> a = SHA256.HashData(Encoding.UTF8.GetBytes(provided));

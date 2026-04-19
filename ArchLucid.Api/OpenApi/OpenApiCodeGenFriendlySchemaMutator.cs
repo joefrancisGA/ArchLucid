@@ -12,8 +12,7 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
 {
     internal static void Apply(OpenApiDocument document)
     {
-        if (document.Components?.Schemas is null)
-            return;
+        if (document.Components?.Schemas is null) return;
 
 
         foreach (IOpenApiSchema root in document.Components.Schemas.Values)
@@ -24,8 +23,7 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
 
     private static void Visit(IOpenApiSchema? schema)
     {
-        if (schema is null)
-            return;
+        if (schema is null) return;
 
 
         CollapseIntegerStringUnion(schema);
@@ -48,8 +46,7 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
 
     private static void VisitList(IList<IOpenApiSchema>? list)
     {
-        if (list is null)
-            return;
+        if (list is null) return;
 
 
         foreach (IOpenApiSchema item in list)
@@ -60,12 +57,10 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
 
     private static void CollapseIntegerStringUnion(IOpenApiSchema schema)
     {
-        if (schema is not OpenApiSchema mutable)
-            return;
+        if (schema is not OpenApiSchema mutable) return;
 
 
-        if (!mutable.Type.HasValue)
-            return;
+        if (!mutable.Type.HasValue) return;
 
 
         JsonSchemaType value = mutable.Type.Value;
@@ -74,12 +69,10 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
         bool hasInteger = withoutNull.HasFlag(JsonSchemaType.Integer);
         bool hasString = withoutNull.HasFlag(JsonSchemaType.String);
 
-        if (!hasInteger || !hasString)
-            return;
+        if (!hasInteger || !hasString) return;
 
 
-        if (!string.Equals(mutable.Format, "int32", StringComparison.OrdinalIgnoreCase))
-            return;
+        if (!string.Equals(mutable.Format, "int32", StringComparison.OrdinalIgnoreCase)) return;
 
 
         JsonSchemaType next = JsonSchemaType.Integer;

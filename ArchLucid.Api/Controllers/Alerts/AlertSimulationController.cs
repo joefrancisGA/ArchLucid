@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
@@ -41,8 +41,7 @@ public sealed class AlertSimulationController(
         [FromBody] RuleSimulationRequest? request,
         CancellationToken ct = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         StampSimulationScope(scope, request);
@@ -80,8 +79,7 @@ public sealed class AlertSimulationController(
         [FromBody] RuleCandidateComparisonRequest? request,
         CancellationToken ct = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         StampComparisonScope(scope, request);
@@ -118,8 +116,7 @@ public sealed class AlertSimulationController(
             request.SimpleRule.ProjectId = scope.ProjectId;
         }
 
-        if (request.CompositeRule is null)
-            return;
+        if (request.CompositeRule is null) return;
 
         request.CompositeRule.TenantId = scope.TenantId;
         request.CompositeRule.WorkspaceId = scope.WorkspaceId;
@@ -136,8 +133,7 @@ public sealed class AlertSimulationController(
 
         void StampSimple(AlertRule? r)
         {
-            if (r is null)
-                return;
+            if (r is null) return;
             r.TenantId = scope.TenantId;
             r.WorkspaceId = scope.WorkspaceId;
             r.ProjectId = scope.ProjectId;
@@ -145,8 +141,7 @@ public sealed class AlertSimulationController(
 
         void StampComposite(CompositeAlertRule? r)
         {
-            if (r is null)
-                return;
+            if (r is null) return;
             r.TenantId = scope.TenantId;
             r.WorkspaceId = scope.WorkspaceId;
             r.ProjectId = scope.ProjectId;

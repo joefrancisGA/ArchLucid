@@ -31,22 +31,18 @@ public sealed class ApiRequestMeteringMiddleware(
     {
         await next(context);
 
-        if (!_meteringOptions.CurrentValue.Enabled)
-            return;
+        if (!_meteringOptions.CurrentValue.Enabled) return;
 
         string path = context.Request.Path.Value ?? string.Empty;
 
-        if (!path.StartsWith("/v", StringComparison.OrdinalIgnoreCase))
-            return;
+        if (!path.StartsWith("/v", StringComparison.OrdinalIgnoreCase)) return;
 
         if (path.Contains("/health", StringComparison.OrdinalIgnoreCase) ||
-            path.Contains("/swagger", StringComparison.OrdinalIgnoreCase))
-            return;
+            path.Contains("/swagger", StringComparison.OrdinalIgnoreCase)) return;
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        if (scope.TenantId == Guid.Empty)
-            return;
+        if (scope.TenantId == Guid.Empty) return;
 
         try
         {

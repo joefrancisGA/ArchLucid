@@ -84,8 +84,7 @@ public sealed class BillingMarketplaceWebhookController(
                 cancellationToken);
 
 
-        if (result.DuplicateIgnored || result.Succeeded)
-            return Ok();
+        if (result.DuplicateIgnored || result.Succeeded) return Ok();
 
 
         return this.BadRequestProblem(result.ErrorDetail ?? "Marketplace webhook rejected.", ProblemTypes.BadRequest);

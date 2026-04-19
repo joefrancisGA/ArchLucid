@@ -44,8 +44,7 @@ public sealed class RegistrationController(
         [FromBody] TenantRegistrationRequest? body,
         CancellationToken cancellationToken = default)
     {
-        if (body is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (body is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
 
         string actorEmail = body.AdminEmail.Trim();

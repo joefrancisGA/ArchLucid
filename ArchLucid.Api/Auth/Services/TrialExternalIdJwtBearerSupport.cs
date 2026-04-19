@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ArchLucid.Api.Auth.Services;
@@ -11,18 +11,15 @@ internal static class TrialExternalIdJwtBearerSupport
     /// </summary>
     public static void TryAllowConsumerIdentityIssuers(JwtBearerOptions options, bool trialExternalIdEnabled)
     {
-        if (!trialExternalIdEnabled)
-            return;
+        if (!trialExternalIdEnabled) return;
 
         IssuerValidator? prior = options.TokenValidationParameters.IssuerValidator;
 
-        if (prior is null)
-            return;
+        if (prior is null) return;
 
         options.TokenValidationParameters.IssuerValidator = (issuer, securityToken, validationParameters) =>
         {
-            if (ExternalIdIssuerPatterns.IsConsumerIdentityIssuer(issuer))
-                return issuer!;
+            if (ExternalIdIssuerPatterns.IsConsumerIdentityIssuer(issuer)) return issuer!;
 
             return prior(issuer, securityToken, validationParameters);
         };

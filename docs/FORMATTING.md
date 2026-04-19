@@ -58,6 +58,10 @@ See `.cursor/rules/CSharp-SimpleProperties-OneLine.mdc` for the full convention.
 dotnet run --project scripts/RemoveEmbeddedStatementBraces/RemoveEmbeddedStatementBraces.csproj -c Release -- .
 ```
 
+Pass a subdirectory (e.g. `ArchLucid.Api`) instead of `.` to limit the pass to one product assembly per session.
+
+The tool also collapses eligible **`if` guard clauses** to the same physical line as the body (`if (cond) return …;`) when the body is a single-line `return` / `throw` / `continue` / `break` / `goto`, there is no comment trivia between `)` and the body, and the synthesized line length is at most **160** characters — see **`CSharp-Terse-01-GuardClausesSameLine.mdc`**. Multi-line `return` / `throw` bodies stay on the following line(s).
+
 The tool excludes `bin/`, `obj/`, `.git/`, `*.g.cs`, and its own project folder. Many files may already match the convention or have two-statement bodies (e.g. `await` then `return`), so **fewer files may change** than you expect; that is normal.
 
 See `.cursor/rules/CSharp-EmbeddedStatements-NoBraces.mdc` for the convention.

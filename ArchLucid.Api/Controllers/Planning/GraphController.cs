@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authorization;
+﻿using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
@@ -42,10 +42,8 @@ public sealed class GraphController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        if (detail.GraphSnapshot is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.", ProblemTypes.ResourceNotFound);
+        if (detail is null) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (detail.GraphSnapshot is null) return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.", ProblemTypes.ResourceNotFound);
 
         GraphViewModel vm = MapArchitectureGraph(detail.GraphSnapshot);
         return Ok(vm);
@@ -65,10 +63,8 @@ public sealed class GraphController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        if (detail.GraphSnapshot is null)
-            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.", ProblemTypes.ResourceNotFound);
+        if (detail is null) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (detail.GraphSnapshot is null) return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.", ProblemTypes.ResourceNotFound);
 
         GraphSnapshotNodesPage slice = GraphSnapshotPagination.CreatePage(detail.GraphSnapshot, page, pageSize);
         GraphNodesPageResponse body = MapArchitectureGraphPage(slice);

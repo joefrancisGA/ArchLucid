@@ -65,8 +65,7 @@ public static class ApplicationProblemMapper
             return true;
         }
 
-        if (TryMapDatabaseException(ex, instance, httpContext, out result))
-            return true;
+        if (TryMapDatabaseException(ex, instance, httpContext, out result)) return true;
 
         if (ex is CircuitBreakerOpenException cbo)
         {
@@ -116,8 +115,7 @@ public static class ApplicationProblemMapper
             return true;
         }
 
-        if (ex is not (ArgumentException or ArgumentNullException))
-            return false;
+        if (ex is not (ArgumentException or ArgumentNullException)) return false;
 
         result = CreateProblemResult(
             StatusCodes.Status400BadRequest,
@@ -170,8 +168,7 @@ public static class ApplicationProblemMapper
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, httpContext);
 
-        if (cvf.Drift is not { } drift)
-            return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+        if (cvf.Drift is not { } drift) return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
 
         problem.Extensions["driftDetected"] = drift.DriftDetected;
         if (!string.IsNullOrWhiteSpace(drift.Summary))
@@ -240,8 +237,7 @@ public static class ApplicationProblemMapper
             return true;
         }
 
-        if (ex is not DbException)
-            return false;
+        if (ex is not DbException) return false;
 
         result = CreateProblemResult(
             StatusCodes.Status503ServiceUnavailable,
@@ -259,8 +255,7 @@ public static class ApplicationProblemMapper
     {
         for (Exception? e = ex; e is not null; e = e.InnerException)
 
-            if (e is SqlException sql && sql.Number == number)
-                return sql;
+            if (e is SqlException sql && sql.Number == number) return sql;
 
 
         return null;

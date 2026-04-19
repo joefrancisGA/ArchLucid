@@ -1,4 +1,4 @@
-using ArchLucid.Core.Pagination;
+﻿using ArchLucid.Core.Pagination;
 
 namespace ArchLucid.Api.Models;
 
@@ -31,8 +31,7 @@ public sealed class ComparisonHistoryQuery
             .Where(t => !string.IsNullOrWhiteSpace(t))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
-        if (string.IsNullOrWhiteSpace(tag))
-            return normalizedTags;
+        if (string.IsNullOrWhiteSpace(tag)) return normalizedTags;
 
         normalizedTags.AddRange(tag.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
         normalizedTags = normalizedTags

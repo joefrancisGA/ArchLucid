@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authorization;
+﻿using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Scoping;
@@ -35,11 +35,9 @@ public sealed class AskController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Ask([FromBody] AskRequest? request, CancellationToken ct = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (string.IsNullOrWhiteSpace(request.Question))
-            return this.BadRequestProblem("Question is required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(request.Question)) return this.BadRequestProblem("Question is required.", ProblemTypes.ValidationFailed);
 
         if (request.RunId is null && request.ThreadId is null)
             return this.BadRequestProblem(

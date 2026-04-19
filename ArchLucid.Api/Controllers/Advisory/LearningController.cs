@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Core.Authorization;
@@ -82,12 +82,10 @@ public sealed class LearningController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetPlanById(string id, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(id))
-            return this.BadRequestProblem("Path parameter 'id' is required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(id)) return this.BadRequestProblem("Path parameter 'id' is required.", ProblemTypes.ValidationFailed);
 
 
-        if (!Guid.TryParse(id.Trim(), out Guid planId))
-            return this.BadRequestProblem("Path parameter 'id' must be a valid GUID.", ProblemTypes.ValidationFailed);
+        if (!Guid.TryParse(id.Trim(), out Guid planId)) return this.BadRequestProblem("Path parameter 'id' must be a valid GUID.", ProblemTypes.ValidationFailed);
 
 
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
@@ -189,8 +187,7 @@ public sealed class LearningController(
         LearningPlanningReportDocument document =
             await learningReadService.GetPlanningReportAsync(scope, limits, cancellationToken);
 
-        if (formatNorm == "json")
-            return Ok(document);
+        if (formatNorm == "json") return Ok(document);
 
 
         string markdown = LearningPlanningReportMarkdownFormatter.Format(document);
@@ -277,8 +274,7 @@ public sealed class LearningController(
 
     private static ProductLearningScope ToProductLearningScope(ScopeContext scopeContext)
     {
-        if (scopeContext is null)
-            throw new ArgumentNullException(nameof(scopeContext));
+        if (scopeContext is null) throw new ArgumentNullException(nameof(scopeContext));
 
 
         return new ProductLearningScope

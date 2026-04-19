@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Logging;
@@ -245,8 +245,7 @@ public sealed class AnalysisReportsController(
     public IActionResult ResolveConsultingDocxProfile(
         [FromBody] ConsultingDocxResolveProfileRequest? request)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         // TemplateName is currently advisory only; the selector resolves based on the
         // requested profile key and recommendation inputs.
@@ -374,8 +373,7 @@ public sealed class AnalysisReportsController(
     public IActionResult RecommendConsultingProfiles(
         [FromBody] ApiConsultingDocxProfileRecommendationRequest? request)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ConsultingDocxProfileRecommendation recommendation = consultingDocxTemplateRecommendationService.Recommend(
             new AppConsultingDocxProfileRecommendationRequest

@@ -58,8 +58,7 @@ public sealed class AuthorityQueryController(
         [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(projectId))
-            return this.BadRequestProblem("projectId is required.", ProblemTypes.BadRequest);
+        if (string.IsNullOrWhiteSpace(projectId)) return this.BadRequestProblem("projectId is required.", ProblemTypes.BadRequest);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -125,8 +124,7 @@ public sealed class AuthorityQueryController(
         IReadOnlyList<RunPipelineTimelineItemDto>? items =
             await pipelineAuditTimeline.GetTimelineAsync(scope, runId, ct);
 
-        if (items is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (items is null) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
 
         IReadOnlyList<RunPipelineTimelineItemResponse> body = items
@@ -174,8 +172,7 @@ public sealed class AuthorityQueryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         ManifestSummaryDto? result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
-        if (result is null)
-            return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
+        if (result is null) return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
 
         return Ok(new ManifestSummaryResponse
         {
@@ -209,8 +206,7 @@ public sealed class AuthorityQueryController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
-        if (detail is null)
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (detail is null) return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
 
         if (detail.GoldenManifest is null ||
