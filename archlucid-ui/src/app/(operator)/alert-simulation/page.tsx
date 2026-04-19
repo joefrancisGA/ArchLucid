@@ -5,6 +5,7 @@ import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsCont
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
+import { alertSimulationPageLead, alertSimulationRunControlTitle } from "@/lib/enterprise-controls-context-copy";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type {
@@ -287,6 +288,9 @@ export default function AlertSimulationPage() {
     <main style={{ maxWidth: 1100 }}>
       <LayerHeader pageKey="alert-simulation" />
       <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
+      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+        {alertSimulationPageLead}
+      </p>
       <AlertOperatorToolingRankCue className="mb-3" />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
@@ -419,6 +423,7 @@ export default function AlertSimulationPage() {
               type="button"
               onClick={() => void runSimple()}
               disabled={loading}
+              title={alertSimulationRunControlTitle}
               style={{ padding: "10px 16px", cursor: loading ? "wait" : "pointer" }}
             >
               {loading ? "Running…" : "Simulate"}
@@ -569,6 +574,7 @@ export default function AlertSimulationPage() {
               type="button"
               onClick={() => void runComposite()}
               disabled={loading}
+              title={alertSimulationRunControlTitle}
               style={{ padding: "10px 16px", cursor: loading ? "wait" : "pointer" }}
             >
               {loading ? "Running…" : "Simulate"}
@@ -675,6 +681,7 @@ export default function AlertSimulationPage() {
               type="button"
               onClick={() => void runCompare()}
               disabled={loading}
+              title={alertSimulationRunControlTitle}
               style={{ padding: "10px 16px", cursor: loading ? "wait" : "pointer" }}
             >
               {loading ? "Running…" : "Compare candidates"}

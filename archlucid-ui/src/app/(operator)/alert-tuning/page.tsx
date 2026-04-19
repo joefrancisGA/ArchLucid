@@ -7,7 +7,11 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
-import { alertToolingConfigureSectionSubline } from "@/lib/enterprise-controls-context-copy";
+import {
+  alertToolingConfigureSectionSubline,
+  alertTuningPageLead,
+  alertTuningRecommendButtonTitle,
+} from "@/lib/enterprise-controls-context-copy";
 import type { ThresholdCandidateEvaluation, ThresholdRecommendationResult } from "@/types/alert-tuning";
 
 const SIMPLE_RULE_TYPES = [
@@ -203,6 +207,7 @@ export default function AlertTuningPage() {
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="alert-tuning" />
       <h2 style={{ marginTop: 0 }}>Alert tuning</h2>
+      <p className="mb-2 max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">{alertTuningPageLead}</p>
       <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
@@ -471,6 +476,7 @@ export default function AlertTuningPage() {
           type="button"
           onClick={() => void recommend()}
           disabled={loading}
+          title={alertTuningRecommendButtonTitle}
           style={{ padding: "10px 16px", cursor: loading ? "wait" : "pointer", maxWidth: 240 }}
         >
           {loading ? "Running…" : "Recommend threshold"}
