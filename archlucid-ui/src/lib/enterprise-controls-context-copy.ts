@@ -14,6 +14,11 @@
  */
 export const alertToolingConfigureSectionSubline = "Inspect above · configure below (Execute+, API).";
 
+/** Alert tooling — configure block **`h3`** (`alert-rules`, `alert-routing`, `composite-alert-rules`; tuning uses operator string only). */
+export const alertToolingChangeConfigurationHeadingOperator = "Change configuration";
+
+export const alertToolingChangeConfigurationHeadingReader = "Change configuration (operator access)";
+
 /** `title` on mutation controls the UI soft-disables for Reader-tier principals (API remains authoritative). */
 export const enterpriseMutationControlDisabledTitle =
   "Requires operator-level access in this shell; the API still enforces every write.";
@@ -157,6 +162,23 @@ export const auditSearchEventsSectionHeadingReader = "Search audit events (inspe
 /** Audit log — search is always **GET**; label nudges read-tier callers away from export expectations. */
 export const auditSearchEventsButtonLabelReaderRank = "Search audit log";
 
+/** Audit log — primary **Search** control `title` (`audit/page.tsx`). */
+export const auditSearchEventsButtonTitleOperator = "Run search with the current filter fields (GET).";
+
+export const auditSearchEventsButtonTitleReader =
+  "Run search (GET). CSV export remains Auditor/Admin-gated on the API.";
+
+/** Audit log — **Audit results** section heading; branch with **`callerAuthorityRank`**. */
+export const auditResultsSectionHeadingOperator = "Audit results";
+
+export const auditResultsSectionHeadingReader = "Audit results (inspect)";
+
+/** Audit log — **Load more** pagination (`GET`). */
+export const auditLoadMoreButtonTitleOperator = "Load the next page of audit events for the current filters (GET).";
+
+export const auditLoadMoreButtonTitleReader =
+  "Load older rows (GET). Export rules unchanged on the API.";
+
 /** Audit log — **Clear filters** when rank cannot mutate in the shell (still GET-only; clarifies re-run vs export). */
 export const auditClearFiltersButtonLabelReaderRank = "Clear filters & search";
 
@@ -207,6 +229,11 @@ export const alertSimulationPageLead =
 /** Alert tuning — primary **Recommend threshold** control (`alert-tuning/page.tsx`). */
 export const alertTuningRecommendButtonTitle =
   "Run threshold recommendation (ReadAuthority on API; does not change live rules).";
+
+/** Alert tuning — results section **`h3`** (`alert-tuning/page.tsx`); recommend stays available at Read on the API. */
+export const alertTuningCurrentTuningHeadingOperator = "Current tuning";
+
+export const alertTuningCurrentTuningHeadingReader = "Current tuning (inspect)";
 
 /** Alert simulation — **Simulate** / **Compare candidates** controls (`alert-simulation/page.tsx`). */
 export const alertSimulationRunControlTitle =

@@ -114,6 +114,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 - [x] 8.2 Logic Apps prompt **`logic-app-governance-approval-routing`**: Service Bus filtered subscription + governance Logic App Standard host (Terraform), workflow README, observability/runbook/integration-events doc updates — **2026-04-19**
 - [x] 8.3 Trial lifecycle **Owner** flag + promotion **`promotion_environment`** Service Bus user property + optional SB subscriptions (trial lifecycle, incident ChatOps, prod promotion) + workflow README placeholders — **2026-04-19**
 - [x] 8.4 Incident ChatOps — alert fired/resolved **Service Bus user properties** (`severity`, `deduplication_key`), resolved JSON **`deduplicationKey`**, runbook **`LOGIC_APPS_INCIDENT_CHATOPS.md`** + workflow README — **2026-04-19**
+- [x] 8.5 Promotion customer notifications — **read API** `GET /v1/notifications/customer-channel-preferences`, migration **082** `dbo.TenantNotificationChannelPreferences`, contracts + Dapper/InMemory repos, integration test + OpenAPI + NSwag client, doc cross-links — **2026-04-19**
 
 ---
 

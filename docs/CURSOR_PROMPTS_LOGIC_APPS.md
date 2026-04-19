@@ -91,6 +91,8 @@ What landed in this repository for the **marketplace / ADR 0016 hand-off** slice
 
 **2026-04-19 (incident ChatOps — contract + runbook):** **`IntegrationEventServiceBusApplicationProperties`** maps **`severity`** and **`deduplication_key`** for **`com.archlucid.alert.fired`**, and **`deduplication_key`** for **`com.archlucid.alert.resolved`**; resolved JSON payloads include **`deduplicationKey`** from **`AlertIntegrationEventPublishing`**; schema **`alert-resolved.v1.schema.json`** + catalog; **`docs/runbooks/LOGIC_APPS_INCIDENT_CHATOPS.md`**; expanded **`workflows/incident-chatops/README.md`**.
 
+**2026-04-19 (promotion customer notification channel preferences — read API):** **`GET /v1/notifications/customer-channel-preferences`** (`CustomerNotificationChannelPreferencesController`, Read authority); **`TenantNotificationChannelPreferencesResponse`**; migration **`082_TenantNotificationChannelPreferences`**, Dapper + InMemory repos; **`CustomerNotificationChannelPreferencesIntegrationTests`** + OpenAPI snapshot; NSwag **`CustomerChannelPreferencesAsync`** on **`ArchLucidApiClient`**; docs: **`CONTROLLER_AREA_MAP`**, **`INTEGRATION_EVENTS_AND_WEBHOOKS`**, this file, **`workflows/promotion-customer-notifications/README.md`**.
+
 **Still intentionally out of repo:** concrete `workflow.json` assets and in-app connection bundles — design in Azure Portal or your CD pipeline, then freeze per change control.
 
 ---
