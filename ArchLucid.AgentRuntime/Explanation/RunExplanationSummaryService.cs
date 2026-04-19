@@ -122,12 +122,7 @@ public sealed class RunExplanationSummaryService(
             return "The aggregate narrative was replaced with deterministic manifest text because AI-generated text did not sufficiently match underlying finding traces.";
         }
 
-        if (faithReport.SupportRatio < 0.5 - 1e-9)
-        {
-            return "Explanation may not fully reflect the underlying findings; review finding traces and the provenance graph.";
-        }
-
-        return null;
+        return faithReport.SupportRatio < 0.5 - 1e-9 ? "Explanation may not fully reflect the underlying findings; review finding traces and the provenance graph." : null;
     }
 
     private async Task<DecisionProvenanceGraph?> TryLoadProvenanceGraphAsync(

@@ -1,0 +1,62 @@
+---
+description: Prefer single-line continue without braces in loops; same-line if-continue when it reads cleanly.
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# Single-line `continue` style (project preference)
+
+When a loop guard's body is **only** a `continue;`, **do not** wrap that body in `{ }`. When it reads cleanly, place the `continue;` on the **same line** as the `if`.
+
+## Preferred
+
+Same line (preferred when the condition fits comfortably and is the simple "skip this iteration" guard):
+
+```csharp
+foreach (string key in keys)
+{
+    if (string.IsNullOrWhiteSpace(key)) continue;
+
+    Process(key);
+}
+```
+
+Two-line form is also fine when the condition is long or has side-effect-free pattern matching that benefits from a line of its own:
+
+```csharp
+foreach (KeyValuePair<string, ConfigSection> entry in sections)
+{
+    if (entry.Value is not { Enabled: true } enabled)
+        continue;
+
+    Apply(enabled);
+}
+```
+
+## Avoid
+
+Do not wrap a sole `continue;` in `{ }`:
+
+```csharp
+// Avoid
+foreach (string key in keys)
+{
+    if (string.IsNullOrWhiteSpace(key))
+    {
+        continue;
+    }
+
+    Process(key);
+}
+```
+
+## Scope
+
+- Applies only when `continue;` is the **sole** statement in the `if` / `else if` body.
+- Keep the **blank line before** the `if` per the project blank-line rule, **except** when the same-line form is the very first statement in the loop body.
+- Multi-statement guards, `try` / `catch`, or anything that needs a local variable still use `{ }`.
+- Same convention as **`SingleLineThrowNoBraces.mdc`** and the broader **`CSharp-EmbeddedStatements-NoBraces.mdc`**; this rule is the loop-guard companion.
+
+## Rationale
+
+A skip-iteration guard is the loop equivalent of a guard-clause `throw` or `return`. Removing the brace pair (and ideally the line) keeps the eye on the **happy path** below the guards.

@@ -25,7 +25,6 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
     private readonly ChatClient _chatClient;
     private readonly int _maxOutputTokens;
-    private readonly LlmProviderDescriptor _descriptor;
     private readonly string _deploymentName;
 
     /// <summary>
@@ -58,11 +57,14 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         _deploymentName = deploymentName.Trim();
         _chatClient = azureClient.GetChatClient(deploymentName);
         _maxOutputTokens = maxCompletionTokens;
-        _descriptor = LlmProviderDescriptor.ForAzureOpenAi(endpointUri, deploymentName);
+        Descriptor = LlmProviderDescriptor.ForAzureOpenAi(endpointUri, deploymentName);
     }
 
     /// <inheritdoc />
-    public LlmProviderDescriptor Descriptor => _descriptor;
+    public LlmProviderDescriptor Descriptor
+    {
+        get;
+    }
 
     /// <summary>Consumes token usage from the last successful <see cref="CompleteJsonAsync"/> on this async flow, if any.</summary>
     public static bool TryConsumeLastCompletionTokenUsage(out int promptTokens, out int completionTokens)

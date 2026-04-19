@@ -178,3 +178,180 @@ resource "azurerm_logic_app_standard" "marketplace_fulfillment" {
 
   tags = merge(local.tags, { Workflow = "marketplace-fulfillment-handoff" })
 }
+
+resource "azurerm_storage_account" "logic_trial_lifecycle" {
+  count = var.enable_trial_lifecycle_logic_app ? 1 : 0
+
+  name                     = var.trial_lifecycle_storage_account_name
+  resource_group_name      = var.resource_group_name
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "ZRS"
+  min_tls_version          = "TLS1_2"
+
+  allow_nested_items_to_be_public = false
+
+  tags = local.tags
+}
+
+resource "azurerm_storage_share" "logic_trial_lifecycle_workflow" {
+  count = var.enable_trial_lifecycle_logic_app ? 1 : 0
+
+  name                 = var.trial_lifecycle_storage_share_name
+  storage_account_name = azurerm_storage_account.logic_trial_lifecycle[0].name
+  quota                = 5120
+}
+
+resource "azurerm_service_plan" "logic_trial_lifecycle" {
+  count = var.enable_trial_lifecycle_logic_app ? 1 : 0
+
+  name                = var.trial_lifecycle_app_service_plan_name
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  os_type             = "Windows"
+  sku_name            = "WS1"
+
+  tags = local.tags
+}
+
+resource "azurerm_logic_app_standard" "trial_lifecycle" {
+  count = var.enable_trial_lifecycle_logic_app ? 1 : 0
+
+  name                       = var.trial_lifecycle_logic_app_name
+  location                   = var.location
+  resource_group_name        = var.resource_group_name
+  app_service_plan_id        = azurerm_service_plan.logic_trial_lifecycle[0].id
+  storage_account_name       = azurerm_storage_account.logic_trial_lifecycle[0].name
+  storage_account_access_key = azurerm_storage_account.logic_trial_lifecycle[0].primary_access_key
+  storage_account_share_name = azurerm_storage_share.logic_trial_lifecycle_workflow[0].name
+  version                    = "~4"
+  https_only                 = true
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  site_config {
+    always_on = false
+  }
+
+  tags = merge(local.tags, { Workflow = "trial-lifecycle-email" })
+}
+
+resource "azurerm_storage_account" "logic_incident_chatops" {
+  count = var.enable_incident_chatops_logic_app ? 1 : 0
+
+  name                     = var.incident_chatops_storage_account_name
+  resource_group_name      = var.resource_group_name
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "ZRS"
+  min_tls_version          = "TLS1_2"
+
+  allow_nested_items_to_be_public = false
+
+  tags = local.tags
+}
+
+resource "azurerm_storage_share" "logic_incident_chatops_workflow" {
+  count = var.enable_incident_chatops_logic_app ? 1 : 0
+
+  name                 = var.incident_chatops_storage_share_name
+  storage_account_name = azurerm_storage_account.logic_incident_chatops[0].name
+  quota                = 5120
+}
+
+resource "azurerm_service_plan" "logic_incident_chatops" {
+  count = var.enable_incident_chatops_logic_app ? 1 : 0
+
+  name                = var.incident_chatops_app_service_plan_name
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  os_type             = "Windows"
+  sku_name            = "WS1"
+
+  tags = local.tags
+}
+
+resource "azurerm_logic_app_standard" "incident_chatops" {
+  count = var.enable_incident_chatops_logic_app ? 1 : 0
+
+  name                       = var.incident_chatops_logic_app_name
+  location                   = var.location
+  resource_group_name        = var.resource_group_name
+  app_service_plan_id        = azurerm_service_plan.logic_incident_chatops[0].id
+  storage_account_name       = azurerm_storage_account.logic_incident_chatops[0].name
+  storage_account_access_key = azurerm_storage_account.logic_incident_chatops[0].primary_access_key
+  storage_account_share_name = azurerm_storage_share.logic_incident_chatops_workflow[0].name
+  version                    = "~4"
+  https_only                 = true
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  site_config {
+    always_on = false
+  }
+
+  tags = merge(local.tags, { Workflow = "incident-chatops" })
+}
+
+resource "azurerm_storage_account" "logic_promotion_customer_notify" {
+  count = var.enable_promotion_customer_notify_logic_app ? 1 : 0
+
+  name                     = var.promotion_customer_notify_storage_account_name
+  resource_group_name      = var.resource_group_name
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "ZRS"
+  min_tls_version          = "TLS1_2"
+
+  allow_nested_items_to_be_public = false
+
+  tags = local.tags
+}
+
+resource "azurerm_storage_share" "logic_promotion_customer_notify_workflow" {
+  count = var.enable_promotion_customer_notify_logic_app ? 1 : 0
+
+  name                 = var.promotion_customer_notify_storage_share_name
+  storage_account_name = azurerm_storage_account.logic_promotion_customer_notify[0].name
+  quota                = 5120
+}
+
+resource "azurerm_service_plan" "logic_promotion_customer_notify" {
+  count = var.enable_promotion_customer_notify_logic_app ? 1 : 0
+
+  name                = var.promotion_customer_notify_app_service_plan_name
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  os_type             = "Windows"
+  sku_name            = "WS1"
+
+  tags = local.tags
+}
+
+resource "azurerm_logic_app_standard" "promotion_customer_notify" {
+  count = var.enable_promotion_customer_notify_logic_app ? 1 : 0
+
+  name                       = var.promotion_customer_notify_logic_app_name
+  location                   = var.location
+  resource_group_name        = var.resource_group_name
+  app_service_plan_id        = azurerm_service_plan.logic_promotion_customer_notify[0].id
+  storage_account_name       = azurerm_storage_account.logic_promotion_customer_notify[0].name
+  storage_account_access_key = azurerm_storage_account.logic_promotion_customer_notify[0].primary_access_key
+  storage_account_share_name = azurerm_storage_share.logic_promotion_customer_notify_workflow[0].name
+  version                    = "~4"
+  https_only                 = true
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  site_config {
+    always_on = false
+  }
+
+  tags = merge(local.tags, { Workflow = "promotion-customer-notifications" })
+}

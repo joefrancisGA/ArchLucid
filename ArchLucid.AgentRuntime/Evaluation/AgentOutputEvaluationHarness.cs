@@ -69,18 +69,7 @@ public sealed class AgentOutputEvaluationHarness(
                         names.Add(p.Name);
                     }
 
-                    foreach (string key in expected.RequiredJsonKeys)
-                    {
-                        if (string.IsNullOrWhiteSpace(key))
-                        {
-                            continue;
-                        }
-
-                        if (!names.Contains(key.Trim()))
-                        {
-                            failures.Add($"Required JSON key missing: '{key.Trim()}'.");
-                        }
-                    }
+                    failures.AddRange(from key in expected.RequiredJsonKeys where !string.IsNullOrWhiteSpace(key) where !names.Contains(key.Trim()) select $"Required JSON key missing: '{key.Trim()}'.");
                 }
             }
             catch (JsonException)

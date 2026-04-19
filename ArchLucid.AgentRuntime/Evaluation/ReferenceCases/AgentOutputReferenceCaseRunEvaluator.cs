@@ -174,12 +174,12 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                         continue;
                     }
 
-                    if (!names.Contains(key.Trim()))
-                    {
-                        failureReason = $"missing key '{key.Trim()}'";
+                    if (names.Contains(key.Trim()))
+                        continue;
 
-                        return false;
-                    }
+                    failureReason = $"missing key '{key.Trim()}'";
+
+                    return false;
                 }
             }
             catch (JsonException)
@@ -228,12 +228,12 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                 continue;
             }
 
-            if (!findingCategories.Contains(cat.Trim().ToUpperInvariant()))
-            {
-                failureReason = $"missing finding category '{cat.Trim()}'";
+            if (findingCategories.Contains(cat.Trim().ToUpperInvariant()))
+                continue;
 
-                return false;
-            }
+            failureReason = $"missing finding category '{cat.Trim()}'";
+
+            return false;
         }
 
         return true;

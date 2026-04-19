@@ -1,0 +1,49 @@
+---
+description: Prefer ?? and ??= over equivalent if-null assignment / fallback blocks.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# `??` and `??=` over null fallback blocks
+
+Use the **null-coalescing operator** `??` for fallback values, and **null-coalescing assignment** `??=` for "initialize once if null" patterns.
+
+## Preferred
+
+```csharp
+string region = options.Region ?? DefaultRegion;
+
+string display = user.DisplayName ?? user.Email ?? "(unknown)";
+
+_cache ??= new();
+
+logger.LogInformation("Run {RunId}", run.Id ?? Guid.Empty);
+```
+
+## Avoid
+
+```csharp
+// Avoid
+string region;
+if (options.Region != null)
+    region = options.Region;
+else
+    region = DefaultRegion;
+
+if (_cache == null) _cache = new();
+```
+
+## Throwing fallbacks
+
+For "must not be null at this point" use the same-line guard form, **not** `??` with a thrown helper, because the guard is the documented project style:
+
+```csharp
+if (options.Region is null) throw new InvalidOperationException("Region is required.");
+string region = options.Region;
+```
+
+## Scope
+
+- `??` chains read top-to-bottom — keep them short (≤ 3 alternatives) before extracting a helper.
+- Don't use `??=` on shared mutable state without thinking about thread-safety.
+- Pairs naturally with **`CSharp-Terse-06-IsNullPatterns.mdc`**.

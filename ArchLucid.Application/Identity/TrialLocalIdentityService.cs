@@ -101,7 +101,7 @@ public sealed class TrialLocalIdentityService(
         if (row is null)
             return null;
 
-        if (row.LockoutEnabled && row.LockoutEnd is { } le && le > DateTimeOffset.UtcNow)
+        if (row is { LockoutEnabled: true, LockoutEnd: { } le } && le > DateTimeOffset.UtcNow)
             return null;
 
         PasswordVerificationResult verify = _passwordHasher.VerifyHashedPassword(new TrialIdentityHasherUser(), row.PasswordHash, password);

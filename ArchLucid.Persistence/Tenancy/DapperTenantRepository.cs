@@ -27,7 +27,10 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              """;
 
         TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new { Id = tenantId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                Id = tenantId
+            }, cancellationToken: ct));
 
         return row is null ? null : row.ToRecord();
     }
@@ -47,7 +50,10 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              """;
 
         TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new { Slug = slug.Trim().ToLowerInvariant() }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                Slug = slug.Trim().ToLowerInvariant()
+            }, cancellationToken: ct));
 
         return row is null ? null : row.ToRecord();
     }
@@ -65,7 +71,10 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              """;
 
         TenantRow? row = await connection.QuerySingleOrDefaultAsync<TenantRow>(
-            new CommandDefinition(sql, new { EntraTenantId = entraTenantId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                EntraTenantId = entraTenantId
+            }, cancellationToken: ct));
 
         return row is null ? null : row.ToRecord();
     }
@@ -219,7 +228,10 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              WHERE Id = @Id;
                              """;
 
-        await connection.ExecuteAsync(new CommandDefinition(sql, new { Id = tenantId }, cancellationToken: ct));
+        await connection.ExecuteAsync(new CommandDefinition(sql, new
+        {
+            Id = tenantId
+        }, cancellationToken: ct));
     }
 
     public async Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct)
@@ -234,7 +246,10 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              """;
 
         WorkspaceRow? row = await connection.QuerySingleOrDefaultAsync<WorkspaceRow>(
-            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId
+            }, cancellationToken: ct));
 
         if (row is null)
             return null;
@@ -308,7 +323,10 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                                    """;
 
         TenantSeatRow? t = await connection.QuerySingleOrDefaultAsync<TenantSeatRow>(
-            new CommandDefinition(tenantSql, new { Id = tenantId }, transaction: tran, cancellationToken: ct));
+            new CommandDefinition(tenantSql, new
+            {
+                Id = tenantId
+            }, transaction: tran, cancellationToken: ct));
 
         if (t is null)
         {
@@ -342,7 +360,11 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         try
         {
             await connection.ExecuteAsync(
-                new CommandDefinition(insertSql, new { TenantId = tenantId, PrincipalKey = key }, transaction: tran, cancellationToken: ct));
+                new CommandDefinition(insertSql, new
+                {
+                    TenantId = tenantId,
+                    PrincipalKey = key
+                }, transaction: tran, cancellationToken: ct));
         }
         catch (SqlException ex) when (ex.Number == 2627)
         {
@@ -379,7 +401,11 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                     DELETE FROM dbo.TenantTrialSeatOccupants
                     WHERE TenantId = @TenantId AND PrincipalKey = @PrincipalKey;
                     """,
-                    new { TenantId = tenantId, PrincipalKey = key },
+                    new
+                    {
+                        TenantId = tenantId,
+                        PrincipalKey = key
+                    },
                     transaction: tran,
                     cancellationToken: ct));
 
@@ -410,7 +436,10 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         IEnumerable<Guid> ids = await connection.QueryAsync<Guid>(
             new CommandDefinition(
                 sql,
-                new { Converted = TrialLifecycleStatus.Converted },
+                new
+                {
+                    Converted = TrialLifecycleStatus.Converted
+                },
                 cancellationToken: ct));
 
         return ids.ToList();
@@ -518,7 +547,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
 
         double ratio = 0;
 
-        if (row.TrialRunsLimit is { } lim && lim > 0)
+        if (row.TrialRunsLimit is { } lim and > 0)
         {
             ratio = (double)row.TrialRunsUsed / lim;
         }
@@ -542,7 +571,11 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                              """;
 
         await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { TenantId = tenantId, ExpiresUtc = expiresUtc }, cancellationToken: ct));
+            new CommandDefinition(sql, new
+            {
+                TenantId = tenantId,
+                ExpiresUtc = expiresUtc
+            }, cancellationToken: ct));
     }
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
@@ -565,7 +598,10 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         CancellationToken ct)
     {
         TrialRunGateRow? row = await connection.QuerySingleOrDefaultAsync<TrialRunGateRow>(
-            new CommandDefinition(selectSql, new { Id = tenantId }, transaction: transaction, cancellationToken: ct));
+            new CommandDefinition(selectSql, new
+            {
+                Id = tenantId
+            }, transaction: transaction, cancellationToken: ct));
 
         if (row is null)
             return;
@@ -593,7 +629,11 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         int updated = await connection.ExecuteAsync(
             new CommandDefinition(
                 updateSql,
-                new { Id = tenantId, Active = TrialLifecycleStatus.Active },
+                new
+                {
+                    Id = tenantId,
+                    Active = TrialLifecycleStatus.Active
+                },
                 transaction: transaction,
                 cancellationToken: ct));
 
@@ -607,47 +647,92 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
 
     private sealed class TrialFirstManifestOutputRow
     {
-        public int TrialRunsUsed { get; init; }
+        public int TrialRunsUsed
+        {
+            get; init;
+        }
 
-        public int? TrialRunsLimit { get; init; }
+        public int? TrialRunsLimit
+        {
+            get; init;
+        }
 
-        public DateTimeOffset CreatedUtc { get; init; }
+        public DateTimeOffset CreatedUtc
+        {
+            get; init;
+        }
 
-        public DateTimeOffset? TrialStartUtc { get; init; }
+        public DateTimeOffset? TrialStartUtc
+        {
+            get; init;
+        }
     }
 
     private sealed class TrialRunGateRow
     {
-        public string? TrialStatus { get; init; }
+        public string? TrialStatus
+        {
+            get; init;
+        }
 
-        public DateTimeOffset? TrialExpiresUtc { get; init; }
+        public DateTimeOffset? TrialExpiresUtc
+        {
+            get; init;
+        }
 
-        public int? TrialRunsLimit { get; init; }
+        public int? TrialRunsLimit
+        {
+            get; init;
+        }
 
-        public int TrialRunsUsed { get; init; }
+        public int TrialRunsUsed
+        {
+            get; init;
+        }
     }
 
     private sealed class TenantSeatRow
     {
-        public string? TrialStatus { get; init; }
+        public string? TrialStatus
+        {
+            get; init;
+        }
 
-        public int? TrialSeatsLimit { get; init; }
+        public int? TrialSeatsLimit
+        {
+            get; init;
+        }
 
-        public int TrialSeatsUsed { get; init; }
+        public int TrialSeatsUsed
+        {
+            get; init;
+        }
 
-        public DateTimeOffset? TrialExpiresUtc { get; init; }
+        public DateTimeOffset? TrialExpiresUtc
+        {
+            get; init;
+        }
     }
 
     private sealed class WorkspaceRow
     {
-        public Guid WorkspaceId { get; init; }
+        public Guid WorkspaceId
+        {
+            get; init;
+        }
 
-        public Guid DefaultProjectId { get; init; }
+        public Guid DefaultProjectId
+        {
+            get; init;
+        }
     }
 
     private sealed class TenantRow
     {
-        public Guid Id { get; init; }
+        public Guid Id
+        {
+            get; init;
+        }
 
         public string Name { get; init; } = string.Empty;
 
@@ -655,27 +740,60 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
 
         public string Tier { get; init; } = string.Empty;
 
-        public Guid? EntraTenantId { get; init; }
+        public Guid? EntraTenantId
+        {
+            get; init;
+        }
 
-        public DateTimeOffset CreatedUtc { get; init; }
+        public DateTimeOffset CreatedUtc
+        {
+            get; init;
+        }
 
-        public DateTimeOffset? SuspendedUtc { get; init; }
+        public DateTimeOffset? SuspendedUtc
+        {
+            get; init;
+        }
 
-        public DateTimeOffset? TrialStartUtc { get; init; }
+        public DateTimeOffset? TrialStartUtc
+        {
+            get; init;
+        }
 
-        public DateTimeOffset? TrialExpiresUtc { get; init; }
+        public DateTimeOffset? TrialExpiresUtc
+        {
+            get; init;
+        }
 
-        public int? TrialRunsLimit { get; init; }
+        public int? TrialRunsLimit
+        {
+            get; init;
+        }
 
-        public int TrialRunsUsed { get; init; }
+        public int TrialRunsUsed
+        {
+            get; init;
+        }
 
-        public int? TrialSeatsLimit { get; init; }
+        public int? TrialSeatsLimit
+        {
+            get; init;
+        }
 
-        public int TrialSeatsUsed { get; init; }
+        public int TrialSeatsUsed
+        {
+            get; init;
+        }
 
-        public string? TrialStatus { get; init; }
+        public string? TrialStatus
+        {
+            get; init;
+        }
 
-        public Guid? TrialSampleRunId { get; init; }
+        public Guid? TrialSampleRunId
+        {
+            get; init;
+        }
 
         internal TenantRecord ToRecord() =>
             new()

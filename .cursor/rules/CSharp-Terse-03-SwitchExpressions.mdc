@@ -1,0 +1,46 @@
+---
+description: Prefer switch expressions over switch statements when mapping an input to a single output.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# Switch expressions for mapping
+
+When a `switch` exists only to compute and return a single value, use a **switch expression**, not a `switch` statement with `return` in each case.
+
+## Preferred
+
+```csharp
+public static string Describe(AgentStatus status) => status switch
+{
+    AgentStatus.Idle      => "idle",
+    AgentStatus.Running   => "running",
+    AgentStatus.Faulted f => $"faulted: {f.Reason}",
+    _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+};
+```
+
+## Avoid
+
+```csharp
+// Avoid
+public static string Describe(AgentStatus status)
+{
+    switch (status)
+    {
+        case AgentStatus.Idle:
+            return "idle";
+        case AgentStatus.Running:
+            return "running";
+        default:
+            throw new ArgumentOutOfRangeException(nameof(status), status, null);
+    }
+}
+```
+
+## Scope
+
+- Use switch expressions when each arm produces a value with no statements/side effects.
+- Always include a discard arm `_ =>` that throws or returns a sane default — never silently fall through.
+- Keep arms aligned and one per line; combine related arms with `or` patterns when natural.
+- Stay with a regular `switch` statement when arms perform work (logging, multiple statements, awaits).

@@ -14,6 +14,18 @@ Set **`enable_marketplace_fulfillment_logic_app = true`** to deploy a dedicated 
 
 Workflow notes: [`workflows/marketplace-fulfillment-handoff/README.md`](workflows/marketplace-fulfillment-handoff/README.md).
 
+## Trial lifecycle email host (optional)
+
+Set **`enable_trial_lifecycle_logic_app = true`** plus a unique **`trial_lifecycle_storage_account_name`**. Use **`trial_lifecycle_logic_app_principal_id`** in **`infra/terraform-servicebus`** as **`trial_lifecycle_logic_app_managed_identity_principal_id`** when **`enable_logic_app_trial_lifecycle_email_subscription`** is true. Pair with `ArchLucid:Notifications:TrialLifecycle:Owner=LogicApp` when the in-process scan is off — [`workflows/trial-lifecycle-email/README.md`](workflows/trial-lifecycle-email/README.md).
+
+## Incident ChatOps host (optional)
+
+Set **`enable_incident_chatops_logic_app = true`** plus **`incident_chatops_storage_account_name`**. Use **`incident_chatops_logic_app_principal_id`** as **`incident_chatops_logic_app_managed_identity_principal_id`** in Service Bus when **`enable_logic_app_incident_chatops_subscription`** is true — [`workflows/incident-chatops/README.md`](workflows/incident-chatops/README.md).
+
+## Promotion customer notify host (optional)
+
+Set **`enable_promotion_customer_notify_logic_app = true`** plus **`promotion_customer_notify_storage_account_name`**. Use **`promotion_customer_notify_logic_app_principal_id`** as **`promotion_customer_notify_logic_app_managed_identity_principal_id`** in Service Bus when **`enable_logic_app_promotion_prod_customer_subscription`** is true — [`workflows/promotion-customer-notifications/README.md`](workflows/promotion-customer-notifications/README.md).
+
 ## Other documented workflows (Portal / export)
 
 - [`workflows/trial-lifecycle-email/README.md`](workflows/trial-lifecycle-email/README.md) — scheduled trial email; pair with `ArchLucid:Notifications:TrialLifecycle:Owner=LogicApp` when the API scan is off.
@@ -21,7 +33,7 @@ Workflow notes: [`workflows/marketplace-fulfillment-handoff/README.md`](workflow
 - [`workflows/promotion-customer-notifications/README.md`](workflows/promotion-customer-notifications/README.md) — prod-only promotion fan-out.
 - [`workflows/marketplace-fulfillment-handoff/README.md`](workflows/marketplace-fulfillment-handoff/README.md) — **`com.archlucid.billing.marketplace.webhook.received.v1`** after API success (sales / CRM / Teams).
 
-**Dedicated Terraform hosts today:** generic **`edge`** (`enable_logic_apps`), **governance** (`enable_governance_approval_logic_app`), **Marketplace fulfillment** (`enable_marketplace_fulfillment_logic_app`). Trial lifecycle, incident ChatOps, and prod promotion customer workflows are still documented under `workflows/*` only — run them on **`edge`** or add hosts by copying the governance / Marketplace pattern in a fork.
+**Dedicated Terraform hosts (all optional, off by default):** **`edge`** (`enable_logic_apps`), **governance**, **Marketplace fulfillment**, **trial lifecycle email**, **incident ChatOps**, **promotion customer notify** — each has its own WS1 plan, file share, and system-assigned identity for Service Bus RBAC. You can still run multiple workflows on **`edge`** only if you prefer fewer billable plans.
 
 ## When to enable
 

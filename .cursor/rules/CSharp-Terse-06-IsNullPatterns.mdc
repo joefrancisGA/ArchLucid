@@ -1,0 +1,39 @@
+---
+description: Always use `is null` and `is not null` for null checks; never `== null` / `!= null`.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# `is null` / `is not null` for all null checks
+
+Use the **null pattern** for every null check on reference types and `Nullable<T>`. Never use `== null` or `!= null`.
+
+## Preferred
+
+```csharp
+if (tenant is null) throw new ArgumentNullException(nameof(tenant));
+if (tenant is not null) Apply(tenant);
+
+return value is not null
+    ? Format(value)
+    : "(none)";
+```
+
+## Avoid
+
+```csharp
+// Avoid
+if (tenant == null) throw new ArgumentNullException(nameof(tenant));
+if (tenant != null) Apply(tenant);
+```
+
+## Why
+
+- `is null` cannot be silently overridden by an operator overload — `==` / `!=` can.
+- Reads as English ("is null", "is not null"), which matches the project's preference for clear guard clauses.
+- Slimmer subset of **`CSharp-Terse-02-PatternMatching.mdc`** focused only on the most common case so it can be enforced independently.
+
+## Scope
+
+- Applies everywhere: assignments, conditions, ternaries, LINQ predicates, switch arms.
+- Combine with the same-line guard rule (**`CSharp-Terse-01-GuardClausesSameLine.mdc`**) for one-line null guards.

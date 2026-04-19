@@ -105,3 +105,93 @@ variable "marketplace_fulfillment_logic_app_name" {
   description = "Logic App (Standard) site name for Marketplace webhook-received fulfillment fan-out."
   default     = "archlucid-logic-marketplace-fulfillment"
 }
+
+variable "enable_trial_lifecycle_logic_app" {
+  type        = bool
+  description = "When true, deploy a dedicated Logic App (Standard) host for trial-lifecycle-email workflows (separate plan + storage from other hosts)."
+  default     = false
+}
+
+variable "trial_lifecycle_storage_account_name" {
+  type        = string
+  description = "Globally unique storage account name for the trial lifecycle Logic App file share (required when enable_trial_lifecycle_logic_app is true)."
+  default     = ""
+}
+
+variable "trial_lifecycle_storage_share_name" {
+  type        = string
+  description = "Azure Files share name for trial lifecycle workflow runtime files."
+  default     = "trial-lifecycle-workflow-content"
+}
+
+variable "trial_lifecycle_app_service_plan_name" {
+  type        = string
+  description = "App Service plan name for the trial lifecycle Logic App (WS1)."
+  default     = "asp-archlucid-logic-trial-lifecycle"
+}
+
+variable "trial_lifecycle_logic_app_name" {
+  type        = string
+  description = "Logic App (Standard) site name for trial lifecycle email fan-out."
+  default     = "archlucid-logic-trial-lifecycle-email"
+}
+
+variable "enable_incident_chatops_logic_app" {
+  type        = bool
+  description = "When true, deploy a dedicated Logic App (Standard) host for incident ChatOps (alert fired / resolved)."
+  default     = false
+}
+
+variable "incident_chatops_storage_account_name" {
+  type        = string
+  description = "Globally unique storage account name for the incident ChatOps Logic App file share (required when enable_incident_chatops_logic_app is true)."
+  default     = ""
+}
+
+variable "incident_chatops_storage_share_name" {
+  type        = string
+  description = "Azure Files share name for incident ChatOps workflow runtime files."
+  default     = "incident-chatops-workflow-content"
+}
+
+variable "incident_chatops_app_service_plan_name" {
+  type        = string
+  description = "App Service plan name for the incident ChatOps Logic App (WS1)."
+  default     = "asp-archlucid-logic-incident-chatops"
+}
+
+variable "incident_chatops_logic_app_name" {
+  type        = string
+  description = "Logic App (Standard) site name for incident ChatOps."
+  default     = "archlucid-logic-incident-chatops"
+}
+
+variable "enable_promotion_customer_notify_logic_app" {
+  type        = bool
+  description = "When true, deploy a dedicated Logic App (Standard) host for prod promotion customer notifications."
+  default     = false
+}
+
+variable "promotion_customer_notify_storage_account_name" {
+  type        = string
+  description = "Globally unique storage account name for the promotion customer-notify Logic App file share (required when enable_promotion_customer_notify_logic_app is true)."
+  default     = ""
+}
+
+variable "promotion_customer_notify_storage_share_name" {
+  type        = string
+  description = "Azure Files share name for promotion customer-notify workflow runtime files."
+  default     = "promotion-customer-workflow-content"
+}
+
+variable "promotion_customer_notify_app_service_plan_name" {
+  type        = string
+  description = "App Service plan name for the promotion customer-notify Logic App (WS1)."
+  default     = "asp-archlucid-logic-promotion-customer"
+}
+
+variable "promotion_customer_notify_logic_app_name" {
+  type        = string
+  description = "Logic App (Standard) site name for prod promotion customer fan-out."
+  default     = "archlucid-logic-promotion-customer-notify"
+}

@@ -16,7 +16,7 @@ public sealed class MicrosoftMarketplaceJwtVerifierTests
             AzureMarketplace = new AzureMarketplaceBillingOptions
             {
                 OpenIdMetadataAddress = null,
-                ValidAudiences = [ "https://marketplaceapi.microsoft.com" ],
+                ValidAudiences = ["https://marketplaceapi.microsoft.com"],
             },
         };
 
@@ -32,11 +32,12 @@ public sealed class MicrosoftMarketplaceJwtVerifierTests
     private sealed class TestMonitor<T>(T value) : Microsoft.Extensions.Options.IOptionsMonitor<T>
         where T : class
     {
-        private readonly T _value = value;
+        public T CurrentValue
+        {
+            get;
+        } = value;
 
-        public T CurrentValue => _value;
-
-        public T Get(string? name) => _value;
+        public T Get(string? name) => CurrentValue;
 
         public IDisposable? OnChange(Action<T, string?> listener) => null;
     }

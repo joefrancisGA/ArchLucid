@@ -1,0 +1,38 @@
+---
+description: Prefer pattern matching for null, type, and shape checks instead of explicit comparisons or casts.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# Pattern matching for null, type, and shape
+
+Use C# patterns (`is null`, `is not null`, `is { … }`, `is Foo foo`) instead of `== null`, `!= null`, `as` + null check, or chained property guards.
+
+## Preferred
+
+```csharp
+if (value is null) throw new ArgumentNullException(nameof(value));
+if (value is not null) Use(value);
+
+if (request is { Tenant: { IsActive: true } tenant, Subject: not null }) Apply(tenant);
+
+if (message is JsonObject obj) Process(obj);
+```
+
+## Avoid
+
+```csharp
+// Avoid
+if (value == null) throw new ArgumentNullException(nameof(value));
+if (value != null) Use(value);
+
+JsonObject obj = message as JsonObject;
+if (obj != null) Process(obj);
+```
+
+## Scope
+
+- Use `is null` / `is not null` for **all** null checks on reference types and `Nullable<T>`.
+- Use property patterns `{ … }` to combine null + shape checks in one expression.
+- Use type patterns `is T t` instead of `as` + null check.
+- Pattern matching pairs naturally with the same-line guard rule (**`CSharp-Terse-01-GuardClausesSameLine.mdc`**).

@@ -1,0 +1,72 @@
+---
+description: Prefer early return / continue and avoid trailing else after a guarded return.
+globs: "**/*.cs"
+alwaysApply: true
+---
+
+# Early return — no trailing `else`
+
+When an `if` branch ends in `return`, `throw`, `continue`, or `break`, **do not** wrap the rest of the method in an `else` block. Let control fall through.
+
+## Preferred
+
+```csharp
+public string Resolve(Tenant tenant)
+{
+    if (tenant is null) throw new ArgumentNullException(nameof(tenant));
+    if (!tenant.IsActive) return "(inactive)";
+
+    return Format(tenant);
+}
+```
+
+```csharp
+foreach (string key in keys)
+{
+    if (string.IsNullOrWhiteSpace(key)) continue;
+
+    Process(key);
+}
+```
+
+## Avoid
+
+```csharp
+// Avoid: trailing else after a return / throw
+public string Resolve(Tenant tenant)
+{
+    if (tenant is null)
+    {
+        throw new ArgumentNullException(nameof(tenant));
+    }
+    else if (!tenant.IsActive)
+    {
+        return "(inactive)";
+    }
+    else
+    {
+        return Format(tenant);
+    }
+}
+```
+
+```csharp
+// Avoid: nesting the happy path inside else
+foreach (string key in keys)
+{
+    if (string.IsNullOrWhiteSpace(key))
+    {
+        continue;
+    }
+    else
+    {
+        Process(key);
+    }
+}
+```
+
+## Scope
+
+- Apply whenever the `if` branch terminates the current control flow (`return`, `throw`, `continue`, `break`, `goto`).
+- Combines with **`CSharp-Terse-01-GuardClausesSameLine.mdc`**, **`SingleLineThrowNoBraces.mdc`**, and **`SingleLineContinueNoBraces.mdc`** to keep the **happy path** flat and at the bottom of the member.
+- Stay with `if` / `else if` / `else` only when **every** branch produces a value at the same level (typical for switch-expression-style mappings — and in that case, prefer **`CSharp-Terse-03-SwitchExpressions.mdc`**).

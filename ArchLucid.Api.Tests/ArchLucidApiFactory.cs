@@ -22,21 +22,22 @@ namespace ArchLucid.Api.Tests;
 /// </remarks>
 public class ArchLucidApiFactory : WebApplicationFactory<Program>
 {
-    private readonly string _connectionString;
-
     /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
     public ArchLucidApiFactory()
     {
         string databaseName = "ArchLucidTest_" + Guid.NewGuid().ToString("N");
-        _connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
-        SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
+        SqlConnectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
+        SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
     }
 
     /// <summary>
     /// Connection string for this factory’s SQL Server database (per-test database).
     /// Tests that open <see cref="Microsoft.Data.SqlClient.SqlConnection"/> must use this instance property so they hit the same DB as the hosted API.
     /// </summary>
-    public string SqlConnectionString => _connectionString;
+    public string SqlConnectionString
+    {
+        get;
+    }
 
     /// <summary>
     /// Points the hosted API at this factory’s SQL connection string and sets in-memory storage for non-relational dependencies.
@@ -46,7 +47,7 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Development");
 
-        builder.UseSetting("ConnectionStrings:ArchLucid", _connectionString);
+        builder.UseSetting("ConnectionStrings:ArchLucid", SqlConnectionString);
         builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
 
         builder.ConfigureAppConfiguration((_, config) =>
@@ -56,7 +57,7 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ArchLucid:StorageProvider"] = "InMemory",
-                ["ConnectionStrings:ArchLucid"] = _connectionString,
+                ["ConnectionStrings:ArchLucid"] = SqlConnectionString,
                 ["AgentExecution:Mode"] = "Simulator",
                 ["AzureOpenAI:Endpoint"] = "",
                 ["AzureOpenAI:ApiKey"] = "",
@@ -80,11 +81,12 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
     {
         base.Dispose(disposing);
 
-        if (!disposing) return;
+        if (!disposing)
+            return;
 
         try
         {
-            SqlServerTestCatalogCommands.DropCatalogIfExists(_connectionString);
+            SqlServerTestCatalogCommands.DropCatalogIfExists(SqlConnectionString);
         }
         catch
         {
