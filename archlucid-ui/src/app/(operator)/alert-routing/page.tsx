@@ -8,6 +8,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRoutingChangeConfigurationLeadReaderLine,
+  alertRoutingCreateSubscriptionButtonLabelReaderRank,
   alertRoutingCurrentSubscriptionsReaderSubline,
   alertRoutingSubscriptionsEmptyOperatorLine,
   alertRoutingSubscriptionsEmptyReaderLine,
@@ -260,7 +261,9 @@ export default function AlertRoutingPage() {
               disabled={!destination.trim() || loading || !canMutateRouting}
               title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
             >
-              Create alert routing subscription
+              {canMutateRouting
+                ? "Create alert routing subscription"
+                : alertRoutingCreateSubscriptionButtonLabelReaderRank}
             </button>
           </div>
         </section>

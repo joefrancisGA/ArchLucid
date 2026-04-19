@@ -432,7 +432,7 @@ function GovernanceWorkflowPageInner() {
 
       <div className={cn(canMutateWorkflow ? "flex flex-col" : "flex flex-col-reverse")}>
       <section className="mb-10">
-        <Card>
+        <Card className={cn(!canMutateWorkflow && "opacity-95")}>
           <CardHeader>
             <CardTitle>Submit approval request</CardTitle>
             <CardDescription>
@@ -455,6 +455,8 @@ function GovernanceWorkflowPageInner() {
                 onChange={(e) => setSubmitRunId(e.target.value)}
                 placeholder="Architecture run identifier"
                 autoComplete="off"
+                readOnly={!canMutateWorkflow}
+                title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
               />
             </div>
             <div className="grid gap-2">
@@ -465,13 +467,19 @@ function GovernanceWorkflowPageInner() {
                 onChange={(e) => setSubmitManifestVersion(e.target.value)}
                 placeholder="e.g. v1.0.0"
                 autoComplete="off"
+                readOnly={!canMutateWorkflow}
+                title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="gov-submit-source-env">Source environment</Label>
-                <Select value={submitSource} onValueChange={setSubmitSource}>
-                  <SelectTrigger id="gov-submit-source-env" className="w-full">
+                <Select value={submitSource} onValueChange={setSubmitSource} disabled={!canMutateWorkflow}>
+                  <SelectTrigger
+                    id="gov-submit-source-env"
+                    className="w-full"
+                    title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                  >
                     <SelectValue placeholder="Source" />
                   </SelectTrigger>
                   <SelectContent>
@@ -485,8 +493,12 @@ function GovernanceWorkflowPageInner() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="gov-submit-target-env">Target environment</Label>
-                <Select value={submitTarget} onValueChange={setSubmitTarget}>
-                  <SelectTrigger id="gov-submit-target-env" className="w-full">
+                <Select value={submitTarget} onValueChange={setSubmitTarget} disabled={!canMutateWorkflow}>
+                  <SelectTrigger
+                    id="gov-submit-target-env"
+                    className="w-full"
+                    title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
+                  >
                     <SelectValue placeholder="Target" />
                   </SelectTrigger>
                   <SelectContent>
@@ -507,6 +519,8 @@ function GovernanceWorkflowPageInner() {
                 onChange={(e) => setSubmitComment(e.target.value)}
                 rows={3}
                 placeholder="Context for reviewers"
+                readOnly={!canMutateWorkflow}
+                title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
               />
             </div>
           </CardContent>

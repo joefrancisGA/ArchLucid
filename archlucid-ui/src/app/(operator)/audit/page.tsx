@@ -19,6 +19,7 @@ import {
 } from "@/app/(operator)/audit/audit-ui-helpers";
 import {
   auditExportControlDisabledTitle,
+  auditExportExecuteRankAuditorRoleNote,
   auditSearchNoResultsOperatorLine,
   auditSearchNoResultsReaderLine,
   auditSearchSectionLeadReaderLine,
@@ -230,6 +231,12 @@ export default function AuditPage() {
       <p className="mb-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
         Search and scan results first; export last (same From/To; Auditor/Admin on the API).
       </p>
+
+      {callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !exportRoleOk ? (
+        <p className="mb-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400" role="note">
+          {auditExportExecuteRankAuditorRoleNote}
+        </p>
+      ) : null}
 
       {failure !== null ? (
         <div role="alert">
