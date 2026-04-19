@@ -33,9 +33,18 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceDashboardApproveSelectedButtonLabelReaderRank,
+  governanceDashboardChangeLogHeadingOperator,
+  governanceDashboardChangeLogHeadingReader,
+  governanceDashboardComplianceDriftHeadingOperator,
+  governanceDashboardComplianceDriftHeadingReader,
+  governanceDashboardLineageLinkTitle,
+  governanceDashboardOpenWorkflowReviewTitleOperator,
+  governanceDashboardOpenWorkflowReviewTitleReader,
   governanceDashboardPendingApprovalsHeadingOperator,
   governanceDashboardPendingApprovalsHeadingReader,
   governanceDashboardPendingClearReaderSupplement,
+  governanceDashboardRecentDecisionsHeadingOperator,
+  governanceDashboardRecentDecisionsHeadingReader,
   governanceDashboardRejectSelectedButtonLabelReaderRank,
   governanceWorkflowApproveButtonLabelReaderRank,
   governanceWorkflowRejectButtonLabelReaderRank,
@@ -511,6 +520,7 @@ export default function GovernanceDashboardPage() {
                       <Button type="button" size="sm" variant="outline" asChild>
                         <Link
                           href={`/governance/approval-requests/${encodeURIComponent(row.approvalRequestId)}/lineage`}
+                          title={governanceDashboardLineageLinkTitle}
                         >
                           Lineage
                         </Link>
@@ -554,6 +564,11 @@ export default function GovernanceDashboardPage() {
                       <Button
                         type="button"
                         size="sm"
+                        title={
+                          canMutateGovernance
+                            ? governanceDashboardOpenWorkflowReviewTitleOperator
+                            : governanceDashboardOpenWorkflowReviewTitleReader
+                        }
                         onClick={() => navigateToWorkflowReview(router, row.runId)}
                       >
                         Review
@@ -570,7 +585,9 @@ export default function GovernanceDashboardPage() {
 
           <section className="mb-10" aria-labelledby="gov-dash-decisions-heading">
             <h3 id="gov-dash-decisions-heading" className="mb-4 text-lg font-semibold">
-              Recent decisions
+              {canMutateGovernance
+                ? governanceDashboardRecentDecisionsHeadingOperator
+                : governanceDashboardRecentDecisionsHeadingReader}
             </h3>
             {decisions.length === 0 ? (
               <OperatorEmptyState title="No recent decisions.">
@@ -616,7 +633,9 @@ export default function GovernanceDashboardPage() {
 
           <section className="mb-10" aria-labelledby="gov-dash-drift-heading">
             <h3 id="gov-dash-drift-heading" className="mb-4 text-lg font-semibold">
-              Compliance drift trend (last 30 days)
+              {canMutateGovernance
+                ? governanceDashboardComplianceDriftHeadingOperator
+                : governanceDashboardComplianceDriftHeadingReader}
             </h3>
             <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
               Daily counts of policy pack mutations from the change log (same source as the list below).
@@ -628,7 +647,9 @@ export default function GovernanceDashboardPage() {
 
           <section aria-labelledby="gov-dash-changes-heading">
             <h3 id="gov-dash-changes-heading" className="mb-4 text-lg font-semibold">
-              Policy pack change log
+              {canMutateGovernance
+                ? governanceDashboardChangeLogHeadingOperator
+                : governanceDashboardChangeLogHeadingReader}
             </h3>
             {changes.length === 0 ? (
               <OperatorEmptyState title="No policy pack changes recorded.">
