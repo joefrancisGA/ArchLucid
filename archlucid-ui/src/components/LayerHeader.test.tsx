@@ -55,7 +55,7 @@ describe("LayerHeader", () => {
   it("renders governance resolution Enterprise footnote", () => {
     render(<LayerHeader pageKey="governance-resolution" />);
 
-    expect(screen.getByText(/Stack on this page; edits on Packs or Workflow\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Read-only stack; edits on Packs or Workflow\./i)).toBeInTheDocument();
   });
 
   it("renders Enterprise rank cue on Enterprise Controls audit (operator+ rank line)", () => {

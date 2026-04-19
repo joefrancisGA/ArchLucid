@@ -47,28 +47,25 @@ export const governanceResolutionRankReaderLine = "Edits: policy packs or workfl
 
 export const governanceResolutionRankOperatorLine = "Ordering lives in packs or workflow—not here.";
 
-/** Governance resolution — one line under the page title (LayerHeader carries when-to-use). */
-export const governanceResolutionPageSubline = "Effective stack; edits on Policy packs or Workflow.";
-
-/** Governance resolution — “Change related controls” strip (LayerHeader + subline already frame read-only). */
+/** Governance resolution — “Change related controls” strip (LayerHeader + rank cue already frame read vs write). */
 export const governanceResolutionChangeRelatedControlsLead =
-  "Refresh: GET only. Scope changes on Policy packs or Workflow.";
+  "Refresh is GET. Scope changes: Packs or Workflow.";
 
 /**
  * Governance resolution — extra line under **Change related controls** when **`useEnterpriseMutationCapability()`** is
  * false (writes live elsewhere; **Refresh** stays a safe GET).
  */
 export const governanceResolutionChangeRelatedControlsReaderSupplement =
-  "Writes need Execute+; read-only evidence at this rank.";
+  "Writes need Execute+ at this rank (API).";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
-export const governanceDashboardReaderActionLine = "Read-only queue; row actions need Execute+ (API).";
+export const governanceDashboardReaderActionLine = "Read-only queue until Execute+ (API).";
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
-export const governanceWorkflowPageLeadOperator = "Load a run; work top to bottom by status.";
+export const governanceWorkflowPageLeadOperator = "Load a run; follow status top to bottom.";
 
 /** Governance workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
-export const governanceWorkflowPageLeadReader = "Load a run to inspect.";
+export const governanceWorkflowPageLeadReader = "Load a run to inspect state.";
 
 /** Governance workflow — reload lists for the active run (`GET`); shown next to **Load** after a run is selected. */
 export const governanceWorkflowRefreshRunDataTitle =
@@ -104,7 +101,7 @@ export const alertOperatorToolingReaderRankLine = "Inspect above · below: Execu
 export const alertOperatorToolingOperatorRankLine = "Writes below: API-enforced.";
 
 /** Alerts inbox — lead under title (Execute+); rank cue hidden — see `LayerHeader`. */
-export const alertsPageLeadOperator = "Filter · page · triage per card.";
+export const alertsPageLeadOperator = "Filter, page, then triage per card.";
 
 /** Alerts inbox — lead under title (read tier); `AlertsInboxRankCue` carries write boundary. */
 export const alertsPageLeadReader = "Filter and page.";
@@ -147,7 +144,7 @@ export const governanceWorkflowQueryCardDescriptionOperator =
 
 /** No rows returned for the loaded run — reader copy references submit section position when inspect-first layout is used. */
 export const governanceWorkflowNoApprovalsReaderHint =
-  "Nothing in Submitted/Draft for this run. Pick another run ID, or ask an operator to submit from the Submit section.";
+  "No Submitted/Draft rows for this run. Try another run ID, or ask an operator to submit.";
 
 export const governanceWorkflowNoApprovalsOperatorHint =
   "Submit a request above or pick another run ID.";
@@ -176,10 +173,10 @@ export const governanceWorkflowPromotionsActivationsSectionLeadReader =
   "Read-only timeline; Promote/Activate need operator access (API).";
 
 /** Policy packs — lead under title (Execute+); link to Governance resolution for stack semantics. */
-export const policyPacksPageLeadOperator = "Inventory and JSON first; then compare and lifecycle.";
+export const policyPacksPageLeadOperator = "Inventory and diff first; lifecycle last.";
 
 /** Policy packs — lead under title (read tier). */
-export const policyPacksPageLeadReader = "Inspect above; lifecycle needs Execute+ (API).";
+export const policyPacksPageLeadReader = "Inspect first; lifecycle Execute+ (API).";
 
 /** Policy packs — empty list under “Packs in scope”. */
 export const policyPacksEmptyScopeReaderLine =
@@ -206,7 +203,7 @@ export const policyPacksAssignButtonLabelReaderRank = "Assign (Execute+)";
 
 /** Governance workflow — Submit card description for read tier (operator copy stays inline on the page with API path). */
 export const governanceWorkflowSubmitCardDescriptionReader =
-  "Submit disabled at your rank in this shell; API contract unchanged.";
+  "Submit off at this rank in the shell (API unchanged).";
 
 /** Composite alert rules — empty “Current composite rules” list. */
 export const compositeRulesDefinedListEmptyReaderLine =
@@ -260,7 +257,7 @@ export const auditSearchNoResultsReaderLine = "No matches. CSV stays Auditor/Adm
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 
 /** Audit log — under “Search audit events” for read tier (LayerHeader already frames export roles). */
-export const auditSearchSectionLeadReaderLine = "CSV: same From/To; Auditor/Admin on API.";
+export const auditSearchSectionLeadReaderLine = "CSV uses same From/To; Auditor/Admin on API.";
 
 /** Audit log — short line above the CSV button (LayerHeader + search strip carry the rest). */
 export const auditExportSectionSupportingLine = "Same From/To as search; Auditor or Admin on the API.";
@@ -273,15 +270,15 @@ export const auditExportCsvButtonLabelRoleRestricted = "Export CSV (Auditor/Admi
 
 /** Policy packs — intro under “Compare versions” when caller can mutate (Execute+ in shell). */
 export const policyPacksCompareVersionsIntroOperator =
-  "Two versions → JSON path diff (add / remove / change).";
+  "Pick two versions for a JSON path diff.";
 
 /** Policy packs — same block for read tier (diff only; lifecycle writes below). */
 export const policyPacksCompareVersionsIntroReader =
-  "Two versions → read-only diff; publish/assign in Lifecycle (Execute+).";
+  "Read-only diff; publish/assign stay under Lifecycle (Execute+).";
 
 /** Policy packs — under “Compare versions” when rank cannot mutate (diff is still read-only inspection). */
 export const policyPacksCompareVersionsReaderSubline =
-  "Diff read-only; writes in Lifecycle (Execute+).";
+  "Diff is inspect-only; writes in Lifecycle.";
 
 /** Policy packs — title on “Show diff” when rank cannot mutate (diff stays inspection-only; lifecycle on API). */
 export const policyPacksShowDiffButtonReaderTitle =
@@ -313,4 +310,4 @@ export const alertsTriageDialogTitleReaderSuffix = " (read-only)";
 
 /** Under-card shortcut hint for read tier (`useAlertCardShortcuts` skips Alt+1–3 unless Execute+ in shell). */
 export const alertsPageShortcutsLineReader =
-  "Alt+J/K navigate between cards; Alt+1–3 triage shortcuts register at Execute+ in this shell.";
+  "Alt+J/K between cards; Alt+1–3 only at Execute+ here.";
