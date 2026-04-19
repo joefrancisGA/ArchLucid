@@ -6,13 +6,13 @@ namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>Processes at most one Cosmos audit change feed batch (for scheduled or KEDA-scaled Container Apps Jobs).</summary>
 public sealed class AuditEventChangeFeedArchLucidJob(
-    AuditEventChangeFeedSingleBatchProcessor processor,
+    IAuditEventChangeFeedSingleBatchRunner processor,
     IOptionsMonitor<CosmosDbOptions> cosmosOptions,
     ILogger<AuditEventChangeFeedArchLucidJob> logger) : IArchLucidJob
 {
     private static readonly TimeSpan DefaultMaxIdleWait = TimeSpan.FromSeconds(45);
 
-    private readonly AuditEventChangeFeedSingleBatchProcessor _processor =
+    private readonly IAuditEventChangeFeedSingleBatchRunner _processor =
         processor ?? throw new ArgumentNullException(nameof(processor));
 
     private readonly IOptionsMonitor<CosmosDbOptions> _cosmosOptions =

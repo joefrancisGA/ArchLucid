@@ -205,6 +205,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
 
         services.AddSingleton<DataConsistencyOrphanProbeExecutor>();
+        services.AddSingleton<IDataConsistencyOrphanProbeExecutor>(
+            static sp => sp.GetRequiredService<DataConsistencyOrphanProbeExecutor>());
         services.AddSingleton<IArchLucidJob, OrphanProbeArchLucidJob>();
 
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.OrphanProbe))

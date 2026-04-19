@@ -4,10 +4,10 @@ namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>One-shot data consistency orphan probe (same work as one loop iteration of <see cref="Hosted.DataConsistencyOrphanProbeHostedService"/>).</summary>
 public sealed class OrphanProbeArchLucidJob(
-    DataConsistencyOrphanProbeExecutor executor,
+    IDataConsistencyOrphanProbeExecutor executor,
     ILogger<OrphanProbeArchLucidJob> logger) : IArchLucidJob
 {
-    private readonly DataConsistencyOrphanProbeExecutor _executor =
+    private readonly IDataConsistencyOrphanProbeExecutor _executor =
         executor ?? throw new ArgumentNullException(nameof(executor));
 
     private readonly ILogger<OrphanProbeArchLucidJob> _logger =

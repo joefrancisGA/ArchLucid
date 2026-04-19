@@ -15,7 +15,7 @@ namespace ArchLucid.Persistence.Cosmos;
 /// Uses the same processor name and lease container as <see cref="AuditEventChangeFeedHostedService"/> so checkpoints are shared when operators migrate workloads.
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification = "Requires Cosmos account or emulator.")]
-public sealed class AuditEventChangeFeedSingleBatchProcessor(
+public sealed class AuditEventChangeFeedSingleBatchProcessor : IAuditEventChangeFeedSingleBatchRunner(
     CosmosClientFactory clientFactory,
     IOptionsMonitor<CosmosDbOptions> optionsMonitor,
     IAuditEventChangeFeedHandler handler,
