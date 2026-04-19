@@ -26,7 +26,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
         using ActivityListener listener = new()
         {
             ShouldListenTo = s => s.Name == "ArchLucid.RetrievalIndexing.Outbox",
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
+            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
             ActivityStopped = a => stopped.Add(a)
         };
         ActivitySource.AddActivityListener(listener);

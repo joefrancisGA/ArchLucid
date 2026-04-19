@@ -109,7 +109,7 @@ public sealed class LlmCallRetrySimmyTests
             .Build();
 
         Func<Task> act = () => pipeline.ExecuteAsync(
-                async (CancellationToken ct) =>
+                async ct =>
                 {
                     await Task.Delay(workDuration, ct);
                 },

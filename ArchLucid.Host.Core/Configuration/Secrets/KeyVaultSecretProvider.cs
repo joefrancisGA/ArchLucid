@@ -41,7 +41,7 @@ public sealed class KeyVaultSecretProvider : ISecretProvider
             return cached;
 
         Azure.Response<KeyVaultSecret> response = await _client.GetSecretAsync(secretName, cancellationToken: ct);
-        string? value = response.Value?.Value;
+        string? value = response.Value.Value;
 
         if (!string.IsNullOrEmpty(value))
             _cache.Set(cacheKey, value, _ttl);

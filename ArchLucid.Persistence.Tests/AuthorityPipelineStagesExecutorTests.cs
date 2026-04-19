@@ -47,7 +47,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         using ActivityListener listener = new()
         {
             ShouldListenTo = s => s.Name == AuthorityRunSourceName,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
+            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
             ActivityStopped = stopped.Add
         };
 
@@ -186,7 +186,7 @@ public sealed class AuthorityPipelineStagesExecutorTests
         using ActivityListener activityListener = new()
         {
             ShouldListenTo = s => s.Name == AuthorityRunSourceName,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
+            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
             ActivityStopped = stopped.Add
         };
 

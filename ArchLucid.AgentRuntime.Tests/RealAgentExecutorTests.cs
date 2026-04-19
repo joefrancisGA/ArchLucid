@@ -144,7 +144,7 @@ public sealed class RealAgentExecutorTests
         using ActivityListener listener = new()
         {
             ShouldListenTo = s => s.Name == ArchLucidInstrumentation.AgentHandler.Name,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
+            Sample = (ref _) => ActivitySamplingResult.AllData,
             ActivityStopped = completed.Add,
         };
 

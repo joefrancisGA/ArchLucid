@@ -311,7 +311,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         await Parallel.ForEachAsync(
             Enumerable.Range(0, parallel),
             new ParallelOptions { MaxDegreeOfParallelism = parallel },
-            async (int i, CancellationToken ct) =>
+            async (i, ct) =>
             {
                 byte[] keyHash = new byte[32];
                 keyHash[0] = (byte)i;

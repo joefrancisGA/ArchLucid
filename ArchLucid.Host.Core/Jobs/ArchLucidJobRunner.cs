@@ -8,7 +8,7 @@ public sealed class ArchLucidJobRunner(
 {
     private readonly IReadOnlyDictionary<string, IArchLucidJob> _jobsByName =
         (jobs ?? throw new ArgumentNullException(nameof(jobs)))
-        .Where(static j => true)
+        .Where(static _ => true)
         .ToDictionary(static j => j.Name, static j => j, StringComparer.OrdinalIgnoreCase);
 
     private readonly JobRunTelemetry _telemetry =

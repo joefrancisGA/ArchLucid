@@ -2,7 +2,7 @@ using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
-internal static class E2eHarnessRules
+internal static class E2EHarnessRules
 {
     public static void Collect(IConfiguration configuration, IWebHostEnvironment environment, List<string> errors)
     {

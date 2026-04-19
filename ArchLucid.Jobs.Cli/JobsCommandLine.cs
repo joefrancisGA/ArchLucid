@@ -9,7 +9,7 @@ internal static class JobsCommandLine
         jobName = null;
         usageError = null;
 
-        if (args is null || args.Count == 0)
+        if (args.Count == 0)
         {
             usageError = "Required: --job <name>";
 
@@ -32,16 +32,14 @@ internal static class JobsCommandLine
                 return false;
             }
 
-            jobName = args[i + 1]?.Trim();
+            jobName = args[i + 1].Trim();
 
-            if (string.IsNullOrWhiteSpace(jobName))
-            {
-                usageError = "Job name must not be empty.";
+            if (!string.IsNullOrWhiteSpace(jobName))
+                return true;
+            usageError = "Job name must not be empty.";
 
-                return false;
-            }
+            return false;
 
-            return true;
         }
 
         usageError = "Required: --job <name>";

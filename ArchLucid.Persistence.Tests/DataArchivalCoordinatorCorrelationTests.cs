@@ -25,7 +25,7 @@ public sealed class DataArchivalCoordinatorCorrelationTests
         using ActivityListener listener = new()
         {
             ShouldListenTo = s => s.Name == "ArchLucid.DataArchival",
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllDataAndRecorded,
+            Sample = (ref _) => ActivitySamplingResult.AllDataAndRecorded,
             ActivityStopped = a => stopped.Add(a)
         };
         ActivitySource.AddActivityListener(listener);

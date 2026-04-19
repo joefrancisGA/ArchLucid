@@ -13,11 +13,11 @@ public sealed class GreenfieldBaselineMigrationRunnerTests
         IReadOnlyList<string> names = GreenfieldBaselineMigrationRunner.GetOrderedIncrementalMigrationResourceNames();
 
         int governance = names
-            .Select((string n, int i) => (n, i))
+            .Select((n, i) => (n, i))
             .First(t => t.n.Contains("017_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase))
             .i;
         int graphSnapshots = names
-            .Select((string n, int i) => (n, i))
+            .Select((n, i) => (n, i))
             .First(t => t.n.Contains("017_GraphSnapshots", StringComparison.OrdinalIgnoreCase))
             .i;
 
