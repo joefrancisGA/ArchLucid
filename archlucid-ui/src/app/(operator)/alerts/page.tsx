@@ -33,7 +33,10 @@ import {
   alertsFilteredEmptyDescriptionReader,
   alertsPageLeadOperator,
   alertsPageLeadReader,
+  alertsPageShortcutsLineReader,
   alertsTriageDialogReaderNote,
+  alertsTriageDialogTitleReaderSuffix,
+  alertsTriageOpenPreviewReaderTitle,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
@@ -158,21 +161,16 @@ export default function AlertsPage() {
     [load],
   );
 
-  const onAlertShortcutAction = useCallback(
-    (alertId: string, action: string) => {
-      if (!canMutateAlertInbox) {
-        return;
-      }
+  const onAlertShortcutAction = useCallback((alertId: string, action: string) => {
 
-      if (action === "Acknowledge" || action === "Resolve" || action === "Suppress") {
-        setPendingAction({ alertId, action });
-        setActionComment("");
-      }
-    },
-    [canMutateAlertInbox],
-  );
+    if (action === "Acknowledge" || action === "Resolve" || action === "Suppress") {
+      setPendingAction({ alertId, action });
+      setActionComment("");
+    }
+  }, []);
 
-  useAlertCardShortcuts({ onAction: onAlertShortcutAction, mutationsEnabled: canMutateAlertInbox });
+  /** Alt+1–3 open the same triage preview as the buttons; Confirm stays API-gated by rank. */
+  useAlertCardShortcuts({ onAction: onAlertShortcutAction, mutationsEnabled: true });
 
   async function onConfirmActionDialog(): Promise<void> {
     if (pendingAction === null || !canMutateAlertInbox) {
@@ -245,8 +243,7 @@ export default function AlertsPage() {
       </div>
 
       <span className="mb-4 mt-1 block text-xs text-neutral-700 dark:text-neutral-300">
-        Alt+J/K navigate
-        {canMutateAlertInbox ? " · Alt+1 ack · Alt+2 resolve · Alt+3 suppress" : ""}
+        {canMutateAlertInbox ? "Alt+J/K navigate · Alt+1 ack · Alt+2 resolve · Alt+3 suppress" : alertsPageShortcutsLineReader}
       </span>
 
       <div className="grid gap-3">
@@ -303,15 +300,14 @@ export default function AlertsPage() {
                   <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
                     {canMutateAlertInbox
                       ? "Use triage actions when this signal needs follow-up."
-                      : "Read-focused inbox view. Triage actions require operator-level access in this shell."}
+                      : "Read-focused inbox: open triage to preview the form; Confirm stays off until Execute+ (API)."}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Button
                       type="button"
                       size="sm"
-                      variant="secondary"
-                      disabled={!canMutateAlertInbox}
-                      title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
+                      variant={canMutateAlertInbox ? "secondary" : "outline"}
+                      title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
                       onClick={() => {
                         setPendingAction({ alertId: alert.alertId, action: "Acknowledge" });
                         setActionComment("");
@@ -322,9 +318,8 @@ export default function AlertsPage() {
                     <Button
                       type="button"
                       size="sm"
-                      variant="secondary"
-                      disabled={!canMutateAlertInbox}
-                      title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
+                      variant={canMutateAlertInbox ? "secondary" : "outline"}
+                      title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
                       onClick={() => {
                         setPendingAction({ alertId: alert.alertId, action: "Resolve" });
                         setActionComment("");
@@ -337,8 +332,7 @@ export default function AlertsPage() {
                       size="sm"
                       variant="outline"
                       className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
-                      disabled={!canMutateAlertInbox}
-                      title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
+                      title={canMutateAlertInbox ? undefined : alertsTriageOpenPreviewReaderTitle}
                       onClick={() => {
                         setPendingAction({ alertId: alert.alertId, action: "Suppress" });
                         setActionComment("");
@@ -390,7 +384,7 @@ export default function AlertsPage() {
             <DialogTitle>
               {pendingAction === null
                 ? "Alert action"
-                : `${pendingAction.action} alert`}
+                : `${pendingAction.action} alert${!canMutateAlertInbox ? alertsTriageDialogTitleReaderSuffix : ""}`}
             </DialogTitle>
             <DialogDescription>
               {pendingAction === null

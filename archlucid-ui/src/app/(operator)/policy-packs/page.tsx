@@ -25,6 +25,7 @@ import {
 import {
   enterpriseMutationControlDisabledTitle,
   enterprisePolicyPacksOperatorPlusLine,
+  policyPacksCompareVersionsReaderSubline,
   policyPacksEmptyScopeOperatorLine,
   policyPacksEmptyScopeReaderLine,
   policyPacksLifecycleLeadReaderLine,
@@ -359,6 +360,11 @@ export default function PolicyPacksPage() {
         )}
 
         <h4 style={{ marginTop: 20, marginBottom: 8 }}>Compare versions</h4>
+        {!canMutatePacks ? (
+          <p className="mb-1 max-w-prose text-xs text-neutral-500 dark:text-neutral-400" role="note">
+            {policyPacksCompareVersionsReaderSubline}
+          </p>
+        ) : null}
         <p style={{ fontSize: 14, color: "#555", marginTop: 0 }}>
           Pick two published content snapshots for the selected pack and diff JSON structure (added / removed / changed
           paths).

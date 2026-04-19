@@ -87,16 +87,22 @@ export const alertsPageLeadOperator =
   "Filter, then triage. Shortcuts: Alt+1 ack · Alt+2 resolve · Alt+3 suppress.";
 
 /** Alerts inbox — lead paragraph under page title (read tier). */
-export const alertsPageLeadReader = "Filter and refresh the inbox.";
+export const alertsPageLeadReader =
+  "Filter and refresh the inbox. Buttons or Alt+1–3 open a triage preview; Confirm needs Execute+ (API).";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
-export const alertsInboxRankReaderLine = "Ack / resolve / suppress need Execute+ here (API).";
+export const alertsInboxRankReaderLine =
+  "Triage preview is available in this shell; Confirm and API writes need Execute+.";
 
 export const alertsInboxRankOperatorLine = "Triage writes are API-enforced.";
 
 /** Alerts triage confirmation dialog — extra copy when rank is below Execute (`alerts/page.tsx`). */
 export const alertsTriageDialogReaderNote =
-  "Confirm requires operator-level access in this shell; the API enforces every write.";
+  "Confirm stays disabled at your rank in this shell; the API enforces every write.";
+
+/** Title on triage action buttons when rank can open the dialog but cannot Confirm (`alerts/page.tsx`). */
+export const alertsTriageOpenPreviewReaderTitle =
+  "Open triage preview; Confirm needs Execute+ on the API.";
 
 /** Audit log — readers vs operators (see `AuditLogRankCue`). */
 export const auditLogRankReaderLine = "CSV export: Auditor or Admin on the API (same From/To).";
@@ -195,6 +201,25 @@ export const auditSearchNoResultsOperatorLine = "No audit events match your filt
 
 /** Audit log — under “Search audit events” for read tier (Execute floor; CSV export still Auditor/Admin on API). */
 export const auditSearchSectionLeadReaderLine = "Search first; export last (same From/To; Auditor/Admin on API).";
+
+/** Alert rules — under “Current rules” for read tier (list is inspect; writes live in Change configuration). */
+export const alertRulesCurrentRulesSectionReaderSubline =
+  "Inspect definitions here; create and thresholds need Execute+ in the section below (API).";
+
+/** Alert routing — under “Current routing” for read tier. */
+export const alertRoutingCurrentSubscriptionsReaderSubline =
+  "Inspect subscriptions and delivery history; toggles and new routes need Execute+ below (API).";
+
+/** Policy packs — under “Compare versions” when rank cannot mutate (diff is still read-only inspection). */
+export const policyPacksCompareVersionsReaderSubline =
+  "Version diff is read-only; publish, assign, and create are in Lifecycle (Execute+).";
+
+/** Alerts triage dialog — appended to title when Confirm is disabled at read rank. */
+export const alertsTriageDialogTitleReaderSuffix = " (read-only)";
+
+/** Under-card shortcut hint for read tier (Alt+1–3 register for preview only). */
+export const alertsPageShortcutsLineReader =
+  "Alt+J/K navigate · Alt+1–3 triage preview (Confirm disabled at your rank)";
 
 /** Alert rules — under “Change configuration” for read tier. */
 export const alertRulesChangeConfigurationLeadReaderLine =

@@ -9,6 +9,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRoutingChangeConfigurationLeadReaderLine,
+  alertRoutingCurrentSubscriptionsReaderSubline,
   alertRoutingSubscriptionsEmptyOperatorLine,
   alertRoutingSubscriptionsEmptyReaderLine,
   alertToolingConfigureSectionSubline,
@@ -113,10 +114,18 @@ export default function AlertRoutingPage() {
       ) : null}
 
       <div className="flex flex-col gap-6">
-        <section className="min-w-0" aria-labelledby="alert-routing-current-heading">
+        <section
+          className={cn("min-w-0", !canMutateRouting && "opacity-95")}
+          aria-labelledby="alert-routing-current-heading"
+        >
           <h3 id="alert-routing-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
             Current routing
           </h3>
+          {!canMutateRouting ? (
+            <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400" role="note">
+              {alertRoutingCurrentSubscriptionsReaderSubline}
+            </p>
+          ) : null}
           <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
             {loading ? "Loading…" : "Refresh"}
           </button>
