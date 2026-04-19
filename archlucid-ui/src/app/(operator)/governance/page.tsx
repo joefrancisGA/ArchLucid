@@ -663,6 +663,7 @@ function GovernanceWorkflowPageInner() {
                         <Button
                           type="button"
                           size="sm"
+                          variant={canMutateWorkflow ? "default" : "outline"}
                           onClick={() => void onConfirmReview()}
                           disabled={reviewBusy || !canMutateWorkflow}
                           title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}

@@ -98,12 +98,18 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
   });
 
-  it("Alerts inbox: triage Acknowledge stays disabled when mutation capability is false", async () => {
+  it("Alerts inbox: triage preview opens but Confirm stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
     render(<AlertsPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Acknowledge" })).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Acknowledge" })).not.toBeDisabled();
+    });
+
+    screen.getByRole("button", { name: "Acknowledge" }).click();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Confirm" })).toBeDisabled();
     });
   });
 

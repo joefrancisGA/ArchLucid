@@ -10,6 +10,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRulesChangeConfigurationLeadReaderLine,
+  alertRulesCurrentRulesSectionReaderSubline,
   alertRulesDefinedListEmptyOperatorLine,
   alertRulesDefinedListEmptyReaderLine,
   alertToolingConfigureSectionSubline,
@@ -97,10 +98,18 @@ export default function AlertRulesPage() {
       ) : null}
 
       <div className="flex flex-col gap-6">
-        <section className="min-w-0" aria-labelledby="alert-rules-current-heading">
+        <section
+          className={cn("min-w-0", !canMutateAlertRules && "opacity-95")}
+          aria-labelledby="alert-rules-current-heading"
+        >
           <h3 id="alert-rules-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
             Current rules
           </h3>
+          {!canMutateAlertRules ? (
+            <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400" role="note">
+              {alertRulesCurrentRulesSectionReaderSubline}
+            </p>
+          ) : null}
           <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
             {loading ? "Loading…" : "Refresh"}
           </button>

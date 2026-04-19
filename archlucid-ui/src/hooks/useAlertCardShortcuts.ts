@@ -9,7 +9,8 @@ export type UseAlertCardShortcutsOptions = {
   onAction: (alertId: string, action: string) => void;
   /**
    * When false, Alt+1/2/3 are not registered (read-tier principals still use J/K to move between cards).
-   * Aligns with `useEnterpriseMutationCapability` / API Execute-class alert actions.
+   * The alerts inbox passes **true** at all ranks so Alt+1/2/3 open the same triage preview as the buttons;
+   * **`useEnterpriseMutationCapability()`** on the page still gates **Confirm** / API writes.
    */
   mutationsEnabled?: boolean;
 };
