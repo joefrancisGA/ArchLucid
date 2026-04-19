@@ -2,7 +2,7 @@
 
 Thin Next.js App Router UI for the ArchLucid operator experience. The default job of the UI is to help a team move from an architecture request to a reviewable, defensible output quickly through the **Core Pilot** path, then expand into **Advanced Analysis** or **Enterprise Controls** only when needed.
 
-**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/EXECUTIVE_SPONSOR_BRIEF.md](../docs/EXECUTIVE_SPONSOR_BRIEF.md). This UI README explains operator flow and implementation-facing shaping; it is not the primary buyer summary. Pilot measurement: [../docs/PILOT_ROI_MODEL.md](../docs/PILOT_ROI_MODEL.md).
+**Canonical buyer narrative:** For sponsor-facing and outward buyer messaging, start with [../docs/EXECUTIVE_SPONSOR_BRIEF.md](../docs/EXECUTIVE_SPONSOR_BRIEF.md). This UI README explains operator flow and implementation-facing shaping; it is not the primary buyer summary. **Measurement companion:** [../docs/PILOT_ROI_MODEL.md](../docs/PILOT_ROI_MODEL.md).
 
 **Core Pilot first-value rule:** for most first pilots, stay on the **Core Pilot** path until request → commit → artifact review is working cleanly. Treat Advanced Analysis and Enterprise Controls as follow-on maturity paths, not co-equal Day-1 proof.
 
@@ -139,7 +139,7 @@ This is a boundary-hardening step for clarity and operational accountability. It
 | Document | What it covers |
 |----------|---------------|
 | [Executive sponsor brief](../docs/EXECUTIVE_SPONSOR_BRIEF.md) | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters. |
-| [Pilot ROI model](../docs/PILOT_ROI_MODEL.md) | **How to judge pilot success:** measures, scorecard, sponsor-ready outcome language. |
+| [Pilot ROI model](../docs/PILOT_ROI_MODEL.md) | **Measurement companion:** how to judge pilot success using scorecards and practical V1 measures without turning the ROI model into a second buyer story. |
 | [Operator decision guide](../docs/OPERATOR_DECISION_GUIDE.md) | **Which layer to use next:** stay narrow unless a real question requires expansion. |
 | [Commercial boundary hardening sequence](../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) | **What should harden first:** UI shaping → role-native boundaries → selective future commercialization. |
 | [Operator quickstart](../docs/OPERATOR_QUICKSTART.md) | **Pilots / operators:** commands, health, first run. |
