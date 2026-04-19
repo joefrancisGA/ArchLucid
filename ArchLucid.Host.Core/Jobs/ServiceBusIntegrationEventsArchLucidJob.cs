@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Integration;
@@ -15,7 +13,6 @@ namespace ArchLucid.Host.Core.Jobs;
 /// <summary>
 /// Drains a bounded batch from the integration Service Bus subscription (peek-lock), then exits — for Container Apps Jobs + KEDA.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "Requires live Service Bus; logic shared with AzureServiceBusIntegrationEventConsumer via IntegrationEventServiceBusMessageDispatch.")]
 public sealed class ServiceBusIntegrationEventsArchLucidJob(
     IEnumerable<IIntegrationEventHandler> handlers,
     IOptionsMonitor<IntegrationEventsOptions> options,

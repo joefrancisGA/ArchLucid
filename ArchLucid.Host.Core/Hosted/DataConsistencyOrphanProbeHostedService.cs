@@ -12,11 +12,11 @@ namespace ArchLucid.Host.Core.Hosted;
 /// </summary>
 public sealed class DataConsistencyOrphanProbeHostedService(
     IOptionsMonitor<DataConsistencyProbeOptions> optionsMonitor,
-    DataConsistencyOrphanProbeExecutor executor,
+    IDataConsistencyOrphanProbeExecutor executor,
     IOptions<ArchLucidOptions> archLucidOptions,
     ILogger<DataConsistencyOrphanProbeHostedService> logger) : BackgroundService
 {
-    private readonly DataConsistencyOrphanProbeExecutor _executor =
+    private readonly IDataConsistencyOrphanProbeExecutor _executor =
         executor ?? throw new ArgumentNullException(nameof(executor));
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
