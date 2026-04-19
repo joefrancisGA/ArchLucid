@@ -18,4 +18,6 @@ public static class HostElectionLeaseNames
     public const string TrialLifecycleEmailPolling = "hosted:trial-lifecycle-email-polling";
 
     public const string TrialLifecycleAutomation = "hosted:trial-lifecycle-automation";
+
+    public const string TenantHealthScoring = "hosted:tenant-health-scoring";
 }

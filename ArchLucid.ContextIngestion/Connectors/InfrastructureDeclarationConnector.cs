@@ -53,12 +53,10 @@ public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDecla
         int currentCount = current.CanonicalObjects.Count;
 
         if (previous is null)
-        
             return Task.FromResult(new ContextDelta
             {
                 Summary = $"Initial infrastructure declaration ingestion: {currentCount} object(s)."
             });
-        
 
         int previousCount = previous.CanonicalObjects.Count;
         int diff = currentCount - previousCount;
