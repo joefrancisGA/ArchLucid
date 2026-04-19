@@ -65,6 +65,8 @@ import {
   governanceWorkflowPendingReviewReaderNote,
   governanceWorkflowRejectButtonLabelReaderRank,
   governanceWorkflowReviewSubmitButtonLabelReaderRank,
+  governanceWorkflowRefreshRunDataButtonLabel,
+  governanceWorkflowRefreshRunDataTitle,
   governanceWorkflowSubmitCardDescriptionReader,
   governanceWorkflowSubmitForApprovalButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
@@ -562,8 +564,8 @@ function GovernanceWorkflowPageInner() {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-              <div className="grid flex-1 gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+              <div className="grid min-w-0 flex-1 gap-2">
                 <Label htmlFor="gov-query-run">Run ID</Label>
                 <Input
                   id="gov-query-run"
@@ -573,9 +575,22 @@ function GovernanceWorkflowPageInner() {
                   autoComplete="off"
                 />
               </div>
-              <Button type="button" variant="secondary" onClick={onLoadRun} disabled={listsLoading}>
-                {listsLoading ? "Loading…" : "Load"}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" variant="secondary" onClick={onLoadRun} disabled={listsLoading}>
+                  {listsLoading ? "Loading…" : "Load"}
+                </Button>
+                {activeRunId !== null ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => void refreshIfActive()}
+                    disabled={listsLoading}
+                    title={governanceWorkflowRefreshRunDataTitle}
+                  >
+                    {listsLoading ? "Refreshing…" : governanceWorkflowRefreshRunDataButtonLabel}
+                  </Button>
+                ) : null}
+              </div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="gov-workflow-actor">Acting as (for promote &amp; activate)</Label>

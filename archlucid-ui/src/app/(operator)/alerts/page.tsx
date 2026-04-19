@@ -37,6 +37,7 @@ import {
   alertsTriageAcknowledgeButtonLabelReaderInbox,
   alertsTriageDialogReaderNote,
   alertsTriageDialogTitleReaderSuffix,
+  alertsTriageDialogConfirmButtonLabelReaderRank,
   alertsTriageOpenPreviewReaderTitle,
   alertsTriageResolveButtonLabelReaderInbox,
   alertsTriageSuppressButtonLabelReaderInbox,
@@ -429,7 +430,11 @@ export default function AlertsPage() {
               disabled={actionBusy || pendingAction === null || !canMutateAlertInbox}
               title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
             >
-              {actionBusy ? "Saving…" : "Confirm"}
+              {actionBusy
+                ? "Saving…"
+                : canMutateAlertInbox
+                  ? "Confirm"
+                  : alertsTriageDialogConfirmButtonLabelReaderRank}
             </Button>
           </DialogFooter>
         </DialogContent>
