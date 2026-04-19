@@ -34,13 +34,13 @@ using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Concurrency;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Conversation;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Coordination.Evolution;
 using ArchLucid.Persistence.Coordination.ProductLearning;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Coordination.Retrieval;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Interfaces;
@@ -198,7 +198,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                 connectionString));
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
-        services.AddSingleton<Persistence.Data.Repositories.IHostLeaderLeaseRepository, Persistence.Data.Repositories.SqlHostLeaderLeaseRepository>();
+        services.AddSingleton<IHostLeaderLeaseRepository, SqlHostLeaderLeaseRepository>();
 
         // Scoped: DapperTrialFunnelOperationalMetricsReader takes ISqlConnectionFactory (scoped); hosted service resolves it per scope.
         services.AddScoped<ITrialFunnelOperationalMetricsReader, DapperTrialFunnelOperationalMetricsReader>();

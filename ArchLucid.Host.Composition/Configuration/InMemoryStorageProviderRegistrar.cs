@@ -124,7 +124,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
-        services.AddSingleton<Persistence.Data.Repositories.IHostLeaderLeaseRepository, Persistence.Data.Repositories.NoOpHostLeaderLeaseRepository>();
+        services.AddSingleton<IHostLeaderLeaseRepository, NoOpHostLeaderLeaseRepository>();
 
         ArchLucidStorageServiceCollectionExtensions.RegisterArtifactLargePayloadBlobStore(services, configuration);
         ArchLucidStorageServiceCollectionExtensions.RegisterHotPathReadCaching(services, configuration);

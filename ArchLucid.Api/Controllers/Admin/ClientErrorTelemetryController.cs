@@ -33,7 +33,7 @@ public sealed class ClientErrorTelemetryController(ILogger<ClientErrorTelemetryC
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
         }
 
-        string message = body.Message?.Trim() ?? string.Empty;
+        string message = body.Message.Trim();
 
         if (message.Length == 0)
         {
@@ -96,11 +96,6 @@ public sealed class ClientErrorTelemetryController(ILogger<ClientErrorTelemetryC
 
         string trimmed = value.Trim();
 
-        if (trimmed.Length <= maxLen)
-        {
-            return trimmed;
-        }
-
-        return trimmed[..maxLen];
+        return trimmed.Length <= maxLen ? trimmed : trimmed[..maxLen];
     }
 }

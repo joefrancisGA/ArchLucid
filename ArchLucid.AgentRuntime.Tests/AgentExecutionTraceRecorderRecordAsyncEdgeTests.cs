@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 // Child namespace `ArchLucid.AgentRuntime.Tests.AgentExecutionTraceRecorder` shadows the runtime type name in this parent namespace (CS0118).
-using AgentExecutionTraceRecorderImpl = global::ArchLucid.AgentRuntime.AgentExecutionTraceRecorder;
+using AgentExecutionTraceRecorderImpl = ArchLucid.AgentRuntime.AgentExecutionTraceRecorder;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
