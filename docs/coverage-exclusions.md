@@ -134,6 +134,7 @@ Pure data-transfer objects used by Dapper for SQL result mapping. They contain o
 |-------|----------|---------------|
 | `Program` (partial) | Api | ASP.NET startup wiring; tested via `WebApplicationFactory` integration tests |
 | `Program` (static) | Cli | CLI argument dispatch and console I/O |
+| `Program` (static) | Jobs.Cli | ACA Jobs composition root (`WebApplication` + DI + schema bootstrap); **`JobsCommandLine`** is unit-tested in **`ArchLucid.Jobs.Cli.Tests`** |
 | `ApiKeyAuthenticationHandler` | Api | ASP.NET authentication handler; tested via HTTP pipeline integration tests |
 
 ## Category 8b: CLI API-orchestration subcommands (`ArchLucid.Cli`)

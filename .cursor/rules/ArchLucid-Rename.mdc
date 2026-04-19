@@ -1,23 +1,21 @@
 ---
-description: Standing instruction to incrementally rename ArchiForge → ArchLucid alongside every task.
+description: ArchiForge → ArchLucid rename — maintenance mode (initiative complete).
 alwaysApply: true
 ---
 
-# ArchLucid incremental rename
+# ArchLucid rename (complete)
 
-The product is being renamed from **ArchiForge** to **ArchLucid**. The rename is tracked in `docs/ARCHLUCID_RENAME_CHECKLIST.md`.
+The product rename from **ArchiForge** to **ArchLucid** was tracked in `docs/ARCHLUCID_RENAME_CHECKLIST.md`. **The initiative closed 2026-04-19** (GitHub repo `joefrancisGA/ArchLucid`, greenfield Terraform, docs; **7.8** local folder path **waived**).
 
-## What to do every session
+## What to do each session now
 
-1. Open `docs/ARCHLUCID_RENAME_CHECKLIST.md` and find the **next unchecked batch** (if any remain).
-2. Complete that batch alongside whatever else the user asked for.
-3. Check off the completed items in the checklist and note the date.
-4. Keep the build green — every commit must compile and pass CI.
+1. **Do not** open the checklist looking for mandatory rename batches unless the user explicitly asks for rename follow-up.
+2. If a change **reintroduces** forbidden legacy tokens, **CI** will fail — fix the change, do not add silent `ArchiForge*` config or `ARCHIFORGE_*` env fallbacks without product approval.
+3. Keep the build green.
 
-## Guardrails
+## Guardrails (unchanged)
 
-- **One batch per session** unless the user explicitly asks for more.
-- **Phases 5–7 code-level rename is substantially complete** (`ArchLucid.sln`, `ArchLucid.*` projects, bridges removed per Phase 7). **Deferred without `terraform state mv` / external coordination:** Terraform resource **addresses** still using `archiforge`, GitHub repo rename, Entra app registration renames, workspace root path — see checklist **7.5–7.8**.
 - **Never modify historical SQL migration files** (001–028). Only update the master DDL script (`ArchLucid.sql`) and add new migrations if needed.
 - **Do not reintroduce** silent `ArchiForge*` configuration or `ARCHIFORGE_*` env fallbacks without an explicit product decision; use startup warnings if legacy presence must be surfaced.
-- If a batch turns out to be larger than expected, split it and update the checklist.
+- **Terraform:** `infra/**/*.tf` must not contain the substring `archiforge` (CI guard). Brownfield state migration is documented only in `docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`.
+- **SQL RLS object names** in the database may retain historical `Archiforge*` identifiers until a separate, explicit migration — see `docs/security/MULTI_TENANT_RLS.md`.

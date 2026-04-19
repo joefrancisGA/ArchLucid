@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Auth.Services;
@@ -11,6 +13,11 @@ using ArchLucid.Host.Core.Startup.Validation;
 namespace ArchLucid.Jobs.Cli;
 
 /// <summary>One-shot job runner for Azure Container Apps Jobs (<c>dotnet ArchLucid.Jobs.Cli.dll --job advisory-scan</c>).</summary>
+/// <remarks>
+/// Host wiring is a composition root (WebApplication, DI, migrations). Unit tests cover <see cref="JobsCommandLine"/>;
+/// the running job path is exercised in Container Apps Job deployments and optional integration suites.
+/// </remarks>
+[ExcludeFromCodeCoverage(Justification = "Composition root for ACA Jobs; CLI parsing covered by ArchLucid.Jobs.Cli.Tests.")]
 public static class Program
 {
     /// <summary>Entry point.</summary>
