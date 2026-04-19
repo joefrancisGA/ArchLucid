@@ -67,7 +67,7 @@ public sealed class RunPipelineAuditTimelineServiceTests
 
         List<AuditEvent> fromDb =
         [
-            new AuditEvent
+            new()
             {
                 EventType = "B",
                 OccurredUtc = t2,
@@ -78,7 +78,7 @@ public sealed class RunPipelineAuditTimelineServiceTests
                 ProjectId = projectId,
                 RunId = runId,
             },
-            new AuditEvent
+            new()
             {
                 EventType = "A",
                 OccurredUtc = t1,

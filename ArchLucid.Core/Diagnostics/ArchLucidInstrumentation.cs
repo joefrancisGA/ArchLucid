@@ -700,7 +700,7 @@ public static class ArchLucidInstrumentation
 
         TagList BuildTags()
         {
-            TagList tags = new TagList();
+            TagList tags = new();
 
             if (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
             {

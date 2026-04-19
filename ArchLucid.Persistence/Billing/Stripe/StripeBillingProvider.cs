@@ -64,7 +64,7 @@ public sealed class StripeBillingProvider(
             },
             LineItems = new List<SessionLineItemOptions>
             {
-                new SessionLineItemOptions { Price = priceId, Quantity = 1 },
+                new() { Price = priceId, Quantity = 1 },
             },
         };
 
@@ -73,7 +73,10 @@ public sealed class StripeBillingProvider(
             options.CustomerEmail = request.BillingEmail;
         }
 
-        RequestOptions requestOptions = new() { ApiKey = secretKey };
+        RequestOptions requestOptions = new()
+        {
+            ApiKey = secretKey
+        };
 
         Session session = await sessionService.CreateAsync(options, requestOptions, cancellationToken);
 

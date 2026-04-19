@@ -300,7 +300,7 @@ public sealed class CircuitBreakerGate
 
     private void EmitRejection()
     {
-        TagList tags = new TagList { { "gate", _gateName } };
+        TagList tags = new() { { "gate", _gateName } };
         ArchLucidInstrumentation.CircuitBreakerRejections.Add(1, tags);
         string state = _state.ToString();
 
@@ -311,7 +311,7 @@ public sealed class CircuitBreakerGate
     {
         _lastStateChangeUtc = _timeProvider.GetUtcNow();
 
-        TagList tags = new TagList
+        TagList tags = new()
         {
             { "gate", _gateName },
             { "from_state", fromState },
@@ -324,7 +324,7 @@ public sealed class CircuitBreakerGate
 
     private void EmitProbeOutcome(string outcome)
     {
-        TagList tags = new TagList { { "gate", _gateName }, { "outcome", outcome } };
+        TagList tags = new() { { "gate", _gateName }, { "outcome", outcome } };
         ArchLucidInstrumentation.CircuitBreakerProbeOutcomes.Add(1, tags);
         string state = _state.ToString();
 

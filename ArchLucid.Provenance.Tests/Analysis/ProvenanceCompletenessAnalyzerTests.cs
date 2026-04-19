@@ -206,28 +206,28 @@ public sealed class ProvenanceCompletenessAnalyzerTests
     {
         List<ProvenanceNode> nodes =
         [
-            new ProvenanceNode
+            new()
             {
                 Id = GraphNodeId,
                 Type = ProvenanceNodeType.GraphNode,
                 ReferenceId = "gn-1",
                 Name = "Graph"
             },
-            new ProvenanceNode
+            new()
             {
                 Id = FindingId,
                 Type = ProvenanceNodeType.Finding,
                 ReferenceId = "finding-a",
                 Name = "Finding"
             },
-            new ProvenanceNode
+            new()
             {
                 Id = RuleId,
                 Type = ProvenanceNodeType.Rule,
                 ReferenceId = "rule-1",
                 Name = "rule-1"
             },
-            new ProvenanceNode
+            new()
             {
                 Id = DecisionId,
                 Type = ProvenanceNodeType.Decision,
@@ -238,21 +238,21 @@ public sealed class ProvenanceCompletenessAnalyzerTests
 
         List<ProvenanceEdge> edges =
         [
-            new ProvenanceEdge
+            new()
             {
                 Id = Guid.NewGuid(),
                 FromNodeId = GraphNodeId,
                 ToNodeId = FindingId,
                 Type = ProvenanceEdgeType.InfluencedByGraphNode
             },
-            new ProvenanceEdge
+            new()
             {
                 Id = Guid.NewGuid(),
                 FromNodeId = FindingId,
                 ToNodeId = DecisionId,
                 Type = ProvenanceEdgeType.SupportedBy
             },
-            new ProvenanceEdge
+            new()
             {
                 Id = Guid.NewGuid(),
                 FromNodeId = RuleId,

@@ -39,14 +39,14 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
 
         Claim[] claims =
         [
-            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString("D")),
-            new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim("name", email),
-            new Claim(ClaimTypes.Role, role),
-            new Claim("roles", role),
-            new Claim("tenant_id", tenantId.ToString("D")),
-            new Claim("workspace_id", workspaceId.ToString("D")),
-            new Claim("project_id", projectId.ToString("D")),
+            new(JwtRegisteredClaimNames.Sub, userId.ToString("D")),
+            new(JwtRegisteredClaimNames.Email, email),
+            new("name", email),
+            new(ClaimTypes.Role, role),
+            new("roles", role),
+            new("tenant_id", tenantId.ToString("D")),
+            new("workspace_id", workspaceId.ToString("D")),
+            new("project_id", projectId.ToString("D")),
         ];
 
         JwtSecurityToken token = new(
@@ -57,7 +57,10 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
             expires: expires.UtcDateTime,
             signingCredentials: creds);
 
-        JwtSecurityTokenHandler handler = new() { MapInboundClaims = false };
+        JwtSecurityTokenHandler handler = new()
+        {
+            MapInboundClaims = false
+        };
 
         return handler.WriteToken(token);
     }

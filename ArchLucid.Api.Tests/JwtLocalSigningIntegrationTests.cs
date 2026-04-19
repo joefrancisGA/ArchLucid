@@ -65,7 +65,7 @@ public sealed class JwtLocalSigningIntegrationTests : IClassFixture<JwtLocalSign
         RsaSecurityKey signingKey = new(keyMaterial);
         SigningCredentials creds = new(signingKey, SecurityAlgorithms.RsaSha256);
 
-        List<Claim> claims = [new Claim(JwtRegisteredClaimNames.Sub, "test-sub"), new Claim("name", name)];
+        List<Claim> claims = [new(JwtRegisteredClaimNames.Sub, "test-sub"), new("name", name)];
 
         foreach (string r in roles)
         {

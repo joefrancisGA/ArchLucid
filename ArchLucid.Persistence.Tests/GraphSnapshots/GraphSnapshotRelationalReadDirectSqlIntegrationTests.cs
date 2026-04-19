@@ -329,7 +329,7 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
 
         List<GraphEdge> jsonEdges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "e-merge",
                 FromNodeId = "a",

@@ -30,7 +30,7 @@ internal static class OpenApiJsonCanonicalizer
 
     private static JsonObject CanonicalizeObject(JsonObject obj)
     {
-        JsonObject result = new JsonObject();
+        JsonObject result = new();
 
         foreach (KeyValuePair<string, JsonNode?> pair in obj.OrderBy(static p => p.Key, StringComparer.Ordinal))
         {
@@ -51,7 +51,7 @@ internal static class OpenApiJsonCanonicalizer
         if (string.Equals(parentPropertyName, "tags", StringComparison.Ordinal) && items.Count > 0)
             SortTagsArray(items);
 
-        JsonArray result = new JsonArray();
+        JsonArray result = new();
 
         foreach (JsonNode? item in items)
             result.Add(item);

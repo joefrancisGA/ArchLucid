@@ -89,7 +89,7 @@ public sealed class CandidateChangeSetService : ICandidateChangeSetService
         {
             List<ChangeSetAffectedComponent> list =
             [
-                new ChangeSetAffectedComponent
+                new()
                 {
                     ComponentKey = theme.ThemeKey,
                     DisplayName = theme.Title,

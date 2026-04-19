@@ -184,8 +184,8 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
 
         List<KeyValuePair<string, object?>> parameters =
         [
-            new KeyValuePair<string, object?>("@wid", wid),
-            new KeyValuePair<string, object?>("@pid", pid),
+            new("@wid", wid),
+            new("@pid", pid),
         ];
 
         if (!string.IsNullOrWhiteSpace(filter.EventType))
@@ -232,7 +232,7 @@ public sealed class CosmosAuditRepository(CosmosClientFactory clientFactory) : I
 
         sql.Append(" ORDER BY c.occurredUtc DESC");
 
-        QueryDefinition query = new QueryDefinition(sql.ToString());
+        QueryDefinition query = new(sql.ToString());
 
         foreach (KeyValuePair<string, object?> pair in parameters)
             query = query.WithParameter(pair.Key, pair.Value!);
