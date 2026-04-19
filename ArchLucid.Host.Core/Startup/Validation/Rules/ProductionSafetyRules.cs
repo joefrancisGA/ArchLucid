@@ -12,7 +12,7 @@ internal static class ProductionSafetyRules
         BillingOptions billing =
             configuration.GetSection(BillingOptions.SectionName).Get<BillingOptions>() ?? new BillingOptions();
 
-        if (!string.Equals(billing.Provider?.Trim(), BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(billing.Provider.Trim(), BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
@@ -33,7 +33,7 @@ internal static class ProductionSafetyRules
             configuration.GetSection(EmailNotificationOptions.SectionName).Get<EmailNotificationOptions>()
             ?? new EmailNotificationOptions();
 
-        if (!string.Equals(email.Provider?.Trim(), EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(email.Provider.Trim(), EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase))
         {
             return;
         }

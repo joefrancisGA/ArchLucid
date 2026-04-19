@@ -55,7 +55,7 @@ public sealed class AuditEventChangeFeedSingleBatchProcessor : IAuditEventChange
         ChangeFeedProcessor processor = feed
             .GetChangeFeedProcessorBuilder<AuditEventDocument>(
                 "archlucid-audit-events",
-                async (ChangeFeedProcessorContext context, IReadOnlyCollection<AuditEventDocument> changes, CancellationToken token) =>
+                async (context, changes, token) =>
                 {
                     _ = context;
 
