@@ -89,6 +89,8 @@ What landed in this repository for the **marketplace / ADR 0016 hand-off** slice
 
 **2026-04-19 (trial / ChatOps / prod promotion plumbing):** `IIntegrationEventPublisher.PublishAsync` overload with optional application properties; direct publish + outbox drain attach **`promotion_environment`** for `GovernancePromotionActivatedV1`; **`TrialLifecycleEmailRoutingOptions`** + **`ArchLucid:Notifications:TrialLifecycle:Owner`** (`Hosted` / `LogicApp`); optional Service Bus subscriptions + IAM in **`infra/terraform-servicebus/`**; placeholder workflow READMEs under **`infra/terraform-logicapps/workflows/`** (`trial-lifecycle-email`, `incident-chatops`, `promotion-customer-notifications`).
 
+**2026-04-19 (incident ChatOps — contract + runbook):** **`IntegrationEventServiceBusApplicationProperties`** maps **`severity`** and **`deduplication_key`** for **`com.archlucid.alert.fired`**, and **`deduplication_key`** for **`com.archlucid.alert.resolved`**; resolved JSON payloads include **`deduplicationKey`** from **`AlertIntegrationEventPublishing`**; schema **`alert-resolved.v1.schema.json`** + catalog; **`docs/runbooks/LOGIC_APPS_INCIDENT_CHATOPS.md`**; expanded **`workflows/incident-chatops/README.md`**.
+
 **Still intentionally out of repo:** concrete `workflow.json` assets and in-app connection bundles — design in Azure Portal or your CD pipeline, then freeze per change control.
 
 ---
@@ -96,5 +98,6 @@ What landed in this repository for the **marketplace / ADR 0016 hand-off** slice
 ## Related
 
 - `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`
+- `docs/runbooks/LOGIC_APPS_INCIDENT_CHATOPS.md`
 - `docs/adr/0016-billing-provider-abstraction.md`
 - `docs/adr/0018-background-workloads-container-apps-jobs.md`

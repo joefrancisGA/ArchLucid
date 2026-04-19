@@ -1,7 +1,7 @@
 # Runbook — Azure Logic Apps (Standard) for ArchLucid
 
 **Priority:** P3 — Reference  
-**Last reviewed:** 2026-04-19 (governance Service Bus subscription + second host notes)
+**Last reviewed:** 2026-04-19 (governance subscription + incident ChatOps runbook cross-link)
 
 ## Objective
 
@@ -35,3 +35,4 @@ Operate optional **Logic App (Standard)** hosts that consume ArchLucid **Service
 - `infra/terraform-logicapps/README.md`
 - `docs/adr/0019-logic-apps-standard-edge-orchestration.md`
 - `docs/CURSOR_PROMPTS_LOGIC_APPS.md`
+- `docs/runbooks/LOGIC_APPS_INCIDENT_CHATOPS.md` — fired/resolved payloads, Service Bus user properties, callback routes

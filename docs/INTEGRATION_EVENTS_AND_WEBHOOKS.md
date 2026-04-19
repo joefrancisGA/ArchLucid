@@ -39,6 +39,8 @@ When `WebhookDelivery:UseCloudEventsEnvelope` is **true**, digest and alert webh
 
 **Trial lifecycle scan ownership:** set `ArchLucid:Notifications:TrialLifecycle:Owner` to **`LogicApp`** to skip the in-process `TrialLifecycleEmailScanHostedService` / job scan (recurrence moves to Logic App); keep **`Hosted`** (default) until the external workflow is live.
 
+**Alert ChatOps user properties:** for **`com.archlucid.alert.fired`**, publishers attach **`severity`** (lowercased) and **`deduplication_key`** when the JSON payload includes `severity` / `deduplicationKey`. For **`com.archlucid.alert.resolved`**, **`deduplication_key`** is set when the payload includes `deduplicationKey` (emitted from **`AlertIntegrationEventPublishing`**). Use these in Service Bus SQL filters or Logic App expressions; see **`docs/runbooks/LOGIC_APPS_INCIDENT_CHATOPS.md`**.
+
 ### Transactional outbox (`dbo.IntegrationEventOutbox`)
 
 When `TransactionalOutboxEnabled` is **true** and storage is **Sql**, integration events are written to `dbo.IntegrationEventOutbox` and published asynchronously by the **leader-elected** `IntegrationEventOutboxHostedService` (same retry/dead-letter behavior for all event types that use the outbox path).

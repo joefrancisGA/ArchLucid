@@ -30,6 +30,7 @@ const apiHoisted = vi.hoisted(() => ({
   listPolicyPackVersions: vi.fn(),
   listAlertsPaged: vi.fn(),
   listAlertRules: vi.fn(),
+  listCompositeAlertRules: vi.fn(),
   listApprovalRequests: vi.fn(),
   listPromotions: vi.fn(),
   listActivations: vi.fn(),
@@ -47,6 +48,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
     listPolicyPackVersions: apiHoisted.listPolicyPackVersions,
     listAlertsPaged: apiHoisted.listAlertsPaged,
     listAlertRules: apiHoisted.listAlertRules,
+    listCompositeAlertRules: apiHoisted.listCompositeAlertRules,
     listApprovalRequests: apiHoisted.listApprovalRequests,
     listPromotions: apiHoisted.listPromotions,
     listActivations: apiHoisted.listActivations,
@@ -67,10 +69,12 @@ vi.mock("next/link", () => ({
 import {
   alertsTriageDialogConfirmButtonLabelReaderRank,
   governanceResolutionChangeRelatedControlsReaderSupplement,
+  compositeRulesCreateButtonLabelReaderRank,
   policyPacksCreatePackButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 
 import AlertRulesPage from "./alert-rules/page";
+import CompositeAlertRulesPage from "./composite-alert-rules/page";
 import AlertsPage from "./alerts/page";
 import GovernanceResolutionPage from "./governance-resolution/page";
 import GovernanceWorkflowPage from "./governance/page";
@@ -126,6 +130,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     apiHoisted.listPolicyPackVersions.mockResolvedValue([]);
     apiHoisted.listAlertsPaged.mockResolvedValue({ items: [sampleAlert], totalCount: 1 });
     apiHoisted.listAlertRules.mockResolvedValue([]);
+    apiHoisted.listCompositeAlertRules.mockResolvedValue([]);
     apiHoisted.listApprovalRequests.mockResolvedValue([]);
     apiHoisted.listPromotions.mockResolvedValue([]);
     apiHoisted.listActivations.mockResolvedValue([]);
@@ -215,6 +220,24 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
+    });
+  });
+
+  it("Composite alert rules: Create composite rule stays disabled when mutation capability is false", async () => {
+    mutateCapability.current = false;
+    render(<CompositeAlertRulesPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: compositeRulesCreateButtonLabelReaderRank })).toBeDisabled();
+    });
+  });
+
+  it("Composite alert rules: Create composite rule enables after load when mutation capability is true", async () => {
+    mutateCapability.current = true;
+    render(<CompositeAlertRulesPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Create composite rule" })).not.toBeDisabled();
     });
   });
 

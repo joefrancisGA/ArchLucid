@@ -19,6 +19,10 @@
     "projectId": { "type": "string", "format": "uuid" },
     "alertId": { "type": "string", "format": "uuid" },
     "runId": { "type": "string", "format": "uuid" },
+    "deduplicationKey": {
+      "type": "string",
+      "description": "Same key as alert.fired / ADR 0008; copied for ChatOps card correlation on resolve."
+    },
     "resolvedByUserId": { "type": "string" },
     "comment": { "type": "string" }
   },
