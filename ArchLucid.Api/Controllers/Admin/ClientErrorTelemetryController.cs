@@ -21,19 +21,6 @@ namespace ArchLucid.Api.Controllers.Admin;
 [EnableRateLimiting("fixed")]
 public sealed class ClientErrorTelemetryController(ILogger<ClientErrorTelemetryController> logger) : ControllerBase
 {
-    private const int MaxMessageLength = 500;
-
-    private const int MaxStackLength = 2000;
-
-    private const int MaxPathnameLength = 200;
-
-    private const int MaxUserAgentLength = 500;
-
-    private const int MaxContextEntries = 10;
-
-    private const int MaxContextKeyLength = 50;
-
-    private const int MaxContextValueLength = 200;
 
     /// <summary>Records a client-side error report at Warning level (sanitized).</summary>
     [HttpPost("client-error")]
@@ -53,33 +40,34 @@ public sealed class ClientErrorTelemetryController(ILogger<ClientErrorTelemetryC
             return this.BadRequestProblem("Message is required.", ProblemTypes.ValidationFailed);
         }
 
-        if (message.Length > MaxMessageLength)
+        if (message.Length > ClientErrorTelemetryIngestLimits.MaxMessageLength)
         {
             return this.BadRequestProblem(
-                $"Message must be at most {MaxMessageLength} characters.",
+                $"Message must be at most {ClientErrorTelemetryIngestLimits.MaxMessageLength} characters.",
                 ProblemTypes.ValidationFailed);
         }
 
-        string? stack = TruncateNullable(body.Stack, MaxStackLength);
-        string? pathname = TruncateNullable(body.Pathname, MaxPathnameLength);
-        string? userAgent = TruncateNullable(body.UserAgent, MaxUserAgentLength);
+        string? stack = TruncateNullable(body.Stack, ClientErrorTelemetryIngestLimits.MaxStackLength);
+        string? pathname = TruncateNullable(body.Pathname, ClientErrorTelemetryIngestLimits.MaxPathnameLength);
+        string? userAgent = TruncateNullable(body.UserAgent, ClientErrorTelemetryIngestLimits.MaxUserAgentLength);
         string? timestampUtc = TruncateNullable(body.TimestampUtc, 64);
 
         if (body.Context is not null)
         {
-            if (body.Context.Count > MaxContextEntries)
+            if (body.Context.Count > ClientErrorTelemetryIngestLimits.MaxContextEntries)
             {
                 return this.BadRequestProblem(
-                    $"Context may contain at most {MaxContextEntries} entries.",
+                    $"Context may contain at most {ClientErrorTelemetryIngestLimits.MaxContextEntries} entries.",
                     ProblemTypes.ValidationFailed);
             }
 
             foreach (KeyValuePair<string, string> pair in body.Context)
             {
-                if (pair.Key.Length > MaxContextKeyLength || pair.Value.Length > MaxContextValueLength)
+                if (pair.Key.Length > ClientErrorTelemetryIngestLimits.MaxContextKeyLength
+                    || pair.Value.Length > ClientErrorTelemetryIngestLimits.MaxContextValueLength)
                 {
                     return this.BadRequestProblem(
-                        $"Context keys must be at most {MaxContextKeyLength} characters and values at most {MaxContextValueLength} characters.",
+                        $"Context keys must be at most {ClientErrorTelemetryIngestLimits.MaxContextKeyLength} characters and values at most {ClientErrorTelemetryIngestLimits.MaxContextValueLength} characters.",
                         ProblemTypes.ValidationFailed);
                 }
             }

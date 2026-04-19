@@ -1,4 +1,5 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Provenance;
@@ -69,7 +70,7 @@ public sealed class ProvenanceController(
     /// <summary>Returns the neighbourhood sub-graph around a specific node in the provenance graph.</summary>
     /// <param name="runId">Architecture run id.</param>
     /// <param name="nodeId">Provenance graph node id.</param>
-    /// <param name="depth">Hop depth (clamped to [1, 5]).</param>
+    /// <param name="depth">Hop depth (clamped to [1, <see cref="ProvenanceQueryLimits.MaxNeighborhoodDepthProvenanceRoute"/>]).</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Neighbourhood sub-graph, or 404 when the run or node is missing.</returns>
     [HttpGet("runs/{runId:guid}/graph/node/{nodeId:guid}")]
@@ -81,7 +82,7 @@ public sealed class ProvenanceController(
         [FromQuery] int depth = 1,
         CancellationToken ct = default)
     {
-        depth = Math.Clamp(depth, 1, 5);
+        depth = Math.Clamp(depth, 1, ProvenanceQueryLimits.MaxNeighborhoodDepthProvenanceRoute);
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await service.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
         return vm is null

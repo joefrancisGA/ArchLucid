@@ -1,4 +1,5 @@
 using ArchLucid.Core.Authorization;
+using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Provenance;
@@ -68,6 +69,11 @@ public sealed class ProvenanceQueryController(
         return vm is null ? this.NotFoundProblem($"Decision subgraph '{decisionKey}' for run '{runId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(vm);
     }
 
+    /// <summary>Neighbourhood sub-graph around a node (authority route; uses persisted graph query).</summary>
+    /// <param name="runId">Run that owns the graph.</param>
+    /// <param name="nodeId">Graph node id.</param>
+    /// <param name="depth">Hop depth (clamped to [1, <see cref="ProvenanceQueryLimits.MaxNeighborhoodDepthAuthorityRoute"/>]).</param>
+    /// <param name="ct">Cancellation token.</param>
     [HttpGet("runs/{runId:guid}/graph/node/{nodeId:guid}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -77,7 +83,7 @@ public sealed class ProvenanceQueryController(
         [FromQuery] int depth = 1,
         CancellationToken ct = default)
     {
-        int safeDepth = Math.Clamp(depth, 1, 10);
+        int safeDepth = Math.Clamp(depth, 1, ProvenanceQueryLimits.MaxNeighborhoodDepthAuthorityRoute);
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await graphQuery.GetNodeNeighborhoodAsync(scope, runId, nodeId, safeDepth, ct);
         return vm is null ? this.NotFoundProblem($"Node '{nodeId}' in run '{runId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(vm);

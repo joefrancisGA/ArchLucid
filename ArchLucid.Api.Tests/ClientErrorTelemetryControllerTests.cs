@@ -68,7 +68,8 @@ public sealed class ClientErrorTelemetryControllerTests
         ClientErrorTelemetryController controller = CreateController();
         Dictionary<string, string> ctx = new();
 
-        for (int i = 0; i < 12; i++)
+        // One more than ClientErrorTelemetryIngestLimits.MaxContextEntries to assert the over-limit branch.
+        for (int i = 0; i < ClientErrorTelemetryIngestLimits.MaxContextEntries + 2; i++)
         {
             ctx[$"k{i}"] = "v";
         }

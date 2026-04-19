@@ -22,6 +22,9 @@ namespace ArchLucid.Architecture.Tests;
 /// <summary>NetArchTest + assembly-reference checks for layer boundaries. One <see cref="FactAttribute"/> per rule for clear CI output.</summary>
 public sealed class DependencyConstraintTests
 {
+    /// <summary>Maximum parent-directory steps when locating <c>ArchLucid.sln</c> from test assembly output.</summary>
+    private const int MaxRepositoryRootWalkDepth = 24;
+
     // ── Tier 1 — Foundation isolation ─────────────────────────────────────────
 
     [Fact]
@@ -337,7 +340,7 @@ public sealed class DependencyConstraintTests
     {
         string? dir = Path.GetDirectoryName(typeof(DependencyConstraintTests).Assembly.Location);
 
-        for (int i = 0; i < 24 && dir is not null; i++)
+        for (int i = 0; i < MaxRepositoryRootWalkDepth && dir is not null; i++)
         {
             if (File.Exists(Path.Combine(dir, "ArchLucid.sln")))
             {
