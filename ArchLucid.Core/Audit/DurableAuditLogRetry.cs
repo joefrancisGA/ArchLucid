@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Core.Audit;
 
@@ -23,15 +23,13 @@ public static class DurableAuditLogRetry
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentException.ThrowIfNullOrWhiteSpace(operationLabel);
 
-        if (maxAttempts < 1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxAttempts));
-        }
+        if (maxAttempts < 1) throw new ArgumentOutOfRangeException(nameof(maxAttempts));
+
 
         Exception? last = null;
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++)
-        {
+
             try
             {
                 await writeAsync(cancellationToken);
@@ -47,29 +45,29 @@ public static class DurableAuditLogRetry
                 last = ex;
 
                 if (logger.IsEnabled(LogLevel.Warning))
-                {
+
                     logger.LogWarning(
                         ex,
                         "Durable audit attempt {Attempt}/{MaxAttempts} failed for {OperationLabel}",
                         attempt,
                         maxAttempts,
                         operationLabel);
-                }
+
 
                 if (attempt < maxAttempts)
-                {
+
                     await Task.Delay(TimeSpan.FromMilliseconds(50 * (1 << (attempt - 1))), cancellationToken);
-                }
+
             }
-        }
+
 
         if (last is not null && logger.IsEnabled(LogLevel.Warning))
-        {
+
             logger.LogWarning(
                 last,
                 "Durable audit abandoned after {MaxAttempts} attempts for {OperationLabel}",
                 maxAttempts,
                 operationLabel);
-        }
+
     }
 }

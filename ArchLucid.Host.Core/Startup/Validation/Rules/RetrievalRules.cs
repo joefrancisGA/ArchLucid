@@ -1,4 +1,4 @@
-using ArchLucid.Retrieval.Indexing;
+﻿using ArchLucid.Retrieval.Indexing;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -11,14 +11,14 @@ internal static class RetrievalRules
             new RetrievalEmbeddingCapOptions();
 
         if (caps.MaxTextsPerEmbeddingRequest < 1 || caps.MaxTextsPerEmbeddingRequest > 2048)
-        {
+
             errors.Add("Retrieval:EmbeddingCaps:MaxTextsPerEmbeddingRequest must be between 1 and 2048.");
-        }
+
 
         if (caps.MaxChunksPerIndexOperation < 0 || caps.MaxChunksPerIndexOperation > 1_000_000)
-        {
+
             errors.Add("Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation must be between 0 and 1000000 (0 = unlimited).");
-        }
+
     }
 
     /// <summary>
@@ -28,16 +28,14 @@ internal static class RetrievalRules
     {
         string? mode = configuration["Retrieval:VectorIndex"];
 
-        if (string.IsNullOrWhiteSpace(mode))
-        {
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(mode)) return;
+
 
         if (string.Equals(mode, "InMemory", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(mode, "AzureSearch", StringComparison.OrdinalIgnoreCase))
-        {
+
             return;
-        }
+
 
         errors.Add(
             "Retrieval:VectorIndex must be 'InMemory', 'AzureSearch', or omitted (defaults to InMemory).");

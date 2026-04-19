@@ -1,4 +1,4 @@
-namespace ArchLucid.Cli;
+﻿namespace ArchLucid.Cli;
 
 /// <summary>
 /// Per-invocation CLI flags. Reset by <see cref="Program.RunAsync"/> after each run.
@@ -22,10 +22,8 @@ public static class CliExecutionContext
             i++;
         }
 
-        if (i == 0)
-        {
-            return args;
-        }
+        if (i == 0) return args;
+
 
         return args[i..];
     }

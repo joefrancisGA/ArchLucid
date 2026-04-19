@@ -1,4 +1,4 @@
-namespace ArchLucid.Host.Core.Middleware;
+﻿namespace ArchLucid.Host.Core.Middleware;
 
 /// <summary>
 /// Adds baseline security headers for API responses (defense in depth; does not replace WAF or browser CSP for SPAs).
@@ -29,9 +29,9 @@ public sealed class SecurityHeadersMiddleware(RequestDelegate next)
         response.Headers.TryAdd("Content-Security-Policy", ContentSecurityPolicyApiJson);
         // Passive-scan hygiene (ZAP 10015): default API responses are not browser cache assets.
         if (IsPublicCrawlerHintPath(context.Request.Path))
-        {
+
             response.Headers.TryAdd("Cache-Control", "public, max-age=3600");
-        }
+
         else
         {
             response.Headers.TryAdd("Cache-Control", "no-store, max-age=0");

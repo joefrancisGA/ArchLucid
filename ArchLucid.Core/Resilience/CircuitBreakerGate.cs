@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Time;
@@ -125,9 +125,9 @@ public sealed class CircuitBreakerGate
         get
         {
             lock (_sync)
-            {
+
                 return _state.ToString();
-            }
+
         }
     }
 
@@ -137,9 +137,9 @@ public sealed class CircuitBreakerGate
         get
         {
             lock (_sync)
-            {
+
                 return _consecutiveFailures;
-            }
+
         }
     }
 
@@ -149,9 +149,9 @@ public sealed class CircuitBreakerGate
         get
         {
             lock (_sync)
-            {
+
                 return ResolveOptions().FailureThreshold;
-            }
+
         }
     }
 
@@ -161,9 +161,9 @@ public sealed class CircuitBreakerGate
         get
         {
             lock (_sync)
-            {
+
                 return ResolveOptions().DurationOfBreakSeconds;
-            }
+
         }
     }
 
@@ -173,9 +173,9 @@ public sealed class CircuitBreakerGate
         get
         {
             lock (_sync)
-            {
+
                 return _lastStateChangeUtc;
-            }
+
         }
     }
 
@@ -188,10 +188,8 @@ public sealed class CircuitBreakerGate
     {
         lock (_sync)
         {
-            if (_state == State.Closed)
-            {
-                return;
-            }
+            if (_state == State.Closed) return;
+
 
             if (_state == State.Open)
             {
@@ -268,10 +266,8 @@ public sealed class CircuitBreakerGate
 
             _consecutiveFailures++;
 
-            if (_consecutiveFailures < opts.FailureThreshold)
-            {
-                return;
-            }
+            if (_consecutiveFailures < opts.FailureThreshold) return;
+
 
             EmitStateTransition("Closed", "Open");
             _state = State.Open;
@@ -286,10 +282,8 @@ public sealed class CircuitBreakerGate
     {
         lock (_sync)
         {
-            if (_state != State.HalfOpen || !_probeInFlight)
-            {
-                return;
-            }
+            if (_state != State.HalfOpen || !_probeInFlight) return;
+
 
             EmitProbeOutcome("cancelled");
             EmitStateTransition("HalfOpen", "Open");
@@ -334,10 +328,8 @@ public sealed class CircuitBreakerGate
 
     private void InvokeAuditEntry(string transitionType, string fromState, string toState, string? probeOutcome)
     {
-        if (_onAuditEntry is null)
-        {
-            return;
-        }
+        if (_onAuditEntry is null) return;
+
 
         try
         {

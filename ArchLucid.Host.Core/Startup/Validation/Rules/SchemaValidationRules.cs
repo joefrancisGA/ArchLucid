@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Validation;
+﻿using ArchLucid.Decisioning.Validation;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -53,9 +53,9 @@ internal static class SchemaValidationRules
         }
 
         if (!File.Exists(fullPath))
-        {
+
             errors.Add(
                 $"Schema file for {logicalName} was not found at '{fullPath}' (SchemaValidation:*SchemaPath). Ensure content is copied to output (e.g. schemas in project output).");
-        }
+
     }
 }

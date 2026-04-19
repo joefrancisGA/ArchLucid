@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
@@ -17,10 +17,8 @@ internal static class HealthCommand
         string baseUrl = CliCommandShared.GetBaseUrl(config);
         ApiConnectionOutcome outcome = await CliCommandShared.TryConnectToApiAsync(baseUrl, config);
 
-        if (outcome != ApiConnectionOutcome.Connected)
-        {
-            return CliCommandShared.ExitCodeForFailedConnection(outcome);
-        }
+        if (outcome != ApiConnectionOutcome.Connected) return CliCommandShared.ExitCodeForFailedConnection(outcome);
+
 
         if (CliExecutionContext.JsonOutput)
         {
@@ -33,9 +31,9 @@ internal static class HealthCommand
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
         }
         else
-        {
+
             Console.WriteLine($"OK - ArchLucid API at {baseUrl} is reachable.");
-        }
+
 
         return CliExitCode.Success;
     }

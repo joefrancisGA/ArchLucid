@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 
@@ -113,9 +113,9 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             WriteTextEntry(archive, "manifest.json", manifestJson);
 
             if (!string.IsNullOrWhiteSpace(traceJson))
-            {
+
                 WriteTextEntry(archive, "decision-trace.json", traceJson);
-            }
+
 
             StringBuilder readme = new StringBuilder()
                 .AppendLine("ArchLucid run export package")
@@ -127,19 +127,19 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             if (readmeContext is not null)
             {
                 if (!string.IsNullOrWhiteSpace(readmeContext.ManifestDisplayName))
-                {
+
                     readme.AppendLine($"Manifest name: {readmeContext.ManifestDisplayName}");
-                }
+
 
                 if (!string.IsNullOrWhiteSpace(readmeContext.RuleSetLabel))
-                {
+
                     readme.AppendLine($"Rule set: {readmeContext.RuleSetLabel}");
-                }
+
 
                 if (!string.IsNullOrWhiteSpace(readmeContext.ManifestHash))
-                {
+
                     readme.AppendLine($"Manifest hash: {readmeContext.ManifestHash}");
-                }
+
             }
 
             readme.AppendLine($"Artifact file count: {artifacts.Count}");

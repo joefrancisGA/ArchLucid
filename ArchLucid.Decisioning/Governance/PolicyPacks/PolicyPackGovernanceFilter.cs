@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Alerts;
+﻿using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -27,8 +27,7 @@ public static class PolicyPackGovernanceFilter
         IReadOnlyList<AlertRule> rules,
         PolicyPackContentDocument effective)
     {
-        if (effective.AlertRuleIds.Count == 0)
-            return rules.ToList();
+        if (effective.AlertRuleIds.Count == 0) return rules.ToList();
 
         HashSet<Guid> allow = effective.AlertRuleIds.ToHashSet();
         return rules.Where(r => allow.Contains(r.RuleId)).ToList();
@@ -42,8 +41,7 @@ public static class PolicyPackGovernanceFilter
         IReadOnlyList<CompositeAlertRule> rules,
         PolicyPackContentDocument effective)
     {
-        if (effective.CompositeAlertRuleIds.Count == 0)
-            return rules.ToList();
+        if (effective.CompositeAlertRuleIds.Count == 0) return rules.ToList();
 
         HashSet<Guid> allow = effective.CompositeAlertRuleIds.ToHashSet();
         return rules.Where(r => allow.Contains(r.CompositeRuleId)).ToList();

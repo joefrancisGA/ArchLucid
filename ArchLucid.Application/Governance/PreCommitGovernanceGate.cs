@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Governance;
+﻿using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
@@ -43,23 +43,17 @@ public sealed class PreCommitGovernanceGate(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        if (!_options.Value.PreCommitGateEnabled)
-        {
-            return PreCommitGateResult.Allowed();
-        }
+        if (!_options.Value.PreCommitGateEnabled) return PreCommitGateResult.Allowed();
 
-        if (!Guid.TryParse(runId, out Guid runKey))
-        {
-            return PreCommitGateResult.Allowed();
-        }
+
+        if (!Guid.TryParse(runId, out Guid runKey)) return PreCommitGateResult.Allowed();
+
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken);
 
-        if (run is null || !run.FindingsSnapshotId.HasValue)
-        {
-            return PreCommitGateResult.Allowed();
-        }
+        if (run is null || !run.FindingsSnapshotId.HasValue) return PreCommitGateResult.Allowed();
+
 
         IReadOnlyList<PolicyPackAssignment> assignments = await _policyPackAssignmentRepository.ListByScopeAsync(
             scope.TenantId,
@@ -72,18 +66,14 @@ public sealed class PreCommitGovernanceGate(
             .OrderByDescending(static a => a.AssignedUtc)
             .FirstOrDefault();
 
-        if (enforcing is null)
-        {
-            return PreCommitGateResult.Allowed();
-        }
+        if (enforcing is null) return PreCommitGateResult.Allowed();
+
 
         FindingsSnapshot? snapshot =
             await _findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, cancellationToken);
 
-        if (snapshot is null)
-        {
-            return PreCommitGateResult.Allowed();
-        }
+        if (snapshot is null) return PreCommitGateResult.Allowed();
+
 
         int effectiveMinSeverity = ResolveEffectiveMinimumSeverity(enforcing);
         FindingSeverity effectiveSeverityEnum = (FindingSeverity)effectiveMinSeverity;
@@ -93,10 +83,8 @@ public sealed class PreCommitGovernanceGate(
             .Select(static f => f.FindingId)
             .ToList();
 
-        if (blockingIds.Count == 0)
-        {
-            return PreCommitGateResult.Allowed();
-        }
+        if (blockingIds.Count == 0) return PreCommitGateResult.Allowed();
+
 
         string packLabel = enforcing.PolicyPackId.ToString("N");
         string severityLabel = effectiveSeverityEnum.ToString();
@@ -131,10 +119,8 @@ public sealed class PreCommitGovernanceGate(
 
     private static int ResolveEffectiveMinimumSeverity(PolicyPackAssignment assignment)
     {
-        if (assignment.BlockCommitMinimumSeverity.HasValue)
-        {
-            return assignment.BlockCommitMinimumSeverity.Value;
-        }
+        if (assignment.BlockCommitMinimumSeverity.HasValue) return assignment.BlockCommitMinimumSeverity.Value;
+
 
         // Legacy behavior: BlockCommitOnCritical=true → block on Critical (3) only
         return (int)FindingSeverity.Critical;
@@ -144,10 +130,8 @@ public sealed class PreCommitGovernanceGate(
     {
         string[]? warnOnly = _options.Value.WarnOnlySeverities;
 
-        if (warnOnly is null || warnOnly.Length == 0)
-        {
-            return false;
-        }
+        if (warnOnly is null || warnOnly.Length == 0) return false;
+
 
         return warnOnly.Any(w => string.Equals(w, severityLabel, StringComparison.OrdinalIgnoreCase));
     }

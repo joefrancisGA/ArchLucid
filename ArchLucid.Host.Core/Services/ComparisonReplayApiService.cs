@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
@@ -66,7 +66,7 @@ public sealed class ComparisonReplayApiService(
             });
 
             if (logger.IsEnabled(LogLevel.Information))
-            {
+
                 logger.LogInformationComparisonReplaySucceeded(
                     request.ComparisonRecordId,
                     result.ComparisonType,
@@ -76,7 +76,7 @@ public sealed class ComparisonReplayApiService(
                     metadataOnly,
                     sw.ElapsedMilliseconds,
                     result.VerificationPassed);
-            }
+
 
             return result;
         }

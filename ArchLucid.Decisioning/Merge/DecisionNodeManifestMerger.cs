@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Decisions;
+﻿using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Merge;
@@ -28,10 +28,10 @@ public sealed class DecisionNodeManifestMerger
         foreach (IGrouping<string, DecisionNode> dup in decisionNodes
                      .GroupBy(d => d.Topic, StringComparer.OrdinalIgnoreCase)
                      .Where(g => g.Count() > 1))
-        {
+
             output.Warnings.Add(
                 $"Decision topic '{dup.Key}' has {dup.Count()} duplicate nodes; only the first will be applied.");
-        }
+
 
         DecisionNode? topologyAcceptance = decisionNodes.FirstOrDefault(d =>
             string.Equals(d.Topic, TopicTopologyAcceptance, StringComparison.OrdinalIgnoreCase));
@@ -102,8 +102,7 @@ public sealed class DecisionNodeManifestMerger
         DecisionNode? complexityDecision = decisionNodes.FirstOrDefault(d =>
             string.Equals(d.Topic, TopicComplexityDisposition, StringComparison.OrdinalIgnoreCase));
 
-        if (complexityDecision is null)
-            return;
+        if (complexityDecision is null) return;
 
         DecisionOption? complexitySelected = complexityDecision.Options.FirstOrDefault(o => o.OptionId == complexityDecision.SelectedOptionId);
 

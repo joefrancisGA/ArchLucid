@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Decisioning.Interfaces;
@@ -52,12 +52,11 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         _ = ct;
         string? json;
         lock (_lock)
-        
-            _store.TryGetValue(findingsSnapshotId, out json);
-        
 
-        if (json is null)
-            return Task.FromResult<FindingsSnapshot?>(null);
+            _store.TryGetValue(findingsSnapshotId, out json);
+
+
+        if (json is null) return Task.FromResult<FindingsSnapshot?>(null);
 
         FindingsSnapshot? snapshot = JsonSerializer.Deserialize<FindingsSnapshot>(json, JsonOptions);
         return Task.FromResult(snapshot);

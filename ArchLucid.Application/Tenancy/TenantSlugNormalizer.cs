@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 namespace ArchLucid.Application.Tenancy;
 
@@ -14,21 +14,21 @@ public static class TenantSlugNormalizer
         bool lastWasHyphen = false;
 
         foreach (char c in name.Trim().ToLowerInvariant())
-        {
+
             if (char.IsAsciiLetterOrDigit(c))
             {
                 sb.Append(c);
                 lastWasHyphen = false;
             }
             else if (char.IsWhiteSpace(c) || c is '-' or '_' or '.')
-            {
+
                 if (sb.Length > 0 && !lastWasHyphen)
                 {
                     sb.Append('-');
                     lastWasHyphen = true;
                 }
-            }
-        }
+
+
 
         while (sb.Length > 0 && sb[0] == '-')
             sb.Remove(0, 1);
@@ -41,8 +41,7 @@ public static class TenantSlugNormalizer
         if (slug.Length > 100)
             slug = slug[..100].TrimEnd('-');
 
-        if (string.IsNullOrEmpty(slug))
-            throw new InvalidOperationException("Tenant name must contain at least one letter or digit for slug generation.");
+        if (string.IsNullOrEmpty(slug)) throw new InvalidOperationException("Tenant name must contain at least one letter or digit for slug generation.");
 
         return slug;
     }

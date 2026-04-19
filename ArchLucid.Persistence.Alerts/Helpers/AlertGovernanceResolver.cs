@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Alerts;
+﻿using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Persistence.Helpers;
@@ -24,8 +24,7 @@ internal static class AlertGovernanceResolver
         IEffectiveGovernanceLoader loader,
         CancellationToken ct)
     {
-        if (context.EffectiveGovernanceContent is not null)
-            return context.EffectiveGovernanceContent;
+        if (context.EffectiveGovernanceContent is not null) return context.EffectiveGovernanceContent;
 
         return await loader
             .LoadEffectiveContentAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)

@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -42,10 +42,8 @@ public sealed class AzureMarketplaceBillingProvider(
         BillingOptions billing = _billingOptions.CurrentValue;
         string? landing = billing.AzureMarketplace.LandingPageUrl?.Trim();
 
-        if (string.IsNullOrWhiteSpace(landing))
-        {
-            throw new InvalidOperationException("Billing:AzureMarketplace:LandingPageUrl is not configured.");
-        }
+        if (string.IsNullOrWhiteSpace(landing)) throw new InvalidOperationException("Billing:AzureMarketplace:LandingPageUrl is not configured.");
+
 
         string sessionId = $"mkt_sess_{Guid.NewGuid():N}";
         string join = landing.Contains('?', StringComparison.Ordinal) ? "&" : "?";
@@ -81,18 +79,14 @@ public sealed class AzureMarketplaceBillingProvider(
         BillingWebhookInbound inbound,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(inbound.MarketplaceAuthorizationBearer))
-        {
-            return BillingWebhookHandleResult.Rejected("Missing Marketplace bearer token.");
-        }
+        if (string.IsNullOrWhiteSpace(inbound.MarketplaceAuthorizationBearer)) return BillingWebhookHandleResult.Rejected("Missing Marketplace bearer token.");
+
 
         System.Security.Claims.ClaimsPrincipal? principal =
             await _tokenVerifier.ValidateAsync(inbound.MarketplaceAuthorizationBearer, cancellationToken);
 
-        if (principal is null)
-        {
-            return BillingWebhookHandleResult.Rejected("Marketplace JWT validation failed.");
-        }
+        if (principal is null) return BillingWebhookHandleResult.Rejected("Marketplace JWT validation failed.");
+
 
         using JsonDocument doc = JsonDocument.Parse(inbound.RawBody);
         JsonElement root = doc.RootElement;
@@ -118,10 +112,8 @@ public sealed class AzureMarketplaceBillingProvider(
         {
             string? prior = await _ledger.GetWebhookEventResultStatusAsync(dedupeKey, cancellationToken);
 
-            if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase))
-            {
-                return BillingWebhookHandleResult.Duplicate();
-            }
+            if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase)) return BillingWebhookHandleResult.Duplicate();
+
         }
 
         try
@@ -204,13 +196,13 @@ public sealed class AzureMarketplaceBillingProvider(
 
         if (string.Equals(normalized, "ChangePlan", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(normalized, "ChangeQuantity", StringComparison.OrdinalIgnoreCase))
-        {
+
             return;
-        }
+
 
         if (string.Equals(normalized, "Subscribe", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(normalized, "Purchase", StringComparison.OrdinalIgnoreCase))
-        {
+
             await ActivateIfRequestedAsync(
                 tenantId,
                 workspaceId,
@@ -218,7 +210,7 @@ public sealed class AzureMarketplaceBillingProvider(
                 subscriptionId,
                 rawBody,
                 cancellationToken);
-        }
+
     }
 
     private async Task ActivateIfRequestedAsync(
@@ -275,10 +267,8 @@ public sealed class AzureMarketplaceBillingProvider(
 
     private static Guid ReadGuid(JsonElement root, string name, Guid fallback)
     {
-        if (!root.TryGetProperty(name, out JsonElement el))
-        {
-            return fallback;
-        }
+        if (!root.TryGetProperty(name, out JsonElement el)) return fallback;
+
 
         string? s = el.GetString();
 
@@ -294,10 +284,8 @@ public sealed class AzureMarketplaceBillingProvider(
         {
             string? fromClaim = principal.FindFirst(claimType)?.Value;
 
-            if (Guid.TryParse(fromClaim, out Guid tenantFromClaim))
-            {
-                return tenantFromClaim;
-            }
+            if (Guid.TryParse(fromClaim, out Guid tenantFromClaim)) return tenantFromClaim;
+
         }
 
         if (root.TryGetProperty("purchaser", out JsonElement purchaser) &&
@@ -305,10 +293,8 @@ public sealed class AzureMarketplaceBillingProvider(
         {
             string? s = tenantEl.GetString();
 
-            if (Guid.TryParse(s, out Guid g))
-            {
-                return g;
-            }
+            if (Guid.TryParse(s, out Guid g)) return g;
+
         }
 
         return Guid.Empty;

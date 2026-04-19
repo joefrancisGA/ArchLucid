@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using Microsoft.Extensions.Logging;
 
@@ -36,9 +36,9 @@ public static class IntegrationEventPublishing
                                    && ex is not StackOverflowException)
         {
             if (logger.IsEnabled(LogLevel.Warning))
-            {
+
                 logger.LogWarning(ex, "Integration event publish failed for {EventType}", eventType);
-            }
+
         }
     }
 }

@@ -1,4 +1,4 @@
-using ArchLucid.Application.Bootstrap;
+﻿using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
@@ -25,10 +25,10 @@ public static class ArchLucidPersistenceStartup
             string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
 
             if (string.IsNullOrWhiteSpace(connectionString))
-            {
+
                 app.Logger.LogWarning(
                     "Startup: ConnectionStrings:ArchLucid is not set; skipping DbUp migrations.");
-            }
+
             else
             {
                 app.Logger.LogInformation(
@@ -41,7 +41,7 @@ public static class ArchLucidPersistenceStartup
         }
 
         using (IServiceScope scope = app.Services.CreateScope())
-        {
+
             if (storageIsSql)
             {
                 app.Logger.LogInformation(
@@ -55,15 +55,13 @@ public static class ArchLucidPersistenceStartup
 
                 app.Logger.LogInformation("Startup: schema bootstrap completed.");
             }
-        }
 
-        if (!app.Environment.IsDevelopment())
-            return;
+
+        if (!app.Environment.IsDevelopment()) return;
 
         DemoOptions? demo = app.Configuration.GetSection(DemoOptions.SectionName).Get<DemoOptions>();
 
-        if (demo is not { Enabled: true, SeedOnStartup: true })
-            return;
+        if (demo is not { Enabled: true, SeedOnStartup: true }) return;
 
         app.Logger.LogInformation(
             "Startup: Demo:SeedOnStartup=true; running {Service}.",
@@ -76,23 +74,23 @@ public static class ArchLucidPersistenceStartup
 
             // SQL RLS predicates would otherwise block trusted startup inserts (same pattern as trial bootstrap).
             if (storageIsSql)
-            {
+
                 using (SqlRowLevelSecurityBypassAmbient.Enter())
                     demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
+
             else
-            {
+
                 demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
-            }
+
 
             app.Logger.LogInformation("Startup: demo seed completed.");
         }
         catch (Exception ex)
         {
             if (app.Logger.IsEnabled(LogLevel.Warning))
-            {
+
                 app.Logger.LogWarning(ex, "Startup: demo seed failed; continuing without demo data.");
-            }
+
         }
     }
 }

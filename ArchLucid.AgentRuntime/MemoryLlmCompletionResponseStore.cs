@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -9,8 +9,7 @@ public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseSto
 
     public MemoryLlmCompletionResponseStore(int maxEntries)
     {
-        if (maxEntries < 1)
-            throw new ArgumentOutOfRangeException(nameof(maxEntries), maxEntries, "Must be at least 1.");
+        if (maxEntries < 1) throw new ArgumentOutOfRangeException(nameof(maxEntries), maxEntries, "Must be at least 1.");
 
         _cache = new MemoryCache(new MemoryCacheOptions { SizeLimit = maxEntries });
     }
@@ -20,8 +19,7 @@ public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseSto
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
-        if (_cache.TryGetValue(key, out object? cached) && cached is string { Length: > 0 } hit)
-            return Task.FromResult<string?>(hit);
+        if (_cache.TryGetValue(key, out object? cached) && cached is string { Length: > 0 } hit) return Task.FromResult<string?>(hit);
 
         return Task.FromResult<string?>(null);
     }
@@ -32,8 +30,7 @@ public sealed class MemoryLlmCompletionResponseStore : ILlmCompletionResponseSto
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
         ArgumentNullException.ThrowIfNull(value);
 
-        if (absoluteExpiration <= TimeSpan.Zero)
-            throw new ArgumentOutOfRangeException(nameof(absoluteExpiration));
+        if (absoluteExpiration <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(absoluteExpiration));
 
         MemoryCacheEntryOptions options = new()
         {

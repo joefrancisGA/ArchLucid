@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml;
+﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using DocumentFormat.OpenXml.Packaging;
@@ -82,9 +82,9 @@ internal static class ConsultingDocxOpenXmlPrimitives
             new FontSize { Val = fontSizeHalfPoints });
 
         if (bold)
-        {
+
             runProps.Append(new Bold());
-        }
+
 
         style.Append(new StyleParagraphProperties(
             new SpacingBetweenLines
@@ -127,9 +127,9 @@ internal static class ConsultingDocxOpenXmlPrimitives
     internal static void AddSpacer(Body body, int count = 1)
     {
         for (int i = 0; i < count; i++)
-        {
+
             body.AppendChild(new WpParagraph(new WpRun(new WpText(string.Empty))));
-        }
+
     }
 
     internal static void AddPageBreak(Body body)
@@ -221,9 +221,9 @@ internal static class ConsultingDocxOpenXmlPrimitives
         WpRun run = new(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
-        {
+
             run.RunProperties = new WpRunProperties(new Bold());
-        }
+
 
         return new WpTableCell(
             new WpTableCellProperties(
@@ -245,9 +245,9 @@ internal static class ConsultingDocxOpenXmlPrimitives
         ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
 
         using (MemoryStream stream = new(imageBytes))
-        {
+
             imagePart.FeedData(stream);
-        }
+
 
         string relationshipId = mainPart.GetIdOfPart(imagePart);
 

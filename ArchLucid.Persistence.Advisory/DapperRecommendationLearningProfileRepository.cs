@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchLucid.Decisioning.Advisory.Learning;
@@ -97,8 +97,7 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
                 },
                 cancellationToken: ct));
 
-        if (string.IsNullOrWhiteSpace(json))
-            return null;
+        if (string.IsNullOrWhiteSpace(json)) return null;
 
         RecommendationLearningProfile? profile;
         try

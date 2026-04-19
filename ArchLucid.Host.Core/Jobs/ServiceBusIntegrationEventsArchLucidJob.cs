@@ -1,4 +1,4 @@
-using ArchLucid.Core.Diagnostics;
+﻿using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Host.Core.Integration;
 
@@ -44,9 +44,9 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
         if (!o.ConsumerEnabled)
         {
             if (_logger.IsEnabled(LogLevel.Debug))
-            {
+
                 _logger.LogDebug("Integration event Service Bus job skipped (IntegrationEvents:ConsumerEnabled=false).");
-            }
+
 
             return ArchLucidJobExitCodes.Success;
         }
@@ -57,10 +57,10 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
         if (string.IsNullOrEmpty(topic) || string.IsNullOrEmpty(subscription))
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     "Integration event job enabled but QueueOrTopicName or SubscriptionName is missing; exiting.");
-            }
+
 
             return ArchLucidJobExitCodes.ConfigurationError;
         }
@@ -72,10 +72,10 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
         if (string.IsNullOrEmpty(fullyQualifiedNamespace) && string.IsNullOrEmpty(connectionString))
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     "Integration event job enabled but neither ServiceBusFullyQualifiedNamespace nor ServiceBusConnectionString is set.");
-            }
+
 
             return ArchLucidJobExitCodes.ConfigurationError;
         }
@@ -98,10 +98,8 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
                 .ReceiveMessagesAsync(Math.Min(10, remaining), ReceiveWait, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (batch.Count == 0)
-            {
-                break;
-            }
+            if (batch.Count == 0) break;
+
 
             ServiceBusReceiverSettlement settlement = new(receiver);
 
@@ -120,13 +118,13 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformation(
                 "Integration event Service Bus job finished: topic={Topic}, subscription={Subscription}, processed={Processed}.",
                 LogSanitizer.Sanitize(topic),
                 LogSanitizer.Sanitize(subscription),
                 processed);
-        }
+
 
         return ArchLucidJobExitCodes.Success;
     }
@@ -137,9 +135,9 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
         string? managedIdentityClientId)
     {
         if (string.IsNullOrEmpty(fullyQualifiedNamespace))
-        {
+
             return !string.IsNullOrEmpty(connectionString) ? new ServiceBusClient(connectionString) : throw new InvalidOperationException("Service Bus namespace or connection string is required.");
-        }
+
 
         TokenCredential credential = CreateCredential(managedIdentityClientId);
 
@@ -151,9 +149,9 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
         DefaultAzureCredentialOptions credentialOptions = new();
 
         if (!string.IsNullOrWhiteSpace(managedIdentityClientId))
-        {
+
             credentialOptions.ManagedIdentityClientId = managedIdentityClientId.Trim();
-        }
+
 
         return new DefaultAzureCredential(credentialOptions);
     }

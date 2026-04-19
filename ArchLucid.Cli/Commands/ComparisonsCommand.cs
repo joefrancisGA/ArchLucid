@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
@@ -30,10 +30,8 @@ internal static class ComparisonsCommand
 
         ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl);
 
-        if (connection != ApiConnectionOutcome.Connected)
-        {
-            return CliCommandShared.ExitCodeForFailedConnection(connection);
-        }
+        if (connection != ApiConnectionOutcome.Connected) return CliCommandShared.ExitCodeForFailedConnection(connection);
+
 
         ArchLucidApiClient client = new(baseUrl);
 
@@ -79,7 +77,7 @@ internal static class ComparisonsCommand
         bool asTable = false;
 
         for (int i = 0; i < args.Length; i++)
-        {
+
             switch (args[i])
             {
                 case "--type" when i + 1 < args.Length:
@@ -130,7 +128,7 @@ internal static class ComparisonsCommand
                     asTable = true;
                     break;
             }
-        }
+
 
         ArchLucidApiClient.ComparisonHistoryResult? result = await client.SearchComparisonsAsync(
             type,
@@ -166,10 +164,8 @@ internal static class ComparisonsCommand
             string json = JsonSerializer.Serialize(result, CliCommandShared.JsonWriteIndented);
             Console.WriteLine(json);
 
-            if (string.IsNullOrWhiteSpace(result.NextCursor))
-            {
-                return CliExitCode.Success;
-            }
+            if (string.IsNullOrWhiteSpace(result.NextCursor)) return CliExitCode.Success;
+
 
             Console.WriteLine();
             Console.WriteLine($"nextCursor: {result.NextCursor}");
@@ -219,9 +215,9 @@ internal static class ComparisonsCommand
         int[] widths = new int[headers.Length];
 
         for (int c = 0; c < headers.Length; c++)
-        {
+
             widths[c] = rows.Max(r => r[c].Length);
-        }
+
 
         for (int i = 0; i < rows.Count; i++)
         {
@@ -229,9 +225,9 @@ internal static class ComparisonsCommand
             Console.WriteLine(line);
 
             if (i == 0)
-            {
+
                 Console.WriteLine(string.Join("-+-", widths.Select(w => new string('-', w))));
-            }
+
         }
     }
 
@@ -249,7 +245,7 @@ internal static class ComparisonsCommand
         List<string> tags = [];
 
         for (int i = 1; i < args.Length; i++)
-        {
+
             switch (args[i])
             {
                 case "--label" when i + 1 < args.Length:
@@ -259,7 +255,7 @@ internal static class ComparisonsCommand
                     tags.Add(args[++i]);
                     break;
             }
-        }
+
 
         bool ok = await client.UpdateComparisonRecordAsync(comparisonRecordId, label, tags);
 
@@ -294,7 +290,7 @@ internal static class ComparisonsCommand
         bool force = false;
 
         for (int i = 1; i < args.Length; i++)
-        {
+
             switch (args[i])
             {
                 case "--format" when i + 1 < args.Length:
@@ -316,7 +312,7 @@ internal static class ComparisonsCommand
                     force = true;
                     break;
             }
-        }
+
 
         bool ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist, outPath, force);
 
@@ -347,7 +343,7 @@ internal static class ComparisonsCommand
         bool force = false;
 
         for (int i = 1; i < args.Length; i++)
-        {
+
             switch (args[i])
             {
                 case "--format" when i + 1 < args.Length:
@@ -369,7 +365,7 @@ internal static class ComparisonsCommand
                     force = true;
                     break;
             }
-        }
+
 
         bool ok = await client.ReplayComparisonsBatchToZipAsync(ids, format, mode, profile, persist, outPath, force);
 
@@ -441,14 +437,14 @@ internal static class ComparisonsCommand
         Console.WriteLine(drift.Summary);
 
         foreach (ArchLucidApiClient.DriftItem item in drift.Items.Take(25))
-        {
+
             Console.WriteLine($"- [{item.Category}] {item.Path}: {item.Description}");
-        }
+
 
         if (drift.Items.Count > 25)
-        {
+
             Console.WriteLine($"(showing 25 of {drift.Items.Count} items)");
-        }
+
 
         return CliExitCode.Success;
     }
@@ -468,14 +464,14 @@ internal static class ComparisonsCommand
             }
 
             if (args[i] == "--json")
-            {
+
                 asJson = true;
-            }
+
 
             if (args[i] == "--table")
-            {
+
                 asTable = true;
-            }
+
         }
 
         ArchLucidApiClient.ReplayDiagnostics? diagnostics = await client.GetReplayDiagnosticsAsync(limit);
@@ -503,10 +499,10 @@ internal static class ComparisonsCommand
         }
 
         foreach (ArchLucidApiClient.ReplayDiagnosticsEntry e in diagnostics.RecentReplays)
-        {
+
             Console.WriteLine(
                 $"{e.TimestampUtc:O} | {e.ComparisonRecordId} | {e.ComparisonType} | {e.Format} | {e.ReplayMode} | Success={e.Success} | {e.DurationMs}ms | MetaOnly={e.MetadataOnly} | Persisted={e.PersistedReplayRecordId} | Err={e.ErrorMessage}");
-        }
+
 
         return CliExitCode.Success;
     }
@@ -547,9 +543,9 @@ internal static class ComparisonsCommand
         int[] widths = new int[headers.Length];
 
         for (int c = 0; c < headers.Length; c++)
-        {
+
             widths[c] = rows.Max(r => r[c].Length);
-        }
+
 
         for (int i = 0; i < rows.Count; i++)
         {
@@ -557,9 +553,9 @@ internal static class ComparisonsCommand
             Console.WriteLine(line);
 
             if (i == 0)
-            {
+
                 Console.WriteLine(string.Join("-+-", widths.Select(w => new string('-', w))));
-            }
+
         }
     }
 }

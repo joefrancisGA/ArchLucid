@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
 namespace ArchLucid.Persistence.Serialization;
@@ -35,8 +35,7 @@ public static class JsonEntitySerializer
 
     public static T Deserialize<T>(string json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            throw new InvalidOperationException("Cannot deserialize empty JSON.");
+        if (string.IsNullOrWhiteSpace(json)) throw new InvalidOperationException("Cannot deserialize empty JSON.");
 
         T? value;
         try

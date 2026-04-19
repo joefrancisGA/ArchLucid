@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Security.Cryptography;
@@ -57,9 +57,9 @@ public sealed class SchemaValidationService : ISchemaValidationService
             LoadSchema(_options.ComparisonExplanationSchemaPath, "ComparisonExplanation"));
 
         if (_options.EnableResultCaching)
-        
+
             _resultCache = new ConcurrentDictionary<string, SchemaValidationResult>(StringComparer.Ordinal);
-        
+
     }
 
     public SchemaValidationResult ValidateAgentResultJson(string json)
@@ -105,31 +105,31 @@ public sealed class SchemaValidationService : ISchemaValidationService
             if (!File.Exists(fullPath))
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                
+
                     _logger.LogError("Schema file not found: {FullPath} for {SchemaName}", fullPath, schemaName);
-                
+
                 throw new FileNotFoundException($"Schema file not found: {fullPath}", fullPath);
             }
 
             if (_logger.IsEnabled(LogLevel.Information))
-            
+
                 _logger.LogInformation("Loading schema {SchemaName} from {FullPath}", schemaName, fullPath);
-            
+
             string schemaText = File.ReadAllText(fullPath);
             JsonSchema schema = JsonSchema.FromText(schemaText);
 
             if (_logger.IsEnabled(LogLevel.Information))
-            
+
                 _logger.LogInformation("Successfully loaded schema {SchemaName}", schemaName);
-            
+
             return schema;
         }
         catch (Exception ex) when (ex is not FileNotFoundException)
         {
             if (_logger.IsEnabled(LogLevel.Error))
-            
+
                 _logger.LogError(ex, "Failed to load or parse schema {SchemaName} from {RelativePath}", schemaName, relativePath);
-            
+
             throw;
         }
     }
@@ -140,13 +140,11 @@ public sealed class SchemaValidationService : ISchemaValidationService
         string objectName)
     {
         if (_resultCache is null) return ValidateCore(json, schema, objectName);
-        
+
         string cacheKey = ComputeHash(objectName, json);
 
-        if (_resultCache.TryGetValue(cacheKey, out SchemaValidationResult? cached))
-        
-            return cached;
-        
+        if (_resultCache.TryGetValue(cacheKey, out SchemaValidationResult? cached)) return cached;
+
 
         SchemaValidationResult fresh = ValidateCore(json, schema, objectName);
         AddToCache(cacheKey, fresh);
@@ -168,9 +166,9 @@ public sealed class SchemaValidationService : ISchemaValidationService
             result.Errors.Add(error);
 
             if (_logger.IsEnabled(LogLevel.Warning))
-            
+
                 _logger.LogWarning("Validation failed for {ObjectName}: Empty payload", objectName);
-            
+
 
             EmitMetrics(objectName, valid: false, sw.Elapsed.TotalMilliseconds);
             return result;
@@ -187,9 +185,9 @@ public sealed class SchemaValidationService : ISchemaValidationService
             result.Errors.Add(error);
 
             if (_logger.IsEnabled(LogLevel.Warning))
-            
+
                 _logger.LogWarning(ex, "Validation failed for {ObjectName}: Invalid JSON", objectName);
-            
+
 
             EmitMetrics(objectName, valid: false, sw.Elapsed.TotalMilliseconds);
             return result;
@@ -207,9 +205,9 @@ public sealed class SchemaValidationService : ISchemaValidationService
             if (evaluation.IsValid)
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
-                
+
                     _logger.LogDebug("Validation succeeded for {ObjectName}", objectName);
-                
+
 
                 EmitMetrics(objectName, valid: true, sw.Elapsed.TotalMilliseconds);
                 return result;
@@ -218,12 +216,12 @@ public sealed class SchemaValidationService : ISchemaValidationService
             CollectErrors(evaluation, result, objectName);
 
             if (_logger.IsEnabled(LogLevel.Warning))
-            
+
                 _logger.LogWarning(
                     "Validation failed for {ObjectName} with {ErrorCount} errors",
                     objectName,
                     result.Errors.Count);
-            
+
 
             EmitMetrics(objectName, valid: false, sw.Elapsed.TotalMilliseconds);
             return result;
@@ -232,15 +230,13 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
     private void AddToCache(string key, SchemaValidationResult result)
     {
-        if (_resultCache is null)
-        
-            return;
-        
+        if (_resultCache is null) return;
+
 
         if (_resultCache.Count >= _options.ResultCacheMaxSize)
-        
+
             _resultCache.Clear();
-        
+
 
         _resultCache.TryAdd(key, result);
     }
@@ -283,7 +279,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
         string objectName)
     {
         if (evaluation.Errors is not null && evaluation.Errors.Count > 0)
-        
+
             foreach (KeyValuePair<string, string> kvp in evaluation.Errors)
             {
                 string message = kvp.Value;
@@ -297,7 +293,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
                 result.Errors.Add(errorMessage);
 
                 if (_options.EnableDetailedErrors)
-                
+
                     result.DetailedErrors.Add(new SchemaValidationError
                     {
                         Message = message,
@@ -305,19 +301,17 @@ public sealed class SchemaValidationService : ISchemaValidationService
                         SchemaPath = schemaPath,
                         Keyword = keyword
                     });
-                
-            }
-        
 
-        if (evaluation.Details is null)
-        
-            return;
-        
+            }
+
+
+        if (evaluation.Details is null) return;
+
 
         foreach (EvaluationResults detail in evaluation.Details)
-        
+
             CollectErrors(detail, result, objectName);
-        
+
     }
 }
 

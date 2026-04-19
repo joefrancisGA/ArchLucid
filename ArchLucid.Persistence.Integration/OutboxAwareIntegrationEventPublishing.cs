@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Core.Integration;
@@ -52,9 +52,9 @@ public static class OutboxAwareIntegrationEventPublishing
             catch (Exception ex) when (!ct.IsCancellationRequested)
             {
                 if (logger.IsEnabled(LogLevel.Warning))
-                {
+
                     logger.LogWarning(ex, "Integration event serialization failed for {EventType}", eventType);
-                }
+
 
                 return;
             }
@@ -85,9 +85,9 @@ public static class OutboxAwareIntegrationEventPublishing
             catch (Exception ex) when (!ct.IsCancellationRequested)
             {
                 if (logger.IsEnabled(LogLevel.Warning))
-                {
+
                     logger.LogWarning(ex, "Integration event outbox enqueue failed for {EventType}", eventType);
-                }
+
             }
 
             return;

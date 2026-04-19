@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -21,8 +21,7 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
     {
         ArgumentNullException.ThrowIfNull(decisions);
 
-        if (decisions.Count == 0)
-            return;
+        if (decisions.Count == 0) return;
 
         const string sql = """
             INSERT INTO DecisionNodes
@@ -55,9 +54,9 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
         try
         {
             if (transaction is not null)
-            {
+
                 await InsertDecisionNodesAsync(conn, transaction, decisions, sql, cancellationToken);
-            }
+
             else
             {
                 using IDbTransaction tx = conn.BeginTransaction();
@@ -136,11 +135,11 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             }
 
             if (node is null)
-            
+
                 throw new InvalidOperationException(
                     $"A DecisionNode row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
-            
+
 
             nodes.Add(node);
         }

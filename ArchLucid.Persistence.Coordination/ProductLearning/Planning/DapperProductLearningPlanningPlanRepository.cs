@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
@@ -261,14 +261,12 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
         ProductLearningScopeSqlRow? row = await connection.QuerySingleOrDefaultAsync<ProductLearningScopeSqlRow>(
             new CommandDefinition(sql, new { ThemeId = themeId }, cancellationToken: cancellationToken));
 
-        if (row is null)
-        {
-            throw new InvalidOperationException("Theme not found for ThemeId=" + themeId + ".");
-        }
+        if (row is null) throw new InvalidOperationException("Theme not found for ThemeId=" + themeId + ".");
+
 
         if (row.TenantId != plan.TenantId || row.WorkspaceId != plan.WorkspaceId || row.ProjectId != plan.ProjectId)
-        {
+
             throw new InvalidOperationException("Plan scope must match the parent theme scope.");
-        }
+
     }
 }

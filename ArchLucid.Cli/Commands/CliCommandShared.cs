@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -51,32 +51,30 @@ internal static class CliCommandShared
         if (urlError is not null)
         {
             if (CliExecutionContext.JsonOutput)
-            {
+
                 CliJson.WriteFailureLine(Console.Error, CliExitCode.ConfigurationError, "configuration", urlError);
-            }
+
             else
-            {
+
                 await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
-            }
+
 
             return ApiConnectionOutcome.InvalidConfiguration;
         }
 
         ArchLucidApiClient client = new(baseUrl, config);
 
-        if (await client.CheckHealthAsync(ct))
-        {
-            return ApiConnectionOutcome.Connected;
-        }
+        if (await client.CheckHealthAsync(ct)) return ApiConnectionOutcome.Connected;
+
 
         if (CliExecutionContext.JsonOutput)
-        {
+
             CliJson.WriteFailureLine(
                 Console.Error,
                 CliExitCode.ApiUnavailable,
                 "api_unreachable",
                 $"Cannot reach ArchLucid API at {baseUrl}.");
-        }
+
         else
         {
             Console.WriteLine($"Cannot connect to ArchLucid API at {baseUrl}");
@@ -112,10 +110,8 @@ internal static class CliCommandShared
 
     internal static CloudProvider ParseCloudProvider(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return CloudProvider.Azure;
-        }
+        if (string.IsNullOrWhiteSpace(value)) return CloudProvider.Azure;
+
 
         return value.Trim().ToLowerInvariant() switch
         {

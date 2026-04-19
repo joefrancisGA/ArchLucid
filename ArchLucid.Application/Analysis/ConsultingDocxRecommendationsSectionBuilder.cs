@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ArchLucid.Application.Analysis;
 
@@ -10,10 +10,8 @@ internal static class ConsultingDocxRecommendationsSectionBuilder
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, options.ConclusionsText, "BodyText");
 
-        if (report.Warnings.Count <= 0)
-        {
-            return;
-        }
+        if (report.Warnings.Count <= 0) return;
+
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
         ConsultingDocxOpenXmlPrimitives.AddCallout(body, "Open warnings remain and should be resolved or explicitly accepted.", options);

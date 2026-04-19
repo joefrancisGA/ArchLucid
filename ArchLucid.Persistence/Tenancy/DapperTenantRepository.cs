@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
@@ -251,8 +251,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 TenantId = tenantId
             }, cancellationToken: ct));
 
-        if (row is null)
-            return null;
+        if (row is null) return null;
 
         return new TenantWorkspaceLink
         {
@@ -537,10 +536,8 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 },
                 cancellationToken: ct));
 
-        if (row is null)
-        {
-            return null;
-        }
+        if (row is null) return null;
+
 
         DateTimeOffset anchor = row.TrialStartUtc ?? row.CreatedUtc;
         double seconds = (committedUtc - anchor).TotalSeconds;
@@ -548,9 +545,9 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         double ratio = 0;
 
         if (row.TrialRunsLimit is { } lim and > 0)
-        {
+
             ratio = (double)row.TrialRunsUsed / lim;
-        }
+
 
         return new TrialFirstManifestCommitOutcome
         {
@@ -580,8 +577,7 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
 
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
     {
-        if (trialExpiresUtc is null)
-            return 0;
+        if (trialExpiresUtc is null) return 0;
 
         double totalDays = (trialExpiresUtc.Value - DateTimeOffset.UtcNow).TotalDays;
         int days = (int)Math.Floor(totalDays);
@@ -603,28 +599,25 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 Id = tenantId
             }, transaction: transaction, cancellationToken: ct));
 
-        if (row is null)
-            return;
+        if (row is null) return;
 
         if (!string.Equals(row.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal) ||
-            row.TrialRunsLimit is null)
-        {
-            return;
-        }
+            row.TrialRunsLimit is null) return;
+
 
         if (row.TrialExpiresUtc is { } exp && exp <= DateTimeOffset.UtcNow)
-        {
+
             throw new TrialLimitExceededException(
                 TrialLimitReason.Expired,
                 ComputeDaysRemaining(row.TrialExpiresUtc));
-        }
+
 
         if (row.TrialRunsUsed >= row.TrialRunsLimit.Value)
-        {
+
             throw new TrialLimitExceededException(
                 TrialLimitReason.RunsExceeded,
                 ComputeDaysRemaining(row.TrialExpiresUtc));
-        }
+
 
         int updated = await connection.ExecuteAsync(
             new CommandDefinition(
@@ -638,11 +631,11 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 cancellationToken: ct));
 
         if (updated == 0)
-        {
+
             throw new TrialLimitExceededException(
                 TrialLimitReason.RunsExceeded,
                 ComputeDaysRemaining(row.TrialExpiresUtc));
-        }
+
     }
 
     private sealed class TrialFirstManifestOutputRow

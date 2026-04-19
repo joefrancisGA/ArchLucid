@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.Backfill;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
@@ -59,8 +59,7 @@ internal static class Program
 
         await using ServiceProvider provider = services.BuildServiceProvider();
 
-        if (readinessMode)
-            return await RunReadinessAsync(provider);
+        if (readinessMode) return await RunReadinessAsync(provider);
 
         return await RunBackfillAsync(provider, args);
     }
@@ -158,8 +157,7 @@ internal static class Program
                 continue;
             }
 
-            if (a.StartsWith('-'))
-                continue;
+            if (a.StartsWith('-')) continue;
 
             if (string.IsNullOrWhiteSpace(connectionString))
                 connectionString = a;
@@ -207,13 +205,13 @@ internal static class Program
                 GoldenManifestsPhase1 = !skipGolden,
                 ArtifactBundles = !skipArtifact,
             };
-        
+
         HashSet<string> stages = new(StringComparer.OrdinalIgnoreCase);
         foreach (string part in onlyList.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-        
+
             if (TryMapStage(part, out string key))
                 stages.Add(key);
-        
+
 
         return new SqlRelationalBackfillOptions
         {

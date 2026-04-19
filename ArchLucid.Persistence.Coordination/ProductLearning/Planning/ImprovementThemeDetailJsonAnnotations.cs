@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
@@ -9,20 +9,16 @@ internal static class ImprovementThemeDetailJsonAnnotations
 {
     internal static IReadOnlyList<string> ReadAnnotationTokens(string? detailJson)
     {
-        if (string.IsNullOrWhiteSpace(detailJson))
-        
-            return [];
-        
+        if (string.IsNullOrWhiteSpace(detailJson)) return [];
+
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(detailJson);
             JsonElement root = document.RootElement;
 
-            if (root.ValueKind != JsonValueKind.Object)
-            
-                return [];
-            
+            if (root.ValueKind != JsonValueKind.Object) return [];
+
 
             HashSet<string> seen = new(StringComparer.Ordinal);
             List<string> ordered = [];
@@ -51,10 +47,8 @@ internal static class ImprovementThemeDetailJsonAnnotations
         HashSet<string> seen,
         List<string> ordered)
     {
-        if (!root.TryGetProperty(propertyName, out JsonElement element))
-        
-            return;
-        
+        if (!root.TryGetProperty(propertyName, out JsonElement element)) return;
+
 
         if (element.ValueKind == JsonValueKind.String)
         {
@@ -63,17 +57,13 @@ internal static class ImprovementThemeDetailJsonAnnotations
             return;
         }
 
-        if (element.ValueKind != JsonValueKind.Array)
-        
-            return;
-        
+        if (element.ValueKind != JsonValueKind.Array) return;
+
 
         foreach (JsonElement item in element.EnumerateArray())
         {
-            if (item.ValueKind != JsonValueKind.String)
-            
-                continue;
-            
+            if (item.ValueKind != JsonValueKind.String) continue;
+
 
             AddOneString(item, seen, ordered);
         }
@@ -83,17 +73,13 @@ internal static class ImprovementThemeDetailJsonAnnotations
     {
         string? value = stringElement.GetString();
 
-        if (string.IsNullOrWhiteSpace(value))
-        
-            return;
-        
+        if (string.IsNullOrWhiteSpace(value)) return;
+
 
         string trimmed = value.Trim();
 
-        if (!seen.Add(trimmed))
-        
-            return;
-        
+        if (!seen.Add(trimmed)) return;
+
 
         ordered.Add(trimmed);
     }

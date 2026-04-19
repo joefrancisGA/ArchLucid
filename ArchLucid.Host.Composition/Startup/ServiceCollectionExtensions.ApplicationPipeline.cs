@@ -1,4 +1,4 @@
-using ArchLucid.Application;
+﻿using ArchLucid.Application;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Architecture;
@@ -44,13 +44,13 @@ public static partial class ServiceCollectionExtensions
         ArchLucidOptions exportStorage = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (ArchLucidOptions.EffectiveIsInMemory(exportStorage.StorageProvider))
-        {
+
             services.AddSingleton<IRunExportRecordRepository, InMemoryRunExportRecordRepository>();
-        }
+
         else
-        {
+
             services.AddScoped<IRunExportRecordRepository, RunExportRecordRepository>();
-        }
+
 
         services.AddScoped<IRunExportAuditService, RunExportAuditService>();
         services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
@@ -62,13 +62,13 @@ public static partial class ServiceCollectionExtensions
         bool mermaidCliEnabled = configuration.GetValue("ArchLucid:MermaidCli:Enabled", false);
 
         if (mermaidCliEnabled)
-        {
+
             services.AddScoped<IDiagramImageRenderer, MermaidCliDiagramImageRenderer>();
-        }
+
         else
-        {
+
             services.AddScoped<IDiagramImageRenderer, NullDiagramImageRenderer>();
-        }
+
         services.AddScoped<IArchitectureAnalysisDocxExportService, DocxArchitectureAnalysisExportService>();
         services.Configure<ConsultingDocxTemplateOptions>(configuration.GetSection("ConsultingDocxTemplate"));
         services.AddScoped<IConsultingDocxTemplateOptionsProvider, DefaultConsultingDocxTemplateOptionsProvider>();
@@ -89,13 +89,13 @@ public static partial class ServiceCollectionExtensions
         ArchLucidOptions storageMode = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
         if (ArchLucidOptions.EffectiveIsInMemory(storageMode.StorageProvider))
-        {
+
             services.AddSingleton<IComparisonRecordRepository, InMemoryComparisonRecordRepository>();
-        }
+
         else
-        {
+
             services.AddScoped<IComparisonRecordRepository, ComparisonRecordRepository>();
-        }
+
 
         services.AddScoped<IComparisonAuditService, ComparisonAuditService>();
         services.AddScoped<IComparisonDriftAnalyzer, ComparisonDriftAnalyzer>();

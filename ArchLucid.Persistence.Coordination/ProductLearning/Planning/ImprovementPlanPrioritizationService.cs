@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
 using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
@@ -23,9 +23,7 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
 
         ValidateWeights(weights);
 
-        if (items.Count == 0)
-
-            return Task.FromResult<IReadOnlyList<ImprovementPlan>>([]);
+        if (items.Count == 0) return Task.FromResult<IReadOnlyList<ImprovementPlan>>([]);
 
 
         List<int> frequencies = new(items.Count);
@@ -113,16 +111,12 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
     /// <summary>Higher when trust is lower; null trust → neutral 0.5 stress.</summary>
     private static double ComputeTrustStress(double? averageTrustScore)
     {
-        if (!averageTrustScore.HasValue)
-
-            return 0.5;
+        if (!averageTrustScore.HasValue) return 0.5;
 
 
         double t = averageTrustScore.Value;
 
-        if (double.IsNaN(t) || double.IsInfinity(t))
-
-            return 0.5;
+        if (double.IsNaN(t) || double.IsInfinity(t)) return 0.5;
 
 
         t = Math.Clamp(t, 0d, 1d);
@@ -132,17 +126,13 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
 
     private static List<int> NormalizeToThousand(IReadOnlyList<int> values)
     {
-        if (values.Count == 0)
-
-            return [];
+        if (values.Count == 0) return [];
 
 
         int min = values.Min();
         int max = values.Max();
 
-        if (min == max)
-
-            return Enumerable.Repeat(1000, values.Count).ToList();
+        if (min == max) return Enumerable.Repeat(1000, values.Count).ToList();
 
 
         List<int> result = new(values.Count);
@@ -158,17 +148,13 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
 
     private static List<int> NormalizeToThousandDoubles(IReadOnlyList<double> values)
     {
-        if (values.Count == 0)
-
-            return [];
+        if (values.Count == 0) return [];
 
 
         double min = values.Min();
         double max = values.Max();
 
-        if (Math.Abs(max - min) < double.Epsilon)
-
-            return Enumerable.Repeat(1000, values.Count).ToList();
+        if (Math.Abs(max - min) < double.Epsilon) return Enumerable.Repeat(1000, values.Count).ToList();
 
 
         List<int> result = new(values.Count);

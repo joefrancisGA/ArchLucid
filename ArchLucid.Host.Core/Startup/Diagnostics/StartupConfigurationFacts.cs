@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
@@ -84,11 +84,9 @@ internal static class StartupConfigurationFactsReader
 
     private static string SummarizeCosmosConnectivity(CosmosDbOptions cosmosDb)
     {
-        if (!cosmosDb.AnyCosmosFeatureEnabled)
-            return "disabled";
+        if (!cosmosDb.AnyCosmosFeatureEnabled) return "disabled";
 
-        if (string.IsNullOrWhiteSpace(cosmosDb.ConnectionString))
-            return "missing";
+        if (string.IsNullOrWhiteSpace(cosmosDb.ConnectionString)) return "missing";
 
         string conn = cosmosDb.ConnectionString.Trim();
 

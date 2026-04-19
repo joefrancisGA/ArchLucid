@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Transactions;
@@ -28,8 +28,7 @@ public sealed class DapperArchLucidUnitOfWork(IDbConnection connection, IDbTrans
     public Task CommitAsync(CancellationToken ct)
     {
         _ = ct;
-        if (_completed)
-            throw new InvalidOperationException("Unit of work has already been completed.");
+        if (_completed) throw new InvalidOperationException("Unit of work has already been completed.");
 
         Transaction.Commit();
         _completed = true;
@@ -40,8 +39,7 @@ public sealed class DapperArchLucidUnitOfWork(IDbConnection connection, IDbTrans
     public Task RollbackAsync(CancellationToken ct)
     {
         _ = ct;
-        if (_completed)
-            return Task.CompletedTask;
+        if (_completed) return Task.CompletedTask;
 
         Transaction.Rollback();
         _completed = true;

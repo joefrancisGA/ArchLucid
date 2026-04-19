@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -20,9 +20,9 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
-        {
+
             _items.Add(Clone(trace));
-        }
+
 
         return Task.CompletedTask;
     }
@@ -40,27 +40,25 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         lock (_gate)
         {
             int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
-            if (i < 0)
-            {
-                return Task.CompletedTask;
-            }
+            if (i < 0) return Task.CompletedTask;
+
 
             AgentExecutionTrace t = Clone(_items[i]);
 
             if (fullSystemPromptBlobKey is not null)
-            {
+
                 t.FullSystemPromptBlobKey = fullSystemPromptBlobKey;
-            }
+
 
             if (fullUserPromptBlobKey is not null)
-            {
+
                 t.FullUserPromptBlobKey = fullUserPromptBlobKey;
-            }
+
 
             if (fullResponseBlobKey is not null)
-            {
+
                 t.FullResponseBlobKey = fullResponseBlobKey;
-            }
+
 
             _items[i] = t;
         }
@@ -106,27 +104,25 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
         {
             int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
 
-            if (i < 0)
-            {
-                return Task.CompletedTask;
-            }
+            if (i < 0) return Task.CompletedTask;
+
 
             AgentExecutionTrace t = Clone(_items[i]);
 
             if (fullSystemPromptInline is not null)
-            {
+
                 t.FullSystemPromptInline = fullSystemPromptInline;
-            }
+
 
             if (fullUserPromptInline is not null)
-            {
+
                 t.FullUserPromptInline = fullUserPromptInline;
-            }
+
 
             if (fullResponseInline is not null)
-            {
+
                 t.FullResponseInline = fullResponseInline;
-            }
+
 
             _items[i] = t;
         }

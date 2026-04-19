@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Manifest;
@@ -36,8 +36,7 @@ public sealed class ManifestGovernanceMerger
                 .Where(e => e.TargetAgentTaskId == result.TaskId)
                 .ToList();
 
-            if (taskEvals.Count == 0)
-                continue;
+            if (taskEvals.Count == 0) continue;
 
             double netDelta = taskEvals.Sum(e => e.ConfidenceDelta);
             string types = string.Join(", ",
@@ -58,11 +57,11 @@ public sealed class ManifestGovernanceMerger
                 });
 
             if (netDelta < -0.30)
-            {
+
                 output.Warnings.Add(
                     $"{result.AgentType} result '{result.ResultId}' received net opposition " +
                     $"signal ({netDelta:F3}); review decision traces for details.");
-            }
+
         }
     }
 
@@ -86,12 +85,12 @@ public sealed class ManifestGovernanceMerger
             AddRequiredControlIfMissing(manifest, ControlManagedIdentity, output);
 
         if (validResults.Any(r => r.AgentType == AgentType.Compliance))
-        {
+
             manifest.Governance.ComplianceTags =
                 manifest.Governance.ComplianceTags
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
-        }
+
     }
 
     public void EnsureRequiredControlsAreAppliedToRelevantComponents(
@@ -128,8 +127,7 @@ public sealed class ManifestGovernanceMerger
         string control,
         DecisionMergeResult output)
     {
-        if (manifest.Governance.RequiredControls.Contains(control, StringComparer.OrdinalIgnoreCase))
-            return;
+        if (manifest.Governance.RequiredControls.Contains(control, StringComparer.OrdinalIgnoreCase)) return;
 
         manifest.Governance.RequiredControls.Add(control);
 

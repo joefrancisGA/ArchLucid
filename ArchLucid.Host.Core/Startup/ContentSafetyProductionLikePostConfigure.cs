@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.Extensions.Options;
@@ -23,8 +23,7 @@ public sealed class ContentSafetyProductionLikePostConfigure(
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (!HostEnvironmentClassification.IsProductionOrStagingLike(_hostEnvironment, _configuration))
-            return;
+        if (!HostEnvironmentClassification.IsProductionOrStagingLike(_hostEnvironment, _configuration)) return;
 
         options.FailClosedOnSdkError = true;
     }

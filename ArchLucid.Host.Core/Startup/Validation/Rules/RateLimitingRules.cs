@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -40,10 +40,8 @@ internal static class RateLimitingRules
 
         IConfigurationSection replayHeavy = configuration.GetSection("RateLimiting:Replay:Heavy");
 
-        if (!replayHeavy.Exists())
-        {
-            return;
-        }
+        if (!replayHeavy.Exists()) return;
+
 
         {
             int permit = configuration.GetValue("RateLimiting:Replay:Heavy:PermitLimit", 15);
@@ -56,18 +54,18 @@ internal static class RateLimitingRules
     private static void AddIfInvalid(List<string> errors, string path, int permitLimit, int windowMinutes, int queueLimit)
     {
         if (permitLimit < 1)
-        {
+
             errors.Add($"{path}:PermitLimit must be at least 1.");
-        }
+
 
         if (windowMinutes < 1)
-        {
+
             errors.Add($"{path}:WindowMinutes must be at least 1.");
-        }
+
 
         if (queueLimit < 0)
-        {
+
             errors.Add($"{path}:QueueLimit must be 0 or greater.");
-        }
+
     }
 }

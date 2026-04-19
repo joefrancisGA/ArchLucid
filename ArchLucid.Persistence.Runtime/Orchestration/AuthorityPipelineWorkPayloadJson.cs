@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace ArchLucid.Persistence.Orchestration;
 
@@ -16,8 +16,7 @@ public static class AuthorityPipelineWorkPayloadJson
 
     public static AuthorityPipelineWorkPayload? Deserialize(string json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return null;
+        if (string.IsNullOrWhiteSpace(json)) return null;
 
         return JsonSerializer.Deserialize<AuthorityPipelineWorkPayload>(json, Options);
     }

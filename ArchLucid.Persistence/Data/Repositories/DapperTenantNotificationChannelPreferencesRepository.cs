@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Notifications;
 using ArchLucid.Persistence.Connections;
@@ -38,10 +38,8 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
         TenantNotificationChannelPreferencesRow? row = await connection.QueryFirstOrDefaultAsync<TenantNotificationChannelPreferencesRow>(
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
-        if (row is null)
-        {
-            return null;
-        }
+        if (row is null) return null;
+
 
         return new TenantNotificationChannelPreferencesResponse
         {

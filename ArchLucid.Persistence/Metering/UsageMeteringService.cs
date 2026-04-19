@@ -1,4 +1,4 @@
-using ArchLucid.Core.Metering;
+﻿using ArchLucid.Core.Metering;
 using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Options;
@@ -20,8 +20,7 @@ public sealed class UsageMeteringService(
     {
         ArgumentNullException.ThrowIfNull(usageEvent);
 
-        if (!_options.CurrentValue.Enabled)
-            return;
+        if (!_options.CurrentValue.Enabled) return;
 
         await _repository.InsertAsync(usageEvent, ct);
     }
@@ -30,8 +29,7 @@ public sealed class UsageMeteringService(
     {
         ArgumentNullException.ThrowIfNull(events);
 
-        if (!_options.CurrentValue.Enabled || events.Count == 0)
-            return;
+        if (!_options.CurrentValue.Enabled || events.Count == 0) return;
 
         await _repository.InsertBatchAsync(events, ct);
     }
@@ -42,8 +40,7 @@ public sealed class UsageMeteringService(
         DateTimeOffset periodEnd,
         CancellationToken ct)
     {
-        if (!_options.CurrentValue.Enabled)
-            return [];
+        if (!_options.CurrentValue.Enabled) return [];
 
         return await _repository.AggregateByKindAsync(tenantId, periodStart, periodEnd, ct);
     }

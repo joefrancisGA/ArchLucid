@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authority;
+﻿using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 
@@ -22,11 +22,9 @@ public sealed class FeatureManagementAuthorityPipelineModeResolver(
     {
         ArchLucidOptions archLucid = ArchLucidConfigurationBridge.ResolveArchLucidOptions(_configuration);
 
-        if (ArchLucidOptions.EffectiveIsInMemory(archLucid.StorageProvider))
-            return false;
+        if (ArchLucidOptions.EffectiveIsInMemory(archLucid.StorageProvider)) return false;
 
-        if (!ArchLucidOptions.EffectiveIsSql(archLucid.StorageProvider))
-            return false;
+        if (!ArchLucidOptions.EffectiveIsSql(archLucid.StorageProvider)) return false;
 
         return await _featureFlags.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline, cancellationToken);
     }

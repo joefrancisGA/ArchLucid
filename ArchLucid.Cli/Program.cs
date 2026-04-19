@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Cli.Commands;
 
@@ -31,18 +31,15 @@ namespace ArchLucid.Cli
                 switch (command)
                 {
                     case "new":
-                        if (normalized.Length > 1)
-                            return await NewCommand.RunAsync(normalized[1]);
+                        if (normalized.Length > 1) return await NewCommand.RunAsync(normalized[1]);
 
                         WriteNewUsage();
 
                         return CliExitCode.UsageError;
 
                     case "dev":
-                        if (normalized.Length > 1 && normalized[1] == "up")
-                        {
-                            return await DevUpCommand.RunAsync();
-                        }
+                        if (normalized.Length > 1 && normalized[1] == "up") return await DevUpCommand.RunAsync();
+
 
                         Console.WriteLine("Expected: archlucid dev up");
 
@@ -54,50 +51,40 @@ namespace ArchLucid.Cli
                         return await RunCommand.RunAsync(quick);
 
                     case "status":
-                        if (normalized.Length > 1)
-                        {
-                            return await StatusCommand.RunAsync(normalized[1]);
-                        }
+                        if (normalized.Length > 1) return await StatusCommand.RunAsync(normalized[1]);
+
 
                         Console.WriteLine("Usage: archlucid status <runId>");
 
                         return CliExitCode.UsageError;
 
                     case "trace":
-                        if (normalized.Length > 1)
-                        {
-                            return await TraceCommand.RunAsync(normalized[1]);
-                        }
+                        if (normalized.Length > 1) return await TraceCommand.RunAsync(normalized[1]);
+
 
                         Console.WriteLine("Usage: archlucid trace <runId>");
 
                         return CliExitCode.UsageError;
 
                     case "submit":
-                        if (normalized.Length > 2)
-                        {
-                            return await SubmitCommand.RunAsync(normalized[1], normalized[2]);
-                        }
+                        if (normalized.Length > 2) return await SubmitCommand.RunAsync(normalized[1], normalized[2]);
+
 
                         Console.WriteLine("Usage: archlucid submit <runId> <result.json>");
 
                         return CliExitCode.UsageError;
 
                     case "commit":
-                        if (normalized.Length > 1)
-                        {
-                            return await CommitCommand.RunAsync(normalized[1]);
-                        }
+                        if (normalized.Length > 1) return await CommitCommand.RunAsync(normalized[1]);
+
 
                         Console.WriteLine("Usage: archlucid commit <runId>");
 
                         return CliExitCode.UsageError;
 
                     case "seed":
-                        if (normalized.Length > 1)
-                        {
-                            return await SeedCommand.RunAsync(normalized[1]);
-                        }
+                        if (normalized.Length > 1) return await SeedCommand.RunAsync(normalized[1]);
+
 
                         Console.WriteLine("Usage: archlucid seed <runId>");
 
@@ -133,17 +120,17 @@ namespace ArchLucid.Cli
 
                     default:
                         if (CliExecutionContext.JsonOutput)
-                        {
+
                             CliJson.WriteFailureLine(
                                 Console.Error,
                                 CliExitCode.UsageError,
                                 "unknown_command",
                                 $"Unknown command: {command}");
-                        }
+
                         else
-                        {
+
                             Console.WriteLine($"Unknown command: {command}");
-                        }
+
 
                         return CliExitCode.UsageError;
                 }
@@ -160,13 +147,13 @@ namespace ArchLucid.Cli
                 "Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell";
 
             if (CliExecutionContext.JsonOutput)
-            {
+
                 CliJson.WriteFailureLine(Console.Error, CliExitCode.UsageError, "usage", Plain);
-            }
+
             else
-            {
+
                 Console.WriteLine(Plain);
-            }
+
         }
 
         private static void WriteNewUsage()
@@ -174,13 +161,13 @@ namespace ArchLucid.Cli
             const string Plain = "Usage: archlucid new <projectName>";
 
             if (CliExecutionContext.JsonOutput)
-            {
+
                 CliJson.WriteFailureLine(Console.Error, CliExitCode.UsageError, "usage", Plain);
-            }
+
             else
-            {
+
                 Console.WriteLine(Plain);
-            }
+
         }
     }
 }

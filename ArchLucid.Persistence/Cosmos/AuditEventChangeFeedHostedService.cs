@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Audit;
 
@@ -35,8 +35,7 @@ public sealed class AuditEventChangeFeedHostedService : BackgroundService
     {
         CosmosDbOptions opts = _optionsMonitor.CurrentValue;
 
-        if (!opts.AuditEventsEnabled)
-            return;
+        if (!opts.AuditEventsEnabled) return;
 
         string instanceName = string.IsNullOrWhiteSpace(opts.ChangeFeedInstanceName)
             ? Environment.MachineName
@@ -56,11 +55,11 @@ public sealed class AuditEventChangeFeedHostedService : BackgroundService
         await processor.StartAsync();
 
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformation(
                 "Cosmos audit change feed processor started: InstanceName={InstanceName}",
                 instanceName);
-        }
+
 
         try
         {
@@ -83,8 +82,7 @@ public sealed class AuditEventChangeFeedHostedService : BackgroundService
     {
         _ = context;
 
-        if (changes.Count == 0)
-            return;
+        if (changes.Count == 0) return;
 
         List<AuditEventDocument> batch = changes.ToList();
 

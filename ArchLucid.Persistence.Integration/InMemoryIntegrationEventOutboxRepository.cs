@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 namespace ArchLucid.Persistence;
 
@@ -68,9 +68,9 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         };
 
         lock (_gate)
-        {
+
             _rows.Add(entry);
-        }
+
 
         return Task.CompletedTask;
     }
@@ -97,9 +97,9 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     public Task MarkProcessedAsync(Guid outboxId, CancellationToken ct)
     {
         lock (_gate)
-        {
+
             _rows.RemoveAll(e => e.OutboxId == outboxId);
-        }
+
 
         return Task.CompletedTask;
     }
@@ -117,10 +117,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         {
             int idx = _rows.FindIndex(e => e.OutboxId == outboxId);
 
-            if (idx < 0)
-            {
-                return Task.CompletedTask;
-            }
+            if (idx < 0) return Task.CompletedTask;
+
 
             IntegrationEventOutboxEntry e = _rows[idx];
 
@@ -201,10 +199,8 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         {
             int idx = _rows.FindIndex(e => e.OutboxId == outboxId && e.DeadLetteredUtc is not null);
 
-            if (idx < 0)
-            {
-                return Task.FromResult(false);
-            }
+            if (idx < 0) return Task.FromResult(false);
+
 
             IntegrationEventOutboxEntry e = _rows[idx];
 

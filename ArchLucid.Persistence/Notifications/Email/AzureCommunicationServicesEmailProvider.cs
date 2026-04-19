@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications.Email;
 
 using Microsoft.Extensions.Options;
@@ -25,16 +25,16 @@ public sealed class AzureCommunicationServicesEmailProvider(
         EmailNotificationOptions options = _optionsMonitor.CurrentValue;
 
         if (string.IsNullOrWhiteSpace(options.AzureCommunicationServicesEndpoint))
-        {
+
             throw new InvalidOperationException(
                 "Email:AzureCommunicationServicesEndpoint is required when Email:Provider is AzureCommunicationServices.");
-        }
+
 
         if (string.IsNullOrWhiteSpace(options.FromAddress))
-        {
+
             throw new InvalidOperationException(
                 "Email:FromAddress is required when Email:Provider is AzureCommunicationServices.");
-        }
+
 
         string messageId = await _acsApi.SendAsync(
                 options.AzureCommunicationServicesEndpoint.Trim(),

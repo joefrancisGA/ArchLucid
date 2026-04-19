@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Application.Common;
@@ -61,11 +61,11 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
 
         if (!GovernanceEnvironmentOrder.IsValidPromotion(sourceEnvironment, targetEnvironment))
-        {
+
             throw new InvalidOperationException(
                 $"Governance approval requests must follow environment ordering (dev → test → prod). " +
                 $"'{sourceEnvironment}' → '{targetEnvironment}' is not a valid step.");
-        }
+
 
         ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
                                           ?? throw new RunNotFoundException(runId);
@@ -84,8 +84,7 @@ public sealed class GovernanceWorkflowService(
             SlaDeadlineUtc = ComputeSlaDeadlineUtc(),
         };
 
-        if (dryRun)
-            return request;
+        if (dryRun) return request;
 
         await approvalRepo.CreateAsync(request, cancellationToken);
 
@@ -118,13 +117,13 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+
             logger.LogInformation(
                 "Governance approval request submitted: ApprovalRequestId={ApprovalRequestId}, RunId={RunId}, ManifestVersion={ManifestVersion}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId),
                 LogSanitizer.Sanitize(request.RunId),
                 LogSanitizer.Sanitize(request.ManifestVersion));
-        }
+
 
         await TryPublishGovernanceApprovalSubmittedAsync(request, cancellationToken);
 
@@ -166,18 +165,16 @@ public sealed class GovernanceWorkflowService(
         {
             GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
 
-            if (fresh is null)
-            {
-                throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
-            }
+            if (fresh is null) throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+
 
             if (string.Equals(fresh.Status, GovernanceApprovalStatus.Approved, StringComparison.Ordinal))
-            {
+
                 throw new GovernanceApprovalReviewConflictException(
                     approvalRequestId,
                     attemptedOutcome: "approve",
                     currentStatus: fresh.Status);
-            }
+
 
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be approved from status '{fresh.Status}'. " +
@@ -217,12 +214,12 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+
             logger.LogInformation(
                 "Governance approval request approved: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId),
                 LogSanitizer.Sanitize(reviewedBy));
-        }
+
 
         return request;
     }
@@ -262,18 +259,16 @@ public sealed class GovernanceWorkflowService(
         {
             GovernanceApprovalRequest? fresh = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
 
-            if (fresh is null)
-            {
-                throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
-            }
+            if (fresh is null) throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+
 
             if (string.Equals(fresh.Status, GovernanceApprovalStatus.Rejected, StringComparison.Ordinal))
-            {
+
                 throw new GovernanceApprovalReviewConflictException(
                     approvalRequestId,
                     attemptedOutcome: "reject",
                     currentStatus: fresh.Status);
-            }
+
 
             throw new InvalidOperationException(
                 $"Approval request '{approvalRequestId}' cannot be rejected from status '{fresh.Status}'. " +
@@ -313,12 +308,12 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+
             logger.LogInformation(
                 "Governance approval request rejected: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId),
                 LogSanitizer.Sanitize(reviewedBy));
-        }
+
 
         return request;
     }
@@ -345,11 +340,11 @@ public sealed class GovernanceWorkflowService(
             ?? throw new RunNotFoundException(runId);
 
         if (!GovernanceEnvironmentOrder.IsValidPromotion(sourceEnvironment, targetEnvironment))
-        {
+
             throw new InvalidOperationException(
                 $"Promotion must follow environment ordering (dev → test → prod). " +
                 $"'{sourceEnvironment}' → '{targetEnvironment}' is not a valid promotion step.");
-        }
+
 
         GovernanceApprovalRequest? prodApprovalToMarkPromoted = null;
 
@@ -405,8 +400,7 @@ public sealed class GovernanceWorkflowService(
             Notes = notes
         };
 
-        if (dryRun)
-            return record;
+        if (dryRun) return record;
 
         if (prodApprovalToMarkPromoted is not null)
         {
@@ -446,14 +440,14 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+
             logger.LogInformation(
                 "Manifest promoted: PromotionRecordId={PromotionRecordId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Target={TargetEnvironment}",
                 LogSanitizer.Sanitize(record.PromotionRecordId),
                 LogSanitizer.Sanitize(record.RunId),
                 LogSanitizer.Sanitize(record.ManifestVersion),
                 LogSanitizer.Sanitize(record.TargetEnvironment));
-        }
+
 
         return record;
     }
@@ -504,14 +498,14 @@ public sealed class GovernanceWorkflowService(
                 await activationRepo.CreateAsync(activation, cancellationToken, uow.Connection, uow.Transaction);
 
                 if (enqueuePromotionInSqlTx)
-                {
+
                     await TryPublishGovernancePromotionActivatedAsync(
                         activation,
                         activatedBy,
                         uow.Connection,
                         uow.Transaction,
                         cancellationToken);
-                }
+
             }
             else
             {
@@ -561,7 +555,7 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+
             // Barrier is not tracked through params object?[] boxing on LogInformation; placeholders sanitized (docs/CODEQL_TRIAGE.md).
             logger.LogInformation(
                 "Environment activated: ActivationId={ActivationId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Environment={Environment}",
@@ -569,17 +563,17 @@ public sealed class GovernanceWorkflowService(
                 LogSanitizer.Sanitize(activation.RunId),
                 LogSanitizer.Sanitize(activation.ManifestVersion),
                 LogSanitizer.Sanitize(activation.Environment)); // codeql[cs/log-forging]
-        }
+
 
         if (!enqueuePromotionInSqlTx)
-        {
+
             await TryPublishGovernancePromotionActivatedAsync(
                 activation,
                 activatedBy,
                 connection: null,
                 transaction: null,
                 cancellationToken);
-        }
+
 
         return activation;
     }
@@ -590,8 +584,7 @@ public sealed class GovernanceWorkflowService(
         string reviewedBy,
         CancellationToken cancellationToken)
     {
-        if (!string.Equals(request.RequestedBy, reviewedBy, StringComparison.OrdinalIgnoreCase))
-            return;
+        if (!string.Equals(request.RequestedBy, reviewedBy, StringComparison.OrdinalIgnoreCase)) return;
 
         Guid? auditRunId = Guid.TryParse(request.RunId, out Guid runGuid) ? runGuid : null;
         await auditService.LogAsync(
@@ -658,10 +651,8 @@ public sealed class GovernanceWorkflowService(
     {
         int? slaHours = governanceGateOptions.Value.ApprovalSlaHours;
 
-        if (slaHours is null || slaHours.Value <= 0)
-        {
-            return null;
-        }
+        if (slaHours is null || slaHours.Value <= 0) return null;
+
 
         return DateTime.UtcNow.AddHours(slaHours.Value);
     }

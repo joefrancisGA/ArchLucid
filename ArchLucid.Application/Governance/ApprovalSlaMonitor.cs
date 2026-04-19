@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -39,16 +39,14 @@ public sealed class ApprovalSlaMonitor
     {
         int? slaHours = _options.Value.ApprovalSlaHours;
 
-        if (slaHours is null)
-        {
-            return;
-        }
+        if (slaHours is null) return;
+
 
         IReadOnlyList<GovernanceApprovalRequest> breached = await _approvalRequestRepository
             .GetPendingSlaBreachedAsync(DateTime.UtcNow, cancellationToken);
 
         foreach (GovernanceApprovalRequest request in breached)
-        {
+
             try
             {
                 await _auditService.LogAsync(
@@ -78,24 +76,22 @@ public sealed class ApprovalSlaMonitor
             catch (Exception ex)
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
-                {
+
                     _logger.LogWarning(
                         ex,
                         "SLA breach processing failed for ApprovalRequestId={Id}",
                         LogSanitizer.Sanitize(request.ApprovalRequestId));
-                }
+
             }
-        }
+
     }
 
     private async Task TrySendEscalationWebhookAsync(GovernanceApprovalRequest request, CancellationToken cancellationToken)
     {
         string? webhookUrl = _options.Value.ApprovalSlaEscalationWebhookUrl;
 
-        if (string.IsNullOrWhiteSpace(webhookUrl))
-        {
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(webhookUrl)) return;
+
 
         try
         {
@@ -126,25 +122,25 @@ public sealed class ApprovalSlaMonitor
             HttpResponseMessage response = await client.SendAsync(msg, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
-            {
+
                 if (_logger.IsEnabled(LogLevel.Warning))
-                {
+
                     _logger.LogWarning(
                         "SLA escalation webhook returned {StatusCode} for ApprovalRequestId={Id}",
                         (int)response.StatusCode,
                         LogSanitizer.Sanitize(request.ApprovalRequestId));
-                }
-            }
+
+
         }
         catch (Exception ex)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     ex,
                     "SLA escalation webhook failed for ApprovalRequestId={Id}",
                     LogSanitizer.Sanitize(request.ApprovalRequestId));
-            }
+
         }
     }
 }

@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
@@ -79,14 +79,14 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         Guid linkId = link.LinkId == Guid.Empty ? Guid.NewGuid() : link.LinkId;
 
         if (link.AuthorityBundleId is not null && link.AuthorityArtifactSortOrder is not null)
-        {
+
             await RequireAuthorityArtifactInScopeAsync(
                 connection,
                 link.AuthorityBundleId.Value,
                 link.AuthorityArtifactSortOrder.Value,
                 scope,
                 cancellationToken);
-        }
+
 
         const string sql = """
             INSERT INTO dbo.ProductLearningImprovementPlanArtifactLinks
@@ -255,10 +255,8 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         ProductLearningScopeSqlRow? row = await connection.QuerySingleOrDefaultAsync<ProductLearningScopeSqlRow>(
             new CommandDefinition(sql, new { PlanId = planId }, cancellationToken: cancellationToken));
 
-        if (row is null)
-        {
-            throw new InvalidOperationException("Plan not found for PlanId=" + planId + ".");
-        }
+        if (row is null) throw new InvalidOperationException("Plan not found for PlanId=" + planId + ".");
+
 
         return new ProductLearningScope
         {
@@ -274,10 +272,10 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParseExact(architectureRunId, "N", out Guid runGuid))
-        {
+
             throw new InvalidOperationException(
                 "ArchitectureRunId must be a 32-character hex run id (N format): " + architectureRunId);
-        }
+
 
         const string sql = """
             SELECT CASE WHEN EXISTS(SELECT 1 FROM dbo.Runs WHERE RunId = @RunId) THEN 1 ELSE 0 END;
@@ -286,10 +284,8 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         int ok = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(sql, new { RunId = runGuid }, cancellationToken: cancellationToken));
 
-        if (ok == 0)
-        {
-            throw new InvalidOperationException("dbo.Runs.RunId was not found: " + architectureRunId);
-        }
+        if (ok == 0) throw new InvalidOperationException("dbo.Runs.RunId was not found: " + architectureRunId);
+
     }
 
     private static async Task RequirePilotSignalInScopeAsync(
@@ -320,10 +316,10 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
                 cancellationToken: cancellationToken));
 
         if (ok == 0)
-        {
+
             throw new InvalidOperationException(
                 "ProductLearningPilotSignals row was not found in the plan's scope for SignalId=" + signalId + ".");
-        }
+
     }
 
     private static async Task RequireAuthorityArtifactInScopeAsync(
@@ -339,9 +335,9 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
                     SELECT CASE WHEN OBJECT_ID(N'dbo.ArtifactBundleArtifacts', N'U') IS NULL THEN 0 ELSE 1 END;
                     """,
                     cancellationToken: cancellationToken)) == 0)
-        {
+
             return;
-        }
+
 
         const string sql = """
             SELECT CASE WHEN EXISTS(
@@ -369,9 +365,9 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
                 cancellationToken: cancellationToken));
 
         if (ok == 0)
-        {
+
             throw new InvalidOperationException(
                 "Authority artifact coordinates were not found in the plan's scope (BundleId/SortOrder).");
-        }
+
     }
 }

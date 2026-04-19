@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Cli.Support;
 
@@ -115,10 +115,8 @@ internal static class SupportBundleCommand
         string lucidPath = Path.Combine(cwd, ArchLucidProjectScaffolder.CliManifestFileName);
         string legacyPath = Path.Combine(cwd, "archi" + "forge.json");
 
-        if (!File.Exists(lucidPath) && !File.Exists(legacyPath))
-        {
-            return null;
-        }
+        if (!File.Exists(lucidPath) && !File.Exists(legacyPath)) return null;
+
 
         try
         {

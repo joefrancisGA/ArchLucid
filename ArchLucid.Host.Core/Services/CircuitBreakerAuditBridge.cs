@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
@@ -55,22 +55,22 @@ public sealed class CircuitBreakerAuditBridge(
                     catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
                     {
                         if (auditEvent is not null && !_auditRetryQueue.TryEnqueue(auditEvent))
-                        {
+
                             if (_logger.IsEnabled(LogLevel.Warning))
-                            {
+
                                 _logger.LogWarning(
                                     "Circuit breaker audit could not be persisted or queued for gate {GateName}",
                                     LogSanitizer.Sanitize(entry.GateName));
-                            }
-                        }
+
+
 
                         if (_logger.IsEnabled(LogLevel.Warning))
-                        {
+
                             _logger.LogWarning(
                                 ex,
                                 "Circuit breaker audit append failed for gate {GateName}",
                                 LogSanitizer.Sanitize(entry.GateName));
-                        }
+
                     }
                 });
             }

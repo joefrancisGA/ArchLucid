@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -27,17 +27,15 @@ public sealed class InMemoryGovernanceEnvironmentActivationRepository : IGoverna
         ArgumentNullException.ThrowIfNull(item);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(item.ActivationId))
-        
-            throw new ArgumentException("ActivationId is required.", nameof(item));
-        
+        if (string.IsNullOrWhiteSpace(item.ActivationId)) throw new ArgumentException("ActivationId is required.", nameof(item));
+
 
         GovernanceEnvironmentActivation stored = Clone(item);
 
         lock (_gate)
-        
+
             _byActivationId[stored.ActivationId] = stored;
-        
+
 
         return Task.CompletedTask;
     }
@@ -53,12 +51,12 @@ public sealed class InMemoryGovernanceEnvironmentActivationRepository : IGoverna
         cancellationToken.ThrowIfCancellationRequested();
 
         lock (_gate)
-        
+
             if (_byActivationId.TryGetValue(item.ActivationId, out GovernanceEnvironmentActivation? existing))
-            
+
                 existing.IsActive = item.IsActive;
-            
-        
+
+
 
         return Task.CompletedTask;
     }

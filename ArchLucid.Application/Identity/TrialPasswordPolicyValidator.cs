@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Core.Configuration;
 
 using Microsoft.Extensions.Options;
 
@@ -12,22 +12,21 @@ public sealed class TrialPasswordPolicyValidator(IOptions<TrialAuthOptions> tria
 
     public TrialPasswordValidationResult Validate(string password)
     {
-        if (password is null)
-            return TrialPasswordValidationResult.Fail("Password is required.");
+        if (password is null) return TrialPasswordValidationResult.Fail("Password is required.");
 
         TrialLocalIdentityOptions local = _trial.LocalIdentity;
 
         if (password.Length < local.MinimumPasswordLength)
-        {
+
             return TrialPasswordValidationResult.Fail(
                 $"Password must be at least {local.MinimumPasswordLength} characters.");
-        }
+
 
         if (password.Length > local.MaximumPasswordLength)
-        {
+
             return TrialPasswordValidationResult.Fail(
                 $"Password must be at most {local.MaximumPasswordLength} characters.");
-        }
+
 
         return TrialPasswordValidationResult.Valid();
     }

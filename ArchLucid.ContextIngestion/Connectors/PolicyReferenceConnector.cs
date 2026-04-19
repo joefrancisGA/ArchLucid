@@ -1,4 +1,4 @@
-using ArchLucid.ContextIngestion.Interfaces;
+﻿using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.ContextIngestion.Topology;
 
@@ -61,15 +61,14 @@ public class PolicyReferenceConnector : IContextConnector
     /// </summary>
     private static string? BuildApplicableTopologyNodeIds(string policyReference, List<string> topologyHints)
     {
-        if (topologyHints.Count == 0)
-            return null;
+        if (topologyHints.Count == 0) return null;
 
         HashSet<string> ids = [];
 
         foreach (string? trimmed in from hint in topologyHints where !string.IsNullOrWhiteSpace(hint) select hint.Trim() into trimmed where PolicyReferenceOverlapsTopology(policyReference, trimmed) select trimmed)
-        
+
             ids.Add($"obj-{TopologyHintStableObjectIds.FromHintName(trimmed)}");
-        
+
 
         return ids.Count == 0 ? null : string.Join(',', ids);
     }

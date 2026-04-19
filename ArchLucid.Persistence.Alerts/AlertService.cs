@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
@@ -108,8 +108,7 @@ public sealed class AlertService(
                 ct)
             ;
 
-        if (existing is not null)
-            return false;
+        if (existing is not null) return false;
 
         await alertRepository.CreateAsync(alert, ct);
 
@@ -164,8 +163,7 @@ public sealed class AlertService(
         ArgumentNullException.ThrowIfNull(request);
 
         AlertRecord? alert = await alertRepository.GetByIdAsync(alertId, ct);
-        if (alert is null)
-            return null;
+        if (alert is null) return null;
 
         string? newStatus = request.Action switch
         {
@@ -175,8 +173,7 @@ public sealed class AlertService(
             _ => null,
         };
 
-        if (newStatus is null || string.Equals(alert.Status, newStatus, StringComparison.Ordinal))
-            return alert;
+        if (newStatus is null || string.Equals(alert.Status, newStatus, StringComparison.Ordinal)) return alert;
 
         alert.Status = newStatus;
 
@@ -196,7 +193,7 @@ public sealed class AlertService(
         };
 
         if (eventType is not null)
-        {
+
             await auditService.LogAsync(
                 new AuditEvent
                 {
@@ -212,10 +209,10 @@ public sealed class AlertService(
                         AuditJsonSerializationOptions.Instance),
                 },
                 ct);
-        }
+
 
         if (request.Action == AlertActionType.Resolve)
-        {
+
             await AlertIntegrationEventPublishing.TryPublishResolvedAsync(
                 integrationEventOutbox,
                 integrationEventPublisher,
@@ -225,7 +222,7 @@ public sealed class AlertService(
                 userId,
                 request.Comment,
                 ct);
-        }
+
 
         return alert;
     }

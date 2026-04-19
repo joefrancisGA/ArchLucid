@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 using ArchLucid.Core.Billing;
 
@@ -13,9 +13,9 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task<bool> TenantHasActiveSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
-        {
+
             return Task.FromResult(string.Equals(row.Status, "Active", StringComparison.OrdinalIgnoreCase));
-        }
+
 
         return Task.FromResult(false);
     }
@@ -66,10 +66,8 @@ public sealed class InMemoryBillingLedger : IBillingLedger
 
     public Task<string?> GetWebhookEventResultStatusAsync(string dedupeKey, CancellationToken cancellationToken)
     {
-        if (_webhookStatuses.TryGetValue(dedupeKey, out string? status))
-        {
-            return Task.FromResult<string?>(status);
-        }
+        if (_webhookStatuses.TryGetValue(dedupeKey, out string? status)) return Task.FromResult<string?>(status);
+
 
         return Task.FromResult<string?>(null);
     }
@@ -103,9 +101,9 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task SuspendSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
-        {
+
             _subscriptions[tenantId] = row with { Status = "Suspended" };
-        }
+
 
         return Task.CompletedTask;
     }
@@ -113,9 +111,9 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task ReinstateSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
-        {
+
             _subscriptions[tenantId] = row with { Status = "Active" };
-        }
+
 
         return Task.CompletedTask;
     }
@@ -123,9 +121,9 @@ public sealed class InMemoryBillingLedger : IBillingLedger
     public Task CancelSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         if (_subscriptions.TryGetValue(tenantId, out BillingSubRow? row))
-        {
+
             _subscriptions[tenantId] = row with { Status = "Canceled" };
-        }
+
 
         return Task.CompletedTask;
     }

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -20,17 +20,15 @@ public sealed class InMemoryGovernancePromotionRecordRepository : IGovernancePro
         ArgumentNullException.ThrowIfNull(item);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(item.PromotionRecordId))
-        
-            throw new ArgumentException("PromotionRecordId is required.", nameof(item));
-        
+        if (string.IsNullOrWhiteSpace(item.PromotionRecordId)) throw new ArgumentException("PromotionRecordId is required.", nameof(item));
+
 
         GovernancePromotionRecord stored = Clone(item);
 
         lock (_gate)
-        
+
             _byId[stored.PromotionRecordId] = stored;
-        
+
 
         return Task.CompletedTask;
     }

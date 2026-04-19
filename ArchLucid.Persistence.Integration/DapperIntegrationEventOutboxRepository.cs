@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Connections;
@@ -141,10 +141,8 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
 
         foreach (IntegrationEventOutboxRow row in rows)
         {
-            if (row.PayloadUtf8 is null || row.EventType is null)
-            {
-                continue;
-            }
+            if (row.PayloadUtf8 is null || row.EventType is null) continue;
+
 
             list.Add(
                 new IntegrationEventOutboxEntry
@@ -279,10 +277,8 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
 
         foreach (DeadLetterRow row in rows)
         {
-            if (row.EventType is null)
-            {
-                continue;
-            }
+            if (row.EventType is null) continue;
+
 
             list.Add(
                 new IntegrationEventOutboxDeadLetterRow
@@ -324,10 +320,8 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
 
     private static string? TruncateError(string? message)
     {
-        if (message is null)
-        {
-            return null;
-        }
+        if (message is null) return null;
+
 
         const int maxLen = 2048;
 

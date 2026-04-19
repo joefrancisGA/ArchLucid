@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -110,11 +110,11 @@ public static class ArchLucidProjectScaffolder
         if (options.RegisterProject)
         {
             if (string.IsNullOrWhiteSpace(options.ConnectionString))
-            {
+
                 throw new InvalidOperationException(
                     "ScaffoldOptions.ConnectionString must be set when RegisterProject is true. " +
                     "Set it explicitly; there is no hardcoded default connection string.");
-            }
+
 
             const string sqlQuery =
                 "INSERT INTO PROJECTS (ProjectName, BaseDirectory, OverwriteExistingFiles, IncludeTerraformStubs) " +
@@ -153,8 +153,7 @@ public static class ArchLucidProjectScaffolder
 
     private static void WriteFile(string path, string contents, bool overwrite)
     {
-        if (File.Exists(path) && !overwrite)
-            return;
+        if (File.Exists(path) && !overwrite) return;
         string? dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
@@ -290,9 +289,9 @@ public static class ArchLucidProjectScaffolder
 
         string manifestPath;
         if (File.Exists(lucidPath))
-        {
+
             manifestPath = lucidPath;
-        }
+
         else if (File.Exists(legacyPath))
         {
             Console.Error.WriteLine(
@@ -305,9 +304,9 @@ public static class ArchLucidProjectScaffolder
             manifestPath = legacyPath;
         }
         else
-        {
+
             throw new FileNotFoundException(CliManifestFileName + " not found.", lucidPath);
-        }
+
 
         string json = File.ReadAllText(manifestPath, Encoding.UTF8);
 
@@ -320,8 +319,7 @@ public static class ArchLucidProjectScaffolder
         {
             throw new InvalidDataException($"Invalid JSON in {manifestPath}: {ex.Message}", ex);
         }
-        if (config is null)
-            throw new InvalidDataException($"Unable to parse {manifestPath} into ArchLucidCliConfig.");
+        if (config is null) throw new InvalidDataException($"Unable to parse {manifestPath} into ArchLucidCliConfig.");
         if (projectRoot is not null)
             ValidateConfigOrThrow(config, projectRoot);
         return config;
@@ -329,10 +327,8 @@ public static class ArchLucidProjectScaffolder
 
     private static void ValidateConfigOrThrow(ArchLucidCliConfig config, string projectRoot)
     {
-        if (string.IsNullOrWhiteSpace(config.SchemaVersion))
-            throw new InvalidDataException(CliManifestFileName + ": schemaVersion is required.");
-        if (string.IsNullOrWhiteSpace(config.ProjectName))
-            throw new InvalidDataException(CliManifestFileName + ": projectName is required.");
+        if (string.IsNullOrWhiteSpace(config.SchemaVersion)) throw new InvalidDataException(CliManifestFileName + ": schemaVersion is required.");
+        if (string.IsNullOrWhiteSpace(config.ProjectName)) throw new InvalidDataException(CliManifestFileName + ": projectName is required.");
         if (config.Inputs is null || string.IsNullOrWhiteSpace(config.Inputs.Brief))
             throw new InvalidDataException(CliManifestFileName + ": inputs.brief is required.");
         if (config.Outputs is null || string.IsNullOrWhiteSpace(config.Outputs.LocalCacheDir))
@@ -342,23 +338,20 @@ public static class ArchLucidProjectScaffolder
         EnsureRelativePathOrThrow(config.Outputs.LocalCacheDir, "outputs.localCacheDir");
 
         string briefPath = Path.Combine(projectRoot, config.Inputs.Brief);
-        if (!File.Exists(briefPath))
-            throw new FileNotFoundException($"Brief file not found at '{config.Inputs.Brief}'.", briefPath);
+        if (!File.Exists(briefPath)) throw new FileNotFoundException($"Brief file not found at '{config.Inputs.Brief}'.", briefPath);
 
         if (config.Plugins is not null && !string.IsNullOrWhiteSpace(config.Plugins.LockFile))
         {
             EnsureRelativePathOrThrow(config.Plugins.LockFile, "plugins.lockFile");
             string lockPath = Path.Combine(projectRoot, config.Plugins.LockFile);
 
-            if (!File.Exists(lockPath))
-                throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
+            if (!File.Exists(lockPath)) throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
         }
 
         InfraSection infra = config.Infra ?? new InfraSection();
         TerraformSection tf = infra.Terraform ?? new TerraformSection { Enabled = false, Path = "infra/terraform" };
 
-        if (!tf.Enabled)
-            return;
+        if (!tf.Enabled) return;
 
         if (string.IsNullOrWhiteSpace(tf.Path))
             throw new InvalidDataException(CliManifestFileName + ": infra.terraform.path is required when infra.terraform.enabled is true.");
@@ -366,16 +359,13 @@ public static class ArchLucidProjectScaffolder
         EnsureRelativePathOrThrow(tf.Path, "infra.terraform.path");
         string tfDir = Path.Combine(projectRoot, tf.Path);
 
-        if (!Directory.Exists(tfDir))
-            throw new DirectoryNotFoundException($"Terraform directory not found at '{tf.Path}'.");
+        if (!Directory.Exists(tfDir)) throw new DirectoryNotFoundException($"Terraform directory not found at '{tf.Path}'.");
     }
 
     private static void EnsureRelativePathOrThrow(string path, string fieldName)
     {
-        if (string.IsNullOrWhiteSpace(path))
-            throw new InvalidDataException($"{CliManifestFileName}: {fieldName} is empty.");
-        if (Path.IsPathRooted(path))
-            throw new InvalidDataException($"{CliManifestFileName}: {fieldName} must be a relative path, got rooted path '{path}'.");
+        if (string.IsNullOrWhiteSpace(path)) throw new InvalidDataException($"{CliManifestFileName}: {fieldName} is empty.");
+        if (Path.IsPathRooted(path)) throw new InvalidDataException($"{CliManifestFileName}: {fieldName} must be a relative path, got rooted path '{path}'.");
         string normalized = path.Replace('\\', '/');
         if (normalized.StartsWith("../", StringComparison.Ordinal) || normalized.Contains("/../"))
             throw new InvalidDataException($"{CliManifestFileName}: {fieldName} must not contain '..' segments ('{path}').");

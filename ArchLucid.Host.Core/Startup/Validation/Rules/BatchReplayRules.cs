@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -13,9 +13,9 @@ internal static class BatchReplayRules
         const int max = 500;
 
         if (batch.MaxComparisonRecordIds < min || batch.MaxComparisonRecordIds > max)
-        {
+
             errors.Add(
                 $"ComparisonReplay:Batch:MaxComparisonRecordIds must be between {min} and {max} (inclusive).");
-        }
+
     }
 }

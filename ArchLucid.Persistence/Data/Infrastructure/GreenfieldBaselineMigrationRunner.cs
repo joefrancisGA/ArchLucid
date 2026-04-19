@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -60,14 +60,12 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// </remarks>
     public static void TryApplyBaselineAndStampThrough050(string connectionString)
     {
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new ArgumentException("Connection string is required.", nameof(connectionString));
+        if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Connection string is required.", nameof(connectionString));
 
         using SqlConnection connection = new(connectionString);
         connection.Open();
 
-        if (SchemaVersionsJournalRecordsInitialSchema001(connection))
-            return;
+        if (SchemaVersionsJournalRecordsInitialSchema001(connection)) return;
 
         Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -130,8 +128,7 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// </summary>
     internal static bool IsKnownDuplicateInitialMigrationTable(SqlException ex)
     {
-        if (ex is null)
-            return false;
+        if (ex is null) return false;
 
         return IsKnownDuplicateInitialMigrationTable(ex.Message, ex.Number);
     }
@@ -144,8 +141,7 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// </summary>
     internal static bool IsKnownDuplicateBaselineConstraintName(SqlException ex)
     {
-        if (ex is null)
-            return false;
+        if (ex is null) return false;
 
         return IsKnownDuplicateBaselineConstraintName(ex.Message);
     }
@@ -153,14 +149,11 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// <summary>Test seam for <see cref="IsKnownDuplicateBaselineConstraintName(SqlException)"/>.</summary>
     internal static bool IsKnownDuplicateBaselineConstraintName(string message)
     {
-        if (string.IsNullOrWhiteSpace(message))
-            return false;
+        if (string.IsNullOrWhiteSpace(message)) return false;
 
-        if (!IsKnownDuplicateBaselineConstraintMessage(message))
-            return false;
+        if (!IsKnownDuplicateBaselineConstraintMessage(message)) return false;
 
-        if (message.Contains("already an object named", StringComparison.OrdinalIgnoreCase))
-            return true;
+        if (message.Contains("already an object named", StringComparison.OrdinalIgnoreCase)) return true;
 
         return message.Contains("Could not create constraint", StringComparison.OrdinalIgnoreCase);
     }
@@ -173,15 +166,13 @@ public static partial class GreenfieldBaselineMigrationRunner
     {
         if (message.Contains("FK_ArtifactBundles_GoldenManifests_ManifestId", StringComparison.OrdinalIgnoreCase)
             || message.Contains("FK_ArtifactBundles_Runs_RunId", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
 
-        if (message.Contains("FK_FindingsSnapshots_", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (message.Contains("FK_GoldenManifests_FindingsSnapshots_FindingsSnapshotId", StringComparison.OrdinalIgnoreCase))
-            return true;
+
+        if (message.Contains("FK_FindingsSnapshots_", StringComparison.OrdinalIgnoreCase)) return true;
+
+        if (message.Contains("FK_GoldenManifests_FindingsSnapshots_FindingsSnapshotId", StringComparison.OrdinalIgnoreCase)) return true;
 
         return false;
     }
@@ -189,14 +180,11 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// <summary>Test seam: same predicate as <see cref="IsKnownDuplicateInitialMigrationTable(SqlException)"/> without constructing <see cref="SqlException"/>.</summary>
     internal static bool IsKnownDuplicateInitialMigrationTable(string message, int errorNumber)
     {
-        if (string.IsNullOrEmpty(message))
-            return false;
+        if (string.IsNullOrEmpty(message)) return false;
 
-        if (!ContainsAnyKnownBaselineDuplicateTableName(message))
-            return false;
+        if (!ContainsAnyKnownBaselineDuplicateTableName(message)) return false;
 
-        if (message.Contains("already an object named", StringComparison.OrdinalIgnoreCase))
-            return true;
+        if (message.Contains("already an object named", StringComparison.OrdinalIgnoreCase)) return true;
 
         // SQL Server: "There is already an object named '…' in the database."
         return errorNumber == 2714;
@@ -220,23 +208,19 @@ public static partial class GreenfieldBaselineMigrationRunner
         foreach (string resourceName in GetOrderedIncrementalMigrationResourceNames())
         {
             Match match = MigrationNumberRegex().Match(resourceName);
-            if (!match.Success)
-                continue;
+            if (!match.Success) continue;
 
             int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-            if (n < minInclusive || n > maxInclusive)
-                continue;
+            if (n < minInclusive || n > maxInclusive) continue;
 
-            if (ShouldSkipEmbeddedMigrationResourceAlreadyApplied(connection, resourceName))
-                continue;
+            if (ShouldSkipEmbeddedMigrationResourceAlreadyApplied(connection, resourceName)) continue;
 
             string sql = ReadEmbeddedScript(assembly, resourceName);
             IReadOnlyList<string> batches = SplitGoBatches(sql);
 
             foreach (string batch in batches)
             {
-                if (string.IsNullOrWhiteSpace(batch))
-                    continue;
+                if (string.IsNullOrWhiteSpace(batch)) continue;
 
                 using SqlCommand batchCommand = new(batch, connection);
                 batchCommand.CommandTimeout = 0;
@@ -255,11 +239,9 @@ public static partial class GreenfieldBaselineMigrationRunner
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
 
-        if (scalar is null || scalar is DBNull)
-            return false;
+        if (scalar is null || scalar is DBNull) return false;
 
-        if (scalar is bool asBool)
-            return asBool;
+        if (scalar is bool asBool) return asBool;
 
         return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
@@ -289,11 +271,9 @@ public static partial class GreenfieldBaselineMigrationRunner
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
 
-        if (scalar is null || scalar is DBNull)
-            return false;
+        if (scalar is null || scalar is DBNull) return false;
 
-        if (scalar is bool asBool)
-            return asBool;
+        if (scalar is bool asBool) return asBool;
 
         return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
@@ -304,8 +284,7 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// </summary>
     private static bool ShouldSkipEmbeddedMigrationResourceAlreadyApplied(SqlConnection connection, string resourceName)
     {
-        if (!resourceName.Contains("017_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase))
-            return false;
+        if (!resourceName.Contains("017_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase)) return false;
 
         return GovernanceWorkflow017TablesExist(connection);
     }
@@ -320,11 +299,9 @@ public static partial class GreenfieldBaselineMigrationRunner
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
 
-        if (scalar is null || scalar is DBNull)
-            return false;
+        if (scalar is null || scalar is DBNull) return false;
 
-        if (scalar is bool asBool)
-            return asBool;
+        if (scalar is bool asBool) return asBool;
 
         return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
@@ -372,11 +349,9 @@ public static partial class GreenfieldBaselineMigrationRunner
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
 
-        if (scalar is null || scalar is DBNull)
-            return false;
+        if (scalar is null || scalar is DBNull) return false;
 
-        if (scalar is bool asBool)
-            return asBool;
+        if (scalar is bool asBool) return asBool;
 
         return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
@@ -398,8 +373,7 @@ public static partial class GreenfieldBaselineMigrationRunner
 
         using SqlCommand command = new(sql, connection);
         object? scalar = command.ExecuteScalar();
-        if (scalar is null || scalar is DBNull)
-            return false;
+        if (scalar is null || scalar is DBNull) return false;
 
         return Convert.ToBoolean(scalar, CultureInfo.InvariantCulture);
     }
@@ -429,12 +403,10 @@ END
         foreach (string resourceName in incremental)
         {
             Match match = numberRegex.Match(resourceName);
-            if (!match.Success)
-                continue;
+            if (!match.Success) continue;
 
             int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-            if (n < 1 || n > 50)
-                continue;
+            if (n < 1 || n > 50) continue;
 
             using SqlCommand stamp = new(
                 """
@@ -454,8 +426,7 @@ END
     private static string ReadEmbeddedScript(Assembly assembly, string name)
     {
         using Stream? stream = assembly.GetManifestResourceStream(name);
-        if (stream is null)
-            throw new InvalidOperationException($"Missing embedded migration script '{name}'.");
+        if (stream is null) throw new InvalidOperationException($"Missing embedded migration script '{name}'.");
 
         using StreamReader reader = new(stream);
         return reader.ReadToEnd();
@@ -468,17 +439,17 @@ END
         List<string> current = [];
 
         foreach (string line in lines)
-        {
+
             if (line.Trim().Equals("GO", StringComparison.OrdinalIgnoreCase))
             {
                 batches.Add(string.Join(Environment.NewLine, current));
                 current.Clear();
             }
             else
-            {
+
                 current.Add(line);
-            }
-        }
+
+
 
         if (current.Count > 0)
             batches.Add(string.Join(Environment.NewLine, current));

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Identity;
@@ -41,21 +41,19 @@ public sealed class TrialTenantBootstrapService(
     {
         ArgumentNullException.ThrowIfNull(result);
 
-        if (string.IsNullOrWhiteSpace(auditActorEmail))
-            throw new ArgumentException("Audit actor email is required.", nameof(auditActorEmail));
+        if (string.IsNullOrWhiteSpace(auditActorEmail)) throw new ArgumentException("Audit actor email is required.", nameof(auditActorEmail));
 
-        if (result.WasAlreadyProvisioned)
-            return;
+        if (result.WasAlreadyProvisioned) return;
 
         if (!await _emailVerificationPolicy.CanProvisionTrialForRegisteredEmailAsync(auditActorEmail, cancellationToken))
         {
             if (_logger.IsEnabled(LogLevel.Information))
-            {
+
                 _logger.LogInformation(
                     "Skipping trial bootstrap for tenant {TenantId}: email verification policy blocked provisioning for {Email}.",
                     result.TenantId,
                     auditActorEmail);
-            }
+
 
             ArchLucidInstrumentation.RecordTrialSignupFailure("email_verification", "policy_blocked");
 
@@ -86,7 +84,7 @@ public sealed class TrialTenantBootstrapService(
 
         using (SqlRowLevelSecurityBypassAmbient.Enter())
         using (AmbientScopeContext.Push(scope))
-        {
+
             try
             {
                 await _demoSeedService.SeedAsync(cancellationToken);
@@ -128,12 +126,12 @@ public sealed class TrialTenantBootstrapService(
             catch (Exception ex)
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                {
+
                     _logger.LogError(
                         ex,
                         "Trial bootstrap failed for tenant {TenantId}; tenant row exists without trial metadata.",
                         result.TenantId);
-                }
+
 
                 ArchLucidInstrumentation.RecordTrialSignupFailure("trial_bootstrap", ex.GetType().Name);
 
@@ -150,6 +148,6 @@ public sealed class TrialTenantBootstrapService(
                     },
                     cancellationToken);
             }
-        }
+
     }
 }

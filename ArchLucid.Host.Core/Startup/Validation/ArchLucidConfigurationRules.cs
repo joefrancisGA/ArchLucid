@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Startup.Validation.Rules;
 
@@ -43,14 +43,12 @@ public static class ArchLucidConfigurationRules
         E2EHarnessRules.Collect(configuration, environment, errors);
 
         if (environment.IsStaging())
-        {
-            ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
-        }
 
-        if (!environment.IsProduction())
-        {
-            return errors;
-        }
+            ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
+
+
+        if (!environment.IsProduction()) return errors;
+
 
         AuthenticationRules.CollectProductionApiKeyBypass(configuration, errors);
         AuthenticationRules.CollectProductionApiKeyPlaceholders(configuration, errors);

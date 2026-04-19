@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Text.Json;
 
 using Dapper;
@@ -12,8 +12,7 @@ public sealed class ListStringTypeHandler : SqlMapper.TypeHandler<List<string>>
 
     public override List<string> Parse(object value)
     {
-        if (value is null or DBNull || value is not string s || string.IsNullOrWhiteSpace(s))
-            return [];
+        if (value is null or DBNull || value is not string s || string.IsNullOrWhiteSpace(s)) return [];
 
         try
         {
@@ -35,8 +34,7 @@ public sealed class ListStringTypeHandler : SqlMapper.TypeHandler<List<string>>
 
     public static void Register()
     {
-        if (_registered)
-            return;
+        if (_registered) return;
         SqlMapper.AddTypeHandler(new ListStringTypeHandler());
         _registered = true;
     }

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Governance;
+﻿using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Application.Governance;
 
@@ -19,10 +19,8 @@ public sealed class GovernanceRationaleService(IGovernanceLineageService lineage
             .GetApprovalRequestLineageAsync(approvalRequestId, cancellationToken)
             ;
 
-        if (lineage is null)
-        {
-            return null;
-        }
+        if (lineage is null) return null;
+
 
         GovernanceApprovalRequest approval = lineage.ApprovalRequest;
         List<string> bullets =
@@ -34,33 +32,33 @@ public sealed class GovernanceRationaleService(IGovernanceLineageService lineage
         ];
 
         if (lineage.Run is { } run)
-        {
+
             bullets.Add($"Run status: {run.Status}; created {run.CreatedUtc:O} UTC");
-        }
+
 
         if (lineage.Manifest is { } manifest)
-        {
+
             bullets.Add(
                 $"Authority manifest: version {manifest.ManifestVersion ?? "—"}; " +
                 $"{manifest.DecisionCount} decision(s); {manifest.UnresolvedIssueCount} open issue(s); " +
                 $"{manifest.ComplianceGapCount} compliance gap(s).");
-        }
+
 
         if (!string.IsNullOrWhiteSpace(lineage.RiskPosture))
-        {
+
             bullets.Add($"Derived risk posture: {lineage.RiskPosture}");
-        }
+
 
         if (lineage.TopFindings.Count > 0)
-        {
+
             bullets.Add(
                 $"Top findings (sample): {string.Join("; ", lineage.TopFindings.Take(3).Select(f => $"{f.Severity} {f.Title}"))}");
-        }
+
 
         if (lineage.Promotions.Count > 0)
-        {
+
             bullets.Add($"Prior promotions recorded for this run: {lineage.Promotions.Count}.");
-        }
+
 
         string summary =
             $"Governance rationale for approval {approval.ApprovalRequestId}: " +

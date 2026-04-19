@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -30,31 +30,23 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
         ArgumentNullException.ThrowIfNull(trace);
         ArgumentException.ThrowIfNullOrEmpty(runId);
 
-        if (!options.CurrentValue.Enabled)
-        {
-            return;
-        }
+        if (!options.CurrentValue.Enabled) return;
+
 
         IReadOnlyList<AgentOutputReferenceCaseDefinition> cases = catalog.Cases;
 
-        if (cases.Count == 0)
-        {
-            return;
-        }
+        if (cases.Count == 0) return;
 
-        if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson))
-        {
-            return;
-        }
+
+        if (!trace.ParseSucceeded || string.IsNullOrEmpty(trace.ParsedResultJson)) return;
+
 
         string agentLabel = trace.AgentType.ToString();
 
         foreach (AgentOutputReferenceCaseDefinition caseDef in cases)
         {
-            if (caseDef.AgentType != trace.AgentType)
-            {
-                continue;
-            }
+            if (caseDef.AgentType != trace.AgentType) continue;
+
 
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -63,10 +55,8 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                 trace.ParsedResultJson,
                 trace.AgentType);
 
-            if (structural.IsJsonParseFailure)
-            {
-                continue;
-            }
+            if (structural.IsJsonParseFailure) continue;
+
 
             AgentOutputSemanticScore semantic = semanticEvaluator.Evaluate(
                 trace.TraceId,
@@ -90,14 +80,14 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                 new TagList { { "case_id", caseDef.CaseId }, { "agent_type", agentLabel } });
 
             if (!pass && failureReason is not null)
-            {
+
                 logger.LogDebug(
                     "Reference case {CaseId} failed for run {RunId} trace {TraceId}: {Reason}",
                     LogSanitizer.Sanitize(caseDef.CaseId),
                     LogSanitizer.Sanitize(runId),
                     LogSanitizer.Sanitize(trace.TraceId),
                     LogSanitizer.Sanitize(failureReason));
-            }
+
 
             string? missingKeysJson = structural.MissingKeys.Count > 0
                 ? JsonSerializer.Serialize(structural.MissingKeys, WebJson)
@@ -148,7 +138,7 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
         }
 
         if (caseDef.RequiredJsonKeys.Count > 0)
-        {
+
             try
             {
                 using JsonDocument doc = JsonDocument.Parse(parsedResultJson);
@@ -163,19 +153,16 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
                 HashSet<string> names = new(StringComparer.Ordinal);
 
                 foreach (JsonProperty p in doc.RootElement.EnumerateObject())
-                {
+
                     names.Add(p.Name);
-                }
+
 
                 foreach (string key in caseDef.RequiredJsonKeys)
                 {
-                    if (string.IsNullOrWhiteSpace(key))
-                    {
-                        continue;
-                    }
+                    if (string.IsNullOrWhiteSpace(key)) continue;
 
-                    if (names.Contains(key.Trim()))
-                        continue;
+
+                    if (names.Contains(key.Trim())) continue;
 
                     failureReason = $"missing key '{key.Trim()}'";
 
@@ -188,15 +175,13 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
 
                 return false;
             }
-        }
+
 
         bool needsAgentResult = caseDef.MinimumFindingCount > 0
                                 || caseDef.ExpectedFindingCategories.Any(static c => !string.IsNullOrWhiteSpace(c));
 
-        if (!needsAgentResult)
-        {
-            return true;
-        }
+        if (!needsAgentResult) return true;
+
 
         AgentResult? actual = TryDeserializeAgentResult(parsedResultJson);
 
@@ -223,13 +208,10 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
 
         foreach (string cat in caseDef.ExpectedFindingCategories)
         {
-            if (string.IsNullOrWhiteSpace(cat))
-            {
-                continue;
-            }
+            if (string.IsNullOrWhiteSpace(cat)) continue;
 
-            if (findingCategories.Contains(cat.Trim().ToUpperInvariant()))
-                continue;
+
+            if (findingCategories.Contains(cat.Trim().ToUpperInvariant())) continue;
 
             failureReason = $"missing finding category '{cat.Trim()}'";
 

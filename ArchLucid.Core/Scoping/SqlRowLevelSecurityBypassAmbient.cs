@@ -1,4 +1,4 @@
-namespace ArchLucid.Core.Scoping;
+﻿namespace ArchLucid.Core.Scoping;
 
 /// <summary>
 /// Marks the current async flow as trusted SQL work that must bypass row-level security predicates
@@ -37,11 +37,11 @@ public static class SqlRowLevelSecurityBypassAmbient
     {
         if (_strictBypassRequired?.Invoke() == true
             && (_breakGlassEnabled is null || !_breakGlassEnabled.Invoke()))
-        {
+
             throw new InvalidOperationException(
                 "SQL RLS bypass is blocked: when SqlServer:RowLevelSecurity:ApplySessionContext is true, "
                 + "SqlRowLevelSecurityBypassAmbient.Enter requires ARCHLUCID_ALLOW_RLS_BYPASS=true and ArchLucid:Persistence:AllowRlsBypass=true.");
-        }
+
 
         Depth.Value++;
         return new PopScope();
@@ -53,8 +53,7 @@ public static class SqlRowLevelSecurityBypassAmbient
 
         public void Dispose()
         {
-            if (_disposed)
-                return;
+            if (_disposed) return;
 
             _disposed = true;
             Depth.Value = Math.Max(0, Depth.Value - 1);

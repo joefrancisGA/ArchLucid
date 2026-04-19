@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Compliance.Models;
+﻿using ArchLucid.Decisioning.Compliance.Models;
 
 namespace ArchLucid.Decisioning.Compliance.Loaders;
 
@@ -8,11 +8,9 @@ public class ComplianceRulePackValidator : IComplianceRulePackValidator
     {
         ArgumentNullException.ThrowIfNull(rulePack);
 
-        if (string.IsNullOrWhiteSpace(rulePack.RulePackId))
-            throw new InvalidOperationException("Compliance RulePackId is required.");
+        if (string.IsNullOrWhiteSpace(rulePack.RulePackId)) throw new InvalidOperationException("Compliance RulePackId is required.");
 
-        if (string.IsNullOrWhiteSpace(rulePack.Version))
-            throw new InvalidOperationException("Compliance rule pack version is required.");
+        if (string.IsNullOrWhiteSpace(rulePack.Version)) throw new InvalidOperationException("Compliance rule pack version is required.");
 
         List<string> duplicateIds = rulePack.Rules
             .GroupBy(x => x.RuleId, StringComparer.OrdinalIgnoreCase)
@@ -25,9 +23,8 @@ public class ComplianceRulePackValidator : IComplianceRulePackValidator
                 $"Duplicate compliance rule IDs found: {string.Join(", ", duplicateIds)}");
 
         foreach (ComplianceRule rule in rulePack.Rules)
-        
-            if (string.IsNullOrWhiteSpace(rule.RuleId))
-                throw new InvalidOperationException("Each compliance rule must have a RuleId.");
-        
+
+            if (string.IsNullOrWhiteSpace(rule.RuleId)) throw new InvalidOperationException("Each compliance rule must have a RuleId.");
+
     }
 }

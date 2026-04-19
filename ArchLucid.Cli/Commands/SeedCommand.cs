@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace ArchLucid.Cli.Commands;
 
@@ -11,10 +11,8 @@ internal static class SeedCommand
 
         ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl);
 
-        if (connection != ApiConnectionOutcome.Connected)
-        {
-            return CliCommandShared.ExitCodeForFailedConnection(connection);
-        }
+        if (connection != ApiConnectionOutcome.Connected) return CliCommandShared.ExitCodeForFailedConnection(connection);
+
 
         ArchLucidApiClient client = new(baseUrl);
 

@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Abstractions.ProductLearning;
+﻿using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
@@ -103,9 +103,7 @@ public sealed class ProductLearningDashboardService(
 
         foreach (RepeatedCommentTheme theme in snapshot.RepeatedCommentThemes)
         {
-            if (theme.OccurrenceCount < options.MinCommentOccurrencesForTriageQueue)
-
-                continue;
+            if (theme.OccurrenceCount < options.MinCommentOccurrencesForTriageQueue) continue;
 
 
             int score = ComputeCommentThemeTriageScore(theme);

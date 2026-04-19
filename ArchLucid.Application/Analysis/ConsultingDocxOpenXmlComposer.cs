@@ -1,4 +1,4 @@
-using ArchLucid.Core.Diagrams;
+﻿using ArchLucid.Core.Diagrams;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -53,12 +53,12 @@ internal static class ConsultingDocxOpenXmlComposer
             }
 
             if (options.IncludeExecutiveSummary)
-            {
+
                 ConsultingDocxSupplementalSections.AddExecutiveSummary(body, report, options);
-            }
+
 
             if (options.IncludeArchitectureOverview)
-            {
+
                 await ConsultingDocxSupplementalSections.AddArchitectureOverviewAsync(
                     body,
                     mainPart,
@@ -66,32 +66,32 @@ internal static class ConsultingDocxOpenXmlComposer
                     options,
                     diagramImageRenderer,
                     cancellationToken);
-            }
+
 
             if (options.IncludeEvidenceAndConstraints)
-            {
+
                 ConsultingDocxFindingsSectionBuilder.Add(body, report);
-            }
+
 
             if (options.IncludeArchitectureDetails)
-            {
+
                 ConsultingDocxSupplementalSections.AddArchitectureDetails(body, report);
-            }
+
 
             if (options.IncludeGovernanceAndControls)
-            {
+
                 ConsultingDocxSupplementalSections.AddGovernanceAndControls(body, report);
-            }
+
 
             if (options.IncludeExplainabilitySection)
-            {
+
                 ConsultingDocxSupplementalSections.AddExplainabilitySection(body, report, options);
-            }
+
 
             if (options.IncludeConclusions)
-            {
+
                 ConsultingDocxRecommendationsSectionBuilder.Add(body, report, options);
-            }
+
 
             ConsultingDocxSupplementalSections.AddAppendices(body, report, options);
 

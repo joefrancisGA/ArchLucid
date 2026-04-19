@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
 namespace ArchLucid.Core.Diagnostics;
@@ -12,9 +12,9 @@ public sealed class AgentExecutionLlmCallAccumulator
     public void AddCompletions(int delta)
     {
         if (delta > 0)
-        {
+
             _ = Interlocked.Add(ref _count, delta);
-        }
+
     }
 
     /// <summary>Reads and resets the accumulated count.</summary>
@@ -62,10 +62,8 @@ public static class ArchLucidInstrumentation
     /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureOutboxDepthObservableGaugesRegistered()
     {
-        if (Interlocked.Exchange(ref _outboxObservableGaugesRegistered, 1) != 0)
-        {
-            return;
-        }
+        if (Interlocked.Exchange(ref _outboxObservableGaugesRegistered, 1) != 0) return;
+
 
         OutboxDepthGaugeState s = OutboxDepthGauges;
 
@@ -124,10 +122,8 @@ public static class ArchLucidInstrumentation
     /// <summary>Registers trial funnel observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureTrialFunnelObservableGaugesRegistered()
     {
-        if (Interlocked.Exchange(ref _trialFunnelObservableGaugesRegistered, 1) != 0)
-        {
-            return;
-        }
+        if (Interlocked.Exchange(ref _trialFunnelObservableGaugesRegistered, 1) != 0) return;
+
 
         AppMeter.CreateObservableGauge(
             "archlucid_trial_active_tenants",
@@ -139,9 +135,9 @@ public static class ArchLucidInstrumentation
     public static void PublishTrialActiveTenantCount(long count)
     {
         if (count < 0)
-        {
+
             count = 0;
-        }
+
 
         Volatile.Write(ref _trialActiveTenantsCached, count);
     }
@@ -513,9 +509,9 @@ public static class ArchLucidInstrumentation
         AgentExecutionLlmCallAccumulator? acc = LlmCallsPerRunAccumulator.Value;
 
         if (acc is not null)
-        {
+
             acc.AddCompletions(1);
-        }
+
     }
 
     /// <summary>Increments <c>archlucid_finding_engine_failures_total</c>.</summary>
@@ -588,10 +584,8 @@ public static class ArchLucidInstrumentation
     /// <summary>Records <see cref="TrialFirstRunSeconds"/> when positive and finite.</summary>
     public static void RecordTrialFirstRunLatencySeconds(double seconds)
     {
-        if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds))
-        {
-            return;
-        }
+        if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds)) return;
+
 
         TrialFirstRunSeconds.Record(seconds);
     }
@@ -599,10 +593,8 @@ public static class ArchLucidInstrumentation
     /// <summary>Records <see cref="TrialRunsUsedRatio"/> clamped to non-negative values.</summary>
     public static void RecordTrialRunsUsedRatio(double ratio)
     {
-        if (double.IsNaN(ratio) || double.IsInfinity(ratio))
-        {
-            return;
-        }
+        if (double.IsNaN(ratio) || double.IsInfinity(ratio)) return;
+
 
         TrialRunsUsedRatio.Record(Math.Max(0, ratio));
     }
@@ -644,10 +636,8 @@ public static class ArchLucidInstrumentation
     /// <summary>Adds <paramref name="estimatedCostUsd"/> to <see cref="LlmCostUsdTotal"/> when positive.</summary>
     public static void RecordLlmCostUsd(decimal estimatedCostUsd, string? tenantLabel)
     {
-        if (estimatedCostUsd <= 0m)
-        {
-            return;
-        }
+        if (estimatedCostUsd <= 0m) return;
+
 
         string tenant = string.IsNullOrWhiteSpace(tenantLabel) ? "unknown" : tenantLabel.Trim();
         TagList tags = new() { { "tenant", tenant } };
@@ -673,28 +663,28 @@ public static class ArchLucidInstrumentation
                        || !string.IsNullOrEmpty(llmDeploymentLabel);
 
         if (promptTokens > 0)
-        {
+
             if (hasTags)
-            {
+
                 LlmPromptTokensTotal.Add(promptTokens, BuildTags());
-            }
+
             else
-            {
+
                 LlmPromptTokensTotal.Add(promptTokens);
-            }
-        }
+
+
 
         if (completionTokens > 0)
-        {
+
             if (hasTags)
-            {
+
                 LlmCompletionTokensTotal.Add(completionTokens, BuildTags());
-            }
+
             else
-            {
+
                 LlmCompletionTokensTotal.Add(completionTokens);
-            }
-        }
+
+
 
         return;
 
@@ -703,19 +693,19 @@ public static class ArchLucidInstrumentation
             TagList tags = [];
 
             if (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
-            {
+
                 tags.Add("tenant_id", tenantIdNormalized);
-            }
+
 
             if (!string.IsNullOrEmpty(llmProviderId))
-            {
+
                 tags.Add("llm_provider", llmProviderId);
-            }
+
 
             if (!string.IsNullOrEmpty(llmDeploymentLabel))
-            {
+
                 tags.Add("llm_deployment", llmDeploymentLabel);
-            }
+
 
             return tags;
         }

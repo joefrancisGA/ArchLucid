@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Compliance.Evaluators;
+﻿using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.Decisioning.Findings;
@@ -36,7 +36,7 @@ public class ComplianceFindingEngine(
         List<Finding> findings = [];
 
         foreach (ComplianceViolation violation in evaluation.Violations)
-        {
+
             findings.Add(new Finding
             {
                 FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
@@ -74,7 +74,7 @@ public class ComplianceFindingEngine(
                     Notes = [$"Rule pack: {rulePack.RulePackId} v{rulePack.Version}"]
                 }
             });
-        }
+
 
         return findings;
     }

@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Application.Tenancy;
@@ -14,20 +14,14 @@ public static class TrialLifecyclePolicy
         ArgumentNullException.ThrowIfNull(tenant);
         ArgumentNullException.ThrowIfNull(options);
 
-        if (tenant.TrialExpiresUtc is null || string.IsNullOrWhiteSpace(tenant.TrialStatus))
-        {
-            return null;
-        }
+        if (tenant.TrialExpiresUtc is null || string.IsNullOrWhiteSpace(tenant.TrialStatus)) return null;
 
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
-        {
-            return null;
-        }
 
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
-        {
-            return null;
-        }
+        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal)) return null;
+
+
+        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal)) return null;
+
 
         DateTimeOffset anchor = tenant.TrialExpiresUtc.Value;
         DateTimeOffset readOnlyNotBefore = anchor.AddDays(options.ReadOnlyAfterExpireDays);
@@ -36,10 +30,8 @@ public static class TrialLifecyclePolicy
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
         {
-            if (utcNow < anchor)
-            {
-                return null;
-            }
+            if (utcNow < anchor) return null;
+
 
             return new TrialLifecycleAdvancement(
                 TrialLifecycleStatus.Active,
@@ -49,10 +41,8 @@ public static class TrialLifecyclePolicy
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Expired, StringComparison.Ordinal))
         {
-            if (utcNow < readOnlyNotBefore)
-            {
-                return null;
-            }
+            if (utcNow < readOnlyNotBefore) return null;
+
 
             return new TrialLifecycleAdvancement(
                 TrialLifecycleStatus.Expired,
@@ -62,10 +52,8 @@ public static class TrialLifecyclePolicy
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ReadOnly, StringComparison.Ordinal))
         {
-            if (utcNow < exportOnlyNotBefore)
-            {
-                return null;
-            }
+            if (utcNow < exportOnlyNotBefore) return null;
+
 
             return new TrialLifecycleAdvancement(
                 TrialLifecycleStatus.ReadOnly,
@@ -75,10 +63,8 @@ public static class TrialLifecyclePolicy
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal))
         {
-            if (utcNow < purgeNotBefore)
-            {
-                return null;
-            }
+            if (utcNow < purgeNotBefore) return null;
+
 
             return new TrialLifecycleAdvancement(
                 TrialLifecycleStatus.ExportOnly,
@@ -98,16 +84,14 @@ public static class TrialLifecyclePolicy
         ArgumentNullException.ThrowIfNull(tenant);
         ArgumentNullException.ThrowIfNull(options);
 
-        if (tenant.TrialExpiresUtc is null || string.IsNullOrWhiteSpace(tenant.TrialStatus))
-        {
-            return null;
-        }
+        if (tenant.TrialExpiresUtc is null || string.IsNullOrWhiteSpace(tenant.TrialStatus)) return null;
+
 
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal) ||
             string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
-        {
+
             return null;
-        }
+
 
         DateTimeOffset T = tenant.TrialExpiresUtc.Value;
         DateTimeOffset readOnlyNotBefore = T.AddDays(options.ReadOnlyAfterExpireDays);

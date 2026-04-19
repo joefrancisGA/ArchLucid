@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
@@ -56,9 +56,9 @@ public sealed class AuthorityRunOrchestrator(
             using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             if (pipelineTimeout > TimeSpan.Zero)
-            {
+
                 linkedCts.CancelAfter(pipelineTimeout);
-            }
+
 
             CancellationToken pipelineCt = linkedCts.Token;
 
@@ -92,14 +92,14 @@ public sealed class AuthorityRunOrchestrator(
             pipelineRunIdForDiagnostics = run.RunId;
 
             if (logger.IsEnabled(LogLevel.Information))
-            {
+
                 logger.LogInformation(
                     "Authority pipeline started: RunId={RunId}, ProjectId={ProjectId}, TenantId={TenantId}, WorkspaceId={WorkspaceId}",
                     run.RunId,
                     LogSanitizer.Sanitize(request.ProjectId),
                     scope.TenantId,
                     scope.WorkspaceId);
-            }
+
 
             await auditService.LogAsync(
                 new AuditEvent
@@ -157,12 +157,12 @@ public sealed class AuthorityRunOrchestrator(
                     pipelineCt);
 
                 if (logger.IsEnabled(LogLevel.Information))
-                {
+
                     logger.LogInformation(
                         "Authority pipeline deferred (queued): RunId={RunId}, ProjectId={ProjectId}",
                         run.RunId,
                         LogSanitizer.Sanitize(request.ProjectId));
-                }
+
 
                 return run;
             }
@@ -227,17 +227,16 @@ public sealed class AuthorityRunOrchestrator(
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
             RunRecord? existing = await runRepository.GetByIdAsync(scope, request.RunId, cancellationToken);
-            if (existing is null)
-                throw new InvalidOperationException($"Run '{request.RunId:D}' was not found for queued authority completion.");
+            if (existing is null) throw new InvalidOperationException($"Run '{request.RunId:D}' was not found for queued authority completion.");
 
             if (existing.ContextSnapshotId is not null)
             {
                 if (logger.IsEnabled(LogLevel.Information))
-                {
+
                     logger.LogInformation(
                         "Queued authority completion skipped (already has context): RunId={RunId}",
                         request.RunId);
-                }
+
 
                 return existing;
             }
@@ -246,9 +245,9 @@ public sealed class AuthorityRunOrchestrator(
             using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             if (pipelineTimeout > TimeSpan.Zero)
-            {
+
                 linkedCts.CancelAfter(pipelineTimeout);
-            }
+
 
             CancellationToken pipelineCt = linkedCts.Token;
 
@@ -338,7 +337,7 @@ public sealed class AuthorityRunOrchestrator(
         CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
-        {
+
             await retrievalIndexingOutbox.EnqueueAsync(
                 run.RunId,
                 scope.TenantId,
@@ -347,16 +346,16 @@ public sealed class AuthorityRunOrchestrator(
                 uow.Connection,
                 uow.Transaction,
                 ct);
-        }
+
         else
-        {
+
             await retrievalIndexingOutbox.EnqueueAsync(
                 run.RunId,
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
                 ct);
-        }
+
 
         string integrationMessageId = BuildAuthorityRunCompletedMessageId(run.RunId);
         object integrationPayload = new
@@ -405,7 +404,7 @@ public sealed class AuthorityRunOrchestrator(
             ct);
 
         if (logger.IsEnabled(LogLevel.Information))
-        {
+
             logger.LogInformation(
                 "Authority pipeline completed: RunId={RunId}, ManifestId={ManifestId}, ContextSnapshotId={ContextSnapshotId}, FindingsSnapshotId={FindingsSnapshotId}, DecisionTraceId={DecisionTraceId}",
                 run.RunId,
@@ -413,7 +412,7 @@ public sealed class AuthorityRunOrchestrator(
                 contextSnapshot.SnapshotId,
                 findingsSnapshot.FindingsSnapshotId,
                 trace.RequireRuleAudit().DecisionTraceId);
-        }
+
 
         ArchLucidInstrumentation.AuthorityRunsCompletedTotal.Add(1);
 

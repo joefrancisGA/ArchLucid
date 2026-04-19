@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Persistence.GoldenManifests;
@@ -115,8 +115,7 @@ public sealed class GoldenManifestPayloadBlobEnvelope
 
     public static GoldenManifestPayloadBlobEnvelope? TryDeserialize(string json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return null;
+        if (string.IsNullOrWhiteSpace(json)) return null;
 
         try
         {

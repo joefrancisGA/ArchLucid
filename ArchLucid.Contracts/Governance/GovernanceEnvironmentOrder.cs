@@ -1,4 +1,4 @@
-namespace ArchLucid.Contracts.Governance;
+﻿namespace ArchLucid.Contracts.Governance;
 
 /// <summary>
 /// Defines the allowed single-step promotion path: dev → test → prod.
@@ -18,10 +18,8 @@ public static class GovernanceEnvironmentOrder
     /// </summary>
     public static bool IsValidPromotion(string source, string target)
     {
-        if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target))
-        {
-            return false;
-        }
+        if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target)) return false;
+
 
         return Order.TryGetValue(source, out int s)
                && Order.TryGetValue(target, out int t)

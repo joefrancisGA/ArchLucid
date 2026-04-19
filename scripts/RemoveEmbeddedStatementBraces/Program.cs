@@ -200,7 +200,17 @@ internal sealed class EmbeddedStatementBraceRewriter : CSharpSyntaxRewriter
 
             if (u != null)
             {
-                n = n.WithStatement(u);
+                // Unwrapping `if (a) { if (b) ... } else { ... }` into `if (a) if (b) ... else ...`
+                // changes parsing: `else` binds to the inner `if` (dangling-else). Keep the block.
+                if (n.Else is not null && u is IfStatementSyntax)
+                {
+                    u = null;
+                }
+
+                if (u != null)
+                {
+                    n = n.WithStatement(u);
+                }
             }
         }
 

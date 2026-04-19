@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -17,8 +17,7 @@ public sealed class DistributedLlmCompletionResponseStore(IDistributedCache dist
 
         byte[]? bytes = await _distributedCache.GetAsync(key, cancellationToken);
 
-        if (bytes is null || bytes.Length == 0)
-            return null;
+        if (bytes is null || bytes.Length == 0) return null;
 
         try
         {
@@ -38,8 +37,7 @@ public sealed class DistributedLlmCompletionResponseStore(IDistributedCache dist
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
         ArgumentNullException.ThrowIfNull(value);
 
-        if (absoluteExpiration <= TimeSpan.Zero)
-            throw new ArgumentOutOfRangeException(nameof(absoluteExpiration));
+        if (absoluteExpiration <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(absoluteExpiration));
 
         byte[] payload = JsonSerializer.SerializeToUtf8Bytes(value);
         DistributedCacheEntryOptions options = new()

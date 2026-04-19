@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 
 namespace ArchLucid.Persistence.Coordination.Retrieval;
 
@@ -92,8 +92,8 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
         ct.ThrowIfCancellationRequested();
 
         lock (_gate)
-        {
+
             return Task.FromResult((long)_pending.Count);
-        }
+
     }
 }

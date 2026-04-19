@@ -1,4 +1,4 @@
-using ArchLucid.ArtifactSynthesis.Interfaces;
+﻿using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
@@ -61,8 +61,7 @@ public sealed class InMemoryAuthorityQueryService(
     public async Task<RunDetailDto?> GetRunDetailAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
-        if (run is null)
-            return null;
+        if (run is null) return null;
 
         Task<ContextSnapshot?> contextTask = run.ContextSnapshotId.HasValue
             ? contextSnapshotRepository.GetByIdAsync(run.ContextSnapshotId.Value, ct)

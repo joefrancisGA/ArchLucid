@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Compliance.Models;
+﻿using ArchLucid.Decisioning.Compliance.Models;
 
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
@@ -24,8 +24,7 @@ public static class ComplianceRulePackGovernanceFilter
     /// <param name="effective">Merged governance document for the evaluation scope.</param>
     public static ComplianceRulePack Filter(ComplianceRulePack source, PolicyPackContentDocument effective)
     {
-        if (effective.ComplianceRuleIds.Count == 0 && effective.ComplianceRuleKeys.Count == 0)
-            return source;
+        if (effective.ComplianceRuleIds.Count == 0 && effective.ComplianceRuleKeys.Count == 0) return source;
 
         HashSet<string> keySet = effective.ComplianceRuleKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
         HashSet<Guid> guidSet = effective.ComplianceRuleIds.ToHashSet();

@@ -1,4 +1,4 @@
-using ArchLucid.Core.Diagrams;
+﻿using ArchLucid.Core.Diagrams;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
@@ -56,9 +56,9 @@ internal static class ConsultingDocxSupplementalSections
                      "Appendix B. Execution Trace Index",
                      "Appendix C. Determinism and Comparison"
                  })
-        {
+
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, item);
-        }
+
     }
 
     public static void AddExecutiveSummary(
@@ -86,12 +86,12 @@ internal static class ConsultingDocxSupplementalSections
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, text, "BodyText");
 
         if (report.Warnings.Count > 0)
-        {
+
             ConsultingDocxOpenXmlPrimitives.AddCallout(
                 body,
                 "Key warnings were identified during analysis and should be reviewed before approval.",
                 options);
-        }
+
     }
 
     public static async Task AddArchitectureOverviewAsync(
@@ -113,17 +113,15 @@ internal static class ConsultingDocxSupplementalSections
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, options.ArchitectureOverviewIntro, "BodyText");
 
-        if (string.IsNullOrWhiteSpace(report.Diagram))
-        {
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(report.Diagram)) return;
+
 
         byte[]? imageBytes = await diagramImageRenderer.RenderMermaidPngAsync(
             report.Diagram,
             cancellationToken);
 
         if (imageBytes is not null && imageBytes.Length > 0)
-        {
+
             ConsultingDocxOpenXmlPrimitives.AddImageToBody(
                 mainPart,
                 body,
@@ -131,14 +129,14 @@ internal static class ConsultingDocxSupplementalSections
                 "Architecture Overview Diagram",
                 6_200_000L,
                 3_600_000L);
-        }
+
         else
-        {
+
             ConsultingDocxOpenXmlPrimitives.AddCallout(
                 body,
                 "Diagram image rendering was unavailable. Mermaid source is included in Appendix A.",
                 options);
-        }
+
     }
 
     public static void AddArchitectureDetails(Body body, ArchitectureAnalysisReport report)
@@ -163,23 +161,21 @@ internal static class ConsultingDocxSupplementalSections
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Platform: {service.RuntimePlatform}");
 
                 if (!string.IsNullOrWhiteSpace(service.Purpose))
-                {
+
                     ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Purpose: {service.Purpose}");
-                }
+
 
                 if (service.RequiredControls.Count > 0)
-                {
+
                     ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Required Controls: {string.Join(", ", service.RequiredControls)}");
-                }
+
 
                 ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
             }
         }
 
-        if (report.Manifest.Datastores.Count <= 0)
-        {
-            return;
-        }
+        if (report.Manifest.Datastores.Count <= 0) return;
+
 
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Datastores", 2);
 
@@ -258,10 +254,8 @@ internal static class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
         }
 
-        if (report.ManifestDiff is null && report.AgentResultDiff is null)
-        {
-            return;
-        }
+        if (report.ManifestDiff is null && report.AgentResultDiff is null) return;
+
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
         ConsultingDocxOpenXmlPrimitives.AddCallout(
@@ -280,13 +274,13 @@ internal static class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Appendix A. Mermaid Source", 1);
 
             if (!string.IsNullOrWhiteSpace(report.Diagram))
-            {
+
                 ConsultingDocxOpenXmlPrimitives.AddCodeBlock(body, report.Diagram, ConsultingDocxOpenXmlPrimitives.MermaidLanguage);
-            }
+
             else
-            {
+
                 ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No Mermaid diagram source was available.", "BodyText");
-            }
+
 
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
         }
@@ -296,26 +290,24 @@ internal static class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Appendix B. Execution Trace Index", 1);
 
             if (report.ExecutionTraces.Count > 0)
-            {
+
                 foreach (AgentExecutionTrace trace in report.ExecutionTraces.OrderBy(x => x.AgentType).ThenBy(x => x.CreatedUtc))
-                {
+
                     ConsultingDocxOpenXmlPrimitives.AddBullet(
                         body,
                         $"{trace.AgentType} | Task {trace.TaskId} | Parse {(trace.ParseSucceeded ? "Succeeded" : "Failed")} | {trace.CreatedUtc:O}");
-                }
-            }
+
+
             else
-            {
+
                 ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "No execution traces were available.", "BodyText");
-            }
+
 
             ConsultingDocxOpenXmlPrimitives.AddPageBreak(body);
         }
 
-        if (!options.IncludeAppendixDeterminismAndComparison)
-        {
-            return;
-        }
+        if (!options.IncludeAppendixDeterminismAndComparison) return;
+
 
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Appendix C. Determinism and Comparison", 1);
 
@@ -336,10 +328,8 @@ internal static class ConsultingDocxSupplementalSections
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Removed Required Controls: {report.ManifestDiff.RemovedRequiredControls.Count}");
         }
 
-        if (report.AgentResultDiff is null)
-        {
-            return;
-        }
+        if (report.AgentResultDiff is null) return;
+
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, "Agent Result Diff", "Strong");

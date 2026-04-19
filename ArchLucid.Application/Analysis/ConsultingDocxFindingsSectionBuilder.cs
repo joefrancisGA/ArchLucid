@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Agents;
+﻿using ArchLucid.Contracts.Agents;
 
 using DocumentFormat.OpenXml.Wordprocessing;
 
@@ -25,9 +25,9 @@ internal static class ConsultingDocxFindingsSectionBuilder
             ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Constraints", 2);
 
             foreach (string item in report.Evidence.Request.Constraints)
-            {
+
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, item);
-            }
+
         }
 
         if (report.Evidence.Request.RequiredCapabilities.Count > 0)
@@ -35,15 +35,13 @@ internal static class ConsultingDocxFindingsSectionBuilder
             ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Required Capabilities", 2);
 
             foreach (string item in report.Evidence.Request.RequiredCapabilities)
-            {
+
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, item);
-            }
+
         }
 
-        if (report.Evidence.Policies.Count <= 0)
-        {
-            return;
-        }
+        if (report.Evidence.Policies.Count <= 0) return;
+
 
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Policy Evidence", 2);
 
@@ -54,9 +52,9 @@ internal static class ConsultingDocxFindingsSectionBuilder
             ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Summary: {policy.Summary}");
 
             if (policy.RequiredControls.Count > 0)
-            {
+
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Required Controls: {string.Join(", ", policy.RequiredControls)}");
-            }
+
         }
     }
 }

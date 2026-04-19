@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace ArchLucid.Host.Core.Startup.Diagnostics;
 
@@ -13,8 +13,7 @@ public static class StartupConfigurationDiagnostics
         IHostEnvironment environment,
         Assembly hostAssembly)
     {
-        if (!configuration.GetValue("Hosting:LogStartupConfigurationSummary", true))
-            return;
+        if (!configuration.GetValue("Hosting:LogStartupConfigurationSummary", true)) return;
 
         StartupConfigurationFacts facts = StartupConfigurationFactsReader.FromConfiguration(
             configuration,

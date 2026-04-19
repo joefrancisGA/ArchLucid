@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
@@ -122,9 +122,9 @@ public sealed class EffectiveGovernanceResolver(
                     ArchLucidInstrumentation.GovernancePackContentDeserializeCacheMisses.Add(1);
                 }
                 else
-                
+
                     ArchLucidInstrumentation.GovernancePackContentDeserializeCacheHits.Add(1);
-                
+
 
                 resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
             }
@@ -208,8 +208,7 @@ public sealed class EffectiveGovernanceResolver(
         Guid workspaceId,
         Guid projectId)
     {
-        if (assignment.TenantId != tenantId)
-            return false;
+        if (assignment.TenantId != tenantId) return false;
 
         return assignment.ScopeLevel switch
         {
@@ -271,11 +270,9 @@ public sealed class EffectiveGovernanceResolver(
     /// <remarks>Called when appending <see cref="GovernanceResolutionDecision.ResolutionReason"/>.</remarks>
     private static string BuildResolutionReason(List<GovernanceResolutionCandidate> ordered)
     {
-        if (ordered.Count == 0)
-            return "No candidates.";
-        
-        if (ordered.Count == 1)
-            return "Only one applicable candidate existed.";
+        if (ordered.Count == 0) return "No candidates.";
+
+        if (ordered.Count == 1) return "Only one applicable candidate existed.";
 
         GovernanceResolutionCandidate winner = ordered[0];
         GovernanceResolutionCandidate second = ordered[1];
@@ -314,8 +311,7 @@ public sealed class EffectiveGovernanceResolver(
                     .Where(x => (selector(x) ?? []).Contains(id))
                     .Select(x => ToCandidate(x, raw)));
 
-            if (candidates.Count == 0)
-                continue;
+            if (candidates.Count == 0) continue;
 
             candidates[0].WasSelected = true;
             effective.Add(id);
@@ -333,7 +329,7 @@ public sealed class EffectiveGovernanceResolver(
             });
 
             if (candidates.Count > 1)
-            
+
                 result.Conflicts.Add(new GovernanceConflictRecord
                 {
                     ItemType = itemType,
@@ -343,7 +339,7 @@ public sealed class EffectiveGovernanceResolver(
                         $"Multiple policy packs defined the same {itemType} item. The higher-precedence candidate was selected.",
                     Candidates = candidates,
                 });
-            
+
         }
 
         setter(result.EffectiveContent, effective);
@@ -380,8 +376,7 @@ public sealed class EffectiveGovernanceResolver(
                         return ToCandidate(x, JsonSerializer.Serialize(v, PolicyPackJsonSerializerOptions.Default));
                     }));
 
-            if (candidates.Count == 0)
-                continue;
+            if (candidates.Count == 0) continue;
 
             candidates[0].WasSelected = true;
             string canonical = packs
@@ -402,7 +397,7 @@ public sealed class EffectiveGovernanceResolver(
             });
 
             if (candidates.Count > 1)
-            
+
                 result.Conflicts.Add(new GovernanceConflictRecord
                 {
                     ItemType = itemType,
@@ -412,7 +407,7 @@ public sealed class EffectiveGovernanceResolver(
                         $"Multiple policy packs defined the same {itemType} key. The higher-precedence candidate was selected.",
                     Candidates = candidates,
                 });
-            
+
         }
 
         setter(result.EffectiveContent, effective);
@@ -455,8 +450,7 @@ public sealed class EffectiveGovernanceResolver(
                         return ToCandidate(x, val);
                     }));
 
-            if (candidates.Count == 0)
-                continue;
+            if (candidates.Count == 0) continue;
 
             candidates[0].WasSelected = true;
             string canonicalKey = packs

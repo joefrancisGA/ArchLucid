@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
@@ -205,7 +205,7 @@ public sealed class SqlGoldenManifestRepository(
             """;
 
         for (int i = 0; i < manifest.Assumptions.Count; i++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertAssumptionSql,
@@ -220,7 +220,7 @@ public sealed class SqlGoldenManifestRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
     }
 
     private static async Task InsertGoldenManifestWarningsRelationalAsync(
@@ -237,7 +237,7 @@ public sealed class SqlGoldenManifestRepository(
             """;
 
         for (int w = 0; w < manifest.Warnings.Count; w++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertWarningSql,
@@ -249,7 +249,7 @@ public sealed class SqlGoldenManifestRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
     }
 
     private static async Task InsertGoldenManifestProvSourceFindingsRelationalAsync(
@@ -267,7 +267,7 @@ public sealed class SqlGoldenManifestRepository(
             """;
 
         for (int p = 0; p < provFindingIds.Count; p++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertProvFindingSql,
@@ -279,7 +279,7 @@ public sealed class SqlGoldenManifestRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
     }
 
     private static async Task InsertGoldenManifestProvSourceGraphNodesRelationalAsync(
@@ -297,7 +297,7 @@ public sealed class SqlGoldenManifestRepository(
             """;
 
         for (int p = 0; p < provNodeIds.Count; p++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertProvNodeSql,
@@ -309,7 +309,7 @@ public sealed class SqlGoldenManifestRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
     }
 
     private static async Task InsertGoldenManifestProvAppliedRulesRelationalAsync(
@@ -327,7 +327,7 @@ public sealed class SqlGoldenManifestRepository(
             """;
 
         for (int p = 0; p < provRuleIds.Count; p++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertProvRuleSql,
@@ -339,7 +339,7 @@ public sealed class SqlGoldenManifestRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
     }
 
     private static async Task InsertGoldenManifestDecisionsRelationalAsync(
@@ -393,7 +393,7 @@ public sealed class SqlGoldenManifestRepository(
                     cancellationToken: ct));
 
             for (int e = 0; e < decision.SupportingFindingIds.Count; e++)
-            
+
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertEvidenceSql,
@@ -406,10 +406,10 @@ public sealed class SqlGoldenManifestRepository(
                         },
                         transaction,
                         cancellationToken: ct));
-            
+
 
             for (int n = 0; n < decision.RelatedNodeIds.Count; n++)
-            
+
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertNodeLinkSql,
@@ -422,7 +422,7 @@ public sealed class SqlGoldenManifestRepository(
                         },
                         transaction,
                         cancellationToken: ct));
-            
+
         }
     }
 
@@ -458,8 +458,7 @@ public sealed class SqlGoldenManifestRepository(
                 },
                 cancellationToken: ct));
 
-        if (row is null)
-            return null;
+        if (row is null) return null;
 
         row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
 
@@ -470,18 +469,15 @@ public sealed class SqlGoldenManifestRepository(
         GoldenManifestStorageRow row,
         CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(row.ManifestPayloadBlobUri))
-            return row;
+        if (string.IsNullOrWhiteSpace(row.ManifestPayloadBlobUri)) return row;
 
         string? json = await blobStore.ReadAsync(row.ManifestPayloadBlobUri!, ct);
 
-        if (string.IsNullOrEmpty(json))
-            return row;
+        if (string.IsNullOrEmpty(json)) return row;
 
         GoldenManifestPayloadBlobEnvelope? envelope = GoldenManifestPayloadBlobEnvelope.TryDeserialize(json);
 
-        if (envelope is null || envelope.SchemaVersion != GoldenManifestPayloadBlobEnvelope.CurrentSchemaVersion)
-            return row;
+        if (envelope is null || envelope.SchemaVersion != GoldenManifestPayloadBlobEnvelope.CurrentSchemaVersion) return row;
 
         return GoldenManifestPayloadBlobEnvelope.MergeIntoRow(row, envelope);
     }

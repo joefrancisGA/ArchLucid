@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.KnowledgeGraph.Interfaces;
@@ -174,7 +174,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             """;
 
         for (int w = 0; w < snapshot.Warnings.Count; w++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertWarningSql,
@@ -186,7 +186,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
     }
 
     private static async Task InsertIndexedEdgesAsync(
@@ -197,8 +197,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
     {
         IReadOnlyList<GraphSnapshotEdgeRow> rows = GraphSnapshotEdgeIndexer.BuildRows(snapshot);
 
-        if (rows.Count == 0)
-            return;
+        if (rows.Count == 0) return;
 
         const string edgeSql = """
             INSERT INTO dbo.GraphSnapshotEdges (GraphSnapshotId, EdgeId, FromNodeId, ToNodeId, EdgeType, Weight)
@@ -239,7 +238,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             int sort = 0;
 
             if (!string.IsNullOrEmpty(edge.Label))
-            
+
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertEdgePropSql,
@@ -253,7 +252,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                         },
                         transaction,
                         cancellationToken: ct));
-            
+
 
             List<KeyValuePair<string, string>> orderedProps = edge.Properties
                 .Where(kv => !string.Equals(kv.Key, GraphSnapshotEdgeRelationalConstants.StoredLabelPropertyKey, StringComparison.Ordinal))
@@ -261,7 +260,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 .ToList();
 
             foreach (KeyValuePair<string, string> kv in orderedProps)
-            
+
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertEdgePropSql,
@@ -275,7 +274,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                         },
                         transaction,
                         cancellationToken: ct));
-            
+
         }
     }
 
@@ -310,8 +309,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 transaction,
                 cancellationToken: ct));
 
-        if (row is null)
-            return null;
+        if (row is null) return null;
 
         return await GraphSnapshotRelationalRead.HydrateAsync(connection, transaction, row, ct);
     }
@@ -337,8 +335,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 },
                 cancellationToken: ct));
 
-        if (row is null)
-            return null;
+        if (row is null) return null;
 
         return await GraphSnapshotRelationalRead.HydrateAsync(connection, transaction: null, row, ct);
     }

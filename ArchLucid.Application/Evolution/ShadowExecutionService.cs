@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
 using ArchLucid.Application.Analysis;
@@ -29,10 +29,8 @@ public sealed class ShadowExecutionService(
         ArchitectureRunDetail? loaded =
             await runDetailQueryService.GetRunDetailAsync(request.BaselineArchitectureRunId, cancellationToken);
 
-        if (loaded is null)
-        {
-            throw new RunNotFoundException(request.BaselineArchitectureRunId);
-        }
+        if (loaded is null) throw new RunNotFoundException(request.BaselineArchitectureRunId);
+
 
         ArchitectureRunDetail isolated = ArchitectureRunDetailIsolatingCloner.Clone(loaded);
 
@@ -94,9 +92,9 @@ public sealed class ShadowExecutionService(
             };
 
             if (!string.IsNullOrEmpty(step.AcceptanceCriteria))
-            {
+
                 payload.Metadata["AcceptanceCriteria"] = step.AcceptanceCriteria;
-            }
+
 
             detail.DecisionTraces.Add(RunEventTrace.From(payload));
         }
@@ -108,8 +106,7 @@ public sealed class ShadowExecutionService(
         builder.Append("[60R shadow] CandidateChangeSet ");
         builder.Append(changeSet.ChangeSetId.ToString("D"));
 
-        if (string.IsNullOrWhiteSpace(changeSet.Description))
-            return builder.ToString();
+        if (string.IsNullOrWhiteSpace(changeSet.Description)) return builder.ToString();
 
         builder.Append(" — ");
         builder.Append(changeSet.Description.Trim());

@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.BlobStore;
+﻿using ArchLucid.Persistence.BlobStore;
 
 using Azure.Storage.Blobs;
 
@@ -22,18 +22,18 @@ public sealed class BlobStorageHealthCheck(
         ArtifactLargePayloadOptions o = payloadOptions.CurrentValue;
 
         if (!o.Enabled || !string.Equals(o.BlobProvider, "AzureBlob", StringComparison.OrdinalIgnoreCase))
-        {
+
             return HealthCheckResult.Healthy(
                 "Large artifact offload is not enabled for Azure Blob (readiness scope not applicable).");
-        }
+
 
         BlobServiceClient? client = services.GetService(typeof(BlobServiceClient)) as BlobServiceClient;
 
         if (client is null)
-        {
+
             return HealthCheckResult.Unhealthy(
                 "ArtifactLargePayload:BlobProvider is AzureBlob but BlobServiceClient is not registered.");
-        }
+
 
         try
         {

@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 using ArchLucid.Persistence.Connections;
@@ -236,7 +236,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
         int total = 0;
 
         if (await TableExistsAsync(connection, "dbo.ProductLearningImprovementPlanArchitectureRuns", cancellationToken))
-        {
+
             total += await DeleteLoopAsync(
                 connection,
                 """
@@ -248,10 +248,10 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 counts,
                 "ProductLearningImprovementPlanArchitectureRuns",
                 cancellationToken);
-        }
+
 
         if (await TableExistsAsync(connection, "dbo.ProductLearningImprovementPlanSignalLinks", cancellationToken))
-        {
+
             total += await DeleteLoopAsync(
                 connection,
                 """
@@ -263,7 +263,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                 counts,
                 "ProductLearningImprovementPlanSignalLinks",
                 cancellationToken);
-        }
+
 
         return total;
     }
@@ -308,10 +308,8 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
 
         foreach (string table in tenantTables)
         {
-            if (!await TableExistsAsync(connection, table, cancellationToken))
-            {
-                continue;
-            }
+            if (!await TableExistsAsync(connection, table, cancellationToken)) continue;
+
 
             string label = table.Replace("dbo.", string.Empty, StringComparison.Ordinal);
             string sql = $"DELETE TOP (@Cap) FROM {table} WHERE TenantId = @TenantId";
@@ -355,18 +353,16 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
                     new { TenantId = tenantId, Cap = cap },
                     cancellationToken: cancellationToken));
 
-            if (affected == 0)
-            {
-                break;
-            }
+            if (affected == 0) break;
+
 
             total += affected;
         }
 
         if (total > 0)
-        {
+
             counts[key] = counts.GetValueOrDefault(key, 0) + total;
-        }
+
 
         return total;
     }

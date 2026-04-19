@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Security.Claims;
 
 using ArchLucid.Core.Audit;
@@ -41,9 +41,9 @@ public sealed class AuditService(
             auditEvent.ProjectId = scope.ProjectId;
 
             if (string.IsNullOrWhiteSpace(auditEvent.DataJson))
-            {
+
                 auditEvent.DataJson = "{}";
-            }
+
 
             if (string.IsNullOrWhiteSpace(auditEvent.CorrelationId))
             {
@@ -60,9 +60,9 @@ public sealed class AuditService(
         else
         {
             if (string.IsNullOrWhiteSpace(auditEvent.DataJson))
-            {
+
                 auditEvent.DataJson = "{}";
-            }
+
 
             if (string.IsNullOrWhiteSpace(auditEvent.CorrelationId))
             {

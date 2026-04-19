@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 using ArchLucid.Core.Configuration;
@@ -29,8 +29,7 @@ public sealed class PwnedPasswordRangeClient(
     /// <summary>True when the full SHA-1 hash of the password appears in the downloaded range set.</summary>
     public async Task<bool> IsPasswordPwnedAsync(string password, CancellationToken cancellationToken)
     {
-        if (!_trial.LocalIdentity.PwnedPasswordRangeCheckEnabled)
-            return false;
+        if (!_trial.LocalIdentity.PwnedPasswordRangeCheckEnabled) return false;
 
         ArgumentException.ThrowIfNullOrWhiteSpace(password);
 
@@ -72,8 +71,7 @@ public sealed class PwnedPasswordRangeClient(
         {
             int colon = line.IndexOf(':', StringComparison.Ordinal);
 
-            if (colon <= 0)
-                continue;
+            if (colon <= 0) continue;
 
             string suffix = line[..colon].Trim();
 

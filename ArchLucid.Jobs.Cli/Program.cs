@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
@@ -58,9 +58,9 @@ public static class Program
         if (configurationErrors.Count > 0)
         {
             foreach (string error in configurationErrors)
-            {
+
                 app.Logger.LogError("Startup configuration error: {Error}", error);
-            }
+
 
             return ArchLucidJobExitCodes.ConfigurationError;
         }

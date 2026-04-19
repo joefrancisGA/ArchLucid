@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ArchLucid.Cli.Commands;
@@ -26,23 +26,23 @@ internal static class DevUpCommand
             (int exitCode, string output, string error) = RunProcess("docker", $"compose -f \"{composePath}\" up -d", composeDir);
 
             if (exitCode != 0)
-            {
+
                 (exitCode, output, error) = RunProcess("docker-compose", $"-f \"{composePath}\" up -d", composeDir);
-            }
+
 
             if (exitCode != 0)
             {
                 Console.WriteLine("Error: Failed to start containers.");
 
                 if (!string.IsNullOrEmpty(error))
-                {
+
                     Console.WriteLine(error);
-                }
+
 
                 if (!string.IsNullOrEmpty(output))
-                {
+
                     Console.WriteLine(output);
-                }
+
 
                 return Task.FromResult(CliExitCode.OperationFailed);
             }
@@ -77,10 +77,8 @@ internal static class DevUpCommand
         {
             string composePath = Path.Combine(dir, "docker-compose.yml");
 
-            if (File.Exists(composePath))
-            {
-                return dir;
-            }
+            if (File.Exists(composePath)) return dir;
+
         }
 
         return null;
@@ -101,10 +99,8 @@ internal static class DevUpCommand
 
         using Process? proc = Process.Start(psi);
 
-        if (proc is null)
-        {
-            return (-1, "", $"Failed to start {fileName}");
-        }
+        if (proc is null) return (-1, "", $"Failed to start {fileName}");
+
 
         string stdout = proc.StandardOutput.ReadToEnd();
         string stderr = proc.StandardError.ReadToEnd();

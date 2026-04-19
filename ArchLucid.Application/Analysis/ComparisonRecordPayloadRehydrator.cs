@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Metadata;
 
@@ -16,8 +16,7 @@ public static class ComparisonRecordPayloadRehydrator
     {
         ArgumentNullException.ThrowIfNull(record);
 
-        if (string.IsNullOrWhiteSpace(record.PayloadJson))
-            return null;
+        if (string.IsNullOrWhiteSpace(record.PayloadJson)) return null;
 
         try
         {
@@ -36,8 +35,7 @@ public static class ComparisonRecordPayloadRehydrator
     {
         ArgumentNullException.ThrowIfNull(record);
 
-        if (string.IsNullOrWhiteSpace(record.PayloadJson))
-            return null;
+        if (string.IsNullOrWhiteSpace(record.PayloadJson)) return null;
 
         try
         {

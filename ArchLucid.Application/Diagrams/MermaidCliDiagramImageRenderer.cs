@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
@@ -26,10 +26,8 @@ public sealed class MermaidCliDiagramImageRenderer(
         string mermaidDiagram,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(mermaidDiagram))
-        {
-            return null;
-        }
+        if (string.IsNullOrWhiteSpace(mermaidDiagram)) return null;
+
 
         string tempDir = Path.Combine(Path.GetTempPath(), "archlucid-mermaid", Guid.NewGuid().ToString("N"));
 
@@ -68,25 +66,24 @@ public sealed class MermaidCliDiagramImageRenderer(
             if (process.ExitCode != 0)
             {
                 if (logger.IsEnabled(LogLevel.Warning))
-                {
+
                     logger.LogWarning(
                         "Mermaid CLI exited with code {ExitCode}. STDERR: {StdErr}",
                         process.ExitCode,
                         LogSanitizer.Sanitize(stdErr));
-                }
+
 
                 return null;
             }
 
-            if (File.Exists(outputPath))
-                return await File.ReadAllBytesAsync(outputPath, cancellationToken);
+            if (File.Exists(outputPath)) return await File.ReadAllBytesAsync(outputPath, cancellationToken);
 
             if (logger.IsEnabled(LogLevel.Warning))
-            {
+
                 logger.LogWarning(
                     "Mermaid CLI reported success but output PNG was missing at {OutputPath}.",
                     LogSanitizer.Sanitize(outputPath));
-            }
+
 
             return null;
 
@@ -102,19 +99,19 @@ public sealed class MermaidCliDiagramImageRenderer(
             try
             {
                 if (Directory.Exists(tempDir))
-                {
+
                     Directory.Delete(tempDir, recursive: true);
-                }
+
             }
             catch (Exception ex)
             {
                 if (logger.IsEnabled(LogLevel.Warning))
-                {
+
                     logger.LogWarning(
                         ex,
                         "Failed to delete temporary Mermaid work directory '{TempDir}'.",
                         LogSanitizer.Sanitize(tempDir));
-                }
+
             }
         }
     }

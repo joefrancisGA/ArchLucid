@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -110,31 +110,27 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
             new CommandDefinition(selectSql, new { TraceId = traceId }, cancellationToken: cancellationToken));
 
-        if (string.IsNullOrEmpty(rowJson))
-        {
-            return;
-        }
+        if (string.IsNullOrEmpty(rowJson)) return;
+
 
         AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
-        if (trace is null)
-        {
-            return;
-        }
+        if (trace is null) return;
+
 
         if (fullSystemPromptBlobKey is not null)
-        {
+
             trace.FullSystemPromptBlobKey = fullSystemPromptBlobKey;
-        }
+
 
         if (fullUserPromptBlobKey is not null)
-        {
+
             trace.FullUserPromptBlobKey = fullUserPromptBlobKey;
-        }
+
 
         if (fullResponseBlobKey is not null)
-        {
+
             trace.FullResponseBlobKey = fullResponseBlobKey;
-        }
+
 
         string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
 
@@ -205,31 +201,27 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
             new CommandDefinition(selectSql, new { TraceId = traceId }, cancellationToken: cancellationToken));
 
-        if (string.IsNullOrEmpty(rowJson))
-        {
-            return;
-        }
+        if (string.IsNullOrEmpty(rowJson)) return;
+
 
         AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
-        if (trace is null)
-        {
-            return;
-        }
+        if (trace is null) return;
+
 
         if (fullSystemPromptInline is not null)
-        {
+
             trace.FullSystemPromptInline = fullSystemPromptInline;
-        }
+
 
         if (fullUserPromptInline is not null)
-        {
+
             trace.FullUserPromptInline = fullUserPromptInline;
-        }
+
 
         if (fullResponseInline is not null)
-        {
+
             trace.FullResponseInline = fullResponseInline;
-        }
+
 
         string updatedJson = JsonSerializer.Serialize(trace, ContractJson.Default);
 
@@ -275,16 +267,12 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
             new CommandDefinition(selectSql, new { TraceId = traceId }, cancellationToken: cancellationToken));
 
-        if (string.IsNullOrEmpty(rowJson))
-        {
-            return;
-        }
+        if (string.IsNullOrEmpty(rowJson)) return;
+
 
         AgentExecutionTrace? trace = JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
-        if (trace is null)
-        {
-            return;
-        }
+        if (trace is null) return;
+
 
         trace.InlineFallbackFailed = failed ? true : null;
 
@@ -327,10 +315,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         string? rowJson = await connection.QuerySingleOrDefaultAsync<string>(
             new CommandDefinition(sql, new { TraceId = traceId }, cancellationToken: cancellationToken));
 
-        if (string.IsNullOrEmpty(rowJson))
-        {
-            return null;
-        }
+        if (string.IsNullOrEmpty(rowJson)) return null;
+
 
         return JsonSerializer.Deserialize<AgentExecutionTrace>(rowJson, ContractJson.Default);
     }
@@ -438,11 +424,11 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             }
 
             if (trace is null)
-            {
+
                 throw new InvalidOperationException(
                     $"An AgentExecutionTrace row for {context} deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
-            }
+
 
             traces.Add(trace);
         }

@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
@@ -13,10 +13,8 @@ internal static class ArtifactsCommand
 
         ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl);
 
-        if (connection != ApiConnectionOutcome.Connected)
-        {
-            return CliCommandShared.ExitCodeForFailedConnection(connection);
-        }
+        if (connection != ApiConnectionOutcome.Connected) return CliCommandShared.ExitCodeForFailedConnection(connection);
+
 
         ArchLucidApiClient client = new(baseUrl);
 
@@ -56,7 +54,7 @@ internal static class ArtifactsCommand
         Console.WriteLine();
 
         if (saveArtifacts && config is not null)
-        {
+
             try
             {
                 string projectRoot = Directory.GetCurrentDirectory();
@@ -73,11 +71,11 @@ internal static class ArtifactsCommand
                 Console.WriteLine($"Warning: Could not save manifest to outputs: {ex.Message}");
                 Console.WriteLine(json);
             }
-        }
+
         else
-        {
+
             Console.WriteLine(json);
-        }
+
 
         return CliExitCode.Success;
     }

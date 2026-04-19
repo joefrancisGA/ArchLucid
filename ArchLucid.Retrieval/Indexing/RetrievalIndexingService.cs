@@ -1,4 +1,4 @@
-using ArchLucid.Retrieval.Chunking;
+﻿using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Embedding;
 using ArchLucid.Retrieval.Models;
 
@@ -20,8 +20,7 @@ public sealed class RetrievalIndexingService(
     {
         ArgumentNullException.ThrowIfNull(documents);
 
-        if (documents.Count == 0)
-            return;
+        if (documents.Count == 0) return;
 
         RetrievalEmbeddingCapOptions caps = capOptions.CurrentValue;
         int batchSize = Math.Clamp(caps.MaxTextsPerEmbeddingRequest, 1, 2048);
@@ -35,8 +34,7 @@ public sealed class RetrievalIndexingService(
 
             IReadOnlyList<string> split = chunker.Chunk(doc.Content);
 
-            if (split.Count == 0)
-                continue;
+            if (split.Count == 0) continue;
 
             work.Add((doc, split));
         }
@@ -44,10 +42,10 @@ public sealed class RetrievalIndexingService(
         int totalChunks = work.Sum(x => x.Split.Count);
 
         if (maxChunks > 0 && totalChunks > maxChunks)
-        
+
             throw new InvalidOperationException(
                 $"Embedding index operation would process {totalChunks} chunks, exceeding Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation ({maxChunks}).");
-        
+
 
         List<RetrievalChunk> chunks = [];
 
@@ -63,8 +61,7 @@ public sealed class RetrievalIndexingService(
                 IReadOnlyList<string> batch = split.Skip(offset).Take(take).ToList();
                 IReadOnlyList<float[]> batchEmbeddings = await embeddingService.EmbedManyAsync(batch, ct);
 
-                if (batchEmbeddings.Count != batch.Count)
-                    throw new InvalidOperationException("Embedding count must match chunk count.");
+                if (batchEmbeddings.Count != batch.Count) throw new InvalidOperationException("Embedding count must match chunk count.");
 
                 embeddings.AddRange(batchEmbeddings);
             }

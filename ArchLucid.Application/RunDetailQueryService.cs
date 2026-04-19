@@ -1,4 +1,4 @@
-using ArchLucid.Application.Runs.Mapping;
+﻿using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -39,11 +39,9 @@ public sealed class RunDetailQueryService(
         if (!TryParseRunGuid(runId, out Guid runGuid))
         {
             if (logger.IsEnabled(LogLevel.Debug))
-            {
                 logger.LogDebug(
                     "RunDetailQueryService: run '{RunId}' is not a valid run identifier.",
                     LogSanitizer.Sanitize(runId));
-            }
 
             return null;
         }
@@ -55,11 +53,9 @@ public sealed class RunDetailQueryService(
         if (record is null)
         {
             if (logger.IsEnabled(LogLevel.Debug))
-            {
                 logger.LogDebug(
                     "RunDetailQueryService: run '{RunId}' not found.",
                     LogSanitizer.Sanitize(runId));
-            }
 
             return null;
         }
@@ -85,22 +81,16 @@ public sealed class RunDetailQueryService(
         manifest = await manifestRepository.GetByVersionAsync(manifestVersionKey, cancellationToken);
 
         if (manifest is not null && !string.Equals(manifest.RunId, runId, StringComparison.Ordinal))
-        {
             manifest = null;
-        }
 
         if (manifest is null)
         {
-            if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-            {
-                if (logger.IsEnabled(LogLevel.Warning))
-                {
-                    logger.LogWarning(
-                        "RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
-                        LogSanitizer.Sanitize(runId),
-                        LogSanitizer.Sanitize(run.CurrentManifestVersion));
-                }
-            }
+            if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+                && logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarning(
+                    "RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
+                    LogSanitizer.Sanitize(runId),
+                    LogSanitizer.Sanitize(run.CurrentManifestVersion));
         }
         else
         {
@@ -145,10 +135,8 @@ public sealed class RunDetailQueryService(
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid))
-        {
-            return true;
-        }
+        if (Guid.TryParseExact(runId, "N", out runGuid)) return true;
+
 
         return Guid.TryParse(runId, out runGuid);
     }

@@ -1,4 +1,4 @@
-using ArchLucid.AgentSimulator.Services;
+﻿using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
@@ -64,10 +64,8 @@ public sealed class ReplayRunService(
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (tasks.Count == 0)
-        
-            throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
-        
+        if (tasks.Count == 0) throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
+
 
         ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
                                       ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
@@ -82,9 +80,9 @@ public sealed class ReplayRunService(
         RunRecord? sourceAuthorityRun = null;
 
         if (Guid.TryParse(originalRunId, out Guid originalGuid))
-        {
+
             sourceAuthorityRun = await authorityRunRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
-        }
+
 
         RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(
             replayGuid,
@@ -139,7 +137,7 @@ public sealed class ReplayRunService(
                 DecisionTraces = decisionTraces,
                 Warnings = warnings
             };
-        
+
         string manifestVersion = string.IsNullOrWhiteSpace(manifestVersionOverride)
             ? BuildReplayManifestVersion(originalRun.CurrentManifestVersion)
             : manifestVersionOverride;
@@ -154,10 +152,10 @@ public sealed class ReplayRunService(
             parentManifestVersion: originalRun.CurrentManifestVersion);
 
         if (!merge.Success)
-        
+
             throw new InvalidOperationException(
                 $"Replay merge failed: {string.Join("; ", merge.Errors)}");
-        
+
 
         manifest = merge.Manifest;
         decisionTraces = merge.DecisionTraces;

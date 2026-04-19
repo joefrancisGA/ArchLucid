@@ -1,4 +1,4 @@
-using ArchLucid.Application.Determinism;
+﻿using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Summaries;
@@ -44,18 +44,18 @@ public sealed class ArchitectureAnalysisService(
         if (primaryDetail is not null)
         {
             if (!string.Equals(primaryDetail.Run.RunId, request.RunId, StringComparison.Ordinal))
-            
+
                 throw new ArgumentException(
                     "PreloadedRunDetail.Run.RunId must match RunId.",
                     nameof(request));
-            
+
 
             run = primaryDetail.Run;
         }
         else if (request.PreloadedRun is not null)
-        
+
             run = request.PreloadedRun;
-        
+
         else
         {
             primaryDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken)
@@ -72,18 +72,18 @@ public sealed class ArchitectureAnalysisService(
         {
             report.Evidence = await evidenceRepository.GetByRunIdAsync(request.RunId, cancellationToken);
             if (report.Evidence is null)
-            
+
                 report.Warnings.Add("Evidence package was not found for this run.");
-            
+
         }
 
         if (request.IncludeExecutionTraces)
         {
             report.ExecutionTraces = (await traceRepository.GetByRunIdAsync(request.RunId, cancellationToken)).ToList();
             if (report.ExecutionTraces.Count == 0)
-            
+
                 report.Warnings.Add("No execution traces were found for this run.");
-            
+
         }
 
         if (request.IncludeManifest)
@@ -100,43 +100,43 @@ public sealed class ArchitectureAnalysisService(
 
                 if (report.Manifest is not null &&
                     !string.Equals(report.Manifest.RunId, run.RunId, StringComparison.Ordinal))
-                {
+
                     report.Manifest = null;
-                }
+
             }
 
             if (report.Manifest is null)
-            {
+
                 report.Warnings.Add($"Manifest '{manifestVersionKey}' was not found.");
-            }
+
         }
 
         if (request.IncludeDiagram)
-        
+
             if (report.Manifest is not null)
-            
+
                 report.Diagram = diagramGenerator.GenerateMermaid(report.Manifest);
-            
+
             else
-            
+
                 report.Warnings.Add("Diagram was requested but the manifest is unavailable; diagram was not generated.");
-            
-        
+
+
 
         if (request.IncludeSummary)
-        
+
             if (report.Manifest is not null)
-            
+
                 report.Summary = summaryGenerator.GenerateMarkdown(report.Manifest, report.Evidence);
-            
+
             else
-            
+
                 report.Warnings.Add("Summary was requested but the manifest is unavailable; summary was not generated.");
-            
-        
+
+
 
         if (request.IncludeDeterminismCheck)
-        
+
             report.Determinism = await determinismCheckService.RunAsync(
                 new DeterminismCheckRequest
                 {
@@ -146,18 +146,18 @@ public sealed class ArchitectureAnalysisService(
                     CommitReplays = false
                 },
                 cancellationToken);
-        
+
 
         if (request.IncludeManifestCompare)
-        
+
             if (string.IsNullOrWhiteSpace(request.CompareManifestVersion))
-            
+
                 report.Warnings.Add("Manifest comparison was requested but CompareManifestVersion was not provided.");
-            
+
             else if (report.Manifest is null)
-            
+
                 report.Warnings.Add("Manifest comparison was requested but the primary manifest is not available.");
-            
+
             else
             {
                 GoldenManifest? compareManifest = await manifestRepository.GetByVersionAsync(
@@ -165,31 +165,30 @@ public sealed class ArchitectureAnalysisService(
                     cancellationToken);
 
                 if (compareManifest is null)
-                
-                    report.Warnings.Add($"Compare manifest '{request.CompareManifestVersion}' was not found.");
-                
-                else
-                
-                    report.ManifestDiff = manifestDiffService.Compare(report.Manifest, compareManifest);
-                
-            }
-        
 
-        if (!request.IncludeAgentResultCompare)
-            return report;
+                    report.Warnings.Add($"Compare manifest '{request.CompareManifestVersion}' was not found.");
+
+                else
+
+                    report.ManifestDiff = manifestDiffService.Compare(report.Manifest, compareManifest);
+
+            }
+
+
+        if (!request.IncludeAgentResultCompare) return report;
 
         if (string.IsNullOrWhiteSpace(request.CompareRunId))
-        
+
             report.Warnings.Add("Agent-result comparison was requested but CompareRunId was not provided.");
-        
+
         else
         {
             ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
 
             if (compareDetail is null)
-            
+
                 report.Warnings.Add($"Compare run '{request.CompareRunId}' was not found.");
-            
+
             else
             {
                 IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results

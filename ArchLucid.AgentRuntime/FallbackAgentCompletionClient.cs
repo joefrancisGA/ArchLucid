@@ -1,4 +1,4 @@
-using System.ClientModel;
+﻿using System.ClientModel;
 
 using Microsoft.Extensions.Logging;
 
@@ -64,10 +64,8 @@ public sealed class FallbackAgentCompletionClient(
     /// <summary>True when <paramref name="ex"/> carries status 429 or a 5xx server error.</summary>
     private static bool IsFallbackTrigger(HttpRequestException ex)
     {
-        if (ex.StatusCode is not { } statusCode)
-        {
-            return false;
-        }
+        if (ex.StatusCode is not { } statusCode) return false;
+
 
         int code = (int)statusCode;
 
@@ -85,13 +83,13 @@ public sealed class FallbackAgentCompletionClient(
     public void Dispose()
     {
         if (_primary is IDisposable primaryDisposable)
-        {
+
             primaryDisposable.Dispose();
-        }
+
 
         if (_secondary is IDisposable secondaryDisposable)
-        {
+
             secondaryDisposable.Dispose();
-        }
+
     }
 }

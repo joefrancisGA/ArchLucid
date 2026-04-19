@@ -1,4 +1,4 @@
-using ArchLucid.Core.Configuration;
+﻿using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Connections;
 
@@ -12,15 +12,11 @@ internal static class ProductionSafetyRules
         BillingOptions billing =
             configuration.GetSection(BillingOptions.SectionName).Get<BillingOptions>() ?? new BillingOptions();
 
-        if (!string.Equals(billing.Provider.Trim(), BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
+        if (!string.Equals(billing.Provider.Trim(), BillingProviderNames.Stripe, StringComparison.OrdinalIgnoreCase)) return;
 
-        if (!string.IsNullOrWhiteSpace(billing.Stripe.SecretKey?.Trim()))
-        {
-            return;
-        }
+
+        if (!string.IsNullOrWhiteSpace(billing.Stripe.SecretKey?.Trim())) return;
+
 
         errors.Add(
             "Billing:Provider is Stripe; configure Billing:Stripe:SecretKey (Key Vault secret reference in production).");
@@ -33,15 +29,11 @@ internal static class ProductionSafetyRules
             configuration.GetSection(EmailNotificationOptions.SectionName).Get<EmailNotificationOptions>()
             ?? new EmailNotificationOptions();
 
-        if (!string.Equals(email.Provider.Trim(), EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
+        if (!string.Equals(email.Provider.Trim(), EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase)) return;
 
-        if (!string.IsNullOrWhiteSpace(email.AzureCommunicationServicesEndpoint?.Trim()))
-        {
-            return;
-        }
+
+        if (!string.IsNullOrWhiteSpace(email.AzureCommunicationServicesEndpoint?.Trim())) return;
+
 
         errors.Add(
             "Email:Provider is AzureCommunicationServices; configure Email:AzureCommunicationServicesEndpoint with the ACS Email resource endpoint (HTTPS).");
@@ -53,11 +45,9 @@ internal static class ProductionSafetyRules
         TrialAuthOptions trial =
             configuration.GetSection(TrialAuthOptions.SectionPath).Get<TrialAuthOptions>() ?? new TrialAuthOptions();
 
-        if (!TrialAuthModeConstants.HasMode(trial.Modes, TrialAuthModeConstants.MsaExternalId))
-            return;
+        if (!TrialAuthModeConstants.HasMode(trial.Modes, TrialAuthModeConstants.MsaExternalId)) return;
 
-        if (!string.IsNullOrWhiteSpace(trial.ExternalIdTenantId?.Trim()))
-            return;
+        if (!string.IsNullOrWhiteSpace(trial.ExternalIdTenantId?.Trim())) return;
 
         errors.Add(
             "Auth:Trial:Modes includes \"MsaExternalId\"; configure Auth:Trial:ExternalIdTenantId with the Entra External ID tenant (directory) id.");
@@ -69,21 +59,16 @@ internal static class ProductionSafetyRules
         ArchLucidOptions archLucidOptions,
         List<string> errors)
     {
-        if (!ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider))
-        {
-            return;
-        }
+        if (!ArchLucidOptions.EffectiveIsSql(archLucidOptions.StorageProvider)) return;
 
-        if (RlsBreakGlass.IsEnabled(configuration))
-            return;
+
+        if (RlsBreakGlass.IsEnabled(configuration)) return;
 
         SqlServerOptions sql =
             configuration.GetSection(SqlServerOptions.SectionName).Get<SqlServerOptions>() ?? new SqlServerOptions();
 
-        if (sql.RowLevelSecurity.ApplySessionContext)
-        {
-            return;
-        }
+        if (sql.RowLevelSecurity.ApplySessionContext) return;
+
 
         errors.Add(
             "Production or Staging with ArchLucid:StorageProvider=Sql requires SqlServer:RowLevelSecurity:ApplySessionContext=true so tenant/workspace/project SESSION_CONTEXT keys are applied (defense in depth with SQL RLS). "
@@ -96,18 +81,18 @@ internal static class ProductionSafetyRules
         string[]? origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 
         if (origins is null || origins.Length == 0)
-        {
+
             errors.Add("Production requires at least one Cors:AllowedOrigins entry.");
-        }
+
         else
-        {
+
             errors.AddRange(
                 from origin in origins
                 where !string.IsNullOrWhiteSpace(origin)
                 select origin.Trim() into trimmed
                 where string.Equals(trimmed, "*", StringComparison.Ordinal)
                 select "Cors:AllowedOrigins must not use a wildcard '*' in Production.");
-        }
+
     }
 
     /// <summary>Outbound webhook HMAC when HTTP delivery is enabled (API and Worker).</summary>
@@ -119,10 +104,8 @@ internal static class ProductionSafetyRules
 
         const int minWebhookSecretChars = 32;
 
-        if (!webhook.UseHttpClient)
-        {
-            return;
-        }
+        if (!webhook.UseHttpClient) return;
+
 
         if (string.IsNullOrWhiteSpace(webhook.HmacSha256SharedSecret))
         {
@@ -133,9 +116,9 @@ internal static class ProductionSafetyRules
         }
 
         if (webhook.HmacSha256SharedSecret.Length < minWebhookSecretChars)
-        {
+
             errors.Add(
                 $"WebhookDelivery:HmacSha256SharedSecret must be at least {minWebhookSecretChars} characters in Production when WebhookDelivery:UseHttpClient is true.");
-        }
+
     }
 }

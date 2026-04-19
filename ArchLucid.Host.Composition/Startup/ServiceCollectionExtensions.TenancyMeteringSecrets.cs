@@ -1,4 +1,4 @@
-using ArchLucid.Application.Identity;
+﻿using ArchLucid.Application.Identity;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Metering;
@@ -50,11 +50,11 @@ public static partial class ServiceCollectionExtensions
             ArchLucidSecretOptions o = options.Value;
 
             if (o.Provider == SecretProviderKind.KeyVault)
-            {
+
                 return new KeyVaultSecretProvider(
                     Options.Create(o),
                     sp.GetRequiredService<IMemoryCache>());
-            }
+
 
             return new EnvironmentVariableSecretProvider(sp.GetRequiredService<IConfiguration>());
         });

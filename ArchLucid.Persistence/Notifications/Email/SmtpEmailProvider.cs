@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
 
 using ArchLucid.Core.Configuration;
@@ -24,15 +24,11 @@ public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> 
 
         EmailNotificationOptions options = _optionsMonitor.CurrentValue;
 
-        if (string.IsNullOrWhiteSpace(options.SmtpHost))
-        {
-            throw new InvalidOperationException("Email:SmtpHost is required when Email:Provider is Smtp.");
-        }
+        if (string.IsNullOrWhiteSpace(options.SmtpHost)) throw new InvalidOperationException("Email:SmtpHost is required when Email:Provider is Smtp.");
 
-        if (string.IsNullOrWhiteSpace(options.FromAddress))
-        {
-            throw new InvalidOperationException("Email:FromAddress is required when Email:Provider is Smtp.");
-        }
+
+        if (string.IsNullOrWhiteSpace(options.FromAddress)) throw new InvalidOperationException("Email:FromAddress is required when Email:Provider is Smtp.");
+
 
 #pragma warning disable CA1416 // SmtpClient is obsolete but intentionally used for lightweight dev SMTP.
 #pragma warning disable SYSLIB0014
@@ -42,9 +38,9 @@ public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> 
         };
 
         if (!string.IsNullOrWhiteSpace(options.SmtpUser))
-        {
+
             smtp.Credentials = new NetworkCredential(options.SmtpUser.Trim(), options.SmtpPassword ?? string.Empty);
-        }
+
 
         MailAddress from = string.IsNullOrWhiteSpace(options.FromDisplayName)
             ? new MailAddress(options.FromAddress.Trim())
@@ -52,16 +48,16 @@ public sealed class SmtpEmailProvider(IOptionsMonitor<EmailNotificationOptions> 
 
         using (smtp)
         using (MailMessage mail = new(from, new MailAddress(message.To.Trim()))
-               {
-                   Subject = message.Subject,
-                   Body = message.HtmlBody,
-                   IsBodyHtml = true,
-               })
+        {
+            Subject = message.Subject,
+            Body = message.HtmlBody,
+            IsBodyHtml = true,
+        })
         {
             if (!string.IsNullOrWhiteSpace(message.TextBody))
-            {
+
                 mail.AlternateViews.Add(AlternateView.CreateAlternateViewFromString(message.TextBody, null, "text/plain"));
-            }
+
 
             return smtp.SendMailAsync(mail, cancellationToken);
         }

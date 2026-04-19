@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -25,25 +25,23 @@ public sealed class InMemoryAgentEvaluationRepository : IAgentEvaluationReposito
         ArgumentNullException.ThrowIfNull(evaluations);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (evaluations.Count == 0)
-        
-            return Task.CompletedTask;
-        
+        if (evaluations.Count == 0) return Task.CompletedTask;
+
 
         List<string> distinctRunIds = evaluations.Select(e => e.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
-        
+
             throw new ArgumentException(
                 $"All evaluations in a batch must belong to the same run. Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(evaluations));
-        
+
 
         string runId = evaluations.First().RunId;
 
         lock (_gate)
-        
+
             _byRunId[runId] = evaluations.Select(Clone).ToList();
-        
+
 
         return Task.CompletedTask;
     }
@@ -56,10 +54,8 @@ public sealed class InMemoryAgentEvaluationRepository : IAgentEvaluationReposito
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            if (!_byRunId.TryGetValue(runId, out List<AgentEvaluation>? list))
-            
-                return Task.FromResult<IReadOnlyList<AgentEvaluation>>([]);
-            
+            if (!_byRunId.TryGetValue(runId, out List<AgentEvaluation>? list)) return Task.FromResult<IReadOnlyList<AgentEvaluation>>([]);
+
 
             List<AgentEvaluation> ordered = list
                 .OrderBy(e => e.CreatedUtc)

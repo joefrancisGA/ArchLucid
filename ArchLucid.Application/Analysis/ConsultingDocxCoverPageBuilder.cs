@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ArchLucid.Application.Analysis;
@@ -44,12 +44,12 @@ internal static class ConsultingDocxCoverPageBuilder
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Generated UTC: {DateTime.UtcNow:O}", "BodyText");
 
         if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
-        {
+
             ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
                 body,
                 $"Manifest Version: {report.Run.CurrentManifestVersion}",
                 "BodyText");
-        }
+
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body, 6);
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, options.GeneratedByLine, "Subtle");

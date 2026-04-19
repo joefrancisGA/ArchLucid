@@ -1,4 +1,4 @@
-using ArchLucid.Core.Metering;
+﻿using ArchLucid.Core.Metering;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Interfaces;
 
@@ -45,8 +45,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
     {
         ArgumentNullException.ThrowIfNull(events);
 
-        if (events.Count == 0)
-            return;
+        if (events.Count == 0) return;
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
 
@@ -56,7 +55,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
                              """;
 
         foreach (UsageEvent e in events)
-        {
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
@@ -72,7 +71,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
                         e.CorrelationId,
                     },
                     cancellationToken: ct));
-        }
+
     }
 
     public async Task<IReadOnlyList<TenantUsageSummary>> AggregateByKindAsync(
@@ -143,7 +142,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
             };
         }
         else
-        {
+
             parameters = new
             {
                 Take = take,
@@ -151,7 +150,7 @@ public sealed class DapperUsageEventRepository(ISqlConnectionFactory connectionF
                 PeriodStart = periodStart,
                 PeriodEnd = periodEnd,
             };
-        }
+
 
         sql += " ORDER BY RecordedUtc DESC;";
 

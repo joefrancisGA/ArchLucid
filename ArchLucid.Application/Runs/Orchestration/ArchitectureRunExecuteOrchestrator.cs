@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Common;
@@ -106,11 +106,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         CancellationToken cancellationToken)
     {
         if (_logger.IsEnabled(LogLevel.Information))
-        {
+
             _logger.LogInformation(
                 "Executing architecture run: RunId={RunId}",
                 LogSanitizer.Sanitize(runId));
-        }
+
 
         ArchitectureRun? run = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
             _runRepository,
@@ -119,15 +119,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             runId,
             cancellationToken);
 
-        if (run is null)
-        {
-            throw new RunNotFoundException(runId);
-        }
+        if (run is null) throw new RunNotFoundException(runId);
+
 
         ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 
-        if (idempotent is not null)
-            return idempotent;
+        if (idempotent is not null) return idempotent;
 
         await _baselineMutationAudit
             .RecordAsync(
@@ -159,12 +156,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         catch (Exception ex)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     ex,
                     "Durable audit for CoordinatorRunExecuteStarted failed for RunId={RunId}",
                     LogSanitizer.Sanitize(runId));
-            }
+
         }
 
         try
@@ -174,8 +171,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
             IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
 
-            if (tasks.Count == 0)
-                throw new InvalidOperationException($"No tasks found for run '{runId}'.");
+            if (tasks.Count == 0) throw new InvalidOperationException($"No tasks found for run '{runId}'.");
 
             AgentEvidencePackage evidence = await _evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
@@ -208,12 +204,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
-                {
+
                     _logger.LogWarning(
                         ex,
                         "Agent output trace evaluation hook failed after successful execute for RunId={RunId}; run outcome unchanged.",
                         LogSanitizer.Sanitize(runId));
-                }
+
             }
 
             await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, results, cancellationToken);
@@ -248,21 +244,21 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             catch (Exception ex)
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
-                {
+
                     _logger.LogWarning(
                         ex,
                         "Durable audit for CoordinatorRunExecuteSucceeded failed for RunId={RunId}",
                         LogSanitizer.Sanitize(runId));
-                }
+
             }
 
             if (_logger.IsEnabled(LogLevel.Information))
-            {
+
                 _logger.LogInformation(
                     "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",
                     LogSanitizer.Sanitize(runId),
                     results.Count);
-            }
+
 
             return new ExecuteRunResult
             {
@@ -273,13 +269,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     ex,
                     "Architecture run execution failed: RunId={RunId}, ExceptionType={ExceptionType}",
                     LogSanitizer.Sanitize(runId),
                     ex.GetType().Name);
-            }
+
 
             await _baselineMutationAudit
                 .RecordAsync(
@@ -319,13 +315,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             if (existingResults.Count > 0)
             {
                 if (_logger.IsEnabled(LogLevel.Information))
-                {
+
                     _logger.LogInformation(
                         "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount}",
                         LogSanitizer.Sanitize(runId),
                         run.Status,
                         existingResults.Count);
-                }
+
 
                 return new ExecuteRunResult
                 {
@@ -343,13 +339,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (run.Status == ArchitectureRunStatus.TasksGenerated && existingResults.Count > 0)
         {
             if (_logger.IsEnabled(LogLevel.Information))
-            {
+
                 _logger.LogInformation(
                     "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount} (legacy status may lag)",
                     LogSanitizer.Sanitize(runId),
                     run.Status,
                     existingResults.Count);
-            }
+
 
             await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, existingResults, cancellationToken);
 
@@ -365,13 +361,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private static bool HasAllRequiredAgentTypesForCommit(IReadOnlyList<AgentResult> results)
     {
-        if (results.Count != RequiredAgentTypesForCommit.Count)
-            return false;
+        if (results.Count != RequiredAgentTypesForCommit.Count) return false;
 
         foreach (AgentType required in RequiredAgentTypesForCommit)
 
-            if (results.Count(r => r.AgentType == required) != 1)
-                return false;
+            if (results.Count(r => r.AgentType == required) != 1) return false;
 
 
         return true;
@@ -386,11 +380,9 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         IReadOnlyList<AgentResult> results,
         CancellationToken cancellationToken)
     {
-        if (!HasAllRequiredAgentTypesForCommit(results))
-            return;
+        if (!HasAllRequiredAgentTypesForCommit(results)) return;
 
-        if (!TryParseRunGuid(runId, out Guid runGuid))
-            return;
+        if (!TryParseRunGuid(runId, out Guid runGuid)) return;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
@@ -398,20 +390,20 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (header is null)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(
                     "Execute: cannot promote run {RunId} — dbo.Runs header missing.",
                     LogSanitizer.Sanitize(runId));
-            }
+
 
             return;
         }
 
         if (string.Equals(header.LegacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase)
             || string.Equals(header.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
-        {
+
             return;
-        }
+
 
         header.LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit);
         await _runRepository.UpdateAsync(header, cancellationToken);
@@ -419,8 +411,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid))
-            return true;
+        if (Guid.TryParseExact(runId, "N", out runGuid)) return true;
 
         return Guid.TryParse(runId, out runGuid);
     }

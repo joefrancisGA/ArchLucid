@@ -1,4 +1,4 @@
-using ArchLucid.Core.Resilience;
+﻿using ArchLucid.Core.Resilience;
 
 using Microsoft.Extensions.Logging;
 
@@ -62,8 +62,8 @@ public sealed class CircuitBreakingAgentCompletionClient(
     public void Dispose()
     {
         if (_inner is IDisposable disposableInner)
-        {
+
             disposableInner.Dispose();
-        }
+
     }
 }

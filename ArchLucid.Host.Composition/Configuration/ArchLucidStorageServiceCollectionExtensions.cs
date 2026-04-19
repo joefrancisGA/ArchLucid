@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime;
+﻿using ArchLucid.AgentRuntime;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
@@ -98,14 +98,12 @@ public static class ArchLucidStorageServiceCollectionExtensions
             string provider = opts.Provider.Trim();
 
             if (string.Equals(provider, EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase))
-            {
-                return ActivatorUtilities.CreateInstance<AzureCommunicationServicesEmailProvider>(sp);
-            }
 
-            if (string.Equals(provider, EmailProviderNames.Smtp, StringComparison.OrdinalIgnoreCase))
-            {
-                return ActivatorUtilities.CreateInstance<SmtpEmailProvider>(sp);
-            }
+                return ActivatorUtilities.CreateInstance<AzureCommunicationServicesEmailProvider>(sp);
+
+
+            if (string.Equals(provider, EmailProviderNames.Smtp, StringComparison.OrdinalIgnoreCase)) return ActivatorUtilities.CreateInstance<SmtpEmailProvider>(sp);
+
 
             return new NoopEmailProvider();
         });
@@ -136,11 +134,9 @@ public static class ArchLucidStorageServiceCollectionExtensions
             configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName).Get<LlmCompletionResponseCacheOptions>()
             ?? new LlmCompletionResponseCacheOptions();
 
-        if (!llm.Enabled || !string.Equals(llm.Provider, "Distributed", StringComparison.OrdinalIgnoreCase))
-            return;
+        if (!llm.Enabled || !string.Equals(llm.Provider, "Distributed", StringComparison.OrdinalIgnoreCase)) return;
 
-        if (services.Any(static d => d.ServiceType == typeof(IDistributedCache)))
-            return;
+        if (services.Any(static d => d.ServiceType == typeof(IDistributedCache))) return;
 
         HotPathCacheOptions hotPath =
             configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
@@ -151,10 +147,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
             : llm.RedisConnectionString.Trim();
 
         if (string.IsNullOrEmpty(redis))
-        {
+
             throw new InvalidOperationException(
                 "LlmCompletionCache:Provider is Distributed but no IDistributedCache is registered and neither LlmCompletionCache:RedisConnectionString nor HotPathCache:RedisConnectionString is set.");
-        }
+
 
         services.AddStackExchangeRedisCache(o => o.Configuration = redis);
     }
@@ -165,8 +161,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
             configuration.GetSection(LlmCompletionResponseCacheOptions.SectionName).Get<LlmCompletionResponseCacheOptions>()
             ?? new LlmCompletionResponseCacheOptions();
 
-        if (!llm.Enabled)
-            return;
+        if (!llm.Enabled) return;
 
         if (string.Equals(llm.Provider, "Distributed", StringComparison.OrdinalIgnoreCase))
         {
@@ -190,8 +185,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
                                            .Get<HotPathCacheOptions>()
                                        ?? new HotPathCacheOptions();
 
-        if (!snapshot.Enabled)
-            return;
+        if (!snapshot.Enabled) return;
 
         string provider = HotPathCacheProviderResolver.ResolveEffectiveProvider(snapshot);
 
@@ -200,10 +194,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
             string redis = snapshot.RedisConnectionString.Trim();
 
             if (string.IsNullOrEmpty(redis))
-            {
+
                 throw new InvalidOperationException(
                     "HotPathCache:RedisConnectionString is required when HotPathCache:Provider is Redis.");
-            }
+
 
             services.AddStackExchangeRedisCache(o => o.Configuration = redis);
             services.AddSingleton<IHotPathReadCache, DistributedHotPathReadCache>();
@@ -266,10 +260,10 @@ public static class ArchLucidStorageServiceCollectionExtensions
             string uriText = snapshot.AzureBlobServiceUri;
 
             if (string.IsNullOrWhiteSpace(uriText))
-            {
+
                 throw new InvalidOperationException(
                     "ArtifactLargePayload:AzureBlobServiceUri is required when BlobProvider is AzureBlob.");
-            }
+
 
             Uri serviceUri = new(uriText, UriKind.Absolute);
             services.AddSingleton<TokenCredential>(_ => new DefaultAzureCredential());
@@ -290,8 +284,8 @@ public static class ArchLucidStorageServiceCollectionExtensions
                 new LocalFileArtifactBlobStore(root, sp.GetRequiredService<IScopeContextProvider>()));
         }
         else
-        {
+
             services.AddSingleton<IArtifactBlobStore, NullArtifactBlobStore>();
-        }
+
     }
 }

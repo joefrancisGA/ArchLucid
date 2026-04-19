@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Persistence.Connections;
 
@@ -63,10 +63,8 @@ public sealed class DapperOutboxOperationalMetricsReader(ISqlConnectionFactory c
 
     private static double AgeSeconds(DateTime? oldestUtc, DateTime utcNow)
     {
-        if (!oldestUtc.HasValue)
-        {
-            return 0;
-        }
+        if (!oldestUtc.HasValue) return 0;
+
 
         double seconds = (utcNow - oldestUtc.Value.ToUniversalTime()).TotalSeconds;
 

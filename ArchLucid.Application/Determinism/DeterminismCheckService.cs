@@ -1,4 +1,4 @@
-using ArchLucid.Application.Diffs;
+﻿using ArchLucid.Application.Diffs;
 
 namespace ArchLucid.Application.Determinism;
 
@@ -21,8 +21,7 @@ public sealed class DeterminismCheckService(
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
 
-        if (request.Iterations < 2)
-            throw new ArgumentOutOfRangeException(nameof(request), "Iterations must be at least 2.");
+        if (request.Iterations < 2) throw new ArgumentOutOfRangeException(nameof(request), "Iterations must be at least 2.");
 
         DeterminismCheckResult output = new()
         {
@@ -65,9 +64,9 @@ public sealed class DeterminismCheckService(
             };
 
             if (hasAgentDrift)
-            
+
                 iteration.AgentDriftWarnings.Add("Agent results differ from baseline replay.");
-            
+
 
             if (baseline.Manifest is not null && replay.Manifest is not null)
             {
@@ -76,15 +75,15 @@ public sealed class DeterminismCheckService(
                 iteration.MatchesBaselineManifest = !hasManifestDrift;
 
                 if (hasManifestDrift)
-                
+
                     iteration.ManifestDriftWarnings.Add("Manifest differs from baseline replay.");
-                
+
             }
             else if (baseline.Manifest is null && replay.Manifest is null)
-            
+
                 // Neither run produced a manifest; treat as matching.
                 iteration.MatchesBaselineManifest = true;
-            
+
             else
             {
                 // One run produced a manifest and the other did not — this is drift.
@@ -100,9 +99,9 @@ public sealed class DeterminismCheckService(
             x is { MatchesBaselineAgentResults: true, MatchesBaselineManifest: true });
 
         if (!output.IsDeterministic)
-        
+
             output.Warnings.Add("Determinism check detected replay drift.");
-        
+
 
         return output;
     }

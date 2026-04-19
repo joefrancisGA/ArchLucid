@@ -1,4 +1,4 @@
-using ArchLucid.Core.Tenancy;
+﻿using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -30,10 +30,8 @@ public sealed class DapperTenantTrialEmailContactLookup(ISqlConnectionFactory co
         string? actor = await connection.ExecuteScalarAsync<string?>(
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: cancellationToken));
 
-        if (string.IsNullOrWhiteSpace(actor))
-        {
-            return null;
-        }
+        if (string.IsNullOrWhiteSpace(actor)) return null;
+
 
         string trimmed = actor.Trim();
 

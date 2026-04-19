@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
@@ -52,17 +52,17 @@ public static partial class ServiceCollectionExtensions
             if (prodLike)
             {
                 if (string.IsNullOrWhiteSpace(opts.Endpoint) || string.IsNullOrWhiteSpace(opts.ApiKey))
-                {
+
                     throw new InvalidOperationException(
                         "ArchLucid:ContentSafety:Endpoint and ArchLucid:ContentSafety:ApiKey are required in Production or Staging "
                         + "(or when ARCHLUCID_ENVIRONMENT is Production or Staging).");
-                }
+
 
                 if (!Uri.TryCreate(opts.Endpoint, UriKind.Absolute, out Uri? endpoint))
-                {
+
                     throw new InvalidOperationException(
                         "ArchLucid:ContentSafety:Endpoint must be an absolute URI when content safety is mandatory for this host.");
-                }
+
 
                 ILogger<AzureContentSafetyGuard> logger = sp.GetRequiredService<ILogger<AzureContentSafetyGuard>>();
 
@@ -72,23 +72,22 @@ public static partial class ServiceCollectionExtensions
             if (!opts.Enabled)
             {
                 if (!opts.AllowNullGuardInDevelopment)
-                {
+
                     throw new InvalidOperationException(
                         "ArchLucid:ContentSafety:Enabled is false but AllowNullGuardInDevelopment is false. "
                         + "Enable content safety or set AllowNullGuardInDevelopment=true for development.");
-                }
+
 
                 return new NullContentSafetyGuard();
             }
 
-            if (string.IsNullOrWhiteSpace(opts.Endpoint) || string.IsNullOrWhiteSpace(opts.ApiKey))
-                return new ContentSafetyEnabledButUnconfiguredGuard();
+            if (string.IsNullOrWhiteSpace(opts.Endpoint) || string.IsNullOrWhiteSpace(opts.ApiKey)) return new ContentSafetyEnabledButUnconfiguredGuard();
 
             if (!Uri.TryCreate(opts.Endpoint, UriKind.Absolute, out Uri? endpointDev))
-            {
+
                 throw new InvalidOperationException(
                     "ArchLucid:ContentSafety:Endpoint must be an absolute URI when ArchLucid:ContentSafety:Enabled is true.");
-            }
+
 
             ILogger<AzureContentSafetyGuard> devLogger = sp.GetRequiredService<ILogger<AzureContentSafetyGuard>>();
 
@@ -179,15 +178,15 @@ public static partial class ServiceCollectionExtensions
                     ?? new FallbackLlmOptions();
 
                 if (fallbackOpts.Enabled)
-                {
+
                     if (string.IsNullOrWhiteSpace(fallbackOpts.Endpoint)
                         || string.IsNullOrWhiteSpace(fallbackOpts.ApiKey)
                         || string.IsNullOrWhiteSpace(fallbackOpts.DeploymentName))
-                    {
+
                         throw new InvalidOperationException(
                             "ArchLucid:FallbackLlm is enabled but Endpoint, ApiKey, and DeploymentName must all be configured.");
-                    }
-                }
+
+
 
                 bool fallbackLlmEnabled = fallbackOpts.Enabled;
 
@@ -208,9 +207,9 @@ public static partial class ServiceCollectionExtensions
                         int maxTokens = cfg.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
 
                         if (maxTokens <= 0)
-                        {
+
                             maxTokens = AzureOpenAiCompletionClient.DefaultMaxCompletionTokens;
-                        }
+
 
                         AzureOpenAiCompletionClient client = new(
                             fo.Endpoint!,
@@ -234,9 +233,9 @@ public static partial class ServiceCollectionExtensions
                     int maxTokens = config.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
 
                     if (maxTokens <= 0)
-                    {
+
                         maxTokens = AzureOpenAiCompletionClient.DefaultMaxCompletionTokens;
-                    }
+
 
                     return new AzureOpenAiCompletionClient(endpoint, apiKey, deploymentName, maxTokens);
                 });
@@ -258,10 +257,8 @@ public static partial class ServiceCollectionExtensions
                         primaryGate,
                         primaryDeployment);
 
-                    if (!fallbackLlmEnabled)
-                    {
-                        return primaryChain;
-                    }
+                    if (!fallbackLlmEnabled) return primaryChain;
+
 
                     FallbackAzureOpenAiInnerClientHolder holder = sp.GetRequiredService<FallbackAzureOpenAiInnerClientHolder>();
                     CircuitBreakerGate fallbackGate =
@@ -281,9 +278,9 @@ public static partial class ServiceCollectionExtensions
                 });
             }
             else
-            {
+
                 RegisterFakeAgentCompletionClient(services);
-            }
+
         }
 
         services.AddScoped<ILlmCompletionProvider>(sp =>
@@ -364,8 +361,7 @@ public static partial class ServiceCollectionExtensions
 
             string cacheDeploymentLabel = config["AzureOpenAI:DeploymentName"]?.Trim() ?? "echo";
 
-            if (!cacheOptions.Enabled)
-                return completionPipeline;
+            if (!cacheOptions.Enabled) return completionPipeline;
 
             TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
             ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
@@ -408,13 +404,13 @@ public static partial class ServiceCollectionExtensions
                     ReadOnlySpan<char> span = line.AsSpan().Trim();
 
                     if (span.StartsWith("RunId:", StringComparison.OrdinalIgnoreCase))
-                    {
+
                         runId = span.Length > 6 ? span[6..].Trim().ToString() : runId;
-                    }
+
                     else if (span.StartsWith("TaskId:", StringComparison.OrdinalIgnoreCase))
-                    {
+
                         taskId = span.Length > 7 ? span[7..].Trim().ToString() : taskId;
-                    }
+
                 }
 
                 ArchitectureRequest dummyRequest = new()
@@ -472,9 +468,9 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IVectorIndex, AzureAiSearchVectorIndex>();
         }
         else
-        {
+
             services.AddSingleton<IVectorIndex, InMemoryVectorIndex>();
-        }
+
 
         string? embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
         string? endpoint = configuration["AzureOpenAI:Endpoint"];
@@ -510,9 +506,9 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IEmbeddingService, AzureOpenAiEmbeddingService>();
         }
         else
-        {
+
             services.AddSingleton<IEmbeddingService, FakeEmbeddingService>();
-        }
+
     }
 
     private static void RegisterAzureOpenAiCircuitBreakerOptions(IServiceCollection services, IConfiguration configuration)
@@ -557,18 +553,18 @@ public static partial class ServiceCollectionExtensions
         {
             int? fromShared = shared.GetValue<int?>("FailureThreshold");
             if (fromShared.HasValue)
-            {
+
                 options.FailureThreshold = fromShared.Value;
-            }
+
         }
 
         if (string.IsNullOrEmpty(perGate["DurationOfBreakSeconds"]))
         {
             int? fromShared = shared.GetValue<int?>("DurationOfBreakSeconds");
             if (fromShared.HasValue)
-            {
+
                 options.DurationOfBreakSeconds = fromShared.Value;
-            }
+
         }
 
         options.ApplyDefaults();

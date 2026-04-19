@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
+﻿using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
@@ -79,16 +79,12 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
     {
         foreach (FeedbackAggregate aggregate in snapshot.FeedbackRollups)
         {
-            if (!PassesAggregateOutcomeGate(aggregate, options))
-
-                continue;
+            if (!PassesAggregateOutcomeGate(aggregate, options)) continue;
 
 
             string canonicalKey = "rollup:" + aggregate.AggregateKey;
 
-            if (buckets.ContainsKey(canonicalKey))
-
-                continue;
+            if (buckets.ContainsKey(canonicalKey)) continue;
 
 
             string name = BuildRollupName(aggregate);
@@ -118,16 +114,12 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
     {
         foreach (ArtifactOutcomeTrend trend in snapshot.ArtifactTrends)
         {
-            if (!PassesTrendGate(trend, options))
-
-                continue;
+            if (!PassesTrendGate(trend, options)) continue;
 
 
             string canonicalKey = "trend:" + trend.TrendKey;
 
-            if (buckets.ContainsKey(canonicalKey))
-
-                continue;
+            if (buckets.ContainsKey(canonicalKey)) continue;
 
 
             int total = TotalTrendSignals(trend);
@@ -161,16 +153,12 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
 
         foreach (RepeatedCommentTheme theme in snapshot.RepeatedCommentThemes)
         {
-            if (theme.OccurrenceCount < min)
-
-                continue;
+            if (theme.OccurrenceCount < min) continue;
 
 
             string canonicalKey = "comment:" + theme.ThemeKey;
 
-            if (buckets.ContainsKey(canonicalKey))
-
-                continue;
+            if (buckets.ContainsKey(canonicalKey)) continue;
 
 
             buckets[canonicalKey] = new ThemeAccumulator
@@ -209,9 +197,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
             {
                 string normalized = ImprovementThemeDetailJsonAnnotations.NormalizeAnnotationToken(token);
 
-                if (normalized.Length == 0)
-
-                    continue;
+                if (normalized.Length == 0) continue;
 
 
                 if (!groups.TryGetValue(normalized, out List<(string, ProductLearningPilotSignalRecord)>? list))
@@ -230,16 +216,12 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
 
             int distinctSignals = rows.Select(static x => x.Row.SignalId).Distinct().Count();
 
-            if (distinctSignals < minTag)
-
-                continue;
+            if (distinctSignals < minTag) continue;
 
 
             string canonicalKey = "tag:" + pair.Key;
 
-            if (buckets.ContainsKey(canonicalKey))
-
-                continue;
+            if (buckets.ContainsKey(canonicalKey)) continue;
 
 
             string displayToken = rows
@@ -330,9 +312,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         List<ProductLearningPilotSignalRecord> orderedSignals,
         ImprovementThemeExtractionOptions options)
     {
-        if (triageQueue is null || triageQueue.Count == 0)
-
-            return;
+        if (triageQueue is null || triageQueue.Count == 0) return;
 
 
         Dictionary<Guid, ProductLearningPilotSignalRecord> byId = orderedSignals.ToDictionary(static r => r.SignalId);
@@ -343,35 +323,25 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         {
             TriageQueueItem item = triageQueue[t];
 
-            if (item.RelatedSignalId is null || item.RelatedSignalId.Value == Guid.Empty)
-
-                continue;
+            if (item.RelatedSignalId is null || item.RelatedSignalId.Value == Guid.Empty) continue;
 
 
             Guid signalId = item.RelatedSignalId.Value;
 
-            if (!byId.TryGetValue(signalId, out ProductLearningPilotSignalRecord? row))
-
-                continue;
+            if (!byId.TryGetValue(signalId, out ProductLearningPilotSignalRecord? row)) continue;
 
 
             for (int i = 0; i < results.Count; i++)
             {
                 ImprovementThemeWithEvidence theme = results[i];
 
-                if (!SignalMatchesCanonicalKey(row, theme.CanonicalKey))
-
-                    continue;
+                if (!SignalMatchesCanonicalKey(row, theme.CanonicalKey)) continue;
 
 
-                if (theme.ExampleEvidence.Count >= cap)
-
-                    continue;
+                if (theme.ExampleEvidence.Count >= cap) continue;
 
 
-                if (theme.ExampleEvidence.Any(e => e.SignalId == signalId))
-
-                    break;
+                if (theme.ExampleEvidence.Any(e => e.SignalId == signalId)) break;
 
 
                 Guid evidenceId = ImprovementThemeExtractionDeterministicIds.EvidenceId(
@@ -416,9 +386,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
 
         foreach (ProductLearningPilotSignalRecord row in orderedSignals)
         {
-            if (!SignalMatchesCanonicalKey(row, canonicalKey))
-
-                continue;
+            if (!SignalMatchesCanonicalKey(row, canonicalKey)) continue;
 
 
             Guid evidenceId = ImprovementThemeExtractionDeterministicIds.EvidenceId(
@@ -436,9 +404,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                     SignalId = row.SignalId,
                 });
 
-            if (list.Count >= cap)
-
-                break;
+            if (list.Count >= cap) break;
 
         }
 
@@ -488,9 +454,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
             {
                 string n = ImprovementThemeDetailJsonAnnotations.NormalizeAnnotationToken(token);
 
-                if (string.Equals(n, tagKey, StringComparison.Ordinal))
-
-                    return true;
+                if (string.Equals(n, tagKey, StringComparison.Ordinal)) return true;
 
             }
 
@@ -504,9 +468,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
     {
         int minSignals = options.MinSignalsPerAggregateTheme < 1 ? 1 : options.MinSignalsPerAggregateTheme;
 
-        if (aggregate.TotalSignalCount < minSignals)
-
-            return false;
+        if (aggregate.TotalSignalCount < minSignals) return false;
 
 
         int minBad = options.MinRejectedOrFollowUpForOutcomePattern < 0 ? 0 : options.MinRejectedOrFollowUpForOutcomePattern;
@@ -514,14 +476,10 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
 
         int rejectOrFollowUp = aggregate.RejectedCount + aggregate.NeedsFollowUpCount;
 
-        if (rejectOrFollowUp >= minBad)
-
-            return true;
+        if (rejectOrFollowUp >= minBad) return true;
 
 
-        if (aggregate.RevisedCount >= minRev)
-
-            return true;
+        if (aggregate.RevisedCount >= minRev) return true;
 
 
         return false;
@@ -543,9 +501,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
 
     private static string BuildRollupName(FeedbackAggregate aggregate)
     {
-        if (!string.IsNullOrWhiteSpace(aggregate.PatternKey))
-
-            return "Pattern: " + Truncate(aggregate.PatternKey.Trim(), 200);
+        if (!string.IsNullOrWhiteSpace(aggregate.PatternKey)) return "Pattern: " + Truncate(aggregate.PatternKey.Trim(), 200);
 
 
         return "Workflow: " + Truncate(aggregate.SubjectTypeOrWorkflowArea, 200);
@@ -578,9 +534,7 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
 
     private static string Truncate(string value, int maxChars)
     {
-        if (value.Length <= maxChars)
-
-            return value;
+        if (value.Length <= maxChars) return value;
 
 
         return value[..maxChars];

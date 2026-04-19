@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Archival;
@@ -26,10 +26,8 @@ public static class DataArchivalHostIteration
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(logger);
 
-        if (!options.Enabled)
-        {
-            return true;
-        }
+        if (!options.Enabled) return true;
+
 
         using IServiceScope scope = scopeFactory.CreateScope();
         IDataArchivalCoordinator coordinator =

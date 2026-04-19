@@ -1,4 +1,4 @@
-using ArchLucid.Core.Diagnostics;
+﻿using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Coordination.Diagnostics;
 using ArchLucid.Persistence.Tenancy.Diagnostics;
 
@@ -55,10 +55,8 @@ public sealed class OutboxOperationalMetricsHostedService(
         IOutboxOperationalMetricsReader? reader =
             scope.ServiceProvider.GetService<IOutboxOperationalMetricsReader>();
 
-        if (reader is null)
-        {
-            return;
-        }
+        if (reader is null) return;
+
 
         OutboxOperationalMetricsSnapshot snap = await reader.ReadSnapshotAsync(ct);
 

@@ -1,4 +1,4 @@
-using ArchLucid.Application.Jobs;
+﻿using ArchLucid.Application.Jobs;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
@@ -28,7 +28,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         await queueClient.CreateIfNotExistsAsync(cancellationToken: stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
-        {
+
             try
             {
                 QueueMessage[] messages = await queueClient.ReceiveMessagesAsync(
@@ -45,10 +45,8 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
                 foreach (QueueMessage message in messages)
                 {
-                    if (stoppingToken.IsCancellationRequested)
-                    {
-                        break;
-                    }
+                    if (stoppingToken.IsCancellationRequested) break;
+
 
                     string? jobId = message.MessageText?.Trim();
 
@@ -71,7 +69,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                 logger.LogError(ex, "Background job queue processor loop failed; backing off.");
                 await Task.Delay(idleMs, stoppingToken);
             }
-        }
+
     }
 
     private async Task ProcessOneMessageAsync(string jobId, QueueMessage message, CancellationToken stoppingToken)
@@ -82,15 +80,15 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         if (prepared.ShouldDeleteQueueMessageImmediately)
         {
             if (prepared.WasUnknownJobId)
-            {
+
                 logger.LogWarning("Queue message for unknown job id {JobId}; deleting stale message.", LogSanitizer.Sanitize(jobId));
-            }
+
             else if (logger.IsEnabled(LogLevel.Debug))
-            {
+
                 logger.LogDebug(
                     "Queue message for job {JobId} resolved without execution; deleting notification.",
                     LogSanitizer.Sanitize(jobId));
-            }
+
 
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
@@ -100,11 +98,11 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         if (!prepared.ShouldRunExecutor || prepared.RowWhenRunnable is null)
         {
             if (logger.IsEnabled(LogLevel.Debug))
-            {
+
                 logger.LogDebug(
                     "Job {JobId} not claimable in this poll; leaving message for visibility retry.",
                     LogSanitizer.Sanitize(jobId));
-            }
+
 
             return;
         }

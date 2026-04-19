@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
@@ -20,10 +20,8 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         ArgumentNullException.ThrowIfNull(record);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(record.ExportRecordId))
-        
-            throw new ArgumentException("ExportRecordId is required.", nameof(record));
-        
+        if (string.IsNullOrWhiteSpace(record.ExportRecordId)) throw new ArgumentException("ExportRecordId is required.", nameof(record));
+
 
         RunExportRecord stored = Clone(record);
 
@@ -51,10 +49,8 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            if (!_byRunId.TryGetValue(runId, out List<RunExportRecord>? list))
-            
-                return Task.FromResult<IReadOnlyList<RunExportRecord>>([]);
-            
+            if (!_byRunId.TryGetValue(runId, out List<RunExportRecord>? list)) return Task.FromResult<IReadOnlyList<RunExportRecord>>([]);
+
 
             List<RunExportRecord> ordered = list
                 .OrderByDescending(r => r.CreatedUtc)
@@ -72,10 +68,10 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
-        
+
             return Task.FromResult(
                 _byExportId.TryGetValue(exportRecordId, out RunExportRecord? r) ? Clone(r) : null);
-        
+
     }
 
     private static RunExportRecord Clone(RunExportRecord source)

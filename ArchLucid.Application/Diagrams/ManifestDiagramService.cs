@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using ArchLucid.Contracts.Manifest;
 
@@ -34,16 +34,16 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
         // Optional grouping (subgraphs) for services only.
         if (services.Count > 0)
-        
+
             if (groupBy == ManifestDiagramConstants.GroupByNone)
-            
+
                 foreach (ManifestService service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
                 {
                     string nodeId = GetOrCreateNodeId("svc", service.ServiceId, service.ServiceName);
                     string label = BuildServiceLabel(service, options.IncludeRuntimePlatform);
                     sb.AppendLine($"    {nodeId}[\"{EscapeLabel(label)}\"]");
                 }
-            
+
             else
             {
                 IOrderedEnumerable<IGrouping<string, ManifestService>> groups = services
@@ -64,7 +64,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
                     sb.AppendLine("    end");
                 }
             }
-        
+
 
         foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
         {
@@ -84,8 +84,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
                             ?? SanitizeId(relationship.TargetId);
 
             // Skip edges with missing endpoints.
-            if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target))
-                continue;
+            if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target)) continue;
 
             if (relationshipLabels == ManifestDiagramConstants.RelationshipLabelsNone)
             {
@@ -102,8 +101,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         string GetOrCreateNodeId(string kind, string rawId, string fallbackName)
         {
             string key = $"{kind}:{rawId}";
-            if (!string.IsNullOrWhiteSpace(rawId) && nodeIds.TryGetValue(key, out string? existing))
-                return existing;
+            if (!string.IsNullOrWhiteSpace(rawId) && nodeIds.TryGetValue(key, out string? existing)) return existing;
 
             string baseId = SanitizeId(string.IsNullOrWhiteSpace(rawId) ? fallbackName : rawId);
             string unique = EnsureUnique(baseId, usedNodeIds);
@@ -120,8 +118,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         GoldenManifest manifest,
         Dictionary<string, string> nodeIds)
     {
-        if (string.IsNullOrWhiteSpace(sourceOrTargetId))
-            return null;
+        if (string.IsNullOrWhiteSpace(sourceOrTargetId)) return null;
 
         ManifestService? svc = manifest.Services.FirstOrDefault(s =>
             s.ServiceId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
@@ -129,27 +126,23 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         if (svc is not null)
         {
             string key = $"svc:{svc.ServiceId}";
-            if (!string.IsNullOrWhiteSpace(svc.ServiceId) && nodeIds.TryGetValue(key, out string? id))
-                return id;
+            if (!string.IsNullOrWhiteSpace(svc.ServiceId) && nodeIds.TryGetValue(key, out string? id)) return id;
             return SanitizeId(string.IsNullOrWhiteSpace(svc.ServiceId) ? svc.ServiceName : svc.ServiceId);
         }
 
         ManifestDatastore? ds = manifest.Datastores.FirstOrDefault(d =>
             d.DatastoreId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
 
-        if (ds is null)
-            return null;
+        if (ds is null) return null;
 
         string datastoreKey = $"ds:{ds.DatastoreId}";
-        if (!string.IsNullOrWhiteSpace(ds.DatastoreId) && nodeIds.TryGetValue(datastoreKey, out string? datastoreNodeId))
-            return datastoreNodeId;
+        if (!string.IsNullOrWhiteSpace(ds.DatastoreId) && nodeIds.TryGetValue(datastoreKey, out string? datastoreNodeId)) return datastoreNodeId;
         return SanitizeId(string.IsNullOrWhiteSpace(ds.DatastoreId) ? ds.DatastoreName : ds.DatastoreId);
     }
 
     private static string BuildServiceLabel(ManifestService service, bool includeRuntimePlatform)
     {
-        if (!includeRuntimePlatform)
-            return service.ServiceName;
+        if (!includeRuntimePlatform) return service.ServiceName;
         return string.IsNullOrWhiteSpace(service.RuntimePlatform.ToString())
             ? service.ServiceName
             : $"{service.ServiceName}\\n{service.RuntimePlatform}";
@@ -157,8 +150,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
     private static string BuildDatastoreLabel(ManifestDatastore datastore, bool includeRuntimePlatform)
     {
-        if (!includeRuntimePlatform)
-            return datastore.DatastoreName;
+        if (!includeRuntimePlatform) return datastore.DatastoreName;
         return string.IsNullOrWhiteSpace(datastore.RuntimePlatform.ToString())
             ? datastore.DatastoreName
             : $"{datastore.DatastoreName}\\n{datastore.RuntimePlatform}";
@@ -166,14 +158,12 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
     private static string EnsureUnique(string baseId, HashSet<string> used)
     {
-        if (used.Add(baseId))
-            return baseId;
+        if (used.Add(baseId)) return baseId;
 
         for (int i = 2; i < 10_000; i++)
         {
             string candidate = $"{baseId}_{i}";
-            if (used.Add(candidate))
-                return candidate;
+            if (used.Add(candidate)) return candidate;
         }
 
         // Extremely unlikely; fall back to a GUID suffix.

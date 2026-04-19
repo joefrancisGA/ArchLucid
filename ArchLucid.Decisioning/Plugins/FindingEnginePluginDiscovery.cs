@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 using ArchLucid.Decisioning.Interfaces;
 
@@ -33,19 +33,17 @@ public static class FindingEnginePluginDiscovery
     {
         ArgumentNullException.ThrowIfNull(logger);
 
-        if (string.IsNullOrWhiteSpace(pluginDirectory))
-        {
-            return [];
-        }
+        if (string.IsNullOrWhiteSpace(pluginDirectory)) return [];
+
 
         string fullPath = Path.GetFullPath(pluginDirectory);
 
         if (!Directory.Exists(fullPath))
         {
             if (logger.IsEnabled(LogLevel.Debug))
-            {
+
                 logger.LogDebug("Finding engine plugin directory does not exist: {Path}", fullPath);
-            }
+
 
             return [];
         }
@@ -60,9 +58,9 @@ public static class FindingEnginePluginDiscovery
             if (fileName.StartsWith("ArchLucid.", StringComparison.OrdinalIgnoreCase))
             {
                 if (logger.IsEnabled(LogLevel.Debug))
-                {
+
                     logger.LogDebug("Skipping core assembly in plugin scan: {File}", fileName);
-                }
+
 
                 continue;
             }
@@ -81,24 +79,20 @@ public static class FindingEnginePluginDiscovery
 
             foreach (Type candidate in SafeGetExportedTypes(assembly))
             {
-                if (!candidate.IsClass || candidate.IsAbstract)
-                {
-                    continue;
-                }
+                if (!candidate.IsClass || candidate.IsAbstract) continue;
 
-                if (!typeof(IFindingEngine).IsAssignableFrom(candidate))
-                {
-                    continue;
-                }
+
+                if (!typeof(IFindingEngine).IsAssignableFrom(candidate)) continue;
+
 
                 if (candidate.GetConstructor(Type.EmptyTypes) is null)
                 {
                     if (logger.IsEnabled(LogLevel.Debug))
-                    {
+
                         logger.LogDebug(
                             "Skipping {TypeName}: IFindingEngine plugin must expose a parameterless constructor.",
                             candidate.FullName);
-                    }
+
 
                     continue;
                 }
@@ -119,10 +113,8 @@ public static class FindingEnginePluginDiscovery
                     continue;
                 }
 
-                if (probe is null)
-                {
-                    continue;
-                }
+                if (probe is null) continue;
+
 
                 string engineTypeId = probe.EngineType;
 
@@ -155,14 +147,14 @@ public static class FindingEnginePluginDiscovery
                 result.Add(candidate);
 
                 if (logger.IsEnabled(LogLevel.Information))
-                {
+
                     logger.LogInformation(
                         "Registered finding-engine plugin: EngineType={EngineType}, Category={Category}, Type={TypeName}, Assembly={Assembly}",
                         probe.EngineType,
                         probe.Category,
                         candidate.FullName,
                         fileName);
-                }
+
             }
         }
 

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.ContextIngestion.Models;
 
@@ -35,15 +35,13 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
         }
 
-        if (doc?.Resources is null || doc.Resources.Count == 0)
-            return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
+        if (doc?.Resources is null || doc.Resources.Count == 0) return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
         List<CanonicalObject> results = [];
 
         foreach (ResourceDeclarationItem resource in doc.Resources)
         {
-            if (string.IsNullOrWhiteSpace(resource.Type) || string.IsNullOrWhiteSpace(resource.Name))
-                continue;
+            if (string.IsNullOrWhiteSpace(resource.Type) || string.IsNullOrWhiteSpace(resource.Name)) continue;
 
             string objectType = ResolveObjectType(resource.Type);
 

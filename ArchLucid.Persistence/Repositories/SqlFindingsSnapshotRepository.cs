@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Core.Scoping;
@@ -186,7 +186,7 @@ public sealed class SqlFindingsSnapshotRepository(
             """;
 
         for (int r = 0; r < finding.RelatedNodeIds.Count; r++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertRelatedSql,
@@ -198,7 +198,7 @@ public sealed class SqlFindingsSnapshotRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
 
         const string insertActionSql = """
             INSERT INTO dbo.FindingRecommendedActions (FindingRecordId, SortOrder, ActionText)
@@ -206,7 +206,7 @@ public sealed class SqlFindingsSnapshotRepository(
             """;
 
         for (int a = 0; a < finding.RecommendedActions.Count; a++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     insertActionSql,
@@ -218,7 +218,7 @@ public sealed class SqlFindingsSnapshotRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
 
         const string insertPropSql = """
             INSERT INTO dbo.FindingProperties (FindingRecordId, PropertySortOrder, PropertyKey, PropertyValue)
@@ -312,7 +312,7 @@ public sealed class SqlFindingsSnapshotRepository(
         CancellationToken ct)
     {
         for (int i = 0; i < items.Count; i++)
-        
+
             await connection.ExecuteAsync(
                 new CommandDefinition(
                     sql,
@@ -324,7 +324,7 @@ public sealed class SqlFindingsSnapshotRepository(
                     },
                     transaction,
                     cancellationToken: ct));
-        
+
     }
 
     public async Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct)
@@ -347,8 +347,7 @@ public sealed class SqlFindingsSnapshotRepository(
                 },
                 cancellationToken: ct));
 
-        if (row is null)
-            return null;
+        if (row is null) return null;
 
         int recordCount = await SqlRelationalScalarCount.ExecuteAsync(
             connection,
@@ -363,7 +362,7 @@ public sealed class SqlFindingsSnapshotRepository(
         if (recordCount == 0)
         {
             if (string.IsNullOrWhiteSpace(row.FindingsJson))
-            {
+
                 return new FindingsSnapshot
                 {
                     FindingsSnapshotId = row.FindingsSnapshotId,
@@ -374,7 +373,7 @@ public sealed class SqlFindingsSnapshotRepository(
                     SchemaVersion = row.SchemaVersion,
                     Findings = [],
                 };
-            }
+
 
             FindingsSnapshot fromJson = JsonEntitySerializer.Deserialize<FindingsSnapshot>(row.FindingsJson);
             fromJson.FindingsSnapshotId = row.FindingsSnapshotId;
@@ -415,8 +414,7 @@ public sealed class SqlFindingsSnapshotRepository(
             },
             ct);
 
-        if (recordCount > 0 || snapshot.Findings.Count == 0)
-            return;
+        if (recordCount > 0 || snapshot.Findings.Count == 0) return;
 
         FindingsSnapshotMigrator.Apply(snapshot);
         await InsertFindingsRelationalFromSnapshotAsync(snapshot, connection, transaction, ct);

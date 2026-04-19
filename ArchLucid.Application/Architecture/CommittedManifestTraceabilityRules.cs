@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Architecture;
+﻿using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
@@ -28,19 +28,18 @@ public static class CommittedManifestTraceabilityRules
         GoldenManifest? manifest,
         IReadOnlyList<DecisionTrace> traces)
     {
-        if (manifest is null)
-            return [];
+        if (manifest is null) return [];
 
         List<string> gaps = [];
         HashSet<string> idsOnManifest = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string id in manifest.Metadata.DecisionTraceIds)
-        {
+
             if (string.IsNullOrWhiteSpace(id))
                 gaps.Add("Manifest.Metadata.DecisionTraceIds contains an empty entry.");
             else
                 idsOnManifest.Add(id);
-        }
+
 
         List<string> coordinatorTraceIds = [];
 
@@ -65,16 +64,16 @@ public static class CommittedManifestTraceabilityRules
         HashSet<string> coordinatorSet = new(coordinatorTraceIds, StringComparer.OrdinalIgnoreCase);
 
         foreach (string tid in coordinatorSet)
-        {
+
             if (!idsOnManifest.Contains(tid))
                 gaps.Add($"Trace '{tid}' is missing from Manifest.Metadata.DecisionTraceIds.");
-        }
+
 
         foreach (string mid in idsOnManifest)
-        {
+
             if (!coordinatorSet.Contains(mid))
                 gaps.Add($"Manifest.Metadata.DecisionTraceIds lists unknown trace id '{mid}'.");
-        }
+
 
         return gaps;
     }

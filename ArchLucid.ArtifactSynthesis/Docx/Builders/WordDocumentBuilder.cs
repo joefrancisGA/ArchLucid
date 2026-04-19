@@ -1,4 +1,4 @@
-using ArchLucid.Decisioning.Manifest.Sections;
+﻿using ArchLucid.Decisioning.Manifest.Sections;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -91,8 +91,7 @@ public static class WordDocumentBuilder
     public static void AddSimpleTable(Body body, IEnumerable<(string, string)> rows, bool headerRow = false)
     {
         List<(string, string)> list = rows.ToList();
-        if (list.Count == 0)
-            return;
+        if (list.Count == 0) return;
 
         Table table = CreateTableGrid();
         if (headerRow)

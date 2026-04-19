@@ -1,4 +1,4 @@
-using ArchLucid.Core.Scoping;
+﻿using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Configuration;
@@ -40,9 +40,9 @@ public static class Program
         if (configurationErrors.Count > 0)
         {
             foreach (string error in configurationErrors)
-            {
+
                 app.Logger.LogError("Startup configuration error: {Error}", error);
-            }
+
 
             throw new InvalidOperationException(
                 "ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.");

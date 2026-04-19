@@ -62,6 +62,10 @@ Pass a subdirectory (e.g. `ArchLucid.Api`) instead of `.` to limit the pass to o
 
 The tool also collapses eligible **`if` guard clauses** to the same physical line as the body (`if (cond) return …;`) when the body is a single-line `return` / `throw` / `continue` / `break` / `goto`, there is no comment trivia between `)` and the body, and the synthesized line length is at most **160** characters — see **`CSharp-Terse-01-GuardClausesSameLine.mdc`**. Multi-line `return` / `throw` bodies stay on the following line(s).
 
+**Dangling `else` safety:** the tool does **not** unwrap a braced `then` branch when that `if` has an `else` and the branch contains a nested `if` (unwrap would reattach `else` to the inner `if` under C# parsing rules).
+
 The tool excludes `bin/`, `obj/`, `.git/`, `*.g.cs`, and its own project folder. Many files may already match the convention or have two-statement bodies (e.g. `await` then `return`), so **fewer files may change** than you expect; that is normal.
 
 See `.cursor/rules/CSharp-EmbeddedStatements-NoBraces.mdc` for the convention.
+
+Per-assembly sweep progress: [`docs/TERSENESS_REWRITER_ASSEMBLY_CHECKLIST.md`](TERSENESS_REWRITER_ASSEMBLY_CHECKLIST.md).

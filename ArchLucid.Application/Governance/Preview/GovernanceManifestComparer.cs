@@ -1,4 +1,4 @@
-using ArchLucid.Contracts.Governance.Preview;
+﻿using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Governance.Preview;
@@ -40,8 +40,7 @@ public static class GovernanceManifestComparer
     /// </summary>
     private static Dictionary<string, string?> ExtractGovernanceFields(ManifestGovernance? g)
     {
-        if (g is null)
-            return [];
+        if (g is null) return [];
 
         return new Dictionary<string, string?>(StringComparer.Ordinal)
         {
@@ -58,8 +57,7 @@ public static class GovernanceManifestComparer
 
     private static string? NormalizeList(IReadOnlyList<string>? list)
     {
-        if (list is null || list.Count == 0)
-            return null;
+        if (list is null || list.Count == 0) return null;
         List<string> ordered = list
             .Where(s => !string.IsNullOrWhiteSpace(s))
             .Select(s => s.Trim())
@@ -83,8 +81,7 @@ public static class GovernanceManifestComparer
             string curN = cur ?? string.Empty;
             string prevN = prev ?? string.Empty;
 
-            if (curN == prevN)
-                continue;
+            if (curN == prevN) continue;
 
             string changeType;
             if (string.IsNullOrEmpty(curN) && !string.IsNullOrEmpty(prevN))
