@@ -115,3 +115,28 @@ def test_main_positional_min_line_backward_compatible(tmp_path: Path) -> None:
     )
     assert merged._main([str(p), "79"]) == 1
     assert merged._main([str(p), "70"]) == 0
+
+
+def test_main_skip_package_line_gate_allows_named_low_package(tmp_path: Path) -> None:
+    """Thin CLI-style package can be excluded while other product packages stay gated."""
+    p = _write_cobertura(
+        tmp_path / "skip-pkg.xml",
+        line_rate="0.90",
+        branch_rate="0.70",
+        packages=[
+            ("ArchLucid.Core", "0.90", "0.80", 2),
+            ("ArchLucid.Jobs.Cli", "0.24", "0.20", 5),
+        ],
+    )
+    assert (
+        merged._main(
+            [
+                str(p),
+                "--min-package-line-pct",
+                "63",
+                "--skip-package-line-gate",
+                "ArchLucid.Jobs.Cli",
+            ],
+        )
+        == 0
+    )
