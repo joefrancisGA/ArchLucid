@@ -103,3 +103,57 @@ variable "governance_logic_app_managed_identity_principal_id" {
   description = "Optional Entra principal id for the governance Logic App (Standard) system-assigned or user-assigned identity — Azure Service Bus Data Receiver on the namespace when non-empty and the governance subscription is enabled."
   default     = ""
 }
+
+variable "enable_logic_app_trial_lifecycle_email_subscription" {
+  type        = bool
+  description = "When true, create a topic subscription filtered to com.archlucid.notifications.trial-lifecycle-email.v1 for trial lifecycle Logic App triggers."
+  default     = false
+}
+
+variable "logic_app_trial_lifecycle_email_subscription_name" {
+  type        = string
+  description = "Subscription name for trial lifecycle email Logic Apps."
+  default     = "archlucid-logicapp-trial-lifecycle-email"
+}
+
+variable "trial_lifecycle_logic_app_managed_identity_principal_id" {
+  type        = string
+  description = "Optional Entra principal id for the trial lifecycle Logic App — Azure Service Bus Data Receiver when the trial lifecycle subscription is enabled."
+  default     = ""
+}
+
+variable "enable_logic_app_incident_chatops_subscription" {
+  type        = bool
+  description = "When true, create a topic subscription for alert.fired and alert.resolved (ChatOps / Teams workflows)."
+  default     = false
+}
+
+variable "logic_app_incident_chatops_subscription_name" {
+  type        = string
+  description = "Subscription name for incident ChatOps Logic Apps."
+  default     = "archlucid-logicapp-incident-chatops"
+}
+
+variable "incident_chatops_logic_app_managed_identity_principal_id" {
+  type        = string
+  description = "Optional Entra principal id for the incident ChatOps Logic App — Azure Service Bus Data Receiver when the ChatOps subscription is enabled."
+  default     = ""
+}
+
+variable "enable_logic_app_promotion_prod_customer_subscription" {
+  type        = bool
+  description = "When true, create a topic subscription for prod governance promotion activated events (promotion_environment user property + event_type)."
+  default     = false
+}
+
+variable "logic_app_promotion_prod_customer_subscription_name" {
+  type        = string
+  description = "Subscription name for promotion-activated customer notification Logic Apps."
+  default     = "archlucid-logicapp-promotion-prod-customer"
+}
+
+variable "promotion_customer_notify_logic_app_managed_identity_principal_id" {
+  type        = string
+  description = "Optional Entra principal id for the promotion customer-notify Logic App — Azure Service Bus Data Receiver when the promotion prod subscription is enabled."
+  default     = ""
+}

@@ -59,10 +59,16 @@ public sealed class IntegrationEventOutboxProcessor(
 
             try
             {
+                IReadOnlyDictionary<string, object>? applicationProperties =
+                    IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
+                        entry.EventType,
+                        entry.PayloadUtf8);
+
                 await publisher.PublishAsync(
                     entry.EventType,
                     entry.PayloadUtf8,
                     entry.MessageId,
+                    applicationProperties,
                     ct);
 
                 await outbox.MarkProcessedAsync(entry.OutboxId, ct);

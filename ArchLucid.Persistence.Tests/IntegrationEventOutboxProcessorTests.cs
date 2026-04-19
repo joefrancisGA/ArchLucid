@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using ArchLucid.Core.Integration;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +18,7 @@ public sealed class IntegrationEventOutboxProcessorTests
     {
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<IIntegrationEventOutboxRepository> outbox = new();
@@ -62,7 +64,7 @@ public sealed class IntegrationEventOutboxProcessorTests
         outbox.Verify(o => o.MarkProcessedAsync(id1, It.IsAny<CancellationToken>()), Times.Once);
         outbox.Verify(o => o.MarkProcessedAsync(id2, It.IsAny<CancellationToken>()), Times.Once);
         publisher.Verify(
-            p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()),
             Times.Exactly(2));
     }
 
@@ -71,7 +73,7 @@ public sealed class IntegrationEventOutboxProcessorTests
     {
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<IIntegrationEventOutboxRepository> outbox = new();
@@ -117,7 +119,7 @@ public sealed class IntegrationEventOutboxProcessorTests
     {
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("sb down"));
 
         Mock<IIntegrationEventOutboxRepository> outbox = new();
@@ -168,7 +170,7 @@ public sealed class IntegrationEventOutboxProcessorTests
     {
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("fail"));
 
         Mock<IIntegrationEventOutboxRepository> outbox = new();
@@ -219,7 +221,7 @@ public sealed class IntegrationEventOutboxProcessorTests
         string huge = new('x', 3000);
         Mock<IIntegrationEventPublisher> publisher = new();
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException(huge));
 
         Mock<IIntegrationEventOutboxRepository> outbox = new();

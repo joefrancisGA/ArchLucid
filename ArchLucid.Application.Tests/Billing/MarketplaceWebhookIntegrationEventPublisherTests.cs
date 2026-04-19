@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Integration;
@@ -31,9 +33,10 @@ public sealed class MarketplaceWebhookIntegrationEventPublisherTests
                     It.IsAny<string>(),
                     It.IsAny<ReadOnlyMemory<byte>>(),
                     It.IsAny<string?>(),
+                    It.IsAny<IReadOnlyDictionary<string, object>?>(),
                     It.IsAny<CancellationToken>()))
             .Callback(
-                (string eventType, ReadOnlyMemory<byte> _, string? _, CancellationToken _) =>
+                (string eventType, ReadOnlyMemory<byte> _, string? _, IReadOnlyDictionary<string, object>? _, CancellationToken _) =>
                     capturedEventType = eventType)
             .Returns(Task.CompletedTask);
 

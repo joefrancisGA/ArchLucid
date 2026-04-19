@@ -1,3 +1,4 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Tenancy;
 
@@ -14,6 +15,7 @@ public sealed class TrialScheduledLifecycleEmailScanner(
     IIntegrationEventOutboxRepository outboxRepository,
     IIntegrationEventPublisher integrationEventPublisher,
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    IOptionsMonitor<TrialLifecycleEmailRoutingOptions> trialLifecycleEmailRoutingOptions,
     ILogger<TrialScheduledLifecycleEmailScanner> logger)
 {
     private readonly ITenantRepository _tenantRepository =
@@ -28,11 +30,27 @@ public sealed class TrialScheduledLifecycleEmailScanner(
     private readonly IOptionsMonitor<IntegrationEventsOptions> _integrationEventsOptions =
         integrationEventsOptions ?? throw new ArgumentNullException(nameof(integrationEventsOptions));
 
+    private readonly IOptionsMonitor<TrialLifecycleEmailRoutingOptions> _trialLifecycleEmailRoutingOptions =
+        trialLifecycleEmailRoutingOptions ?? throw new ArgumentNullException(nameof(trialLifecycleEmailRoutingOptions));
+
     private readonly ILogger<TrialScheduledLifecycleEmailScanner> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task PublishDueAsync(DateTimeOffset utcNow, CancellationToken cancellationToken)
     {
+        if (_trialLifecycleEmailRoutingOptions.CurrentValue.IsLogicAppOwned())
+        {
+            if (_logger.IsEnabled(LogLevel.Debug))
+            {
+                _logger.LogDebug(
+                    "Trial scheduled lifecycle email scan skipped ({Owner}={LogicApp}).",
+                    nameof(TrialLifecycleEmailRoutingOptions.Owner),
+                    TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp);
+            }
+
+            return;
+        }
+
         IntegrationEventsOptions options = _integrationEventsOptions.CurrentValue;
         IReadOnlyList<TenantRecord> tenants = await _tenantRepository.ListAsync(cancellationToken).ConfigureAwait(false);
 

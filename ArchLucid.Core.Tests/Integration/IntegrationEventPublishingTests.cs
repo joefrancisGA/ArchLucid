@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using ArchLucid.Core.Integration;
 
 using FluentAssertions;
@@ -21,6 +23,7 @@ public sealed class IntegrationEventPublishingTests
                 It.IsAny<string>(),
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("bus down"));
 
@@ -47,6 +50,7 @@ public sealed class IntegrationEventPublishingTests
                 It.IsAny<string>(),
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 It.IsAny<string?>(),
+                It.IsAny<IReadOnlyDictionary<string, object>?>(),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new OutOfMemoryException());
 

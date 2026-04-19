@@ -34,10 +34,11 @@ import {
   alertsPageLeadOperator,
   alertsPageLeadReader,
   alertsPageShortcutsLineReader,
+  alertsPaginationNavTitleReaderRank,
   alertsTriageAcknowledgeButtonLabelReaderInbox,
+  alertsTriageDialogConfirmButtonLabelReaderRank,
   alertsTriageDialogReaderNote,
   alertsTriageDialogTitleReaderSuffix,
-  alertsTriageDialogConfirmButtonLabelReaderRank,
   alertsTriageOpenPreviewReaderTitle,
   alertsTriageResolveButtonLabelReaderInbox,
   alertsTriageSuppressButtonLabelReaderInbox,
@@ -353,11 +354,19 @@ export default function AlertsPage() {
           <nav
             className="mt-4 flex flex-wrap items-center gap-4 text-sm text-neutral-600 dark:text-neutral-400"
             aria-label="Alerts pagination"
+            title={canMutateAlertInbox ? undefined : alertsPaginationNavTitleReaderRank}
           >
             <span>
               Page {page} of {totalPages} · {totalCount} alert{totalCount === 1 ? "" : "s"} total
             </span>
-            <Button type="button" variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={page <= 1}
+              title={canMutateAlertInbox ? undefined : alertsPaginationNavTitleReaderRank}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
               Previous
             </Button>
             <Button
@@ -365,6 +374,7 @@ export default function AlertsPage() {
               variant="outline"
               size="sm"
               disabled={page >= totalPages}
+              title={canMutateAlertInbox ? undefined : alertsPaginationNavTitleReaderRank}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >
               Next

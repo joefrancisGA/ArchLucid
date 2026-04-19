@@ -1,4 +1,5 @@
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
@@ -25,7 +26,9 @@ public static partial class ServiceCollectionExtensions
             return;
         }
 
-        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.TrialEmailScan))
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.TrialEmailScan)
+            && !TrialLifecycleEmailRoutingOptions.IsLogicAppOwnerMode(
+                configuration[TrialLifecycleEmailRoutingOptions.OwnerConfigurationKey]))
         {
             services.AddHostedService<TrialLifecycleEmailScanHostedService>();
         }

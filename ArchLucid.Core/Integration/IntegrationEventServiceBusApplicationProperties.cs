@@ -25,7 +25,7 @@ public static class IntegrationEventServiceBusApplicationProperties
 
         try
         {
-            using JsonDocument doc = JsonDocument.Parse(payloadUtf8.Span);
+            using JsonDocument doc = JsonDocument.Parse(payloadUtf8);
 
             if (!doc.RootElement.TryGetProperty("environment", out JsonElement envEl))
             {

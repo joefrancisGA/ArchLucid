@@ -1,4 +1,5 @@
 using ArchLucid.Application.Notifications.Email;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Jobs;
@@ -49,11 +50,15 @@ public sealed class TrialEmailScanArchLucidJobTests
         Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventsOptions = new();
         integrationEventsOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions());
 
+        Mock<IOptionsMonitor<TrialLifecycleEmailRoutingOptions>> trialLifecycleRouting = new();
+        trialLifecycleRouting.Setup(m => m.CurrentValue).Returns(new TrialLifecycleEmailRoutingOptions());
+
         ServiceCollection services = [];
         services.AddScoped<ITenantRepository>(_ => tenantRepo.Object);
         services.AddScoped<IIntegrationEventOutboxRepository>(_ => Mock.Of<IIntegrationEventOutboxRepository>());
         services.AddScoped<IIntegrationEventPublisher>(_ => Mock.Of<IIntegrationEventPublisher>());
         services.AddSingleton(integrationEventsOptions.Object);
+        services.AddSingleton(trialLifecycleRouting.Object);
         services.AddScoped<TrialScheduledLifecycleEmailScanner>();
         services.AddSingleton<ILogger<TrialScheduledLifecycleEmailScanner>>(
             _ => NullLogger<TrialScheduledLifecycleEmailScanner>.Instance);
@@ -74,11 +79,15 @@ public sealed class TrialEmailScanArchLucidJobTests
         Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventsOptions = new();
         integrationEventsOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions());
 
+        Mock<IOptionsMonitor<TrialLifecycleEmailRoutingOptions>> trialLifecycleRouting = new();
+        trialLifecycleRouting.Setup(m => m.CurrentValue).Returns(new TrialLifecycleEmailRoutingOptions());
+
         ServiceCollection services = [];
         services.AddScoped<ITenantRepository>(_ => tenantRepo.Object);
         services.AddScoped<IIntegrationEventOutboxRepository>(_ => Mock.Of<IIntegrationEventOutboxRepository>());
         services.AddScoped<IIntegrationEventPublisher>(_ => Mock.Of<IIntegrationEventPublisher>());
         services.AddSingleton(integrationEventsOptions.Object);
+        services.AddSingleton(trialLifecycleRouting.Object);
         services.AddScoped<TrialScheduledLifecycleEmailScanner>();
         services.AddSingleton<ILogger<TrialScheduledLifecycleEmailScanner>>(
             _ => NullLogger<TrialScheduledLifecycleEmailScanner>.Instance);

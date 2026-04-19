@@ -4,7 +4,6 @@ using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.BlobStore;
-using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Azure.Core;
@@ -17,18 +16,6 @@ namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
-    private static void RegisterDataInfrastructure(IServiceCollection services, IConfiguration configuration)
-    {
-        ArchLucidOptions mode = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
-
-        if (!ArchLucidOptions.EffectiveIsInMemory(mode.StorageProvider))
-        {
-            return;
-        }
-
-        services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
-    }
-
     private static void RegisterArchLucidHealthChecks(
         IServiceCollection services,
         IConfiguration configuration,

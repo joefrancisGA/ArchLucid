@@ -23,6 +23,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<TrialAuthOptions>(configuration.GetSection(TrialAuthOptions.SectionPath));
         services.Configure<TrialLifecycleSchedulerOptions>(
             configuration.GetSection(TrialLifecycleSchedulerOptions.SectionName));
+        services.Configure<TrialLifecycleEmailRoutingOptions>(
+            configuration.GetSection(TrialLifecycleEmailRoutingOptions.SectionName));
 
         services.AddScoped<ITrialBootstrapEmailVerificationPolicy, TrialBootstrapEmailVerificationPolicy>();
         services.AddSingleton<PasswordHasher<TrialIdentityHasherUser>>();

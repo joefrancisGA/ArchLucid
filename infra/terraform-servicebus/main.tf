@@ -57,6 +57,66 @@ resource "azurerm_servicebus_subscription_rule" "logic_app_governance_approval_d
   sql_filter      = "event_type = 'com.archlucid.governance.approval.submitted'"
 }
 
+resource "azurerm_servicebus_subscription" "logic_app_trial_lifecycle_email" {
+  count = var.enable_logic_app_trial_lifecycle_email_subscription ? 1 : 0
+
+  name     = var.logic_app_trial_lifecycle_email_subscription_name
+  topic_id = azurerm_servicebus_topic.integration_events.id
+
+  max_delivery_count = var.max_delivery_count
+
+  dead_lettering_on_message_expiration = true
+}
+
+resource "azurerm_servicebus_subscription_rule" "logic_app_trial_lifecycle_email_default" {
+  count = var.enable_logic_app_trial_lifecycle_email_subscription ? 1 : 0
+
+  name            = "$Default"
+  subscription_id = azurerm_servicebus_subscription.logic_app_trial_lifecycle_email[0].id
+  filter_type     = "SqlFilter"
+  sql_filter      = "event_type = 'com.archlucid.notifications.trial-lifecycle-email.v1'"
+}
+
+resource "azurerm_servicebus_subscription" "logic_app_incident_chatops" {
+  count = var.enable_logic_app_incident_chatops_subscription ? 1 : 0
+
+  name     = var.logic_app_incident_chatops_subscription_name
+  topic_id = azurerm_servicebus_topic.integration_events.id
+
+  max_delivery_count = var.max_delivery_count
+
+  dead_lettering_on_message_expiration = true
+}
+
+resource "azurerm_servicebus_subscription_rule" "logic_app_incident_chatops_default" {
+  count = var.enable_logic_app_incident_chatops_subscription ? 1 : 0
+
+  name            = "$Default"
+  subscription_id = azurerm_servicebus_subscription.logic_app_incident_chatops[0].id
+  filter_type     = "SqlFilter"
+  sql_filter      = "event_type = 'com.archlucid.alert.fired' OR event_type = 'com.archlucid.alert.resolved'"
+}
+
+resource "azurerm_servicebus_subscription" "logic_app_promotion_prod_customer" {
+  count = var.enable_logic_app_promotion_prod_customer_subscription ? 1 : 0
+
+  name     = var.logic_app_promotion_prod_customer_subscription_name
+  topic_id = azurerm_servicebus_topic.integration_events.id
+
+  max_delivery_count = var.max_delivery_count
+
+  dead_lettering_on_message_expiration = true
+}
+
+resource "azurerm_servicebus_subscription_rule" "logic_app_promotion_prod_customer_default" {
+  count = var.enable_logic_app_promotion_prod_customer_subscription ? 1 : 0
+
+  name            = "$Default"
+  subscription_id = azurerm_servicebus_subscription.logic_app_promotion_prod_customer[0].id
+  filter_type     = "SqlFilter"
+  sql_filter      = "event_type = 'com.archlucid.governance.promotion.activated' AND promotion_environment = 'prod'"
+}
+
 resource "azurerm_private_endpoint" "servicebus" {
   count = local.pe_enabled ? 1 : 0
 

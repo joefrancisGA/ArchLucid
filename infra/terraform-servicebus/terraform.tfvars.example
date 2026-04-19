@@ -28,3 +28,11 @@ tags = {
 # enable_logic_app_governance_approval_subscription = false
 # logic_app_governance_approval_subscription_name   = "archlucid-logicapp-governance-approval"
 # governance_logic_app_managed_identity_principal_id = "" # principal ID after first Logic App deploy
+
+# Optional: trial lifecycle email, incident ChatOps (fired + resolved), prod promotion customer notify
+# enable_logic_app_trial_lifecycle_email_subscription = false
+# trial_lifecycle_logic_app_managed_identity_principal_id = ""
+# enable_logic_app_incident_chatops_subscription = false
+# incident_chatops_logic_app_managed_identity_principal_id = ""
+# enable_logic_app_promotion_prod_customer_subscription = false
+# promotion_customer_notify_logic_app_managed_identity_principal_id = ""

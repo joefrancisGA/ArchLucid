@@ -1,5 +1,7 @@
 using System.Data;
 
+using System.Collections.Generic;
+
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
@@ -297,7 +299,7 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
             .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         publisher
-            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<ILogger<GovernanceWorkflowService>> logger = new();

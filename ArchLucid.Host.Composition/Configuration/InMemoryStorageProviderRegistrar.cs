@@ -135,7 +135,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
 
         // Parity with Sql path: orphan probe resolves but no-ops when storage is InMemory (see DataConsistencyOrphanProbeExecutor).
-        // Full host composition replaces IDbConnectionFactory for InMemory via RegisterDataInfrastructure.
+        // IDbConnectionFactory stays UnsupportedRelationalDbConnectionFactory so DAST/ZAP containers need no SQL connection string.
         services.AddSingleton<IDbConnectionFactory, UnsupportedRelationalDbConnectionFactory>();
         services.AddSingleton<DataConsistencyOrphanProbeExecutor>();
         services.AddSingleton<IDataConsistencyOrphanProbeExecutor>(

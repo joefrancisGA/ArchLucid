@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Data;
 
 using ArchLucid.Application;
@@ -108,6 +109,7 @@ public sealed class GovernanceWorkflowServiceTests
                     It.IsAny<string>(),
                     It.IsAny<ReadOnlyMemory<byte>>(),
                     It.IsAny<string?>(),
+                    It.IsAny<IReadOnlyDictionary<string, object>?>(),
                     It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -256,7 +258,7 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Once);
 
         _integrationEvents.Verify(
-            p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<IReadOnlyDictionary<string, object>?>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

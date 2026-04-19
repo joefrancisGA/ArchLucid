@@ -7,6 +7,7 @@ import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { Button } from "@/components/ui/button";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { PolicyPackDiffView } from "@/components/PolicyPackDiffView";
@@ -35,6 +36,7 @@ import {
   policyPacksPublishedVersionsEmptyOperatorLine,
   policyPacksPublishedVersionsEmptyReaderLine,
   policyPacksPublishButtonLabelReaderRank,
+  policyPacksRefreshAssistReaderLine,
   policyPacksShowDiffButtonLabelReaderRank,
   policyPacksShowDiffButtonReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
@@ -261,11 +263,16 @@ export default function PolicyPacksPage() {
       </p>
       <EnterpriseControlsExecutePageHint className="mb-3" />
 
-      <p>
-        <button type="button" onClick={() => void load()} disabled={loading}>
+      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+        <Button type="button" variant="secondary" size="sm" onClick={() => void load()} disabled={loading}>
           {loading ? "Loading…" : "Refresh"}
-        </button>
-      </p>
+        </Button>
+        {!canMutatePacks ? (
+          <span className="max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
+            {policyPacksRefreshAssistReaderLine}
+          </span>
+        ) : null}
+      </div>
 
       {failure !== null ? (
         <div role="alert">

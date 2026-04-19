@@ -43,7 +43,7 @@ Logic Apps are a **narrow, high-value** fit: cross-system orchestration, human-i
 1. Workflow `trial-lifecycle-email` with trigger on `com.archlucid.notifications.trial-lifecycle-email.v1` (`IntegrationEventTypes.TrialLifecycleEmailV1`) and optional daily recurrence calling a read-only internal “due envelopes” API if you retire `TrialLifecycleEmailScanHostedService`.
 2. **Templating:** ACS Email primary, Outlook fallback; per-`TrialLifecycleEmailTrigger` templates.
 3. **Retry:** Connector exponential backoff + dead-letter path to an internal admin endpoint (mirror `docs/adr/0009-digest-delivery-failure-semantics.md` spirit).
-4. **Flag:** `Notifications:TrialLifecycle:Owner` ∈ `{ Hosted, LogicApp }` for safe cutover.
+4. **Flag:** `ArchLucid:Notifications:TrialLifecycle:Owner` ∈ `{ Hosted, LogicApp }` for safe cutover — **implemented:** binds `TrialLifecycleEmailRoutingOptions`; `LogicApp` skips `TrialLifecycleEmailScanHostedService` registration and short-circuits `TrialScheduledLifecycleEmailScanner`.
 
 ---
 
@@ -66,7 +66,7 @@ Logic Apps are a **narrow, high-value** fit: cross-system orchestration, human-i
 
 ## Prompt `logic-app-promotion-activated-customer-notifications`
 
-1. Trigger on `com.archlucid.governance.promotion.activated` (`IntegrationEventTypes.GovernancePromotionActivatedV1`); filter `environment = prod`.
+1. Trigger on `com.archlucid.governance.promotion.activated` (`IntegrationEventTypes.GovernancePromotionActivatedV1`); filter **`promotion_environment = prod`** on the Service Bus subscription (publisher sets user property from JSON `environment`).
 2. Resolve per-tenant channels via a secured internal preferences API; fan-out email + Teams + signed outbound webhooks in **parallel branches** so one channel failure does not block others.
 3. **Secrets:** Key Vault references only; enable `secureInput` / `secureOutput` on HMAC signing steps.
 
@@ -86,6 +86,8 @@ What landed in this repository for the **marketplace / ADR 0016 hand-off** slice
 | **Docs / ADR** | ADR **0019**, runbook, `BILLING.md` / `DEPLOYMENT_TERRAFORM.md` / `REFERENCE_SAAS_STACK_ORDER.md` updates. |
 
 **2026-04-19 (governance approval routing prompt):** Service Bus optional subscription + **`$Default`** SQL rule on **`event_type`**; governance Logic App host variables/outputs; `workflows/governance-approval-routing/README.md`; `OBSERVABILITY.md`, `LOGIC_APPS_STANDARD.md`, `INTEGRATION_EVENTS_AND_WEBHOOKS.md` updates.
+
+**2026-04-19 (trial / ChatOps / prod promotion plumbing):** `IIntegrationEventPublisher.PublishAsync` overload with optional application properties; direct publish + outbox drain attach **`promotion_environment`** for `GovernancePromotionActivatedV1`; **`TrialLifecycleEmailRoutingOptions`** + **`ArchLucid:Notifications:TrialLifecycle:Owner`** (`Hosted` / `LogicApp`); optional Service Bus subscriptions + IAM in **`infra/terraform-servicebus/`**; placeholder workflow READMEs under **`infra/terraform-logicapps/workflows/`** (`trial-lifecycle-email`, `incident-chatops`, `promotion-customer-notifications`).
 
 **Still intentionally out of repo:** concrete `workflow.json` assets and in-app connection bundles — design in Azure Portal or your CD pipeline, then freeze per change control.
 
