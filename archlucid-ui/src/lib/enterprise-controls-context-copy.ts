@@ -47,6 +47,16 @@ export const governanceResolutionRankReaderLine = "Edits: policy packs or workfl
 
 export const governanceResolutionRankOperatorLine = "Ordering lives in packs or workflow—not here.";
 
+/** Governance resolution — lead under page title (`governance-resolution/page.tsx`), before rank cue. */
+export const governanceResolutionPageLeadOperator =
+  "Read effective policy and conflicts; change packs or workflow when bindings must move (API).";
+
+export const governanceResolutionPageLeadReader =
+  "Inspect effective policy and decisions here; pack and workflow writes use Execute+ surfaces (API).";
+
+/** Governance resolution — **Refresh** is GET-only (always enabled at any shell rank). */
+export const governanceResolutionRefreshButtonTitle = "Reload effective governance resolution (GET only).";
+
 /** Governance resolution — “Change related controls” strip (LayerHeader + rank cue already frame read vs write). */
 export const governanceResolutionChangeRelatedControlsLead =
   "Refresh is GET. Scope changes: Packs or Workflow.";
@@ -60,6 +70,11 @@ export const governanceResolutionChangeRelatedControlsReaderSupplement =
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
 export const governanceDashboardReaderActionLine = "Read-only queue until Execute+ (API).";
+
+/** Governance dashboard — batch bar when rank cannot mutate (`governance/dashboard/page.tsx`). */
+export const governanceDashboardApproveSelectedButtonLabelReaderRank = "Approve selected (Execute+)";
+
+export const governanceDashboardRejectSelectedButtonLabelReaderRank = "Reject selected (Execute+)";
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator = "Load a run; follow status top to bottom.";
