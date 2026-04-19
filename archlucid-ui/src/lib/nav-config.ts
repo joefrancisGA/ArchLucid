@@ -99,6 +99,7 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.
  *   **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Core Pilot** essentials omit **`requiredAuthority`**;
  *   **Advanced/Enterprise** **`ExecuteAuthority`** links must not use **`essential`** tier (progressive disclosure + rank story).
+ *   **`authority-shaped-layout-regression.test.tsx`** — Enterprise **inspect-first** DOM when mutation hook is false (parallel to tier→authority story; still **UI only**).
  *
  * **`layer-guidance.ts` / `LayerHeader`:** Enterprise route families use **`LAYER_PAGE_GUIDANCE`** rows with **`enterpriseFootnote`**
  * (see **`authority-seam-regression.test.ts`** — Enterprise vs Advanced footnote contract). That strip is **cognitive packaging only**;
@@ -126,8 +127,9 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *
  * ### UI shaping vs API authorization (boundary)
  *
+ * **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is authoritative (**401/403**) for every route and POST — always.
  * `requiredAuthority` drives **shell visibility** after **`nav-shell-visibility`** tier filtering — not whether HTTP writes
- * succeed. **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is authoritative (**401/403**). Keep policy **names** aligned
+ * succeed. Keep policy **names** aligned
  * with C# when moving routes. **Vitest:** `nav-config.structure.test.ts` (graph invariants); **`authority-execute-floor-regression.test.ts`**
  * (Execute-class nav row vs mutation capability; Enterprise **`alerts-governance`** Reader vs Execute href sets); **`src/app/(operator)/enterprise-authority-ui-shaping.test.tsx`**
  * (representative Enterprise pages: **`useEnterpriseMutationCapability`** → **`disabled`** on primary actions).
