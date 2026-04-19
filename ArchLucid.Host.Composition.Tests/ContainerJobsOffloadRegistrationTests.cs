@@ -52,6 +52,41 @@ public sealed class ContainerJobsOffloadRegistrationTests
         hasHosted.Should().BeTrue();
     }
 
+    [Fact]
+    public void AddArchLucidApplicationServices_Worker_registers_TenantHealthScoringHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(TenantHealthScoringHostedService));
+
+        hasHosted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_TenantHealthScoringHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(TenantHealthScoringHostedService));
+
+        hasHosted.Should().BeFalse();
+    }
+
     private static Dictionary<string, string?> CreateWorkerCompositionDictionary()
     {
         return new Dictionary<string, string?>
