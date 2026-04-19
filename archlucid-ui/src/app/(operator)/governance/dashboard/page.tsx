@@ -18,10 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  EnterpriseExecutePlusPageCue,
-  GovernanceDashboardReaderActionCue,
-} from "@/components/EnterpriseControlsContextHints";
+import { GovernanceDashboardReaderActionCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -35,7 +32,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   enterpriseMutationControlDisabledTitle,
-  governanceDashboardOperatorPlusLine,
   governanceDashboardPendingClearReaderSupplement,
 } from "@/lib/enterprise-controls-context-copy";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
@@ -306,7 +302,6 @@ export default function GovernanceDashboardPage() {
         Cross-run snapshot (~30s refresh). A row opens workflow for that run.
       </p>
       <GovernanceDashboardReaderActionCue />
-      <EnterpriseExecutePlusPageCue message={governanceDashboardOperatorPlusLine} />
 
       {failure !== null ? (
         <div className="mb-6" role="alert">

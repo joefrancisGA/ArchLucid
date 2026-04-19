@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { recommendAlertThreshold } from "@/lib/api";
@@ -204,9 +203,8 @@ export default function AlertTuningPage() {
       <LayerHeader pageKey="alert-tuning" />
       <h2 style={{ marginTop: 0 }}>Alert tuning</h2>
       <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Use simulation output when noise or coverage is measurable.
+        Threshold suggestions below; bring simulation scores when tradeoffs matter.
       </p>
-      <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
         <div role="alert">

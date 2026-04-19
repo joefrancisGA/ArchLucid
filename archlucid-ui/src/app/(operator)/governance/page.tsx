@@ -31,7 +31,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import {
   activateEnvironment,
@@ -400,7 +399,6 @@ function GovernanceWorkflowPageInner() {
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {canMutateWorkflow ? governanceWorkflowPageLeadOperator : governanceWorkflowPageLeadReader}
       </p>
-      <EnterpriseControlsExecutePageHint />
 
       {toast ? (
         <div

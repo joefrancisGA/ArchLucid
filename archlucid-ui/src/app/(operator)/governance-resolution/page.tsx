@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { governanceResolutionPageSubline } from "@/lib/enterprise-controls-context-copy";
@@ -39,7 +38,6 @@ export default function GovernanceResolutionPage() {
       <p className="mb-1 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
         {governanceResolutionPageSubline}
       </p>
-      <GovernanceResolutionRankCue />
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem

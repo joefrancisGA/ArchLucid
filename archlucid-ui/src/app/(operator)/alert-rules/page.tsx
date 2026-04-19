@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
@@ -83,9 +82,8 @@ export default function AlertRulesPage() {
       <LayerHeader pageKey="alert-rules" />
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
       <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Current rules first; create and thresholds in the form below.
+        List above; new rules and thresholds below.
       </p>
-      <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
         <div role="alert">
