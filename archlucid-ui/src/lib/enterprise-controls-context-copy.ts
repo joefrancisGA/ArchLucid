@@ -76,6 +76,11 @@ export const governanceDashboardApproveSelectedButtonLabelReaderRank = "Approve 
 
 export const governanceDashboardRejectSelectedButtonLabelReaderRank = "Reject selected (Execute+)";
 
+/** Governance dashboard — pending queue heading (`governance/dashboard/page.tsx`). */
+export const governanceDashboardPendingApprovalsHeadingOperator = "Pending approvals";
+
+export const governanceDashboardPendingApprovalsHeadingReader = "Pending approvals (inspect)";
+
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator = "Load a run; follow status top to bottom.";
 
@@ -117,6 +122,28 @@ export const governanceWorkflowPendingReviewReaderNote =
 export const alertOperatorToolingReaderRankLine = "Inspect above · below: Execute+ config (API).";
 
 export const alertOperatorToolingOperatorRankLine = "Writes below: API-enforced.";
+
+/**
+ * Alert tuning — lead under page title (`alert-tuning/page.tsx`). **POST** recommendation is **ReadAuthority** on the
+ * API; persisting thresholds to production remains **Execute+** on Alert / composite rule routes.
+ */
+export const alertTuningPageLead =
+  "Scoring ranks candidate thresholds (Read on the API). Applying a winning threshold to production uses Alert rules or composite rules (Execute+).";
+
+/**
+ * Alert simulation — lead under page title (`alert-simulation/page.tsx`). Simulation **POST**s are **ReadAuthority**;
+ * live subscriptions and persisted rules are changed elsewhere (**Execute+**).
+ */
+export const alertSimulationPageLead =
+  "What-if tabs call simulation APIs (Read on the API). Enabling subscriptions or editing live rules stays on Alert routing or Alert rules (Execute+).";
+
+/** Alert tuning — primary **Recommend threshold** control (`alert-tuning/page.tsx`). */
+export const alertTuningRecommendButtonTitle =
+  "Run threshold recommendation (ReadAuthority on API; does not change live rules).";
+
+/** Alert simulation — **Simulate** / **Compare candidates** controls (`alert-simulation/page.tsx`). */
+export const alertSimulationRunControlTitle =
+  "Run what-if (ReadAuthority on API; no live rule or subscription changes from this page).";
 
 /** Alerts inbox — lead under title (Execute+); rank cue hidden — see `LayerHeader`. */
 export const alertsPageLeadOperator = "Filter, page, then triage per card.";

@@ -33,6 +33,8 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceDashboardApproveSelectedButtonLabelReaderRank,
+  governanceDashboardPendingApprovalsHeadingOperator,
+  governanceDashboardPendingApprovalsHeadingReader,
   governanceDashboardPendingClearReaderSupplement,
   governanceDashboardRejectSelectedButtonLabelReaderRank,
   governanceWorkflowApproveButtonLabelReaderRank,
@@ -372,7 +374,9 @@ export default function GovernanceDashboardPage() {
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 id="gov-dash-pending-heading" className="text-lg font-semibold">
-                  Pending approvals
+                  {canMutateGovernance
+                    ? governanceDashboardPendingApprovalsHeadingOperator
+                    : governanceDashboardPendingApprovalsHeadingReader}
                 </h3>
                 {pendingCount > 0 ? (
                   <Badge
