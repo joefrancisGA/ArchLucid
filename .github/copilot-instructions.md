@@ -58,7 +58,7 @@ Before approving a new helper, search the repo and the change description for an
 ### Infrastructure
 
 - **All infrastructure must be representable in Terraform** (`infra/terraform-*/`). Reject PRs that introduce Azure resources via portal-only steps, ARM templates, or one-off scripts without a corresponding Terraform change.
-- Historical resource addresses still use `archiforge` (e.g. `azurerm_api_management.archiforge`) — see `docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`. **Do not "fix" these** without coordinated `terraform state mv`.
+- **Greenfield IaC** uses `archlucid` Terraform resource labels; CI rejects the substring `archiforge` in any `infra/**/*.tf` file. Brownfield state migration (if any) is documented in `docs/archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md`.
 
 ### Data / DDL
 
@@ -75,8 +75,6 @@ Before approving a new helper, search the repo and the change description for an
 - `docs/ARCHLUCID_RENAME_CHECKLIST.md` itself
 - `docs/BREAKING_CHANGES.md` rows documenting **removed** legacy spellings
 - `docs/MULTI_TENANT_RLS.md` SQL object names: `rls.ArchiforgeTenantScope`, `rls.archiforge_scope_predicate`, migration file `036_RlsArchiforgeTenantScope.sql`
-- Terraform `moved` blocks where the **`from`** address is `archiforge.*`
-- APIM Azure API **name** `archiforge-api` (until operator-coordinated rename)
 - `.gitleaks.toml` dev-password allowlist entries
 
 ## C# / .NET coding conventions

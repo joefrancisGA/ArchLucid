@@ -1,11 +1,11 @@
 enable_storage_account = false
 create_resource_group    = false
-resource_group_name    = "rg-archiforge-data"
+resource_group_name    = "rg-archlucid-data"
 location               = "eastus2"
-storage_account_name   = "starchiforgeartifacts" # must be globally unique
+storage_account_name   = "starchlucidartifacts" # must be globally unique
 account_replication_type           = "LRS"
 public_network_access_enabled      = true # set false + use terraform-private private endpoint for production
 
 tags = {
-  workload = "archiforge"
+  workload = "archlucid"
 }

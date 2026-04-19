@@ -2,7 +2,7 @@
 
 ## Objective
 
-Give operators a single map of **Terraform roots** under `infra/`, how they compose, and what they intentionally **do not** replace (pipelines, org policy). ArchLucid uses **Terraform only** for Azure IaC in this repository (no Bicep roots here). Resource paths and variable names may still say `archlucid` until infra rename batches (see `docs/ARCHLUCID_RENAME_CHECKLIST.md`).
+Give operators a single map of **Terraform roots** under `infra/`, how they compose, and what they intentionally **do not** replace (pipelines, org policy). ArchLucid uses **Terraform only** for Azure IaC in this repository (no Bicep roots here). Greenfield IaC uses **`archlucid`** naming throughout `infra/`; first subscription deploy: [`FIRST_AZURE_DEPLOYMENT.md`](FIRST_AZURE_DEPLOYMENT.md).
 
 ## Assumptions
 

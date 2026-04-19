@@ -1,4 +1,3 @@
-using ArchLucid.Api.Middleware;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 

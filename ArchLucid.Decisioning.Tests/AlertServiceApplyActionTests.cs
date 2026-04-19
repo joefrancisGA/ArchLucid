@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;

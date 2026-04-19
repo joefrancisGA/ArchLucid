@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 using ArchLucid.Core.Integration;
 
 using FluentAssertions;
@@ -34,7 +32,10 @@ public sealed class IntegrationEventPublishingTests
             publisher.Object,
             logger.Object,
             "com.archlucid.test",
-            new { x = 1 },
+            new
+            {
+                x = 1
+            },
             messageId: null,
             CancellationToken.None);
 
@@ -60,7 +61,10 @@ public sealed class IntegrationEventPublishingTests
             publisher.Object,
             logger.Object,
             "com.archlucid.test",
-            new { x = 1 },
+            new
+            {
+                x = 1
+            },
             messageId: null,
             CancellationToken.None);
 

@@ -1,6 +1,5 @@
-# APIM Terraform addresses use `archlucid`; `moved` blocks in moved_archlucid_apim.tf migrate existing state.
-# The APIM API **name** in Azure remains `archiforge-api` until an operator-driven rename (would replace the API).
-# Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
+# APIM Terraform resource labels use `archlucid`. The API Management **API** Azure name is `archlucid-api`.
+# Greenfield: no `terraform state mv` required (see docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md stub).
 
 locals {
   apim_resource_group_name = local.apim_enabled ? (
@@ -39,7 +38,7 @@ resource "azurerm_api_management" "archlucid" {
 resource "azurerm_api_management_api" "archlucid" {
   count = local.apim_enabled ? 1 : 0
 
-  name                = "archiforge-api"
+  name                = "archlucid-api"
   api_management_name = azurerm_api_management.archlucid[0].name
   resource_group_name = local.apim_resource_group_name
   revision            = "1"

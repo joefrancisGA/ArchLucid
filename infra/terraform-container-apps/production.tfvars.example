@@ -7,7 +7,7 @@ create_resource_group   = true
 resource_group_name     = "rg-archlucid-ca-prod"
 location                = "eastus2"
 
-api_container_image = "<your-acr>.azurecr.io/archiforge:<prod-tag>"
+api_container_image = "<your-acr>.azurecr.io/archlucid:<prod-tag>"
 ui_container_image  = "<your-acr>.azurecr.io/archlucid-ui:<prod-tag>"
 
 # Log Analytics ingestion cap (adjust upward if legitimate telemetry exceeds the cap).

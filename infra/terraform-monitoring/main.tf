@@ -1,6 +1,4 @@
-# Grafana / folder / Prometheus rule group addresses use `archlucid`; see moved_archlucid_monitoring.tf for state migration.
-# Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
+# Grafana / folder / Prometheus rule group resource labels use `archlucid` (greenfield IaC; no `moved {}` blocks).
 #
 # Log Analytics workspace and daily ingestion cap (daily_quota_gb) are provisioned with the
 # Container Apps stack: see azurerm_log_analytics_workspace in infra/terraform-container-apps/main.tf

@@ -1,6 +1,4 @@
-# NOTE: APIM resource addresses use `archlucid` (see moved_archlucid_apim.tf). Other roots may still use `archiforge` until Phase 7.5 follow-ups.
-# Rename via `terraform state mv` during a planned maintenance window.
-# Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
+# Optional Consumption APIM root: resource labels use `archlucid` (see apim.tf). Phase 7.5 rename complete for greenfield IaC.
 
 locals {
   apim_enabled = var.enable_api_management

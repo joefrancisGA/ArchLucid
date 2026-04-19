@@ -4,6 +4,8 @@ ArchLucid splits Azure infrastructure into **optional Terraform roots** so local
 
 **First-time path:** **`docs/onboarding/day-one-sre.md`** (Terraform + Azure) and **`docs/START_HERE.md`** hub.
 
+**First Azure subscription (greenfield):** **`docs/FIRST_AZURE_DEPLOYMENT.md`** — backend config, apply order, smoke checks.
+
 **Ordered validate / apply (no merged state):** **`scripts/provision-landing-zone.ps1`** / **`scripts/provision-landing-zone.sh`** and **`docs/LANDING_ZONE_PROVISIONING.md`**. Example tfvars sketches: **`infra/environments/`**.
 
 | Root | Purpose | Default |
