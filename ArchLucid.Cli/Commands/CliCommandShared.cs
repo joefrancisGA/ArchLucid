@@ -133,8 +133,6 @@ internal static class CliCommandShared
         IReadOnlyList<ArchLucidApiClient.AgentTaskInfo> tasks,
         string? manifestVersion)
     {
-#pragma warning disable IDE0300 // Simplify collection initialization
-#pragma warning disable IDE0301 // Simplify collection initialization
         object summary = new
         {
             runId,
@@ -144,12 +142,10 @@ internal static class CliCommandShared
             manifestVersion,
             apiBaseUrl,
             tasks = tasks.Select(t => new { t.TaskId, agentType = (AgentType)t.AgentType, t.Objective }).ToArray(),
-            artifactUris = manifestVersion != null
-                ? new[] { $"{apiBaseUrl}/v1/architecture/manifest/{manifestVersion}" }
+            artifactUris = manifestVersion is not null
+                ? [$"{apiBaseUrl}/v1/architecture/manifest/{manifestVersion}"]
                 : Array.Empty<string>()
         };
-#pragma warning restore IDE0301 // Simplify collection initialization
-#pragma warning restore IDE0300 // Simplify collection initialization
         string json = JsonSerializer.Serialize(summary, JsonWriteIndented);
         File.WriteAllText(path, json);
     }

@@ -181,10 +181,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
         IReadOnlyList<ChatMessageContentPart> parts = completion.Content;
 
-        if (parts == null || parts.Count < 1)
-        {
-            throw new InvalidOperationException("Azure OpenAI returned no message content.");
-        }
+        if (parts is null || parts.Count < 1) throw new InvalidOperationException("Azure OpenAI returned no message content.");
 
         string? text = parts[0].Text;
 

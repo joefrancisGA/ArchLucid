@@ -8,7 +8,7 @@ public sealed class ReplayExamplesOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        if (operation.RequestBody?.Content == null)
+        if (operation.RequestBody?.Content is null)
             return;
 
         string path = context.ApiDescription.RelativePath ?? "";

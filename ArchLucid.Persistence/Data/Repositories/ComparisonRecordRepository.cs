@@ -325,7 +325,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             """;
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        string? tagsJson = tags == null || tags.Count == 0 ? null : System.Text.Json.JsonSerializer.Serialize(tags);
+        string? tagsJson = tags is null || tags.Count == 0 ? null : System.Text.Json.JsonSerializer.Serialize(tags);
         int rows = await connection.ExecuteAsync(new CommandDefinition(
             sql,
             new

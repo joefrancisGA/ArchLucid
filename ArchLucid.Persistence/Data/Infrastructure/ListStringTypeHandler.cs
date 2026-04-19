@@ -28,7 +28,7 @@ public sealed class ListStringTypeHandler : SqlMapper.TypeHandler<List<string>>
     public override void SetValue(IDbDataParameter parameter, List<string>? value)
     {
         parameter.DbType = DbType.String;
-        parameter.Value = value == null || value.Count == 0
+        parameter.Value = value is null || value.Count == 0
             ? DBNull.Value
             : JsonSerializer.Serialize(value);
     }

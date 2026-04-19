@@ -81,7 +81,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
                     x.TenantId == tenantId &&
                     x.WorkspaceId == workspaceId &&
                     x.ProjectId == projectId &&
-                    (status == null || x.Status == status))
+                    (status is null || x.Status == status))
                 .OrderByDescending(x => x.LastUpdatedUtc)
                 .Take(n)
                 .ToList();

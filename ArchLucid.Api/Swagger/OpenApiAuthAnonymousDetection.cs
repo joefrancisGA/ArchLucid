@@ -15,21 +15,12 @@ internal static class OpenApiAuthAnonymousDetection
     {
         IList<Microsoft.AspNetCore.Mvc.Filters.FilterDescriptor> filters = cad.FilterDescriptors;
 
-        if (filters.Any(static f => f.Filter is IAllowAnonymousFilter))
-        
-            return true;
-        
+        if (filters.Any(static f => f.Filter is IAllowAnonymousFilter)) return true;
 
-        if (cad.EndpointMetadata.Any(static m => m is AllowAnonymousAttribute))
-        
-            return true;
-        
+        if (cad.EndpointMetadata.Any(static m => m is AllowAnonymousAttribute)) return true;
 
-        if (cad.MethodInfo.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) != null)
-        
-            return true;
-        
+        if (cad.MethodInfo.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) is not null) return true;
 
-        return cad.ControllerTypeInfo.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) != null;
+        return cad.ControllerTypeInfo.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) is not null;
     }
 }
