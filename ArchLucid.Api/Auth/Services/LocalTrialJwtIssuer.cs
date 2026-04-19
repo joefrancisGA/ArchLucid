@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -70,13 +70,11 @@ public sealed class LocalTrialJwtIssuer : ILocalTrialJwtIssuer
         TrialLocalIdentityOptions local = _trialOptions.Value.LocalIdentity;
         string path = local.JwtPrivateKeyPemPath?.Trim() ?? string.Empty;
 
-        if (string.IsNullOrEmpty(path))
-            throw new InvalidOperationException("Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath is not configured.");
+        if (string.IsNullOrEmpty(path)) throw new InvalidOperationException("Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath is not configured.");
 
         string resolved = Path.IsPathRooted(path) ? path : Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), path));
 
-        if (!File.Exists(resolved))
-            throw new InvalidOperationException($"Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath points to a missing file: '{resolved}'.");
+        if (!File.Exists(resolved)) throw new InvalidOperationException($"Auth:Trial:LocalIdentity:JwtPrivateKeyPemPath points to a missing file: '{resolved}'.");
 
         string pem = File.ReadAllText(resolved);
 

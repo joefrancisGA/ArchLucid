@@ -54,8 +54,7 @@ public sealed class TenantTrialController(
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (tenant is null) return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         if (string.IsNullOrWhiteSpace(tenant.TrialStatus))
             return Ok(
@@ -114,8 +113,7 @@ public sealed class TenantTrialController(
         ScopeContext scope = _scopeProvider.GetCurrentScope();
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
-        if (tenant is null)
-            return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
+        if (tenant is null) return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
             return this.ConflictProblem("Tenant is not on an active self-service trial.", ProblemTypes.Conflict);
@@ -161,8 +159,7 @@ public sealed class TenantTrialController(
 
     private static TenantTier? MapRequestTier(string? label)
     {
-        if (string.IsNullOrWhiteSpace(label))
-            return null;
+        if (string.IsNullOrWhiteSpace(label)) return null;
 
 
         return string.Equals(label.Trim(), nameof(TenantTier.Enterprise), StringComparison.OrdinalIgnoreCase)

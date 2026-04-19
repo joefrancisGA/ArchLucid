@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ArchLucid.Api.ProblemDetails;
@@ -11,12 +11,10 @@ public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
-        if (context.ExceptionHandled)
-            return;
+        if (context.ExceptionHandled) return;
 
-        if (!ApplicationProblemMapper.TryMapUnhandledException(context.Exception, context.HttpContext, out ObjectResult? result))
-            return;
-        
+        if (!ApplicationProblemMapper.TryMapUnhandledException(context.Exception, context.HttpContext, out ObjectResult? result)) return;
+
         context.Result = result;
         context.ExceptionHandled = true;
     }

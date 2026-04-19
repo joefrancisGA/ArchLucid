@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Http;
@@ -66,8 +66,7 @@ public sealed class ExportsController(
         CancellationToken cancellationToken)
     {
         RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
-        if (record is null)
-            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (record is null) return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
         return Ok(new RunExportRecordResponse
         {
@@ -213,8 +212,7 @@ public sealed class ExportsController(
         bool recordReplayExport,
         CancellationToken cancellationToken)
     {
-        if (!recordReplayExport || string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId))
-            return;
+        if (!recordReplayExport || string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId)) return;
 
         Guid? auditRunId = Guid.TryParse(result.RunId, out Guid parsedRunId) ? parsedRunId : null;
 
@@ -255,7 +253,7 @@ public sealed class ExportsController(
             return new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) };
 
         RunExportRecord? right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
-        
+
         return right is null ? new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) } : new LoadedExportRecordPair { Left = left, Right = right };
     }
 

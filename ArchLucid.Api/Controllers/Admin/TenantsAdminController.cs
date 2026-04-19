@@ -1,4 +1,4 @@
-using ArchLucid.Api.ProblemDetails;
+﻿using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Tenancy;
 
@@ -41,8 +41,7 @@ public sealed class TenantsAdminController(ITenantRepository tenantRepository, I
         [FromBody] TenantProvisionAdminRequest? body,
         CancellationToken cancellationToken = default)
     {
-        if (body is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (body is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         try
         {

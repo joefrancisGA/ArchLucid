@@ -154,8 +154,7 @@ public sealed class BillingCheckoutController(
 
     private static BillingCheckoutTier ParseCheckoutTier(string? label)
     {
-        if (string.IsNullOrWhiteSpace(label))
-            return BillingCheckoutTier.Team;
+        if (string.IsNullOrWhiteSpace(label)) return BillingCheckoutTier.Team;
 
 
         return label.Trim() switch

@@ -141,8 +141,7 @@ public sealed class EvolutionSimulationService(
         EvolutionPlanSnapshotDocument? snapshot =
             JsonSerializer.Deserialize<EvolutionPlanSnapshotDocument>(candidate.PlanSnapshotJson, JsonOptions);
 
-        if (snapshot is null)
-            throw new InvalidOperationException("Stored plan snapshot is invalid JSON.");
+        if (snapshot is null) throw new InvalidOperationException("Stored plan snapshot is invalid JSON.");
 
 
         if (deleteExistingRunsForCandidate)

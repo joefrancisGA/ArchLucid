@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
@@ -41,8 +41,7 @@ public sealed class CompositeAlertRulesController(
         [FromBody] CompositeAlertRule? rule,
         CancellationToken ct = default)
     {
-        if (rule is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (rule is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -53,9 +52,9 @@ public sealed class CompositeAlertRulesController(
         rule.CreatedUtc = DateTime.UtcNow;
 
         foreach (AlertRuleCondition c in rule.Conditions.Where(c => c.ConditionId == Guid.Empty))
-        
+
             c.ConditionId = Guid.NewGuid();
-        
+
 
         await repository.CreateAsync(rule, ct);
 

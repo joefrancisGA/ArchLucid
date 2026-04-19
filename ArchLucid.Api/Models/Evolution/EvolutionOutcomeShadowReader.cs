@@ -15,8 +15,7 @@ internal static class EvolutionOutcomeShadowReader
         shadow = null;
         shadowKind = "none";
 
-        if (string.IsNullOrWhiteSpace(outcomeJson))
-            return;
+        if (string.IsNullOrWhiteSpace(outcomeJson)) return;
 
 
         try

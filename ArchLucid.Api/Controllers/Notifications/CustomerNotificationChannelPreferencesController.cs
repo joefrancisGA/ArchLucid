@@ -45,8 +45,7 @@ public sealed class CustomerNotificationChannelPreferencesController(
         TenantNotificationChannelPreferencesResponse? row =
             await _preferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken);
 
-        if (row is null)
-            return Ok(TenantNotificationChannelPreferencesResponse.Unconfigured(scope.TenantId));
+        if (row is null) return Ok(TenantNotificationChannelPreferencesResponse.Unconfigured(scope.TenantId));
 
 
         return Ok(row);

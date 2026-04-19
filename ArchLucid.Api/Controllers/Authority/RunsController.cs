@@ -59,8 +59,7 @@ public sealed partial class RunsController(
         [FromBody] ArchitectureRequest? request,
         CancellationToken cancellationToken)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
 
         string user = actorContext.GetActor();
@@ -239,8 +238,7 @@ public sealed partial class RunsController(
         [FromBody] DeterminismCheckRequest? request,
         CancellationToken cancellationToken)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         request.RunId = runId;
 
@@ -332,8 +330,7 @@ public sealed partial class RunsController(
         [FromBody] SubmitAgentResultRequest? request,
         CancellationToken cancellationToken)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
         SubmitResultResult result = await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
 
@@ -354,8 +351,7 @@ public sealed partial class RunsController(
         string correlationId = HttpContext.TraceIdentifier;
 
         SeedFakeResultsResult result = await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
-        if (!result.Success)
-            return MapApplicationServiceFailure(result.Error, result.FailureKind, "Seed failed.");
+        if (!result.Success) return MapApplicationServiceFailure(result.Error, result.FailureKind, "Seed failed.");
 
         LogFakeResultsSeeded(runId, result.ResultCount, user, correlationId);
 

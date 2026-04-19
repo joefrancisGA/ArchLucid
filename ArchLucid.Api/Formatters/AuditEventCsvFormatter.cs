@@ -27,12 +27,10 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
 
     protected override bool CanWriteType(Type? type)
     {
-        if (type is null)
-            return false;
+        if (type is null) return false;
 
 
-        if (type == typeof(string))
-            return false;
+        if (type == typeof(string)) return false;
 
 
         return typeof(IEnumerable<AuditEvent>).IsAssignableFrom(type);
@@ -106,8 +104,7 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
 
     private static string FormatNullableGuid(Guid? value)
     {
-        if (!value.HasValue)
-            return string.Empty;
+        if (!value.HasValue) return string.Empty;
 
 
         return value.Value.ToString("D", CultureInfo.InvariantCulture);
@@ -118,8 +115,7 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
     /// </summary>
     internal static string EscapeCsvField(string? value)
     {
-        if (string.IsNullOrEmpty(value))
-            return string.Empty;
+        if (string.IsNullOrEmpty(value)) return string.Empty;
 
 
         bool mustQuote =
@@ -128,8 +124,7 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
             || value.Contains('\r')
             || value.Contains('\n');
 
-        if (!mustQuote)
-            return value;
+        if (!mustQuote) return value;
 
 
         return "\"" + value.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";

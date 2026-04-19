@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authorization;
+﻿using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;
@@ -51,14 +51,11 @@ public sealed class ComparisonController(
         RunDetailDto? baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
         RunDetailDto? targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
 
-        if (baseRun is null)
-            return this.NotFoundProblem($"Run '{baseRunId}' was not found.", ProblemTypes.RunNotFound);
+        if (baseRun is null) return this.NotFoundProblem($"Run '{baseRunId}' was not found.", ProblemTypes.RunNotFound);
 
-        if (targetRun is null)
-            return this.NotFoundProblem($"Run '{targetRunId}' was not found.", ProblemTypes.RunNotFound);
+        if (targetRun is null) return this.NotFoundProblem($"Run '{targetRunId}' was not found.", ProblemTypes.RunNotFound);
 
-        if (baseRun.GoldenManifest is null)
-            return this.NotFoundProblem($"Run '{baseRunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
+        if (baseRun.GoldenManifest is null) return this.NotFoundProblem($"Run '{baseRunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
         if (targetRun.GoldenManifest is null)
             return this.NotFoundProblem($"Run '{targetRunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);

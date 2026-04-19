@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
@@ -45,8 +45,7 @@ public sealed class AlertTuningController(
         [FromBody] ThresholdRecommendationRequest? request,
         CancellationToken ct = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         StampTuningScope(scope, request);
@@ -85,8 +84,7 @@ public sealed class AlertTuningController(
             request.BaseSimpleRule.ProjectId = scope.ProjectId;
         }
 
-        if (request.BaseCompositeRule is null)
-            return;
+        if (request.BaseCompositeRule is null) return;
 
         request.BaseCompositeRule.TenantId = scope.TenantId;
         request.BaseCompositeRule.WorkspaceId = scope.WorkspaceId;

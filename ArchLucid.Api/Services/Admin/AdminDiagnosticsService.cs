@@ -81,8 +81,7 @@ public sealed class AdminDiagnosticsService(
     public async Task<DataConsistencyOrphanCounts> GetDataConsistencyOrphanCountsAsync(
         CancellationToken cancellationToken = default)
     {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new DataConsistencyOrphanCounts(0, 0, 0, 0);
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider)) return new DataConsistencyOrphanCounts(0, 0, 0, 0);
 
 
         DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
@@ -103,8 +102,7 @@ public sealed class AdminDiagnosticsService(
         int maxRows,
         CancellationToken cancellationToken = default)
     {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new OrphanComparisonRemediationResult(dryRun, 0, []);
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider)) return new OrphanComparisonRemediationResult(dryRun, 0, []);
 
 
         int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
@@ -130,12 +128,10 @@ public sealed class AdminDiagnosticsService(
 
         }
 
-        if (dryRun)
-            return new OrphanComparisonRemediationResult(true, candidateIds.Count, candidateIds);
+        if (dryRun) return new OrphanComparisonRemediationResult(true, candidateIds.Count, candidateIds);
 
 
-        if (candidateIds.Count == 0)
-            return new OrphanComparisonRemediationResult(false, 0, []);
+        if (candidateIds.Count == 0) return new OrphanComparisonRemediationResult(false, 0, []);
 
 
         List<string> deletedIds = [];
@@ -194,8 +190,7 @@ public sealed class AdminDiagnosticsService(
         int maxRows,
         CancellationToken cancellationToken = default)
     {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new OrphanGoldenManifestRemediationResult(dryRun, 0, []);
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider)) return new OrphanGoldenManifestRemediationResult(dryRun, 0, []);
 
 
         int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
@@ -221,12 +216,10 @@ public sealed class AdminDiagnosticsService(
 
         }
 
-        if (dryRun)
-            return new OrphanGoldenManifestRemediationResult(true, candidateIds.Count, candidateIds);
+        if (dryRun) return new OrphanGoldenManifestRemediationResult(true, candidateIds.Count, candidateIds);
 
 
-        if (candidateIds.Count == 0)
-            return new OrphanGoldenManifestRemediationResult(false, 0, []);
+        if (candidateIds.Count == 0) return new OrphanGoldenManifestRemediationResult(false, 0, []);
 
 
         List<string> deletedIds = [];
@@ -302,8 +295,7 @@ public sealed class AdminDiagnosticsService(
         int maxRows,
         CancellationToken cancellationToken = default)
     {
-        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-            return new OrphanFindingsSnapshotRemediationResult(dryRun, 0, []);
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider)) return new OrphanFindingsSnapshotRemediationResult(dryRun, 0, []);
 
 
         int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
@@ -329,12 +321,10 @@ public sealed class AdminDiagnosticsService(
 
         }
 
-        if (dryRun)
-            return new OrphanFindingsSnapshotRemediationResult(true, candidateIds.Count, candidateIds);
+        if (dryRun) return new OrphanFindingsSnapshotRemediationResult(true, candidateIds.Count, candidateIds);
 
 
-        if (candidateIds.Count == 0)
-            return new OrphanFindingsSnapshotRemediationResult(false, 0, []);
+        if (candidateIds.Count == 0) return new OrphanFindingsSnapshotRemediationResult(false, 0, []);
 
 
         List<string> deletedIds = [];

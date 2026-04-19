@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace ArchLucid.Api.Auth.Services;
 
@@ -11,8 +11,7 @@ internal static class ExternalIdIssuerPatterns
     /// <summary>Entra External ID (CIAM) v2.0 issuer pattern.</summary>
     public static bool IsConsumerIdentityIssuer(string? issuer)
     {
-        if (string.IsNullOrWhiteSpace(issuer))
-            return false;
+        if (string.IsNullOrWhiteSpace(issuer)) return false;
 
         return CiamV2Issuer.IsMatch(issuer.Trim());
     }

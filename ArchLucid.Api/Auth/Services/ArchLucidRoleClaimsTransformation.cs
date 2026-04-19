@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Core.Authorization;
 
@@ -33,13 +33,11 @@ public sealed class ArchLucidRoleClaimsTransformation : IClaimsTransformation
 
     public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
-        if (principal.Identity?.IsAuthenticated != true)
-            return Task.FromResult(principal);
+        if (principal.Identity?.IsAuthenticated != true) return Task.FromResult(principal);
 
         ClaimsPrincipal clone = principal.Clone();
 
-        if (clone.Identity is not ClaimsIdentity id)
-            return Task.FromResult(principal);
+        if (clone.Identity is not ClaimsIdentity id) return Task.FromResult(principal);
 
         HashSet<string> roles = new(StringComparer.OrdinalIgnoreCase);
         foreach (Claim c in clone.FindAll(ClaimTypes.Role))

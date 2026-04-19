@@ -1,4 +1,4 @@
-namespace ArchLucid.Api;
+﻿namespace ArchLucid.Api;
 
 public static class ApiPaging
 {
@@ -12,9 +12,8 @@ public static class ApiPaging
         id = null;
         error = null;
 
-        if (string.IsNullOrWhiteSpace(cursor))
-            return true;
-        
+        if (string.IsNullOrWhiteSpace(cursor)) return true;
+
 
         string[] parts = cursor.Split(':', 2);
         if (parts.Length != 2 || !long.TryParse(parts[0], out long ticks) || string.IsNullOrWhiteSpace(parts[1]))

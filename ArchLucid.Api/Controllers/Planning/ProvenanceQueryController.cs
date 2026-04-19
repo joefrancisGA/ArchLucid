@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authorization;
+﻿using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
@@ -61,8 +61,7 @@ public sealed class ProvenanceQueryController(
         string decisionKey,
         CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(decisionKey))
-            return this.BadRequestProblem("decisionKey is required.", ProblemTypes.BadRequest);
+        if (string.IsNullOrWhiteSpace(decisionKey)) return this.BadRequestProblem("decisionKey is required.", ProblemTypes.BadRequest);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await graphQuery.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);

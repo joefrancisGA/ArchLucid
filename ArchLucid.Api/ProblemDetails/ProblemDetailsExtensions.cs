@@ -184,8 +184,7 @@ public static class ProblemDetailsExtensions
         InvalidOperationException exception,
         string badRequestType)
     {
-        if (exception is ConflictException)
-            return controller.ConflictProblem(exception.Message, ProblemTypes.Conflict);
+        if (exception is ConflictException) return controller.ConflictProblem(exception.Message, ProblemTypes.Conflict);
 
         string? instance = controller.Request.Path.Value;
         return ApplicationProblemMapper.MapInvalidOperation(

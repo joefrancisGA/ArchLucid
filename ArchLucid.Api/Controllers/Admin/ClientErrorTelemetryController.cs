@@ -28,14 +28,12 @@ public sealed class ClientErrorTelemetryController(ILogger<ClientErrorTelemetryC
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult PostClientError([FromBody] ClientErrorReport? body)
     {
-        if (body is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        if (body is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
 
         string message = body.Message.Trim();
 
-        if (message.Length == 0)
-            return this.BadRequestProblem("Message is required.", ProblemTypes.ValidationFailed);
+        if (message.Length == 0) return this.BadRequestProblem("Message is required.", ProblemTypes.ValidationFailed);
 
 
         if (message.Length > ClientErrorTelemetryIngestLimits.MaxMessageLength)
@@ -85,8 +83,7 @@ public sealed class ClientErrorTelemetryController(ILogger<ClientErrorTelemetryC
 
     private static string? TruncateNullable(string? value, int maxLen)
     {
-        if (string.IsNullOrEmpty(value))
-            return null;
+        if (string.IsNullOrEmpty(value)) return null;
 
 
         string trimmed = value.Trim();

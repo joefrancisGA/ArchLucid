@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Contracts;
@@ -41,8 +41,7 @@ public sealed class AuthorityReplayController(
         [FromBody] ReplayRequestResponse? request,
         CancellationToken ct = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         string mode = string.IsNullOrWhiteSpace(request.Mode)
             ? ReplayMode.ReconstructOnly
@@ -56,8 +55,7 @@ public sealed class AuthorityReplayController(
             },
             ct);
 
-        if (result is null)
-            return this.NotFoundProblem($"Run '{request.RunId}' was not found.", ProblemTypes.RunNotFound);
+        if (result is null) return this.NotFoundProblem($"Run '{request.RunId}' was not found.", ProblemTypes.RunNotFound);
 
         await auditService.LogAsync(
             new AuditEvent

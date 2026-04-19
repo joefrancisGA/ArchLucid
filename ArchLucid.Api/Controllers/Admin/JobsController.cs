@@ -33,8 +33,7 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetJob([FromRoute] string jobId, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(jobId))
-            return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(jobId)) return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
 
         BackgroundJobInfo? info = await jobs.GetInfoAsync(jobId, cancellationToken);
         return info is null ? this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(info);
@@ -54,12 +53,10 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DownloadJobFile([FromRoute] string jobId, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(jobId))
-            return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
+        if (string.IsNullOrWhiteSpace(jobId)) return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
 
         BackgroundJobInfo? info = await jobs.GetInfoAsync(jobId, cancellationToken);
-        if (info is null)
-            return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
+        if (info is null) return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
 
         if (info.State != BackgroundJobState.Succeeded)
             return this.ConflictProblem(

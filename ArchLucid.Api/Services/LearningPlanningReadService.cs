@@ -69,8 +69,7 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
         ProductLearningImprovementPlanRecord? plan =
             await planningRepository.GetPlanAsync(planId, scope, cancellationToken);
 
-        if (plan is null)
-            return null;
+        if (plan is null) return null;
 
 
         ProductLearningImprovementThemeRecord? theme =

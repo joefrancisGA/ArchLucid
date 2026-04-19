@@ -46,16 +46,13 @@ internal static class RateLimitingRolePartitionBuilder
     {
         ClaimsPrincipal? user = http.User;
 
-        if (user?.Identity?.IsAuthenticated != true)
-            return "anon";
+        if (user?.Identity?.IsAuthenticated != true) return "anon";
 
 
-        if (user.IsInRole(ArchLucidRoles.Admin))
-            return "admin";
+        if (user.IsInRole(ArchLucidRoles.Admin)) return "admin";
 
 
-        if (user.IsInRole(ArchLucidRoles.Operator))
-            return "operator";
+        if (user.IsInRole(ArchLucidRoles.Operator)) return "operator";
 
 
         return "reader";

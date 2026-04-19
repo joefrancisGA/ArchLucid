@@ -87,8 +87,7 @@ public static class EvolutionSimulationReportBuilder
 
     private static EvolutionSimulationPlanSnapshotPayload? TryDeserializePlanSnapshot(string json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return null;
+        if (string.IsNullOrWhiteSpace(json)) return null;
 
 
         try

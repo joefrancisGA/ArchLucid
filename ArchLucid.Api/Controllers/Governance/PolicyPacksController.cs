@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authorization;
+﻿using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -49,8 +49,7 @@ public sealed class PolicyPacksController(
         [FromBody] CreatePolicyPackRequest? request,
         CancellationToken ct = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -78,8 +77,7 @@ public sealed class PolicyPacksController(
         [FromBody] PublishPolicyPackVersionRequest? request,
         CancellationToken ct = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         PolicyPackVersion version = await policyPacksApp.PublishVersionAsync(
             policyPackId,
@@ -104,8 +102,7 @@ public sealed class PolicyPacksController(
         [FromBody] AssignPolicyPackRequest? request,
         CancellationToken ct = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         string versionKey = request.Version.Trim();

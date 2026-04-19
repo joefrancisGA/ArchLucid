@@ -1,4 +1,4 @@
-using Microsoft.OpenApi;
+﻿using Microsoft.OpenApi;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -43,12 +43,10 @@ public sealed class PolicyPackExamplesOperationFilter : IOperationFilter
             _ => null,
         };
 
-        if (example is null)
-            return;
+        if (example is null) return;
 
         string controller = context.MethodInfo?.DeclaringType?.Name ?? "";
-        if (!controller.Contains("PolicyPacksController", StringComparison.Ordinal))
-            return;
+        if (!controller.Contains("PolicyPacksController", StringComparison.Ordinal)) return;
 
         string block = "\n\n### Example request body (JSON)\n\n```json\n" + example.Trim() + "\n```\n";
         string intro =

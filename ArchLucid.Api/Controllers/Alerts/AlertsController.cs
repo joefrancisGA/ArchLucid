@@ -96,8 +96,7 @@ public sealed class AlertsController(
         [FromBody] AlertActionRequest? request,
         CancellationToken ct = default)
     {
-        if (request is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (request is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         AlertRecord? existing = await alertRepository.GetByIdAsync(alertId, ct);
@@ -133,16 +132,13 @@ public sealed class AlertsController(
         [FromBody] AlertsAcknowledgeBatchRequest? body,
         CancellationToken ct = default)
     {
-        if (body is null)
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+        if (body is null) return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
 
-        if (body.AlertIds.Count == 0)
-            return this.BadRequestProblem("AlertIds must contain at least one id.", ProblemTypes.ValidationFailed);
+        if (body.AlertIds.Count == 0) return this.BadRequestProblem("AlertIds must contain at least one id.", ProblemTypes.ValidationFailed);
 
 
-        if (body.AlertIds.Count > 100)
-            return this.BadRequestProblem("At most 100 alert ids are allowed per request.", ProblemTypes.ValidationFailed);
+        if (body.AlertIds.Count > 100) return this.BadRequestProblem("At most 100 alert ids are allowed per request.", ProblemTypes.ValidationFailed);
 
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
@@ -160,8 +156,7 @@ public sealed class AlertsController(
 
         foreach (Guid alertId in body.AlertIds)
         {
-            if (!seen.Add(alertId))
-                continue;
+            if (!seen.Add(alertId)) continue;
 
 
             AlertRecord? existing = await alertRepository.GetByIdAsync(alertId, ct);
