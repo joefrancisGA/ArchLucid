@@ -672,28 +672,6 @@ public static class ArchLucidInstrumentation
                        || !string.IsNullOrEmpty(llmProviderId)
                        || !string.IsNullOrEmpty(llmDeploymentLabel);
 
-        TagList BuildTags()
-        {
-            TagList tags = new TagList();
-
-            if (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
-            {
-                tags.Add("tenant_id", tenantIdNormalized);
-            }
-
-            if (!string.IsNullOrEmpty(llmProviderId))
-            {
-                tags.Add("llm_provider", llmProviderId);
-            }
-
-            if (!string.IsNullOrEmpty(llmDeploymentLabel))
-            {
-                tags.Add("llm_deployment", llmDeploymentLabel);
-            }
-
-            return tags;
-        }
-
         if (promptTokens > 0)
         {
             if (hasTags)
@@ -716,6 +694,30 @@ public static class ArchLucidInstrumentation
             {
                 LlmCompletionTokensTotal.Add(completionTokens);
             }
+        }
+
+        return;
+
+        TagList BuildTags()
+        {
+            TagList tags = new TagList();
+
+            if (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
+            {
+                tags.Add("tenant_id", tenantIdNormalized);
+            }
+
+            if (!string.IsNullOrEmpty(llmProviderId))
+            {
+                tags.Add("llm_provider", llmProviderId);
+            }
+
+            if (!string.IsNullOrEmpty(llmDeploymentLabel))
+            {
+                tags.Add("llm_deployment", llmDeploymentLabel);
+            }
+
+            return tags;
         }
     }
 

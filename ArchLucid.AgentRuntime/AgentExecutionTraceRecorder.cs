@@ -94,7 +94,7 @@ public sealed class AgentExecutionTraceRecorder(
             estimated = _costEstimator.EstimateUsd(inTok, outTok);
         }
 
-        if (estimated is decimal estUsd && estUsd > 0m)
+        if (estimated is { } estUsd && estUsd > 0m)
         {
             ScopeContext costScope = _scopeContextProvider.GetCurrentScope();
 

@@ -30,7 +30,7 @@ public static class SqlOpenResilienceDefaults
                 ShouldHandle = new PredicateBuilder().Handle<Exception>(ex => SqlTransientDetector.IsTransient(ex)),
                 OnRetry = args =>
                 {
-                    if (logger is not null && args.Outcome.Exception is Exception ex)
+                    if (logger is not null && args.Outcome.Exception is { } ex)
                     {
                         logger.LogWarning(
                             ex,

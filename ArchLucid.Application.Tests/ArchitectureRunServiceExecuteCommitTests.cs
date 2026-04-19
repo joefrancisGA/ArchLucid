@@ -304,17 +304,6 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         Mock<IArchitectureRequestRepository> requestRepo = new();
         requestRepo.Setup(x => x.GetByIdAsync(requestId, It.IsAny<CancellationToken>())).ReturnsAsync(request);
 
-        static AgentTask TaskFor(string id, AgentType type, string rid) => new()
-        {
-            TaskId = id,
-            RunId = rid,
-            AgentType = type,
-            Objective = "o",
-            Status = AgentTaskStatus.Created,
-            CreatedUtc = DateTime.UtcNow,
-            EvidenceBundleRef = "eb",
-        };
-
         List<AgentTask> tasks =
         [
             TaskFor("t-topo", AgentType.Topology, runId),
@@ -338,16 +327,6 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
 
         Mock<IEvidenceBuilder> evidenceBuilder = new();
         evidenceBuilder.Setup(x => x.BuildAsync(runId, request, It.IsAny<CancellationToken>())).ReturnsAsync(package);
-
-        static AgentResult Res(string taskId, AgentType type, string rid) => new()
-        {
-            RunId = rid,
-            TaskId = taskId,
-            AgentType = type,
-            Confidence = 0.7,
-            ResultId = "r-" + taskId,
-            CreatedUtc = DateTime.UtcNow,
-        };
 
         List<AgentResult> fourResults =
         [
@@ -409,6 +388,28 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 null,
                 null),
             Times.Once);
+        return;
+
+        static AgentTask TaskFor(string id, AgentType type, string rid) => new()
+        {
+            TaskId = id,
+            RunId = rid,
+            AgentType = type,
+            Objective = "o",
+            Status = AgentTaskStatus.Created,
+            CreatedUtc = DateTime.UtcNow,
+            EvidenceBundleRef = "eb",
+        };
+
+        static AgentResult Res(string taskId, AgentType type, string rid) => new()
+        {
+            RunId = rid,
+            TaskId = taskId,
+            AgentType = type,
+            Confidence = 0.7,
+            ResultId = "r-" + taskId,
+            CreatedUtc = DateTime.UtcNow,
+        };
     }
 
     [Fact]
