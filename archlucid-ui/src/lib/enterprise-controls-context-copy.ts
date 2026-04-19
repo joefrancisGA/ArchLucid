@@ -81,6 +81,30 @@ export const governanceDashboardPendingApprovalsHeadingOperator = "Pending appro
 
 export const governanceDashboardPendingApprovalsHeadingReader = "Pending approvals (inspect)";
 
+/** Governance dashboard — signal sections above the pending queue (`governance/dashboard/page.tsx`). */
+export const governanceDashboardRecentDecisionsHeadingOperator = "Recent decisions";
+
+export const governanceDashboardRecentDecisionsHeadingReader = "Recent decisions (inspect)";
+
+export const governanceDashboardComplianceDriftHeadingOperator = "Compliance drift trend (last 30 days)";
+
+export const governanceDashboardComplianceDriftHeadingReader =
+  "Compliance drift trend (last 30 days) (inspect)";
+
+export const governanceDashboardChangeLogHeadingOperator = "Policy pack change log";
+
+export const governanceDashboardChangeLogHeadingReader = "Policy pack change log (inspect)";
+
+/** Governance dashboard — **Lineage** link on pending cards (GET detail). */
+export const governanceDashboardLineageLinkTitle = "Read-only approval and run lineage (GET).";
+
+/** Governance dashboard — **Review** opens workflow for the run (`governance/dashboard/page.tsx`). */
+export const governanceDashboardOpenWorkflowReviewTitleOperator =
+  "Open governance workflow for this run to continue promotion steps.";
+
+export const governanceDashboardOpenWorkflowReviewTitleReader =
+  "Open workflow for inspection; Approve or Reject in this shell need Execute+ (API).";
+
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator = "Load a run; follow status top to bottom.";
 
